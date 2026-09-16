@@ -38,7 +38,7 @@
           {% if section.id == 'pricing' %}
             <div class="km-pf-divider"></div><div class="kv-admin-tariffs" data-tariff-editor data-can-verify="0"><p>{{ ui.plans_hint }}</p>{{ form.pricing_plans }}{{ form.pricing_plans.errors }}<div data-tariff-list></div><button type="button" class="km-pf-btn km-pf-btn--ghost" data-tariff-add>{{ ui.add_plan }}</button></div>
           {% elif section.id == 'location' %}
-            <div class="km-pf-divider"></div>{% include "pages/includes/permanent_place_map.html" %}
+            <div class="km-pf-divider"></div>{% include "pages/includes/permanent_place_map.html" with location_admin=True %}
             <div class="km-pf-divider"></div><div data-pf-field="structured_schedule">{% include "includes/place_schedule_editor.html" with form=form variant="admin" editor_id="volunteer-schedule" %}</div>
           {% elif section.id == 'media' %}
             <div class="kv-admin-photos">{% if card.photo_url %}<img src="{{ card.photo_url }}" alt="{{ card.name }}" data-editor-photo-preview>{% else %}<img alt="{{ ui.photo_choose }}" data-editor-photo-preview hidden>{% endif %}</div>

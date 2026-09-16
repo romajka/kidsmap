@@ -328,6 +328,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, reverse("owner_place_edit", args=[self.manager_place.id]))
 
     def test_owner_can_open_published_place_for_editing(self):
+        self.manager_place.lat, self.manager_place.lng = 40.4093, 49.8671
+        self.manager_place.save(update_fields=["lat", "lng"])
         self.manager_place.status = Place.STATUS_PUBLISHED
         self.manager_place.is_active = True
         self.manager_place.save(update_fields=["status", "is_active", "updated_at"])
@@ -928,6 +930,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "Xəritə üçün hazırdır")
 
     def test_owner_manager_can_soft_delete_own_place(self):
+        self.manager_place.lat, self.manager_place.lng = 40.4093, 49.8671
+        self.manager_place.save(update_fields=["lat", "lng"])
         self.manager_place.is_active = True
         self.manager_place.save(update_fields=["is_active", "updated_at"])
 
@@ -1268,7 +1272,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                     "currency": "AZN",
                     "is_active": True,
                 }]),
-                "district": "Yasamal",
+                "district": "baku_khatai",
                 "metro": "",
                 "address": "Улица с ручной точкой 8",
                 "lat": "40.377700",
@@ -1430,6 +1434,43 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
         self.assertTrue(form.is_valid(), form.errors)
 
+    def test_owner_submission_accepts_a_short_description_when_canonical_readiness_is_complete(self):
+        from catalog.testcases.utils import ensure_quality_subcategory
+
+        form = OwnerPlaceCreateForm(
+            data={
+                "name_ru": "",
+                "name_az": "Qisa tesvirli mekan",
+                "name_en": "",
+                "description_ru": "",
+                "description_az": "Qısa təsvir.",
+                "description_en": "",
+                "lat": "40.4",
+                "lng": "49.8",
+                "pricing_plans": json.dumps([{"product_type": "lesson", "price_kind": "on_request"}]),
+                "category": "EDU",
+                "subcategory": str(ensure_quality_subcategory("EDU").pk),
+                "age_from": "6",
+                "age_to": "12",
+                "region": "baku",
+                "district": "Yasamal",
+                "metro": "",
+                "address": "Baki, Nizami kucesi 10",
+                "phone1": "+994501112233",
+                "instagram": "",
+                "website": "",
+                "schedule": "",
+                "structured_schedule": build_structured_schedule_payload(),
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+                "moderation_note": "",
+            },
+            files=MultiValueDict({"photo": [self._image_upload("short-description.png")]}),
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
     def test_owner_place_create_requires_description_in_azerbaijani(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
         response = self.client.post(
@@ -1467,7 +1508,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertIn("description_az", response.context["form"].errors)
         self.assertFalse(Place.objects.filter(name_ru="Карточка без описания").exists())
 
-    def test_owner_place_create_requires_region(self):
+    def test_owner_place_create_requires_point_when_region_cannot_be_resolved(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
         response = self.client.post(
             reverse("owner_place_create"),
@@ -1501,7 +1542,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("region", response.context["form"].errors)
+        self.assertIn("district", response.context["form"].errors)
+        self.assertIn("lat", response.context["form"].errors)
         self.assertNotIn("metro", response.context["form"].errors)
         self.assertFalse(Place.objects.filter(name_ru="Карточка без локации").exists())
 
@@ -1867,7 +1909,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "age_to": "",
                 "price_from": "",
                 "price_to": "",
-                "district": "Nərimanov",
+                "district": "baku_binagadi",
                 "metro": "Gənclik",
                 "address": "Новый адрес вручную 15",
                 "lat": "40.455500",

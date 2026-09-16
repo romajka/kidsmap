@@ -1,5 +1,4 @@
 """Admin presentation for the existing restricted proposal form; no write policy."""
-from dataclasses import replace
 from catalog.services.permanent_place_rules import copy as t
 from catalog.services.place_readiness import evaluate_form_readiness
 from catalog.volunteer_forms import CONTENT_FIELDS
@@ -7,7 +6,7 @@ from catalog.volunteer_forms import CONTENT_FIELDS
 
 def editor_context(form):
     readiness = evaluate_form_readiness(form, form.instance)
-    issues = [replace(issue, field='district') if issue.field == 'region' else issue for issue in readiness.issues]
+    issues = readiness.issues
     definitions = [
         ('basics', t('Основное', 'Əsas məlumat', 'Basics'), 'tune', t('Название, описание и рубрика карточки.', 'Kartın adı, təsviri və kateqoriyası.', 'Name, description and category.')),
         ('pricing', t('Цена и возраст', 'Qiymət və yaş', 'Price and age'), 'payments', t('Возраст детей, стоимость и условия занятий.', 'Uşaqların yaşı, qiymət və məşğələ şərtləri.', 'Age range, pricing and lesson details.')),
@@ -31,7 +30,7 @@ def editor_context(form):
             optional=[field for field in fields if field.name.startswith(('custom_price_badge_', 'extra_conditions', 'additional_info'))],
             state=dict(state=state, icon={'error':'error','done':'check_circle','partial':'radio_button_checked','empty':'radio_button_unchecked'}[state], label=f'{done} / {len(items)}' if items else '')))
     return dict(volunteer_sections=sections, editor_readiness=readiness, editor_issues=issues,
-        km_place_required_fields={'district' if item.requirement.field == 'region' else item.requirement.field for item in readiness.items},
+        km_place_required_fields={item.requirement.field for item in readiness.items},
         km_place_language_tabs=[dict(code=lang, label=lang.upper(), optional=lang != 'az', name_field=form[f'name_{lang}'], description_field=form[f'description_{lang}']) for lang in ('az','ru','en')],
         editor_copy=dict(
             instruction=t('Инструкция', 'Təlimat', 'Instructions'),

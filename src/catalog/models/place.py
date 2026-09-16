@@ -101,6 +101,9 @@ class Place(models.Model):
     )
     offers_adult_classes = models.BooleanField(_("Также есть занятия для взрослых"), default=False)
 
+    city = models.CharField(_("Город"), max_length=100, blank=True, default="", editable=False)
+    location_resolution_status = models.CharField(max_length=32, default="legacy", editable=False)
+    location_dataset_version = models.CharField(max_length=64, blank=True, default="", editable=False)
     district = models.CharField(_("Регион / район"), max_length=100, blank=True)
     metro = models.CharField(_("Метро"), max_length=100, blank=True)
     address = models.CharField(_("Адрес"), max_length=255, blank=True)
@@ -616,8 +619,17 @@ class Place(models.Model):
                 changed = populate_missing_place_slugs(self, update_fields=update_fields, previous=previous)
             if update_fields is not None:
                 kwargs['update_fields'] = update_fields | changed
+            from catalog.services.location_assignment import prepare_place_location
+            location_fields, location_audit = prepare_place_location(
+                self, previous=previous, update_fields=update_fields, using=using)
+            if update_fields is not None:
+                kwargs['update_fields'] |= location_fields
             kwargs['using'] = using
-            return self._save_place(*args, **kwargs)
+            result = self._save_place(*args, **kwargs)
+            if location_audit:
+                self.location_overrides.using(using).create(place=self, **location_audit)
+                del self._location_override_request
+            return result
 
     def _save_place(self, *args, **kwargs):
         pending_pricing = getattr(self, "_pending_pricing_plans", None)
@@ -648,6 +660,7 @@ class Place(models.Model):
 
     class Meta:
         ordering = ("-created_at",)
+        permissions = [("override_place_location", "Can override coordinate-based place location")]
         verbose_name = _("Постоянное место")
         verbose_name_plural = _("Постоянные места")
 

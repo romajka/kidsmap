@@ -184,6 +184,9 @@ class OwnerPlacesController:
             }
         if geocoding_result.reason == "provider_not_configured":
             return _("Не удалось проверить координаты: сервис геокодирования не настроен.")
+        if geocoding_result.reason == "location_unresolved":
+            from catalog.services.location_assignment import UNRESOLVED_MESSAGE
+            return str(UNRESOLVED_MESSAGE)
         if geocoding_result.reason == "not_found":
             return _("Не удалось найти координаты по указанному адресу.")
         return _("Не удалось проверить координаты: укажите адрес.")
@@ -205,6 +208,9 @@ class OwnerPlacesController:
             return _("Изменения сохранены. Координаты уже актуальны.")
         if geocoding_result.reason == "provider_not_configured":
             return _("Изменения сохранены, но сервис геокодирования не настроен.")
+        if geocoding_result.reason == "location_unresolved":
+            from catalog.services.location_assignment import UNRESOLVED_MESSAGE
+            return str(UNRESOLVED_MESSAGE)
         if geocoding_result.reason == "not_found":
             return _("Изменения сохранены, но координаты по указанному адресу не найдены.")
         return _("Изменения сохранены, но для геокодирования нужен адрес.")

@@ -346,10 +346,10 @@ PLACE_READINESS_REQUIREMENTS: tuple[ReadinessRequirement, ...] = (
     ),
     ReadinessRequirement(
         code="region",
-        label=_("Город / регион"),
+        label=_("Район / регион"),
         section=SECTION_LOCATION,
-        field="region",
-        anchor="id_region",
+        field="district",
+        anchor="id_district",
         check=_check_region,
         client_check="region",
     ),

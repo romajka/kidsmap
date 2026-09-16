@@ -101,28 +101,26 @@ class VolunteerAccessTests(TestCase):
         self.assertTrue(place.is_active)
         self.assertEqual(place.volunteer_revision.payload['name_az'], 'After')
 
-    def test_volunteer_location_uses_admin_region_district_contract(self):
+    def test_volunteer_location_uses_coordinates_and_rejects_forged_region(self):
         from catalog.services.volunteer_places import editor_form
-
-        place = create_ready_place(created_by=self.user, district='baku_yasamal')
+        place = create_ready_place(created_by=self.user, lat=40.39, lng=49.81)
         form = editor_form(place)
-
         self.assertEqual(form['region'].value(), 'baku')
         self.assertEqual(form['district'].value(), 'baku_yasamal')
-
         url = f'/admin/volunteer/{place.pk}/edit/'
         data = self.editor_data(url, region='ganja', district='')
         data['action'] = 'draft'
         response = self.client.post(url, data)
-        self.assertEqual(response.status_code, 302)
-        revision = VolunteerPlaceRevision.objects.get(place=place)
-        self.assertEqual(revision.payload['district'], 'ganja')
-
-        data = self.editor_data(url, region='ganja', district='baku_yasamal')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('region', response.context['form'].errors)
+        self.assertFalse(VolunteerPlaceRevision.objects.filter(place=place).exists())
+        # A moved pin replaces the old district even without JavaScript.
+        data = self.editor_data(url, lat='40.4093', lng='49.8671')
         data['action'] = 'draft'
         response = self.client.post(url, data)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('district', response.context['form'].errors)
+        self.assertEqual(response.status_code, 302)
+        revision = VolunteerPlaceRevision.objects.get(place=place)
+        self.assertEqual(revision.payload['district'], 'baku_narimanov')
 
     def test_content_snapshot_matches_shared_editable_contract(self):
         from catalog.services.volunteer_places import content_snapshot
@@ -147,7 +145,7 @@ class VolunteerAccessTests(TestCase):
             name_az='Approved title',
             age_from=3,
             age_to=9,
-            district='baku_yasamal',
+            district='baku_yasamal', lat=40.39, lng=49.81,
         )
         revision = self.submit(
             place,

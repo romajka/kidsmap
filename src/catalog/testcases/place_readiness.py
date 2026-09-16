@@ -3,6 +3,7 @@
 import json
 
 from django.test import TestCase
+from django.utils.translation import override
 
 from catalog.models import Category, Place, PricingPlan, Subcategory
 from catalog.services.content_quality import (
@@ -52,6 +53,9 @@ class PlaceReadinessRulesTests(TestCase):
                     )
                     overrides = {"category": empty_category}
                 place = create_ready_place(**overrides)
+                if code == "region":
+                    # A pre-existing legacy record can still lack a district.
+                    place.district = ""
 
                 readiness = evaluate_place_readiness(place)
 
@@ -60,6 +64,21 @@ class PlaceReadinessRulesTests(TestCase):
                 self.assertEqual(readiness.completed_count, 11)
                 self.assertEqual(readiness.percentage, 92)
 
+    def test_location_reports_the_persisted_district_as_the_missing_fifth_item(self):
+        with override("ru"):
+            place = create_ready_place()
+            Place.objects.filter(pk=place.pk).update(district="", location_resolution_status="legacy")
+            place.refresh_from_db()
+
+            readiness = evaluate_place_readiness(place)
+            location_items = [item for item in readiness.items if item.requirement.section == "location"]
+
+            self.assertEqual([item.code for item in location_items], ["region", "address", "coordinates", "phone", "schedule"])
+            self.assertEqual(sum(item.is_complete for item in location_items), 4)
+            self.assertEqual(location_items[0].requirement.field, "district")
+            self.assertEqual(location_items[0].label, "Район / регион")
+
+    @override("ru")
     def test_schedule_requires_at_least_one_open_day_in_weekly_mode(self):
         place = create_ready_place(with_schedule_days=False, schedule="")
 
@@ -151,6 +170,7 @@ class PlaceReadinessRulesTests(TestCase):
 
         self.assertTrue(evaluate_place_readiness(place).is_ready)
 
+    @override("ru")
     def test_legacy_scalar_price_does_not_satisfy_the_price_item(self):
         """Old ``price_*`` values still show on the site but must be migrated."""
 
@@ -361,6 +381,7 @@ class PlaceAdminFormReadinessTests(TestCase):
         data.update(overrides)
         return data
 
+    @override("ru")
     def test_publish_is_refused_with_the_concrete_missing_items(self):
         from catalog.domain_admin.place import PlaceAdminForm
 
@@ -374,16 +395,18 @@ class PlaceAdminFormReadinessTests(TestCase):
         self.assertFalse(form.is_valid())
         summary = " ".join(form.errors.get("__all__", []))
         self.assertIn("Карточка не может быть опубликована", summary)
-        self.assertIn("10 из 12 обязательных пунктов", summary)
+        self.assertIn("9 из 12 обязательных пунктов", summary)
         # Labels are localized, so pin the verdict on the codes and check that
         # the message actually spells the reasons out.
         self.assertEqual(
             sorted(issue.code for issue in form.place_readiness.issues),
-            ["coordinates", "phone"],
+            ["coordinates", "phone", "region"],
         )
         for issue in form.place_readiness.issues:
             self.assertIn(issue.message, summary)
         # The same reasons are attached to the fields the editor has to fix.
+        # Removing the point also clears its district; all three are missing.
+        self.assertIn("district", form.errors)
         self.assertIn("phone1", form.errors)
         self.assertIn("lat", form.errors)
 
@@ -411,6 +434,7 @@ class PlaceAdminFormReadinessTests(TestCase):
         )
         self.assertEqual(form.place_readiness.completed_count, 10)
 
+    @override("ru")
     def test_compatibility_does_not_apply_to_a_new_card(self):
         from catalog.domain_admin.place import PlaceAdminForm
 
@@ -436,6 +460,7 @@ class PlaceAdminFormReadinessTests(TestCase):
             " ".join(form.errors.get("__all__", [])),
         )
 
+    @override("ru")
     def test_unpublished_legacy_card_needs_a_full_readiness_again(self):
         from catalog.domain_admin.place import PlaceAdminForm
 
@@ -490,6 +515,24 @@ class PlaceAdminFormReadinessTests(TestCase):
             [item["code"] for item in self._summary(form, place)["missing"]],
             ["subcategory"],
         )
+
+    def test_location_section_names_the_missing_district(self):
+        from catalog.domain_admin.place import PlaceAdmin, PlaceAdminForm
+        from django.contrib.admin.sites import AdminSite
+
+        with override("ru"):
+            place = create_ready_place()
+            form = PlaceAdminForm(data=self._payload(place, district="", lat="0", lng="0"), instance=place)
+            self.assertFalse(form.is_valid())
+            self.assertIn("district", form.errors)
+
+            admin_instance = PlaceAdmin(Place, AdminSite())
+            summary = admin_instance._build_place_form_summary(form=form, obj=place)
+            states = admin_instance._build_place_section_states(summary, [])
+
+            self.assertEqual(states["location"]["done"], 4)
+            self.assertEqual(states["location"]["total"], 5)
+            self.assertEqual(states["location"]["missing_message"], "Не заполнено: Район / регион")
 
     def _summary(self, form, place):
         from catalog.domain_admin.place import PlaceAdmin

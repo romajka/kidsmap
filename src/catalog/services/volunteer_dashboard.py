@@ -55,7 +55,7 @@ def display_card(place):
         detail_url=reverse('admin:volunteer_detail',args=[place.pk]), edit_url=reverse('admin:volunteer_edit',args=[place.pk]),
         photo_url=reverse('admin:volunteer_photo',args=[place.pk,'main']) if candidate.photo or candidate.cover_photo else '',
         public_url=place.get_absolute_url() if public else '', public=public, proposed=proposed, note=note,
-        readiness=readiness, readiness_issues=[replace(issue, field="district") if issue.field == "region" else issue for issue in readiness.issues], updated_at=place.activity_at, description=getattr(candidate,f'description_{language}', '') or candidate.description_az or candidate.description_ru or candidate.description_en,
+        readiness=readiness, readiness_issues=readiness.issues, updated_at=place.activity_at, description=getattr(candidate,f'description_{language}', '') or candidate.description_az or candidate.description_ru or candidate.description_en,
         schedule=build_schedule_summary(payload.get('structured_schedule', [])) or candidate.schedule,
     )
 

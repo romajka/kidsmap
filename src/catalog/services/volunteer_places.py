@@ -256,7 +256,9 @@ def review_form(revision):
     data["pricing_plans"] = json.dumps(data.get("pricing_plans", []))
     data["structured_schedule"] = dump_schedule_payload(data.get("structured_schedule", []))
     data.update(base_token=base_token(revision.place), revision_version=revision.version)
-    return VolunteerPlaceForm(data, instance=candidate)
+    form = VolunteerPlaceForm(data, instance=candidate)
+    form.location_publication_required = True
+    return form
 
 
 @transaction.atomic

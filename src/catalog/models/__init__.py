@@ -1,3 +1,4 @@
+from .location_override import PlaceLocationOverride
 from .category import Category, Subcategory
 from .place import Place, PlacePhoto, PlaceScheduleDay, PlaceScheduleInterval, Event, EventPhoto, PlaceLike, PlaceReviewsByClub
 from .user import AccountDeletionAudit, AccountDeletionRequest, UserProfile, SiteRegisteredUser, StaffAccessUser, UserEmailVerification
@@ -13,6 +14,7 @@ from .analytics import AnalyticsActorExclusion, AnalyticsIngressDaily
 from .rating_ranking import RatingRankingCalibration
 
 __all__ = [
+    'PlaceLocationOverride',
     'PlaceReviewCooldown',
     'VolunteerPlaceRevision',
     'StaffRoleAudit',

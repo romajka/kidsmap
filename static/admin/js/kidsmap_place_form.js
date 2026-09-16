@@ -490,19 +490,7 @@
     var coordChip = qs("[data-pf-coord-chip]", root);
     var headerCoordChip = qs("[data-pf-coords-chip]", root);
 
-    // Reserved for the future "district detected from coordinates" feature: the
-    // hint stays hidden until a backend fills it, but the escape hatch works.
-    on(qs("[data-pf-district-manual]", root), "click", function () {
-      var district = document.getElementById("id_district");
-      var hint = qs("[data-pf-district-auto]", root);
-      if (hint) hint.hidden = true;
-      if (district) {
-        district.focus();
-        if (window.jQuery && district.classList.contains("select2-hidden-accessible")) {
-          try { window.jQuery(district).select2("open"); } catch (error) { /* ignore */ }
-        }
-      }
-    });
+
 
     on(qs("[data-pf-coord-manual]", root), "click", function () {
       if (!coordFields) return;
@@ -880,7 +868,7 @@
       return qsa(".km-pf-field.is-error, .km-pf-field__error", section).length;
     }
 
-    function paintSection(sectionId, done, total) {
+    function paintSection(sectionId, done, total, missingLabels) {
       var section = document.getElementById(sectionId);
       var navItem = qs('[data-pf-nav-for="' + sectionId + '"]', root);
       var hasError = sectionErrorCount(sectionId) > 0;
@@ -892,6 +880,9 @@
         empty: "radio_button_unchecked"
       };
       var label = hasError ? (labels.labelError || "Есть ошибка") : (total ? done + " из " + total : "");
+      var missingMessage = missingLabels.length
+        ? (labels.labelMissing || "Не заполнено: %(items)s").replace("%(items)s", missingLabels.join(", "))
+        : "";
 
       if (section) {
         ["is-done", "is-partial", "is-error", "is-empty"].forEach(function (name) {
@@ -904,6 +895,11 @@
           setIcon(qs("[data-place-section-state-icon]", badge) || qs("svg", badge), icons[state]);
           if (badgeText) badgeText.textContent = label;
         }
+        var sectionMissing = qs("[data-place-section-missing]", section);
+        if (sectionMissing) {
+          sectionMissing.textContent = missingMessage;
+          sectionMissing.hidden = !missingMessage;
+        }
       }
       if (navItem) {
         ["is-done", "is-partial", "is-error", "is-empty"].forEach(function (name) {
@@ -913,6 +909,11 @@
         var navSub = qs("[data-pf-nav-sub]", navItem);
         setIcon(qs("[data-pf-nav-icon]", navItem), icons[state]);
         if (navSub) navSub.textContent = label;
+        var navMissing = qs("[data-pf-nav-missing]", navItem);
+        if (navMissing) {
+          navMissing.textContent = missingMessage;
+          navMissing.hidden = !missingMessage;
+        }
       }
     }
 
@@ -958,9 +959,10 @@
       CHECKLIST.forEach(function (item) {
         var filled = item.isFilled();
         if (filled) done += 1; else missing.push(item);
-        var bucket = perSection[item.section] || (perSection[item.section] = { done: 0, total: 0 });
+        var bucket = perSection[item.section] || (perSection[item.section] = { done: 0, total: 0, missingLabels: [] });
         bucket.total += 1;
         if (filled) bucket.done += 1;
+        else bucket.missingLabels.push(item.label);
       });
 
       var total = CHECKLIST.length;
@@ -994,9 +996,9 @@
       }
 
       Object.keys(perSection).forEach(function (sectionId) {
-        paintSection(sectionId, perSection[sectionId].done, perSection[sectionId].total);
+        paintSection(sectionId, perSection[sectionId].done, perSection[sectionId].total, perSection[sectionId].missingLabels);
       });
-      paintSection("verification", done, total);
+      paintSection("verification", done, total, []);
 
       renderIssues(missing);
       if (readyBanner) readyBanner.hidden = !ready;

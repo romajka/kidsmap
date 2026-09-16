@@ -31,17 +31,19 @@
         {% include "admin/catalog/place/form/_field.html" with field=form.region %}
         <div class="km-pf-district" data-km-admin-district-box>
           {% include "admin/catalog/place/form/_field.html" with field=form.district %}
-          {# Placeholder for the future "district detected from coordinates" hint. #}
-          <p class="km-pf-district__auto" data-pf-district-auto hidden>
-            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check_circle"></use></svg>
-            <span>{% translate "Определён автоматически" %}</span>
-            <button type="button" class="km-pf-linkbtn" data-pf-district-manual>{% translate "Изменить вручную" %}</button>
-          </p>
+
         </div>
         <div data-km-admin-metro-box>
           {% include "admin/catalog/place/form/_field.html" with field=form.metro optional=True %}
         </div>
       </div>
+      {% include "includes/location_resolution.html" with location_admin=True %}
+      {% if form.location_override_reason %}
+        <details class="km-pf-disclosure"{% if form.location_override_reason.errors or form.location_override_reason.value %} open{% endif %}>
+          <summary class="km-pf-disclosure__summary">{% translate "Изменить вручную" %}</summary>
+          {% include "admin/catalog/place/form/_field.html" with field=form.location_override_reason wide=True hint=form.location_override_reason.help_text %}
+        </details>
+      {% endif %}
       {% include "admin/catalog/place/form/_field.html" with field=form.address wide=True %}
     </div>
 

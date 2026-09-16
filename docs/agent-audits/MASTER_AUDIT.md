@@ -77,3 +77,13 @@ Domain reports: [Backend](2026-09-08-project/backend.md), [Security](2026-09-08-
 **P0 не установлен. P1: SEC-01, SEC-02, BE-01, OPS-01, DB-01.** Остальные дефекты и условные риски — P2/P3 с границами в domain reports. Сначала согласовать узкий план P1; проект не объявляется полностью проверенным или готовым к релизу.
 
 Final scope verification: all2686 tracked-file hashes match the audit start, application/infra diff against HEAD is empty, git diff --check passes. Ten domain reports have nine required sections; master links resolve. Local fixture server session ended with exit0. Only audit documentation was produced/updated; application and prior tracked work were preserved.
+
+## Дополнение 2026-09-16: поисковая выдача и индексируемость
+
+Новый отдельный AUDIT ONLY: [подробный отчёт](SEO_SEARCH_AUDIT_2026-09-16.md), [реестр 288 URL](SEO_URL_INVENTORY_2026-09-16.md), [source review](SEO_SOURCE_2026-09-16.md). Текущий local/server HEAD `01d330ba97397951d7f493670573391708436393`; старые выводы этого документа не переобъявляются актуальными.
+
+Все 270 sitemap URL отвечают 200, имеют self-canonical и открыты для индексации; все 75 опубликованных карточек представлены на AZ/RU/EN. Выявлены политика noindex/canonical пагинации, вероятный дубль ABBA 19/20, FAQ вне sitemap и противоречивые условия внешней вакансии Holo. Чужие snippets сами по себе не доказывают санкций. AZJOB отдаёт разные ответы по User-Agent, поэтому первоначальная гипотеза удаления объявления не подтверждена. Фактический Google index и эффективность ожидают Search Console; доступа к кабинету в сессии пока нет. Приложение/production не изменялись; рекомендации не являются разрешением на исправления.
+
+### Последующее внедрение 16 сентября (новое разрешение пользователя)
+
+Пользователь подключил Search Console, затем прямо поручил выполнить SEO-улучшения с доступом к Git/серверу. Выпущен `f8005bb0a2308588b183a09890f35b659bc3f44f`: host redirect и отдельный robots для admin, индексируемая чистая пагинация каталога, FAQ в sitemap. 16 точечных Django-тестов успешны; публичные HTTPS-проверки успешны. Sitemap теперь 273 URL, включая 225 URL карточек. IndexNow принял 240 canonical URL (HTTP 200). Карточки 59, 63 и 45 уже индексируются по индивидуальной инспекции GSC — старые исключения не являются текущими дефектами. [Результат и границы](SEO_IMPLEMENTATION_2026-09-16.md).

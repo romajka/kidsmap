@@ -422,6 +422,16 @@
   font-weight: 500;
 }
 
+.km-pf .km-pf-navitem__missing {
+  display: block;
+  grid-column: 2 / -1;
+  margin-top: 2px;
+  font-size: 10px;
+  line-height: 1.3;
+  color: var(--pf-warn-text, #b45309);
+  overflow-wrap: anywhere;
+}
+
 .km-pf .km-pf-navitem.is-current .km-pf-navitem__sub {
   color: var(--pf-accent, #0d8250) !important;
   font-weight: 600 !important;
@@ -630,6 +640,16 @@
   color: var(--pf-caption);
   white-space: nowrap;
   flex: 0 0 auto;
+}
+
+.km-pf .km-pf-section__missing {
+  max-width: min(42%, 340px);
+  margin-left: auto;
+  font-size: 11px;
+  line-height: 1.35;
+  text-align: right;
+  color: var(--pf-warn-text, #b45309);
+  overflow-wrap: anywhere;
 }
 
 .km-pf .km-pf-section__badge .km-i { width: 15px;
@@ -3993,6 +4013,8 @@
   .km-pf .km-pf__stickybar { display: flex; }
 
   .km-pf .km-pf__nav {
+    /* Wrapped navigation must not cover the location result or form fields. */
+    position: static;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
     overflow: visible;

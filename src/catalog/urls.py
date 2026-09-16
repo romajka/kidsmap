@@ -1,3 +1,4 @@
+from .controllers.location_resolution import location_resolve
 from django.contrib.auth import views as auth_views
 from django.urls import path, re_path, reverse_lazy
 
@@ -76,6 +77,7 @@ from .views import (
 )
 
 urlpatterns = [
+    path("api/location/resolve/", location_resolve, name="location_resolve"),
     path("account/photos/prepare/", prepare_owner_photo, name="owner_photo_prepare"),
     path("account/places/<int:pk>/photo-thumbnail/<int:photo_id>/", owner_photo_thumbnail, name="owner_photo_thumbnail"),
     path("account/places/save-photos/", save_owner_photos, name="owner_photo_create_save"),

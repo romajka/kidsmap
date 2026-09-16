@@ -1,0 +1,24 @@
+{% load i18n static %}
+{% get_current_language as location_language %}
+<link rel="stylesheet" href="{% static 'css/components/location_resolution.css' %}">
+<div class="km-location" data-status="empty" data-location-resolution data-language="{{ location_language }}"
+     data-url="{% if location_admin %}{% url 'admin:catalog_place_location_resolve' %}{% else %}{% url 'location_resolve' %}{% endif %}"
+     data-initial-status="{{ form.instance.location_resolution_status }}"
+     data-initial-version="{{ form.instance.location_dataset_version }}"
+     data-point-selected="{% translate 'Выбрана' %}"
+     data-point-empty="{% translate 'Не выбрана' %}"
+     data-loading="{% translate 'Определяем город и район…' %}"
+     data-empty="{% translate 'Поставьте точку на карте, чтобы определить город и район.' %}"
+     data-error="{% translate 'Не удалось определить район. Повторите попытку или сохраните черновик.' %}"
+     data-overridden="{% translate 'Административная привязка исправлена администратором. Перенос точки отменит это исправление.' %}">
+  <div class="km-location__heading"><span class="km-location__indicator" aria-hidden="true"></span><strong>{% translate 'Местоположение по карте' %}</strong></div>
+  <p class="km-location__intro">{% translate 'Поставьте точку — KidsMap подставит город и район. При переносе точки они обновятся.' %}</p>
+  <ol class="km-location__flow" aria-label="{% translate 'Как определяется местоположение' %}">
+    <li><span class="km-location__step" aria-hidden="true">1</span><div><span class="km-location__label">{% translate 'Метка на карте' %}</span><strong data-location-point>{% translate 'Не выбрана' %}</strong></div></li>
+    <li><span class="km-location__step" aria-hidden="true">2</span><div><span class="km-location__label">{% translate 'Город' %}</span><strong data-location-city>—</strong></div></li>
+    <li><span class="km-location__step" aria-hidden="true">3</span><div><span class="km-location__label">{% translate 'Район' %}</span><strong data-location-district>—</strong></div></li>
+  </ol>
+  <p class="km-location__status" role="status" aria-live="polite" aria-atomic="true">{% translate 'Город и район определяются по точке на карте.' %}</p>
+  <button type="button" class="km-location__retry" data-location-retry hidden>{% translate 'Повторить проверку' %}</button>
+</div>
+<script src="{% static 'js/location_resolution.js' %}" defer></script>

@@ -123,6 +123,11 @@ class PlaceChangeAuditInline(admin.TabularInline):
 
 
 class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
+    location_override_reason = forms.CharField(
+        label=_("Причина ручного исправления района"), required=False, max_length=1000,
+        help_text=_("Только для исключений: причина сохранится в истории. При переносе точки исправление нужно подтвердить заново."),
+        widget=forms.Textarea(attrs={"rows": 2, "data-location-override": ""}),
+    )
     DATETIME_LOCAL_FORMAT = ADMIN_DATETIME_LOCAL_FORMAT
     name = forms.CharField(required=False, widget=forms.HiddenInput())
     # These controls are rendered inside pricing_editor.html rather than by a
@@ -1617,6 +1622,18 @@ class EventAdmin(admin.ModelAdmin):
 
 @admin.register(Place)
 class PlaceAdmin(admin.ModelAdmin):
+    def get_form(self, request, obj=None, **kwargs):
+        form_class = super().get_form(request, obj, **kwargs)
+        class LocationActorForm(form_class):
+            location_actor = request.user
+
+            def __init__(self, *args, **form_kwargs):
+                super().__init__(*args, **form_kwargs)
+                from catalog.services.location_assignment import can_override_location
+                if not can_override_location(request.user):
+                    self.fields.pop('location_override_reason', None)
+        return LocationActorForm
+
     AUDIT_TRACKED_FIELDS = (
         "name",
         "name_ru",
@@ -1823,7 +1840,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "age_from", "age_to", "age_open_ended", "offers_adult_classes",
         "lesson_duration_minutes", "pricing_plans",
         "custom_price_badge_az", "custom_price_badge_ru", "custom_price_badge_en",
-        "region", "district", "metro", "address", "lat", "lng",
+        "region", "district", "metro", "address", "lat", "lng", "location_override_reason",
         "phone1", "phone2", "phone3", "instagram", "website",
         "schedule", "schedule_mode", "structured_schedule",
         "schedule_note_az", "schedule_note_ru", "schedule_note_en",
@@ -2484,10 +2501,12 @@ class PlaceAdmin(admin.ModelAdmin):
         }
         counts: dict[str, dict] = {}
         for item in summary["checklist_items"]:
-            bucket = counts.setdefault(item["section"], {"done": 0, "total": 0})
+            bucket = counts.setdefault(item["section"], {"done": 0, "total": 0, "missing_labels": []})
             bucket["total"] += 1
             if item["initial"]:
                 bucket["done"] += 1
+            else:
+                bucket["missing_labels"].append(item["label"])
 
         states = {}
         for section in list(self.PLACE_FORM_PRIMARY_SECTIONS) + [self.PLACE_FORM_VERIFICATION_SECTION]:
@@ -2495,7 +2514,7 @@ class PlaceAdmin(admin.ModelAdmin):
             if section_id == self.PLACE_FORM_VERIFICATION_SECTION["id"]:
                 done, total = summary["completed"], summary["total"]
             else:
-                bucket = counts.get(section_id, {"done": 0, "total": 0})
+                bucket = counts.get(section_id, {"done": 0, "total": 0, "missing_labels": []})
                 done, total = bucket["done"], bucket["total"]
 
             if section_id in sections_with_errors:
@@ -2523,6 +2542,11 @@ class PlaceAdmin(admin.ModelAdmin):
                 "done": done,
                 "total": total,
                 "label": label,
+                "missing_message": (
+                    str(_("Не заполнено: %(items)s")) % {"items": ", ".join(bucket["missing_labels"])}
+                    if section_id != self.PLACE_FORM_VERIFICATION_SECTION["id"] and bucket["missing_labels"]
+                    else ""
+                ),
             }
         return states
 
@@ -2770,9 +2794,16 @@ class PlaceAdmin(admin.ModelAdmin):
     )
 
     def get_fieldsets(self, request, obj=None):
-        if obj is None:
-            return self.ADD_FIELDSETS
-        return super().get_fieldsets(request, obj)
+        fieldsets = self.ADD_FIELDSETS if obj is None else super().get_fieldsets(request, obj)
+        from catalog.services.location_assignment import can_override_location
+        if can_override_location(request.user):
+            from django.contrib.admin.utils import flatten_fieldsets
+            return tuple(
+                (title, {**options, "fields": tuple(options["fields"]) + ("location_override_reason",)})
+                if "district" in flatten_fieldsets(((title, options),)) else (title, options)
+                for title, options in fieldsets
+            )
+        return fieldsets
 
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)
@@ -3973,6 +4004,9 @@ class PlaceAdmin(admin.ModelAdmin):
                 % {"prefix": saved_prefix},
                 messages.ERROR,
             )
+        if geocoding_result.reason == "location_unresolved":
+            from catalog.services.location_assignment import UNRESOLVED_MESSAGE
+            return str(UNRESOLVED_MESSAGE), messages.WARNING
         if geocoding_result.reason == "not_found":
             return (
                 _("%(prefix)s Координаты по указанному адресу не найдены.")
@@ -4087,7 +4121,9 @@ class PlaceAdmin(admin.ModelAdmin):
         return JsonResponse({"urls": urls, "public": bool(obj and public_place_queryset(Place.objects.all()).filter(pk=obj.pk).exists())})
 
     def get_urls(self):
+        from catalog.controllers.location_resolution import location_resolve
         custom_urls = [
+            path("location/resolve/", self.admin_site.admin_view(location_resolve), name=f"{self.opts.app_label}_{self.opts.model_name}_location_resolve"),
             path("url-preview/", self.admin_site.admin_view(self.localized_url_preview_view), name=f"{self.opts.app_label}_{self.opts.model_name}_url_preview"),
             path(
                 "pricing/import/validate/",

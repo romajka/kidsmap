@@ -103,6 +103,9 @@ class PlaceGeocodingService:
         if place.lat == point.lat and place.lng == point.lng:
             return PlaceGeocodingResult(updated=False, reason="unchanged", point=point)
 
+        from catalog.services.district_geometry import resolve_location
+        if place.is_active and place.status == place.STATUS_PUBLISHED and resolve_location(point.lat, point.lng).status != "resolved":
+            return PlaceGeocodingResult(updated=False, reason="location_unresolved", point=point)
         place.lat = point.lat
         place.lng = point.lng
         place.save(update_fields=["lat", "lng", "updated_at"])

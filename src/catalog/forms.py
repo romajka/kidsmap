@@ -1440,7 +1440,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         self.fields["gallery_images"].widget = PlainMultipleImageInput(attrs={"accept": "image/jpeg,image/png,image/webp,.heic,.heif,.hif"})
         photo_help = wizard_text("JPG, PNG, WEBP, HEIC/HEIF — до 15 МБ, 50 Мп и 12000 пикселей по стороне. После обработки — до 2 МБ на фото, до 22 МБ вместе с главным фото.", "JPG, PNG, WEBP, HEIC/HEIF — 15 MB, 50 MP və hər tərəf 12000 pikselədək. Hazır şəkil 2 MB, bütün şəkillər 22 MB-dək.", "JPG, PNG, WEBP, HEIC/HEIF: up to 15 MB, 50 MP and 12000 px per side. Prepared photos: 2 MB each, 22 MB total.")
         self.fields["photo"].help_text = self.fields["gallery_images"].help_text = photo_help
-        self.fields["description_az"].help_text = wizard_text("Обязательно. Не менее 120 символов хотя бы в одном описании.", "Məcburidir. Ən azı bir təsvir 120 simvoldan az olmamalıdır.", "Required. At least one description must contain 120 characters.")
+        self.fields["description_az"].help_text = wizard_text("Обязательно. Подробное описание помогает родителям и поиску.", "Məcburidir. Ətraflı təsvir valideynlərə və axtarışa kömək edir.", "Required. A detailed description helps parents and search.")
         self.fields["lat"].label = wizard_text("Широта", "Enlik", "Latitude")
         self.fields["lng"].label = wizard_text("Долгота", "Uzunluq", "Longitude")
         self.fields["lesson_format"].label = wizard_text("Формат занятий", "Məşğələ formatı", "Lesson format")
@@ -1618,9 +1618,16 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 )
 
         if self.submit_for_moderation and not self.draft_save_only and not self.coordinate_refresh_only:
-            from catalog.services.permanent_place_rules import publication_errors
-            for field, message in publication_errors(cleaned, instance=self.instance, schedule_days=self.cleaned_schedule_days).items():
-                self.add_error(field, message)
+            from catalog.services.place_readiness import (
+                evaluate_form_readiness,
+                publication_blocked_message,
+            )
+
+            readiness = evaluate_form_readiness(self, self.instance)
+            if not readiness.is_ready:
+                self.add_error(None, publication_blocked_message(readiness))
+                for issue in readiness.issues:
+                    self.add_error(issue.field, issue.message)
 
         from catalog.services.image_uploads import MAX_IMAGE_BATCH_BYTES
         raw_gallery = cleaned.get("gallery_images") or []

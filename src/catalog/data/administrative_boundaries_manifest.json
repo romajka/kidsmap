@@ -1,0 +1,74 @@
+{
+  "source": "https://opendata.az/en/@azerbaycan-respublikasinin-ekologiya-ve-tebii-servetler-nazirliyi/azerbaycanin-rayonlari",
+  "source_updated": "2025-07-22",
+  "checked_on": "2026-09-16",
+  "license": "Creative Commons Attribution (cc-by), publisher CKAN package metadata",
+  "license_url": "http://www.opendefinition.org/licenses/cc-by",
+  "crs": "EPSG:4326; GeoJSON longitude, latitude",
+  "coverage": "12 Baku administrative districts only; no national city coverage",
+  "topology_validation": {
+    "invalid_features": [
+      "Qaradağ",
+      "Səbail",
+      "Xətai"
+    ],
+    "overlaps_degrees_squared": [
+      [
+        "Nərimanov",
+        "Xətai",
+        5.145e-07
+      ],
+      [
+        "Nərimanov",
+        "Binəqədi",
+        1.579e-09
+      ],
+      [
+        "Nizami",
+        "Sabunçu",
+        1e-12
+      ],
+      [
+        "Nizami",
+        "Xətai",
+        2.157141e-06
+      ],
+      [
+        "Sabunçu",
+        "Suraxanı",
+        1.70987e-07
+      ],
+      [
+        "Sabunçu",
+        "Binəqədi",
+        3.61e-10
+      ],
+      [
+        "Səbail",
+        "Nəsimi",
+        1.28e-10
+      ],
+      [
+        "Suraxanı",
+        "Xətai",
+        7.35434e-07
+      ],
+      [
+        "Suraxanı",
+        "Xəzər",
+        1.7e-11
+      ],
+      [
+        "Xətai",
+        "Nəsimi",
+        3.3025e-07
+      ]
+    ],
+    "invalid_features_after_normalization": []
+  },
+  "boundary_tolerance_degrees": 1e-06,
+  "accuracy": "Source survey accuracy not specified. Border points require review.",
+  "source_sha256": "6beee78025de7a3b7b15409fb4fb37eba9811f80c047514106ddca6581366963",
+  "sha256": "b2fff81f4da4cbab04108324973e326d92aaf6d032dc1d4cabeadc141f03eeca",
+  "normalization": "Shapely make_valid (GEOS) on invalid features only; self-touching rings split into valid MultiPolygons, no meaningful area change. Inter-district overlaps retained as ambiguous."
+}

@@ -549,6 +549,9 @@ def configure_location_choices(form):
 
 
 def clean_location_fields(form, cleaned):
+    from catalog.services.location_assignment import clean_place_location
+    if clean_place_location(form, cleaned):
+        return cleaned
     region = (cleaned.get("region") or "").strip()
     district = (cleaned.get("district") or "").strip()
 
