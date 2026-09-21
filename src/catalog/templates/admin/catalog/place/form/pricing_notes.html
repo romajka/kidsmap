@@ -14,7 +14,8 @@
   </div>
   {% include "admin/catalog/place/form/_langgroup.html" with group="info" tabs=km_place_info_tabs %}
 </div>
-<details class="km-pf-disclosure"{% if form.extra_conditions.value or form.additional_info.value %} open{% endif %}>
+{% if form.extra_conditions.value or form.additional_info.value %}
+<details class="km-pf-disclosure" open>
   <summary class="km-pf-disclosure__summary">
     <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-expand_more"></use></svg>
     <span class="km-pf-disclosure__title">{% translate "Текст старой карточки (RU)" %}</span>
@@ -25,6 +26,12 @@
     {% include "admin/catalog/place/form/_field.html" with field=form.additional_info %}
   </div>
 </details>
+{% else %}
+<div class="km-pf-hidden-fields" aria-hidden="true">
+  {{ form.extra_conditions.as_hidden }}
+  {{ form.additional_info.as_hidden }}
+</div>
+{% endif %}
 <div class="km-pf-group" data-pf-group="price-disclaimer">
   <div class="km-pf-group__head">
     <span class="km-pf-group__title">{% translate "Автоматическое предупреждение о ценах" %}</span>

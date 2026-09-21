@@ -54,6 +54,22 @@
       <small data-tariff-empty-desc>{% translate "Добавьте хотя бы один тариф или отметьте место как бесплатное — без этого карточку нельзя опубликовать." %}</small>
     </div>
 
+    <div class="km-pf-tariffs__free-state" data-tariff-free-state hidden>
+      <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check_circle"></use></svg>
+      <div>
+        <strong>{% translate "Место полностью бесплатное" %}</strong>
+        <p>{% translate "Для этого места вход и все основные занятия бесплатны. Добавление тарифных планов не требуется." %}</p>
+      </div>
+    </div>
+
+    <div class="km-pf-tariffs__events-state" data-tariff-events-state hidden>
+      <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-event"></use></svg>
+      <div>
+        <strong>{% translate "Цена зависит от мероприятия" %}</strong>
+        <p>{% translate "У этого места нет постоянных тарифов. Стоимость указывается отдельно для каждого мероприятия." %}</p>
+      </div>
+    </div>
+
     <div class="km-pf-tariffs__foot">
       <button type="button" class="km-pf-btn km-pf-btn--dashed" data-tariff-add>
         <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add"></use></svg>{% translate "Добавить тариф" %}

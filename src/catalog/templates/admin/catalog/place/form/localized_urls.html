@@ -11,8 +11,23 @@
  data-label-new="{% translate "ID будет добавлен после сохранения." context 'localized place URLs' %}"
  data-label-error="{% translate "Не удалось загрузить адреса. Измените название или обновите страницу, чтобы повторить." context 'localized place URLs' %}"
  data-preview-url="{% url 'admin:catalog_place_url_preview' %}" data-place-pk="{{ url_place_pk }}">
-  <h3 class="km-pf-group__title">{% translate "Адреса карточки" %}</h3>
-  <p>{% translate "Сайт создаёт адреса автоматически. Сохранённые адреса не меняются при переименовании." %}</p>
-  <dl data-url-list></dl>
-  <p role="status" data-url-status>{% translate "Загрузка адресов…" context "localized place URLs" %}</p>
+  <div class="km-place-urls__card">
+    <div class="km-place-urls__head">
+      <div class="km-place-urls__title-row">
+        <div class="km-place-urls__title-group">
+          <h3 class="km-place-urls__title">{% translate "Адреса карточки" %}</h3>
+          <span class="km-place-urls__badge">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-lock"></use></svg>
+            {% translate "Только просмотр · формируются автоматически" %}
+          </span>
+        </div>
+      </div>
+      <p class="km-place-urls__desc">{% translate "Сайт формирует постоянные веб-адреса для каждого языка автоматически из названия места. Для сохранения ссылок в поисковиках сохранённые адреса не изменяются при переименовании." %}</p>
+    </div>
+    <dl data-url-list></dl>
+    <div class="km-place-urls__status-wrap">
+      <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-info"></use></svg>
+      <p role="status" data-url-status>{% translate "Загрузка адресов…" context "localized place URLs" %}</p>
+    </div>
+  </div>
 </div>

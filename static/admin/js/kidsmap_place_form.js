@@ -671,8 +671,24 @@
     }
 
     function syncTariffs() {
+      var modeInput = document.getElementById("id_price_mode");
+      var mode = modeInput ? String(modeInput.value || "tariffs").trim() : "tariffs";
+      var isFree = mode === "free";
+      var isEvents = mode === "events";
+      var isExempt = isFree || isEvents;
       var plans = readPlans();
-      if (tariffEmpty) tariffEmpty.hidden = plans.length > 0;
+
+      var freeState = qs("[data-tariff-free-state]", root);
+      var eventsState = qs("[data-tariff-events-state]", root);
+      var foot = qs(".km-pf-tariffs__foot", root);
+
+      if (freeState) freeState.hidden = !isFree;
+      if (eventsState) eventsState.hidden = !isEvents;
+      if (tariffList) tariffList.hidden = isExempt;
+      if (foot) foot.hidden = isExempt;
+      if (tariffEmpty) {
+        tariffEmpty.hidden = isExempt || plans.length > 0;
+      }
       if (!tariffComputed) return;
 
       var values = [];

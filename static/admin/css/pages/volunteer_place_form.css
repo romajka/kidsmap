@@ -37,7 +37,7 @@
 .kv-admin-editor .km-pf-section__inner { min-width:0; }
 @media(max-width:1100px) {
   .kv-admin-editor .km-pf__nav { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); overflow:visible; position:static; }
-  .kv-admin-editor .km-pf-navitem { min-width:0; height:auto; min-height:52px; }
+  .kv-admin-editor .km-pf-navitem { min-width:0; height:auto; min-height:56px; align-items:flex-start; padding:8px 10px; }
   .kv-admin-editor .km-pf-navitem__title { white-space:normal; }
   .kv-admin-editor .km-schedule-editor__header { display:none !important; }
   .kv-admin-editor .km-schedule-editor__row { min-width:0 !important; grid-template-columns:minmax(0,1fr) !important; gap:10px !important; }
@@ -66,7 +66,7 @@
 .kv-admin-editor .owner-tariff-translation-toggle button { display:inline-flex; align-items:center; gap:6px; border:0; background:transparent; color:var(--pf-accent); padding:8px 0; }
 @media(max-width:767px) { .kv-admin-editor .owner-tariff-grid { grid-template-columns:minmax(0,1fr); } }
 @media(max-width:767px) {
-  .kv-admin-editor .km-pf-navitem { display:grid; grid-template-columns:22px minmax(0,1fr); gap:8px; padding:8px; }
+  .kv-admin-editor .km-pf-navitem { display:grid; grid-template-columns:22px minmax(0,1fr); gap:8px; padding:8px; height:auto; min-height:52px; align-items:flex-start; }
   .kv-admin-editor .km-pf-navitem__state { display:none; }
   .kv-admin-editor .km-pf-navitem__title { min-width:0; white-space:normal; overflow:visible; text-overflow:clip; overflow-wrap:anywhere; }
 }

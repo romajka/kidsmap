@@ -335,10 +335,11 @@
   flex: 1 1 0;
   min-width: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
-  height: 52px;
-  padding: 0 12px;
+  min-height: 56px;
+  height: auto;
+  padding: 8px 10px;
   border-radius: 8px;
   border: 1.5px solid #e2e8f0;
   background: #f8fafc;
@@ -346,6 +347,7 @@
   color: var(--pf-text, #1e293b) !important;
   transition: all 160ms var(--pf-ease);
   position: relative;
+  overflow: visible;
 }
 
 .km-pf .km-pf-navitem:hover {
@@ -378,6 +380,7 @@
   background: #e2e8f0;
   flex: 0 0 auto;
   transition: all 160ms var(--pf-ease);
+  margin-top: 1px;
 }
 
 .km-pf .km-pf-navitem.is-current .km-pf-navitem__num {
@@ -396,9 +399,11 @@
 .km-pf .km-pf-navitem__title {
   font-size: 13.5px;
   font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.25;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: break-word;
   min-width: 4ch;
   color: #1e293b !important;
   transition: color 160ms var(--pf-ease);
@@ -415,21 +420,23 @@
 
 .km-pf .km-pf-navitem__sub {
   font-size: 11px;
+  line-height: 1.25;
   color: #64748b !important;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: break-word;
   font-weight: 500;
 }
 
 .km-pf .km-pf-navitem__missing {
   display: block;
-  grid-column: 2 / -1;
-  margin-top: 2px;
+  margin-top: 3px;
   font-size: 10px;
   line-height: 1.3;
   color: var(--pf-warn-text, #b45309);
   overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 .km-pf .km-pf-navitem.is-current .km-pf-navitem__sub {
@@ -444,6 +451,7 @@
   color: #94a3b8;
   flex: 0 0 18px;
   margin-left: auto;
+  margin-top: 2px;
 }
 
 .km-pf .km-pf-navitem.is-done .km-pf-navitem__state {
@@ -1778,6 +1786,55 @@
   margin: 0;
 }
 
+.km-pf .km-pf-tariffs__free-state,
+.km-pf .km-pf-tariffs__events-state {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 9px;
+  background: #f0fdf4;
+  border: 1.5px solid #bbf7d0;
+  color: #166534;
+  margin: 8px 0 12px;
+}
+
+.km-pf .km-pf-tariffs__free-state .km-i {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  color: #16a34a;
+}
+
+.km-pf .km-pf-tariffs__events-state {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+.km-pf .km-pf-tariffs__events-state .km-i {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  color: #64748b;
+}
+
+.km-pf .km-pf-tariffs__free-state strong,
+.km-pf .km-pf-tariffs__events-state strong {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.km-pf .km-pf-tariffs__free-state p,
+.km-pf .km-pf-tariffs__events-state p {
+  font-size: 12px;
+  margin: 0;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
 /* Tariff row: Collapsed state (52px height) */
 .km-pf .owner-tariff-row {
   border: 1px solid var(--pf-border-soft);
@@ -2374,6 +2431,118 @@
 }
 
 .km-pf .km-pf-mappanel__found-label { font-size: 11.5px; color: var(--pf-muted); display: block; }
+
+/* Compact location resolution widget in admin place form */
+.km-pf .km-location {
+  margin: 6px 0 0;
+  padding: 12px 16px;
+  border-radius: var(--pf-radius);
+  border: 1px solid #d6e5d9;
+  background: #f7faf7;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.km-pf .km-location .km-location__heading {
+  font-size: 13px;
+  font-weight: 700;
+  gap: 8px;
+  color: #1e3a29;
+}
+
+.km-pf .km-location__indicator {
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  border-width: 2px;
+}
+
+.km-pf .km-location[data-status="resolved"] .km-location__indicator::after {
+  width: 6px;
+  height: 4px;
+  top: 2px;
+  left: 2px;
+}
+
+.km-pf .km-location .km-location__intro {
+  margin: 3px 0 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #556c5e;
+}
+
+.km-pf .km-location .km-location__flow {
+  gap: 12px;
+}
+
+.km-pf .km-location .km-location__flow li {
+  gap: 8px;
+  align-items: center;
+}
+
+.km-pf .km-location__flow li + li {
+  padding-left: 12px !important;
+  border-left-color: #d6e5d9;
+}
+
+.km-pf .km-location__step {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  font-size: 11px;
+}
+
+.km-pf .km-location__label {
+  font-size: 11px;
+  color: #5a7063;
+}
+
+.km-pf .km-location__flow strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a3324;
+}
+
+.km-pf .km-location .km-location__status {
+  margin: 10px 0 0;
+  padding: 8px 0 0;
+  border-top: 1px solid #dbe7dd;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #44594c;
+}
+
+.km-pf .km-location .km-location__retry {
+  margin-top: 8px;
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* Override details disclosure in address section */
+.km-pf .km-pf-disclosure--override {
+  border-style: dashed;
+  border-color: var(--pf-border);
+  background: var(--pf-surface-2);
+  margin-top: 4px;
+  border-radius: 8px;
+}
+
+.km-pf .km-pf-disclosure--override .km-pf-disclosure__summary {
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.km-pf .km-pf-disclosure--override .km-pf-disclosure__title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--pf-text-2);
+}
+
+.km-pf .km-pf-disclosure--override .km-pf-disclosure__note {
+  font-size: 11px;
+  color: var(--pf-muted);
+}
+
 
 .km-pf .km-pf-phones { display: flex; flex-direction: column; gap: 8px; }
 
@@ -3351,11 +3520,11 @@
 /* Table Header */
 .km-pf .km-schedule-editor__header {
   display: grid !important;
-  grid-template-columns: 105px 165px minmax(140px, 1fr) auto !important;
+  grid-template-columns: 185px 150px minmax(180px, 1fr) auto !important;
   align-items: center !important;
   gap: 14px !important;
   padding: 8px 14px !important;
-  min-width: 580px !important;
+  min-width: 660px !important;
   background: var(--pf-surface-2) !important;
   border-bottom: 1px solid var(--pf-border-soft) !important;
   font-size: 11px !important;
@@ -3374,11 +3543,11 @@
 /* Table Day Row: Strict CSS Grid */
 .km-pf .km-schedule-editor__row {
   display: grid !important;
-  grid-template-columns: 105px 165px minmax(140px, 1fr) auto !important;
+  grid-template-columns: 185px 150px minmax(180px, 1fr) auto !important;
   align-items: center !important;
   gap: 14px !important;
   padding: 8px 14px !important;
-  min-width: 580px !important;
+  min-width: 660px !important;
   min-height: 50px !important;
   border-bottom: 1px solid var(--pf-divider) !important;
   background: var(--pf-surface) !important;
@@ -3419,7 +3588,8 @@
 
 /* Day Name */
 .km-pf .km-schedule-editor__day {
-  width: auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
   flex: none !important;
   padding: 0 !important;
   font-size: 13.5px !important;
@@ -3427,11 +3597,28 @@
   color: var(--pf-text) !important;
   display: flex !important;
   align-items: center !important;
+  gap: 8px !important;
+  white-space: nowrap !important;
 }
 
 .km-pf .km-schedule-editor__row.is-closed .km-schedule-editor__day {
   font-weight: 500 !important;
   color: var(--pf-muted) !important;
+}
+
+.km-pf .km-weekend-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 1px 6px !important;
+  border-radius: 999px !important;
+  background: var(--pf-warn-tint, #fff7ed) !important;
+  border: 1px solid var(--pf-warn-border, #fed7aa) !important;
+  color: var(--pf-warn-text, #c2410c) !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
 }
 
 /* Status: Switch + 24h on the SAME horizontal line */
@@ -3441,9 +3628,8 @@
   align-items: center !important;
   gap: 8px !important;
   padding: 0 !important;
-  min-width: 165px !important;
-  width: 165px !important;
-  flex: 0 0 165px !important;
+  min-width: 0 !important;
+  width: 100% !important;
   box-sizing: border-box !important;
 }
 
@@ -4016,7 +4202,7 @@
     /* Wrapped navigation must not cover the location result or form fields. */
     position: static;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
     overflow: visible;
   }
 
@@ -4024,7 +4210,9 @@
     width: 100%;
     min-width: 0;
     height: auto;
-    min-height: 52px;
+    min-height: 56px;
+    padding: 8px 10px;
+    align-items: flex-start;
   }
 
   .km-pf .km-pf-navitem__sub { display: block; }

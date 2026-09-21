@@ -27,24 +27,28 @@
       <div class="km-pf-group__head">
         <span class="km-pf-group__title">{% translate "Адрес" %}</span>
       </div>
-      <div class="km-pf-grid km-pf-grid--3">
+      <div class="km-pf-grid km-pf-grid--2">
         {% include "admin/catalog/place/form/_field.html" with field=form.region %}
         <div class="km-pf-district" data-km-admin-district-box>
           {% include "admin/catalog/place/form/_field.html" with field=form.district %}
-
-        </div>
-        <div data-km-admin-metro-box>
-          {% include "admin/catalog/place/form/_field.html" with field=form.metro optional=True %}
         </div>
       </div>
-      {% include "includes/location_resolution.html" with location_admin=True %}
+      <div hidden style="display: none !important;" aria-hidden="true">
+        {% include "admin/catalog/place/form/_field.html" with field=form.metro optional=True %}
+      </div>
+      {% include "admin/catalog/place/form/_field.html" with field=form.address wide=True %}
       {% if form.location_override_reason %}
-        <details class="km-pf-disclosure"{% if form.location_override_reason.errors or form.location_override_reason.value %} open{% endif %}>
-          <summary class="km-pf-disclosure__summary">{% translate "Изменить вручную" %}</summary>
-          {% include "admin/catalog/place/form/_field.html" with field=form.location_override_reason wide=True hint=form.location_override_reason.help_text %}
+        <details class="km-pf-disclosure km-pf-disclosure--override"{% if form.location_override_reason.errors or form.location_override_reason.value %} open{% endif %}>
+          <summary class="km-pf-disclosure__summary">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+            <span class="km-pf-disclosure__title">{% translate "Изменить привязку вручную" %}</span>
+            <span class="km-pf-disclosure__note">{% translate "Если нужно скорректировать автоопределение города и района" %}</span>
+          </summary>
+          <div class="km-pf-disclosure__body">
+            {% include "admin/catalog/place/form/_field.html" with field=form.location_override_reason wide=True hint=form.location_override_reason.help_text %}
+          </div>
         </details>
       {% endif %}
-      {% include "admin/catalog/place/form/_field.html" with field=form.address wide=True %}
     </div>
 
     <div class="km-pf-divider" role="presentation"></div>
@@ -85,6 +89,8 @@
           {% translate "Сохранить и рассчитать координаты" %}
         </button>
       </div>
+
+      {% include "includes/location_resolution.html" with location_admin=True %}
 
       <div class="km-pf-maplatlng" data-pf-coord-fields hidden>
         {% include "admin/catalog/place/form/_field.html" with field=form.lat %}

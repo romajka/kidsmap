@@ -34,6 +34,7 @@
             var detail = document.createElement('dd');
             var text = document.createElement('code');
             text.textContent = item.path || item.slug || labels.labelEmpty;
+            if (!item.path && !item.slug) text.classList.add('is-empty');
             detail.appendChild(text);
             if (item.path) {
               var copy = document.createElement('button');

@@ -1,6 +1,174 @@
-.km-place-urls { min-width: 0; }
-.km-place-urls dl { margin: 0; }
-.km-place-urls dt { font-weight: 600; margin-top: 12px; }
-.km-place-urls dd { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin: 4px 0 0; min-width: 0; }
-.km-place-urls code { color: inherit; overflow-wrap: anywhere; min-width: 0; flex: 1 1 220px; }
-.km-place-urls [data-url-status] { margin-bottom: 0; }
+.km-place-urls {
+  min-width: 0;
+  margin-top: 16px;
+}
+
+.km-place-urls__card {
+  background: var(--pf-surface-2, #f8fafc);
+  border: 1px solid var(--pf-border, #e2e8f0);
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.km-place-urls__head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.km-place-urls__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.km-place-urls__title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.km-place-urls__title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--pf-caption, #475569);
+  margin: 0;
+}
+
+.km-place-urls__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.km-place-urls__badge .km-i {
+  width: 13px;
+  height: 13px;
+}
+
+.km-place-urls__desc {
+  font-size: 12px;
+  color: var(--pf-muted, #64748b);
+  margin: 0;
+  line-height: 1.45;
+}
+
+.km-place-urls dl[data-url-list] {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px 12px;
+  margin: 4px 0 0;
+}
+
+.km-place-urls dt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 32px;
+  border-radius: 6px;
+  font-family: var(--pf-mono, monospace);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #475569;
+  background: #e2e8f0;
+  margin: 0;
+  flex: 0 0 36px;
+}
+
+.km-place-urls dd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  min-width: 0;
+}
+
+.km-place-urls code {
+  display: inline-flex;
+  align-items: center;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 34px;
+  padding: 4px 12px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-family: var(--pf-mono, monospace);
+  font-size: 12px;
+  color: #1e293b;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.km-place-urls code.is-empty {
+  color: #94a3b8;
+  font-style: italic;
+  background: #f8fafc;
+  border-style: dashed;
+  border-color: #cbd5e1;
+  box-shadow: none;
+}
+
+.km-place-urls dd .km-pf-btn {
+  height: 32px;
+  padding: 0 10px;
+  font-size: 11.5px;
+  flex: 0 0 auto;
+}
+
+.km-place-urls dd a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--pf-accent, #0d8250);
+  text-decoration: none;
+  font-weight: 600;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.km-place-urls dd a:hover {
+  text-decoration: underline;
+}
+
+.km-place-urls__status-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed #e2e8f0;
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.km-place-urls__status-wrap .km-i {
+  width: 16px;
+  height: 16px;
+  color: #0284c7;
+  flex: 0 0 16px;
+}
+
+.km-place-urls [data-url-status] {
+  margin: 0;
+  font-size: 11.5px;
+  color: inherit;
+}

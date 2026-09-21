@@ -10,6 +10,8 @@
   const emptyState = editor.querySelector("[data-tariff-empty]");
   const emptyTitle = editor.querySelector("[data-tariff-empty-title]");
   const emptyDesc = editor.querySelector("[data-tariff-empty-desc]");
+  const freeNotice = editor.querySelector("[data-tariff-free-state]");
+  const eventsNotice = editor.querySelector("[data-tariff-events-state]");
   const add = editor.querySelector("[data-tariff-add]");
   const foot = editor.querySelector(".km-pf-tariffs__foot");
   const computedBadge = editor.querySelector("[data-tariff-computed-value]");
@@ -476,17 +478,23 @@
       if (list) list.hidden = true;
       if (emptyState) emptyState.hidden = true;
       if (foot) foot.hidden = true;
+      if (freeNotice) freeNotice.hidden = false;
+      if (eventsNotice) eventsNotice.hidden = true;
     } else if (policy === "free_entry_paid_services") {
       if (policyHint) policyHint.textContent = labels.hintFreeWithPaid;
       if (list) list.hidden = false;
       if (emptyDesc) emptyDesc.textContent = labels.emptyFreeWithPaidDesc;
       if (emptyState) emptyState.hidden = plans.length > 0;
       if (foot) foot.hidden = false;
+      if (freeNotice) freeNotice.hidden = true;
+      if (eventsNotice) eventsNotice.hidden = true;
     } else if (policy === "events") {
       if (policyHint) policyHint.textContent = labels.hintEvents;
       if (list) list.hidden = true;
       if (emptyState) emptyState.hidden = true;
       if (foot) foot.hidden = true;
+      if (freeNotice) freeNotice.hidden = true;
+      if (eventsNotice) eventsNotice.hidden = false;
     } else {
       // Tariffs
       if (policyHint) policyHint.textContent = labels.hintTariffs;
@@ -494,6 +502,8 @@
       if (emptyDesc) emptyDesc.textContent = labels.emptyDefaultDesc;
       if (emptyState) emptyState.hidden = plans.length > 0;
       if (foot) foot.hidden = false;
+      if (freeNotice) freeNotice.hidden = true;
+      if (eventsNotice) eventsNotice.hidden = true;
     }
 
     updateComputedPrice();
@@ -708,6 +718,12 @@
     list.innerHTML = "";
     if (emptyState) {
       emptyState.hidden = plans.length > 0 || currentPolicy === "free" || currentPolicy === "events";
+    }
+    if (freeNotice) {
+      freeNotice.hidden = currentPolicy !== "free";
+    }
+    if (eventsNotice) {
+      eventsNotice.hidden = currentPolicy !== "events";
     }
 
     plans.forEach((plan, index) => {
