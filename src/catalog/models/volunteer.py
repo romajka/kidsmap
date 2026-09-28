@@ -21,6 +21,14 @@ class VolunteerPlaceRevision(models.Model):
     reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="reviewed_volunteer_revisions")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    submitted_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    needs_changes_at = models.DateTimeField(null=True, blank=True)
+    moderated_at = models.DateTimeField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        from catalog.services.moderation_sla import prepare_moderation_save
+        prepare_moderation_save(self, kwargs)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _("Изменения волонтёра")

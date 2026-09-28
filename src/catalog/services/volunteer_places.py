@@ -4,6 +4,7 @@ import hashlib
 import json
 
 from django.core import signing
+from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
@@ -16,6 +17,18 @@ from catalog.services.place_readiness import evaluate_form_readiness, publicatio
 from catalog.services.place_schedule import serialize_place_schedule, dump_schedule_payload
 from catalog.services.staff_roles import can_use_volunteer_workspace
 from catalog.volunteer_forms import CONTENT_FIELDS, VolunteerPlaceForm
+from catalog.services.place_duplicates import find_creator_duplicate
+from catalog.services.permanent_place_rules import copy as t
+
+
+def can_delete_working_place(place, revision=None):
+    revision = revision if revision is not None else getattr(place, 'volunteer_revision', None)
+    return (
+        place.status in {Place.STATUS_DRAFT, Place.STATUS_REJECTED}
+        and not place.is_active and not place.is_deleted and not place.owner_id
+        and not place.is_temporary
+        and (revision is None or revision.status in {'draft', 'rejected'})
+    )
 
 
 def json_value(value):
@@ -169,15 +182,26 @@ def save_working_revision(*, user, place_id, data, files, source):
     for name in ("additional_info", "extra_conditions"):
         old_working_snapshot.setdefault(name, getattr(place, name))
     candidate = form.instance
-    # FileField storage creates unique names. Never overwrite/delete a live file.
+    duplicate = None
+    if not place.pk:
+        # Serialize new-card creation for one volunteer. A browser double-click
+        # or two tabs must not create two indistinguishable working cards.
+        locked_creator = get_user_model().objects.select_for_update().get(pk=user.pk)
+        duplicate = find_creator_duplicate(creator=locked_creator, candidate=candidate)
+        if duplicate.place and not (
+            form.cleaned_data.get("create_as_distinct_branch") and duplicate.branch_override_allowed
+        ):
+            form.duplicate_existing_place_id = duplicate.place.pk
+            form.add_error(None, t("Карточка с таким названием уже есть. Откройте её или подтвердите отдельный филиал с другим адресом или координатами.", "Bu adda kart artıq mövcuddur. Onu açın və ya fərqli ünvan və ya koordinatları olan ayrıca filialı təsdiqləyin.", "A card with this name already exists. Open it or confirm a separate branch with a different address or coordinates."))
+            return place, revision, form
+        place.name = candidate.name
+        place.category_id = candidate.category_id
+        place.save()
+    # Duplicate validation must finish before storage receives any new files.
     for name in ("photo", "cover_photo"):
         value = getattr(candidate, name)
         if value and not value._committed:
             value.save(value.name, value.file, save=False)
-    if not place.pk:
-        place.name = candidate.name
-        place.category_id = candidate.category_id
-        place.save()
     payload = content_snapshot(candidate)
     payload["pricing_plans"] = form.cleaned_data["pricing_plans"]
     payload["structured_schedule"] = json_value(form.cleaned_schedule_days)
@@ -199,6 +223,10 @@ def save_working_revision(*, user, place_id, data, files, source):
             revision.reviewed_by = None
     revision.version = (revision.version + 1) if revision.pk else 1
     revision.save()
+    if duplicate and duplicate.place:
+        _audit_working_changes(place=place, actor=user, source=source, old_snapshot={},
+            new_snapshot={'distinct_branch_confirmation': {'matched_place_id': duplicate.place.pk,
+                'address': candidate.address, 'lat': candidate.lat, 'lng': candidate.lng}})
     _audit_working_changes(
         place=place,
         actor=user,
@@ -286,6 +314,9 @@ def review_proposal(*, user, place_id, version, approve, note=""):
         candidate.name = next((getattr(candidate, f"name_{lang}") for lang in ("az", "ru", "en") if getattr(candidate, f"name_{lang}")), place.name)
         candidate.pricing_plans = form.cleaned_data["pricing_plans"]
         candidate.status = Place.STATUS_PUBLISHED
+        candidate.moderated_by = user
+        candidate.moderated_at = timezone.now()
+        candidate.submitted_at = revision.submitted_at
         candidate.is_active = True
         candidate.published_at = place.published_at or timezone.now()
         candidate.rejection_reason = ""

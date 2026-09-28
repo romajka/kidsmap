@@ -45,6 +45,9 @@ class PlaceReview(models.Model):
     dislikes_count = models.PositiveIntegerField(_("Дизлайки"), default=0)
     is_approved = models.BooleanField(_("Одобрен"), default=True)
     status = models.CharField(_("Статус модерации"), max_length=16, choices=STATUS_CHOICES, default=STATUS_APPROVED, db_index=True)
+    submitted_at = models.DateTimeField(_("Отправлено на модерацию"), null=True, blank=True, db_index=True)
+    moderated_at = models.DateTimeField(_("Решение модератора"), null=True, blank=True)
+    moderated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="moderated_place_reviews")
     rejection_reason = models.TextField(_("Причина отклонения"), blank=True, default="")
     session_key = models.CharField(_("Сессия"), max_length=64, blank=True, default="", db_index=True)
     created_at = models.DateTimeField(_("Создан"), auto_now_add=True)
@@ -73,6 +76,8 @@ class PlaceReview(models.Model):
         self.save(update_fields=["likes_count", "dislikes_count"])
 
     def save(self, *args, **kwargs):
+        from catalog.services.moderation_sla import prepare_moderation_save
+        prepare_moderation_save(self, kwargs)
         self.is_anonymous = False
         if self.status == self.STATUS_APPROVED:
             self.is_approved = True
@@ -213,6 +218,9 @@ class SiteReview(models.Model):
     dislikes_count = models.PositiveIntegerField(_("Дизлайки"), default=0)
     is_approved = models.BooleanField(_("Одобрен"), default=True)
     status = models.CharField(_("Статус модерации"), max_length=16, choices=STATUS_CHOICES, default=STATUS_APPROVED, db_index=True)
+    submitted_at = models.DateTimeField(_("Отправлено на модерацию"), null=True, blank=True, db_index=True)
+    moderated_at = models.DateTimeField(_("Решение модератора"), null=True, blank=True)
+    moderated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="moderated_site_reviews")
     rejection_reason = models.TextField(_("Причина отклонения"), blank=True, default="")
     session_key = models.CharField(_("Сессия"), max_length=64, blank=True, default="", db_index=True)
     created_at = models.DateTimeField(_("Создан"), auto_now_add=True)
@@ -286,6 +294,8 @@ class SiteReview(models.Model):
         self.save(update_fields=["likes_count", "dislikes_count"])
 
     def save(self, *args, **kwargs):
+        from catalog.services.moderation_sla import prepare_moderation_save
+        prepare_moderation_save(self, kwargs)
         self.is_anonymous = False
         if self.status == self.STATUS_APPROVED:
             self.is_approved = True

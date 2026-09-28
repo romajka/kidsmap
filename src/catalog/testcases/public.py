@@ -166,7 +166,10 @@ class TestPublicPagesSmoke(TestCase):
         response = self.client.get("/contacts/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "+994 50 540 66 39")
+        self.assertContains(response, "+994 55 497 97 23")
+        self.assertContains(response, "https://wa.me/994554979723")
+        self.assertNotContains(response, "540 66 39")
+        self.assertNotContains(response, "994505406639")
         self.assertNotContains(response, "contacts-hero-subtext", html=False)
 
     def test_contacts_page_shows_public_social_links(self):

@@ -64,7 +64,14 @@
   form.querySelector('[data-guide-close]').addEventListener('click', () => guide.close());
   let dirty = false;
   let submitting = false;
+  let interacted = false;
+  const trackInteraction = event => { if (event.isTrusted) interacted = true; };
+  form.addEventListener('pointerdown', trackInteraction, true);
+  form.addEventListener('keydown', trackInteraction, true);
   const markDirty = event => {
+    // Schedule/tariff widgets emit synthetic changes while initializing. A
+    // freshly opened form must not warn that the user has unsaved edits.
+    if (!event.isTrusted && !interacted) return;
     if (!event.target.name && !event.target.closest('[data-tariff-editor],[data-km-schedule-editor]')) return;
     dirty = true;
     form.querySelector('[data-editor-save-state]').textContent = form.dataset.dirtyLabel;
@@ -77,13 +84,28 @@
   const ageTo = form.elements.namedItem('age_to');
   const syncAge = () => { ageTo.disabled = ageOpen.checked; };
   ageOpen.addEventListener('change', syncAge); syncAge();
-  const photo = form.elements.namedItem('photo');
-  const preview = form.querySelector('[data-editor-photo-preview]');
-  let photoUrl;
-  photo.addEventListener('change', () => {
-    if (photoUrl) URL.revokeObjectURL(photoUrl);
-    if (photo.files[0]) { photoUrl = URL.createObjectURL(photo.files[0]); preview.src = photoUrl; preview.hidden = false; }
-  });
+  const setupImagePreview = (inputName, previewSelector) => {
+    const input = form.elements.namedItem(inputName);
+    const preview = form.querySelector(previewSelector);
+    if (!input || !preview) return;
+    const wrap = preview.closest('.kv-photo-preview-wrap');
+    let objectUrl;
+    input.addEventListener('change', () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      if (input.files && input.files[0]) {
+        objectUrl = URL.createObjectURL(input.files[0]);
+        preview.src = objectUrl;
+        preview.hidden = false;
+        if (wrap) {
+          wrap.classList.remove('is-empty');
+          const placeholder = wrap.querySelector('.kv-photo-placeholder');
+          if (placeholder) placeholder.hidden = true;
+        }
+      }
+    });
+  };
+  setupImagePreview('photo', '[data-editor-photo-preview]');
+  setupImagePreview('cover_photo', '[data-editor-cover-preview]');
   const errors = form.querySelector('[data-editor-errors]');
   if (errors) errors.focus();
 })();

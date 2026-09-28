@@ -1,6 +1,8 @@
 import json
 import re
 from io import BytesIO
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
@@ -82,13 +84,132 @@ class VolunteerAccessTests(TestCase):
             'status': 'published', 'is_active': 'on', 'created_by': 999,
             'owner': 999, 'is_verified': 'on',
         })
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 302, response.content.decode())
         place = Place.objects.get(created_by=self.user)
         self.assertFalse(place.is_active)
         self.assertEqual(place.status, Place.STATUS_DRAFT)
         self.assertIsNone(place.owner_id)
         self.assertFalse(place.is_verified)
         self.assertEqual(place.volunteer_revision.status, 'pending')
+
+    def test_volunteer_cannot_create_duplicate_active_draft_with_same_name(self):
+        first = self.client.post('/admin/volunteer/add/', {
+            **self.editor_data('/admin/volunteer/add/'), 'name_az': 'Azərbaycan DəmirYol Muzeyi', 'category': 'EDU', 'action': 'draft',
+        })
+        self.assertEqual(first.status_code, 302)
+        place = Place.objects.get(created_by=self.user)
+
+        response = self.client.post('/admin/volunteer/add/', {
+            **self.editor_data('/admin/volunteer/add/'), 'name_az': '  azərbaycan dəmiryol muzeyi  ', 'category': 'EDU', 'action': 'draft',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['form'].non_field_errors())
+        self.assertEqual(Place.objects.filter(created_by=self.user, deleted_at__isnull=True).count(), 1)
+        self.assertEqual(response.context['duplicate_existing_url'], reverse('admin:volunteer_edit', args=[place.pk]))
+
+    def test_volunteer_can_soft_delete_own_draft(self):
+        response = self.client.post('/admin/volunteer/add/', {
+            **self.editor_data('/admin/volunteer/add/'), 'name_az': 'Duplicate draft', 'category': 'EDU', 'action': 'draft',
+        })
+        self.assertEqual(response.status_code, 302)
+        place = Place.objects.get(created_by=self.user)
+        self.assertEqual(place.volunteer_revision.status, 'draft')
+
+        response = self.client.post(reverse('admin:volunteer_delete', args=[place.pk]))
+
+        self.assertEqual(response.status_code, 302, response.content.decode())
+        place.refresh_from_db()
+        self.assertTrue(place.is_deleted)
+        self.assertTrue(PlaceChangeAudit.objects.filter(place=place, changed_by=self.user, field_name='deleted_at').exists())
+
+    def test_renamed_working_revision_blocks_duplicate_creation(self):
+        url = '/admin/volunteer/add/'
+        self.client.post(url, self.editor_data(url, name_az='Original museum', category='EDU', action='draft'))
+        place = Place.objects.get(created_by=self.user)
+        edit_url = reverse('admin:volunteer_edit', args=[place.pk])
+        self.assertEqual(self.client.post(edit_url, self.editor_data(edit_url, name_az='Renamed museum', action='draft')).status_code, 302)
+        response = self.client.post(url, self.editor_data(url, name_az='Renamed museum', category='EDU', action='draft'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['form'].non_field_errors())
+        self.assertEqual(Place.objects.filter(created_by=self.user).count(), 1)
+
+    def test_distinct_branch_requires_confirmation_and_checks_all_revisions(self):
+        url = '/admin/volunteer/add/'
+        def create(address, confirm=False):
+            return self.client.post(url, self.editor_data(url, name_az='Museum chain', address=address,
+                category='EDU', action='draft', create_as_distinct_branch=confirm))
+        self.assertEqual(create('Synthetic street 10').status_code, 302)
+        self.assertEqual(create('Synthetic street 20').status_code, 200)
+        self.assertEqual(create('Synthetic street 20', True).status_code, 302)
+        self.assertEqual(create('Synthetic street 20', True).status_code, 200)
+        self.assertEqual(Place.objects.filter(created_by=self.user).count(), 2)
+        self.assertTrue(PlaceChangeAudit.objects.filter(field_name='distinct_branch_confirmation', changed_by=self.user).exists())
+
+    def test_rejected_duplicate_does_not_store_uploaded_file(self):
+        from PIL import Image
+        url = '/admin/volunteer/add/'
+        self.client.post(url, self.editor_data(url, name_az='Photo museum', category='EDU', action='draft'))
+        buffer = BytesIO()
+        Image.new('RGB', (1200, 1200)).save(buffer, format='JPEG')
+        with TemporaryDirectory() as media, override_settings(MEDIA_ROOT=media):
+            response = self.client.post(url, {**self.editor_data(url, name_az='Photo museum', category='EDU', action='draft'),
+                'photo': SimpleUploadedFile('photo.jpg', buffer.getvalue(), content_type='image/jpeg')})
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(response.context['form'].non_field_errors())
+            self.assertEqual([p for p in Path(media).rglob('*') if p.is_file()], [])
+
+    def test_deletion_requires_csrf(self):
+        url = '/admin/volunteer/add/'
+        self.client.post(url, self.editor_data(url, name_az='CSRF museum', category='EDU', action='draft'))
+        place = Place.objects.get(created_by=self.user)
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(self.user)
+        self.assertEqual(client.post(reverse('admin:volunteer_delete', args=[place.pk])).status_code, 403)
+        place.refresh_from_db()
+        self.assertFalse(place.is_deleted)
+
+    def test_delete_view_denies_pending_even_without_middleware(self):
+        from django.test import RequestFactory
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        from django.core.exceptions import PermissionDenied
+        from catalog.domain_admin.volunteer import delete
+        place = Place.objects.create(name='Pending museum', category='EDU', created_by=self.user, status='draft', is_active=False)
+        VolunteerPlaceRevision.objects.create(place=place, author=self.user, status='pending')
+        request = RequestFactory().post('/admin/volunteer/delete/')
+        request.user = self.user
+        request.session = {}
+        request._messages = FallbackStorage(request)
+        with self.assertRaises(PermissionDenied):
+            delete(request, place.pk)
+        place.refresh_from_db()
+        self.assertFalse(place.is_deleted)
+
+    def test_delete_denies_published_foreign_and_owned_places(self):
+        other = User.objects.create_user('other-volunteer')
+        for params in ({'status': 'published', 'is_active': True}, {'created_by': other}, {'owner': other}):
+            place = Place.objects.create(**{'name': 'Protected', 'category': 'EDU', 'created_by': self.user, 'status': 'draft', 'is_active': False, **params})
+            VolunteerPlaceRevision.objects.create(place=place, author=self.user, status='draft')
+            response = self.client.post(reverse('admin:volunteer_delete', args=[place.pk]))
+            self.assertIn(response.status_code, (403, 404))
+            place.refresh_from_db()
+            self.assertFalse(place.is_deleted)
+
+    def test_editor_photo_controls_have_associated_labels(self):
+        response = self.client.get('/admin/volunteer/add/')
+        for field in ('photo', 'cover_photo'):
+            self.assertRegex(response.content.decode(), rf'<label[^>]+for="id_{field}"')
+
+    def test_editor_exposes_explicit_branch_confirmation(self):
+        response = self.client.get('/admin/volunteer/add/')
+        self.assertRegex(response.content.decode(), r'<input[^>]+type="checkbox"[^>]+name="create_as_distinct_branch"')
+
+    def test_verification_copy_uses_selected_language(self):
+        for lang, prefix, title in (('az', '', 'Kartın tamamlanması tələb olunur'), ('en', '/en', 'Card needs changes')):
+            self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = lang
+            response = self.client.get(f'{prefix}/admin/volunteer/add/')
+            self.assertContains(response, title)
+            self.assertNotContains(response, 'Требуется доработка карточки')
 
     def test_published_changes_stay_private_until_review(self):
         place = Place.objects.create(name='Before', name_az='Before', category='EDU', created_by=self.user)
@@ -698,6 +819,28 @@ class VolunteerAccessTests(TestCase):
 
 @skipUnless(connection.vendor == 'postgresql', 'Row-lock concurrency requires PostgreSQL')
 class VolunteerConcurrencyTests(TransactionTestCase):
+    def test_concurrent_create_produces_one_working_card(self):
+        from catalog.services.volunteer_places import editor_form, save_proposal
+        vol = User.objects.create_user('concurrent-create', is_staff=True)
+        vol.groups.add(Group.objects.create(name='KidsMap Volunteers'))
+        form = editor_form(Place(created_by=vol, status='draft', is_active=False))
+        data = {name: form[name].value() if form[name].value() is not None else ''
+                for name, field in form.fields.items() if not isinstance(field, forms.FileField)}
+        data.update(name_az='Concurrent museum', category='EDU', action='draft')
+        barrier = Barrier(2)
+        def create():
+            try:
+                actor = User.objects.get(pk=vol.pk)
+                barrier.wait(timeout=10)
+                _, _, bound = save_proposal(user=actor, place_id=None, data=data, files={})
+                return bool(bound.errors)
+            finally:
+                connections.close_all()
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            futures = [pool.submit(create) for _ in range(2)]
+            self.assertEqual(sorted(f.result(timeout=30) for f in futures), [False, True])
+        self.assertEqual(Place.objects.filter(created_by=vol).count(), 1)
+
     def test_two_reviewers_cannot_apply_the_same_revision_twice(self):
         from catalog.services.volunteer_places import content_snapshot, live_snapshot, review_proposal
         from django.core.exceptions import ValidationError

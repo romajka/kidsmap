@@ -6,6 +6,8 @@ from dataclasses import dataclass, replace
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
+from django.utils import timezone
+from catalog.services.moderation_sla import submission_message
 from django.utils.translation import gettext as _
 
 from catalog.forms import OwnerPlaceCreateForm, OwnerPlaceEditForm
@@ -466,6 +468,7 @@ class OwnerPlacesController:
 
         context = {
             "managed_places": managed_places,
+            'place_moderation_sla_message': submission_message('place'),
             "published_places": published_places,
             "draft_places": draft_places,
             "editable_draft_places": editable_draft_places,
@@ -675,6 +678,10 @@ class OwnerPlacesController:
         place.is_active = False
         place.is_verified = False
         place.status = Place.STATUS_DRAFT if draft_save_only else Place.STATUS_PENDING
+        place.submitted_at = None if draft_save_only else timezone.now()
+        place.needs_changes_at = None
+        place.moderated_at = None
+        place.moderated_by = None
         ownership_request: PlaceOwnershipRequest | None = None
         if not draft_save_only:
             place.rejection_reason = ""
@@ -791,7 +798,7 @@ class OwnerPlacesController:
                 else self._build_create_success_message(
                     manual_coordinates_selected=manual_coordinates_selected,
                     geocoding_result=geocoding_result,
-                )
+                ) + ' ' + submission_message('place')
             ),
             place=place,
             form=result.form,
@@ -1106,11 +1113,7 @@ class OwnerPlacesController:
         )
         return OwnerPlaceActionResult(
             ok=True,
-            message=tr_copy(
-                ru="Место отправлено на модерацию.",
-                az="Məkan moderasiyaya göndərildi.",
-                en="Place submitted for review.",
-            ),
+            message=submission_message('place'),
             place=place,
             ownership_request=ownership_request,
         )

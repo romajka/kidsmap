@@ -441,7 +441,9 @@
     list-style: none;
     user-select: none;
   }
+  .faq-accordion-item[open] .faq-accordion-btn { padding-bottom: 12px; }
   .faq-accordion-btn::-webkit-details-marker { display: none; }
+
 
   .faq-acc-icon {
     width: 44px;
@@ -496,16 +498,24 @@
   }
 
   .faq-acc-body-inner {
-    padding: 0 22px 20px 80px;
+    padding: 0 20px 20px 80px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
     color: #4c5b58;
     font-size: 15.5px;
-    line-height: 1.65;
+    line-height: 1.6;
+  }
+  .faq-acc-body-inner p {
+    margin: 0;
+    line-height: 1.6;
+    max-width: 95ch;
+    text-wrap: pretty;
   }
   @media (max-width: 640px) {
-    .faq-acc-body-inner { padding-left: 20px; }
+    .faq-accordion-btn { padding: 14px 16px; gap: 12px; }
+    .faq-accordion-item[open] .faq-accordion-btn { padding-bottom: 10px; }
+    .faq-acc-body-inner { padding: 0 16px 16px 16px; }
   }
   .faq-acc-actions {
     display: flex;

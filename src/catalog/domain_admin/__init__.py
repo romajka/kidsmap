@@ -590,6 +590,15 @@ def _kidsmap_each_context(self, request):
             "key": "volunteer_review", "label": str(_("Волонтёры")), "icon": "fas fa-check", "active": False,
             "items": [{"label": str(_("Изменения волонтёров")), "url": reverse("admin:volunteer_review_index"), "icon": "fas fa-check", "active": request.path.startswith(reverse("admin:volunteer_review_index"))}],
         })
+    from catalog.services.moderation_queue import allowed_kinds
+    if allowed_kinds(request.user):
+        from catalog.services.permanent_place_rules import copy as t
+        context['kidsmap_sidebar_sections'].append({
+            'key': 'moderation_sla', 'label': t('Сроки модерации', 'Moderasiya müddətləri', 'Moderation deadlines'),
+            'icon': 'fas fa-clock', 'active': False,
+            'items': [{'label': 'Moderation SLA', 'url': reverse('admin:moderation_sla'),
+                       'icon': 'fas fa-clock', 'active': getattr(request.resolver_match, 'url_name', '') == 'moderation_sla'}],
+        })
     return context
 
 
@@ -605,3 +614,4 @@ from .place import *
 from .specialist import *
 from .seo import *
 from . import volunteer
+from . import moderation_sla

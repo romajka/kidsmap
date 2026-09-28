@@ -193,6 +193,18 @@ else:
     ACCOUNT_DELETION_RETENTION_POLICY = {"active": False}
 ACCOUNT_DELETION_CODE_TTL_MINUTES = int(os.getenv("ACCOUNT_DELETION_CODE_TTL_MINUTES", "10"))
 ACCOUNT_DELETION_CODE_MAX_ATTEMPTS = int(os.getenv("ACCOUNT_DELETION_CODE_MAX_ATTEMPTS", "5"))
+# Approved moderation policy. Keep all consumers behind catalog.services.moderation_sla
+# so future content types can be configured without duplicating deadline math.
+MODERATION_SLA = {
+    "place": {"hours": 72, "warning_percent": 50, "critical_percent": 80},
+    "review": {"hours": 24, "warning_percent": 50, "critical_percent": 80},
+}
+if os.getenv('MODERATION_SLA_POLICY_JSON', '').strip():
+    try:
+        MODERATION_SLA = json.loads(os.environ['MODERATION_SLA_POLICY_JSON'])
+    except json.JSONDecodeError as exc:
+        raise ImproperlyConfigured('Invalid MODERATION_SLA_POLICY_JSON') from exc
+MODERATION_QUEUE_BACKLOG_THRESHOLD = int(os.getenv('MODERATION_QUEUE_BACKLOG_THRESHOLD', '0'))
 SERVER_EMAIL = os.getenv("SERVER_EMAIL", "info@kidsmap.az")
 EMAIL_OTP_TTL_MINUTES = int(os.getenv("EMAIL_OTP_TTL_MINUTES", "10"))
 EMAIL_OTP_RESEND_COOLDOWN_SECONDS = int(os.getenv("EMAIL_OTP_RESEND_COOLDOWN_SECONDS", "60"))

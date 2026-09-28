@@ -14,6 +14,7 @@ from django.db.models import Q, Count
 from catalog.models import PlaceReview, SiteReview
 from catalog.services.content_quality import review_quality_check
 from .ui_utils import render_primary_action, render_inline_action, render_action_menu, render_row_actions_container, build_admin_query_string
+from .moderation_actor import ModerationActorAdminMixin
 
 def _localized_admin_url(path: str) -> str:
     from django.utils.translation import get_language
@@ -147,7 +148,7 @@ class ReviewRiskFilter(admin.SimpleListFilter):
 
 
 @admin.register(PlaceReview)
-class PlaceReviewAdmin(admin.ModelAdmin):
+class PlaceReviewAdmin(ModerationActorAdminMixin, admin.ModelAdmin):
     change_list_template = "admin/catalog/placereview/change_list.html"
     km_primary_filters = ("review_status", "risk_signal", "rating")
     list_per_page = 15
@@ -570,13 +571,14 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         }
         self.message_user(request, messages_map[action_key], level=messages.SUCCESS)
 
-    def _toggle_review_visibility(self, *, obj, is_approved: bool, rejected: bool = False):
+    def _toggle_review_visibility(self, *, obj, is_approved: bool, rejected: bool = False, moderator=None):
         target_status = obj.STATUS_APPROVED if is_approved else (obj.STATUS_REJECTED if rejected else obj.STATUS_PENDING)
         if obj.is_approved == is_approved and obj.status == target_status:
             return False
         obj.status = target_status
         obj.is_approved = is_approved
-        obj.save(update_fields=["status", "is_approved", "updated_at"])
+        obj.moderated_by = moderator if target_status != 'pending' else None
+        obj.save(update_fields=["status", "is_approved", "updated_at", "moderated_by"])
         return True
 
     def approve_view(self, request, object_id):
@@ -587,7 +589,7 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         if obj is None:
             return HttpResponseRedirect(self._review_changelist_url())
         if request.method == "POST":
-            self._toggle_review_visibility(obj=obj, is_approved=True)
+            self._toggle_review_visibility(obj=obj, is_approved=True, moderator=request.user)
             self._message_for_single_review_action(request=request, obj=obj, action_key="approve")
             return HttpResponseRedirect(self._review_changelist_url())
         return TemplateResponse(request, "admin/catalog/placereview/moderation_confirm.html", {
@@ -608,7 +610,7 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         if obj is None:
             return HttpResponseRedirect(self._review_changelist_url())
         if request.method == "POST":
-            self._toggle_review_visibility(obj=obj, is_approved=False)
+            self._toggle_review_visibility(obj=obj, is_approved=False, moderator=request.user)
             self._message_for_single_review_action(request=request, obj=obj, action_key="hide")
             return HttpResponseRedirect(self._review_changelist_url())
         return TemplateResponse(request, "admin/catalog/placereview/moderation_confirm.html", {
@@ -629,7 +631,7 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         if obj is None:
             return HttpResponseRedirect(self._review_changelist_url())
         if request.method == "POST":
-            self._toggle_review_visibility(obj=obj, is_approved=False, rejected=True)
+            self._toggle_review_visibility(obj=obj, is_approved=False, rejected=True, moderator=request.user)
             self._message_for_single_review_action(request=request, obj=obj, action_key="reject")
             return HttpResponseRedirect(self._review_changelist_url())
         return TemplateResponse(request, "admin/catalog/placereview/moderation_confirm.html", {
@@ -645,7 +647,7 @@ class PlaceReviewAdmin(admin.ModelAdmin):
     @admin.action(description=_("Опубликовать выбранные отзывы"))
     def approve_selected(self, request, queryset):
         place_ids = list(queryset.values_list("place_id", flat=True).distinct())
-        updated_count = queryset.exclude(is_approved=True, status=PlaceReview.STATUS_APPROVED).update(is_approved=True, status=PlaceReview.STATUS_APPROVED, updated_at=timezone.now())
+        updated_count = queryset.exclude(is_approved=True, status=PlaceReview.STATUS_APPROVED).update(is_approved=True, status=PlaceReview.STATUS_APPROVED, moderated_at=timezone.now(), moderated_by=request.user, updated_at=timezone.now())
         from catalog.models.review import sync_place_rating_stats
         sync_place_rating_stats(place_ids)
         self.message_user(
@@ -657,7 +659,7 @@ class PlaceReviewAdmin(admin.ModelAdmin):
     @admin.action(description=_("Скрыть выбранные отзывы"))
     def hide_selected(self, request, queryset):
         place_ids = list(queryset.values_list("place_id", flat=True).distinct())
-        updated_count = queryset.exclude(is_approved=False, status=PlaceReview.STATUS_PENDING).update(is_approved=False, status=PlaceReview.STATUS_PENDING, updated_at=timezone.now())
+        updated_count = queryset.exclude(is_approved=False, status=PlaceReview.STATUS_PENDING).update(is_approved=False, status=PlaceReview.STATUS_PENDING, submitted_at=timezone.now(), moderated_at=None, moderated_by=None, updated_at=timezone.now())
         from catalog.models.review import sync_place_rating_stats
         sync_place_rating_stats(place_ids)
         self.message_user(
@@ -669,7 +671,7 @@ class PlaceReviewAdmin(admin.ModelAdmin):
     @admin.action(description=_("Отклонить выбранные отзывы"))
     def reject_selected(self, request, queryset):
         place_ids = list(queryset.values_list("place_id", flat=True).distinct())
-        updated_count = queryset.exclude(is_approved=False, status=PlaceReview.STATUS_REJECTED).update(is_approved=False, status=PlaceReview.STATUS_REJECTED, updated_at=timezone.now())
+        updated_count = queryset.exclude(is_approved=False, status=PlaceReview.STATUS_REJECTED).update(is_approved=False, status=PlaceReview.STATUS_REJECTED, moderated_at=timezone.now(), moderated_by=request.user, updated_at=timezone.now())
         from catalog.models.review import sync_place_rating_stats
         sync_place_rating_stats(place_ids)
         self.message_user(
@@ -705,7 +707,7 @@ class PlaceReviewAdmin(admin.ModelAdmin):
 
 
 @admin.register(SiteReview)
-class SiteReviewAdmin(admin.ModelAdmin):
+class SiteReviewAdmin(ModerationActorAdminMixin, admin.ModelAdmin):
     list_display = ("display_author", "rating", "status", "is_approved", "likes_count", "dislikes_count", "contains_profanity", "created_at")
     list_filter = ("status", "is_approved", "rating", "contains_profanity", "created_at")
     search_fields = ("author_name", "text")

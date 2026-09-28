@@ -1,6 +1,20 @@
 # KidsMap Account Data Retention Policy
 
-> **Status: DRAFT — NOT APPROVED — SELF-SERVICE DELETION MUST REMAIN DISABLED**
+> **Status: business rules approved in the user conversation on 2026-09-28; operational activation remains pending.** Self-service deletion remains disabled until the complete policy configuration and operational prerequisites below are verified.
+
+## Confirmed decisions — 2026-09-28
+
+The user explicitly approved these rules. This records product approval, not a claim that legal review, production scheduling or backup expiry has been independently verified.
+
+- Grace period: 30 calendar days; the existing flow supports cancellation before the deadline.
+- Published reviews: anonymize; other reviews: delete.
+- Published organization content: retain, unlink the owner and remove team access.
+- Moderation history: retain anonymized; personal analytics: delete.
+- Deletion audit: retain 365 days without email, name or phone.
+- Backups: maximum expiry 15 days, subject to verification of every backup destination.
+- Legal hold: only a recorded lawful basis; the account stays disabled.
+
+The unresolved placeholders below concern activation ownership, exact public copy and categories not explicitly approved, such as unpublished owner content. Do not turn them into unsupported production promises.
 
 This document is the activation record for account deletion. Replace every bracketed value, obtain a written decision from the authorized privacy/legal and infrastructure owners, then configure the same immutable values in `ACCOUNT_DELETION_RETENTION_POLICY_JSON`.
 

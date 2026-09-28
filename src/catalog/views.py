@@ -2710,6 +2710,7 @@ def add_specialist_review(request, pk):
         "text": moderated.text,
         "author_name": moderated.author_name,
         "status": SpecialistReview.STATUS_PENDING,
+        'submitted_at': timezone.now(), 'moderated_at': None, 'moderated_by': None,
         "is_approved": False,
         "rejection_reason": "",
     }
@@ -2720,7 +2721,8 @@ def add_specialist_review(request, pk):
         defaults=defaults
     )
 
-    message = _("Мы получили ваш отзыв. Он появится на сайте после проверки модератором.")
+    from catalog.services.moderation_sla import submission_message
+    message = submission_message('review')
     if moderated.contains_profanity:
         message = f"{message} {_('Нецензурные слова были автоматически скрыты.')}"
 

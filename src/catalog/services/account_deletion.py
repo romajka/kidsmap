@@ -464,11 +464,20 @@ def confirm_account_deletion(
     return deletion
 
 
+def _lock_deletion(**lookup) -> AccountDeletionRequest:
+    # The nullable user FK creates an outer join: PostgreSQL cannot lock its
+    # nullable side. Lock each existing row separately inside the caller's tx.
+    deletion = AccountDeletionRequest.objects.select_for_update().get(**lookup)
+    if deletion.user_id is not None:
+        deletion.user = get_user_model().objects.select_for_update().get(pk=deletion.user_id)
+    return deletion
+
+
 def issue_cancellation_code(*, subject_reference: UUID | str, language_code: str | None = None, now=None) -> AccountDeletionRequest:
     now = now or timezone.now()
     language = _normalize_language(language_code)
     with transaction.atomic():
-        deletion = AccountDeletionRequest.objects.select_for_update().select_related("user").get(subject_reference=subject_reference)
+        deletion = _lock_deletion(subject_reference=subject_reference)
         if deletion.status != AccountDeletionRequest.Status.SCHEDULED or deletion.user is None:
             raise AccountDeletionError("account_deletion_not_cancelable")
         if deletion.scheduled_for is None or now >= deletion.scheduled_for:
@@ -505,7 +514,7 @@ def cancel_account_deletion(*, subject_reference: UUID | str, code: str, now=Non
     now = now or timezone.now()
     error_code = None
     with transaction.atomic():
-        deletion = AccountDeletionRequest.objects.select_for_update().select_related("user").get(subject_reference=subject_reference)
+        deletion = _lock_deletion(subject_reference=subject_reference)
         if deletion.status != AccountDeletionRequest.Status.SCHEDULED or deletion.user is None:
             raise AccountDeletionError("account_deletion_not_cancelable")
         if deletion.scheduled_for is None or now >= deletion.scheduled_for:
@@ -670,7 +679,7 @@ def finalize_account_deletion(request_id: int, *, now=None) -> FinalizationResul
     now = now or timezone.now()
     try:
         with transaction.atomic():
-            deletion = AccountDeletionRequest.objects.select_for_update().select_related("user").get(pk=request_id)
+            deletion = _lock_deletion(pk=request_id)
             return _finalize_locked(deletion, now=now)
     except AccountDeletionRequest.DoesNotExist:
         return FinalizationResult("skipped", {})

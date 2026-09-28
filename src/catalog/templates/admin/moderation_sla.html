@@ -1,0 +1,24 @@
+{% extends 'admin/base_site.html' %}{% load static %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/moderation_sla.css' %}">{% endblock %}
+{% block content %}
+<section class="km-sla" aria-labelledby="sla-heading">
+  <h1 id="sla-heading">{{ title }}</h1><p>{{ copy.note }}</p>
+  <p>{{ copy.places }}: <strong>{{ places_count }}</strong> · {{ copy.reviews }}: <strong>{{ reviews_count }}</strong></p>
+  <p role="status">SLA warning: {{ counts.warning|default:0 }} · SLA critical: {{ counts.critical|default:0 }} · SLA breached: {{ counts.breached|default:0 }}</p>
+  {% if backlog_warning %}<p role="alert">{{ copy.backlog }}</p>{% endif %}
+  <form method="get" class="km-sla__filters">
+    <label>{{ copy.type }}<select name="type"><option value="">{{ copy.all }}</option><option value="place" {% if params.type == 'place' %}selected{% endif %}>{{ copy.places }}</option><option value="review" {% if params.type == 'review' %}selected{% endif %}>{{ copy.reviews }}</option></select></label>
+    <label>{{ copy.status }}<select name="status">{% for value, label in statuses %}<option value="{{ value }}" {% if params.status == value or not params.status and value == 'pending' %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+    <label>SLA<select name="sla_status">{% for value, label in sla_statuses %}<option value="{{ value }}" {% if params.sla_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+    <label>{{ copy.from }}<input type="date" name="from" value="{{ params.from }}"></label><label>{{ copy.to }}<input type="date" name="to" value="{{ params.to }}"></label><button type="submit">{{ copy.filter }}</button>
+  </form>
+  <div class="km-sla__table" tabindex="0" role="region" aria-label="{{ title }}"><table>
+    <thead><tr><th>{{ copy.type }}</th><th>{{ copy.material }}</th><th>{{ copy.status }}</th><th>{{ copy.received }}</th><th>{{ copy.age }}</th><th>{{ copy.deadline }}</th><th>{{ copy.remaining }}</th><th>SLA</th></tr></thead>
+    <tbody>{% for row in page %}<tr><td>{{ row.kind_label }}</td><td><a href="{{ row.url }}">{{ row.name }}</a>
+      {% if row.needs_changes_url %}<details><summary>{{ copy.needs_changes }}</summary><form method="post" action="{{ row.needs_changes_url }}">{% csrf_token %}<label>{{ copy.reason }}<textarea name="reason" required maxlength="5000"></textarea></label><button type="submit">{{ copy.needs_changes }}</button></form></details>{% endif %}</td>
+      <td>{{ row.status_label }}</td><td>{{ row.submitted_at|date:'d.m.Y H:i' }}{% if row.estimated %}<small>{{ copy.estimated }}</small>{% endif %}</td><td>{{ row.age_hours }}</td><td>{{ row.sla.deadline|date:'d.m.Y H:i'|default:'—' }}</td><td>{{ row.remaining_hours|default_if_none:'—' }}</td><td><span class="km-sla__badge km-sla__badge--{{ row.sla.status }}">{{ row.sla_label }}</span></td></tr>
+    {% empty %}<tr><td colspan="8">{{ copy.empty }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% if page.has_previous %}<a href="?{{ params.urlencode }}&page={{ page.previous_page_number }}">←</a>{% endif %}<span>{{ page.number }} / {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a href="?{{ params.urlencode }}&page={{ page.next_page_number }}">→</a>{% endif %}
+</section>
+{% endblock %}

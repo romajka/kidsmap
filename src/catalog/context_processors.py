@@ -13,7 +13,8 @@ from .services.features import is_events_section_enabled, is_specialists_section
 from .services.public_urls import build_public_absolute_uri, filtered_query_string, public_origin
 from .services.auth_redirects import build_header_login_url
 
-DEFAULT_FOOTER_PHONE = "+994 50 540 66 39"
+DEFAULT_FOOTER_PHONE = "+994 55 497 97 23"
+DEFAULT_FOOTER_WHATSAPP_URL = "https://wa.me/994554979723"
 DEFAULT_FOOTER_EMAIL = "info@kidsmap.az"
 LOCAL_ANALYTICS_HOSTS = {"localhost", "127.0.0.1", "testserver"}
 # Visitor pages only; keep account and authentication workflows quiet.
@@ -236,7 +237,7 @@ def site_settings(request):
             "footer_phone": DEFAULT_FOOTER_PHONE,
             "footer_email": DEFAULT_FOOTER_EMAIL,
             "footer_instagram_url": DEFAULT_FOOTER_INSTAGRAM_URL,
-            "footer_whatsapp_url": "",
+            "footer_whatsapp_url": DEFAULT_FOOTER_WHATSAPP_URL,
             "footer_social_links": footer_social_links,
             **google_analytics_context,
             "queued_analytics_events": queued_analytics_events,
@@ -263,8 +264,12 @@ def site_settings(request):
         footer_instagram_url = DEFAULT_FOOTER_INSTAGRAM_URL
 
     footer_phone = (cfg.footer_phone or "").strip()
-    if footer_phone in {"", "+994 00 000 00 00"}:
+    if footer_phone in {"", "+994 00 000 00 00", "+994 50 540 66 39"}:
         footer_phone = DEFAULT_FOOTER_PHONE
+
+    footer_whatsapp_url = (cfg.footer_whatsapp or "").strip()
+    if not footer_whatsapp_url or "994505406639" in footer_whatsapp_url or "5406639" in footer_whatsapp_url:
+        footer_whatsapp_url = DEFAULT_FOOTER_WHATSAPP_URL
 
     footer_social_links = _build_social_links(cfg=cfg)
     logo_url = cfg.logo.url if getattr(cfg, "logo", None) else static("img/logo.svg")
@@ -286,7 +291,7 @@ def site_settings(request):
         "footer_phone": footer_phone,
         "footer_email": footer_email,
         "footer_instagram_url": footer_instagram_url,
-        "footer_whatsapp_url": (cfg.footer_whatsapp or "").strip(),
+        "footer_whatsapp_url": footer_whatsapp_url,
         "footer_social_links": footer_social_links,
         **google_analytics_context,
         "queued_analytics_events": queued_analytics_events,

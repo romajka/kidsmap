@@ -4566,7 +4566,8 @@ class PlaceAdmin(admin.ModelAdmin):
                 place.status = Place.STATUS_PUBLISHED
                 place.is_active = True
                 place.rejection_reason = ""
-                update_fields = ["status", "is_active", "rejection_reason", "updated_at"]
+                place.moderated_by = request.user
+                update_fields = ["status", "is_active", "rejection_reason", "updated_at", "moderated_by"]
                 if place.published_at is None:
                     place.published_at = timezone.now()
                     update_fields.append("published_at")
@@ -4947,9 +4948,10 @@ class PlaceAdmin(admin.ModelAdmin):
             place.status = Place.STATUS_PUBLISHED
             place.is_active = True
             place.rejection_reason = ""
+            place.moderated_by = request.user
             if place.published_at is None:
                 place.published_at = now
-            place.save(update_fields=["status", "is_active", "rejection_reason", "published_at", "updated_at"])
+            place.save(update_fields=["status", "is_active", "rejection_reason", "published_at", "updated_at", "moderated_by"])
             published_count += 1
         self.message_user(
             request,
@@ -4965,9 +4967,10 @@ class PlaceAdmin(admin.ModelAdmin):
         for place in queryset.iterator(chunk_size=100):
             place.status = Place.STATUS_REJECTED
             place.is_active = False
+            place.moderated_by = request.user
             if not (place.rejection_reason or "").strip():
                 place.rejection_reason = default_reason
-            place.save(update_fields=["status", "is_active", "rejection_reason", "updated_at"])
+            place.save(update_fields=["status", "is_active", "rejection_reason", "updated_at", "moderated_by"])
             updated_count += 1
         self.message_user(
             request,
@@ -5224,6 +5227,8 @@ class PlaceAdmin(admin.ModelAdmin):
         if not change and not obj.created_by_id:
             obj.created_by = request.user
 
+        if obj.status != old_status and obj.status in {Place.STATUS_REJECTED, Place.STATUS_PUBLISHED, Place.STATUS_NEEDS_CHANGES}:
+            obj.moderated_by = request.user
         super().save_model(request, obj, form, change)
         if getattr(form, "place_readiness_compatibility", False):
             readiness = form.place_readiness

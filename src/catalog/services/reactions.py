@@ -1,5 +1,6 @@
 from django.db import IntegrityError, transaction
 from django.db.models import Count, Q
+from django.utils import timezone
 
 from catalog.models import (
     PlaceLike,
@@ -80,6 +81,9 @@ def create_or_update_review(place, request, *, rating, review_text, author_name,
         "rating": rating,
         "text": review_text,
         "contains_profanity": contains_profanity,
+        "submitted_at": timezone.now(),
+        "moderated_at": None,
+        "moderated_by": None,
     }
     if request.user.is_authenticated:
         review, created = PlaceReview.objects.update_or_create(

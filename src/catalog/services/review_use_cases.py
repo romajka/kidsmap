@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from django.utils.translation import gettext as _
+from django.utils import timezone
+from catalog.services.moderation_sla import submission_message
 
 from catalog.models import PlaceReview, SiteReview
 from catalog.services.review_moderation import moderate_review_content
@@ -130,7 +132,7 @@ def submit_place_review(*, request, place, require_auth: bool) -> ReviewSubmissi
             contains_profanity=moderated.contains_profanity,
         )
 
-    message = _("Мы получили ваш отзыв. Он появится на сайте после проверки модератором.")
+    message = submission_message('review')
     if moderated.contains_profanity:
         message = f"{message} {_('Нецензурные слова были автоматически скрыты.')}"
 
@@ -164,6 +166,7 @@ def submit_site_review(*, request, require_auth: bool) -> ReviewSubmissionResult
         "contains_profanity": moderated.contains_profanity,
         "is_approved": False,
         "status": SiteReview.STATUS_PENDING,
+        'submitted_at': timezone.now(), 'moderated_at': None, 'moderated_by': None,
         "rejection_reason": "",
         "session_key": session_key,
     }
@@ -180,7 +183,7 @@ def submit_site_review(*, request, require_auth: bool) -> ReviewSubmissionResult
             defaults=defaults,
         )
 
-    message = _("Мы получили ваш отзыв. Он появится на сайте после проверки модератором.")
+    message = submission_message('review')
     if moderated.contains_profanity:
         message = f"{message} {_('Нецензурные слова были автоматически скрыты.')}"
 

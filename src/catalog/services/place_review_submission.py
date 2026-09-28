@@ -55,5 +55,6 @@ def create_pending_place_review(*, user, place, rating, text, author_name, conta
             user=user, place=place, rating=rating, text=text, author_name=author_name,
             contains_profanity=contains_profanity, is_anonymous=False,
             status=PlaceReview.STATUS_PENDING, is_approved=False, rejection_reason='',
+            submitted_at=now,
         )
     return review, cooldown_payload(next_at, now=now)

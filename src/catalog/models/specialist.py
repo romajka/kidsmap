@@ -448,6 +448,9 @@ class SpecialistReview(models.Model):
         db_index=True
     )
     rejection_reason = models.TextField(_("Причина отклонения"), blank=True, default="")
+    submitted_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    moderated_at = models.DateTimeField(null=True, blank=True)
+    moderated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='moderated_specialist_reviews')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -461,6 +464,8 @@ class SpecialistReview(models.Model):
         return f"{self.specialist_id}:{self.rating}"
 
     def save(self, *args, **kwargs):
+        from catalog.services.moderation_sla import prepare_moderation_save
+        prepare_moderation_save(self, kwargs)
         self.is_approved = (self.status == self.STATUS_APPROVED)
         super().save(*args, **kwargs)
         self.specialist.refresh_rating_stats()
@@ -490,4 +495,3 @@ def _on_specialist_review_saved(sender, instance, **kwargs):
 def _on_specialist_review_deleted(sender, instance, **kwargs):
     if instance.specialist_id:
         instance.specialist.refresh_rating_stats()
-

@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20260907_12" />
+  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20260928_1" />
 {% endblock %}
 
 {% block content %}
@@ -589,13 +589,16 @@
     {% endif %}
 
     <div class="results-toolbar">
-      <div class="results-toolbar-top-row">
+      <div class="results-toolbar-top-row results-toolbar-left">
         <p class="results-count">
-          {{ results_count_label }}
+          <span class="results-count-dot" aria-hidden="true"></span>
+          <span class="results-count-text">{{ results_count_label }}</span>
         </p>
+      </div>
+      <div class="results-toolbar-actions">
         <button
           type="button"
-          class="link-btn icon-btn icon-map results-map-toggle"
+          class="results-map-toggle"
           data-catalog-map-open
           aria-controls="catalog-map-panel"
           aria-expanded="false"
@@ -605,8 +608,6 @@
           <span class="results-map-toggle-label">{% if language == "az" %}Xəritə{% elif language == "en" %}Map{% else %}{% trans "Карта" %}{% endif %}</span>
           <span class="results-map-count">{{ catalog_map_places_count }}</span>
         </button>
-      </div>
-      <div class="results-toolbar-actions">
         <button
           type="button"
           class="btn mobile-search-filter"
@@ -938,6 +939,8 @@
       </div>
     </nav>
   {% endif %}
+
+  {% include "catalog/includes/catalog_expansion_banner.html" with language=language %}
 
   {% if not is_new_page %}
     </div>

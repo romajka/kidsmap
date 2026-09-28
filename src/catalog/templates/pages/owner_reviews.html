@@ -242,6 +242,7 @@
                   </div>
                 </div>
                 <p style="margin: 0; font-size: 14px; line-height: 1.55; color: #2D4A3E;">{{ rev.text|default:"—" }}</p>
+                {% if rev.status == 'pending' %}<p class="account-pending-callout">{{ review_moderation_sla_message }}</p>{% elif rev.status == 'rejected' and rev.rejection_reason %}<p class="account-rejection-callout">{{ rev.rejection_reason }}</p>{% endif %}
               </div>
             {% endfor %}
           </div>

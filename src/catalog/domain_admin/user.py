@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.admin.sites import NotRegistered
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import Count, Q
+from django.db.models.functions import Lower, Trim
 from django.http import HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
@@ -51,6 +52,16 @@ class StaffAccessUserCreationForm(AdminUserCreationForm):
         initial=ADMIN_ROLE_MODERATOR,
         widget=forms.RadioSelect,
     )
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email", "").strip()
+        if email and User.objects.annotate(
+            normalized_email=Lower(Trim("email")),
+        ).filter(normalized_email=email.lower()).exists():
+            raise ValidationError(
+                _("Пользователь с таким email уже существует."), code="unique",
+            )
+        return email
 
 
 class StaffRoleChangeForm(forms.Form):

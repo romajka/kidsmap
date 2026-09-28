@@ -8,13 +8,14 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.views.decorators.http import require_http_methods
+from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 
-from catalog.models import Place, VolunteerPlaceRevision
+from catalog.models import Place, PlaceChangeAudit, VolunteerPlaceRevision
 from catalog.services.staff_roles import can_use_volunteer_workspace
 from catalog.services.volunteer_places import (
     editor_form, own_places, save_proposal, require_reviewer, review_proposal,
-    restart_proposal, live_snapshot, review_form,
+    restart_proposal, live_snapshot, review_form, can_delete_working_place,
 )
 from catalog.services.place_readiness import evaluate_form_readiness
 from catalog.services.place_schedule import build_schedule_summary
@@ -23,6 +24,8 @@ from catalog.services.permanent_place_rules import copy as t
 from catalog.services.volunteer_dashboard import dashboard_context, workspace_places, display_card
 from catalog.services.volunteer_editor import editor_context
 from catalog.services.place_taxonomy_config import build_place_taxonomy_config
+from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepository
+from catalog.services.moderation_sla import submission_message
 
 
 def render(request, template, **context):
@@ -68,6 +71,30 @@ def photo(request, place_id, kind):
     raise Http404
 
 
+@require_http_methods(["POST"])
+@transaction.atomic
+def delete(request, place_id):
+    if not can_use_volunteer_workspace(request.user):
+        raise PermissionDenied
+    place = get_object_or_404(
+        Place.objects.select_for_update().filter(
+            created_by=request.user, owner__isnull=True, deleted_at__isnull=True, is_temporary=False,
+        ),
+        pk=place_id,
+    )
+    revision = VolunteerPlaceRevision.objects.select_for_update().filter(place=place).first()
+    if not can_delete_working_place(place, revision):
+        raise PermissionDenied
+    before = {"is_active": place.is_active, "deleted_at": place.deleted_at, "deleted_by_id": place.deleted_by_id}
+    if place.soft_delete(deleted_by=request.user):
+        DjangoPlaceChangeAuditRepository().create_entries(
+            place=place, changed_by=request.user, source=PlaceChangeAudit.SOURCE_VOLUNTEER,
+            changes={key: (before[key], getattr(place, key)) for key in before if before[key] != getattr(place, key)},
+        )
+    messages.success(request, t("Карточка перемещена в корзину.", "Kart səbətə köçürüldü.", "Card moved to trash."))
+    return redirect("admin:volunteer_index")
+
+
 @require_http_methods(["GET", "POST"])
 def edit(request, place_id=None):
     if not can_use_volunteer_workspace(request.user):
@@ -91,16 +118,20 @@ def edit(request, place_id=None):
         else:
             place, revision, form = save_proposal(user=request.user, place_id=place_id, data=request.POST, files=request.FILES)
             if not form.errors:
-                messages.success(request, t("Место отправлено на модерацию. Статус проверки — в разделе «Мои места».", "Məkan moderasiyaya göndərildi. Statusu «Məkanlarım» bölməsində izləyə bilərsiniz.", "Place submitted for review. Track its status in My places.") if action == "submit" else t("Черновик сохранён.", "Qaralama saxlanıldı.", "Draft saved."))
+                messages.success(request, submission_message('place') if action == "submit" else t("Черновик сохранён.", "Qaralama saxlanıldı.", "Draft saved."))
                 return redirect("admin:volunteer_edit", place_id=place.pk)
     else:
         form = editor_form(place, revision)
     conflict = bool(revision and revision.status != "approved" and revision.base_snapshot != live_snapshot(place))
+    duplicate_existing_url = ""
+    if getattr(form, "duplicate_existing_place_id", None):
+        duplicate_existing_url = reverse("admin:volunteer_edit", args=[form.duplicate_existing_place_id])
     return render(request, "edit", title=_("Редактировать место") if place_id else _("Добавить место"),
                   form=form, adminform={"form": form}, sections=form.sections(), place=place,
                   revision=revision, conflict=conflict, volunteer_editor=True, km_place_taxonomy_picker=build_place_taxonomy_config(form), **editor_context(form),
                   google_maps_api_key=settings.GOOGLE_MAPS_API_KEY,
-                  card=display_card(workspace_places(request.user).get(pk=place.pk)) if place.pk else None)
+                  card=display_card(workspace_places(request.user).get(pk=place.pk)) if place.pk else None,
+                  duplicate_existing_url=duplicate_existing_url)
 
 
 @require_http_methods(["GET"])
@@ -171,9 +202,10 @@ def get_urls():
     return [
         path("volunteer/", wrap(index), name="volunteer_index"),
         path("volunteer/add/", wrap(edit), name="volunteer_add"),
-        path("volunteer/<int:place_id>/", wrap(detail), name="volunteer_detail"),
+        path("volunteer/<int:place_id>/delete/", wrap(delete), name="volunteer_delete"),
         path("volunteer/<int:place_id>/photo/<str:kind>/", wrap(photo), name="volunteer_photo"),
         path("volunteer/<int:place_id>/edit/", wrap(edit), name="volunteer_edit"),
+        path("volunteer/<int:place_id>/", wrap(detail), name="volunteer_detail"),
         path("volunteer/review/", wrap(review_index), name="volunteer_review_index"),
         path("volunteer/review/<int:place_id>/", wrap(review), name="volunteer_review"),
     ] + _original_get_urls()

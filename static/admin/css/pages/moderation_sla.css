@@ -1,0 +1,17 @@
+.km-sla { padding: 24px; width: 100%; min-width: 0; max-width: 1600px; box-sizing: border-box; color: #16211a; }
+.km-sla__filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 24px 0; }
+.km-sla label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; }
+.km-sla input, .km-sla select, .km-sla textarea { border: 1px solid #b6c3bb; border-radius: 6px; padding: 8px; background: white; max-width: 100%; }
+.km-sla button { padding: 9px 16px; background: #136f38; color: white; border: 0; border-radius: 6px; cursor: pointer; }
+.km-sla__table { overflow-x: auto; background: white; border-radius: 8px; }
+.km-sla table { width: 100%; border-collapse: collapse; }
+.km-sla th, .km-sla td { padding: 12px; border-bottom: 1px solid #dde2de; vertical-align: top; }
+.km-sla td small { display: block; }
+.km-sla td:nth-child(2) { min-width: 180px; max-width: 300px; overflow-wrap: anywhere; }
+.km-sla__badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-weight: 600; }
+.km-sla__badge--fresh { background: #e4f0e9; color: #0d5029; }
+.km-sla__badge--warning { background: #fbf3e2; color: #735616; }
+.km-sla__badge--critical, .km-sla__badge--breached { background: #fbe9e7; color: #8c2525; }
+.km-sla__badge--paused, .km-sla__badge--completed { background: #eef1ef; color: #3c4b42; }
+.km-sla :focus-visible { outline: 2px solid #136f38; outline-offset: 3px; }
+@media (max-width: 600px) { .km-sla { padding: 12px; } .km-sla__filters > label { flex: 1 1 140px; min-width: 0; } }

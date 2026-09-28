@@ -57,11 +57,13 @@ class Place(models.Model):
     STATUS_PENDING = "pending"
     STATUS_PUBLISHED = "published"
     STATUS_REJECTED = "rejected"
+    STATUS_NEEDS_CHANGES = 'needs_changes'
     STATUS_CHOICES = [
         (STATUS_DRAFT, _("Черновик")),
         (STATUS_PENDING, _("На модерации")),
         (STATUS_PUBLISHED, _("Опубликовано")),
         (STATUS_REJECTED, _("Отклонено")),
+        (STATUS_NEEDS_CHANGES, _("Нужна доработка")),
     ]
 
     CATEGORY_CHOICES = [(item["code"], _(item["ru"])) for item in CATEGORIES]
@@ -192,6 +194,10 @@ class Place(models.Model):
     is_active = models.BooleanField(_("Активно"), default=True)
     is_verified = models.BooleanField(_("Проверено"), default=False)
     status = models.CharField(_("Статус модерации"), max_length=16, choices=STATUS_CHOICES, default=STATUS_PUBLISHED, db_index=True)
+    submitted_at = models.DateTimeField(_("Отправлено на модерацию"), null=True, blank=True, db_index=True)
+    needs_changes_at = models.DateTimeField(_("Возвращено на доработку"), null=True, blank=True)
+    moderated_at = models.DateTimeField(_("Решение модератора"), null=True, blank=True)
+    moderated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="moderated_places")
     rejection_reason = models.TextField(_("Причина отклонения"), blank=True, default="")
     last_verified_at = models.DateTimeField(_("Информация проверена"), null=True, blank=True, db_index=True)
     published_at = models.DateTimeField(_("Опубликовано"), null=True, blank=True, db_index=True)
@@ -611,6 +617,9 @@ class Place(models.Model):
             previous = None
             if self.pk:
                 previous = type(self).objects.using(using).select_for_update().filter(pk=self.pk).first()
+            from catalog.services.moderation_sla import prepare_moderation_save
+            prepare_moderation_save(self, kwargs, previous=previous)
+            update_fields = kwargs.get('update_fields')
             # Rating refreshes happen on public GETs. Only content saves may
             # initialize URLs; unrelated partial saves must leave them alone.
             url_content_fields = {'name', 'name_az', 'name_ru', 'name_en', 'slug_az', 'slug_ru', 'slug_en'}

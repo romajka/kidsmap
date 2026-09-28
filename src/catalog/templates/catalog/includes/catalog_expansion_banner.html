@@ -1,0 +1,97 @@
+{% load i18n static %}
+{% with lang=language|default:request.LANGUAGE_CODE|default:'ru' %}
+<section class="catalog-expansion-banner" aria-labelledby="catalog-expansion-title">
+  <div class="catalog-expansion-banner__decor" aria-hidden="true">
+    <div class="catalog-expansion-banner__glow"></div>
+  </div>
+
+  <div class="catalog-expansion-banner__body">
+    <div class="catalog-expansion-banner__icon-wrap" aria-hidden="true">
+      <div class="catalog-expansion-banner__icon-circle">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+          <circle cx="12" cy="12" r="4"></circle>
+        </svg>
+      </div>
+    </div>
+
+    <div class="catalog-expansion-banner__content">
+      <div class="catalog-expansion-banner__tag">
+        <span class="catalog-expansion-banner__dot" aria-hidden="true"></span>
+        <span>
+          {% if lang == 'az' %}
+            KidsMap bazası böyüyür
+          {% elif lang == 'en' %}
+            KidsMap is expanding
+          {% else %}
+            База KidsMap постоянно растёт
+          {% endif %}
+        </span>
+      </div>
+
+      <h3 id="catalog-expansion-title" class="catalog-expansion-banner__title">
+        {% if lang == 'az' %}
+          Baza daim inkişaf edir və yeni məkanlarla zənginləşir
+        {% elif lang == 'en' %}
+          Our directory is actively growing and expanding
+        {% else %}
+          База постоянно развивается и преобладает новыми местами
+        {% endif %}
+      </h3>
+
+      <p class="catalog-expansion-banner__desc">
+        {% if lang == 'az' %}
+          Biz Bakı və bütün Azərbaycan üzrə uşaq dərnəkləri, idman bölmələri və inkişaf mərkəzlərini fəal şəkildə toplayır, yoxlayır və kataloqa əlavə edirik. Axtardığınız məkanı hələ tapmadınızsa və ya uşaq mərkəzini təmsil edirsinizsə — məlumatı bizə göndərin!
+        {% elif lang == 'en' %}
+          We actively discover, verify, and add children's clubs, sports sections, and development centers across Baku and Azerbaijan. Can't find a place you know, or manage a children's center? Add it to the catalog!
+        {% else %}
+          Мы непрерывно находим, проверяем и добавляем детские секции, творческие студии и развивающие центры по всему Баку и Азербайджану. Если нужного места ещё нет в списке или вы представляете детский центр — добавьте его в каталог!
+        {% endif %}
+      </p>
+
+      <div class="catalog-expansion-banner__pills">
+        <span class="catalog-expansion-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>{% if lang == 'az' %}Pulsuz yerləşdirmə{% elif lang == 'en' %}Free listing{% else %}Бесплатное размещение{% endif %}</span>
+        </span>
+        <span class="catalog-expansion-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span>{% if lang == 'az' %}Cəmi 2 dəqiqə{% elif lang == 'en' %}Takes 2 minutes{% else %}Занимает 2 минуты{% endif %}</span>
+        </span>
+        <span class="catalog-expansion-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <span>{% if lang == 'az' %}Mütəxəssis yoxlaması{% elif lang == 'en' %}Verified by moderators{% else %}Проверка модератором{% endif %}</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="catalog-expansion-banner__actions">
+      <a class="catalog-expansion-banner__btn" href="{% url 'add_place' %}">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="16"></line>
+          <line x1="8" y1="12" x2="16" y2="12"></line>
+        </svg>
+        <span>
+          {% if lang == 'az' %}
+            Məkan əlavə et
+          {% elif lang == 'en' %}
+            Add a place
+          {% else %}
+            Добавить место
+          {% endif %}
+        </span>
+      </a>
+      <span class="catalog-expansion-banner__hint">
+        {% if lang == 'az' %}
+          Kataloqun böyüməsinə dəstək olun
+        {% elif lang == 'en' %}
+          Help our directory expand
+        {% else %}
+          Помогите каталогу стать полнее
+        {% endif %}
+      </span>
+    </div>
+  </div>
+</section>
+{% endwith %}

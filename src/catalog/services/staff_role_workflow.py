@@ -255,10 +255,9 @@ def request_superadmin_promotion(*, actor, target_id):
 def resolve_superadmin_promotion(*, actor, request_id, approve, rejection_note=""):
     _require_active_superadmin(actor)
     with transaction.atomic():
-        promotion = SuperadminPromotionRequest.objects.select_for_update().select_related(
-            "target",
-            "initiated_by",
-        ).get(pk=request_id)
+        # Lock the request alone; nullable related users create an outer join
+        # that PostgreSQL cannot lock. The target is locked separately below.
+        promotion = SuperadminPromotionRequest.objects.select_for_update().get(pk=request_id)
         _locked_active_superadmin_ids()
         if promotion.status != SuperadminPromotionRequest.Status.PENDING:
             raise ValidationError(_("По этому запросу уже принято решение."))

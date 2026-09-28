@@ -347,7 +347,9 @@
                     </div>
                   {% endif %}
                   <div class="account-owner-card__media-top">
-                    {% if place.latest_moderation_request.status == "PENDING" or place.status == place.STATUS_PENDING %}
+                    {% if place.status == 'needs_changes' %}
+                      <span class="account-status-pill account-status-pill--rejected">{% if CURRENT_LANGUAGE == 'az' %}Düzəliş lazımdır{% elif CURRENT_LANGUAGE == 'en' %}Needs changes{% else %}Нужна доработка{% endif %}</span>
+                    {% elif place.latest_moderation_request.status == "PENDING" or place.status == place.STATUS_PENDING %}
                       <span class="account-status-pill account-status-pill--pending owner-status-badge-pending">
                         <span class="material-symbols-rounded">hourglass_top</span>
                         {% if CURRENT_LANGUAGE == "az" %}Moderasiyada{% elif CURRENT_LANGUAGE == "en" %}In review{% else %}На модерации{% endif %}
@@ -408,7 +410,7 @@
                         <span>{{ place.latest_moderation_request.moderation_note }}</span>
                       </div>
                     </div>
-                  {% elif place.status == place.STATUS_REJECTED and place.rejection_reason %}
+                  {% elif place.status == 'needs_changes' or place.status == place.STATUS_REJECTED and place.rejection_reason %}
                     <div class="account-rejection-callout">
                       <span class="material-symbols-rounded">error</span>
                       <div class="account-rejection-callout__content">
@@ -419,7 +421,7 @@
                   {% elif place.latest_moderation_request.status == "PENDING" or place.status == place.STATUS_PENDING %}
                     <div class="account-pending-callout">
                       <span class="material-symbols-rounded">hourglass_top</span>
-                      <span>{% if CURRENT_LANGUAGE == "az" %}Məkan admin yoxlamasındadır{% elif CURRENT_LANGUAGE == "en" %}Place is under review{% else %}Место находится на проверке у администратора{% endif %}</span>
+                      <span>{{ place_moderation_sla_message }}</span>
                     </div>
                   {% endif %}
 

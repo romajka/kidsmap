@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from django.urls import reverse
+from .moderation_actor import ModerationActorAdminMixin
 
 from catalog.models import (
     Region,
@@ -887,7 +888,7 @@ class SpecialistAdmin(admin.ModelAdmin):
 
 
 @admin.register(SpecialistReview)
-class SpecialistReviewAdmin(admin.ModelAdmin):
+class SpecialistReviewAdmin(ModerationActorAdminMixin, admin.ModelAdmin):
     list_display = ("specialist", "author_name", "rating", "status", "is_approved", "created_at")
     list_filter = ("status", "is_approved", "rating", "created_at")
     search_fields = ("specialist__name", "author_name", "text")
@@ -923,7 +924,7 @@ class SpecialistReviewAdmin(admin.ModelAdmin):
     def approve_selected(self, request, queryset):
         specialist_ids = list(queryset.values_list("specialist_id", flat=True).distinct())
         updated_count = queryset.exclude(is_approved=True, status=SpecialistReview.STATUS_APPROVED).update(
-            is_approved=True, status=SpecialistReview.STATUS_APPROVED
+            is_approved=True, status=SpecialistReview.STATUS_APPROVED, moderated_at=timezone.now(), moderated_by=request.user
         )
         from catalog.models.specialist import sync_specialist_rating_stats
         sync_specialist_rating_stats(specialist_ids)
@@ -937,7 +938,7 @@ class SpecialistReviewAdmin(admin.ModelAdmin):
     def hide_selected(self, request, queryset):
         specialist_ids = list(queryset.values_list("specialist_id", flat=True).distinct())
         updated_count = queryset.exclude(is_approved=False, status=SpecialistReview.STATUS_PENDING).update(
-            is_approved=False, status=SpecialistReview.STATUS_PENDING
+            is_approved=False, status=SpecialistReview.STATUS_PENDING, submitted_at=timezone.now(), moderated_at=None, moderated_by=None
         )
         from catalog.models.specialist import sync_specialist_rating_stats
         sync_specialist_rating_stats(specialist_ids)
@@ -951,7 +952,7 @@ class SpecialistReviewAdmin(admin.ModelAdmin):
     def reject_selected(self, request, queryset):
         specialist_ids = list(queryset.values_list("specialist_id", flat=True).distinct())
         updated_count = queryset.exclude(is_approved=False, status=SpecialistReview.STATUS_REJECTED).update(
-            is_approved=False, status=SpecialistReview.STATUS_REJECTED
+            is_approved=False, status=SpecialistReview.STATUS_REJECTED, moderated_at=timezone.now(), moderated_by=request.user
         )
         from catalog.models.specialist import sync_specialist_rating_stats
         sync_specialist_rating_stats(specialist_ids)

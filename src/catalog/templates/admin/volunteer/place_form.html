@@ -28,11 +28,113 @@
         {% include "admin/catalog/place/form/_section_open.html" with state=section.state %}
         {% if section.id == 'basics' %}
           {% include "admin/catalog/place/form/section_basics.html" %}
+          {% if not place.pk %}<div class="km-pf-field"><label for="id_create_as_distinct_branch">{{ form.create_as_distinct_branch }} {{ editor_copy.branch_title }}</label><p id="branch-help" class="km-pf-field__hint">{{ editor_copy.branch_help }}</p></div>{% endif %}
         {% elif section.id == 'verification' %}
-          <p>{{ ui.intro }}</p>
-          <p>{{ editor_copy.update_hint }}</p>
-          <div class="km-pf-issues__list">{% for issue in editor_issues %}<a class="km-pf-issue" href="#field={{ issue.field }}"><span class="km-pf-issue__copy"><strong>{{ issue.label }}</strong><span>{{ issue.message }}</span></span><span class="km-pf-issue__go">{% translate "Исправить" %}</span></a>{% empty %}<p class="km-pf-ready">{{ ui.fields_ready }} · {{ ui.pending }}</p>{% endfor %}</div>
-          {% if card %}<a class="km-pf-btn km-pf-btn--ghost" href="{{ card.detail_url }}">{% translate "Посмотреть" context "volunteer dashboard" %}</a>{% endif %}
+          <div class="km-pf-verify-card">
+            {% if editor_issues %}
+              <div class="km-pf-verify-banner is-warn">
+                <div class="km-pf-verify-banner__head">
+                  <svg class="km-i km-pf-verify-icon is-warn" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-radio_button_checked"></use></svg>
+                  <div>
+                    <strong class="km-pf-verify-banner__title">{{ editor_copy.verify_title }}</strong>
+                    <p class="km-pf-verify-banner__desc">
+                      {{ editor_copy.verify_description }}
+                    </p>
+                  </div>
+                </div>
+                <span class="km-pf-verify-pill is-warn">{{ ready.completed_count }} / {{ ready.required_count }} ({{ editor_copy.filled }} {{ ready.percentage }}%)</span>
+              </div>
+
+              <div class="km-pf-issues__list">
+                {% for issue in editor_issues %}
+                  <a class="km-pf-issue" href="#field={{ issue.field }}">
+                    <svg class="km-i km-pf-issue__icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-error"></use></svg>
+                    <span class="km-pf-issue__copy">
+                      <strong>{{ issue.label }}</strong>
+                      <span>{{ issue.message }}</span>
+                    </span>
+                    <span class="km-pf-issue__go">
+                      {% translate "Исправить" %}
+                      <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-arrow_forward"></use></svg>
+                    </span>
+                  </a>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="km-pf-verify-banner is-ready">
+                <div class="km-pf-verify-banner__head">
+                  <svg class="km-i km-pf-verify-icon is-done" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check_circle"></use></svg>
+                  <div>
+                    <strong class="km-pf-verify-banner__title">{{ editor_copy.verify_ready }}</strong>
+                    <p class="km-pf-verify-banner__desc">{{ ui.fields_ready }} · {{ ui.pending }}</p>
+                  </div>
+                </div>
+                <span class="km-pf-verify-pill is-done">100%</span>
+              </div>
+            {% endif %}
+
+            <div class="km-pf-verify-actions">
+              <p class="km-pf-verify-note">
+                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-info"></use></svg>
+                <span>{{ editor_copy.update_hint }}</span>
+              </p>
+              {% if card.detail_url %}
+                <a class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm" href="{{ card.detail_url }}">{% translate "Посмотреть карточку" %}</a>
+              {% endif %}
+            </div>
+          </div>
+        {% elif section.id == 'media' %}
+          <div class="km-pf-grid km-pf-grid--2">
+            <div class="kv-photo-card" data-pf-field="photo">
+              <div class="kv-photo-card__head">
+                <label for="id_photo" class="kv-photo-card__title">{% translate "Главное фото" %} <span class="km-pf-field__required" aria-hidden="true">*</span></label>
+                <p id="photo-help" class="kv-photo-card__desc">{{ editor_copy.photo_detail }}</p>
+              </div>
+              <div class="kv-photo-preview-wrap{% if not card.photo_url %} is-empty{% endif %}">
+                {% if card.photo_url %}
+                  <img src="{{ card.photo_url }}" alt="{{ card.name }}" class="kv-photo-preview-img" data-editor-photo-preview>
+                  <span class="kv-photo-preview-badge">{% translate "Текущее фото" %}</span>
+                {% else %}
+                  <img alt="" class="kv-photo-preview-img" data-editor-photo-preview hidden>
+                  <span class="kv-photo-placeholder">
+                    <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add_photo_alternate"></use></svg>
+                    <span>{% translate "Фото не выбрано" %}</span>
+                  </span>
+                {% endif %}
+              </div>
+              <div class="km-pf-field__control">
+                {{ form.photo }}
+                {% for error in form.photo.errors %}
+                  <p id="photo-error-{{ forloop.counter }}" class="km-pf-field__error"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-error"></use></svg>{{ error }}</p>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="kv-photo-card" data-pf-field="cover_photo">
+              <div class="kv-photo-card__head">
+                <label for="id_cover_photo" class="kv-photo-card__title">{{ editor_copy.cover_title }}</label>
+                <p id="cover_photo-help" class="kv-photo-card__desc">{{ editor_copy.cover_detail }}</p>
+              </div>
+              <div class="kv-photo-preview-wrap{% if not form.instance.cover_photo %} is-empty{% endif %}">
+                {% if form.instance.cover_photo and form.instance.cover_photo.name %}
+                  <img src="{{ form.instance.cover_photo.url }}" alt="{{ card.name }}" class="kv-photo-preview-img" data-editor-cover-preview>
+                  <span class="kv-photo-preview-badge">{{ editor_copy.current_cover }}</span>
+                {% else %}
+                  <img alt="" class="kv-photo-preview-img" data-editor-cover-preview hidden>
+                  <span class="kv-photo-placeholder">
+                    <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-image"></use></svg>
+                    <span>{{ editor_copy.cover_empty }}</span>
+                  </span>
+                {% endif %}
+              </div>
+              <div class="km-pf-field__control">
+                {{ form.cover_photo }}
+                {% for error in form.cover_photo.errors %}
+                  <p id="cover_photo-error-{{ forloop.counter }}" class="km-pf-field__error"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-error"></use></svg>{{ error }}</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
         {% else %}
           <div class="km-pf-grid km-pf-grid--2">{% for field in section.fields %}{% include "admin/catalog/place/form/_field.html" with hint=field.help_text %}{% endfor %}</div>
           {% if section.id == 'pricing' %}
@@ -40,8 +142,6 @@
           {% elif section.id == 'location' %}
             <div class="km-pf-divider"></div>{% include "pages/includes/permanent_place_map.html" with location_admin=True %}
             <div class="km-pf-divider"></div><div data-pf-field="structured_schedule">{% include "includes/place_schedule_editor.html" with form=form variant="admin" editor_id="volunteer-schedule" %}</div>
-          {% elif section.id == 'media' %}
-            <div class="kv-admin-photos">{% if card.photo_url %}<img src="{{ card.photo_url }}" alt="{{ card.name }}" data-editor-photo-preview>{% else %}<img alt="{{ ui.photo_choose }}" data-editor-photo-preview hidden>{% endif %}</div>
           {% endif %}
         {% endif %}
         {% if section.optional %}<details class="km-pf-disclosure"{% if form.additional_info.value or form.extra_conditions.value %} open{% endif %}><summary class="km-pf-disclosure__summary">{{ ui.optional }}</summary><div class="km-pf-disclosure__body km-pf-grid km-pf-grid--2">{% for field in section.optional %}{% include "admin/catalog/place/form/_field.html" with hint=field.help_text %}{% endfor %}</div></details>{% endif %}

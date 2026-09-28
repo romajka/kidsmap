@@ -35,6 +35,7 @@ class VolunteerPlaceForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
     require_location_region = False
     revision_version = forms.IntegerField(min_value=0, widget=forms.HiddenInput)
     base_token = forms.CharField(widget=forms.HiddenInput)
+    create_as_distinct_branch = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'aria-describedby': 'branch-help'}))
     pricing_plans = forms.CharField(required=False, widget=forms.HiddenInput(attrs={"data-tariff-input": ""}))
     region = forms.ChoiceField(
         label=_("Город / регион"),
@@ -84,6 +85,8 @@ class VolunteerPlaceForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         self.fields["cover_photo"].widget = forms.FileInput()
         self.fields["photo"].widget.attrs["accept"] = "image/jpeg,image/png,image/webp,image/heic"
         self.fields["cover_photo"].widget.attrs["accept"] = "image/jpeg,image/png,image/webp,image/heic"
+        for name in ('photo', 'cover_photo'):
+            self.fields[name].widget.attrs['aria-describedby'] = f'{name}-help'
         for field in self.fields.values():
             if isinstance(field.widget, forms.Textarea):
                 field.widget.attrs["rows"] = 3
@@ -130,6 +133,13 @@ class VolunteerPlaceForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             except (ValueError, TypeError):
                 self.add_error("structured_schedule", _("Проверьте расписание работы."))
         return self._clean_schedule_editor(cleaned)
+
+    def full_clean(self):
+        super().full_clean()
+        for name in ('photo', 'cover_photo'):
+            errors = self.errors.get(name, [])
+            self.fields[name].widget.attrs['aria-invalid'] = 'true' if errors else 'false'
+            self.fields[name].widget.attrs['aria-describedby'] = ' '.join([f'{name}-help', *[f'{name}-error-{i}' for i in range(1, len(errors) + 1)]])
 
     def clean_photo(self):
         value = self.cleaned_data.get("photo")

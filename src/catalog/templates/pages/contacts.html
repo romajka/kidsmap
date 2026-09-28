@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/pages/contacts.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/pages/contacts.css' %}?v=20260928_1" />
 {% endblock %}
 
 {% block content %}
@@ -226,7 +226,7 @@
               <div class="contacts-channel-actions">
                 <a
                   class="contacts-action-btn primary whatsapp-btn"
-                  href="{% if footer_whatsapp_url %}{{ footer_whatsapp_url }}{% else %}https://wa.me/994505406639{% endif %}"
+                  href="{% if footer_whatsapp_url %}{{ footer_whatsapp_url }}{% else %}https://wa.me/994554979723{% endif %}"
                   target="_blank"
                   rel="noopener"
                 >
@@ -668,11 +668,11 @@
           <div class="faq-acc-body-inner">
             <p>
               {% if CURRENT_LANGUAGE == "az" %}
-                Bizə birbaşa <a href="mailto:{{ footer_email|default:'info@kidsmap.az' }}">email</a> və ya <a href="{% if footer_whatsapp_url %}{{ footer_whatsapp_url }}{% else %}https://wa.me/994505406639{% endif %}" target="_blank" rel="noopener">WhatsApp</a> vasitəsilə məkanın linkini və düzəlişi göndərə bilərsiniz. Komandamız məlumatı dərhal dəqiqləşdirib yeniləyəcəkdir.
+                Bizə birbaşa <a href="mailto:{{ footer_email|default:'info@kidsmap.az' }}">email</a> və ya <a href="{% if footer_whatsapp_url %}{{ footer_whatsapp_url }}{% else %}https://wa.me/994554979723{% endif %}" target="_blank" rel="noopener">WhatsApp</a> vasitəsilə məkanın linkini və düzəlişi göndərə bilərsiniz. Komandamız məlumatı dərhal dəqiqləşdirib yeniləyəcəkdir.
               {% elif CURRENT_LANGUAGE == "en" %}
-                Reach out via <a href="mailto:{{ footer_email|default:'info@kidsmap.az' }}">email</a> or <a href="{% if footer_whatsapp_url %}{{ footer_whatsapp_url }}{% else %}https://wa.me/994505406639{% endif %}" target="_blank" rel="noopener">WhatsApp</a> with the listing URL and correction. We will review and update it promptly.
+                Reach out via <a href="mailto:{{ footer_email|default:'info@kidsmap.az' }}">email</a> or <a href="{% if footer_whatsapp_url %}{{ footer_whatsapp_url }}{% else %}https://wa.me/994554979723{% endif %}" target="_blank" rel="noopener">WhatsApp</a> with the listing URL and correction. We will review and update it promptly.
               {% else %}
-                Напишите нам на <a href="mailto:{{ footer_email|default:'info@kidsmap.az' }}">email</a> или в <a href="{% if footer_whatsapp_url %}{{ footer_whatsapp_url }}{% else %}https://wa.me/994505406639{% endif %}" target="_blank" rel="noopener">WhatsApp</a> со ссылкой на карточку и нужными правками. Мы оперативно всё проверим и обновим.
+                Напишите нам на <a href="mailto:{{ footer_email|default:'info@kidsmap.az' }}">email</a> или в <a href="{% if footer_whatsapp_url %}{{ footer_whatsapp_url }}{% else %}https://wa.me/994554979723{% endif %}" target="_blank" rel="noopener">WhatsApp</a> со ссылкой на карточку и нужными правками. Мы оперативно всё проверим и обновим.
               {% endif %}
             </p>
             <div class="faq-acc-actions">

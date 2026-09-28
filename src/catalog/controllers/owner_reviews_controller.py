@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from django.utils.translation import gettext as _
+from catalog.services.moderation_sla import submission_message
 
 from catalog.interfaces.repositories import IPlaceReviewRepository, IOwnerTeamRepository
 from catalog.repositories.django_repositories import (
@@ -69,6 +70,7 @@ class OwnerReviewsController:
             "can_moderate_reviews": bool(place_ids),
             "can_manage_team": any(PLACE_PERMISSION_MANAGE_TEAM in scope.permissions for scope in scopes),
             "user_written_reviews": user_written_reviews,
+            'review_moderation_sla_message': submission_message('review'),
             "user_reviews_count": total_user_reviews_count,
             "managed_places_count": managed_places_count,
             "favorites_count": favorites_count,
@@ -88,6 +90,7 @@ class OwnerReviewsController:
             return OwnerReviewsActionResult(ok=True, message=_("Статус уже актуален."))
         review.status = target_status
         review.is_approved = is_approved
-        review.save(update_fields=["status", "is_approved", "updated_at"])
+        review.moderated_by = request.user
+        review.save(update_fields=["status", "is_approved", "updated_at", "moderated_by"])
         review.place.refresh_rating_stats()
         return OwnerReviewsActionResult(ok=True, message=_("Статус отзыва обновлен."))
