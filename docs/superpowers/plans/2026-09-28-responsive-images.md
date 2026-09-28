@@ -40,8 +40,10 @@ Files: `templates/pages/home.html`, `templates/catalog/includes/place_card.html`
 
 ## Task 3: Verify and release
 
-- [ ] Run isolated `DJANGO_TESTING=1` image/home/catalog tests with temp DB/cache/media and disabled integrations.
-- [ ] Build committed snapshot and check deployment diff; push task files only. Generate production derivatives before switching web image so fallback is safe; retain previous image for rollback.
-- [ ] Run server checks and generation aggregate verification. Compare source byte hashes before/after generation without exporting source records.
-- [ ] Chromium cold mobile/desktop checks: currentSrc points to expected derivative sizes, HTTP200, no broken images, hero/card layout preserved; compare image transfer with audit baseline.
-- [ ] Record exact tests, production revision, counts, browser metrics, limitations. Do not claim a backend TTFB fix.
+- [x] Run isolated `DJANGO_TESTING=1` image/home/catalog tests with temp DB/cache/media and disabled integrations.
+- [x] Build committed snapshot and check deployment diff; push task files only. Generate production derivatives before switching web image so fallback is safe; retain previous image for rollback.
+- [x] Run server checks and generation aggregate verification. Compare source byte hashes before/after generation without exporting source records.
+- [x] Chromium cold mobile/desktop checks: currentSrc points to expected derivative sizes, HTTP200, no broken images, hero/card layout preserved; compare image transfer with audit baseline.
+- [x] Record exact tests, production revision, counts, browser metrics, limitations. Do not claim a backend TTFB fix.
+
+Verification: `docs/agent-audits/2026-09-28-responsive-images-verification.md`. Runtime deployed at 5c4909e2; oversized/missing legacy fallbacks and timing limits recorded there.
