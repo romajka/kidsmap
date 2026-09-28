@@ -11,7 +11,7 @@
 {% endif %}
 {% endblock %}
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20260910_1" />
+<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20260928_cloud2" />
 {% endblock %}
 
 {% block content %}
@@ -309,20 +309,27 @@
 {% if home_categories %}
 <section class="home-discover" aria-labelledby="home-discover-title">
   <div class="home-discover-head">
-    <div><span class="home-redesign-kicker">{% if request.LANGUAGE_CODE == 'az' %}MARAQLARDAN BAŞLAYIN{% elif request.LANGUAGE_CODE == 'en' %}FOLLOW THEIR CURIOSITY{% else %}НАЧНИТЕ С ИНТЕРЕСОВ{% endif %}</span>
-    <h2 id="home-discover-title">{% if request.LANGUAGE_CODE == 'az' %}Uşağınız nəyi sevir?{% elif request.LANGUAGE_CODE == 'en' %}What do they love doing?{% else %}Чем увлечён ваш ребёнок?{% endif %}</h2></div>
-    <a class="home-redesign-secondary" href="{% url 'place_list' %}">{% trans "Все категории" %}<span aria-hidden="true">↗</span></a>
+    <div class="home-discover-head-text">
+      <span class="home-redesign-kicker">{% if request.LANGUAGE_CODE == 'az' %}MARAQLARDAN BAŞLAYIN{% elif request.LANGUAGE_CODE == 'en' %}FOLLOW THEIR CURIOSITY{% else %}НАЧНИТЕ С ИНТЕРЕСОВ{% endif %}</span>
+      <h2 id="home-discover-title">{% if request.LANGUAGE_CODE == 'az' %}Uşağınız nəyi sevir?{% elif request.LANGUAGE_CODE == 'en' %}What do they love doing?{% else %}Чем увлечён ваш ребёнок?{% endif %}</h2>
+    </div>
+    <a class="home-discover-all-link" href="{% url 'place_list' %}">
+      <span>{% trans "Все категории" %}</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+    </a>
   </div>
-  <div class="home-discover-grid">
+  <nav class="home-discover-cloud" aria-labelledby="home-discover-title">
     {% for item in home_categories %}
-    <a class="home-discover-category" href="{% url 'place_list' %}?category={{ item.value|urlencode }}">
-      <span class="home-discover-icon" style="background-color: {{ item.color_bg|default:'#F3F4F6' }}; color: {{ item.color_text|default:'#6B7280' }};" aria-hidden="true">{% include "catalog/includes/category_visual_icon.html" with code=item.value icon_file_url=item.icon_file_url icon_is_svg=item.icon_is_svg icon_is_font=item.icon_is_font icon_name=item.icon_name %}</span>
-      <span>{{ item.label }}</span><span class="home-discover-arrow" aria-hidden="true">↗</span>
+    <a class="km-category-bubble" href="{% url 'place_list' %}?category={{ item.value|urlencode }}"
+       style="--bubble-accent:{{ item.color_text|default:'#10b981' }};--bubble-bg:{{ item.color_bg|default:'#ecfdf5' }};">
+      <span class="hdb-icon" style="background:{{ item.color_bg|default:'#F3F4F6' }};color:{{ item.color_text|default:'#6B7280' }};" aria-hidden="true">{% include "catalog/includes/category_visual_icon.html" with code=item.value icon_file_url=item.icon_file_url icon_is_svg=item.icon_is_svg icon_is_font=item.icon_is_font icon_name=item.icon_name %}</span>
+      <span class="hdb-label">{{ item.label }}</span>{% if item.count %}<span class="hdb-count">{{ item.count }}</span>{% endif %}
     </a>
     {% endfor %}
-  </div>
+  </nav>
 </section>
 {% endif %}
+
 
 {% if map_places %}
 <section class="panel home-map-panel" id="home-map-section">
@@ -2619,5 +2626,18 @@
   data-home-map-leaflet-js="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
   data-home-map-leaflet-js-integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"
   referrerpolicy="no-referrer"></script>
+{% endif %}
+
+{% if home_categories %}
+<script>
+(function () {
+  'use strict';
+  /* Pause floating animation while a bubble has keyboard focus */
+  var cloud = document.querySelector('.home-discover-cloud');
+  if (!cloud) return;
+  cloud.addEventListener('focusin',  function () { cloud.style.setProperty('--bubble-global-play', 'paused'); });
+  cloud.addEventListener('focusout', function () { cloud.style.removeProperty('--bubble-global-play'); });
+})();
+</script>
 {% endif %}
 {% endblock %}
