@@ -67,7 +67,7 @@
           data-dropdown-trigger
         >
           <span>{% trans "О нас" %}</span>
-          <span class="km-chevron material-symbols-rounded" aria-hidden="true">expand_more</span>
+          <svg class="km-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="km-dropdown-menu" role="menu" data-dropdown-menu>
           <a
@@ -128,7 +128,7 @@
                 {% endif %}
               </span>
               <span class="km-user-name">{{ request.user.get_short_name|default:request.user.username|truncatechars:12 }}</span>
-              <span class="km-chevron material-symbols-rounded" aria-hidden="true">expand_more</span>
+              <svg class="km-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
             </button>
             <div class="km-dropdown-menu km-dropdown-menu--right km-dropdown-user" role="menu" data-dropdown-menu>
               <div class="km-user-card-brief">
@@ -215,7 +215,7 @@
             />
           </span>
           <span class="km-lang-code">{% if CURRENT_LANGUAGE == 'ru' %}RU{% elif CURRENT_LANGUAGE == 'az' %}AZ{% else %}EN{% endif %}</span>
-          <span class="km-chevron material-symbols-rounded" aria-hidden="true">expand_more</span>
+          <svg class="km-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <div class="km-dropdown-menu km-dropdown-menu--right km-dropdown-lang" role="menu" data-dropdown-menu>
           <a
@@ -226,7 +226,7 @@
           >
             <img class="lang-flag-icon" src="{% static 'img/flags/az.png' %}" alt="" width="20" height="20" />
             <span class="km-lang-opt-code">AZ</span>
-            {% if CURRENT_LANGUAGE == 'az' %}<span class="km-lang-check material-symbols-rounded" aria-hidden="true">check</span>{% endif %}
+            {% if CURRENT_LANGUAGE == 'az' %}<svg class="km-lang-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>{% endif %}
           </a>
           <a
             class="km-dropdown-item km-lang-option {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}"
@@ -236,7 +236,7 @@
           >
             <img class="lang-flag-icon" src="{% static 'img/flags/ru.png' %}" alt="" width="20" height="20" />
             <span class="km-lang-opt-code">RU</span>
-            {% if CURRENT_LANGUAGE == 'ru' %}<span class="km-lang-check material-symbols-rounded" aria-hidden="true">check</span>{% endif %}
+            {% if CURRENT_LANGUAGE == 'ru' %}<svg class="km-lang-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>{% endif %}
           </a>
           <a
             class="km-dropdown-item km-lang-option {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}"
@@ -246,7 +246,7 @@
           >
             <img class="lang-flag-icon" src="{% static 'img/flags/en.png' %}" alt="" width="20" height="20" />
             <span class="km-lang-opt-code">EN</span>
-            {% if CURRENT_LANGUAGE == 'en' %}<span class="km-lang-check material-symbols-rounded" aria-hidden="true">check</span>{% endif %}
+            {% if CURRENT_LANGUAGE == 'en' %}<svg class="km-lang-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>{% endif %}
           </a>
         </div>
       </div>

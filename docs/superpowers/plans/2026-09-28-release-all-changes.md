@@ -7,12 +7,14 @@ Scope: all tracked modifications and nonignored untracked source/tests/static/do
 Release source: `seo-indexability-20260916`, initial HEAD `ef949ea99a7635076e4477a29d42b0a5d63796d4`, both local and production. Push the current branch, then deploy the exact reviewed commit. Do not merge to main or trigger a separate main deployment.
 
 - [x] Verify all affected backend flows on a disposable PostgreSQL 17 database, DJANGO_TESTING=1, isolated cache/media/email and no production credentials. Verify drift/system checks, syntax and scoped whitespace. Record baseline failures explicitly; do not weaken assertions.
-- [ ] Review staged file inventory and scan added content for credential patterns without outputting values. Commit and push all intended changes on the current branch.
-- [ ] Preserve the current production image under a rollback tag and write a production-only rollback manifest. Build the new image while the current container serves traffic.
-- [ ] Create a private pre-release DB backup without invoking retention cleanup, verify archive readability, record only aggregate metadata. Verify production migration plan contains only 0115/0116 and system check passes on the new image.
-- [ ] Apply release tasks with statement/lock timeouts; compile translations, synchronize blank defaults and collect static. Activate the new web image.
-- [ ] Verify exact image/source revision, migration state, checks, health and public/admin smoke paths. Verify staff add form under read-only transactions using synthetic requests; no actual staff account creation in production for QA.
-- [ ] Save sanitized release evidence and finish with the deployed commit and remaining baseline limits.
+- [x] Review staged file inventory and scan added content for credential patterns without outputting values. Commit and push all intended changes on the current branch.
+- [x] Preserve the current production image under a rollback tag and write a production-only rollback manifest. Build the new image while the current container serves traffic.
+- [x] Create a private pre-release DB backup without invoking retention cleanup, verify archive readability, record only aggregate metadata. Verify production migration plan contains only 0115/0116 and system check passes on the new image.
+- [x] Apply release tasks with statement/lock timeouts; compile translations, synchronize blank defaults and collect static. Activate the new web image.
+- [x] Verify exact image/source revision, migration state, checks, health and public/admin smoke paths. Verify staff add form under read-only transactions using synthetic requests; no actual staff account creation in production for QA.
+- [x] Save sanitized release evidence and finish with the deployed commit and remaining baseline limits.
+
+Main release activated successfully. Four concurrent frontend edits appeared after its commit; the supplemental staged snapshot is verified and shipped separately under the same all-changes authorization. See `docs/agent-audits/2026-09-28-release-verification.md`.
 
 Recovery: new schema additions are nullable and compatible with the old image; `needs_changes` is a new status choice, not a destructive database constraint. If activation/smoke fails, restore web from the preserved old image and restore old static assets; keep additive migrations rather than dropping columns/data. A full database restore is reserved for confirmed corruption and requires a deliberate recovery decision, not an automatic deletion of newer writes. If migration fails, leave the current application online and inspect the failure before further mutation.
 

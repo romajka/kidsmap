@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20260928_1" />
+  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20260928_2" />
 {% endblock %}
 
 {% block content %}
@@ -624,16 +624,96 @@
             <span class="mobile-search-filter__count">{{ active_filter_chips|length }}</span>
           {% endif %}
         </button>
-        <label class="results-toolbar-sort">
+        <div class="results-toolbar-sort" data-catalog-sort-wrap>
           <span class="results-toolbar-sort-label">{% if language == "az" %}Sıralama{% elif language == "en" %}Sort{% else %}{% trans "Сортировка" %}{% endif %}</span>
-          <select class="filter-select results-toolbar-sort-select" name="sort" form="filters-form" data-sort-submit>
-            <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}{% trans "Сначала новые" %}{% endif %}</option>
+
+          <select class="filter-select results-toolbar-sort-select visually-hidden" name="sort" form="filters-form" data-sort-submit id="catalog-sort-select" tabindex="-1" aria-hidden="true">
+            <option value="new" {% if selected.sort == "new" or not selected.sort %}selected{% endif %}>{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}{% trans "Сначала новые" %}{% endif %}</option>
             <option value="price_asc" {% if selected.sort == "price_asc" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə ucuz{% elif language == "en" %}Price: low to high{% else %}{% trans "Цена по возрастанию" %}{% endif %}</option>
             <option value="price_desc" {% if selected.sort == "price_desc" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə bahalı{% elif language == "en" %}Price: high to low{% else %}{% trans "Цена по убыванию" %}{% endif %}</option>
             {% if rating_sort_available %}<option value="rating" {% if selected.sort == "rating" %}selected{% endif %}>{% if language == "az" %}Reytinq üzrə{% elif language == "en" %}Highest rated{% else %}{% trans "По рейтингу" %}{% endif %}</option>{% endif %}
             <option value="reviews_desc" {% if selected.sort == "reviews_desc" %}selected{% endif %}>{% if language == "az" %}Ən çox rəy alanlar{% elif language == "en" %}Most reviewed{% else %}{% trans "По количеству отзывов" %}{% endif %}</option>
           </select>
-        </label>
+
+          <button
+            type="button"
+            class="km-sort-trigger"
+            aria-haspopup="listbox"
+            aria-expanded="false"
+            data-sort-trigger
+            id="catalog-sort-trigger"
+            aria-controls="catalog-sort-menu"
+          >
+            <span class="km-sort-trigger-label" data-sort-label>
+              {% if selected.sort == "price_asc" %}{% if language == "az" %}Əvvəlcə ucuz{% elif language == "en" %}Price: low to high{% else %}{% trans "Цена по возрастанию" %}{% endif %}
+              {% elif selected.sort == "price_desc" %}{% if language == "az" %}Əvvəlcə bahalı{% elif language == "en" %}Price: high to low{% else %}{% trans "Цена по убыванию" %}{% endif %}
+              {% elif selected.sort == "rating" %}{% if language == "az" %}Reytinq üzrə{% elif language == "en" %}Highest rated{% else %}{% trans "По рейтингу" %}{% endif %}
+              {% elif selected.sort == "reviews_desc" %}{% if language == "az" %}Ən çox rəy alanlar{% elif language == "en" %}Most reviewed{% else %}{% trans "По количеству отзывов" %}{% endif %}
+              {% else %}{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}{% trans "Сначала новые" %}{% endif %}
+              {% endif %}
+            </span>
+            <svg class="km-sort-trigger-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+
+          <div id="catalog-sort-menu" class="km-sort-menu" role="listbox" aria-labelledby="catalog-sort-trigger" data-sort-menu>
+            <button
+              type="button"
+              role="option"
+              class="km-sort-option {% if selected.sort == 'new' or not selected.sort %}is-selected{% endif %}"
+              data-sort-value="new"
+              aria-selected="{% if selected.sort == 'new' or not selected.sort %}true{% else %}false{% endif %}"
+            >
+              <span class="km-sort-option-text">{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}{% trans "Сначала новые" %}{% endif %}</span>
+              <svg class="km-sort-option-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+
+            <button
+              type="button"
+              role="option"
+              class="km-sort-option {% if selected.sort == 'price_asc' %}is-selected{% endif %}"
+              data-sort-value="price_asc"
+              aria-selected="{% if selected.sort == 'price_asc' %}true{% else %}false{% endif %}"
+            >
+              <span class="km-sort-option-text">{% if language == "az" %}Əvvəlcə ucuz{% elif language == "en" %}Price: low to high{% else %}{% trans "Цена по возрастанию" %}{% endif %}</span>
+              <svg class="km-sort-option-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+
+            <button
+              type="button"
+              role="option"
+              class="km-sort-option {% if selected.sort == 'price_desc' %}is-selected{% endif %}"
+              data-sort-value="price_desc"
+              aria-selected="{% if selected.sort == 'price_desc' %}true{% else %}false{% endif %}"
+            >
+              <span class="km-sort-option-text">{% if language == "az" %}Əvvəlcə bahalı{% elif language == "en" %}Price: high to low{% else %}{% trans "Цена по убыванию" %}{% endif %}</span>
+              <svg class="km-sort-option-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+
+            {% if rating_sort_available %}
+            <button
+              type="button"
+              role="option"
+              class="km-sort-option {% if selected.sort == 'rating' %}is-selected{% endif %}"
+              data-sort-value="rating"
+              aria-selected="{% if selected.sort == 'rating' %}true{% else %}false{% endif %}"
+            >
+              <span class="km-sort-option-text">{% if language == "az" %}Reytinq üzrə{% elif language == "en" %}Highest rated{% else %}{% trans "По рейтингу" %}{% endif %}</span>
+              <svg class="km-sort-option-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+            {% endif %}
+
+            <button
+              type="button"
+              role="option"
+              class="km-sort-option {% if selected.sort == 'reviews_desc' %}is-selected{% endif %}"
+              data-sort-value="reviews_desc"
+              aria-selected="{% if selected.sort == 'reviews_desc' %}true{% else %}false{% endif %}"
+            >
+              <span class="km-sort-option-text">{% if language == "az" %}Ən çox rəy alanlar{% elif language == "en" %}Most reviewed{% else %}{% trans "По количеству отзывов" %}{% endif %}</span>
+              <svg class="km-sort-option-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1970,6 +2050,67 @@
         }
       }
 
+      function initCustomSortDropdown() {
+        document.querySelectorAll("[data-catalog-sort-wrap]").forEach(function (wrap) {
+          if (wrap.dataset.sortInit === "true") return;
+          wrap.dataset.sortInit = "true";
+
+          const trigger = wrap.querySelector("[data-sort-trigger]");
+          const menu = wrap.querySelector("[data-sort-menu]");
+          const label = wrap.querySelector("[data-sort-label]");
+          const select = wrap.querySelector("select[name='sort']");
+          const options = wrap.querySelectorAll("[data-sort-value]");
+          if (!trigger || !menu || !select) return;
+
+          function toggleSortMenu(open) {
+            const shouldOpen = typeof open === "boolean" ? open : !wrap.classList.contains("is-open");
+            wrap.classList.toggle("is-open", shouldOpen);
+            trigger.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+          }
+
+          trigger.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleSortMenu();
+          });
+
+          options.forEach(function (opt) {
+            opt.addEventListener("click", function (e) {
+              e.preventDefault();
+              e.stopPropagation();
+              const val = opt.getAttribute("data-sort-value");
+              const textNode = opt.querySelector(".km-sort-option-text");
+              const text = textNode ? textNode.textContent.trim() : opt.textContent.trim();
+
+              label.textContent = text;
+              options.forEach(function (o) {
+                const isSel = o === opt;
+                o.classList.toggle("is-selected", isSel);
+                o.setAttribute("aria-selected", isSel ? "true" : "false");
+              });
+
+              select.value = val;
+              toggleSortMenu(false);
+              select.dispatchEvent(new Event("change", { bubbles: true }));
+            });
+          });
+
+          document.addEventListener("click", function (e) {
+            if (wrap.classList.contains("is-open") && !wrap.contains(e.target)) {
+              toggleSortMenu(false);
+            }
+          });
+
+          wrap.addEventListener("keydown", function (e) {
+            if (e.key === "Escape" && wrap.classList.contains("is-open")) {
+              e.preventDefault();
+              toggleSortMenu(false);
+              trigger.focus();
+            }
+          });
+        });
+      }
+
       function bindDynamicCatalogControls() {
         document.querySelectorAll("[data-sort-submit]").forEach(function (select) {
           if (select.dataset.ajaxBound === "true") return;
@@ -1981,6 +2122,7 @@
           });
         });
 
+        initCustomSortDropdown();
       }
 
       if (filtersForm) {
@@ -2086,7 +2228,7 @@
           row.setAttribute('role', 'treeitem');
           row.setAttribute('tabindex', '-1');
           row.dataset.value = value;
-          
+
           if (isChild) {
             row.classList.add('km-tree-row--child');
             if (isBakuAll) {
@@ -2141,7 +2283,7 @@
 
           const labelSpan = document.createElement('span');
           labelSpan.className = 'km-tree-label';
-          
+
           const text = label;
           const countPart = labelWithCount ? (labelWithCount.split('—')[1] || '').trim() : '';
           labelSpan.innerHTML = text + (countPart ? ` <span class="km-tree-count">— ${countPart}</span>` : '');
@@ -2163,7 +2305,7 @@
           if (!parentNode) return;
           const children = parentNode.querySelector('.km-tree-children');
           if (!children) return;
-          
+
           const isExpanded = row.getAttribute('aria-expanded') === 'true';
           row.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
           children.hidden = isExpanded;
@@ -2235,7 +2377,7 @@
           dropdown.hidden = false;
           trigger.setAttribute('aria-expanded', 'true');
           buildTreeHTML();
-          
+
           const firstItem = dropdown.querySelector('.km-tree-row');
           if (firstItem) {
             focusItem(firstItem);
