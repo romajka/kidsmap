@@ -176,56 +176,68 @@ class HomeController:
         return [
             {
                 "image_url": static("img/home/photos/family-studio.jpg"),
+                "image_static_path": "img/home/photos/family-studio.jpg",
                 "image_webp_url": static("img/home/photos/family-studio.webp"),
                 "label": _("Семья"),
             },
             {
                 "image_url": static("img/home/photos/kids-craft.jpg"),
+                "image_static_path": "img/home/photos/kids-craft.jpg",
                 "image_webp_url": static("img/home/photos/kids-craft.webp"),
                 "label": _("Творчество"),
             },
             {
                 "image_url": static("img/home/photos/music-lesson.jpg"),
+                "image_static_path": "img/home/photos/music-lesson.jpg",
                 "image_webp_url": static("img/home/photos/music-lesson.webp"),
                 "label": _("Музыка"),
             },
             {
                 "image_url": static("img/home/photos/family-balloons.jpg"),
+                "image_static_path": "img/home/photos/family-balloons.jpg",
                 "image_webp_url": static("img/home/photos/family-balloons.webp"),
                 "label": _("Семейный досуг"),
             },
             {
                 "image_url": static("img/home/photos/art-class.jpg"),
+                "image_static_path": "img/home/photos/art-class.jpg",
                 "image_webp_url": static("img/home/photos/art-class.webp"),
                 "label": _("Творчество"),
             },
             {
                 "image_url": static("img/home/photos/sports-class.jpg"),
+                "image_static_path": "img/home/photos/sports-class.jpg",
                 "image_webp_url": static("img/home/photos/sports-class.webp"),
                 "label": _("Спорт"),
             },
             {
                 "image_url": static("img/home/photos/family-park.jpg"),
+                "image_static_path": "img/home/photos/family-park.jpg",
                 "image_webp_url": static("img/home/photos/family-park.webp"),
                 "label": _("Семейный досуг"),
             },
             {
                 "image_url": static("img/home/photos/art-drawing.jpg"),
+                "image_static_path": "img/home/photos/art-drawing.jpg",
                 "image_webp_url": static("img/home/photos/art-drawing.webp"),
                 "label": _("Рисование"),
             },
             {
                 "image_url": static("img/home/photos/team-hands.jpg"),
+                "image_static_path": "img/home/photos/team-hands.jpg",
                 "image_webp_url": static("img/home/photos/team-hands.webp"),
                 "label": _("Командные занятия"),
             },
         ]
 
     def _build_hero_gallery_slides(self, *, gallery_images, language_code: str) -> list[dict[str, dict[str, str]]]:
+        from catalog.services.responsive_images import responsive_image
+
         items = [
             {
                 "image_url": image.image.url,
                 "image_webp_url": self._webp_url_for_gallery_image(image.image),
+                **self._responsive_gallery_fields(responsive_image(image.image)),
                 "label": image.title_i18n(language_code),
             }
             for image in gallery_images
@@ -233,6 +245,10 @@ class HomeController:
         ]
         if not items:
             items = self._default_hero_gallery_items()
+            from catalog.services.responsive_images import responsive_static_image
+            for item in items:
+                # Static defaults have the same derivative contract as uploads.
+                item.update(self._responsive_gallery_fields(responsive_static_image(item["image_static_path"])))
 
         slides = []
         for index in range(0, len(items), 3):
@@ -247,6 +263,15 @@ class HomeController:
                 }
             )
         return slides
+
+    @staticmethod
+    def _responsive_gallery_fields(image):
+        return {
+            "image_srcset": image["srcset"],
+            "image_responsive_url": image["src"] if image["srcset"] else "",
+            "image_width": image["width"],
+            "image_height": image["height"],
+        }
 
     @staticmethod
     def _webp_url_for_gallery_image(file_field) -> str:

@@ -1,0 +1,9 @@
+<picture>
+  {% if not item.image_srcset and item.image_webp_url %}
+  <source srcset="{{ item.image_webp_url }}" type="image/webp" />
+  {% endif %}
+  <img src="{{ item.image_responsive_url|default:item.image_url }}"
+    {% if item.image_srcset %}srcset="{{ item.image_srcset }}" sizes="{{ sizes }}" width="{{ item.image_width }}" height="{{ item.image_height }}"{% endif %}
+    alt="{{ item.label }}" decoding="async"
+    {% if high_priority %}loading="eager" fetchpriority="high"{% else %}loading="lazy"{% endif %} />
+</picture>

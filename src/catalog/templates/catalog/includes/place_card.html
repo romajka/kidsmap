@@ -5,11 +5,12 @@
     <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
       {% with public_image=place.public_image_file %}
       {% if public_image %}
-      {% with img_url=public_image.url %}
-      <div class="card-media-blur-bg" style="background-image: url('{{ img_url }}');" aria-hidden="true"></div>
-      <img class="card-media-img" src="{{ img_url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async"
+      {% responsive_image public_image as card_image %}
+      <div class="card-media-blur-bg" style="background-image: url('{{ card_image.preview }}');" aria-hidden="true"></div>
+      <img class="card-media-img" src="{{ card_image.src }}"
+        {% if card_image.srcset %}srcset="{{ card_image.srcset }}" sizes="{% if request.resolver_match.url_name == 'home' %}(max-width: 760px) 280px, 320px{% else %}(max-width: 760px) calc(100vw - 28px), (max-width: 1100px) calc((100vw - 64px) / 2), 320px{% endif %}" width="{{ card_image.width }}" height="{{ card_image.height }}"{% endif %}
+        alt="{{ place.name_i18n }}" loading="lazy" decoding="async"
         data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
-      {% endwith %}
       {% else %}
       <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
         <span class="image-placeholder-icon" aria-hidden="true">📷</span>

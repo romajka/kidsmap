@@ -5,6 +5,12 @@ from django.utils.translation import get_language, pgettext
 register = template.Library()
 
 
+@register.simple_tag
+def responsive_image(image):
+    from catalog.services.responsive_images import responsive_image as image_urls
+    return image_urls(image)
+
+
 def _plural_form(count: int, language_code: str) -> str:
     if language_code == "ru":
         remainder_10 = count % 10

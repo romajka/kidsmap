@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
-from catalog.models import AnalyticsActorExclusion, PlaceLike
+from catalog.models import AnalyticsActorExclusion, PlaceLike, Place, SiteGalleryImage
 from catalog.services.favorite_metrics import reconcile_place_favorite_counts
 
 
@@ -27,3 +27,16 @@ def reconcile_after_exclusion_change(sender, instance, **kwargs):
 @receiver(post_delete, sender=PlaceLike)
 def reconcile_after_favorite_change(sender, instance, **kwargs):
     reconcile_place_favorite_counts(place_ids=[instance.place_id])
+
+
+@receiver(post_save, sender=Place)
+@receiver(post_save, sender=SiteGalleryImage)
+def prepare_responsive_photos(sender, instance, raw=False, **kwargs):
+    if raw:
+        return
+    from catalog.services.responsive_images import generate_variants
+    fields = ('photo', 'cover_photo') if sender is Place else ('image',)
+    for field in fields:
+        image = getattr(instance, field)
+        if image:
+            generate_variants(image)
