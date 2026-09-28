@@ -10,6 +10,10 @@
     return {
       googleMapsApiKey: (scriptEl.dataset.homeMapGoogleKey || "").trim(),
       googleMapsMapId: (scriptEl.dataset.homeMapGoogleMapId || "").trim(),
+      leafletCss: (scriptEl.dataset.homeMapLeafletCss || "").trim(),
+      leafletCssIntegrity: (scriptEl.dataset.homeMapLeafletCssIntegrity || "").trim(),
+      leafletJs: (scriptEl.dataset.homeMapLeafletJs || "").trim(),
+      leafletJsIntegrity: (scriptEl.dataset.homeMapLeafletJsIntegrity || "").trim(),
       language: (scriptEl.dataset.homeMapLanguage || "az").trim(),
       unavailableLabel: (scriptEl.dataset.homeMapUnavailableLabel || "Map is temporarily unavailable.").trim(),
     };
@@ -169,18 +173,22 @@
     };
   }
 
+  function isPlaceInBaku(place) {
+    // The payload supplies a canonical location key; addresses and map bounds
+    // are not evidence of a district (e.g. Sumgait also lies in the old bbox).
+    const district = normalizeValue(place && place.district).toLowerCase();
+    return district === "baku" || district.startsWith("baku_");
+  }
+
   function placeMatchesFilters(place, filters) {
     if (filters.category && place.category_code !== filters.category) {
       return false;
     }
 
     if (filters.district) {
-      const placeDist = normalizeValue(place.district || place.district_label);
-      if (filters.district === "baku") {
-        if (placeDist !== "baku" && !placeDist.startsWith("baku_")) {
-          return false;
-        }
-      } else if (placeDist !== filters.district) {
+      const placeDistrict = normalizeValue(place.district).toLowerCase();
+      const selectedDistrict = normalizeValue(filters.district).toLowerCase();
+      if (selectedDistrict === "baku" ? !isPlaceInBaku(place) : placeDistrict !== selectedDistrict) {
         return false;
       }
     }
@@ -550,18 +558,269 @@
     mapNoteEl.textContent = hasVisiblePlaces ? "" : emptyLabel || "";
   }
 
+  function updateLiveCount(count) {
+    const counterEls = document.querySelectorAll("[data-home-map-live-count]");
+    counterEls.forEach(function (el) {
+      if (el.textContent.trim() === String(count)) return;
+      el.textContent = count;
+      if (typeof el.animate === "function" &&
+          !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        el.getAnimations().forEach(function (animation) { animation.cancel(); });
+        el.animate([{ opacity: 0.45 }, { opacity: 1 }], { duration: 180, easing: "ease-out" });
+      }
+    });
+  }
+
+  let pendingFocusPlaceId = null;
+  let activeMapFocusHandler = null;
+
+  function scrollToMap() {
+    const mapSection = document.getElementById("home-map-section");
+    if (mapSection) {
+      mapSection.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+        block: "start"
+      });
+      mapSection.classList.remove("is-highlighted");
+      void mapSection.offsetWidth;
+      mapSection.classList.add("is-highlighted");
+    }
+  }
+
+  function requestFocusPlace(placeId) {
+    scrollToMap();
+    if (typeof activeMapFocusHandler === "function") {
+      activeMapFocusHandler(placeId);
+    } else {
+      pendingFocusPlaceId = placeId;
+      if (typeof window.kidsMapTriggerHomeMapLoad === "function") {
+        window.kidsMapTriggerHomeMapLoad();
+      }
+    }
+  }
+  window.kidsMapFocusPlaceOnHomeMap = requestFocusPlace;
+
+  function highlightMatch(text, query) {
+    if (!text) return "";
+    if (!query) return escapeHtml(text);
+
+    const normText = normalizeSearch(text);
+    const normQ = normalizeSearch(query);
+    const idx = normText.indexOf(normQ);
+    if (idx === -1) {
+      return escapeHtml(text);
+    }
+    const matchLen = query.length;
+    const before = text.slice(0, idx);
+    const matched = text.slice(idx, idx + matchLen);
+    const after = text.slice(idx + matchLen);
+    return escapeHtml(before) + "<b>" + escapeHtml(matched) + "</b>" + escapeHtml(after);
+  }
+
+  function initHomeSearchAutocomplete(updateMap) {
+    const form = document.querySelector("[data-home-map-filter-form]");
+    if (!form) return;
+
+    const queryInput = form.querySelector('[name="q"]');
+    const autocompleteEl = document.getElementById("home-search-autocomplete");
+    if (!queryInput || !autocompleteEl) return;
+
+    const listEl = autocompleteEl.querySelector("[data-hs-ac-list]");
+    const emptyEl = autocompleteEl.querySelector("[data-hs-ac-empty]");
+    const footerEl = autocompleteEl.querySelector("[data-hs-ac-footer]");
+    const showAllBtn = autocompleteEl.querySelector("[data-hs-ac-show-all]");
+    const showAllText = autocompleteEl.querySelector("[data-hs-ac-show-all-text]");
+    const clearBtn = form.querySelector("[data-home-search-clear]");
+
+    const allPlaces = parsePlaces();
+    let selectedIndex = -1;
+    let currentMatches = [];
+
+    function hideAutocomplete() {
+      autocompleteEl.hidden = true;
+      selectedIndex = -1;
+    }
+
+    function showAutocomplete() {
+      const q = normalizeSearch(queryInput.value);
+      if (!q) {
+        hideAutocomplete();
+        return;
+      }
+
+      const filters = getFilterState();
+      currentMatches = allPlaces.filter(function (place) {
+        return placeMatchesFilters(place, filters);
+      });
+
+      selectedIndex = -1;
+
+      if (!currentMatches.length) {
+        if (listEl) listEl.innerHTML = "";
+        if (emptyEl) emptyEl.hidden = false;
+        if (footerEl) footerEl.hidden = true;
+        autocompleteEl.hidden = false;
+        return;
+      }
+
+      if (emptyEl) emptyEl.hidden = true;
+
+      const displayList = currentMatches.slice(0, 7);
+      if (listEl) {
+        listEl.innerHTML = displayList.map(function (place, idx) {
+          const iconHtml = place.category_icon_svg
+            ? place.category_icon_svg
+            : (place.category_icon_url
+              ? '<img src="' + escapeHtml(place.category_icon_url) + '" alt="" />'
+              : '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>');
+
+          const ageBadge = formatAgeBadge(place, {
+            range: "{from}–{to}",
+            from: "{from}+",
+            to: "0–{to}"
+          });
+
+          const highlightedName = highlightMatch(place.name, queryInput.value);
+          const onMapLabel = autocompleteEl.dataset.labelOnMap || "На карте";
+
+          return (
+            '<li role="option" class="hs-ac-item" data-place-id="' + escapeHtml(place.id || place.url || place.name) + '" data-index="' + idx + '" tabindex="0">' +
+              '<div class="hs-ac-item-icon" style="background:' + escapeHtml(place.category_color_bg || '#f1f5f9') + ';color:' + escapeHtml(place.category_color_text || '#136f38') + ';">' +
+                iconHtml +
+              '</div>' +
+              '<div class="hs-ac-item-content">' +
+                '<div class="hs-ac-item-top">' +
+                  '<span class="hs-ac-item-name">' + highlightedName + '</span>' +
+                  (place.price ? '<span class="hs-ac-item-price">' + escapeHtml(place.price) + '</span>' : '') +
+                '</div>' +
+                '<div class="hs-ac-item-meta">' +
+                  (place.category ? '<span class="hs-ac-item-cat">' + escapeHtml(place.category) + '</span>' : '') +
+                  (place.district_label ? '<span class="hs-ac-item-sep">•</span><span class="hs-ac-item-dist">' + escapeHtml(place.district_label) + '</span>' : '') +
+                  (ageBadge ? '<span class="hs-ac-item-sep">•</span><span class="hs-ac-item-age">' + escapeHtml(ageBadge) + '</span>' : '') +
+                '</div>' +
+              '</div>' +
+              '<div class="hs-ac-item-badge">' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>' +
+                '<span>' + escapeHtml(onMapLabel) + '</span>' +
+              '</div>' +
+            '</li>'
+          );
+        }).join('');
+      }
+
+      if (currentMatches.length > 7 && footerEl && showAllText) {
+        footerEl.hidden = false;
+        const pattern = autocompleteEl.dataset.labelShowAll || "Показать все {count} мест на карте";
+        showAllText.textContent = pattern.replace("{count}", String(currentMatches.length));
+      } else if (footerEl) {
+        footerEl.hidden = true;
+      }
+
+      autocompleteEl.hidden = false;
+    }
+
+    function selectPlaceById(placeId) {
+      const place = allPlaces.find(function (p) {
+        return (placeId && String(p.id) === String(placeId)) ||
+               (p.url && p.url === placeId) ||
+               (p.name && p.name === placeId);
+      });
+      if (!place) return;
+
+      hideAutocomplete();
+      queryInput.value = place.name;
+      if (clearBtn) clearBtn.hidden = false;
+      if (typeof updateMap === "function") {
+        updateMap();
+      }
+      requestFocusPlace(place.id);
+    }
+
+    queryInput.addEventListener("input", function () {
+      showAutocomplete();
+    });
+
+    queryInput.addEventListener("focus", function () {
+      if (queryInput.value.trim()) {
+        showAutocomplete();
+      }
+    });
+
+    if (listEl) {
+      listEl.addEventListener("click", function (e) {
+        const item = e.target.closest(".hs-ac-item");
+        if (item && item.dataset.placeId) {
+          selectPlaceById(item.dataset.placeId);
+        }
+      });
+    }
+
+    if (showAllBtn) {
+      showAllBtn.addEventListener("click", function () {
+        hideAutocomplete();
+        if (typeof updateMap === "function") {
+          updateMap();
+        }
+        scrollToMap();
+      });
+    }
+
+    // Keyboard navigation
+    queryInput.addEventListener("keydown", function (e) {
+      if (autocompleteEl.hidden) return;
+
+      const items = listEl ? Array.from(listEl.querySelectorAll(".hs-ac-item")) : [];
+      if (!items.length) return;
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        selectedIndex = (selectedIndex + 1) % items.length;
+        updateItemSelection(items);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+        updateItemSelection(items);
+      } else if (e.key === "Enter" && selectedIndex >= 0 && items[selectedIndex]) {
+        e.preventDefault();
+        const selectedPlaceId = items[selectedIndex].dataset.placeId;
+        selectPlaceById(selectedPlaceId);
+      } else if (e.key === "Escape") {
+        hideAutocomplete();
+      }
+    });
+
+    function updateItemSelection(items) {
+      items.forEach(function (el, idx) {
+        const isSel = idx === selectedIndex;
+        el.classList.toggle("is-selected", isSel);
+        el.setAttribute("aria-selected", isSel ? "true" : "false");
+        if (isSel) {
+          el.scrollIntoView({ block: "nearest" });
+        }
+      });
+    }
+
+    document.addEventListener("click", function (e) {
+      if (!autocompleteEl.contains(e.target) && e.target !== queryInput) {
+        hideAutocomplete();
+      }
+    });
+  }
+
   function bindFilterListeners(updateMap) {
     const form = document.querySelector("[data-home-map-filter-form]");
     if (!form || typeof updateMap !== "function") return;
 
     let searchTimer = null;
     const queryInput = form.querySelector('[name="q"]');
+    const clearBtn = form.querySelector("[data-home-search-clear]");
     const districtInput = form.querySelector('[name="district"]');
     const districtVisibleInput = form.querySelector("[data-home-district-input]");
     const districtOptions = getDistrictOptions(form);
     const categorySelect = form.querySelector('select[name="category"]');
     const ageInput = getAgeInput(form);
     const ageButtons = getAgeButtons(form);
+    const resetBtn = form.querySelector("[data-home-search-reset]");
 
     function scheduleUpdate() {
       if (searchTimer) {
@@ -571,7 +830,23 @@
     }
 
     if (queryInput) {
-      queryInput.addEventListener("input", scheduleUpdate);
+      function syncClearBtn() {
+        if (clearBtn) clearBtn.hidden = !queryInput.value;
+      }
+      queryInput.addEventListener("input", function () {
+        syncClearBtn();
+        scheduleUpdate();
+      });
+      syncClearBtn();
+
+      if (clearBtn) {
+        clearBtn.addEventListener("click", function () {
+          queryInput.value = "";
+          syncClearBtn();
+          scheduleUpdate();
+          queryInput.focus();
+        });
+      }
     }
 
     if (districtInput) {
@@ -590,12 +865,6 @@
           districtVisibleInput.value = resolvedOption ? resolvedOption.label : "";
           scheduleUpdate();
         });
-
-        form.addEventListener("submit", function () {
-          const resolvedOption = resolveDistrictValue(districtVisibleInput.value, districtOptions);
-          districtInput.value = resolvedOption ? resolvedOption.value : "";
-          districtVisibleInput.value = resolvedOption ? resolvedOption.label : "";
-        });
       } else {
         districtInput.addEventListener("change", function () {
           scheduleUpdate();
@@ -607,18 +876,58 @@
       categorySelect.addEventListener("change", updateMap);
     }
 
-    if (ageInput && ageButtons.length) {
-      syncAgeButtons(form);
+    if (ageInput) {
+      ageInput.addEventListener("change", updateMap);
+      if (ageButtons.length) {
+        syncAgeButtons(form);
+      }
+    }
 
-      ageButtons.forEach(function (button) {
-        button.addEventListener("click", function () {
-          const nextValue = normalizeValue(button.dataset.ageValue);
-          const currentValue = normalizeValue(ageInput.value);
-          setAgeValue(form, currentValue === nextValue ? "" : nextValue);
-          updateMap();
-        });
+    if (resetBtn) {
+      resetBtn.addEventListener("click", function () {
+        if (queryInput) {
+          queryInput.value = "";
+          if (clearBtn) clearBtn.hidden = true;
+        }
+        if (districtInput) districtInput.value = "";
+        if (districtVisibleInput) districtVisibleInput.value = "";
+        const districtTriggerText = form.querySelector(".km-tree-trigger-text");
+        if (districtTriggerText) {
+          const defaultLabel = form.querySelector(".km-tree-dropdown")?.dataset?.defaultLabel || "Регион / район";
+          districtTriggerText.textContent = defaultLabel;
+        }
+        form.querySelector(".km-location-tree")?.classList?.remove("is-active");
+
+        if (categorySelect) categorySelect.value = "";
+        if (ageInput) ageInput.value = "";
+        syncAgeButtons(form);
+
+        // Keep the existing category presentation handler in sync with reset.
+        if (categorySelect) {
+          categorySelect.dispatchEvent(new Event("change", { bubbles: true }));
+        } else {
+          scheduleUpdate();
+        }
       });
     }
+
+    /* Prevent page reload on submit, update map and smoothly focus/scroll to it */
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      updateMap();
+      scrollToMap();
+    });
+
+    const showMapBtn = form.querySelector("[data-home-show-map-btn]");
+    if (showMapBtn) {
+      showMapBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        updateMap();
+        scrollToMap();
+      });
+    }
+
+    initHomeSearchAutocomplete(updateMap);
   }
 
   function mountGoogleMap(sharedState) {
@@ -766,6 +1075,7 @@
       }
       visibleMarkers = next;
       setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || '', activeMarkers.length > 0);
+      updateLiveCount(activeMarkers.length);
     }
     function syncVisibleMarkersFromFilter() {
       motion.cancel();
@@ -778,11 +1088,31 @@
     bindFilterListeners(syncVisibleMarkersFromFilter);
     syncVisibleMarkers();
 
-    window.setTimeout(function () {
-      if (window.google && window.google.maps) {
-        google.maps.event.trigger(map, "resize");
+    function focusGooglePlace(placeId) {
+      const item = markerItems.find(function (m) {
+        return (placeId && String(m.place.id) === String(placeId)) ||
+               (m.place.url && m.place.url === placeId) ||
+               (m.place.name && m.place.name === placeId);
+      });
+      if (!item) return;
+
+      scrollToMap();
+      if (!visibleMarkers.has(item.marker)) {
+        item.marker.setMap(map);
       }
-    }, 0);
+      map.setCenter({ lat: item.place.lat, lng: item.place.lng });
+      map.setZoom(16);
+      openPlace(item.place, item.marker);
+    }
+
+    activeMapFocusHandler = focusGooglePlace;
+    if (pendingFocusPlaceId) {
+      const targetId = pendingFocusPlaceId;
+      pendingFocusPlaceId = null;
+      window.setTimeout(function () {
+        focusGooglePlace(targetId);
+      }, 350);
+    }
 
     return true;
   }
@@ -976,6 +1306,7 @@
       markerClusterGroup.on("clusterclick", handleHomeClusterClick);
 
       // No results
+      updateLiveCount(visibleItems.length);
       if (!visibleItems.length) {
         userInteracted = false;
         map.setView([DEFAULT_CENTER.lat, DEFAULT_CENTER.lng], DEFAULT_ZOOM, { animate: false });
@@ -1042,8 +1373,39 @@
       }).observe(mapEl);
     }
 
-    mapEl.addEventListener("mouseenter", function () { map.scrollWheelZoom.enable(); });
-    mapEl.addEventListener("mouseleave", function () { map.scrollWheelZoom.disable(); });
+    function focusLeafletPlace(placeId) {
+      const item = markerItems.find(function (m) {
+        return (placeId && String(m.place.id) === String(placeId)) ||
+               (m.place.url && m.place.url === placeId) ||
+               (m.place.name && m.place.name === placeId);
+      });
+      if (!item) return;
+
+      userInteracted = true;
+      scrollToMap();
+
+      if (!markerClusterGroup.hasLayer(item.marker)) {
+        markerClusterGroup.addLayer(item.marker);
+      }
+
+      if (typeof markerClusterGroup.zoomToShowLayer === "function") {
+        markerClusterGroup.zoomToShowLayer(item.marker, function () {
+          item.marker.openPopup();
+        });
+      } else {
+        map.setView([item.place.lat, item.place.lng], 16, { animate: true });
+        item.marker.openPopup();
+      }
+    }
+
+    activeMapFocusHandler = focusLeafletPlace;
+    if (pendingFocusPlaceId) {
+      const targetId = pendingFocusPlaceId;
+      pendingFocusPlaceId = null;
+      window.setTimeout(function () {
+        focusLeafletPlace(targetId);
+      }, 350);
+    }
 
     return true;
   }
@@ -1062,7 +1424,36 @@
     if (!sharedState) return;
 
     function tryMount() {
-      return mountGoogleMap(sharedState);
+      if (mountGoogleMap(sharedState)) return true;
+      if (mountLeafletMap(sharedState)) return true;
+      return false;
+    }
+
+    function loadLeafletProvider() {
+      const leafletCss = SCRIPT_CONFIG.leafletCss || mapEl.dataset.homeMapLeafletCss;
+      const leafletCssIntegrity = SCRIPT_CONFIG.leafletCssIntegrity || mapEl.dataset.homeMapLeafletCssIntegrity;
+      const leafletJs = SCRIPT_CONFIG.leafletJs || mapEl.dataset.homeMapLeafletJs;
+      const leafletJsIntegrity = SCRIPT_CONFIG.leafletJsIntegrity || mapEl.dataset.homeMapLeafletJsIntegrity;
+      const clusterCss = "https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css";
+      const clusterDefaultCss = "https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css";
+      const clusterJs = "https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js";
+
+      if (!leafletCss || !leafletJs) return Promise.reject(new Error("Missing Leaflet assets"));
+
+      return Promise.all([
+        loadStylesheet(leafletCss, leafletCssIntegrity),
+        loadStylesheet(clusterCss),
+        loadStylesheet(clusterDefaultCss),
+      ])
+        .then(function () {
+          return loadScript(leafletJs, leafletJsIntegrity);
+        })
+        .then(function () {
+          return loadScript(clusterJs);
+        })
+        .then(function () {
+          tryMount();
+        });
     }
 
     function loadGoogleProvider() {
@@ -1111,17 +1502,21 @@
         if (mapEl.dataset.mapInitialized !== "1") {
           renderMapUnavailable(mapEl, mapNoteEl);
         }
-      }, 5000);
+      }, 7000);
 
       if (!SCRIPT_CONFIG.googleMapsApiKey) {
-        clearFallbackTimer();
-        renderMapUnavailable(mapEl, mapNoteEl);
+        loadLeafletProvider().catch(function () {
+          clearFallbackTimer();
+          renderMapUnavailable(mapEl, mapNoteEl);
+        });
         return;
       }
 
       loadGoogleProvider().catch(function () {
-        clearFallbackTimer();
-        renderMapUnavailable(mapEl, mapNoteEl);
+        loadLeafletProvider().catch(function () {
+          clearFallbackTimer();
+          renderMapUnavailable(mapEl, mapNoteEl);
+        });
       });
     }
 
@@ -1131,6 +1526,8 @@
       mapSection.removeEventListener("touchstart", triggerLoad);
       window.removeEventListener("scroll", triggerLoad, true);
     }
+
+    window.kidsMapTriggerHomeMapLoad = triggerLoad;
 
     if (typeof window.IntersectionObserver !== "function") {
       loadAndMount();

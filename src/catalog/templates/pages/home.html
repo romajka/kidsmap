@@ -11,7 +11,7 @@
 {% endif %}
 {% endblock %}
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20260928_cloud2" />
+<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20260928_mobile_hero1" />
 {% endblock %}
 
 {% block content %}
@@ -170,13 +170,154 @@
     </div>
     {% endif %}
   </div>
+</section>
 
-  <div class="home-hero-search-panel">
+{% include "catalog/includes/home_places_rail.html" %}
+
+{% if home_categories %}
+<section class="home-discover" aria-labelledby="home-discover-title">
+  <div class="home-discover-head">
+    <div class="home-discover-head-text">
+      <span class="home-redesign-kicker">{% if request.LANGUAGE_CODE == 'az' %}MARAQLARDAN BAŞLAYIN{% elif request.LANGUAGE_CODE == 'en' %}FOLLOW THEIR CURIOSITY{% else %}НАЧНИТЕ С ИНТЕРЕСОВ{% endif %}</span>
+      <h2 id="home-discover-title">{% if request.LANGUAGE_CODE == 'az' %}Uşağınız nəyi sevir?{% elif request.LANGUAGE_CODE == 'en' %}What do they love doing?{% else %}Чем увлечён ваш ребёнок?{% endif %}</h2>
+    </div>
+    <a class="home-discover-all-link" href="{% url 'place_list' %}">
+      <span>{% trans "Все категории" %}</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+    </a>
+  </div>
+  <nav class="home-discover-cloud" aria-labelledby="home-discover-title">
+    {% for item in home_categories %}
+    <span class="km-bubble-wrap" style="--bubble-accent:{{ item.color_text|default:'#10b981' }};--bubble-bg:{{ item.color_bg|default:'#ecfdf5' }};">
+      <a class="km-category-bubble" href="{% url 'place_list' %}?category={{ item.value|urlencode }}"
+         title="{{ item.label }}">
+        <span class="hdb-icon" style="background:{{ item.color_bg|default:'#F3F4F6' }};color:{{ item.color_text|default:'#6B7280' }};" aria-hidden="true">{% include "catalog/includes/category_visual_icon.html" with code=item.value icon_file_url=item.icon_file_url icon_is_svg=item.icon_is_svg icon_is_font=item.icon_is_font icon_name=item.icon_name %}</span>
+        <span class="hdb-label">{{ item.label }}</span>{% if item.count %}<span class="hdb-count">{{ item.count }}</span>{% endif %}
+      </a>
+    </span>
+    {% endfor %}
+  </nav>
+</section>
+{% endif %}
+
+
+{% if map_places %}
+<section class="panel home-map-panel" id="home-map-section">
+  <div class="home-map-head">
+    <div class="home-map-copy">
+      <div class="home-map-eyebrow-row">
+        <div class="home-redesign-eyebrow home-map-eyebrow">
+          <span aria-hidden="true"></span>
+          {% if request.LANGUAGE_CODE == 'az' %}İnteraktiv xəritə{% elif request.LANGUAGE_CODE == 'en' %}Interactive map{% else %}Интерактивная карта{% endif %}
+        </div>
+
+      </div>
+      <h2>
+        {% if request.LANGUAGE_CODE == 'az' %}Uşaqlar üçün məkanlar xəritədə{% elif request.LANGUAGE_CODE == 'en' %}Discover kids’ places on the map{% else %}Детские места на карте{% endif %}
+      </h2>
+      <p class="home-map-subtitle">
+        {% if request.LANGUAGE_CODE == 'az' %}Rayon, fəaliyyət və uşağınızın yaşını seçin.{% elif request.LANGUAGE_CODE == 'en' %}Choose an area, an activity and your child’s age.{% else %}Выберите район, занятие и возраст ребёнка.{% endif %}
+      </p>
+    </div>
+    <a class="home-map-catalog-link" href="{% url 'place_list' %}">
+      <span class="home-map-desktop-label">{% trans "Открыть весь каталог" %}</span>
+      <span class="home-map-mobile-label">{% if request.LANGUAGE_CODE == 'az' %}Kataloq{% elif request.LANGUAGE_CODE == 'en' %}Catalog{% else %}Каталог{% endif %}</span>
+      <span class="home-btn-icon" aria-hidden="true">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="7" y1="17" x2="17" y2="7"></line>
+          <polyline points="7 7 17 7 17 17"></polyline>
+        </svg>
+      </span>
+    </a>
+  </div>
+
+  <div class="home-map-search-deck">
     <form class="home-search home-search-compact" method="get" action="{% url 'place_list' %}"
       data-home-map-filter-form>
       {% trans "Начать поиск" as default_search_label %}
-      <label class="home-search-label" for="home-search-category">{{ hero_search_label }}</label>
-      <div class="home-search-row">
+      <div class="home-search-head">
+        <label class="home-search-label" for="home-hero-search-input">{{ hero_search_label }}</label>
+        <span class="home-search-instant-badge">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          {% if request.LANGUAGE_CODE == 'az' %}Xəritədə dərhal axtarış{% elif request.LANGUAGE_CODE == 'en' %}Map updates instantly{% else %}Карта обновляется сразу{% endif %}
+        </span>
+      </div>
+
+      <div class="home-search-primary-row">
+        <div class="home-search-input-wrap">
+          <span class="home-search-input-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
+          <input
+            id="home-hero-search-input"
+            type="search"
+            name="q"
+            value="{{ request.GET.q|default:'' }}"
+            data-search-input
+            autocomplete="off"
+            placeholder="{% if request.LANGUAGE_CODE == 'az' %}Məkan və ya fəaliyyət axtarın{% elif request.LANGUAGE_CODE == 'en' %}Search places or activities{% else %}Название места или занятие{% endif %}"
+            aria-label="{{ hero_search_label }}"
+          />
+          <button
+            class="home-search-clear-btn"
+            type="button"
+            data-home-search-clear
+            data-search-target="home-hero-search-input"
+            aria-label="{% if request.LANGUAGE_CODE == 'az' %}Axtarışı təmizlə{% elif request.LANGUAGE_CODE == 'en' %}Clear search{% else %}Очистить поиск{% endif %}"
+            {% if not request.GET.q %}hidden{% endif %}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="m6 6 12 12M18 6 6 18" />
+            </svg>
+          </button>
+
+          <!-- Autocomplete Dropdown with Live Places -->
+          <div class="home-search-autocomplete" id="home-search-autocomplete" data-home-search-autocomplete
+            data-label-on-map="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə{% elif request.LANGUAGE_CODE == 'en' %}On map{% else %}На карте{% endif %}"
+            data-label-show-all="{% if request.LANGUAGE_CODE == 'az' %}Bütün {count} nəticəni xəritədə göstər{% elif request.LANGUAGE_CODE == 'en' %}Show all {count} results on map{% else %}Показать все {count} мест на карте{% endif %}"
+            hidden>
+            <div class="hs-ac-header">
+              <span class="hs-ac-title" data-hs-ac-count-title>
+                {% if request.LANGUAGE_CODE == 'az' %}Tapılan məkanlar{% elif request.LANGUAGE_CODE == 'en' %}Found places{% else %}Найденные кружки и секции{% endif %}
+              </span>
+              <span class="hs-ac-hint">
+                {% if request.LANGUAGE_CODE == 'az' %}Xəritədə göstərmək üçün klikləyin{% elif request.LANGUAGE_CODE == 'en' %}Click to show on map{% else %}Нажмите, чтобы показать на карте{% endif %}
+              </span>
+            </div>
+            <ul class="hs-ac-list" role="listbox" data-hs-ac-list></ul>
+            <div class="hs-ac-footer" data-hs-ac-footer hidden>
+              <button type="button" class="hs-ac-show-all-btn" data-hs-ac-show-all>
+                <span data-hs-ac-show-all-text>
+                  {% if request.LANGUAGE_CODE == 'az' %}Bütün nəticələri xəritədə göstər{% elif request.LANGUAGE_CODE == 'en' %}Show all results on map{% else %}Показать все на карте{% endif %}
+                </span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+            <div class="hs-ac-empty" data-hs-ac-empty hidden>
+              <div class="hs-ac-empty-icon" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              </div>
+              <p class="hs-ac-empty-text">{% if request.LANGUAGE_CODE == 'az' %}Heç bir məkan tapılmadı{% elif request.LANGUAGE_CODE == 'en' %}No places found for this search{% else %}По этому запросу ничего не найдено{% endif %}</p>
+              <span class="hs-ac-empty-sub">{% if request.LANGUAGE_CODE == 'az' %}Açar sözü dəyişməyə və ya filtrləri sıfırlamağa çalışın{% elif request.LANGUAGE_CODE == 'en' %}Try changing keywords or resetting filters{% else %}Попробуйте изменить запрос или сбросить фильтры{% endif %}</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn home-search-show-map-btn" type="submit" data-home-show-map-btn
+          aria-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə göstər{% elif request.LANGUAGE_CODE == 'en' %}Show on map{% else %}Показать на карте{% endif %}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+            <line x1="8" y1="2" x2="8" y2="18"></line>
+            <line x1="16" y1="6" x2="16" y2="22"></line>
+          </svg>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Xəritədə göstər{% elif request.LANGUAGE_CODE == 'en' %}Show on map{% else %}Показать на карте{% endif %}</span>
+        </button>
+      </div>
+
+      <div class="home-search-row home-search-filters-row">
         <select name="district" class="home-filter-district-select" hidden>
           <option value="">{% trans "Регион / район" %}</option>
           {% for district in home_districts %}
@@ -207,31 +348,6 @@
           <div id="district-tree-dropdown" class="km-tree-dropdown" role="tree" tabindex="-1"
             data-all-baku-label="{% trans 'Все районы Баку' %}" data-default-label="{% trans 'Регион / район' %}"
             data-toggle-label="{% trans 'Переключить раздел' %}" hidden></div>
-        </div>
-
-        <div class="home-age-presets" role="group" aria-label="{% trans 'Возраст' %}">
-          <span class="home-age-presets-label" aria-hidden="true">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-            <span>{% if request.LANGUAGE_CODE == 'az' %}Uşağın yaşı{% elif request.LANGUAGE_CODE == 'en' %}Age group{% else %}Возраст ребенка{% endif %}</span>
-          </span>
-          <div class="home-age-chips-wrap">
-            <input type="hidden" name="age" value="{{ selected_age }}" />
-            {% for age in home_age_options %}
-            {% with age_value=age|stringformat:"s" %}
-            <button type="button" class="home-age-chip{% if selected_age == age_value %} is-active{% endif %}"
-              data-home-age-chip data-age-value="{{ age_value }}"
-              aria-pressed="{% if selected_age == age_value %}true{% else %}false{% endif %}"
-              aria-label="{% if request.LANGUAGE_CODE == 'az' %}{{ age }} yaşdan{% elif request.LANGUAGE_CODE == 'en' %}Age {{ age }} and up{% else %}Возраст от {{ age }} лет{% endif %}">
-              {{ age }}+
-            </button>
-            {% endwith %}
-            {% endfor %}
-          </div>
         </div>
 
         <select id="home-search-category" name="category" hidden>
@@ -292,69 +408,52 @@
           </div>
         </div>
 
-        <button class="btn icon-btn icon-search icon-only-btn home-search-btn" type="submit"
-          aria-label="{% firstof hero_cta_text default_search_label %}"
-          title="{% firstof hero_cta_text default_search_label %}">
-          <span class="home-search-btn-label">{% firstof hero_cta_text default_search_label %}</span>
-          <span class="visually-hidden">{% firstof hero_cta_text default_search_label %}</span>
+        <div class="home-age-presets" role="group" aria-label="{% trans 'Возраст' %}">
+          <span class="home-age-presets-label" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>{% if request.LANGUAGE_CODE == 'az' %}Uşağın yaşı{% elif request.LANGUAGE_CODE == 'en' %}Child’s age{% else %}Возраст ребёнка{% endif %}</span>
+          </span>
+          <div class="home-age-chips-wrap">
+            <input type="hidden" name="age" value="{{ selected_age }}" />
+            {% for age in home_age_options %}
+            {% with age_value=age|stringformat:"s" %}
+            <button type="button" class="home-age-chip{% if selected_age == age_value %} is-active{% endif %}"
+              data-home-age-chip data-age-value="{{ age_value }}"
+              aria-pressed="{% if selected_age == age_value %}true{% else %}false{% endif %}"
+              aria-label="{% if request.LANGUAGE_CODE == 'az' %}{{ age }} yaşlı uşaq üçün{% elif request.LANGUAGE_CODE == 'en' %}For a child aged {{ age }}{% else %}Для ребёнка {{ age }} лет{% endif %}">
+              {{ age }}
+            </button>
+            {% endwith %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <button type="button" class="home-search-reset-btn" data-home-search-reset
+          aria-label="{% if request.LANGUAGE_CODE == 'az' %}Filtrləri sıfırla{% elif request.LANGUAGE_CODE == 'en' %}Reset filters{% else %}Сбросить фильтры{% endif %}"
+          title="{% if request.LANGUAGE_CODE == 'az' %}Filtrləri sıfırla{% elif request.LANGUAGE_CODE == 'en' %}Reset filters{% else %}Сбросить фильтры{% endif %}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Sıfırla{% elif request.LANGUAGE_CODE == 'en' %}Reset{% else %}Сбросить{% endif %}</span>
         </button>
       </div>
     </form>
-
   </div>
-</section>
 
-{% include "catalog/includes/home_places_rail.html" %}
-
-{% if home_categories %}
-<section class="home-discover" aria-labelledby="home-discover-title">
-  <div class="home-discover-head">
-    <div class="home-discover-head-text">
-      <span class="home-redesign-kicker">{% if request.LANGUAGE_CODE == 'az' %}MARAQLARDAN BAŞLAYIN{% elif request.LANGUAGE_CODE == 'en' %}FOLLOW THEIR CURIOSITY{% else %}НАЧНИТЕ С ИНТЕРЕСОВ{% endif %}</span>
-      <h2 id="home-discover-title">{% if request.LANGUAGE_CODE == 'az' %}Uşağınız nəyi sevir?{% elif request.LANGUAGE_CODE == 'en' %}What do they love doing?{% else %}Чем увлечён ваш ребёнок?{% endif %}</h2>
-    </div>
-    <a class="home-discover-all-link" href="{% url 'place_list' %}">
-      <span>{% trans "Все категории" %}</span>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
-    </a>
-  </div>
-  <nav class="home-discover-cloud" aria-labelledby="home-discover-title">
-    {% for item in home_categories %}
-    <a class="km-category-bubble" href="{% url 'place_list' %}?category={{ item.value|urlencode }}"
-       style="--bubble-accent:{{ item.color_text|default:'#10b981' }};--bubble-bg:{{ item.color_bg|default:'#ecfdf5' }};">
-      <span class="hdb-icon" style="background:{{ item.color_bg|default:'#F3F4F6' }};color:{{ item.color_text|default:'#6B7280' }};" aria-hidden="true">{% include "catalog/includes/category_visual_icon.html" with code=item.value icon_file_url=item.icon_file_url icon_is_svg=item.icon_is_svg icon_is_font=item.icon_is_font icon_name=item.icon_name %}</span>
-      <span class="hdb-label">{{ item.label }}</span>{% if item.count %}<span class="hdb-count">{{ item.count }}</span>{% endif %}
-    </a>
-    {% endfor %}
-  </nav>
-</section>
-{% endif %}
-
-
-{% if map_places %}
-<section class="panel home-map-panel" id="home-map-section">
-  <div class="home-map-head">
-    <div class="home-map-copy">
-      <div class="home-redesign-eyebrow home-map-eyebrow">
-        <span aria-hidden="true"></span>
-        {% if request.LANGUAGE_CODE == 'az' %}İnteraktiv xəritə{% elif request.LANGUAGE_CODE == 'en' %}Interactive map{% else %}Интерактивная карта{% endif %}
-      </div>
-      <h2>
-        <a class="home-map-title-link" href="{% url 'place_list' %}">{% trans "Посмотрите детские места на карте" %}</a>
-      </h2>
-      <p class="home-map-subtitle">
-        {% trans "Выбирайте фильтры выше — точки на карте обновятся сразу. Нажмите на маркер, чтобы открыть карточку места." %}
-      </p>
-    </div>
-    <a class="home-map-catalog-link" href="{% url 'place_list' %}">
-      <span>{% trans "Открыть весь каталог" %}</span>
-      <span class="home-btn-icon" aria-hidden="true">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="7" y1="17" x2="17" y2="7"></line>
-          <polyline points="7 7 17 7 17 17"></polyline>
-        </svg>
-      </span>
-    </a>
+  <div class="home-map-results-bar">
+        <div class="home-map-live-pill" role="status" aria-live="polite" aria-atomic="true">
+          <span class="home-map-pulse-dot" aria-hidden="true"></span>
+          <span data-home-map-live-count>{{ map_places|length }}</span>
+          <span class="home-map-live-text">{% if request.LANGUAGE_CODE == 'az' %}məkan xəritədə{% elif request.LANGUAGE_CODE == 'en' %}places on map{% else %}мест на карте{% endif %}</span>
+        </div>
+    <span class="home-map-results-hint home-map-desktop-label">{% if request.LANGUAGE_CODE == 'az' %}Məkanı açmaq üçün xəritədəki işarəyə klikləyin{% elif request.LANGUAGE_CODE == 'en' %}Select a pin to discover a place{% else %}Нажмите на метку, чтобы открыть место{% endif %}</span>
+    <span class="home-map-results-hint home-map-mobile-label">{% if request.LANGUAGE_CODE == 'az' %}İşarəyə toxunun{% elif request.LANGUAGE_CODE == 'en' %}Select a pin{% else %}Выберите метку{% endif %}</span>
   </div>
 
   <div id="home-map" class="home-map" data-details-label="{% trans 'Подробнее' %}"
@@ -1803,7 +1902,7 @@
       </summary>
       <div class="home-faq-answer-wrapper">
         <div class="home-faq-answer-inner">
-          <p>{% trans "Да. Фильтры по возрастным группам (0+, 6+, 9+, 12+, 16+), регионам, станциям метро, категориям и ценовым диапазонам работают одновременно. Ссылкой на настроенный поиск можно делиться." %}</p>
+          <p>{% if request.LANGUAGE_CODE == 'az' %}Bəli. Uşağın yaşı, region, metro, kateqoriya və qiymət filtrləri birlikdə işləyir. Seçilmiş yaş məkanın yaş aralığında olmalıdır. Yaş məlumatı olmayan məkanlar yaş filtri seçildikdə göstərilmir. Axtarış linkini paylaşa bilərsiniz.{% elif request.LANGUAGE_CODE == 'en' %}Yes. Child age, region, metro, category and price filters work together. The selected age must fall within the place’s age range. Places without age information are hidden when an age filter is selected. You can share the search link.{% else %}Да. Фильтры по возрасту ребёнка, региону, метро, категории и цене работают одновременно. Выбранный возраст должен входить в возрастной диапазон места. При выборе возраста места без возрастных данных не показываются. Ссылкой на поиск можно делиться.{% endif %}</p>
           <div class="home-faq-card-footer">
             <a class="home-faq-cta-link" href="{% url 'place_list' %}">
               <span>{% trans "Попробовать фильтры" %}</span>
@@ -2170,7 +2269,8 @@
         row.appendChild(labelSpan);
 
         row.addEventListener('click', function (e) {
-          if (hasChildren) {
+          if (hasChildren && e.target.closest('.km-tree-chevron')) {
+            e.stopPropagation();
             toggleNode(row);
           } else {
             selectValue(value);
@@ -2617,7 +2717,7 @@
 <link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20260910" />
 <script src="{% static 'js/google_maps_motion.js' %}?v=20260910"></script>
 <script src="{% static 'js/google_maps_markers.js' %}?v=20260910"></script>
-<script src="{% static 'js/home_map.js' %}?v=20260910_motion1" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
+<script src="{% static 'js/home_map.js' %}?v=20260928_map_release4" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
   data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
   data-home-map-language="{{ request.LANGUAGE_CODE|escape }}"
   data-home-map-unavailable-label="{% trans 'Карта временно недоступна.' %}"

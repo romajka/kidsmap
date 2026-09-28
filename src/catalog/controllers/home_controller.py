@@ -61,47 +61,51 @@ class HomeController:
                 .order_by("start_datetime", "-updated_at")[:4]
             )
 
-        map_places = [
-            {
-                "name": place.name_i18n(language_code),
-                "lat": place.lat,
-                "lng": place.lng,
-                "url": place.get_absolute_url(),
-                "category": place.category.name_i18n(language_code) if place.category else "",
-                "category_code": place.category_code,
-                "category_color_bg": place.category.resolved_color_bg if place.category else "#F3F4F6",
-                "category_color_text": place.category.resolved_color_text if place.category else "#6B7280",
-                "category_icon_url": place.category.icon_file_url if place.category else "",
-                "category_icon_is_svg": place.category.icon_is_svg if place.category else False,
-                "category_icon_is_font": place.category.icon_is_font_class if place.category else False,
-                "category_icon_name": (place.category.icon or "") if place.category else "",
-                "category_icon_svg": place.category.icon_svg_source if place.category else "",
-                "district": place.district or "",
-                "district_label": place.district_i18n(language_code) if place.district else "",
-                "metro": place.metro,
-                "metro_label": place.metro_i18n(language_code) if place.metro else "",
-                "age_from": place.age_from,
-                "age_to": place.age_to,
-                "image_url": place.public_image_url,
-                "price": str(place.card_price_badge),
-                "has_phone": bool(place.phone_numbers),
-                "address": place.address_i18n(language_code) or "",
-                "schedule": place.schedule_summary or "",
-                "search_text": " ".join(
-                    part
-                    for part in (
-                        place.name_i18n(language_code),
-                        place.category.name_i18n(language_code) if place.category else "",
-                        place.subcategory.name_i18n(language_code) if place.subcategory_id else "",
-                        place.district_i18n(language_code),
-                        place.metro,
-                        place.metro_i18n(language_code),
-                    )
-                    if part
-                ).casefold(),
-            }
-            for place in self.place_repository.map_ready_queryset()
-        ]
+        map_places = []
+        for place in self.place_repository.map_ready_queryset():
+            d_key, d_label = self._resolve_place_district_info(place, language_code)
+            map_places.append(
+                {
+                    "id": place.id,
+                    "name": place.name_i18n(language_code),
+                    "lat": place.lat,
+                    "lng": place.lng,
+                    "url": place.get_absolute_url(),
+                    "category": place.category.name_i18n(language_code) if place.category else "",
+                    "category_code": place.category_code,
+                    "category_color_bg": place.category.resolved_color_bg if place.category else "#F3F4F6",
+                    "category_color_text": place.category.resolved_color_text if place.category else "#6B7280",
+                    "category_icon_url": place.category.icon_file_url if place.category else "",
+                    "category_icon_is_svg": place.category.icon_is_svg if place.category else False,
+                    "category_icon_is_font": place.category.icon_is_font_class if place.category else False,
+                    "category_icon_name": (place.category.icon or "") if place.category else "",
+                    "category_icon_svg": place.category.icon_svg_source if place.category else "",
+                    "district": d_key,
+                    "district_label": d_label,
+                    "metro": place.metro,
+                    "metro_label": place.metro_i18n(language_code) if place.metro else "",
+                    "age_from": place.age_from,
+                    "age_to": place.age_to,
+                    "image_url": place.public_image_url,
+                    "price": str(place.card_price_badge),
+                    "has_phone": bool(place.phone_numbers),
+                    "address": place.address_i18n(language_code) or "",
+                    "schedule": place.schedule_summary or "",
+                    "search_text": " ".join(
+                        part
+                        for part in (
+                            place.name_i18n(language_code),
+                            place.category.name_i18n(language_code) if place.category else "",
+                            place.subcategory.name_i18n(language_code) if place.subcategory_id else "",
+                            d_label,
+                            place.address_i18n(language_code),
+                            place.metro,
+                            place.metro_i18n(language_code),
+                        )
+                        if part
+                    ).casefold(),
+                }
+            )
 
         total_place_reviews_count = PlaceReview.objects.filter(
             is_approved=True,
@@ -288,3 +292,15 @@ class HomeController:
         if storage.exists(webp_name):
             return storage.url(webp_name)
         return ""
+
+    @staticmethod
+    def _resolve_place_district_info(place, language_code: str) -> tuple[str, str]:
+        from catalog.services.locations import normalize_to_key, get_location_translation
+        # Match the catalog's stored district contract. Do not infer filter
+        # membership from an address, a broad bbox, or an unpersisted lookup.
+        raw_district = (place.district or "").strip()
+        if not raw_district:
+            return "", ""
+        d_key = normalize_to_key(raw_district)
+        d_label = place.district_i18n(language_code) or get_location_translation(d_key, language_code)
+        return d_key, d_label

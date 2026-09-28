@@ -195,6 +195,9 @@ class PlaceListFilters:
             qs = qs.filter(metro__iexact=self.metro)
 
         age_from_int, age_to_int = self._normalized_age_bounds()
+        if age_from_int is not None or age_to_int is not None:
+            # Unknown suitability is not a match for a selected child's age.
+            qs = qs.exclude(age_from__isnull=True, age_to__isnull=True)
         if age_from_int is not None:
             qs = qs.filter(Q(age_to__isnull=True) | Q(age_to__gte=age_from_int))
         if age_to_int is not None:

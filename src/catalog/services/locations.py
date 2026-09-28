@@ -154,6 +154,12 @@ LEGACY_MAPPING = {
     "ясамал": "baku_yasamal",
     "yasamal": "baku_yasamal",
     "ясамальский": "baku_yasamal",
+    "ахмедлы": "baku_khatai",
+    "әhmədli": "baku_khatai",
+    "ahmedli": "baku_khatai",
+    "ehmedli": "baku_khatai",
+    "забрат": "baku_sabunchu",
+    "zabrat": "baku_sabunchu",
 }
 
 BAKU_METRO_MAP = {

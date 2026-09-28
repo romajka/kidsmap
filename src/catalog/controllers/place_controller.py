@@ -431,6 +431,9 @@ class PlaceController:
         elif date_filter == "weekend":
             qs = qs.filter(start_datetime__week_day__in=[1, 7])  # Sunday=1, Saturday=7
 
+        if (age_from and age_from.isdigit()) or (age_to and age_to.isdigit()):
+            qs = qs.exclude(age_from__isnull=True, age_to__isnull=True)
+
         if age_from and age_from.isdigit():
             qs = qs.filter(Q(age_to__gte=int(age_from)) | Q(age_to__isnull=True))
         if age_to and age_to.isdigit():
