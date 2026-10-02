@@ -56,7 +56,8 @@ class PricingPlan(models.Model):
         ("registration_fee", _("Регистрационный взнос")), ("deposit", _("Депозит")),
     ]
 
-    place = models.ForeignKey("catalog.Place", on_delete=models.CASCADE, related_name="pricing_plan_records")
+    place = models.ForeignKey("catalog.Place", null=True, blank=True, on_delete=models.CASCADE, related_name="pricing_plan_records")
+    offering_group = models.ForeignKey("catalog.OfferingGroup", null=True, blank=True, on_delete=models.CASCADE, related_name="pricing_plan_records")
     product_type = models.CharField(max_length=32, choices=PRODUCT_CHOICES)
     lesson_format = models.CharField(max_length=16, choices=LESSON_FORMAT_CHOICES, blank=True)
     charge_role = models.CharField(max_length=24, choices=CHARGE_ROLE_CHOICES, default="primary")
@@ -91,6 +92,7 @@ class PricingPlan(models.Model):
     conditions_ru = models.TextField(blank=True)
     conditions_en = models.TextField(blank=True)
     is_required = models.BooleanField(default=False)
+    is_trial = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     sort_order = models.PositiveSmallIntegerField(default=0)
     verified_at = models.DateTimeField(null=True, blank=True)
@@ -103,8 +105,10 @@ class PricingPlan(models.Model):
         indexes = [
             models.Index(fields=("place", "is_active", "charge_role", "currency"), name="pricing_lookup_idx"),
             models.Index(fields=("place", "sort_order", "id"), name="pricing_order_idx"),
+            models.Index(fields=("offering_group", "is_active", "charge_role", "currency"), name="pricing_group_lookup_idx"),
         ]
         constraints = [
+            models.CheckConstraint(condition=(Q(place__isnull=False, offering_group__isnull=True) | Q(place__isnull=True, offering_group__isnull=False)), name="pricing_exactly_one_target"),
             models.CheckConstraint(condition=Q(price__gte=0) | Q(price__isnull=True), name="pricing_price_nonnegative"),
             models.CheckConstraint(condition=Q(price_min__gte=0) | Q(price_min__isnull=True), name="pricing_min_nonnegative"),
             models.CheckConstraint(condition=Q(price_max__gte=0) | Q(price_max__isnull=True), name="pricing_max_nonnegative"),
@@ -149,9 +153,17 @@ class PricingPlan(models.Model):
             ),
         ]
 
+    @property
+    def target_place_id(self):
+        if self.place_id is not None:
+            return self.place_id
+        return self.offering_group.activity.place_id if self.offering_group_id else None
+
     def clean(self):
         super().clean()
         errors = {}
+        if (self.place_id is None) == (self.offering_group_id is None):
+            errors["place"] = _("Укажите ровно одну цель тарифа.")
         self.currency = (self.currency or "AZN").strip().upper()
 
         if self.price_kind == "exact":
@@ -208,6 +220,11 @@ class PricingPlan(models.Model):
             errors["validity_interval_count"] = _("Укажите срок действия больше нуля.")
         if self.age_from is not None and self.age_to is not None and self.age_from > self.age_to:
             errors["age_to"] = _("Возраст «до» не может быть меньше возраста «от».")
+        if self.offering_group_id:
+            group = self.offering_group
+            if (self.age_from is not None and group.age_to is not None and self.age_from > group.age_to
+                    or self.age_to is not None and group.age_from is not None and self.age_to < group.age_from):
+                errors["age_from"] = _("Возраст тарифа не пересекается с возрастом группы.")
         if self.min_people is not None and self.max_people is not None and self.min_people > self.max_people:
             errors["max_people"] = _("Максимум людей не может быть меньше минимума.")
         if self.valid_from and self.valid_until and self.valid_from > self.valid_until:
@@ -248,4 +265,20 @@ def _sync_pricing_plan_legacy_fields(sender, instance, **kwargs):
     if getattr(instance, "_skip_legacy_sync", False):
         return
     from catalog.services.pricing_plans import sync_legacy_price_fields
-    sync_legacy_price_fields(instance.place_id)
+    if instance.offering_group_id and instance.offering_group.activity.status != "published":
+        return
+    sync_legacy_price_fields(instance.target_place_id)
+
+
+@receiver(post_save, sender="catalog.Activity")
+def _sync_activity_pricing(sender, instance, **kwargs):
+    from catalog.services.pricing_plans import sync_legacy_price_fields
+    if instance.pk and instance.offering_groups.filter(pricing_plan_records__isnull=False).exists():
+        sync_legacy_price_fields(instance.place_id)
+
+
+@receiver(post_save, sender="catalog.OfferingGroup")
+def _sync_group_pricing(sender, instance, **kwargs):
+    from catalog.services.pricing_plans import sync_legacy_price_fields
+    if instance.pk and instance.pricing_plan_records.exists():
+        sync_legacy_price_fields(instance.activity.place_id)

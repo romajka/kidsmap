@@ -4,6 +4,7 @@ import logging
 from dataclasses import dataclass, replace
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
@@ -46,7 +47,6 @@ from catalog.services.place_access import (
     staff_has_place_permission,
 )
 
-_OWNER_MAX_MANAGED_PLACES = 10
 logger = logging.getLogger(__name__)
 
 
@@ -413,7 +413,11 @@ class OwnerPlacesController:
 
     @staticmethod
     def _has_permission(*, user, place: Place, permission_code: str) -> bool:
-        return has_place_permission(user=user, place=place, permission_code=permission_code)
+        allowed=has_place_permission(user=user, place=place, permission_code=permission_code)
+        if allowed:
+            place._authorized_actor_id=user.pk
+            place._required_permission_code=permission_code
+        return allowed
 
     @staticmethod
     def _build_ownership_note(*, form, fallback: str) -> str:
@@ -433,7 +437,7 @@ class OwnerPlacesController:
             .distinct()
             .count()
         )
-        return managed_count < _OWNER_MAX_MANAGED_PLACES, managed_count
+        return True, managed_count
 
     def build_dashboard_context(self, *, request) -> tuple[dict, OwnerAccessResult]:
         access = ensure_owner_permission(user=request.user)
@@ -475,8 +479,8 @@ class OwnerPlacesController:
             "latest_editable_place": editable_draft_places[0] if editable_draft_places else None,
             "pending_moderation_count": len(pending_place_ids),
             "owner_stats": build_owner_places_stats(places=managed_places),
-            "max_managed_places": _OWNER_MAX_MANAGED_PLACES,
-            "remaining_place_slots": max(_OWNER_MAX_MANAGED_PLACES - managed_count, 0),
+            "max_managed_places": None,
+            "remaining_place_slots": None,
             "can_create_more_places": can_create_more,
             "can_edit_places": any(place.owner_can_edit for place in managed_places),
             "can_publish_places": False,
@@ -556,17 +560,6 @@ class OwnerPlacesController:
         if not access.ok:
             return OwnerPlaceActionResult(ok=False, message=access.message)
 
-        has_capacity, managed_count = self._has_place_capacity(user=request.user)
-        if not has_capacity:
-            return OwnerPlaceActionResult(
-                ok=False,
-                message=tr_copy(
-                    ru="В настоящее время действует лимит максимум 10 мест. Чтобы добавить новое место, удалите одну из существующих карточек.",
-                    az="Hazırda maksimum 10 məkan limiti aktivdir. Yeni məkan əlavə etmək üçün mövcud kartlardan birini silin.",
-                    en="Currently, a maximum limit of 10 places is active. To add a new place, delete one of the existing cards.",
-                ),
-            )
-
         form = OwnerPlaceCreateForm(
             data=data,
             files=files,
@@ -643,6 +636,13 @@ class OwnerPlacesController:
             )
 
         place = result.form.save(commit=False)
+        from catalog.services.organization_ownership import warn_possible_duplicate
+        try:
+            warn_possible_duplicate(actor=request.user, model=Place, name=place.name_az,
+                                    allow_separate=data.get('create_separate') in ('1', 'true', True))
+        except ValidationError as error:
+            result.form.add_error('name_az', error)
+            return OwnerPlaceActionResult(ok=False, message='', form=result.form)
         manual_coordinates_selected = self._has_manual_coordinates(place)
         coordinate_changes: dict[str, tuple[object, object]] = {}
         geocoding_result: PlaceGeocodingResult | None = None
@@ -669,141 +669,13 @@ class OwnerPlacesController:
                     message=self._quality_error_message(quality),
                     form=result.form,
                 )
-        place.owner = request.user
-        place.created_by = request.user
-        if draft_save_only and not place.category_id:
-            fallback_category = self._draft_fallback_category()
-            if fallback_category is not None:
-                place.category = fallback_category
-        place.is_active = False
-        place.is_verified = False
-        place.status = Place.STATUS_DRAFT if draft_save_only else Place.STATUS_PENDING
-        place.submitted_at = None if draft_save_only else timezone.now()
-        place.needs_changes_at = None
-        place.moderated_at = None
-        place.moderated_by = None
-        ownership_request: PlaceOwnershipRequest | None = None
-        if not draft_save_only:
-            place.rejection_reason = ""
-        place.published_at = None
+        from catalog.services.publication_forms import create_from_form
         try:
-            place.save()
-            if result.form.cleaned_data.get("photo") and (
-                not place.photo.name or not place.photo.storage.exists(place.photo.name)
-            ):
-                raise OSError("Main photo was not persisted")
-        except Exception:
-            if not result.form.cleaned_data.get("photo"):
-                raise
-            logger.exception(
-                "Main photo persistence failed: user_id=%s name=%s",
-                request.user.pk,
-                getattr(result.form.cleaned_data.get("photo"), "name", ""),
-            )
-            if place.photo.name:
-                try:
-                    place.photo.storage.delete(place.photo.name)
-                except Exception:
-                    pass
-            transaction.set_rollback(True)
-            result.form.add_error(
-                "photo",
-                _("Не удалось сохранить фотографию в хранилище. Выберите файл повторно и попробуйте ещё раз."),
-            )
-            return OwnerPlaceActionResult(
-                ok=False,
-                message="",
-                form=result.form,
-            )
-        result.form.save_schedule(place)
-
-        if manual_coordinates_selected:
-            coordinate_changes = {
-                "lat": ("", place.lat),
-                "lng": ("", place.lng),
-            }
-        gallery_images = result.form.cleaned_data.get("gallery_images") or []
-        try:
-            self.owner_place_repository.add_gallery_images(place=place, image_files=gallery_images)
-            from catalog.services.photo_gallery import apply_gallery_order
-            apply_gallery_order(place, result.form)
-        except OSError as exc:
-            logger.exception(
-                "Gallery persistence failed while creating place: user_id=%s files=%s reason=%s",
-                request.user.pk,
-                [getattr(image, "name", "") for image in gallery_images],
-                exc,
-            )
-            if place.photo.name:
-                try:
-                    place.photo.storage.delete(place.photo.name)
-                except Exception:
-                    pass
-            transaction.set_rollback(True)
-            result.form.add_error(
-                "gallery_images",
-                _("Не удалось сохранить одну из фотографий галереи. Файлы не загружены, карточка не сохранена."),
-            )
-            return OwnerPlaceActionResult(
-                ok=False,
-                message="",
-                form=result.form,
-            )
-        if not draft_save_only:
-            ownership_request = self.ownership_repository.create_pending(
-                place=place,
-                applicant=request.user,
-                note=self._build_ownership_note(
-                    form=result.form,
-                    fallback=_("Новая карточка отправлена на модерацию."),
-                ),
-            )
-
-        self.place_audit_repository.create_entries(
-            place=place,
-            changed_by=request.user,
-            source=PlaceChangeAudit.SOURCE_OWNER_PANEL,
-            changes={
-                "created": ("", "1"),
-                "is_active": ("", place.is_active),
-                "is_verified": ("", place.is_verified),
-                "status": ("", place.status),
-                **(
-                    {
-                        "lat": ("", place.lat),
-                        "lng": ("", place.lng),
-                    }
-                    if manual_coordinates_selected
-                    else {}
-                ),
-            },
-        )
-        if coordinate_changes and not manual_coordinates_selected:
-            self.place_audit_repository.create_entries(
-                place=place,
-                changed_by=request.user,
-                source=PlaceChangeAudit.SOURCE_SYSTEM,
-                changes=coordinate_changes,
-            )
-
-        return OwnerPlaceActionResult(
-            ok=True,
-            message=(
-                tr_copy(
-                    ru="Черновик сохранён. Вы можете продолжить редактирование места позже в профиле.",
-                    az="Qaralama saxlanıldı. Məkanı sonra profilinizdə davam etdirə bilərsiniz.",
-                    en="Draft saved. You can continue editing the place later in your profile.",
-                )
-                if draft_save_only
-                else self._build_create_success_message(
-                    manual_coordinates_selected=manual_coordinates_selected,
-                    geocoding_result=geocoding_result,
-                ) + ' ' + submission_message('place')
-            ),
-            place=place,
-            form=result.form,
-            ownership_request=ownership_request,
-        )
+            place=create_from_form(actor=request.user,form=result.form,owner=request.user,submit=not draft_save_only)
+        except ValidationError as exc:
+            result.form.add_error(None,exc)
+            return OwnerPlaceActionResult(ok=False,message="",form=result.form)
+        return OwnerPlaceActionResult(ok=True,message=submission_message('place') if not draft_save_only else _("Черновик сохранён."),place=place,form=result.form)
 
     @transaction.atomic
     def save_edit_form(
@@ -846,155 +718,14 @@ class OwnerPlacesController:
                 form=result.form,
             )
 
+        from catalog.services.publication_forms import save_form
         try:
-            place = result.form.save()
-            if result.form.cleaned_data.get("photo") and (
-                not place.photo.name or not place.photo.storage.exists(place.photo.name)
-            ):
-                raise OSError("Replacement photo was not persisted")
-        except Exception:
-            if not result.form.cleaned_data.get("photo"):
-                raise
-            logger.exception(
-                "Replacement photo persistence failed: place_id=%s name=%s",
-                result.place.pk,
-                getattr(result.form.cleaned_data.get("photo"), "name", ""),
-            )
-            failed_photo_name = result.place.photo.name if result.place.photo else ""
-            if failed_photo_name and failed_photo_name != old_photo_name:
-                try:
-                    Place._meta.get_field("photo").storage.delete(failed_photo_name)
-                except Exception:
-                    pass
-            transaction.set_rollback(True)
-            result.form.add_error(
-                "photo",
-                _("Не удалось загрузить новую фотографию. Старая фотография сохранена, попробуйте ещё раз."),
-            )
-            return OwnerPlaceActionResult(
-                ok=False,
-                message="",
-                place=result.place,
-                form=result.form,
-            )
-        new_photo_name = place.photo.name if place.photo else ""
-        if old_photo_name and old_photo_name != new_photo_name:
-            photo_storage = Place._meta.get_field("photo").storage
-            transaction.on_commit(lambda: photo_storage.delete(old_photo_name))
-        result.form.save_schedule(place)
-        for gallery_photo in place.gallery.filter(pk__in=result.form.cleaned_data.get("delete_gallery_ids") or []):
-            image_name, image_storage = gallery_photo.image.name, gallery_photo.image.storage
-            gallery_photo.delete()
-            transaction.on_commit(lambda name=image_name, storage=image_storage: storage.delete(name))
-        gallery_images = result.form.cleaned_data.get("gallery_images") or []
-        try:
-            self.owner_place_repository.add_gallery_images(place=place, image_files=gallery_images)
-            from catalog.services.photo_gallery import apply_gallery_order
-            apply_gallery_order(place, result.form)
-        except OSError as exc:
-            logger.exception(
-                "Gallery persistence failed while editing place: place_id=%s files=%s reason=%s",
-                place.pk,
-                [getattr(image, "name", "") for image in gallery_images],
-                exc,
-            )
-            if new_photo_name and new_photo_name != old_photo_name:
-                try:
-                    Place._meta.get_field("photo").storage.delete(new_photo_name)
-                except Exception:
-                    pass
-            transaction.set_rollback(True)
-            result.form.add_error(
-                "gallery_images",
-                _("Не удалось сохранить одну из фотографий галереи. Изменения карточки не сохранены."),
-            )
-            return OwnerPlaceActionResult(
-                ok=False,
-                message="",
-                place=result.place,
-                form=result.form,
-            )
-        new_schedule_value = self._schedule_audit_value(place)
-        location_changed = place_location_fields_changed(previous_values=old_snapshot, place=place)
-        manual_coordinates_changed = self._coordinates_changed(previous_values=old_snapshot, place=place)
-        should_refresh_coordinates = not draft_save_only and (
-            force_coordinate_refresh or (location_changed and not self._has_manual_coordinates(place))
-        )
-
-        if should_refresh_coordinates:
-            coordinate_changes, geocoding_result = self._sync_place_coordinates(
-                place=place,
-                overwrite=True,
-            )
-        else:
-            coordinate_changes = {}
-            geocoding_result = PlaceGeocodingResult(
-                updated=False,
-                reason="manual_coordinates" if manual_coordinates_changed else "coordinates_present",
-            )
-        changes: dict[str, tuple[object, object]] = {}
-        for field in tracked_fields:
-            changes[field] = (old_snapshot.get(field), getattr(place, field))
-        changes["schedule"] = (old_schedule_value, new_schedule_value)
-        changes["pricing_plans"] = (old_pricing_value, pricing_audit_summary(place))
-
-        # Saving a formerly public card as a draft must not expose unmoderated
-        # changes. The explicit submit action below moves it straight to pending.
-        if was_public and not submit_for_moderation:
-            previous_status = place.status
-            previous_active = place.is_active
-            place.status = Place.STATUS_DRAFT
-            place.is_active = False
-            place.save(update_fields=["status", "is_active", "updated_at"])
-            changes["status"] = (previous_status, place.status)
-            changes["is_active"] = (previous_active, place.is_active)
-        self.place_audit_repository.create_entries(
-            place=place,
-            changed_by=request.user,
-            source=PlaceChangeAudit.SOURCE_OWNER_PANEL,
-            changes=changes,
-        )
-        if submit_for_moderation and was_pending:
-            return OwnerPlaceActionResult(
-                ok=True,
-                message=_("Изменения сохранены. Карточка остаётся на модерации."),
-                place=place,
-                form=result.form,
-            )
-        if submit_for_moderation:
-            submitted = self.submit_for_moderation(request=request, place_id=place.pk)
-            if not submitted.ok:
-                transaction.set_rollback(True)
-                submitted.form = result.form
-                result.form.add_error(None, submitted.message)
-            return submitted
-        if coordinate_changes:
-            self.place_audit_repository.create_entries(
-                place=place,
-                changed_by=request.user,
-                source=PlaceChangeAudit.SOURCE_SYSTEM,
-                changes=coordinate_changes,
-            )
-        return OwnerPlaceActionResult(
-            ok=True,
-            message=(
-                tr_copy(
-                    ru="Черновик сохранён. Вы можете продолжить внесение изменений позже.",
-                    az="Qaralama saxlanıldı. Dəyişiklikləri sonra davam etdirə bilərsiniz.",
-                    en="Draft saved. You can continue making changes later.",
-                )
-                if draft_save_only
-                else self._build_manual_refresh_message(geocoding_result=geocoding_result)
-                if force_coordinate_refresh
-                else (
-                    _("Карточка успешно обновлена. Координаты обновлены автоматически.")
-                    if geocoding_result.updated
-                    else _("Карточка успешно обновлена.")
-                )
-            ),
-            place=place,
-            form=result.form,
-        )
+            save_form(actor=request.user, form=result.form, submit=not draft_save_only)
+        except ValidationError as exc:
+            result.form.add_error(None, exc)
+            return OwnerPlaceActionResult(ok=False, message="", place=result.place, form=result.form)
+        result.place.refresh_from_db()
+        return OwnerPlaceActionResult(ok=True, message=_("Изменения сохранены; поля для проверки отправлены отдельно."), place=result.place, form=result.form)
 
     def set_publication_state(self, *, request, place_id: int, is_active: bool) -> OwnerPlaceActionResult:
         access = ensure_owner_permission(user=request.user)
@@ -1019,6 +750,7 @@ class OwnerPlacesController:
         has_approved_moderation = PlaceOwnershipRequest.objects.filter(
             place=place,
             status=PlaceOwnershipRequest.STATUS_APPROVED,
+            request_kind=PlaceOwnershipRequest.KIND_PUBLICATION,
         ).exists()
         if is_active and not has_approved_moderation:
             return OwnerPlaceActionResult(
@@ -1038,9 +770,13 @@ class OwnerPlacesController:
 
         previous_active = place.is_active
         previous_status = place.status
-        place.is_active = bool(is_active)
-        place.status = Place.STATUS_PUBLISHED if is_active else Place.STATUS_DRAFT
-        place.save(update_fields=["is_active", "status", "updated_at"])
+        if is_active:
+            from catalog.services.publication import publish
+            publish(actor=request.user,place_id=place.pk,expected_version=place.content_version)
+            place.refresh_from_db()
+        else:
+            place.is_active=False;place.status=Place.STATUS_DRAFT
+            place.save(update_fields=["is_active","status","updated_at"])
         self.place_audit_repository.create_entries(
             place=place,
             changed_by=request.user,
@@ -1071,6 +807,18 @@ class OwnerPlacesController:
         if not self._has_permission(user=request.user, place=place, permission_code=PLACE_PERMISSION_EDIT):
             return OwnerPlaceActionResult(ok=False, message=_("Недостаточно прав для редактирования этой карточки."))
 
+        from catalog.models import VolunteerPlaceRevision
+        from catalog.services import publication
+        revision = VolunteerPlaceRevision.objects.filter(place=place).first()
+        if revision and revision.status in {"draft", "rejected"}:
+            try:
+                publication.propose(actor=request.user,target_type="place",target_id=place.pk,patch=revision.payload,schema_version=revision.schema_version,expected_version=place.content_version,revision_version=revision.version,submit=True,explicit_save=False)
+            except ValidationError as exc:
+                return OwnerPlaceActionResult(ok=False,message="; ".join(exc.messages),place=place)
+            return OwnerPlaceActionResult(ok=True,message=submission_message('place'),place=place)
+        if place.is_public:
+            return OwnerPlaceActionResult(ok=False,message=_("Нет новых изменений для проверки."),place=place)
+
         latest_request = self.ownership_repository.latest_for_user_and_place(user=request.user, place=place)
         if place.status == Place.STATUS_PENDING or (
             latest_request is not None and latest_request.status == PlaceOwnershipRequest.STATUS_PENDING
@@ -1097,6 +845,7 @@ class OwnerPlacesController:
         place.rejection_reason = ""
         place.save(update_fields=["status", "is_active", "rejection_reason", "updated_at"])
         ownership_request = self.ownership_repository.create_pending(
+            request_kind=PlaceOwnershipRequest.KIND_PUBLICATION,
             place=place,
             applicant=request.user,
             note=_("Карточка отправлена пользователем на модерацию."),
@@ -1140,14 +889,16 @@ class OwnerPlacesController:
                 place=place,
             )
 
-        storage = photo.image.storage
-        image_name = photo.image.name
-        photo.delete()
-        if image_name:
-            transaction.on_commit(lambda: storage.delete(image_name))
+        from catalog.services import publication
+        from catalog.models import VolunteerPlaceRevision
+        place=publication.locked_target('place',place.pk)
+        revision=VolunteerPlaceRevision.objects.filter(place=place).first()
+        gallery=publication.snapshot(place,'place')['gallery']
+        if revision and revision.status in {'draft','pending','rejected'} and 'gallery' in revision.payload:gallery=revision.payload['gallery']
+        publication.propose(actor=request.user,target_type='place',target_id=place.pk,patch={'gallery':[row for row in gallery if row['id']!=photo.pk]},schema_version=1,expected_version=place.content_version,revision_version=revision.version if revision else 0,submit=True,explicit_save=True)
         return OwnerPlaceActionResult(
             ok=True,
-            message=_("Фотография удалена из галереи."),
+            message=_("Удаление фотографии отправлено на проверку."),
             place=place,
         )
 

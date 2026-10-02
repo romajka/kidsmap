@@ -1,0 +1,439 @@
+{
+  "schema_version": 1,
+  "reviewer": "/root/stage04_review",
+  "canonical_role": "database-reviewer",
+  "mode": "LOCAL QA FOUNDATION bounded independent review",
+  "source_head": "c52b871ce5c18656a9eaf9854e66255c2629364e",
+  "production": "NOT_CONTACTED/UNKNOWN",
+  "result": "PASS bounded independent launcher/discovery/migration-state/synthetic-query review; application suite result not reviewed here",
+  "executed": [
+    {
+      "command": "python3 docs/task33/qa04/run.py --mode discovery --output /tmp/task33-04-independent-discovery",
+      "exit": 0,
+      "status": "PASS"
+    },
+    {
+      "command": ".venv/bin/python docs/task33/qa04/test_safety.py",
+      "exit": 0,
+      "tests": 7,
+      "status": "PASS"
+    },
+    {
+      "command": "inline synthetic reviewer checks: extra-cache-alias/symlink-root/hostile inherited-env/integration-auth stripped",
+      "exit": 0,
+      "cases": 4,
+      "status": "PASS"
+    },
+    {
+      "command": ".venv/bin/python inline libpq foreign host/unrelated Unix/hostaddr/service negatives",
+      "exit": 0,
+      "cases": 4,
+      "actual_connection_attempts": 0,
+      "status": "PASS"
+    },
+    {
+      "command": "python3 docs/task33/qa04/run.py --mode probe --output /tmp/task33-04-independent-probe",
+      "exit": 0,
+      "status": "PASS"
+    },
+    {
+      "command": "inline own run.main negatives with Docker lookup forbidden: noncanonical label, labels in discovery mode, stale output, symlink output",
+      "exit": 0,
+      "cases": 4,
+      "db_or_docker_called": false,
+      "status": "PASS"
+    },
+    {
+      "command": "clean-env .venv synthetic BaselineRunner.run_suite with two failing subtests and one error",
+      "exit": 0,
+      "failure_instances": 2,
+      "error_instances": 1,
+      "problem_ids_complete": true,
+      "private_subtest_params_recorded": false,
+      "db_called": false,
+      "status": "PASS"
+    },
+    {
+      "command": ".venv/bin/python docs/task33/qa04/test_safety.py (post sender/label/subtest/output changes)",
+      "exit": 0,
+      "tests": 7,
+      "status": "PASS"
+    }
+  ],
+  "isolation": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.10",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10"
+  },
+  "run": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "network": "none",
+    "ports_published": false,
+    "postgres_data": "tmpfs",
+    "mounted_checkout": false,
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "discovery": {
+    "default_catalog_count": 1091,
+    "default_unique_count": 1091,
+    "explicit_count": 1231,
+    "explicit_unique_count": 1231,
+    "duplicate_default_ids": 0,
+    "duplicate_explicit_ids": 0,
+    "wrapper_counts": {
+      "owner": 153,
+      "admin": 228,
+      "public": 238,
+      "catalog": 118
+    }
+  },
+  "missing_from_full_count": 140,
+  "extra_default_count": 0,
+  "missing_full_modules": {
+    "adult_classes": 14,
+    "image_uploads": 14,
+    "legacy_migrations": 21,
+    "permanent_place_wizard": 16,
+    "phone_reveal": 8,
+    "photo_workflow": 9,
+    "place_filepond_admin": 2,
+    "place_readiness": 33,
+    "place_taxonomy_admin": 2,
+    "postgresql_cutover": 5,
+    "specialists": 16
+  },
+  "source_sha256": {
+    "docs/task33/qa04/commands.py": "d06f1297d8d4f418702ce06fa33c560087d276fffb3fe8870f284c5f88a9c9fe",
+    "docs/task33/qa04/fixtures.py": "65be8d3c3b7a1f69738c1965c6c6c088674f1d5ed94ac3c9eff92f6af9a14d87",
+    "docs/task33/qa04/guard.py": "c6531535fa4c63ffe08d57a45480d1a6521fd66546465197fac16f053f6366ad",
+    "docs/task33/qa04/run.py": "ac4021b798c8245e8a8cf48cbdadcda18bc37dc68ee7767ff4f6553ca4aa7d04",
+    "docs/task33/qa04/settings.py": "45657d88e24f97d410b00558191e4801d078a813cc279d4e9f0444efbd88ca6a",
+    "docs/task33/qa04/test_safety.py": "fc2fe90660a059cc862f6f0a1ba784a687532f62db20384c783ce8cee0e20d28"
+  },
+  "graph": {
+    "project": "home-ramin-kidsmap",
+    "generation": "2026-09-29T08:30:28Z",
+    "cited_original_paths_metadata_match": true,
+    "testcases_gap": "ignored __pycache__; AST/direct source checked",
+    "completeness": "best effort only"
+  },
+  "not_run": [
+    "application suites (lead owns execution)",
+    "browser/rendered QA",
+    "live external integrations",
+    "production",
+    "existing working PostgreSQL/Redis/SMTP/media"
+  ],
+  "limits": [
+    "Transport guard blocks Python connects and synchronous psycopg Connection.connect; it is not an operating-system sandbox for arbitrary subprocesses/UDP/async drivers. Current source uses synchronous psycopg and inspected owned disposable launcher.",
+    "Network/group/shared-venue fixtures represent AS-IS fields, not future Organization/OfferingGroup implementation.",
+    "Read source and standalone safety tests do not establish application behavior or production readiness."
+  ],
+  "probe": {
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.068
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.107
+      }
+    ],
+    "migrations": {
+      "leaves": [
+        [
+          "account",
+          "0009_emailaddress_unique_primary_email"
+        ],
+        [
+          "admin",
+          "0003_logentry_add_action_flag_choices"
+        ],
+        [
+          "auth",
+          "0012_alter_user_first_name_max_length"
+        ],
+        [
+          "catalog",
+          "0116_moderation_sla_lifecycle"
+        ],
+        [
+          "catalog_moderation",
+          "0001_initial"
+        ],
+        [
+          "contenttypes",
+          "0002_remove_content_type_name"
+        ],
+        [
+          "sessions",
+          "0001_initial"
+        ],
+        [
+          "socialaccount",
+          "0006_alter_socialaccount_extra_data"
+        ]
+      ],
+      "applied_count": 150,
+      "unapplied_count": 0,
+      "vendor": "postgresql"
+    },
+    "fixtures": {
+      "source": "synthetic generated only in disposable QA PostgreSQL",
+      "places": 6,
+      "logical_network_branches": 2,
+      "independent_shared_venue_businesses": 2,
+      "missing_photo_coords": 1,
+      "tariff_age_variants": 2,
+      "old_reviews": 4,
+      "known_account_repeated_reviews": 2,
+      "unknown_user_reviews": 2,
+      "events": 1,
+      "specialists": 1,
+      "limitations": [
+        "Organization/Program/Activity/OfferingGroup/confirmed-venue absent in AS-IS; network/shared-address/group cases are logical fixtures using existing Place/PricingPlan fields, not implemented future relationships",
+        "No real user records/photos/contact data loaded"
+      ]
+    },
+    "query_baseline": {
+      "repeat_count": 2,
+      "query_text_saved": false,
+      "row_payload_saved": false,
+      "metrics": [
+        {
+          "surface": "catalog published",
+          "kind": "ORM",
+          "runs": [
+            {
+              "sql_queries": 2,
+              "result_count": 6
+            },
+            {
+              "sql_queries": 2,
+              "result_count": 6
+            }
+          ],
+          "same_result_ids": true,
+          "same_query_count": true
+        },
+        {
+          "surface": "map ready",
+          "kind": "ORM",
+          "runs": [
+            {
+              "sql_queries": 2,
+              "result_count": 5
+            },
+            {
+              "sql_queries": 2,
+              "result_count": 5
+            }
+          ],
+          "same_result_ids": true,
+          "same_query_count": true
+        },
+        {
+          "surface": "age matched tariffs",
+          "kind": "ORM",
+          "runs": [
+            {
+              "sql_queries": 1,
+              "result_count": 1
+            },
+            {
+              "sql_queries": 1,
+              "result_count": 1
+            }
+          ],
+          "same_result_ids": true,
+          "same_query_count": true
+        },
+        {
+          "surface": "public catalog",
+          "kind": "HTTP test client; not rendered browser",
+          "runs": [
+            {
+              "status_code": 200,
+              "sql_queries": 19,
+              "result_count": 6
+            },
+            {
+              "status_code": 200,
+              "sql_queries": 19,
+              "result_count": 6
+            }
+          ],
+          "same_status_count": true
+        },
+        {
+          "surface": "place detail",
+          "kind": "HTTP test client; not rendered browser",
+          "runs": [
+            {
+              "status_code": 200,
+              "sql_queries": 64,
+              "result_count": null
+            },
+            {
+              "status_code": 200,
+              "sql_queries": 64,
+              "result_count": null
+            }
+          ],
+          "same_status_count": true
+        },
+        {
+          "surface": "owner",
+          "kind": "HTTP test client; not rendered browser",
+          "runs": [
+            {
+              "status_code": 200,
+              "sql_queries": 43,
+              "result_count": null
+            },
+            {
+              "status_code": 200,
+              "sql_queries": 43,
+              "result_count": null
+            }
+          ],
+          "same_status_count": true
+        },
+        {
+          "surface": "admin",
+          "kind": "HTTP test client; not rendered browser",
+          "runs": [
+            {
+              "status_code": 200,
+              "sql_queries": 47,
+              "result_count": null
+            },
+            {
+              "status_code": 200,
+              "sql_queries": 47,
+              "result_count": null
+            }
+          ],
+          "same_status_count": true
+        },
+        {
+          "surface": "volunteer",
+          "kind": "HTTP test client; not rendered browser",
+          "runs": [
+            {
+              "status_code": 200,
+              "sql_queries": 13,
+              "result_count": null
+            },
+            {
+              "status_code": 200,
+              "sql_queries": 13,
+              "result_count": null
+            }
+          ],
+          "same_status_count": true
+        },
+        {
+          "surface": "events",
+          "kind": "HTTP test client; not rendered browser",
+          "runs": [
+            {
+              "status_code": 200,
+              "sql_queries": 16,
+              "result_count": 1
+            },
+            {
+              "status_code": 200,
+              "sql_queries": 16,
+              "result_count": 1
+            }
+          ],
+          "same_status_count": true
+        },
+        {
+          "surface": "specialist",
+          "kind": "HTTP test client; not rendered browser",
+          "runs": [
+            {
+              "status_code": 200,
+              "sql_queries": 11,
+              "result_count": null
+            },
+            {
+              "status_code": 200,
+              "sql_queries": 11,
+              "result_count": null
+            }
+          ],
+          "same_status_count": true
+        }
+      ],
+      "place_review_rows": 4,
+      "known_distinct_reviewers": 1,
+      "current_rating_formula_not_changed": true
+    },
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "parent_baseline_assessment": {
+    "execution_attribution": "lead /root; reviewer read aggregate evidence, did not personally execute full/rerun application suites",
+    "first_full": {
+      "tests_run": 1231,
+      "failures": 29,
+      "errors": 4,
+      "skipped": 0,
+      "exit": 33,
+      "initial_problem_ids_incomplete_subtests": true
+    },
+    "bounded_rerun": {
+      "tests_run": 32,
+      "failures": 27,
+      "errors": 4,
+      "skipped": 0,
+      "problem_ids_complete": true
+    },
+    "bounded_rerun_unique_problem_ids": 30,
+    "bounded_rerun_cleanup": "PASS",
+    "mail_sender": "initial harness-induced failure; original canonical display sender restored while email remains locmem; bounded rerun PASS",
+    "volunteer_concurrency": "Fails in both full runs, passes selected rerun; flaky/order-dependent attribution, exact cause UNKNOWN, not fixed",
+    "other_failures": "31 reproducible failure/error instances in 30 unique IDs at unchanged application HEAD; existing baseline in current QA configuration, not application regressions introduced by stage04",
+    "original_guard_exception_count": 0,
+    "final_consistent_full": {
+      "tests_run": 1231,
+      "failures": 28,
+      "errors": 4,
+      "skipped": 0,
+      "elapsed_seconds": 511.098,
+      "problem_ids_complete": true,
+      "problem_records": 32,
+      "unique_problem_ids": 31,
+      "exit": 32,
+      "cleanup": "PASS",
+      "run_root_removed": true,
+      "socket_root_removed": true,
+      "application_suite_attribution": "executed by lead /root, aggregate reviewed independently",
+      "all1231_unique_ids_executed": true
+    },
+    "not_claimed": "production failures, root-cause diagnosis for every baseline assertion, personally executed application suite",
+    "final_comparison": "First full33 failure/error instances minus corrected mail harness false failure equals final32. Final complete32 records include2subtests under1test ID."
+  }
+}

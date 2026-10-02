@@ -20,6 +20,18 @@ def queue(request):
     if not allowed_kinds(request.user):
         raise PermissionDenied
     now = timezone.now()
+    permitted = allowed_kinds(request.user)
+    from catalog.services.moderation_hub import kind_label
+    type_filters = []
+    if 'place' in permitted or 'place_revision' in permitted:
+        type_filters.append(('place', t('Места', 'Məkanlar', 'Places')))
+    if any(kind.endswith('_review') for kind in permitted):
+        type_filters.append(('review', t('Отзывы', 'Rəylər', 'Reviews')))
+    if 'place_revision' in permitted:
+        type_filters.extend((kind, kind_label(kind)) for kind in
+            ('organization', 'program', 'activity', 'offering_group'))
+    if 'affiliation' in permitted:
+        type_filters.append(('affiliation', kind_label('affiliation')))
     rows = queue_rows(request.user, request.GET, now=now)
     counts = Counter(row['sla'].status for row in rows)
     statuses = [('', t('Все', 'Hamısı', 'All')), ('pending', t('На модерации', 'Moderasiyada', 'Pending')),
@@ -30,7 +42,10 @@ def queue(request):
         ('paused', t('Пауза', 'Dayandırılıb', 'Paused')), ('completed', t('Рассмотрено', 'Baxılıb', 'Completed'))]
     kinds = {'place': t('Место', 'Məkan', 'Place'), 'place_revision': t('Правки места', 'Məkan düzəlişləri', 'Place revision'),
         'place_review': t('Отзыв о месте', 'Məkan rəyi', 'Place review'), 'site_review': t('Отзыв о сайте', 'Sayt rəyi', 'Site review'),
-        'specialist_review': t('Отзыв о специалисте', 'Mütəxəssis rəyi', 'Specialist review')}
+        'specialist_review': t('Отзыв о специалисте', 'Mütəxəssis rəyi', 'Specialist review'),
+        'organization_revision': 'Organization', 'program_revision': 'Program',
+        'activity_revision': 'Activity', 'offering_group_revision': 'Group',
+        'affiliation': t('Информационная связь', 'Məlumat əlaqəsi', 'Informational link')}
     for row in rows:
         row['kind_label'] = kinds[row['kind']]
         row['status_label'] = dict(statuses).get(row['status'], row['status'])
@@ -39,8 +54,11 @@ def queue(request):
         **admin.site.each_context(request), 'title': t('Сроки модерации', 'Moderasiya müddətləri', 'Moderation deadlines'),
         'page': Paginator(rows, 50).get_page(request.GET.get('page')), 'counts': dict(counts),
         'statuses': statuses[1:] + [('all', statuses[0][1])], 'sla_statuses': sla_statuses,
+        'type_filters': type_filters,
         'places_count': sum(row['content_type'] == 'place' for row in rows),
-        'reviews_count': sum(row['content_type'] == 'review' for row in rows), 'params': request.GET,
+        'reviews_count': sum(row['content_type'] == 'review' for row in rows),
+        'proposals_count': sum(row['kind'] in {'organization_revision', 'program_revision', 'activity_revision', 'offering_group_revision'} for row in rows),
+        'links_count': sum(row['kind'] == 'affiliation' for row in rows), 'params': request.GET,
         'backlog_warning': bool(settings.MODERATION_QUEUE_BACKLOG_THRESHOLD and sum(row['status'] == 'pending' for row in rows) > settings.MODERATION_QUEUE_BACKLOG_THRESHOLD),
         'copy': {
             'type': t('Тип', 'Növ', 'Type'), 'status': t('Статус', 'Status', 'Status'),
@@ -48,6 +66,7 @@ def queue(request):
             'age': t('Часов на проверке', 'Yoxlamada saat', 'Hours in review'), 'deadline': t('Дедлайн', 'Son müddət', 'Deadline'),
             'remaining': t('Осталось часов', 'Qalan saat', 'Hours remaining'), 'filter': t('Применить', 'Tətbiq et', 'Apply'),
             'places': t('Места', 'Məkanlar', 'Places'), 'reviews': t('Отзывы', 'Rəylər', 'Reviews'),
+            'proposals': t('Предложения', 'Təkliflər', 'Proposals'), 'links': t('Связи', 'Əlaqələr', 'Links'),
             'all': t('Все', 'Hamısı', 'All'), 'from': t('С даты', 'Tarixdən', 'From date'), 'to': t('По дату', 'Tarixədək', 'To date'),
             'empty': t('В этой очереди нет материалов.', 'Bu növbədə material yoxdur.', 'No materials in this queue.'),
             'note': t('Календарное время. SLA — срок рассмотрения, не обещание публикации. На доработке отсчёт приостановлен; повторная отправка начинает новый срок.', 'Təqvim vaxtı. SLA baxılma müddətidir, yayımlanma vədi deyil. Düzəliş zamanı hesablanma dayanır; yenidən göndərmə yeni müddət başlayır.', 'Calendar time. SLA is a review deadline, not a publication promise. Requested changes pause the clock; resubmission starts a new period.'),

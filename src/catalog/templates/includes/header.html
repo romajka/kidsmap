@@ -165,7 +165,7 @@
               </a>
               <a
                 class="km-dropdown-item km-dropdown-add-place {% if request.resolver_match.url_name == 'add_place' %}active{% endif %}"
-                href="{% url 'add_place' %}"
+                href="{% if request.user.is_authenticated %}{% url 'owner_place_create' %}?fresh=1{% else %}{% url 'add_place' %}{% endif %}"
                 role="menuitem"
               >
                 <span class="km-dropdown-icon material-symbols-rounded" aria-hidden="true">add_circle</span>
@@ -360,7 +360,7 @@
 
       <!-- Add Place Highlight CTA -->
       <div class="km-drawer-cta-wrap">
-        <a href="{% url 'add_place' %}" class="km-drawer-add-place">
+        <a href="{% if request.user.is_authenticated %}{% url 'owner_place_create' %}?fresh=1{% else %}{% url 'add_place' %}{% endif %}" class="km-drawer-add-place">
           <span class="km-drawer-add-icon material-symbols-rounded">add_circle</span>
           <div class="km-drawer-add-text">
             <strong>{% trans "Добавить место" %}</strong>

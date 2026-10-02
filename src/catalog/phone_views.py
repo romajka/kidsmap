@@ -43,7 +43,9 @@ def reveal_place_phones(request, pk):
         return response
     place = get_object_or_404(published_place_queryset(Place.objects.all()), pk=pk)
     phones = []
-    for number in place.phone_numbers:
+    from catalog.services.public_presentation import contact_data
+    contacts = contact_data(place)
+    for number in contacts["phones"]:
         digits = re.sub(r'[^0-9]', '', number)
         if digits:
             phones.append({'number': number, 'href': 'tel:' + ('+' if number.strip().startswith('+') else '') + digits})
@@ -52,4 +54,4 @@ def reveal_place_phones(request, pk):
     whatsapp = re.sub(r'[^0-9]', '', phones[0]['number'])
     if whatsapp.startswith('0'):
         whatsapp = '994' + whatsapp[1:]
-    return JsonResponse({'phones': phones, 'whatsapp': 'https://wa.me/' + whatsapp})
+    return JsonResponse({'phones': phones, 'whatsapp': contacts['whatsapp_url'] or 'https://wa.me/' + whatsapp})

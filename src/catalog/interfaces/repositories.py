@@ -147,7 +147,7 @@ class IPlaceOwnershipRequestRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def create_pending(self, *, place: Place, applicant, note: str) -> PlaceOwnershipRequest:
+    def create_pending(self, *, place: Place, applicant, note: str, request_kind: str = "CLAIM") -> PlaceOwnershipRequest:
         raise NotImplementedError
 
 
@@ -195,19 +195,19 @@ class IOwnerTeamRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def reject_invitation(self, *, invitation: OwnerTeamInvitation) -> OwnerTeamInvitation:
+    def reject_invitation(self, *, invitation: OwnerTeamInvitation, actor=None) -> OwnerTeamInvitation:
         raise NotImplementedError
 
     @abstractmethod
-    def cancel_invitation(self, *, invitation: OwnerTeamInvitation) -> OwnerTeamInvitation:
+    def cancel_invitation(self, *, invitation: OwnerTeamInvitation, actor=None) -> OwnerTeamInvitation:
         raise NotImplementedError
 
     @abstractmethod
-    def update_membership_role(self, *, membership_id: int, role: str) -> OwnerTeamMembership | None:
+    def update_membership_role(self, *, membership_id: int, role: str, actor=None, expected_version=None) -> OwnerTeamMembership | None:
         raise NotImplementedError
 
     @abstractmethod
-    def remove_membership(self, *, membership_id: int) -> bool:
+    def remove_membership(self, *, membership_id: int, actor=None, expected_version=None) -> bool:
         raise NotImplementedError
 
     @abstractmethod

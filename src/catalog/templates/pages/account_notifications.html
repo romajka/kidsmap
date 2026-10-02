@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% get_current_language as CURRENT_LANGUAGE %}
+{% block title %}{% if CURRENT_LANGUAGE == 'az' %}Bildirişlər{% elif CURRENT_LANGUAGE == 'en' %}Notifications{% else %}Уведомления{% endif %} — KidsMap{% endblock %}
+{% block content %}
+<div class="account-page-wrapper"><div class="account-main-layout">
+{% include 'pages/includes/account_navigation.html' %}
+<main class="account-main-content" id="main-content">
+<h1>{% if CURRENT_LANGUAGE == 'az' %}Xidməti bildirişlər{% elif CURRENT_LANGUAGE == 'en' %}Service notifications{% else %}Служебные уведомления{% endif %}</h1>
+<p>{% if CURRENT_LANGUAGE == 'az' %}Dəvətlər və hesabınızla bağlı qərarlar burada görünür.{% elif CURRENT_LANGUAGE == 'en' %}Invitations and account decisions appear here.{% else %}Здесь видны приглашения и решения по вашему аккаунту.{% endif %}</p>
+{% if notifications %}<ul class="org-list" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Bildirişlər{% elif CURRENT_LANGUAGE == 'en' %}Notifications{% else %}Уведомления{% endif %}">
+{% for item in notifications %}<li class="org-row"><div>
+<strong>{% if item.event_kind == 'team_invitation' %}{% if CURRENT_LANGUAGE == 'az' %}Komandaya dəvət{% elif CURRENT_LANGUAGE == 'en' %}Team invitation{% else %}Приглашение в команду{% endif %}{% elif item.event_kind == 'join_confirmation' %}{% if CURRENT_LANGUAGE == 'az' %}Əlaqəni təsdiqləyin{% elif CURRENT_LANGUAGE == 'en' %}Confirm affiliation{% else %}Подтвердите связь{% endif %}{% elif item.event_kind == 'moderation_decision' or item.event_kind == 'affiliation_decision' %}{% if CURRENT_LANGUAGE == 'az' %}Baxış qərarı{% elif CURRENT_LANGUAGE == 'en' %}Review decision{% else %}Решение модерации{% endif %}{% elif item.event_kind == 'ownership_transfer' %}{% if CURRENT_LANGUAGE == 'az' %}Sahib dəyişdi{% elif CURRENT_LANGUAGE == 'en' %}Ownership changed{% else %}Сменился владелец{% endif %}{% elif item.event_kind == 'access_disabled' %}{% if CURRENT_LANGUAGE == 'az' %}Giriş dayandırıldı{% elif CURRENT_LANGUAGE == 'en' %}Access disabled{% else %}Доступ отключён{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Hesab yeniləməsi{% elif CURRENT_LANGUAGE == 'en' %}Account update{% else %}Изменение аккаунта{% endif %}{% endif %}</strong>
+<time datetime="{{ item.created_at|date:'c' }}">{{ item.created_at|date:'SHORT_DATETIME_FORMAT' }}</time>
+</div><div>
+{% if item.can_accept %}<form method="post" action="{% url 'account_notification_accept' item.pk %}">{% csrf_token %}<button type="submit" class="account-btn-action">{% if CURRENT_LANGUAGE == 'az' %}Dəvəti qəbul et{% elif CURRENT_LANGUAGE == 'en' %}Accept invitation{% else %}Принять приглашение{% endif %}</button></form>{% endif %}
+{% if item.join_action_url %}<form method="post" action="{{ item.join_action_url }}">{% csrf_token %}<button type="submit" class="account-btn-action">{% if CURRENT_LANGUAGE == 'az' %}Əlaqəni təsdiqlə{% elif CURRENT_LANGUAGE == 'en' %}Confirm affiliation{% else %}Подтвердить связь{% endif %}</button></form>{% endif %}
+{% if not item.read_at %}<form method="post" action="{% url 'account_notification_read' item.pk %}">{% csrf_token %}<button type="submit">{% if CURRENT_LANGUAGE == 'az' %}Oxundu{% elif CURRENT_LANGUAGE == 'en' %}Mark read{% else %}Прочитано{% endif %}</button></form>{% endif %}
+</div></li>{% endfor %}</ul>{% else %}<p>{% if CURRENT_LANGUAGE == 'az' %}Bildiriş yoxdur.{% elif CURRENT_LANGUAGE == 'en' %}No notifications yet.{% else %}Пока нет уведомлений.{% endif %}</p>{% endif %}
+</main></div></div>
+{% endblock %}

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import wraps
+from django.core.exceptions import PermissionDenied, ValidationError, ObjectDoesNotExist
 
 from django.utils.translation import gettext as _
 
@@ -27,6 +29,16 @@ class OwnerTeamActionResult:
     ok: bool
     message: str
     form: OwnerTeamInvitationForm | None = None
+
+
+def _checked_transition(method):
+    @wraps(method)
+    def run(*args, **kwargs):
+        try:
+            return method(*args, **kwargs)
+        except (PermissionDenied, ValidationError, ObjectDoesNotExist):
+            return OwnerTeamActionResult(ok=False, message=_("Действие недоступно: права или состояние команды изменились. Обновите страницу."))
+    return run
 
 
 @dataclass(slots=True)
@@ -82,6 +94,7 @@ class OwnerTeamController:
         pending = list(self.team_repository.list_pending_invitations_for_user(user=request.user))
         return {"pending_team_invitations": pending}
 
+    @_checked_transition
     def submit_invitation(self, *, request) -> OwnerTeamActionResult:
         access = ensure_owner_permission(user=request.user)
         places = self._manageable_places(user=request.user) if access.ok else Place.objects.none()
@@ -111,6 +124,7 @@ class OwnerTeamController:
             return None
         return invitation
 
+    @_checked_transition
     def cancel_invitation(self, *, request, invitation_id: int) -> OwnerTeamActionResult:
         access = ensure_owner_permission(user=request.user)
         if not access.ok:
@@ -118,13 +132,14 @@ class OwnerTeamController:
         invitation = self._managed_invitation(request=request, invitation_id=invitation_id)
         if invitation is None:
             return OwnerTeamActionResult(ok=False, message=_("Приглашение не найдено или недоступно."))
-        self.team_repository.cancel_invitation(invitation=invitation)
+        self.team_repository.cancel_invitation(invitation=invitation, actor=request.user)
         return OwnerTeamActionResult(ok=True, message=_("Приглашение отменено."))
 
     def _managed_membership(self, *, request, membership_id: int):
         memberships = self.team_repository.list_members(place_ids=self._manageable_place_ids(user=request.user))
         return memberships.filter(id=membership_id).first()
 
+    @_checked_transition
     def update_member_role(self, *, request, membership_id: int) -> OwnerTeamActionResult:
         access = ensure_owner_permission(user=request.user)
         if not access.ok:
@@ -135,18 +150,20 @@ class OwnerTeamController:
         form = OwnerTeamRoleUpdateForm(request.POST or None)
         if not form.is_valid():
             return OwnerTeamActionResult(ok=False, message=_form_error_message(form, _("Не удалось обновить роль.")))
-        self.team_repository.update_membership_role(membership_id=membership.id, role=form.cleaned_data["role"])
+        self.team_repository.update_membership_role(membership_id=membership.id, role=form.cleaned_data["role"], actor=request.user, expected_version=membership.version)
         return OwnerTeamActionResult(ok=True, message=_("Роль участника обновлена."))
 
+    @_checked_transition
     def remove_member(self, *, request, membership_id: int) -> OwnerTeamActionResult:
         access = ensure_owner_permission(user=request.user)
         if not access.ok:
             return OwnerTeamActionResult(ok=False, message=access.message)
         membership = self._managed_membership(request=request, membership_id=membership_id)
-        if membership is None or not self.team_repository.remove_membership(membership_id=membership.id):
+        if membership is None or not self.team_repository.remove_membership(membership_id=membership.id, actor=request.user, expected_version=membership.version):
             return OwnerTeamActionResult(ok=False, message=_("Участник не найден или недоступен."))
         return OwnerTeamActionResult(ok=True, message=_("Участник удален из команды."))
 
+    @_checked_transition
     def accept_invitation_for_user(self, *, request, invitation_id: int) -> OwnerTeamActionResult:
         if not request.user.is_authenticated:
             return OwnerTeamActionResult(ok=False, message=_("Для принятия приглашения войдите в аккаунт."))
@@ -156,13 +173,14 @@ class OwnerTeamController:
         self.team_repository.accept_invitation(invitation=invitation, user=request.user)
         return OwnerTeamActionResult(ok=True, message=_("Приглашение принято."))
 
+    @_checked_transition
     def reject_invitation_for_user(self, *, request, invitation_id: int) -> OwnerTeamActionResult:
         if not request.user.is_authenticated:
             return OwnerTeamActionResult(ok=False, message=_("Для отклонения приглашения войдите в аккаунт."))
         invitation = self.team_repository.get_pending_invitation_for_user(user=request.user, invitation_id=invitation_id)
         if invitation is None:
             return OwnerTeamActionResult(ok=False, message=_("Приглашение не найдено или уже обработано."))
-        self.team_repository.reject_invitation(invitation=invitation)
+        self.team_repository.reject_invitation(invitation=invitation, actor=request.user)
         return OwnerTeamActionResult(ok=True, message=_("Приглашение отклонено."))
 
 

@@ -17,8 +17,10 @@
 {% block content %}
   {% include "catalog/includes/breadcrumbs.html" with items=catalog_breadcrumb_items %}
   <section class="hero catalog-faq-hero">
-    <div class="faq-hero-orb1" aria-hidden="true"></div>
-    <div class="faq-hero-orb2" aria-hidden="true"></div>
+    <div class="catalog-hero-decoration" aria-hidden="true">
+      <div class="faq-hero-orb1"></div>
+      <div class="faq-hero-orb2"></div>
+    </div>
     <picture class="catalog-hero-picture">
       {% if site_settings.catalog_hero_image %}
         <img
@@ -90,8 +92,6 @@
             {% if selected.district %}<input type="hidden" name="district" value="{{ selected.district }}" />{% endif %}
             {% if selected.age_from %}<input type="hidden" name="age_from" value="{{ selected.age_from }}" />{% endif %}
             {% if selected.age_to %}<input type="hidden" name="age_to" value="{{ selected.age_to }}" />{% endif %}
-            {% if selected.price_from %}<input type="hidden" name="price_from" value="{{ selected.price_from }}" />{% endif %}
-            {% if selected.price_to %}<input type="hidden" name="price_to" value="{{ selected.price_to }}" />{% endif %}
             {% if selected.min_rating %}<input type="hidden" name="min_rating" value="{{ selected.min_rating }}" />{% endif %}
             {% if selected.sort %}<input type="hidden" name="sort" value="{{ selected.sort }}" />{% endif %}
             <button type="submit" class="hero-search-submit">
@@ -152,8 +152,6 @@
           {% if selected.district %}<input type="hidden" name="district" value="{{ selected.district }}" />{% endif %}
           {% if selected.age_from %}<input type="hidden" name="age_from" value="{{ selected.age_from }}" />{% endif %}
           {% if selected.age_to %}<input type="hidden" name="age_to" value="{{ selected.age_to }}" />{% endif %}
-          {% if selected.price_from %}<input type="hidden" name="price_from" value="{{ selected.price_from }}" />{% endif %}
-          {% if selected.price_to %}<input type="hidden" name="price_to" value="{{ selected.price_to }}" />{% endif %}
           {% if selected.min_rating %}<input type="hidden" name="min_rating" value="{{ selected.min_rating }}" />{% endif %}
           {% if selected.sort %}<input type="hidden" name="sort" value="{{ selected.sort }}" />{% endif %}
           <div class="mobile-search-field">
@@ -189,7 +187,6 @@
           <button type="button" class="mobile-quick-filter{% if selected.district %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="district" data-filter-focus="district" aria-expanded="false" aria-controls="quick-menu-district">{% if language == "az" %}Rayon{% elif language == "en" %}District{% else %}Район{% endif %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.age_from or selected.age_to %}{% if selected.age_from != '0' or selected.age_to != '18' %} is-active{% endif %}{% endif %}" data-filters-open data-filter-focus="age">{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.min_rating %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="min_rating" data-filter-focus="min_rating" aria-expanded="false" aria-controls="quick-menu-min_rating">{% if language == "az" %}Reytinq{% elif language == "en" %}Rating{% else %}Рейтинг{% endif %}</button>
-          <button type="button" class="mobile-quick-filter{% if selected.price_from or selected.price_to %}{% if selected.price_from != '0' or selected.price_to != '500' %} is-active{% endif %}{% endif %}" data-quick-filter-toggle data-quick-menu-target="price" data-filter-focus="price" aria-expanded="false" aria-controls="quick-menu-price">{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</button>
         </div>
 
         <div class="mobile-quick-menus" data-quick-menus>
@@ -220,20 +217,7 @@
             </div>
           </section>
 
-          <section class="mobile-quick-menu" id="quick-menu-price" data-quick-menu="price" hidden>
-            <div class="mobile-quick-menu-head">
-              <strong>{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</strong>
-              <button type="button" class="mobile-quick-menu-close" data-quick-menu-close aria-label="{% if language == 'az' %}Bağla{% elif language == 'en' %}Close{% else %}Закрыть{% endif %}">×</button>
-            </div>
-            <div class="mobile-quick-menu-options">
-              <button type="button" class="mobile-quick-option{% if selected.price_from == '0' and selected.price_to == '500' or not selected.price_from and not selected.price_to %} is-active{% endif %}" data-price-from="0" data-price-to="500">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}Все{% endif %}</button>
-              <button type="button" class="mobile-quick-option{% if selected.price_from == '0' and selected.price_to == '50' %} is-active{% endif %}" data-price-from="0" data-price-to="50">0–50 AZN</button>
-              <button type="button" class="mobile-quick-option{% if selected.price_from == '50' and selected.price_to == '100' %} is-active{% endif %}" data-price-from="50" data-price-to="100">50–100 AZN</button>
-              <button type="button" class="mobile-quick-option{% if selected.price_from == '100' and selected.price_to == '200' %} is-active{% endif %}" data-price-from="100" data-price-to="200">100–200 AZN</button>
-              <button type="button" class="mobile-quick-option{% if selected.price_from == '200' and selected.price_to == '500' %} is-active{% endif %}" data-price-from="200" data-price-to="500">200+ AZN</button>
-            </div>
-            <button type="button" class="mobile-quick-menu-more" data-filters-open data-filter-focus="price">{% if language == "az" %}Tam qiymət filtri{% elif language == "en" %}Full price filter{% else %}Полный фильтр цены{% endif %}</button>
-          </section>
+
         </div>
 
         {% if active_filter_chips %}
@@ -279,6 +263,11 @@
       {% if not is_new_page %}data-filters-drawer aria-hidden="false"{% endif %}
     >
       <input type="hidden" name="q" id="filters-form-q" value="{{ selected.q }}" />
+      {% if is_new_page %}
+        {% if selected.age_from %}<input type="hidden" name="age_from" value="{{ selected.age_from }}" />{% endif %}
+        {% if selected.age_to %}<input type="hidden" name="age_to" value="{{ selected.age_to }}" />{% endif %}
+        {% if selected.metro %}<input type="hidden" name="metro" value="{{ selected.metro }}" />{% endif %}
+      {% endif %}
       {% if not is_new_page %}
         <div class="mobile-filters-head">
           <span class="mobile-filters-handle" aria-hidden="true"></span>
@@ -289,7 +278,7 @@
           <span class="desktop-filter-head-icon" aria-hidden="true"></span>
           <div>
             <h2>{% if language == "az" %}Dərnək seçin{% elif language == "en" %}Find a club{% else %}Подобрать кружок{% endif %}</h2>
-            <p>{% if language == "az" %}Kateqoriya, rayon, yaş və büdcə bir yerdə.{% elif language == "en" %}Category, district, age, and budget in one place.{% else %}Категория, район, возраст и бюджет в одном месте.{% endif %}</p>
+            <p>{% if language == "az" %}Kateqoriya, rayon və yaş bir yerdə.{% elif language == "en" %}Category, district, and age in one place.{% else %}Категория, район и возраст в одном месте.{% endif %}</p>
           </div>
         </div>
       {% endif %}
@@ -478,35 +467,6 @@
           </div>
         </div>
 
-        <div class="filter-item filter-price-section">
-          <div class="range-filter filter-price-range" data-range data-min="0" data-max="500" data-unit="AZN" data-mobile-filter-section="price">
-            <div class="range-filter-head">
-              <span>{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}{% trans "Цена" %}{% endif %}</span>
-              <strong class="range-filter-current" data-range-caption></strong>
-            </div>
-            <div class="price-preset-chips" aria-label="{% if language == 'az' %}Qiymət aralığı{% elif language == 'en' %}Price range{% else %}Диапазон цен{% endif %}">
-              <button type="button" class="price-preset-chip{% if selected.price_from == '0' and selected.price_to == '50' %} is-active{% endif %}" data-price-preset-from="0" data-price-preset-to="50">0–50 ₼</button>
-              <button type="button" class="price-preset-chip{% if selected.price_from == '50' and selected.price_to == '100' %} is-active{% endif %}" data-price-preset-from="50" data-price-preset-to="100">50–100 ₼</button>
-              <button type="button" class="price-preset-chip{% if selected.price_from == '100' and selected.price_to == '200' %} is-active{% endif %}" data-price-preset-from="100" data-price-preset-to="200">100–200 ₼</button>
-              <button type="button" class="price-preset-chip{% if selected.price_from == '200' and selected.price_to == '500' %} is-active{% endif %}" data-price-preset-from="200" data-price-preset-to="500">200+ ₼</button>
-            </div>
-            <div class="range-filter-inputs">
-              <label class="range-filter-mini">
-                <span>{% if language == "az" %}dan{% elif language == "en" %}from{% else %}{% trans "от" %}{% endif %}</span>
-                <input class="field" type="number" min="0" max="500" name="price_from" value="{{ selected.price_from|default:'0' }}" data-range-from-input />
-              </label>
-              <label class="range-filter-mini">
-                <span>{% if language == "az" %}dək{% elif language == "en" %}to{% else %}{% trans "до" %}{% endif %}</span>
-                <input class="field" type="number" min="0" max="500" name="price_to" value="{{ selected.price_to|default:'500' }}" data-range-to-input />
-              </label>
-            </div>
-            <div class="range-filter-track">
-              <input class="range-slider range-slider-from" type="range" min="0" max="500" value="{{ selected.price_from|default:'0' }}" data-range-from-range />
-              <input class="range-slider range-slider-to" type="range" min="0" max="500" value="{{ selected.price_to|default:'500' }}" data-range-to-range />
-            </div>
-          </div>
-        </div>
-
         <div class="filter-item filter-rating" data-mobile-filter-section="min_rating">
           <div class="filter-rating-head">
             <span>{% if language == "az" %}Reytinq ən azı{% elif language == "en" %}Minimum rating{% else %}{% trans "Рейтинг не ниже" %}{% endif %}</span>
@@ -629,8 +589,6 @@
 
           <select class="filter-select results-toolbar-sort-select visually-hidden" name="sort" form="filters-form" data-sort-submit id="catalog-sort-select" tabindex="-1" aria-hidden="true">
             <option value="new" {% if selected.sort == "new" or not selected.sort %}selected{% endif %}>{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}{% trans "Сначала новые" %}{% endif %}</option>
-            <option value="price_asc" {% if selected.sort == "price_asc" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə ucuz{% elif language == "en" %}Price: low to high{% else %}{% trans "Цена по возрастанию" %}{% endif %}</option>
-            <option value="price_desc" {% if selected.sort == "price_desc" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə bahalı{% elif language == "en" %}Price: high to low{% else %}{% trans "Цена по убыванию" %}{% endif %}</option>
             {% if rating_sort_available %}<option value="rating" {% if selected.sort == "rating" %}selected{% endif %}>{% if language == "az" %}Reytinq üzrə{% elif language == "en" %}Highest rated{% else %}{% trans "По рейтингу" %}{% endif %}</option>{% endif %}
             <option value="reviews_desc" {% if selected.sort == "reviews_desc" %}selected{% endif %}>{% if language == "az" %}Ən çox rəy alanlar{% elif language == "en" %}Most reviewed{% else %}{% trans "По количеству отзывов" %}{% endif %}</option>
           </select>
@@ -645,9 +603,7 @@
             aria-controls="catalog-sort-menu"
           >
             <span class="km-sort-trigger-label" data-sort-label>
-              {% if selected.sort == "price_asc" %}{% if language == "az" %}Əvvəlcə ucuz{% elif language == "en" %}Price: low to high{% else %}{% trans "Цена по возрастанию" %}{% endif %}
-              {% elif selected.sort == "price_desc" %}{% if language == "az" %}Əvvəlcə bahalı{% elif language == "en" %}Price: high to low{% else %}{% trans "Цена по убыванию" %}{% endif %}
-              {% elif selected.sort == "rating" %}{% if language == "az" %}Reytinq üzrə{% elif language == "en" %}Highest rated{% else %}{% trans "По рейтингу" %}{% endif %}
+              {% if selected.sort == "rating" %}{% if language == "az" %}Reytinq üzrə{% elif language == "en" %}Highest rated{% else %}{% trans "По рейтингу" %}{% endif %}
               {% elif selected.sort == "reviews_desc" %}{% if language == "az" %}Ən çox rəy alanlar{% elif language == "en" %}Most reviewed{% else %}{% trans "По количеству отзывов" %}{% endif %}
               {% else %}{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}{% trans "Сначала новые" %}{% endif %}
               {% endif %}
@@ -667,27 +623,7 @@
               <svg class="km-sort-option-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </button>
 
-            <button
-              type="button"
-              role="option"
-              class="km-sort-option {% if selected.sort == 'price_asc' %}is-selected{% endif %}"
-              data-sort-value="price_asc"
-              aria-selected="{% if selected.sort == 'price_asc' %}true{% else %}false{% endif %}"
-            >
-              <span class="km-sort-option-text">{% if language == "az" %}Əvvəlcə ucuz{% elif language == "en" %}Price: low to high{% else %}{% trans "Цена по возрастанию" %}{% endif %}</span>
-              <svg class="km-sort-option-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </button>
 
-            <button
-              type="button"
-              role="option"
-              class="km-sort-option {% if selected.sort == 'price_desc' %}is-selected{% endif %}"
-              data-sort-value="price_desc"
-              aria-selected="{% if selected.sort == 'price_desc' %}true{% else %}false{% endif %}"
-            >
-              <span class="km-sort-option-text">{% if language == "az" %}Əvvəlcə bahalı{% elif language == "en" %}Price: high to low{% else %}{% trans "Цена по убыванию" %}{% endif %}</span>
-              <svg class="km-sort-option-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </button>
 
             {% if rating_sort_available %}
             <button
@@ -720,6 +656,12 @@
 
   {% if not is_new_page %}
     <div class="catalog-main-column">
+      {% if organization_matches %}
+      <section class="catalog-organization-matches" aria-labelledby="catalog-organization-heading">
+        <h2 id="catalog-organization-heading">{% if language == 'ru' %}Организации{% elif language == 'en' %}Organizations{% else %}Təşkilatlar{% endif %}</h2>
+        <ul>{% for organization in organization_matches %}<li><a href="{{ organization.url }}">{{ organization.name }}</a></li>{% endfor %}</ul>
+      </section>
+      {% endif %}
       <section
         id="catalog-map-panel"
         class="panel catalog-map-panel"
@@ -750,21 +692,21 @@
         <div class="catalog-map-meta">
           <span class="chip">
             {% if language == "az" %}
-              {{ catalog_map_places_count }} xəritə nöqtəsi
+              {{ catalog_map_points_count }} xəritə nöqtəsi
             {% elif language == "en" %}
-              {{ catalog_map_places_count }} map points
+              {{ catalog_map_points_count }} map points
             {% else %}
-              {% blocktrans count total=catalog_map_places_count %}{{ total }} точка на карте{% plural %}{{ total }} точки на карте{% endblocktrans %}
+              {% blocktrans count total=catalog_map_points_count %}{{ total }} точка на карте{% plural %}{{ total }} точки на карте{% endblocktrans %}
             {% endif %}
           </span>
           {% if catalog_map_missing_count %}
             <span class="catalog-map-note">
               {% if language == "az" %}
-                Daha {{ catalog_map_missing_count }} məkan göstərilmir: koordinat yoxdur.
+                {{ catalog_map_missing_count }} məkan yalnız siyahıda göstərilir: xəritə koordinatları yoxdur.
               {% elif language == "en" %}
-                {{ catalog_map_missing_count }} more places are hidden because coordinates are missing.
+                {{ catalog_map_missing_count }} places remain in the list without map coordinates.
               {% else %}
-                {% blocktrans count total=catalog_map_missing_count %}Еще {{ total }} карточка не показана: нет координат.{% plural %}Еще {{ total }} карточки не показаны: нет координат.{% endblocktrans %}
+                {% blocktrans count total=catalog_map_missing_count %}{{ total }} карточка остаётся в списке без координат карты.{% plural %}{{ total }} карточки остаются в списке без координат карты.{% endblocktrans %}
               {% endif %}
             </span>
           {% endif %}
@@ -809,21 +751,24 @@
         <h2>{% trans "Последние добавления" %}</h2>
         <div class="new-timeline new-timeline-grid">
           {% for place in timeline_places %}
+            {% public_presentation place as timeline_presentation %}
             <article class="card">
               <div class="card-media">
                 {% if place.public_image_file %}
-                  <img src="{{ place.public_image_url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                  <img src="{{ place.public_image_url }}" alt="{{ timeline_presentation.name }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
                 {% else %}
                   <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
                 {% endif %}
               </div>
               <div class="card-body">
-                <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
-                {% with desc=place.description_i18n %}
+                <h3><a href="{{ place.get_absolute_url }}">{{ timeline_presentation.name }}</a></h3>
+                {% if not timeline_presentation.exact_filtered %}
+                {% with desc=timeline_presentation.description %}
                   <p class="card-description{% if not desc %} is-empty{% endif %}">
                     {% if desc %}{{ desc|striptags|truncatechars:96 }}{% else %}&nbsp;{% endif %}
                   </p>
                 {% endwith %}
+                {% endif %}
                 <div class="new-badge-row">
                   <span class="new-badge">{% if language == "az" %}Yeni{% elif language == "en" %}New{% else %}{% trans "Новое" %}{% endif %}</span>
                   <span class="new-badge-meta">{% if language == "az" %}Əlavə olunub{% elif language == "en" %}Added{% else %}{% trans "Добавлено" %}{% endif %} {{ place.days_since_added }} {% if language == "az" %}gün əvvəl{% elif language == "en" %}days ago{% else %}{% trans "дн. назад" %}{% endif %}</span>
@@ -859,15 +804,37 @@
                   {% if not place.district and not place.metro and place.address %}{{ place.address_i18n|truncatechars:48 }}{% endif %}
                   {% if not place.district and not place.metro and not place.address %}&nbsp;{% endif %}
                 </p>
-                {% if place.age_display %}
+                {% if place.age_display and not timeline_presentation.exact_filtered %}
                   <p class="meta card-age-audience"><b>{% trans "Возраст" %}:</b> {{ place.age_display }} {% if language == "az" %}yaş{% elif language == "en" %}years{% else %}лет{% endif %}{% if place.offers_adult_classes %}<span class="card-age-audience__separator" aria-hidden="true">·</span><span class="card-age-audience__adult">{% if language == "az" %}Böyüklər üçün qruplar{% elif language == "en" %}Adult groups{% else %}Взрослые группы{% endif %}</span>{% endif %}</p>
                 {% endif %}
-                {% if place.price_range_display %}
+                {% if timeline_presentation.prices.label %}
                   <p class="meta meta-price">
                     <span class="meta-price-label">{% trans "Цена" %}:</span>
-                    <span class="meta-price-value">{{ place.price_range_display }}</span>
+                    <span class="meta-price-value">{{ timeline_presentation.prices.label }}</span>
                   </p>
                 {% endif %}
+                {% if timeline_presentation.organization %}
+                <p class="meta card-organization"><a href="{{ timeline_presentation.organization.url }}">{{ timeline_presentation.organization.name }}</a></p>
+                {% endif %}
+                {% if timeline_presentation.matched_offers %}
+                <ul class="card-matched-offers" data-matched-offers>
+                  {% for offer in timeline_presentation.matched_offers %}
+                  <li class="card-matched-offer">
+                    <a class="card-offer-link" href="{{ offer.url }}">{{ offer.name }}</a>
+                    <ul class="card-offer-groups">
+                      {% for group in offer.groups %}
+                      <li data-offering-group-id="{{ group.id }}" data-matched-group="{{ group.id }}">
+                        <span class="card-offer-group-name">{{ group.name }}</span>
+                        {% if group.age %}<span class="meta">{{ group.age }} {% if language == 'ru' %}лет{% elif language == 'en' %}years{% else %}yaş{% endif %}</span>{% endif %}
+                        {% for price in group.prices %}<span class="meta card-offer-price">{{ price.label }}</span>{% endfor %}
+                      </li>
+                      {% endfor %}
+                    </ul>
+                  </li>
+                  {% endfor %}
+                </ul>
+                {% endif %}
+
                 <div class="card-cta-row">
                   {% if place.phone1 %}
                     {% include "catalog/includes/phone_reveal.html" with phone_class="cta-btn cta-call icon-btn icon-phone" phone_index=0 %}
@@ -1817,37 +1784,6 @@
       bindSelectTargetButtons(document);
       window.kidsMapBindSelectTargets = bindSelectTargetButtons;
 
-      document.querySelectorAll("[data-price-from][data-price-to]").forEach(function (button) {
-        button.addEventListener("click", function () {
-          const container = document.querySelector(".filter-price-range[data-range]");
-          if (!container) return;
-          const fromInput = container.querySelector("[data-range-from-input]");
-          const toInput = container.querySelector("[data-range-to-input]");
-          const fromRange = container.querySelector("[data-range-from-range]");
-          const toRange = container.querySelector("[data-range-to-range]");
-          if (!fromInput || !toInput || !fromRange || !toRange) return;
-
-          fromInput.value = button.dataset.priceFrom || "0";
-          toInput.value = button.dataset.priceTo || "500";
-          fromRange.value = fromInput.value;
-          toRange.value = toInput.value;
-          fromInput.dispatchEvent(new Event("input", { bubbles: true }));
-          toInput.dispatchEvent(new Event("input", { bubbles: true }));
-
-          const quickMenu = button.closest("[data-quick-menu]");
-          if (quickMenu) {
-            quickMenu.querySelectorAll("[data-price-from][data-price-to]").forEach(function (item) {
-              item.classList.toggle("is-active", item === button);
-            });
-            if (window.kidsMapCloseQuickMenus) {
-              window.kidsMapCloseQuickMenus();
-            }
-            if (window.kidsMapSubmitMobileFilters) {
-              window.kidsMapSubmitMobileFilters();
-            }
-          }
-        });
-      });
     })();
 
     (function() {
@@ -1862,13 +1798,11 @@
         const formData = new FormData(form);
         const params = new URLSearchParams();
         const neutralAgeRange = formData.get("age_from") === "0" && formData.get("age_to") === "18";
-        const neutralPriceRange = formData.get("price_from") === "0" && formData.get("price_to") === "500";
 
         formData.forEach(function (value, key) {
           const cleanValue = String(value || "").trim();
           if (!cleanValue || key === "page") return;
           if (neutralAgeRange && (key === "age_from" || key === "age_to")) return;
-          if (neutralPriceRange && (key === "price_from" || key === "price_to")) return;
           params.append(key, cleanValue);
         });
 
@@ -2937,30 +2871,6 @@
             return;
           }
 
-          const priceChip = e.target.closest('.price-preset-chip');
-          if (priceChip) {
-            const fromInput = document.querySelector('.filter-price-range [data-range-from-input]');
-            const toInput = document.querySelector('.filter-price-range [data-range-to-input]');
-            const fromRange = document.querySelector('.filter-price-range [data-range-from-range]');
-            const toRange = document.querySelector('.filter-price-range [data-range-to-range]');
-            if (!fromInput || !toInput || !fromRange || !toRange) return;
-
-            const pFrom = priceChip.dataset.pricePresetFrom || '0';
-            const pTo = priceChip.dataset.pricePresetTo || '500';
-
-            fromInput.value = pFrom;
-            toInput.value = pTo;
-            fromRange.value = pFrom;
-            toRange.value = pTo;
-            fromInput.dispatchEvent(new Event('input', { bubbles: true }));
-            toInput.dispatchEvent(new Event('input', { bubbles: true }));
-            toInput.dispatchEvent(new Event('change', { bubbles: true }));
-
-            document.querySelectorAll('.price-preset-chip').forEach(function (c) {
-              c.classList.toggle('is-active', c === priceChip);
-            });
-            return;
-          }
         });
       })();
   </script>

@@ -72,7 +72,7 @@
             </svg>
           </div>
           <div class="km-stat-details">
-            <strong>{{ map_places|length }}</strong>
+            <strong>{{ map_business_count }}</strong>
             <span>{% trans "мест и занятий на карте" %}</span>
           </div>
         </a>
@@ -449,14 +449,14 @@
   <div class="home-map-results-bar">
         <div class="home-map-live-pill" role="status" aria-live="polite" aria-atomic="true">
           <span class="home-map-pulse-dot" aria-hidden="true"></span>
-          <span data-home-map-live-count>{{ map_places|length }}</span>
+          <span data-home-map-live-count>{{ map_business_count }}</span>
           <span class="home-map-live-text">{% if request.LANGUAGE_CODE == 'az' %}məkan xəritədə{% elif request.LANGUAGE_CODE == 'en' %}places on map{% else %}мест на карте{% endif %}</span>
         </div>
     <span class="home-map-results-hint home-map-desktop-label">{% if request.LANGUAGE_CODE == 'az' %}Məkanı açmaq üçün xəritədəki işarəyə klikləyin{% elif request.LANGUAGE_CODE == 'en' %}Select a pin to discover a place{% else %}Нажмите на метку, чтобы открыть место{% endif %}</span>
     <span class="home-map-results-hint home-map-mobile-label">{% if request.LANGUAGE_CODE == 'az' %}İşarəyə toxunun{% elif request.LANGUAGE_CODE == 'en' %}Select a pin{% else %}Выберите метку{% endif %}</span>
   </div>
 
-  <div id="home-map" class="home-map" data-details-label="{% trans 'Подробнее' %}"
+  <div id="home-map" data-map-endpoint="{% url 'public_map' %}" class="home-map" data-details-label="{% trans 'Подробнее' %}"
     data-age-range-label="{% if request.LANGUAGE_CODE == 'az' %}{from}–{to} yaş{% elif request.LANGUAGE_CODE == 'en' %}Ages {from}–{to}{% else %}{from}–{to} лет{% endif %}"
     data-age-from-label="{% if request.LANGUAGE_CODE == 'az' %}{from}+ yaş{% elif request.LANGUAGE_CODE == 'en' %}Ages {from}+{% else %}от {from} лет{% endif %}"
     data-age-to-label="{% if request.LANGUAGE_CODE == 'az' %}0–{to} yaş{% elif request.LANGUAGE_CODE == 'en' %}Up to age {to}{% else %}до {to} лет{% endif %}"
@@ -673,7 +673,7 @@
         <!-- Metrics Row -->
         <div class="km-metrics-row">
           <div class="km-metric-cell">
-            <strong class="km-metric-val">{{ map_places|length }}</strong>
+            <strong class="km-metric-val">{{ map_business_count }}</strong>
             <span class="km-metric-lbl">
               {% if request.LANGUAGE_CODE == 'az' %}aktiv məkan
               {% elif request.LANGUAGE_CODE == 'en' %}active places
@@ -2713,12 +2713,12 @@
 {% if hero_gallery_slides|length > 1 %}
 <script src="{% static 'js/home_hero_slider.js' %}?v=20260909_playful1"></script>
 {% endif %}
-{% if map_places %}
 <link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20260910" />
 <script src="{% static 'js/google_maps_motion.js' %}?v=20260910"></script>
 <script src="{% static 'js/google_maps_markers.js' %}?v=20260910"></script>
-<script src="{% static 'js/home_map.js' %}?v=20260928_map_release4" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
+<script src="{% static 'js/home_map.js' %}?v=20261002_stage20" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
   data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
+  data-home-map-route-label="{% trans 'Маршрут' %}"
   data-home-map-language="{{ request.LANGUAGE_CODE|escape }}"
   data-home-map-unavailable-label="{% trans 'Карта временно недоступна.' %}"
   data-home-map-leaflet-css="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -2726,7 +2726,7 @@
   data-home-map-leaflet-js="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
   data-home-map-leaflet-js-integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"
   referrerpolicy="no-referrer"></script>
-{% endif %}
+
 
 {% if home_categories %}
 <script>

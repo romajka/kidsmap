@@ -22,6 +22,7 @@
       </button>
 
       {% if summary.visibility.is_public %}
+        <input type="hidden" name="unpublish_version" value="{{ form.instance.content_version }}">
         <button type="submit" name="_unpublish_place" class="km-pf-btn km-pf-btn--ghost km-pf-btn--block">
           <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-visibility_off"></use></svg>{% translate "Снять с публикации" %}
         </button>

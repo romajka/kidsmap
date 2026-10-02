@@ -118,3 +118,17 @@
 @media(max-width:850px) {.kv-header {align-items:start}.kv-stats {grid-template-columns:repeat(3,minmax(0,1fr))}.kv-card {grid-template-columns:128px minmax(0,1fr);gap:16px}.kv-card__photo {height:128px}.km-volunteer .pw .pw-sidebar {position:static;max-height:none;overflow:visible}}
 @media(max-width:600px) {.kv-header {display:grid;gap:20px}.kv-header h1 {font-size:28px}.kv-header .kv-button {justify-self:start}.kv-stats {grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.kv-stats a {padding:14px}.kv-card {grid-template-columns:minmax(0,1fr);padding:16px;gap:16px}.kv-card__photo {height:160px}.kv-search {max-width:none;flex-basis:100%}.kv-tabs {gap:3px}.kv-tabs a {padding:8px;font-size:12px}.kv-card__actions {gap:14px}.kv-card__actions .kv-button {width:100%}.kv-detail dl {grid-template-columns:minmax(0,1fr);gap:4px}.kv-detail dd {margin-bottom:12px}.kv-notice {padding:16px}.km-volunteer .pw .pw-actions {position:static;flex-wrap:wrap}.km-volunteer .pw .pw-actions button {flex:1 1 120px}.kv-empty {padding:40px 20px}}
 @media(prefers-reduced-motion:reduce) {.kv-dashboard * {transition:none !important;animation:none !important}}
+.km-volunteer-entity-form,.km-volunteer-hub-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px 18px;max-width:980px;margin:20px 0}
+.km-volunteer-entity-form .form-group{min-width:0;margin:0}
+.km-volunteer-entity-form label,.km-volunteer-hub-filters label{display:block;font-weight:600;margin-bottom:5px}
+.km-volunteer-entity-form input,.km-volunteer-entity-form textarea,.km-volunteer-entity-form select,.km-volunteer-hub-filters input,.km-volunteer-hub-filters select{width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+.km-volunteer-entity-form .km-volunteer-actions{grid-column:1/-1}
+.km-volunteer-hub-filters button{align-self:end;min-height:42px}
+.km-volunteer-comparison{max-width:100%;overflow-x:auto;margin:18px 0}
+.km-volunteer-comparison table{width:100%;border-collapse:collapse}
+.km-volunteer-comparison th,.km-volunteer-comparison td{padding:9px 12px;border-bottom:1px solid var(--km-admin-border,#e2e8f0);vertical-align:top;overflow-wrap:anywhere;min-width:110px}
+.km-volunteer-actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+.km-volunteer :focus-visible{outline:3px solid var(--km-admin-success-text,#047857);outline-offset:2px}
+@media(max-width:600px){.km-volunteer-entity-form,.km-volunteer-hub-filters{grid-template-columns:minmax(0,1fr)}.km-volunteer-actions button{flex:1 1 100%}}
+
+.km-volunteer-hub-table table{table-layout:auto;min-width:820px}

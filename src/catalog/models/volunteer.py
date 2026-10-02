@@ -10,8 +10,17 @@ class VolunteerPlaceRevision(models.Model):
         PENDING = "pending", pgettext_lazy("volunteer admin", "На проверке")
         APPROVED = "approved", _("Одобрено")
         REJECTED = "rejected", _("Нужны исправления")
+        DECLINED = "declined", _("Отклонено")
 
-    place = models.OneToOneField("catalog.Place", on_delete=models.CASCADE, related_name="volunteer_revision")
+    place = models.OneToOneField("catalog.Place", on_delete=models.CASCADE, null=True, blank=True, related_name="volunteer_revision")
+    organization = models.OneToOneField("catalog.Organization", on_delete=models.CASCADE, null=True, blank=True, related_name="content_revision")
+    program = models.OneToOneField("catalog.Program", on_delete=models.CASCADE, null=True, blank=True, related_name="content_revision")
+    activity = models.OneToOneField("catalog.Activity", on_delete=models.CASCADE, null=True, blank=True, related_name="content_revision")
+    offering_group = models.OneToOneField("catalog.OfferingGroup", on_delete=models.CASCADE, null=True, blank=True, related_name="content_revision")
+    schema_version = models.PositiveIntegerField(default=1)
+    base_content_version = models.PositiveBigIntegerField(default=1)
+    dependencies = models.JSONField(default=dict, blank=True)
+    changed_fields = models.JSONField(default=list, blank=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="volunteer_revisions")
     payload = models.JSONField(default=dict)
     base_snapshot = models.JSONField(default=dict)
@@ -31,6 +40,13 @@ class VolunteerPlaceRevision(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
+        constraints = [models.CheckConstraint(condition=(
+            models.Q(place__isnull=False, organization__isnull=True, program__isnull=True, activity__isnull=True, offering_group__isnull=True)
+            | models.Q(place__isnull=True, organization__isnull=False, program__isnull=True, activity__isnull=True, offering_group__isnull=True)
+            | models.Q(place__isnull=True, organization__isnull=True, program__isnull=False, activity__isnull=True, offering_group__isnull=True)
+            | models.Q(place__isnull=True, organization__isnull=True, program__isnull=True, activity__isnull=False, offering_group__isnull=True)
+            | models.Q(place__isnull=True, organization__isnull=True, program__isnull=True, activity__isnull=True, offering_group__isnull=False)
+        ), name="publication_revision_one_target"), models.CheckConstraint(condition=models.Q(schema_version__gte=1, base_content_version__gte=1), name="publication_revision_versions_positive")]
         verbose_name = _("Изменения волонтёра")
         verbose_name_plural = _("Изменения волонтёров")
 

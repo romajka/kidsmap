@@ -1,0 +1,21 @@
+# Stage 17 — independent security review
+
+Role: `security-reviewer` (`.agents/agents/security-reviewer/agent.md`), AUDIT, 2026-10-02. Assigned output only; application code unchanged. LOCAL HEAD `c52b871ce5c18656a9eaf9854e66255c2629364e`, dirty WORKTREE under stage17 run `20261002-103001Z`; this report reviews the worktree, not HEAD or PRODUCTION. Production not contacted.
+
+## Evidence and conclusion
+
+- `controllers/workflow_notifications.py:_mine`, `inbox`, `mark_read`, `accept_invitation`: login gate, recipient queryset, and POST-only state changes. `business_team.accept` checks actor email against invitation, pending/expiry, current owner and ownership version, and grant/scope snapshot before granting (`services/business_team.py:218–245`). A guessed notification ID cannot bypass recipient scope; an old invitation cannot grant access. `src/config/settings.py:348` enables CSRF middleware; template forms include CSRF token. `test_task33_notifications.py:70–117` contains recipient, stale, GET and CSRF negatives. This is source/test-case evidence; isolated execution was left to lead's QA04 run.
+- `services/workflow_notifications.py:24–43` writes inbox and outbox within the calling transaction with database uniqueness over event/entity/version/recipient (`models/workflow_notification.py:19–25`). The renderer escapes notification fields; the email has a fixed generic subject/body and a login-protected inbox link, no organization/Place, moderation note or other private payload (`services/workflow_notifications.py:93–109`). Runner defaults to preview; sending needs explicit `--send` (`management/commands/deliver_workflow_outbox.py:12–26`).
+- `services/workflow_notifications.py:46–82` suppresses delivery for inactive users, changed recipient email, stale invitations and superseded business join confirmations. `controllers/workflow_notifications.py:25–30` hides a stale invitation action; the POST service still rechecks authorization. `EmailOutbox` uses row locks and terminal `sent` status, so a recorded success is not retried. SMTP failure changes only outbox state and does not run during business action.
+
+## Findings / risks
+
+- **SEC17-01, P2, dirty WORKTREE, medium confidence.** `_delivery_allowed` checks invitation state without locking that invitation (`services/workflow_notifications.py:46–82, 90–111`). Cancellation or ownership transfer in another transaction can commit after this check and before SMTP completes. A generic “check your account” email can then be sent for an already canceled invitation. It contains no private payload and the POST acceptance path denies stale access, so this is an accuracy/timing risk, not a privilege bypass. Owner: django-reviewer; acceptance: concurrency case for cancel/send ordering, or operationally document generic stale-mail possibility.
+- **SEC17-02 closed in source recheck.** After review, `_join_confirmation_current` was added and wired into `_delivery_allowed` (`services/workflow_notifications.py:64–82`). It rejects canceled/approved requests and owner/version drift before SMTP. `inbox` now hides stale invitation accept actions. A dedicated stale-join negative was not present at this recheck; lead owns the isolated test result.
+- Crash after SMTP accepts a message but before the local `sent` transaction commits can cause retry and a duplicate real email (`services/workflow_notifications.py:90–122`). This is the usual at-least-once boundary without provider idempotency. It is not evidence of a current duplicate; state the delivery guarantee precisely in the operations note.
+
+## Checks and handoff
+
+Executed: Codebase Memory project `home-ramin-kidsmap`, `index_status` ready, full generation `2026-10-02T10:58:03Z`; relevant path coverage metadata match with best-effort caveat; bounded source/routes/template/test inspection and LOCAL HEAD read. No isolated tests run by this reviewer; lead owns QA04 result. Browser, live SMTP, production and external delivery NOT RUN. Graph completeness remains best effort; critical conclusions verified in source. No P0/P1 confirmed.
+
+Handoff: **django-reviewer** to document residual SEC17-01 and run a deterministic stale-join negative; **integration-reviewer** for regression coverage if this path changes. This recheck is source only; lead owns final QA04 evidence.

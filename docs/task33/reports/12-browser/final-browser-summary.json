@@ -1,0 +1,51 @@
+{
+  "source": "fresh isolated QA04 PostgreSQL + real Chromium",
+  "chromium": "140.0.7339.16",
+  "matrix_cases": 126,
+  "matrix_failures": [],
+  "scenario_count": 6,
+  "language_count": 3,
+  "widths": [
+    320,
+    360,
+    390,
+    768,
+    1024,
+    1280,
+    1440
+  ],
+  "screenshots_captured_private": 105,
+  "duplicate_id_cases": 0,
+  "application_network_failures": 0,
+  "page_errors": 0,
+  "console_errors_blocked_external_font": 126,
+  "blocked_external_origins": [
+    "https://fonts.googleapis.com"
+  ],
+  "interactions": {
+    "status": "PASS",
+    "checks": [
+      "zero-org and standalone empty states",
+      "Add place direct form link",
+      "create draft persists in session storage",
+      "empty branch state",
+      "keyboard tab navigation",
+      "draft save failure visible",
+      "manager selected branch only; owner controls absent",
+      "manager direct URL denied"
+    ],
+    "create_status": "Draft saved in this browser",
+    "save_failure_status": "Server save failed; your input is preserved.",
+    "branch_counts": {
+      "owner": 2,
+      "manager": 1
+    },
+    "page_errors": []
+  },
+  "bridge_requests": 131,
+  "bridge_status": "PASS",
+  "qa_status": "PASS",
+  "qa_cleanup": "PASS",
+  "network": "none",
+  "ports_published": false
+}

@@ -14,6 +14,7 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/organization_workspace.css' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
@@ -74,34 +75,20 @@
   <div class="account-main-layout">
 
     <!-- Sidebar Navigation -->
-    <aside class="account-nav-sidebar">
-      <a href="{% url 'account_dashboard' %}" class="account-nav-item">
-        <span class="material-symbols-rounded">grid_view</span>
-        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Ümumi baxış{% elif CURRENT_LANGUAGE == "en" %}Overview{% else %}Обзор{% endif %}</span>
-      </a>
-      <a href="{% url 'owner_places_dashboard' %}" class="account-nav-item is-active">
-        <span class="material-symbols-rounded">location_on</span>
-        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</span>
-        {% if managed_places_count %}<span class="account-nav-count">{{ managed_places_count }}</span>{% endif %}
-      </a>
-      <a href="{% url 'owner_reviews_dashboard' %}" class="account-nav-item">
-        <span class="material-symbols-rounded">star</span>
-        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Rəylərim{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %}</span>
-        {% if user_reviews_count %}<span class="account-nav-count">{{ user_reviews_count }}</span>{% endif %}
-      </a>
-      <a href="{% url 'account_favorites' %}" class="account-nav-item">
-        <span class="material-symbols-rounded">favorite</span>
-        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Seçilmişlər{% elif CURRENT_LANGUAGE == "en" %}Favorites{% else %}Избранное{% endif %}</span>
-        {% if favorites_count %}<span class="account-nav-count">{{ favorites_count }}</span>{% endif %}
-      </a>
-      <a href="{% url 'account_settings' %}" class="account-nav-item">
-        <span class="material-symbols-rounded">settings</span>
-        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Tənzimləmələr{% elif CURRENT_LANGUAGE == "en" %}Settings{% else %}Настройки{% endif %}</span>
-      </a>
-    </aside>
+    {% include "pages/includes/account_navigation.html" %}
 
     <!-- Main Content Panel -->
     <section class="account-main-content">
+      {% if place_affiliation_requests or affiliated_places or joinable_places and joinable_organizations %}
+      <section class="account-card-box" id="organization-links" aria-labelledby="organization-links-title">
+        <div class="account-card-box__head"><h2 id="organization-links-title">{% if CURRENT_LANGUAGE == 'az' %}Təşkilat əlaqələri{% elif CURRENT_LANGUAGE == 'en' %}Organization links{% else %}Связи с организациями{% endif %}</h2></div>
+        {% for item in place_affiliation_requests %}<div class="org-pending-row"><span>{{ item.place.name_i18n }} → {{ item.organization.name_az }} · {% if item.place_owner_confirmed_at %}{% if CURRENT_LANGUAGE == 'az' %}Sizin tərəf təsdiqlədi{% elif CURRENT_LANGUAGE == 'en' %}Your side confirmed{% else %}Ваша сторона подтвердила{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Sizin təsdiqiniz gözlənilir{% elif CURRENT_LANGUAGE == 'en' %}Waiting for your confirmation{% else %}Ожидает вашего подтверждения{% endif %}{% endif %}</span><form method="post" action="{% url 'organization_workspace_confirm' item.organization_id item.pk %}">{% csrf_token %}<button class="account-btn-sm" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Təsdiqlə{% elif CURRENT_LANGUAGE == 'en' %}Confirm{% else %}Подтвердить{% endif %}</button></form></div>{% endfor %}
+        {% for place in informational_places %}<p>{{ place.name_i18n }} · {% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi; şəbəkə hüququ vermir{% elif CURRENT_LANGUAGE == 'en' %}Information link; no network permission{% else %}Информационная связь; не даёт сетевых прав{% endif %}</p>{% endfor %}
+        {% for place in affiliated_places %}<div class="org-pending-row"><span>{{ place.name_i18n }} → {{ place.organization.name_az }} · {% if place.organization_relationship_kind == 'informational' %}{% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi{% elif CURRENT_LANGUAGE == 'en' %}Information link{% else %}Информационная связь{% endif %}{% endif %}</span><form method="post" action="{% url 'organization_workspace_detach' place.organization_id place.pk %}">{% csrf_token %}<input type="hidden" name="expected_ownership_version" value="{{ place.ownership_version }}"><button class="account-btn-sm" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Ayır{% elif CURRENT_LANGUAGE == 'en' %}Detach{% else %}Отсоединить{% endif %}</button></form></div>{% endfor %}
+        {% if joinable_places and joinable_organizations %}<form method="post" data-join-form>{% csrf_token %}<label>{% if CURRENT_LANGUAGE == 'az' %}Məkan{% elif CURRENT_LANGUAGE == 'en' %}Place{% else %}Место{% endif %}<select name="place_id">{% for place in joinable_places %}<option value="{{ place.pk }}">{{ place.name_i18n }}</option>{% endfor %}</select></label><label>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat{% elif CURRENT_LANGUAGE == 'en' %}Organization{% else %}Организация{% endif %}<select name="organization_id" data-join-org>{% for org in joinable_organizations %}<option value="{{ org.pk }}" data-url="{% url 'organization_workspace_join' org.pk %}">{{ org.name_az }}</option>{% endfor %}</select></label><button type="submit" class="account-btn-sm">{% if CURRENT_LANGUAGE == 'az' %}Qoşulma istə{% elif CURRENT_LANGUAGE == 'en' %}Request connection{% else %}Запросить присоединение{% endif %}</button></form>{% endif %}
+      </section>
+      {% endif %}
+
 
       <!-- Section Title & Quick Action -->
       <div class="account-section-head-with-action">
@@ -693,4 +680,5 @@
     </section>
   </div>
 </div>
+<script src="{% static 'js/organization_workspace.js' %}" defer></script>
 {% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'admin/change_form.html' %}
+{% load i18n static %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}">{% endblock %}
+{% block after_field_sets %}
+  {{ block.super }}
+  {% if km_business_links %}
+    <section class="km-pf-group" aria-label="{% translate 'Связанные разделы' %}">
+      <h2>{% translate 'Связанные разделы' %}</h2>
+      {% for label, url in km_business_links %}<a class="km-pf-btn km-pf-btn--ghost" href="{{ url }}">{{ label }}</a>{% endfor %}
+    </section>
+  {% endif %}
+  {% if km_business_changes %}
+    <section class="km-pf-group" aria-label="{% translate 'Текущие и предложенные данные' %}">
+      <h2>{% translate 'Текущие и предложенные данные' %}</h2>
+      <table class="table"><thead><tr><th scope="col">{% translate 'Поле' %}</th><th scope="col">{% translate 'Сейчас' %}</th><th scope="col">{% translate 'Предложено' %}</th></tr></thead>
+        <tbody>{% for change in km_business_changes %}<tr><th scope="row">{{ change.label }}</th><td>{{ change.current|default:'—' }}</td><td>{{ change.candidate|default:'—' }}</td></tr>{% endfor %}</tbody>
+      </table>
+    </section>
+  {% endif %}
+  {% if km_business_kind == 'activity' and km_business_object %}
+    <section class="km-pf-group" aria-label="{% translate 'Группы занятия' %}">
+      <h2>{% translate 'Группы занятия' %}</h2>
+      {% for group in km_activity_groups %}
+        <p><a href="{% url 'admin:catalog_offeringgroup_change' group.pk %}">{{ group.name_az|default:group.pk }}</a> · {% translate 'Тарифы' %}: {{ group.pricing_plan_records.count }}</p>
+      {% empty %}<p>{% translate 'Групп пока нет.' %}</p>{% endfor %}
+      <a class="km-pf-btn km-pf-btn--ghost" href="{% url 'admin:catalog_offeringgroup_add' %}?activity={{ km_business_object.pk }}">{% translate 'Добавить группу' %}</a>
+    </section>
+  {% endif %}
+  {% if km_business_can_invite %}
+    <section class="km-pf-group" aria-label="{% translate 'Сотрудники' %}">
+      <h2>{% translate 'Сотрудники' %}</h2>
+      <p>{% translate 'Приглашённый редактор сможет менять организацию и общие программы после принятия приглашения.' %}</p>
+      <label for="km-business-invite-email">{% translate 'Email сотрудника' %}</label>
+      <input id="km-business-invite-email" type="email" name="email" autocomplete="email">
+      <button class="km-pf-btn km-pf-btn--ghost" type="submit" name="action" value="invite" formaction="{{ km_business_transition_url }}" formmethod="post">{% translate 'Пригласить сотрудника' %}</button>
+    </section>
+  {% endif %}
+  {% if km_business_object %}
+    <section class="km-pf-group" aria-label="{% translate 'Публикация' %}">
+      <h2>{% translate 'Публикация' %}</h2>
+      <p>{% translate 'Черновик и проверка не меняют публичные данные до одобрения.' %}</p>
+      {% if km_business_object.status == 'published' %}
+        <input type="hidden" name="source_version" value="{{ km_business_object.content_version }}">
+        <button class="km-pf-btn km-pf-btn--ghost" type="submit" name="action" value="unpublish" formaction="{{ km_business_transition_url }}" formmethod="post">{% translate 'Снять с публикации' %}</button>
+      {% endif %}
+      {% if km_business_revision.status == 'pending' %}
+        <input type="hidden" name="revision_version" value="{{ km_business_revision.version }}">
+        <button class="km-pf-btn km-pf-btn--primary" type="submit" name="action" value="approve" formaction="{{ km_business_transition_url }}" formmethod="post">{% translate 'Одобрить заявку' %}</button>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endblock %}
+{% block submit_buttons_bottom %}
+  {{ block.super }}
+  {% if has_change_permission %}<div class="submit-row"><button type="submit" name="_save_draft">{% translate 'Сохранить черновик' %}</button><button type="submit" name="_submit_candidate">{% translate 'Отправить на проверку' %}</button></div>{% endif %}
+{% endblock %}

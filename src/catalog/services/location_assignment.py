@@ -56,6 +56,16 @@ def prepare_place_location(place, *, previous, update_fields, using):
         # Do not rewrite legacy geography when unrelated content is edited.
         return set(), None
     result = resolve_location(place.lat, place.lng)
+    if place.lat is None and place.lng is None and not requested:
+        city = normalize_to_key(place.city)
+        district = normalize_to_key(place.district)
+        if not city:
+            city = 'baku' if district.startswith('baku_') else district
+        if city in AZERBAIJAN_REGIONS_MAP and ((city == 'baku' and district in BAKU_DISTRICTS_MAP) or (city != 'baku' and district in ('', city))):
+            place.city, place.district = city, district or city
+            place.location_resolution_status = 'missing_coordinates'
+            place.location_dataset_version = result.dataset_version
+            return {'city', 'district', 'location_resolution_status', 'location_dataset_version'}, None
     audit = None
     override = _current_override(place, result) if not moved else None
     if requested:
@@ -103,6 +113,19 @@ def clean_place_location(form, cleaned):
     district = normalize_to_key(cleaned.get('district', ''))
     result = resolve_location(lat, lng)
     form.location_resolution = result
+    if lat is None and lng is None:
+        # The optional pin does not invalidate a selected server-owned locality.
+        if region and region not in AZERBAIJAN_REGIONS_MAP:
+            form.add_error('region', _('Укажите корректный город.'))
+        if region == 'baku' and district and district not in BAKU_DISTRICTS_MAP:
+            form.add_error('district', _('Укажите корректный район.'))
+        if region != 'baku' and district and district != region:
+            form.add_error('district', _('Город и район не согласованы.'))
+        cleaned['district'] = district if region == 'baku' else region
+        place.city = region
+        place.location_resolution_status = 'missing_coordinates'
+        place.location_dataset_version = result.dataset_version
+        return True
     draft = bool(getattr(form, 'draft_save_only', False) or getattr(form, 'geocoding_check_only', False)
                  or getattr(form, 'coordinate_refresh_only', False))
     if 'status' in form.fields and cleaned.get('status', place.status) != 'published':

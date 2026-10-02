@@ -1,0 +1,174 @@
+{
+  "stage": 10,
+  "head": "c52b871ce5c18656a9eaf9854e66255c2629364e",
+  "worktree": "dirty",
+  "stage10_source_sha256": [
+    {
+      "path": "src/catalog/models/pricing_plan.py",
+      "sha256": "a1850607fc70c8d5e8a8ab2437ccc4d5cf5ee637fd6715b7b2acb7291d3ae21f"
+    },
+    {
+      "path": "src/catalog/migrations/0123_task33_group_pricing.py",
+      "sha256": "27217003261a3ef0867811b4b968dc15486183d444892b5f6ca6aae271f309bc"
+    },
+    {
+      "path": "src/catalog/services/pricing_plans.py",
+      "sha256": "bbe99d2de8cf8e13b58df89eb90efcabfbc5a643b598d84bbfa48ecfec15ad05"
+    },
+    {
+      "path": "src/catalog/models/place.py",
+      "sha256": "5036633ed0dfa3f3239d502ba8c76f16c5449286a16d2e9fc00623eb34a7e054"
+    },
+    {
+      "path": "src/catalog/models/catalog_structure.py",
+      "sha256": "6baf0721b778b691b9fda0d3c4468a59b64fce04ce285057cefd9b0472210b06"
+    },
+    {
+      "path": "src/catalog/services/publication.py",
+      "sha256": "6ba89acaa30dbe3b95ede95e82a08ff41790bbeb58991419b76f875d5de43b5b"
+    },
+    {
+      "path": "src/catalog/services/publication_forms.py",
+      "sha256": "920985552e5a3efd1baa9228e5c31d9014e0cca82dcbc75eae6bd3df7214157f"
+    },
+    {
+      "path": "src/catalog/services/volunteer_places.py",
+      "sha256": "fd4f3fa6b434f3b2d2a4e99f9e4487eec4441392b76e76882e641fbea1149550"
+    },
+    {
+      "path": "src/catalog/domain_admin/place.py",
+      "sha256": "07319629524d214401542af3cbaf4d038036eee071da5c7884c2e4c00b699161"
+    },
+    {
+      "path": "src/catalog/templates/admin/catalog/place/pricing_editor.html",
+      "sha256": "e4122faaea1822d38080317df08d2e7b67ea8b11ed3364d0a9abd61a33fefd87"
+    },
+    {
+      "path": "src/catalog/templates/admin/catalog/place/form/header.html",
+      "sha256": "a00b1520e82affbc093d92998b6c6fc05b586661f8bb6f7fb209f56f235ed1b5"
+    },
+    {
+      "path": "static/admin/js/kidsmap_place_json_import.js",
+      "sha256": "2af8300abbc2fa7089bbfa1d67888ea805b5e59cda78d94b88949a3f6f66db4b"
+    },
+    {
+      "path": "src/catalog/templates/catalog/place_detail.html",
+      "sha256": "cdfaddf77821240aed82c6b4c2359c46a2fbd56edb9f98c01095adc82d484707"
+    },
+    {
+      "path": "static/css/pages/detail.css",
+      "sha256": "1f28f5d47b3b7ce66ec4c2007298d762182c624b0f04370bf4f9f64c5534ff10"
+    },
+    {
+      "path": "src/catalog/views.py",
+      "sha256": "42d704220e197f4e579fe049967017a626f8086708616d135336c8c8f5da0fc7"
+    },
+    {
+      "path": "src/catalog/controllers/place_controller.py",
+      "sha256": "1316b99becb3b23a6654d346a21d4d551fede494f20a0b5dcca4945cb84e6115"
+    },
+    {
+      "path": "src/catalog/repositories/django_repositories.py",
+      "sha256": "57ef0354def55adc4b30d19c52c6c69d5231249d07cc9b950acae4541e4209b1"
+    },
+    {
+      "path": "src/catalog/services/seo.py",
+      "sha256": "50030797de047c0833eb46bea546f2c4d14687684f5972c709334aa0ce709cad"
+    },
+    {
+      "path": "src/catalog/services/seo_landing_aggregates.py",
+      "sha256": "22b18548ffe8e786376e934aa56180f505795a3152c538bbe0f1469a5878c6c6"
+    },
+    {
+      "path": "src/catalog/services/content_quality.py",
+      "sha256": "0169246dba9663868b8bee5c254d2f1c1f5682b42949e7722e864e2a247c2b3d"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_pricing.py",
+      "sha256": "389ec96cfe13f52792e8dfc4edfa60aa9243f143bcbf60b8060525fa314daf23"
+    },
+    {
+      "path": "src/catalog/testcases/pricing_plans_relational.py",
+      "sha256": "514588b85a8837eefe631d81dae789a47101d191e6f5be7a12a9db7781738018"
+    },
+    {
+      "path": "docs/task33/qa10/browser.py",
+      "sha256": "2493d3533b8e001978674e8c624e5c3c6d1ffbbb204ac6246dae681052f1e664"
+    },
+    {
+      "path": "docs/task33/qa10/browser_bridge/commands.py",
+      "sha256": "4eb81b1408ccf59ca89eae9702d1ead10513bf7769c91e9ebcad6d25c540b3bd"
+    },
+    {
+      "path": "docs/task33/qa10/browser-check.cjs",
+      "sha256": "17e7c67c8b719f439448ec699374741e42ed1807e59b886d3593c20f425cf0a7"
+    }
+  ],
+  "dirty_status_before_report": [
+    " M src/catalog/controllers/owner_places_controller.py",
+    " M src/catalog/controllers/owner_team_controller.py",
+    " M src/catalog/controllers/place_controller.py",
+    " M src/catalog/domain_admin/owner.py",
+    " M src/catalog/domain_admin/place.py",
+    " M src/catalog/domain_admin/volunteer.py",
+    " M src/catalog/forms.py",
+    " M src/catalog/interfaces/repositories.py",
+    " M src/catalog/management/commands/import_places.py",
+    " M src/catalog/models/__init__.py",
+    " M src/catalog/models/owner.py",
+    " M src/catalog/models/place.py",
+    " M src/catalog/models/pricing_plan.py",
+    " M src/catalog/models/volunteer.py",
+    " M src/catalog/repositories/django_repositories.py",
+    " M src/catalog/services/content_quality.py",
+    " M src/catalog/services/location_assignment.py",
+    " M src/catalog/services/owner_place_use_cases.py",
+    " M src/catalog/services/ownership_use_cases.py",
+    " M src/catalog/services/permanent_place_rules.py",
+    " M src/catalog/services/place_access.py",
+    " M src/catalog/services/place_readiness.py",
+    " M src/catalog/services/pricing_plans.py",
+    " M src/catalog/services/seo.py",
+    " M src/catalog/services/seo_landing_aggregates.py",
+    " M src/catalog/services/volunteer_places.py",
+    " M src/catalog/templates/admin/catalog/place/form/header.html",
+    " M src/catalog/templates/admin/catalog/place/pricing_editor.html",
+    " M src/catalog/templates/catalog/place_detail.html",
+    " M src/catalog/templates/pages/includes/permanent_place_workspace.html",
+    " M src/catalog/testcases/pricing_plans_relational.py",
+    " M src/catalog/urls.py",
+    " M src/catalog/views.py",
+    " M static/admin/js/kidsmap_place_form.js",
+    " M static/admin/js/kidsmap_place_json_import.js",
+    " M static/css/pages/detail.css",
+    " M static/js/permanent_place_wizard.js",
+    "?? docs/task33/",
+    "?? src/catalog/controllers/business_team_api.py",
+    "?? src/catalog/controllers/organization_ownership_api.py",
+    "?? src/catalog/controllers/server_draft_api.py",
+    "?? src/catalog/migrations/0117_task33_catalog_structure.py",
+    "?? src/catalog/migrations/0118_task33_ownership.py",
+    "?? src/catalog/migrations/0119_task33_business_permissions.py",
+    "?? src/catalog/migrations/0120_task33_publication.py",
+    "?? src/catalog/migrations/0121_task33_publication.py",
+    "?? src/catalog/migrations/0122_task33_server_draft.py",
+    "?? src/catalog/migrations/0123_task33_group_pricing.py",
+    "?? src/catalog/models/business_team.py",
+    "?? src/catalog/models/catalog_structure.py",
+    "?? src/catalog/models/server_draft.py",
+    "?? src/catalog/services/business_team.py",
+    "?? src/catalog/services/catalog_structure.py",
+    "?? src/catalog/services/organization_ownership.py",
+    "?? src/catalog/services/publication.py",
+    "?? src/catalog/services/publication_forms.py",
+    "?? src/catalog/services/server_drafts.py",
+    "?? src/catalog/testcases/test_task33_catalog_schema.py",
+    "?? src/catalog/testcases/test_task33_drafts.py",
+    "?? src/catalog/testcases/test_task33_ownership.py",
+    "?? src/catalog/testcases/test_task33_permissions.py",
+    "?? src/catalog/testcases/test_task33_pricing.py",
+    "?? src/catalog/testcases/test_task33_publication.py"
+  ],
+  "preserved_input_snapshot": "/tmp/kidsmap-task33-stage10-20260930-080319Z",
+  "production": "NOT_CONTACTED"
+}

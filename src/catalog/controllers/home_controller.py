@@ -40,9 +40,10 @@ class HomeController:
         content_settings = self.settings_repository.get_catalog_settings()
         site_settings = self.settings_repository.get_site_settings()
 
-        popular_places = list(self.place_repository.top_popular(limit=4))
-        home_rail_places = list(
-            self.place_repository.top_popular(limit=site_settings.home_recommendations_limit)
+        from catalog.services.public_presentation import prepare_cards
+        popular_places = prepare_cards(self.place_repository.top_popular(limit=4), language_code)
+        home_rail_places = prepare_cards(
+            self.place_repository.top_popular(limit=site_settings.home_recommendations_limit), language_code
         )
         mark_liked_flags(
             list({place.pk: place for place in [*popular_places, *home_rail_places]}.values()),
@@ -61,51 +62,14 @@ class HomeController:
                 .order_by("start_datetime", "-updated_at")[:4]
             )
 
-        map_places = []
-        for place in self.place_repository.map_ready_queryset():
-            d_key, d_label = self._resolve_place_district_info(place, language_code)
-            map_places.append(
-                {
-                    "id": place.id,
-                    "name": place.name_i18n(language_code),
-                    "lat": place.lat,
-                    "lng": place.lng,
-                    "url": place.get_absolute_url(),
-                    "category": place.category.name_i18n(language_code) if place.category else "",
-                    "category_code": place.category_code,
-                    "category_color_bg": place.category.resolved_color_bg if place.category else "#F3F4F6",
-                    "category_color_text": place.category.resolved_color_text if place.category else "#6B7280",
-                    "category_icon_url": place.category.icon_file_url if place.category else "",
-                    "category_icon_is_svg": place.category.icon_is_svg if place.category else False,
-                    "category_icon_is_font": place.category.icon_is_font_class if place.category else False,
-                    "category_icon_name": (place.category.icon or "") if place.category else "",
-                    "category_icon_svg": place.category.icon_svg_source if place.category else "",
-                    "district": d_key,
-                    "district_label": d_label,
-                    "metro": place.metro,
-                    "metro_label": place.metro_i18n(language_code) if place.metro else "",
-                    "age_from": place.age_from,
-                    "age_to": place.age_to,
-                    "image_url": place.public_image_url,
-                    "price": str(place.card_price_badge),
-                    "has_phone": bool(place.phone_numbers),
-                    "address": place.address_i18n(language_code) or "",
-                    "schedule": place.schedule_summary or "",
-                    "search_text": " ".join(
-                        part
-                        for part in (
-                            place.name_i18n(language_code),
-                            place.category.name_i18n(language_code) if place.category else "",
-                            place.subcategory.name_i18n(language_code) if place.subcategory_id else "",
-                            d_label,
-                            place.address_i18n(language_code),
-                            place.metro,
-                            place.metro_i18n(language_code),
-                        )
-                        if part
-                    ).casefold(),
-                }
-            )
+        from catalog.services.filtering import PlaceListFilters
+        from catalog.services.map_payload import serialize_map_places
+        filters = PlaceListFilters.from_request(request)
+        map_queryset = filters.apply(self.place_repository.active_queryset())
+        map_places = serialize_map_places(
+            self.place_repository.map_ready_queryset(map_queryset), language_code, filters
+        )
+        map_business_count = sum(len(point["members"]) for point in map_places)
 
         total_place_reviews_count = PlaceReview.objects.filter(
             is_approved=True,
@@ -145,6 +109,7 @@ class HomeController:
             "home_rail_places": home_rail_places,
             "upcoming_events": upcoming_events,
             "map_places": map_places,
+            "map_business_count": map_business_count,
             "total_place_reviews_count": total_place_reviews_count,
             "google_maps_api_key": google_maps_api_key,
             "hero_title": site_settings.home_title_i18n(language_code) or _("Найдите подходящее занятие для ребёнка"),

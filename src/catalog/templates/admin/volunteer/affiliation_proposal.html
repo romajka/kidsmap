@@ -1,0 +1,12 @@
+{% extends "admin/volunteer/base.html" %}
+{% load i18n %}
+{% block workspace %}
+<a href="{% url 'admin:volunteer_index' %}">← {% translate "Мои предложения" %}</a>
+<h1>{{ title }}</h1><p>{% translate "Информационная связь не даёт доступ к управлению бизнесом. KidsMap проверит её перед публикацией." %}</p>
+{% if error %}<div class="alert alert-danger" role="alert" id="affiliation-error" tabindex="-1">{{ error }}</div>{% endif %}
+<form method="post" class="km-volunteer-entity-form">{% csrf_token %}
+  <div class="form-group"><label for="volunteer-place-id">{% translate "ID места" %}</label><input id="volunteer-place-id" name="place_id" type="number" min="1" required value="{{ place_id }}"></div>
+  <div class="form-group"><label for="volunteer-organization-id">{% translate "ID организации" %}</label><input id="volunteer-organization-id" name="organization_id" type="number" min="1" required value="{{ organization_id }}"></div>
+  <button class="btn btn-success" type="submit">{% translate "Отправить на проверку" %}</button>
+</form>
+{% endblock %}

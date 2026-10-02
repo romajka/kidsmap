@@ -32046,3 +32046,16 @@ form[data-review-submission][hidden],
   .review-cooldown__body { flex-basis: calc(100% - 40px); }
   .review-cooldown__time { margin-left: 38px; }
 }
+
+/* Shared Place cards: public offers retain their local group context. */
+:is(.place-card, .new-timeline-grid) .card-matched-offers,
+:is(.place-card, .new-timeline-grid) .card-offer-groups { list-style: none; margin: 0; padding: 0; }
+:is(.place-card, .new-timeline-grid) .card-matched-offers { display: grid; gap: 12px; margin-block: 12px; }
+:is(.place-card, .new-timeline-grid) .card-offer-groups { display: grid; gap: 6px; margin-top: 4px; }
+:is(.place-card, .new-timeline-grid) .card-offer-groups li { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+:is(.place-card, .new-timeline-grid) .card-offer-group-name { font-weight: 600; }
+:is(.place-card, .new-timeline-grid) .card-offer-price { flex-basis: 100%; }
+:is(.place-card, .new-timeline-grid) .card-matched-offers a,
+:is(.place-card, .new-timeline-grid) .card-organization a { color: var(--brand-turf, #136f38); overflow-wrap: anywhere; }
+:is(.place-card, .new-timeline-grid) .card-matched-offers a:focus-visible,
+:is(.place-card, .new-timeline-grid) .card-organization a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }

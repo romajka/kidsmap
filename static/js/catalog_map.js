@@ -198,7 +198,8 @@
       place.lat >= -90 &&
       place.lat <= 90 &&
       place.lng >= -180 &&
-      place.lng <= 180
+      place.lng <= 180 &&
+      !(Math.abs(place.lat) < 0.001 && Math.abs(place.lng) < 0.001)
     );
   }
 
@@ -227,7 +228,7 @@
   }
 
   function getRouteUrl(place) {
-    if (typeof place.lat !== "number" || typeof place.lng !== "number") return "";
+    if (!hasValidCoordinates(place)) return "";
     return "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(place.lat + "," + place.lng);
   }
 
@@ -270,7 +271,14 @@
     );
   }
 
-  function renderMapCard(place, labels, isMobile) {
+  function renderMapCard(point, labels, isMobile) {
+    const members = point.members || [point];
+    const close = '<button type="button" class="catalog-map-card-close" data-map-card-close aria-label="' + escapeHtml(labels.closeLabel) + '">×</button>';
+    return '<div class="catalog-map-venue" role="region" aria-label="' + escapeHtml(members.map(member => member.name).join(', ')) + '">' + close +
+      '<ul class="catalog-map-members">' + members.map(member => '<li>' + renderMemberCard(member, labels, false) + '</li>').join('') + '</ul></div>';
+  }
+
+  function renderMemberCard(place, labels, isMobile) {
     const rating = formatRating(place, labels.noRatingLabel);
     const address = getAddressText(place, labels.noAddressLabel);
     const routeUrl = getRouteUrl(place);
@@ -303,17 +311,16 @@
     return (
       '<div class="catalog-map-card-shell">' +
       (isMobile ? '<div class="catalog-map-card-handle" aria-hidden="true"></div>' : "") +
-      '<button type="button" class="catalog-map-card-close" data-map-card-close aria-label="' +
-      escapeHtml(labels.closeLabel) +
-      '">×</button>' +
+
       '<div class="catalog-map-card-main">' +
       '<div class="catalog-map-card-media">' +
       image +
       "</div>" +
       '<div class="catalog-map-card-body">' +
-      '<strong class="catalog-map-card-title">' +
+      '<strong class="catalog-map-card-title" lang="' + escapeHtml(place.content_language || '') + '">' +
       escapeHtml(place.name || "") +
       "</strong>" +
+      (place.translation_fallback ? '<p class="meta" data-translation-fallback>' + escapeHtml(place.translation_label || 'AZ') + '</p>' : '') +
       (place.category
         ? '<span class="catalog-map-card-category">' + escapeHtml(place.category) + "</span>"
         : "") +
@@ -333,6 +340,8 @@
       "</div>" +
       "</div>" +
       "</div>" +
+      '<p class="catalog-map-card-price">' + escapeHtml(place.price || '') + '</p>' +
+      '<ul class="catalog-map-offers">' + (place.matched_offers || []).map(offer => '<li><a href="' + escapeHtml(offer.url) + '">' + escapeHtml(offer.name) + '</a><ul>' + offer.groups.map(group => '<li>' + escapeHtml(group.name) + (group.age ? ' · ' + escapeHtml(group.age) : '') + '</li>').join('') + '</ul></li>').join('') + '</ul>' +
       '<div class="catalog-map-card-actions">' +
       detailsButton +
       routeButton +
@@ -532,8 +541,8 @@
       state.mobileSheetEl.innerHTML = renderMapCard(place, labels, true);
       state.mobileSheetEl.hidden = false;
       state.mobileSheetEl.classList.add("is-open");
+      state.mobileSheetEl.querySelector('[data-map-card-close]')?.focus({preventScroll: true});
       if (state.googleMap) {
-        state.mobileSheetEl.querySelector('[data-map-card-close]')?.focus({preventScroll: true});
         const projection = state.googleMap.getProjection();
         if (projection) {
           const point = projection.fromLatLngToPoint(marker.getPosition());
@@ -557,7 +566,7 @@
     state.desktopCardEl.innerHTML = renderMapCard(place, labels, false);
     state.desktopCardEl.hidden = false;
     positionDesktopCard(state);
-    if (state.googleMap) state.desktopCardEl.querySelector('[data-map-card-close]')?.focus({preventScroll: true});
+    state.desktopCardEl.querySelector('[data-map-card-close]')?.focus({preventScroll: true});
   }
 
   function createCatalogGoogleMarker(state, place) {
@@ -571,9 +580,7 @@
       });
 
       marker.__kidsMapPlace = place;
-      if (place.url) {
-        state.markersByUrl[place.url] = marker;
-      }
+      (place.members || [place]).forEach(member => { if (member.url) state.markersByUrl[member.url] = marker; });
 
       marker.addListener("click", function () {
         const peers = Array.from(state.googleItems.values(), item => item.marker).filter(item => item.getPosition().lat() === place.lat && item.getPosition().lng() === place.lng);
@@ -667,7 +674,7 @@
     state.googleItems = new Map();
     state.places.forEach(function (place) {
       const marker = createCatalogGoogleMarker(state, place);
-      state.googleItems.set(place.url || String(place.id), {marker, signature: JSON.stringify(place)});
+      state.googleItems.set(place.key || place.url || String(place.id), {marker, signature: JSON.stringify(place)});
       activeMarkers.push(marker);
       state.bounds.extend(marker.getPosition());
     });
@@ -720,11 +727,11 @@
       state.markersByUrl = {};
       state.bounds = new google.maps.LatLngBounds();
       state.places.forEach(place => {
-        const key = place.url || String(place.id), signature = JSON.stringify(place);
+        const key = place.key || place.url || String(place.id), signature = JSON.stringify(place);
         let item = state.googleItems.get(key);
         if (!item || item.signature !== signature) item = {marker: createCatalogGoogleMarker(state, place), signature};
         next.set(key, item);
-        if (place.url) state.markersByUrl[place.url] = item.marker;
+        (place.members || [place]).forEach(member => { if (member.url) state.markersByUrl[member.url] = item.marker; });
         state.bounds.extend(item.marker.getPosition());
       });
       const markers = Array.from(next.values(), item => item.marker);
@@ -913,9 +920,7 @@
         markerEl.setAttribute("title", markerLabel);
       });
 
-      if (place.url) {
-        state.markersByUrl[place.url] = marker;
-      }
+      (place.members || [place]).forEach(member => { if (member.url) state.markersByUrl[member.url] = marker; });
 
       marker.on("click", function () {
         openActiveCard(state, place, marker);

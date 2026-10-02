@@ -846,6 +846,17 @@
   color: var(--detail-ink-muted);
 }
 
+.detail-plans__options {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--detail-ink-muted);
+}
+
+.detail-plans__required-fee { font-weight: 700; }
+
 .detail-plans__price {
   font-size: 15px;
   font-weight: 800;

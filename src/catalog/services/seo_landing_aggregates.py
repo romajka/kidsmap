@@ -137,11 +137,13 @@ def build_judo_landing_aggregates(*, seo_slug: str, page: dict, language_code: s
     labels = _LABELS[language_code]
     queryset = (
         seo_landing_place_queryset(str(page.get("catalog_query") or ""))
+        .prefetch_related(None)
         .select_related("category", "subcategory")
     )
 
     with override(language_code):
-        places = list(queryset)
+        from catalog.services.pricing_plans import prefetch_place_pricing_records
+        places = prefetch_place_pricing_records(queryset)
         rows = []
         districts = set()
         metros = set()

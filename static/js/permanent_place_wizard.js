@@ -13,7 +13,7 @@
   const text = (selector, content) => { const node = form.querySelector(selector); if (node) node.textContent = content; };
   let current = 1, dirty = false, submitting = false, restoring = false, initialized = false;
   let ageMode = value('age_open_ended') ? (value('age_from') === '0' ? 'all' : 'open') : 'range';
-  const draftKey = `kidsmap:permanent:v1:${form.dataset.draftKey}`;
+  const draftKey = `kidsmap:permanent:v1:${form.dataset.accountId}:${form.dataset.draftKey}`;
   try {
     if (sessionStorage.getItem('kidsmap:submitted-draft') === draftKey) {
       if (!volunteer && form.dataset.pwBound !== '1') localStorage.removeItem(draftKey);
@@ -97,6 +97,7 @@
     if (volunteer) return result;
     if (photoEditor?.validationMessage()) result.set('gallery_images', photoEditor.validationMessage());
     requiredNames().forEach(name => { if (!filled(name)) result.set(name, ui.required); });
+    if (rules.contact_required && !(rules.contact_any || []).some(name => filled(name))) result.set('phone1', ui.required);
     if (!rules.names.some(name => value(name))) result.set('name_az', ui.required);
     if (Math.max(...rules.descriptions.map(name => value(name).length)) < rules.description_min) result.set('description_az', `${ui.invalid}: ${rules.description_min}`);
 
@@ -448,7 +449,7 @@
     if (volunteer) { text('[data-pw-draft-status]', ui.unsaved); return; }
     const data = {};
     for (const input of form.querySelectorAll('input[name],select[name],textarea[name]')) {
-      if (['csrfmiddlewaretoken', 'form_action', 'gallery_order', 'photo-clear'].includes(input.name) || input.type === 'file' || input.name === 'delete_gallery_ids') continue;
+      if (['csrfmiddlewaretoken', 'publication_token', 'base_token', 'revision_version', 'form_action', 'gallery_order', 'photo-clear'].includes(input.name) || input.type === 'file' || input.name === 'delete_gallery_ids') continue;
       if (input.type === 'radio' && !input.checked) continue;
       data[input.name] = input.type === 'checkbox' ? input.checked : input.value;
     }
@@ -563,7 +564,7 @@
       if (saved?.data && Date.now() - saved.at < 7 * 86400000) {
         restoring = true;
         for (const input of form.querySelectorAll('input[name],select[name],textarea[name]')) {
-          if (!(input.name in saved.data) || input.type === 'file' || ['gallery_order','photo-clear','delete_gallery_ids'].includes(input.name)) continue;
+          if (!(input.name in saved.data) || input.type === 'file' || ['csrfmiddlewaretoken','publication_token','base_token','revision_version','gallery_order','photo-clear','delete_gallery_ids'].includes(input.name)) continue;
           if (input.type === 'checkbox') input.checked = !!saved.data[input.name];
           else if (input.type === 'radio') input.checked = input.value === saved.data[input.name];
           else input.value = saved.data[input.name];

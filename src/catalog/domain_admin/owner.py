@@ -11,11 +11,13 @@ from django.utils.dateparse import parse_datetime
 from django.utils.formats import date_format
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth import get_user_model
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 
 from catalog.models import (
     OwnerTeamMembership,
     OwnerTeamInvitation,
+    OrganizationGrant,
+    OrganizationTeamInvitation,
     PlaceChangeAudit,
     PlaceOwnershipRequest,
     PlaceOwnershipRequestAudit,
@@ -28,8 +30,34 @@ from .user import _HiddenFromAdminIndexMixin
 User = get_user_model()
 
 
+class _BusinessTeamDiagnosticMixin:
+    """Team assignments must use owner-authorized versioned services."""
+    actions = None
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def save_model(self, request, obj, form, change):
+        from django.core.exceptions import PermissionDenied
+        raise PermissionDenied
+
+    def delete_model(self, request, obj):
+        from django.core.exceptions import PermissionDenied
+        raise PermissionDenied
+
+    def delete_queryset(self, request, queryset):
+        from django.core.exceptions import PermissionDenied
+        raise PermissionDenied
+
+
 @admin.register(OwnerTeamMembership)
-class OwnerTeamMembershipAdmin(_HiddenFromAdminIndexMixin, admin.ModelAdmin):
+class OwnerTeamMembershipAdmin(_BusinessTeamDiagnosticMixin, _HiddenFromAdminIndexMixin, admin.ModelAdmin):
     list_display = ("owner", "member", "role", "is_active", "invited_by", "created_at", "updated_at")
     list_filter = ("role", "is_active", "created_at")
     search_fields = ("owner__username", "owner__email", "member__username", "member__email")
@@ -37,8 +65,24 @@ class OwnerTeamMembershipAdmin(_HiddenFromAdminIndexMixin, admin.ModelAdmin):
     autocomplete_fields = ("owner", "member", "invited_by")
 
 
+@admin.register(OrganizationGrant)
+class OrganizationGrantAdmin(_BusinessTeamDiagnosticMixin, _HiddenFromAdminIndexMixin, admin.ModelAdmin):
+    list_display = ("organization", "member", "role", "scope", "is_active", "updated_at")
+    list_filter = ("organization", "role", "scope", "is_active")
+    search_fields = ("organization__name_az", "member__username", "member__email")
+    readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(OrganizationTeamInvitation)
+class OrganizationTeamInvitationAdmin(_BusinessTeamDiagnosticMixin, _HiddenFromAdminIndexMixin, admin.ModelAdmin):
+    list_display = ("organization", "email", "role", "scope", "status", "expires_at")
+    list_filter = ("role", "scope", "status")
+    search_fields = ("organization__name_az", "email")
+    readonly_fields = ("created_at", "updated_at", "responded_at")
+
+
 @admin.register(OwnerTeamInvitation)
-class OwnerTeamInvitationAdmin(_HiddenFromAdminIndexMixin, admin.ModelAdmin):
+class OwnerTeamInvitationAdmin(_BusinessTeamDiagnosticMixin, _HiddenFromAdminIndexMixin, admin.ModelAdmin):
     list_display = ("owner", "email", "role", "status", "invited_user", "created_at", "responded_at")
     list_filter = ("role", "status", "created_at", "responded_at")
     search_fields = ("owner__username", "owner__email", "email", "invited_user__username", "token")
@@ -1051,11 +1095,11 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             return redirect(reverse("admin:catalog_placeownershiprequest_change", args=[item.pk]))
 
         note = _("Одобрено через админку") if new_status == PlaceOwnershipRequest.STATUS_APPROVED else _("Отклонено через админку")
-        item.apply_moderation(
-            moderator=request.user,
-            new_status=new_status,
-            note=note,
-        )
+        try:
+            item.apply_moderation(moderator=request.user, new_status=new_status, note=note)
+        except (ValidationError, ValueError):
+            self.message_user(request, _("Заявка устарела или уже обработана; обновите страницу."), level=messages.WARNING)
+            return redirect(reverse("admin:catalog_placeownershiprequest_change", args=[item.pk]))
         self.message_user(
             request,
             _("Заявка успешно обработана."),
@@ -1088,11 +1132,15 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             if not item.is_pending:
                 skipped += 1
                 continue
-            item.apply_moderation(
-                moderator=request.user,
-                new_status=PlaceOwnershipRequest.STATUS_APPROVED,
-                note=_("Одобрено через админку"),
-            )
+            try:
+                item.apply_moderation(
+                    moderator=request.user,
+                    new_status=PlaceOwnershipRequest.STATUS_APPROVED,
+                    note=_("Одобрено через админку"),
+                )
+            except (ValidationError, ValueError):
+                skipped += 1
+                continue
             approved += 1
 
         if approved:
@@ -1116,11 +1164,15 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             if not item.is_pending:
                 skipped += 1
                 continue
-            item.apply_moderation(
-                moderator=request.user,
-                new_status=PlaceOwnershipRequest.STATUS_REJECTED,
-                note=_("Отклонено через админку"),
-            )
+            try:
+                item.apply_moderation(
+                    moderator=request.user,
+                    new_status=PlaceOwnershipRequest.STATUS_REJECTED,
+                    note=_("Отклонено через админку"),
+                )
+            except (ValidationError, ValueError):
+                skipped += 1
+                continue
             rejected += 1
 
         if rejected:

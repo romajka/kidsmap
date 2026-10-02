@@ -2845,3 +2845,36 @@
     margin: 24px 0 12px 0 !important;
   }
 }
+
+.page-place_list .catalog-organization-matches { padding: 16px; background: #fff; border-radius: 16px; }
+.page-place_list .catalog-organization-matches h2 { font-size: 18px; margin: 0 0 8px; }
+.page-place_list .catalog-organization-matches ul { margin: 0; padding-inline-start: 20px; }
+.page-place_list .catalog-organization-matches a { overflow-wrap: anywhere; }
+
+/* Clip decorative orbs while keeping hero search suggestions free to extend. */
+.page-place_list .catalog-hero-decoration,
+.page-place_new .catalog-hero-decoration {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* The native sort mirror is hidden; its legacy control size must not extend /new. */
+.page-place_new .results-toolbar-sort-select.visually-hidden {
+  width: 1px !important;
+  height: 1px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 1px !important;
+  max-height: 1px !important;
+}
+
+/* Shared venues retain independently navigable business cards. */
+.catalog-map-venue { background: var(--surface, #fff); border-radius: 18px; position: relative; padding-top: 32px; max-height: min(65vh, 560px); overflow-y: auto; overscroll-behavior: contain; }
+.catalog-map-members { list-style: none; margin: 0; padding: 0; }
+.catalog-map-members > li + li { border-top: 1px solid var(--border-color, #e5e7eb); }
+.catalog-map-card-price { margin: 8px 16px; font-weight: 600; }
+.catalog-map-offers { margin: 8px 16px; padding-left: 16px; }
+.card-map-missing { margin: 0 0 8px; color: var(--text-secondary, #6b7280); font-size: .8rem; }

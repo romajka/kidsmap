@@ -1,0 +1,634 @@
+{
+  "red": {
+    "status": "ENVIRONMENT_FAILURE",
+    "child_exit": null,
+    "cleanup": "NOT_RUN",
+    "labels": [
+      "catalog.testcases.test_task33_search"
+    ]
+  },
+  "red2": {
+    "status": "BASELINE_FAILURE",
+    "child_exit": 9,
+    "cleanup": "PASS",
+    "labels": [
+      "catalog.testcases.test_task33_search"
+    ],
+    "suite": {
+      "tests_run": 12,
+      "failures": 5,
+      "errors": 4,
+      "skipped": 0,
+      "elapsed_seconds": 2.437,
+      "problems": [
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_batch_queries_do_not_grow_per_card",
+          "kind": "error",
+          "exception": "ImportError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_category_age_must_match_one_group",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_general_admission_without_fictitious_activity",
+          "kind": "error",
+          "exception": "ImportError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_matched_card_groups_and_prices_only",
+          "kind": "error",
+          "exception": "ImportError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_obsolete_prices_are_ignored_and_removed_from_selected",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_org_name_only_current_published_affiliations",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_shared_card_consumers_use_batch_presentation",
+          "kind": "error",
+          "exception": "ImportError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_subcategory_needs_approved_offer_mapping",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_unknown_legacy_not_exact_but_general_and_detail_remain",
+          "kind": "failure",
+          "exception": "AssertionError"
+        }
+      ]
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.097
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.159
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0
+    }
+  },
+  "green1": {
+    "status": "BASELINE_FAILURE",
+    "child_exit": 1,
+    "cleanup": "PASS",
+    "labels": [
+      "catalog.testcases.test_task33_search",
+      "catalog.testcases.test_task33_public_details"
+    ],
+    "suite": {
+      "tests_run": 27,
+      "failures": 0,
+      "errors": 1,
+      "skipped": 0,
+      "elapsed_seconds": 9.686,
+      "problems": [
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_general_admission_without_fictitious_activity",
+          "kind": "error",
+          "exception": "IntegrityError"
+        }
+      ]
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.15
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.202
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0
+    }
+  },
+  "price-red": {
+    "status": "BASELINE_FAILURE",
+    "child_exit": 2,
+    "cleanup": "PASS",
+    "labels": [
+      "catalog.testcases.test_task33_search.ExactSearchTests.test_query_only_card_does_not_show_other_activity_prices",
+      "catalog.testcases.test_task33_search.ExactSearchTests.test_admission_result_does_not_show_unmatched_group_price"
+    ],
+    "suite": {
+      "tests_run": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 0.445,
+      "problems": [
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_query_only_card_does_not_show_other_activity_prices",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_admission_result_does_not_show_unmatched_group_price",
+          "kind": "failure",
+          "exception": "AssertionError"
+        }
+      ]
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.111
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.163
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0
+    }
+  },
+  "final1": {
+    "status": "BASELINE_FAILURE",
+    "child_exit": 6,
+    "cleanup": "PASS",
+    "labels": [
+      "catalog.testcases.test_task33_search",
+      "catalog.testcases.test_task33_public_details",
+      "catalog.testcases.test_task33_pricing",
+      "catalog.testcases.test_task33_publication",
+      "catalog.testcases.pricing_plans_relational",
+      "catalog.testcases.test_localized_place_seo",
+      "catalog.testcases.test_public_filter_consistency"
+    ],
+    "suite": {
+      "tests_run": 123,
+      "failures": 6,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 30.906,
+      "problems": [
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_organization_discovery_and_removed_price_controls_html",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_price_filter_uses_minimum_paid_primary_plan",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_public_filter_consistency.CatalogAgeFilterTests.test_age_range_excludes_unknown_but_accepts_open_bounds",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_public_filter_consistency.CatalogAgeFilterTests.test_exact_age_excludes_unknown_and_higher_minimum",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_public_filter_consistency.CatalogAgeFilterTests.test_filters_are_combined",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_public_filter_consistency.CatalogAgeFilterTests.test_zero_is_a_real_age_and_one_sided_range_excludes_unknown",
+          "kind": "failure",
+          "exception": "AssertionError"
+        }
+      ]
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.118
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.159
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0
+    },
+    "query_comparison": {
+      "baseline_one": {
+        "queries": 6,
+        "seconds": 0.074557,
+        "cards": 1
+      },
+      "batch_one": {
+        "queries": 8,
+        "seconds": 0.068799,
+        "cards": 1
+      },
+      "baseline_eight": {
+        "queries": 41,
+        "seconds": 0.284004,
+        "cards": 8
+      },
+      "batch_eight": {
+        "queries": 8,
+        "seconds": 0.093619,
+        "cards": 8
+      }
+    }
+  },
+  "options-red": {
+    "status": "BASELINE_FAILURE",
+    "child_exit": 2,
+    "cleanup": "PASS",
+    "labels": [
+      "catalog.testcases.test_task33_search.ExactSearchTests.test_filter_options_include_offer_taxonomy_once_per_place",
+      "catalog.testcases.test_task33_search.ExactSearchTests.test_suggestions_use_matched_offer_prices"
+    ],
+    "suite": {
+      "tests_run": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 0.97,
+      "problems": [
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_filter_options_include_offer_taxonomy_once_per_place",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_suggestions_use_matched_offer_prices",
+          "kind": "failure",
+          "exception": "AssertionError"
+        }
+      ]
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.161
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.232
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0
+    }
+  },
+  "consumers-red": {
+    "status": "BASELINE_FAILURE",
+    "child_exit": 2,
+    "cleanup": "PASS",
+    "labels": [
+      "catalog.testcases.test_task33_search.ExactSearchTests.test_suggestion_age_belongs_to_matched_group",
+      "catalog.testcases.test_task33_search.ExactSearchTests.test_new_timeline_shows_only_matched_groups"
+    ],
+    "suite": {
+      "tests_run": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 1.302,
+      "problems": [
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_suggestion_age_belongs_to_matched_group",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_new_timeline_shows_only_matched_groups",
+          "kind": "failure",
+          "exception": "AssertionError"
+        }
+      ]
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.127
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.192
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0
+    }
+  },
+  "navigation-red": {
+    "status": "BASELINE_FAILURE",
+    "child_exit": 2,
+    "cleanup": "PASS",
+    "labels": [
+      "catalog.testcases.test_task33_search.ExactSearchTests.test_new_age_bounds_survive_redirect_pagination_and_locale",
+      "catalog.testcases.test_task33_search.ExactSearchTests.test_catalog_metadata_does_not_promise_removed_price_filter"
+    ],
+    "suite": {
+      "tests_run": 2,
+      "failures": 1,
+      "errors": 1,
+      "skipped": 0,
+      "elapsed_seconds": 1.88,
+      "problems": [
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_new_age_bounds_survive_redirect_pagination_and_locale",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_catalog_metadata_does_not_promise_removed_price_filter",
+          "kind": "error",
+          "exception": "ModuleNotFoundError"
+        }
+      ]
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.136
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.146
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0
+    }
+  },
+  "metadata-red": {
+    "status": "BASELINE_FAILURE",
+    "child_exit": 1,
+    "cleanup": "PASS",
+    "labels": [
+      "catalog.testcases.test_task33_search.ExactSearchTests.test_catalog_metadata_does_not_promise_removed_price_filter"
+    ],
+    "suite": {
+      "tests_run": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 0.824,
+      "problems": [
+        {
+          "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_catalog_metadata_does_not_promise_removed_price_filter",
+          "kind": "failure",
+          "exception": "AssertionError"
+        }
+      ]
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.12
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.144
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0
+    }
+  },
+  "final2": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "labels": [
+      "catalog.testcases.test_task33_search",
+      "catalog.testcases.test_task33_public_details",
+      "catalog.testcases.test_task33_pricing",
+      "catalog.testcases.test_task33_publication",
+      "catalog.testcases.pricing_plans_relational",
+      "catalog.testcases.test_localized_place_seo",
+      "catalog.testcases.test_public_filter_consistency"
+    ],
+    "suite": {
+      "tests_run": 125,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 32.718,
+      "problems": []
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.121
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.146
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0
+    },
+    "query_comparison": {
+      "baseline_one": {
+        "queries": 6,
+        "seconds": 0.064533,
+        "cards": 1
+      },
+      "batch_one": {
+        "queries": 8,
+        "seconds": 0.072481,
+        "cards": 1
+      },
+      "baseline_eight": {
+        "queries": 41,
+        "seconds": 0.160352,
+        "cards": 8
+      },
+      "batch_eight": {
+        "queries": 8,
+        "seconds": 0.071104,
+        "cards": 8
+      }
+    }
+  },
+  "final3": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "labels": [
+      "catalog.testcases.test_task33_search",
+      "catalog.testcases.test_task33_public_details",
+      "catalog.testcases.test_task33_pricing",
+      "catalog.testcases.test_task33_publication",
+      "catalog.testcases.pricing_plans_relational",
+      "catalog.testcases.test_localized_place_seo",
+      "catalog.testcases.test_public_filter_consistency"
+    ],
+    "suite": {
+      "tests_run": 127,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 32.301,
+      "problems": []
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.124
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.204
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0
+    },
+    "query_comparison": {
+      "baseline_one": {
+        "queries": 6,
+        "seconds": 0.069047,
+        "cards": 1
+      },
+      "batch_one": {
+        "queries": 8,
+        "seconds": 0.224649,
+        "cards": 1
+      },
+      "baseline_eight": {
+        "queries": 41,
+        "seconds": 0.164472,
+        "cards": 8
+      },
+      "batch_eight": {
+        "queries": 8,
+        "seconds": 0.081272,
+        "cards": 8
+      }
+    }
+  },
+  "final4": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "labels": [
+      "catalog.testcases.test_task33_search",
+      "catalog.testcases.test_task33_public_details",
+      "catalog.testcases.test_task33_pricing",
+      "catalog.testcases.test_task33_publication",
+      "catalog.testcases.pricing_plans_relational",
+      "catalog.testcases.test_localized_place_seo",
+      "catalog.testcases.test_public_filter_consistency"
+    ],
+    "suite": {
+      "tests_run": 129,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 37.836,
+      "problems": []
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.111
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.146
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0
+    },
+    "query_comparison": {
+      "baseline_one": {
+        "queries": 6,
+        "seconds": 0.09538,
+        "cards": 1
+      },
+      "batch_one": {
+        "queries": 8,
+        "seconds": 0.088053,
+        "cards": 1
+      },
+      "baseline_eight": {
+        "queries": 41,
+        "seconds": 0.373008,
+        "cards": 8
+      },
+      "batch_eight": {
+        "queries": 8,
+        "seconds": 0.088146,
+        "cards": 8
+      }
+    }
+  }
+}

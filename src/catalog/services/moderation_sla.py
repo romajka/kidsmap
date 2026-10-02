@@ -24,6 +24,8 @@ def _policy(content_type: str) -> dict:
     if not isinstance(policies, dict):
         raise ValueError('Invalid moderation SLA policy container')
     policy = policies.get(content_type)
+    if policy is None and content_type in {"organization", "program", "activity", "offering_group", "affiliation"}:
+        policy = policies.get("place")
     if not isinstance(policy, dict):
         raise ValueError(f"Unsupported moderation SLA content type: {content_type}")
     try:
@@ -63,7 +65,7 @@ def calculate_sla(content_type: str, submitted_at, *, paused_at=None, completed_
     return SlaState(content_type, status, submitted_at, deadline, elapsed, remaining, percentage)
 
 
-def prepare_moderation_save(instance, kwargs, *, previous=None, terminal=('approved', 'rejected', 'published')):
+def prepare_moderation_save(instance, kwargs, *, previous=None, terminal=('approved', 'rejected', 'declined', 'published')):
     """Maintain lifecycle dates without restarting clocks on ordinary edits.
 
     Bulk queryset updates must set metadata explicitly; no hidden model signal.

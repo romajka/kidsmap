@@ -149,6 +149,7 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         required=False,
         widget=forms.HiddenInput(attrs={"data-tariff-input": ""}),
     )
+    nested_pricing = forms.CharField(required=False, widget=forms.HiddenInput())
     price_mode = forms.CharField(
         required=False,
         widget=forms.HiddenInput(attrs={"id": "id_price_mode"}),
@@ -213,6 +214,8 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         }
 
     def clean_price_mode(self):
+        if self.is_bound and "price_mode" not in self.data and self.instance.pk:
+            return Place.objects.only("price_mode").get(pk=self.instance.pk).price_mode
         val = (self.cleaned_data.get("price_mode") or "").strip()
         if val not in dict(Place.PRICE_MODE_CHOICES):
             val = Place.PRICE_MODE_TARIFFS
@@ -220,6 +223,8 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        from catalog.services.publication_forms import validate_form_source
+        validate_form_source(self)
         if cleaned.get("age_open_ended"):
             cleaned["age_to"] = None
             self.instance.age_to = None
@@ -240,6 +245,9 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         self.draft_save_only = is_save_draft
         try:
             cleaned["pricing_plans"] = normalize_pricing_plans(cleaned.get("pricing_plans") or "[]", allow_verified=True)
+            if self.instance.pk:
+                from catalog.services.pricing_plans import validate_target_plan_ids
+                validate_target_plan_ids(self.instance, cleaned["pricing_plans"])
             # A legacy scalar-only card has nothing to replace. Scheduling an
             # empty replacement would erase its prices on an unrelated edit.
             # Actual tariff edits/removals still synchronize the projections.
@@ -248,6 +256,15 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         except ValidationError as exc:
             self.add_error("pricing_plans", exc)
             cleaned["pricing_plans"] = []
+        if cleaned.get("nested_pricing"):
+            try:
+                from catalog.services.pricing_plans import validate_nested_pricing
+                nested = json.loads(cleaned["nested_pricing"])
+                if not self.instance.pk:
+                    raise ValidationError(_("Вложенные тарифы требуют существующую карточку."))
+                cleaned["nested_pricing"] = validate_nested_pricing(self.instance, nested, allow_verified=True)
+            except (ValueError, ValidationError) as exc:
+                self.add_error("nested_pricing", exc)
         from catalog.services.locations import clean_location_fields
 
         primary_name = (
@@ -325,7 +342,12 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         return cleaned
 
     def __init__(self, *args, **kwargs):
+        if not args and kwargs.get("data") is None and kwargs.get("instance") is not None:
+            from catalog.services.publication_forms import candidate_for_edit
+            kwargs["instance"]=candidate_for_edit(kwargs["instance"])
         super().__init__(*args, **kwargs)
+        from catalog.services.publication_forms import init_version_field
+        init_version_field(self)
         # The order only matters for places selected for the home page. Keep
         # ordinary draft and catalog saves from requiring a meaningless value.
         self.fields["home_recommended_order"].required = False
@@ -338,6 +360,8 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 field.required = False
         if not self.is_bound and self.instance is not None:
             self.initial["pricing_plans"] = json.dumps(self.instance.pricing_plans or [], ensure_ascii=False)
+            if getattr(self.instance, "pending_nested_pricing", None) is not None:
+                self.initial["nested_pricing"] = json.dumps(self.instance.pending_nested_pricing, ensure_ascii=False)
         from catalog.services.locations import init_location_fields, configure_location_choices
         init_location_fields(self, self.instance)
         configure_location_choices(self)
@@ -1726,6 +1750,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "district",
         "metro",
         "owner",
+        "organization",
         "is_active",
         "is_home_recommended",
         "is_verified",
@@ -1838,7 +1863,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "description_az", "description_ru", "description_en",
         "category", "subcategory",
         "age_from", "age_to", "age_open_ended", "offers_adult_classes",
-        "lesson_duration_minutes", "pricing_plans",
+        "lesson_duration_minutes", "pricing_plans", "nested_pricing",
         "custom_price_badge_az", "custom_price_badge_ru", "custom_price_badge_en",
         "region", "district", "metro", "address", "lat", "lng", "location_override_reason",
         "phone1", "phone2", "phone3", "instagram", "website",
@@ -1886,7 +1911,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 ("age_from", "age_to", "age_open_ended", "lesson_duration_minutes"),
                     "offers_adult_classes",
                     "price_mode",
-                    "pricing_plans",
+                    "pricing_plans", "nested_pricing",
                 )
             },
         ),
@@ -1948,6 +1973,21 @@ class PlaceAdmin(admin.ModelAdmin):
     )
 
     def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
+        if object_id is not None and request.method == "POST" and "_unpublish_place" in request.POST:
+            obj = self.get_object(request, object_id)
+            if obj is None or not self.has_change_permission(request, obj):
+                raise PermissionDenied
+            try:
+                expected_version = int(request.POST.get("unpublish_version", "-1"))
+                from catalog.services.publication import unpublish
+                unpublish(actor=request.user, target_type="place", target_id=obj.pk,
+                          expected_version=expected_version)
+            except (ValueError, ValidationError) as exc:
+                detail = "; ".join(exc.messages) if isinstance(exc, ValidationError) else str(_("Неверная версия карточки."))
+                self.message_user(request, detail, level=messages.ERROR)
+            else:
+                self.message_user(request, _("Карточка снята с публикации и скрыта с сайта."), level=messages.SUCCESS)
+            return HttpResponseRedirect(self._place_change_url(obj))
         if object_id is not None:
             obj = self.get_object(request, object_id)
             revision = (
@@ -1962,17 +2002,19 @@ class PlaceAdmin(admin.ModelAdmin):
                 if not self.has_change_permission(request, obj):
                     raise PermissionDenied
                 return self._volunteer_revision_changeform_view(request, obj=obj, revision=revision)
-        return super().changeform_view(
-            request,
-            object_id=object_id,
-            form_url=form_url,
-            extra_context=extra_context,
-        )
+        try:
+            with transaction.atomic():
+                return super().changeform_view(request, object_id=object_id, form_url=form_url, extra_context=extra_context)
+        except ValidationError as exc:
+            # A source may change after form.clean; rollback and reload safely.
+            self.message_user(request, "; ".join(exc.messages), level=messages.ERROR)
+            return HttpResponseRedirect(request.path)
+
 
     def _volunteer_revision_changeform_view(self, request, *, obj, revision):
         from catalog.services.place_taxonomy_config import build_place_taxonomy_config
         from catalog.services.volunteer_editor import editor_context
-        from catalog.services.volunteer_places import editor_form, live_snapshot, save_working_revision
+        from catalog.services.volunteer_places import editor_form, live_snapshot, save_working_revision, revision_base_matches
 
         if request.method == "POST":
             if request.POST.get("action") != "admin_save":
@@ -2017,7 +2059,7 @@ class PlaceAdmin(admin.ModelAdmin):
             "revision": revision,
             "place": obj,
             "card": card,
-            "conflict": revision.base_snapshot != live_snapshot(obj),
+            "conflict": not revision_base_matches(revision, obj),
             "admin_working_revision": True,
             "volunteer_editor": True,
             "km_place_taxonomy_picker": build_place_taxonomy_config(form),
@@ -2224,7 +2266,10 @@ class PlaceAdmin(admin.ModelAdmin):
                         name = getattr(getattr(admin_field, "field", None), "name", None)
                         if name:
                             rendered.add(name)
-        return [form[name] for name in form.fields if name not in rendered]
+        # Only the signed publication token is safe to carry as a hidden
+        # field. Unrendered model values must never be echoed back from a
+        # stale browser tab as editable POST data.
+        return [form["publication_token"]] if "publication_token" in form.fields else []
 
     def _build_place_secondary_sections(self, adminform):
         fieldsets = self._fieldset_list(adminform)
@@ -2564,6 +2609,7 @@ class PlaceAdmin(admin.ModelAdmin):
         server_only = {
             "photo": bool(instance is not None and getattr(instance, "cover_photo", None)),
         }
+        from catalog.services.place_readiness import inherited_contact
         checklist_items = [
             {
                 "code": item.code,
@@ -2572,7 +2618,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 "field": item.requirement.field,
                 "anchor": item.requirement.anchor,
                 "check": item.requirement.client_check,
-                "config": item.requirement.client_config,
+                "config": ({**item.requirement.client_config, "fields": ["phone1", "phone2", "phone3", "website"], "optional": getattr(instance, "nature", "") == "public_space", "inherited": bool(inherited_contact(instance))} if item.code == "phone" else item.requirement.client_config),
                 "initial": item.is_complete,
                 "message": item.issue.message if item.issue else "",
                 "fallback": bool(server_only.get(item.code)) and item.is_complete,
@@ -2741,7 +2787,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 ("age_from", "age_to", "age_open_ended", "lesson_duration_minutes"),
                     "offers_adult_classes",
                     "price_mode",
-                    "pricing_plans",
+                    "pricing_plans", "nested_pricing",
                 )
             },
         ),
@@ -4028,56 +4074,22 @@ class PlaceAdmin(admin.ModelAdmin):
         return HttpResponseRedirect(self._place_change_url(obj))
 
     def _handle_publish_submit(self, request, obj: Place):
-        readiness = evaluate_place_readiness(obj)
-        if not readiness.is_ready:
-            was_published = bool(getattr(request, "_km_place_was_published_before_publish", False))
-            obj.status = Place.STATUS_PUBLISHED if was_published else Place.STATUS_DRAFT
-            obj.is_active = was_published
-            obj.save(update_fields=["status", "is_active", "updated_at"])
-            message = (
-                _("Карточка осталась опубликованной. Заполнено %(done)s из %(total)s обязательных пунктов. Исправьте: %(reasons)s.")
-                if was_published
-                else _("Карточка сохранена как черновик и не опубликована. Заполнено %(done)s из %(total)s обязательных пунктов. Необходимо заполнить: %(reasons)s.")
-            )
-            self.message_user(
-                request,
-                message
-                % {
-                    "done": readiness.completed_count,
-                    "total": readiness.required_count,
-                    "reasons": format_readiness_issues(readiness),
-                },
-                level=messages.WARNING,
-            )
-            return HttpResponseRedirect(self._place_change_url(obj))
-
-        update_fields = ["status", "is_active", "rejection_reason", "updated_at"]
-        obj.status = Place.STATUS_PUBLISHED
-        obj.is_active = True
-        obj.rejection_reason = ""
-        if obj.published_at is None:
-            obj.published_at = timezone.now()
-            update_fields.append("published_at")
-        obj.save(update_fields=update_fields)
-        self.message_user(
-            request,
-            _("Карточка опубликована и теперь может показываться на сайте."),
-            level=messages.SUCCESS,
-        )
+        from catalog.services.publication import publish
+        try:
+            publish(actor=request.user,place_id=obj.pk,expected_version=obj.content_version)
+        except ValidationError as exc:
+            self.message_user(request,"; ".join(exc.messages),level=messages.WARNING)
         return HttpResponseRedirect(self._place_change_url(obj))
 
     def _handle_unpublish_submit(self, request, obj: Place):
-        obj.is_active = False
-        if obj.status == Place.STATUS_PUBLISHED:
-            obj.status = Place.STATUS_DRAFT
-            obj.save(update_fields=["is_active", "status", "updated_at"])
+        from catalog.services.publication import unpublish
+        try:
+            unpublish(actor=request.user, target_type="place", target_id=obj.pk,
+                      expected_version=obj.content_version)
+        except ValidationError as exc:
+            self.message_user(request, "; ".join(exc.messages), level=messages.ERROR)
         else:
-            obj.save(update_fields=["is_active", "updated_at"])
-        self.message_user(
-            request,
-            _("Карточка снята с публикации и скрыта с сайта."),
-            level=messages.SUCCESS,
-        )
+            self.message_user(request, _("Карточка снята с публикации и скрыта с сайта."), level=messages.SUCCESS)
         return HttpResponseRedirect(self._place_change_url(obj))
 
     def localized_url_preview_view(self, request):
@@ -4265,6 +4277,14 @@ class PlaceAdmin(admin.ModelAdmin):
             return JsonResponse({"ok": False, "error": str(_("Некорректный JSON."))}, status=400)
         if not isinstance(payload, dict):
             return JsonResponse({"ok": False, "error": str(_("Нужен один объект карточки."))}, status=400)
+        from catalog.services.publication import SCHEMA_VERSION
+        if payload.get("schema_version",SCHEMA_VERSION) != SCHEMA_VERSION:
+            return JsonResponse({"ok":False,"error":"Publication schema conflict."},status=409)
+        if payload.get("place_id") is not None:
+            current=Place.objects.filter(pk=payload["place_id"]).first()
+            if current is None or not self.has_change_permission(request,current):raise PermissionDenied
+            if payload.get("base_content_version") != current.content_version:
+                return JsonResponse({"ok":False,"error":"Publication source conflict."},status=409)
         warnings = []
         raw_plans = payload.get("pricing_plans")
         if raw_plans is None:
@@ -4285,16 +4305,26 @@ class PlaceAdmin(admin.ModelAdmin):
         try:
             from catalog.services.staff_roles import is_volunteer
             plans = normalize_pricing_plans(raw_plans, allow_verified=request.user.is_staff and not is_volunteer(request.user))
+            if payload.get("place_id") is not None:
+                from catalog.services.pricing_plans import validate_target_plan_ids
+                validate_target_plan_ids(current, plans)
+            nested = None
+            if payload.get("nested_pricing") is not None:
+                from catalog.services.pricing_plans import validate_nested_pricing
+                if payload.get("place_id") is None:
+                    raise ValidationError(_("Вложенные тарифы требуют существующую карточку."))
+                nested = validate_nested_pricing(current, payload["nested_pricing"], allow_verified=request.user.is_staff and not is_volunteer(request.user))
         except ValidationError as exc:
             return JsonResponse({"ok": False, "error": exc.messages[0]}, status=400)
-        return JsonResponse({"ok": True, "pricing_plans": plans, "warnings": warnings})
+        return JsonResponse({"ok": True, "pricing_plans": plans, "nested_pricing": nested, "warnings": warnings})
 
     def export_place_json_view(self, request, object_id):
         obj = Place.objects.filter(pk=object_id).first()
         if obj is None or not self.has_view_or_change_permission(request, obj):
             raise PermissionDenied
-        from catalog.services.pricing_plans import serialize_pricing_plans
+        from catalog.services.pricing_plans import serialize_pricing_plans, serialize_nested_pricing
         payload = {
+            "schema_version": 1, "place_id": obj.pk, "base_content_version": obj.content_version,
             "name_az": obj.name_az, "name_ru": obj.name_ru, "name_en": obj.name_en,
             "description_az": obj.description_az, "description_ru": obj.description_ru, "description_en": obj.description_en,
             "category": obj.category_id, "subcategory": obj.subcategory_id,
@@ -4324,6 +4354,8 @@ class PlaceAdmin(admin.ModelAdmin):
             "additional_info_en": obj.additional_info_en,
             "pricing_plans": serialize_pricing_plans(obj.pricing_plan_records.all()),
         }
+        if request.GET.get("pricing_schema_version") == "2":
+            payload["nested_pricing"] = serialize_nested_pricing(obj)
         response = HttpResponse(json.dumps(payload, ensure_ascii=False, indent=2, default=str), content_type="application/json")
         response["Content-Disposition"] = f'attachment; filename="place-{obj.pk}.json"'
         return response
@@ -4563,15 +4595,12 @@ class PlaceAdmin(admin.ModelAdmin):
                     }, status=400)
                 self.message_user(request, err_text, messages.WARNING)
             else:
-                place.status = Place.STATUS_PUBLISHED
-                place.is_active = True
-                place.rejection_reason = ""
-                place.moderated_by = request.user
-                update_fields = ["status", "is_active", "rejection_reason", "updated_at", "moderated_by"]
-                if place.published_at is None:
-                    place.published_at = timezone.now()
-                    update_fields.append("published_at")
-                place.save(update_fields=update_fields)
+                from catalog.services.publication import publish
+                try:
+                    publish(actor=request.user,place_id=place.pk,expected_version=place.content_version)
+                except ValidationError as exc:
+                    return JsonResponse({"ok":False,"error":"conflict","message":"; ".join(exc.messages)},status=409)
+                place.refresh_from_db()
                 msg = _("Карточка опубликована — уже видна на сайте")
                 if is_ajax:
                     return JsonResponse({
@@ -4916,55 +4945,59 @@ class PlaceAdmin(admin.ModelAdmin):
             level=messages.SUCCESS if updated_count else messages.WARNING,
         )
 
-    @admin.action(description=_("Отправить на модерацию"))
-    def mark_pending(self, request, queryset):
-        updated_count = 0
-        skipped_count = 0
-        for place in queryset.prefetch_related("gallery").iterator(chunk_size=100):
-            if not place_quality_check(place).is_ready:
-                skipped_count += 1
-                continue
-            place.status = Place.STATUS_PENDING
-            place.is_active = False
-            place.rejection_reason = ""
-            place.save(update_fields=["status", "is_active", "rejection_reason", "updated_at"])
-            updated_count += 1
-        self.message_user(
-            request,
-            _("Отправлено на модерацию: %(updated)d. Пропущено из-за незаполненной карточки: %(skipped)d.")
-            % {"updated": updated_count, "skipped": skipped_count},
-            level=messages.SUCCESS if updated_count else messages.WARNING,
-        )
-
-    @admin.action(description=_("Опубликовать после проверки качества"))
+    @admin.action(description=_("Опубликовать выбранные карточки"))
     def mark_published(self, request, queryset):
-        now = timezone.now()
-        published_count = 0
-        skipped_count = 0
-        for place in queryset.prefetch_related("gallery").iterator(chunk_size=100):
-            if not place_quality_check(place).is_ready:
+        from catalog.services.publication import publish
+        published_count = skipped_count = 0
+        for place in queryset.iterator(chunk_size=100):
+            try:
+                publish(actor=request.user, place_id=place.pk, expected_version=place.content_version)
+            except ValidationError:
                 skipped_count += 1
-                continue
-            place.status = Place.STATUS_PUBLISHED
-            place.is_active = True
-            place.rejection_reason = ""
-            place.moderated_by = request.user
-            if place.published_at is None:
-                place.published_at = now
-            place.save(update_fields=["status", "is_active", "rejection_reason", "published_at", "updated_at", "moderated_by"])
-            published_count += 1
-        self.message_user(
-            request,
+            else:
+                published_count += 1
+        self.message_user(request,
             _("Опубликовано карточек: %(published)d. Пропущено из-за качества: %(skipped)d.")
             % {"published": published_count, "skipped": skipped_count},
-            level=messages.SUCCESS if published_count else messages.WARNING,
-        )
+            level=messages.SUCCESS if published_count else messages.WARNING)
+
+    @admin.action(description=_("Отправить на модерацию"))
+    def mark_pending(self, request, queryset):
+        from catalog.services import publication
+        updated_count = skipped_count = 0
+        for place in queryset.iterator(chunk_size=100):
+            try:
+                revision = VolunteerPlaceRevision.objects.filter(place_id=place.pk).first()
+                publication.propose(actor=request.user,target_type='place',target_id=place.pk,
+                    patch={},schema_version=publication.SCHEMA_VERSION,
+                    expected_version=place.content_version,
+                    revision_version=revision.version if revision else 0,
+                    submit=True,explicit_save=False)
+            except ValidationError:
+                skipped_count += 1
+            else:
+                if not place.is_public:
+                    # A new unpublished card may show its queued lifecycle state.
+                    Place.objects.filter(pk=place.pk).update(status=Place.STATUS_PENDING,is_active=False)
+                updated_count += 1
+        self.message_user(request,
+            _("Передано на модерацию: %(updated)d. Пропущено: %(skipped)d.")
+            % {"updated": updated_count, "skipped": skipped_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING)
 
     @admin.action(description=_("Отклонить карточки"))
     def mark_rejected(self, request, queryset):
         default_reason = _("Məkan admin moderasiyasından keçmədi. Zəhmət olmasa məlumatları yeniləyin.")
         updated_count = 0
         for place in queryset.iterator(chunk_size=100):
+            from catalog.models import VolunteerPlaceRevision
+            revision=VolunteerPlaceRevision.objects.filter(place=place,status="pending").first()
+            if revision:
+                from catalog.services.publication import review
+                review(actor=request.user,revision_id=revision.pk,version=revision.version,approve=False,note=str(default_reason))
+                updated_count += 1
+                continue
+
             place.status = Place.STATUS_REJECTED
             place.is_active = False
             place.moderated_by = request.user
@@ -5182,118 +5215,31 @@ class PlaceAdmin(admin.ModelAdmin):
         return str(value)
 
     def save_model(self, request, obj, form, change):
-        old_values = {}
-        old_pricing_value = "0 tariffs"
-        old_schedule_value = ""
-        old_status = None
-        old_obj = None
+        from catalog.services.publication_forms import save_form,create_from_form,save_admin_metadata
         if change and obj.pk:
-            old_obj = Place.objects.filter(pk=obj.pk).first()
-            if old_obj:
-                old_pricing_value = pricing_audit_summary(old_obj)
-                old_status = old_obj.status
-                for field in self.AUDIT_TRACKED_FIELDS:
-                    old_values[field] = getattr(old_obj, field)
-                if old_obj.has_structured_schedule:
-                    old_schedule_value = build_schedule_summary(serialize_place_schedule(old_obj))
-                else:
-                    old_schedule_value = (old_obj.schedule or "").strip()
-
-        if "_publish_place" in request.POST:
-            setattr(
-                request,
-                "_km_place_was_published_before_publish",
-                bool(old_obj and old_obj.status == Place.STATUS_PUBLISHED and old_obj.is_active),
-            )
-
-        if "_save_draft" in request.POST:
-            if not (obj.name or "").strip():
-                obj.name = DRAFT_PLACEHOLDER_NAME
-            if not obj.category_id:
-                obj.category = Category.objects.order_by("order", "name", "code").first()
-            obj.status = Place.STATUS_DRAFT
-            obj.is_active = False
-        elif "_publish_place" not in request.POST:
-            if obj.status != Place.STATUS_PUBLISHED:
-                obj.is_active = False
-            elif not obj.is_active or old_status != Place.STATUS_PUBLISHED:
-                obj.status = Place.STATUS_DRAFT
-                obj.is_active = False
-                setattr(request, "_km_place_publish_requires_explicit_action", True)
-
-        if obj.is_verified and obj.last_verified_at is None:
-            obj.last_verified_at = timezone.now()
-
-        if not change and not obj.created_by_id:
-            obj.created_by = request.user
-
-        if obj.status != old_status and obj.status in {Place.STATUS_REJECTED, Place.STATUS_PUBLISHED, Place.STATUS_NEEDS_CHANGES}:
-            obj.moderated_by = request.user
-        super().save_model(request, obj, form, change)
-        if getattr(form, "place_readiness_compatibility", False):
-            readiness = form.place_readiness
-            self.message_user(
-                request,
-                _(
-                    "Изменения сохранены, карточка осталась опубликованной. "
-                    "Заполнено %(done)s из %(total)s обязательных пунктов, до повторной публикации нужно исправить: %(reasons)s."
-                )
-                % {
-                    "done": readiness.completed_count,
-                    "total": readiness.required_count,
-                    "reasons": format_readiness_issues(readiness),
-                },
-                level=messages.WARNING,
-            )
-        for issue in getattr(form, "card_validation_warnings", []):
-            self.message_user(request, issue.message, level=messages.WARNING)
-        new_pricing_value = pricing_audit_summary(obj)
-        if not change:
-            self.place_audit_repository.create_entries(
-                place=obj,
-                changed_by=request.user,
-                source=PlaceChangeAudit.SOURCE_ADMIN,
-                changes={"created": ("", "1"), "pricing_plans": ("0 tariffs", new_pricing_value)},
-            )
-        if hasattr(form, "save_schedule"):
-            form.save_schedule(obj)
-        new_schedule_value = build_schedule_summary(serialize_place_schedule(obj)) if obj.has_structured_schedule else (obj.schedule or "").strip()
-
-        if change and old_values:
-            audit_entries = []
-            for field_name in self.AUDIT_TRACKED_FIELDS:
-                old_value = old_values.get(field_name)
-                new_value = getattr(obj, field_name)
-                if field_name == "schedule":
-                    old_value = old_schedule_value
-                    new_value = new_schedule_value
-                if old_value == new_value:
-                    continue
-                audit_entries.append(
-                    PlaceChangeAudit(
-                        place=obj,
-                        changed_by=request.user,
-                        source=PlaceChangeAudit.SOURCE_ADMIN,
-                        field_name=field_name,
-                        old_value=self._stringify_audit_value(old_value),
-                        new_value=self._stringify_audit_value(new_value),
-                    )
-                )
-            if old_pricing_value != new_pricing_value:
-                audit_entries.append(
-                    PlaceChangeAudit(
-                        place=obj,
-                        changed_by=request.user,
-                        source=PlaceChangeAudit.SOURCE_ADMIN,
-                        field_name="pricing_plans",
-                        old_value=old_pricing_value,
-                        new_value=new_pricing_value,
-                    )
-                )
-            if audit_entries:
-                PlaceChangeAudit.objects.bulk_create(audit_entries)
+            save_form(actor=request.user,form=form,submit="_save_draft" not in request.POST)
+            obj.refresh_from_db()
+        else:
+            base=create_from_form(actor=request.user,form=form,submit="_save_draft" not in request.POST)
+            obj.__dict__.update(base.__dict__)
+        save_admin_metadata(obj,form.cleaned_data)
+        request._km_candidate_saved=True
 
     def save_related(self, request, form, formsets, change):
+        if getattr(request,"_km_candidate_saved",False):
+            from catalog.services.publication_forms import save_admin_related
+            save_admin_related(actor=request.user,place=form.instance,formsets=formsets,
+                uploads=request.FILES.getlist("gallery_uploads"),submit="_save_draft" not in request.POST)
+            for formset in formsets:
+                # Django's change-message builder expects these after save_related.
+                formset.new_objects = []
+                formset.changed_objects = []
+                formset.deleted_objects = []
+            if "_publish_place" in request.POST:
+                from catalog.services.publication import publish
+                publish(actor=request.user,place_id=form.instance.pk,expected_version=form.instance.content_version)
+                form.instance.refresh_from_db()
+            return
         super().save_related(request, form, formsets, change)
         self._save_filepond_gallery_uploads(request, form.instance)
 

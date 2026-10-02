@@ -57,7 +57,9 @@ class PlaceReadinessData:
     has_priced_plan: bool = False
     has_legacy_price: bool = False
     has_custom_price_badge: bool = False
+    nature: str = ""
     phone1: str = ""
+    other_contact: str = ""
     schedule_mode: str = "regular"
     schedule_has_structured: bool = False
     schedule_text: str = ""
@@ -268,8 +270,8 @@ def _check_price(data: PlaceReadinessData):
 
 
 def _check_phone(data: PlaceReadinessData):
-    if not _text(data.phone1):
-        return ("missing_phone", _("Укажите телефон. Instagram и сайт его не заменяют."))
+    if data.nature != "public_space" and not (_text(data.phone1) or _text(data.other_contact)):
+        return ("missing_phone", _("Укажите телефон, WhatsApp или сайт."))
     return None
 
 
@@ -457,6 +459,8 @@ def _advice_cover_photo_as_main(data: PlaceReadinessData) -> ReadinessIssue | No
 
 # Quality advice: shown to the editor, never counted in the twelve and never a
 # reason to refuse publication.
+PLACE_READINESS_REQUIREMENTS = tuple(item for item in PLACE_READINESS_REQUIREMENTS if item.code not in {"photo", "coordinates"})
+
 PLACE_READINESS_ADVICE = (
     _advice_short_description,
     _advice_cover_photo_as_main,
@@ -468,6 +472,8 @@ def evaluate_readiness(data: PlaceReadinessData) -> PlaceReadiness:
 
     items = []
     for requirement in PLACE_READINESS_REQUIREMENTS:
+        if requirement.code in {"photo", "coordinates"}:
+            continue
         failure = requirement.check(data)
         issue = None
         if failure is not None:
@@ -556,7 +562,9 @@ def readiness_data_from_place(place) -> PlaceReadinessData:
         price_mode=getattr(place, "price_mode", "tariffs") or "tariffs",
         has_priced_plan=_place_has_pricing_plan_price(place),
         has_legacy_price=_has_legacy_price(place),
+        nature=getattr(place, "nature", "") or "",
         phone1=getattr(place, "phone1", "") or "",
+        other_contact=effective_contact(place),
         schedule_mode=getattr(place, "schedule_mode", "regular") or "regular",
         schedule_has_structured=has_structured,
         schedule_text=schedule_text,
@@ -602,6 +610,9 @@ def readiness_data_from_form(form, instance=None) -> PlaceReadinessData:
         category_code = getattr(instance, "category_id", "") or ""
 
     subcategory = cleaned.get("subcategory") if "subcategory" in cleaned else None
+    if isinstance(subcategory, (int, str)) and str(subcategory).isdigit():
+        from catalog.models import Subcategory
+        subcategory = Subcategory.objects.filter(pk=int(subcategory)).select_related('category').first()
     if subcategory is None and "subcategory" not in cleaned and instance is not None:
         subcategory = instance.subcategory if getattr(instance, "subcategory_id", None) else None
     subcategory_category_code = ""
@@ -615,6 +626,14 @@ def readiness_data_from_form(form, instance=None) -> PlaceReadinessData:
 
     price_mode = cleaned.get("price_mode") or getattr(instance, "price_mode", "tariffs") or "tariffs"
     has_priced_plan = any(_mapping_has_public_price(plan) for plan in plans)
+    nested = cleaned.get('nested_pricing')
+    if isinstance(nested, dict):
+        has_priced_plan = has_priced_plan or any(
+            _mapping_has_public_price(plan)
+            for activity in nested.get('activities', [])
+            for group in activity.get('groups', [])
+            for plan in group.get('pricing_plans', [])
+        )
     # Legacy scalar prices are not editable in this form. They are reported so
     # the editor is told to migrate them, never as a satisfied requirement.
     has_legacy_price = instance is not None and _has_legacy_price(instance)
@@ -650,7 +669,9 @@ def readiness_data_from_form(form, instance=None) -> PlaceReadinessData:
         price_mode=price_mode,
         has_priced_plan=has_priced_plan,
         has_legacy_price=has_legacy_price,
+        nature=getattr(instance, "nature", "") or "",
         phone1=text("phone1"),
+        other_contact=" ".join(filter(None, [text("phone2"),text("phone3"),text("website"), inherited_contact(instance)])),
         schedule_mode=schedule_mode,
         schedule_has_structured=schedule_has_structured,
         schedule_text=schedule_text,
@@ -703,3 +724,17 @@ def publication_blocked_message(readiness: PlaceReadiness) -> str:
             "issues": format_readiness_issues(readiness),
         }
     )
+
+
+def inherited_contact(place):
+    """Only current confirmed links to an active approved organization count."""
+    if not getattr(place,'organization_id',None):return ''
+    from catalog.models import Organization
+    from catalog.services.organization_ownership import affiliation_current
+    org=Organization.objects.filter(pk=place.organization_id,archived_at__isnull=True,status='published',approved_at__isnull=False).first()
+    if org is None or not affiliation_current(place,org):return ''
+    return ' '.join(filter(None,[org.phone,org.whatsapp,org.website]))
+
+
+def effective_contact(place):
+    return ' '.join(filter(None,[getattr(place,'phone2',''),getattr(place,'phone3',''),getattr(place,'website',''),inherited_contact(place)]))

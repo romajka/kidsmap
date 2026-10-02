@@ -1,0 +1,226 @@
+{
+  "stage": 6,
+  "role": "security-reviewer",
+  "execution_identity": "/root/stage06_security",
+  "definition": ".agents/agents/security-reviewer/agent.md",
+  "mode": "AUDIT",
+  "date": "2026-09-29",
+  "authorization": "User authorized stage06 only; reviewer owns only 06-review.md and 06-review-evidence.json.",
+  "snapshot": {
+    "head": "c52b871ce5c18656a9eaf9854e66255c2629364e",
+    "branch": "seo-indexability-20260916",
+    "worktree": "DIRTY",
+    "production": "UNKNOWN; not contacted",
+    "source_sha256": {
+      "docs/task33/qa06/commands.py": "fab4acee8644d0977e55a5ca6ab7f54b3247bea56b34da80adfe862463914900",
+      "docs/task33/qa06/generate.py": "aaf9ae4ec67e62501eeca8e2a891765c24b7f9e5c56f66e4ea158c8cb0314465",
+      "src/catalog/controllers/organization_ownership_api.py": "07b537e7b0a74b279d90e0b62770b401f0ceeb947eb1dd5027957b31b35d50da",
+      "src/catalog/controllers/owner_places_controller.py": "02bf9ba3b4694fcc35b4f81484a10477c2bfd7d7bca871090b20fba751c4d060",
+      "src/catalog/domain_admin/owner.py": "61564adc7527bb36c8675be4165dff4d94661c4b01ea88806117fa365e91ff78",
+      "src/catalog/interfaces/repositories.py": "2f36e21a370f2d1fcaa4da3a8d17862f6ec186e81ecc71a28f3f79b591bfd328",
+      "src/catalog/migrations/0118_task33_ownership.py": "4efb63c1dbefe530a58a3ecc94ecdd124fd5c6d4a30a8c8b45b5f3dee31f3788",
+      "src/catalog/models/__init__.py": "8530f577f6e000f2777d3ae0511b22772a33b0e6f74593308e37e930bc1e409d",
+      "src/catalog/models/catalog_structure.py": "4e054e5e41cf0c29823caad3e125704058bb92662c008ef920926d7445062532",
+      "src/catalog/models/owner.py": "e440ed9e7e10d4dd9a2e20b7f67a3714ac9cd619158ac8d771ffd1d3e7594cfe",
+      "src/catalog/models/place.py": "da6da3ac9885de7ccbf01d6a9dee4fd2df24bd52b172e679e308025aa966dd1d",
+      "src/catalog/repositories/django_repositories.py": "a128e4d978f95f578763d655a3d7d68bdbfbe21a96a5a10bb64a164cd10b1af8",
+      "src/catalog/services/catalog_structure.py": "dbc5dd1f1b89e9a0680cd909738e99cdc71bc8a149a8b871762e508247503019",
+      "src/catalog/services/organization_ownership.py": "039d356416b03a5dd3b6c8385fcfb3fc7bdda59a3585514d947b92c3e401bcc0",
+      "src/catalog/services/owner_place_use_cases.py": "97d3ffa10bfd83a40a07de9cb45069a3aa31affad54839f2d388a68cb46e1b78",
+      "src/catalog/services/ownership_use_cases.py": "99d6e4dfa3dd0e9b7932168dd8e83f4946e066dee54fc99c0e727d1258808ea6",
+      "src/catalog/services/place_access.py": "631d444667214d32bea71a30a6a09c5282e0c0c43c38fbacc485238098655810",
+      "src/catalog/testcases/test_task33_catalog_schema.py": "1e5233a657b84b7964c92d269a42e4e58abfbd71445fc3c88f63f3bad42660ad",
+      "src/catalog/testcases/test_task33_ownership.py": "ce145b1a96a06ff647e133b937f056ece726cba2bbb530f55fb11b0a72b63a3a",
+      "src/catalog/urls.py": "690c2f976ed38a58a4af8f2f20d53085d7a8a78243343421a891324f1850260c"
+    }
+  },
+  "graph": {
+    "project": "home-ramin-kidsmap",
+    "root": "/home/ramin/kidsmap",
+    "generation": "2026-09-29T10:30:26Z",
+    "mode": "full",
+    "exact_10_review_paths": "no_recorded_issue; metadata_match",
+    "ignored_inventory": "truncated: 2000 stored / 2025 total",
+    "completeness": "best_effort; actual source read"
+  },
+  "command": "python3 docs/task33/qa04/run.py --mode all --label catalog.testcases.test_task33_ownership --label catalog.testcases.test_task33_catalog_schema --output /tmp/task33-06-security-independent-final",
+  "command_exit": 0,
+  "suite": {
+    "tests_run": 70,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 22.636,
+    "problems": [],
+    "skipped_ids": [],
+    "executed_ids": [
+      "catalog.testcases.test_task33_ownership.ExistingOwnershipBreakTests.test_eleventh_place_form_is_available",
+      "catalog.testcases.test_task33_ownership.ExistingOwnershipBreakTests.test_legacy_create_warns_duplicate_and_allows_explicit_independent_object",
+      "catalog.testcases.test_task33_ownership.ExistingOwnershipBreakTests.test_management_claim_approval_does_not_publish",
+      "catalog.testcases.test_task33_ownership.ExistingOwnershipBreakTests.test_model_moderation_rejects_nonreviewer",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_archive_org_still_allows_either_side_detach",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_claim_is_pending_only_then_staff_moves_owner_without_publication",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_create_mass_assignment_and_inactive_actor_rejected",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_deleted_applicant_and_foreign_request_type_denied",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_detach_disables_inherited_contacts_without_copy_or_hiding",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_detach_pending_program_retains_approved_snapshot_ids_and_visibility",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_detach_wrong_org_and_stale_version_are_rejected",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_dual_confirmation_and_idempotent_replay_preserve_direct_owner",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_duplicate_warns_and_explicit_separate_creates_independent_owner",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_foreign_ids_and_archived_org_cannot_join",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_new_org_has_management_not_business_verification_or_publication",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_new_place_is_owned_draft_and_eleventh_is_allowed",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_org_claim_does_not_publish_or_verify",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_org_transfer_invalidates_cached_network_rights_and_proof",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_owner_controller_authorization_is_rechecked_at_locked_save",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_partial_activity_save_retains_approved_snapshot_in_database",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_pending_join_does_not_grant_org_or_direct_team_network_rights",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_pending_program_edit_freezes_approved_text_for_preexisting_activity",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_same_owner_one_request_confirms_both_sides",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_stale_claim_after_owner_away_and_back_fails",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_stale_consent_after_org_owner_away_and_back_rejected",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_stale_full_org_and_place_saves_cannot_reverse_transfer",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_stale_org_fullsave_cannot_restore_previous_ownership_proof",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_transfer_suspends_old_team_cancels_invites_and_preserves_author",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_unowned_informational_link_requires_kidsmap_and_grants_nothing",
+      "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_volunteer_org_proposal_gives_no_business_ownership",
+      "catalog.testcases.test_task33_ownership.OwnershipEndpointTests.test_admin_stale_claim_warns_instead_of_server_error",
+      "catalog.testcases.test_task33_ownership.OwnershipEndpointTests.test_csrf_get_anonymous_and_mass_assignment_boundaries",
+      "catalog.testcases.test_task33_ownership.OwnershipEndpointTests.test_foreign_ids_and_claim_approval_spoof_denied",
+      "catalog.testcases.test_task33_ownership.OwnershipEndpointTests.test_http_two_owner_confirmation_applies_only_after_second",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_archive_org_keeps_place_owner_content_and_reviews",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_archived_location_cannot_accept_new_binding",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_archived_parent_cannot_accept_new_activity",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_business_hard_delete_is_denied_for_instance_and_queryset",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_confirmed_venue_bind_preserves_independent_place_and_event_address",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_hierarchy_protects_old_place_from_cascade",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_inactive_place_is_not_exposed_by_explicit_closed_state",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_legacy_full_save_does_not_erase_new_structural_links",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_legacy_partial_save_and_create_cannot_write_structural_fields",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_legacy_place_without_org_keeps_public_identity_and_unknown_facts",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_location_bounds_pair_and_physical_identity_fail_in_database",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_mismatched_program_and_place_org_is_rejected_on_normal_save",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_nature_and_operating_facts_need_separate_approval",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_negative_and_reversed_group_ages_fail_in_database",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_nonexistent_group_activity_fk_fails_real_database",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_partial_save_cannot_validate_one_pair_and_persist_another",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_pending_links_do_not_attach_place_or_create_business_rights",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_pending_pair_duplicates_are_rejected_without_deleting_history",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_pending_venue_duplicate_is_rejected",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_provenance_requires_version_with_source_program",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_reparent_place_cannot_invalidate_program_links",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_reparent_program_cannot_invalidate_place_links",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_request_decisions_and_base_versions_have_local_checks",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_stale_structural_write_rolls_back",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_unknown_or_open_age_bounds_remain_nullable",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_zero_versions_cannot_enter_database",
+      "catalog.testcases.test_task33_ownership.OwnershipConcurrencyTests.test_competing_claims_have_one_versioned_winner",
+      "catalog.testcases.test_task33_ownership.OwnershipConcurrencyTests.test_concurrent_final_confirmations_are_idempotent",
+      "catalog.testcases.test_task33_ownership.OwnershipConcurrencyTests.test_detach_racing_pending_edit_keeps_approved_local_snapshot",
+      "catalog.testcases.test_task33_ownership.OwnershipConcurrencyTests.test_network_edit_waits_for_org_transfer_and_rechecks_permission",
+      "catalog.testcases.test_task33_ownership.OwnershipConcurrencyTests.test_transfer_racing_confirmation_never_grants_stale_network_right",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaConcurrencyTests.test_activity_creation_and_place_reparent_cannot_both_commit",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaConcurrencyTests.test_activity_creation_and_program_reparent_cannot_both_commit",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaConcurrencyTests.test_concurrent_pending_request_has_one_database_winner",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaForwardMigrationTests.test_forward_populated_legacy_preserves_every_original_field_and_url",
+      "catalog.testcases.test_task33_catalog_schema.CatalogSchemaFoundationTests.test_additive_entities_are_registered_without_replacing_place"
+    ],
+    "problem_ids_complete": true,
+    "status": "PASS"
+  },
+  "checks": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.086
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.13
+    }
+  ],
+  "isolation": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.10",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10"
+  },
+  "migrations": {
+    "leaves": [
+      [
+        "account",
+        "0009_emailaddress_unique_primary_email"
+      ],
+      [
+        "admin",
+        "0003_logentry_add_action_flag_choices"
+      ],
+      [
+        "auth",
+        "0012_alter_user_first_name_max_length"
+      ],
+      [
+        "catalog",
+        "0118_task33_ownership"
+      ],
+      [
+        "catalog_moderation",
+        "0001_initial"
+      ],
+      [
+        "contenttypes",
+        "0002_remove_content_type_name"
+      ],
+      [
+        "sessions",
+        "0001_initial"
+      ],
+      [
+        "socialaccount",
+        "0006_alter_socialaccount_extra_data"
+      ]
+    ],
+    "applied_count": 152,
+    "unapplied_count": 0,
+    "vendor": "postgresql"
+  },
+  "cleanup": {
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "intermediate_run": {
+    "output": "/tmp/task33-06-security-independent-v1",
+    "tests": 68,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 21.517,
+    "cleanup": "PASS",
+    "final_acceptance": false
+  },
+  "review_outcome": "PASS; no remaining confirmed stage06 security blockers",
+  "not_run": [
+    "Independent full application suite; parent owns baseline comparison",
+    "Rendered browser: bounded server scope, no new forms",
+    "Production requests/attacks/SQL/deploy",
+    "External OAuth/email/storage/network integrations",
+    "Stage07 grants/invitations/org-team models; later content revision/public program renderer"
+  ],
+  "handoff": {
+    "to": "django-reviewer (/root)",
+    "acceptance": "Verify final source hashes unchanged; complete parent full regression comparison, report/journal and release active_run."
+  }
+}

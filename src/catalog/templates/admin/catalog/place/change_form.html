@@ -5,12 +5,12 @@
 <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_urls.css' %}?v=20260918">
 <script src="{% static 'admin/js/kidsmap_place_urls.js' %}" defer></script>
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=20260928_1">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=20261002_15">
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=20260928_1">
-  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=61" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=62" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_media.js' %}?v=51" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_duplicates.js' %}?v=1" defer></script>
-  <script src="{% static 'admin/js/kidsmap_place_json_import.js' %}?v=10" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_json_import.js' %}?v=11" defer></script>
   <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=20260915" defer></script>
   <script src="{% static 'js/owner_pricing_plans.js' %}?v=19" defer></script>
   {% if google_maps_api_key %}
@@ -59,6 +59,7 @@
       data-place-accordion-key="{{ opts.app_label }}-{{ opts.model_name }}-{{ original.pk|default:'new' }}"
       data-duplicate-candidates-url="{{ km_place_duplicates_url }}"
       data-duplicate-exclude="{{ original.pk|default:'' }}"
+      data-place-id="{{ original.pk|default:'' }}"
       data-rejected-status="{{ adminform.form.instance.STATUS_REJECTED|default:'rejected' }}"
       data-label-ready="{% translate 'Готово к публикации' %}"
       data-label-incomplete="{% translate 'Нужна доработка' %}"

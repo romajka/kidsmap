@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -196,3 +197,58 @@ class VolunteerPlaceForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             (_("Дополнительно"), CONTENT_FIELDS[30:40], True),
         )
         return [(title, [self[name] for name in names if not self[name].is_hidden], optional) for title, names, optional in groups]
+
+# Additional entity editors use publication.fields_for for server validation.
+# This bounded field map only controls presentation, never authorization.
+VOLUNTEER_ENTITY_FIELDS = {
+    'organization': ('name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en', 'phone', 'whatsapp', 'website'),
+    'program': ('name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en'),
+    'activity': ('name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en', 'supplement_az', 'supplement_ru', 'supplement_en'),
+    'offering_group': ('name_az', 'name_ru', 'name_en', 'age_from', 'age_to', 'lesson_format', 'language', 'schedule_text', 'teachers_text', 'conditions_az', 'conditions_ru', 'conditions_en'),
+}
+
+
+def volunteer_entity_form(kind, data=None, initial=None):
+    from django import forms
+    from catalog.services import publication
+    from catalog.services.permanent_place_rules import copy as t
+    if kind not in VOLUNTEER_ENTITY_FIELDS:
+        raise ValidationError('Unsupported volunteer entity form.')
+    fields = {}
+    model = publication.TARGETS[kind]
+    for name in VOLUNTEER_ENTITY_FIELDS[kind]:
+        db_field = model._meta.get_field(name)
+        labels = {
+            'phone': t('Телефон', 'Telefon', 'Phone'), 'whatsapp': 'WhatsApp', 'website': t('Сайт', 'Veb-sayt', 'Website'),
+            'age_from': t('Возраст от', 'Yaş həddi (min)', 'Minimum age'), 'age_to': t('Возраст до', 'Yaş həddi (maks)', 'Maximum age'),
+            'lesson_format': t('Формат занятия', 'Məşğələ formatı', 'Lesson format'),
+            'language': t('Язык', 'Dil', 'Language'), 'schedule_text': t('Расписание', 'Cədvəl', 'Schedule'),
+            'teachers_text': t('Преподаватели', 'Müəllimlər', 'Teachers'),
+        }
+        if name.startswith('name_'):
+            label = f"{t('Название', 'Ad', 'Name')} ({name[-2:].upper()})"
+        elif name.startswith('description_'):
+            label = f"{t('Описание', 'Təsvir', 'Description')} ({name[-2:].upper()})"
+        elif name.startswith('supplement_'):
+            label = f"{t('Дополнение', 'Əlavə', 'Supplement')} ({name[-2:].upper()})"
+        elif name.startswith('conditions_'):
+            label = f"{t('Условия', 'Şərtlər', 'Conditions')} ({name[-2:].upper()})"
+        else:
+            label = labels.get(name, str(db_field.verbose_name))
+        common = {'label': label, 'required': False}
+        if name in {'age_from', 'age_to'}:
+            fields[name] = forms.IntegerField(min_value=0, max_value=120, **common)
+        elif name == 'website':
+            fields[name] = forms.URLField(**common)
+        elif name == 'lesson_format':
+            fields[name] = forms.ChoiceField(choices=[('', '—'), *db_field.choices], **common)
+        elif isinstance(db_field, models.TextField):
+            fields[name] = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}), **common)
+        else:
+            fields[name] = forms.CharField(max_length=db_field.max_length, **common)
+    form = type('VolunteerEntityForm', (forms.Form,), fields)(data=data, initial=initial)
+    if data is not None and not form.is_valid():
+        for name in form.errors:
+            if name in form.fields:
+                form.fields[name].widget.attrs.update({'aria-invalid': 'true', 'aria-describedby': f'id_{name}-error'})
+    return form

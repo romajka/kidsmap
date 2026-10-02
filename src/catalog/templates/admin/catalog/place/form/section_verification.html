@@ -3,6 +3,11 @@
   <div class="km-pf-verify">
     <div class="km-pf-verify__preview">
       <span class="km-pf-verify__preview-label">{% translate "Как карточка выглядит в каталоге" %}</span>
+      <label for="km-place-preview-language">{% translate "Язык предпросмотра" %}</label>
+      <select id="km-place-preview-language" data-pf-preview-language aria-label="{% translate 'Язык предпросмотра' %}">
+        <option value="az">AZ</option><option value="ru">RU</option><option value="en">EN</option>
+      </select>
+      <p class="km-pf-group__note">{% translate "Показывается текст выбранного языка. Пустые переводы не создаются автоматически." %}</p>
       <article class="km-pf-card" data-pf-preview>
         <div class="km-pf-card__media">
           <img class="km-pf-card__img" data-pf-preview-img alt="" hidden>

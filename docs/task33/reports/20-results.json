@@ -1,0 +1,317 @@
+{
+  "red": {
+    "run": {
+      "status": "ENVIRONMENT_FAILURE",
+      "cleanup": "NOT_RUN",
+      "run_root_removed": true,
+      "socket_root_removed": true
+    }
+  },
+  "red2": {
+    "run": {
+      "status": "BASELINE_FAILURE",
+      "child_exit": 8,
+      "cleanup": "PASS",
+      "network": "none",
+      "ports_published": false,
+      "run_root_removed": true,
+      "socket_root_removed": true
+    },
+    "suite-results": {
+      "tests_run": 31,
+      "failures": 2,
+      "errors": 6,
+      "skipped": 0,
+      "elapsed_seconds": 12.12,
+      "problems": [
+        {
+          "id": "catalog.testcases.test_task33_map.MapContractsTests.test_address_edit_detaches_only_changed_place_and_preserves_event",
+          "kind": "error",
+          "exception": "TypeError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_map.MapContractsTests.test_archived_venue_not_used",
+          "kind": "error",
+          "exception": "KeyError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_map.MapContractsTests.test_filtered_members_and_matched_prices",
+          "kind": "error",
+          "exception": "KeyError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_map.MapContractsTests.test_invalid_coordinates_rejected",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_map.MapContractsTests.test_map_missing_count_counts_members_not_venues",
+          "kind": "error",
+          "exception": "AttributeError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_map.MapContractsTests.test_route_transport_contains_no_private_contact",
+          "kind": "error",
+          "exception": "FieldDoesNotExist"
+        },
+        {
+          "id": "catalog.testcases.test_task33_map.MapContractsTests.test_venue_only_coordinates_and_no_fake_missing_points",
+          "kind": "error",
+          "exception": "KeyError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_map.MapContractsTests.test_verified_venue_one_point_two_independent_cards",
+          "kind": "failure",
+          "exception": "AssertionError"
+        }
+      ]
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.138
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.162
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0,
+      "vendor": "postgresql"
+    }
+  },
+  "green1": {
+    "run": {
+      "status": "BASELINE_FAILURE",
+      "child_exit": 3,
+      "cleanup": "PASS",
+      "network": "none",
+      "ports_published": false,
+      "run_root_removed": true,
+      "socket_root_removed": true
+    },
+    "suite-results": {
+      "tests_run": 102,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 46.994,
+      "problems": [
+        {
+          "id": "catalog.testcases.test_task33_home_map.HomeMapEndpointTests.test_map_get_returns_only_public_businesses",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_home_map.HomeMapEndpointTests.test_mutations_rejected",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_home_map.HomeMapEndpointTests.test_query_is_shared_with_catalog",
+          "kind": "failure",
+          "exception": "AssertionError"
+        }
+      ]
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.137
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.142
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0,
+      "vendor": "postgresql"
+    }
+  },
+  "final1": {
+    "run": {
+      "status": "BASELINE_FAILURE",
+      "child_exit": 2,
+      "cleanup": "PASS",
+      "network": "none",
+      "ports_published": false,
+      "run_root_removed": true,
+      "socket_root_removed": true
+    },
+    "suite-results": {
+      "tests_run": 133,
+      "failures": 1,
+      "errors": 1,
+      "skipped": 0,
+      "elapsed_seconds": 58.905,
+      "problems": [
+        {
+          "id": "catalog.testcases.test_task33_map.MapContractsTests.test_coordinate_edit_detaches_only_edited_place",
+          "kind": "error",
+          "exception": "ValidationError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_map.MapContractsTests.test_no_coordinates_remains_visible_with_clear_card_marker",
+          "kind": "failure",
+          "exception": "AssertionError"
+        }
+      ]
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.111
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.145
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0,
+      "vendor": "postgresql"
+    }
+  },
+  "final2": {
+    "run": {
+      "status": "PASS",
+      "child_exit": 0,
+      "cleanup": "PASS",
+      "network": "none",
+      "ports_published": false,
+      "run_root_removed": true,
+      "socket_root_removed": true
+    },
+    "suite-results": {
+      "tests_run": 133,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 64.124,
+      "problems": []
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.127
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.209
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0,
+      "vendor": "postgresql"
+    }
+  },
+  "final3": {
+    "run": {
+      "status": "PASS",
+      "child_exit": 0,
+      "cleanup": "PASS",
+      "network": "none",
+      "ports_published": false,
+      "run_root_removed": true,
+      "socket_root_removed": true
+    },
+    "suite-results": {
+      "tests_run": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 5.665,
+      "problems": []
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.155
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.219
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0,
+      "vendor": "postgresql"
+    }
+  },
+  "home-reset-red": {
+    "run": {
+      "status": "BASELINE_FAILURE",
+      "child_exit": 2,
+      "cleanup": "PASS",
+      "network": "none",
+      "ports_published": false,
+      "run_root_removed": true,
+      "socket_root_removed": true
+    },
+    "suite-results": {
+      "tests_run": 2,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 0.466,
+      "problems": [
+        {
+          "id": "catalog.testcases.test_task33_home_map.HomeMapEndpointTests.test_initial_empty_home_result_keeps_map_filters_available",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_home_map.HomeMapEndpointTests.test_initial_age_not_in_shortcuts_survives_home_form",
+          "kind": "failure",
+          "exception": "AssertionError"
+        }
+      ]
+    },
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.112
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.138
+      }
+    ],
+    "migrations": {
+      "applied_count": 161,
+      "unapplied_count": 0,
+      "vendor": "postgresql"
+    }
+  }
+}

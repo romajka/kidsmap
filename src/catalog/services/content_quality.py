@@ -1,4 +1,5 @@
 from __future__ import annotations
+from django.db.models import F
 
 from dataclasses import dataclass
 
@@ -186,6 +187,10 @@ def _place_has_pricing_plan_price(place) -> bool:
         if relation.filter(_pricing_plan_price_q()).exists():
             return True
 
+    if getattr(place, "pk", None):
+        from catalog.services.pricing_plans import place_pricing_records
+        if any(_plan_has_public_price(plan) for plan in place_pricing_records(place)):
+            return True
     return any(_mapping_has_public_price(plan) for plan in (getattr(place, "pricing_plans", None) or []))
 
 
@@ -262,7 +267,7 @@ def public_place_queryset(queryset: QuerySet) -> QuerySet:
             ]
         )
     ).distinct()
-    qs = qs.filter(Q(phone1__gt="") | Q(instagram__gt="") | Q(website__gt=""))
+    qs = qs.filter(Q(nature="public_space") | Q(phone1__gt="") | Q(phone2__gt="") | Q(phone3__gt="") | Q(instagram__gt="") | Q(website__gt="") | Q(organization__status="published", organization__approved_at__isnull=False, organization__archived_at__isnull=True, organization_join_place_ownership_version=F("ownership_version"), organization_join_org_ownership_version=F("organization__ownership_version"), organization_relationship_kind__in=["business","informational"]) & (Q(organization__phone__gt="") | Q(organization__whatsapp__gt="") | Q(organization__website__gt="")))
     qs = qs.filter(Q(age_from__isnull=False) | Q(age_to__isnull=False))
     # Legacy scalar price fields, relational tariffs and structured price modes
     # (free, free entry, events) are all public price sources.
@@ -277,7 +282,7 @@ def public_place_queryset(queryset: QuerySet) -> QuerySet:
     from django.utils import timezone
     qs = qs.exclude(is_temporary=True, temporary_end__lt=timezone.now())
 
-    return qs.exclude(place_junk_q())
+    return qs.exclude(operating_state="closed", operating_state_approved_at__isnull=False).exclude(place_junk_q())
 
 
 def place_catalog_visibility_reasons(place) -> tuple[str, ...]:
@@ -295,7 +300,8 @@ def place_catalog_visibility_reasons(place) -> tuple[str, ...]:
         errors.append("missing_category")
     if place.address == "":
         errors.append("missing_address")
-    if not (place.phone1 > "" or place.instagram > "" or place.website > ""):
+    from catalog.services.place_readiness import effective_contact
+    if place.nature != "public_space" and not (place.phone1 > "" or place.instagram > "" or effective_contact(place)):
         errors.append("missing_contact")
     if place.age_from is None and place.age_to is None:
         errors.append("missing_age")

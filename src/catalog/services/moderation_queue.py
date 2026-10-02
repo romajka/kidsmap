@@ -13,7 +13,10 @@ MODELS = (('place', Place, 'place'), ('place_revision', VolunteerPlaceRevision, 
 def allowed_kinds(user):
     if not (user.is_authenticated and user.is_active and user.is_staff) or is_volunteer(user):
         return set()
-    return {kind for kind, model, _ in MODELS if user.has_perm(f'catalog.change_{"place" if kind == "place_revision" else model._meta.model_name}')}
+    kinds = {kind for kind, model, _ in MODELS if user.has_perm(f'catalog.change_{"place" if kind == "place_revision" else model._meta.model_name}')}
+    if user.has_perm('catalog.change_placeownershiprequest'):
+        kinds.add('affiliation')
+    return kinds
 
 
 def queue_rows(user, params, *, now):
@@ -65,4 +68,28 @@ def queue_rows(user, params, *, now):
                 'remaining_hours': round(sla.remaining_seconds / 3600, 1) if sla.remaining_seconds is not None else None,
                 'url': reverse(f'admin:catalog_{target_model._meta.model_name}_change', args=[target_pk]),
                 'needs_changes_url': reverse('admin:moderation_needs_changes', args=[obj.pk]) if kind == 'place' and row_status == 'pending' else ''})
+    if 'place_revision' in kinds or 'affiliation' in kinds:
+        from catalog.services.moderation_hub import query as hub_query
+        extra, _ = hub_query(user, {'status': 'all'}, now=now)
+        for item in extra:
+            if item['kind'] == 'place':
+                continue  # Existing Place revision row above.
+            row_status = 'needs_changes' if item['status'] == 'rejected' else 'rejected' if item['status'] == 'declined' else item['status']
+            if status != 'all' and row_status != status or status == 'all' and row_status == 'draft':
+                continue
+            if content_type and content_type not in {item['kind'], item['kind'] + '_revision'}:
+                continue
+            sla = item['sla']
+            if params.get('sla_status') and params['sla_status'] != sla.status:
+                continue
+            date = item['submitted_at'].date().isoformat()
+            if params.get('from') and date < params['from'] or params.get('to') and date > params['to']:
+                continue
+            rows.append({'kind': item['kind'] if item['kind'] == 'affiliation' else item['kind'] + '_revision',
+                'content_type': item['kind'], 'id': item['id'], 'name': item['name'],
+                'status': row_status, 'submitted_at': item['submitted_at'], 'estimated': False,
+                'sla': sla, 'age_hours': round(sla.elapsed_seconds / 3600, 1),
+                'remaining_hours': round(sla.remaining_seconds / 3600, 1) if sla.remaining_seconds is not None else None,
+                'url': reverse('admin:volunteer_moderation_detail', args=[item['source'], item['id']]),
+                'needs_changes_url': ''})
     return sorted(rows, key=lambda row: (row['submitted_at'], row['kind'], row['id']))

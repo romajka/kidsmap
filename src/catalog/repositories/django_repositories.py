@@ -69,10 +69,8 @@ class DjangoPlaceRepository(IPlaceRepository):
         base_queryset = queryset if queryset is not None else self.active_queryset()
         return (
             base_queryset
-            .select_related("subcategory")
-            .prefetch_related("schedule_days__intervals", "pricing_plan_records")
-            .exclude(lat__isnull=True)
-            .exclude(lng__isnull=True)
+            .select_related("subcategory", "confirmed_location")
+            .prefetch_related("schedule_days__intervals")
         )
 
     def upcoming_temporary(self, limit: int = 8) -> QuerySet:
@@ -284,28 +282,20 @@ class DjangoPlaceOwnershipRequestRepository(IPlaceOwnershipRequestRepository):
             .first()
         )
 
-    def create_pending(self, *, place: Place, applicant, note: str) -> PlaceOwnershipRequest:
+    def create_pending(self, *, place: Place, applicant, note: str, request_kind: str = "CLAIM") -> PlaceOwnershipRequest:
         return PlaceOwnershipRequest.objects.create(
             place=place,
             applicant=applicant,
             note=note or "",
+            request_kind=request_kind,
             status=PlaceOwnershipRequest.STATUS_PENDING,
         )
 
 
 class DjangoOwnerPlaceRepository(IOwnerPlaceRepository):
     def managed_queryset(self, *, user) -> QuerySet:
-        return (
-            Place.objects.filter(
-                # created_by only stands in while the card has no owner at all.
-                Q(owner=user)
-                | Q(owner__isnull=True, created_by=user)
-                | Q(team_memberships__member=user, team_memberships__is_active=True),
-                deleted_at__isnull=True,
-            )
-            .distinct()
-            .order_by("-updated_at")
-        )
+        from catalog.services.business_team import accessible_place_ids
+        return Place.objects.filter(pk__in=accessible_place_ids(user=user)).order_by("-updated_at")
 
     def get_managed_by_pk(self, *, user, pk: int) -> Place | None:
         return self.managed_queryset(user=user).filter(pk=pk).first()
@@ -374,23 +364,10 @@ class DjangoOwnerTeamRepository(IOwnerTeamRepository):
             .order_by("-created_at")
         )
 
-    def create_invitation(self, *, place: Place, invited_by, email: str, role: str) -> OwnerTeamInvitation:
-        normalized_email = (email or "").strip().lower()
-        pending = OwnerTeamInvitation.objects.filter(
-            place=place,
-            email=normalized_email,
-            status=OwnerTeamInvitation.STATUS_PENDING,
-        ).first()
-        if pending:
-            return pending
-        return OwnerTeamInvitation.objects.create(
-            place=place,
-            owner=place.owner or place.created_by or invited_by,
-            invited_by=invited_by,
-            email=normalized_email,
-            role=role,
-            status=OwnerTeamInvitation.STATUS_PENDING,
-        )
+    def create_invitation(self, *, place: Place, invited_by, email: str, role: str):
+        from catalog.services.business_team import invite
+        return invite(actor=invited_by, target_type="place", target_id=place.pk, email=email, role=role)
+
 
     def get_pending_owner_invitation(self, *, invitation_id: int) -> OwnerTeamInvitation | None:
         return (
@@ -416,56 +393,31 @@ class DjangoOwnerTeamRepository(IOwnerTeamRepository):
             .first()
         )
 
-    @transaction.atomic
-    def accept_invitation(self, *, invitation: OwnerTeamInvitation, user) -> OwnerTeamMembership:
-        membership, _ = OwnerTeamMembership.objects.update_or_create(
-            place=invitation.place,
-            member=user,
-            defaults={
-                "owner": invitation.owner,
-                "role": invitation.role,
-                "is_active": True,
-                "invited_by": invitation.invited_by,
-            },
-        )
-        invitation.status = OwnerTeamInvitation.STATUS_ACCEPTED
-        invitation.invited_user = user
-        invitation.responded_at = timezone.now()
-        invitation.save(update_fields=["status", "invited_user", "responded_at", "updated_at"])
-        return membership
+    def accept_invitation(self, *, invitation, user):
+        from catalog.services.business_team import accept
+        return accept(actor=user, target_type="place", invitation_id=invitation.pk, expected_target_id=invitation.place_id)
 
-    def reject_invitation(self, *, invitation: OwnerTeamInvitation) -> OwnerTeamInvitation:
-        invitation.status = OwnerTeamInvitation.STATUS_REJECTED
-        invitation.responded_at = timezone.now()
-        invitation.save(update_fields=["status", "responded_at", "updated_at"])
-        return invitation
 
-    def cancel_invitation(self, *, invitation: OwnerTeamInvitation) -> OwnerTeamInvitation:
-        invitation.status = OwnerTeamInvitation.STATUS_CANCELED
-        invitation.responded_at = timezone.now()
-        invitation.save(update_fields=["status", "responded_at", "updated_at"])
-        return invitation
+    def reject_invitation(self, *, invitation, actor=None):
+        from catalog.services.business_team import decide_invitation
+        return decide_invitation(actor=actor, target_type="place", invitation_id=invitation.pk)
 
-    def update_membership_role(self, *, membership_id: int, role: str) -> OwnerTeamMembership | None:
-        membership = (
-            OwnerTeamMembership.objects.filter(id=membership_id, is_active=True)
-            .select_related("place", "member")
-            .first()
-        )
-        if membership is None:
-            return None
-        if membership.role != role:
-            membership.role = role
-            membership.save(update_fields=["role", "updated_at"])
-        return membership
 
-    def remove_membership(self, *, membership_id: int) -> bool:
-        membership = OwnerTeamMembership.objects.filter(id=membership_id, is_active=True).first()
-        if membership is None:
-            return False
-        membership.is_active = False
-        membership.save(update_fields=["is_active", "updated_at"])
+    def cancel_invitation(self, *, invitation, actor=None):
+        from catalog.services.business_team import decide_invitation
+        return decide_invitation(actor=actor, target_type="place", invitation_id=invitation.pk, cancel=True)
+
+
+    def update_membership_role(self, *, membership_id, role, actor=None, expected_version=None):
+        from catalog.services.business_team import change_grant
+        return change_grant(actor=actor, target_type="place", grant_id=membership_id, role=role, expected_version=expected_version)
+
+
+    def remove_membership(self, *, membership_id, actor=None, expected_version=None):
+        from catalog.services.business_team import change_grant
+        change_grant(actor=actor, target_type="place", grant_id=membership_id, active=False, expected_version=expected_version)
         return True
+
 
     def list_active_memberships_for_user(self, *, user) -> QuerySet:
         return (

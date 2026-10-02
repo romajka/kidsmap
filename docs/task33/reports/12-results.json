@@ -1,0 +1,66 @@
+{
+  "stage": 12,
+  "head": "c52b871ce5c18656a9eaf9854e66255c2629364e",
+  "targeted": {
+    "command": "python3 docs/task33/qa04/run.py --mode all --label catalog.testcases.test_task33_organization_workspace --output /tmp/task33-12-target-handoff",
+    "exit": 0,
+    "tests_run": 11,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cleanup": "PASS"
+  },
+  "full_pre_detach_observed": {
+    "command": "python3 docs/task33/qa04/run.py --mode all --output /tmp/task33-12-full-final1",
+    "exit": 114,
+    "tests_run": 1427,
+    "failures": 101,
+    "errors": 13,
+    "new_stage12_ids": 10,
+    "new_stage12_problems": 0,
+    "exact_stage11_problem_records": 114,
+    "added_problem_records": 0,
+    "resolved_problem_records": 0,
+    "cleanup": "PASS",
+    "raw_temp_evidence": "lost on interrupted turn"
+  },
+  "full_post_detach": "NOT_COMPLETED: interrupted before suite result",
+  "application": "NOT_GREEN: pre-existing baseline remains",
+  "production": "NOT_RUN",
+  "final_domain": {
+    "command": "python3 docs/task33/qa04/run.py --mode all --label catalog.testcases.test_task33_ownership --label catalog.testcases.test_task33_permissions --label catalog.testcases.test_task33_organization_workspace --output /tmp/task33-12-domain-final",
+    "exit": 0,
+    "tests_run": 85,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cleanup": "PASS",
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.113
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.172
+      }
+    ],
+    "migrations": {
+      "catalog_leaf": "0124_task33_conversion",
+      "applied_count": 158,
+      "unapplied_count": 0
+    }
+  },
+  "independent_browser": {
+    "matrix": "126/126 PASS; AZ/RU/EN x 320/360/390/768/1024/1280/1440",
+    "interactions": "PASS: browser-only create draft, save failure, focus, selected manager, forbidden URL",
+    "affiliation_post": "5/5 PASS: join302, stale confirm409, detach302",
+    "affiliation_locales": "6/6 PASS: AZ/RU/EN x 390/1024",
+    "cleanup": "PASS",
+    "report": "docs/task33/reports/12-review.md"
+  }
+}

@@ -1039,9 +1039,15 @@ class PlainMultipleImageInput(forms.ClearableFileInput):
 
 
 class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
+    nature = forms.ChoiceField(
+        required=False,
+        choices=(("business", _("Бизнес")), ("public_space", _("Общественное место"))),
+        widget=forms.Select(attrs={"class": "field"}),
+    )
     delete_gallery_ids = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple())
     gallery_order = forms.JSONField(required=False, widget=forms.HiddenInput())
     pricing_plans = forms.CharField(required=False, widget=forms.HiddenInput())
+    nested_pricing = forms.JSONField(required=False, widget=forms.HiddenInput())
     gallery_images = MultipleFileField(
         label=_("Дополнительные фото (до 10)"),
         required=False,
@@ -1125,6 +1131,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "lessons_per_week",
             "lessons_per_month",
             "pricing_plans",
+            "nested_pricing",
             "extra_conditions",
             "additional_info",
             "extra_conditions_az", "extra_conditions_ru", "extra_conditions_en",
@@ -1248,6 +1255,9 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         self.draft_save_only = bool(kwargs.pop("draft_save_only", False))
         self.submit_for_moderation = bool(kwargs.pop("submit_for_moderation", False))
         self.coordinate_refresh_only = bool(kwargs.pop("coordinate_refresh_only", False))
+        if kwargs.get("data") is None and not args and kwargs.get("instance") is not None:
+            from catalog.services.publication_forms import candidate_for_edit
+            kwargs["instance"]=candidate_for_edit(kwargs["instance"])
         instance = kwargs.get("instance")
         data = kwargs.get("data")
         if data is not None:
@@ -1298,11 +1308,19 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 payload["pricing_plans"] = json.dumps(instance.pricing_plans, ensure_ascii=False)
             kwargs["data"] = payload
         super().__init__(*args, **kwargs)
+        from catalog.services.publication_forms import init_version_field
+        init_version_field(self)
 
         if not self.is_bound:
+            self.initial["nature"] = getattr(instance, "nature", None) or "business"
             current_adult_value = bool(getattr(instance, "offers_adult_classes", False))
             self.initial["offers_adult_classes"] = "1" if current_adult_value else "0"
 
+        if not self.is_bound and instance is not None and getattr(instance, 'pk', None):
+            from catalog.models import VolunteerPlaceRevision
+            from catalog.services.pricing_plans import serialize_nested_pricing
+            revision = VolunteerPlaceRevision.objects.filter(place_id=instance.pk, status__in=['draft', 'pending', 'rejected']).first()
+            self.initial['nested_pricing'] = (revision.payload.get('nested_pricing') if revision and 'nested_pricing' in revision.payload else serialize_nested_pricing(instance))
         if "pricing_plans" in self.fields:
             current_plans = getattr(instance, "pricing_plans", None) if instance is not None else None
             if not self.is_bound and current_plans:
@@ -1430,7 +1448,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         from catalog.services.image_uploads import image_upload_config
         self.photo_upload_config = image_upload_config()
         if self.submit_for_moderation and not self.draft_save_only and not self.coordinate_refresh_only:
-            for field_name in ("name_az", "description_az", "category", "subcategory", "address", "phone1", "photo"):
+            for field_name in ("name_az", "description_az", "category", "subcategory", "address"):
                 self.fields[field_name].required = True
             open_age = self.data.get("age_open_ended") if self.is_bound else self.initial.get("age_open_ended")
             self.fields["age_from"].required = not bool(open_age)
@@ -1537,6 +1555,8 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        if "nature" in cleaned:
+            self.instance.nature = cleaned["nature"] or getattr(self.instance, "nature", None) or "business"
         cleaned = self._clean_schedule_editor(cleaned)
 
         try:
@@ -1546,6 +1566,15 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         except ValidationError as exc:
             self.add_error("pricing_plans", exc)
             cleaned["pricing_plans"] = []
+
+        nested = cleaned.get('nested_pricing')
+        if nested:
+            try:
+                from catalog.services.pricing_plans import validate_nested_pricing
+                cleaned['nested_pricing'] = validate_nested_pricing(self.instance, nested)
+            except ValidationError as exc:
+                self.add_error('nested_pricing', exc)
+                cleaned['nested_pricing'] = None
 
         from catalog.services.locations import clean_location_fields
         cleaned = clean_location_fields(self, cleaned)
@@ -1693,6 +1722,36 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         from catalog.services.permanent_place_wizard import ui_copy
         return ui_copy()
 
+    @property
+    def server_draft_fields(self):
+        from catalog.services.publication import fields_for
+        return sorted((set(self.fields) & fields_for('place') - {'photo', 'gallery'}) | {'region', 'moderation_note'} & set(self.fields))
+
+    @property
+    def offering_choices(self):
+        from catalog.models import PricingPlan, OfferingGroup, Program
+        return {
+            'product_types': [(value, str(label)) for value, label in PricingPlan.PRODUCT_CHOICES],
+            'price_kinds': [(value, str(label)) for value, label in PricingPlan.PRICE_KIND_CHOICES],
+            'charge_roles': [(value, str(label)) for value, label in PricingPlan.CHARGE_ROLE_CHOICES],
+            'billing_modes': [(value, str(label)) for value, label in PricingPlan.BILLING_MODE_CHOICES],
+            'billing_intervals': [(value, str(label)) for value, label in PricingPlan.INTERVAL_CHOICES],
+            'lesson_formats': [(value, str(label)) for value, label in OfferingGroup._meta.get_field('lesson_format').choices],
+            'programs': list(Program.objects.filter(
+                organization_id=getattr(self.instance, 'organization_id', None), status='published',
+                approved_at__isnull=False, archived_at__isnull=True).order_by('pk').values('id', 'name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en')) if getattr(self.instance, 'organization_id', None) else [],
+        }
+
+    @property
+    def publication_schema_version(self):
+        from catalog.services.publication import SCHEMA_VERSION
+        return SCHEMA_VERSION
+
+    @property
+    def continuous_sections(self):
+        from catalog.services.permanent_place_wizard import continuous_sections
+        return continuous_sections(self)
+
 
 class OwnerPlaceCreateForm(OwnerPlaceEditForm):
     require_location_region = True
@@ -1729,8 +1788,6 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
                 "age_from",
                 "age_to",
                 "address",
-                "phone1",
-                "photo",
             ):
                 self.fields[field_name].required = True
             if self.data.get("age_open_ended"):
@@ -1750,11 +1807,12 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
             return ""
         return _validate_azerbaijan_phone(
             value,
-            required=not self.draft_save_only and not self.geocoding_check_only,
+            required=False,
         )
 
     def save(self, commit=True):
         place = super().save(commit=False)
+        place.nature = self.cleaned_data.get("nature") or place.nature or "business"
         place.name = (
             (self.cleaned_data.get("name_az") or "").strip()
             or (self.cleaned_data.get("name_ru") or "").strip()

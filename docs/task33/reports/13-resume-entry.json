@@ -1,0 +1,1617 @@
+{
+  "head": "c52b871ce5c18656a9eaf9854e66255c2629364e",
+  "snapshot": "/tmp/kidsmap-task33-stage13-resume-20261002-051702Z",
+  "entry_count": 400,
+  "entries": [
+    {
+      "status": " M",
+      "path": "src/catalog/controllers/owner_places_controller.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/controllers/owner_team_controller.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/controllers/place_controller.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/domain_admin/owner.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/domain_admin/place.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/domain_admin/volunteer.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/forms.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/interfaces/repositories.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/management/commands/import_places.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/models/__init__.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/models/owner.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/models/place.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/models/pricing_plan.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/models/volunteer.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/photo_views.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/repositories/django_repositories.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/services/content_quality.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/services/location_assignment.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/services/owner_place_use_cases.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/services/ownership_use_cases.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/services/permanent_place_rules.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/services/permanent_place_wizard.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/services/place_access.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/services/place_readiness.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/services/pricing_plans.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/services/seo.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/services/seo_landing_aggregates.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/services/volunteer_places.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/templates/admin/catalog/place/form/header.html"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/templates/admin/catalog/place/pricing_editor.html"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/templates/catalog/place_detail.html"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/templates/includes/header.html"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/templates/pages/account_dashboard.html"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/templates/pages/account_favorites.html"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/templates/pages/account_profile.html"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/templates/pages/includes/permanent_place_workspace.html"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/templates/pages/owner_places.html"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/templates/pages/owner_reviews.html"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/templates/pages/permanent_place_form.html"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/testcases/pricing_plans_relational.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/urls.py"
+    },
+    {
+      "status": " M",
+      "path": "src/catalog/views.py"
+    },
+    {
+      "status": " M",
+      "path": "static/admin/js/kidsmap_place_form.js"
+    },
+    {
+      "status": " M",
+      "path": "static/admin/js/kidsmap_place_json_import.js"
+    },
+    {
+      "status": " M",
+      "path": "static/css/components/header.css"
+    },
+    {
+      "status": " M",
+      "path": "static/css/pages/detail.css"
+    },
+    {
+      "status": " M",
+      "path": "static/js/permanent_place_wizard.js"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/README.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/architecture.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/decisions.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/README.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/acceptance.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/README.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/groups.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/index.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/organization.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/place.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/review.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/groups-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/groups-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/index-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/index-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/organization-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/organization-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/place-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/place-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/program-approve-dialog-en-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/program-approve-dialog-en-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/review-conflict-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/review-conflict-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/review-new-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/review-new-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/review-program-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/review-program-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/review-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/review-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/transfer-dialog-en-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/transfer-dialog-en-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/transfer-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/screenshots/transfer-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/admin/transfer.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/README.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/cabinet.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/copy.js"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/groups.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/index.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/organization.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/place.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/plan.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/program.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/prototype.css"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/prototype.js"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/cabinet-az-long-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/cabinet-az-long-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/cabinet-empty-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/cabinet-empty-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/cabinet-en-long-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/cabinet-en-long-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/cabinet-org-empty-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/cabinet-org-empty-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/cabinet-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/cabinet-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/groups-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/groups-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/index-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/index-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/organization-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/organization-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-az-long-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-az-long-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-browser-only-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-browser-only-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-conflict-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-conflict-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-draft-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-draft-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-empty-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-empty-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-en-long-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-en-long-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-park-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-park-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-pending-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-pending-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-published-pending-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-published-pending-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-rejected-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-rejected-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-save-failed-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-save-failed-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-saving-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/place-saving-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/program-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/program-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/team-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/screenshots/team-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/team.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/verification.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/owner/verify.cjs"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/README.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/activity.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/catalog.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/event.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/events.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/index.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/organization.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/place.html"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/activity-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/activity-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/catalog-map-en-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/catalog-map-en-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/catalog-map-filtered-en-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/catalog-map-filtered-en-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/catalog-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/catalog-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/event-canceled-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/event-canceled-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/event-fallback-en-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/event-fallback-en-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/event-online-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/event-online-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/event-past-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/event-past-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/event-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/event-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/events-calendar-online-az-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/events-calendar-online-az-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/events-calendar-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/events-calendar-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/events-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/events-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/index-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/index-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/organization-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/organization-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/place-long-missing-az-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/place-long-missing-az-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/place-long-missing-en-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/place-long-missing-en-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/place-missing-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/place-missing-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/place-narimanov-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/place-narimanov-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/place-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/place-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/place-studio-en-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/public/screenshots/place-studio-en-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/shared03/extra-verification.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/shared03/plan.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/shared03/preview.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/shared03/prototype.css"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/shared03/prototype.js"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/shared03/regression-results.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/shared03/regressions.cjs"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/shared03/verification.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/shared03/verify-extra.cjs"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/design/shared03/verify.cjs"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/draft-ui-contract.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/implementation-status.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/migration-map.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/permission-actions.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/plans/05.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/plans/06.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/plans/09.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/plans/10.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/plans/12.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/01.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/02.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/03.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/04.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/05.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/06.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/07.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/08.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/09.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/10.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/11.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/12.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/13.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/14.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/15.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/16.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/17.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/18.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/19.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/20.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/21.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/22.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/23.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/24.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/25.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/26.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/27.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/prompts/28.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa04/README.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa04/commands.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa04/fixtures.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa04/guard.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa04/plan.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa04/run.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa04/settings.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa04/test_safety.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa05/README.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa05/commands.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa05/generate.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa06/README.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa06/commands.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa06/generate.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa07/README.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa07/commands.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa07/generate.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa07/plan.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa08/browser-check.cjs"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa08/browser.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa08/browser_bridge/commands.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa08/commands.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa08/generate.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa08/plan.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa09/browser-key.cjs"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa10/browser-check.cjs"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa10/browser.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/qa10/browser_bridge/commands.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/01-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/01.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/02-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/02-review.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/02.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/03-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/03-review-evidence.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/03-review.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/03.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/04-failure-labels.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/04-results.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/04-review-evidence.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/04-review.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/04-source-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/04-verification.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/04.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/05-preflight.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/05-results.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/05-review-evidence.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/05-review.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/05-source-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/05.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/06-results.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/06-review-evidence.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/06-review.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/06-source-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/06.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/07-before.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/07-results.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/07-review-evidence.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/07-review.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/07-source-manifest-v1.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/07-source-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/07.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/08-before.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/08-handoff-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/08-parallel-preflight-20260929-123515Z.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/08-preflight-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/08-results.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/08-review-evidence.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/08-review.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/08-source-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/08.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/09-preflight-20260930-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/09-preflight-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/09-results.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/09-review.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/09-source-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/09.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/10-db-review.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/10-results.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/10-source-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/10.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/11-results.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/11-review.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/11-source-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/11.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/affiliation-check.cjs"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/affiliation-locales.cjs"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/affiliation-locales.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/affiliation-results.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/browser-check.cjs"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/browser.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/browser_bridge/commands.py"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/final-browser-summary.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/interaction-check.cjs"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/manager-selected-en-1440.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/org-empty-ru-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/org-network-en-1024.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/org-network-ru-1280.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/place-owner-affiliation-en-390.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/prototype-compare.cjs"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/prototype-compare.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-browser/zero-az-320.png"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-results.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-review.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-source-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12-worktree-inventory.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/12.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/13-review.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/13-source-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/13-worktree-inventory.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/13.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/14-preflight-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/14-recheck-20261002-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/14.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/15-preflight-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/15.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/16-preflight-manifest.json"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/reports/16.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/sources/KidsMap_Implementation_and_Prompts_2026-09-23.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/sources/KidsMap_Task_33_Spec_2026-09-23.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/sources/README.md"
+    },
+    {
+      "status": "??",
+      "path": "docs/task33/start-prompts.md"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/controllers/business_team_api.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/controllers/organization_ownership_api.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/controllers/organization_workspace.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/controllers/server_draft_api.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/management/commands/convert_task33_catalog.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/migrations/0117_task33_catalog_structure.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/migrations/0118_task33_ownership.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/migrations/0119_task33_business_permissions.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/migrations/0120_task33_publication.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/migrations/0121_task33_publication.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/migrations/0122_task33_server_draft.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/migrations/0123_task33_group_pricing.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/migrations/0124_task33_conversion.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/models/business_team.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/models/catalog_structure.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/models/conversion.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/models/server_draft.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/services/business_team.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/services/catalog_conversion.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/services/catalog_structure.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/services/organization_ownership.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/services/publication.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/services/publication_forms.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/services/server_drafts.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/templates/pages/includes/account_navigation.html"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/templates/pages/includes/owner_place_continuous.html"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/templates/pages/organization_branch.html"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/templates/pages/organization_connection_error.html"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/templates/pages/organization_workspace.html"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/testcases/test_task33_catalog_schema.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/testcases/test_task33_conversion.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/testcases/test_task33_drafts.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/testcases/test_task33_organization_workspace.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/testcases/test_task33_ownership.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/testcases/test_task33_permissions.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/testcases/test_task33_place_continuous.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/testcases/test_task33_pricing.py"
+    },
+    {
+      "status": "??",
+      "path": "src/catalog/testcases/test_task33_publication.py"
+    },
+    {
+      "status": "??",
+      "path": "static/css/pages/organization_workspace.css"
+    },
+    {
+      "status": "??",
+      "path": "static/css/pages/owner_place_continuous.css"
+    },
+    {
+      "status": "??",
+      "path": "static/js/organization_workspace.js"
+    },
+    {
+      "status": "??",
+      "path": "static/js/owner_place_continuous.js"
+    }
+  ],
+  "scoped_source_sha256": {
+    "src/catalog/forms.py": "a44307af8ddf3c2a45a6732101dc9ce3b67307f062212426c9367683d9cb29f0",
+    "src/catalog/views.py": "2da7d3c5b3ae995e9bba45224b9bdb77e8efa3656f84fefd3c1d59ae071bbaf4",
+    "src/catalog/services/pricing_plans.py": "bbe99d2de8cf8e13b58df89eb90efcabfbc5a643b598d84bbfa48ecfec15ad05",
+    "src/catalog/services/publication.py": "6ba89acaa30dbe3b95ede95e82a08ff41790bbeb58991419b76f875d5de43b5b",
+    "src/catalog/services/publication_forms.py": "920985552e5a3efd1baa9228e5c31d9014e0cca82dcbc75eae6bd3df7214157f",
+    "src/catalog/templates/pages/includes/owner_place_continuous.html": "5ce3e68c9f27db43fd28f05c06d90ccab1d4a84d9f739d60d9de372402b82a23",
+    "static/js/owner_place_continuous.js": "3ec73d2dcc40a2fb2c9cbe2701984a04b9c0adab78c0f73aeebe319b501e2262",
+    "src/catalog/testcases/test_task33_place_continuous.py": "a85e9a9ee8eadcb453c2e7a7cefc7c8bc339a3ad65ab9a7144d13e7cedc0f14b"
+  }
+}

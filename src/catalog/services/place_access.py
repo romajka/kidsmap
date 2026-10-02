@@ -28,15 +28,12 @@ PLACE_ROLE_DEFAULT_PERMISSIONS = {
             PLACE_PERMISSION_VIEW,
             PLACE_PERMISSION_EDIT,
             PLACE_PERMISSION_VIEW_STATS,
-            PLACE_PERMISSION_MODERATE_REVIEWS,
-            PLACE_PERMISSION_MANAGE_TEAM,
         }
     ),
     PLACE_ROLE_MODERATOR: frozenset(
         {
             PLACE_PERMISSION_VIEW,
             PLACE_PERMISSION_VIEW_STATS,
-            PLACE_PERMISSION_MODERATE_REVIEWS,
         }
     ),
     PLACE_ROLE_EDITOR: frozenset(
@@ -49,7 +46,7 @@ PLACE_ROLE_DEFAULT_PERMISSIONS = {
 
 
 def permissions_for_role(role: str) -> set[str]:
-    return set(PLACE_ROLE_DEFAULT_PERMISSIONS.get(role, PLACE_ROLE_DEFAULT_PERMISSIONS[PLACE_ROLE_EDITOR]))
+    return set(PLACE_ROLE_DEFAULT_PERMISSIONS.get(role, ()))
 
 
 def is_direct_place_manager(*, user, place) -> bool:
@@ -61,7 +58,7 @@ def is_direct_place_manager(*, user, place) -> bool:
     set, the creator holds nothing — a handover therefore removes their
     control, and created_by is left untouched as the record of who made it.
     """
-    if not getattr(user, "is_authenticated", False):
+    if not getattr(user, "is_authenticated", False) or not getattr(user, "is_active", False):
         return False
     if place.owner_id is not None:
         return place.owner_id == user.id
@@ -75,32 +72,51 @@ def direct_place_permissions(*, user, place) -> set[str]:
         return set()
     # These permissions belong to this one listing only. They do not turn the
     # user into a global owner account and deliberately exclude publication.
-    return set(PLACE_ROLE_DEFAULT_PERMISSIONS[PLACE_ROLE_MANAGER])
+    return set(PLACE_ROLE_DEFAULT_PERMISSIONS[PLACE_ROLE_MANAGER]) | {PLACE_PERMISSION_MANAGE_TEAM, "place.reviews.reply", "place.reviews.report"}
 
 
 def staff_has_place_permission(*, user, permission_code: str) -> bool:
-    if is_volunteer(user):
-        return False
-    if not getattr(user, "is_authenticated", False):
-        return False
-    if getattr(user, "is_superuser", False):
-        return True
-    if permission_code == PLACE_PERMISSION_PUBLISH:
-        return user.has_perm("catalog.change_place")
-    return False
+    from catalog.services.business_team import platform_has_action
+    return platform_has_action(user=user, action=permission_code)
+
+
+def organization_place_permissions(*, user, place) -> set[str]:
+    if is_volunteer(user) or not getattr(user,'is_active',False) or not getattr(user,'is_authenticated',False):
+        return set()
+    from catalog.models import Place
+    from catalog.services.organization_ownership import affiliation_current
+    current=Place.objects.select_related('organization').filter(pk=place.pk,deleted_at__isnull=True).first()
+    if current is None or current.organization_id is None:
+        return set()
+    org=current.organization
+    if org.owner_id!=user.pk or current.organization_relationship_kind!='business' or not affiliation_current(current,org):
+        return set()
+    return {PLACE_PERMISSION_VIEW, PLACE_PERMISSION_EDIT, PLACE_PERMISSION_VIEW_STATS}
 
 
 def has_place_permission(*, user, place, permission_code: str) -> bool:
-    if is_volunteer(user):
-        return False
-    if staff_has_place_permission(user=user, permission_code=permission_code):
-        return True
-    if permission_code in direct_place_permissions(user=user, place=place):
-        return True
-    for membership in place.team_memberships.filter(member=user, is_active=True):
-        if permission_code in membership.get_permissions():
-            return True
-    return False
+    from catalog.services.business_team import has_action
+    return has_action(user=user, target=place, action=permission_code)
+
+
+PLACE_BUSINESS_ACTIONS = frozenset({"place.view", "place.edit", "place.stats.view", "place.reviews.reply", "place.reviews.report"})
+ORGANIZATION_BUSINESS_ACTIONS = frozenset({"organization.view", "organization.edit", "program.manage", "branch.create"})
+GRANTABLE_ACTIONS = PLACE_BUSINESS_ACTIONS | ORGANIZATION_BUSINESS_ACTIONS
+
+
+def validated_business_actions(value, *, target_type="organization"):
+    allowed = PLACE_BUSINESS_ACTIONS if target_type == "place" else GRANTABLE_ACTIONS
+    if not isinstance(value, list) or any(not isinstance(item, str) or item not in allowed for item in value):
+        return set()
+    return set(value)
+
+
+def permission_configuration():
+    return {"grantable_actions": sorted(GRANTABLE_ACTIONS), "place_actions": sorted(PLACE_BUSINESS_ACTIONS),
+            "organization_actions": sorted(ORGANIZATION_BUSINESS_ACTIONS), "scopes": ["selected_places", "all_network"],
+            "presets": {key: sorted(value) for key, value in PLACE_ROLE_DEFAULT_PERMISSIONS.items()},
+            "owner_only": ["place.team.manage", "organization.team.manage", "ownership.transfer"],
+            "platform_only": ["place.publish", "place.reviews.moderate"]}
 
 
 @dataclass(slots=True)

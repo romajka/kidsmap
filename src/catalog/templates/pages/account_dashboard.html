@@ -70,31 +70,7 @@
   <div class="account-main-layout">
     
     <!-- Sidebar Navigation -->
-    <aside class="account-nav-sidebar">
-      <a href="{% url 'account_dashboard' %}" class="account-nav-item is-active">
-        <span class="material-symbols-rounded">grid_view</span>
-        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Ümumi baxış{% elif CURRENT_LANGUAGE == "en" %}Overview{% else %}Обзор{% endif %}</span>
-      </a>
-      <a href="{% url 'owner_places_dashboard' %}" class="account-nav-item">
-        <span class="material-symbols-rounded">location_on</span>
-        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</span>
-        {% if managed_places_count %}<span class="account-nav-count">{{ managed_places_count }}</span>{% endif %}
-      </a>
-      <a href="{% url 'owner_reviews_dashboard' %}" class="account-nav-item">
-        <span class="material-symbols-rounded">star</span>
-        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Rəylərim{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %}</span>
-        {% if user_reviews_count %}<span class="account-nav-count">{{ user_reviews_count }}</span>{% endif %}
-      </a>
-      <a href="{% url 'account_favorites' %}" class="account-nav-item">
-        <span class="material-symbols-rounded">favorite</span>
-        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Seçilmişlər{% elif CURRENT_LANGUAGE == "en" %}Favorites{% else %}Избранное{% endif %}</span>
-        {% if favorites_count %}<span class="account-nav-count">{{ favorites_count }}</span>{% endif %}
-      </a>
-      <a href="{% url 'account_settings' %}" class="account-nav-item">
-        <span class="material-symbols-rounded">settings</span>
-        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Tənzimləmələr{% elif CURRENT_LANGUAGE == "en" %}Settings{% else %}Настройки{% endif %}</span>
-      </a>
-    </aside>
+    {% include "pages/includes/account_navigation.html" %}
 
     <!-- Main Content Panel -->
     <section class="account-main-content">

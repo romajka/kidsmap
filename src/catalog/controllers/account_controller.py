@@ -35,6 +35,8 @@ class AccountController:
             place.is_liked = True
             favorite_places.append(place)
 
+        from catalog.services.public_presentation import prepare_cards
+        favorite_places = prepare_cards(favorite_places)
         return {
             "favorite_places": favorite_places,
             "favorites_count": len(favorite_places),

@@ -32,52 +32,33 @@ def ensure_owner_permission(*, user) -> OwnerAccessResult:
     """
     if is_volunteer(user):
         return OwnerAccessResult(ok=False, message=_("Используйте раздел «Мои места» в админке."))
-    if not user.is_authenticated:
+    if not user.is_authenticated or not user.is_active:
         return OwnerAccessResult(ok=False, message=_("Для доступа войдите в аккаунт и повторите действие."))
     return OwnerAccessResult(ok=True, message="")
 
 
 def resolve_owner_permission_scopes(*, user, team_repository) -> list[OwnerPermissionScope]:
-    """Return permissions scoped to individual places, never to a user role."""
-    if not user.is_authenticated or is_volunteer(user):
-        return []
-
-    scopes: dict[int, OwnerPermissionScope] = {}
-    # Ownership decides; created_by only stands in while nobody owns the card.
-    direct_places = Place.objects.filter(
-        Q(owner=user) | Q(owner__isnull=True, created_by=user),
-        deleted_at__isnull=True,
-    ).distinct()
-    for place in direct_places:
-        scopes[place.id] = OwnerPermissionScope(
-            place_id=place.id,
-            role="DIRECT",
-            permissions=direct_place_permissions(user=user, place=place),
-            source="direct",
-        )
-
-    for membership in team_repository.list_active_memberships_for_user(user=user):
-        if membership.place_id is None:
-            # Owner-wide memberships predate place-scoped access. They remain
-            # stored for migration, but no longer grant access to every place.
-            continue
-        permissions = membership.get_permissions()
-        existing = scopes.get(membership.place_id)
-        if existing is None:
-            scopes[membership.place_id] = OwnerPermissionScope(
-                place_id=membership.place_id,
-                role=membership.role,
-                permissions=set(permissions),
-                source="team",
-                membership_id=membership.id,
-            )
-            continue
-        existing.permissions.update(permissions)
-        if existing.source != "direct":
-            existing.role = membership.role
-            existing.membership_id = membership.id
-
-    return list(scopes.values())
+    """All business readers use the same fresh target/action resolver as writes."""
+    from catalog.services.business_team import accessible_place_ids, has_action
+    from catalog.services.place_access import PLACE_BUSINESS_ACTIONS, PLACE_PERMISSION_MANAGE_TEAM
+    result = []
+    for place in Place.objects.filter(pk__in=accessible_place_ids(user=user)):
+        permissions = {action for action in PLACE_BUSINESS_ACTIONS | {PLACE_PERMISSION_MANAGE_TEAM}
+                       if has_action(user=user, target=place, action=action)}
+        from catalog.services.place_access import is_direct_place_manager
+        from catalog.models import OwnerTeamMembership
+        from catalog.services.business_team import _place_grant_current
+        role, source, membership_id = "ORGANIZATION", "organization", None
+        if is_direct_place_manager(user=user, place=place):
+            role, source = "DIRECT", "direct"
+        else:
+            for membership in OwnerTeamMembership.objects.filter(place=place, member=user, is_active=True):
+                if _place_grant_current(membership, place) and membership.get_permissions():
+                    role, source, membership_id = membership.role, "team", membership.pk
+                    break
+        result.append(OwnerPermissionScope(place_id=place.pk, role=role, permissions=permissions,
+                                           source=source, membership_id=membership_id))
+    return result
 
 
 def place_ids_for_permission(scopes: list[OwnerPermissionScope], permission_code: str) -> list[int]:

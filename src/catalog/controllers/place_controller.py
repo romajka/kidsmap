@@ -85,7 +85,7 @@ class PlaceController:
         else:
             map_places = self._serialize_map_places(
                 self.place_repository.map_ready_queryset(qs),
-                language_code=language_code,
+                language_code=language_code, filters=filters,
             )
 
         if not force_new_only and not showing_events:
@@ -104,6 +104,10 @@ class PlaceController:
         if showing_events:
             events = page_obj.object_list
 
+        from catalog.services.public_presentation import prepare_cards, organization_matches
+        if not showing_events:
+            page_obj.object_list = prepare_cards(page_obj.object_list, language_code, filters=filters)
+            timeline_places = prepare_cards(timeline_places, language_code, filters=filters)
         selected = filters.selected()
         query_without_page = urlencode(self._build_normalized_query_params(selected=selected, force_new_only=force_new_only))
         seo_payload = build_catalog_seo_payload(
@@ -157,6 +161,7 @@ class PlaceController:
         metro_options = public_filter_options.metro
 
         context = {
+            "organization_matches": organization_matches(filters.query, language_code),
             "places": [] if showing_events else page_obj.object_list,
             "events": events,
             "showing_events": showing_events,
@@ -224,8 +229,9 @@ class PlaceController:
                 preferred=("28 Май", "Гянджлик", "Эльмляр Академиясы", "Нариман Нариманов", "Иншаатчылар"),
             ),
             "catalog_map_places": map_places,
-            "catalog_map_places_count": len(map_places),
-            "catalog_map_missing_count": max(page_obj.paginator.count - len(map_places), 0) if not force_new_only else 0,
+            "catalog_map_points_count": len(map_places),
+            "catalog_map_places_count": sum(len(point["members"]) for point in map_places),
+            "catalog_map_missing_count": max(page_obj.paginator.count - sum(len(point["members"]) for point in map_places), 0) if not force_new_only else 0,
             "analytics_events": self._build_list_analytics_events(
                 selected=selected,
                 results_total=page_obj.paginator.count,
@@ -487,23 +493,15 @@ class PlaceController:
         if not force_new_only:
             add_param("event_type", selected.get("event_type"))
 
+        add_param("metro", selected.get("metro"))
+        age_from = str(selected.get("age_from") or "").strip()
+        age_to = str(selected.get("age_to") or "").strip()
+        if age_from or age_to:
+            if not (age_from in {"", "0"} and age_to in {"", "18"}):
+                add_param("age_from", age_from)
+                add_param("age_to", age_to)
+
         if not force_new_only:
-            add_param("metro", selected.get("metro"))
-
-            age_from = str(selected.get("age_from") or "").strip()
-            age_to = str(selected.get("age_to") or "").strip()
-            if age_from or age_to:
-                if not (age_from in {"", "0"} and age_to in {"", "18"}):
-                    add_param("age_from", age_from)
-                    add_param("age_to", age_to)
-
-            price_from = str(selected.get("price_from") or "").strip()
-            price_to = str(selected.get("price_to") or "").strip()
-            if price_from or price_to:
-                if not (price_from in {"", "0"} and price_to in {"", "500"}):
-                    add_param("price_from", price_from)
-                    add_param("price_to", price_to)
-
             sort_value = str(selected.get("sort") or "").strip()
             if sort_value and sort_value != "new":
                 add_param("sort", sort_value)
@@ -594,7 +592,7 @@ class PlaceController:
             )
 
         metro = str(selected.get("metro") or "").strip()
-        if metro and not force_new_only:
+        if metro:
             metro_value = _(metro)
             if language_code == "az":
                 label = metro_value
@@ -636,7 +634,7 @@ class PlaceController:
 
         age_from = str(selected.get("age_from") or "").strip()
         age_to = str(selected.get("age_to") or "").strip()
-        if not force_new_only and (age_from or age_to) and not (age_from in {"", "0"} and age_to in {"", "18"}):
+        if (age_from or age_to) and not (age_from in {"", "0"} and age_to in {"", "18"}):
             if language_code == "az":
                 age_label = f"{age_from or '0'}–{age_to or '18'} yaş"
                 label = age_label
@@ -742,60 +740,9 @@ class PlaceController:
 
         return events
 
-    def _serialize_map_places(self, qs, *, language_code: str) -> list[dict]:
-        serialized = []
-        from catalog.services.locations import get_location_translation
-        for place in qs:
-            location_parts = []
-            if place.district:
-                location_parts.append(get_location_translation(place.district, language_code))
-            if place.metro:
-                location_parts.append(str(_(place.metro)))
-
-            address_parts = []
-            if place.address:
-                address_parts.append(place.address)
-            if place.district:
-                address_parts.append(get_location_translation(place.district, language_code))
-            elif place.metro:
-                address_parts.append(str(_(place.metro)))
-
-            cat_color_bg = place.category.resolved_color_bg if place.category else "#F3F4F6"
-            cat_color_text = place.category.resolved_color_text if place.category else "#6B7280"
-            cat_icon_url = place.category.icon_file_url if place.category else ""
-            cat_icon_is_svg = place.category.icon_is_svg if place.category else False
-            cat_icon_is_font = place.category.icon_is_font_class if place.category else False
-            cat_icon_name = (place.category.icon or "") if place.category else ""
-
-            serialized.append(
-                {
-                    "id": place.id,
-                    "name": place.name_i18n(language_code),
-                    "lat": place.lat,
-                    "lng": place.lng,
-                    "url": place.get_absolute_url(),
-                    "category": place.get_category_display(),
-                    "category_code": place.category_code,
-                    "category_color_bg": cat_color_bg,
-                    "category_color_text": cat_color_text,
-                    "category_icon_url": cat_icon_url,
-                    "category_icon_is_svg": cat_icon_is_svg,
-                    "category_icon_is_font": cat_icon_is_font,
-                    "category_icon_name": cat_icon_name,
-                    "category_icon_svg": place.category.icon_svg_source if place.category else "",
-                    "image_url": place.public_image_url,
-                    "price": str(place.card_price_badge),
-                    "location": " / ".join(location_parts),
-                    "address": ", ".join(part for part in address_parts if part),
-                    "district": get_location_translation(place.district, language_code) if place.district else "",
-                    "metro": str(_(place.metro)) if place.metro else "",
-                    "rating": float(place.rating_avg) if place.rating_avg is not None else None,
-                    "reviews_count": int(place.rating_count or 0),
-                    "has_phone": bool(place.phone_numbers),
-                    "schedule": place.schedule_summary or "",
-                }
-            )
-        return serialized
+    def _serialize_map_places(self, qs, *, language_code: str, filters=None) -> list[dict]:
+        from catalog.services.map_payload import serialize_map_places
+        return serialize_map_places(qs, language_code, filters=filters)
 
     def get_active_place_for_legacy_redirect(self, *, pk: int) -> Place:
         return get_object_or_404(published_place_queryset(Place.objects.all()), pk=pk)
@@ -871,7 +818,12 @@ class PlaceController:
         if place.rating_count != len(place_reviews):
             place.refresh_rating_stats()
 
+        from catalog.services.public_presentation import present
+        presentation = present(place, request.LANGUAGE_CODE)
+        activities = [present(a, request.LANGUAGE_CODE) for a in place.activities.filter(status="published", archived_at__isnull=True).select_related("place__organization", "place__category", "program__organization")]
         return {
+            "presentation": presentation,
+            "activities": activities,
             "place": place,
             "language": request.LANGUAGE_CODE,
             "google_maps_api_key": getattr(settings, "GOOGLE_MAPS_API_KEY", ""),

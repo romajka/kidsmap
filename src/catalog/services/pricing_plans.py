@@ -130,13 +130,15 @@ PRICING_STORAGE_FIELDS = (
     "currency", "quantity", "quantity_unit", "sessions_per_week", "sessions_per_month", "is_unlimited",
     "validity_interval", "validity_interval_count", "valid_from", "valid_until", "audience_type",
     "age_from", "age_to", "min_people", "max_people", "day_type", "title_az", "title_ru", "title_en",
-    "conditions_az", "conditions_ru", "conditions_en", "is_required", "is_active", "sort_order",
+    "conditions_az", "conditions_ru", "conditions_en", "is_required", "is_trial", "is_active", "sort_order",
     "verified_at", "source_url",
 )
 
 
 def serialize_pricing_plan(plan, language=None):
     data = {"id": plan.pk}
+    if plan.offering_group_id:
+        data["offering_group_id"] = plan.offering_group_id
     for field in PRICING_STORAGE_FIELDS:
         value = getattr(plan, field)
         if isinstance(value, Decimal):
@@ -245,8 +247,8 @@ def normalize_pricing_plans(value, *, strict=True, allow_verified=False):
                     values[int_field] = int(values[int_field])
                 elif int_field in values:
                     values[int_field] = None
-            candidate = PricingPlan(**values)
-            candidate.full_clean(exclude=("place",))
+            candidate = PricingPlan(place_id=1, **values)
+            candidate.full_clean(exclude=("place", "offering_group"))
             clean = {}
             for field in PRICING_STORAGE_FIELDS:
                 # Owners may edit tariff contents, but an omitted verification
@@ -292,10 +294,24 @@ def normalize_pricing_plans(value, *, strict=True, allow_verified=False):
 
 
 @transaction.atomic
-def replace_place_pricing_plans(place, value, *, allow_verified=False):
-    from catalog.models import PricingPlan
+def replace_target_pricing_plans(target, value, *, allow_verified=False):
+    """Replace only direct Place or one OfferingGroup's plans."""
+    from catalog.models import OfferingGroup, Place, PricingPlan
+    if isinstance(target, Place):
+        target_filter, target_kwargs = {"place": target, "offering_group__isnull": True}, {"place": target}
+        place_id = target.pk
+    elif isinstance(target, OfferingGroup):
+        target_filter, target_kwargs = {"offering_group": target, "place__isnull": True}, {"offering_group": target}
+        place_id = target.activity.place_id
+    else:
+        raise TypeError("Pricing target must be Place or OfferingGroup")
+    # Lock the parent even when it currently has no tariff rows. Place first is
+    # the catalog lock order used by publication and avoids empty-set races.
+    Place.objects.select_for_update().get(pk=place_id)
+    if isinstance(target, OfferingGroup):
+        OfferingGroup.objects.select_for_update().get(pk=target.pk, activity__place_id=place_id)
     plans = normalize_pricing_plans(value, allow_verified=allow_verified)
-    existing = {item.pk: item for item in PricingPlan.objects.select_for_update().filter(place=place)}
+    existing = {item.pk: item for item in PricingPlan.objects.select_for_update().filter(**target_filter)}
     def fingerprint(item):
         getter = item.get if isinstance(item, dict) else lambda key: getattr(item, key)
         return tuple(str(getter(key) or "") for key in (
@@ -308,28 +324,224 @@ def replace_place_pricing_plans(place, value, *, allow_verified=False):
         by_fingerprint.setdefault(fingerprint(item), []).append(item)
     keep = set()
     for index, raw in enumerate(plans):
+        raw = dict(raw)
         plan_id = raw.pop("id", None)
+        if plan_id is not None and plan_id not in existing:
+            raise ValidationError(_("Тариф не принадлежит выбранной цели."))
+        if plan_id in keep:
+            raise ValidationError(_("ID тарифа повторяется."))
         instance = existing.get(plan_id) if plan_id else None
         if instance is None:
             candidates = by_fingerprint.get(fingerprint(raw), [])
             instance = next((candidate for candidate in candidates if candidate.pk not in keep), None)
         if instance is None:
-            instance = PricingPlan(place=place)
-        elif instance.place_id != place.pk:
-            raise ValidationError(_("Тариф не принадлежит этой карточке."))
+            instance = PricingPlan(**target_kwargs)
         for field in PRICING_STORAGE_FIELDS:
             if field in raw:
                 setattr(instance, field, raw[field])
         instance.sort_order = index
-        instance.full_clean()
         instance._skip_legacy_sync = True
         instance.save()
         keep.add(instance.pk)
-    for stale in PricingPlan.objects.filter(place=place).exclude(pk__in=keep):
+    for stale in PricingPlan.objects.filter(**target_filter).exclude(pk__in=keep):
         stale._skip_legacy_sync = True
         stale.delete()
-    sync_legacy_price_fields(place.pk)
-    return list(PricingPlan.objects.filter(place=place))
+    if isinstance(target, Place) or target.activity.status == "published":
+        sync_legacy_price_fields(place_id)
+    return list(PricingPlan.objects.filter(**target_filter))
+
+
+def replace_place_pricing_plans(place, value, *, allow_verified=False):
+    return replace_target_pricing_plans(place, value, allow_verified=allow_verified)
+
+
+def replace_group_pricing_plans(group, value, *, allow_verified=False):
+    return replace_target_pricing_plans(group, value, allow_verified=allow_verified)
+
+
+ACTIVITY_EDITOR_FIELDS = ('name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en', 'supplement_az', 'supplement_ru', 'supplement_en')
+GROUP_EDITOR_FIELDS = ('name_az', 'name_ru', 'name_en', 'age_from', 'age_to', 'lesson_format', 'language', 'schedule_text', 'teachers_text', 'conditions_az', 'conditions_ru', 'conditions_en')
+
+
+def serialize_nested_pricing(place):
+    """Versioned local offer tree; direct Place tariffs remain separate."""
+    from catalog.models import Activity
+    activities = []
+    for activity in Activity.objects.filter(place=place, archived_at__isnull=True).prefetch_related('offering_groups__pricing_plan_records').order_by('pk'):
+        groups = []
+        for group in activity.offering_groups.all():
+            if group.archived_at is not None:
+                continue
+            values = {name: getattr(group, name) for name in GROUP_EDITOR_FIELDS}
+            groups.append({'id': group.pk, **values, 'pricing_plans': [
+                {k: v for k, v in plan.items() if k != 'offering_group_id'}
+                for plan in serialize_pricing_plans(group.pricing_plan_records.all())]})
+        activities.append({'id': activity.pk, 'program_id': activity.program_id, **{name: getattr(activity, name) for name in ACTIVITY_EDITOR_FIELDS}, 'groups': groups})
+    return {'pricing_schema_version': 2, 'activities': activities}
+
+
+def validate_group_plan_ages(group, age_from, age_to):
+    if not group.pk:
+        return
+    for plan in group.pricing_plan_records.all():
+        if (age_to is not None and plan.age_from is not None and plan.age_from > age_to
+                or age_from is not None and plan.age_to is not None and plan.age_to < age_from):
+            raise ValidationError(_("Возраст группы не пересекается с возрастом существующего тарифа."))
+
+
+def validate_target_plan_ids(target, plans):
+    from catalog.models import OfferingGroup, PricingPlan
+    field = "offering_group_id" if isinstance(target, OfferingGroup) else "place_id"
+    allowed = set(PricingPlan.objects.filter(**{field: target.pk}).values_list("pk", flat=True))
+    seen = set()
+    for plan in plans:
+        plan_id = plan.get("id")
+        if plan_id is None:
+            continue
+        if plan_id not in allowed or plan_id in seen:
+            raise ValidationError(_("Тариф не принадлежит выбранной цели или ID повторяется."))
+        seen.add(plan_id)
+
+
+def _editor_values(model, data, names, *, existing=None):
+    result = {}
+    for name in names:
+        if name not in data:
+            if existing is None:
+                result[name] = None if name in {'age_from', 'age_to'} else ''
+            continue
+        field = model._meta.get_field(name)
+        value = data[name]
+        if name in {'age_from', 'age_to'} and value == '':
+            value = None
+        value = field.to_python(value)
+        field.validate(value, existing)
+        field.run_validators(value)
+        result[name] = value.strip() if isinstance(value, str) else value
+    return result
+
+
+def validate_nested_pricing(place, payload, *, allow_verified=False):
+    from catalog.models import Activity, OfferingGroup, PricingPlan
+    if (not isinstance(payload, dict) or set(payload) != {'pricing_schema_version', 'activities'}
+            or payload.get('pricing_schema_version') != 2 or not isinstance(payload.get('activities'), list)
+            or len(payload['activities']) > 8):
+        raise ValidationError(_('Неверная версия или размер списка занятий.'))
+    normalized = []
+    seen_activities, seen_groups = set(), set()
+    for activity_data in payload['activities']:
+        if (not isinstance(activity_data, dict) or not set(activity_data) <= {'id', 'program_id', 'groups', *ACTIVITY_EDITOR_FIELDS}
+                or not isinstance(activity_data.get('groups'), list) or len(activity_data['groups']) > 12):
+            raise ValidationError(_('Неверная структура занятия.'))
+        activity_id = activity_data.get('id')
+        if activity_id is not None and (type(activity_id) is not int or activity_id < 1 or activity_id in seen_activities):
+            raise ValidationError(_('Занятие не принадлежит карточке или повторяется.'))
+        activity = Activity.objects.filter(pk=activity_id, place=place, archived_at__isnull=True).first() if activity_id else None
+        if activity_id and activity is None:
+            raise ValidationError(_('Занятие не принадлежит карточке.'))
+        if activity_id:
+            seen_activities.add(activity_id)
+        program_id = activity_data.get('program_id', activity.program_id if activity else None)
+        if program_id is not None:
+            from catalog.models import Program
+            if type(program_id) is not int or not place.organization_id or not Program.objects.filter(
+                pk=program_id, organization_id=place.organization_id, status='published',
+                approved_at__isnull=False, archived_at__isnull=True).exists():
+                raise ValidationError(_('Общая программа недоступна этому филиалу.'))
+        values = _editor_values(Activity, activity_data, ACTIVITY_EDITOR_FIELDS, existing=activity)
+        if not program_id and not (values.get('name_az') or (activity.name_az if activity else '')):
+            raise ValidationError(_('Укажите название занятия на AZ.'))
+        groups = []
+        for group_data in activity_data['groups']:
+            if (not isinstance(group_data, dict) or not set(group_data) <= {'id', 'pricing_plans', *GROUP_EDITOR_FIELDS}
+                    or not isinstance(group_data.get('pricing_plans'), list)):
+                raise ValidationError(_('Неверная структура группы тарифов.'))
+            group_id = group_data.get('id')
+            if group_id is not None and (type(group_id) is not int or group_id < 1 or group_id in seen_groups or not activity_id):
+                raise ValidationError(_('Группа тарифов не принадлежит карточке или повторяется.'))
+            group = OfferingGroup.objects.filter(pk=group_id, activity=activity, archived_at__isnull=True).first() if group_id else None
+            if group_id and group is None:
+                raise ValidationError(_('Группа тарифов не принадлежит карточке.'))
+            if group_id:
+                seen_groups.add(group_id)
+            group_values = _editor_values(OfferingGroup, group_data, GROUP_EDITOR_FIELDS, existing=group)
+            if not (group_values.get('name_az') or (group.name_az if group else '')):
+                raise ValidationError(_('Укажите название группы на AZ.'))
+            age_from = group_values.get('age_from', group.age_from if group else None)
+            age_to = group_values.get('age_to', group.age_to if group else None)
+            if age_from is not None and age_to is not None and age_from > age_to:
+                raise ValidationError(_('Возраст группы указан неверно.'))
+            plans = normalize_pricing_plans(group_data['pricing_plans'], allow_verified=allow_verified)
+            if group is not None:
+                validate_target_plan_ids(group, plans)
+            elif any(plan.get('id') for plan in plans):
+                raise ValidationError(_('Новый тариф не может ссылаться на чужой ID.'))
+            for plan in plans:
+                if ((age_to is not None and plan.get('age_from') is not None and plan['age_from'] > age_to)
+                        or (age_from is not None and plan.get('age_to') is not None and plan['age_to'] < age_from)):
+                    raise ValidationError(_('Возраст тарифа не пересекается с возрастом группы.'))
+                row = PricingPlan(offering_group=group, **{field: plan[field] for field in PRICING_STORAGE_FIELDS if field in plan}) if group else PricingPlan(place_id=place.pk or 1, **{field: plan[field] for field in PRICING_STORAGE_FIELDS if field in plan})
+                row.full_clean(exclude=('offering_group', 'place'))
+            groups.append({'id': group_id, **group_values, 'pricing_plans': plans})
+        normalized.append({'id': activity_id, 'program_id': program_id, **values, 'groups': groups})
+    return {'pricing_schema_version': 2, 'activities': normalized}
+
+
+@transaction.atomic
+def replace_nested_pricing(place, payload, *, allow_verified=False):
+    from catalog.models import Activity, OfferingGroup
+    normalized = validate_nested_pricing(place, payload, allow_verified=allow_verified)
+    for activity_data in normalized['activities']:
+        activity = Activity.objects.get(pk=activity_data['id'], place=place) if activity_data['id'] else Activity(place=place, status='published')
+        if activity.program_id != activity_data['program_id']:
+            activity.program_id = activity_data['program_id']
+            activity.program_snapshot = {}
+            activity.source_program_id = None
+            activity.source_program_version = None
+        for name in ACTIVITY_EDITOR_FIELDS:
+            if name in activity_data:
+                setattr(activity, name, activity_data[name])
+        activity.save()
+        for group_data in activity_data['groups']:
+            group = OfferingGroup.objects.get(pk=group_data['id'], activity=activity) if group_data['id'] else OfferingGroup(activity=activity)
+            for name in GROUP_EDITOR_FIELDS:
+                if name in group_data:
+                    setattr(group, name, group_data[name])
+            group.save()
+            replace_group_pricing_plans(group, group_data['pricing_plans'], allow_verified=allow_verified)
+    return normalized
+
+
+def place_pricing_records(place, *, public=True):
+    """Canonical rows for a Place; draft groups never replace legacy pricing."""
+    from catalog.models import PricingPlan
+    from django.db.models import Q
+    if public and hasattr(place, "_pricing_records_cache"):
+        return place._pricing_records_cache
+    scope = Q(place_id=place.pk, offering_group__isnull=True)
+    grouped = Q(place__isnull=True, offering_group__activity__place_id=place.pk)
+    if public:
+        grouped &= Q(offering_group__activity__status="published", offering_group__archived_at__isnull=True, offering_group__activity__archived_at__isnull=True)
+    return PricingPlan.objects.filter(scope | grouped).select_related("offering_group__activity").order_by("sort_order", "id")
+
+
+def prefetch_place_pricing_records(places):
+    """One tariff query for a list/map/SEO batch, including published groups."""
+    from catalog.models import PricingPlan
+    from django.db.models import Q
+    places = list(places)
+    ids = [place.pk for place in places if place.pk is not None]
+    grouped = {pk: [] for pk in ids}
+    if ids:
+        direct = Q(place_id__in=ids, offering_group__isnull=True)
+        nested = Q(place__isnull=True, offering_group__activity__place_id__in=ids,
+                   offering_group__activity__status="published", offering_group__archived_at__isnull=True,
+                   offering_group__activity__archived_at__isnull=True)
+        for plan in PricingPlan.objects.filter(direct | nested).select_related("offering_group__activity").order_by("sort_order", "id"):
+            grouped[plan.target_place_id].append(plan)
+    for place in places:
+        place._pricing_records_cache = grouped.get(place.pk, [])
+    return places
 
 
 def _plan_bounds(plan):
@@ -344,7 +556,10 @@ def _plan_bounds(plan):
 
 def sync_legacy_price_fields(place_id):
     from catalog.models import Place, PricingPlan
-    plans = list(PricingPlan.objects.filter(place_id=place_id, is_active=True, charge_role="primary", currency="AZN"))
+    place = Place.objects.filter(pk=place_id).first()
+    if place is None:
+        return
+    plans = [plan for plan in place_pricing_records(place) if plan.is_active and plan.charge_role == "primary" and not plan.is_trial and plan.currency == "AZN"]
     bounds = [_plan_bounds(plan) for plan in plans]
     bounds = [item for item in bounds if item]
     values = {
@@ -451,6 +666,20 @@ def has_azn_pricing_plans(value):
     )
 
 
+def plan_billing_unit(plan, language="ru"):
+    lang = (language or "ru").split("-")[0]
+    units = {
+        "ru": {"day": "день", "week": "неделю", "month": "месяц", "year": "год"},
+        "az": {"day": "gün", "week": "həftə", "month": "ay", "year": "il"},
+        "en": {"day": "day", "week": "week", "month": "month", "year": "year"},
+    }
+    if plan.billing_mode != "recurring" or not plan.billing_interval:
+        return ""
+    word = units.get(lang, units["ru"]).get(plan.billing_interval, plan.billing_interval)
+    count = plan.billing_interval_count or 1
+    return f"{count} {word}" if count != 1 else word
+
+
 def format_price_amount(value) -> str:
     amount = Decimal(str(value))
     if amount == amount.to_integral_value():
@@ -510,36 +739,42 @@ def build_public_price_summary(place, language="ru"):
     active_primary = []
     if getattr(place, "pk", None):
         active_primary = [
-            plan for plan in place.pricing_plan_records.all()
-            if plan.is_active and plan.charge_role == "primary"
+            plan for plan in place_pricing_records(place)
+            if plan.is_active and plan.charge_role == "primary" and not plan.is_trial
         ]
-    records = [plan for plan in active_primary if plan.currency == "AZN"]
+    currencies = {plan.currency for plan in active_primary}
+    currency = "AZN" if "AZN" in currencies else (next(iter(currencies)) if len(currencies) == 1 else "AZN")
+    records = [plan for plan in active_primary if plan.currency == currency]
     if records:
         free = [plan for plan in records if plan.price_kind == "free"]
         on_request = [plan for plan in records if plan.price_kind == "on_request"]
         paid = [(plan, _plan_bounds(plan)) for plan in records if plan.price_kind not in {"free", "on_request"}]
         paid = [(plan, bounds) for plan, bounds in paid if bounds and bounds[0] > 0]
         if free and not paid and not on_request:
-            return {"kind": "free", "min_price": Decimal("0"), "max_price": Decimal("0"), "currency": "AZN", "label": labels["free"], "source": "pricing_plans"}
+            return {"kind": "free", "min_price": Decimal("0"), "max_price": Decimal("0"), "currency": currency, "label": labels["free"], "source": "pricing_plans"}
         if free and paid:
             maximum = max(item[1][1] for item in paid)
             minimum = Decimal("0")
-            label = f"{format_price_amount(minimum)}–{format_price_amount(maximum)} ₼"
-            return {"kind": "mixed", "min_price": minimum, "max_price": maximum, "currency": "AZN", "label": label, "source": "pricing_plans"}
+            label = f"{format_price_amount(minimum)}–{format_price_amount(maximum)} {'₼' if currency == 'AZN' else currency}"
+            return {"kind": "mixed", "min_price": minimum, "max_price": maximum, "currency": currency, "label": label, "source": "pricing_plans"}
         if paid:
             minimum = min(item[1][0] for item in paid)
             maximum = max(item[1][1] for item in paid)
             if minimum != maximum:
-                label = f"{format_price_amount(minimum)}–{format_price_amount(maximum)} ₼"
+                label = f"{format_price_amount(minimum)}–{format_price_amount(maximum)} {'₼' if currency == 'AZN' else currency}"
                 kind = "range"
             elif any(plan.price_kind == "from" for plan, _bounds in paid):
-                label = labels["from"].format(value=format_price_amount(minimum))
+                label = labels["from"].format(value=format_price_amount(minimum)) if currency == "AZN" else f"{format_price_amount(minimum)} {currency}+"
                 kind = "from"
             else:
-                label = f"{format_price_amount(minimum)} ₼"
+                label = f"{format_price_amount(minimum)} {'₼' if currency == 'AZN' else currency}"
                 kind = "exact"
-            return {"kind": kind, "min_price": minimum, "max_price": maximum, "currency": "AZN", "label": label, "source": "pricing_plans"}
-        return {"kind": "on_request", "min_price": None, "max_price": None, "currency": "AZN", "label": labels["unknown"], "source": "pricing_plans"}
+            if minimum == maximum:
+                exact_rows = [plan for plan, bounds in paid if bounds[0] == minimum and bounds[1] == maximum]
+                if len(exact_rows) == 1 and exact_rows[0].billing_mode == "recurring" and exact_rows[0].billing_interval == "month" and exact_rows[0].billing_interval_count == 1:
+                    label += {"az": " / ay", "ru": " / месяц", "en": " / month"}[lang]
+            return {"kind": kind, "min_price": minimum, "max_price": maximum, "currency": currency, "label": label, "source": "pricing_plans"}
+        return {"kind": "on_request", "min_price": None, "max_price": None, "currency": currency, "label": labels["unknown"], "source": "pricing_plans"}
 
     # Any active primary tariff ends the transition fallback. A foreign-currency
     # plan is still real pricing, but it cannot be folded into the AZN headline.
@@ -697,8 +932,8 @@ def get_starting_price(place, public_plans, lang):
         payment_type = None
         if canonical["source"] == "pricing_plans" and canonical["min_price"] is not None:
             matching = [
-                plan for plan in place.pricing_plan_records.all()
-                if plan.is_active and plan.charge_role == "primary" and plan.currency == "AZN"
+                plan for plan in place_pricing_records(place)
+                if plan.is_active and plan.charge_role == "primary" and not plan.is_trial and plan.currency == canonical["currency"]
                 and _plan_bounds(plan) and _plan_bounds(plan)[0] == canonical["min_price"]
             ]
             if matching:
@@ -797,7 +1032,9 @@ def build_pricing_summary(place, lang="ru"):
     if lang not in ["az", "ru", "en"]:
         lang = "ru"
         
-    plans = public_pricing_plans(place.pricing_plans, lang)
+    records = list(place_pricing_records(place)) if getattr(place, "pk", None) else []
+    plans = public_pricing_plans(serialize_pricing_plans(records) if records else place.pricing_plans, lang)
+    group_by_plan = {record.pk: record.offering_group for record in records if record.offering_group_id}
     starting_price = get_starting_price(place, plans, lang)
     has_price = starting_price["amount"] is not None
 
@@ -979,8 +1216,38 @@ def build_pricing_summary(place, lang="ru"):
             "whatsapp_url": whatsapp_url,
             "group_key": group_key,
             "group_label": group_labels[lang][group_key],
+            "offering_group_id": group_by_plan[plan.get("id")].pk if plan.get("id") in group_by_plan else None,
+            "is_required": plan.get("is_required", False),
+            "is_trial": plan.get("is_trial", False),
+            "charge_role": plan.get("charge_role", "primary"),
+            "age_from": plan.get("age_from"), "age_to": plan.get("age_to"),
         })
         
+    grouped_blocks = {}
+    visible_blocks = []
+    for row in plans_processed:
+        group_id = row["offering_group_id"]
+        if group_id is None:
+            visible_blocks.append(row)
+            continue
+        block = grouped_blocks.get(group_id)
+        if block is None:
+            group = group_by_plan[next(plan_id for plan_id, obj in group_by_plan.items() if obj.pk == group_id)]
+            title = getattr(group, f"name_{lang}", "") or group.name_az or group.name_ru or group.name_en
+            activity = group.activity
+            common = activity.program_snapshot if activity.program_id else {}
+            activity_title = (common.get(f'name_{lang}') or common.get('name_az') or
+                getattr(activity, f'name_{lang}', '') or activity.name_az or activity.name_ru or activity.name_en)
+            block = {"title": " · ".join(part for part in (activity_title, title) if part), "group_key": f"offering-{group_id}", "group_label": "", "price_str": "", "details": "", "options": [], "required_fees": []}
+            grouped_blocks[group_id] = block
+            visible_blocks.append(block)
+        if row["charge_role"] != "primary" and row["is_required"]:
+            block["required_fees"].append(row)
+        else:
+            block["options"].append(row)
+            if not row["is_trial"] and not block["price_str"]:
+                block["price_str"] = row["price_str"]
+
     return {
         "has_price": has_price,
         "amount": starting_price["amount"],
@@ -990,7 +1257,8 @@ def build_pricing_summary(place, lang="ru"):
         "formatted_price": starting_price["formatted"]["full"],
         "formatted_price_amount": starting_price["formatted"]["amount"],
         "formatted_price_unit": starting_price["formatted"]["unit"],
-        "plans": plans_processed,
+        "plans": visible_blocks,
+        "tariff_count": len(plans_processed),
         "schedule_rows": schedule_rows,
         "schedule_week": schedule_week,
         "open_status": open_status,

@@ -2,6 +2,8 @@ import csv
 from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
+from django.core.exceptions import ValidationError, PermissionDenied
 
 from catalog.models import Category, Place
 
@@ -11,8 +13,19 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("csv_file", type=str, help="Path to CSV file")
+        parser.add_argument("--actor-id",type=int,required=True,help="Active platform editor account")
+        parser.add_argument("--schema-version",type=int,required=True)
 
+    @transaction.atomic
     def handle(self, *args, **options):
+        from django.contrib.auth import get_user_model
+        from catalog.services import publication
+        actor=get_user_model().objects.filter(pk=options["actor_id"],is_active=True).first()
+        from catalog.services.business_team import platform_has_action
+        if actor is None or not platform_has_action(user=actor,action="place.publish"):
+            raise CommandError("Active platform publication permission required.")
+        if options["schema_version"] != publication.SCHEMA_VERSION:
+            raise CommandError("Publication schema conflict.")
         csv_file = Path(options["csv_file"])
         if not csv_file.exists():
             raise CommandError(f"File not found: {csv_file}")
@@ -55,11 +68,23 @@ class Command(BaseCommand):
                 except ValueError as exc:
                     raise CommandError(f"Row {row_num}: {exc}") from exc
 
-                place, is_created = Place.objects.update_or_create(
-                    name_ru=data["name_ru"],
-                    address=data["address"],
-                    defaults=data,
-                )
+                # Existing objects require explicit identity/base: name+address
+                # is not a safe update key across branches/businesses.
+                raw_id=(row.get("place_id") or "").strip()
+                try:
+                    if raw_id:
+                        place=publication.locked_target('place',int(raw_id));is_created=False
+                        expected=int(row.get("base_content_version") or 0)
+                        revision_version=int(row.get("revision_version") or 0)
+                    else:
+                        if Place.objects.filter(name_ru=data["name_ru"],address=data["address"]).exists():
+                            raise ValidationError("Existing/ambiguous row requires place_id and base_content_version.")
+                        place=Place.objects.create(name=data["name"],category_id=data["category"],created_by=actor,status='draft',is_active=False)
+                        is_created=True;expected=place.content_version;revision_version=0
+                    patch={k:v for k,v in data.items() if k in publication.fields_for('place')}
+                    publication.propose(actor=actor,target_type='place',target_id=place.pk,patch=patch,schema_version=options['schema_version'],expected_version=expected,revision_version=revision_version,submit=True,explicit_save=True)
+                except (ValueError,ValidationError,PermissionDenied) as exc:
+                    raise CommandError(f"Row {row_num}: publication validation/conflict; import rolled back.") from exc
                 if is_created:
                     created += 1
                 else:
@@ -98,7 +123,7 @@ class Command(BaseCommand):
             "description_en": clean(row.get("description_en")),
             "description_az": clean(row.get("description_az")),
             "name": clean(row.get("name_ru")) or clean(row.get("name_en")) or clean(row.get("name_az")),
-            "is_active": True,
+
         }
 
         if not data["category"]:

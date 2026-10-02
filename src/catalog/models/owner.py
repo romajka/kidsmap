@@ -53,6 +53,14 @@ class PlaceOwnershipRequest(models.Model):
         default=STATUS_PENDING,
         db_index=True,
     )
+    KIND_CLAIM = "CLAIM"
+    KIND_PUBLICATION = "PUBLICATION"
+    request_kind = models.CharField(max_length=16, choices=[("CLAIM", _("Владение")), ("PUBLICATION", _("Публикация"))], default="CLAIM", editable=False)
+    base_ownership_version = models.PositiveBigIntegerField(null=True, blank=True, editable=False)
+    base_owner_id = models.PositiveBigIntegerField(null=True, blank=True, editable=False)
+    base_content_version = models.PositiveBigIntegerField(null=True, blank=True, editable=False)
+    base_candidate_version = models.PositiveBigIntegerField(null=True, blank=True, editable=False)
+
     note = models.TextField(
         _("Комментарий заявителя"),
         blank=True,
@@ -78,6 +86,8 @@ class PlaceOwnershipRequest(models.Model):
     class Meta:
         ordering = ("-created_at",)
         constraints = [
+            models.CheckConstraint(condition=Q(request_kind__in=('CLAIM', 'PUBLICATION')), name='place_claim_kind_known'),
+            models.CheckConstraint(condition=Q(base_ownership_version__isnull=True) | Q(base_ownership_version__gte=1), name='place_claim_base_positive'),
             models.UniqueConstraint(
                 fields=("place", "applicant"),
                 condition=models.Q(status="PENDING"),
@@ -94,51 +104,29 @@ class PlaceOwnershipRequest(models.Model):
     def is_pending(self) -> bool:
         return self.status == self.STATUS_PENDING
 
-    @transaction.atomic
     def apply_moderation(self, *, moderator, new_status: str, note: str = ""):
-        # The request and place ownership must change as one
-        # operation. Lock the current row first: two admin workers may otherwise
-        # approve/reject the same request from separate browser sessions.
-        current = type(self).objects.select_for_update().get(pk=self.pk)
-        if current.status != self.STATUS_PENDING:
-            raise ValueError("Request is not pending")
-        if new_status not in {self.STATUS_APPROVED, self.STATUS_REJECTED}:
-            raise ValueError("Unsupported status transition")
-
-        previous_status = self.status
-        self.status = new_status
-        self.moderated_by = moderator
-        self.moderated_at = timezone.now()
-        self.moderation_note = note or ""
-        self.save(update_fields=["status", "moderated_by", "moderated_at", "moderation_note", "updated_at"])
-
-        if new_status == self.STATUS_APPROVED:
-            update_fields = ["updated_at"]
-            if self.place.owner_id != self.applicant_id:
-                self.place.owner = self.applicant
-                update_fields.append("owner")
-            # Publish immediately after moderation approval.
-            if not self.place.is_active:
-                self.place.is_active = True
-                update_fields.append("is_active")
-            self.place.save(update_fields=update_fields)
-
-        PlaceOwnershipRequestAudit.log_event(
-            ownership_request=self,
-            actor=moderator,
-            action=(
-                PlaceOwnershipRequestAudit.ACTION_APPROVED
-                if new_status == self.STATUS_APPROVED
-                else PlaceOwnershipRequestAudit.ACTION_REJECTED
-            ),
-            from_status=previous_status,
-            to_status=new_status,
-            note=note or "",
-        )
+        from catalog.services.organization_ownership import moderate_place_request
+        moderate_place_request(actor=moderator, request_id=self.pk, new_status=new_status, note=note)
+        self.refresh_from_db()
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
-        super().save(*args, **kwargs)
+        if is_new:
+            with transaction.atomic(using=kwargs.get('using') or self._state.db or 'default'):
+                if self.request_kind == self.KIND_PUBLICATION:
+                    from catalog.services import publication
+                    from catalog.models.volunteer import VolunteerPlaceRevision
+                    current_place = publication.locked_target("place", self.place_id)
+                    revision = VolunteerPlaceRevision.objects.select_for_update().filter(place=current_place).first()
+                    self.base_content_version = current_place.content_version
+                    self.base_candidate_version = revision.version if revision else 0
+                else:
+                    current_place = Place.objects.select_for_update().get(pk=self.place_id)
+                self.base_ownership_version = current_place.ownership_version
+                self.base_owner_id = current_place.owner_id
+                super().save(*args, **kwargs)
+        else:
+            super().save(*args, **kwargs)
         if is_new:
             PlaceOwnershipRequestAudit.log_event(
                 ownership_request=self,
@@ -210,6 +198,10 @@ class PlaceOwnershipRequestAudit(models.Model):
 
 
 class OwnerTeamMembership(models.Model):
+    actions = models.JSONField(null=True, blank=True, default=None)
+    base_ownership_version = models.PositiveBigIntegerField(null=True, blank=True)
+    version = models.PositiveBigIntegerField(default=1)
+
     place = models.ForeignKey(
         Place,
         on_delete=models.CASCADE,
@@ -266,10 +258,16 @@ class OwnerTeamMembership(models.Model):
         return f"{self.owner} -> {self.member} ({self.get_role_display()})"
 
     def get_permissions(self) -> set[str]:
-        return permissions_for_role(self.role)
+        from catalog.services.place_access import validated_business_actions
+        return permissions_for_role(self.role) if self.actions is None else validated_business_actions(self.actions, target_type="place")
 
 
 class OwnerTeamInvitation(models.Model):
+    actions = models.JSONField(null=True, blank=True, default=None)
+    base_ownership_version = models.PositiveBigIntegerField(null=True, blank=True)
+    base_grant_version = models.PositiveBigIntegerField(null=True, blank=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+
     STATUS_PENDING = "PENDING"
     STATUS_ACCEPTED = "ACCEPTED"
     STATUS_REJECTED = "REJECTED"
@@ -355,7 +353,16 @@ class OwnerTeamInvitation(models.Model):
         if not self.token:
             self.token = uuid.uuid4().hex
         self.email = (self.email or "").strip().lower()
-        super().save(*args, **kwargs)
+        if self._state.adding and self.place_id:
+            from catalog.models.business_team import invitation_expiry
+            with transaction.atomic():
+                place = Place.objects.select_for_update().get(pk=self.place_id)
+                self.base_ownership_version = place.ownership_version
+                if self.expires_at is None:
+                    self.expires_at = invitation_expiry()
+                super().save(*args, **kwargs)
+        else:
+            super().save(*args, **kwargs)
 
 
 class PlaceChangeAudit(models.Model):
@@ -403,3 +410,24 @@ class PlaceChangeAudit(models.Model):
 
     def __str__(self):
         return f"{self.place_id}:{self.field_name}"
+
+
+class OrganizationOwnershipRequest(models.Model):
+    organization = models.ForeignKey('catalog.Organization', on_delete=models.PROTECT, related_name='ownership_requests')
+    applicant = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='organization_ownership_requests')
+    status = models.CharField(max_length=16, choices=PlaceOwnershipRequest.STATUS_CHOICES, default='PENDING', db_index=True)
+    note = models.TextField(blank=True, default='')
+    moderation_note = models.TextField(blank=True, default='')
+    moderated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='organization_ownership_decisions')
+    moderated_at = models.DateTimeField(null=True, blank=True)
+    base_ownership_version = models.PositiveBigIntegerField(null=True, blank=True, editable=False)
+    base_owner_id = models.PositiveBigIntegerField(null=True, blank=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=('organization', 'applicant'), condition=Q(status='PENDING'), name='org_ownership_pending_unique'),
+            models.CheckConstraint(condition=Q(base_ownership_version__isnull=True) | Q(base_ownership_version__gte=1), name='org_claim_base_positive'),
+            models.CheckConstraint(condition=Q(status__in=('PENDING', 'APPROVED', 'REJECTED')), name='org_claim_status_known'),
+        ]

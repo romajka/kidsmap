@@ -280,9 +280,12 @@ def build_catalog_seo_payload(*, request, selected: dict, places, total_count: i
             "title": title_base
         }
     else:
-        description = _("%(title)s. Фильтры по категории, региону, метро, возрасту и цене на KidsMap.") % {
-            "title": title_base
-        }
+        suffix = {
+            "az": "KidsMap-də kateqoriya, region, metro və yaş üzrə filtrlər.",
+            "en": "Filters by category, region, metro and age on KidsMap.",
+            "ru": "Фильтры по категории, региону, метро и возрасту на KidsMap.",
+        }.get(language_code, "Filters by category, region, metro and age on KidsMap.")
+        description = f"{title_base}. {suffix}"
 
     if filter_summary:
         intro = f"{title_base}. {cards_found}. {'; '.join(filter_summary)}."
@@ -365,11 +368,13 @@ def _place_description(place, language_code: str) -> str:
 
 
 def build_place_seo_payload(place, request, language_code):
+    from catalog.services.public_presentation import present
+    presentation = present(place, language_code)
     lang = (language_code or "az").split("-")[0].lower()
     with override(lang):
         gallery = place.gallery_files()
         first_image_url = _absolute_uri(request, gallery[0].url) if gallery else _absolute_uri(request, static("img/logo.svg"))
-        description = _place_description(place, lang)
+        description = presentation["description"] or _place_description(place, lang)
 
         category_label = place.get_category_display()
         if place.category:
@@ -378,13 +383,13 @@ def build_place_seo_payload(place, request, language_code):
         if place.district:
             from catalog.services.locations import get_location_translation
             title = _("%(name)s — %(category)s для детей в регионе %(district)s | KidsMap") % {
-                "name": place.name_i18n(lang),
+                "name": presentation["name"],
                 "category": category_label,
                 "district": get_location_translation(place.district, lang),
             }
         else:
             title = _("%(name)s — кружок и секция для детей в Азербайджане | KidsMap") % {
-                "name": place.name_i18n(lang),
+                "name": presentation["name"],
             }
 
         address_payload = {
@@ -402,7 +407,7 @@ def build_place_seo_payload(place, request, language_code):
         schema = {
             "@context": "https://schema.org",
             "@type": "LocalBusiness",
-            "name": place.name_i18n(lang),
+            "name": presentation["name"],
             "description": description,
             "url": _absolute_uri(request, place.get_absolute_url()),
             "image": first_image_url,
@@ -456,7 +461,7 @@ def build_place_seo_payload(place, request, language_code):
             if opening_hours:
                 schema["openingHoursSpecification"] = opening_hours
 
-        same_as = [place.website_url(), place.instagram_url()]
+        same_as = [presentation["contacts"].get("website_url", ""), place.instagram_url()]
         same_as = [item for item in same_as if item]
         if same_as:
             schema["sameAs"] = same_as
@@ -470,44 +475,9 @@ def build_place_seo_payload(place, request, language_code):
                 "worstRating": 1,
             }
 
-        offers = []
-        for plan in place.pricing_plan_records.filter(is_active=True, charge_role="primary").order_by("sort_order", "id"):
-            if plan.price_kind not in {"exact", "free", "range", "from"}:
-                continue
-            offer = {"@type": "Offer", "name": plan.title_i18n(lang), "priceCurrency": plan.currency}
-            if plan.price_kind in {"exact", "free"}:
-                offer["price"] = format(plan.price, ".2f")
-            elif plan.price_kind == "from":
-                val = plan.price_min if plan.price_min is not None else plan.price
-                if val is not None:
-                    offer["price"] = format(val, ".2f")
-                    offer["priceSpecification"] = {
-                        "@type": "PriceSpecification",
-                        "minPrice": format(val, ".2f"),
-                        "priceCurrency": plan.currency,
-                    }
-            elif plan.price_min is not None and plan.price_max is not None:
-                offer["priceSpecification"] = {
-                    "@type": "PriceSpecification",
-                    "minPrice": format(plan.price_min, ".2f"),
-                    "maxPrice": format(plan.price_max, ".2f"),
-                    "priceCurrency": plan.currency,
-                }
-            offers.append(offer)
-
-        if not offers:
-            price_mode = getattr(place, "price_mode", Place.PRICE_MODE_TARIFFS) or Place.PRICE_MODE_TARIFFS
-            if price_mode == Place.PRICE_MODE_FREE:
-                free_label = {"az": "Pulsuz", "ru": "Бесплатно", "en": "Free"}.get(lang, "Бесплатно")
-                offers.append({
-                    "@type": "Offer",
-                    "name": free_label,
-                    "price": "0.00",
-                    "priceCurrency": "AZN",
-                })
-
+        offers = presentation["prices"].get("schema_offers", [])
         if offers:
-            schema["offers"] = offers if len(offers) > 1 else offers[0]
+            schema["offers"] = offers
 
         map_embed_url = ""
         map_open_url = ""
@@ -532,7 +502,7 @@ def build_place_seo_payload(place, request, language_code):
                     "url": f"{reverse('place_list')}?{urlencode({'category': place.category_id})}",
                 }
             )
-        breadcrumb_items.append({"name": place.name_i18n(lang), "url": place.get_absolute_url()})
+        breadcrumb_items.append({"name": presentation["name"], "url": place.get_absolute_url()})
 
         breadcrumb_schema_json = _build_breadcrumb_schema(
             [{"name": item["name"], "url": _absolute_uri(request, item["url"])} for item in breadcrumb_items]

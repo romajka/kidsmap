@@ -1,0 +1,14 @@
+{% extends "admin/volunteer/base.html" %}
+{% load i18n %}
+{% block workspace %}
+<a href="{% url 'admin:volunteer_moderation_hub' %}">← {% translate "Центр модерации" %}</a>
+<h1>{{ title }} · {{ row.name }}</h1><p>{{ row.kind_label }} · {{ row.mode_label }} · {{ row.status_label }} · {{ row.sla_label }}</p>
+{% if error %}<div class="alert alert-danger" role="alert" id="hub-error" tabindex="-1">{{ error }}</div>{% endif %}
+{% if row.conflict %}<div class="alert alert-warning" role="alert">{% translate "Исходные данные изменились. Сначала верните предложение на доработку." %}</div>{% endif %}
+<h2>{% translate "Изменения" %}</h2>
+<div class="km-volunteer-comparison"><table><thead><tr><th scope="col">{% translate "Поле" %}</th><th scope="col">{% translate "Сейчас" %}</th><th scope="col">{% translate "Предложено" %}</th></tr></thead><tbody>
+{% for field, before, after in row.changes %}<tr><th scope="row">{{ field }}</th><td>{{ before|default_if_none:'—' }}</td><td>{{ after|default_if_none:'—' }}</td></tr>{% empty %}<tr><td colspan="3">{% translate "Новых полей нет." %}</td></tr>{% endfor %}
+</tbody></table></div>
+{% if row.affected_branches %}<h2>{% translate "Затронутые филиалы" %}</h2><ul>{% for place_id in row.affected_branches %}<li>{% translate "Место" %} #{{ place_id }}</li>{% endfor %}</ul>{% endif %}
+{% if row.status == 'pending' %}<form method="post">{% csrf_token %}<input type="hidden" name="version" value="{{ row.version }}"><label for="hub-reason">{% translate "Причина решения" %}</label><textarea id="hub-reason" name="reason" rows="3" required aria-describedby="hub-reason-help"></textarea><p id="hub-reason-help">{% translate "Причина обязательна для любого решения." %}</p><div class="km-volunteer-actions"><button class="btn btn-success" name="action" value="approve" type="submit"{% if row.conflict %} disabled aria-describedby="hub-conflict-help"{% endif %}>{% translate "Одобрить" %}</button><button class="btn btn-outline-secondary" name="action" value="return" type="submit">{% translate "Вернуть на доработку" %}</button><button class="btn btn-danger" name="action" value="reject" type="submit">{% translate "Отклонить" %}</button></div>{% if row.conflict %}<p id="hub-conflict-help">{% translate "Одобрение недоступно из-за конфликта версии." %}</p>{% endif %}</form>{% endif %}
+{% endblock %}

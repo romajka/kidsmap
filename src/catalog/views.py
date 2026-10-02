@@ -64,7 +64,7 @@ from .services.account_deletion import (
 def place_pricing_api(request, slug):
     from django.shortcuts import get_object_or_404
     from catalog.models import Place
-    from catalog.services.pricing_plans import build_public_price_summary, serialize_pricing_plans
+    from catalog.services.pricing_plans import build_public_price_summary, serialize_pricing_plans, place_pricing_records
 
     language = (request.GET.get("lang") or getattr(request, "LANGUAGE_CODE", "az") or "az").split("-")[0]
     if language not in {"az", "ru", "en"}:
@@ -73,7 +73,7 @@ def place_pricing_api(request, slug):
         Place.objects.prefetch_related("pricing_plan_records"),
         slug=slug, is_active=True, status=Place.STATUS_PUBLISHED, deleted_at__isnull=True,
     )
-    plans = place.pricing_plan_records.filter(is_active=True).order_by("sort_order", "id")
+    plans = [plan for plan in place_pricing_records(place) if plan.is_active]
     summary = build_public_price_summary(place, language)
     summary = {
         **summary,
@@ -114,29 +114,37 @@ def catalog_search_suggestions(request):
     from catalog.services.filtering import PlaceListFilters
     filters = PlaceListFilters(query=query)
     base_qs = place_controller.place_repository.filtered_active_queryset()
-    places_qs = filters.apply(base_qs).select_related("category", "subcategory")[:6]
+    places_qs = filters.apply(base_qs).prefetch_related(None).select_related("category", "subcategory")[:6]
+    from catalog.services.public_presentation import prepare_cards, organization_matches
+    places = prepare_cards(places_qs, language, filters=filters)
 
     age_suffix = " yaş" if language == "az" else (" yrs" if language == "en" else " лет")
 
     places_data = []
-    for place in places_qs:
-        age_str = f"{place.age_display}{age_suffix}" if place.age_display else ""
+    for place in places:
+        presentation = place._card_presentation
+        if presentation['matched_offers']:
+            ages = dict.fromkeys(group['age'] for offer in presentation['matched_offers'] for group in offer['groups'] if group['age'])
+            age_str = ', '.join(age + age_suffix for age in ages)
+        else:
+            age_str = f"{place.age_display}{age_suffix}" if place.age_display else ""
         category_title = place.category.name_i18n(language) if place.category else (place.get_category_display() or "")
         places_data.append({
             "id": place.id,
-            "name": place.name_i18n(language),
-            "url": place.get_absolute_url(),
+            "name": presentation["name"],
+            "url": presentation["url"],
             "category": category_title,
             "district": place.district_i18n(language) or place.metro_i18n(language) or "",
             "image": place.public_image_url or "",
             "rating": round(float(place.rating_avg or 0), 1) if place.rating_count else None,
-            "price": place.card_price_badge or "",
+            "price": presentation["prices"]["label"],
             "age": age_str,
         })
 
     return JsonResponse({
         "query": query,
         "categories": matching_categories,
+        "organizations": organization_matches(query, language),
         "places": places_data,
     })
 
@@ -282,17 +290,8 @@ def _redirect_to_login(request):
 
 
 def _build_managed_places_summary(user) -> dict:
-    managed_places = list(
-        Place.objects.filter(
-            # created_by only stands in while the card has no owner at all.
-            Q(owner=user)
-            | Q(owner__isnull=True, created_by=user)
-            | Q(team_memberships__member=user, team_memberships__is_active=True),
-            deleted_at__isnull=True,
-        )
-        .distinct()
-        .order_by("-updated_at")
-    )
+    from catalog.services.business_team import accessible_place_ids
+    managed_places = list(Place.objects.filter(pk__in=accessible_place_ids(user=user)).order_by("-updated_at"))
     active_managed_places_count = sum(
         1 for place in managed_places if place.status == Place.STATUS_PUBLISHED and place.is_active
     )
@@ -922,6 +921,16 @@ def owner_places_dashboard(request):
     owner_specialists = list(
         request.user.managed_specialists.prefetch_related("specializations").order_by("-updated_at")
     )
+    from catalog.models import Organization, OrganizationPlaceRequest
+    from catalog.services.business_team import has_action
+    from catalog.services.organization_ownership import affiliation_current
+    direct_places = list(Place.objects.filter(owner=request.user, deleted_at__isnull=True).order_by('pk'))
+    context['joinable_places'] = [p for p in direct_places if p.organization_id is None]
+    context['joinable_organizations'] = list(Organization.objects.filter(status='published', archived_at__isnull=True).order_by('pk')[:100])
+    context['place_affiliation_requests'] = list(OrganizationPlaceRequest.objects.filter(
+        place__owner=request.user, status='pending').select_related('place', 'organization').order_by('-pk'))
+    context['affiliated_places'] = [p for p in direct_places if p.organization_id and affiliation_current(p, p.organization)]
+    context['informational_places'] = [p for p in context['affiliated_places'] if p.organization_relationship_kind == 'informational']
     context.update(
         {
             "owner_events": owner_events,
@@ -1052,6 +1061,8 @@ def owner_place_create(request):
                 draft_save_only=True,
             )
             if result.ok:
+                from catalog.services.server_drafts import mark_explicit_save
+                mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=None)
                 messages.success(request, result.message)
                 return redirect("owner_places_dashboard")
 
@@ -1074,6 +1085,8 @@ def owner_place_create(request):
             files=request.FILES,
         )
         if result.ok:
+            from catalog.services.server_drafts import mark_explicit_save
+            mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=None)
             messages.success(request, result.message)
             return redirect("owner_places_dashboard")
 
@@ -1250,6 +1263,12 @@ def event_detail(request, pk, slug):
     )
 
 
+def _place_revision_context(place):
+    from catalog.models import VolunteerPlaceRevision
+    from catalog.services.place_readiness import inherited_contact
+    return {'place_revision': VolunteerPlaceRevision.objects.filter(place=place).first(), 'inherited_contact_source': bool(inherited_contact(place))} if place else {}
+
+
 def owner_place_edit(request, pk):
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
@@ -1270,6 +1289,8 @@ def owner_place_edit(request, pk):
             submit_for_moderation=form_action == "save_and_publish",
         )
         if result.ok:
+            from catalog.services.server_drafts import mark_explicit_save
+            mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=pk)
             messages.success(request, result.message)
             if form_action == "save_draft_exit":
                 return redirect("owner_places_dashboard")
@@ -1284,6 +1305,7 @@ def owner_place_edit(request, pk):
         context = {
             "form": result.form,
             "place": result.place,
+            **_place_revision_context(result.place),
             "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
             "meta_description": _("Редактирование места в личном кабинете KidsMap."),
             "km_place_taxonomy_picker": _build_owner_taxonomy_picker_config(result.form),
@@ -1298,6 +1320,7 @@ def owner_place_edit(request, pk):
     context = {
         "form": result.form,
         "place": result.place,
+        **_place_revision_context(result.place),
         "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
         "meta_description": _("Редактирование места в личном кабинете KidsMap."),
         "km_place_taxonomy_picker": _build_owner_taxonomy_picker_config(result.form),

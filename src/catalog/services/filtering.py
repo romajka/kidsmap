@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import timedelta
 
-from django.db.models import Case, DecimalField, F, Q, Subquery, When
+from django.db.models import Q
 from django.utils import timezone
 
 
@@ -60,6 +60,8 @@ class PlaceListFilters:
             data.age_from = data.age_to = ""
         if data.price_from == "0" and data.price_to == "500":
             data.price_from = data.price_to = ""
+        if data.sort in {"price_asc", "price_desc"}:
+            data.sort = "new"
         data._normalize_subcategory()
         if data.force_new_only:
             data.sort = "new"
@@ -139,26 +141,12 @@ class PlaceListFilters:
         elif created_after is not None:
             qs = qs.filter(created_at__gte=created_after)
 
-        if self.category:
-            qs = qs.filter(category=self.category)
-
-        if self.subcategory:
-            qs = qs.filter(subcategory_id=self.subcategory)
-
-        if self.query:
-            qs = qs.filter(
-                Q(name_ru__icontains=self.query)
-                | Q(name_en__icontains=self.query)
-                | Q(name_az__icontains=self.query)
-                | Q(name__icontains=self.query)
-                | Q(description_ru__icontains=self.query)
-                | Q(description_en__icontains=self.query)
-                | Q(description_az__icontains=self.query)
-                | Q(subcategory__name_ru__icontains=self.query)
-                | Q(subcategory__name_az__icontains=self.query)
-                | Q(subcategory__name_en__icontains=self.query)
-                | Q(address__icontains=self.query)
-            )
+        from catalog.services.catalog_search import apply_offer_matching
+        qs = apply_offer_matching(qs, self)
+        # Old URLs remain valid, but incompatible currencies/units cannot filter or sort.
+        self.price_from = self.price_to = self.price_max = ""
+        if self.sort in {"price_asc", "price_desc"}:
+            self.sort = "new"
 
         if self.district:
             if self.district.lower() == "baku":
@@ -194,46 +182,6 @@ class PlaceListFilters:
         if self.metro:
             qs = qs.filter(metro__iexact=self.metro)
 
-        age_from_int, age_to_int = self._normalized_age_bounds()
-        if age_from_int is not None or age_to_int is not None:
-            # Unknown suitability is not a match for a selected child's age.
-            qs = qs.exclude(age_from__isnull=True, age_to__isnull=True)
-        if age_from_int is not None:
-            qs = qs.filter(Q(age_to__isnull=True) | Q(age_to__gte=age_from_int))
-        if age_to_int is not None:
-            qs = qs.filter(Q(age_from__isnull=True) | Q(age_from__lte=age_to_int))
-
-        price_from_int, price_to_int = self._normalized_price_bounds()
-        if price_from_int is not None or price_to_int is not None or self.sort in {"price_asc", "price_desc"}:
-            from catalog.models import PricingPlan
-            from django.db.models import OuterRef
-            paid_price = (
-                PricingPlan.objects.filter(
-                    place_id=OuterRef("pk"), is_active=True, charge_role="primary", currency="AZN",
-                    price_kind__in=("exact", "from", "range"),
-                )
-                .annotate(
-                    effective_price=Case(
-                        When(price_kind="exact", then=F("price")),
-                        default=F("price_min"), output_field=DecimalField(max_digits=10, decimal_places=2),
-                    )
-                )
-                .filter(effective_price__gt=0)
-                .order_by("effective_price")
-                .values("effective_price")[:1]
-            )
-            qs = qs.annotate(catalog_paid_price=Subquery(paid_price, output_field=DecimalField(max_digits=10, decimal_places=2)))
-        if price_from_int is not None:
-            qs = qs.filter(catalog_paid_price__gte=price_from_int)
-        if price_to_int is not None:
-            qs = qs.filter(catalog_paid_price__lte=price_to_int)
-
-        qs = qs.prefetch_related("pricing_plan_records")
-
-        if self.sort == "price_asc" and not self.force_new_only:
-            return qs.order_by("catalog_paid_price", "-created_at")
-        if self.sort == "price_desc" and not self.force_new_only:
-            return qs.order_by("-catalog_paid_price", "-created_at")
         if self.sort == "reviews_desc" and not self.force_new_only:
             return qs.order_by("-rating_count", "-rating_avg", "-created_at")
         if self.sort == "rating" and not self.force_new_only:
@@ -251,7 +199,6 @@ class PlaceListFilters:
 
     def selected(self):
         age_from_int, age_to_int = self._normalized_age_bounds()
-        price_from_int, price_to_int = self._normalized_price_bounds()
         return {
             "category": self.category,
             "subcategory": self.subcategory,
@@ -261,8 +208,8 @@ class PlaceListFilters:
             "age": self.age,
             "age_from": str(age_from_int if age_from_int is not None else self.age_from),
             "age_to": str(age_to_int if age_to_int is not None else self.age_to),
-            "price_from": str(price_from_int if price_from_int is not None else self.price_from),
-            "price_to": str(price_to_int if price_to_int is not None else self.price_to),
+            "price_from": "",
+            "price_to": "",
             "min_rating": self.min_rating,
             "sort": self.sort,
             "days": self.days,

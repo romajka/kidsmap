@@ -101,7 +101,9 @@ def save_owner_photos(request, pk=None):
         if not result.ok:
             errors = {name: [str(error) for error in values] for name, values in result.form.errors.items()} if result.form is not None else {'__all__': [str(result.message)]}
             return JsonResponse({'ok': False, 'errors': errors}, status=422 if result.form is not None else 403)
-        url = reverse('owner_place_edit', args=[result.place.pk]) + '#photos' if action == 'save_draft' else reverse('owner_places_dashboard')
+        from catalog.services.server_drafts import mark_explicit_save
+        mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=pk)
+        url = reverse('owner_place_edit', args=[result.place.pk]) + '#pc-section-4' if action == 'save_draft' else reverse('owner_places_dashboard')
         payload = {'ok': True, 'redirect': url}
         cache.set(key, payload, timeout=86400)
         success = True

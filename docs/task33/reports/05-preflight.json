@@ -1,0 +1,53 @@
+{
+  "timestamp_utc": "2026-09-29T09:16:54.303199+00:00",
+  "source_head": "c52b871ce5c18656a9eaf9854e66255c2629364e",
+  "branch": "seo-indexability-20260916",
+  "tracked_worktree": "CLEAN",
+  "index": "CLEAN",
+  "untracked_package": "docs/task33/",
+  "snapshot_path": "/tmp/kidsmap-task33-stage05-20260929-091507",
+  "preservation": {
+    "initial_files": 213,
+    "byte_identical": 212,
+    "changed_existing": [
+      "docs/task33/implementation-status.md"
+    ],
+    "missing": []
+  },
+  "dependencies": {
+    "01": "DONE",
+    "04": "DONE",
+    "owner_02_acceptance": "MISSING",
+    "admin_public_03_acceptance": "MISSING"
+  },
+  "qa04_reviewed_source_sha": "MATCH",
+  "stage05_status": "BLOCKED",
+  "active_run": "none",
+  "application_source_changes": false,
+  "schema_tests": "NOT_RUN",
+  "independent_schema_review": "NOT_RUN; no schema diff",
+  "production": "NOT_CONTACTED",
+  "changed_stage05_files": [
+    "docs/task33/reports/05.md",
+    "docs/task33/reports/05-preflight.json",
+    "docs/task33/implementation-status.md"
+  ],
+  "prior_source_artifacts_sha256": {
+    "docs/task33/qa04/commands.py": "d06f1297d8d4f418702ce06fa33c560087d276fffb3fe8870f284c5f88a9c9fe",
+    "docs/task33/qa04/fixtures.py": "65be8d3c3b7a1f69738c1965c6c6c088674f1d5ed94ac3c9eff92f6af9a14d87",
+    "docs/task33/qa04/guard.py": "c6531535fa4c63ffe08d57a45480d1a6521fd66546465197fac16f053f6366ad",
+    "docs/task33/qa04/run.py": "ac4021b798c8245e8a8cf48cbdadcda18bc37dc68ee7767ff4f6553ca4aa7d04",
+    "docs/task33/qa04/settings.py": "45657d88e24f97d410b00558191e4801d078a813cc279d4e9f0444efbd88ca6a",
+    "docs/task33/qa04/test_safety.py": "fc2fe90660a059cc862f6f0a1ba784a687532f62db20384c783ce8cee0e20d28"
+  },
+  "report_self_hash": "OMITTED",
+  "historical_preflight_only": true,
+  "checkpoint_resolution": {
+    "date": "2026-09-29",
+    "explicit_user_reply": "Принимаю оба набора",
+    "owner_revision": "owner-02-r1",
+    "admin_public_revision": "admin-public-03-r1",
+    "accepted": true,
+    "current_report": "05.md"
+  }
+}

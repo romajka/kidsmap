@@ -27,8 +27,12 @@ class CatalogAgeFilterTests(TestCase):
         for name, low, high in [('unknown', None, None), ('six_to_twelve', 6, 12),
                                 ('eight_to_twelve', 8, 12), ('up_to_twelve', None, 12),
                                 ('from_six', 6, None)]:
-            Place.objects.create(name=name, category=cls.category, district='baku_yasamal',
-                                 age_from=low, age_to=high)
+            place = Place.objects.create(name=name, category=cls.category, district='baku_yasamal',
+                                         age_from=low, age_to=high)
+            # Stage19: Place-only suitability is confirmed general admission.
+            # Unmapped legacy lessons are covered separately by ExactSearchTests.
+            from django.utils import timezone
+            Place.objects.filter(pk=place.pk).update(nature='public_space',nature_approved_at=timezone.now())
 
     def names(self, **filters):
         return set(PlaceListFilters(**filters).apply(Place.objects.all()).values_list('name', flat=True))

@@ -1,0 +1,2 @@
+{% extends 'base.html' %}{% load i18n %}
+{% block content %}<main class="account-page-wrapper"><h1>{% trans 'Связь изменилась' %}</h1><p>{% trans 'Запрос устарел или уже обработан. Обновите список своих мест.' %}</p><a href="{% url 'owner_places_dashboard' %}">{% trans 'Мои места' %}</a></main>{% endblock %}

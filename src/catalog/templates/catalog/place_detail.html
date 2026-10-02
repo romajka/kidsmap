@@ -15,11 +15,12 @@
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'vendor/swiper/12.2.0/swiper-bundle.min.css' %}" />
   <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=15" />
+  <link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=1" />
 {% endblock %}
 
 {% block content %}
   {% with gallery=place.gallery_files language=request.LANGUAGE_CODE %}
-  <section class="detail-wrap{% if place.phone1 %} detail-wrap--sticky-cta{% endif %}">
+  <section class="detail-wrap{% if presentation.contacts.has_phone %} detail-wrap--sticky-cta{% endif %}">
 
     <article class="detail-page">
 
@@ -32,7 +33,9 @@
         </a>
         {% include "catalog/includes/breadcrumbs.html" with items=place_breadcrumb_items %}
       </div>
-      <h1 class="detail-title">{{ place.name_i18n }}</h1>
+      <h1 class="detail-title" lang="{{ presentation.content_language }}">{{ presentation.name }}</h1>
+      {% if presentation.translation_fallback %}<p class="public-notice" data-translation-fallback>{% if language == 'ru' %}Текст показан на азербайджанском. Перевод пока не добавлен.{% elif language == 'en' %}Text is shown in Azerbaijani. A translation is not available yet.{% else %}Mətn azərbaycanca göstərilir. Tərcümə hələ yoxdur.{% endif %}</p>{% endif %}
+      {% if presentation.organization %}<a class="public-place-org" href="{{ presentation.organization.url }}">{{ presentation.organization.name }}</a>{% endif %}
 
       <div class="detail-hero">
 
@@ -60,7 +63,7 @@
                             src="{{ file.url }}"
                             data-photo-fallback="1"
                             data-fallback-src="{% static 'img/banners/listing-placeholder.webp' %}"
-                            alt="{{ place.name_i18n }}"
+                            alt="{{ presentation.name }}"
                             draggable="false"
                             decoding="async"
                             {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
@@ -100,7 +103,7 @@
                           data-index="{{ forloop.counter0 }}"
                           aria-label="{% blocktrans with number=forloop.counter %}Открыть фото {{ number }}{% endblocktrans %}"
                         >
-                          <img src="{{ file.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" draggable="false" data-photo-fallback="1" data-fallback-src="{% static 'img/banners/listing-placeholder.webp' %}" />
+                          <img src="{{ file.url }}" alt="{{ presentation.name }}" loading="lazy" decoding="async" draggable="false" data-photo-fallback="1" data-fallback-src="{% static 'img/banners/listing-placeholder.webp' %}" />
                         </button>
                       {% endfor %}
                     </div>
@@ -109,8 +112,8 @@
               </div>
             </section>
           {% else %}
-            <div class="detail-photo-placeholder" role="img" aria-label="{% trans 'У этого места пока нет фотографий' %}">
-              <img class="detail-photo-placeholder__image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="" aria-hidden="true" loading="lazy" decoding="async" />
+            <div class="detail-photo-placeholder public-placeholder" data-category-placeholder role="img" aria-label="{% trans 'У этого места пока нет фотографий' %}">
+              {% include "catalog/includes/public_category_icon.html" with icon=presentation.placeholder_icon %}
               <span class="detail-photo-placeholder__caption">{% trans "У этого места пока нет фотографий" %}</span>
             </div>
           {% endif %}
@@ -191,7 +194,7 @@
               <p class="detail-decision__price">
                 <span class="detail-decision__price-value">{% if pricing_summary.has_price %}{{ pricing_summary.formatted_price_amount }}{% else %}{{ place.price_range_display }}{% endif %}</span>
                 {% if pricing_summary.plans %}
-                  <span class="detail-decision__price-note">{{ pricing_summary.plans|length|tariff_count }}</span>
+                  <span class="detail-decision__price-note">{{ pricing_summary.tariff_count|tariff_count }}</span>
                 {% endif %}
               </p>
             {% else %}
@@ -254,12 +257,12 @@
           </div>
 
           <div class="detail-decision__cta">
-            {% if place.phone1 %}
+            {% if presentation.contacts.has_phone %}
               {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--primary" phone_index=0 %}
             {% endif %}
 
             <div class="detail-decision__cta-row">
-              {% if place.phone1 %}
+              {% if presentation.contacts.has_phone %}
                 {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--soft" phone_index=0 whatsapp=True %}
               {% endif %}
               {% if map_open_url %}
@@ -301,8 +304,8 @@
             </div>
           </div>
 
-          {% if place.description_i18n %}
-            <p class="detail-decision__lead">{{ place.description_i18n }}</p>
+          {% if presentation.description %}
+            <p class="detail-decision__lead">{{ presentation.description }}</p>
             <a class="detail-decision__more" href="#about">
               {% trans "О месте" %}
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><path d="M12 5v14m0 0-5-5m5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -314,11 +317,15 @@
       <div class="detail-body">
 
         <div class="detail-main">
+          {% if activities %}<section class="detail-card public-place-offers" aria-labelledby="activities-heading">
+            <h2 id="activities-heading" class="detail-card__title">{% if language == 'ru' %}Занятия в этом месте{% elif language == 'en' %}Activities at this place{% else %}Bu məkanda məşğələlər{% endif %}</h2>
+            {% for activity in activities %}<article><h3><a href="{{ activity.url }}">{{ activity.name }}</a></h3>{% if activity.description %}<p>{{ activity.description|truncatechars:180 }}</p>{% endif %}{% include "catalog/includes/public_offerings.html" with groups=activity.groups %}</article>{% endfor %}
+          </section>{% endif %}
 
-          {% if place.description_i18n %}
+          {% if presentation.description %}
             <section id="about" class="detail-card">
               <h2 class="detail-card__title">{% trans "О месте" %}</h2>
-              <div class="detail-prose">{{ place.description_i18n|linebreaks }}</div>
+              <div class="detail-prose">{{ presentation.description|linebreaks }}</div>
             </section>
           {% endif %}
 
@@ -327,7 +334,7 @@
               <div class="detail-card__head">
                 <h2 class="detail-card__title">{{ pricing_summary.strings.title }}</h2>
                 {% if pricing_summary.plans %}
-                  <span class="detail-card__aside">{{ pricing_summary.plans|length|tariff_count }}</span>
+                  <span class="detail-card__aside">{{ pricing_summary.tariff_count|tariff_count }}</span>
                 {% endif %}
               </div>
 
@@ -338,13 +345,19 @@
               {% if pricing_summary.plans %}
                 <div class="detail-plans" id="pricing-plans-container">
                   {% for plan in pricing_summary.plans %}
-                    {% ifchanged plan.group_key %}
+                    {% if plan.group_label %}{% ifchanged plan.group_key %}
                       <h3 class="detail-plans__group{% if forloop.counter > 3 %} detail-plans__row--hidden{% endif %}"{% if forloop.counter > 3 %} hidden{% endif %}>{{ plan.group_label }}</h3>
-                    {% endifchanged %}
+                    {% endifchanged %}{% endif %}
                     <div class="detail-plans__row{% if forloop.counter > 3 %} detail-plans__row--hidden{% endif %}"{% if forloop.counter > 3 %} hidden{% endif %}>
                       <span class="detail-plans__body">
                         <strong class="detail-plans__name">{{ plan.title }}</strong>
                         {% if plan.details %}<span class="detail-plans__details">{{ plan.details }}</span>{% endif %}
+                        {% if plan.options or plan.required_fees %}
+                          <span class="detail-plans__options">
+                            {% for option in plan.options %}<span>{{ option.title }} · {{ option.price_str }}{% if option.age_from != None or option.age_to != None %} · {{ option.age_from|default:"0" }}–{{ option.age_to|default:"+" }}{% endif %}</span>{% endfor %}
+                            {% for fee in plan.required_fees %}<span class="detail-plans__required-fee">{{ fee.title }} · {{ fee.price_str }}</span>{% endfor %}
+                          </span>
+                        {% endif %}
                       </span>
                       <strong class="detail-plans__price">{{ plan.price_str }}</strong>
                     </div>
@@ -653,7 +666,7 @@
                 data-category-color-text="{{ place.category.resolved_color_text|default:'#6B7280' }}"
                 data-category-color-bg="{{ place.category.resolved_color_bg|default:'#F3F4F6' }}"
                 data-category-code="{{ place.category_code|default:'ALL' }}"
-                data-place-name="{{ place.name_i18n }}"
+                data-place-name="{{ presentation.name }}"
                 data-map-open-url="{{ map_open_url }}"
                 data-google-map-id="{{ google_maps_map_id|default:''|escape }}"
               ></div>
@@ -672,7 +685,8 @@
           <section class="detail-card detail-card--tight">
             <h2 class="detail-card__title detail-card__title--sm">{% trans "Контакты" %}</h2>
             <div class="detail-contacts">
-              {% if place.phone_numbers %}
+              {% if presentation.contacts.source == 'organization' %}<p class="public-muted" data-contact-source="organization">{% if language == 'ru' %}Источник контактов: организация{% elif language == 'en' %}Contact source: organization{% else %}Əlaqə mənbəyi: təşkilat{% endif %}</p>{% endif %}
+              {% if presentation.contacts.has_phone %}
                 {% include "catalog/includes/phone_reveal.html" with phone_class="detail-contacts__row detail-contacts__row--primary" phone_index=0 %}
                 {% if place.phone_numbers|length > 1 %}
                   <div class="detail-contacts__secondary" aria-label="{% trans 'Дополнительные номера' %}">
@@ -696,14 +710,14 @@
                 </a>
               {% endif %}
 
-              {% if place.website %}
-                <a class="detail-contacts__row" href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer" data-track-event="website_click" data-track-place-id="{{ place.id }}" data-track-source="place-detail">
+              {% if presentation.contacts.website_url %}
+                <a class="detail-contacts__row" href="{{ presentation.contacts.website_url }}" target="_blank" rel="noopener noreferrer" data-track-event="website_click" data-track-place-id="{{ place.id }}" data-track-source="place-detail">
                   <span class="detail-contacts__icon detail-contacts__icon--website" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.8"/><path d="M3.9 12h16.2M12 3.75c2.1 2.28 3.15 5 3.15 8.25S14.1 17.97 12 20.25c-2.1-2.28-3.15-5-3.15-8.25S9.9 6.03 12 3.75Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   </span>
                   <span class="detail-contacts__body">
                     <span class="detail-label">{% trans "Сайт" %}</span>
-                    <strong>{{ place.website }}</strong>
+                    <strong>{{ presentation.contacts.website_url }}</strong>
                   </span>
                 </a>
               {% endif %}
@@ -723,7 +737,7 @@
                 </div>
               {% endif %}
 
-              {% if not place.phone_numbers and not place.instagram and not place.address and not place.website %}
+              {% if not presentation.contacts.has_phone and not place.instagram and not place.address and not presentation.contacts.website_url %}
                 <p class="detail-contacts__empty" role="status">{% trans "Контактные данные уточняются." %}</p>
               {% endif %}
             </div>
@@ -785,7 +799,7 @@
       </div>
     </article>
 
-    {% if place.phone1 %}
+    {% if presentation.contacts.has_phone %}
       <div class="detail-mobile-bar" aria-label="{% trans 'Быстрая связь' %}">
         {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--primary" phone_index=0 %}
         {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--soft" phone_index=0 whatsapp=True %}

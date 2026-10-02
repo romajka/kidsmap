@@ -92,18 +92,8 @@ def build_public_place_filter_options(
 ) -> PublicPlaceFilterOptions:
     public_qs = public_place_queryset(Place.objects.all())
 
-    category_counts = dict(
-        public_qs.order_by()
-        .values_list("category")
-        .annotate(total=Count("id", distinct=True))
-    )
-    subcategory_counts = {
-        str(item["subcategory"]): int(item["total"])
-        for item in public_qs.order_by()
-        .exclude(subcategory__isnull=True)
-        .values("subcategory")
-        .annotate(total=Count("id", distinct=True))
-    }
+    from catalog.services.catalog_search import taxonomy_counts
+    category_counts, subcategory_counts = taxonomy_counts(public_qs)
     raw_district_counts = {}
     for item in (
         public_qs.order_by()

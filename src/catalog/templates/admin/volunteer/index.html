@@ -14,5 +14,10 @@
     {% if page.has_other_pages %}<nav class="kv-pagination" aria-label="{% translate 'Страницы мест' context "volunteer dashboard" %}">{% if page.has_previous %}<a class="kv-button" href="?status={{ selected_status }}&amp;q={{ query|urlencode }}&amp;page={{ page.previous_page_number }}">{% translate "Назад" context "volunteer dashboard" %}</a>{% endif %}<span>{{ page.number }} / {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a class="kv-button" href="?status={{ selected_status }}&amp;q={{ query|urlencode }}&amp;page={{ page.next_page_number }}">{% translate "Далее" context "volunteer dashboard" %}</a>{% endif %}</nav>{% endif %}
   </section>
   {% endif %}
+  <section class="kv-results" aria-labelledby="volunteer-other-title">
+    <h2 id="volunteer-other-title">{% translate "Мои другие предложения" %}</h2>
+    <p><a href="{% url 'admin:volunteer_proposal_add' 'organization' %}">{% translate "Предложить организацию" %}</a> · <a href="{% url 'admin:volunteer_affiliation_add' %}">{% translate "Предложить информационную связь" %}</a></p>
+    <ul class="km-volunteer-list">{% for proposal in proposals %}<li><a href="{{ proposal.url }}">{{ proposal.name }}</a><span>{{ proposal.kind_label }} · {{ proposal.status_label }} · {{ proposal.summary }}{% if proposal.child_url %} · <a href="{{ proposal.child_url }}">+ {{ proposal.child_label }}</a>{% endif %}</span></li>{% empty %}<li>{% translate "Пока нет других предложений." %}</li>{% endfor %}</ul>
+  </section>
 </div>
 {% endblock %}

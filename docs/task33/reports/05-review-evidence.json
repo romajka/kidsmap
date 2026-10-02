@@ -1,0 +1,196 @@
+{
+  "identity": "/root/stage05_review",
+  "role": ".agents/agents/django-reviewer/agent.md",
+  "mode": "INDEPENDENT BOUNDED AUDIT",
+  "head": "c52b871ce5c18656a9eaf9854e66255c2629364e",
+  "worktree": "dirty additive stage05 schema; HEAD is not tested new code",
+  "graph": {
+    "callable": true,
+    "project": "home-ramin-kidsmap",
+    "root_verified": true,
+    "new_file_coverage": "UNKNOWN/source checked directly",
+    "ignored_inventory_truncated": true,
+    "get_architecture_called": true,
+    "PricingPlan_search_has_more": true,
+    "search_scope_bounded": true
+  },
+  "source_sha256": {
+    "src/catalog/models/catalog_structure.py": "7d4bcc3209e618a4f33d667e3265973f861cb908ac567e5864fd0bcd670267d2",
+    "src/catalog/models/place.py": "1555c90a2a78496b0056874328710eeadfc37a9fb1c2e748862bbb3e06a17340",
+    "src/catalog/models/__init__.py": "2849e494876de4c567ad1b9b1ca9a20280bbc6d07703593db433292dee4441ef",
+    "src/catalog/services/catalog_structure.py": "50d4f74543e6ba1de140bc4066f6c53706a51c8850a383d079c427a6ca3fafbf",
+    "src/catalog/migrations/0117_task33_catalog_structure.py": "562f20012e13a87bf8a341b844699e2b9998e6bc9ec965969622b5335f470478",
+    "src/catalog/testcases/test_task33_catalog_schema.py": "7b700948fcf3752434680a622cdebdcb9320b1b60e11c5dbff993b5940d09be1"
+  },
+  "historical_migrations_count": 116,
+  "historical_migrations_byte_identical": true,
+  "pricing_plan_byte_identical": true,
+  "source_same_after_final_run": true,
+  "commands": [
+    {
+      "command": "python3 docs/task33/qa04/run.py --mode all --label catalog.testcases.test_task33_catalog_schema --output /tmp/task33-05-independent-first",
+      "exit": 2,
+      "tests": 27,
+      "failures": 0,
+      "errors": 2,
+      "classification": "new synthetic Event fixture missing mandatory category; fixed by parent; cleanup PASS"
+    },
+    {
+      "command": "python3 docs/task33/qa04/run.py --mode all --label catalog.testcases.test_task33_catalog_schema --output /tmp/task33-05-independent-final2",
+      "exit": 0,
+      "tests": 28,
+      "failures": 0,
+      "errors": 0,
+      "cleanup": "PASS"
+    },
+    {
+      "command": "python3 /tmp/task33-05-review-extra-launch.py --mode probe --output /tmp/task33-05-independent-extra-first",
+      "exit": 0,
+      "classification": "reviewer own scratch launcher using unchanged qa04 clean environment/owned DB; synthetic partial-save negative",
+      "extra": {
+        "reviewer_extra_probe": "partial-save effective structural values",
+        "rejected": true,
+        "stored_pair_valid": true,
+        "no_rows_recorded": true
+      }
+    },
+    {
+      "command": "python3 docs/task33/qa04/run.py --mode all --label catalog.testcases.test_task33_catalog_schema --output /tmp/task33-05-independent-final3",
+      "exit": 0,
+      "suite": {
+        "tests_run": 31,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 11.109,
+        "problems": [],
+        "skipped_ids": [],
+        "executed_ids": [
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_archive_org_keeps_place_owner_content_and_reviews",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_archived_location_cannot_accept_new_binding",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_archived_parent_cannot_accept_new_activity",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_business_hard_delete_is_denied_for_instance_and_queryset",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_confirmed_venue_bind_preserves_independent_place_and_event_address",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_hierarchy_protects_old_place_from_cascade",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_inactive_place_is_not_exposed_by_explicit_closed_state",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_legacy_full_save_does_not_erase_new_structural_links",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_legacy_partial_save_and_create_cannot_write_structural_fields",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_legacy_place_without_org_keeps_public_identity_and_unknown_facts",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_location_bounds_pair_and_physical_identity_fail_in_database",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_mismatched_program_and_place_org_is_rejected_on_normal_save",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_nature_and_operating_facts_need_separate_approval",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_negative_and_reversed_group_ages_fail_in_database",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_nonexistent_group_activity_fk_fails_real_database",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_partial_save_cannot_validate_one_pair_and_persist_another",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_pending_links_do_not_attach_place_or_create_business_rights",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_pending_pair_duplicates_are_rejected_without_deleting_history",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_pending_venue_duplicate_is_rejected",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_provenance_requires_version_with_source_program",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_reparent_place_cannot_invalidate_program_links",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_reparent_program_cannot_invalidate_place_links",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_request_decisions_and_base_versions_have_local_checks",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_stale_structural_write_rolls_back",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_unknown_or_open_age_bounds_remain_nullable",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_zero_versions_cannot_enter_database",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaConcurrencyTests.test_activity_creation_and_place_reparent_cannot_both_commit",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaConcurrencyTests.test_activity_creation_and_program_reparent_cannot_both_commit",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaConcurrencyTests.test_concurrent_pending_request_has_one_database_winner",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaForwardMigrationTests.test_forward_populated_legacy_preserves_every_original_field_and_url",
+          "catalog.testcases.test_task33_catalog_schema.CatalogSchemaFoundationTests.test_additive_entities_are_registered_without_replacing_place"
+        ],
+        "problem_ids_complete": true,
+        "status": "PASS"
+      },
+      "cleanup": "PASS",
+      "scratch_removed": true
+    }
+  ],
+  "isolation": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.10",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10"
+  },
+  "checks": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.07
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.124
+    }
+  ],
+  "migrations": {
+    "leaves": [
+      [
+        "account",
+        "0009_emailaddress_unique_primary_email"
+      ],
+      [
+        "admin",
+        "0003_logentry_add_action_flag_choices"
+      ],
+      [
+        "auth",
+        "0012_alter_user_first_name_max_length"
+      ],
+      [
+        "catalog",
+        "0117_task33_catalog_structure"
+      ],
+      [
+        "catalog_moderation",
+        "0001_initial"
+      ],
+      [
+        "contenttypes",
+        "0002_remove_content_type_name"
+      ],
+      [
+        "sessions",
+        "0001_initial"
+      ],
+      [
+        "socialaccount",
+        "0006_alter_socialaccount_extra_data"
+      ]
+    ],
+    "applied_count": 151,
+    "unapplied_count": 0,
+    "vendor": "postgresql"
+  },
+  "fixed_finding": {
+    "id": "05-REVIEW-01",
+    "symbol": "catalog.services.catalog_structure.save_activity/_check_partial_relationships",
+    "trigger": "modified place+program then save(update_fields=[program]) formerly checked a different pair than persisted",
+    "final": "own extra negative and final regression test PASS; changed excluded structural parents rejected under lock"
+  },
+  "not_run": [
+    "full application suite by this reviewer",
+    "rendered browser",
+    "real external integrations",
+    "production",
+    "stages06-28",
+    "postwrite schema rollback"
+  ],
+  "verdict": "PASS stage05 bounded schema review; no remaining blocker found; full baseline belongs to lead",
+  "parent_full_baseline_at_handoff": {
+    "status": "RUNNING reported by lead, not independently executed",
+    "output": "/tmp/task33-05-full-final",
+    "expected_tests": 1262
+  }
+}

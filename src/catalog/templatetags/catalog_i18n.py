@@ -82,3 +82,11 @@ def favorite_count(value) -> str:
     if plural_form == "few":
         return f"Сохранили {count} пользователя"
     return f"Сохранили {count} пользователей"
+
+
+@register.simple_tag(takes_context=True)
+def public_presentation(context, obj):
+    from catalog.services.public_presentation import present
+    request = context.get('request')
+    cached = getattr(obj, '_card_presentation', None)
+    return cached if cached is not None else present(obj, getattr(request, 'LANGUAGE_CODE', None) or get_language())

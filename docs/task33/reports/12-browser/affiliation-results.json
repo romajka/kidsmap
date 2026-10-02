@@ -1,0 +1,18 @@
+{
+  "checks": [
+    "place-owner affiliation visible and no overflow at 390",
+    "place-owner affiliation visible and no overflow at 1024",
+    "join form keyboard POST creates pending request",
+    "stale pending join confirmation POST returns 409",
+    "place-owner detach POST succeeds and affiliation disappears"
+  ],
+  "page_errors": [],
+  "screenshots": [
+    "place-owner-affiliation-en-390.png",
+    "place-owner-affiliation-en-1024.png"
+  ],
+  "join_post_status": 302,
+  "join_url": "http://127.0.0.1:8772/place-owner?lang=en",
+  "join_pending_count": 1,
+  "status": "PASS"
+}

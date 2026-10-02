@@ -1,0 +1,90 @@
+{
+  "full": {
+    "command": "python3 docs/task33/qa04/run.py --mode all --output /tmp/task33-09-full-final-2",
+    "exit": 114,
+    "tests_run": 1390,
+    "failures": 101,
+    "errors": 13,
+    "skipped": 0,
+    "new_ids": 17,
+    "missing_old_ids": 0,
+    "new_stage09_problem_records": 0,
+    "retained_exact_baseline_records": 114,
+    "resolved_baseline_records": 0,
+    "added_problem_records": 0,
+    "checks": [
+      {
+        "command": "check",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.148
+      },
+      {
+        "command": "makemigrations",
+        "status": "PASS",
+        "exit": 0,
+        "elapsed_seconds": 0.195
+      }
+    ],
+    "migrations": {
+      "leaves": [
+        [
+          "account",
+          "0009_emailaddress_unique_primary_email"
+        ],
+        [
+          "admin",
+          "0003_logentry_add_action_flag_choices"
+        ],
+        [
+          "auth",
+          "0012_alter_user_first_name_max_length"
+        ],
+        [
+          "catalog",
+          "0122_task33_server_draft"
+        ],
+        [
+          "catalog_moderation",
+          "0001_initial"
+        ],
+        [
+          "contenttypes",
+          "0002_remove_content_type_name"
+        ],
+        [
+          "sessions",
+          "0001_initial"
+        ],
+        [
+          "socialaccount",
+          "0006_alter_socialaccount_extra_data"
+        ]
+      ],
+      "applied_count": 156,
+      "unapplied_count": 0,
+      "vendor": "postgresql"
+    },
+    "cleanup": "PASS"
+  },
+  "targeted": {
+    "command": "python3 docs/task33/qa04/run.py --mode all --label catalog.testcases.test_task33_drafts --label catalog.testcases.test_task33_publication --label catalog.testcases.test_task33_permissions --label catalog.testcases.test_task33_ownership --label catalog.testcases.test_task33_catalog_schema --output /tmp/task33-09-targeted-final-1",
+    "tests_run": 159,
+    "failures": 0,
+    "errors": 0,
+    "cleanup": "PASS"
+  },
+  "browser": {
+    "command": "node docs/task33/qa08/browser-check.cjs /tmp/task33-08-09-browser-ui-final",
+    "matrix": 42,
+    "save_flows": 6,
+    "status": "PASS",
+    "account_key_command": "node docs/task33/qa09/browser-key.cjs",
+    "account_key_languages": 3,
+    "account_key_status": "PASS",
+    "bridge_cleanup": "PASS",
+    "offline_recovery_status": "PASS",
+    "offline_recovery_languages": 3,
+    "offline_bridge_cleanup": "PASS"
+  }
+}

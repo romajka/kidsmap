@@ -498,3 +498,28 @@ def track_click_event(*, request, event_type: str, place_id: int | None, source:
         source=source,
         path=path,
     )
+
+
+def track_subject_view(*, request, subject):
+    """Record existing Organization/Activity subjects once per request, no backfill."""
+    from catalog.models import Organization, Activity
+    from catalog.services.public_presentation import visible
+    if not isinstance(subject, (Organization, Activity)) or not visible(subject):
+        return False
+    kind = 'organization' if isinstance(subject, Organization) else 'activity'
+    key = (kind, subject.pk)
+    seen = getattr(request, '_public_subject_views', set())
+    if key in seen:
+        return False
+    request._public_subject_views = seen | {key}
+    if not getattr(settings, 'LOCAL_ANALYTICS_STORAGE_ENABLED', False):
+        return True
+    visitor_hash, session_hash = analytics_identity_for_request(request)
+    _tracking_service.event_repository.create_event(
+        event_type=kind+'_view', path=request.path[:255], place=None,
+        user=request.user if request.user.is_authenticated else None, session_key='', event_meta={},
+        schema_version=FunnelEvent.SCHEMA_V2, subject_type=kind, subject_id=subject.pk,
+        visitor_key_hash=visitor_hash, session_key_hash=session_hash, source='',
+        page_type=kind+'_detail', language=str(getattr(request,'LANGUAGE_CODE','az')).split('-')[0],
+        device_class=classify_device(request), referrer_domain='', campaign='')
+    return True

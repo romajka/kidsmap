@@ -384,6 +384,12 @@
         return;
       }
 
+      var activeForm = document.querySelector("[data-km-admin-form]");
+      var activePlaceId = activeForm ? activeForm.dataset.placeId : "";
+      if (data.place_id != null && String(data.place_id) !== activePlaceId) {
+        showMessage("JSON предназначен для другой карточки. Проверьте place_id.", true);
+        return;
+      }
       var validateUrl = dialog.dataset.pricingValidateUrl;
       if (validateUrl) {
         try {
@@ -404,6 +410,7 @@
               (Array.isArray(validation.pricing_plans) && validation.pricing_plans.length > 0)) {
             data.pricing_plans = validation.pricing_plans;
           }
+          if (validation.nested_pricing) data.nested_pricing = validation.nested_pricing;
           if (validation.warnings && validation.warnings.length) showMessage(validation.warnings.join(" "), false);
         } catch (error) {
           showMessage("Не удалось проверить тарифы на сервере.", true);
@@ -413,6 +420,7 @@
 
       function applyData() {
         var filled = 0;
+        if (data.nested_pricing && setValue("nested_pricing", data.nested_pricing)) filled += 1;
 
         // 1. Phones array alias support
         var rawPhones = data.phones || data.телефоны;
@@ -563,7 +571,7 @@
           "lesson_duration_minutes", "длительность_минуты",
           "lesson_format", "формат_занятий", "lessons_per_week", "lessons_per_month",
           "is_temporary", "temporary_start", "temporary_end",
-          "price_mode", "режим_цены", "pricing_plans", "tariffs",
+          "price_mode", "режим_цены", "pricing_plans", "tariffs", "nested_pricing", "schema_version", "place_id", "base_content_version",
           "custom_price_badge_az", "custom_price_badge_ru", "custom_price_badge_en",
           "custom_price_badge", "плашка_цены", "надпись_цены",
           "extra_conditions", "extra_conditions_az", "extra_conditions_ru", "extra_conditions_en",

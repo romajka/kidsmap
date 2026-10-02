@@ -1,3 +1,8 @@
+from .controllers.public_map_api import public_map
+from .controllers.public_details import organization_detail as public_organization_detail, activity_detail
+from .controllers.server_draft_api import draft_collection, draft_detail, draft_photo, draft_materialize
+from .controllers.business_team_api import business_team_action, business_permission_config
+from .controllers.workflow_notifications import inbox, mark_read, accept_invitation
 from .controllers.location_resolution import location_resolve
 from django.contrib.auth import views as auth_views
 from django.urls import path, re_path, reverse_lazy
@@ -76,13 +81,44 @@ from .views import (
     catalog_search_suggestions,
 )
 
+from catalog.controllers.organization_ownership_api import organization_ownership_action
+from catalog.controllers.group_conditions import confirm_group_conditions
+from catalog.controllers.program_workspace import program_create, program_detail, program_save
+from catalog.controllers.organization_workspace import (organization_index, organization_create, organization_detail, organization_branch, organization_save, organization_join, organization_confirm, organization_detach, organization_branch_create)
+
 urlpatterns = [
+    path("organizations/<uuid:public_id>/", public_organization_detail, name="organization_detail"),
+    path("activities/<int:pk>/", activity_detail, name="activity_detail"),
+    path('account/notifications/', inbox, name='account_notifications'),
+    path('account/notifications/<int:notification_id>/read/', mark_read, name='account_notification_read'),
+    path('account/notifications/<int:notification_id>/accept/', accept_invitation, name='account_notification_accept'),
+    path('account/organizations/', organization_index, name='organization_workspace_index'),
+    path('account/organizations/create/', organization_create, name='organization_workspace_create'),
+    path('account/organizations/<int:org_id>/', organization_detail, name='organization_workspace_detail'),
+    path('account/organizations/<int:org_id>/programs/create/', program_create, name='organization_program_create'),
+    path('account/organizations/<int:org_id>/programs/<int:program_id>/', program_detail, name='organization_program_detail'),
+    path('account/organizations/<int:org_id>/programs/<int:program_id>/save/', program_save, name='organization_program_save'),
+    path('account/organizations/<int:org_id>/branches/create/', organization_branch_create, name='organization_workspace_branch_create'),
+    path('account/organizations/<int:org_id>/branches/<int:place_id>/', organization_branch, name='organization_workspace_branch'),
+    path('account/organizations/<int:org_id>/save/', organization_save, name='organization_workspace_save'),
+    path('account/organizations/<int:org_id>/join/', organization_join, name='organization_workspace_join'),
+    path('account/organizations/<int:org_id>/requests/<int:request_id>/confirm/', organization_confirm, name='organization_workspace_confirm'),
+    path('account/organizations/<int:org_id>/branches/<int:place_id>/detach/', organization_detach, name='organization_workspace_detach'),
+    path('account/places/<int:place_id>/groups/<int:group_id>/confirm-conditions/', confirm_group_conditions, name='owner_group_confirm_conditions'),
+    path("api/drafts/", draft_collection, name="server_draft_collection"),
+    path("api/drafts/<uuid:draft_id>/", draft_detail, name="server_draft_detail"),
+    path("api/drafts/<uuid:draft_id>/photo/", draft_photo, name="server_draft_photo"),
+    path("api/drafts/<uuid:draft_id>/materialize/", draft_materialize, name="server_draft_materialize"),
+    path("account/business/permissions/", business_permission_config, name="business_permission_config"),
+    path("account/business/team/<str:target_type>/<int:target_id>/<str:action>/", business_team_action, name="business_team_action"),
+    path('api/ownership/<str:action>/<str:target_type>/<int:target_id>/', organization_ownership_action, name='organization_ownership_action'),
     path("api/location/resolve/", location_resolve, name="location_resolve"),
     path("account/photos/prepare/", prepare_owner_photo, name="owner_photo_prepare"),
     path("account/places/<int:pk>/photo-thumbnail/<int:photo_id>/", owner_photo_thumbnail, name="owner_photo_thumbnail"),
     path("account/places/save-photos/", save_owner_photos, name="owner_photo_create_save"),
     path("account/places/<int:pk>/save-photos/", save_owner_photos, name="owner_photo_edit_save"),
     path("api/places/<int:pk>/phones/", reveal_place_phones, name="place_phone_reveal"),
+    path("api/catalog/map/", public_map, name="public_map"),
     path("api/catalog/suggestions/", catalog_search_suggestions, name="catalog_search_suggestions"),
     path("", home, name="home"),
     path("events/", events_landing, name="events_landing"),

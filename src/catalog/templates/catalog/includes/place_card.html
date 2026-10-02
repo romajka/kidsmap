@@ -1,19 +1,21 @@
 {% load i18n static catalog_i18n %}
+{% public_presentation place as presentation %}
+{% get_current_language as card_language %}
 
 <article class="card place-card" data-place-id="{{ place.id }}">
   <div class="card-media">
-    <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
+    <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ presentation.name }}">
       {% with public_image=place.public_image_file %}
       {% if public_image %}
       {% responsive_image public_image as card_image %}
       <div class="card-media-blur-bg" style="background-image: url('{{ card_image.preview }}');" aria-hidden="true"></div>
       <img class="card-media-img" src="{{ card_image.src }}"
         {% if card_image.srcset %}srcset="{{ card_image.srcset }}" sizes="{% if request.resolver_match.url_name == 'home' %}(max-width: 760px) 280px, 320px{% else %}(max-width: 760px) calc(100vw - 28px), (max-width: 1100px) calc((100vw - 64px) / 2), 320px{% endif %}" width="{{ card_image.width }}" height="{{ card_image.height }}"{% endif %}
-        alt="{{ place.name_i18n }}" loading="lazy" decoding="async"
+        alt="{{ presentation.name }}" loading="lazy" decoding="async"
         data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
       {% else %}
-      <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
-        <span class="image-placeholder-icon" aria-hidden="true">📷</span>
+      <div class="image-placeholder" data-category-placeholder aria-label="{% trans 'Фото скоро будет.' %}">
+        <span class="image-placeholder-icon" aria-hidden="true">{% include "catalog/includes/public_category_icon.html" with icon=presentation.placeholder_icon %}</span>
         <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
       </div>
       {% endif %}
@@ -36,10 +38,10 @@
       aria-label="{% trans 'Временное мероприятие' %}"></span>
     {% endif %}
 
-    {% if place.card_price_badge %}
+    {% if presentation.prices.label %}
     <div class="card-price-pill">
-      <span class="card-price-pill__amount">{{ place.card_price_badge_value }}</span>
-      <span class="card-price-pill__currency">{{ place.card_price_badge_currency }}</span>
+      <span class="card-price-pill__amount">{{ presentation.prices.label }}</span>
+
     </div>
     {% endif %}
 
@@ -74,18 +76,21 @@
   </div>
 
   <div class="card-body">
-    <h3 class="card-title">
-      <a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a>
+    <h3 class="card-title" lang="{{ presentation.content_language }}">
+      <a href="{{ place.get_absolute_url }}">{{ presentation.name }}</a>
     </h3>
 
-    {% with desc=place.description_i18n %}
+    {% if presentation.translation_fallback %}<p class="meta" data-translation-fallback>{% if card_language == 'ru' %}Текст на азербайджанском{% elif card_language == 'en' %}Text in Azerbaijani{% else %}Mətn azərbaycancadır{% endif %}</p>{% endif %}
+    {% if not presentation.exact_filtered %}
+    {% with desc=presentation.description %}
     <p class="card-description{% if not desc %} is-empty{% endif %}">
       {% if desc %}{{ desc|striptags|truncatechars:92 }}{% else %}&nbsp;{% endif %}
     </p>
     {% endwith %}
+    {% endif %}
 
     <div class="card-tags-row{% if place.offers_adult_classes %} card-tags-row--with-adults{% endif %}">
-      {% if place.age_display %}
+      {% if place.age_display and not presentation.exact_filtered %}
         <span class="card-meta-chip card-meta-chip--age">
           <span class="card-meta-chip__value">
             {{ place.age_display }} {% trans "лет" %}
@@ -105,6 +110,28 @@
         {% endif %}
       </span>
     </div>
+
+    {% if presentation.organization %}
+    <p class="meta card-organization"><a href="{{ presentation.organization.url }}">{{ presentation.organization.name }}</a></p>
+    {% endif %}
+    {% if presentation.matched_offers %}
+    <ul class="card-matched-offers" data-matched-offers>
+      {% for offer in presentation.matched_offers %}
+      <li class="card-matched-offer">
+        <a class="card-offer-link" href="{{ offer.url }}">{{ offer.name }}</a>
+        <ul class="card-offer-groups">
+          {% for group in offer.groups %}
+          <li data-offering-group-id="{{ group.id }}" data-matched-group="{{ group.id }}">
+            <span class="card-offer-group-name">{{ group.name }}</span>
+            {% if group.age %}<span class="meta">{{ group.age }} {% if card_language == 'ru' %}лет{% elif card_language == 'en' %}years{% else %}yaş{% endif %}</span>{% endif %}
+            {% for price in group.prices %}<span class="meta card-offer-price">{{ price.label }}</span>{% endfor %}
+          </li>
+          {% endfor %}
+        </ul>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
 
     <div class="card-rating-row">
       {% if place.rating_count %}
@@ -139,6 +166,10 @@
       </span>
     </p>
 
+    {% if not presentation.map_available %}
+      <p class="card-map-missing">{% if card_language == 'en' %}Location not marked on map{% elif card_language == 'ru' %}Место не отмечено на карте{% else %}Məkan xəritədə qeyd olunmayıb{% endif %}</p>
+    {% endif %}
+
     <div class="card-action-stack">
       <div class="card-bottom-row">
         <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}">
@@ -149,7 +180,7 @@
             </svg>
           </span>
         </a>
-        {% if place.phone1 %}
+        {% if presentation.contacts.has_phone %}
         {% include "catalog/includes/phone_reveal.html" with phone_class="card-contact-toggle" phone_index=0 compact=True %}
         {% endif %}
       </div>

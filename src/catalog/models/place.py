@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.dispatch import receiver
 from catalog.taxonomy_data import CATEGORIES
+from .catalog_structure import PlaceNature, OperatingState
 
 def _localized_free_label(lang: str | None = None) -> str:
     normalized_lang = (lang or get_language() or settings.LANGUAGE_CODE or "az").split("-")[0]
@@ -129,6 +130,19 @@ class Place(models.Model):
         null=True,
         blank=True,
     )
+    # Stage05 foundations; legacy readers/writers are not switched to these fields.
+    organization = models.ForeignKey("catalog.Organization", null=True, blank=True, on_delete=models.PROTECT, related_name="places", editable=False)
+    organization_relationship_kind = models.CharField(max_length=16, choices=[('business', _('Бизнес')), ('informational', _('Информационная связь'))], null=True, blank=True, editable=False)
+    organization_join_place_ownership_version = models.PositiveBigIntegerField(null=True, blank=True, editable=False)
+    organization_join_org_ownership_version = models.PositiveBigIntegerField(null=True, blank=True, editable=False)
+    confirmed_location = models.ForeignKey("catalog.Location", null=True, blank=True, on_delete=models.PROTECT, related_name="places", editable=False)
+    venue_confirmed_at = models.DateTimeField(null=True, blank=True, editable=False)
+    content_version = models.PositiveBigIntegerField(default=1, editable=False)
+    ownership_version = models.PositiveBigIntegerField(default=1, editable=False)
+    nature = models.CharField(max_length=16, choices=PlaceNature.choices, null=True, blank=True, editable=False)
+    nature_approved_at = models.DateTimeField(null=True, blank=True, editable=False)
+    operating_state = models.CharField(max_length=8, choices=OperatingState.choices, null=True, blank=True, editable=False)
+    operating_state_approved_at = models.DateTimeField(null=True, blank=True, editable=False)
     cover_photo = models.FileField(_("Фото для шапки"), upload_to="places/covers/", blank=True, null=True)
     photo = models.FileField(_("Фото"), upload_to="places/", blank=True, null=True)
     instagram = models.CharField(_("Instagram"), max_length=255, blank=True)
@@ -377,7 +391,14 @@ class Place(models.Model):
             return self.pricing_plans_legacy or []
         from catalog.services.pricing_plans import serialize_pricing_plans
         plans = list(self.pricing_plan_records.all())
-        return serialize_pricing_plans(plans) if plans else (self.pricing_plans_legacy or [])
+        if plans:
+            return serialize_pricing_plans(plans)
+        # Once a Place has grouped tariffs, stale legacy JSON must not be
+        # offered back to the direct-only v1 editor as new tariffs.
+        from catalog.models import PricingPlan
+        if PricingPlan.objects.filter(offering_group__activity__place_id=self.pk).exists():
+            return []
+        return self.pricing_plans_legacy or []
 
     @pricing_plans.setter
     def pricing_plans(self, value):
@@ -615,8 +636,22 @@ class Place(models.Model):
         using = kwargs.get('using') or router.db_for_write(type(self), instance=self)
         with transaction.atomic(using=using):
             previous = None
+            organization_anchor = None
+            authorized = self.pk and getattr(self, '_authorized_actor_id', None) is not None
+            if authorized:
+                # Network permission depends on Organization ownership. Serialize
+                # its revocation before acquiring the Place lock, as join/detach do.
+                organization_anchor = type(self).objects.using(using).filter(pk=self.pk).values('organization_id').first()
+                if organization_anchor and organization_anchor['organization_id'] is not None:
+                    from catalog.models.catalog_structure import Organization
+                    Organization.objects.using(using).select_for_update().get(pk=organization_anchor['organization_id'])
             if self.pk:
                 previous = type(self).objects.using(using).select_for_update().filter(pk=self.pk).first()
+            if authorized and previous is not None and organization_anchor != {'organization_id': previous.organization_id}:
+                from django.core.exceptions import ValidationError
+                raise ValidationError('Organization changed concurrently; reload and retry.')
+            from catalog.services.catalog_structure import preserve_place_structure
+            preserve_place_structure(self, previous, kwargs)
             from catalog.services.moderation_sla import prepare_moderation_save
             prepare_moderation_save(self, kwargs, previous=previous)
             update_fields = kwargs.get('update_fields')
@@ -669,6 +704,14 @@ class Place(models.Model):
 
     class Meta:
         ordering = ("-created_at",)
+        constraints = [
+            models.CheckConstraint(condition=Q(content_version__gte=1, ownership_version__gte=1), name="place_structure_versions_positive"),
+            models.CheckConstraint(condition=(Q(organization_relationship_kind__isnull=True, organization_join_place_ownership_version__isnull=True, organization_join_org_ownership_version__isnull=True) | Q(organization__isnull=False, organization_relationship_kind__isnull=False, organization_relationship_kind__in=('business', 'informational'), organization_join_place_ownership_version__isnull=False, organization_join_place_ownership_version__gte=1, organization_join_org_ownership_version__isnull=False, organization_join_org_ownership_version__gte=1)), name='place_affiliation_confirmation_pair'),
+            models.CheckConstraint(condition=(Q(nature__isnull=True, nature_approved_at__isnull=True) | Q(nature__isnull=False, nature__in=PlaceNature.values, nature_approved_at__isnull=False)), name="place_nature_approval_pair"),
+            models.CheckConstraint(condition=(Q(operating_state__isnull=True, operating_state_approved_at__isnull=True) | Q(operating_state__isnull=False, operating_state__in=OperatingState.values, operating_state_approved_at__isnull=False)), name="place_operating_approval_pair"),
+            models.CheckConstraint(condition=(Q(confirmed_location__isnull=True, venue_confirmed_at__isnull=True) | Q(confirmed_location__isnull=False, venue_confirmed_at__isnull=False)), name="place_venue_confirmation_pair"),
+        ]
+
         permissions = [("override_place_location", "Can override coordinate-based place location")]
         verbose_name = _("Постоянное место")
         verbose_name_plural = _("Постоянные места")

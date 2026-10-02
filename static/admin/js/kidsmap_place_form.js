@@ -827,7 +827,7 @@
         if (!Array.isArray(plans)) return false;
         return plans.some(planHasPublicPrice);
       },
-      phone: function () { return !!inputValue("id_phone1"); },
+      phone: function (config) { return !!config.optional || !!config.inherited || (config.fields || []).some(function (name) { return !!inputValue("id_" + name); }); },
       schedule: function (config) {
         var mode = document.getElementById("id_schedule_mode");
         var value = mode ? String(mode.value || "regular") : "regular";
@@ -1426,8 +1426,10 @@
       var titleNode = qs("[data-pf-preview-title]", root);
       if (!titleNode) return;
 
-      var name = inputValue("id_name_ru") || inputValue("id_name_az") || inputValue("id_name_en");
-      titleNode.textContent = name || titleNode.dataset.pfDefault || titleNode.textContent;
+      var languageSelect = qs("[data-pf-preview-language]", root);
+      var language = languageSelect ? languageSelect.value : "az";
+      var name = inputValue("id_name_" + language);
+      titleNode.textContent = name || titleNode.dataset.pfDefault || "—";
 
       var categorySelect = qs('select[name="category"]');
       var categoryNode = qs("[data-pf-preview-category]", root);

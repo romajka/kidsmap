@@ -1,3 +1,4 @@
+from catalog.services.volunteer_places import revision_base_matches
 from django.contrib import admin, messages
 from django.conf import settings
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -36,7 +37,8 @@ def render(request, template, **context):
 
 @require_http_methods(["GET"])
 def index(request):
-    return render(request, "index", title=_("Мои места"), **dashboard_context(request.user, request.GET))
+    from catalog.services.volunteer_proposals import own_proposal_rows
+    return render(request, "index", title=_("Мои места"), proposals=own_proposal_rows(request.user), **dashboard_context(request.user, request.GET))
 
 
 def detail(request, place_id):
@@ -122,7 +124,7 @@ def edit(request, place_id=None):
                 return redirect("admin:volunteer_edit", place_id=place.pk)
     else:
         form = editor_form(place, revision)
-    conflict = bool(revision and revision.status != "approved" and revision.base_snapshot != live_snapshot(place))
+    conflict = bool(revision and revision.status != "approved" and not revision_base_matches(revision, place))
     duplicate_existing_url = ""
     if getattr(form, "duplicate_existing_place_id", None):
         duplicate_existing_url = reverse("admin:volunteer_edit", args=[form.duplicate_existing_place_id])
@@ -191,8 +193,132 @@ def review(request, place_id):
     readiness = evaluate_form_readiness(form, form.instance) if form.is_valid() else None
     return render(request, "review", title=_("Проверка изменений"), revision=revision, rows=rows,
                   error=error, readiness=readiness, validation_errors=form.errors,
-                  conflict=revision.base_snapshot != current)
+                  conflict=not revision_base_matches(revision, revision.place))
 
+
+
+def proposal_error(exc):
+    detail = '; '.join(exc.messages) if isinstance(exc, ValidationError) else ''
+    lowered = detail.lower()
+    if 'reason' in lowered or 'note' in lowered:
+        return t('Укажите причину решения.', 'Qərarın səbəbini göstərin.', 'Provide a decision reason.')
+    if 'name required' in lowered or 'azerbaijani name' in lowered:
+        return t('Укажите название на AZ.', 'AZ dilində adı göstərin.', 'Provide an AZ name.')
+    if 'already exists' in lowered or 'already current' in lowered:
+        return t('Такая запись уже существует.', 'Belə qeyd artıq mövcuddur.', 'This record already exists.')
+    if any(word in lowered for word in ('version', 'source conflict', 'dependency conflict', 'schema conflict', 'state conflict', 'stale')):
+        return t('Данные изменились. Обновите страницу и проверьте предложение.', 'Məlumat dəyişib. Səhifəni yeniləyib təklifi yoxlayın.', 'The data changed. Reload the page and review the proposal.')
+    if detail and any(ord(ch) > 127 for ch in detail):
+        return detail
+    return t('Проверьте введённые данные.', 'Daxil edilmiş məlumatı yoxlayın.', 'Check the submitted data.')
+
+
+@require_http_methods(["GET", "POST"])
+def entity_proposal(request, kind, target_id=None):
+    from catalog.services import publication, volunteer_proposals, moderation_hub
+    from catalog.volunteer_forms import volunteer_entity_form, VOLUNTEER_ENTITY_FIELDS
+    if kind not in VOLUNTEER_ENTITY_FIELDS:
+        raise Http404
+    if not can_use_volunteer_workspace(request.user):
+        raise PermissionDenied
+    target = revision = None
+    if target_id is not None:
+        target, revision = volunteer_proposals.get_target(actor=request.user, kind=kind, target_id=target_id)
+    initial = {**publication.snapshot(target, kind), **revision.payload} if target and revision and revision.status != 'approved' else publication.snapshot(target, kind) if target else {}
+    form = volunteer_entity_form(kind, data=request.POST if request.method == 'POST' else None, initial=initial)
+    error = ''
+    if request.method == 'POST' and form.is_valid():
+        action = request.POST.get('action')
+        if action not in {'draft', 'submit'}:
+            raise PermissionDenied
+        patch = {name: form.cleaned_data[name] for name in VOLUNTEER_ENTITY_FIELDS[kind]}
+        try:
+            if target is None:
+                parent_id = int(request.POST.get('parent_id') or 0) or None
+                revision = volunteer_proposals.create_and_propose(actor=request.user, kind=kind, parent_id=parent_id, patch=patch, submit=action == 'submit')
+            else:
+                revision = volunteer_proposals.propose(actor=request.user, kind=kind, target_id=target.pk, patch=patch,
+                    expected_version=int(request.POST.get('expected_version', -1)),
+                    revision_version=int(request.POST.get('revision_version', -1)),
+                    submit=action == 'submit', schema_version=int(request.POST.get('schema_version', -1)))
+        except (ValidationError, ValueError, TypeError) as exc:
+            error = proposal_error(exc)
+        else:
+            messages.success(request, submission_message(kind) if action == 'submit' else _('Черновик сохранён.'))
+            return redirect('admin:volunteer_proposal_edit', kind=kind, target_id=getattr(revision, kind + '_id'))
+    return render(request, 'entity_proposal', title=_('Предложение сведений'), kind=kind, form=form,
+                  target=target, revision=revision, error=error,
+                  expected_version=target.content_version if target else 0,
+                  revision_version=revision.version if revision else 0,
+                  schema_version=publication.SCHEMA_VERSION,
+                  kind_label=moderation_hub.kind_label(kind),
+                  parent_id=request.POST.get('parent_id', '') if request.method == 'POST' else request.GET.get('parent_id', ''))
+
+
+@require_http_methods(["GET", "POST"])
+def affiliation_proposal(request):
+    from catalog.services import volunteer_proposals
+    if not can_use_volunteer_workspace(request.user):
+        raise PermissionDenied
+    error = ''
+    if request.method == 'POST':
+        try:
+            place_id = int(request.POST.get('place_id', 0))
+            organization_id = int(request.POST.get('organization_id', 0))
+            volunteer_proposals.submit_informational_link(actor=request.user, place_id=place_id, organization_id=organization_id)
+        except (ValueError, TypeError, ValidationError) as exc:
+            error = proposal_error(exc)
+        else:
+            messages.success(request, submission_message('affiliation'))
+            return redirect('admin:volunteer_index')
+    return render(request, 'affiliation_proposal', title=_('Предложить связь'), error=error,
+                  place_id=request.POST.get('place_id', '') if request.method == 'POST' else request.GET.get('place_id', ''),
+                  organization_id=request.POST.get('organization_id', '') if request.method == 'POST' else request.GET.get('organization_id', ''))
+
+
+@require_http_methods(["GET"])
+def moderation_hub_index(request):
+    from catalog.services import moderation_hub
+    entity_choices = [(kind, moderation_hub.kind_label(kind)) for kind in ('place', 'organization', 'program', 'activity', 'offering_group', 'affiliation')]
+    status_choices = [(state, moderation_hub.status_label(state)) for state in ('pending', 'draft', 'rejected', 'declined', 'approved', 'canceled')]
+    try:
+        rows, counts = moderation_hub.query(request.user, request.GET)
+    except ValidationError:
+        response = render(request, 'hub_index', title=_('Центр модерации'), page=None, counts={}, filters=request.GET,
+                          entity_choices=entity_choices, status_choices=status_choices,
+                          error=t('Недопустимый фильтр. Проверьте значения.', 'Yanlış filtr. Dəyərləri yoxlayın.', 'Invalid filter. Check the values.'))
+        response.status_code = 400
+        return response
+    return render(request, 'hub_index', title=_('Центр модерации'),
+                  page=Paginator(rows, 25).get_page(request.GET.get('page')), counts=counts, filters=request.GET, error='',
+                  entity_choices=entity_choices, status_choices=status_choices)
+
+
+@require_http_methods(["GET", "POST"])
+def moderation_hub_detail(request, source, item_id):
+    from catalog.services import moderation_hub, volunteer_proposals
+    row = moderation_hub.detail(request.user, source, item_id)
+    error = ''
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        try:
+            version = int(request.POST.get('version', -1))
+            reason = request.POST.get('reason', '')
+            if source == 'content':
+                volunteer_proposals.review(actor=request.user, revision_id=item_id, version=version, action=action, reason=reason)
+            else:
+                volunteer_proposals.review_informational_link(actor=request.user, request_id=item_id,
+                    action=action, reason=reason, expected_place_version=version)
+        except (ValidationError, ValueError, TypeError) as exc:
+            error = proposal_error(exc)
+            row = moderation_hub.detail(request.user, source, item_id)
+        else:
+            messages.success(request, _('Решение сохранено.'))
+            return redirect('admin:volunteer_moderation_hub')
+    response = render(request, 'hub_detail', title=_('Проверка предложения'), row=row, error=error)
+    if error:
+        response.status_code = 409
+    return response
 
 _original_get_urls = admin.site.get_urls
 
@@ -206,6 +332,11 @@ def get_urls():
         path("volunteer/<int:place_id>/photo/<str:kind>/", wrap(photo), name="volunteer_photo"),
         path("volunteer/<int:place_id>/edit/", wrap(edit), name="volunteer_edit"),
         path("volunteer/<int:place_id>/", wrap(detail), name="volunteer_detail"),
+        path("volunteer/proposal/<str:kind>/add/", wrap(entity_proposal), name="volunteer_proposal_add"),
+        path("volunteer/proposal/<str:kind>/<int:target_id>/", wrap(entity_proposal), name="volunteer_proposal_edit"),
+        path("volunteer/affiliation/add/", wrap(affiliation_proposal), name="volunteer_affiliation_add"),
+        path("volunteer/moderation/", wrap(moderation_hub_index), name="volunteer_moderation_hub"),
+        path("volunteer/moderation/<str:source>/<int:item_id>/", wrap(moderation_hub_detail), name="volunteer_moderation_detail"),
         path("volunteer/review/", wrap(review_index), name="volunteer_review_index"),
         path("volunteer/review/<int:place_id>/", wrap(review), name="volunteer_review"),
     ] + _original_get_urls()

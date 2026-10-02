@@ -3,11 +3,11 @@
 {% block content %}
 <section class="km-sla" aria-labelledby="sla-heading">
   <h1 id="sla-heading">{{ title }}</h1><p>{{ copy.note }}</p>
-  <p>{{ copy.places }}: <strong>{{ places_count }}</strong> · {{ copy.reviews }}: <strong>{{ reviews_count }}</strong></p>
+  <p>{{ copy.places }}: <strong>{{ places_count }}</strong> · {{ copy.reviews }}: <strong>{{ reviews_count }}</strong> · {{ copy.proposals }}: <strong>{{ proposals_count }}</strong> · {{ copy.links }}: <strong>{{ links_count }}</strong></p>
   <p role="status">SLA warning: {{ counts.warning|default:0 }} · SLA critical: {{ counts.critical|default:0 }} · SLA breached: {{ counts.breached|default:0 }}</p>
   {% if backlog_warning %}<p role="alert">{{ copy.backlog }}</p>{% endif %}
   <form method="get" class="km-sla__filters">
-    <label>{{ copy.type }}<select name="type"><option value="">{{ copy.all }}</option><option value="place" {% if params.type == 'place' %}selected{% endif %}>{{ copy.places }}</option><option value="review" {% if params.type == 'review' %}selected{% endif %}>{{ copy.reviews }}</option></select></label>
+    <label>{{ copy.type }}<select name="type"><option value="">{{ copy.all }}</option>{% for value, label in type_filters %}<option value="{{ value }}" {% if params.type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
     <label>{{ copy.status }}<select name="status">{% for value, label in statuses %}<option value="{{ value }}" {% if params.status == value or not params.status and value == 'pending' %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
     <label>SLA<select name="sla_status">{% for value, label in sla_statuses %}<option value="{{ value }}" {% if params.sla_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
     <label>{{ copy.from }}<input type="date" name="from" value="{{ params.from }}"></label><label>{{ copy.to }}<input type="date" name="to" value="{{ params.to }}"></label><button type="submit">{{ copy.filter }}</button>

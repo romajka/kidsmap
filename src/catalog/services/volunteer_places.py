@@ -59,6 +59,12 @@ def base_token(place):
 
 
 def revision_base_matches(revision, place):
+    if revision.dependencies:
+        from catalog.services import publication
+        current=publication.snapshot(place,'place')
+        return (revision.schema_version == publication.SCHEMA_VERSION
+                and revision.dependencies == publication.dependencies(place,'place')
+                and all(current.get(k)==revision.base_snapshot.get(k) for k in revision.changed_fields))
     current = live_snapshot(place)
     # Older revisions never captured these RU fallback fields. Preserve the
     # current values when loading them; newly loaded forms still use a full
@@ -91,6 +97,7 @@ def candidate_from_payload(place, payload):
             field = Place._meta.get_field(name)
             setattr(candidate, field.attname, field.to_python(payload[name]) if not field.is_relation else payload[name])
     candidate.pricing_plans = payload.get("pricing_plans", place.pricing_plans)
+    candidate.pending_nested_pricing = payload.get("nested_pricing")
     return candidate
 
 
@@ -100,7 +107,7 @@ def editor_form(place, revision=None, *, data=None, files=None):
     initial = {"base_token": base_token(place), "revision_version": revision.version if revision else 0}
     form = VolunteerPlaceForm(data, files, instance=candidate, initial=initial)
     if data is None:
-        raw_schedule = dump_schedule_payload(payload.get("structured_schedule", []))
+        raw_schedule = dump_schedule_payload(payload.get("structured_schedule", serialize_place_schedule(place)))
         form.initial["structured_schedule"] = raw_schedule
         form.fields["structured_schedule"].initial = raw_schedule
         form.schedule_editor_payload = raw_schedule
@@ -152,7 +159,9 @@ def save_working_revision(*, user, place_id, data, files, source):
     places = _working_place_queryset(user, source)
     if source == PlaceChangeAudit.SOURCE_ADMIN and not place_id:
         raise PermissionDenied
-    place = get_object_or_404(places.select_for_update(), pk=place_id) if place_id else Place(created_by=user, status="draft", is_active=False)
+    from catalog.services import publication
+    place = publication.locked_target("place",place_id) if place_id else Place(created_by=user, status="draft", is_active=False)
+    if place_id and not places.filter(pk=place.pk).exists():raise PermissionDenied
     revision = VolunteerPlaceRevision.objects.select_for_update().filter(place=place).first() if place.pk else None
     if source == PlaceChangeAudit.SOURCE_ADMIN and (
         revision is None or revision.status == VolunteerPlaceRevision.Status.APPROVED
@@ -177,7 +186,7 @@ def save_working_revision(*, user, place_id, data, files, source):
         return place, revision, form
 
     old_working_snapshot = copy.deepcopy(
-        revision.payload if revision and revision.status != VolunteerPlaceRevision.Status.APPROVED else content_snapshot(place)
+        {**content_snapshot(place), **revision.payload} if revision and revision.status != VolunteerPlaceRevision.Status.APPROVED else content_snapshot(place)
     )
     for name in ("additional_info", "extra_conditions"):
         old_working_snapshot.setdefault(name, getattr(place, name))
@@ -205,24 +214,14 @@ def save_working_revision(*, user, place_id, data, files, source):
     payload = content_snapshot(candidate)
     payload["pricing_plans"] = form.cleaned_data["pricing_plans"]
     payload["structured_schedule"] = json_value(form.cleaned_schedule_days)
-    if revision is None:
-        revision = VolunteerPlaceRevision(place=place, author=user)
-    elif revision.status == VolunteerPlaceRevision.Status.APPROVED:
-        revision.base_snapshot = {}
-    revision.base_snapshot = revision.base_snapshot or live_snapshot(place)
-    for name in ("additional_info", "extra_conditions"):
-        revision.base_snapshot.setdefault(name, getattr(place, name))
-    revision.payload = json_value(payload)
-    if source == PlaceChangeAudit.SOURCE_VOLUNTEER or revision.author_id is None:
-        revision.author = user
-    if source == PlaceChangeAudit.SOURCE_VOLUNTEER:
-        keep_feedback = data.get("action") == "draft" and revision.status in {"rejected", "draft"}
-        revision.status = "pending" if data.get("action") == "submit" else "draft"
-        if not keep_feedback:
-            revision.review_note = ""
-            revision.reviewed_by = None
-    revision.version = (revision.version + 1) if revision.pk else 1
-    revision.save()
+    from catalog.services import publication
+    if revision and not revision.dependencies:
+        adopt_legacy_revision(revision, place)
+    revision = publication.propose(actor=user,target_type="place",target_id=place.pk,patch=payload,
+        schema_version=publication.SCHEMA_VERSION,expected_version=place.content_version,
+        revision_version=revision.version if revision else 0,
+        submit=data.get("action") == "submit" or (source == PlaceChangeAudit.SOURCE_ADMIN and revision and revision.status == "pending"),
+        explicit_save=True)
     if duplicate and duplicate.place:
         _audit_working_changes(place=place, actor=user, source=source, old_snapshot={},
             new_snapshot={'distinct_branch_confirmation': {'matched_place_id': duplicate.place.pk,
@@ -232,7 +231,7 @@ def save_working_revision(*, user, place_id, data, files, source):
         actor=user,
         source=source,
         old_snapshot=old_working_snapshot,
-        new_snapshot=revision.payload,
+        new_snapshot={**content_snapshot(place), **revision.payload},
     )
     return place, revision, form
 
@@ -249,16 +248,15 @@ def save_proposal(*, user, place_id, data, files):
 
 @transaction.atomic
 def restart_proposal(*, user, place_id, version):
-    place = get_object_or_404(own_places(user).select_for_update(), pk=place_id)
-    revision = get_object_or_404(VolunteerPlaceRevision, place=place)
-    _check_version(revision, version)
-    revision.payload = content_snapshot(place)
-    revision.base_snapshot = live_snapshot(place)
-    revision.status = "draft"
-    revision.version += 1
-    revision.review_note = ""
-    revision.reviewed_by = None
-    revision.save()
+    from catalog.services import publication
+    actor=publication.fresh_actor(user);place=publication.locked_target('place',place_id)
+    publication.authorize(actor,place,'place')
+    if not own_places(actor).filter(pk=place_id).exists():raise PermissionDenied
+    revision=get_object_or_404(VolunteerPlaceRevision.objects.select_for_update(),place=place)
+    _check_version(revision,version)
+    revision.payload={};revision.changed_fields=[];revision.base_snapshot=publication.snapshot(place,'place')
+    revision.dependencies=publication.dependencies(place,'place');revision.base_content_version=place.content_version;revision.schema_version=publication.SCHEMA_VERSION
+    revision.status='draft';revision.version+=1;revision.author=actor;revision.review_note='';revision.reviewed_by=None;revision.save()
 
 
 def require_reviewer(user):
@@ -269,7 +267,7 @@ def require_reviewer(user):
 def review_form(revision):
     candidate = candidate_from_payload(revision.place, revision.payload)
     # Files are trusted server-stored names, never taken from a review POST.
-    data = {k: v for k, v in revision.payload.items() if k not in {"photo", "cover_photo"}}
+    data = {k: v for k, v in {**content_snapshot(revision.place), **revision.payload}.items() if k not in {"photo", "cover_photo", "gallery", "nature", "operating_state"}}
     stored_district = str(data.get("district") or "").strip()
     if stored_district.startswith("baku_"):
         data["region"] = "baku"
@@ -289,53 +287,28 @@ def review_form(revision):
     return form
 
 
+def adopt_legacy_revision(revision, place):
+    """Upgrade captured legacy candidates only when their original base matches."""
+    from catalog.services import publication
+    if not revision_base_matches(revision,place):raise ValidationError("Legacy candidate source conflict.")
+    base=publication.snapshot(place,'place')
+    normalized=publication._validate_patch(place,'place',{k:v for k,v in revision.payload.items() if k in base})
+    revision.payload={k:v for k,v in normalized.items() if v!=base[k]}
+    revision.base_snapshot=base;revision.changed_fields=sorted(revision.payload)
+    revision.schema_version=publication.SCHEMA_VERSION;revision.base_content_version=place.content_version
+    revision.dependencies=publication.dependencies(place,'place');revision.save()
+
+
 @transaction.atomic
 def review_proposal(*, user, place_id, version, approve, note=""):
-    require_reviewer(user)
-    # Same lock order as volunteer saves: Place, then its revision.
-    place = get_object_or_404(Place.objects.select_for_update(), pk=place_id)
-    revision = get_object_or_404(VolunteerPlaceRevision.objects.select_for_update(), place=place)
-    _check_version(revision, version)
-    if revision.status != "pending":
-        raise ValidationError(_("Эти изменения уже рассмотрены или ещё не отправлены."))
-    if place.deleted_at or place.owner_id or place.created_by_id != revision.author_id or revision.author_id is None:
-        raise ValidationError(_("Место удалено или передано другому владельцу. Одобрение недоступно."))
+    from catalog.services import publication
+    place=publication.locked_target('place',place_id)
+    revision=get_object_or_404(VolunteerPlaceRevision.objects.select_for_update(),place=place)
+    _check_version(revision,version)
+    if not revision.dependencies:adopt_legacy_revision(revision,place)
+    before=live_snapshot(place)
+    result=publication.review(actor=user,revision_id=revision.pk,version=version,approve=approve,note=note)
     if approve:
-        if not revision_base_matches(revision, place):
-            raise ValidationError(_("Карточка изменилась после отправки. Верните её волонтёру на доработку."))
-        form = review_form(revision)
-        if not form.is_valid():
-            raise ValidationError(_("В предложенных изменениях есть ошибки: %(errors)s") % {"errors": form.errors.as_text()})
-        readiness = evaluate_form_readiness(form, form.instance)
-        if not readiness.is_ready:
-            raise ValidationError(publication_blocked_message(readiness))
-        old = live_snapshot(place)
-        candidate = form.instance
-        candidate.name = next((getattr(candidate, f"name_{lang}") for lang in ("az", "ru", "en") if getattr(candidate, f"name_{lang}")), place.name)
-        candidate.pricing_plans = form.cleaned_data["pricing_plans"]
-        candidate.status = Place.STATUS_PUBLISHED
-        candidate.moderated_by = user
-        candidate.moderated_at = timezone.now()
-        candidate.submitted_at = revision.submitted_at
-        candidate.is_active = True
-        candidate.published_at = place.published_at or timezone.now()
-        candidate.rejection_reason = ""
-        candidate.save()
-        form.save_schedule(candidate)
-        new = live_snapshot(candidate)
-        PlaceChangeAudit.objects.bulk_create([
-            PlaceChangeAudit(place=place, changed_by=user, source=PlaceChangeAudit.SOURCE_ADMIN,
-                             field_name=key, old_value=json.dumps(old.get(key), ensure_ascii=False),
-                             new_value=json.dumps(value, ensure_ascii=False))
-            for key, value in new.items() if old.get(key) != value
-        ])
-        revision.status = "approved"
-    else:
-        if not note.strip():
-            raise ValidationError(_("Укажите, что нужно исправить."))
-        revision.status = "rejected"
-    revision.review_note = note.strip()
-    revision.reviewed_by = user
-    revision.version += 1
-    revision.save()
-    return revision
+        place.refresh_from_db()
+        _audit_working_changes(place=place,actor=user,source=PlaceChangeAudit.SOURCE_ADMIN,old_snapshot=before,new_snapshot=live_snapshot(place))
+    return result

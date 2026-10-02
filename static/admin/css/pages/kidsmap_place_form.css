@@ -4263,6 +4263,16 @@
   .km-pf .km-pf-navitem__title,
   .km-pf .km-pf-navitem__sub { overflow-wrap: anywhere; }
   .km-pf .km-pf__header-actions { flex-wrap: wrap; max-width: 100%; }
+  .km-pf .km-pf__accordion-actions { flex-wrap: wrap; }
+  .km-pf .km-pf__accordion-title { flex-basis: 100%; }
+  .km-pf .km-schedule-editor__preset {
+    max-width: 100%;
+    height: auto;
+    min-height: 28px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: left;
+  }
   .km-pf .km-pf__stickybar > .km-pf-btn { flex: 1 1 auto; }
   .km-pf .km-pf-mainphoto { flex-direction: column; }
   .km-pf .km-pf-mainphoto__drop { width: 100%; flex-basis: auto; }

@@ -185,6 +185,10 @@ def _kidsmap_get_app_list(self, request, app_label=None):
             "staffaccessuser": 3,
             "placeownershiprequest": 5,
             "event": 8,
+            "organization": 6,
+            "program": 7,
+            "activity": 9,
+            "offeringgroup": 9,
             "place": 10,
             "specialist": 11,
             "specialistspecialization": 12,
@@ -354,6 +358,12 @@ def _build_sidebar_sections(request, *, metrics: dict[str, int]) -> list[dict]:
             "label": _("Каталог"),
             "icon": "far fa-folder-open",
             "items": [
+                _build_sidebar_item(request, model=Organization, label=_("Организации"), icon="fas fa-building"),
+                _build_sidebar_item(request, model=Place, label=_("Филиалы и места"), icon="fas fa-map-marker-alt", query_params="is_temporary__exact=0"),
+                _build_sidebar_item(request, model=Program, label=_("Общие программы"), icon="fas fa-book-open"),
+                _build_sidebar_item(request, model=Activity, label=_("Занятия"), icon="fas fa-chalkboard-teacher"),
+                _build_sidebar_item(request, model=OfferingGroup, label=_("Группы и тарифы"), icon="fas fa-users"),
+                _build_sidebar_item(request, model=OrganizationGrant, label=_("Сотрудники организаций"), icon="fas fa-user-friends"),
                 _build_sidebar_item(
                     request,
                     model=Place,
@@ -583,12 +593,14 @@ def _kidsmap_each_context(self, request):
             "items": [
                 {"label": str(_("Мои места")), "url": reverse("admin:volunteer_index"), "icon": "fas fa-map-marker-alt", "active": getattr(request.resolver_match, "url_name", "") in {"volunteer_index", "volunteer_detail"}},
                 {"label": str(_("Добавить место")), "url": reverse("admin:volunteer_add"), "icon": "fas fa-plus", "active": getattr(request.resolver_match, "url_name", "") == "volunteer_add"},
+                {"label": str(_("Предложить организацию")), "url": reverse("admin:volunteer_proposal_add", args=["organization"]), "icon": "fas fa-building", "active": False},
+                {"label": str(_("Предложить связь")), "url": reverse("admin:volunteer_affiliation_add"), "icon": "fas fa-link", "active": False},
             ],
         }]
-    elif request.user.is_authenticated and request.user.is_superuser:
+    elif request.user.is_authenticated and request.user.is_staff and (request.user.is_superuser or request.user.has_perm("catalog.change_place") or request.user.has_perm("catalog.change_placeownershiprequest")):
         context["kidsmap_sidebar_sections"].append({
             "key": "volunteer_review", "label": str(_("Волонтёры")), "icon": "fas fa-check", "active": False,
-            "items": [{"label": str(_("Изменения волонтёров")), "url": reverse("admin:volunteer_review_index"), "icon": "fas fa-check", "active": request.path.startswith(reverse("admin:volunteer_review_index"))}],
+            "items": [{"label": str(_("Центр модерации")), "url": reverse("admin:volunteer_moderation_hub"), "icon": "fas fa-check", "active": request.path.startswith(reverse("admin:volunteer_moderation_hub"))}],
         })
     from catalog.services.moderation_queue import allowed_kinds
     if allowed_kinds(request.user):
@@ -596,7 +608,7 @@ def _kidsmap_each_context(self, request):
         context['kidsmap_sidebar_sections'].append({
             'key': 'moderation_sla', 'label': t('Сроки модерации', 'Moderasiya müddətləri', 'Moderation deadlines'),
             'icon': 'fas fa-clock', 'active': False,
-            'items': [{'label': 'Moderation SLA', 'url': reverse('admin:moderation_sla'),
+            'items': [{'label': t('Сроки модерации', 'Moderasiya müddətləri', 'Moderation deadlines'), 'url': reverse('admin:moderation_sla'),
                        'icon': 'fas fa-clock', 'active': getattr(request.resolver_match, 'url_name', '') == 'moderation_sla'}],
         })
     return context
@@ -611,6 +623,7 @@ from .owner import *
 from .site import *
 from .category import *
 from .place import *
+from .business import *
 from .specialist import *
 from .seo import *
 from . import volunteer

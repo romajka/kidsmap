@@ -1,0 +1,18 @@
+{% extends "admin/volunteer/base.html" %}
+{% load i18n %}
+{% block workspace %}
+<a href="{% url 'admin:volunteer_index' %}">← {% translate "Мои предложения" %}</a>
+<h1>{{ title }} · {{ kind_label }}</h1>
+{% if revision %}<p>{{ revision.get_status_display }}{% if revision.review_note %} · {{ revision.review_note }}{% endif %}</p>{% endif %}
+{% if error %}<div class="alert alert-danger" role="alert" id="proposal-error" tabindex="-1">{{ error }}</div>{% endif %}
+{% if form.errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}{% for field in form %}{% for issue in field.errors %}<p>{{ field.label }}: {{ issue }}</p>{% endfor %}{% endfor %}</div>{% endif %}
+<form method="post" class="km-volunteer-entity-form">
+  {% csrf_token %}
+  <input type="hidden" name="parent_id" value="{{ parent_id }}">
+  <input type="hidden" name="expected_version" value="{{ expected_version }}">
+  <input type="hidden" name="revision_version" value="{{ revision_version }}">
+  <input type="hidden" name="schema_version" value="{{ schema_version }}">
+  {% for field in form %}<div class="form-group"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.errors %}<div id="{{ field.id_for_label }}-error" class="invalid-feedback d-block">{{ field.errors }}</div>{% endif %}</div>{% endfor %}
+  <div class="km-volunteer-actions"><button class="btn btn-outline-secondary" type="submit" name="action" value="draft">{% translate "Сохранить черновик" %}</button><button class="btn btn-success" type="submit" name="action" value="submit">{% translate "Отправить на проверку" %}</button></div>
+</form>
+{% endblock %}

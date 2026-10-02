@@ -14,6 +14,7 @@
       leafletCssIntegrity: (scriptEl.dataset.homeMapLeafletCssIntegrity || "").trim(),
       leafletJs: (scriptEl.dataset.homeMapLeafletJs || "").trim(),
       leafletJsIntegrity: (scriptEl.dataset.homeMapLeafletJsIntegrity || "").trim(),
+      routeLabel: (scriptEl.dataset.homeMapRouteLabel || "Route").trim(),
       language: (scriptEl.dataset.homeMapLanguage || "az").trim(),
       unavailableLabel: (scriptEl.dataset.homeMapUnavailableLabel || "Map is temporarily unavailable.").trim(),
     };
@@ -180,42 +181,44 @@
     return district === "baku" || district.startsWith("baku_");
   }
 
-  function placeMatchesFilters(place, filters) {
-    if (filters.category && place.category_code !== filters.category) {
-      return false;
-    }
+  function pointMembers(point) {
+    return Array.isArray(point.members) ? point.members : [point];
+  }
 
-    if (filters.district) {
-      const placeDistrict = normalizeValue(place.district).toLowerCase();
-      const selectedDistrict = normalizeValue(filters.district).toLowerCase();
-      if (selectedDistrict === "baku" ? !isPlaceInBaku(place) : placeDistrict !== selectedDistrict) {
-        return false;
+  function businessCount(points) {
+    return points.reduce((count, point) => count + pointMembers(point).length, 0);
+  }
+
+  async function fetchFilteredPoints(signal) {
+    const form = document.querySelector("[data-home-map-filter-form]");
+    const mapEl = document.getElementById("home-map");
+    const params = new URLSearchParams(form ? new FormData(form) : undefined);
+    const response = await fetch(mapEl.dataset.mapEndpoint + "?" + params.toString(), {
+      signal: signal, credentials: "same-origin", headers: {Accept: "application/json"},
+    });
+    if (!response.ok) throw new Error("Map filter request failed");
+    const payload = await response.json();
+    return payload.points.filter(hasValidCoordinates);
+  }
+
+  function serverFilterUpdater(apply, closePopup, onError) {
+    let controller = null;
+    let generation = 0;
+    return async function () {
+      const current = ++generation;
+      if (controller) controller.abort();
+      controller = new AbortController();
+      closePopup();
+      apply([]);
+      try {
+        const points = await fetchFilteredPoints(controller.signal);
+        if (current === generation) apply(points);
+      } catch (error) {
+        if (current !== generation || error.name === "AbortError") return;
+        apply([]);
+        onError();
       }
-    }
-
-    if (filters.metro && normalizeValue(place.metro) !== filters.metro) {
-      return false;
-    }
-
-    if (filters.age) {
-      const selectedAge = Number(filters.age);
-      const ageFrom = place.age_from === null || place.age_from === undefined ? null : Number(place.age_from);
-      const ageTo = place.age_to === null || place.age_to === undefined ? null : Number(place.age_to);
-
-      if ((ageFrom !== null && selectedAge < ageFrom) || (ageTo !== null && selectedAge > ageTo)) {
-        return false;
-      }
-
-      if (ageFrom === null && ageTo === null) {
-        return false;
-      }
-    }
-
-    if (filters.query && !normalizeSearch(place.search_text || place.name).includes(filters.query)) {
-      return false;
-    }
-
-    return true;
+    };
   }
 
   function interpolateAgeLabel(template, from, to) {
@@ -237,8 +240,13 @@
     return "";
   }
 
-  function renderPopupContent(place, detailsLabel, ageLabels) {
-    const ageBadgeText = formatAgeBadge(place, ageLabels);
+  function renderPopupContent(point, detailsLabel, ageLabels) {
+    return '<div class="home-map-popup-members" style="max-height: min(60vh, 480px); overflow-y: auto">' +
+      pointMembers(point).map(place => renderMemberPopup(place, detailsLabel, ageLabels)).join("") + "</div>";
+  }
+
+  function renderMemberPopup(place, detailsLabel, ageLabels) {
+    const ageBadgeText = place.age || "";
     const priceBadgeText = place.price || "";
     const categoryName = place.category || "";
     const categoryColor = place.category_color_text || "var(--brand-turf)";
@@ -292,7 +300,7 @@
 
     const scheduleHtml = place.schedule
       ? '<div class="home-map-popup-info-row">' +
-      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 16 14"></polyline></svg>' +
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>' +
       '<span class="home-map-popup-info-text">' +
       escapeHtml(place.schedule) +
       "</span>" +
@@ -308,13 +316,16 @@
       '<a href="' +
       escapeHtml(place.url || "") +
       '" class="home-map-popup-title-link">' +
-      '<strong class="home-map-popup-title">' +
+      '<strong class="home-map-popup-title" lang="' + escapeHtml(place.content_language || '') + '">' +
       escapeHtml(place.name) +
       "</strong>" +
       "</a>" +
+      (place.translation_fallback ? '<p class="meta" data-translation-fallback>' + escapeHtml(place.translation_label || 'AZ') + '</p>' : '') +
       '<div class="home-map-popup-details">' +
       addressHtml +
+      (place.matched_offers || []).map(offer => '<a class="home-map-popup-info-row" href="' + escapeHtml(offer.url) + '">' + escapeHtml(offer.name) + '</a>' + (offer.groups || []).map(group => '<div class="home-map-popup-info-row">' + escapeHtml(group.name) + '</div>').join("")).join("") +
       scheduleHtml +
+      (Number.isFinite(place.lat) && Number.isFinite(place.lng) ? '<a class="home-map-popup-info-row" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/dir/?api=1&amp;destination=' + encodeURIComponent(place.lat + ',' + place.lng) + '">' + escapeHtml(SCRIPT_CONFIG.routeLabel || "Route") + '</a>' : "") +
       phoneHtml +
       "</div>" +
       '<a class="home-map-popup-link-btn" href="' +
@@ -534,11 +545,6 @@
       return typeof place.lat === "number" && typeof place.lng === "number";
     });
 
-    if (!validPlaces.length) {
-      renderFallback(mapEl, mapNoteEl);
-      return null;
-    }
-
     return {
       places: validPlaces,
       detailsLabel: mapEl.dataset.detailsLabel || "Details",
@@ -632,26 +638,31 @@
     const showAllText = autocompleteEl.querySelector("[data-hs-ac-show-all-text]");
     const clearBtn = form.querySelector("[data-home-search-clear]");
 
-    const allPlaces = parsePlaces();
+    let allPlaces = parsePlaces().flatMap(pointMembers);
+    let autocompleteGeneration = 0;
     let selectedIndex = -1;
     let currentMatches = [];
 
     function hideAutocomplete() {
+      autocompleteGeneration += 1;
       autocompleteEl.hidden = true;
       selectedIndex = -1;
     }
 
-    function showAutocomplete() {
+    async function showAutocomplete() {
+      const generation = ++autocompleteGeneration;
       const q = normalizeSearch(queryInput.value);
       if (!q) {
         hideAutocomplete();
         return;
       }
 
-      const filters = getFilterState();
-      currentMatches = allPlaces.filter(function (place) {
-        return placeMatchesFilters(place, filters);
-      });
+      try {
+        const points = await fetchFilteredPoints();
+        if (generation !== autocompleteGeneration || !normalizeSearch(queryInput.value)) return;
+        allPlaces = points.flatMap(pointMembers);
+        currentMatches = allPlaces;
+      } catch (_error) { hideAutocomplete(); return; }
 
       selectedIndex = -1;
 
@@ -733,7 +744,7 @@
       if (typeof updateMap === "function") {
         updateMap();
       }
-      requestFocusPlace(place.id);
+      pendingFocusPlaceId = place.id;
     }
 
     queryInput.addEventListener("input", function () {
@@ -927,6 +938,8 @@
       });
     }
 
+    const metroInput = form.querySelector('[name="metro"]');
+    if (metroInput) metroInput.addEventListener("change", updateMap);
     initHomeSearchAutocomplete(updateMap);
   }
 
@@ -999,7 +1012,7 @@
             const count = cluster.count;
             const position = cluster.position;
             const svg = buildGoogleClusterSvg(count);
-            const key = cluster.markers.map(m => m.__kidsMapPlace?.id || m.__kidsMapPlace?.url).sort().join('|');
+            const key = cluster.markers.map(m => m.__kidsMapPointKey || m.__kidsMapPlace?.id || m.__kidsMapPlace?.url).sort().join('|');
             const skipEntrance = previousClusterKeys.has(key);
             previousClusterKeys.add(key);
             return window.kidsMapCreateGoogleMarker({
@@ -1026,7 +1039,10 @@
     // ── Build markers ───────────────────────────────────────────────────────
     const markerItems = [];
 
-    places.forEach(function (place) {
+    function rebuildMarkers(points) {
+      markerItems.forEach(item => item.marker.setMap(null));
+      markerItems.length = 0;
+    points.forEach(function (place) {
       if (!hasValidCoordinates(place)) return;
       const position = {lat: place.lat, lng: place.lng};
       const marker = window.kidsMapCreateGoogleMarker({
@@ -1038,6 +1054,7 @@
       });
 
       marker.__kidsMapPlace = place;
+      marker.__kidsMapPointKey = place.key;
       marker.addListener("click", function () {
         const peers = markerItems.filter(item => visibleMarkers.has(item.marker) && item.position.lat === place.lat && item.position.lng === place.lng).map(item => item.marker);
         if (peers.length > 1) { closePlace(); motion.cancel(); choice.show(peers, marker); }
@@ -1050,6 +1067,9 @@
         position: position,
       });
     });
+
+    }
+    rebuildMarkers(places);
 
     // ── Core sync ───────────────────────────────────────────────────────────
     function syncVisibleMarkers() {
@@ -1065,7 +1085,7 @@
     let visibleMarkers = new Set();
     function _doSync() {
       const filters = getFilterState();
-      const activeMarkers = markerItems.filter(item => placeMatchesFilters(item.place, filters)).map(item => item.marker);
+      const activeMarkers = markerItems.map(item => item.marker);
       const next = new Set(activeMarkers);
       if (selectedMarker && !next.has(selectedMarker)) closePlace();
       if (updateMembership) updateMembership(activeMarkers);
@@ -1075,22 +1095,31 @@
       }
       visibleMarkers = next;
       setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || '', activeMarkers.length > 0);
-      updateLiveCount(activeMarkers.length);
+      updateLiveCount(businessCount(markerItems.map(item => item.place)));
     }
     function syncVisibleMarkersFromFilter() {
-      motion.cancel();
-      choice.close(false);
-      syncVisibleMarkers();
+      updateFromServer();
     }
+    const updateFromServer = serverFilterUpdater(points => {
+      rebuildMarkers(points);
+      _doSync();
+      if (pendingFocusPlaceId && points.length) {
+        const target = pendingFocusPlaceId;
+        pendingFocusPlaceId = null;
+        activeMapFocusHandler(target);
+      }
+    }, () => { closePlace(); motion.cancel(); choice.close(false); }, () => {
+      setMapNote(mapNoteEl, SCRIPT_CONFIG.unavailableLabel, false);
+    });
 
     const filterForm = document.querySelector('[data-home-map-filter-form]');
-    if (filterForm) filterForm.addEventListener('input', () => { motion.cancel(); choice.close(false); });
+    if (filterForm) filterForm.addEventListener('input', () => { closePlace(); motion.cancel(); choice.close(false); });
     bindFilterListeners(syncVisibleMarkersFromFilter);
     syncVisibleMarkers();
 
     function focusGooglePlace(placeId) {
       const item = markerItems.find(function (m) {
-        return (placeId && String(m.place.id) === String(placeId)) ||
+        return (placeId && pointMembers(m.place).some(member => String(member.id) === String(placeId))) ||
                (m.place.url && m.place.url === placeId) ||
                (m.place.name && m.place.name === placeId);
       });
@@ -1234,7 +1263,10 @@
     // ── Build markers ───────────────────────────────────────────────────────
     const markerItems = [];
 
-    places.forEach(function (place) {
+    function rebuildMarkers(points) {
+      markerClusterGroup.clearLayers();
+      markerItems.length = 0;
+    points.forEach(function (place) {
       if (!hasValidCoordinates(place)) return;
 
       const position = [place.lat, place.lng];
@@ -1269,6 +1301,9 @@
       markerItems.push({ marker: marker, place: place, position: position });
     });
 
+    }
+    rebuildMarkers(places);
+
     // ── Core sync ───────────────────────────────────────────────────────────
     function syncVisibleMarkers() {
       if (syncPending) return;
@@ -1291,10 +1326,8 @@
 
       markerItems.forEach(function (item) {
         if (!hasValidCoordinates(item.place)) return;
-        if (placeMatchesFilters(item.place, filters)) {
-          layersToAdd.push(item.marker);
-          visibleItems.push(item);
-        }
+        layersToAdd.push(item.marker);
+        visibleItems.push(item);
       });
 
       if (layersToAdd.length) {
@@ -1306,7 +1339,7 @@
       markerClusterGroup.on("clusterclick", handleHomeClusterClick);
 
       // No results
-      updateLiveCount(visibleItems.length);
+      updateLiveCount(businessCount(visibleItems.map(item => item.place)));
       if (!visibleItems.length) {
         userInteracted = false;
         map.setView([DEFAULT_CENTER.lat, DEFAULT_CENTER.lng], DEFAULT_ZOOM, { animate: false });
@@ -1355,10 +1388,23 @@
     // Filter change: reset userInteracted so bounds recalculate for new results
     function syncVisibleMarkersFromFilter() {
       userInteracted = false;
-      syncVisibleMarkers();
+      updateFromServer();
     }
+    const updateFromServer = serverFilterUpdater(points => {
+      rebuildMarkers(points);
+      _doSync();
+      if (pendingFocusPlaceId && points.length) {
+        const target = pendingFocusPlaceId;
+        pendingFocusPlaceId = null;
+        activeMapFocusHandler(target);
+      }
+    }, () => map.closePopup(), () => {
+      setMapNote(mapNoteEl, SCRIPT_CONFIG.unavailableLabel, false);
+    });
 
     bindFilterListeners(syncVisibleMarkersFromFilter);
+    const filterForm = document.querySelector('[data-home-map-filter-form]');
+    if (filterForm) filterForm.addEventListener('input', () => map.closePopup());
 
     // Initial load — single deferred call, no double-sync
     window.setTimeout(function () {
@@ -1375,7 +1421,7 @@
 
     function focusLeafletPlace(placeId) {
       const item = markerItems.find(function (m) {
-        return (placeId && String(m.place.id) === String(placeId)) ||
+        return (placeId && pointMembers(m.place).some(member => String(member.id) === String(placeId))) ||
                (m.place.url && m.place.url === placeId) ||
                (m.place.name && m.place.name === placeId);
       });

@@ -13,9 +13,9 @@ from django.urls import Resolver404, resolve
 PUBLIC_QUERY_PARAMS = {
     "place_list": {
         "q", "category", "subcategory", "district", "metro", "min_rating", "event_type",
-        "age_from", "age_to", "price_from", "price_to", "sort", "page",
+        "age", "age_from", "age_to", "price_from", "price_to", "sort", "page",
     },
-    "place_new": {"q", "category", "district", "min_rating", "days", "with_photo", "verified", "page"},
+    "place_new": {"q", "category", "subcategory", "district", "metro", "age", "age_from", "age_to", "min_rating", "days", "with_photo", "verified", "page"},
     "events_landing": {"q", "category", "district", "date_filter", "age_from", "age_to", "free", "sort", "page"},
     "specialist_list": {
         "q", "specialization", "format", "region", "district", "metro", "age",
@@ -90,3 +90,9 @@ def filtered_query_string_for_path(path: str, params) -> str:
 def filtered_query_string(request) -> str:
     """Return only query parameters owned by the current list/search page."""
     return filtered_query_string_for_path(request.path_info, request.GET)
+
+
+def entity_public_url(entity, language=None):
+    """Public details share the resolver's locale-aware URL contract."""
+    from catalog.services.public_presentation import public_url
+    return public_url(entity, language)

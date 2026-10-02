@@ -1,0 +1,21 @@
+{
+  "stage": 11,
+  "head": "c52b871ce5c18656a9eaf9854e66255c2629364e",
+  "input_snapshot": "/tmp/kidsmap-task33-stage11-20260930-100400Z",
+  "input_file_count": 339,
+  "input_changed": [
+    "docs/task33/implementation-status.md",
+    "docs/task33/migration-map.md",
+    "src/catalog/models/__init__.py"
+  ],
+  "input_missing": [],
+  "input_unchanged_count": 336,
+  "source_sha256": {
+    "src/catalog/models/__init__.py": "3fbeb58da11faad2a48feb24f603c78a4097419e507b1730802374e05d2e55c9",
+    "src/catalog/models/conversion.py": "c3dfee389bdd53c27379a3060da6804e7e38c9ee7cd33be4f1546095d0f30f99",
+    "src/catalog/migrations/0124_task33_conversion.py": "b37a029cd1e859f8e6cae0918b7d91f53e45dc9320715dd8b38f61a0595f2bcb",
+    "src/catalog/services/catalog_conversion.py": "62c4ba5da583690352c7c06dd57353924d6781c99123d2400e7904ba401157ab",
+    "src/catalog/management/commands/convert_task33_catalog.py": "d461f485a899fdbb20eff7ff4480827317e0f0102841b1bccad708180db00313",
+    "src/catalog/testcases/test_task33_conversion.py": "10051c5cb5a89c638b26c313e6dcc852573b104a43fdba261624b19d4dadcc18"
+  }
+}

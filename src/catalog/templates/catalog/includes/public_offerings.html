@@ -1,0 +1,21 @@
+{% load i18n %}
+{% get_current_language as language %}
+<div class="public-offerings">
+{% for group in groups %}
+  <section class="public-offering">
+    <h3>{{ group.name }}</h3>
+    <dl class="public-facts">
+      {% if group.age %}<div><dt>{% if language == 'ru' %}Возраст{% elif language == 'en' %}Age{% else %}Yaş{% endif %}</dt><dd>{{ group.age }}</dd></div>{% endif %}
+      {% if group.language %}<div><dt>{% if language == 'ru' %}Язык занятия{% elif language == 'en' %}Class language{% else %}Dərsin dili{% endif %}</dt><dd>{{ group.language }}</dd></div>{% endif %}
+      {% if group.schedule %}<div><dt>{% if language == 'ru' %}Расписание занятий{% elif language == 'en' %}Class schedule{% else %}Dərs cədvəli{% endif %}</dt><dd>{{ group.schedule|linebreaksbr }}</dd></div>{% endif %}
+      {% if group.teachers %}<div><dt>{% if language == 'ru' %}Преподаватели{% elif language == 'en' %}Teachers{% else %}Müəllimlər{% endif %}</dt><dd>{{ group.teachers }}</dd></div>{% endif %}
+    </dl>
+    {% if group.conditions %}<p class="public-prose"><strong>{% if language == 'ru' %}Условия{% elif language == 'en' %}Conditions{% else %}Şərtlər{% endif %}:</strong> {{ group.conditions }}</p>{% endif %}
+    {% if group.prices %}<ul class="public-price-list" aria-label="{% if language == 'ru' %}Цена{% elif language == 'en' %}Price{% else %}Qiymət{% endif %}">
+      {% for price in group.prices %}<li>{% if price.title %}<span>{{ price.title }}</span>{% endif %}<strong>{{ price.label }}</strong>
+        {% if price.is_required %}<p class="public-price-flag" data-required-payment>{% if language == 'ru' %}Обязательный платёж{% elif language == 'en' %}Required payment{% else %}Məcburi ödəniş{% endif %}</p>{% endif %}
+        {% if price.is_trial %}<p class="public-price-flag" data-trial-class>{% if language == 'ru' %}Пробное занятие{% elif language == 'en' %}Trial class{% else %}Sınaq dərsi{% endif %}</p>{% endif %}{% if price.conditions %}<p>{{ price.conditions }}</p>{% endif %}</li>{% endfor %}
+    </ul>{% endif %}
+  </section>
+{% empty %}<p class="public-muted">{% if language == 'ru' %}Уточните группы и расписание у организатора.{% elif language == 'en' %}Confirm groups and class schedules with the organizer.{% else %}Qrup və cədvəl məlumatını təşkilatçıdan dəqiqləşdirin.{% endif %}</p>{% endfor %}
+</div>
