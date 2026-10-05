@@ -1,0 +1,207 @@
+[
+  {
+    "id": "SC01",
+    "name": "Волонтёр не читает чужой кандидат и не получает бизнес-права",
+    "status": "PASS_FRESH_SELECTED_CASES",
+    "source": [
+      "src/catalog/services/volunteer_places.py",
+      "src/catalog/volunteer_middleware.py"
+    ],
+    "executed_case_ids": [
+      "catalog.testcases.test_task33_volunteer_hub.VolunteerHubTests.test_volunteer_a_cannot_read_or_mutate_b_candidate_by_direct_id",
+      "catalog.testcases.test_task33_volunteer_hub.VolunteerHubTests.test_informational_approval_without_business_grant"
+    ],
+    "evidence": "security-results.json",
+    "limit": "Конкретные негативные сценарии; не полное доказательство каждой ветви или всей production-системы."
+  },
+  {
+    "id": "SC02",
+    "name": "Владелец не утверждает собственный отзыв; чужие реакции и устаревшие версии отклоняются",
+    "status": "PASS_FRESH_SELECTED_CASES",
+    "source": [
+      "src/catalog/services/review_use_cases.py",
+      "src/catalog/services/review_moderation.py"
+    ],
+    "executed_case_ids": [
+      "catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_owner_moderation_denied_but_reply_report_scoped",
+      "catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_cross_parent_reaction_and_stale_revision_are_rejected"
+    ],
+    "evidence": "security-results.json",
+    "limit": "Конкретные негативные сценарии; не полное доказательство каждой ветви или всей production-системы."
+  },
+  {
+    "id": "SC03",
+    "name": "Рейтинг разных типов карточек не смешивается; скрытая карточка не принимает публичный отзыв",
+    "status": "PASS_FRESH_SELECTED_CASES",
+    "source": [
+      "src/catalog/services/review_use_cases.py"
+    ],
+    "executed_case_ids": [
+      "catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_typed_rating_contributions_never_mix_and_pending_keeps_approved",
+      "catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_hidden_target_rejects_public_submit_without_creating_review"
+    ],
+    "evidence": "security-results.json",
+    "limit": "Конкретные негативные сценарии; не полное доказательство каждой ветви или всей production-системы."
+  },
+  {
+    "id": "SC04",
+    "name": "Управляющий бизнесом не получает доступ к личным документам специалиста",
+    "status": "PASS_FRESH_SELECTED_CASES",
+    "source": [
+      "src/catalog/services/specialist_documents.py:50",
+      "src/catalog/private_storage.py:13"
+    ],
+    "executed_case_ids": [
+      "catalog.testcases.test_task33_specialist_security_review.IndependentSpecialistSecurityTests.test_management_owner_cannot_read_or_choose_person_document_publication",
+      "catalog.testcases.test_task33_specialist_security_review.IndependentSpecialistSecurityTests.test_live_place_owner_and_organization_grantee_cannot_read_person_documents"
+    ],
+    "evidence": "security-results.json",
+    "limit": "Конкретные негативные сценарии; не полное доказательство каждой ветви или всей production-системы."
+  },
+  {
+    "id": "SC05",
+    "name": "Удостоверение личности остаётся закрытым; сертификат требует согласия человека",
+    "status": "PASS_FRESH_SELECTED_CASES",
+    "source": [
+      "src/catalog/services/specialist_documents.py:38"
+    ],
+    "executed_case_ids": [
+      "catalog.testcases.test_task33_specialist_privacy.SpecialistPrivateBoundaryTests.test_identity_cannot_become_public_even_with_tampered_flags",
+      "catalog.testcases.test_task33_specialist_privacy.SpecialistPrivateBoundaryTests.test_approved_certificate_without_person_opt_in_stays_private"
+    ],
+    "evidence": "security-results.json",
+    "limit": "Конкретные негативные сценарии; не полное доказательство каждой ветви или всей production-системы."
+  },
+  {
+    "id": "SC06",
+    "name": "Отзыв прав и подмена document ID проверяются на сервере",
+    "status": "PASS_FRESH_SELECTED_CASES",
+    "source": [
+      "src/catalog/services/specialist_documents.py:25"
+    ],
+    "executed_case_ids": [
+      "catalog.testcases.test_task33_specialist_privacy.SpecialistPrivateBoundaryTests.test_dedicated_reviewer_permission_and_revocation",
+      "catalog.testcases.test_task33_specialist_privacy.SpecialistPrivateBoundaryTests.test_foreign_document_id_denied_to_verified_person"
+    ],
+    "evidence": "security-results.json",
+    "limit": "Конкретные негативные сценарии; не полное доказательство каждой ветви или всей production-системы."
+  },
+  {
+    "id": "SC07",
+    "name": "Личный файл не имеет общего URL; закрытый media-путь отклоняется",
+    "status": "PASS_FRESH_SELECTED_CASES",
+    "source": [
+      "src/catalog/private_storage.py:17",
+      "src/catalog/views.py"
+    ],
+    "executed_case_ids": [
+      "catalog.testcases.test_task33_specialist_privacy.SpecialistPrivateBoundaryTests.test_private_storage_has_no_public_url",
+      "catalog.testcases.test_task33_specialist_privacy.SpecialistPrivateBoundaryTests.test_document_bytes_are_outside_public_media",
+      "catalog.testcases.test_task33_specialist_privacy.SpecialistPrivateBoundaryTests.test_direct_legacy_media_download_is_denied"
+    ],
+    "evidence": "security-results.json",
+    "limit": "Конкретные негативные сценарии; не полное доказательство каждой ветви или всей production-системы."
+  },
+  {
+    "id": "SC08",
+    "name": "Владелец площадки не является организатором события",
+    "status": "PASS_FRESH_SELECTED_CASES",
+    "source": [
+      "src/catalog/services/event_domain.py:44"
+    ],
+    "executed_case_ids": [
+      "catalog.testcases.test_task33_event_security.EventSecurityTests.test_venue_legacy_owner_and_plain_staff_cannot_save_or_cancel_resolved_event",
+      "catalog.testcases.test_task33_event_security.EventSecurityTests.test_platform_publication_permission_never_grants_organizer_edit"
+    ],
+    "evidence": "security-results.json",
+    "limit": "Конкретные негативные сценарии; не полное доказательство каждой ветви или всей production-системы."
+  },
+  {
+    "id": "SC09",
+    "name": "Чужая закрытая площадка не раскрывает адрес через событие",
+    "status": "PASS_FRESH_SELECTED_CASES",
+    "source": [
+      "src/catalog/services/event_domain.py:81"
+    ],
+    "executed_case_ids": [
+      "catalog.testcases.test_task33_event_security.EventSecurityTests.test_foreign_private_venue_id_cannot_capture_or_publish_secret_address",
+      "catalog.testcases.test_task33_event_security.EventSecurityTests.test_venue_privacy_is_rechecked_at_snapshot_after_initial_validation"
+    ],
+    "evidence": "security-results.json",
+    "limit": "Конкретные негативные сценарии; не полное доказательство каждой ветви или всей production-системы."
+  },
+  {
+    "id": "SC10",
+    "name": "Старый владелец и устаревшая версия события не могут перезаписать изменения",
+    "status": "PASS_FRESH_SELECTED_CASES",
+    "source": [
+      "src/catalog/services/event_domain.py:67"
+    ],
+    "executed_case_ids": [
+      "catalog.testcases.test_task33_event_security.EventSecurityTests.test_organization_transfer_revokes_stale_actor_and_old_event_owner",
+      "catalog.testcases.test_task33_event_security.EventSecurityTests.test_stale_revision_cannot_overwrite_saved_edit_or_cancel"
+    ],
+    "evidence": "security-results.json",
+    "limit": "Конкретные негативные сценарии; не полное доказательство каждой ветви или всей production-системы."
+  },
+  {
+    "id": "SC11",
+    "name": "Действия с событиями требуют своей карточки и CSRF; JSON-LD экранирует закрытие script",
+    "status": "PASS_FRESH_SELECTED_CASES",
+    "source": [
+      "src/catalog/services/event_domain.py",
+      "src/catalog/services/event_queries.py"
+    ],
+    "executed_case_ids": [
+      "catalog.testcases.test_task33_event_security.EventSecurityTests.test_foreign_event_delete_and_submit_http_boundaries_and_csrf",
+      "catalog.testcases.test_task33_event_security.EventSecurityTests.test_public_jsonld_escapes_script_terminator_and_online_has_no_geo"
+    ],
+    "evidence": "security-results.json",
+    "limit": "Конкретные негативные сценарии; не полное доказательство каждой ветви или всей production-системы."
+  },
+  {
+    "id": "SC12",
+    "name": "Уведомление привязано к актуальному адресату, владельцу и POST/CSRF",
+    "status": "PASS_FRESH_SELECTED_CASES",
+    "source": [
+      "src/catalog/services/workflow_notifications.py"
+    ],
+    "executed_case_ids": [
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_changed_email_cannot_read_old_address_notification",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_stale_join_confirmation_is_suppressed_after_owner_change",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_csrf_required_for_inbox_actions"
+    ],
+    "evidence": "security-results.json",
+    "limit": "Конкретные негативные сценарии; не полное доказательство каждой ветви или всей production-системы."
+  },
+  {
+    "id": "SC13",
+    "name": "Очередь сохраняет транзакционные события и подавляет дубли записи",
+    "status": "PASS_FRESH_SELECTED_CASES",
+    "source": [
+      "src/catalog/services/workflow_notifications.py"
+    ],
+    "executed_case_ids": [
+      "catalog.testcases.test_task33_notifications.NotificationContractTests.test_emit_is_transactional_and_dedupes_event_entity_version_recipient",
+      "catalog.testcases.test_task33_notifications.NotificationConcurrencyTests.test_parallel_duplicate_event_has_one_inbox_and_one_outbox"
+    ],
+    "evidence": "security-results.json",
+    "limit": "Конкретные негативные сценарии; не полное доказательство каждой ветви или всей production-системы."
+  },
+  {
+    "id": "SC14",
+    "name": "Остановка HTTP-записи и выбранные участники не обходят CSRF",
+    "status": "PASS_FRESH_SELECTED_CASES",
+    "source": [
+      "src/catalog/r1_middleware.py:25",
+      "src/catalog/services/r1_cohort.py"
+    ],
+    "executed_case_ids": [
+      "catalog.testcases.test_task33_r1_cohort.R1WriteCohortTests.test_disabled_cohort_blocks_http_write_without_deleting_post_switch_rows",
+      "catalog.testcases.test_task33_r1_cohort.R1WriteCohortTests.test_selected_cohort_allows_only_explicit_actor_ids",
+      "catalog.testcases.test_task33_r1_cohort.R1WriteCohortTests.test_cohort_membership_does_not_bypass_csrf"
+    ],
+    "evidence": "security-results.json",
+    "limit": "Конкретные негативные сценарии; не полное доказательство каждой ветви или всей production-системы."
+  }
+]

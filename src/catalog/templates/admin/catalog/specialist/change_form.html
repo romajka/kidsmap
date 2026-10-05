@@ -5,7 +5,7 @@
 {% block extrastyle %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'vendor/select2/css/select2.min.css' %}">
-  <link rel="stylesheet" href="{% static 'admin/css/pages/specialist_form.css' %}?v=5">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/specialist_form.css' %}?v=6">
 {% endblock %}
 
 {% block extrahead %}
@@ -331,14 +331,14 @@
         {# === SECTION 10 — documents inline === #}
         <div class="km-specialist-section km-specialist-section--inline" id="km-sec-10">
           <div class="km-section-header">
-            <h2>10. {% trans "Подтверждение квалификации" %}</h2>
+            <h2 id="km-documents-heading">10. {% trans "Подтверждение квалификации" %}</h2>
             <p class="km-section-desc">{% trans "Дипломы, сертификаты и документы специалиста." %}</p>
           </div>
           <div class="km-section-body km-inline-body">
             <div class="km-notice km-notice--warn">
               <i class="fas fa-exclamation-triangle" aria-hidden="true"></i> {% trans "Документы, удостоверяющие личность, не публикуются на сайте." %}
             </div>
-            <div id="documents-group-wrapper">
+            <div id="documents-group-wrapper" role="region" aria-labelledby="km-documents-heading" tabindex="0">
               {# Filled by JS after DOM reorder #}
             </div>
           </div>

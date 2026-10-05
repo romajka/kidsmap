@@ -1,0 +1,41 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "case": "keyboard sort ascending",
+      "ariaSort": "ascending",
+      "transform": "matrix(-1, 0, 0, -1, 0, 0)"
+    },
+    {
+      "case": "sort descending",
+      "ariaSort": "descending"
+    },
+    {
+      "case": "search",
+      "value": "Baku",
+      "rows": 4
+    },
+    {
+      "case": "published filter",
+      "rows": 1
+    },
+    {
+      "case": "empty search",
+      "rows": 0
+    },
+    {
+      "case": "invalid website validation",
+      "messages": [
+        "\n                    \n                        Пожалуйста, исправьте ошибку ниже.\n                    \n                ",
+        "Введите правильный URL."
+      ]
+    },
+    {
+      "case": "draft create and reopen",
+      "url": "/admin/catalog/organization/3/change/?_changelist_filters=q%3DQA%2Badmin%2Brepair%2B1791136821164",
+      "name": "QA admin repair 1791136821164"
+    }
+  ],
+  "errors": [],
+  "network": []
+}

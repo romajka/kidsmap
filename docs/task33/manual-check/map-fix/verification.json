@@ -1,0 +1,40 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-10-04T17:09:55.741017+00:00",
+  "source_files": 2761,
+  "historical_runtime_files_unchanged": 2760,
+  "completion_evidence_unchanged": 146,
+  "js_tests": 12,
+  "browser_cases": 18,
+  "browser_unexpected_errors": 0,
+  "live_tiles_http_200": 15,
+  "scope": "Homepage Leaflet/OpenStreetMap only; Google catalog fallback unchanged",
+  "backend_full_regression": "NOT_REPEATED_JS_AND_TEMPLATE_CHANGE",
+  "production": "NOT_CONTACTED",
+  "http": [
+    {
+      "url": "/ru/",
+      "status": 200
+    },
+    {
+      "url": "/",
+      "status": 200
+    },
+    {
+      "url": "/en/",
+      "status": 200
+    },
+    {
+      "url": "/qa/",
+      "status": 200
+    },
+    {
+      "url": "/ru/catalog/",
+      "status": 200
+    },
+    {
+      "url": "/qa/files/screens/map-fixed-live.png",
+      "status": 200
+    }
+  ]
+}

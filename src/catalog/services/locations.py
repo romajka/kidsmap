@@ -430,6 +430,7 @@ def localize_address_text(value: str, language_code: str = None) -> str:
     for source, target in proper_name_replacements.get(lang, {}).items():
         localized = localized.replace(source, target)
 
+    district_replacements = {}
     for key, labels in BAKU_DISTRICTS_MAP.items():
         variants = {
             key,
@@ -442,8 +443,19 @@ def localize_address_text(value: str, language_code: str = None) -> str:
             f"{labels['en']} District",
         }
         target = get_location_translation(key, lang)
-        for variant in sorted(variants, key=len, reverse=True):
-            localized = re.sub(re.escape(variant), target, localized, flags=re.IGNORECASE)
+        for variant in variants:
+            district_replacements[variant.casefold()] = target
+    # Substitute once: generated "Nizami District" must not itself be matched
+    # again. A street bearing a district's name is still a street.
+    district_pattern = re.compile(r'(?<!\w)(?:' + '|'.join(
+        re.escape(value) for value in sorted(district_replacements, key=len, reverse=True)
+    ) + r')(?!\w)(?!\s+(?:küç\w*|street|st\.|prospekt\w*|avenue|ave\.))', re.IGNORECASE)
+    def replace_district(match):
+        if re.search(r'(?:ул\.?|улица|пр\.?|проспект|st\.?|street|ave\.?|avenue)\s*$',
+                     localized[:match.start()], re.IGNORECASE):
+            return match.group()
+        return district_replacements[match.group().casefold()]
+    localized = district_pattern.sub(replace_district, localized)
 
     replacements = {
         "az": [

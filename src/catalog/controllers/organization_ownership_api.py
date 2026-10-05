@@ -48,5 +48,7 @@ def organization_ownership_action(request,action,target_type,target_id):
     except PermissionDenied:return JsonResponse({'error':'forbidden'},status=403)
     except ObjectDoesNotExist:return JsonResponse({'error':'not_found'},status=404)
     except (json.JSONDecodeError,UnicodeDecodeError,TypeError,ValidationError) as exc:
+        if getattr(exc,'code',None)=='structure_changed':
+            return JsonResponse({'error':'structure_changed','reload_required':True},status=409)
         duplicate=getattr(exc,'code',None)=='possible_duplicate'
         return JsonResponse({'error':'possible_duplicate' if duplicate else 'invalid_request','create_separate_available':duplicate},status=409 if duplicate else 400)

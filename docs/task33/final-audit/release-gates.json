@@ -1,0 +1,210 @@
+{
+  "mode": "AUDIT_ONLY",
+  "production": "NOT_CONTACTED",
+  "production_ready": false,
+  "artifact_identity": "r2-local-sha256-65d8995ff21fb5e5b9fb88d81d18f2f36c4380841f14131cd11dc258bf8c61b2",
+  "local_image_config_id": "sha256:6566a67c0b3ab3da8ea040314b016908b1cbe17e09a50912fc5c80fe5228f5fd",
+  "self_authorship_limit": "Тот же исполнитель ранее создал release override; это не независимый review собственного package. Историческая DB crosscheck атрибутирована отдельно.",
+  "fresh_execution": [
+    "security-results.json",
+    "security-supplement.json",
+    "security-causal.json",
+    "security-image.json",
+    "security-compose.json",
+    "security-static.json",
+    "security-image-preflight.json",
+    "image-full-r2-results.json"
+  ],
+  "retained_same_source": [
+    "../reports/28-recovery-results.json",
+    "../reports/28-image-precision-results.json",
+    "../reports/28-release-validation.json",
+    "../reports/28-release-nginx.json"
+  ],
+  "gates": [
+    {
+      "id": "RG01",
+      "priority": "P1",
+      "status": "PARTIAL_LOCAL",
+      "owner": "release-reviewer",
+      "title": "Точный образ и доступная неизменяемая версия",
+      "business_impact": "Иначе сервер может получить исходники или зависимости, отличающиеся от проверенных.",
+      "verified_local": "Архив, чистый контекст и фактический LOCAL image:2794 файла/SHA совпадают.",
+      "remaining_acceptance": "При отдельно разрешённом выпуске закрепить registry manifest digest, проверить pull этой версии и effective image. Required Compose interpolation проверяет наличие строки, а не семантическую allowlist/context SHA или реальную immutable registry identity; caller обязан их проверить. Здесь publish/pull/deploy НЕ запускались.",
+      "evidence": [
+        "security-image.json"
+      ],
+      "kind": "launch_prerequisite"
+    },
+    {
+      "id": "RG02",
+      "priority": "P1",
+      "status": "PARTIAL_LOCAL",
+      "owner": "release-reviewer + security-reviewer",
+      "title": "Постоянное закрытое хранилище документов",
+      "business_impact": "Пересоздание контейнера без отдельного тома может потерять загруженные документы; публичное размещение нарушает конфиденциальность.",
+      "verified_local": "Путь /kidsmap-private-media вне /app/media; новый Compose merge требует private bind. Прежняя проверка сохранения bind-байтов была на служебном контейнере.",
+      "remaining_acceptance": "Проверить абсолютный одобренный host path, права, отдельный backup, actual web mount и сохранение байтов после пересоздания exact web image в rehearsal; legacy публичные файлы отдельно инвентаризировать/перенести.",
+      "evidence": [
+        "security-compose.json",
+        "security-controls.json",
+        "../reports/28-release-validation.json"
+      ],
+      "kind": "launch_prerequisite"
+    },
+    {
+      "id": "RG03",
+      "priority": "P1",
+      "status": "PARTIAL_LOCAL",
+      "owner": "release-reviewer + orchestrator",
+      "title": "Запись сначала выключена; разрешены только выбранные участники",
+      "business_impact": "Неконтролируемый первый запуск позволяет менять данные до завершения сверки.",
+      "verified_local": "Новый synthetic Compose defaultoff/IDs empty; новые HTTP/cohort/CSRF negatives PASS.",
+      "remaining_acceptance": "В effective production settings отдельно подтвердить off/selected и одобренные actor IDs; согласовать переход к all. Quiesce offline writers/queue/cron отдельно: HTTP-флаг их не останавливает.",
+      "evidence": [
+        "security-compose.json",
+        "security-controls.json"
+      ],
+      "kind": "launch_prerequisite"
+    },
+    {
+      "id": "RG04",
+      "priority": "P1",
+      "status": "PASS_ROOT_LOCAL_EXTERNAL_OPEN",
+      "owner": "database-reviewer / root",
+      "title": "Данные, ID, связи, документы и очередь сохраняются при восстановлении",
+      "business_impact": "Откат старым dump поверх новых записей теряет изменения семьи, бизнеса и специалиста.",
+      "verified_local": "Новая root native V3 recovery PASS:98 tables/25 public+2 private hashes; evidence root-owned, не собственная execution этого reviewer.",
+      "remaining_acceptance": "Для запуска отдельно сверить настоящую schema/data и проверить recoverable/off-host restore; новая synthetic native recovery не заменяет реальный backup.",
+      "evidence": [
+        "recovery-results.json",
+        "../reports/28-recovery-results.json"
+      ],
+      "kind": "launch_prerequisite"
+    },
+    {
+      "id": "RG05",
+      "priority": "P2",
+      "status": "LOCAL_SUITE_FAILURES_OPEN",
+      "owner": "integration-reviewer + release-reviewer",
+      "title": "Проверки в фактическом runtime образа",
+      "business_impact": "Различие interpreter/dependencies может проявиться после сборки, хотя host suites прошли.",
+      "verified_local": "Fresh image metadata Python3.12.15/39 packages; host3.12.3/39, только pip версия отличается. Retained image precision5 PASS; fresh static9305 PASS. Root fresh host1817:109F11E, Task33579/580, тот же ownershiprace; классификация root-owned.",
+      "remaining_acceptance": "Corrected exact-image: 1817 tests, 108F/12E, Task33 580/580; cleanup PASS. Image-only 1, host-only 1, common 108. Initial125F28E preserved; see image-full-comparison.json; common IDs are not harmless-baseline proof. Нужна пригодная CI suite и отдельная причинная классификация сбоев; неполный runtime test-document manifest нельзя скрывать инъекцией файлов.",
+      "evidence": [
+        "security-image.json",
+        "security-static.json",
+        "full-results.json",
+        "image-full-results.json",
+        "image-full-r2-results.json",
+        "image-full-comparison.json",
+        "security-image-preflight.json",
+        "../reports/28-image-precision-results.json"
+      ],
+      "kind": "launch_prerequisite"
+    },
+    {
+      "id": "RG06",
+      "priority": "P1",
+      "status": "PARTIAL_LOCAL",
+      "owner": "release-reviewer",
+      "title": "Статика, proxy и private-denial effective configuration",
+      "business_impact": "Ошибочная конфигурация сервера ломает интерфейс или открывает закрытые файлы.",
+      "verified_local": "Fresh WhiteNoise production backend9305/manifest+inventory SHA совпадают с сохранёнными V3; прежний local nginx6/6 не заменяет effective production nginx/TLS.",
+      "remaining_acceptance": "При отдельном разрешении проверить actual nginx routes/TLS/static volume/404 и private-denial в effective конфигурации, без раскрытия пользовательских файлов.",
+      "evidence": [
+        "security-static.json",
+        "../reports/28-release-nginx.json"
+      ],
+      "kind": "launch_prerequisite"
+    },
+    {
+      "id": "RG07",
+      "priority": "P1",
+      "status": "OPEN_EXTERNAL",
+      "owner": "release-reviewer + backend owner",
+      "title": "Работник очереди и реальная доставка уведомлений",
+      "business_impact": "Действия есть в кабинете, но письма могут не отправляться или повториться после сбоя SMTP.",
+      "verified_local": "Fresh local transaction/dedupe/current-recipient/CSRF cases PASS; email locmem и транспорта нет.",
+      "remaining_acceptance": "Назначить worker schedule/locking/retry owner, наблюдаемость и SMTP acceptance; учесть crash после SMTP ack, исключение exactly-once обещания.",
+      "evidence": [
+        "security-controls.json"
+      ],
+      "kind": "launch_prerequisite"
+    },
+    {
+      "id": "RG08",
+      "priority": "P2",
+      "status": "OPEN_EXTERNAL",
+      "owner": "security-reviewer + auth owner",
+      "title": "Настоящий OAuth и внешние интеграции",
+      "business_impact": "Вход и карты могут не работать с реальными ключами/redirect settings, несмотря на успешные mocks.",
+      "verified_local": "Fresh12 negative cases OIDC/state/replay/identity/redirect/upload PASS; реальные provider/Maps/SMTP НЕ вызваны.",
+      "remaining_acceptance": "При отдельном согласовании проверить реальные callback allowlist/scopes/provider configuration и карту; секреты в отчёт не включать.",
+      "evidence": [
+        "security-supplement.json",
+        "security-supplement-source.json"
+      ],
+      "kind": "launch_prerequisite"
+    },
+    {
+      "id": "RG09",
+      "priority": "P1",
+      "status": "OPEN_EXTERNAL",
+      "owner": "database-reviewer + release-reviewer",
+      "title": "Effective права БД, backup и аварийное восстановление",
+      "business_impact": "Избыточные права или непроверяемый backup увеличивают ущерб от ошибки и время восстановления.",
+      "verified_local": "QA использует одноразовую PostgreSQL17.11/Unix sockets; это не production least privilege или backup strategy.",
+      "remaining_acceptance": "Проверить least privilege, fresh recoverable/off-host backup и approved schema preflight в отдельно разрешённом выпуске; production здесь NOT_CONTACTED.",
+      "evidence": [
+        "security-results.json"
+      ],
+      "kind": "launch_prerequisite"
+    },
+    {
+      "id": "RG10",
+      "priority": "P1",
+      "status": "OPEN_EXTERNAL",
+      "owner": "orchestrator + release-reviewer",
+      "title": "Контролируемый выпуск и stop criteria",
+      "business_impact": "Автоматический pull/restart может запустить непроверенный код; возврат старой БД не является безопасным rollback.",
+      "verified_local": "Source deploy-server pulls branch и имеет restart failure trap; exact candidate dirty WORKTREE не определяется одним HEAD.",
+      "remaining_acceptance": "Отдельно одобрить конкретную версию/config/cohort и план; остановиться при потере ID/байтов/очереди, чужом доступе, schema mismatch или новых500; сохранить новые данные, quiesce writers, reconcile перед возобновлением.",
+      "evidence": [
+        "../release-R2.md",
+        "../../../scripts/deploy-server.sh"
+      ],
+      "kind": "launch_prerequisite"
+    },
+    {
+      "id": "RG11",
+      "priority": "P2",
+      "status": "CONFIRMED_TEST_DEBT",
+      "owner": "integration-reviewer",
+      "title": "Конкурентный тест требует успеха отклонённой операции",
+      "business_impact": "Шумящий gate усложняет различение настоящего нарушения доступа и безопасного отказа с reload.",
+      "verified_local": "Fresh selected260:259 PASS/1F; fresh original5+forced retry probe6/6 PASS; прежние V2/current causal6/6 сохранены.",
+      "remaining_acceptance": "В будущем отдельно уточнить контракт outcomes и deterministic ordering без ослабления проверки ACL; original assertion в текущем аудите не изменять.",
+      "evidence": [
+        "security-results.json",
+        "security-causal.json",
+        "../reports/28-security-causal-classification.json"
+      ],
+      "kind": "confirmed_test_issue"
+    },
+    {
+      "id": "RG12",
+      "priority": "P2",
+      "status": "OPEN_EXTERNAL",
+      "owner": "orchestrator + analytics/release owners",
+      "title": "Базовые метрики и владелец наблюдения",
+      "business_impact": "Без порогов ошибок/задержки/очереди невозможно вовремя заметить проблему ограниченного запуска.",
+      "verified_local": "Local suites и snapshot не устанавливают реальные traffic/error/latency/query baselines.",
+      "remaining_acceptance": "Назначить численные пороги, alert/incident owner и cohort observation window; отдельно проверить actual error/query/mail queue/worker metrics.",
+      "evidence": [
+        "security-review.md"
+      ],
+      "kind": "launch_prerequisite"
+    }
+  ]
+}

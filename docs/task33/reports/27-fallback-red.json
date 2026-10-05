@@ -1,0 +1,81 @@
+{
+  "stage": 27,
+  "scope": "targeted1-four-subtest-fallback-RED",
+  "evidence": "/root/task33-evidence/stage27-fallback-red-20261003",
+  "suite-results.json": {
+    "tests_run": 1,
+    "failures": 4,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 1.377,
+    "status": "BASELINE_FAILURE",
+    "executed_ids": [
+      "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_az_only_event_title_marks_actual_fallback_in_list_and_calendar"
+    ],
+    "problems": [
+      {
+        "id": "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_az_only_event_title_marks_actual_fallback_in_list_and_calendar",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true
+      },
+      {
+        "id": "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_az_only_event_title_marks_actual_fallback_in_list_and_calendar",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true
+      },
+      {
+        "id": "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_az_only_event_title_marks_actual_fallback_in_list_and_calendar",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true
+      },
+      {
+        "id": "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_az_only_event_title_marks_actual_fallback_in_list_and_calendar",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true
+      }
+    ]
+  },
+  "migrations.json": {
+    "applied_count": 167,
+    "unapplied_count": 0
+  },
+  "discovery.json": {
+    "explicit_count": 1812,
+    "explicit_unique_count": 1812,
+    "duplicate_explicit_ids": 0
+  },
+  "isolation.json": {
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10",
+    "network_guard": true,
+    "libpq_guard": true,
+    "external_credentials_present": false
+  },
+  "run.json": {
+    "status": "BASELINE_FAILURE",
+    "child_exit": 4,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "checks.json": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.103
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.197
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "project": "C-kidsmap",
+  "purpose": "Research hints only; verified against source",
+  "initial_domain_architecture": {"nodes": 25162, "edges": 81390, "partial_files": 64, "excluded_directories": 43},
+  "root_earlier_index_attributed": "2026-10-03T21:35:01Z",
+  "earlier_domain_coverage_metadata_generation": "2026-10-04T08:08:36Z",
+  "later_actual_index_status": {"nodes": 26976, "edges": 86175, "status": "ready", "partial_files": 64, "excluded_directories": 45},
+  "later_actual_check_index_coverage": {
+    "indexed_at": "2026-10-04T08:49:58Z",
+    "generation": "2026-10-04T08:49:58Z",
+    "recorded_at": "2026-10-04T08:49:59Z",
+    "index_mode": "full",
+    "ignored_files_stored": 2000,
+    "ignored_files_total": 2047,
+    "recording_status": "truncated",
+    "hash_records_complete": true,
+    "paths": [
+      {"path": "src/catalog/services/catalog_search.py", "status": "coverage_unavailable", "freshness": "metadata_changed"},
+      {"path": "src/catalog/services/publication.py", "status": "coverage_unavailable", "freshness": "metadata_changed"}
+    ]
+  },
+  "timestamp_note": "These are explicit index/coverage metadata fields, not invented query timestamps; graph generations changed during concurrent work.",
+  "limitation": "Ready/full does not establish file coverage or current ORM edges. Necessary source was read. No graph caches or full inventory copied."
+}

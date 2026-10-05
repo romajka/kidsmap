@@ -1,0 +1,124 @@
+{
+  "head": "015d031d8eb17114bd860159dde805b38df3c13c",
+  "source": "C:/kidsmap dirty WORKTREE",
+  "executor": "/root/stage27_integration",
+  "frozen_checkout": "/root/km27-review-frozen",
+  "source_files": [
+    {
+      "path": "src/catalog/services/event_calendar.py",
+      "sha256": "874193ba8e5ef1d43de78b0a994081e2d5556901172a4f6d255b836cc40856fe",
+      "frozen_sha256": "874193ba8e5ef1d43de78b0a994081e2d5556901172a4f6d255b836cc40856fe",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/services/event_queries.py",
+      "sha256": "62dee33bcf878a30fd4d3b6cd7aaf7b2230097b023130186d4092b1c286cf278",
+      "frozen_sha256": "62dee33bcf878a30fd4d3b6cd7aaf7b2230097b023130186d4092b1c286cf278",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/services/features.py",
+      "sha256": "734d775f9643909d926cda713319ea0bd28d0b1a1b4e3bedfcf3769acaf5bfba",
+      "frozen_sha256": "734d775f9643909d926cda713319ea0bd28d0b1a1b4e3bedfcf3769acaf5bfba",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/services/public_urls.py",
+      "sha256": "d62133fb7a1f9ac0261119b54f9293a13370518183fe9baf338e70aa932f614c",
+      "frozen_sha256": "d62133fb7a1f9ac0261119b54f9293a13370518183fe9baf338e70aa932f614c",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/controllers/place_controller.py",
+      "sha256": "3e4ffce436739608e3b393c6978e7bc5de1282cb7b2ed51fbd55f998c0fd22b0",
+      "frozen_sha256": "3e4ffce436739608e3b393c6978e7bc5de1282cb7b2ed51fbd55f998c0fd22b0",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/models/place.py",
+      "sha256": "92581a2166ddfc236347c2ae35355fc03989032a67b88dcc8917161d5467a9a3",
+      "frozen_sha256": "92581a2166ddfc236347c2ae35355fc03989032a67b88dcc8917161d5467a9a3",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/models/event_domain.py",
+      "sha256": "b4385a1600962d14601c788c3cff9f1ed5f969a778ec7740d8eeaa4877777bd5",
+      "frozen_sha256": "b4385a1600962d14601c788c3cff9f1ed5f969a778ec7740d8eeaa4877777bd5",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/views.py",
+      "sha256": "84a16503863e800359a9551cbe3dc67c7e63bd36b616f00269b8aaf252fa4e07",
+      "frozen_sha256": "84a16503863e800359a9551cbe3dc67c7e63bd36b616f00269b8aaf252fa4e07",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/middleware.py",
+      "sha256": "3417034f0ed7e783d4193f1c3b4ea3557d2d6f7aa934e512b0f02091f8acfaf9",
+      "frozen_sha256": "3417034f0ed7e783d4193f1c3b4ea3557d2d6f7aa934e512b0f02091f8acfaf9",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/urls.py",
+      "sha256": "64e6484711c3b07d2253a98cb4bd6ac45ebab6dda879c6c5ca727ac1e591480b",
+      "frozen_sha256": "64e6484711c3b07d2253a98cb4bd6ac45ebab6dda879c6c5ca727ac1e591480b",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/events_landing.html",
+      "sha256": "10d74a9678bcb6df2a391cab8bb2c0416d16c76d5ad8f52a545b4dd53cca2fd9",
+      "frozen_sha256": "10d74a9678bcb6df2a391cab8bb2c0416d16c76d5ad8f52a545b4dd53cca2fd9",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/event_detail.html",
+      "sha256": "362cab92095741fa7a57679526bb0378558fb8e2c660fd9710ddca6e645dc221",
+      "frozen_sha256": "362cab92095741fa7a57679526bb0378558fb8e2c660fd9710ddca6e645dc221",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/event_calendar.html",
+      "sha256": "c7c4e14666dc8d44ecb33da5b49d6b5134da07ce650fdd7df0dadc96780faa27",
+      "frozen_sha256": "c7c4e14666dc8d44ecb33da5b49d6b5134da07ce650fdd7df0dadc96780faa27",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/event_listing_card.html",
+      "sha256": "2cb02f576b3dbd1c726d5f809457c866b12c59ea01af59cfc5e2ac7851043289",
+      "frozen_sha256": "2cb02f576b3dbd1c726d5f809457c866b12c59ea01af59cfc5e2ac7851043289",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/event_title_fallback.html",
+      "sha256": "670ad548ed794316755fb8a29804e5a403a33d10e6e6fb296bc75ce5667446a4",
+      "frozen_sha256": "670ad548ed794316755fb8a29804e5a403a33d10e6e6fb296bc75ce5667446a4",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/event_occurrence_state.html",
+      "sha256": "336149b70af6fa6a49b0040884ba794513d36fc0a32e99b90ccfd257ddc11260",
+      "frozen_sha256": "336149b70af6fa6a49b0040884ba794513d36fc0a32e99b90ccfd257ddc11260",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/event_countdown.html",
+      "sha256": "957e15b5a535103397af87315a47c0ed188b6d7d697c9e910a1e38e98005181b",
+      "frozen_sha256": "957e15b5a535103397af87315a47c0ed188b6d7d697c9e910a1e38e98005181b",
+      "frozen_matches": true
+    },
+    {
+      "path": "static/css/events_landing.css",
+      "sha256": "aed645d4ffd28fab086cc9fc33884a6249b73d39f67aaf613bb7877526b5d43d",
+      "frozen_sha256": "aed645d4ffd28fab086cc9fc33884a6249b73d39f67aaf613bb7877526b5d43d",
+      "frozen_matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_event_calendar_review.py",
+      "sha256": "ed8705844072cfe00e8c88423cdf0c297143965209d87959365853006a7b2917",
+      "frozen_sha256": "ed8705844072cfe00e8c88423cdf0c297143965209d87959365853006a7b2917",
+      "frozen_matches": true
+    }
+  ],
+  "all_matches": true,
+  "production": "NOT_CONTACTED"
+}

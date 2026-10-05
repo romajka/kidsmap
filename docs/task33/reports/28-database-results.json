@@ -1,0 +1,125 @@
+{
+  "raw_evidence": "/root/task33-evidence/stage28-db-v3-independent32-20261004",
+  "scope": "independent database reviewer; synthetic disposable only",
+  "run.json": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true,
+    "exception": null
+  },
+  "isolation.json": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10"
+  },
+  "migrations.json": {
+    "leaves": [
+      [
+        "account",
+        "0009_emailaddress_unique_primary_email"
+      ],
+      [
+        "admin",
+        "0003_logentry_add_action_flag_choices"
+      ],
+      [
+        "auth",
+        "0012_alter_user_first_name_max_length"
+      ],
+      [
+        "catalog",
+        "0133_task33_event_foundation"
+      ],
+      [
+        "catalog_moderation",
+        "0001_initial"
+      ],
+      [
+        "contenttypes",
+        "0002_remove_content_type_name"
+      ],
+      [
+        "sessions",
+        "0001_initial"
+      ],
+      [
+        "socialaccount",
+        "0006_alter_socialaccount_extra_data"
+      ]
+    ],
+    "applied_count": 167,
+    "unapplied_count": 0,
+    "vendor": "postgresql"
+  },
+  "checks.json": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.199
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.355
+    }
+  ],
+  "suite-results.json": {
+    "tests_run": 32,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 121.695,
+    "problems": [],
+    "skipped_ids": [],
+    "executed_ids": [
+      "catalog.testcases.test_task33_specialist_db_review.SpecialistDatabaseConstraintReview.test_claim_pending_pair_and_status_version_are_enforced_in_database",
+      "catalog.testcases.test_task33_specialist_db_review.SpecialistDatabaseConstraintReview.test_employment_period_role_status_version_and_two_confirmations_are_database_checks",
+      "catalog.testcases.test_task33_specialist_db_review.SpecialistDatabaseConstraintReview.test_exact_open_ended_duplicate_is_rejected_but_distinct_history_allowed",
+      "catalog.testcases.test_task33_specialist_db_review.SpecialistDatabaseConstraintReview.test_one_verified_account_cannot_claim_two_person_rows_by_direct_sql_write",
+      "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_approved_past_and_cancelled_visibility_separate_from_publication",
+      "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_approved_snapshot_is_immutable_and_completed_dates_cannot_reuse_id",
+      "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_aware_positive_interval_validated_in_save_and_postgres",
+      "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_first_approved_format_survives_unpublication_and_blocks_both_content_switches",
+      "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_modelform_post_clean_reports_approved_format_change_before_admin_save",
+      "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_occurrence_history_append_only_and_unique_event_version",
+      "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_online_has_no_fabricated_place_or_geography_and_raw_updates_rejected",
+      "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_postgres_organizer_xor_blocks_two_or_zero_resolved_and_resolved_legacy_mismatch",
+      "catalog.testcases.test_task33_notifications.NotificationContractTests.test_emit_is_transactional_and_dedupes_event_entity_version_recipient",
+      "catalog.testcases.test_task33_notifications.NotificationContractTests.test_smtp_failure_keeps_inbox_and_retry_sends_once",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_changed_email_cannot_read_old_address_notification",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_csrf_required_for_inbox_actions",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_invitation_dedupe_survives_account_creation",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_invitation_inbox_post_only_recipient_scoped_and_revocation_suppresses_mail",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_join_confirmation_form_is_current_owner_post_only",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_join_detach_transfer_and_access_disable_emit_once_for_each_recipient",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_runner_preview_and_send_with_test_backend",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_stale_join_confirmation_is_suppressed_after_owner_change",
+      "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_changed_minute_still_requires_recorded_occurrence_change",
+      "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_unchanged_publication_timestamp_preserves_approval_precision",
+      "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_unchanged_rendered_minutes_preserve_approved_seconds",
+      "catalog.testcases.test_task33_event_admin_precision.EventOwnerPrecisionTests.test_owner_changed_minute_still_requires_recorded_change",
+      "catalog.testcases.test_task33_event_admin_precision.EventOwnerPrecisionTests.test_unchanged_owner_minutes_preserve_approved_seconds",
+      "catalog.testcases.test_task33_specialist_db_review.SpecialistAdditiveMigrationReview.test_0130_to_latest_leaf_keeps_legacy_identity_locations_documents_reviews",
+      "catalog.testcases.test_task33_event_schema.EventMigrationTests.test_0132_0133_preserves_ids_reviews_unknown_organizers_and_own_snapshot_only",
+      "catalog.testcases.test_task33_event_concurrency.EventConcurrencyTests.test_cancel_and_reschedule_contenders_preserve_single_winning_period",
+      "catalog.testcases.test_task33_event_concurrency.EventConcurrencyTests.test_two_cancellation_contenders_commit_only_one_history_entry",
+      "catalog.testcases.test_task33_notifications.NotificationConcurrencyTests.test_parallel_duplicate_event_has_one_inbox_and_one_outbox"
+    ],
+    "problem_ids_complete": true,
+    "status": "PASS"
+  }
+}

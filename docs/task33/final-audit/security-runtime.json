@@ -1,0 +1,17 @@
+{
+  "host_python": "3.12.3",
+  "image_python": "3.12.15",
+  "host_dependency_count": 39,
+  "image_dependency_count": 39,
+  "changed_dependencies": [
+    {
+      "package": "pip",
+      "host_version": "24.0",
+      "image_version": "25.0.1"
+    }
+  ],
+  "root_full_image": "COMPLETE_WITH_FAILURES",
+  "full_image_summary": "Corrected exact-image: 1817 tests, 108F/12E, Task33 580/580; cleanup PASS. Image-only 1, host-only 1, common 108. Initial125F28E preserved; see image-full-comparison.json; common IDs are not harmless-baseline proof.",
+  "image_comparison": "image-full-comparison.json",
+  "production": "NOT_CONTACTED"
+}

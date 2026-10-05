@@ -1,19 +1,22 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static tz %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block title_plain %}{{ seo_title }}{% endblock %}
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
+{% block structured_data %}<script type="application/ld+json">{{ event_schema_json|safe }}</script>{% endblock %}
 
 {% block content %}
+{% include 'catalog/includes/typed_review_link.html' with review_kind='event' review_target=event %}
   <article class="panel event-detail-page">
     <div class="event-detail-hero">
       <div class="event-detail-copy">
         <span class="event-detail-kicker">{% if language == "az" %}Müvəqqəti tədbir{% elif language == "en" %}Temporary event{% else %}Временное мероприятие{% endif %}</span>
         <h1>{{ event.name_i18n }}</h1>
         <p>{{ event.description_i18n }}</p>
-        {% include "catalog/includes/event_countdown.html" with event=event language=language variant="detail" %}
+        <p class="event-detail-status">{{ event_state_label }}</p>
+        {% if event.occurrence_state == 'scheduled' %}{% include "catalog/includes/event_countdown.html" with event=event language=language variant="detail" %}{% endif %}
       </div>
       <div class="event-detail-media">
         {% if event.photo %}
@@ -39,9 +42,10 @@
       <section class="event-detail-card">
         <h2>{% if language == "az" %}Tədbir məlumatları{% elif language == "en" %}Event details{% else %}Детали мероприятия{% endif %}</h2>
         <dl class="event-detail-list">
+          <div><dt>{% if language == 'az' %}Təşkilatçı{% elif language == 'en' %}Organizer{% else %}Организатор{% endif %}</dt><dd>{% if event_organizer %}<a href="{{ event_organizer.url }}" lang="{{ event_organizer.language }}">{{ event_organizer.name }}</a>{% if event_organizer.language != language %} <span lang="az">AZ</span>{% endif %}{% else %}{% if language == 'az' %}Məlum deyil{% elif language == 'en' %}Unknown{% else %}Неизвестен{% endif %}{% endif %}</dd></div>
           <div>
             <dt>{% if language == "az" %}Tarix{% elif language == "en" %}Date{% else %}Дата{% endif %}</dt>
-            <dd>{{ event.start_datetime|date:"d.m.Y H:i" }} - {{ event.end_datetime|date:"H:i" }}</dd>
+            <dd>{% timezone "Asia/Baku" %}<time datetime="{{ event.start_datetime|date:'c' }}">{{ event.start_datetime|date:"d.m.Y H:i" }}</time> — <time datetime="{{ event.end_datetime|date:'c' }}">{{ event.end_datetime|date:"d.m.Y H:i" }}</time>{% endtimezone %} (Asia/Baku)</dd>
           </div>
           <div>
             <dt>{% if language == "az" %}Kateqoriya{% elif language == "en" %}Category{% else %}Категория{% endif %}</dt>
@@ -59,10 +63,10 @@
               <dd>{{ event.price_display }}</dd>
             </div>
           {% endif %}
-          <div>
+          {% if not event_online %}<div>
             <dt>{% if language == "az" %}Ünvan{% elif language == "en" %}Address{% else %}Адрес{% endif %}</dt>
-            <dd>{{ event.address_i18n }}</dd>
-          </div>
+            <dd>{% if event_venue.label %}{{ event_venue.label }}{% if event_venue.address %} — {% endif %}{% endif %}{% if event_venue.address %}{{ event_venue.address }}{% else %}{% if language == 'az' %}Ünvan məlum deyil{% elif language == 'en' %}Address unknown{% else %}Адрес неизвестен{% endif %}{% endif %}</dd>
+          </div>{% else %}<div><dt>{% if language == 'az' %}Format{% elif language == 'en' %}Format{% else %}Формат{% endif %}</dt><dd>{% if language == 'az' %}Onlayn{% elif language == 'en' %}Online{% else %}Онлайн{% endif %}</dd></div>{% endif %}
         </dl>
       </section>
 
@@ -74,11 +78,13 @@
         {% if event.instagram %}
           <a class="link-btn" href="{{ event.instagram_url }}" target="_blank" rel="noopener">Instagram</a>
         {% endif %}
-        {% if event.related_place %}
-          <a class="link-btn" href="{{ event.related_place.get_absolute_url }}">{% if language == "az" %}Əlaqəli məkanı aç{% elif language == "en" %}Open related place{% else %}Открыть связанное место{% endif %}</a>
-        {% endif %}
       </aside>
     </div>
+    {% if event_previous_periods %}<section class="event-detail-card"><h2>{% if language == 'az' %}Əvvəlki tarixlər{% elif language == 'en' %}Previous dates{% else %}Прежние даты{% endif %}</h2><ul>{% for period in event_previous_periods %}<li>{% timezone 'Asia/Baku' %}{{ period.start|date:'d.m.Y H:i' }} — {{ period.end|date:'d.m.Y H:i' }}{% endtimezone %} (Asia/Baku)</li>{% endfor %}</ul></section>{% endif %}
+    <section class="event-detail-card" id="event-reviews"><h2>{% if language == 'az' %}Rəylər{% elif language == 'en' %}Reviews{% else %}Отзывы{% endif %}</h2>
+      {% if event_rating.count %}<p>{{ event_rating.average|floatformat:1 }} / 5 · {{ event_rating.count }}</p>{% endif %}
+      {% for review in event_reviews %}<article><h3>{{ review.author_name_i18n }}</h3><p>{{ review.current_revision.rating }} / 5</p><p>{{ review.current_revision.text|linebreaksbr }}</p></article>{% empty %}<p>{% if language == 'az' %}Hələ yayımlanmış rəy yoxdur.{% elif language == 'en' %}No published reviews yet.{% else %}Опубликованных отзывов пока нет.{% endif %}</p>{% endfor %}
+    </section>
   </article>
 {% endblock %}
 

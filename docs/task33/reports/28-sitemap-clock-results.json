@@ -1,0 +1,57 @@
+{
+  "stage": 28,
+  "scope": "External QA-only deterministic UTC/Baku replay of original unchanged legacy sitemap assertion",
+  "evidence": "/root/task33-evidence/stage28-sitemap-clock-final1-20261004",
+  "suite-results.json": {
+    "tests_run": 2,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 1.609,
+    "status": "PASS",
+    "executed_ids": [
+      "catalog.testcases.test_qa28_sitemap_clock_probe.SitemapClockProbe.test_original_assertion_rejects_correct_local_date_after_midnight",
+      "catalog.testcases.test_qa28_sitemap_clock_probe.SitemapClockProbe.test_same_original_assertion_passes_when_active_timezone_is_utc"
+    ],
+    "problems": []
+  },
+  "migrations.json": {
+    "applied_count": 167,
+    "unapplied_count": 0
+  },
+  "discovery.json": {
+    "explicit_count": 1819,
+    "explicit_unique_count": 1819,
+    "duplicate_explicit_ids": 0
+  },
+  "isolation.json": {
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10",
+    "network_guard": true,
+    "libpq_guard": true,
+    "external_credentials_present": false
+  },
+  "run.json": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "checks.json": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.189
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.335
+    }
+  ]
+}

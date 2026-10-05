@@ -437,8 +437,21 @@ class SpecialistDocumentInline(admin.TabularInline):
     extra = 0
     verbose_name = _("Документ")
     verbose_name_plural = _("10. Подтверждение квалификации")
-    fields = ("document_type", "name", "file", "download_link", "status", "is_published", "rejection_reason")
-    readonly_fields = ("download_link",)
+    fields = ("document_type", "name", "download_link", "status", "is_published", "rejection_reason")
+    readonly_fields = ("document_type", "name", "download_link", "is_published")
+
+    def has_view_permission(self, request, obj=None):
+        from catalog.services.specialist_documents import can_review_documents
+        return can_review_documents(request.user)
+
+    def has_change_permission(self, request, obj=None):
+        return self.has_view_permission(request, obj)
+
+    def has_add_permission(self, request, obj=None):
+        return False  # Only the verified person uploads evidence through the person service.
+
+    def has_delete_permission(self, request, obj=None):
+        return False  # Document retention is a separate policy, not a generic admin operation.
 
     @admin.display(description=_("Скачать"))
     def download_link(self, obj):
@@ -462,16 +475,21 @@ class SpecialistAdmin(admin.ModelAdmin):
     list_display = ("profile_column", "directions_column", "owner", "format_badge", "status_badge", "verification_badge", "documents_count", "rating_column", "updated_at")
     list_filter = ("status", "is_verified", "is_active", "consultation_format", "specializations")
     search_fields = ("name", "name_alt", "bio_ru", "bio_az", "bio_en")
-    readonly_fields = ("rating_avg", "rating_count", "created_at", "updated_at")
+    readonly_fields = ("owner", "verified_person_user", "person_verified_at", "created_by",
+                       "rating_avg", "rating_count", "created_at", "updated_at")
     filter_horizontal = ("specializations",)
     inlines = [SpecialistPracticeLocationInline, SpecialistDocumentInline]
     actions = ("mark_published", "mark_draft", "mark_pending", "mark_verified", "mark_rejected")
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related("owner").prefetch_related(
-            "specializations",
-            "documents",
-        )
+        from catalog.services.specialist_documents import can_review_documents
+        queryset = super().get_queryset(request).select_related("owner").prefetch_related("specializations")
+        return queryset.prefetch_related("documents") if can_review_documents(request.user) else queryset
+
+    def get_list_display(self, request):
+        from catalog.services.specialist_documents import can_review_documents
+        fields = super().get_list_display(request)
+        return fields if can_review_documents(request.user) else tuple(field for field in fields if field != 'documents_count')
 
     def _build_changelist_query_string(self, request, *, clear=(), **updates):
         params = request.GET.copy()
@@ -887,8 +905,11 @@ class SpecialistAdmin(admin.ModelAdmin):
 
 
 
+from .review_versions import VersionedReviewAdminMixin
+
+
 @admin.register(SpecialistReview)
-class SpecialistReviewAdmin(ModerationActorAdminMixin, admin.ModelAdmin):
+class SpecialistReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, admin.ModelAdmin):
     list_display = ("specialist", "author_name", "rating", "status", "is_approved", "created_at")
     list_filter = ("status", "is_approved", "rating", "created_at")
     search_fields = ("specialist__name", "author_name", "text")

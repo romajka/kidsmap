@@ -584,7 +584,8 @@ class TestGeocodePlacesCommand(TestCase):
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
     def test_command_backfills_coordinates_for_existing_place(self, geocode_mock):
-        geocode_mock.return_value = GeocodingPoint(lat=40.777, lng=49.777, formatted_address="Baku")
+        # A published card cannot accept a point outside resolved geometry.
+        geocode_mock.return_value = GeocodingPoint(lat=40.39, lng=49.81, formatted_address="Baku")
         place = Place.objects.create(
             name="Backfill Place",
             name_ru="Карточка для бэкфилла",
@@ -597,8 +598,8 @@ class TestGeocodePlacesCommand(TestCase):
         call_command("geocode_places", place_id=place.id, stdout=stdout)
 
         place.refresh_from_db()
-        self.assertEqual(place.lat, 40.777)
-        self.assertEqual(place.lng, 49.777)
+        self.assertEqual(place.lat, 40.39)
+        self.assertEqual(place.lng, 49.81)
         self.assertIn("Updated: 1", stdout.getvalue())
 
 class TestSeedCatalogTaxonomyCommand(TestCase):
@@ -1058,7 +1059,15 @@ class CatalogSubcategoryFilterTests(TestCase):
                 self.assertEqual(response.context["selected"]["subcategory"], "")
 
     def test_subcategory_combines_with_other_filters(self):
-        create_quality_place(name="Robotics in Ganja", category="EDU", subcategory=self.robotics, district="Gəncə", age_from=10, age_to=14)
+        from catalog.models import Activity, OfferingGroup
+        ganja = create_quality_place(name="Robotics in Ganja", category="EDU", subcategory=self.robotics,
+            district="Gəncə", lat=None, lng=None, age_from=10, age_to=14)
+        # Category + age must refer to the same approved real group, never to a
+        # guessed lesson synthesized from the Place's broad age range.
+        for place, low, high in ((self.robotics_place, 6, 12), (ganja, 10, 14)):
+            activity = Activity.objects.create(place=place, status='published', name_az='Robot dərsi',
+                category=self.edu, subcategory=self.robotics)
+            OfferingGroup.objects.create(activity=activity, age_from=low, age_to=high)
 
         response = self.client.get(
             reverse("place_list"),

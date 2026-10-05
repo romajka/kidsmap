@@ -5,9 +5,9 @@
       {% for crumb in items %}
         <li class="km-breadcrumbs__item">
           {% if forloop.last %}
-            <span class="km-breadcrumbs__current" aria-current="page">{{ crumb.name }}</span>
+            <span class="km-breadcrumbs__current" aria-current="page"{% if crumb.language %} lang="{{ crumb.language }}"{% endif %}>{{ crumb.name }}</span>
           {% else %}
-            <a class="km-breadcrumbs__link" href="{{ crumb.url }}">{{ crumb.name }}</a>
+            <a class="km-breadcrumbs__link" href="{{ crumb.url }}"{% if crumb.language %} lang="{{ crumb.language }}"{% endif %}>{{ crumb.name }}</a>
             <span class="km-breadcrumbs__separator" aria-hidden="true">›</span>
           {% endif %}
         </li>

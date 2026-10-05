@@ -17,6 +17,7 @@
       routeLabel: (scriptEl.dataset.homeMapRouteLabel || "Route").trim(),
       language: (scriptEl.dataset.homeMapLanguage || "az").trim(),
       unavailableLabel: (scriptEl.dataset.homeMapUnavailableLabel || "Map is temporarily unavailable.").trim(),
+      tilesUnavailableLabel: (scriptEl.dataset.homeMapTilesUnavailableLabel || "The map background is temporarily unavailable.").trim(),
     };
   })();
 
@@ -1174,6 +1175,68 @@
 
   // ── Leaflet map ─────────────────────────────────────────────────────────────
 
+  function loadHomeMapTile(tile, url, done) {
+    const controller = new AbortController();
+    let objectUrl = null;
+    let cancelled = false;
+    let finished = false;
+    const timeout = window.setTimeout(() => controller.abort(), 15000);
+    function release() {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      objectUrl = null;
+    }
+    function finish(error) {
+      if (cancelled || finished) return;
+      finished = true;
+      window.clearTimeout(timeout);
+      release();
+      done(error, tile);
+    }
+    tile.onload = () => finish(null);
+    tile.onerror = () => finish(new Error("Map tile image unavailable"));
+    // An <img> can display an error image even with HTTP 403. Check the status
+    // before giving Leaflet an image. Keep browser caching and identify the real
+    // origin without exposing the current page path/query to the tile provider.
+    fetch(url, {
+      referrerPolicy: "strict-origin-when-cross-origin",
+      credentials: "omit",
+      signal: controller.signal,
+    }).then(response => {
+      if (!response.ok) throw new Error("Map tile HTTP " + response.status);
+      return response.blob();
+    }).then(blob => {
+      if (cancelled) return;
+      objectUrl = URL.createObjectURL(blob);
+      tile.src = objectUrl;
+    }).catch(finish);
+    return function cancel() {
+      cancelled = true;
+      window.clearTimeout(timeout);
+      controller.abort();
+      tile.onload = null;
+      tile.onerror = null;
+      release();
+    };
+  }
+
+  function createHomeBasemapLayer() {
+    const CheckedTileLayer = L.TileLayer.extend({
+      createTile: function (coords, done) {
+        const tile = document.createElement("img");
+        tile.alt = "";
+        tile.setAttribute("role", "presentation");
+        tile.cancelHomeMapTile = loadHomeMapTile(tile, this.getTileUrl(coords), done);
+        return tile;
+      },
+    });
+    const layer = new CheckedTileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    });
+    layer.on("tileunload", event => event.tile.cancelHomeMapTile());
+    return layer;
+  }
+
   function mountLeafletMap(sharedState) {
     if (!window.L || !window.L.markerClusterGroup || !sharedState) return false;
 
@@ -1190,10 +1253,26 @@
       zoomControl: true,
     });
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map);
+    const basemap = createHomeBasemapLayer();
+    let tileStatus = null;
+    basemap.on("tileerror", function () {
+      if (tileStatus) return;
+      // Stop further requests after a rejected/offline tile. Marker/filter
+      // interactions remain available; never replace the provider silently.
+      map.removeLayer(basemap);
+      tileStatus = document.createElement("p");
+      tileStatus.className = "home-map-note";
+      tileStatus.dataset.homeMapTileStatus = "unavailable";
+      tileStatus.setAttribute("role", "status");
+      tileStatus.append(document.createTextNode(SCRIPT_CONFIG.tilesUnavailableLabel + " "));
+      const link = document.createElement("a");
+      link.href = mapEl.dataset.catalogUrl || "/catalog/";
+      link.textContent = mapEl.dataset.catalogLabel || "Open catalog";
+      tileStatus.append(link);
+      mapEl.insertAdjacentElement("beforebegin", tileStatus);
+    });
+    map.on("unload", function () { if (tileStatus) tileStatus.remove(); });
+    basemap.addTo(map);
 
     // ── Cluster group ───────────────────────────────────────────────────────
     const markerClusterGroup = L.markerClusterGroup({

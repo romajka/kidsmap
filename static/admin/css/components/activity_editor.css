@@ -1,0 +1,16 @@
+/* Bounded nested Activity editor; shares the owner tree writer, not business rules. */
+.km-pf-nested-offerings {margin-top:20px; min-width:0;}
+.km-pf-nested-offerings summary {cursor:pointer; padding:12px 0; font-weight:650; min-height:44px;}
+.km-pf-nested-offerings .pc-activity-card,
+.km-pf-nested-offerings .pc-group-card,
+.km-pf-nested-offerings .pc-plan-card {border:1px solid var(--km-border,#dbe8df); border-radius:12px; padding:16px; margin:12px 0; min-width:0; background:var(--km-surface,#fff);}
+.km-pf-nested-offerings .pc-group-card {background:var(--km-surface-muted,#f7faf7);}
+.km-pf-nested-offerings .pc-offering-grid {display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px;}
+.km-pf-nested-offerings .pc-offering-field {display:flex; flex-direction:column; gap:5px; min-width:0; font-weight:600;}
+.km-pf-nested-offerings input:not([type=checkbox]),
+.km-pf-nested-offerings select,
+.km-pf-nested-offerings textarea {width:100%; max-width:100%; min-width:0; box-sizing:border-box; min-height:42px; border:1px solid var(--km-border,#dbe8df); border-radius:8px; padding:9px; font:inherit; background:var(--km-surface,#fff);}
+.km-pf-nested-offerings .pw-add {min-height:44px; max-width:100%; white-space:normal; padding:8px 12px; margin:6px 0; border:1px solid var(--km-border,#dbe8df); border-radius:8px; color:var(--km-primary,#136f38); background:var(--km-surface,#fff);}
+.km-pf-nested-offerings .pc-offering-translations {margin:12px 0;}
+.km-pf-nested-offerings :focus-visible {outline:2px solid var(--km-primary,#136f38); outline-offset:3px;}
+@media(max-width:767px){.km-pf-nested-offerings .pc-offering-grid{grid-template-columns:minmax(0,1fr);}.km-pf-nested-offerings .pc-activity-card,.km-pf-nested-offerings .pc-group-card,.km-pf-nested-offerings .pc-plan-card{padding:12px;}}

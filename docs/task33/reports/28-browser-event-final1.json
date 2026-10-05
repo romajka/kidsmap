@@ -1,0 +1,97 @@
+{
+  "stage": 28,
+  "family": "event",
+  "executor": "/root/stage26_public",
+  "role": "browser-qa",
+  "scope": "fresh Chromium rendered execution; not independent source review of previous authored backend",
+  "evidence": "/root/task33-evidence/browser28-event-20261004-final1",
+  "contexts": 273,
+  "unique_contexts": 273,
+  "passed_contexts": 273,
+  "checks": 931,
+  "passed_checks": 931,
+  "failed_rows": [],
+  "failed_checks": [],
+  "event_counts": {
+    "errors": 0,
+    "failed": 0,
+    "staticFailures": 0,
+    "stubs": 1232,
+    "expectedErrors": 0
+  },
+  "launcher_status": "PASS",
+  "cleanup": "PASS",
+  "isolation": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10"
+  },
+  "screenshots": [
+    "UTC-midnight-past-rejected.png",
+    "admin-1440.png",
+    "admin-390.png",
+    "admin-after-publication.png",
+    "admin-precision-after-edit.png",
+    "admin_add-1440.png",
+    "admin_add-390.png",
+    "archive-1440.png",
+    "archive-390.png",
+    "calendar-1440.png",
+    "calendar-390.png",
+    "calendar-grid-1440.png",
+    "calendar-grid-320.png",
+    "calendar-grid-390.png",
+    "calendar-grid-768.png",
+    "cancelled-1440.png",
+    "cancelled-390.png",
+    "create-1440.png",
+    "create-390.png",
+    "edit-1440.png",
+    "edit-390.png",
+    "form-error-390.png",
+    "list-1440.png",
+    "list-390.png",
+    "online-1440.png",
+    "online-390.png",
+    "owner-precision-after-edit.png",
+    "past-1440.png",
+    "past-390.png",
+    "physical-1440.png",
+    "physical-390.png",
+    "rescheduled-1440.png",
+    "rescheduled-390.png",
+    "zero-1440.png",
+    "zero-390.png"
+  ],
+  "source_current": {
+    "application_files": 2750,
+    "mismatches": [],
+    "new_application_files": [],
+    "executed_harness_unchanged": true
+  },
+  "runtime_assets": {
+    "static/css/events_landing.css": {
+      "sha256": "ab2a88df60d30d18c709d2878836b32415fbd6316f076436d7fcb54e2b042ae0",
+      "matches_frozen": true
+    },
+    "static/js/temporary_event_timer.js": {
+      "sha256": "7f115b68dab8904ad37b083196816a3b74d601bbb4acf3cee3126eee6bcfb374",
+      "matches_frozen": true
+    },
+    "static/admin/css/pages/kidsmap_admin_form_shell.css": {
+      "sha256": "2f4ca4d28f7a2f57b398d5d51b45874a5966dd1510f200bd638a4f091f135c5d",
+      "matches_frozen": true
+    }
+  },
+  "status": "PASS"
+}

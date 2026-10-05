@@ -1,0 +1,71 @@
+{
+  "status": "FAIL",
+  "scope": "Bounded causal diagnostic excluded from final816 contexts/1724 checks",
+  "diagnostic_contexts": 1,
+  "diagnostic_checks": 2,
+  "passed_diagnostic_checks": 2,
+  "unexpected_page_errors": [
+    {
+      "error": "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled",
+      "phase": "native_missing_impact_400",
+      "url": "http://127.0.0.1:8788/ru/account/organizations/1/programs/1/save/"
+    },
+    {
+      "error": "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled",
+      "phase": "native_valid_impact_redirect",
+      "url": "http://127.0.0.1:8788/ru/account/organizations/1/programs/1/"
+    }
+  ],
+  "responses": [
+    {
+      "phase": "native_missing_impact_400",
+      "status": 400,
+      "url": "http://127.0.0.1:8788/ru/account/organizations/1/programs/1/save/"
+    },
+    {
+      "phase": "native_valid_impact_redirect",
+      "status": 302,
+      "url": "http://127.0.0.1:8788/ru/account/organizations/1/programs/1/save/"
+    }
+  ],
+  "source_current": {
+    "application_files": 2750,
+    "mismatches": [],
+    "new_application_files": [],
+    "executed_harness_unchanged": true
+  },
+  "cleanup": "PASS",
+  "guards": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10"
+  },
+  "business_state": {
+    "before": {
+      "program_name": "QA AUDIT PROGRAM AZ",
+      "status": "published",
+      "revision_status": null
+    },
+    "impactState": {
+      "program_name": "QA AUDIT PROGRAM AZ",
+      "status": "published",
+      "revision_status": null
+    },
+    "after": {
+      "program_name": "QA AUDIT PROGRAM AZ",
+      "status": "published",
+      "revision_status": "pending"
+    }
+  },
+  "raw_evidence": "\\\\wsl.localhost\\Ubuntu-24.04\\root\\task33-evidence\\browser28-motion-finalaudit-20261004-motion"
+}

@@ -1,0 +1,95 @@
+{
+  "host_cards": {
+    "baseline_one": {
+      "queries": 6,
+      "seconds": 0.080491,
+      "cards": 1
+    },
+    "batch_one": {
+      "queries": 7,
+      "seconds": 0.105622,
+      "cards": 1
+    },
+    "baseline_eight": {
+      "queries": 41,
+      "seconds": 0.217968,
+      "cards": 8
+    },
+    "batch_eight": {
+      "queries": 7,
+      "seconds": 0.109785,
+      "cards": 8
+    }
+  },
+  "native_event_control": {
+    "meaning": "Same final source/fixtures; naive N+1 control versus eager ORM, not historical release or production load",
+    "sizes": [
+      20,
+      200
+    ],
+    "repetitions": 3,
+    "measurements": [
+      {
+        "size": 20,
+        "mode": "naive_current_orm",
+        "query_counts": [
+          21,
+          21,
+          21
+        ],
+        "elapsed_ms": [
+          26.965,
+          26.567,
+          22.819
+        ],
+        "median_ms": 26.567
+      },
+      {
+        "size": 20,
+        "mode": "select_related_current_orm",
+        "query_counts": [
+          1,
+          1,
+          1
+        ],
+        "elapsed_ms": [
+          4.216,
+          4.387,
+          3.085
+        ],
+        "median_ms": 4.216
+      },
+      {
+        "size": 200,
+        "mode": "naive_current_orm",
+        "query_counts": [
+          201,
+          201,
+          201
+        ],
+        "elapsed_ms": [
+          243.38,
+          246.027,
+          247.783
+        ],
+        "median_ms": 246.027
+      },
+      {
+        "size": 200,
+        "mode": "select_related_current_orm",
+        "query_counts": [
+          1,
+          1,
+          1
+        ],
+        "elapsed_ms": [
+          19.582,
+          14.428,
+          16.347
+        ],
+        "median_ms": 16.347
+      }
+    ]
+  },
+  "meaning": "Local synthetic query-count comparison, not a production load test; per-card control may use current unbatched reader."
+}

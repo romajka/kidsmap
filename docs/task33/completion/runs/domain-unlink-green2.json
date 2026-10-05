@@ -1,0 +1,47 @@
+{
+  "stamp": "domain-unlink-green2",
+  "raw_evidence": "/root/task33-evidence/completion-domain-unlink-green2",
+  "suite": {
+    "tests_run": 11,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 3.181,
+    "problems": [],
+    "skipped_ids": [],
+    "executed_ids": [
+      "catalog.testcases.test_task33_completion_taxonomy.CompletionTaxonomyTests.test_approved_program_snapshot_subcategory_detach_and_pending",
+      "catalog.testcases.test_task33_completion_taxonomy.CompletionTaxonomyTests.test_detached_taxonomy_clear_does_not_resurrect_old_snapshot",
+      "catalog.testcases.test_task33_completion_taxonomy.CompletionTaxonomyTests.test_editor_unlink_roundtrip_materializes_approved_snapshot",
+      "catalog.testcases.test_task33_completion_taxonomy.CompletionTaxonomyTests.test_mismatched_nested_taxonomy_rejected_atomically",
+      "catalog.testcases.test_task33_completion_taxonomy.CompletionTaxonomyTests.test_program_approval_propagates_then_stale_taxonomy_refuses",
+      "catalog.testcases.test_task33_completion_taxonomy.CompletionTaxonomyTests.test_program_http_rejects_mismatch_and_proposes_valid_subcategory",
+      "catalog.testcases.test_task33_completion_taxonomy.CompletionTaxonomyTests.test_public_activity_label_uses_own_category_not_place",
+      "catalog.testcases.test_task33_completion_taxonomy.CompletionTaxonomyTests.test_public_linked_category_label_is_approved_during_pending_and_detach",
+      "catalog.testcases.test_task33_completion_taxonomy.CompletionTaxonomyTests.test_standalone_publication_pending_rejected_and_stale_preserve_live",
+      "catalog.testcases.test_task33_completion_taxonomy.CompletionTaxonomyTests.test_standalone_real_writer_search_count_and_roundtrip",
+      "catalog.testcases.test_task33_completion_taxonomy.CompletionTaxonomyTests.test_unknown_legacy_stays_unknown_without_place_inference"
+    ],
+    "problem_ids_complete": true,
+    "status": "PASS"
+  },
+  "run": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "isolation": {
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "network_guard": true,
+    "libpq_guard": true,
+    "external_credentials_present": false
+  },
+  "source_manifest_sha256": "1c23a0a0e3241a11fc2a264832972251a2e6a6c8d599fe046d3df55864853941",
+  "source_count": 2830,
+  "frozen_source_changed": [],
+  "production": "NOT_CONTACTED"
+}

@@ -1,0 +1,67 @@
+{
+  "stage": 28,
+  "scope": "Fresh12 explicit common identity/redirect/upload trust-boundary negatives; mocked OAuth is not live OAuth",
+  "evidence": "/root/task33-evidence/final-audit-security-supplement-20261004",
+  "suite-results.json": {
+    "tests_run": 12,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.497,
+    "status": "PASS",
+    "executed_ids": [
+      "catalog.testcases.test_google_auth.GoogleAuthTests.test_start_contract_csrf_scopes_pkce_and_fixed_callback",
+      "catalog.testcases.test_google_auth.GoogleAuthTests.test_invalid_expired_and_replayed_state",
+      "catalog.testcases.test_google_auth.GoogleAuthTests.test_identity_email_conflict_does_not_switch_or_merge_users",
+      "catalog.testcases.test_google_auth.GoogleAuthTests.test_logged_in_browser_cannot_attach_someone_elses_identity",
+      "catalog.testcases.test_google_auth.GoogleAuthTests.test_unsafe_next_and_auth_loop_fall_back_to_local_profile",
+      "catalog.testcases.test_google_auth.GoogleAuthTests.test_invalid_oidc_issuer_audience_expiry_and_subject",
+      "catalog.testcases.auth_flow.TestAuthValidationAndNextSecurity.test_register_rejects_external_next_redirect",
+      "catalog.testcases.auth_flow.TestAuthValidationAndNextSecurity.test_login_rejects_external_next_redirect",
+      "catalog.testcases.photo_workflow.PhotoWorkflowTests.test_prepare_requires_authentication_and_reports_bad_file",
+      "catalog.testcases.photo_workflow.PhotoWorkflowTests.test_pixel_limit_rejects_before_full_decode",
+      "catalog.testcases.image_uploads.TestOwnerImageNormalization.test_mime_mismatch_has_clear_validation_error_and_is_logged",
+      "catalog.testcases.image_uploads.TestOwnerImagePersistenceFailures.test_user_cannot_delete_photo_from_another_users_card"
+    ],
+    "problems": []
+  },
+  "migrations.json": {
+    "applied_count": 167,
+    "unapplied_count": 0
+  },
+  "discovery.json": {
+    "explicit_count": 1817,
+    "explicit_unique_count": 1817,
+    "duplicate_explicit_ids": 0
+  },
+  "isolation.json": {
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10",
+    "network_guard": true,
+    "libpq_guard": true,
+    "external_credentials_present": false
+  },
+  "run.json": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "checks.json": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.11
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.228
+    }
+  ]
+}

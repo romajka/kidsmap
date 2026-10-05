@@ -1,0 +1,63 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-10-05T04:31:14.125577+00:00",
+  "portable_contract_tests": 3,
+  "source_files": 2761,
+  "fresh_database_migrations": 168,
+  "public_places": 103,
+  "photos": 396,
+  "demo_photo_sources_in_git": 13,
+  "initial_created": 100,
+  "restart_created": 0,
+  "existing_rows_preserved": true,
+  "browser": {
+    "status": "PASS",
+    "checks": [
+      "authenticated admin: icon14x14",
+      {
+        "catalog": "103",
+        "loadedPhotos": 12
+      },
+      {
+        "mobile": 390,
+        "rowHeight": 99.84375
+      },
+      "guide uses current fixture IDs and port"
+    ],
+    "errors": [],
+    "network": []
+  },
+  "http": [
+    {
+      "url": "/qa/",
+      "status": 200
+    },
+    {
+      "url": "/qa/fixtures.json",
+      "status": 200
+    },
+    {
+      "url": "/ru/catalog/",
+      "status": 200
+    },
+    {
+      "url": "/admin/login/",
+      "status": 200
+    }
+  ],
+  "database_network": "none",
+  "database_ports": false,
+  "immutable_evidence": {
+    "completion": 146,
+    "final-audit": 164
+  },
+  "git_whitespace_check": {
+    "exit": 2,
+    "findings": 102,
+    "disposition": "Retained existing whitespace in frozen historical evidence, originals and previously tested QA/test sources; no behavior failure, no assertions changed"
+  },
+  "local_sensitive_files_preserved": true,
+  "known_qa_issues": "Initial bootstrap compiled scratch catalogues; bounded to locale/*.po with msgfmt. Browser first counted only loaded lazy photos; final test scrolls every photo and checks successful decoding.",
+  "production": "NOT_CONTACTED",
+  "full_backend_regression": "NOT_REPEATED; packaging-only QA helpers changed"
+}

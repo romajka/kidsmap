@@ -1,0 +1,314 @@
+{
+  "source_head": "015d031d8eb17114bd860159dde805b38df3c13c",
+  "initial_evidence": "/root/task33-evidence/stage23-full-20261003",
+  "head_evidence": "/tmp/task33-pub-head-baseline",
+  "current_evidence": "/root/task33-evidence/stage23-public-frozen",
+  "assigned_count": 42,
+  "items": [
+    {
+      "id": "catalog.testcases.auth_flow.TestAccountProfileUpdates.test_account_favorites_lists_liked_places",
+      "classification": "FIXED TEST FIXTURE",
+      "root_cause": "Favorite must be published with complete RU translation and an explicit RU request; original Place default draft/name-only is not a public RU card.",
+      "evidence": "auth_flow.TestAccountProfileUpdates.test_account_favorites_lists_liked_places",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.adult_classes.PlaceAdultClassesPublicTests.test_catalog_has_no_adult_filter_and_renders_compact_audience",
+      "classification": "SUPERSEDED PUBLIC PRESENTATION",
+      "root_cause": "Old legacy scalar audience/card markup vs accepted group presentation; RU detail fixture has no RU description so canonical content is AZ (D06/D10). No domain assertion relaxed.",
+      "evidence": "test_task33_search + test_task33_public_details + test_task33_localization",
+      "head_reproduction": "FAIL"
+    },
+    {
+      "id": "catalog.testcases.adult_classes.PlaceAdultClassesPublicTests.test_place_detail_renders_children_only_and_mixed_audience",
+      "classification": "SUPERSEDED PUBLIC PRESENTATION",
+      "root_cause": "Old legacy scalar audience/card markup vs accepted group presentation; RU detail fixture has no RU description so canonical content is AZ (D06/D10). No domain assertion relaxed.",
+      "evidence": "test_task33_search + test_task33_public_details + test_task33_localization",
+      "head_reproduction": "FAIL"
+    },
+    {
+      "id": "catalog.testcases.catalog.CatalogMapQueryEfficiencyTests.test_map_serialization_query_count_does_not_grow_with_schedules",
+      "classification": "SUPERSEDED QUERY BUDGET",
+      "root_cause": "9 batch queries includes approved cards/gallery/Activity plans; old hardcoded4 is obsolete. Constant-scaling canonical tests remain mandatory.",
+      "evidence": "catalog.TestGeocodePlacesCommand + test_task33_search.test_batch_queries_do_not_grow_per_card",
+      "head_reproduction": "FAIL"
+    },
+    {
+      "id": "catalog.testcases.catalog.CatalogSubcategoryFilterTests.test_subcategory_combines_with_other_filters",
+      "classification": "INVALID GEOGRAPHY FIXTURE / OLD QUERY BUDGET",
+      "root_cause": "Geometry controls district; Ganja-labelled fixture has Baku coordinates. Four-query budget predates batch approved Activity/gallery presentation; canonical query scaling suite checks constant growth. Geocoding mock now resolves real Baku geometry instead of unresolved point.",
+      "evidence": "catalog.TestGeocodePlacesCommand + test_task33_search.test_batch_queries_do_not_grow_per_card",
+      "head_reproduction": "FAIL"
+    },
+    {
+      "id": "catalog.testcases.catalog.TestGeocodePlacesCommand.test_command_backfills_coordinates_for_existing_place",
+      "classification": "FIXED GEOGRAPHY MOCK",
+      "root_cause": "Published geocoder refuses unresolved points. Mock40.777/49.777 is outside resolved local geometry; now40.39/49.81 and coordinates asserted unchanged.",
+      "evidence": "catalog.TestGeocodePlacesCommand + test_task33_search.test_batch_queries_do_not_grow_per_card",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.pricing_plans.PricingPlansTests.test_admin_form_reopens_and_resaves_tariffs_without_data_loss",
+      "classification": "FIXED TEST HARNESS",
+      "root_cause": "Signed publication source token now required; Russian validation text requires explicit RU locale.",
+      "evidence": "pricing_plans",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.pricing_plans.PricingPlansTests.test_admin_form_saves_multiple_normalized_plans",
+      "classification": "FIXED TEST HARNESS",
+      "root_cause": "Signed publication source token now required; Russian validation text requires explicit RU locale.",
+      "evidence": "pricing_plans",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.pricing_plans.PricingPlansTests.test_event_schedule_mode_does_not_validate_unused_weekday_intervals",
+      "classification": "FIXED TEST HARNESS",
+      "root_cause": "Signed publication source token now required; Russian validation text requires explicit RU locale.",
+      "evidence": "pricing_plans",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.pricing_plans.PricingPlansTests.test_validation_error_identifies_broken_tariff",
+      "classification": "FIXED TEST HARNESS",
+      "root_cause": "Signed publication source token now required; Russian validation text requires explicit RU locale.",
+      "evidence": "pricing_plans",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.public.TestCatalogContentSettingsWiring.test_catalog_filter_values_are_sorted_alphabetically",
+      "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "root_cause": "Canonical geometry vocabulary replaces arbitrary free-text district options; invalid fixture, source locations/geometry policy.",
+      "evidence": "test_task33_search + test_task33_map + test_task33_home_map + test_task33_localization + test_task33_reviews",
+      "head_reproduction": "FAIL"
+    },
+    {
+      "id": "catalog.testcases.public.TestCatalogContentSettingsWiring.test_home_page_uses_catalog_settings_districts",
+      "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "root_cause": "Geometry-authoritative district differs from manually labelled fixture pinned to Narimanov; canonical keys and registered region options replace arbitrary district JSON.",
+      "evidence": "test_task33_search + test_task33_map + test_task33_home_map + test_task33_localization + test_task33_reviews",
+      "head_reproduction": "FAIL"
+    },
+    {
+      "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_card_uses_localized_district_instead_of_code",
+      "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "root_cause": "Geometry-authoritative district differs from manually labelled fixture pinned to Narimanov; canonical keys and registered region options replace arbitrary district JSON.",
+      "evidence": "test_task33_search + test_task33_map + test_task33_home_map + test_task33_localization + test_task33_reviews",
+      "head_reproduction": "FAIL"
+    },
+    {
+      "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_district_filter_matches_exact_value_only",
+      "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "root_cause": "Geometry-authoritative district differs from manually labelled fixture pinned to Narimanov; canonical keys and registered region options replace arbitrary district JSON.",
+      "evidence": "test_task33_search + test_task33_map + test_task33_home_map + test_task33_localization + test_task33_reviews",
+      "head_reproduction": "FAIL"
+    },
+    {
+      "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_map_serialization_includes_card_fields",
+      "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "root_cause": "Stage20 verified map identity + members transport replaces flat equality dictionary. New exact venue/filter contracts retain independent IDs/URLs.",
+      "evidence": "test_task33_search + test_task33_map + test_task33_home_map + test_task33_localization + test_task33_reviews",
+      "head_reproduction": "FAIL"
+    },
+    {
+      "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_map_uses_only_filtered_map_ready_places",
+      "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "root_cause": "Filter asks Yasamal but fixture pin resolves Narimanov; correct0 matches.",
+      "evidence": "test_task33_search + test_task33_map + test_task33_home_map + test_task33_localization + test_task33_reviews",
+      "head_reproduction": "FAIL"
+    },
+    {
+      "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_price_filter_uses_range_overlap",
+      "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "root_cause": "D10 explicitly removes incomparable budget filtering; legacy price-range expectation superseded.",
+      "evidence": "test_task33_search + test_task33_map + test_task33_home_map + test_task33_localization + test_task33_reviews",
+      "head_reproduction": "FAIL"
+    },
+    {
+      "id": "catalog.testcases.public.TestPublicFilterCounts.test_catalog_filters_hide_zero_options_and_show_public_counts",
+      "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "root_cause": "All3 fixtures share Narimanov coordinates: expected district counts1 came from pregeometry labels; actual3 is truthful.",
+      "evidence": "test_task33_search + test_task33_map + test_task33_home_map + test_task33_localization + test_task33_reviews",
+      "head_reproduction": "FAIL"
+    },
+    {
+      "id": "catalog.testcases.public.TestPublicPagesSmoke.test_home_hero_statistics_do_not_add_plus_to_exact_counts",
+      "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "root_cause": "Source-string test requires old raw map point length; current map_business_count counts businesses across verified venue points.",
+      "evidence": "test_task33_search + test_task33_map + test_task33_home_map + test_task33_localization + test_task33_reviews",
+      "head_reproduction": "FAIL"
+    },
+    {
+      "id": "catalog.testcases.public.TestPublicPagesSmoke.test_home_map_search_text_includes_subcategory_name",
+      "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "root_cause": "Local flat search_text transport replaced server public_map filters+members; same query shared with catalog, subcategory mapping covered stage18/20.",
+      "evidence": "test_task33_search + test_task33_map + test_task33_home_map + test_task33_localization + test_task33_reviews",
+      "head_reproduction": "FAIL"
+    },
+    {
+      "id": "catalog.testcases.public.TestPublicPagesSmoke.test_place_detail_page_includes_breadcrumb_and_aggregate_rating_schema",
+      "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "root_cause": "Fixture lacks complete RU description; D10 canonical metadata falls back AZ, only complete translations are advertised.",
+      "evidence": "test_task33_search + test_task33_map + test_task33_home_map + test_task33_localization + test_task33_reviews",
+      "head_reproduction": "FAIL"
+    },
+    {
+      "id": "catalog.testcases.public.TestPublicPagesSmoke.test_place_detail_page_renders_visible_breadcrumbs",
+      "classification": "FIXED CONTRACT TEST",
+      "root_cause": "Exact HTML assertion omitted newly required lang=ru attributes; name/paths/schema assertions retained.",
+      "evidence": "/root/task33-evidence/stage23-public-frozen:184PASS",
+      "head_reproduction": "PASS"
+    },
+    {
+      "id": "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_includes_all_languages_and_hreflang_alternates",
+      "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "root_cause": "D10 only complete translations advertised; language shell/name-only does not create a RU/EN alternate.",
+      "evidence": "test_task33_search + test_task33_map + test_task33_home_map + test_task33_localization + test_task33_reviews",
+      "head_reproduction": "PASS"
+    },
+    {
+      "id": "catalog.testcases.public.TestReviewEnhancements.test_home_and_catalog_use_localized_strings_in_az_and_en",
+      "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "root_cause": "Old catalog hero copy was replaced by accepted stage18 catalogue (AZ/RU/EN browser acceptance), exact obsolete string not a business invariant.",
+      "evidence": "test_task33_search + test_task33_map + test_task33_home_map + test_task33_localization + test_task33_reviews",
+      "head_reproduction": "FAIL"
+    },
+    {
+      "id": "catalog.testcases.public.TestReviewEnhancements.test_review_models_disable_anonymous_flag_and_keep_author_name",
+      "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "root_cause": "D07 preserves original legacy PlaceReview fields unchanged; old coercion contradicts immutable raw history. Public revision rules covered stage22.",
+      "evidence": "test_task33_search + test_task33_map + test_task33_home_map + test_task33_localization + test_task33_reviews",
+      "head_reproduction": "PASS"
+    },
+    {
+      "id": "catalog.testcases.test_admin_legacy_price_preservation.AdminLegacyPricePreservationTests.test_explicit_new_tariff_replaces_legacy_projection",
+      "classification": "FIXED TEST HARNESS",
+      "root_cause": "Fresh signed source token and geometry-derived district preserve original pricing assertions.",
+      "evidence": "test_admin_legacy_price_preservation",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.test_admin_legacy_price_preservation.AdminLegacyPricePreservationTests.test_explicit_removal_of_existing_tariffs_still_clears_projections",
+      "classification": "FIXED TEST HARNESS",
+      "root_cause": "Fresh signed source token and geometry-derived district preserve original pricing assertions.",
+      "evidence": "test_admin_legacy_price_preservation",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.test_admin_legacy_price_preservation.AdminLegacyPricePreservationTests.test_ordinary_save_preserves_all_scalar_prices_without_creating_tariffs",
+      "classification": "FIXED TEST HARNESS",
+      "root_cause": "Fresh signed source token and geometry-derived district preserve original pricing assertions.",
+      "evidence": "test_admin_legacy_price_preservation",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.test_json_roundtrip_audit.EightRealWorldRoundTripTests.test_round_trip_1_paid_sports_club",
+      "classification": "FIXED CONTRACT TEST",
+      "root_cause": "D06 removes mandatory photo/coordinates: require completed=required and100%; D10 AZ-only canonical free Offer label AZ. Prices/IDs/readiness/visibility preserved.",
+      "evidence": "test_json_roundtrip_audit",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.test_json_roundtrip_audit.EightRealWorldRoundTripTests.test_round_trip_2_free_park",
+      "classification": "FIXED CONTRACT TEST",
+      "root_cause": "D06 removes mandatory photo/coordinates: require completed=required and100%; D10 AZ-only canonical free Offer label AZ. Prices/IDs/readiness/visibility preserved.",
+      "evidence": "test_json_roundtrip_audit",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.test_json_roundtrip_audit.EightRealWorldRoundTripTests.test_round_trip_3_free_park_always_open",
+      "classification": "FIXED CONTRACT TEST",
+      "root_cause": "D06 removes mandatory photo/coordinates: require completed=required and100%; D10 AZ-only canonical free Offer label AZ. Prices/IDs/readiness/visibility preserved.",
+      "evidence": "test_json_roundtrip_audit",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.test_json_roundtrip_audit.EightRealWorldRoundTripTests.test_round_trip_4_free_entry_paid_services",
+      "classification": "FIXED CONTRACT TEST",
+      "root_cause": "D06 removes mandatory photo/coordinates: require completed=required and100%; D10 AZ-only canonical free Offer label AZ. Prices/IDs/readiness/visibility preserved.",
+      "evidence": "test_json_roundtrip_audit",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.test_json_roundtrip_audit.EightRealWorldRoundTripTests.test_round_trip_5_theater_events_price",
+      "classification": "FIXED CONTRACT TEST",
+      "root_cause": "D06 removes mandatory photo/coordinates: require completed=required and100%; D10 AZ-only canonical free Offer label AZ. Prices/IDs/readiness/visibility preserved.",
+      "evidence": "test_json_roundtrip_audit",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.test_json_roundtrip_audit.EightRealWorldRoundTripTests.test_round_trip_6_by_appointment",
+      "classification": "FIXED CONTRACT TEST",
+      "root_cause": "D06 removes mandatory photo/coordinates: require completed=required and100%; D10 AZ-only canonical free Offer label AZ. Prices/IDs/readiness/visibility preserved.",
+      "evidence": "test_json_roundtrip_audit",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.test_json_roundtrip_audit.EightRealWorldRoundTripTests.test_round_trip_7_variable_schedule",
+      "classification": "FIXED CONTRACT TEST",
+      "root_cause": "D06 removes mandatory photo/coordinates: require completed=required and100%; D10 AZ-only canonical free Offer label AZ. Prices/IDs/readiness/visibility preserved.",
+      "evidence": "test_json_roundtrip_audit",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.test_json_roundtrip_audit.EightRealWorldRoundTripTests.test_round_trip_8_standard_weekly_multiple_tariffs",
+      "classification": "FIXED CONTRACT TEST",
+      "root_cause": "D06 removes mandatory photo/coordinates: require completed=required and100%; D10 AZ-only canonical free Offer label AZ. Prices/IDs/readiness/visibility preserved.",
+      "evidence": "test_json_roundtrip_audit",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.test_json_roundtrip_audit.PriceModeAndReadinessAuditTests.test_strictly_free_place_emits_free_offer",
+      "classification": "FIXED CONTRACT TEST",
+      "root_cause": "D06 removes mandatory photo/coordinates: require completed=required and100%; D10 AZ-only canonical free Offer label AZ. Prices/IDs/readiness/visibility preserved.",
+      "evidence": "test_json_roundtrip_audit",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.test_judo_seo_landing.JudoSeoLandingAggregateTests.test_ru_page_aggregates_missing_price_open_age_and_multiple_districts",
+      "classification": "FIXED GEOGRAPHY FIXTURE",
+      "root_cause": "Yasamal fixture used Narimanov coordinates; real Yasamal point restores two-district aggregation without changing expected aggregation.",
+      "evidence": "test_judo_seo_landing",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.test_location_assignment.AdminLocationControlsTests.test_admin_can_save_an_exception_and_moving_the_pin_cancels_it",
+      "classification": "FIXED R1 REGRESSION",
+      "root_cause": "Explicit approval RED still dropped staff location override provenance; candidate adapter omitted metadata and atomic apply bypassed location policy. New staff-gated metadata survives approval; pin movement expires old audit.",
+      "evidence": "/root/task33-evidence/stage23-public-location-red:1FAIL -> /root/task33-evidence/stage23-public-frozen:184PASS",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.test_place_json_and_pricing_modes.PlaceSchemaOrgSeoTests.test_free_mode_includes_schema_offer",
+      "classification": "FIXED CONTRACT TEST",
+      "root_cause": "D10 AZ-only fixture has canonical AZ free Offer; price=0 assertion unchanged.",
+      "evidence": "test_place_json_and_pricing_modes",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.test_home_public_metrics.HomePublicMetricsTests.test_empty_partner_metrics_do_not_invent_reviews_or_rating",
+      "classification": "FIXED TEST HARNESS",
+      "root_cause": "Template now receives independent map_business_count, not raw point count. Standalone render must supply0 explicitly.",
+      "evidence": "test_home_public_metrics",
+      "head_reproduction": "NOT_RUN"
+    },
+    {
+      "id": "catalog.testcases.test_task33_catalog_schema.CatalogSchemaForwardMigrationTests.test_forward_populated_legacy_preserves_every_original_field_and_url",
+      "classification": "FIXED MIGRATION HARNESS",
+      "root_cause": "Run forward0116->leaf in fresh isolated schema; never downgrade through intentionally irreversible review normalization0128. Original fields/IDs/URLs assertions retained.",
+      "evidence": "test_task33_catalog_schema",
+      "head_reproduction": "NOT_RUN"
+    }
+  ],
+  "additional_pass_evidence": [
+    "/root/task33-evidence/stage23-public-green",
+    "/root/task33-evidence/stage23-public-first"
+  ],
+  "final_targeted": {
+    "tests_run": 184,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_manifest": "docs/task33/reports/23-public-source-manifest.json"
+}

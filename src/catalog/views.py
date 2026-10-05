@@ -913,13 +913,20 @@ def owner_places_dashboard(request):
 
     owner_events = []
     if is_events_section_enabled():
-        owner_events = list(
-            Event.objects.filter(owner=request.user, deleted_at__isnull=True)
-            .select_related("related_place")
-            .order_by("-updated_at")
-        )
+        from django.db.models import Q
+        from catalog.services.event_domain import can_manage_event
+        candidates = Event.objects.filter(deleted_at__isnull=True, organizer_resolution='resolved').filter(
+            Q(organizer_organization__owner=request.user, organizer_organization__owner__is_active=True,
+              organizer_organization__archived_at__isnull=True)
+            | Q(organizer_specialist__verified_person_user=request.user,
+                organizer_specialist__verified_person_user__is_active=True,
+                organizer_specialist__person_verified_at__isnull=False, organizer_specialist__is_active=True)
+        ).select_related('related_place', 'organizer_organization', 'organizer_specialist').order_by('-updated_at')
+        owner_events = [event for event in candidates if can_manage_event(request.user, event)]
     owner_specialists = list(
-        request.user.managed_specialists.prefetch_related("specializations").order_by("-updated_at")
+        Specialist.objects.filter(verified_person_user=request.user, verified_person_user__is_active=True,
+                                  person_verified_at__isnull=False)
+        .prefetch_related("specializations").order_by("-updated_at")
     )
     from catalog.models import Organization, OrganizationPlaceRequest
     from catalog.services.business_team import has_action
@@ -937,9 +944,11 @@ def owner_places_dashboard(request):
             "owner_specialists": owner_specialists,
             "owner_event_stats": {
                 "total": len(owner_events),
-                "published": sum(1 for event in owner_events if event.status == Event.STATUS_PUBLISHED and not event.has_ended),
+                "published": sum(1 for event in owner_events if event.status == Event.STATUS_PUBLISHED),
+                "active": sum(1 for event in owner_events if event.status == Event.STATUS_PUBLISHED and not event.has_ended and event.occurrence_state != 'cancelled'),
                 "drafts": sum(1 for event in owner_events if event.status in {Event.STATUS_DRAFT, Event.STATUS_PENDING, Event.STATUS_REJECTED}),
-                "ended": sum(1 for event in owner_events if event.effective_status == Event.STATUS_EXPIRED),
+                "ended": sum(1 for event in owner_events if event.occurrence_status == 'completed'),
+                "cancelled": sum(1 for event in owner_events if event.occurrence_state == 'cancelled'),
             },
             "owner_specialist_stats": {
                 "total": len(owner_specialists),
@@ -1186,7 +1195,7 @@ def owner_event_edit(request, pk):
         form = result.form
         event = result.event
     else:
-        event = get_object_or_404(Event, pk=pk, owner=request.user, deleted_at__isnull=True)
+        event = owner_events_controller._managed_event(request, pk)
         if event.status in {Event.STATUS_PENDING, Event.STATUS_PUBLISHED}:
             messages.error(request, _("Tədbir yalnız qaralama və ya rədd edildikdən sonra redaktə oluna bilər."))
             return redirect("owner_places_dashboard")
@@ -1242,25 +1251,57 @@ def event_detail(request, pk, slug):
     if not is_events_section_enabled():
         return HttpResponseGone()
     event = get_object_or_404(
-        Event.objects.select_related("related_place").prefetch_related("gallery"),
+        Event.objects.select_related("related_place", "organizer_organization", "organizer_specialist").prefetch_related("gallery"),
         pk=pk,
         status=Event.STATUS_PUBLISHED,
         deleted_at__isnull=True,
         start_datetime__isnull=False,
-        end_datetime__gte=timezone.now(),
     )
+    if not event.is_public:
+        raise Http404
     if slug != event.slug:
         return redirect(event.get_absolute_url(), permanent=True)
-    return render(
-        request,
-        "catalog/event_detail.html",
-        {
-            "event": event,
-            "language": request.LANGUAGE_CODE,
-            "meta_description": event.description_i18n(request.LANGUAGE_CODE) or event.name_i18n(request.LANGUAGE_CODE),
-            "seo_title": f"{event.name_i18n(request.LANGUAGE_CODE)} | KidsMap",
-        },
-    )
+    from catalog.models import EventReview
+    from catalog.services.content_quality import public_review_queryset
+    from catalog.services.seo import build_event_seo_payload
+    from django.utils.dateparse import parse_datetime
+    from zoneinfo import ZoneInfo
+    language = request.LANGUAGE_CODE.split('-')[0]
+    state = event.occurrence_state if event.occurrence_state in {'cancelled', 'rescheduled'} else event.occurrence_status
+    labels = {
+        'az': {'upcoming':'Qarşıdakı tədbir', 'ongoing':'Tədbir keçirilir', 'completed':'Başa çatıb', 'cancelled':'Ləğv edilib', 'rescheduled':'Vaxtı dəyişdirilib'},
+        'en': {'upcoming':'Upcoming', 'ongoing':'Happening now', 'completed':'Ended', 'cancelled':'Cancelled', 'rescheduled':'Rescheduled'},
+        'ru': {'upcoming':'Предстоит', 'ongoing':'Мероприятие идёт', 'completed':'Завершено', 'cancelled':'Отменено', 'rescheduled':'Перенесено'},
+    }
+    reviews = list(public_review_queryset(EventReview.objects.filter(event=event))
+        .filter(current_revision__status='approved').select_related('current_revision').order_by('-moderated_at', '-pk'))
+    count = len(reviews)
+    rating = {'average':sum(review.current_revision.rating for review in reviews)/count if count else 0.0, 'count':count}
+    from catalog.services.public_presentation import visible, translated, public_url
+    organizer = None
+    org, person = event.organizer_organization, event.organizer_specialist
+    if org and visible(org):
+        name, name_language = translated(org, 'name', language)
+        organizer = {'type':'Organization', 'name':name, 'language':name_language, 'url':public_url(org, language)}
+    elif person and person.status == 'published' and person.is_active and person.person_verified_at and person.verified_person_user_id:
+        organizer = {'type':'Person', 'name':person.name, 'language':language, 'url':person.get_absolute_url()}
+    previous_periods = []
+    for change in event.occurrence_changes.filter(kind='reschedule').order_by('-happened_at', '-pk'):
+        before = change.before if isinstance(change.before, dict) else {}
+        try:
+            start = parse_datetime(str(before.get('start_datetime') or ''))
+            end = parse_datetime(str(before.get('end_datetime') or ''))
+        except ValueError:
+            continue
+        if start and end and timezone.is_aware(start) and timezone.is_aware(end):
+            previous_periods.append({'start':start.astimezone(ZoneInfo('Asia/Baku')), 'end':end.astimezone(ZoneInfo('Asia/Baku'))})
+    context = {'event':event, 'language':language, 'event_online':event.event_format == 'online',
+        'event_venue':event.public_venue(language),
+        'event_state_label':labels.get(language, labels['az']).get(state, ''),
+        'event_reviews':reviews, 'event_rating':rating, 'event_previous_periods':previous_periods,
+        'event_organizer':organizer}
+    context.update(build_event_seo_payload(event, request, language, public_context=context))
+    return render(request, 'catalog/event_detail.html', context)
 
 
 def _place_revision_context(place):
@@ -1520,37 +1561,13 @@ def owner_reviews_dashboard(request):
 
 @require_POST
 def owner_review_approve(request, review_id):
-    if not request.user.is_authenticated:
-        return _redirect_to_login(request)
-
-    result = owner_reviews_controller.set_review_approval(
-        request=request,
-        review_id=review_id,
-        is_approved=True,
-    )
-    if result.ok:
-        messages.success(request, result.message)
-    else:
-        messages.error(request, result.message)
-    return redirect("owner_reviews_dashboard")
-
+    from django.http import HttpResponseForbidden
+    return HttpResponseForbidden()
 
 @require_POST
 def owner_review_reject(request, review_id):
-    if not request.user.is_authenticated:
-        return _redirect_to_login(request)
-
-    result = owner_reviews_controller.set_review_approval(
-        request=request,
-        review_id=review_id,
-        is_approved=False,
-    )
-    if result.ok:
-        messages.success(request, result.message)
-    else:
-        messages.error(request, result.message)
-    return redirect("owner_reviews_dashboard")
-
+    from django.http import HttpResponseForbidden
+    return HttpResponseForbidden()
 
 @require_POST
 def request_place_ownership(request, pk):
@@ -2359,32 +2376,35 @@ def serve_specialist_document(request, document_id):
     from django.http import FileResponse, Http404
 
     doc = get_object_or_404(SpecialistDocument, pk=document_id)
-    user = request.user
-    is_authorized = False
-
-    if user.is_authenticated and (user.is_staff or user.is_superuser):
-        is_authorized = True
-    elif user.is_authenticated and doc.specialist.owner == user:
-        is_authorized = True
-    elif doc.document_type in [SpecialistDocument.TYPE_DIPLOMA, SpecialistDocument.TYPE_CERTIFICATE]:
-        if doc.is_verified and doc.is_public:
-            is_authorized = True
-
-    if not is_authorized:
+    from catalog.services.specialist_documents import can_download_document
+    if not can_download_document(request.user, doc):
         raise Http404(_("Документ не найден или доступ ограничен."))
-
-    return FileResponse(doc.file, as_attachment=False)
+    # Legacy public files require an explicitly verified operational transition.
+    if not doc.file or not doc.file.name.startswith('specialist-documents/'):
+        raise Http404()
+    try:
+        response = FileResponse(doc.file.open('rb'), as_attachment=True, filename='document.bin',
+                                content_type='application/octet-stream')
+    except (OSError, ValueError):
+        raise Http404() from None
+    response['Cache-Control'] = 'private, no-store'
+    response['X-Content-Type-Options'] = 'nosniff'
+    response['Content-Security-Policy'] = "sandbox; default-src 'none'"
+    return response
 
 
 def specialist_list(request):
     require_specialists_section_enabled()
 
-    from catalog.models import Specialist, SpecialistSpecialization, Region, District, MetroStation
+    from catalog.models import Specialist, SpecialistSpecialization, Region, District, MetroStation, SpecialistPracticeLocation
     from catalog.services.public_filter_options import build_public_specialist_filter_options
     from django.db import models
     from django.core.paginator import Paginator
 
-    qs = Specialist.objects.filter(status=Specialist.STATUS_PUBLISHED, is_active=True)
+    from django.db.models import Prefetch
+    qs = Specialist.objects.filter(status=Specialist.STATUS_PUBLISHED, is_active=True).prefetch_related(
+        Prefetch('practice_locations', queryset=SpecialistPracticeLocation.objects.filter(is_active=True)
+                 .select_related('place', 'region', 'district', 'metro')))
 
     # 1. Search Query
     q = (request.GET.get("q") or "").strip()
@@ -2416,7 +2436,7 @@ def specialist_list(request):
     metro_key = (request.GET.get("metro") or "").strip()
 
     if region_key or district_key or metro_key:
-        loc_q = models.Q()
+        loc_q = models.Q(practice_locations__is_active=True)
         if region_key:
             loc_q &= models.Q(practice_locations__region_id=region_key)
         if district_key:
@@ -2441,13 +2461,13 @@ def specialist_list(request):
         p_from = int(price_from)
         qs = qs.filter(
             models.Q(price_from__gte=p_from) |
-            models.Q(practice_locations__price_per_session__gte=p_from)
+            models.Q(practice_locations__price_per_session__gte=p_from, practice_locations__is_active=True)
         )
     if price_to.isdigit():
         p_to = int(price_to)
         qs = qs.filter(
             models.Q(price_to__lte=p_to) |
-            models.Q(practice_locations__price_per_session__lte=p_to)
+            models.Q(practice_locations__price_per_session__lte=p_to, practice_locations__is_active=True)
         )
 
     # 6a. Consultation Language
@@ -2476,13 +2496,13 @@ def specialist_list(request):
         from django.db.models.functions import Coalesce
         from django.db.models import Min
         qs = qs.annotate(
-            min_price=Coalesce(Min("practice_locations__price_per_session"), "price_from")
+            min_price=Coalesce(Min("practice_locations__price_per_session", filter=models.Q(practice_locations__is_active=True)), "price_from")
         ).order_by("min_price", "-created_at")
     elif sort == "price_desc":
         from django.db.models.functions import Coalesce
         from django.db.models import Max
         qs = qs.annotate(
-            max_price=Coalesce(Max("practice_locations__price_per_session"), "price_to")
+            max_price=Coalesce(Max("practice_locations__price_per_session", filter=models.Q(practice_locations__is_active=True)), "price_to")
         ).order_by("-max_price", "-created_at")
     elif sort == "experience":
         qs = qs.order_by("-experience_years", "-created_at")
@@ -2626,15 +2646,14 @@ def specialist_list(request):
 def specialist_detail(request, slug):
     require_specialists_section_enabled()
 
-    from catalog.models import Specialist, SpecialistReview
+    from catalog.models import Specialist, SpecialistReview, SpecialistPracticeLocation
+    from django.db.models import Prefetch
 
     specialist = get_object_or_404(
         Specialist.objects.prefetch_related(
             "specializations",
-            "practice_locations",
-            "practice_locations__region",
-            "practice_locations__district",
-            "practice_locations__metro",
+            Prefetch('practice_locations', queryset=SpecialistPracticeLocation.objects.filter(is_active=True)
+                     .select_related('place', 'region', 'district', 'metro')),
             "documents",
         ),
         slug=slug,
@@ -2642,7 +2661,8 @@ def specialist_detail(request, slug):
         is_active=True
     )
 
-    reviews = specialist.reviews.filter(status=SpecialistReview.STATUS_APPROVED).order_by("-created_at")
+    from catalog.services.content_quality import public_review_queryset
+    reviews = public_review_queryset(specialist.reviews.all()).order_by("-created_at")
     reviews_count = reviews.count()
     if specialist.rating_count != reviews_count:
         specialist.refresh_rating_stats()
@@ -2650,8 +2670,11 @@ def specialist_detail(request, slug):
     visible_documents = specialist.documents.filter(
         document_type__in=["diploma", "certificate"],
         status="approved",
-        is_published=True
+        is_published=True, opted_in_by_id=specialist.verified_person_user_id,
+        opted_in_at__isnull=False, opted_in_by__is_active=True,
     )
+    if not specialist.verified_person_user_id or not specialist.person_verified_at:
+        visible_documents = visible_documents.none()
 
     language = (request.LANGUAGE_CODE or "az").split("-")[0]
 
@@ -2670,6 +2693,11 @@ def specialist_detail(request, slug):
         "has_coords": has_coords,
         "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
     }
+    from catalog.services.specialist_presentation import public_profile_context
+    from catalog.services.specialist_documents import is_person
+    context.update(public_profile_context(specialist))
+    context['can_manage_specialist'] = is_person(request.user, specialist)
+    context['claim_workspace_url'] = reverse('specialist_workspace_claims', args=[specialist.pk])
     return render(request, "catalog/specialist_detail.html", context)
 
 
@@ -2738,11 +2766,16 @@ def add_specialist_review(request, pk):
         "rejection_reason": "",
     }
 
-    review_obj, created = SpecialistReview.objects.update_or_create(
-        specialist=specialist,
-        user=request.user,
-        defaults=defaults
-    )
+    from catalog.services.review_versions import submit_review, ReviewCooldown
+    try:
+        review_obj, revision = submit_review(target=specialist, user=request.user,
+            rating=rating, text=moderated.text, author_name=moderated.author_name,
+            contains_profanity=moderated.contains_profanity, enforce_cooldown=False)
+    except ReviewCooldown as exc:
+        from catalog.services.place_review_submission import cooldown_payload
+        response = JsonResponse({'ok': False, 'cooldown': cooldown_payload(exc.next_allowed_at)}, status=429)
+        response['Retry-After'] = str(cooldown_payload(exc.next_allowed_at)['retry_after'])
+        return response
 
     from catalog.services.moderation_sla import submission_message
     message = submission_message('review')
@@ -2790,7 +2823,8 @@ def owner_specialist_edit(request, pk):
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
 
-    specialist = get_object_or_404(Specialist, pk=pk, owner=request.user)
+    specialist = get_object_or_404(Specialist, pk=pk, verified_person_user=request.user,
+                                  verified_person_user__is_active=True, person_verified_at__isnull=False)
 
     if request.method == "POST":
         form_action = (request.POST.get("form_action") or "").strip()

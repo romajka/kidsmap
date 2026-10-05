@@ -1,0 +1,31 @@
+{
+  "status": "PASS_CAUSAL_DIAGNOSTIC_WITH_ORIGINAL_FAILURE_RETAINED",
+  "evidence": "/root/task33-evidence/stage28-legacy-draft-probe3-green-20261004",
+  "diagnostic": {
+    "status": "PASS_DIAGNOSTIC",
+    "original_assertion_retained": true,
+    "original_http_status": 200,
+    "original_error_fields": [
+      "event_format"
+    ],
+    "replayed_field": "event_format",
+    "complete_payload_http_status": 302,
+    "complete_payload_saved_draft": true
+  },
+  "legacy_suite": {
+    "tests_run": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "status": "BASELINE_FAILURE"
+  },
+  "cleanup": "PASS",
+  "network_guard": true,
+  "libpq_guard": true,
+  "external_credentials_present": false,
+  "migrations": {
+    "applied_count": 167,
+    "unapplied_count": 0
+  },
+  "invalid_first_command": "Raw/root output rejected before disposable DB; corrected/tmp command then executed. No guard bypass."
+}

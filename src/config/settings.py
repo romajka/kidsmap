@@ -336,6 +336,17 @@ JAZZMIN_UI_TWEAKS = {
     "accent": "accent-success",
 }
 
+# R1 local acceptance / future separately authorized rollout. Settings can be
+# overridden by an operator; membership is explicit and is not an ACL grant.
+TASK33_R1_WRITE_MODE = os.environ.get('TASK33_R1_WRITE_MODE', 'all')
+# Invalid members are deliberately retained as None so the resolver closes the
+# whole selected cohort, rather than silently admitting a partially parsed set.
+TASK33_R1_WRITE_USER_IDS = tuple(
+    int(value.strip()) if value.strip().isdigit() else None
+    for value in os.environ.get('TASK33_R1_WRITE_USER_IDS', '').split(',')
+    if value.strip()
+)
+
 MIDDLEWARE = [
     "catalog.middleware.CanonicalPublicHostMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -347,6 +358,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "catalog.r1_middleware.R1WriteCohortMiddleware",
     "catalog.volunteer_middleware.VolunteerAccessMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "allauth.account.middleware.AccountMiddleware",
@@ -481,6 +493,8 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+# QA derives this from its disposable MEDIA_ROOT; local/deployed roots remain separate.
+PRIVATE_MEDIA_ROOT = None if TESTING else BASE_DIR.parent / "kidsmap-private-media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

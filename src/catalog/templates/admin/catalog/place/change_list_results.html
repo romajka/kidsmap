@@ -95,7 +95,7 @@
                 </div>
               </th>
             {% else %}
-              <th class="{% header_class header forloop %} {{ header.class_attrib|default:'' }}" tabindex="0" rowspan="1" colspan="1">
+              <th {{ header.class_attrib }} tabindex="0" rowspan="1" colspan="1">
                 <div class="text">
                   <span>{{ header.text|capfirst }}</span>
                 </div>

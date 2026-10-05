@@ -1,0 +1,71 @@
+{
+  "run": "completion-20261004-095717Z",
+  "scope": "Legacy specialist protocol6 prior failures;16 current cases",
+  "evidence": "/root/task33-evidence/completion-security-specialists-green1-20261004",
+  "suite-results.json": {
+    "tests_run": 16,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 1.744,
+    "status": "PASS",
+    "executed_ids": [
+      "catalog.testcases.specialists.TestOwnerSpecialistManagement.test_owner_can_create_offline_profile_with_location",
+      "catalog.testcases.specialists.TestOwnerSpecialistManagement.test_owner_can_create_online_profile_without_location",
+      "catalog.testcases.specialists.TestOwnerSpecialistManagement.test_owner_can_save_incomplete_draft",
+      "catalog.testcases.specialists.TestOwnerSpecialistManagement.test_owner_cannot_edit_other_profile",
+      "catalog.testcases.specialists.TestOwnerSpecialistManagement.test_owner_dashboard_button_points_to_owner_form",
+      "catalog.testcases.specialists.TestOwnerSpecialistManagement.test_owner_uploads_documents_as_pending_private_certificates",
+      "catalog.testcases.specialists.TestOwnerSpecialistManagement.test_specialist_language_pages_open",
+      "catalog.testcases.specialists.TestSpecialistFlows.test_document_download_authorization",
+      "catalog.testcases.specialists.TestSpecialistFlows.test_specialist_detail_opens",
+      "catalog.testcases.specialists.TestSpecialistFlows.test_specialist_list_filtering",
+      "catalog.testcases.specialists.TestSpecialistFlows.test_specialist_list_opens",
+      "catalog.testcases.specialists.TestSpecialistFlows.test_submit_specialist_review",
+      "catalog.testcases.specialists.TestSpecialistsFeatureFlag.test_feature_disabled_on_db_error",
+      "catalog.testcases.specialists.TestSpecialistsFeatureFlag.test_feature_disabled_returns_404",
+      "catalog.testcases.specialists.TestSpecialistsFeatureFlag.test_feature_enabled_by_default",
+      "catalog.testcases.specialists.TestSpecialistsFeatureFlag.test_proxy_admin_save_invalidates_cached_feature_flag"
+    ],
+    "problems": []
+  },
+  "migrations.json": {
+    "applied_count": 168,
+    "unapplied_count": 0
+  },
+  "discovery.json": {
+    "explicit_count": 1839,
+    "explicit_unique_count": 1839,
+    "duplicate_explicit_ids": 0
+  },
+  "isolation.json": {
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10",
+    "network_guard": true,
+    "libpq_guard": true,
+    "external_credentials_present": false
+  },
+  "run.json": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "checks.json": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.13
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.237
+    }
+  ]
+}

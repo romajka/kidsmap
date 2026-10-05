@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n static catalog_i18n %}
 {% get_current_language as CURRENT_LANGUAGE %}
+{% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
 
 {% block title %}
   {% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}
@@ -562,7 +563,7 @@
                         <span>{% if CURRENT_LANGUAGE == "az" %}Redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit{% else %}Редактировать{% endif %}</span>
                       </a>
                       <form method="post" action="{% url 'owner_event_submit_review' event.id %}" data-loading-form>
-                        {% csrf_token %}
+                        {% csrf_token %}<input type="hidden" name="expected_updated_at" value="{{ event.updated_at|date:'c' }}">
                         <button type="submit" class="account-btn-sm account-btn-sm--secondary" data-loading-button>
                           <span class="material-symbols-rounded">send</span>
                           <span>{% if CURRENT_LANGUAGE == "az" %}Moderasiyaya göndər{% elif CURRENT_LANGUAGE == "en" %}Send for review{% else %}Отправить на модерацию{% endif %}</span>
@@ -570,7 +571,7 @@
                       </form>
                     {% endif %}
                     <form method="post" action="{% url 'owner_event_delete' event.id %}" onsubmit="return confirm('{{ delete_event_confirm_text|escapejs }}');">
-                      {% csrf_token %}
+                      {% csrf_token %}<input type="hidden" name="expected_updated_at" value="{{ event.updated_at|date:'c' }}">
                       <button type="submit" class="account-btn-sm account-btn-sm--danger">
                         <span class="material-symbols-rounded">delete</span>
                         <span>{% if CURRENT_LANGUAGE == "az" %}Sil{% elif CURRENT_LANGUAGE == "en" %}Delete{% else %}Удалить{% endif %}</span>
@@ -657,6 +658,8 @@
                         <span>{% if CURRENT_LANGUAGE == "az" %}Bax{% elif CURRENT_LANGUAGE == "en" %}View{% else %}Просмотр{% endif %}</span>
                       </a>
                     {% endif %}
+                    <a class="account-btn-sm account-btn-sm--secondary" href="{% url 'specialist_workspace_invitations' specialist.pk %}">{% if CURRENT_LANGUAGE == 'az' %}Əməkdaşlıq{% elif CURRENT_LANGUAGE == 'en' %}Cooperation{% else %}Сотрудничество{% endif %}</a>
+                    <a class="account-btn-sm account-btn-sm--secondary" href="{% url 'specialist_workspace_certificates' specialist.pk %}">{% if CURRENT_LANGUAGE == 'az' %}Sənədlər{% elif CURRENT_LANGUAGE == 'en' %}Documents{% else %}Документы{% endif %}</a>
                   </div>
                 </div>
               {% endfor %}

@@ -1,0 +1,109 @@
+{
+  "status": "PASS",
+  "checked_at": "2026-10-04T18:29:12.360496+00:00",
+  "head_unchanged": "015d031d8eb17114bd860159dde805b38df3c13c",
+  "source_files_worktree_runtime": 2761,
+  "changed_application_files": [
+    "static/admin/css/kidsmap_admin_tables.css",
+    "static/admin/css/kidsmap_admin.css",
+    "src/templates/admin/change_list_results.html",
+    "templates/admin/base.html",
+    "templates/admin/base_site.html",
+    "static/admin/css/pages/kidsmap_changelist.css",
+    "static/admin/css/pages/kidsmap_staff_access_list.css",
+    "src/catalog/templates/admin/catalog/staffaccessuser/change_list.html",
+    "src/catalog/templates/admin/catalog/place/change_list.html",
+    "src/catalog/templates/admin/catalog/place/change_list_results.html",
+    "locale/ru/LC_MESSAGES/django.po",
+    "src/catalog/templates/admin/catalog/seoissue/change_list.html"
+  ],
+  "previous_mapfix_runtime_unchanged": 2761,
+  "previous_completion_runtime_unchanged": 2760,
+  "immutable_evidence": {
+    "completion": 146,
+    "final-audit": 161,
+    "final-audit_entry_complete": 164
+  },
+  "preserved_originals": 15,
+  "backend": {
+    "status": "PASS",
+    "tests_run": 270,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 90.387
+  },
+  "backend_snapshot": "backend-source-snapshot.json; final subsequent delta is CSS-only in kidsmap_changelist.css",
+  "backend_final_source_delta": [
+    "static/admin/css/pages/kidsmap_changelist.css"
+  ],
+  "browser": {
+    "matrix": 366,
+    "mobile_components": 27,
+    "errors": [],
+    "network": []
+  },
+  "data": {
+    "status": "PASS",
+    "original_places": 3,
+    "original_fields_sha_unchanged": true,
+    "demo_places": 100,
+    "public_places": 103,
+    "published_organizations": 1,
+    "qa_draft_organizations": 1
+  },
+  "http": [
+    {
+      "url": "/qa/",
+      "status": 200
+    },
+    {
+      "url": "/ru/",
+      "status": 200
+    },
+    {
+      "url": "/ru/catalog/",
+      "status": 200
+    },
+    {
+      "url": "/admin/login/",
+      "status": 200
+    },
+    {
+      "url": "/qa/files/screens/admin-organizations-before.png",
+      "status": 200
+    },
+    {
+      "url": "/qa/files/screens/admin-place-menu-mobile.png",
+      "status": 200
+    },
+    {
+      "url": "/qa/files/screens/admin-repaired-organization-1440.png",
+      "status": 200
+    },
+    {
+      "url": "/qa/files/screens/admin-repaired-organization-390.png",
+      "status": 200
+    },
+    {
+      "url": "/qa/files/screens/admin-repaired-program-1440.png",
+      "status": 200
+    },
+    {
+      "url": "/qa/files/screens/admin-repaired-place-390.png",
+      "status": 200
+    },
+    {
+      "url": "/qa/files/screens/admin-repaired-staffaccessuser-390.png",
+      "status": 200
+    },
+    {
+      "url": "/qa/files/screens/admin-repaired-seoissue-320.png",
+      "status": 200
+    }
+  ],
+  "database_network": "none",
+  "ports_published": false,
+  "production": "NOT_CONTACTED",
+  "commit_push_deploy": "NOT_RUN"
+}

@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "source_sha256": "0ba858e710abf4a1972b0f5f1d583964d9f2d9f070c41e50b0cb026879507072",
+  "binary_sha256": "a24def283d640db0bcad3c81b0630a3444b3079f6c50c956c9bd39330eaca544",
+  "nginx_version": "nginx version: nginx/1.24.0 (Ubuntu)",
+  "nginx_config_check": "PASS",
+  "cases": [
+    {
+      "path": "/media/public.txt",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "path": "/media/protected_docs/specialists/identity.txt",
+      "status": 404,
+      "passed": true
+    },
+    {
+      "path": "/media/%70rotected_docs/specialists/identity.txt",
+      "status": 404,
+      "passed": true
+    },
+    {
+      "path": "/media/specialist-documents/proof.bin",
+      "status": 404,
+      "passed": true
+    },
+    {
+      "path": "/media/private-media/proof.bin",
+      "status": 404,
+      "passed": true
+    },
+    {
+      "path": "/media/public/../protected_docs/specialists/identity.txt",
+      "status": 404,
+      "passed": true
+    }
+  ],
+  "cleanup": "PASS",
+  "production": "NOT_CONTACTED",
+  "tls": "NOT_TESTED; loopback HTTP adapter"
+}

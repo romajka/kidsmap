@@ -1,0 +1,96 @@
+{
+  "stage": 27,
+  "scope": "ACTUAL_APPLICATION",
+  "execution_identity": "/root/stage26_browser",
+  "role": "browser-qa",
+  "head": "015d031d8eb17114bd860159dde805b38df3c13c",
+  "snapshot": "dirty WORKTREE frozen in own allowlisted mirror",
+  "evidence": "/root/task33-evidence/browser27-red-20261003",
+  "browser": "Chromium via cached Playwright CLI",
+  "languages": [
+    "ru"
+  ],
+  "widths": [
+    1440
+  ],
+  "runtime_paths": {
+    "base": "/root/km27-browser-frozen",
+    "static": "/root/km27-browser-frozen/static/admin/css/pages/kidsmap_admin_form_shell.css",
+    "event": "/root/km27-browser-frozen/src/catalog/models/place.py",
+    "domain": "/root/km27-browser-frozen/src/catalog/services/event_domain.py"
+  },
+  "runtime_css_sha256": null,
+  "rows": 1,
+  "passed_rows": 0,
+  "checks": 4,
+  "passed_checks": 1,
+  "failed_rows": [
+    {
+      "screen": "calendar-red",
+      "actor": "public",
+      "lang": "ru",
+      "width": 1440,
+      "issues": [
+        "calendar_mode_control_present",
+        "calendar_actual_month_present",
+        "quick_chip_preserves_filters"
+      ]
+    }
+  ],
+  "failed_checks": [
+    {
+      "check": "calendar_mode_control_present",
+      "pass": false
+    },
+    {
+      "check": "calendar_actual_month_present",
+      "pass": false
+    },
+    {
+      "check": "quick_chip_preserves_filters",
+      "pass": false,
+      "actual_params": {
+        "date_filter": "today"
+      }
+    }
+  ],
+  "event_counts": {
+    "errors": 0,
+    "failed": 0,
+    "staticFailures": 0,
+    "stubs": 2,
+    "expectedErrors": 0
+  },
+  "screenshots": [
+    "calendar-red-1440.png"
+  ],
+  "executed_matrix_sha256": "98490124d2b09499515052271e958dd09c049ec28f236c5772e1261d2daf21a3",
+  "source_manifest_sha256": "7425d09decb9a8b01b2b0a299cf3de9ec560bd274f22965f936ef97ab0e840f1",
+  "source_file_count": 2761,
+  "launcher_status": "PASS",
+  "launcher_cleanup": "PASS",
+  "isolation": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10"
+  },
+  "external_transport": "External integrations/CDNs stubbed; actual local Django/CSS/JS with cached font.",
+  "not_run": [
+    "Production",
+    "Real external integrations/CDNs",
+    "Real records/private file inventory",
+    "Full screen reader audit",
+    "Stage28+",
+    "Deployment"
+  ]
+}

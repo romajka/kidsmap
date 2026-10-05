@@ -33,9 +33,10 @@
         </a>
         {% include "catalog/includes/breadcrumbs.html" with items=place_breadcrumb_items %}
       </div>
-      <h1 class="detail-title" lang="{{ presentation.content_language }}">{{ presentation.name }}</h1>
-      {% if presentation.translation_fallback %}<p class="public-notice" data-translation-fallback>{% if language == 'ru' %}Текст показан на азербайджанском. Перевод пока не добавлен.{% elif language == 'en' %}Text is shown in Azerbaijani. A translation is not available yet.{% else %}Mətn azərbaycanca göstərilir. Tərcümə hələ yoxdur.{% endif %}</p>{% endif %}
-      {% if presentation.organization %}<a class="public-place-org" href="{{ presentation.organization.url }}">{{ presentation.organization.name }}</a>{% endif %}
+      <h1 class="detail-title" lang="{{ presentation.name_language }}">{{ presentation.name }}</h1>
+      {% if place.operating_state == 'closed' and place.operating_state_approved_at %}<p class="public-notice" data-operating-state="closed">{% if language == 'ru' %}Это место закрыто. Карточка сохранена для истории; расписание и цены больше не актуальны.{% elif language == 'en' %}This place is closed. This page is kept for its history; schedules and prices are no longer current.{% else %}Bu məkan bağlanıb. Səhifə tarixçə üçün saxlanılır; cədvəl və qiymətlər artıq aktual deyil.{% endif %}</p>{% endif %}
+      {% if presentation.translation_fallback %}<p class="public-notice" data-translation-fallback>{% if language == 'ru' %}Часть текста показана на азербайджанском. Перевод пока не добавлен.{% elif language == 'en' %}Some text is shown in Azerbaijani. A translation is not available yet.{% else %}Mətnin bir hissəsi azərbaycanca göstərilir. Tərcümə hələ yoxdur.{% endif %}</p>{% endif %}
+      {% if presentation.organization %}<a class="public-place-org" href="{{ presentation.organization.url }}" lang="{{ presentation.organization.name_language }}">{{ presentation.organization.name }}</a>{% endif %}
 
       <div class="detail-hero">
 
@@ -305,7 +306,7 @@
           </div>
 
           {% if presentation.description %}
-            <p class="detail-decision__lead">{{ presentation.description }}</p>
+            <p class="detail-decision__lead" lang="{{ presentation.description_language }}">{{ presentation.description }}</p>
             <a class="detail-decision__more" href="#about">
               {% trans "О месте" %}
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><path d="M12 5v14m0 0-5-5m5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -325,7 +326,7 @@
           {% if presentation.description %}
             <section id="about" class="detail-card">
               <h2 class="detail-card__title">{% trans "О месте" %}</h2>
-              <div class="detail-prose">{{ presentation.description|linebreaks }}</div>
+              <div class="detail-prose" lang="{{ presentation.description_language }}">{{ presentation.description|linebreaks }}</div>
             </section>
           {% endif %}
 
@@ -530,6 +531,7 @@
 
               <div class="detail-reviews__listhead">
                 <h3 class="detail-reviews__subtitle">{% trans "Последние отзывы" %}</h3>
+                {% include 'catalog/includes/typed_review_link.html' with review_kind='place' review_target=place %}
                 <form method="get" class="detail-reviews__sort">
                   <label class="detail-reviews__sort-label" for="review-sort">{% trans "Сортировка" %}</label>
                   <select class="detail-select" id="review-sort" name="review_sort" onchange="this.form.submit()">

@@ -268,7 +268,8 @@ class PlaceSchemaOrgSeoTests(TestCase):
         schema = json.loads(payload["schema_json"])
         self.assertIn("offers", schema)
         self.assertEqual(schema["offers"]["price"], "0.00")
-        self.assertEqual(schema["offers"]["name"], "Бесплатно")
+        # AZ is the only complete translation on this fixture (D10).
+        self.assertEqual(schema["offers"]["name"], "Pulsuz")
 
 
 class AdminTaxonomyAndFormTests(TestCase):

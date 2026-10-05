@@ -83,7 +83,7 @@
     try {
       const response = await fetch(form.dataset.draftUrl, {method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json','X-CSRFToken':csrf}, body:JSON.stringify({draft_id:draftId, target_type:'place', target_id:targetId, schema_version:Number(form.dataset.schemaVersion), source_version:sourceVersion, expected_version:draftVersion, fields:submitted})});
       const result = await response.json();
-      if (response.status === 409) { halted = true; localStore(); setStatus(ui.server_conflict, 'conflict'); return; }
+      if (response.status === 409) { halted = true; localStore(); setStatus(result.error === 'structure_changed' ? ui.structure_conflict : ui.server_conflict, 'conflict'); return; }
       if (!response.ok) throw new Error(result.status || 'save');
       draftId = result.draft_id; draftVersion = result.version; form.elements.namedItem('server_draft_id').value = draftId;
       if (JSON.stringify(fields()) === JSON.stringify(submitted)) {

@@ -25,7 +25,7 @@
       } catch (error) {}
     }
 
-    function rebuildSubcategories() {
+    function rebuildSubcategories(event) {
       var selectedCategoryValue = String(categorySelect.value || "");
       var currentValue = String(subcategorySelect.value || "");
       var fragment = document.createDocumentFragment();
@@ -52,6 +52,12 @@
       subcategorySelect.appendChild(fragment);
       subcategorySelect.disabled = !selectedCategoryValue || visibleOptions === 0;
       subcategorySelect.value = hasValidSelection ? currentValue : "";
+      var form = subcategorySelect.closest('form');
+      var resetMessage = subcategorySelect.dataset.resetMessage || (form && form.dataset.subcategoryResetMessage);
+      var status = document.getElementById(subcategorySelect.getAttribute('aria-describedby')) || (form && form.querySelector('[data-taxonomy-status]'));
+      if (event && resetMessage && status) {
+        status.textContent = currentValue && !hasValidSelection ? resetMessage : '';
+      }
       syncSelect2(subcategorySelect);
       try {
         subcategorySelect.dispatchEvent(new CustomEvent("km:subcategory-rebuilt", { bubbles: true }));

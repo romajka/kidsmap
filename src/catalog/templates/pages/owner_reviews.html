@@ -74,11 +74,11 @@
           <p class="account-section-subtitle">
             {% if can_moderate_reviews %}
               {% if CURRENT_LANGUAGE == "az" %}
-                Məkanlarınıza yazılan rəyləri idarə edin və təsdiqləyin.
+                Rəylərə cavab verin və KidsMap-a şikayət edin.
               {% elif CURRENT_LANGUAGE == "en" %}
-                Manage and approve reviews for your places.
+                Reply to reviews and report concerns to KidsMap.
               {% else %}
-                Отзывы по вашим местам. Управляйте видимостью и одобрением отзывов.
+                Отзывы по вашим местам. Отвечайте и отправляйте жалобы в KidsMap.
               {% endif %}
             {% else %}
               {% if CURRENT_LANGUAGE == "az" %}
@@ -105,7 +105,7 @@
           <div class="account-metric-pill">
             <span class="material-symbols-rounded metric-icon-gold">visibility_off</span>
             <strong>{{ owner_reviews_pending_count }}</strong>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Gizlədilib{% elif CURRENT_LANGUAGE == "en" %}Hidden{% else %}Скрыто{% endif %}</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Yoxlanışda{% elif CURRENT_LANGUAGE == "en" %}Awaiting KidsMap{% else %}На проверке KidsMap{% endif %}</span>
           </div>
         </div>
 
@@ -151,23 +151,7 @@
                   <p style="margin: 0; font-size: 14px; line-height: 1.55; color: #2D4A3E;">{{ review.text|default:"—" }}</p>
 
                   <div class="account-owner-card__actions">
-                    {% if not review.is_approved %}
-                      <form method="post" action="{% url 'owner_review_approve' review.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="account-btn-sm account-btn-sm--primary">
-                          <span class="material-symbols-rounded">check</span>
-                          <span>{% if CURRENT_LANGUAGE == "az" %}Təsdiqlə{% elif CURRENT_LANGUAGE == "en" %}Approve{% else %}Одобрить{% endif %}</span>
-                        </button>
-                      </form>
-                    {% else %}
-                      <form method="post" action="{% url 'owner_review_reject' review.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="account-btn-sm account-btn-sm--secondary">
-                          <span class="material-symbols-rounded">visibility_off</span>
-                          <span>{% if CURRENT_LANGUAGE == "az" %}Gizlət{% elif CURRENT_LANGUAGE == "en" %}Hide{% else %}Скрыть{% endif %}</span>
-                        </button>
-                      </form>
-                    {% endif %}
+                    {% include 'catalog/includes/typed_review_link.html' with review_kind='place' review_target=review.place %}
                   </div>
                 </div>
               {% endfor %}
@@ -218,6 +202,7 @@
                   </div>
                 </div>
                 <p style="margin: 0; font-size: 14px; line-height: 1.55; color: #2D4A3E;">{{ rev.text|default:"—" }}</p>
+                    {% include 'catalog/includes/typed_review_link.html' with review_kind='place' review_target=rev.place %}
                 {% if rev.status == 'pending' %}<p class="account-pending-callout">{{ review_moderation_sla_message }}</p>{% elif rev.status == 'rejected' and rev.rejection_reason %}<p class="account-rejection-callout">{{ rev.rejection_reason }}</p>{% endif %}
               </div>
             {% endfor %}

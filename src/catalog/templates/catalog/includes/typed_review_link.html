@@ -1,0 +1,2 @@
+{% load i18n %}{% get_current_language as review_language %}
+<p><a class="public-parent-link" href="{% url 'typed_reviews' review_kind review_target.pk %}">{% if review_language == 'ru' %}Отзывы: написать, изменить или ответить{% elif review_language == 'en' %}Reviews: write, edit or reply{% else %}Rəylər: yaz, redaktə et və ya cavab ver{% endif %}</a></p>

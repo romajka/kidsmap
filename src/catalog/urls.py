@@ -4,6 +4,10 @@ from .controllers.server_draft_api import draft_collection, draft_detail, draft_
 from .controllers.business_team_api import business_team_action, business_permission_config
 from .controllers.workflow_notifications import inbox, mark_read, accept_invitation
 from .controllers.location_resolution import location_resolve
+from .controllers.typed_reviews import target_reviews, review_action
+from .controllers.specialist_workspace import (specialist_workspace_index, specialist_workspace_profile,
+    specialist_workspace_claims, specialist_workspace_invitations, specialist_workspace_certificates,
+    specialist_workspace_review, organization_specialists)
 from django.contrib.auth import views as auth_views
 from django.urls import path, re_path, reverse_lazy
 
@@ -76,8 +80,6 @@ from .views import (
     specialist_list,
     specialist_detail,
     add_specialist_review,
-    owner_specialist_create,
-    owner_specialist_edit,
     catalog_search_suggestions,
 )
 
@@ -87,6 +89,13 @@ from catalog.controllers.program_workspace import program_create, program_detail
 from catalog.controllers.organization_workspace import (organization_index, organization_create, organization_detail, organization_branch, organization_save, organization_join, organization_confirm, organization_detach, organization_branch_create)
 
 urlpatterns = [
+    path('account/specialists/', specialist_workspace_index, name='specialist_workspace_index'),
+    path('account/specialists/<int:pk>/', specialist_workspace_profile, name='specialist_workspace_profile'),
+    path('account/specialists/<int:pk>/claims/', specialist_workspace_claims, name='specialist_workspace_claims'),
+    path('account/specialists/<int:pk>/invitations/', specialist_workspace_invitations, name='specialist_workspace_invitations'),
+    path('account/specialists/<int:pk>/certificates/', specialist_workspace_certificates, name='specialist_workspace_certificates'),
+    path('account/specialists/<int:pk>/review/', specialist_workspace_review, name='specialist_workspace_review'),
+    path('account/organizations/<int:org_id>/specialists/', organization_specialists, name='organization_specialists'),
     path("organizations/<uuid:public_id>/", public_organization_detail, name="organization_detail"),
     path("activities/<int:pk>/", activity_detail, name="activity_detail"),
     path('account/notifications/', inbox, name='account_notifications'),
@@ -188,8 +197,8 @@ urlpatterns = [
     path("account/places/<int:pk>/analytics/", owner_place_analytics, name="owner_place_analytics"),
     path("account/places/create/", owner_place_create, name="owner_place_create"),
     path("account/places/events/create/", owner_event_create, name="owner_event_create"),
-    path("account/places/specialists/create/", owner_specialist_create, name="owner_specialist_create"),
-    path("account/places/specialists/<int:pk>/edit/", owner_specialist_edit, name="owner_specialist_edit"),
+    path("account/places/specialists/create/", specialist_workspace_profile, name="owner_specialist_create"),
+    path("account/places/specialists/<int:pk>/edit/", specialist_workspace_profile, name="owner_specialist_edit"),
     path("account/places/events/<int:pk>/edit/", owner_event_edit, name="owner_event_edit"),
     path("account/places/events/<int:pk>/submit-review/", owner_event_submit_review, name="owner_event_submit_review"),
     path("account/places/events/<int:pk>/delete/", owner_event_delete, name="owner_event_delete"),
@@ -211,6 +220,8 @@ urlpatterns = [
     path("account/places/team/members/<int:membership_id>/role/", owner_team_update_member_role, name="owner_team_update_member_role"),
     path("account/places/team/members/<int:membership_id>/remove/", owner_team_remove_member, name="owner_team_remove_member"),
     path("account/places/reviews/", owner_reviews_dashboard, name="owner_reviews_dashboard"),
+    path('reviews/<str:kind>/target/<int:pk>/', target_reviews, name='typed_reviews'),
+    path('reviews/<str:kind>/<int:pk>/<str:action>/', review_action, name='typed_review_action'),
     path("account/places/reviews/<int:review_id>/approve/", owner_review_approve, name="owner_review_approve"),
     path("account/places/reviews/<int:review_id>/reject/", owner_review_reject, name="owner_review_reject"),
     re_path(

@@ -43,7 +43,7 @@ def _parents(target_type,target_id):
     if model is Place:
         _lock(Organization,[before['organization_id']],'default')
         row=_lock(Place,[target_id],'default')[target_id]
-        if row.organization_id!=before['organization_id']:raise ValidationError('Structure changed; reload.')
+        if row.organization_id!=before['organization_id']:raise ValidationError('Structure changed; reload.',code='structure_changed')
         if row.deleted_at is not None:raise ValidationError('Deleted Place.')
     else:
         row=_lock(Organization,[target_id],'default')[target_id];_active(row)
@@ -310,7 +310,7 @@ def approve_informational_join(*,actor,request_id):
 
 
 def approved_program_data(program):
-    return {**{name:getattr(program,name) for name in ('name_az','name_ru','name_en','description_az','description_ru','description_en')},'category_id':program.category_id,'organization_id':program.organization_id}
+    return {**{name:getattr(program,name) for name in ('name_az','name_ru','name_en','description_az','description_ru','description_en')},'category_id':program.category_id,'subcategory_id':program.subcategory_id,'organization_id':program.organization_id}
 
 
 @transaction.atomic
@@ -332,6 +332,7 @@ def detach(*,actor,place_id,organization_id,expected_ownership_version):
         if snapshot:
             if not version:raise ValidationError('Approved snapshot version unavailable.')
             values.update(program_snapshot=snapshot,source_program_id=program.pk,source_program_version=version)
+            values.update(category_id=snapshot.get('category_id'),subcategory_id=snapshot.get('subcategory_id'))
             for lang in ('az','ru','en'):
                 for prefix in ('name','description'):
                     field=prefix+'_'+lang

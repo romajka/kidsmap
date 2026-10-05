@@ -663,7 +663,10 @@ class VolunteerAccessTests(TestCase):
         self.assertTrue(response.context['form'].errors)
         response = self.client.post(url, {'action': 'restart', 'revision_version': revision.version})
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(VolunteerPlaceRevision.objects.get(pk=revision.pk).payload['name_az'], 'Admin correction')
+        restarted = VolunteerPlaceRevision.objects.get(pk=revision.pk)
+        self.assertEqual(restarted.payload, {})
+        self.assertEqual(restarted.base_snapshot['name_az'], 'Admin correction')
+        self.assertEqual(self.client.get(url).context['form']['name_az'].value(), 'Admin correction')
 
     def test_owner_handover_removes_volunteer_access_and_blocks_approval(self):
         place = create_ready_place(created_by=self.user)
@@ -821,6 +824,10 @@ class VolunteerAccessTests(TestCase):
 class VolunteerConcurrencyTests(TransactionTestCase):
     def test_concurrent_create_produces_one_working_card(self):
         from catalog.services.volunteer_places import editor_form, save_proposal
+        from catalog.testcases.utils import ensure_quality_subcategory
+        # TransactionTestCase flushes migration-seeded categories between cases.
+        # The duplicate-creation test must build its own valid taxonomy fixture.
+        ensure_quality_subcategory('EDU')
         vol = User.objects.create_user('concurrent-create', is_staff=True)
         vol.groups.add(Group.objects.create(name='KidsMap Volunteers'))
         form = editor_form(Place(created_by=vol, status='draft', is_active=False))
@@ -833,12 +840,13 @@ class VolunteerConcurrencyTests(TransactionTestCase):
                 actor = User.objects.get(pk=vol.pk)
                 barrier.wait(timeout=10)
                 _, _, bound = save_proposal(user=actor, place_id=None, data=data, files={})
-                return bool(bound.errors)
+                return bool(bound.errors), dict(bound.errors)
             finally:
                 connections.close_all()
         with ThreadPoolExecutor(max_workers=2) as pool:
             futures = [pool.submit(create) for _ in range(2)]
-            self.assertEqual(sorted(f.result(timeout=30) for f in futures), [False, True])
+            results = [f.result(timeout=30) for f in futures]
+            self.assertEqual(sorted(result[0] for result in results), [False, True], results)
         self.assertEqual(Place.objects.filter(created_by=vol).count(), 1)
 
     def test_two_reviewers_cannot_apply_the_same_revision_twice(self):

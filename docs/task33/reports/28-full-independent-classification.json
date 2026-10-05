@@ -1,0 +1,110 @@
+{
+  "status": "SOURCE_REVIEW_COMPLETE_PRECISION_DEFECT_FIXED_INDEPENDENTLY_VERIFIED_V3",
+  "execution_identity": "/root/stage28_database",
+  "canonical_role": ".agents/agents/database-reviewer/agent.md",
+  "snapshot": "015d031d8eb17114bd860159dde805b38df3c13c + current dirty WORKTREE; reviewed source hashes in28-database-source.json",
+  "independent_from_root": true,
+  "scope": "Seven new full-suite failure IDs only; source classification, no application/test edits and no independent full-suite execution",
+  "runtime_attribution": "Initial root full1812/108F/11E/0skip remains historical NOT_GREEN; parent owns final full1817/Task33 result. Independent current32/32 is a bounded suite, not full-suite acceptance.",
+  "classified_ids_count": 7,
+  "classifications": [
+    {
+      "id": "catalog.testcases.admin.TestAdminBulkActions.test_event_make_published_and_draft_action",
+      "classification": "ACCEPTED_CONTRACT_FIXTURE_DEBT",
+      "reason": "Selected fixture has no organizer, exact interval or required AZ description; guarded publish action rejects it before later draft assertions. D09 requires an organizer and real occurrence publication facts.",
+      "source_symbols": [
+        "testcases/admin.py:test_event_make_published_and_draft_action",
+        "domain_admin/place.py:EventAdmin.mark_published",
+        "services/event_domain.py:_locked",
+        "services/event_domain.py:_organizer"
+      ],
+      "confirmed_application_defect": false
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_event_admin_bulk_publish_action_updates_status",
+      "classification": "ACCEPTED_CONTRACT_FIXTURE_DEBT",
+      "reason": "Fixture only supplies name/category/draft. The guarded service rejects zero organizers and absent dates; old expectation conflicts with accepted D09 publication prerequisites.",
+      "source_symbols": [
+        "testcases/admin.py:test_event_admin_bulk_publish_action_updates_status",
+        "domain_admin/place.py:EventAdmin.mark_published",
+        "services/event_domain.py:_organizer",
+        "services/event_domain.py:_validate"
+      ],
+      "confirmed_application_defect": false
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_event_admin_can_publish_from_change_form",
+      "classification": "ACCEPTED_CONTRACT_FIXTURE_DEBT",
+      "reason": "Fixture/payload omit organizer and other publication facts and required event_format. Current EventAdminForm publication checklist and post-clean reject unresolved organizer. Failure does not establish rejection of a valid current form.",
+      "source_symbols": [
+        "testcases/admin.py:test_event_admin_can_publish_from_change_form",
+        "testcases/admin.py:_admin_event_change_payload",
+        "domain_admin/place.py:EventAdminForm.clean",
+        "domain_admin/place.py:EventAdminForm._post_clean"
+      ],
+      "confirmed_application_defect": false
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_event_admin_can_save_draft_and_continue_later",
+      "classification": "CURRENT_FIXTURE_OMISSION_AFTER_CONFIRMED_PRECISION_DEFECT_FIXED",
+      "reason": "Legacy helper still omits required event_format. Root complete-payload probe also found actual minute-widget precision loss. Root narrow admin start/end/published_at and owner start/end preservation fixes were independently source-reviewed and all five new controller/form precision cases rerun within32/32 PASS. Exact unchanged rendered values retain stored seconds/microseconds; changed minute/day cannot enter preservation, and format/occurrence guards remain unchanged. Legacy assertion was not edited. Earlier fixture-only explanation was insufficient.",
+      "source_symbols": [
+        "testcases/admin.py:_admin_event_change_payload",
+        "testcases/admin.py:test_event_admin_can_save_draft_and_continue_later",
+        "models/place.py:Event.event_format",
+        "domain_admin/place.py:EventAdminForm",
+        "domain_admin/place.py:EventAdmin.fieldsets",
+        "forms.py:OwnerEventForm.clean",
+        "testcases/test_task33_event_admin_precision.py",
+        "models/event_domain.py:validate_event_domain"
+      ],
+      "confirmed_application_defect": true,
+      "runtime_check": "ROOT_CAUSAL_RED_GREEN43; INDEPENDENT_NEW_PRECISION5_WITHIN32_PASS; EXACT_V3_NATIVE_RECOVERY_PASS; ROOT_FINAL_LEGACY_PROBE_200_ONLY_EVENT_FORMAT_THEN_REPLAY302_DRAFT",
+      "defect_status": "FIXED_IN_CURRENT_V3_BOUNDED_VERIFICATION"
+    },
+    {
+      "id": "catalog.testcases.public.EventsLandingTests.test_event_address_is_localized_for_az_public_pages",
+      "classification": "ACCEPTED_CONTRACT_FIXTURE_DEBT",
+      "reason": "Fixture first creates a published Event, capturing approved venue_snapshot. Test later mutates only current Event.address and expects another street. Public card/detail intentionally use retained snapshot per D09; this mismatch does not establish a localization defect for correctly prepared data.",
+      "source_symbols": [
+        "testcases/public.py:EventsLandingTests.setUp",
+        "testcases/public.py:test_event_address_is_localized_for_az_public_pages",
+        "models/place.py:Event.save",
+        "templates/catalog/includes/event_listing_card.html",
+        "templates/catalog/event_detail.html"
+      ],
+      "confirmed_application_defect": false
+    },
+    {
+      "id": "catalog.testcases.public.EventsLandingTests.test_event_address_is_localized_for_en_public_pages",
+      "classification": "ACCEPTED_CONTRACT_FIXTURE_DEBT",
+      "reason": "Same published-snapshot versus later current-address mutation mismatch; preserving approved historical address is accepted D09 behavior. No claim about all other localization paths.",
+      "source_symbols": [
+        "testcases/public.py:EventsLandingTests.setUp",
+        "testcases/public.py:test_event_address_is_localized_for_en_public_pages",
+        "models/place.py:Event.save",
+        "templates/catalog/includes/event_listing_card.html"
+      ],
+      "confirmed_application_defect": false
+    },
+    {
+      "id": "catalog.testcases.public.EventsLandingTests.test_events_landing_does_not_render_filter_controls",
+      "classification": "ACCEPTED_CONTRACT_OBSOLETE_ASSERTION",
+      "reason": "Old test asserts absence of q/category/district/age controls. D09/D14 and accepted stage27 require those native GET filters. Their presence is expected current behavior.",
+      "source_symbols": [
+        "testcases/public.py:test_events_landing_does_not_render_filter_controls",
+        "templates/catalog/events_landing.html",
+        "docs/task33/decisions.md:D09",
+        "docs/task33/decisions.md:D14"
+      ],
+      "confirmed_application_defect": false
+    }
+  ],
+  "application_or_tests_modified": false,
+  "not_run": [
+    "independent full suite",
+    "production",
+    "independent replay of root legacy causal diagnostic"
+  ],
+  "handoff": "/root integration-reviewer owns final full-suite/Task33 outcome and causal diagnostic; independent source23/tests32/native98-table V3 gates passed without APP/test edits by database-reviewer"
+}

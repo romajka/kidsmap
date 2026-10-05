@@ -13,7 +13,10 @@ from catalog.testcases.utils import create_quality_place
 @override_settings(LOCALIZED_PLACE_URLS_ENABLED=True, PUBLIC_BASE_URL='https://kidsmap.az')
 class LocalizedPlaceSeoUnitTests(SimpleTestCase):
     def setUp(self):
-        self.place = Place(pk=987, name='Museum', slug='legacy')
+        self.place = Place(pk=987, name='Museum', slug='legacy',
+            name_az='Oyuncaq Muzeyi', name_ru='Музей игрушек', name_en='Toy Museum',
+            description_az='Uşaqlar üçün muzey', description_ru='Музей для детей',
+            description_en='A museum for children')
         self.place.slug_az = 'oyuncaq-muzeyi'
         self.place.slug_ru = 'muzei-igrushek'
         self.place.slug_en = 'toy-museum'
@@ -39,7 +42,8 @@ class LocalizedPlaceSeoUnitTests(SimpleTestCase):
 @override_settings(LOCALIZED_PLACE_URLS_ENABLED=True, PUBLIC_BASE_URL='https://kidsmap.az')
 class LocalizedPlaceSeoTests(TestCase):
     def setUp(self):
-        self.place = create_quality_place(name_az='Oyuncaq Muzeyi', name_ru='Музей игрушек', name_en='Toy Museum')
+        self.place = create_quality_place(name_az='Oyuncaq Muzeyi', name_ru='Музей игрушек', name_en='Toy Museum',
+            description_ru='Музей игрушек для детей', description_en='A toy museum for children')
 
     def test_old_and_wrong_language_slugs_redirect_directly(self):
         for language in ('az', 'ru', 'en'):

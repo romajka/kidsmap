@@ -1,0 +1,384 @@
+{
+  "raw_evidence": "/root/task33-evidence/completion-recovery-c6",
+  "run": {
+    "mode": "probe",
+    "selected_labels": [],
+    "status": "PASS",
+    "container_name": "kidsmap-task33-qa04-6af1c53ca550",
+    "ownership_nonce": "6af1c53ca5504883ba54804bb41be79b",
+    "commands": [
+      {
+        "argv": [
+          "/root/km-completion-recovery/.venv/bin/python",
+          "/root/km-completion-recovery/docs/task33/qa04/test_safety.py"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "/usr/bin/docker",
+          "run",
+          "--detach",
+          "--pull=never",
+          "--name",
+          "kidsmap-task33-qa04-6af1c53ca550",
+          "--label",
+          "kidsmap.task33.owner=6af1c53ca5504883ba54804bb41be79b",
+          "--network",
+          "none",
+          "--tmpfs",
+          "/var/lib/postgresql/data:rw",
+          "--mount",
+          "type=bind,src=/root/km-completion-recovery/.tmp/kidsmap-task33-qa04-socket-lu6q5iq7/socket,dst=/qa-socket",
+          "--env",
+          "POSTGRES_USER=qa_stage04",
+          "--env",
+          "POSTGRES_DB=qa_stage04",
+          "--env",
+          "POSTGRES_HOST_AUTH_METHOD=trust",
+          "--env",
+          "PGHOST=/qa-socket",
+          "postgres:17-alpine",
+          "postgres",
+          "-c",
+          "listen_addresses=",
+          "-c",
+          "unix_socket_directories=/qa-socket,/var/run/postgresql"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "/usr/bin/docker",
+          "inspect",
+          "kidsmap-task33-qa04-6af1c53ca550",
+          "--format",
+          "{{json .}}"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "/usr/bin/docker",
+          "exec",
+          "kidsmap-task33-qa04-6af1c53ca550",
+          "sh",
+          "-c",
+          "test \"$(cat /proc/1/comm)\" = postgres && pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04"
+        ],
+        "exit": 1
+      },
+      {
+        "argv": [
+          "/usr/bin/docker",
+          "exec",
+          "kidsmap-task33-qa04-6af1c53ca550",
+          "sh",
+          "-c",
+          "test \"$(cat /proc/1/comm)\" = postgres && pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04"
+        ],
+        "exit": 1
+      },
+      {
+        "argv": [
+          "/usr/bin/docker",
+          "exec",
+          "kidsmap-task33-qa04-6af1c53ca550",
+          "sh",
+          "-c",
+          "test \"$(cat /proc/1/comm)\" = postgres && pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04"
+        ],
+        "exit": 1
+      },
+      {
+        "argv": [
+          "/usr/bin/docker",
+          "exec",
+          "kidsmap-task33-qa04-6af1c53ca550",
+          "sh",
+          "-c",
+          "test \"$(cat /proc/1/comm)\" = postgres && pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04"
+        ],
+        "exit": 1
+      },
+      {
+        "argv": [
+          "/usr/bin/docker",
+          "exec",
+          "kidsmap-task33-qa04-6af1c53ca550",
+          "sh",
+          "-c",
+          "test \"$(cat /proc/1/comm)\" = postgres && pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "/usr/bin/docker",
+          "inspect",
+          "kidsmap-task33-qa04-6af1c53ca550",
+          "--format",
+          "{{json .}}"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "/root/km-completion-recovery/.venv/bin/python",
+          "-c",
+          "commands.main(mode,labels)",
+          "probe",
+          "[]"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "/usr/bin/docker",
+          "inspect",
+          "kidsmap-task33-qa04-6af1c53ca550",
+          "--format",
+          "{{json .}}"
+        ],
+        "exit": 0
+      },
+      {
+        "argv": [
+          "/usr/bin/docker",
+          "rm",
+          "--force",
+          "0f12f500f1917b2c8ec225e81ec6a9592e69c685639b6360a4d2a1ce2e54b02a"
+        ],
+        "exit": 0
+      }
+    ],
+    "cleanup": "PASS",
+    "image_id": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+    "network": "none",
+    "ports_published": false,
+    "postgres_data": "tmpfs",
+    "mounted_checkout": false,
+    "child_exit": 0,
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "r2-rehearsal": {
+    "status": "PASS",
+    "fixture": "synthetic-only",
+    "container_owned": true,
+    "network_none_tmpfs_socket": true,
+    "source_digest_preserved": true,
+    "dry_run_read_only": true,
+    "partial_checkpoint": 1,
+    "forced_mid_batch_rollback": true,
+    "completed_entries": 21,
+    "rerun_duplicate_pieces": false,
+    "post_switch_record_present": true,
+    "post_switch_count_drift_detected": true,
+    "post_switch_program_approved_snapshot_retained": true,
+    "post_switch_review_reaction_created": true,
+    "off_mode_public_reader_status": 200,
+    "off_mode_http_write_status": 503,
+    "off_mode_preserves_rows": true,
+    "native_dump_bytes": 576856,
+    "native_pg_restore": "PASS",
+    "source_and_restore_row_digests_equal": true,
+    "source_and_restored_schema_signature_equal": true,
+    "schema_signature": {
+      "sha256": "84a832f7decb1c175fa27af4f7587337b8844b5883cacd1235db2287bf20a023",
+      "columns": 1268,
+      "constraints": 574,
+      "indexes": 571
+    },
+    "compatible_standby_read": {
+      "status": "PASS",
+      "artifact_identity": "r2-local-sha256-fb2b79949d6134a2790031ac9a9ab7753d33b71a81e334af805d5cbe1985c55c",
+      "verified_files": 2803,
+      "external_read_only_qa_reader": true,
+      "qa_reader_sha256": "ed8d5f80976e8ceae58e4fd5fb00bca0a7557365b6829221342df6e0d328fef7",
+      "application_verified_before_and_after": true,
+      "read_only_database": "qa_completion_restore",
+      "unix_socket": true,
+      "post_switch_place": 1,
+      "media_bytes_sha256": "35df623cb06ba6c265c7f455af8577611b1219386d1cb0b9612a4723c286b4d2",
+      "standalone_taxonomy": true,
+      "linked_approved_subcategory": true,
+      "detached_taxonomy_copy": true,
+      "exact_taxonomy_search": true
+    },
+    "r2_records": {
+      "standalone_taxonomy": 1,
+      "linked_approved_subcategory": 1,
+      "detached_taxonomy_copy": 1,
+      "approved_claim": 1,
+      "active_bilateral_employment": 1,
+      "employment_history": 3,
+      "practice_history": 2,
+      "private_identity": 1,
+      "opted_in_approved_certificate": 1,
+      "published_cancelled_event": 1,
+      "occurrence_history": 2,
+      "typed_event_review": 1,
+      "durable_pending_notification": 1
+    },
+    "performance": {
+      "meaning": "Same final source/fixtures; naive N+1 control versus eager ORM, not historical release or production load",
+      "sizes": [
+        20,
+        200
+      ],
+      "repetitions": 3,
+      "measurements": [
+        {
+          "size": 20,
+          "mode": "naive_current_orm",
+          "query_counts": [
+            21,
+            21,
+            21
+          ],
+          "elapsed_ms": [
+            26.965,
+            26.567,
+            22.819
+          ],
+          "median_ms": 26.567
+        },
+        {
+          "size": 20,
+          "mode": "select_related_current_orm",
+          "query_counts": [
+            1,
+            1,
+            1
+          ],
+          "elapsed_ms": [
+            4.216,
+            4.387,
+            3.085
+          ],
+          "median_ms": 4.216
+        },
+        {
+          "size": 200,
+          "mode": "naive_current_orm",
+          "query_counts": [
+            201,
+            201,
+            201
+          ],
+          "elapsed_ms": [
+            243.38,
+            246.027,
+            247.783
+          ],
+          "median_ms": 246.027
+        },
+        {
+          "size": 200,
+          "mode": "select_related_current_orm",
+          "query_counts": [
+            1,
+            1,
+            1
+          ],
+          "elapsed_ms": [
+            19.582,
+            14.428,
+            16.347
+          ],
+          "median_ms": 16.347
+        }
+      ]
+    },
+    "private_files_compared": 2,
+    "private_media_digests_equal": true,
+    "tables_compared_count": 98,
+    "raw_dump": "/tmp/task33-completion-recovery-c6/r2-post-switch.dump",
+    "media_files_compared": 25,
+    "media_byte_digests_equal": true,
+    "source_counts": {
+      "Place": 7,
+      "PricingPlan": 4,
+      "PlacePhoto": 1,
+      "PlaceLike": 0,
+      "PlaceReview": 5,
+      "PlaceReviewRevision": 5,
+      "PlaceReviewReaction": 1
+    }
+  },
+  "isolation": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10"
+  },
+  "migrations": {
+    "leaves": [
+      [
+        "account",
+        "0009_emailaddress_unique_primary_email"
+      ],
+      [
+        "admin",
+        "0003_logentry_add_action_flag_choices"
+      ],
+      [
+        "auth",
+        "0012_alter_user_first_name_max_length"
+      ],
+      [
+        "catalog",
+        "0134_completion_taxonomy"
+      ],
+      [
+        "catalog_moderation",
+        "0001_initial"
+      ],
+      [
+        "contenttypes",
+        "0002_remove_content_type_name"
+      ],
+      [
+        "sessions",
+        "0001_initial"
+      ],
+      [
+        "socialaccount",
+        "0006_alter_socialaccount_extra_data"
+      ]
+    ],
+    "applied_count": 168,
+    "unapplied_count": 0,
+    "vendor": "postgresql"
+  },
+  "checks": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.13
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.279
+    }
+  ],
+  "harness_source_sha256": "0b2088b146f20db7baa78ddeb806df061ca6d58262f0f8a8a1f9f1f97da43c1c",
+  "schema_comparison": "Exact columns, constraints and indexes after narrowly canonicalizing equivalent constant varchar-array-to-text casts; raw structural metadata retained.",
+  "normalization_negative_checks": [
+    "changed primary-key column rejected",
+    "changed index predicate rejected"
+  ]
+}

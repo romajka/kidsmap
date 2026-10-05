@@ -1,0 +1,15 @@
+{
+  "invocation": "browser_run.sh r1 finalaudit-20261004-r1",
+  "wrapper_exit": 1,
+  "wrapper_status": "HARNESS_FAILURE_AFTER_COMPLETE_BROWSER_MATRIX",
+  "reason": "Workspace bash script was edited while bash was reading it; mixed read caused unexpected EOF after run-code returned",
+  "initial_frozen_wrapper_sha256": "c20133b85609959ba75d6487f5778365e5fcbfada46489fa3290eb8cc1155899",
+  "actually_executed_matrix_sha256": "e8e931d1c292d8a8549c6ce812c16f759a8a8a4ccdd8d692d6d20ba0afeebcb3",
+  "exact_entire_mixed_wrapper_text": "UNKNOWN",
+  "browser_contexts": 357,
+  "browser_checks": 367,
+  "manual_collector_exit": 0,
+  "launcher_cleanup": "PASS",
+  "source_current": "2750 exact MATCH; frozen mirror harness unchanged",
+  "final_resolution": "Fresh clean immutable-mirror R1 invocation required; this attempt excluded from final counts"
+}

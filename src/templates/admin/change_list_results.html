@@ -13,7 +13,7 @@
                 <thead>
                     <tr>
                         {% for header in result_headers %}
-                        <th class="{% header_class header forloop %}" tabindex="0" rowspan="1" colspan="1">
+                        <th class="{% header_class header forloop %}" tabindex="0" rowspan="1" colspan="1"{% if header.sorted %} aria-sort="{% if header.ascending %}ascending{% else %}descending{% endif %}"{% endif %}>
                             <div class="text">
                                 {% if header.sortable %}
                                     <a href="{{ header.url_primary }}">{{ header.text|capfirst }}</a>
@@ -23,11 +23,11 @@
                                 {% if header.sorted %}
                                     {% if header.ascending %}
                                         <span class="km-col-sort-badge is-active" title="{% translate 'По возрастанию' %}">
-                                            <svg class="km-i km-col-arrow--up" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-arrow_downward"></use></svg>
+                                            <svg class="km-i km-col-arrow--up" width="14" height="14" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-arrow_downward"></use></svg>
                                         </span>
                                     {% else %}
                                         <span class="km-col-sort-badge is-active" title="{% translate 'По убыванию' %}">
-                                            <svg class="km-i km-col-arrow--down" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-arrow_downward"></use></svg>
+                                            <svg class="km-i km-col-arrow--down" width="14" height="14" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-arrow_downward"></use></svg>
                                         </span>
                                     {% endif %}
                                 {% endif %}

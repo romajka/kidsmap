@@ -24,10 +24,10 @@ CONDITIONS = {'extra_conditions','extra_conditions_az','extra_conditions_ru','ex
 def fields_for(kind):
     from catalog.volunteer_forms import CONTENT_FIELDS
     return {
-        'place': set(CONTENT_FIELDS) | PRICES | {'nature','operating_state','pricing_plans','nested_pricing','structured_schedule','gallery'},
+        'place': set(CONTENT_FIELDS) | PRICES | {'nature','operating_state','pricing_plans','nested_pricing','structured_schedule','gallery','location_override'},
         'organization': TEXTS | {'phone','whatsapp','website'},
-        'program': TEXTS | {'category'},
-        'activity': TEXTS | {'supplement_az','supplement_ru','supplement_en'},
+        'program': TEXTS | {'category','subcategory'},
+        'activity': TEXTS | {'supplement_az','supplement_ru','supplement_en','category','subcategory'},
         'offering_group': {'name_az','name_ru','name_en','age_from','age_to','lesson_format','language','schedule_text','teachers_text','conditions_az','conditions_ru','conditions_en'},
     }[kind]
 
@@ -36,7 +36,17 @@ def snapshot(target, kind):
     from catalog.services.volunteer_places import json_value
     result={}
     for name in fields_for(kind):
-        if name=='gallery':value=list(target.gallery.order_by('order','pk').values('id','image','caption','order')) if target.pk else []
+        if name=='location_override':
+            value = target.location_overrides.filter(is_current=True).values('city','district','reason','lat','lng','changed_by_id').first() if target.pk else None
+            if value:
+                # A signed form token is readable by its recipient. Bind source
+                # conflicts to the audit without exposing staff reason/actor.
+                import json
+                from django.utils.crypto import salted_hmac
+                value = salted_hmac('publication-location-audit',
+                    json.dumps(json_value(value),sort_keys=True,separators=(',',':')),
+                    algorithm='sha256').hexdigest()
+        elif name=='gallery':value=list(target.gallery.order_by('order','pk').values('id','image','caption','order')) if target.pk else []
         elif name=='pricing_plans': value=[{k:v for k,v in plan.items() if k!='verified_at'} for plan in target.pricing_plans]
         elif name=='nested_pricing':
             from catalog.services.pricing_plans import serialize_nested_pricing
@@ -161,7 +171,17 @@ def _validate_patch(target,kind,patch):
     if not isinstance(patch,dict) or not set(patch)<=fields_for(kind):raise ValidationError('Unknown/protected publication fields.')
     candidate=copy.copy(target);candidate._state=copy.copy(target._state);normalized={}
     for name,value in patch.items():
-        if name=='gallery':
+        if name=='location_override':
+            if value is not None and value != snapshot(target,kind)['location_override']:
+                from django.contrib.auth import get_user_model
+                from catalog.services.location_assignment import set_location_override
+                if not isinstance(value,dict) or set(value)!={'city','district','reason','lat','lng','actor_id'}:
+                    raise ValidationError('Invalid location override metadata.')
+                override_actor = get_user_model().objects.filter(pk=value['actor_id']).first()
+                location_candidate = copy.copy(candidate)
+                location_candidate.lat, location_candidate.lng = value['lat'], value['lng']
+                set_location_override(location_candidate,actor=override_actor,city=value['city'],district=value['district'],reason=value['reason'])
+        elif name=='gallery':
             from catalog.models import PlacePhoto
             if not isinstance(value,list) or len(value)>10:raise ValidationError('Invalid gallery.')
             existing={p.pk:p for p in target.gallery.all()};seen=set();clean=[]
@@ -206,17 +226,46 @@ def _validate_patch(target,kind,patch):
         normalized[name]=json_value(value)
     if kind in {'place','offering_group'} and candidate.age_from is not None and candidate.age_to is not None and candidate.age_from>candidate.age_to:raise ValidationError('Age range invalid.')
     if kind=='place' and candidate.subcategory_id and candidate.subcategory.category_id!=candidate.category_id:raise ValidationError('Category mismatch.')
+    if kind in {'program','activity'}:
+        from catalog.services.catalog_structure import validate_taxonomy
+        validate_taxonomy(candidate.category_id,candidate.subcategory_id)
+        if kind=='activity' and target.program_id and {'category','subcategory'} & set(patch):
+            raise ValidationError('Linked Activity taxonomy comes from the approved Program.')
     return normalized
 
 
 def _apply(target,kind,patch):
     values={};now=timezone.now()
     for name,value in patch.items():
-        if name in {'pricing_plans','nested_pricing','structured_schedule','gallery'}:continue
+        if name in {'pricing_plans','nested_pricing','structured_schedule','gallery','location_override'}:continue
         field=target._meta.get_field(name);values[field.attname]=field.to_python(value) if not field.is_relation else value
+    if kind=='activity' and target.program_id is None and {'category','subcategory'} & set(patch):
+        # A detached approved copy must not revive old taxonomy after an explicit clear.
+        common=dict(target.program_snapshot)
+        common['category_id']=values.get('category_id',target.category_id)
+        common['subcategory_id']=values.get('subcategory_id',target.subcategory_id)
+        values['program_snapshot']=common
     if kind=='place':
+        if {'lat','lng','district','location_override'} & set(patch):
+            from django.contrib.auth import get_user_model
+            from catalog.services.location_assignment import prepare_place_location, set_location_override
+            previous = copy.copy(target)
+            for name in ('lat','lng','district'):
+                if name in values:setattr(target,name,values[name])
+            requested = patch.get('location_override')
+            if requested:
+                if (float(target.lat),float(target.lng)) != (float(requested['lat']),float(requested['lng'])):
+                    raise ValidationError('Location override coordinates conflict.')
+                set_location_override(target,actor=get_user_model().objects.get(pk=requested['actor_id']),
+                    city=requested['city'],district=requested['district'],reason=requested['reason'])
+            location_fields, location_audit = prepare_place_location(target,previous=previous,
+                update_fields=None,using=target._state.db or 'default')
+            values.update({name:getattr(target,name) for name in location_fields})
+            if location_audit:
+                target.location_overrides.create(**location_audit)
+                del target._location_override_request
         from catalog.services.map_payload import venue_identity_patch_changed
-        if target.confirmed_location_id and venue_identity_patch_changed(target, values):
+        if target.confirmed_location_id and venue_identity_patch_changed(previous if {'lat','lng','district','location_override'} & set(patch) else target, values):
             values.update(confirmed_location_id=None, venue_confirmed_at=None)
         if 'nature' in patch:values['nature_approved_at']=now
         if 'operating_state' in patch:values['operating_state_approved_at']=now
@@ -271,6 +320,11 @@ def _immediate(target,kind,patch,explicit):
 def propose(*,actor,target_type,target_id,patch,schema_version,expected_version,revision_version=0,submit=True,explicit_save=True):
     if not isinstance(submit,bool) or not isinstance(explicit_save,bool):raise ValidationError('Save flags must be boolean.')
     actor=fresh_actor(actor);target=locked_target(target_type,target_id);authorize(actor,target,target_type)
+    if isinstance(patch,dict) and 'location_override' in patch and patch['location_override'] != snapshot(target,target_type).get('location_override'):
+        from catalog.services.location_assignment import can_override_location
+        if not can_override_location(actor) or (patch['location_override'] is not None and
+            (not isinstance(patch['location_override'],dict) or patch['location_override'].get('actor_id') != actor.pk)):
+            raise PermissionDenied
     if _integer(schema_version)!=SCHEMA_VERSION:raise ValidationError('Publication schema conflict.')
     if _integer(expected_version)!=target.content_version:raise ValidationError('Publication source conflict.')
     revision=VolunteerPlaceRevision.objects.select_for_update().filter(**{target_type:target}).first()
@@ -319,13 +373,17 @@ def review(*,actor,revision_id,version,approve,note='',final_reject=False):
         if dependencies(target,kind)!=revision.dependencies:raise ValidationError('Publication dependency conflict.')
         author=fresh_actor(revision.author)
         authorize(author,target,kind)
+        if 'location_override' in revision.payload:
+            from catalog.services.location_assignment import can_override_location
+            if not can_override_location(author) or (revision.payload['location_override'] is not None and revision.payload['location_override'].get('actor_id') != author.pk):
+                raise PermissionDenied
         patch=_validate_patch(target,kind,revision.payload)
         if set(patch)!=set(revision.changed_fields):raise ValidationError('Candidate field conflict.')
         live=snapshot(target,kind)
         if any(live.get(k)!=revision.base_snapshot.get(k) for k in patch):raise ValidationError('Publication source conflict.')
         candidate=copy.copy(target);candidate._state=copy.copy(target._state)
         for name,value in patch.items():
-            if name not in {'pricing_plans','nested_pricing','structured_schedule','gallery'}:field=target._meta.get_field(name);setattr(candidate,field.attname,field.to_python(value) if not field.is_relation else value)
+            if name not in {'pricing_plans','nested_pricing','structured_schedule','gallery','location_override'}:field=target._meta.get_field(name);setattr(candidate,field.attname,field.to_python(value) if not field.is_relation else value)
         if kind=='place':
             from catalog.services.place_readiness import evaluate_place_readiness,publication_blocked_message
             # Existing published cards retain their compatibility path.

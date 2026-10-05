@@ -291,8 +291,21 @@ class CatalogSchemaConcurrencyTests(SchemaFixture, TransactionTestCase):
 @skipUnless(connection.vendor == 'postgresql', 'Forward schema compatibility requires PostgreSQL')
 class CatalogSchemaForwardMigrationTests(TransactionTestCase):
     def test_forward_populated_legacy_preserves_every_original_field_and_url(self):
+        import os
+        import uuid
+        self.assertEqual(os.environ.get('DJANGO_TESTING'), '1')
+        self.assertTrue(os.environ.get('TASK33_QA_ROOT', '').startswith('/tmp/kidsmap-task33-qa04-'))
+        self.assertIn('kidsmap-task33-qa04-socket-', connection.settings_dict['HOST'])
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT current_database(), current_setting('search_path')")
+            database, original_search_path = cursor.fetchone()
+        self.assertEqual(database, 'test_qa_stage04')
         leaves = MigrationExecutor(connection).loader.graph.leaf_nodes()
         self.assertTrue(all(('catalog', '0117_task33_catalog_structure') in MigrationExecutor(connection).loader.graph.forwards_plan((app, name)) for app, name in leaves if app == 'catalog'), 'Expansion migration is missing from current leaf ancestry')
+        schema = connection.ops.quote_name('task33_catalog_forward_' + uuid.uuid4().hex)
+        with connection.cursor() as cursor:
+            cursor.execute('CREATE SCHEMA ' + schema)
+            cursor.execute('SET search_path TO ' + schema)
         executor = MigrationExecutor(connection)
         try:
             executor.migrate([('catalog', '0116_moderation_sla_lifecycle')])
@@ -326,4 +339,6 @@ class CatalogSchemaForwardMigrationTests(TransactionTestCase):
                     response = self.client.get(old.get_absolute_url(), follow=True)
                     self.assertEqual(response.status_code, 200, f'Legacy {lang} URL lost')
         finally:
-            MigrationExecutor(connection).migrate(leaves)
+            with connection.cursor() as cursor:
+                cursor.execute('SET search_path TO ' + original_search_path)
+                cursor.execute('DROP SCHEMA ' + schema + ' CASCADE')

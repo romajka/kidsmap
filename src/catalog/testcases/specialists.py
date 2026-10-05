@@ -108,6 +108,14 @@ class TestSpecialistFlows(TestCase):
             is_published=False
         )
 
+        # Legacy management and publication never prove person identity or consent.
+        from catalog.services import specialist_domain, specialist_documents
+        claim = specialist_domain.request_claim(actor=self.owner, specialist_id=self.specialist.pk)
+        specialist_domain.review_claim(actor=self.staff, claim_id=claim.pk, expected_version=1, approve=True)
+        self.specialist.refresh_from_db()
+        self.diploma = specialist_documents.set_document_public_choice(
+            actor=self.owner, document_id=self.diploma.pk, publish=True)
+
     def test_specialist_list_opens(self):
         url = reverse("specialist_list")
         response = self.client.get(url)
@@ -254,7 +262,10 @@ class TestOwnerSpecialistManagement(TestCase):
         response = self.client.post(reverse("owner_specialist_create"), data=self._valid_payload())
 
         self.assertEqual(response.status_code, 302)
-        specialist = Specialist.objects.get(owner=self.owner)
+        specialist = Specialist.objects.get(created_by=self.owner)
+        self.assertIsNone(specialist.owner_id)
+        self.assertIsNone(specialist.verified_person_user_id)
+        self.assertIsNone(specialist.person_verified_at)
         self.assertEqual(specialist.status, Specialist.STATUS_PENDING)
         self.assertEqual(specialist.consultation_format, Specialist.FORMAT_ONLINE)
         self.assertFalse(specialist.practice_locations.exists())
@@ -271,7 +282,9 @@ class TestOwnerSpecialistManagement(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        specialist = Specialist.objects.get(owner=self.owner)
+        specialist = Specialist.objects.get(created_by=self.owner)
+        self.assertIsNone(specialist.owner_id)
+        self.assertIsNone(specialist.verified_person_user_id)
         location = specialist.practice_locations.get()
         self.assertEqual(specialist.status, Specialist.STATUS_PENDING)
         self.assertEqual(location.region, self.region)
@@ -285,7 +298,9 @@ class TestOwnerSpecialistManagement(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        specialist = Specialist.objects.get(owner=self.owner)
+        specialist = Specialist.objects.get(created_by=self.owner)
+        self.assertIsNone(specialist.owner_id)
+        self.assertIsNone(specialist.verified_person_user_id)
         self.assertEqual(specialist.status, Specialist.STATUS_DRAFT)
 
     def test_owner_uploads_documents_as_pending_private_certificates(self):
@@ -298,8 +313,26 @@ class TestOwnerSpecialistManagement(TestCase):
             },
         )
 
+        # A proposer cannot upload person evidence before an independently reviewed claim.
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(Specialist.objects.filter(created_by=self.owner).exists())
+        self.assertEqual(SpecialistDocument.objects.count(), 0)
+        response = self.client.post(reverse('owner_specialist_create'), data=self._valid_payload())
         self.assertEqual(response.status_code, 302)
-        document = SpecialistDocument.objects.get(specialist__owner=self.owner)
+        person = Specialist.objects.get(created_by=self.owner)
+        self.assertIsNone(person.verified_person_user_id)
+        self.assertEqual(self.client.get(reverse('owner_specialist_edit', args=[person.pk])).status_code, 404)
+        from catalog.services import specialist_domain
+        reviewer = User.objects.create_superuser('spec-document-reviewer', email='reviewer@example.invalid', password='synthetic')
+        claim = specialist_domain.request_claim(actor=self.owner, specialist_id=person.pk)
+        specialist_domain.review_claim(actor=reviewer, claim_id=claim.pk, expected_version=1, approve=True)
+        person.refresh_from_db()
+        response = self.client.post(reverse('owner_specialist_edit', args=[person.pk]), data={
+            **self._valid_payload(), 'expected_updated_at': person.updated_at.isoformat(),
+            'documents': [SimpleUploadedFile('certificate.pdf', b'pdf', content_type='application/pdf')],
+        })
+        self.assertEqual(response.status_code, 302)
+        document = SpecialistDocument.objects.get(specialist=person)
         self.assertEqual(document.status, SpecialistDocument.STATUS_PENDING)
         self.assertEqual(document.document_type, SpecialistDocument.TYPE_CERTIFICATE)
         self.assertFalse(document.is_published)

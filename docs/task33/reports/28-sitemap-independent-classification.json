@@ -1,0 +1,45 @@
+{
+  "status": "INDEPENDENT_SOURCE_CLASSIFICATION_COMPLETE",
+  "execution_identity": "/root/stage28_database",
+  "canonical_role": ".agents/agents/database-reviewer/agent.md",
+  "scope": "Read-only eighth new final full-suite failure source review; no APP/test edits or DB execution",
+  "id": "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_lastmod_matches_model_updated_at",
+  "classification": "RETAINED_TIMEZONE_DEPENDENT_LEGACY_EXPECTATION",
+  "confirmed_new_application_regression": false,
+  "confidence": "HIGH_SOURCE_AND_ROOT_OBSERVED_TRACE; deterministic probe belongs to root",
+  "reason": "Test uses raw aware UTC place.updated_at.strftime('%Y-%m-%d'); PlaceSitemap.lastmod returns that aware datetime unchanged. The default Django sitemap.xml applies date:Y-m-d. The date filter requests localtime and FilterExpression applies template_localtime; USE_TZ=True with default Asia/Baku converts UTC20:00-23:59 to the next local calendar date. Root observed sitemap2026-10-04 versus UTC expectation2026-10-03. This clock-boundary mismatch exists in unchanged V2/V3 source; the new failure ID does not establish an APP regression. No assertion was changed.",
+  "source_references": [
+    "src/catalog/testcases/public.py:1292-1316 test_sitemap_lastmod_matches_model_updated_at",
+    "src/catalog/models/place.py:228 updated_at DateTimeField(auto_now=True)",
+    "src/catalog/sitemaps.py:59-66 PlaceSitemap.lastmod returns obj.updated_at",
+    "src/config/urls.py:37 sitemap.xml routes public_sitemap",
+    "src/config/views.py:22-31 public_sitemap calls and renders django_sitemap without template/date override",
+    "src/config/settings.py:486-488 TIME_ZONE Asia/Baku, USE_TZ True",
+    "Installed Django6.0.2 contrib/sitemaps/views.py:sitemap default template_name sitemap.xml",
+    "Installed Django6.0.2 contrib/sitemaps/templates/sitemap.xml:lastmod date:Y-m-d",
+    "Installed Django6.0.2 template/defaultfilters.py:date expects_localtime=True",
+    "Installed Django6.0.2 template/base.py:FilterExpression.resolve calls template_localtime",
+    "Installed Django6.0.2 utils/timezone.py:template_localtime and now aware UTC"
+  ],
+  "retained_v2_identity": "r2-local-sha256-2682889e43734eece5b8f0cbc4930e46cc4f75a0f6a5e7c70880cf0bbfde898e",
+  "final_v3_identity": "r2-local-sha256-65d8995ff21fb5e5b9fb88d81d18f2f36c4380841f14131cd11dc258bf8c61b2",
+  "source_current_v2_v3_equal": true,
+  "compared_file_count": 6,
+  "current_v2_v3_shared_sha256": {
+    "src/catalog/testcases/public.py": "7dee5f220d4af249d2d68db12fbb22c5647e375ffabb6eb806c4c330a6332bd0",
+    "src/catalog/sitemaps.py": "7f5fd80461b4a40baceb52dafaa9f7314ee3d0978fc2957410d90cdb1da973cd",
+    "src/config/settings.py": "d2203a0e6676a65582c1168c9a50c3b6acb4704ea3838caa9a686bd986c1714b",
+    "src/config/urls.py": "d94a2d0085e3b02654e043f319f12db981643fbfec9661383d30290080aa1470",
+    "src/config/views.py": "2a340d7c5e803dd54b8230aa551bad043d79f709c1900a9fd8f41bf07ed98731",
+    "src/catalog/models/place.py": "92581a2166ddfc236347c2ae35355fc03989032a67b88dcc8917161d5467a9a3"
+  },
+  "dependency_note": "Installed source inspected in unchanged QA04 host venv; retained V2 and final V3 recorded Django6.0.2. No claim of independently frozen historical third-party library byte equality.",
+  "checks_executed": [
+    "Exact APP/test/settings/view source and installed Django template/filter/localtime source read",
+    "Bounded no-ignore sitemap filename inventory: no project sitemap.xml override found; sitemap.xsl exists separately",
+    "Six actual current SHA256 values compared against both immutable V2 and V3 manifests; all match"
+  ],
+  "runtime_attribution": "Root final1817 tests/109 failures/11 errors; Task33 580 PASS. Not independently executed here; final whole suite remains NOT_GREEN. Root owns deterministic timezone probe and120 problem entries/109 unique failure attribution.",
+  "not_run": ["independent deterministic runtime probe", "independent full suite", "database operations", "production/deployment"],
+  "handoff": "/root integration-reviewer: retain original failure and assertions; attach root deterministic probe separately; classify this eighth ID as retained timezone-dependent expectation, without changing V3 bounded DB/image acceptance or claiming full-suite PASS"
+}

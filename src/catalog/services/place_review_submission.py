@@ -38,7 +38,7 @@ def get_place_review_cooldown(*, user, place):
     return cooldown_payload(next_at or _latest_allowed_at(user, place))
 
 
-def create_pending_place_review(*, user, place, rating, text, author_name, contains_profanity):
+def create_pending_place_review(*, user, place, rating, text, author_name, contains_profanity, expected_revision_id=None):
     now = timezone.now()
     # Bootstrap outside the claim transaction: its first statement is an UPDATE,
     # avoiding SQLite's read-transaction upgrade race. The unique key serializes bootstrap.
@@ -51,10 +51,7 @@ def create_pending_place_review(*, user, place, rating, text, author_name, conta
         if not claimed:
             gate.refresh_from_db(fields=['next_allowed_at'])
             return None, cooldown_payload(gate.next_allowed_at, now=now)
-        review = PlaceReview.objects.create(
-            user=user, place=place, rating=rating, text=text, author_name=author_name,
-            contains_profanity=contains_profanity, is_anonymous=False,
-            status=PlaceReview.STATUS_PENDING, is_approved=False, rejection_reason='',
-            submitted_at=now,
-        )
+        from catalog.services.review_versions import submit_review
+        review, _ = submit_review(target=place, user=user, rating=rating, text=text,
+            author_name=author_name, contains_profanity=contains_profanity, expected_revision_id=expected_revision_id)
     return review, cooldown_payload(next_at, now=now)

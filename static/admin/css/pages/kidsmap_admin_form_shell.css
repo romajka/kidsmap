@@ -5422,3 +5422,80 @@ div[class*="related-modal"]:has(iframe[name*="category"]) .modal-header {
 #pricing-body .km-pricing-editor__list {
   margin: 8px 0 !important;
 }
+.km-place-form-page .km-place-section .readonly {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Event admin: translated controls must fit the narrow account viewport. */
+body.model-event .km-place-form-shell,
+body.model-event .km-place-form-layout,
+body.model-event .km-place-form-main,
+body.model-event .km-place-form-sections,
+body.model-event .km-place-section,
+body.model-event .km-place-section__body,
+body.model-event .km-place-form-sidebar,
+body.model-event .km-place-sidebar-card,
+body.model-event .km-place-form-mobile-actions,
+body.model-event .km-place-sidebar-status-item {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+body.model-event .km-place-sidebar-status-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.model-event .km-place-form-shell,
+body.model-event .km-place-form-main,
+body.model-event .km-place-form-sections,
+body.model-event .km-place-section__body {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+body.model-event .km-place-sidebar-badge,
+body.model-event .km-place-sidebar-meta dd,
+body.model-event .km-place-sidebar-card__title {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+@media (max-width: 1100px) {
+  body.model-event .km-place-form-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  body.model-event .km-place-form-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body.model-event .km-place-form-hero__progress {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  body.model-event .km-lang-tabs {
+    flex-wrap: wrap;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  body.model-event .km-place-form-sidebar,
+  body.model-event .km-place-form-mobile-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body.model-event .km-place-form-mobile-actions > button {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}

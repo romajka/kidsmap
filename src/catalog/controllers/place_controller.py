@@ -289,6 +289,7 @@ class PlaceController:
             "age_to": age_to,
             "free": "1" if is_free else "",
             "sort": sort,
+            **{key: str(request.GET.get(key) or "").strip() for key in ("view", "month", "date", "date_from", "date_to", "format")},
         }
 
         qs = self._filtered_event_queryset(
@@ -300,26 +301,31 @@ class PlaceController:
             age_to=age_to,
             is_free=is_free,
             sort=sort,
+            period_params=request.GET,
+            calendar=request.GET.get("view") == "calendar",
         )
 
         # --- total active (unfiltered) for stats ---
-        active_total = Event.objects.filter(
-            status=Event.STATUS_PUBLISHED,
-            deleted_at__isnull=True,
-            start_datetime__isnull=False,
-            end_datetime__gte=now,
-        ).count()
+        active_total = self._filtered_event_queryset().count()
+        from catalog.services.event_calendar import build_event_calendar
+        events_mode = 'calendar' if request.GET.get('view') == 'calendar' else 'list'
+        calendar_events = list(qs) if events_mode == 'calendar' else []
+        event_calendar = build_event_calendar(selected, calendar_events, now=now, path=request.path)
+        if events_mode == 'calendar' and not event_calendar['valid']:
+            qs = qs.none()
+            calendar_events = []
 
         paginator = Paginator(qs, 12)
         page_obj = paginator.get_page(request.GET.get("page"))
         events = list(page_obj.object_list)
 
         # --- build query string without page ---
-        query_params = {k: v for k, v in selected.items() if v and v != "date"}
+        query_params = {k: v for k, v in selected.items() if v and not (k == 'sort' and v == 'date')}
         if sort and sort != "date":
             query_params["sort"] = sort
         query_without_page = urlencode(query_params)
-        public_filter_options = build_public_place_filter_options(
+        from catalog.services.event_calendar import build_event_filter_options
+        public_filter_options = build_event_filter_options(
             language_code=language_code,
             selected_category=selected.get("category", ""),
             selected_district=selected.get("district", ""),
@@ -331,14 +337,14 @@ class PlaceController:
             heading = "Tədbirlər afişası"
             intro = "Yaxın günlərdə uşaqlar üçün master-klaslar, açıq dərslər və tədbirləri izləyin."
             results_count_label = f"{page_obj.paginator.count} tədbir tapıldı"
-            stat_label = f"{active_total} aktiv tədbir"
+            stat_label = f"Dərc olunub — bu gün və sonra: {active_total}"
             search_placeholder = "Tədbir axtar..."
         elif language_code == "en":
             seo_title = "Kids events calendar | KidsMap"
             heading = "Events"
             intro = "Workshops, open classes and upcoming activities for kids."
             results_count_label = f"{page_obj.paginator.count} events found"
-            stat_label = f"{active_total} active events"
+            stat_label = f"Published — today and later: {active_total}"
             search_placeholder = "Search events..."
         else:
             seo_title = "Афиша детских мероприятий | KidsMap"
@@ -349,15 +355,17 @@ class PlaceController:
                 "Найдено %(total)s мероприятий",
                 page_obj.paginator.count,
             ) % {"total": page_obj.paginator.count}
-            stat_label = ngettext(
-                "%(total)s активное мероприятие",
-                "%(total)s активных мероприятий",
-                active_total,
-            ) % {"total": active_total}
+            stat_label = f"Опубликовано — сегодня и далее: {active_total}"
             search_placeholder = "Найти мероприятие..."
 
         return {
             "events": events,
+            "calendar_events": calendar_events,
+            "event_calendar": event_calendar,
+            "events_mode": events_mode,
+            "events_mode_urls": {mode: event_calendar[mode + '_url'] for mode in ('list', 'calendar')},
+            "events_quick_urls": event_calendar['quick_urls'],
+            "event_format_choices": Event._meta.get_field('event_format').choices,
             "page_obj": page_obj,
             "results_total": page_obj.paginator.count,
             "results_count_label": results_count_label,
@@ -373,98 +381,20 @@ class PlaceController:
                 "total": active_total,
             },
             "selected": selected,
-            "categories": public_filter_options.categories,
-            "district_options": public_filter_options.districts,
+            "categories": public_filter_options['categories'],
+            "district_options": public_filter_options['districts'],
             "has_active_filters": any(v for k, v in selected.items() if k != "sort" and v),
         }
 
     def _filtered_event_queryset(
-        self,
-        *,
-        q: str = "",
-        category: str = "",
-        district: str = "",
-        date_filter: str = "",
-        age_from: str = "",
-        age_to: str = "",
-        is_free: bool = False,
-        sort: str = "date",
+        self, *, q="", category="", district="", date_filter="", age_from="",
+        age_to="", is_free=False, sort="date", period_params=None, calendar=False,
     ):
-        if not is_events_section_enabled():
-            return Event.objects.none()
-
-        now = timezone.now()
-        qs = Event.objects.filter(
-            status=Event.STATUS_PUBLISHED,
-            deleted_at__isnull=True,
-            start_datetime__isnull=False,
-            end_datetime__gte=now,
-        ).select_related("related_place")
-
-        if q:
-            qs = qs.filter(
-                Q(name__icontains=q)
-                | Q(name_az__icontains=q)
-                | Q(name_ru__icontains=q)
-                | Q(name_en__icontains=q)
-                | Q(description_az__icontains=q)
-                | Q(description_ru__icontains=q)
-                | Q(description_en__icontains=q)
-                | Q(address__icontains=q)
-            )
-
-        if category:
-            qs = qs.filter(category=category)
-
-        if district:
-            if district.lower() == "baku":
-                qs = qs.filter(
-                    Q(district__iexact="baku")
-                    | Q(district__startswith="baku_")
-                    | Q(related_place__district__iexact="baku")
-                    | Q(related_place__district__startswith="baku_")
-                )
-            else:
-                qs = qs.filter(Q(district=district) | Q(related_place__district=district))
-
-        if date_filter == "today":
-            qs = qs.filter(start_datetime__date=now.date())
-        elif date_filter == "tomorrow":
-            qs = qs.filter(start_datetime__date=now.date() + timedelta(days=1))
-        elif date_filter == "this_week":
-            end_of_week = now.date() + timedelta(days=(6 - now.weekday()))
-            qs = qs.filter(start_datetime__date__lte=end_of_week)
-        elif date_filter == "weekend":
-            qs = qs.filter(start_datetime__week_day__in=[1, 7])  # Sunday=1, Saturday=7
-
-        if (age_from and age_from.isdigit()) or (age_to and age_to.isdigit()):
-            qs = qs.exclude(age_from__isnull=True, age_to__isnull=True)
-
-        if age_from and age_from.isdigit():
-            qs = qs.filter(Q(age_to__gte=int(age_from)) | Q(age_to__isnull=True))
-        if age_to and age_to.isdigit():
-            qs = qs.filter(Q(age_from__lte=int(age_to)) | Q(age_from__isnull=True))
-
-        if is_free:
-            qs = qs.filter(
-                Q(price_text="")
-                | Q(price_text__iexact="pulsuz")
-                | Q(price_text__iexact="free")
-                | Q(price_text__iexact="бесплатно")
-                | Q(price_text="0")
-                | Q(price_text__iexact="0 AZN")
-            )
-
-        if sort == "price":
-            qs = qs.order_by("price_text", "start_datetime")
-        elif sort == "new":
-            qs = qs.order_by("-created_at")
-        elif sort == "popular":
-            qs = qs.order_by("-related_place__likes_count", "start_datetime")
-        else:
-            qs = qs.order_by("start_datetime", "-updated_at")
-
-        return qs
+        from catalog.services.event_queries import query_public_events
+        params = dict((period_params or {}).items())
+        params.update(q=q, category=category, district=district, date_filter=date_filter,
+                      age_from=age_from, age_to=age_to, free="1" if is_free else "", sort=sort)
+        return query_public_events(params, calendar=calendar)
 
     def _base_list_url(self, *, force_new_only: bool) -> str:
         return reverse("place_new") if force_new_only else reverse("place_list")

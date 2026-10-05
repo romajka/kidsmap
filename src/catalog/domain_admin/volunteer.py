@@ -139,7 +139,9 @@ def edit(request, place_id=None):
 @require_http_methods(["GET"])
 def review_index(request):
     require_reviewer(request.user)
-    revisions = VolunteerPlaceRevision.objects.filter(status="pending").select_related("place", "author").order_by("updated_at")
+    # This legacy screen and its decision URL are keyed by Place, while the
+    # shared revision table also contains Program/Organization/Activity edits.
+    revisions = VolunteerPlaceRevision.objects.filter(status="pending", place__isnull=False).select_related("place", "author").order_by("updated_at")
     return render(request, "review_index", title=_("Изменения волонтёров"), page=Paginator(revisions, 25).get_page(request.GET.get("page")))
 
 

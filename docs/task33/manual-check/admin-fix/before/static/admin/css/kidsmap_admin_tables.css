@@ -1,0 +1,188 @@
+/* 
+  kidsmap_admin_tables.css
+  Стили для стандартных таблиц change_list и панели действий
+*/
+
+/* ===== Панель действий и фильтров сверху ===== */
+#toolbar,
+#changelist-form .actions,
+#changelist-filter {
+  background: var(--km-admin-surface);
+  border: 1px solid var(--km-admin-border);
+  box-shadow: var(--km-admin-shadow-sm);
+  border-radius: var(--km-admin-radius-md);
+}
+
+#toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+#toolbar form {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+#toolbar form > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+#toolbar label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--km-admin-radius-sm);
+  border: 1px solid var(--km-admin-border);
+  background: var(--km-admin-surface-muted);
+  flex-shrink: 0;
+  color: var(--km-admin-text-muted);
+}
+
+#changelist #toolbar form input[type="text"] {
+  height: 36px;
+  border-radius: var(--km-admin-radius-sm);
+  min-width: 200px;
+  flex: 1 1 260px;
+}
+
+#changelist #toolbar form input[type="submit"] {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: var(--km-admin-radius-sm);
+  background: var(--km-admin-success);
+  color: #fff;
+  border: 1px solid var(--km-admin-success);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+#changelist #toolbar form input[type="submit"]:hover {
+  background: var(--km-admin-accent-strong);
+}
+
+/* ===== Bulk Actions ===== */
+#changelist-form .actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+#changelist-form .actions label,
+#changelist-form .actions span,
+#changelist-form .actions .action-counter {
+  font-size: 13px;
+  color: var(--km-admin-text-muted);
+}
+
+#changelist-form .actions select {
+  height: 34px;
+  border-radius: var(--km-admin-radius-sm);
+  min-width: 200px;
+}
+
+#changelist-form .actions button[type="submit"],
+#changelist-form .actions input[type="submit"] {
+  height: 34px;
+  padding: 0 14px;
+  background: var(--km-admin-surface-muted);
+  color: var(--km-admin-text);
+  border: 1px solid var(--km-admin-border);
+}
+
+#changelist-form .actions button[type="submit"]:hover,
+#changelist-form .actions input[type="submit"]:hover {
+  background: var(--km-admin-border);
+}
+
+/* ===== Таблицы ===== */
+#result_list {
+  width: 100%;
+  background: var(--km-admin-surface);
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+#result_list thead th {
+  white-space: nowrap;
+  background: var(--km-admin-surface-muted);
+  color: var(--km-admin-text-muted);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--km-admin-border);
+  text-align: left;
+}
+
+#result_list td,
+#result_list th {
+  padding: 12px;
+  border-bottom: 1px solid var(--km-admin-border);
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+#result_list tbody tr:hover td,
+#result_list tbody tr:hover th {
+  background: var(--km-admin-surface-muted);
+}
+
+/* Сортировка */
+#result_list thead th.sortable a {
+  color: var(--km-admin-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+#result_list thead th.sorted {
+  background: var(--km-admin-border);
+}
+
+#result_list thead th.sorted a {
+  color: var(--km-admin-text);
+}
+
+/* Чекбоксы в таблице */
+.action-checkbox {
+  width: 40px;
+  text-align: center;
+}
+
+/* Изображения в таблице (превью) */
+.km-admin-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--km-admin-radius-sm);
+  object-fit: cover;
+  background: var(--km-admin-surface-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--km-admin-text-muted);
+  border: 1px solid var(--km-admin-border);
+  flex-shrink: 0;
+}
+
+.km-admin-entry {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}

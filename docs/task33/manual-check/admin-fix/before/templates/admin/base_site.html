@@ -1,0 +1,47 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/kidsmap_admin.css' %}?v=20260915" />
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script src="{% static 'admin/js/kidsmap_notifications.js' %}"></script>
+{% endblock %}
+
+{% block extrajs %}
+  {{ block.super }}
+  {% include "admin/catalog/includes/km_icon_sprite.html" %}
+{% endblock %}
+
+{% block branding %}
+  <h1 id="site-name"><a href="{% url 'admin:index' %}">KidsMap Admin</a></h1>
+{% endblock %}
+
+{% block userlinks %}
+  <div class="km-admin-lang-switch">
+    {% for item in admin_language_switch_items %}
+      <form action="{% url 'set_language' %}" method="post" class="km-admin-lang-switch-form">
+        {% csrf_token %}
+        <input type="hidden" name="language" value="{{ item.code }}" />
+        <input type="hidden" name="next" value="{{ item.url }}" />
+        <button
+          type="submit"
+          class="km-admin-lang-btn{% if item.active %} is-active{% endif %}"
+          {% if item.active %}aria-current="true"{% endif %}
+        >{{ item.code|upper }}</button>
+      </form>
+      {% if not forloop.last %}
+        <span class="km-admin-userlinks-sep">/</span>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% if ownership_pending_count %}
+    <a href="{% url 'admin:catalog_placeownershiprequest_changelist' %}" class="km-admin-pending-pill">
+      {% blocktranslate with count=ownership_pending_count %}На рассмотрении: {{ count }}{% endblocktranslate %}
+    </a>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

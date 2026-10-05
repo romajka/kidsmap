@@ -1,0 +1,28 @@
+{
+  "status": "BUILT",
+  "build_exit": 0,
+  "command": [
+    "docker",
+    "build",
+    "--iidfile",
+    "/root/task33-evidence/stage28-local-image-20261003/image.id",
+    "-t",
+    "kidsmap-task33-r2-local:2682889e43734eece5b8f0cbc4930e46cc4f75a0f6a5e7c70880cf0bbfde898e",
+    "/root/km28-release2"
+  ],
+  "artifact_identity": "r2-local-sha256-2682889e43734eece5b8f0cbc4930e46cc4f75a0f6a5e7c70880cf0bbfde898e",
+  "context": "/root/km28-release2",
+  "context_file_count": 2793,
+  "context_verified": true,
+  "tag": "kidsmap-task33-r2-local:2682889e43734eece5b8f0cbc4930e46cc4f75a0f6a5e7c70880cf0bbfde898e",
+  "clean_client_environment": true,
+  "raw_evidence": "/root/task33-evidence/stage28-local-image-20261003",
+  "application_started": false,
+  "pushed": false,
+  "production": "NOT_CONTACTED",
+  "image_id": "sha256:796d52d00137b92ce04f520768241a58a4c4ff2007e1aa397d8ec9250dfc534a",
+  "repo_digests": [
+    "kidsmap-task33-r2-local@sha256:796d52d00137b92ce04f520768241a58a4c4ff2007e1aa397d8ec9250dfc534a"
+  ],
+  "image_id_file_matches": true
+}

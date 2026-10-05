@@ -1,0 +1,48 @@
+{
+  "status": "FAIL",
+  "command": [
+    "C:/Program Files/nodejs/node.exe",
+    "--test",
+    "scripts/test_phone_reveal.cjs",
+    "scripts/test_photo_editor.cjs"
+  ],
+  "exit": 1,
+  "node": "v24.14.0",
+  "counts": {
+    "tests": 11,
+    "pass": 10,
+    "fail": 1,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "raw_evidence": "C:\\kidsmap\\scratch\\final-audit-node-output.txt",
+  "ai_referral": {
+    "command": "wsl -d Ubuntu-24.04 -u root --exec node /mnt/c/kidsmap/static/js/tests/ai_referral_tracking.test.js",
+    "exit": 0,
+    "stdout": "AI referral tracking tests passed",
+    "scope": "separately executed by root before collector"
+  },
+  "source_sha256": {
+    "scripts/test_phone_reveal.cjs": "6c5f8ed67896db39b21335317a37e59f660c3d3d18bf627351bb370d1978164c",
+    "scripts/test_photo_editor.cjs": "b126c0d00fcf603a250da650c8ddc9a1f15f0643c0ac244917ef17877fb95d3d",
+    "static/js/place_phone_reveal.js": "159f84e3b52ebc71e7ea31ea42bddbdd17c6243cc1563b1a9fd3460ae538b9b1",
+    "static/js/permanent_place_photos.js": "acfdeebd59dd37e13655acd63fa85e80e2b2e0e3d47d8cf322001722b1ed300f",
+    "static/js/tests/ai_referral_tracking.test.js": "df995087c810797e01f8ef1afd3b9fe6ce9eb05ad023f130bf2b9a58e686bfb7",
+    "static/js/ai_referral_tracking.js": "6a06399e5200023825f8b4599238baf3aefb0e0b987bee90d030c04e7173cc3a"
+  },
+  "scope": "Mocked jsdom contracts and JS logic; not rendered browser or live analytics",
+  "production": "NOT_CONTACTED",
+  "classification": {
+    "failed_assertion": "scripts/test_phone_reveal.cjs:38",
+    "category": "LEGACY_PRESENTATION_MARKER_EXPECTATION",
+    "causal_evidence": "javascript-phone-diagnostic.json",
+    "original_assertion_preserved": true
+  },
+  "retained_html_fixture": {
+    "path": ".tmp/photo-form.html",
+    "sha256": "f6e64a038ed64d3980dd625670f19cf9cd2912737aeff9a833ee6ac5c0504ba5",
+    "provenance": "UNKNOWN historical local fixture; not freshly rendered in this audit",
+    "executed_case": "photo editor boots inside the actual Django wizard HTML",
+    "conclusion_boundary": "One of the11 cases uses retained HTML. Passing that case proves compatibility with those retained bytes, not current Django render."
+  }
+}

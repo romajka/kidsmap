@@ -195,13 +195,130 @@ class AdminLocationControlsTests(TestCase):
         data.update(region='baku', district='baku_sabail', location_override_reason='Checked exception for test', _continue='1')
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302, response.context['adminform'].form.errors if response.status_code == 200 else '')
+        # D04: form save stages an edition; approval is a separate action.
+        from catalog.models import VolunteerPlaceRevision
+        from catalog.services import publication
+        revision = VolunteerPlaceRevision.objects.get(place=place)
+        reopened = self.client.get(url).context_data['adminform'].form
+        self.assertEqual(reopened['location_override_reason'].value(), 'Checked exception for test')
+        # Resaving a reopened candidate keeps the validated exception and live
+        # public data unchanged until the separate approval decision.
+        data['publication_token'] = reopened['publication_token'].value()
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 302)
+        revision.refresh_from_db()
+        publication.review(actor=user, revision_id=revision.pk, version=revision.version, approve=True)
         place.refresh_from_db()
         self.assertEqual(place.location_resolution_status, 'overridden')
         self.assertEqual(place.district, 'baku_sabail')
         self.assertEqual(place.location_overrides.get(is_current=True).reason, 'Checked exception for test')
+        from catalog.services.publication_forms import version_token
+        data['publication_token'] = version_token(place)
         data.update(lat='40.39', lng='49.81', location_override_reason='')
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302, response.context['adminform'].form.errors if response.status_code == 200 else '')
+        revision.refresh_from_db()
+        publication.review(actor=user, revision_id=revision.pk, version=revision.version, approve=True)
         place.refresh_from_db()
         self.assertEqual(place.district, 'baku_yasamal')
         self.assertFalse(place.location_overrides.filter(is_current=True).exists())
+
+
+class PublicationLocationOverrideSecurityTests(TestCase):
+    def setUp(self):
+        from catalog.testcases.utils import create_ready_place
+        self.owner = get_user_model().objects.create_user(username='location-owner')
+        self.staff = get_user_model().objects.create_superuser('location-staff', 'location@example.invalid', 'synthetic')
+        self.place = create_ready_place(owner=self.owner, created_by=self.owner)
+
+    def propose(self, actor, patch):
+        from catalog.services import publication
+        return publication.propose(actor=actor, target_type='place', target_id=self.place.pk,
+            patch=patch, schema_version=1, expected_version=self.place.content_version)
+
+    def metadata(self, actor):
+        return {'city':'baku', 'district':'baku_sabail', 'reason':'Synthetic verified exception',
+            'lat':self.place.lat, 'lng':self.place.lng, 'actor_id':actor.pk}
+
+    def test_business_cannot_spoof_staff_location_override(self):
+        from django.core.exceptions import PermissionDenied
+        with self.assertRaises(PermissionDenied):
+            self.propose(self.owner, {'location_override':self.metadata(self.staff)})
+        self.assertFalse(self.place.location_overrides.exists())
+
+    def test_staff_cannot_attribute_override_to_another_actor(self):
+        from django.core.exceptions import PermissionDenied
+        with self.assertRaises(PermissionDenied):
+            self.propose(self.staff, {'location_override':self.metadata(self.owner)})
+        self.assertFalse(self.place.location_overrides.exists())
+
+    def test_revoked_staff_override_permission_blocks_approval(self):
+        from django.core.exceptions import PermissionDenied
+        from catalog.services import publication
+        revision = self.propose(self.staff, {'district':'baku_sabail', 'location_override':self.metadata(self.staff)})
+        reviewer = get_user_model().objects.create_superuser('location-reviewer', 'reviewer@example.invalid', 'synthetic')
+        self.staff.is_superuser = False
+        self.staff.save(update_fields=['is_superuser'])
+        with self.assertRaises(PermissionDenied):
+            publication.review(actor=reviewer, revision_id=revision.pk, version=revision.version, approve=True)
+        self.place.refresh_from_db()
+        self.assertNotEqual(self.place.district, 'baku_sabail')
+        self.assertFalse(self.place.location_overrides.exists())
+
+    def test_owner_pin_edit_expires_override_without_staff_permission(self):
+        from catalog.services import publication
+        revision = self.propose(self.staff, {'district':'baku_sabail', 'location_override':self.metadata(self.staff)})
+        publication.review(actor=self.staff, revision_id=revision.pk, version=revision.version, approve=True)
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.location_resolution_status, 'overridden')
+        revision.refresh_from_db()
+        # Repost existing metadata exactly as a real form snapshot would do;
+        # unchanged provenance is not a new staff exception.
+        # Exercise the real owner form adapter, including its persisted snapshot.
+        import json
+        from django.forms.models import model_to_dict
+        from catalog.forms import OwnerPlaceEditForm
+        from catalog.services.publication_forms import save_form, version_token
+        from catalog.services.place_schedule import serialize_place_schedule
+        data = model_to_dict(self.place)
+        for name in ('photo','cover_photo'):
+            data.pop(name, None)
+        data.update(region='baku', district=self.place.district, lat=40.39, lng=49.81,
+            offers_adult_classes='1' if self.place.offers_adult_classes else '0',
+            publication_token=version_token(self.place),
+            pricing_plans=json.dumps(self.place.pricing_plans),
+            structured_schedule=json.dumps(serialize_place_schedule(self.place)))
+        form = OwnerPlaceEditForm(data=data, instance=self.place, draft_save_only=True)
+        self.assertTrue(form.is_valid(), form.errors.as_json())
+        moved = save_form(actor=self.owner, form=form, submit=True)
+        self.assertNotIn('location_override', moved.payload)
+        publication.review(actor=self.staff, revision_id=moved.pk, version=moved.version, approve=True)
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.district, 'baku_yasamal')
+        self.assertEqual(self.place.location_resolution_status, 'resolved')
+        self.assertFalse(self.place.location_overrides.filter(is_current=True).exists())
+
+    def test_owner_pending_edition_reopens_canonical_admin_form(self):
+        from django.urls import reverse
+        self.propose(self.owner, {'description_az':'Pending owner description'})
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse('admin:catalog_place_change', args=[self.place.pk]))
+        self.assertEqual(response.status_code, 200)
+        form = response.context_data['adminform'].form
+        self.assertIn('publication_token', form.fields)
+        self.assertEqual(form['description_az'].value(), 'Pending owner description')
+
+    def test_owner_publication_token_does_not_disclose_staff_override_audit(self):
+        import json
+        from django.core import signing
+        from catalog.services import publication
+        from catalog.services.publication_forms import version_token
+        metadata = self.metadata(self.staff)
+        metadata['reason'] = 'Internal staff exception evidence unavailable to business'
+        revision = self.propose(self.staff, {'district':'baku_sabail', 'location_override':metadata})
+        publication.review(actor=self.staff, revision_id=revision.pk, version=revision.version, approve=True)
+        self.place.refresh_from_db()
+        token = signing.loads(version_token(self.place), salt='publication-source')
+        self.assertNotIn(metadata['reason'], json.dumps(token))
+        self.assertIsInstance(token['snapshot']['location_override'], str)
+        self.assertEqual(len(token['snapshot']['location_override']), 64)

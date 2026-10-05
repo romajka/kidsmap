@@ -117,7 +117,8 @@ class PriceModeAndReadinessAuditTests(TestCase):
         schema = json.loads(payload["schema_json"])
         self.assertIn("offers", schema)
         self.assertEqual(schema["offers"]["price"], "0.00")
-        self.assertEqual(schema["offers"]["name"], "Бесплатно")
+        # This fixture has only a complete AZ translation: D10 canonical fallback.
+        self.assertEqual(schema["offers"]["name"], "Pulsuz")
 
     def test_events_price_mode_does_not_emit_fictional_schema_price(self):
         """Events price mode has no fixed place price; Schema.org must not have a fake offer."""
@@ -195,7 +196,9 @@ class EightRealWorldRoundTripTests(TestCase):
         # 1. Readiness
         readiness = evaluate_place_readiness(place)
         self.assertTrue(readiness.is_ready, f"Place {place_data} failed readiness: {readiness.issues}")
-        self.assertEqual(readiness.completed_count, 12)
+        # D06 allows publication without photos/coordinates (10 requirements).
+        self.assertEqual(readiness.completed_count, readiness.required_count)
+        self.assertEqual(readiness.percentage, 100)
 
         # 2. Publication & visibility
         self.assertTrue(public_place_queryset(Place.objects.filter(pk=place.pk)).exists())

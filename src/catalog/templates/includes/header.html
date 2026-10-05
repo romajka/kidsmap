@@ -220,7 +220,7 @@
         <div class="km-dropdown-menu km-dropdown-menu--right km-dropdown-lang" role="menu" data-dropdown-menu>
           <a
             class="km-dropdown-item km-lang-option {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}"
-            href="{{ alternate_urls.az }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
+            href="{{ language_urls.az }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
             hreflang="az"
             role="menuitem"
           >
@@ -230,7 +230,7 @@
           </a>
           <a
             class="km-dropdown-item km-lang-option {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}"
-            href="{{ alternate_urls.ru }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
+            href="{{ language_urls.ru }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
             hreflang="ru"
             role="menuitem"
           >
@@ -240,7 +240,7 @@
           </a>
           <a
             class="km-dropdown-item km-lang-option {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}"
-            href="{{ alternate_urls.en }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
+            href="{{ language_urls.en }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
             hreflang="en"
             role="menuitem"
           >
@@ -465,7 +465,7 @@
           <div class="km-drawer-lang-slider" aria-hidden="true"></div>
           <a
             class="km-drawer-lang-btn {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}"
-            href="{{ alternate_urls.az }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
+            href="{{ language_urls.az }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
             hreflang="az"
             data-lang-index="0"
             role="radio"
@@ -476,7 +476,7 @@
           </a>
           <a
             class="km-drawer-lang-btn {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}"
-            href="{{ alternate_urls.ru }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
+            href="{{ language_urls.ru }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
             hreflang="ru"
             data-lang-index="1"
             role="radio"
@@ -487,7 +487,7 @@
           </a>
           <a
             class="km-drawer-lang-btn {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}"
-            href="{{ alternate_urls.en }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
+            href="{{ language_urls.en }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
             hreflang="en"
             data-lang-index="2"
             role="radio"

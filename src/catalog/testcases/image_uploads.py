@@ -9,6 +9,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils.datastructures import MultiValueDict
+from django.utils.translation import override
 from PIL import Image
 
 from catalog.controllers.owner_places_controller import OwnerPlacesController
@@ -80,12 +81,14 @@ class TestOwnerImageNormalization(TestCase):
             self.assertEqual(image.format, "WEBP")
             self.assertEqual(image.size, (60, 45))
 
+    @override('ru')
     def test_corrupt_image_has_clear_validation_error(self):
         upload = SimpleUploadedFile("broken.jpg", b"not-an-image", content_type="image/jpeg")
 
         with self.assertRaisesMessage(ValidationError, "Не удалось прочитать"):
             normalize_uploaded_image(upload)
 
+    @override('ru')
     def test_mime_mismatch_has_clear_validation_error_and_is_logged(self):
         upload = build_image_upload("wrong.jpg", image_format="PNG", content_type="image/jpeg")
 
@@ -111,6 +114,7 @@ class TestOwnerImageNormalization(TestCase):
             self.assertEqual(image.mode, "RGB")
             self.assertEqual(image.size, (64, 48))
 
+    @override('ru')
     def test_source_larger_than_fifteen_mb_is_rejected(self):
         upload = SimpleUploadedFile(
             "huge.png",
@@ -123,6 +127,23 @@ class TestOwnerImageNormalization(TestCase):
 
 
 class TestOwnerImagePersistenceFailures(TestCase):
+    def token(self, place):
+        from catalog.services.publication_forms import version_token
+        return version_token(place)
+
+    def approve_candidate(self, place):
+        from catalog.models import VolunteerPlaceRevision
+        from catalog.services import publication
+        reviewer, _ = User.objects.get_or_create(username='image-reviewer', defaults={'is_staff': True, 'is_superuser': True})
+        place.refresh_from_db()
+        revision = VolunteerPlaceRevision.objects.get(place=place)
+        if revision.status == 'draft':
+            revision = publication.propose(actor=self.user, target_type='place', target_id=place.pk,
+                patch={}, schema_version=publication.SCHEMA_VERSION, expected_version=place.content_version,
+                revision_version=revision.version, submit=True, explicit_save=True)
+        publication.review(actor=reviewer, revision_id=revision.pk, version=revision.version, approve=True)
+        place.refresh_from_db()
+
     def setUp(self):
         self.user = User.objects.create_user(username="photo_owner", password="StrongPass123!!")
         UserProfile.objects.create(user=self.user)
@@ -163,7 +184,7 @@ class TestOwnerImagePersistenceFailures(TestCase):
             result = self.controller.save_edit_form(
                 request=self.request,
                 place_id=place.id,
-                data={"name_az": "Dəyişdirilmiş ad", "category": "EDU"},
+                data={"name_az": "Dəyişdirilmiş ad", "category": "EDU", "publication_token": self.token(place)},
                 files=MultiValueDict(
                     {"gallery_images": [build_image_upload("gallery.png")]}
                 ),
@@ -202,8 +223,8 @@ class TestOwnerImagePersistenceFailures(TestCase):
             name_az="Foto həyat dövrü",
             category="EDU",
             owner=self.user,
-            status=Place.STATUS_DRAFT,
-            is_active=False,
+            status=Place.STATUS_PUBLISHED,
+            is_active=True,
             photo=build_image_upload("old.png", color="#cc3344"),
         )
         old_name = place.photo.name
@@ -213,20 +234,27 @@ class TestOwnerImagePersistenceFailures(TestCase):
             replace_result = self.controller.save_edit_form(
                 request=self.request,
                 place_id=place.id,
-                data={"name_az": place.name_az, "category": "EDU"},
+                data={"name_az": place.name_az, "category": "EDU", "publication_token": self.token(place)},
                 files=MultiValueDict(
                     {"photo": [build_image_upload("new.webp", color="#3366cc")]}
                 ),
                 draft_save_only=True,
             )
 
-        self.assertTrue(replace_result.ok)
+        self.assertTrue(replace_result.ok, replace_result.form.errors)
+        place.refresh_from_db()
+        self.assertEqual(place.photo.name, old_name)
+        with self.captureOnCommitCallbacks(execute=True):
+            self.approve_candidate(place)
         place.refresh_from_db()
         replacement_name = place.photo.name
         self.assertNotEqual(replacement_name, old_name)
         self.assertTrue(replacement_name.endswith(".webp"))
         self.assertTrue(storage.exists(replacement_name))
-        self.assertFalse(storage.exists(old_name))
+        # The moderation source snapshot still references the previous bytes.
+        from catalog.models import VolunteerPlaceRevision
+        self.assertEqual(VolunteerPlaceRevision.objects.get(place=place).base_snapshot['photo'], old_name)
+        self.assertTrue(storage.exists(old_name))
 
         with self.captureOnCommitCallbacks(execute=True):
             remove_result = self.controller.save_edit_form(
@@ -236,15 +264,21 @@ class TestOwnerImagePersistenceFailures(TestCase):
                     "name_az": place.name_az,
                     "category": "EDU",
                     "photo-clear": "on",
+                    "publication_token": self.token(place),
                 },
                 files=MultiValueDict(),
                 draft_save_only=True,
             )
 
-        self.assertTrue(remove_result.ok)
+        self.assertTrue(remove_result.ok, remove_result.form.errors)
+        place.refresh_from_db()
+        self.assertEqual(place.photo.name, replacement_name)
+        with self.captureOnCommitCallbacks(execute=True):
+            self.approve_candidate(place)
         place.refresh_from_db()
         self.assertFalse(place.photo)
-        self.assertFalse(storage.exists(replacement_name))
+        self.assertEqual(VolunteerPlaceRevision.objects.get(place=place).base_snapshot['photo'], replacement_name)
+        self.assertTrue(storage.exists(replacement_name))
 
     def test_gallery_can_be_added_and_owner_can_delete_a_photo(self):
         place = Place.objects.create(
@@ -252,15 +286,15 @@ class TestOwnerImagePersistenceFailures(TestCase):
             name_az="Qalereya həyat dövrü",
             category="EDU",
             owner=self.user,
-            status=Place.STATUS_DRAFT,
-            is_active=False,
+            status=Place.STATUS_PUBLISHED,
+            is_active=True,
             photo=build_image_upload("main.png"),
         )
 
         save_result = self.controller.save_edit_form(
             request=self.request,
             place_id=place.id,
-            data={"name_az": place.name_az, "category": "EDU"},
+            data={"name_az": place.name_az, "category": "EDU", "publication_token": self.token(place)},
             files=MultiValueDict(
                 {
                     "gallery_images": [
@@ -273,6 +307,8 @@ class TestOwnerImagePersistenceFailures(TestCase):
         )
 
         self.assertTrue(save_result.ok, save_result.form.errors)
+        self.assertFalse(place.gallery.exists())
+        self.approve_candidate(place)
         gallery_photos = list(place.gallery.order_by("order"))
         self.assertEqual(len(gallery_photos), 2)
         for gallery_photo in gallery_photos:
@@ -290,8 +326,14 @@ class TestOwnerImagePersistenceFailures(TestCase):
             )
 
         self.assertTrue(delete_result.ok)
+        self.assertTrue(place.gallery.filter(pk=deleted_photo.id).exists())
+        with self.captureOnCommitCallbacks(execute=True):
+            self.approve_candidate(place)
         self.assertFalse(place.gallery.filter(pk=deleted_photo.id).exists())
-        self.assertFalse(storage.exists(deleted_name))
+        from catalog.models import VolunteerPlaceRevision
+        base = VolunteerPlaceRevision.objects.get(place=place).base_snapshot['gallery']
+        self.assertIn(deleted_name, [row['image'] for row in base])
+        self.assertTrue(storage.exists(deleted_name))
 
     def test_user_cannot_delete_photo_from_another_users_card(self):
         place = Place.objects.create(

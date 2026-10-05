@@ -1,0 +1,29 @@
+{% load i18n tz %}
+<section class="events-calendar panel" id="events-calendar" aria-labelledby="events-month-heading">
+  {% if event_calendar.valid %}
+  <div class="events-calendar-header">
+    {% if event_calendar.prev_url %}<a class="events-card-btn" data-events-month="previous" href="{{ event_calendar.prev_url }}">{% if language == 'az' %}Əvvəlki ay{% elif language == 'en' %}Previous month{% else %}Предыдущий месяц{% endif %}</a>{% endif %}
+    <h2 id="events-month-heading">{{ event_calendar.month_label|date:'F Y' }}</h2>
+    {% if event_calendar.next_url %}<a class="events-card-btn" data-events-month="next" href="{{ event_calendar.next_url }}">{% if language == 'az' %}Növbəti ay{% elif language == 'en' %}Next month{% else %}Следующий месяц{% endif %}</a>{% endif %}
+  </div>
+  <p class="events-calendar-note">{% if language == 'az' %}Bakı vaxtı · Asia/Baku. Günü seçin; həmin günün tədbirləri aşağıdadır.{% elif language == 'en' %}Baku time · Asia/Baku. Select a day to see its events below.{% else %}Время Баку · Asia/Baku. Выберите день — его события показаны ниже.{% endif %}</p>
+  <a class="events-calendar-today" href="{{ event_calendar.today_url }}">{% if language == 'az' %}Bu aya keç{% elif language == 'en' %}Go to this month{% else %}Перейти к текущему месяцу{% endif %}</a>
+  <div class="events-calendar-weekdays" aria-hidden="true">{% for day in event_calendar.weeks.0 %}<span>{{ day.date|date:'D' }}</span>{% endfor %}</div>
+  <div class="events-calendar-grid">
+    {% for week in event_calendar.weeks %}{% for day in week %}
+      <div class="events-calendar-cell{% if not day.in_month %} events-calendar-cell--outside{% endif %}{% if day.selected %} events-calendar-cell--selected{% endif %}{% if day.today %} events-calendar-cell--today{% endif %}">
+        {% if day.in_month %}
+        <a class="events-calendar-day" data-date="{{ day.iso }}" href="{{ day.url }}" {% if day.selected %}aria-current="date"{% endif %} aria-label="{{ day.date|date:'d F Y' }} · {{ day.count }} {% if language == 'az' %}tədbir{% elif language == 'en' %}events{% else %}событий{% endif %}"><time datetime="{{ day.iso }}">{{ day.date|date:'j' }}</time><span class="events-calendar-count">{{ day.count }}</span></a>
+        <ul class="events-calendar-entries">{% for event in day.events %}<li><a data-calendar-event-id="{{ event.pk }}" href="{{ event.get_absolute_url }}">{% timezone 'Asia/Baku' %}<time>{{ event.start_datetime|date:'H:i' }}</time>{% endtimezone %} {{ event.name_i18n }}</a>{% include 'catalog/includes/event_title_fallback.html' %}<span class="events-calendar-state">{% include 'catalog/includes/event_occurrence_state.html' %}</span></li>{% endfor %}</ul>
+        {% else %}<span class="events-calendar-outside-number" aria-hidden="true">{{ day.date|date:'j' }}</span>{% endif %}
+      </div>
+    {% endfor %}{% endfor %}
+  </div>
+  <section id="events-day-list" class="events-day-list" aria-labelledby="events-day-heading">
+    <h2 id="events-day-heading">{% if language == 'az' %}Seçilmiş gün{% elif language == 'en' %}Selected day{% else %}Выбранный день{% endif %}: <time datetime="{{ event_calendar.selected_date }}">{{ event_calendar.selected_date }}</time></h2>
+    <div class="events-list-v2">{% for event in event_calendar.selected_events %}{% include 'catalog/includes/event_listing_card.html' %}{% empty %}<p class="events-empty" role="status">{% if language == 'az' %}Seçilən gün və filtrlər üzrə tədbir yoxdur. Başqa gün seçin və ya filtri sıfırlayın.{% elif language == 'en' %}No events on this day with these filters. Choose another day or reset filters.{% else %}На выбранный день с этими фильтрами событий нет. Выберите другой день или сбросьте фильтры.{% endif %}</p>{% endfor %}</div>
+  </section>
+  {% else %}
+    <h2 id="events-month-heading">{% if language == 'az' %}Tarixi yoxlayın{% elif language == 'en' %}Check the date{% else %}Проверьте дату{% endif %}</h2><p role="status">{% if language == 'az' %}Düzgün ay və həmin aya aid gün seçin.{% elif language == 'en' %}Choose a valid month and a day within that month.{% else %}Выберите корректный месяц и день этого месяца.{% endif %}</p><a href="{{ event_calendar.today_url }}">{% if language == 'az' %}Bu aya keç{% elif language == 'en' %}Go to this month{% else %}Перейти к текущему месяцу{% endif %}</a>
+  {% endif %}
+</section>

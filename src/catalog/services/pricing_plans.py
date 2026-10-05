@@ -360,12 +360,32 @@ def replace_group_pricing_plans(group, value, *, allow_verified=False):
 
 
 ACTIVITY_EDITOR_FIELDS = ('name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en', 'supplement_az', 'supplement_ru', 'supplement_en')
+
+
+def offering_editor_choices(place):
+    """Shared owner/admin enums and explicit taxonomy choices, never inferred live data."""
+    from catalog.models import PricingPlan,OfferingGroup,Program,Category,Subcategory
+    return {
+        'product_types':[(value,str(label)) for value,label in PricingPlan.PRODUCT_CHOICES],
+        'price_kinds':[(value,str(label)) for value,label in PricingPlan.PRICE_KIND_CHOICES],
+        'charge_roles':[(value,str(label)) for value,label in PricingPlan.CHARGE_ROLE_CHOICES],
+        'billing_modes':[(value,str(label)) for value,label in PricingPlan.BILLING_MODE_CHOICES],
+        'billing_intervals':[(value,str(label)) for value,label in PricingPlan.INTERVAL_CHOICES],
+        'lesson_formats':[(value,str(label)) for value,label in OfferingGroup._meta.get_field('lesson_format').choices],
+        'categories':[{'id':row.pk,'label':row.name_i18n()} for row in Category.objects.all()],
+        'subcategories':[{'id':row.pk,'category_id':row.category_id,'label':row.name_i18n()} for row in Subcategory.objects.select_related('category').all()],
+        'place_taxonomy':{'category_id':getattr(place,'category_id',None),'subcategory_id':getattr(place,'subcategory_id',None)},
+        'programs':list(Program.objects.filter(organization_id=place.organization_id,status='published',
+            approved_at__isnull=False,archived_at__isnull=True).order_by('pk').values('id','name_az','name_ru','name_en',
+                'description_az','description_ru','description_en','category_id','subcategory_id')) if getattr(place,'organization_id',None) else [],
+    }
 GROUP_EDITOR_FIELDS = ('name_az', 'name_ru', 'name_en', 'age_from', 'age_to', 'lesson_format', 'language', 'schedule_text', 'teachers_text', 'conditions_az', 'conditions_ru', 'conditions_en')
 
 
 def serialize_nested_pricing(place):
     """Versioned local offer tree; direct Place tariffs remain separate."""
     from catalog.models import Activity
+    from catalog.services.catalog_structure import activity_taxonomy_ids
     activities = []
     for activity in Activity.objects.filter(place=place, archived_at__isnull=True).prefetch_related('offering_groups__pricing_plan_records').order_by('pk'):
         groups = []
@@ -376,7 +396,10 @@ def serialize_nested_pricing(place):
             groups.append({'id': group.pk, **values, 'pricing_plans': [
                 {k: v for k, v in plan.items() if k != 'offering_group_id'}
                 for plan in serialize_pricing_plans(group.pricing_plan_records.all())]})
-        activities.append({'id': activity.pk, 'program_id': activity.program_id, **{name: getattr(activity, name) for name in ACTIVITY_EDITOR_FIELDS}, 'groups': groups})
+        category_id, subcategory_id = activity_taxonomy_ids(activity)
+        activities.append({'id': activity.pk, 'program_id': activity.program_id,
+            'category_id': category_id, 'subcategory_id': subcategory_id,
+            **{name: getattr(activity, name) for name in ACTIVITY_EDITOR_FIELDS}, 'groups': groups})
     return {'pricing_schema_version': 2, 'activities': activities}
 
 
@@ -430,7 +453,7 @@ def validate_nested_pricing(place, payload, *, allow_verified=False):
     normalized = []
     seen_activities, seen_groups = set(), set()
     for activity_data in payload['activities']:
-        if (not isinstance(activity_data, dict) or not set(activity_data) <= {'id', 'program_id', 'groups', *ACTIVITY_EDITOR_FIELDS}
+        if (not isinstance(activity_data, dict) or not set(activity_data) <= {'id', 'program_id', 'category_id', 'subcategory_id', 'groups', *ACTIVITY_EDITOR_FIELDS}
                 or not isinstance(activity_data.get('groups'), list) or len(activity_data['groups']) > 12):
             raise ValidationError(_('Неверная структура занятия.'))
         activity_id = activity_data.get('id')
@@ -449,6 +472,24 @@ def validate_nested_pricing(place, payload, *, allow_verified=False):
                 approved_at__isnull=False, archived_at__isnull=True).exists():
                 raise ValidationError(_('Общая программа недоступна этому филиалу.'))
         values = _editor_values(Activity, activity_data, ACTIVITY_EDITOR_FIELDS, existing=activity)
+        from catalog.services.catalog_structure import validate_taxonomy
+        category_id = activity_data.get('category_id', activity.category_id if activity else None)
+        subcategory_id = activity_data.get('subcategory_id', activity.subcategory_id if activity else None)
+        validate_taxonomy(category_id,subcategory_id)
+        if program_id:
+            program = Program.objects.get(pk=program_id)
+            category_id,subcategory_id=program.category_id,program.subcategory_id
+        elif activity and activity.program_id:
+            # Unlinking materializes approved common data, never a pending Program.
+            common=activity.program_snapshot
+            if not common:
+                raise ValidationError(_('Одобренная программа недоступна. Обновите страницу.'))
+            if 'category_id' not in activity_data:category_id=common.get('category_id')
+            if 'subcategory_id' not in activity_data:subcategory_id=common.get('subcategory_id')
+            for name in ACTIVITY_EDITOR_FIELDS:
+                if name.startswith(('name_','description_')) and not values.get(name):
+                    values[name]=common.get(name,'')
+        values.update(category_id=category_id,subcategory_id=subcategory_id)
         if not program_id and not (values.get('name_az') or (activity.name_az if activity else '')):
             raise ValidationError(_('Укажите название занятия на AZ.'))
         groups = []
@@ -495,12 +536,17 @@ def replace_nested_pricing(place, payload, *, allow_verified=False):
         activity = Activity.objects.get(pk=activity_data['id'], place=place) if activity_data['id'] else Activity(place=place, status='published')
         if activity.program_id != activity_data['program_id']:
             activity.program_id = activity_data['program_id']
-            activity.program_snapshot = {}
-            activity.source_program_id = None
-            activity.source_program_version = None
+            # Unlinking retains the last approved snapshot and its provenance.
+            # A different linked program must establish a new approved snapshot.
+            if activity.program_id is not None:
+                activity.program_snapshot = {}
+                activity.source_program_id = None
+                activity.source_program_version = None
         for name in ACTIVITY_EDITOR_FIELDS:
             if name in activity_data:
                 setattr(activity, name, activity_data[name])
+        activity.category_id=activity_data['category_id']
+        activity.subcategory_id=activity_data['subcategory_id']
         activity.save()
         for group_data in activity_data['groups']:
             group = OfferingGroup.objects.get(pk=group_data['id'], activity=activity) if group_data['id'] else OfferingGroup(activity=activity)

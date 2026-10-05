@@ -110,6 +110,7 @@ class Program(TranslatedContent):
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, related_name='programs')
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='created_programs')
     category = models.ForeignKey('catalog.Category', null=True, blank=True, on_delete=models.PROTECT, related_name='programs')
+    subcategory = models.ForeignKey('catalog.Subcategory', null=True, blank=True, on_delete=models.PROTECT, related_name='programs')
 
     class Meta(TranslatedContent.Meta):
         abstract = False
@@ -118,10 +119,17 @@ class Program(TranslatedContent):
         from catalog.services.catalog_structure import save_program
         return save_program(self, *args, **kwargs)
 
+    def clean(self):
+        super().clean()
+        from catalog.services.catalog_structure import validate_taxonomy
+        validate_taxonomy(self.category_id,self.subcategory_id,using=self._state.db or 'default')
+
 
 class Activity(ArchivedEntity):
     place = models.ForeignKey('catalog.Place', on_delete=models.PROTECT, related_name='activities')
     program = models.ForeignKey(Program, null=True, blank=True, on_delete=models.PROTECT, related_name='activities')
+    category = models.ForeignKey('catalog.Category', null=True, blank=True, on_delete=models.PROTECT, related_name='activities')
+    subcategory = models.ForeignKey('catalog.Subcategory', null=True, blank=True, on_delete=models.PROTECT, related_name='activities')
     name_az = models.CharField(max_length=255, blank=True, default='')
     name_ru = models.CharField(max_length=255, blank=True, default='')
     name_en = models.CharField(max_length=255, blank=True, default='')
@@ -146,6 +154,11 @@ class Activity(ArchivedEntity):
     def save(self, *args, **kwargs):
         from catalog.services.catalog_structure import save_activity
         return save_activity(self, *args, **kwargs)
+
+    def clean(self):
+        super().clean()
+        from catalog.services.catalog_structure import validate_taxonomy
+        validate_taxonomy(self.category_id,self.subcategory_id,using=self._state.db or 'default')
 
 
 class OfferingGroup(ArchivedEntity):

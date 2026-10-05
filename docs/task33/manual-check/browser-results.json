@@ -1,0 +1,901 @@
+{
+    "checks":  [
+                   {
+                       "role":  "guest",
+                       "key":  "home",
+                       "lang":  "az",
+                       "url":  "/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "catalog",
+                       "lang":  "az",
+                       "url":  "/catalog/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "place",
+                       "lang":  "az",
+                       "url":  "/place/4-kesf-yasamal/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "place2",
+                       "lang":  "az",
+                       "url":  "/place/5-kesf-nerimanov/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "organization",
+                       "lang":  "az",
+                       "url":  "/organizations/3fc9e927-dbb3-4941-97a2-6e189ae70cca/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "activity",
+                       "lang":  "az",
+                       "url":  "/activities/5/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "art",
+                       "lang":  "az",
+                       "url":  "/activities/7/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "unclassified",
+                       "lang":  "az",
+                       "url":  "/activities/8/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "specialists",
+                       "lang":  "az",
+                       "url":  "/specialists/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "specialist",
+                       "lang":  "az",
+                       "url":  "/specialists/leyla-demo/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "zero",
+                       "lang":  "az",
+                       "url":  "/specialists/zero-experience-demo/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "events",
+                       "lang":  "az",
+                       "url":  "/events/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "event_physical",
+                       "lang":  "az",
+                       "url":  "/event/1-semeinaya-robototehnika-az/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "event_online",
+                       "lang":  "az",
+                       "url":  "/event/2-onlain-vstrecha-s-pedagogom-az/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "event_cancelled",
+                       "lang":  "az",
+                       "url":  "/event/3-otmenennyi-master-klass-az/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "event_moved",
+                       "lang":  "az",
+                       "url":  "/event/4-perenesennyi-master-klass-az/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "about",
+                       "lang":  "az",
+                       "url":  "/about/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "faq",
+                       "lang":  "az",
+                       "url":  "/faq/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "contacts",
+                       "lang":  "az",
+                       "url":  "/contacts/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "home",
+                       "lang":  "ru",
+                       "url":  "/ru/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "catalog",
+                       "lang":  "ru",
+                       "url":  "/ru/catalog/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "place",
+                       "lang":  "ru",
+                       "url":  "/ru/place/4-otkrytie-yasamal/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "place2",
+                       "lang":  "ru",
+                       "url":  "/ru/place/5-otkrytie-narimanov/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "organization",
+                       "lang":  "ru",
+                       "url":  "/ru/organizations/3fc9e927-dbb3-4941-97a2-6e189ae70cca/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "activity",
+                       "lang":  "ru",
+                       "url":  "/ru/activities/5/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "art",
+                       "lang":  "ru",
+                       "url":  "/ru/activities/7/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "unclassified",
+                       "lang":  "ru",
+                       "url":  "/ru/activities/8/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "specialists",
+                       "lang":  "ru",
+                       "url":  "/ru/specialists/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "specialist",
+                       "lang":  "ru",
+                       "url":  "/ru/specialists/leyla-demo/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "zero",
+                       "lang":  "ru",
+                       "url":  "/ru/specialists/zero-experience-demo/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "events",
+                       "lang":  "ru",
+                       "url":  "/ru/events/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "event_physical",
+                       "lang":  "ru",
+                       "url":  "/ru/event/1-semeinaya-robototehnika-az/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "event_online",
+                       "lang":  "ru",
+                       "url":  "/ru/event/2-onlain-vstrecha-s-pedagogom-az/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "event_cancelled",
+                       "lang":  "ru",
+                       "url":  "/ru/event/3-otmenennyi-master-klass-az/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "event_moved",
+                       "lang":  "ru",
+                       "url":  "/ru/event/4-perenesennyi-master-klass-az/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "about",
+                       "lang":  "ru",
+                       "url":  "/ru/about/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "faq",
+                       "lang":  "ru",
+                       "url":  "/ru/faq/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "contacts",
+                       "lang":  "ru",
+                       "url":  "/ru/contacts/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "home",
+                       "lang":  "en",
+                       "url":  "/en/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "catalog",
+                       "lang":  "en",
+                       "url":  "/en/catalog/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "place",
+                       "lang":  "en",
+                       "url":  "/en/place/4-discovery-yasamal/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "place2",
+                       "lang":  "en",
+                       "url":  "/en/place/5-discovery-narimanov/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "organization",
+                       "lang":  "en",
+                       "url":  "/en/organizations/3fc9e927-dbb3-4941-97a2-6e189ae70cca/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "activity",
+                       "lang":  "en",
+                       "url":  "/en/activities/5/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "art",
+                       "lang":  "en",
+                       "url":  "/en/activities/7/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "unclassified",
+                       "lang":  "en",
+                       "url":  "/en/activities/8/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "specialists",
+                       "lang":  "en",
+                       "url":  "/en/specialists/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "specialist",
+                       "lang":  "en",
+                       "url":  "/en/specialists/leyla-demo/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "zero",
+                       "lang":  "en",
+                       "url":  "/en/specialists/zero-experience-demo/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "events",
+                       "lang":  "en",
+                       "url":  "/en/events/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "event_physical",
+                       "lang":  "en",
+                       "url":  "/en/event/1-semeinaya-robototehnika-az/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "event_online",
+                       "lang":  "en",
+                       "url":  "/en/event/2-onlain-vstrecha-s-pedagogom-az/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "event_cancelled",
+                       "lang":  "en",
+                       "url":  "/en/event/3-otmenennyi-master-klass-az/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "event_moved",
+                       "lang":  "en",
+                       "url":  "/en/event/4-perenesennyi-master-klass-az/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "about",
+                       "lang":  "en",
+                       "url":  "/en/about/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "faq",
+                       "lang":  "en",
+                       "url":  "/en/faq/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "contacts",
+                       "lang":  "en",
+                       "url":  "/en/contacts/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "guest",
+                       "key":  "event_draft",
+                       "lang":  "ru",
+                       "url":  "/ru/event/5-chernovik-novogo-sobytiya-az/",
+                       "status":  404,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "owner",
+                       "key":  "account",
+                       "lang":  "ru",
+                       "url":  "/ru/account/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "owner",
+                       "key":  "places",
+                       "lang":  "ru",
+                       "url":  "/ru/account/places/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "owner",
+                       "key":  "organizations",
+                       "lang":  "ru",
+                       "url":  "/ru/account/organizations/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "owner",
+                       "key":  "org_edit",
+                       "lang":  "ru",
+                       "url":  "/ru/account/organizations/2/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "owner",
+                       "key":  "place_edit",
+                       "lang":  "ru",
+                       "url":  "/ru/account/places/4/edit/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "owner",
+                       "key":  "place2_edit",
+                       "lang":  "ru",
+                       "url":  "/ru/account/places/5/edit/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "owner",
+                       "key":  "program",
+                       "lang":  "ru",
+                       "url":  "/ru/account/organizations/2/programs/2/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "owner",
+                       "key":  "event_edit",
+                       "lang":  "ru",
+                       "url":  "/ru/account/places/events/5/edit/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "owner",
+                       "key":  "new_event",
+                       "lang":  "ru",
+                       "url":  "/ru/account/places/events/create/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "owner",
+                       "key":  "inbox",
+                       "lang":  "ru",
+                       "url":  "/ru/account/notifications/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "owner",
+                       "key":  "team",
+                       "lang":  "ru",
+                       "url":  "/ru/account/places/team/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "owner",
+                       "key":  "org_specialists",
+                       "lang":  "ru",
+                       "url":  "/ru/account/organizations/2/specialists/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "owner",
+                       "key":  "foreign_edit",
+                       "lang":  "ru",
+                       "url":  "/ru/account/places/6/edit/",
+                       "status":  302,
+                       "location":  "/ru/account/places/",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "manager",
+                       "key":  "place_edit",
+                       "lang":  "ru",
+                       "url":  "/ru/account/places/4/edit/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "manager",
+                       "key":  "place2_edit",
+                       "lang":  "ru",
+                       "url":  "/ru/account/places/5/edit/",
+                       "status":  302,
+                       "location":  "/ru/account/places/",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "manager",
+                       "key":  "foreign_edit",
+                       "lang":  "ru",
+                       "url":  "/ru/account/places/6/edit/",
+                       "status":  302,
+                       "location":  "/ru/account/places/",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "person",
+                       "key":  "person_edit",
+                       "lang":  "ru",
+                       "url":  "/ru/account/specialists/1/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "person",
+                       "key":  "person_certificates",
+                       "lang":  "ru",
+                       "url":  "/ru/account/specialists/1/certificates/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "person",
+                       "key":  "person_invitations",
+                       "lang":  "ru",
+                       "url":  "/ru/account/specialists/1/invitations/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "person",
+                       "key":  "inbox",
+                       "lang":  "ru",
+                       "url":  "/ru/account/notifications/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "moderator",
+                       "key":  "moderation",
+                       "lang":  "ru",
+                       "url":  "/admin/volunteer/review/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "moderator",
+                       "key":  "review_index",
+                       "lang":  "ru",
+                       "url":  "/admin/volunteer/review/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "moderator",
+                       "key":  "admin",
+                       "status":  200,
+                       "pass":  true
+                   },
+                   {
+                       "role":  "parent",
+                       "key":  "favorites",
+                       "lang":  "ru",
+                       "url":  "/ru/account/favorites/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "parent",
+                       "key":  "review",
+                       "lang":  "ru",
+                       "url":  "/ru/reviews/place/target/4/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "parent",
+                       "key":  "profile",
+                       "lang":  "ru",
+                       "url":  "/ru/account/profile/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "parent",
+                       "key":  "inbox",
+                       "lang":  "ru",
+                       "url":  "/ru/account/notifications/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "outsider",
+                       "key":  "foreign_edit",
+                       "lang":  "ru",
+                       "url":  "/ru/account/places/6/edit/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "outsider",
+                       "key":  "claim",
+                       "lang":  "ru",
+                       "url":  "/ru/account/specialists/3/claims/",
+                       "status":  200,
+                       "location":  "",
+                       "pass":  true
+                   },
+                   {
+                       "role":  "volunteer",
+                       "key":  "volunteer",
+                       "status":  200,
+                       "pass":  true
+                   }
+               ],
+    "screens":  [
+                    {
+                        "key":  "catalog",
+                        "file":  "catalog-desktop",
+                        "width":  1440,
+                        "status":  200,
+                        "facts":  {
+                                      "width":  1440,
+                                      "scrollWidth":  1440,
+                                      "h1":  "Каталог кружков и секций для детей в Азербайджане",
+                                      "mains":  1
+                                  }
+                    },
+                    {
+                        "key":  "catalog",
+                        "file":  "catalog-mobile",
+                        "width":  390,
+                        "status":  200,
+                        "facts":  {
+                                      "width":  390,
+                                      "scrollWidth":  390,
+                                      "h1":  "Каталог кружков и секций для детей в Азербайджане",
+                                      "mains":  1
+                                  }
+                    },
+                    {
+                        "key":  "organization",
+                        "file":  "organization",
+                        "width":  1440,
+                        "status":  200,
+                        "facts":  {
+                                      "width":  1440,
+                                      "scrollWidth":  1440,
+                                      "h1":  "Открытие — тестовая сеть",
+                                      "mains":  1
+                                  }
+                    },
+                    {
+                        "key":  "art",
+                        "file":  "activity",
+                        "width":  1440,
+                        "status":  200,
+                        "facts":  {
+                                      "width":  1440,
+                                      "scrollWidth":  1440,
+                                      "h1":  "Рисование 4–6",
+                                      "mains":  1
+                                  }
+                    },
+                    {
+                        "key":  "specialist",
+                        "file":  "specialist",
+                        "width":  1440,
+                        "status":  200,
+                        "facts":  {
+                                      "width":  1440,
+                                      "scrollWidth":  1440,
+                                      "h1":  "Лейла — тестовый специалист",
+                                      "mains":  2
+                                  }
+                    },
+                    {
+                        "key":  "events",
+                        "file":  "events",
+                        "width":  1440,
+                        "status":  200,
+                        "facts":  {
+                                      "width":  1440,
+                                      "scrollWidth":  1440,
+                                      "h1":  "Афиша мероприятий",
+                                      "mains":  1
+                                  }
+                    },
+                    {
+                        "key":  "program",
+                        "file":  "program-editor",
+                        "width":  1440,
+                        "status":  200,
+                        "facts":  {
+                                      "width":  1440,
+                                      "scrollWidth":  1440,
+                                      "h1":  "Robototexnika 7–10",
+                                      "mains":  1
+                                  }
+                    },
+                    {
+                        "key":  "event_edit",
+                        "file":  "event-editor",
+                        "width":  1440,
+                        "status":  200,
+                        "facts":  {
+                                      "width":  1440,
+                                      "scrollWidth":  1440,
+                                      "h1":  "Временное мероприятие",
+                                      "mains":  1
+                                  }
+                    }
+                ],
+    "guide":  {
+                  "steps":  26,
+                  "links":  45,
+                  "width":  390,
+                  "scrollWidth":  390
+              },
+    "errors":  [
+
+               ],
+    "failed":  [
+
+               ],
+    "status":  "PASS"
+}

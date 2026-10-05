@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
 {% load i18n static %}
 
 {% block title %}{{ seo_title }}{% endblock %}
@@ -6,6 +7,7 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}" />
+<link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}" />
 {% endblock %}
 
 {% block content %}
@@ -55,6 +57,7 @@
       {% if specialist.name_alt %}
         <p class="km-detail-name-alt">{{ specialist.name_alt }}</p>
       {% endif %}
+      {% if can_manage_specialist %}<p><a href="{% url 'specialist_workspace_profile' specialist.pk %}">{% trans 'Управлять своим профилем' %}</a></p>{% elif claim_workspace_url %}<p><a href="{{ claim_workspace_url }}">{% trans 'Это мой профиль' %}</a></p>{% endif %}
 
       <!-- Statistics bar -->
       <div class="km-detail-stats-row">
@@ -71,10 +74,12 @@
           </div>
         {% endif %}
 
+        {% if specialist.experience_years != None %}
         <div class="km-detail-stat-item">
           <b>{% if language == "az" %}Təcrübə{% elif language == "en" %}Experience{% else %}Стаж работы{% endif %}:</b>
           {{ specialist.experience_years }} {% if language == "az" %}il{% elif language == "en" %}years{% else %}лет{% endif %}
         </div>
+        {% endif %}
 
         <div class="km-detail-stat-item">
           <b>{% if language == "az" %}Uşaq yaşı{% elif language == "en" %}Child age{% else %}Возраст детей{% endif %}:</b>
@@ -113,6 +118,18 @@
         </section>
       {% endif %}
 
+      {% if specialist_current_employment %}
+      <section class="km-detail-section sw-public-employment" id="specialist-current-employment">
+        <h2>{% trans 'Текущее сотрудничество' %}</h2><ul>{% for employment in specialist_current_employment %}<li><h3>{% if language == 'ru' %}{{ employment.organization.name_ru|default:employment.organization.name_az }}{% elif language == 'en' %}{{ employment.organization.name_en|default:employment.organization.name_az }}{% else %}{{ employment.organization.name_az }}{% endif %}</h3><p>{{ employment.role }} · {{ employment.start_date|date:'d.m.Y' }} — {% if employment.end_date %}{{ employment.end_date|date:'d.m.Y' }}{% else %}{% trans 'без даты окончания' %}{% endif %}</p></li>{% endfor %}</ul>
+      </section>
+      {% endif %}
+      {% if specialist_future_employment %}
+      <section class="km-detail-section sw-public-employment" id="specialist-future-employment"><h2>{% trans 'Предстоящее сотрудничество' %}</h2><ul>{% for employment in specialist_future_employment %}<li><h3>{% if language == 'ru' %}{{ employment.organization.name_ru|default:employment.organization.name_az }}{% elif language == 'en' %}{{ employment.organization.name_en|default:employment.organization.name_az }}{% else %}{{ employment.organization.name_az }}{% endif %}</h3><p>{{ employment.role }} · {{ employment.start_date|date:'d.m.Y' }}{% if employment.end_date %} — {{ employment.end_date|date:'d.m.Y' }}{% endif %}</p></li>{% endfor %}</ul></section>
+      {% endif %}
+      {% if specialist_past_employment %}
+      <section class="km-detail-section sw-public-employment" id="specialist-past-employment"><h2>{% trans 'История сотрудничества' %}</h2><p class="sw-help">{% trans 'Эти периоды не являются текущей работой.' %}</p><ul>{% for employment in specialist_past_employment %}<li><h3>{% if language == 'ru' %}{{ employment.organization.name_ru|default:employment.organization.name_az }}{% elif language == 'en' %}{{ employment.organization.name_en|default:employment.organization.name_az }}{% else %}{{ employment.organization.name_az }}{% endif %}</h3><p>{{ employment.role }} · {{ employment.start_date|date:'d.m.Y' }} — {% if employment.end_date %}{{ employment.end_date|date:'d.m.Y' }}{% else %}{% trans 'без даты окончания' %}{% endif %}{% if employment.cancelled_at %} · {% trans 'Участие отменено' %} {{ employment.cancelled_at|date:'d.m.Y' }}{% endif %}</p></li>{% endfor %}</ul></section>
+      {% endif %}
+
       <!-- Education and experience -->
       {% if specialist.education_ru or specialist.education_az or specialist.education_en or specialist.experience_info_ru or specialist.experience_info_az or specialist.experience_info_en %}
         <section class="km-detail-section">
@@ -146,7 +163,7 @@
           </h2>
           <div class="km-documents-grid">
             {% for doc in visible_documents %}
-              <a href="{% url 'serve_specialist_document' doc.id %}" target="_blank" class="km-document-card">
+              <a href="{% url 'serve_specialist_document' doc.id %}" target="_blank" rel="noopener" class="km-document-card">
                 <div class="km-doc-icon">
                   <i class="fas fa-file-alt" aria-hidden="true"></i>
                 </div>
@@ -168,6 +185,7 @@
 
       <!-- Reviews Section -->
       <section class="km-detail-section" id="reviews">
+        {% include 'catalog/includes/typed_review_link.html' with review_kind='specialist' review_target=specialist %}
             {% include "catalog/includes/review_submission_notice.html" %}
         <h2>
           <i class="far fa-comments" aria-hidden="true"></i>
@@ -310,7 +328,7 @@
           </h3>
 
           <div class="km-detail-locations-list">
-            {% for loc in specialist.practice_locations.all %}
+            {% for loc in specialist_active_practice_locations %}
               <div class="km-detail-location-item">
                 <p class="km-detail-location-title">
                   {% if loc.place %}
@@ -472,7 +490,7 @@
     const mapElement = document.getElementById("specialist-map");
     if (mapElement && mapElement.dataset.mapInitialized !== '1') {
       const locations = [
-        {% for loc in specialist.practice_locations.all %}
+        {% for loc in specialist_active_practice_locations %}
           {% if loc.lat and loc.lng %}
             {
               lat: {{ loc.lat }},

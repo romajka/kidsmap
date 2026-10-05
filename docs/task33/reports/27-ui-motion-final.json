@@ -1,0 +1,60 @@
+{
+  "stage": 27,
+  "scope": "targeted-UI-after-template-motion-delta",
+  "evidence": "/root/task33-evidence/stage27-ui-motion-final-20261003",
+  "suite-results.json": {
+    "tests_run": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.632,
+    "status": "PASS",
+    "executed_ids": [
+      "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_az_only_event_title_marks_actual_fallback_in_list_and_calendar",
+      "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_mode_chips_and_filter_form_retain_search_and_period_state",
+      "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_month_renders_every_real_event_beyond_list_page",
+      "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_selected_day_list_contains_only_overlapping_real_ids",
+      "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_unknown_price_is_not_claimed_free_and_reviews_link_same_target"
+    ],
+    "problems": []
+  },
+  "migrations.json": {
+    "applied_count": 167,
+    "unapplied_count": 0
+  },
+  "discovery.json": {
+    "explicit_count": 1812,
+    "explicit_unique_count": 1812,
+    "duplicate_explicit_ids": 0
+  },
+  "isolation.json": {
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10",
+    "network_guard": true,
+    "libpq_guard": true,
+    "external_credentials_present": false
+  },
+  "run.json": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "checks.json": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.094
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.197
+    }
+  ]
+}

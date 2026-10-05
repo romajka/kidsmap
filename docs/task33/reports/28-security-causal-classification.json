@@ -1,0 +1,54 @@
+{
+  "status": "CAUSALLY_EXPLAINED_TEST_EXPECTATION_FAILURE",
+  "current_full_selected_suite": {
+    "tests": 260,
+    "passes": 259,
+    "failures": 1,
+    "failed_id": "catalog.testcases.test_task33_ownership.OwnershipConcurrencyTests.test_transfer_racing_confirmation_never_grants_stale_network_right",
+    "exit": 1
+  },
+  "cause": "Pre-lock organization anchor can change after confirmation commits; _parents intentionally rejects transfer with Structure changed; reload.",
+  "test_boundary": "Race helper catches ValidationError as False; test ignores operation outcomes then demands transfer completion before testing revoked ACL.",
+  "fresh_original_plus_probe_current": "PASS",
+  "fresh_original_plus_probe_v2": "PASS",
+  "forced_ordering_probe_current_and_v2": "PASS",
+  "confirmed_acl": "Current affiliation remains valid when transfer rolls back; successful explicit retry transfers/version2 and revokes network place.edit.",
+  "unchanged_v2_v3_source_files": [
+    {
+      "path": "src/catalog/services/organization_ownership.py",
+      "sha256": "72e73172aa3495afe0a8514d3f99d70a54a03475663305a0f0292dee6068d295"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_ownership.py",
+      "sha256": "016da8de36901938a388f8f65d9c64f0929f70dd50f76ff563db824781fce258"
+    },
+    {
+      "path": "src/catalog/services/place_access.py",
+      "sha256": "4d8bf8a730ca1539a108de2ce259978d7271843639eb65ff6d28a8eb0c9a7c04"
+    },
+    {
+      "path": "src/catalog/services/business_team.py",
+      "sha256": "b5518f79e8c74d8611f915fdc441df97a1fc01e3b7a31221790fb2d595c4ad99"
+    },
+    {
+      "path": "src/catalog/services/workflow_notifications.py",
+      "sha256": "f07bf6cbd3cddd453af28bd0ad381637d328b735fa11036c0fd497a3e818e616"
+    },
+    {
+      "path": "src/catalog/models/place.py",
+      "sha256": "92581a2166ddfc236347c2ae35355fc03989032a67b88dcc8917161d5467a9a3"
+    },
+    {
+      "path": "src/catalog/services/catalog_structure.py",
+      "sha256": "e8d6a06251265d63ed6d827914985c8356522220fae4e32ba22a11bee76a4402"
+    },
+    {
+      "path": "src/config/settings.py",
+      "sha256": "d2203a0e6676a65582c1168c9a50c3b6acb4704ea3838caa9a686bd986c1714b"
+    }
+  ],
+  "security_scope_conclusion": "No demonstrated stale-ACL bypass; original schedule-sensitive transfer-completion expectation remains unmodified and observed failure retained.",
+  "application_changes": false,
+  "assertion_changes": false,
+  "production": "NOT_CONTACTED"
+}

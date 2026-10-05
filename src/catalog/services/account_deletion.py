@@ -591,37 +591,24 @@ def _finalize_locked(deletion: AccountDeletionRequest, *, now) -> FinalizationRe
         counters["profiles_deleted"] = _delete_count(UserProfile.objects.filter(user_id=user_id))
         counters["verification_records_deleted"] = _delete_count(UserEmailVerification.objects.filter(user_id=user_id))
         counters["favorites_deleted"] = _delete_count(PlaceLike.objects.filter(user_id=user_id))
+        place_voted_head_ids = set(PlaceReviewReaction.objects.filter(user_id=user_id).values_list('review_id', flat=True))
         counters["place_reactions_deleted"] = _delete_count(PlaceReviewReaction.objects.filter(user_id=user_id))
         counters["site_reactions_deleted"] = _delete_count(SiteReviewReaction.objects.filter(user_id=user_id))
         counters["cooldowns_deleted"] = _delete_count(PlaceReviewCooldown.objects.filter(user_id=user_id))
         counters["analytics_events_deleted"] = _delete_count(FunnelEvent.objects.filter(user_id=user_id))
 
         policy = policy_from_request(deletion)
-        place_ids = set(PlaceReview.objects.filter(user_id=user_id).values_list("place_id", flat=True))
-        specialist_ids = set(SpecialistReview.objects.filter(user_id=user_id).values_list("specialist_id", flat=True))
-        if policy.review_disposition == "delete_all":
-            counters["reviews_deleted"] = (
-                _delete_count(PlaceReview.objects.filter(user_id=user_id))
-                + _delete_count(SiteReview.objects.filter(user_id=user_id))
-                + _delete_count(SpecialistReview.objects.filter(user_id=user_id))
-            )
-            counters["public_reviews_anonymized"] = 0
-        else:
-            place_public = PlaceReview.objects.filter(user_id=user_id, status=PlaceReview.STATUS_APPROVED)
-            site_public = SiteReview.objects.filter(user_id=user_id, status=SiteReview.STATUS_APPROVED)
-            specialist_public = SpecialistReview.objects.filter(user_id=user_id, status=SpecialistReview.STATUS_APPROVED)
-            counters["public_reviews_anonymized"] = (
-                place_public.update(user=None, author_name="", is_anonymous=True, session_key="")
-                + site_public.update(user=None, author_name="", is_anonymous=True, session_key="")
-                + specialist_public.update(user=None, author_name="")
-            )
-            counters["reviews_deleted"] = (
-                _delete_count(PlaceReview.objects.filter(user_id=user_id))
-                + _delete_count(SiteReview.objects.filter(user_id=user_id))
-                + _delete_count(SpecialistReview.objects.filter(user_id=user_id))
-            )
-        sync_place_rating_stats(place_ids)
-        sync_specialist_rating_stats(specialist_ids)
+        from catalog.services.review_retention import dispose_typed_reviews
+        typed_deleted, typed_anonymized = dispose_typed_reviews(user_id=user_id, disposition=policy.review_disposition)
+        site = SiteReview.objects.filter(user_id=user_id)
+        site_anonymized = 0
+        if policy.review_disposition != "delete_all":
+            site_anonymized = site.filter(status=SiteReview.STATUS_APPROVED).update(user=None, author_name="", is_anonymous=True, session_key="")
+        counters["reviews_deleted"] = typed_deleted + _delete_count(site)
+        counters["public_reviews_anonymized"] = typed_anonymized + site_anonymized
+        from catalog.services.review_versions import refresh_reactions
+        for voted_head in PlaceReview.objects.filter(pk__in=place_voted_head_ids):
+            refresh_reactions(voted_head)
 
         ownership_ids = list(PlaceOwnershipRequest.objects.filter(applicant_id=user_id).values_list("id", flat=True))
         if ownership_ids:
@@ -646,6 +633,8 @@ def _finalize_locked(deletion: AccountDeletionRequest, *, now) -> FinalizationRe
         counters["team_invitations_deleted"] = _delete_count(OwnerTeamInvitation.objects.filter(invitation_filter))
         counters["places_unlinked"] = Place.objects.filter(owner_id=user_id).update(owner=None)
         counters["events_unlinked"] = Event.objects.filter(owner_id=user_id).update(owner=None)
+        from catalog.services.specialist_retention import unlink_specialist_identity
+        counters.update(unlink_specialist_identity(user_id=user_id, now=now))
         counters["specialists_unlinked"] = Specialist.objects.filter(owner_id=user_id).update(owner=None)
         counters["sessions_deleted"] = _delete_user_sessions(user_id)
 

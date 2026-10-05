@@ -1,0 +1,1313 @@
+{
+  "acceptance": "DONE / LOCAL_ACCEPTED; stage24 NOT_STARTED",
+  "environment": "LOCAL WSL isolated QA04; production not contacted",
+  "branch": "task33-progress",
+  "local_head": "015d031d8eb17114bd860159dde805b38df3c13c",
+  "artifact": {
+    "identity": "r1-local-sha256-df5c662e67f05511b710eae38cd678e170dfa514f483852f15ccf101c5369af3",
+    "archive": "/root/task33-artifacts/r1-local-sha256-df5c662e67f05511b710eae38cd678e170dfa514f483852f15ccf101c5369af3/runtime.tar.gz",
+    "archive_sha256": "6f5a10004d38403515fa0ad9a7fa5e3b03fc58dff15e206e7c0330b839118682",
+    "manifest_sha256": "2382a223b09b791367695699ad6d88f2a98e5bd5a1d953b7cb1d17bba2b92533",
+    "standby": "/root/km23-standby-final5-20261003",
+    "file_count": 2703,
+    "python": "3.12.3",
+    "standby_verified": true
+  },
+  "targeted": {
+    "evidence": "/root/task33-evidence/stage23-targeted-final-20261003",
+    "tests_run": 382,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "status": "PASS",
+    "cleanup": "PASS",
+    "child_exit": 0,
+    "selected_labels": [
+      "catalog.testcases.test_task33_admin_editors",
+      "catalog.testcases.test_task33_catalog_schema",
+      "catalog.testcases.test_task33_conversion",
+      "catalog.testcases.test_task33_drafts",
+      "catalog.testcases.test_task33_home_map",
+      "catalog.testcases.test_task33_localization",
+      "catalog.testcases.test_task33_map",
+      "catalog.testcases.test_task33_notifications",
+      "catalog.testcases.test_task33_organization_workspace",
+      "catalog.testcases.test_task33_ownership",
+      "catalog.testcases.test_task33_permissions",
+      "catalog.testcases.test_task33_place_continuous",
+      "catalog.testcases.test_task33_pricing",
+      "catalog.testcases.test_task33_program_workspace",
+      "catalog.testcases.test_task33_public_details",
+      "catalog.testcases.test_task33_publication",
+      "catalog.testcases.test_task33_r1_acceptance",
+      "catalog.testcases.test_task33_r1_cohort",
+      "catalog.testcases.test_task33_r1_owner_safety",
+      "catalog.testcases.test_task33_review_independent",
+      "catalog.testcases.test_task33_review_migration",
+      "catalog.testcases.test_task33_reviews",
+      "catalog.testcases.test_task33_search",
+      "catalog.testcases.test_task33_volunteer_hub"
+    ],
+    "modules": {
+      "test_task33_admin_editors": 16,
+      "test_task33_catalog_schema": 31,
+      "test_task33_conversion": 12,
+      "test_task33_drafts": 17,
+      "test_task33_home_map": 4,
+      "test_task33_localization": 21,
+      "test_task33_map": 14,
+      "test_task33_notifications": 11,
+      "test_task33_organization_workspace": 11,
+      "test_task33_ownership": 39,
+      "test_task33_permissions": 35,
+      "test_task33_place_continuous": 13,
+      "test_task33_pricing": 15,
+      "test_task33_program_workspace": 3,
+      "test_task33_public_details": 15,
+      "test_task33_publication": 37,
+      "test_task33_r1_acceptance": 5,
+      "test_task33_r1_cohort": 7,
+      "test_task33_r1_owner_safety": 4,
+      "test_task33_review_independent": 19,
+      "test_task33_review_migration": 1,
+      "test_task33_reviews": 10,
+      "test_task33_search": 22,
+      "test_task33_volunteer_hub": 20
+    }
+  },
+  "full": {
+    "evidence": "/root/task33-evidence/stage23-full-final-20261003",
+    "tests_run": 1619,
+    "failures": 98,
+    "errors": 8,
+    "skipped": 0,
+    "status": "BASELINE_FAILURE",
+    "cleanup": "PASS",
+    "child_exit": 106,
+    "selected_labels": [],
+    "modules": {
+      "admin": 167,
+      "adult_classes": 14,
+      "auth_access": 6,
+      "auth_flow": 37,
+      "catalog": 57,
+      "events_feature": 2,
+      "image_uploads": 14,
+      "legacy_migrations": 21,
+      "owner": 92,
+      "permanent_place_wizard": 16,
+      "phone_reveal": 8,
+      "photo_workflow": 9,
+      "place_card_validation": 10,
+      "place_filepond_admin": 2,
+      "place_readiness": 33,
+      "place_taxonomy_admin": 2,
+      "postgresql_cutover": 5,
+      "pricing_plans": 31,
+      "pricing_plans_relational": 16,
+      "public": 177,
+      "specialists": 16,
+      "test_account_deletion": 30,
+      "test_admin_i18n": 8,
+      "test_admin_legacy_price_preservation": 3,
+      "test_ai_referral_tracking": 5,
+      "test_analytics_commands": 3,
+      "test_analytics_contract": 1,
+      "test_analytics_events_v2": 7,
+      "test_analytics_metrics": 5,
+      "test_catalog_expansion_banner": 2,
+      "test_email_verification_consumption": 3,
+      "test_favorite_metrics": 3,
+      "test_google_auth": 27,
+      "test_home_public_metrics": 1,
+      "test_indexnow": 11,
+      "test_json_ld_serialization": 3,
+      "test_json_roundtrip_audit": 22,
+      "test_judo_seo_landing": 3,
+      "test_legacy_pricing_notes": 6,
+      "test_living_map": 2,
+      "test_localized_place_admin": 9,
+      "test_localized_place_backfill": 4,
+      "test_localized_place_seo": 14,
+      "test_localized_place_urls": 13,
+      "test_location_assignment": 20,
+      "test_location_correction": 2,
+      "test_location_resolution": 6,
+      "test_moderation_sla": 16,
+      "test_owner_analytics": 4,
+      "test_password_reset": 9,
+      "test_place_json_and_pricing_modes": 17,
+      "test_place_review_cooldown": 10,
+      "test_place_sorting_and_filtering": 9,
+      "test_pricing_migration_preservation": 5,
+      "test_public_favorite_count": 5,
+      "test_public_filter_consistency": 10,
+      "test_rating_ranking": 12,
+      "test_rating_ranking_audit": 2,
+      "test_rating_ranking_command": 3,
+      "test_rating_ranking_models": 5,
+      "test_region_admin": 10,
+      "test_responsive_images": 14,
+      "test_review_confirmation": 9,
+      "test_search_engine_verification": 3,
+      "test_seo_audit_system": 7,
+      "test_seo_indexability": 8,
+      "test_seo_landing_visibility": 4,
+      "test_site_whatsapp": 1,
+      "test_staff_creation": 5,
+      "test_staff_profile": 9,
+      "test_staff_role_workflow": 15,
+      "test_task33_admin_editors": 16,
+      "test_task33_catalog_schema": 31,
+      "test_task33_conversion": 12,
+      "test_task33_drafts": 17,
+      "test_task33_home_map": 4,
+      "test_task33_localization": 21,
+      "test_task33_map": 14,
+      "test_task33_notifications": 11,
+      "test_task33_organization_workspace": 11,
+      "test_task33_ownership": 39,
+      "test_task33_permissions": 35,
+      "test_task33_place_continuous": 13,
+      "test_task33_pricing": 15,
+      "test_task33_program_workspace": 3,
+      "test_task33_public_details": 15,
+      "test_task33_publication": 37,
+      "test_task33_r1_acceptance": 5,
+      "test_task33_r1_cohort": 7,
+      "test_task33_r1_owner_safety": 4,
+      "test_task33_review_independent": 19,
+      "test_task33_review_migration": 1,
+      "test_task33_reviews": 10,
+      "test_task33_search": 22,
+      "test_task33_volunteer_hub": 20,
+      "test_volunteer_admin": 57,
+      "test_volunteer_dashboard": 14,
+      "test_volunteer_json_prompt": 3,
+      "tracking": 23
+    }
+  },
+  "classification": {
+    "initial_entries": 140,
+    "initial_unique_ids": 129,
+    "final_entries": 106,
+    "final_unique_ids": 95,
+    "resolved_unique_ids": 34,
+    "new_unique_ids": [],
+    "unknown_ids": [],
+    "groups": {
+      "BASELINE_ADMIN_ACTION": 3,
+      "BASELINE_ADMIN_PAGINATION": 1,
+      "BUSINESS_REVIEW_DENIED": 3,
+      "CONTINUOUS_FORM": 6,
+      "CREATE_CAP_REMOVED": 1,
+      "CURRENT_ADMIN_HIERARCHY": 1,
+      "INVALID GEOGRAPHY FIXTURE / OLD QUERY BUDGET": 1,
+      "INVALID_OLD_DESCRIPTION_ASSERTION": 1,
+      "LOCATION_FIXTURE": 4,
+      "OPTIONAL_MEDIA_COORDS_CONTACT": 28,
+      "REVIEW_REVISION_PROTOCOL": 5,
+      "SIGNED_CANDIDATE": 35,
+      "SUPERSEDED CONTRACT OR INVALID FIXTURE": 14,
+      "SUPERSEDED PUBLIC PRESENTATION": 2,
+      "SUPERSEDED QUERY BUDGET": 1
+    },
+    "remaining_problem_entries": [
+      {
+        "id": "catalog.testcases.admin.TestAdminBulkActions.test_place_make_published_action",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminBulkActions.test_review_action_approve_and_reject",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "REVIEW_REVISION_PROTOCOL"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_admin_can_approve_request_with_direct_button_url",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "BASELINE_ADMIN_ACTION"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_admin_index_shows_pending_badge_and_hides_internal_models",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "CURRENT_ADMIN_HIERARCHY"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_failed_publish_keeps_published_card_active_and_shows_all_issues",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "BASELINE_ADMIN_ACTION"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_bulk_action_regeocodes_selected_places",
+        "kind": "error",
+        "exception": "ValidationError",
+        "classification": "LOCATION_FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_can_add_change_and_delete_phone_numbers",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_can_publish_ready_place_from_change_form",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_can_refresh_coordinates_from_address",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_can_save_an_empty_new_place_as_draft",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_can_save_place_as_draft_and_continue_later",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_can_unpublish_place_from_change_form",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "BASELINE_ADMIN_ACTION"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_saves_gallery_photo_with_draft",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_saves_pricing_plans_from_change_form",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_saves_valid_structured_schedule",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_shows_coordinates_and_readiness_statuses",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_review_admin_bulk_hide_and_approve_actions",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "REVIEW_REVISION_PROTOCOL"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_review_admin_moderation_views_update_visibility",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "REVIEW_REVISION_PROTOCOL"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminTemporaryEventInputs.test_place_admin_form_exposes_and_saves_custom_price_badges",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.admin.TestAdminTemporaryEventInputs.test_place_admin_form_supports_open_ended_age",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.admin.TestPlaceRatingsAdmin.test_changelist_pagination_preserves_filters_search_and_sorting",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "BASELINE_ADMIN_PAGINATION"
+      },
+      {
+        "id": "catalog.testcases.admin.TestReviewRatingSyncAndAdminBulkActions.test_place_review_bulk_approve_updates_place_rating_stats",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "REVIEW_REVISION_PROTOCOL"
+      },
+      {
+        "id": "catalog.testcases.admin.TestReviewRatingSyncAndAdminBulkActions.test_specialist_review_bulk_approve_updates_specialist_rating_stats",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "REVIEW_REVISION_PROTOCOL"
+      },
+      {
+        "id": "catalog.testcases.adult_classes.PlaceAdultClassesPublicTests.test_catalog_has_no_adult_filter_and_renders_compact_audience",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SUPERSEDED PUBLIC PRESENTATION"
+      },
+      {
+        "id": "catalog.testcases.adult_classes.PlaceAdultClassesPublicTests.test_place_detail_renders_children_only_and_mixed_audience",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SUPERSEDED PUBLIC PRESENTATION"
+      },
+      {
+        "id": "catalog.testcases.catalog.CatalogMapQueryEfficiencyTests.test_map_serialization_query_count_does_not_grow_with_schedules",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SUPERSEDED QUERY BUDGET"
+      },
+      {
+        "id": "catalog.testcases.catalog.CatalogSubcategoryFilterTests.test_subcategory_combines_with_other_filters",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "INVALID GEOGRAPHY FIXTURE / OLD QUERY BUDGET"
+      },
+      {
+        "id": "catalog.testcases.image_uploads.TestOwnerImagePersistenceFailures.test_card_changes_are_not_saved_when_gallery_storage_fails",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.image_uploads.TestOwnerImagePersistenceFailures.test_gallery_can_be_added_and_owner_can_delete_a_photo",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.image_uploads.TestOwnerImagePersistenceFailures.test_main_photo_can_be_replaced_and_then_removed",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_can_resubmit_published_place_for_moderation",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_can_save_and_exit_create_draft_before_category_is_selected",
+        "kind": "error",
+        "exception": "DoesNotExist",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_cannot_create_more_than_ten_places",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "CREATE_CAP_REMOVED"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_cannot_submit_incomplete_draft_for_moderation",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_create_page_has_review_and_draft_actions",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "CONTINUOUS_FORM"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_create_page_renders_map_picker",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "CONTINUOUS_FORM"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_create_requires_selected_coordinates_before_saving",
+        "kind": "error",
+        "exception": "KeyError",
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_edit_form_can_force_refresh_coordinates",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_edit_keeps_manual_map_coordinates_when_address_changes",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_edit_page_hides_public_link_for_inactive_place",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "CONTINUOUS_FORM"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_edit_page_rehydrates_saved_pricing_plans",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "CONTINUOUS_FORM"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_edit_page_shows_current_photo_preview",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "CONTINUOUS_FORM"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_edit_saves_structured_schedule_and_creates_schedule_audit",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_editor_can_edit_but_cannot_publish",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_editor_can_save_draft_and_exit_to_dashboard",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_editor_can_save_incomplete_edit_as_draft",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_manager_can_create_place_and_send_for_moderation",
+        "kind": "error",
+        "exception": "DoesNotExist",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_manager_can_save_incomplete_place_as_draft",
+        "kind": "error",
+        "exception": "DoesNotExist",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_manager_cannot_submit_a_place_without_coordinates",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_manager_create_place_keeps_manual_map_coordinates",
+        "kind": "error",
+        "exception": "DoesNotExist",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_moderator_cannot_edit_place",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_place_create_requires_main_photo",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_place_create_requires_name_in_azerbaijani",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "INVALID_OLD_DESCRIPTION_ASSERTION"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_place_create_requires_point_when_region_cannot_be_resolved",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_staff_with_change_place_permission_can_publish_after_approval",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerTeamAndReviewModeration.test_owner_edit_creates_place_change_audit",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.owner.TestOwnerTeamAndReviewModeration.test_team_moderator_can_moderate_reviews_but_cannot_edit_content",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "BUSINESS_REVIEW_DENIED"
+      },
+      {
+        "id": "catalog.testcases.owner.TestPlaceScopedAccessIsolation.test_member_cannot_moderate_reviews_of_another_place",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "BUSINESS_REVIEW_DENIED"
+      },
+      {
+        "id": "catalog.testcases.owner.TestPlaceScopedAccessIsolation.test_membership_grants_permissions_only_on_its_own_place",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "BUSINESS_REVIEW_DENIED"
+      },
+      {
+        "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_cannot_set_staff_fields",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_edit_preserves_translations_legacy_and_staff_data",
+        "kind": "error",
+        "exception": "DoesNotExist",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_failed_resubmission_does_not_save_changes_or_delete_photo",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_gallery_removal_is_validated_and_rolled_back_with_upload_failure",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_manual_point_is_not_replaced_after_address_edit",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_new_form_renders_seven_steps_in_all_languages",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "CONTINUOUS_FORM"
+      },
+      {
+        "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_on_request_can_be_submitted_and_becomes_visible_after_approval",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_outside_baku_requires_no_district_or_metro",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "LOCATION_FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_required_fields_report_errors_but_draft_accepts_missing",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true,
+        "classification": "LOCATION_FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_required_fields_report_errors_but_draft_accepts_missing",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true,
+        "classification": "LOCATION_FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.photo_workflow.PhotoWorkflowTests.test_gallery_order_is_persisted_and_foreign_ids_rejected",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SIGNED_CANDIDATE"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceAdminFormReadinessTests.test_form_readiness_matches_the_saved_card",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceAdminFormReadinessTests.test_location_section_names_the_missing_district",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceAdminFormReadinessTests.test_publish_is_refused_with_the_concrete_missing_items",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceAdminFormReadinessTests.test_published_legacy_card_can_still_be_saved",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessConsistencyTests.test_progress_never_reaches_hundred_while_an_issue_blocks_publication",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true,
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessConsistencyTests.test_requirement_codes_are_unique_and_documented",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_complete_card_is_ready_with_full_progress",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true,
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true,
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true,
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true,
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true,
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true,
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true,
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true,
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true,
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true,
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "subtest": true,
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_gallery_photo_does_not_replace_the_main_photo",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_instagram_and_website_do_not_replace_the_phone",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_location_reports_the_persisted_district_as_the_missing_fifth_item",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_short_description_is_advice_and_never_blocks",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "OPTIONAL_MEDIA_COORDS_CONTACT"
+      },
+      {
+        "id": "catalog.testcases.public.TestCatalogContentSettingsWiring.test_catalog_filter_values_are_sorted_alphabetically",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.public.TestCatalogContentSettingsWiring.test_home_page_uses_catalog_settings_districts",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_card_uses_localized_district_instead_of_code",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_district_filter_matches_exact_value_only",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_map_serialization_includes_card_fields",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_map_uses_only_filtered_map_ready_places",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_price_filter_uses_range_overlap",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.public.TestPublicFilterCounts.test_catalog_filters_hide_zero_options_and_show_public_counts",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.public.TestPublicPagesSmoke.test_home_hero_statistics_do_not_add_plus_to_exact_counts",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.public.TestPublicPagesSmoke.test_home_map_search_text_includes_subcategory_name",
+        "kind": "error",
+        "exception": "KeyError",
+        "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.public.TestPublicPagesSmoke.test_place_detail_page_includes_breadcrumb_and_aggregate_rating_schema",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_includes_all_languages_and_hreflang_alternates",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.public.TestReviewEnhancements.test_home_and_catalog_use_localized_strings_in_az_and_en",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE"
+      },
+      {
+        "id": "catalog.testcases.public.TestReviewEnhancements.test_review_models_disable_anonymous_flag_and_keep_author_name",
+        "kind": "failure",
+        "exception": "AssertionError",
+        "classification": "SUPERSEDED CONTRACT OR INVALID FIXTURE"
+      }
+    ],
+    "sources": [
+      "23-owner-admin-classification.json",
+      "23-public-classification.json"
+    ]
+  },
+  "stage04_comparison": {
+    "baseline_tests": 1231,
+    "baseline_failures": 28,
+    "baseline_errors": 4,
+    "baseline_distinct_problem_ids": 31,
+    "overlap_ids": 20,
+    "baseline_only_ids": 11,
+    "current_only_ids": 75
+  },
+  "checks": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.085
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.121
+    }
+  ],
+  "migrations": {
+    "leaves": [
+      [
+        "account",
+        "0009_emailaddress_unique_primary_email"
+      ],
+      [
+        "admin",
+        "0003_logentry_add_action_flag_choices"
+      ],
+      [
+        "auth",
+        "0012_alter_user_first_name_max_length"
+      ],
+      [
+        "catalog",
+        "0130_task33_review_versions"
+      ],
+      [
+        "catalog_moderation",
+        "0001_initial"
+      ],
+      [
+        "contenttypes",
+        "0002_remove_content_type_name"
+      ],
+      [
+        "sessions",
+        "0001_initial"
+      ],
+      [
+        "socialaccount",
+        "0006_alter_socialaccount_extra_data"
+      ]
+    ],
+    "applied_count": 164,
+    "unapplied_count": 0,
+    "vendor": "postgresql"
+  },
+  "query_comparison": [
+    {
+      "surface": "catalog published",
+      "baseline04": [
+        {
+          "sql_queries": 2,
+          "result_count": 6
+        },
+        {
+          "sql_queries": 2,
+          "result_count": 6
+        }
+      ],
+      "current": [
+        {
+          "sql_queries": 2,
+          "result_count": 6
+        },
+        {
+          "sql_queries": 2,
+          "result_count": 6
+        }
+      ],
+      "repeat_consistent": true
+    },
+    {
+      "surface": "map ready",
+      "baseline04": [
+        {
+          "sql_queries": 2,
+          "result_count": 5
+        },
+        {
+          "sql_queries": 2,
+          "result_count": 5
+        }
+      ],
+      "current": [
+        {
+          "sql_queries": 2,
+          "result_count": 6
+        },
+        {
+          "sql_queries": 2,
+          "result_count": 6
+        }
+      ],
+      "repeat_consistent": true
+    },
+    {
+      "surface": "age matched tariffs",
+      "baseline04": [
+        {
+          "sql_queries": 1,
+          "result_count": 1
+        },
+        {
+          "sql_queries": 1,
+          "result_count": 1
+        }
+      ],
+      "current": [
+        {
+          "sql_queries": 1,
+          "result_count": 1
+        },
+        {
+          "sql_queries": 1,
+          "result_count": 1
+        }
+      ],
+      "repeat_consistent": true
+    },
+    {
+      "surface": "public catalog",
+      "baseline04": [
+        {
+          "status_code": 200,
+          "sql_queries": 19,
+          "result_count": 6
+        },
+        {
+          "status_code": 200,
+          "sql_queries": 19,
+          "result_count": 6
+        }
+      ],
+      "current": [
+        {
+          "status_code": 200,
+          "sql_queries": 27,
+          "result_count": 6
+        },
+        {
+          "status_code": 200,
+          "sql_queries": 27,
+          "result_count": 6
+        }
+      ],
+      "repeat_consistent": true
+    },
+    {
+      "surface": "place detail",
+      "baseline04": [
+        {
+          "status_code": 200,
+          "sql_queries": 64,
+          "result_count": null
+        },
+        {
+          "status_code": 200,
+          "sql_queries": 64,
+          "result_count": null
+        }
+      ],
+      "current": [
+        {
+          "status_code": 200,
+          "sql_queries": 77,
+          "result_count": null
+        },
+        {
+          "status_code": 200,
+          "sql_queries": 77,
+          "result_count": null
+        }
+      ],
+      "repeat_consistent": true
+    },
+    {
+      "surface": "owner",
+      "baseline04": [
+        {
+          "status_code": 200,
+          "sql_queries": 43,
+          "result_count": null
+        },
+        {
+          "status_code": 200,
+          "sql_queries": 43,
+          "result_count": null
+        }
+      ],
+      "current": [
+        {
+          "status_code": 200,
+          "sql_queries": 130,
+          "result_count": null
+        },
+        {
+          "status_code": 200,
+          "sql_queries": 130,
+          "result_count": null
+        }
+      ],
+      "repeat_consistent": true
+    },
+    {
+      "surface": "admin",
+      "baseline04": [
+        {
+          "status_code": 200,
+          "sql_queries": 47,
+          "result_count": null
+        },
+        {
+          "status_code": 200,
+          "sql_queries": 47,
+          "result_count": null
+        }
+      ],
+      "current": [
+        {
+          "status_code": 200,
+          "sql_queries": 59,
+          "result_count": null
+        },
+        {
+          "status_code": 200,
+          "sql_queries": 59,
+          "result_count": null
+        }
+      ],
+      "repeat_consistent": true
+    },
+    {
+      "surface": "volunteer",
+      "baseline04": [
+        {
+          "status_code": 200,
+          "sql_queries": 13,
+          "result_count": null
+        },
+        {
+          "status_code": 200,
+          "sql_queries": 13,
+          "result_count": null
+        }
+      ],
+      "current": [
+        {
+          "status_code": 200,
+          "sql_queries": 15,
+          "result_count": null
+        },
+        {
+          "status_code": 200,
+          "sql_queries": 15,
+          "result_count": null
+        }
+      ],
+      "repeat_consistent": true
+    },
+    {
+      "surface": "events",
+      "baseline04": [
+        {
+          "status_code": 200,
+          "sql_queries": 16,
+          "result_count": 1
+        },
+        {
+          "status_code": 200,
+          "sql_queries": 16,
+          "result_count": 1
+        }
+      ],
+      "current": [
+        {
+          "status_code": 200,
+          "sql_queries": 16,
+          "result_count": 1
+        },
+        {
+          "status_code": 200,
+          "sql_queries": 16,
+          "result_count": 1
+        }
+      ],
+      "repeat_consistent": true
+    },
+    {
+      "surface": "specialist",
+      "baseline04": [
+        {
+          "status_code": 200,
+          "sql_queries": 11,
+          "result_count": null
+        },
+        {
+          "status_code": 200,
+          "sql_queries": 11,
+          "result_count": null
+        }
+      ],
+      "current": [
+        {
+          "status_code": 200,
+          "sql_queries": 11,
+          "result_count": null
+        },
+        {
+          "status_code": 200,
+          "sql_queries": 11,
+          "result_count": null
+        }
+      ],
+      "repeat_consistent": true
+    }
+  ],
+  "recovery": {
+    "evidence": "/root/task33-evidence/qa23-final5-20261003-1530",
+    "cleanup": "PASS",
+    "status": "PASS",
+    "fixture": "synthetic-only",
+    "container_owned": true,
+    "network_none_tmpfs_socket": true,
+    "source_digest_preserved": true,
+    "dry_run_read_only": true,
+    "partial_checkpoint": 1,
+    "forced_mid_batch_rollback": true,
+    "completed_entries": 21,
+    "rerun_duplicate_pieces": false,
+    "post_switch_record_present": true,
+    "post_switch_count_drift_detected": true,
+    "post_switch_program_approved_snapshot_retained": true,
+    "post_switch_review_reaction_created": true,
+    "off_mode_public_reader_status": 200,
+    "off_mode_http_write_status": 503,
+    "off_mode_preserves_rows": true,
+    "native_dump_bytes": 531672,
+    "native_pg_restore": "PASS",
+    "source_and_restore_row_digests_equal": true,
+    "compatible_standby_read": {
+      "status": "PASS",
+      "artifact_identity": "r1-local-sha256-df5c662e67f05511b710eae38cd678e170dfa514f483852f15ccf101c5369af3",
+      "verified_files": 2703,
+      "read_only_database": "qa_stage23_restore",
+      "unix_socket": true,
+      "post_switch_place": 1,
+      "media_bytes_sha256": "35df623cb06ba6c265c7f455af8577611b1219386d1cb0b9612a4723c286b4d2"
+    },
+    "tables_compared_count": 94,
+    "raw_dump": "/tmp/task33-qa23-final5-20261003-1530/r1-post-switch.dump",
+    "media_files_compared": 25,
+    "media_byte_digests_equal": true,
+    "source_counts": {
+      "Place": 7,
+      "PricingPlan": 4,
+      "PlacePhoto": 1,
+      "PlaceLike": 0,
+      "PlaceReview": 5,
+      "PlaceReviewRevision": 5,
+      "PlaceReviewReaction": 1
+    }
+  },
+  "browser": {
+    "qa21": {
+      "evidence": "/root/task33-evidence/browser21-stage23-final2-20261003",
+      "cleanup": "PASS",
+      "total": 105,
+      "passed": 105,
+      "events": {
+        "errors": 0,
+        "failed": 0,
+        "badResponses": 0,
+        "stubs": 109
+      }
+    },
+    "qa22": {
+      "evidence": "/root/task33-evidence/browser22-stage23-final2-20261003",
+      "cleanup": "PASS",
+      "total": 462,
+      "passed": 462,
+      "events": {
+        "errors": 0,
+        "failed": 0,
+        "badResponses": 0,
+        "stubs": 588
+      }
+    },
+    "qa22_flows": {
+      "evidence": "/root/task33-evidence/browser22-stage23-final2-flows-20261003",
+      "cleanup": "PASS",
+      "total": 48,
+      "passed": 48,
+      "events": {
+        "errors": 9,
+        "failed": 0,
+        "unexpectedResponses": 0,
+        "expectedDenials": 22
+      }
+    },
+    "qa23": {
+      "evidence": "/root/task33-evidence/browser23-final5-20261003",
+      "cleanup": "PASS",
+      "total": 294,
+      "passed": 294,
+      "events": {
+        "errors": 0,
+        "failed": 0,
+        "staticFailures": 0,
+        "stubs": 444,
+        "expectedRejections": 3
+      },
+      "checks_count": 175,
+      "checks_passed": 175
+    }
+  },
+  "independent_reviews": [
+    "23-db-review.md",
+    "23-release-closure.md"
+  ],
+  "not_run": [
+    "production",
+    "external integrations",
+    "commit/push/merge/deploy",
+    "stage24+"
+  ]
+}

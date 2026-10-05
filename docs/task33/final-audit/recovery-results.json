@@ -1,0 +1,214 @@
+{
+  "run": "final-audit-native-20261004",
+  "raw_evidence": "/root/task33-evidence/final-audit-native-20261004",
+  "executor": "/root",
+  "scope": "fresh comprehensive audit; synthetic disposable only",
+  "production": "NOT_CONTACTED",
+  "run.json": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "isolation.json": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10"
+  },
+  "migrations.json": {
+    "applied_count": 167,
+    "unapplied_count": 0,
+    "leaves": [
+      [
+        "account",
+        "0009_emailaddress_unique_primary_email"
+      ],
+      [
+        "admin",
+        "0003_logentry_add_action_flag_choices"
+      ],
+      [
+        "auth",
+        "0012_alter_user_first_name_max_length"
+      ],
+      [
+        "catalog",
+        "0133_task33_event_foundation"
+      ],
+      [
+        "catalog_moderation",
+        "0001_initial"
+      ],
+      [
+        "contenttypes",
+        "0002_remove_content_type_name"
+      ],
+      [
+        "sessions",
+        "0001_initial"
+      ],
+      [
+        "socialaccount",
+        "0006_alter_socialaccount_extra_data"
+      ]
+    ],
+    "vendor": "postgresql"
+  },
+  "discovery.json": {
+    "explicit_count": 1817,
+    "explicit_unique_count": 1817,
+    "duplicate_explicit_ids": 0
+  },
+  "checks.json": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.117
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.206
+    }
+  ],
+  "r2-rehearsal.json": {
+    "status": "PASS",
+    "fixture": "synthetic-only",
+    "container_owned": true,
+    "network_none_tmpfs_socket": true,
+    "source_digest_preserved": true,
+    "dry_run_read_only": true,
+    "partial_checkpoint": 1,
+    "forced_mid_batch_rollback": true,
+    "completed_entries": 21,
+    "rerun_duplicate_pieces": false,
+    "post_switch_record_present": true,
+    "post_switch_count_drift_detected": true,
+    "post_switch_program_approved_snapshot_retained": true,
+    "post_switch_review_reaction_created": true,
+    "off_mode_public_reader_status": 200,
+    "off_mode_http_write_status": 503,
+    "off_mode_preserves_rows": true,
+    "native_dump_bytes": 573095,
+    "native_pg_restore": "PASS",
+    "source_and_restore_row_digests_equal": true,
+    "compatible_standby_read": {
+      "status": "PASS",
+      "artifact_identity": "r2-local-sha256-65d8995ff21fb5e5b9fb88d81d18f2f36c4380841f14131cd11dc258bf8c61b2",
+      "verified_files": 2794,
+      "read_only_database": "qa_stage28_restore",
+      "unix_socket": true,
+      "post_switch_place": 1,
+      "media_bytes_sha256": "35df623cb06ba6c265c7f455af8577611b1219386d1cb0b9612a4723c286b4d2"
+    },
+    "r2_records": {
+      "approved_claim": 1,
+      "active_bilateral_employment": 1,
+      "employment_history": 3,
+      "practice_history": 2,
+      "private_identity": 1,
+      "opted_in_approved_certificate": 1,
+      "published_cancelled_event": 1,
+      "occurrence_history": 2,
+      "typed_event_review": 1,
+      "durable_pending_notification": 1
+    },
+    "performance": {
+      "meaning": "Same final source/fixtures; naive N+1 control versus eager ORM, not historical release or production load",
+      "sizes": [
+        20,
+        200
+      ],
+      "repetitions": 3,
+      "measurements": [
+        {
+          "size": 20,
+          "mode": "naive_current_orm",
+          "query_counts": [
+            21,
+            21,
+            21
+          ],
+          "elapsed_ms": [
+            17.979,
+            15.817,
+            15.958
+          ],
+          "median_ms": 15.958
+        },
+        {
+          "size": 20,
+          "mode": "select_related_current_orm",
+          "query_counts": [
+            1,
+            1,
+            1
+          ],
+          "elapsed_ms": [
+            3.909,
+            3.233,
+            3.994
+          ],
+          "median_ms": 3.909
+        },
+        {
+          "size": 200,
+          "mode": "naive_current_orm",
+          "query_counts": [
+            201,
+            201,
+            201
+          ],
+          "elapsed_ms": [
+            170.88,
+            158.166,
+            159.979
+          ],
+          "median_ms": 159.979
+        },
+        {
+          "size": 200,
+          "mode": "select_related_current_orm",
+          "query_counts": [
+            1,
+            1,
+            1
+          ],
+          "elapsed_ms": [
+            11.619,
+            10.245,
+            11.596
+          ],
+          "median_ms": 11.596
+        }
+      ]
+    },
+    "private_files_compared": 2,
+    "private_media_digests_equal": true,
+    "tables_compared_count": 98,
+    "media_files_compared": 25,
+    "media_byte_digests_equal": true,
+    "source_counts": {
+      "Place": 7,
+      "PricingPlan": 4,
+      "PlacePhoto": 1,
+      "PlaceLike": 0,
+      "PlaceReview": 5,
+      "PlaceReviewRevision": 5,
+      "PlaceReviewReaction": 1
+    }
+  }
+}

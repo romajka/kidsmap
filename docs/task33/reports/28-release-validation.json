@@ -1,0 +1,19 @@
+{
+  "status": "PASS_BOUNDED",
+  "base_source_red": {
+    "private_bind_missing": true,
+    "cohort_environment_missing": true
+  },
+  "override_source_checks": "PASS",
+  "compose_config": "NOT_RUN_PLUGIN_UNAVAILABLE",
+  "compose_missing_required_path_negative": "NOT_RUN_PLUGIN_UNAVAILABLE",
+  "bind_persistence_across_owned_container_recreation": "PASS",
+  "synthetic_file_sha256": "733921dfe235406b2a7ca86b63efe848adf4c60ca03daba3f87e5ebf6ef6d926",
+  "cached_probe_image": "postgres:17-alpine",
+  "cached_probe_image_id": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+  "application_image": "NOT_BUILT",
+  "network": "none",
+  "ports": [],
+  "cleanup": "PASS",
+  "production": "NOT_CONTACTED"
+}

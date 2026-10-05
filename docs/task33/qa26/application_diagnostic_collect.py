@@ -1,0 +1,7 @@
+"""Safe aggregate from bounded actual admin/archive diagnostics."""
+import hashlib,json,sys
+from pathlib import Path
+root=Path(sys.argv[1]);raw=(root/'result-cli.txt').read_text().split('### Result',1)[1].split('###',1)[0].strip();data=json.loads(raw);run=json.loads((root/'launcher/run.json').read_text())
+result={'stage':26,'execution_identity':'/root/stage26_browser','kind':'ACTUAL_ADMIN_ARCHIVE_DIAGNOSTICS','admin':[{'screen':row['screen'],'width':row['width'],'scrollWidth':row['facts']['scroll'],'overflow':[{'tag':x['tag'],'class':x['cls'],'right':x['right'],'width':x['width']}for x in row['facts']['overflow']],'fonts':row['facts']['fonts'],'used_icon_fonts':sorted(set(x['font']for x in row['facts']['icons'])),'unlabelled_age_inputs':[{'name':x['name'],'id':x['id'],'labels':x['labels'],'aria':x['aria']}for x in row['facts']['age']]}for row in data['facts']],'archive':[{'query':name,'status':v['status'],'past_fixture_present':v['past'],'today_address_present':v['todayAddress']}for name,v in data['archive']['responses'].items()],'launcher_status':run['status'],'cleanup':run['cleanup'],'evidence':str(root),'source_manifest_sha256':hashlib.sha256((root/'source-sha256.json').read_bytes()).hexdigest(),'matrix_sha256':hashlib.sha256((root/'matrix.js').read_bytes()).hexdigest()}
+if len(sys.argv)>2:Path(sys.argv[2]).write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({k:result[k]for k in ['kind','launcher_status','cleanup','evidence']}))

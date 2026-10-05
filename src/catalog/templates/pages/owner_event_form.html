@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n static %}
 {% get_current_language as CURRENT_LANGUAGE %}
+{% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
 
 {% block title %}{% if event %}{% if CURRENT_LANGUAGE == "az" %}Tədbiri redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit event{% else %}Редактировать мероприятие{% endif %}{% else %}{% if CURRENT_LANGUAGE == "az" %}Yeni tədbir{% elif CURRENT_LANGUAGE == "en" %}New event{% else %}Новое мероприятие{% endif %}{% endif %}{% endblock %}
 {% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Yeni tədbir{% elif CURRENT_LANGUAGE == "en" %}New event{% else %}Новое мероприятие{% endif %} | KidsMap{% endblock %}
@@ -28,10 +29,17 @@
       class="owner-event-form"
       data-loading-form
       data-event-form
+      data-map-search-label="{% trans 'Поиск площадки мероприятия по названию или адресу' %}"
+      data-duration-hour="{% trans 'ч.' %}"
+      data-duration-minute="{% trans 'мин.' %}"
+      data-online-format="{{ form.online_format }}"
+      data-event-timezone="{{ form.baku_timezone_name }}"
+      data-event-utc-offset="{{ form.baku_utc_offset }}"
       data-past-date-message="{% if CURRENT_LANGUAGE == 'az' %}Keçmiş tarix və ya vaxt seçmək olmaz.{% elif CURRENT_LANGUAGE == 'en' %}You cannot choose a past date or time.{% else %}Нельзя выбрать прошедшую дату или время.{% endif %}"
       data-end-before-start-message="{% if CURRENT_LANGUAGE == 'az' %}Bitmə vaxtı başlama vaxtından sonra olmalıdır.{% elif CURRENT_LANGUAGE == 'en' %}End time must be after start time.{% else %}Время окончания должно быть позже времени начала.{% endif %}"
     >
       {% csrf_token %}
+      {{ form.expected_updated_at }}
       {{ form.start_datetime }}
       {{ form.end_datetime }}
       {% if form.non_field_errors %}
@@ -48,6 +56,17 @@
           <section class="owner-event-section">
             <h2>{% if CURRENT_LANGUAGE == "az" %}Əsas məlumatlar{% elif CURRENT_LANGUAGE == "en" %}Main details{% else %}Основная информация{% endif %}</h2>
             <div class="owner-event-grid">
+              <label for="{{ form.organizer_organization.id_for_label }}">{% trans "Организация" %}
+                {{ form.organizer_organization }}{{ form.organizer_organization.errors }}
+              </label>
+              <label for="{{ form.organizer_specialist.id_for_label }}">{% trans "Специалист" %}
+                {{ form.organizer_specialist }}{{ form.organizer_specialist.errors }}
+              </label>
+              <label for="{{ form.event_format.id_for_label }}">{% trans "Формат" %}
+                {{ form.event_format }}{{ form.event_format.errors }}
+              </label>
+              <p class="helptext">{% trans "Выберите одного организатора: организацию или подтверждённого специалиста." %}</p>
+
               <label>
                 {% if CURRENT_LANGUAGE == "az" %}Tədbirin adı{% elif CURRENT_LANGUAGE == "en" %}Event title{% else %}Название мероприятия{% endif %} *
                 {{ form.name_az }}
@@ -94,7 +113,7 @@
                 {{ form.price_text }}
                 {% for error in form.price_text.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
               </label>
-              <label>
+              <label data-event-physical {% if form.event_format.value == form.online_format %}hidden style="display:none"{% endif %}>
                 {% if CURRENT_LANGUAGE == "az" %}Əlaqəli məkan{% elif CURRENT_LANGUAGE == "en" %}Related place{% else %}Связанное место{% endif %}
                 <select class="field" name="{{ form.related_place.html_name }}" id="{{ form.related_place.id_for_label }}" data-event-related-place>
                   <option value="">{% if CURRENT_LANGUAGE == "az" %}Seçilməyib{% elif CURRENT_LANGUAGE == "en" %}Not selected{% else %}Не выбрано{% endif %}</option>
@@ -105,8 +124,8 @@
                 <small class="helptext">{% if CURRENT_LANGUAGE == "az" %}Opsionaldır. Seçsəniz, ünvan və telefon avtomatik doldurula bilər.{% elif CURRENT_LANGUAGE == "en" %}Optional. If selected, address and phone can be filled automatically.{% else %}Необязательно. При выборе адрес и телефон можно подставить автоматически.{% endif %}</small>
                 {% for error in form.related_place.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
               </label>
-              <label>
-                {% if CURRENT_LANGUAGE == "az" %}Ünvan{% elif CURRENT_LANGUAGE == "en" %}Address{% else %}Адрес{% endif %} *
+              <label data-event-physical {% if form.event_format.value == form.online_format %}hidden style="display:none"{% endif %}>
+                {% if CURRENT_LANGUAGE == "az" %}Ünvan{% elif CURRENT_LANGUAGE == "en" %}Address{% else %}Адрес{% endif %}
                 {{ form.address }}
                 {% for error in form.address.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
               </label>
@@ -125,10 +144,10 @@
             <p class="owner-event-datetime-summary" data-owner-event-datetime-summary data-empty-label="{% if CURRENT_LANGUAGE == 'az' %}Başlama və bitmə vaxtını seçin — müddəti görəcəksiniz.{% elif CURRENT_LANGUAGE == 'en' %}Choose start and end to see the duration.{% else %}Выберите начало и окончание — увидите продолжительность.{% endif %}" data-duration-label="{% if CURRENT_LANGUAGE == 'az' %}Müddət{% elif CURRENT_LANGUAGE == 'en' %}Duration{% else %}Продолжительность{% endif %}" data-invalid-label="{% if CURRENT_LANGUAGE == 'az' %}Bitmə vaxtı başlanğıcdan sonra olmalıdır.{% elif CURRENT_LANGUAGE == 'en' %}End time must be after the start.{% else %}Окончание должно быть позже начала.{% endif %}"></p>
           </section>
 
-          <section class="owner-event-section owner-form-section-map">
+          <section class="owner-event-section owner-form-section-map" data-event-physical {% if form.event_format.value == form.online_format %}hidden style="display:none"{% endif %}>
             <div class="owner-form-section-head owner-form-section-head-map">
               <h2><i class="fas fa-map-marker-alt" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Məkan və xəritə{% elif CURRENT_LANGUAGE == "en" %}Location and map{% else %}Локация и карта{% endif %}</h2>
-              <p class="meta">{% if CURRENT_LANGUAGE == "az" %}Rayonu və ya metronu seçin, sonra tədbirin dəqiq nöqtəsini xəritədə göstərin.{% elif CURRENT_LANGUAGE == "en" %}Choose a district or metro, then set the exact event point on the map.{% else %}Выберите район или метро, затем укажите точную точку проведения на карте.{% endif %}</p>
+              <p class="meta">{% if CURRENT_LANGUAGE == "az" %}Fiziki tədbirin ünvanını və ya məkanını göstərin. Xəritə nöqtəsi məlumdursa, onu əlavə edə bilərsiniz.{% elif CURRENT_LANGUAGE == "en" %}Provide the physical event address or venue. Add a map point if it is known.{% else %}Укажите адрес или площадку физического мероприятия. Точку на карте можно добавить, если она известна.{% endif %}</p>
             </div>
             <div class="owner-event-grid owner-form-grid-tight">
               <label>{{ form.region.label }}{{ form.region }}{% for error in form.region.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>

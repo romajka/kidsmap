@@ -35,12 +35,33 @@ test('no prefetch; click loads contacts, preserves focus and creates mobile call
   assert.equal(calls, 1);
   assert.equal(document.querySelector('a').getAttribute('href'), 'tel:+994501234567');
   assert.equal(document.activeElement, document.querySelector('a'));
-  assert.equal(document.querySelector('a').classList.contains('km-phone-control--revealed'), true);
+  const group = document.querySelector('.km-phone-group--revealed');
+  assert.equal(group.querySelector('a'), document.querySelector('a'));
+  assert.equal(group.querySelector('.km-phone-number').textContent, '+994 50 123 45 67');
+  assert.equal(group.querySelector('[data-copy]').dataset.copy, '+994501234567');
   assert.equal(document.querySelector('[data-phone-status]').textContent, '');
   assert.equal(document.querySelectorAll('a')[1].href, 'https://wa.me/994501234567');
   const popup = document.createElement('div'); popup.innerHTML = dom.window.kidsMapPhoneButton(7);
   document.body.append(popup); popup.querySelector('button').click(); await settle();
-  assert.equal(calls, 1); assert.equal(popup.querySelector('a').textContent, '+994501234567');
+  assert.equal(calls, 1); assert.equal(popup.querySelector('.km-phone-number').textContent, '+994 50 123 45 67');
+  dom.window.close();
+});
+test('compact catalog control uses a direct call link without generic number/copy layout', async () => {
+  let calls = 0;
+  const dom = setup(async () => { calls++; return {ok: true, json: async () => contacts}; });
+  const document = dom.window.document;
+  const popup = document.createElement('div');
+  popup.innerHTML = dom.window.kidsMapPhoneButton(7, 'card-contact-toggle');
+  document.body.append(popup);
+  const button = popup.querySelector('button'); button.focus(); button.click(); await settle();
+  const link = popup.querySelector('a');
+  assert.equal(calls, 1);
+  assert.equal(link.getAttribute('href'), 'tel:+994501234567');
+  assert.equal(document.activeElement, link);
+  assert.equal(link.classList.contains('km-phone-control--revealed'), true);
+  assert.equal(link.querySelector('.km-phone-label').textContent, 'Позвонить');
+  assert.match(link.getAttribute('aria-label'), /\+994 50 123 45 67/);
+  assert.equal(popup.querySelector('.km-phone-group, [data-copy], .km-phone-number'), null);
   dom.window.close();
 });
 test('failed request keeps a retry button and announces error; retry works', async () => {

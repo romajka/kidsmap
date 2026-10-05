@@ -6,6 +6,8 @@ from .review import PlaceReviewCooldown, PlaceReview, PlaceReviewReaction, SiteR
 from .owner import PlaceOwnershipRequest, PlaceOwnershipRequestAudit, OwnerTeamMembership, OwnerTeamInvitation, PlaceChangeAudit
 from .site import SiteSettings, SiteGalleryImage, SiteBrandingSettings, SiteAboutSettings, SiteContactsSettings, SiteFooterSettings, SiteEmptyStateSettings, SiteVisibilitySettings, SiteAnalytics, SiteVisit, FunnelEvent, CatalogContentSettings
 from .specialist import Region, District, MetroStation, SpecialistSpecialization, Specialist, SpecialistPracticeLocation, SpecialistScheduleDay, SpecialistScheduleInterval, SpecialistDocument, SpecialistReview
+from .specialist_domain import SpecialistClaim, SpecialistEmployment, SpecialistEmploymentEvent
+__all_specialist_domain = ['SpecialistClaim', 'SpecialistEmployment', 'SpecialistEmploymentEvent']
 from .pricing_plan import PricingPlan
 from .seo import SEOAuditRun, SEOIssue, SEOChange
 from .volunteer import VolunteerPlaceRevision
@@ -74,6 +76,7 @@ __all__ = [
     'SEOIssue',
     'SEOChange',
 ]
+__all__ += __all_specialist_domain
 
 from .catalog_structure import Organization, Program, Activity, OfferingGroup, Location, OrganizationPlaceRequest, PlaceVenueRequest
 
@@ -85,6 +88,9 @@ __all__ += ["OrganizationOwnershipRequest"]
 from .business_team import OrganizationGrant, OrganizationTeamInvitation
 __all__ += ["OrganizationGrant", "OrganizationTeamInvitation"]
 
+from .event_domain import EventOccurrenceChange
+__all__ += ['EventOccurrenceChange']
+
 from .server_draft import ServerDraft
 __all__ += ['ServerDraft']
 
@@ -93,3 +99,8 @@ __all__ += ['ConversionMapping', 'ConversionRun']
 
 from .workflow_notification import WorkflowNotification, EmailOutbox
 __all__ += ['WorkflowNotification', 'EmailOutbox']
+
+from .review_versions import (ActivityReview, EventReview, PlaceReviewRevision, SpecialistReviewRevision, ActivityReviewRevision, EventReviewRevision, SpecialistReviewReaction, ActivityReviewReaction, EventReviewReaction)
+__all__ += ['ActivityReview', 'EventReview', 'PlaceReviewRevision', 'SpecialistReviewRevision', 'ActivityReviewRevision', 'EventReviewRevision', 'SpecialistReviewReaction', 'ActivityReviewReaction', 'EventReviewReaction']
+from .review_versions import PlaceReviewResponse, SpecialistReviewResponse, ActivityReviewResponse, EventReviewResponse
+__all__ += ['PlaceReviewResponse', 'SpecialistReviewResponse', 'ActivityReviewResponse', 'EventReviewResponse']

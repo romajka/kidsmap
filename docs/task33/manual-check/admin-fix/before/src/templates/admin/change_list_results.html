@@ -1,0 +1,49 @@
+{% load i18n static jazzmin %}
+
+{% if result_hidden_fields %}
+<div class="hiddenfields">
+    {% for item in result_hidden_fields %}{{ item }}{% endfor %}
+</div>
+{% endif %}
+
+{% if results %}
+    <div class="card">
+        <div class="card-body table-responsive p-0">
+            <table id="result_list" class="table table-striped">
+                <thead>
+                    <tr>
+                        {% for header in result_headers %}
+                        <th class="{% header_class header forloop %}" tabindex="0" rowspan="1" colspan="1">
+                            <div class="text">
+                                {% if header.sortable %}
+                                    <a href="{{ header.url_primary }}">{{ header.text|capfirst }}</a>
+                                {% else %}
+                                    <span>{{ header.text|capfirst }}</span>
+                                {% endif %}
+                                {% if header.sorted %}
+                                    {% if header.ascending %}
+                                        <span class="km-col-sort-badge is-active" title="{% translate 'По возрастанию' %}">
+                                            <svg class="km-i km-col-arrow--up" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-arrow_downward"></use></svg>
+                                        </span>
+                                    {% else %}
+                                        <span class="km-col-sort-badge is-active" title="{% translate 'По убыванию' %}">
+                                            <svg class="km-i km-col-arrow--down" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-arrow_downward"></use></svg>
+                                        </span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr role="row" class="{% cycle 'even' 'odd' %}">
+                        {% for item in result %}{{ item }}{% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}

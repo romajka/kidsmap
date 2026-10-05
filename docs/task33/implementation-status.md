@@ -1,13 +1,23 @@
 # KidsMap №33 — журнал состояния
 
-Обновлено 2026-10-02. Working checkout /home/ramin/kidsmap. LOCAL HEAD c52b871ce5c18656a9eaf9854e66255c2629364e; до пакета WORKTREE clean. Пакет docs/task33 untracked/dirty фиксируется отдельно; HEAD не включает его. PRODUCTION UNKNOWN.
+Текущий snapshot: Пункты 1–5 принятого плана завершены локально 2026-10-04. Полные PostgreSQL host/image: по1844,0F/0E/0skip;120/120 исходных записей регрессии закрыты в обоих наборах. JS30/30; Chromium861 контекст,1837 проверок, неожиданных ошибок0; native restore98tables/25public+2privatefiles PASS. Сохранены710 входных файлов; final-audit164/164 побайтно неизменны. Production/commit/push/deploy NOT_RUN; эксплуатационная готовность — отдельный пункт6. Новые доказательства: completion/REPORT.md, completion/report.html, completion/final-verification.json.
 
 ## Текущий запуск
 
-active_run: NONE.
-current_scope: stage20 DONE locally; see reports/20.md. No active implementation.
-source_head: c52b871ce5c18656a9eaf9854e66255c2629364e; dirty WORKTREE stages05–20; stage20 final20-artifact SHA in reports/20-source-manifest.json, snapshot /tmp/kidsmap-task33-stage20-final-20261002. HEAD does not include implementation.
-next_stage: stage21 NOT_STARTED; separate request required. Production NOT_RUN.
+active_run: NONE
+current_scope: LOCAL admin repair COMPLETE 2026-10-04; 270 backend tests PASS, final Chromium matrix366 + mobile27 PASS; evidence manual-check/admin-fix/REPORT.md and final-verification.json. Local preview remains running; production remains separate point6.
+source_head: 015d031d8eb17114bd860159dde805b38df3c13c; branch task33-progress; C:\kidsmap; dirty WORKTREE preserved; completion/final-verification.json. No commit/push/merge/deploy.
+next_stage: NONE; production requires a separate explicit instruction.
+
+Git handoff 2026-10-05: пользователь прямо разрешил commit/push всех текущих изменений для продолжения тестирования на другом компьютере. Целевая ветка только task33-progress; main/production/deploy запрещены. Подготовлен portable Linux/WSL launcher без старых абсолютных путей, отдельные QA PostgreSQL/volume/root, новый runtime hash-manifest без переписывания истории. Fresh verification:168 migrations,103public/396photos, restart0new rows,3 packaging tests PASS; native Chromium admin/catalog/mobile/guide PASS,0console/network errors. Исторические completion146/final-audit164 SHA неизменны. Инструкция: manual-check/TRANSFER.md, агрегатные доказательства: manual-check/transfer/verification.json; source application2761 unchanged. .env# и старый SQLite backup исключены из нового Git-tip, локальные файлы сохранены, история не переписывается. Git whitespace замечания в замороженных материалах и уже проверенных источниках сохранены и описаны; secret-format/archive scan PASS, не является абсолютной гарантией отсутствия всех видов секретов. Результат commit/push и SHA сверяются по git log/удалённой ветке после транзакции. active_run остаётся NONE.
+
+Локальное исправление админки, 2026-10-04, run20261004-local-admin-repair: воспроизведена ошибка огромного SVG сортировки из скриншота пользователя. Компонент перенесён в общий CSS, размеры14×14 и aria-sort закреплены в шаблоне. Исправлены подтверждённые переполнения Place/Staff/SEO на390 и320, нулевая ширина колонок и растянутые строки Place, мобильные меню, неверный атрибут TH, RU fallback Save/Home/Copyright. 12 файлов приложения; 15 оригиналов сохранены. Реальные действия: keyboard sorting/search/filter, invalid URL, создание и повторное открытие одного синтетического QA-черновика Organization PASS. Финальный браузер:35 sidebar links/14add-edit forms,366contexts AZ/RU/EN×390/768/1024/1280/1440; отдельно27 mobile checks×320/360/390 с открытыми меню/фильтром и высотой строк; неожиданных JS/network ошибок0. PostgreSQL QA04 targeted270,0F0E0skip; check/migration-check/guards/cleanup PASS. После backend прогона изменён только CSS мобильной таблицы/меню; backend-source-snapshot.json и final-verification.json явно фиксируют эту разницу, финальный CSS проверен браузером. Полные1844 host/image здесь NOT_REPEATED, исторические результаты сохранены. WORKTREE/runtime2761 SHA MATCH, старый mapfix runtime2761 и completion runtime2760 неизменны; completion146/146 и final-audit164/164 SHA MATCH. 100 демо-мест/103public сохранены, полные хеши3 исходных мест неизменны. HTTP локально200, включая Windowslocalhost; стенд оставлен на8780. Production/commit/push/deploy NOT_RUN. Отчёт со скриншотами: manual-check/admin-fix/REPORT.md. active_run закрыт.
+
+Исторический checkpoint completion #2, 2026-10-04: финальные host и exact image c2 по1844/1844 PASS,0F0E0skip;120/120 исходных записей PASS в обоих наборах; JS30/30; native recovery c6:98tables/25public+2privatefiles PASS. APP2760 SHA совпадают у WORKTREE/host/image/browser; historical final-audit164 unchanged и710 entry backup подтверждены. Targeted63/153, R1 357/367, Specialist168/383 PASS. Event c4 остановлен корректным отказом прав: QA пытался редактировать событие после публикации; native локализация перенесена до публикации, полное семейство повторяется c5. active_run открыт до strict browser и rendered report gates.
+
+Исторический checkpoint completion, 2026-10-04: последовательное продолжение `/root` после остановки вспомогательных исполнителей. Первый полный повтор:1843 tests,2F/0E/0skipped; оба отказа относятся к двум уже исправленным фикстурам admin publication, их свежий целевой повтор2/2 PASS. Ранее407 public/map/media/event,145 domain/migration,21 notification crash tests PASS; unlink roundtrip11/11 PASS. JS unit30/30 PASS (включая8 новых проверок действующего server map contract). Новый локальный образ `sha256:a0c291d724bc3e8e5e70030e50a86c2698f85437d6622933f81aef6c8cc82b8f` построен; полные финальные host/image, strict browser и native recovery ещё выполняются. Завершение НЕ объявлено; active_run сохраняется. Новые evidence только `completion/`, final-audit не изменяется.
+
+Повторное поручение25, run20261003-152709Z: сохранены219/219 dirty/untracked файлов и binary patch; inventory `reports/25-resume-entry-manifest.json`. Fresh SHA23/23 design и145/145 stage24 MATCH; JS/bash syntax и Python AST4 PASS, gallery8796 HTTP200. Historical raw browser totals168/586 и78/111 подтверждены чтением, новый browser/backend/DB execution NOT_RUN. Changed только report25/journal/new entry manifest. Stage25 REVIEW_PENDING: требуется принятие specialist-25-r1, затем application integration/checks того же25.26+/production/commit/push/deploy NOT_RUN.
 
 ## Контрольные точки
 
@@ -17,7 +27,7 @@ next_stage: stage21 NOT_STARTED; separate request required. Production NOT_RUN.
 - Owner макеты 02: CREATED / ACCEPTED / APPROVED — owner-02-r1; design/acceptance.md.
 - Admin/public макеты 03: CREATED / ACCEPTED / APPROVED — admin-public-03-r1; design/acceptance.md.
 - Isolated baseline 04: DONE / PostgreSQL17.10;1231 tests,28 failures+4 errors,0 skipped; known baseline recorded, application NOT_GREEN.
-- Specialist дополнительные макеты: NOT_CREATED / NOT_APPROVED.
+- Specialist дополнительные макеты: CREATED / ACCEPTED2026-10-03 — specialist-25-r1, design/acceptance.md. Этап25 DONE locally: reports/25.md.
 - Production launch: NOT_REQUESTED / NOT_RUN.
 
 ## Этапы
@@ -44,14 +54,14 @@ next_stage: stage21 NOT_STARTED; separate request required. Production NOT_RUN.
 | 18 | Публичные страницы | DONE | reports/18.md: details/resolver,122/122+final15/15, independent browser105/105+21/21+24/24, security; catalog card21/21 with separate B18-04 page overflow; SHA16/16 |
 | 19 | Точный поиск и карточки | DONE | reports/19.md; isolated129/129, independent31/31, browser147/147+final42/42; final source SHA |
 | 20 | Карта и общие площадки | DONE | reports/20.md; isolated133/133+final18/18, independent46/46, Chromium105 cells+134/31/47 focused; source SHA20/20 |
-| 21 | Локализация, URL и SEO | NOT_STARTED | — |
-| 22 | Отзывы и версии реакций | NOT_STARTED | — |
-| 23 | Репетиция и приёмка R1 | NOT_STARTED | — |
-| 24 | Основа специалистов | NOT_STARTED | — |
-| 25 | Интерфейсы специалистов | NOT_STARTED | — |
-| 26 | Основа событий | NOT_STARTED | — |
-| 27 | Афиша и календарь | NOT_STARTED | — |
-| 28 | Итоговая приёмка R2 | NOT_STARTED | — |
+| 21 | Локализация, URL и SEO | DONE | reports/21.md: final156/156 +independent33/33; Chromium105/105 +final15/15 head/desktop-mobile keyboard, console/network0; migration161/0, cleanup PASS; SHA17 source +QA helpers; production NOT_RUN |
+| 22 | Отзывы и версии реакций | DONE | reports/22.md: typed history/workflow; QA04 scoped210/210, independent19/19, seeded PostgreSQL migration1/1, Chromium462/48/36; dirty source SHA54; full historical owner suite remains NOT_GREEN, production NOT_RUN |
+| 23 | Репетиция и приёмка R1 | DONE | reports/23.md: targeted382/382; full1619/98F8E fully classified95 IDs/0unknown; Chromium294/175+105+462/48; restore94tables25media; exact local artifact df5c662e…/2703files; independentDB+release PASS; production NOT_RUN |
+| 24 | Основа специалистов | DONE | reports/24.md: claim/employment/history/private media;444/444 + final28/28; independent14/14+5/5; Chromium147 rows + final21/73; nginx6/6; migrations166/0; full1681/101F11E classified101IDs/0unknown; source145, production NOT_RUN |
+| 25 | Интерфейсы специалистов | DONE | specialist-25-r1 ACCEPTED; real screens;479/479 Task33, independent17/17, Chromium168/380+corrective42/84; transfer0130→0132; migrations166/0; SHA/preservation25-source-manifest.json; production NOT_RUN |
+| 26 | Основа событий | DONE | reports/26.md; organizer/venue/state/history/snapshot/Baku/query/reviews, Task33551/551, independent19/19, browser composite210 contexts/443checks (включая84focus), source/preservation PASS |
+| 27 | Афиша и календарь | DONE | reports/27.md; Task33575/575, independent10/10, Chromium273/924 включая546focus/Tab; source/preservation PASS |
+| 28 | Итоговая приёмка R2 | DONE | LOCAL ACCEPTANCE ONLY; reports/28.md / release-R2.md; full1817 NOT_GREEN, Task33 580/580 PASS; browser798; DB32/native98/private/outbox; security actual260+causal probe; production NOT_RUN |
 
 ## Как обновлять
 
@@ -305,3 +315,92 @@ Confirmed shared active Location даёт одну numeric точку со сп�
 Final isolated QA04 **133/133 PASS**, final payload18/18 PASS, check/makemigrations PASS, PostgreSQL161 applied/0 pending, cleanup PASS. Independent **46/46 PASS**,14-source review и whole Event/stale/partial-save negatives; late glyph-only delta verified by browser. Real Chromium AZ/RU/EN×7 widths matrix105/105 +550 assertions; latest catalog21 cells +134 keyboard/resize/unavailable assertions, home31 filter/age6/zero/reset/API assertions, final home9 cases +47 console/focus assertions PASS. B20-01 malformed schedule SVG CLOSED, JS/application console0; source11/11 browser SHA MATCH. Node renderer/race/route/lang, AST11/11/diff PASS. Initial-home-query hypothesis rejected by actual canonical301 routing/browser; home URL policy unchanged. Exact commands and intermediate fixture/harness failures in reports/20.md,20-review.md,20-browser-review.md,20-home.md,20-results.json.
 
 Stage20 **DONE locally**, own active_run released. Historical full-suite/application NOT_GREEN not reevaluated; large-catalog load and real Maps/clustering/CDNs/physical devices NOT_RUN. Production/external writes/commit/push/merge/deploy/21+ NOT_RUN. Next prompt21 only separate user instruction.
+
+## Завершение этапа24 — 2026-10-03
+
+Run20261003-stage24, lead /root django-reviewer; прямое поручение prompts/24.md APPROVED IMPLEMENT, dependency23 DONE. Canonical bounded domain implementation by stage23_owner_admin; independent database/security/browser by stage23_db_review and stage23_public_contracts with loaded real roles. Stage names in runtime handles are retained handles, not a second stage23 execution. Entry156 dirty/untracked files+binary diff preserved, SHA156/156 MATCH; exact frozen R1 archive23 unchanged. LOCAL HEAD015d031d8eb17114bd860159dde805b38df3c13c, branch task33-progress, dirty WORKTREE21–24; no commit/push/merge/deploy.
+
+Proposal is not person ownership; KidsMap dedicated claim approval assigns unique verified person. Bilateral versioned employment with role/period/ownership epoch and append-only events preserves cancelled participation. PracticeLocation history survives online/change; public current filters exclude retired locations. Private UUID storage/download and dedicated fresh reviewer permission deny staff/volunteer/business grants; approved public qualification requires specialist opt-in, identity stays private. DEBUG/local nginx protected paths denied; review22 and explicit deletion hooks retained existing history/retention policy. Operational media transition separate release, no production moves.
+
+QA04 isolated PostgreSQL17.11/network-none/test media/cache/email: all Task33 **444/444 PASS**, target121/121, finalprivacy/security28/28; independentsecurity14/14, independentDB0130→0132 preservation/constraints5/5, actualdomain28 with5 concurrency cases. Django checks/migration consistency PASS,166/0,1681 unique discovery. Full1681/101F11E/0skip remainsNOT_GREEN:95prior uniqueIDs samekind/exception plus6D08obsolete specialist ownership/consent expectations; unknown0.
+
+Chromium seven actors×AZ/RU/EN×seven widths:147clean rows/63HTTP authorizationPASS. Keyboard7RED not waived; actualregion focus handler correction rechecked all21reviewer contexts/73assertionsPASS with strongerbounds; person5-step DOM corrected. Zero console/page/request/staticerrors; external stubs, realintegrationsNOT_RUN. Local actualnginxrules6/6 HTTP PASS, TLS/productionNOT_RUN. CleanupPASS; no QA04containers remain. Dirtysource145SHA MATCH;97appsource SHA match immutable correctivebrowser snapshot. Reports24.md/24-results.json/24-source-manifest.json and independentreports. Active_run released;25requires acceptedSpecialistmockups+separateinstruction, currentlyNOT_CREATED/NOT_APPROVED.
+
+## История запуска 25 — design checkpoint
+
+2026-10-03, root frontend-reviewer; actual branch task33-progress/HEAD015d031d8eb17114bd860159dde805b38df3c13c.192 entry files preserved и145stage24source unchanged. Created specialist-25-r1:8HTML/11packagefiles, accepted local tokens/assets. Независимые /root/stage25_design и /root/stage25_browser; full frozen168/168 +586/586, copy-only final78/78 +111/111; events0, finalsource11/11MATCH.40PNG/rawQA outsideGit,23artifactSHA в reports/25-design-manifest.json. Reports25.md/25-browser-review.md и acceptance.md обновлены. CREATED/REVIEW_PENDING, пользователь ещё не принял; application/DB/realtransfer NOT_RUN. active_run снят после завершения обоих исполнителей; user static preview127.0.0.1:8796 оставлен для просмотра. Следующий шаг — принятие и продолжение текущего25, не26. Commit/push/merge/deployment/production NOT_RUN.
+
+## Завершение25 — 2026-10-03
+
+После прямого «принимаю продолдавй» specialist-25-r1 ACCEPTED, выполнена только интеграция25. Entry220 файлов/patch сохранены; no entry deletion, финальные authorized deltas и SHA в reports/25-source-manifest.json. Root Task33479/479,0F0E0skip; isolated checks/migrations166/0 и cleanup PASS. Independent security17/17 и late static template delta PASS. Independent browser актуальные168contexts/380checks, corrective42/84;2758sourceSHA MATCH, console/page/network/overflow0. Transfer duplicate-name fixtures/legacy IDs/URLs/private+online practice/doc/review сохранены без inferred consent. Отчёт reports/25.md; сохранён historical design checkpoint25-design-checkpoint.md. Full application NOT_GREEN исторически, свежий full1716 NOT_RUN. Все исполнители завершены, active_run NONE.26+/production/commit/push/merge/deploy NOT_RUN.
+
+## Запуск26 — 20261003-163027Z
+
+Прямое поручение только26, APPROVED IMPLEMENT, lead /root django-reviewer. Dependency25 DONE, active_run на входе NONE; принятие owner/admin-public/Specialist сохраняется. Entry265/265 dirty/untracked файлов и binary patch сохранены в C:\kidsmap\scratch\task33-stage26-entry-20261003-163027Z; manifest reports/26-entry-manifest.json. HEAD015d031d8eb17114bd860159dde805b38df3c13c, branchtask33-progress; dependency source SHA136/136 MATCH. Production/27+/commit/push/merge/deploy NOT_RUN.
+
+## Завершение26 — 2026-10-03
+
+Run20261003-163027Z, root canonical django-reviewer; domain database-reviewer и public/query/UI django-reviewer implementations, independent security-reviewer/browser-qa с отдельными freezes. Только prompts/26.md APPROVED IMPLEMENT, dependency25 DONE, accepted design checkpoints сохранены. Entry265/265 dirty/untracked files+binary patch сохранены, dependency25SHA136/136 MATCH. LOCAL HEAD015d031d8eb17114bd860159dde805b38df3c13c unchanged; dirty21–26 identity/source hashes/inventory/final snapshot и authorized entry deltas — reports/26-source-manifest.json; deleted0.
+
+Fresh root `stage26-task33-final2-20261003`:551/551unique PASS,0F0E0skip, duplicates0,72 Event cases; check/makemigrations0,167applied/0pending, isolated guards/cleanup PASS. Full1788 discovery only, executionNOT_RUN; historicalfull24 NOT_GREEN сохранён. Independent security own19/19PASS +latest19-source delta auditPASS. Independent Chromium composite168 unaffected final2 +42 final3 =210unique contexts AZ/RU/EN7widths,443/443checks (включая84/84focus) PASS. Actual HTTP archive keys/snapshot district, Baku UTC actualPOST, online admin save/publication, CSRF/stale/foreignvenue/reviews/schema verified. Browser-caused middleware allowlist regression closed by2fullHTTP tests before551; later presentation-onlyCSS reviewed/frozen/executed independently. Failed earlier mobile/grid/harness diagnostics retained, no assertions weakened. Report26.md and browser/security/domain/public reports give exact commands, raw/safe artifacts and attribution.
+
+All executors completed; active_run NONE. Organizer legacy provenance/unknown historical geography remain explicit; ORM history is not rawSQLtrigger, operational populated rollback/external integrations/fullscreenreader NOT_RUN.27+/production/commit/push/merge/deploy NOT_RUN; next27 requires separate instruction.
+
+## Запуск27 — 20261003-183627Z
+
+Прямое поручение только27, APPROVED IMPLEMENT, lead /root frontend-reviewer. Dependency26 DONE, active_run на входе NONE; принятие owner/admin-public/Specialist сохраняется. Entry342/342 dirty/untracked файлов и binary patch сохранены в C:\kidsmap\scratch\task33-stage27-entry-20261003-183627Z; manifest reports/27-entry-manifest.json. HEAD015d031d8eb17114bd860159dde805b38df3c13c, branchtask33-progress; dependency source SHA158/158 MATCH. Production/28+/commit/push/merge/deploy NOT_RUN.
+
+
+## Завершение27 — 2026-10-03
+
+Run20261003-183627Z, root canonical frontend-reviewer; bounded backend django-reviewer /root/stage26_public, independent browser-qa /root/stage26_browser и integration-reviewer /root/stage27_integration. Stage26 names are retained runtime handles, not parallel stage26 work. Прямое «дальше» продолжило только27 после DONE26, D14; checkpoints accepted, entry active_run NONE.342/342 entry files+binary patch preserved, dependency26 source158/158 MATCH; LOCAL HEAD015d031d8eb17114bd860159dde805b38df3c13c unchanged, dirty21–27; final authorized deltas/SHA/inventory/snapshot27-source-manifest.json, deleted0.
+
+Native GET list/calendar/month/day/range, full matching month без list12 limit, Baku half-open multi-day grouping, Event-only taxonomy/snapshot districts, сохраняемые filters/chips/history/reload, mobile day list/desktop month, honest unknown price/state/contact/typed reviews и AZ provenance реализованы. Existing organizer/venue/online authority26 preserved. Fresh isolated QA04 Task33575/575 unique PASS,0F0E0skip,269.28s; check/makemigrations0,167applied/0pending, guards/cleanup PASS. Independent ownfreeze10/10 PASS; late CSS-only delta17 unchanged+CSS/template independently reviewed. Actual Chromium freshfull273/273contexts,924/924checks включая546focus/Tab PASS; AZ/RU/EN7widths, owner/admin/public actual flows, console/network/static/overflow0, application/executed-harness source mismatches/newfiles0; broad-source1 unexecuted review-helper drift отдельно сохранён сSHA. First browser harness navigation failure totalsUNKNOWN и diagnosticcaptionclip2/5 retained separately; corrected synchronization/reveal settling/component bounds, no weakened assertions. Root personally inspected final settled mobile/desktop PNG.
+
+Full1812 discovery only/executionNOT_RUN; historicalfull24 NOT_GREEN remains. Production UNKNOWN/NOT_CONTACTED; external integrations/physical devices/fullscreenreader/load/operational rollback NOT_RUN. All executors completed, active_run NONE.28/production/commit/push/merge/deploy NOT_RUN; next28 only separate instruction. Exact evidence27.md,27-backend.md,27-integration-review.md,27-browser-review.md.
+
+## Запуск28 — 20261003-194618Z
+
+Пользователь после DONE27 написал «дальше»: только28 LOCAL ACCEPTANCE R2. Lead /root integration-reviewer. Dependency27 DONE, entry active_run NONE, designs accepted. Entry392/392 files+binary patch preserved: C:\kidsmap\scratch\task33-stage28-entry-20261003-194618Z, reports/28-entry-manifest.json; dependency27 SHA185/185 MATCH. HEAD015d031d8eb17114bd860159dde805b38df3c13c, branchtask33-progress. Production/commit/push/merge/deploy NOT_RUN.
+
+## Завершение28 — 2026-10-04
+
+DONE — LOCAL ACCEPTANCE ONLY, run20261003-194618Z /root integration-reviewer. Исправлена утрата seconds/microseconds/published_at при обычном сохранении Event через Admin/Owner минутные widgets; два clean-метода и пять новых regression-тестов, без изменения прежних assertions/ACL/history guards. Значимые RED→final GREEN43/43; exact image Python3.12.15 precision5/5. Итоговый full1817 unique:109F11E0skip,580/580 Task33 PASS, application NOT_GREEN.120 problem entries/109IDs:101 retained24,7 Event contract/fixture conflicts,1 retained UTC/Baku midnight sitemap expectation с independent source и deterministic2/2 replay.167 migrations/0pending, checks0, guards/cleanupPASS.
+
+Browser actual798 unique clean/1678checks PASS на AZRUEN×7widths; R1 retained execution с SHA/AST bounded equivalence, Specialist/Event final source2750MATCH. Independent DB32/32/source23, native recovery98tables/25public+2privatefiles/exact2794-reader, post-switch history/reviews/outbox retained/normalcleanupPASS. Security actual259/260 сохранён failed: schedule-sensitive transfer-success test expectation; original five+forced-order rollback/retry ACL probe current6/6 и retainedV2 6/6 PASS, source50MATCH/causal8unchanged. Release/security последовательно одним named reviewer; own release override independently read DB reviewer.
+
+Exact artifact65d8995ff21fb5e5b9fb88d81d18f2f36c4380841f14131cd11dc258bf8c61b2, local image6566a67c0b3ab3da8ea040314b016908b1cbe17e09a50912fc5c80fe5228f5fd; exhaustive2794files MATCH, host/image static9305 hashes equal, Compose required mount/cohort/context and negative gates verified. Matrix306 status/evidence; source218snapshotMATCH, dirty545, entry392preserved/deleted0; AST56/bash9/scoped diff PASS. Evidence reports/28.md, release-R2.md,28-final-verification.json. All executors finished, active_run NONE. Production/registry-publish/full-image-suite/physical devices/external OAuth-Maps-SMTP NOT_RUN; production-ready не заявлено. Commit/push/merge/deploy и другие этапы не выполнялись. Дальнейшее production действие требует отдельного прямого поручения.
+
+## Итоговый сквозной аудит 2026-10-04
+
+Итоговый сквозной аудит 2026-10-04 завершён: рассмотрены все 28 этапов и 306 требований. Основная система реализована, окончательная полнота задумки НЕ подтверждена: taxonomy/search gap, красная регрессия, UI-дефекты и внешние release gates. Fresh host 1817: 109F/11E, Task33 579/580; exact image 1817: 108F/12E; browser FAIL: 816 contexts, 1724/1724 checks. Native recovery 98 tables / 25 public + 2 private files PASS. Application fixes/commit/push/production NOT_RUN.
+
+Сохранены все 545 исходных dirty paths и binary patch; 218 source hashes предыдущего приёмочного snapshot проверены. Все первоначальные неудачные попытки и новые результаты сохранены. [Отчёт](final-audit/REPORT.md), [HTML](final-audit/report.html), [306 требований](final-audit/REQUIREMENTS.md), [Проверка сохранности](final-audit/final-verification.json). Следующий шаг — согласование конкретного объёма исправлений из roadmap.
+
+## Завершение completion 1–5 — 2026-10-04
+
+Пункты 1–5 принятого плана завершены локально 2026-10-04. Полные PostgreSQL host/image: по1844,0F/0E/0skip;120/120 исходных записей регрессии закрыты в обоих наборах. JS30/30; Chromium861 контекст,1837 проверок, неожиданных ошибок0; native restore98tables/25public+2privatefiles PASS. Сохранены710 входных файлов; final-audit164/164 побайтно неизменны. Production/commit/push/deploy NOT_RUN; эксплуатационная готовность — отдельный пункт6. Новые доказательства: completion/REPORT.md, completion/report.html, completion/final-verification.json.
+
+Run `completion-20261004-095717Z`, APPROVED IMPLEMENT по прямому плану пользователя. Миграция0134: три nullable FK;168applied/0pending, check/makemigrations и guards/cleanup PASS. Детерминированные transfer/join success/conflict/retry и crash/outbox проверки включены в оба полных набора. Финальная интеграция, browser и release/recovery выполнены root последовательно после остановки вспомогательных исполнителей; независимое финальное ревью не заявляется.
+
+Новый image `sha256:bb90c815dc2b7d19993a682ddfb117b832164b56ac412634650881c8e4d85c2a`; artifact `r2-local-sha256-fb2b79949d6134a2790031ac9a9ab7753d33b71a81e334af805d5cbe1985c55c`. Host/image/browser сверены с теми же 2760 application-файлами. Старый образ сохранён. Документ аналитики передан в образ отдельным SHA-проверенным read-only QA-входом; приложение не подменялось. Native recovery читает frozen APP через внешний read-only QA reader с SHA и сверкой2803 файлов до/после.
+
+Сквозной browser выявил и подтвердил исправление500 смешанной очереди Program/Place; сохранены RED и финальный GREEN. Неудачные backend/JS/browser/recovery attempts перечислены в новом отчёте и сохранены отдельно.30 свежих PNG плюс проверки HTML-отчёта; таблицы всех28 этапов и120problem entries. Все финальные процессы завершены и их временные ресурсы очищены; active_run освобождён. Production, реальные внешние сервисы, commit/push/deploy не выполнялись.
+
+## Локальный стенд для ручной приёмки — 2026-10-04
+
+По отдельному запросу пользователя запущен полный локальный Django-стенд http://localhost:8780/qa/ с синтетическими данными, 7 аккаунтами и гостем. Инструкция: [manual-check/README.md](manual-check/README.md), интерактивная версия manual-check/guide.html; 26 ручных сценариев, 45 основных ссылок для каждого языка, свежие скриншоты. Код приложения не менялся: 2760 SHA-256 сверены с завершённым снимком и WORKTREE. completion/146 файлов сохранены неизменными.
+
+Проверка доступности/прав: 88 ожидаемых результатов, 0 неожиданных JS-ошибок и сетевых отказов; это smoke нового стенда, не повтор всей регрессии. Google Maps/геокодирование, Google OAuth и внешняя почта отключены. Карта показывает 3 точки и явный fallback; интерактивные Google-маркеры этим запуском не проверены. В инструкции это ограничение обозначено.
+
+Стенд намеренно оставлен работающим: WSL Ubuntu-24.04, 127.0.0.1:8780; PostgreSQL kidsmap-manual-20261004, Docker network none, без публикации DB-портов, отдельный volume kidsmap-manual-20261004-data. Команды запуска/остановки — в manual-check/README.md. При последующем QA не останавливать этот пользовательский стенд как остаток предыдущих временных тестов. active_run остаётся NONE: активной реализации нет; production/commit/push/deploy не выполнялись.
+## Исправление Access blocked на главной — 2026-10-04
+
+По скриншоту пользователя исправлены запросы OpenStreetMap на главной: настоящий origin-only Referer, канонический tile URL, проверка HTTP-статуса до отображения изображения, отмена запросов и локализованное сообщение при отказе. Глобальная политика same-origin сохранена. Два application-файла и один новый JS-тест; исходные версии сохранены в manual-check/map-fix/before/.
+
+RED: Chromium воспроизвёл 15 видимых PNG из HTTP 403, Referer отсутствовал. GREEN: 12/12 JS, 18/18 browser AZ/RU/EN ×320/1280 ×успех/403/offline; 0 неожиданных ошибок, карточка по метке открывается и после отказа фона. Реальный OSM без перехватов: 15/15 HTTP200, 15 плиток и 2 маркера/кластера. Отчёт: [manual-check/map-fix/REPORT.md](manual-check/map-fix/REPORT.md).
+
+Локальный сервер8780 оставлен работающим, теперь из /root/km-manual-mapfix;2761 SHA сверены с текущим WORKTREE и manual-check/source-manifest.json. Исторический runtime2760 и completion146 файлов неизменны, синтетическая БД сохранена. Полный backend-набор не повторялся для JS/template-исправления. Google-карта каталога остаётся без ключа. active_run: NONE; production/commit/push/deploy NOT_RUN.
+### 2026-10-04 — 100 демонстрационных мест для ручной проверки
+
+По прямому поручению пользователя в изолированный локальный стенд добавлены 100 опубликованных мест: теперь 103, 11 категорий новых мест, 8 районов, 396 файлов фото/галерей, по 100 занятий, групп и тарифов. 3 прежние карточки сохранены с совпадением SHA всех полей; повторный запуск создал 0 записей. Перед загрузкой pg_dump локальной базы сохранён вне репозитория. Browser PASS: AZ/RU/EN, счётчики каталога и данных карты 103, спорт 13, фото, карточка, мобильная вторая страница 390; JS/network/HTTP errors 0. Артефакты manual-check/demo100/, 3 скриншота manual-check/screenshots/demo100-*.png. Код приложения и исторические completion/final-audit не изменялись. Стенд localhost:8780 оставлен работающим; active_run NONE; production/commit/push/deploy NOT_RUN.

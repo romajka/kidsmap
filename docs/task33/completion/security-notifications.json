@@ -1,0 +1,76 @@
+{
+  "run": "completion-20261004-095717Z",
+  "scope": "Fresh approved point4 crash semantics;21 actual notification cases",
+  "evidence": "/root/task33-evidence/completion-security-notifications-final-20261004",
+  "suite-results.json": {
+    "tests_run": 21,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 10.032,
+    "status": "PASS",
+    "executed_ids": [
+      "catalog.testcases.test_task33_notifications.NotificationContractTests.test_emit_is_transactional_and_dedupes_event_entity_version_recipient",
+      "catalog.testcases.test_task33_notifications.NotificationContractTests.test_smtp_failure_keeps_inbox_and_retry_sends_once",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_changed_email_cannot_read_old_address_notification",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_csrf_required_for_inbox_actions",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_invitation_dedupe_survives_account_creation",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_invitation_inbox_post_only_recipient_scoped_and_revocation_suppresses_mail",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_join_confirmation_form_is_current_owner_post_only",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_join_detach_transfer_and_access_disable_emit_once_for_each_recipient",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_runner_preview_and_send_with_test_backend",
+      "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_stale_join_confirmation_is_suppressed_after_owner_change",
+      "catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_crash_after_acceptance_retries_and_demonstrates_permitted_duplicate",
+      "catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_crash_after_commit_and_repeated_workers_never_resend_sent",
+      "catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_crash_after_sent_update_before_commit_rolls_back_but_smtp_acceptance_survives",
+      "catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_crash_before_smtp_keeps_committed_business_and_retries_without_duplicate",
+      "catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_normal_smtp_errors_keep_committed_business_exact_backoff_and_five_attempt_cap",
+      "catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_parallel_workers_skip_locked_and_only_one_smtp_acceptance",
+      "catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_retry_rechecks_cancelled_invitation_after_ambiguous_acceptance",
+      "catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_retry_rechecks_changed_address_after_ambiguous_acceptance",
+      "catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_retry_rechecks_ownership_version_after_ambiguous_acceptance",
+      "catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_retry_rechecks_revoked_recipient_after_ambiguous_acceptance",
+      "catalog.testcases.test_task33_notifications.NotificationConcurrencyTests.test_parallel_duplicate_event_has_one_inbox_and_one_outbox"
+    ],
+    "problems": []
+  },
+  "migrations.json": {
+    "applied_count": 168,
+    "unapplied_count": 0
+  },
+  "discovery.json": {
+    "explicit_count": 1833,
+    "explicit_unique_count": 1833,
+    "duplicate_explicit_ids": 0
+  },
+  "isolation.json": {
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10",
+    "network_guard": true,
+    "libpq_guard": true,
+    "external_credentials_present": false
+  },
+  "run.json": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "checks.json": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.125
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.226
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "id": "SEC-FA-01",
+    "severity": "P2",
+    "environment": "LOCAL dirty WORKTREE / disposable PostgreSQL",
+    "kind": "schedule_sensitive_test_contract",
+    "title": "Конкурентный тест требует успеха безопасно отклонённой операции",
+    "business_impact": "Шумящий gate затрудняет различение отказа с reload и нарушения ACL; подтверждённой выдачи устаревших прав нет.",
+    "source": [
+      "src/catalog/testcases/test_task33_ownership.py:344",
+      "src/catalog/testcases/test_task33_ownership.py:362",
+      "src/catalog/services/organization_ownership.py:39"
+    ],
+    "reproduction": "Fresh selected260:259PASS/1F; fresh original5+forced structure-retry/ACL probe6/6PASS.",
+    "confidence": "Высокая для контролируемого ordering guard; точный interleaving исходного scheduler не инструментирован.",
+    "evidence": [
+      "security-results.json",
+      "security-causal.json",
+      "../reports/28-security-causal-classification.json"
+    ],
+    "owner": "integration-reviewer + domain owner",
+    "next": "Будущий отдельный deterministic outcome contract test без ослабления ACL.",
+    "application_changes": false,
+    "assertion_changes": false,
+    "production": "NOT_CONTACTED"
+  }
+]

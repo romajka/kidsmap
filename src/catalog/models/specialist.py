@@ -5,6 +5,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
 from django.utils.text import slugify
+from catalog.private_storage import specialist_private_storage, specialist_document_path
 
 class Region(models.Model):
     """Справочник городов/регионов Азербайджана (Баку, Сумгаит и т.д.)"""
@@ -91,6 +92,11 @@ class SpecialistSpecialization(models.Model):
 
 
 class Specialist(models.Model):
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name="proposed_specialists")
+    verified_person_user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name="verified_specialist_person")
+    person_verified_at = models.DateTimeField(null=True, blank=True)
     FORMAT_ONLINE = "online"
     FORMAT_OFFLINE = "offline"
     FORMAT_BOTH = "both"
@@ -197,14 +203,13 @@ class Specialist(models.Model):
         ordering = ("-created_at",)
         verbose_name = _("Специалист")
         verbose_name_plural = _("Специалисты")
+        permissions = [("review_specialist_claim", "Can verify specialist person claims")]
 
     def refresh_rating_stats(self):
         """Перерасчет рейтинга специалиста только на основе одобренных отзывов"""
         from django.db.models import Avg, Count
-        stats = self.reviews.filter(
-            is_approved=True, 
-            status=SpecialistReview.STATUS_APPROVED
-        ).aggregate(avg=Avg("rating"), cnt=Count("id"))
+        from catalog.services.content_quality import public_review_queryset
+        stats = public_review_queryset(self.reviews.all()).aggregate(avg=Avg("rating"), cnt=Count("id"))
         
         self.rating_avg = float(stats.get("avg") or 0.0)
         self.rating_count = int(stats.get("cnt") or 0)
@@ -357,6 +362,9 @@ class SpecialistScheduleInterval(models.Model):
 
 
 class SpecialistDocument(models.Model):
+    opted_in_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name="specialist_document_consents")
+    opted_in_at = models.DateTimeField(null=True, blank=True)
     TYPE_IDENTITY = "identity"
     TYPE_DIPLOMA = "diploma"
     TYPE_CERTIFICATE = "certificate"
@@ -385,7 +393,8 @@ class SpecialistDocument(models.Model):
     document_type = models.CharField(_("Тип документа"), max_length=20, choices=TYPE_CHOICES)
     name = models.CharField(_("Название / Описание документа"), max_length=255)
     
-    file = models.FileField(_("Файл документа"), upload_to="protected_docs/specialists/")
+    file = models.FileField(_("Файл документа"), storage=specialist_private_storage,
+                            upload_to=specialist_document_path)
     
     status = models.CharField(_("Статус проверки"), max_length=16, choices=STATUS_CHOICES, default=STATUS_PENDING)
     is_published = models.BooleanField(
@@ -399,9 +408,19 @@ class SpecialistDocument(models.Model):
     class Meta:
         verbose_name = _("Документ специалиста")
         verbose_name_plural = _("Документы специалиста")
+        permissions = [("review_specialist_documents", "Can review private specialist documents")]
 
     def __str__(self):
         return f"{self.get_document_type_display()} - {self.name}"
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            original = type(self).objects.filter(pk=self.pk).values('document_type', 'file').first()
+            if original and (original['document_type'] != self.document_type
+                             or original['file'] != self.file.name):
+                from django.core.exceptions import ValidationError
+                raise ValidationError('Document purpose and bytes are immutable; submit a new document')
+        return super().save(*args, **kwargs)
 
     @property
     def is_verified(self):
@@ -409,10 +428,16 @@ class SpecialistDocument(models.Model):
 
     @property
     def is_public(self):
-        return self.is_published
+        from catalog.services.specialist_documents import is_public_document
+        return is_public_document(self)
 
 
-class SpecialistReview(models.Model):
+from .review_versions import VersionedReview
+
+
+class SpecialistReview(VersionedReview):
+    current_revision = models.ForeignKey('catalog.SpecialistReviewRevision', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    candidate_revision = models.ForeignKey('catalog.SpecialistReviewRevision', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
     STATUS_PENDING = "pending"
     STATUS_APPROVED = "approved"
     STATUS_REJECTED = "rejected"
@@ -453,11 +478,18 @@ class SpecialistReview(models.Model):
     moderated_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='moderated_specialist_reviews')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    is_anonymous = models.BooleanField(default=False)
+    contains_profanity = models.BooleanField(default=False)
+    session_key = models.CharField(max_length=64, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    likes_count = models.PositiveIntegerField(default=0)
+    dislikes_count = models.PositiveIntegerField(default=0)
+
     class Meta:
         verbose_name = _("Отзыв о специалисте")
         verbose_name_plural = _("Отзывы о специалистах")
         constraints = [
-            models.UniqueConstraint(fields=("specialist", "user"), name="unique_specialist_review_per_user")
+            models.UniqueConstraint(fields=("specialist", "user"), condition=models.Q(is_current=True, user__isnull=False), name="specialistreview_current_user")
         ]
 
     def __str__(self):
@@ -467,7 +499,8 @@ class SpecialistReview(models.Model):
         from catalog.services.moderation_sla import prepare_moderation_save
         prepare_moderation_save(self, kwargs)
         self.is_approved = (self.status == self.STATUS_APPROVED)
-        super().save(*args, **kwargs)
+        from catalog.services.review_versions import save_legacy_source
+        save_legacy_source(self, lambda: super(SpecialistReview, self).save(*args, **kwargs))
         self.specialist.refresh_rating_stats()
 
     def delete(self, *args, **kwargs):

@@ -639,6 +639,10 @@ a.km-staff-user-name:hover {
   .km-staff-header__actions {
     width: 100%;
     justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  .km-staff-header__actions > * {
+    max-width: 100%;
   }
   .km-staff-toolbar {
     flex-direction: column;

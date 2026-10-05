@@ -15,9 +15,12 @@ from django.utils import timezone
 from django.dispatch import receiver
 
 from .place import Place
+from .review_versions import VersionedReview
 
 
-class PlaceReview(models.Model):
+class PlaceReview(VersionedReview):
+    current_revision = models.ForeignKey('catalog.PlaceReviewRevision', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    candidate_revision = models.ForeignKey('catalog.PlaceReviewRevision', null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
     STATUS_PENDING = "pending"
     STATUS_APPROVED = "approved"
     STATUS_REJECTED = "rejected"
@@ -56,6 +59,7 @@ class PlaceReview(models.Model):
     class Meta:
         ordering = ("-created_at",)
         indexes = [models.Index(fields=["place", "user", "-created_at"], name="review_place_user_latest")]
+        constraints = [models.UniqueConstraint(fields=['place', 'user'], condition=Q(is_current=True, user__isnull=False), name='placereview_current_user')]
         verbose_name = _("Отзыв по кружку")
         verbose_name_plural = _("Отзывы по кружкам")
 
@@ -67,24 +71,24 @@ class PlaceReview(models.Model):
         return int(self.likes_count) - int(self.dislikes_count)
 
     def refresh_reaction_stats(self):
-        stats = self.reactions.aggregate(
+        stats = self.reactions.filter(revision_id=self.current_revision_id).aggregate(
             likes=Count("id", filter=Q(value=1)),
             dislikes=Count("id", filter=Q(value=-1)),
         )
         self.likes_count = int(stats.get("likes") or 0)
         self.dislikes_count = int(stats.get("dislikes") or 0)
-        self.save(update_fields=["likes_count", "dislikes_count"])
+        type(self).objects.filter(pk=self.pk).update(likes_count=self.likes_count, dislikes_count=self.dislikes_count)
 
     def save(self, *args, **kwargs):
         from catalog.services.moderation_sla import prepare_moderation_save
         prepare_moderation_save(self, kwargs)
-        self.is_anonymous = False
         if self.status == self.STATUS_APPROVED:
             self.is_approved = True
         elif self.status in {self.STATUS_PENDING, self.STATUS_REJECTED}:
             self.is_approved = False
         self.rating = min(max(int(self.rating or 1), 1), 5)
-        super().save(*args, **kwargs)
+        from catalog.services.review_versions import save_legacy_source
+        save_legacy_source(self, lambda: super(PlaceReview, self).save(*args, **kwargs))
         self.place.refresh_rating_stats()
 
     def delete(self, *args, **kwargs):
@@ -133,11 +137,15 @@ def _on_place_review_saved(sender, instance, **kwargs):
 @receiver(post_delete, sender=PlaceReview)
 def _on_place_review_deleted(sender, instance, **kwargs):
     if instance.place_id:
+        if instance.is_current and instance.user_id:
+            from catalog.services.review_versions import normalize_reviews
+            normalize_reviews(PlaceReview)
         instance.place.refresh_rating_stats()
 
 
 
 class PlaceReviewReaction(models.Model):
+    revision = models.ForeignKey('catalog.PlaceReviewRevision', on_delete=models.CASCADE, related_name='reactions')
     VALUE_DISLIKE = -1
     VALUE_LIKE = 1
     VALUE_CHOICES = (
@@ -167,12 +175,12 @@ class PlaceReviewReaction(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=("review", "session_key"),
+                fields=("revision", "session_key"),
                 condition=models.Q(user__isnull=True) & ~models.Q(session_key=""),
                 name="unique_place_review_reaction_per_session",
             ),
             models.UniqueConstraint(
-                fields=("review", "user"),
+                fields=("revision", "user"),
                 name="unique_place_review_reaction_per_user",
             ),
         ]
@@ -180,6 +188,13 @@ class PlaceReviewReaction(models.Model):
         verbose_name_plural = _("Реакции на отзывы по кружкам")
 
     def save(self, *args, **kwargs):
+        if not self.revision_id:
+            from catalog.services.review_versions import ensure_baseline
+            baseline = ensure_baseline(self.review)
+            self.revision_id = self.review.current_revision_id or baseline.pk
+        if self.revision.review_id != self.review_id:
+            from django.core.exceptions import ValidationError
+            raise ValidationError('Reaction revision belongs to another review.')
         self.value = self.VALUE_LIKE if int(self.value or self.VALUE_LIKE) > 0 else self.VALUE_DISLIKE
         self.session_key = (self.session_key or "").strip()
         super().save(*args, **kwargs)

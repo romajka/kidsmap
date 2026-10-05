@@ -2,7 +2,13 @@
 
 Подготовлено 2026-09-29. Рабочий проект: /home/ramin/kidsmap. Source discovery HEAD: c52b871ce5c18656a9eaf9854e66255c2629364e; не переключаться на него автоматически. Production UNKNOWN.
 
-**28 самостоятельных заданий. Этапы01–20 DONE locally; owner/admin-public design принят. Следующий — 21 после preflight. Application NOT_GREEN (исторический общий набор остаётся красным); production не запускался. Перенос домой: [home-handoff.md](home-handoff.md).**
+> **Завершение пунктов 1–5 — 4 октября 2026.** Пункты 1–5 принятого плана завершены локально 2026-10-04. Полные PostgreSQL host/image: по1844,0F/0E/0skip;120/120 исходных записей регрессии закрыты в обоих наборах. JS30/30; Chromium861 контекст,1837 проверок, неожиданных ошибок0; native restore98tables/25public+2privatefiles PASS. Сохранены710 входных файлов; final-audit164/164 побайтно неизменны. Production/commit/push/deploy NOT_RUN; эксплуатационная готовность — отдельный пункт6. Новые доказательства: completion/REPORT.md, completion/report.html, completion/final-verification.json. [Новый подробный отчёт](completion/REPORT.md) · [HTML: roadmap, 120 замечаний и 30 скриншотов](completion/report.html).
+
+> **Предыдущий исторический аудит — 4 октября 2026.** Итоговый сквозной аудит 2026-10-04 завершён: рассмотрены все 28 этапов и 306 требований. Основная система реализована, окончательная полнота задумки НЕ подтверждена: taxonomy/search gap, красная регрессия, UI-дефекты и внешние release gates. Fresh host 1817: 109F/11E, Task33 579/580; exact image 1817: 108F/12E; browser FAIL: 816 contexts, 1724/1724 checks. Native recovery 98 tables / 25 public + 2 private files PASS. Application fixes/commit/push/production NOT_RUN. [Подробный отчёт и roadmap](final-audit/REPORT.md) · [HTML со скриншотами](final-audit/report.html).
+
+Историческое закрытие этапа 28 (цифры ниже относятся к предыдущему запуску):
+
+**28 самостоятельных заданий. Этапы01–28 DONE locally; design checkpoints приняты. Этап28 DONE locally: итоговая локальная приёмка R2. Full PostgreSQL1817: 109 failures + 11 errors, 0 skipped; application NOT_GREEN. 580/580 Task33 PASS. Browser798/798 контекстов, 1678/1678 проверок; DB32/32 и native recovery98tables/25public+2privatefiles PASS. Security260: 1F/0E; его фактический результат и отдельная причинная проверка сохранены в отчёте. Production NOT_CONTACTED/NOT_RUN. [Отчёт](reports/28.md), [release package](release-R2.md). Перенос домой: [home-handoff.md](home-handoff.md).**
 
 ## Как запускать
 

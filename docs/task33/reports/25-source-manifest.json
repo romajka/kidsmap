@@ -1,0 +1,1372 @@
+{
+  "stage": 25,
+  "local_head": "015d031d8eb17114bd860159dde805b38df3c13c",
+  "branch": "task33-progress",
+  "snapshot": "C:\\kidsmap\\scratch\\task33-stage25-final-20261003-162809Z",
+  "source_artifacts_count": 136,
+  "source_artifacts": [
+    {
+      "path": "docs/task33/qa25/application_bridge/commands.py",
+      "sha256": "4405cef36395f08af1e2c394d424ff0a596672d66bf34a3bfa976a974f67f105"
+    },
+    {
+      "path": "docs/task33/qa25/application_browser.py",
+      "sha256": "29e4e312ec78c40a87ff25798ea8298207c510e13642c9681838ddaf854b97be"
+    },
+    {
+      "path": "docs/task33/qa25/application_collect.py",
+      "sha256": "543473c889e136167bf698394dba026998af529d970133e5e05ebcc36b420273"
+    },
+    {
+      "path": "docs/task33/qa25/application_diagnostics.py",
+      "sha256": "ebd1d034c700fe1ffe3d8fcb6ac046a976c219b32a3890a02906fb3d7b91d6a9"
+    },
+    {
+      "path": "docs/task33/qa25/application_matrix.js",
+      "sha256": "72a93a649b98c63ba415d0c151a31b9f707da7d92a46661f43e29d3ef362cfa2"
+    },
+    {
+      "path": "docs/task33/qa25/application_profile_followup.js",
+      "sha256": "dbc3ea2bde96c726644765f41bae4b48f3323c75ec0e1c25164a82fa8bda2193"
+    },
+    {
+      "path": "docs/task33/qa25/application_profile_followup.py",
+      "sha256": "58ab9935b7b486b388e7d1521b2883bc78b0eb1a5267dea19b335f7e983af3b2"
+    },
+    {
+      "path": "docs/task33/qa25/application_results.py",
+      "sha256": "9fb5eee3c05ba71cd6f20a10c05b990bc66b9576d8f12bb428e518b9093535af"
+    },
+    {
+      "path": "docs/task33/qa25/application_run-browser.sh",
+      "sha256": "6f6935bcb9074b45163b4131ec6a758f6f9adda3fe4a7effc3ba4f80954a31cb"
+    },
+    {
+      "path": "docs/task33/qa25/application_source_check.py",
+      "sha256": "6334f27c6e8be8e1b8c16d880fe084ff6c47535c3c86b9bd13038e9c7e9e5158"
+    },
+    {
+      "path": "docs/task33/qa25/application_sync.sh",
+      "sha256": "96a6f4fd37ed17a8e88e9d2d9d76b08bfd49b2e5d3c209dfa11ebaca0bc112dd"
+    },
+    {
+      "path": "docs/task33/qa25/backend_run.sh",
+      "sha256": "f0e5914bf4bdc5beb0df0242944b7f58aa3d158614abed621078c1be63251ee7"
+    },
+    {
+      "path": "docs/task33/qa25/browser-matrix.js",
+      "sha256": "d1774e43fd9c5e5937a3280f1fd079e791e4c59b21104e4894b2f81c93ebc880"
+    },
+    {
+      "path": "docs/task33/qa25/build-results.py",
+      "sha256": "8a301c7be8bd1e170a24a0c0fc9fe6e6422a054c7445de6b5ac39693dec66d3d"
+    },
+    {
+      "path": "docs/task33/qa25/collect.py",
+      "sha256": "b6460479f4b65cd734e2de984235f28bc05522a702d41cae23fcd7f3728beedf"
+    },
+    {
+      "path": "docs/task33/qa25/final-copy-keyboard.js",
+      "sha256": "a20fa6ed0d676bde15e562f083defdabc14b59739d917a8ce04c7635594b3554"
+    },
+    {
+      "path": "docs/task33/qa25/pending-probe.js",
+      "sha256": "542a6369235b0e5c7d637e69482988f8a2fac762097f4b4ee3c0b501b0577eaa"
+    },
+    {
+      "path": "docs/task33/qa25/preview.py",
+      "sha256": "4e7c6c054d68d59e17004f6c9dd4376c2dc2cf0067c759bf5be7c7404f2f05cc"
+    },
+    {
+      "path": "docs/task33/qa25/run-browser.sh",
+      "sha256": "ad0b2f97b1ab628ba69cc74835742c5ae780cc0f2a5f38a7378b55f2443348fe"
+    },
+    {
+      "path": "docs/task33/qa25/security-collect.py",
+      "sha256": "f521b6ce1777417af0042dededfbc6b55e4811eca4f06c10369b2eae1e064a8b"
+    },
+    {
+      "path": "docs/task33/qa25/security-final-delta.py",
+      "sha256": "c5cb14557ac62b164bcd3c2e61ca2ae73008c85f3cf45f502e5fa56ed97e2f60"
+    },
+    {
+      "path": "docs/task33/qa25/security-run.sh",
+      "sha256": "a6cd095226a19319daaf0a0d6c75760ca9138115581d3c053c02855660eb05e5"
+    },
+    {
+      "path": "docs/task33/qa25/summarize_backend.py",
+      "sha256": "bb116dc0112139d6656c340c19f465e27c6dc78c2ee16e2bd6584f6758d59402"
+    },
+    {
+      "path": "docs/task33/qa25/summary.py",
+      "sha256": "2a5f9cbd7149128b629e80b5435de05f43a8659f3956ad282c7e20f595f78764"
+    },
+    {
+      "path": "locale/az/LC_MESSAGES/django.po",
+      "sha256": "da78994d90f208ba14524f04f1a27c1040701be1410253cdd28bac076aa25b1f"
+    },
+    {
+      "path": "locale/en/LC_MESSAGES/django.po",
+      "sha256": "3b1ef4ed002544cb04ea141883fb9424882c3dc3ca820ee178f41e4015218168"
+    },
+    {
+      "path": "locale/ru/LC_MESSAGES/django.po",
+      "sha256": "44130b47803960e0a64e1e60b354144e7fe9949974adf672166c15904fef8f47"
+    },
+    {
+      "path": "src/catalog/context_processors.py",
+      "sha256": "1592beedd1140ea2aa1449c61110dc9ac3958145e15bb3548362d25aa691ad76"
+    },
+    {
+      "path": "src/catalog/controllers/owner_reviews_controller.py",
+      "sha256": "e68025ef435584ff38a433d868aeb758cff230a4263a648e71fddb3ff48440a8"
+    },
+    {
+      "path": "src/catalog/controllers/public_details.py",
+      "sha256": "8c40d17ece95846426dcc43ed5a562e9ee05d109addf3eaf22a75f506eeb82c4"
+    },
+    {
+      "path": "src/catalog/controllers/specialist_workspace.py",
+      "sha256": "e9650b299554e7ef88fde083ad40f571956b71cadf070b8b15fabed281d91765"
+    },
+    {
+      "path": "src/catalog/controllers/typed_reviews.py",
+      "sha256": "3a369d3c05b2c907e6fe556f3b5fd35298776451f7aceb3e21f619395e31a1f6"
+    },
+    {
+      "path": "src/catalog/domain_admin/place.py",
+      "sha256": "a0af9ebb66c97937a3232c7e144ac2c76437f8c16ea994dc8a61421bb4032f8b"
+    },
+    {
+      "path": "src/catalog/domain_admin/review.py",
+      "sha256": "d1b7ec4ba87789c0051c1780d2cc412daf3b6018874addb123149bd8486cd275"
+    },
+    {
+      "path": "src/catalog/domain_admin/review_versions.py",
+      "sha256": "cd5f043cf42b0d11e2569a97970a14932acb87fdf90fdc77aab0761c70471aa6"
+    },
+    {
+      "path": "src/catalog/domain_admin/specialist.py",
+      "sha256": "ef73bfda75a52dab465d6c7523dbc32e5204b2517f812d10d07eea5809337e96"
+    },
+    {
+      "path": "src/catalog/forms.py",
+      "sha256": "e78c9efc93894d559c229058bb4cd02a66aafe3c26bbf9c5fef498ddfdc5520b"
+    },
+    {
+      "path": "src/catalog/migrations/0128_task33_review_versions.py",
+      "sha256": "124cd7f8cdfef5621def7c1dbd5def1634537b5dce5cd863048788942cecfe1d"
+    },
+    {
+      "path": "src/catalog/migrations/0129_task33_review_versions.py",
+      "sha256": "d880a6a4ff53c0c4dff569fb3c5637ceed91d9696489750afd3e043efe35fc38"
+    },
+    {
+      "path": "src/catalog/migrations/0130_task33_review_versions.py",
+      "sha256": "f767bb6f1fda87dc09d8b956f7582a9dc4d6eb65b7755446d91a9057235b175b"
+    },
+    {
+      "path": "src/catalog/migrations/0131_task33_specialist_foundation.py",
+      "sha256": "0f5abe782702d3ba07104c30e14a4be9c46ac125494534c6d959f0218b5cfbdf"
+    },
+    {
+      "path": "src/catalog/migrations/0132_task33_specialist_foundation.py",
+      "sha256": "eabb6e70e19ca45a8d5270f191af97037a3883788efa8cee5b412e5803f3d814"
+    },
+    {
+      "path": "src/catalog/models/__init__.py",
+      "sha256": "b03d9820ca40bb5b56c555956f154331ec0eafb73d754425db231342e6c3b749"
+    },
+    {
+      "path": "src/catalog/models/review.py",
+      "sha256": "02ea6e1fbc145229795c986e88ff54e27de6ff824fb618bf7d63dde80c6291f8"
+    },
+    {
+      "path": "src/catalog/models/review_versions.py",
+      "sha256": "441436f33cfea92695cb2d172070d6fd2d9c634db8f642ae092cb157e50aca0a"
+    },
+    {
+      "path": "src/catalog/models/specialist.py",
+      "sha256": "9c892681c10147a9493274eb07dca0fb7675b4fdebaf719eedf4f511753f50d6"
+    },
+    {
+      "path": "src/catalog/models/specialist_domain.py",
+      "sha256": "8f24acd3054d9bf464a7f2d1fe299ffe036e14d955b1c0e4f1f2b58928a4123c"
+    },
+    {
+      "path": "src/catalog/private_storage.py",
+      "sha256": "0f9890f42370ba47406fa9cc42efff546d9cec933327b8163a4ab51b9f21fea2"
+    },
+    {
+      "path": "src/catalog/r1_middleware.py",
+      "sha256": "40388f986c1ac3e365de02c488b524f5dce24c108afdbb69ee5f3c49c408e5f0"
+    },
+    {
+      "path": "src/catalog/services/account_deletion.py",
+      "sha256": "2034fb64e7ca5a7d489b0424dda7b3a6ed6ea590042c3c83522cfd85fa94421a"
+    },
+    {
+      "path": "src/catalog/services/content_quality.py",
+      "sha256": "8a36340e6fc5673a8ac8ea568694722959a61c26cf1f6200f11cd2d85557d14f"
+    },
+    {
+      "path": "src/catalog/services/owner_specialist_use_cases.py",
+      "sha256": "ed979152c7778cbd8890ebb484074caff17425908ef99bff09eac8e8309cb25c"
+    },
+    {
+      "path": "src/catalog/services/place_review_submission.py",
+      "sha256": "1130d772302d9abe43acf06ea11823f81d8d8b361fa1bddd2d8589d35ec3eec2"
+    },
+    {
+      "path": "src/catalog/services/public_filter_options.py",
+      "sha256": "d7e0a23ede7be407f77a8575a3c0b0a08d6232f4384944e8867250d9f7376864"
+    },
+    {
+      "path": "src/catalog/services/public_languages.py",
+      "sha256": "31056395e16df31f570fa7e8ce0b4614f41e3e08e2d15e58f7e76df676645fd3"
+    },
+    {
+      "path": "src/catalog/services/public_presentation.py",
+      "sha256": "dd06ee23de45f403179d0bd262239cc1ee972462f55f505016027875cfcc13f0"
+    },
+    {
+      "path": "src/catalog/services/publication.py",
+      "sha256": "66734c84d34362810534f1f70824a2187ccf898df5c30621de252b33d8ad7811"
+    },
+    {
+      "path": "src/catalog/services/publication_forms.py",
+      "sha256": "612dbe0d667598ef2cce857d25a76478604e7883468a6df8651852174aa6824b"
+    },
+    {
+      "path": "src/catalog/services/r1_cohort.py",
+      "sha256": "b3860f45dec683a1cbe5af62d12c8c49d60f014621002084fd772cdb5d3f23dc"
+    },
+    {
+      "path": "src/catalog/services/rating_ranking.py",
+      "sha256": "325c8f1e948896ba9222d0b53504cb83b5ecca7bd3877f8360db23e92be31306"
+    },
+    {
+      "path": "src/catalog/services/reactions.py",
+      "sha256": "60b76238232678d670257bc5f726998eb2395fddb9d94a205ff8b0eb551a8dbc"
+    },
+    {
+      "path": "src/catalog/services/review_retention.py",
+      "sha256": "48cfc6eb881a8bc35d50854abacdab17d4afea9ed9e3f45d42a8a6387071affe"
+    },
+    {
+      "path": "src/catalog/services/review_versions.py",
+      "sha256": "2dc0506afe23c457d0722f6d3cddc1a1a2178f1011a754b3b7085e0ef4134170"
+    },
+    {
+      "path": "src/catalog/services/seo.py",
+      "sha256": "0f569c1f1f7e82bc4dfc12e62995acafab92f4508123df4686d7024c3926d2f6"
+    },
+    {
+      "path": "src/catalog/services/specialist_documents.py",
+      "sha256": "a93b2c424ac7542cd8dd265d7716b862bbf7a2f11aa2e043da3c44183ad13ed3"
+    },
+    {
+      "path": "src/catalog/services/specialist_domain.py",
+      "sha256": "093179ca93eb35112c2feca3fd252ffce41e38414a2e74be820c592f88cdfa66"
+    },
+    {
+      "path": "src/catalog/services/specialist_presentation.py",
+      "sha256": "ab9ebcaa93ea1250c92d8f4875df3ae7ef398ee3eeaa2d8cfcaa38f49671de8a"
+    },
+    {
+      "path": "src/catalog/services/specialist_retention.py",
+      "sha256": "afc052032be436b9eb1457f13722806a9395a00fa64a60348d7f223ff38d7540"
+    },
+    {
+      "path": "src/catalog/services/staff_roles.py",
+      "sha256": "f4cb58840cce54ee19bfe94782dcdf6579dfb06ff723081de22f468625cc3dd8"
+    },
+    {
+      "path": "src/catalog/sitemaps.py",
+      "sha256": "7f5fd80461b4a40baceb52dafaa9f7314ee3d0978fc2957410d90cdb1da973cd"
+    },
+    {
+      "path": "src/catalog/specialist_forms.py",
+      "sha256": "794aa0101c614c4de22648481a545dc6c54558e8476e31663d6c59f09f01ad75"
+    },
+    {
+      "path": "src/catalog/templates/admin/catalog/placereview/change_form.html",
+      "sha256": "cc2e1a9e1b8b40a460b8c8008ba7787fdb3135b23d112e639ceaaa0a244e33fc"
+    },
+    {
+      "path": "src/catalog/templates/admin/catalog/specialist/change_form.html",
+      "sha256": "1c776c158ad8cfd8ba13d90756b525ab8a155980234e01cf17e5e56923d3f4df"
+    },
+    {
+      "path": "src/catalog/templates/base.html",
+      "sha256": "1e0974dbba16074260a615d87b1059d0f044040fc3902588b4ab69962391d502"
+    },
+    {
+      "path": "src/catalog/templates/catalog/event_detail.html",
+      "sha256": "d9accb796677fe36babdf6c8060c6f5f2d634b7435927f1353e012195b41c6a8"
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/breadcrumbs.html",
+      "sha256": "1900ec14d2c0d45f285b0701a29e34f9f121d0fe36291cc79ef9c6e5b43cab5f"
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/public_offerings.html",
+      "sha256": "7903649cc253f2ea553af23c4e0679646f05c7d0645e3c08799f32a976e72c97"
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/review_item.html",
+      "sha256": "0fa7a12a81befaac24bb72396764818d76a40a070306104b16e9259e7c951b49"
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/typed_review_link.html",
+      "sha256": "ecaa0ba47d682a005215906ad73ead59902e2a6fb82c74d507d168940418e068"
+    },
+    {
+      "path": "src/catalog/templates/catalog/place_detail.html",
+      "sha256": "a554a7ed1f9b9c5818ac83a484b92242af46f2860aea3661bcc61ef3f34f7d0e"
+    },
+    {
+      "path": "src/catalog/templates/catalog/public_entity_detail.html",
+      "sha256": "700a83dc3828c50741a52b0bacc976ce8e8020cd266c3722733675b9ec817736"
+    },
+    {
+      "path": "src/catalog/templates/catalog/specialist_detail.html",
+      "sha256": "34ebc589f2e7cd1c6889abd793366abc6a9dfd5983b58f81431c9d38a397d7ee"
+    },
+    {
+      "path": "src/catalog/templates/catalog/typed_reviews.html",
+      "sha256": "0eb8bd0f85d3bf292ba4ee4335db0cba0561d5202a0d4abdca660f1e93dc68c7"
+    },
+    {
+      "path": "src/catalog/templates/includes/header.html",
+      "sha256": "b6e8001bbab2334e70b63ddf2c9690a96807fb2a4b9be8a84e3d6945a4c3bf34"
+    },
+    {
+      "path": "src/catalog/templates/pages/includes/account_navigation.html",
+      "sha256": "4437dedff1a72a831190ec9a2089f2f2d356b7da40ee16687416de0773d31281"
+    },
+    {
+      "path": "src/catalog/templates/pages/organization_workspace.html",
+      "sha256": "55c1d5f558db1651e2f6176f5587bacf827871d6a2531082dda90c846ee573ff"
+    },
+    {
+      "path": "src/catalog/templates/pages/owner_places.html",
+      "sha256": "5b1c9a19d11acac268d3a1e3915828ff32d4e084bb3f0a04b4fbcfc9c376c8b0"
+    },
+    {
+      "path": "src/catalog/templates/pages/owner_reviews.html",
+      "sha256": "ab047c68fa4f81738a5d0d1848a2bade5973014ceb8d24ab751311bfa49b46cc"
+    },
+    {
+      "path": "src/catalog/templates/pages/owner_specialist_create.html",
+      "sha256": "885e8a9f0ced0c2dc251d1dda44aadb8824467c68c668e68a3bc0d249fc9d6c3"
+    },
+    {
+      "path": "src/catalog/templates/pages/specialist_workspace.html",
+      "sha256": "119ed4e20fb7515adc71b632c5409e2abbd4868b41f2576bf8f9f157232aa169"
+    },
+    {
+      "path": "src/catalog/testcases/auth_flow.py",
+      "sha256": "3778738eaa49dfa33cb147bae73aaac4e3e4ac0e619b4b9770ed876d3ebaee50"
+    },
+    {
+      "path": "src/catalog/testcases/catalog.py",
+      "sha256": "79765aa18ab5bfd6da6ce03a35a708039e2c1ee635e5b620a352e4b733260bfb"
+    },
+    {
+      "path": "src/catalog/testcases/image_uploads.py",
+      "sha256": "1d1684b39814e5ce2fcb3bdb7314febb09af3594fed7b6ae7496a39aa8876f4e"
+    },
+    {
+      "path": "src/catalog/testcases/owner.py",
+      "sha256": "a8f559daf135749bb8a7e2e2783b0dea1c73d4c35afe668e71a48dfd9d777dea"
+    },
+    {
+      "path": "src/catalog/testcases/pricing_plans.py",
+      "sha256": "7e61bb47ea6e1e905c9c7f1276ab44a932f35f7ed7cf4dfd49be5734753e33f5"
+    },
+    {
+      "path": "src/catalog/testcases/public.py",
+      "sha256": "7dee5f220d4af249d2d68db12fbb22c5647e375ffabb6eb806c4c330a6332bd0"
+    },
+    {
+      "path": "src/catalog/testcases/test_admin_legacy_price_preservation.py",
+      "sha256": "dc77556d14ba51eb4c47f858c1bef286bac0709cd0727605eadc2a277eb93018"
+    },
+    {
+      "path": "src/catalog/testcases/test_home_public_metrics.py",
+      "sha256": "1ee1840774e271ebc484fae5282b014057f314579f29a5b65dd97aa9d5cd4b99"
+    },
+    {
+      "path": "src/catalog/testcases/test_json_roundtrip_audit.py",
+      "sha256": "70595766b284b9cfe92bd540a44677437a3643f63af5ca743d061d2a9c5345cc"
+    },
+    {
+      "path": "src/catalog/testcases/test_judo_seo_landing.py",
+      "sha256": "32632f0ab7b04faf1dbd8ed8ad1627b9695676e43bff28d3a57e6e27f245b71b"
+    },
+    {
+      "path": "src/catalog/testcases/test_localized_place_seo.py",
+      "sha256": "e682f29e77095d79c6f3c588606cfc98f4edfdf973829ec664f4e0a12454ca79"
+    },
+    {
+      "path": "src/catalog/testcases/test_location_assignment.py",
+      "sha256": "837780207fdfed446795731bfe7f4cefc13791030adec9ad7a7d92f8c200cc2e"
+    },
+    {
+      "path": "src/catalog/testcases/test_place_json_and_pricing_modes.py",
+      "sha256": "2e95d9dc1221166dbf32c9ea86ed7f0f5ca9c5fd2aadd03e9110a1e294aba115"
+    },
+    {
+      "path": "src/catalog/testcases/test_place_review_cooldown.py",
+      "sha256": "cf7adf35cbefac44cbd1ddcc33d1f67e09cedacb9603a1a242eab730896c0eb6"
+    },
+    {
+      "path": "src/catalog/testcases/test_review_confirmation.py",
+      "sha256": "230bcf12820f00af39168cb2fe84f55750061dc1dfeb4f918c689baf0013b97a"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_catalog_schema.py",
+      "sha256": "be8107448acfb27b020c5e376ac3015267f528d6325dd0da3bd4d7f66e5923ca"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_localization.py",
+      "sha256": "96380fb25c7b65c3cf2de2d93b28f05a166af2c2a6296bfd2305f2c35e17567e"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_public_details.py",
+      "sha256": "ac0774609b74bd8cbf1dbed54b65be9b936ef8714ffe1f366c8e35a769dbf508"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_r1_acceptance.py",
+      "sha256": "38f6bb1065de9c6303ae1bfe7461eba166e9b2863d029a1da252d2a8026750b1"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_r1_cohort.py",
+      "sha256": "20fb13cf1acf65820d3c5bb526bf00d8c32b26ee72bace375a3c2597f9e60e63"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_r1_owner_safety.py",
+      "sha256": "dcf059a8f691a7bbbe5b75850994c49b5ab67b12087c1268ed2f1cb80676bfa5"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_review_independent.py",
+      "sha256": "1df31c61e9face9ce2637916dcda11d90dcb1a836edfe53dc2c5ac60aa4996b7"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_review_migration.py",
+      "sha256": "d9602bf5abd62e7d76bb519df70b40d6a11700b81fecd03d2eb163cfb91e0577"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_reviews.py",
+      "sha256": "fdf5d8420802aa20e27952d1cded3ee3ddd0fa518b1484771c440c4a04ba4874"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_db_review.py",
+      "sha256": "c848e6dc381a85291bff915070bc4b3cb085c1def8ec7f13f6ef8d0e291e3f84"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_domain.py",
+      "sha256": "77e209f8201db25745b0e3abf1a108b55594a038ead0f720d9e663672d707165"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_privacy.py",
+      "sha256": "db648288760085221f9bf7ab006c466707a15cc1c2ec4e7c8dbb992369d82673"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_retention.py",
+      "sha256": "3df476b204a0f7c3281283bf62e0a642bba4e4954395e023f1f4ff0d3e04795c"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_screens.py",
+      "sha256": "3cd923e83e74f4d990dbec0810131a1eae2817ff65f3569b8a388a84f23a986e"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_screens_security.py",
+      "sha256": "75d2101b81c1975578a41b778831eedb7a52586d5faad706a0c6a3fe856a0abc"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_security_review.py",
+      "sha256": "227bbce7b1220d538bb3ad38c570b6006bc77482db2a687bd76673fbb2cd76fe"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_transfer.py",
+      "sha256": "f876ebb4e7738150ff91f6d80f1051ca78ad9747cbebfe159f2e3e562b0761d4"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_workspace.py",
+      "sha256": "10d72bd9a53792ecba76949f7c34e558f21898053577a4fa7d8a5ca43687aa9e"
+    },
+    {
+      "path": "src/catalog/testcases/test_volunteer_admin.py",
+      "sha256": "d252e3d1ccb8f8298fe45cd3deaefb432934c3de7cd7f3db9aafd33e3f099bb8"
+    },
+    {
+      "path": "src/catalog/urls.py",
+      "sha256": "64e6484711c3b07d2253a98cb4bd6ac45ebab6dda879c6c5ca727ac1e591480b"
+    },
+    {
+      "path": "src/catalog/views.py",
+      "sha256": "165455e8cb55f139445c17a6bcbeb61ad6e26832533c95f861f2c542143f76d4"
+    },
+    {
+      "path": "src/config/settings.py",
+      "sha256": "d2203a0e6676a65582c1168c9a50c3b6acb4704ea3838caa9a686bd986c1714b"
+    },
+    {
+      "path": "src/config/urls.py",
+      "sha256": "d94a2d0085e3b02654e043f319f12db981643fbfec9661383d30290080aa1470"
+    },
+    {
+      "path": "src/config/views.py",
+      "sha256": "2a340d7c5e803dd54b8230aa551bad043d79f709c1900a9fd8f41bf07ed98731"
+    },
+    {
+      "path": "static/admin/css/pages/kidsmap_admin_form_shell.css",
+      "sha256": "487fee0548c6c95997d236eebee46e9b7ef73bb87780681430a47271765f5a11"
+    },
+    {
+      "path": "static/admin/css/pages/specialist_form.css",
+      "sha256": "178bba446b06012ab879bf552705e2ffd08724290c631e92cd3268661a7aa9b0"
+    },
+    {
+      "path": "static/admin/js/specialist_admin.js",
+      "sha256": "17a99d4e823f97d13d8bd320bfc4eeef7484b9400b2d77a8bc980610b190949c"
+    },
+    {
+      "path": "static/css/pages/organization_workspace.css",
+      "sha256": "32526683ea948057a477406e723d55c214ad0b5e50c05c574f36c18c3fdfd8b8"
+    },
+    {
+      "path": "static/css/pages/specialist_workspace.css",
+      "sha256": "058729deac8c35b159b4d3a939681bbec6bbc20d244af44cf903275ea61497a6"
+    },
+    {
+      "path": "static/css/pages/typed_reviews.css",
+      "sha256": "a3d4eeaa4a48b97dd02643c5e4dfa9e4e2c2f06b6fa16dcf60bd7ab9482d279a"
+    },
+    {
+      "path": "static/js/specialist_workspace.js",
+      "sha256": "e11ef5e4d1f8e592cbefcc0495f3e630b1c2f3202e3f4a663b52f10f9d4fa789"
+    }
+  ],
+  "dirty_inventory": [
+    {
+      "path": "deploy/nginx/kidsmap.az.conf"
+    },
+    {
+      "path": "docs/task33/README.md"
+    },
+    {
+      "path": "docs/task33/decisions.md"
+    },
+    {
+      "path": "docs/task33/design/README.md"
+    },
+    {
+      "path": "docs/task33/design/acceptance.md"
+    },
+    {
+      "path": "docs/task33/design/specialist/README.md"
+    },
+    {
+      "path": "docs/task33/design/specialist/claim.html"
+    },
+    {
+      "path": "docs/task33/design/specialist/documents.html"
+    },
+    {
+      "path": "docs/task33/design/specialist/index.html"
+    },
+    {
+      "path": "docs/task33/design/specialist/organization.html"
+    },
+    {
+      "path": "docs/task33/design/specialist/person.html"
+    },
+    {
+      "path": "docs/task33/design/specialist/profile.html"
+    },
+    {
+      "path": "docs/task33/design/specialist/prototype.css"
+    },
+    {
+      "path": "docs/task33/design/specialist/prototype.js"
+    },
+    {
+      "path": "docs/task33/design/specialist/reconciliation.html"
+    },
+    {
+      "path": "docs/task33/design/specialist/review.html"
+    },
+    {
+      "path": "docs/task33/implementation-status.md"
+    },
+    {
+      "path": "docs/task33/private-media-transition.md"
+    },
+    {
+      "path": "docs/task33/qa21/README.md"
+    },
+    {
+      "path": "docs/task33/qa21/browser.py"
+    },
+    {
+      "path": "docs/task33/qa21/browser_bridge/commands.py"
+    },
+    {
+      "path": "docs/task33/qa21/cache-font.py"
+    },
+    {
+      "path": "docs/task33/qa21/final-smoke.js"
+    },
+    {
+      "path": "docs/task33/qa21/matrix.js"
+    },
+    {
+      "path": "docs/task33/qa21/recheck.py"
+    },
+    {
+      "path": "docs/task33/qa21/recover-interrupted.py"
+    },
+    {
+      "path": "docs/task33/qa21/run-browser.sh"
+    },
+    {
+      "path": "docs/task33/qa21/snapshot.py"
+    },
+    {
+      "path": "docs/task33/qa21/summarize.py"
+    },
+    {
+      "path": "docs/task33/qa22/admin.js"
+    },
+    {
+      "path": "docs/task33/qa22/browser.py"
+    },
+    {
+      "path": "docs/task33/qa22/browser_bridge/commands.py"
+    },
+    {
+      "path": "docs/task33/qa22/cache-font.py"
+    },
+    {
+      "path": "docs/task33/qa22/diagnose-css.js"
+    },
+    {
+      "path": "docs/task33/qa22/diagnose.js"
+    },
+    {
+      "path": "docs/task33/qa22/flows.js"
+    },
+    {
+      "path": "docs/task33/qa22/matrix.js"
+    },
+    {
+      "path": "docs/task33/qa22/mirror.py"
+    },
+    {
+      "path": "docs/task33/qa22/probe.js"
+    },
+    {
+      "path": "docs/task33/qa22/run-browser.sh"
+    },
+    {
+      "path": "docs/task33/qa22/summarize.py"
+    },
+    {
+      "path": "docs/task33/qa22/transition-baseline.js"
+    },
+    {
+      "path": "docs/task33/qa22/transition-real.js"
+    },
+    {
+      "path": "docs/task33/qa22/transition-server.py"
+    },
+    {
+      "path": "docs/task33/qa22/transition-shared.js"
+    },
+    {
+      "path": "docs/task33/qa23/PLAN.md"
+    },
+    {
+      "path": "docs/task33/qa23/README.md"
+    },
+    {
+      "path": "docs/task33/qa23/artifact.py"
+    },
+    {
+      "path": "docs/task33/qa23/bridge/commands.py"
+    },
+    {
+      "path": "docs/task33/qa23/browser-matrix.js"
+    },
+    {
+      "path": "docs/task33/qa23/browser-recheck.sh"
+    },
+    {
+      "path": "docs/task33/qa23/browser-run.sh"
+    },
+    {
+      "path": "docs/task33/qa23/browser.py"
+    },
+    {
+      "path": "docs/task33/qa23/browser_bridge/commands.py"
+    },
+    {
+      "path": "docs/task33/qa23/compatible_reader.py"
+    },
+    {
+      "path": "docs/task33/qa23/container_guard.py"
+    },
+    {
+      "path": "docs/task33/qa23/rehearsal.py"
+    },
+    {
+      "path": "docs/task33/qa23/run-linux-probe.sh"
+    },
+    {
+      "path": "docs/task33/qa23/test_artifact.py"
+    },
+    {
+      "path": "docs/task33/qa23/test_container_guard.py"
+    },
+    {
+      "path": "docs/task33/qa24/browser-matrix.js"
+    },
+    {
+      "path": "docs/task33/qa24/browser.py"
+    },
+    {
+      "path": "docs/task33/qa24/browser_bridge/commands.py"
+    },
+    {
+      "path": "docs/task33/qa24/nginx_probe.py"
+    },
+    {
+      "path": "docs/task33/qa24/run-browser.sh"
+    },
+    {
+      "path": "docs/task33/qa25/application_bridge/commands.py"
+    },
+    {
+      "path": "docs/task33/qa25/application_browser.py"
+    },
+    {
+      "path": "docs/task33/qa25/application_collect.py"
+    },
+    {
+      "path": "docs/task33/qa25/application_diagnostics.py"
+    },
+    {
+      "path": "docs/task33/qa25/application_matrix.js"
+    },
+    {
+      "path": "docs/task33/qa25/application_profile_followup.js"
+    },
+    {
+      "path": "docs/task33/qa25/application_profile_followup.py"
+    },
+    {
+      "path": "docs/task33/qa25/application_results.py"
+    },
+    {
+      "path": "docs/task33/qa25/application_run-browser.sh"
+    },
+    {
+      "path": "docs/task33/qa25/application_source_check.py"
+    },
+    {
+      "path": "docs/task33/qa25/application_sync.sh"
+    },
+    {
+      "path": "docs/task33/qa25/backend_run.sh"
+    },
+    {
+      "path": "docs/task33/qa25/browser-matrix.js"
+    },
+    {
+      "path": "docs/task33/qa25/build-results.py"
+    },
+    {
+      "path": "docs/task33/qa25/collect.py"
+    },
+    {
+      "path": "docs/task33/qa25/final-copy-keyboard.js"
+    },
+    {
+      "path": "docs/task33/qa25/pending-probe.js"
+    },
+    {
+      "path": "docs/task33/qa25/preview.py"
+    },
+    {
+      "path": "docs/task33/qa25/run-browser.sh"
+    },
+    {
+      "path": "docs/task33/qa25/security-collect.py"
+    },
+    {
+      "path": "docs/task33/qa25/security-final-delta.py"
+    },
+    {
+      "path": "docs/task33/qa25/security-run.sh"
+    },
+    {
+      "path": "docs/task33/qa25/summarize_backend.py"
+    },
+    {
+      "path": "docs/task33/qa25/summary.py"
+    },
+    {
+      "path": "docs/task33/release-R1.md"
+    },
+    {
+      "path": "docs/task33/reports/21-browser-review.md"
+    },
+    {
+      "path": "docs/task33/reports/21-entry-manifest.json"
+    },
+    {
+      "path": "docs/task33/reports/21-environment-20261003.json"
+    },
+    {
+      "path": "docs/task33/reports/21-independent-review.md"
+    },
+    {
+      "path": "docs/task33/reports/21-preflight-plan.md"
+    },
+    {
+      "path": "docs/task33/reports/21-results.json"
+    },
+    {
+      "path": "docs/task33/reports/21-source-manifest.json"
+    },
+    {
+      "path": "docs/task33/reports/21.md"
+    },
+    {
+      "path": "docs/task33/reports/22-browser-review.md"
+    },
+    {
+      "path": "docs/task33/reports/22-database-review.md"
+    },
+    {
+      "path": "docs/task33/reports/22-entry-manifest.json"
+    },
+    {
+      "path": "docs/task33/reports/22-independent-review.md"
+    },
+    {
+      "path": "docs/task33/reports/22-plan.md"
+    },
+    {
+      "path": "docs/task33/reports/22-source-manifest.json"
+    },
+    {
+      "path": "docs/task33/reports/22.md"
+    },
+    {
+      "path": "docs/task33/reports/23-artifact.json"
+    },
+    {
+      "path": "docs/task33/reports/23-browser-closure.md"
+    },
+    {
+      "path": "docs/task33/reports/23-browser-review.md"
+    },
+    {
+      "path": "docs/task33/reports/23-closure-plan.md"
+    },
+    {
+      "path": "docs/task33/reports/23-db-review.md"
+    },
+    {
+      "path": "docs/task33/reports/23-entry-manifest.json"
+    },
+    {
+      "path": "docs/task33/reports/23-owner-admin-classification.json"
+    },
+    {
+      "path": "docs/task33/reports/23-owner-admin-closure.md"
+    },
+    {
+      "path": "docs/task33/reports/23-owner-admin-source-manifest.json"
+    },
+    {
+      "path": "docs/task33/reports/23-public-classification.json"
+    },
+    {
+      "path": "docs/task33/reports/23-public-closure.md"
+    },
+    {
+      "path": "docs/task33/reports/23-public-source-manifest.json"
+    },
+    {
+      "path": "docs/task33/reports/23-recovery-closure.md"
+    },
+    {
+      "path": "docs/task33/reports/23-release-closure.md"
+    },
+    {
+      "path": "docs/task33/reports/23-release-review.md"
+    },
+    {
+      "path": "docs/task33/reports/23-results.json"
+    },
+    {
+      "path": "docs/task33/reports/23-resume-entry-manifest.json"
+    },
+    {
+      "path": "docs/task33/reports/23-source-manifest.json"
+    },
+    {
+      "path": "docs/task33/reports/23.md"
+    },
+    {
+      "path": "docs/task33/reports/24-db-review.md"
+    },
+    {
+      "path": "docs/task33/reports/24-domain-implementation.md"
+    },
+    {
+      "path": "docs/task33/reports/24-entry-manifest.json"
+    },
+    {
+      "path": "docs/task33/reports/24-plan.md"
+    },
+    {
+      "path": "docs/task33/reports/24-results.json"
+    },
+    {
+      "path": "docs/task33/reports/24-security-review.md"
+    },
+    {
+      "path": "docs/task33/reports/24-source-manifest.json"
+    },
+    {
+      "path": "docs/task33/reports/24.md"
+    },
+    {
+      "path": "docs/task33/reports/25-application-browser-results.json"
+    },
+    {
+      "path": "docs/task33/reports/25-application-browser-review.md"
+    },
+    {
+      "path": "docs/task33/reports/25-backend.md"
+    },
+    {
+      "path": "docs/task33/reports/25-browser-results.json"
+    },
+    {
+      "path": "docs/task33/reports/25-browser-review.md"
+    },
+    {
+      "path": "docs/task33/reports/25-design-checkpoint.md"
+    },
+    {
+      "path": "docs/task33/reports/25-design-manifest.json"
+    },
+    {
+      "path": "docs/task33/reports/25-entry-manifest.json"
+    },
+    {
+      "path": "docs/task33/reports/25-implementation-entry-manifest.json"
+    },
+    {
+      "path": "docs/task33/reports/25-implementation-plan.md"
+    },
+    {
+      "path": "docs/task33/reports/25-plan.md"
+    },
+    {
+      "path": "docs/task33/reports/25-results.json"
+    },
+    {
+      "path": "docs/task33/reports/25-resume-entry-manifest.json"
+    },
+    {
+      "path": "docs/task33/reports/25-security-final-delta.json"
+    },
+    {
+      "path": "docs/task33/reports/25-security-green.json"
+    },
+    {
+      "path": "docs/task33/reports/25-security-red.json"
+    },
+    {
+      "path": "docs/task33/reports/25-security-red03.json"
+    },
+    {
+      "path": "docs/task33/reports/25-security-review.md"
+    },
+    {
+      "path": "docs/task33/reports/25-source-manifest.json"
+    },
+    {
+      "path": "docs/task33/reports/25-ui.md"
+    },
+    {
+      "path": "docs/task33/reports/25.md"
+    },
+    {
+      "path": "locale/az/LC_MESSAGES/django.po"
+    },
+    {
+      "path": "locale/en/LC_MESSAGES/django.po"
+    },
+    {
+      "path": "locale/ru/LC_MESSAGES/django.po"
+    },
+    {
+      "path": "src/catalog/context_processors.py"
+    },
+    {
+      "path": "src/catalog/controllers/owner_reviews_controller.py"
+    },
+    {
+      "path": "src/catalog/controllers/public_details.py"
+    },
+    {
+      "path": "src/catalog/controllers/specialist_workspace.py"
+    },
+    {
+      "path": "src/catalog/controllers/typed_reviews.py"
+    },
+    {
+      "path": "src/catalog/domain_admin/place.py"
+    },
+    {
+      "path": "src/catalog/domain_admin/review.py"
+    },
+    {
+      "path": "src/catalog/domain_admin/review_versions.py"
+    },
+    {
+      "path": "src/catalog/domain_admin/specialist.py"
+    },
+    {
+      "path": "src/catalog/forms.py"
+    },
+    {
+      "path": "src/catalog/migrations/0128_task33_review_versions.py"
+    },
+    {
+      "path": "src/catalog/migrations/0129_task33_review_versions.py"
+    },
+    {
+      "path": "src/catalog/migrations/0130_task33_review_versions.py"
+    },
+    {
+      "path": "src/catalog/migrations/0131_task33_specialist_foundation.py"
+    },
+    {
+      "path": "src/catalog/migrations/0132_task33_specialist_foundation.py"
+    },
+    {
+      "path": "src/catalog/models/__init__.py"
+    },
+    {
+      "path": "src/catalog/models/review.py"
+    },
+    {
+      "path": "src/catalog/models/review_versions.py"
+    },
+    {
+      "path": "src/catalog/models/specialist.py"
+    },
+    {
+      "path": "src/catalog/models/specialist_domain.py"
+    },
+    {
+      "path": "src/catalog/private_storage.py"
+    },
+    {
+      "path": "src/catalog/r1_middleware.py"
+    },
+    {
+      "path": "src/catalog/services/account_deletion.py"
+    },
+    {
+      "path": "src/catalog/services/content_quality.py"
+    },
+    {
+      "path": "src/catalog/services/owner_specialist_use_cases.py"
+    },
+    {
+      "path": "src/catalog/services/place_review_submission.py"
+    },
+    {
+      "path": "src/catalog/services/public_filter_options.py"
+    },
+    {
+      "path": "src/catalog/services/public_languages.py"
+    },
+    {
+      "path": "src/catalog/services/public_presentation.py"
+    },
+    {
+      "path": "src/catalog/services/publication.py"
+    },
+    {
+      "path": "src/catalog/services/publication_forms.py"
+    },
+    {
+      "path": "src/catalog/services/r1_cohort.py"
+    },
+    {
+      "path": "src/catalog/services/rating_ranking.py"
+    },
+    {
+      "path": "src/catalog/services/reactions.py"
+    },
+    {
+      "path": "src/catalog/services/review_retention.py"
+    },
+    {
+      "path": "src/catalog/services/review_versions.py"
+    },
+    {
+      "path": "src/catalog/services/seo.py"
+    },
+    {
+      "path": "src/catalog/services/specialist_documents.py"
+    },
+    {
+      "path": "src/catalog/services/specialist_domain.py"
+    },
+    {
+      "path": "src/catalog/services/specialist_presentation.py"
+    },
+    {
+      "path": "src/catalog/services/specialist_retention.py"
+    },
+    {
+      "path": "src/catalog/services/staff_roles.py"
+    },
+    {
+      "path": "src/catalog/sitemaps.py"
+    },
+    {
+      "path": "src/catalog/specialist_forms.py"
+    },
+    {
+      "path": "src/catalog/templates/admin/catalog/placereview/change_form.html"
+    },
+    {
+      "path": "src/catalog/templates/admin/catalog/specialist/change_form.html"
+    },
+    {
+      "path": "src/catalog/templates/base.html"
+    },
+    {
+      "path": "src/catalog/templates/catalog/event_detail.html"
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/breadcrumbs.html"
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/public_offerings.html"
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/review_item.html"
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/typed_review_link.html"
+    },
+    {
+      "path": "src/catalog/templates/catalog/place_detail.html"
+    },
+    {
+      "path": "src/catalog/templates/catalog/public_entity_detail.html"
+    },
+    {
+      "path": "src/catalog/templates/catalog/specialist_detail.html"
+    },
+    {
+      "path": "src/catalog/templates/catalog/typed_reviews.html"
+    },
+    {
+      "path": "src/catalog/templates/includes/header.html"
+    },
+    {
+      "path": "src/catalog/templates/pages/includes/account_navigation.html"
+    },
+    {
+      "path": "src/catalog/templates/pages/organization_workspace.html"
+    },
+    {
+      "path": "src/catalog/templates/pages/owner_places.html"
+    },
+    {
+      "path": "src/catalog/templates/pages/owner_reviews.html"
+    },
+    {
+      "path": "src/catalog/templates/pages/owner_specialist_create.html"
+    },
+    {
+      "path": "src/catalog/templates/pages/specialist_workspace.html"
+    },
+    {
+      "path": "src/catalog/testcases/auth_flow.py"
+    },
+    {
+      "path": "src/catalog/testcases/catalog.py"
+    },
+    {
+      "path": "src/catalog/testcases/image_uploads.py"
+    },
+    {
+      "path": "src/catalog/testcases/owner.py"
+    },
+    {
+      "path": "src/catalog/testcases/pricing_plans.py"
+    },
+    {
+      "path": "src/catalog/testcases/public.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_admin_legacy_price_preservation.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_home_public_metrics.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_json_roundtrip_audit.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_judo_seo_landing.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_localized_place_seo.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_location_assignment.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_place_json_and_pricing_modes.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_place_review_cooldown.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_review_confirmation.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_catalog_schema.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_localization.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_public_details.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_r1_acceptance.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_r1_cohort.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_r1_owner_safety.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_review_independent.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_review_migration.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_reviews.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_db_review.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_domain.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_privacy.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_retention.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_screens.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_screens_security.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_security_review.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_transfer.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_workspace.py"
+    },
+    {
+      "path": "src/catalog/testcases/test_volunteer_admin.py"
+    },
+    {
+      "path": "src/catalog/urls.py"
+    },
+    {
+      "path": "src/catalog/views.py"
+    },
+    {
+      "path": "src/config/settings.py"
+    },
+    {
+      "path": "src/config/urls.py"
+    },
+    {
+      "path": "src/config/views.py"
+    },
+    {
+      "path": "static/admin/css/pages/kidsmap_admin_form_shell.css"
+    },
+    {
+      "path": "static/admin/css/pages/specialist_form.css"
+    },
+    {
+      "path": "static/admin/js/specialist_admin.js"
+    },
+    {
+      "path": "static/css/pages/organization_workspace.css"
+    },
+    {
+      "path": "static/css/pages/specialist_workspace.css"
+    },
+    {
+      "path": "static/css/pages/typed_reviews.css"
+    },
+    {
+      "path": "static/js/specialist_workspace.js"
+    }
+  ],
+  "preservation": {
+    "entry_count": 220,
+    "unchanged": 206,
+    "changed_authorized_paths": [
+      "docs/task33/README.md",
+      "docs/task33/design/README.md",
+      "docs/task33/design/acceptance.md",
+      "docs/task33/implementation-status.md",
+      "docs/task33/reports/25.md",
+      "locale/az/LC_MESSAGES/django.po",
+      "locale/en/LC_MESSAGES/django.po",
+      "locale/ru/LC_MESSAGES/django.po",
+      "src/catalog/services/owner_specialist_use_cases.py",
+      "src/catalog/services/specialist_documents.py",
+      "src/catalog/templates/catalog/specialist_detail.html",
+      "src/catalog/templates/pages/owner_specialist_create.html",
+      "src/catalog/urls.py",
+      "src/catalog/views.py"
+    ],
+    "deleted": []
+  },
+  "note": "Reports are not hashed; inventory lists paths only, source_artifacts contain source/QA/locale hashes."
+}

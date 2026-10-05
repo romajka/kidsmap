@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "prior_identity": "r2-local-sha256-2682889e43734eece5b8f0cbc4930e46cc4f75a0f6a5e7c70880cf0bbfde898e",
+  "current_identity": "r2-local-sha256-65d8995ff21fb5e5b9fb88d81d18f2f36c4380841f14131cd11dc258bf8c61b2",
+  "changed_members": [
+    {
+      "path": "src/catalog/domain_admin/place.py",
+      "prior_sha256": "4c6db6f37d275fbbf65b0baaf44afc3741fa29ffd142e3d1ca48906ebaf6cdf9",
+      "current_sha256": "b36dec7efe5aeff66f5b47dfd09a0e007d2453195ec8bba62c8c5e44a46e5c9e"
+    },
+    {
+      "path": "src/catalog/forms.py",
+      "prior_sha256": "be049525b0ff6c120c3ecf888033a8a936e3430031c576aa9c2b2abd8e3aa5a8",
+      "current_sha256": "deb9c5114d9bd6d7f0d2157c7eb9343c87bb58ff64096b3c28081c72de21cbe9"
+    }
+  ],
+  "added_members": [
+    {
+      "path": "src/catalog/testcases/test_task33_event_admin_precision.py",
+      "sha256": "26963290982c62a7858e1951855ca5f8d102a73f0564a30ab7feda96da4c966d"
+    }
+  ],
+  "deleted_members": [],
+  "current_file_count": 2794,
+  "current_standby": "/root/km28-release3",
+  "current_archive": "/root/task33-evidence/stage28-artifact-20261003/r2-local-sha256-65d8995ff21fb5e5b9fb88d81d18f2f36c4380841f14131cd11dc258bf8c61b2/runtime.tar.gz",
+  "archive_sha256": "dc53da90c18cbdee15fdf27e10aaf06dbdee893a005744bccf604c0bdd148660",
+  "manifest_sha256": "3dfc8cde982f35105efea65cae82e4a9f7059b60506858131e835a0300ec1583",
+  "prior_archive_preserved": true,
+  "production": "NOT_CONTACTED"
+}

@@ -1,0 +1,105 @@
+{
+  "stamp": "public-media-replay-02",
+  "raw_evidence": "/root/task33-evidence/completion-public-media-replay-02",
+  "suite": {
+    "tests_run": 48,
+    "failures": 4,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 23.62,
+    "problems": [
+      {
+        "id": "catalog.testcases.public.EventsLandingTests.test_event_address_is_localized_for_az_public_pages",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.public.EventsLandingTests.test_event_address_is_localized_for_en_public_pages",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_map_serialization_includes_card_fields",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_map_uses_only_filtered_map_ready_places",
+        "kind": "failure",
+        "exception": "AssertionError"
+      }
+    ],
+    "skipped_ids": [],
+    "executed_ids": [
+      "catalog.testcases.public.EventsLandingTests.test_event_address_is_localized_for_az_public_pages",
+      "catalog.testcases.public.EventsLandingTests.test_event_address_is_localized_for_en_public_pages",
+      "catalog.testcases.public.EventsLandingTests.test_events_landing_does_not_render_filter_controls",
+      "catalog.testcases.public.EventsLandingTests.test_events_landing_shows_only_active_events",
+      "catalog.testcases.public.EventsLandingTests.test_home_shows_only_four_upcoming_events",
+      "catalog.testcases.public.EventsLandingTests.test_home_upcoming_events_link_points_to_events_landing",
+      "catalog.testcases.public.TestCatalogContentSettingsWiring.test_catalog_filter_values_are_sorted_alphabetically",
+      "catalog.testcases.public.TestCatalogContentSettingsWiring.test_default_metro_station_list_contains_all_open_baku_metro_stations",
+      "catalog.testcases.public.TestCatalogContentSettingsWiring.test_home_page_uses_catalog_settings_districts",
+      "catalog.testcases.public.TestCatalogContentSettingsWiring.test_owner_place_form_uses_catalog_settings_metro_options",
+      "catalog.testcases.public.TestCatalogContentSettingsWiring.test_owner_place_form_uses_only_main_photo_field",
+      "catalog.testcases.public.TestCatalogContentSettingsWiring.test_place_gallery_files_prefers_main_photo_before_cover",
+      "catalog.testcases.public.TestCatalogContentSettingsWiring.test_place_gallery_files_uses_cover_photo_only_as_fallback",
+      "catalog.testcases.public.TestCatalogContentSettingsWiring.test_place_public_media_ignores_missing_storage_files",
+      "catalog.testcases.public.TestCatalogEnhancements.test_catalog_map_serialization_includes_card_fields",
+      "catalog.testcases.public.TestCatalogEnhancements.test_catalog_map_uses_only_filtered_map_ready_places",
+      "catalog.testcases.public.TestPublicPagesSmoke.test_place_detail_page_includes_breadcrumb_and_aggregate_rating_schema",
+      "catalog.testcases.image_uploads.TestOwnerImagePersistenceFailures.test_card_changes_are_not_saved_when_gallery_storage_fails",
+      "catalog.testcases.image_uploads.TestOwnerImagePersistenceFailures.test_card_is_not_created_when_main_photo_storage_fails",
+      "catalog.testcases.image_uploads.TestOwnerImagePersistenceFailures.test_corrupt_photo_does_not_create_draft",
+      "catalog.testcases.image_uploads.TestOwnerImagePersistenceFailures.test_edit_page_shows_saved_gallery_preview_and_delete_action",
+      "catalog.testcases.image_uploads.TestOwnerImagePersistenceFailures.test_gallery_can_be_added_and_owner_can_delete_a_photo",
+      "catalog.testcases.image_uploads.TestOwnerImagePersistenceFailures.test_main_photo_can_be_replaced_and_then_removed",
+      "catalog.testcases.image_uploads.TestOwnerImagePersistenceFailures.test_user_cannot_delete_photo_from_another_users_card",
+      "catalog.testcases.adult_classes.PlaceAdultClassesFormTests.test_admin_change_page_renders_adult_classes_checkbox",
+      "catalog.testcases.adult_classes.PlaceAdultClassesFormTests.test_admin_form_and_admin_configuration_include_field",
+      "catalog.testcases.adult_classes.PlaceAdultClassesFormTests.test_owner_create_flow_renders_simple_audience_choices",
+      "catalog.testcases.adult_classes.PlaceAdultClassesFormTests.test_owner_edit_form_exposes_and_preserves_current_value",
+      "catalog.testcases.adult_classes.PlaceAdultClassesFormTests.test_owner_edit_form_saves_checked_and_unchecked_values",
+      "catalog.testcases.adult_classes.PlaceAdultClassesFormTests.test_owner_form_rejects_adult_flag_without_child_range",
+      "catalog.testcases.adult_classes.PlaceAdultClassesFormTests.test_owner_form_rejects_unknown_audience_value",
+      "catalog.testcases.adult_classes.PlaceAdultClassesModelTests.test_adult_classes_allowed_with_open_ended_child_age_range",
+      "catalog.testcases.adult_classes.PlaceAdultClassesModelTests.test_adult_classes_still_require_complete_child_age_range",
+      "catalog.testcases.adult_classes.PlaceAdultClassesModelTests.test_child_age_minimum_cannot_exceed_maximum",
+      "catalog.testcases.adult_classes.PlaceAdultClassesModelTests.test_existing_places_default_to_children_only",
+      "catalog.testcases.adult_classes.PlaceAdultClassesPublicTests.test_catalog_has_no_adult_filter_and_renders_compact_audience",
+      "catalog.testcases.adult_classes.PlaceAdultClassesPublicTests.test_owner_form_label_is_available_in_all_supported_languages",
+      "catalog.testcases.adult_classes.PlaceAdultClassesPublicTests.test_place_detail_renders_children_only_and_mixed_audience",
+      "catalog.testcases.catalog.CatalogSubcategoryFilterTests.test_block_is_hidden_until_a_category_is_chosen",
+      "catalog.testcases.catalog.CatalogSubcategoryFilterTests.test_block_is_rendered_once_a_category_is_chosen",
+      "catalog.testcases.catalog.CatalogSubcategoryFilterTests.test_empty_subcategories_are_not_offered",
+      "catalog.testcases.catalog.CatalogSubcategoryFilterTests.test_garbage_subcategory_is_ignored",
+      "catalog.testcases.catalog.CatalogSubcategoryFilterTests.test_selected_subcategory_actually_filters_the_catalog",
+      "catalog.testcases.catalog.CatalogSubcategoryFilterTests.test_subcategories_are_offered_only_for_the_selected_category",
+      "catalog.testcases.catalog.CatalogSubcategoryFilterTests.test_subcategory_combines_with_other_filters",
+      "catalog.testcases.catalog.CatalogSubcategoryFilterTests.test_subcategory_from_a_foreign_category_is_dropped",
+      "catalog.testcases.catalog.CatalogSubcategoryFilterTests.test_subcategory_survives_in_normalized_url_and_has_a_removable_chip",
+      "catalog.testcases.catalog.CatalogSubcategoryFilterTests.test_subcategory_without_category_selects_its_parent"
+    ],
+    "problem_ids_complete": true,
+    "status": "BASELINE_FAILURE"
+  },
+  "run": {
+    "status": "BASELINE_FAILURE",
+    "child_exit": 4,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "isolation": {
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "network_guard": true,
+    "libpq_guard": true,
+    "external_credentials_present": false
+  },
+  "source_manifest_sha256": "2f77ee69b6f6f61ba34dbdac8ad872f2ffcd6e508252c89dde23f56a32d2f030",
+  "source_count": 2815,
+  "frozen_source_changed": [],
+  "production": "NOT_CONTACTED"
+}

@@ -1,0 +1,1 @@
+{% if language == 'ru' and not event.name_ru and event.name_az or language == 'en' and not event.name_en and event.name_az %}<span class="events-title-fallback" data-event-language="{{ event.pk }}" lang="az" aria-label="{% if language == 'en' %}Title in Azerbaijani{% else %}Название на азербайджанском{% endif %}">AZ</span>{% endif %}

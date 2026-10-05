@@ -6,16 +6,24 @@
 /* ── Layout ────────────────────────────────────────────── */
 .km-specialist-form-page {
   padding: 0 0 3rem;
+  min-width: 0;
+  width: 100%;
 }
 
 .km-specialist-layout {
   display: grid;
-  grid-template-columns: 230px 1fr 220px;
+  grid-template-columns: 230px minmax(0, 1fr) 220px;
   gap: 24px;
   align-items: start;
   max-width: 1440px;
   margin: 0 auto;
   padding: 0 16px;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.km-specialist-layout > * {
+  min-width: 0;
 }
 
 /* ── Page header ───────────────────────────────────────── */
@@ -467,6 +475,21 @@
 }
 
 /* ── Inline sections ───────────────────────────────────── */
+#documents-group-wrapper {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+#documents-group-wrapper .inline-group {
+  overflow: visible;
+}
+
+#documents-group-wrapper:focus-visible {
+  outline: 2px solid #22c55e;
+  outline-offset: 2px;
+}
+
 .km-inline-body .inline-group {
   border: none !important;
   box-shadow: none !important;
@@ -708,14 +731,14 @@
 /* ── Responsive ────────────────────────────────────────── */
 @media (max-width: 1200px) {
   .km-specialist-layout {
-    grid-template-columns: 200px 1fr 190px;
+    grid-template-columns: 200px minmax(0, 1fr) 190px;
     gap: 16px;
   }
 }
 
 @media (max-width: 1024px) {
   .km-specialist-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .km-specialist-nav {

@@ -1,0 +1,3116 @@
+{
+  "metadata": {
+    "role": "django-reviewer",
+    "snapshot": "current V3/dirty WORKTREE",
+    "production": "NOT_CONTACTED",
+    "source": "fresh /root full-results.json",
+    "entries": 120,
+    "unique_ids": 109
+  },
+  "entries": [
+    {
+      "id": "catalog.testcases.admin.TestAdminBulkActions.test_event_make_published_and_draft_action",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 1,
+      "status": "SOURCE_DIAGNOSED_INVALID_EVENT_PUBLICATION_FIXTURE",
+      "reason": "Fixture Event не имеет конкретного Org/verifiedperson organizer и точного interval. Current bulk использует publish_event и не применяет bypass quality mock. Originaldraft сохраняется; это accepted26 guard, не signedtoken issue.",
+      "old_label_hint_only": "EVENT_ORGANIZER_INTERVAL_CONTRACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 2951,
+        "statement": "self.assertEqual(event1.status, Event.STATUS_PUBLISHED)"
+      },
+      "observed_exception": "AssertionError: 'draft' != 'published'",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/event_domain.py:_organizer/_validate/publish_event"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminBulkActions.test_place_make_published_action",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 2,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "mark_published теперь вызывает publication.publish/evaluate_place_readiness, не patched place_quality_check. create_quality_place без with_subcategory/with_pricing_plan не ready; второйPlace остаётсяdraft. ПервыйrealreadyPlace проходит. Signedtoken label здесь неверен: bulk action не formtoken.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 2839,
+        "statement": "self.assertEqual(place2.status, Place.STATUS_PUBLISHED)"
+      },
+      "observed_exception": "AssertionError: 'draft' != 'published'",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "OBSOLETE_MOCK_AND_INCOMPLETE_PUBLICATION_FIXTURE",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminBulkActions.test_review_action_approve_and_reject",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 3,
+      "status": "SOURCE_DIAGNOSED_REMOVED_LEGACY_REVIEW_MODERATION_ENTRY",
+      "reason": "Старый action approve/hide/reject или прямойlegacyURL удалён/403; currentversionedworkflowlink требуетcandidate revision. Старыйhead не меняется, рейтинг0 ожидаем дляpending. Это не проверка работоспособности новогоaction: её выполняют Task33 typedreview cases.",
+      "old_label_hint_only": "REVIEW_REVISION_PROTOCOL",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 2926,
+        "statement": "self.assertEqual(review1.status, PlaceReview.STATUS_APPROVED)"
+      },
+      "observed_exception": "AssertionError: 'pending' != 'approved'",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/domain_admin/review_versions.py:VersionedReviewAdminMixin.get_actions/approve_view"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_admin_can_approve_request_with_direct_button_url",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 4,
+      "status": "CONFIRMED_ACCEPTED_CONTRACT_EXPECTATION_DEBT",
+      "reason": "Управление одобрено, owner изменён; активация карточки не является действием claim. D02/D06.",
+      "old_label_hint_only": "BASELINE_ADMIN_ACTION",
+      "old_verdict_adopted": false,
+      "evidence": "domain-results.json:legacy_claim",
+      "observation": {
+        "unchanged_assertion_failed": true,
+        "claim_approved": true,
+        "owner_changed": true,
+        "inactive_retained": true,
+        "classification": "ACCEPTED_MANAGEMENT_IS_NOT_PUBLICATION_CONTRACT"
+      },
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 1013,
+        "statement": "self.assertTrue(self.place.is_active)"
+      },
+      "observed_exception": "AssertionError: False is not true",
+      "subtest": ""
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_admin_index_shows_pending_badge_and_hides_internal_models",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 5,
+      "status": "SOURCE_DIAGNOSED_NAVIGATION_EXPECTATION_CHANGE",
+      "reason": "Assertion запрещаетвидимый navigation Группы;15требуетgroups/pricing внутриActivity и регистрация hierarchy проверена новымtest. Точное место списка/UX не принято однимsourceвердиктом.",
+      "old_label_hint_only": "CURRENT_ADMIN_HIERARCHY",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 726,
+        "statement": "self.assertNotContains(response, \"Группы\")"
+      },
+      "observed_exception": "AssertionError: 2 != 0 :'Группы' unexpectedly found in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/domain_admin/business.py; docs/task33/prompts/15.md"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_event_admin_bulk_publish_action_updates_status",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 6,
+      "status": "SOURCE_DIAGNOSED_INVALID_EVENT_PUBLICATION_FIXTURE",
+      "reason": "Fixture Event не имеет конкретного Org/verifiedperson organizer и точного interval. Current bulk использует publish_event и не применяет bypass quality mock. Originaldraft сохраняется; это accepted26 guard, не signedtoken issue.",
+      "old_label_hint_only": "EVENT_ORGANIZER_INTERVAL_CONTRACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 1141,
+        "statement": "self.assertEqual(event.status, Event.STATUS_PUBLISHED)"
+      },
+      "observed_exception": "AssertionError: 'draft' != 'published'",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/event_domain.py:_organizer/_validate/publish_event"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_event_admin_can_publish_from_change_form",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 7,
+      "status": "SOURCE_DIAGNOSED_REQUIRED_FORMAT_PAYLOAD_DEBT",
+      "reason": "Старый _admin_event_change_payload не передаёт required event_format. Root causal completepayload replay даёт302 дляdraft послеV3 precision fix; publishfixture дополнительно должен иметьвалидныйorganizer/dates. First200 сампо себе неfullproofpublishflow.",
+      "old_label_hint_only": "EVENT_ADMIN_LEGACY_PAYLOAD",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 1819,
+        "statement": "self.assertEqual(response.status_code, 302)"
+      },
+      "observed_exception": "AssertionError: 200 != 302",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/domain_admin/place.py:EventAdminForm; docs/task33/reports/28-legacy-draft-diagnostic.json"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_event_admin_can_save_draft_and_continue_later",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 8,
+      "status": "SOURCE_DIAGNOSED_REQUIRED_FORMAT_PAYLOAD_DEBT",
+      "reason": "Старый _admin_event_change_payload не передаёт required event_format. Root causal completepayload replay даёт302 дляdraft послеV3 precision fix; publishfixture дополнительно должен иметьвалидныйorganizer/dates. First200 сампо себе неfullproofpublishflow.",
+      "old_label_hint_only": "EVENT_ADMIN_LEGACY_PAYLOAD",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 1794,
+        "statement": "self.assertEqual(response.status_code, 302)"
+      },
+      "observed_exception": "AssertionError: 200 != 302",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/domain_admin/place.py:EventAdminForm; docs/task33/reports/28-legacy-draft-diagnostic.json"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_failed_publish_keeps_published_card_active_and_shows_all_issues",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 9,
+      "status": "PARTIAL_SOURCE_CONTRACT_MISMATCH_FULL_CAUSE_NOT_PROVEN",
+      "reason": "Assertion требует coords/photo blocking, которые08 сделал optional, и прежнюю message. Старый payload безpublication_token. Complete currentprotocol action не воспроизведён: не объявляется безвредным целиком.",
+      "old_label_hint_only": "BASELINE_ADMIN_ACTION",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 1723,
+        "statement": "self.assertContains(response, \"Карточка осталась опубликованной\")"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'Карточка осталась опубликованной' in the following response",
+      "subtest": ""
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_bulk_action_regeocodes_selected_places",
+      "kind": "error",
+      "exception": "ValidationError",
+      "entry": 10,
+      "status": "SOURCE_DIAGNOSED_GEOGRAPHY_FIXTURE_OR_ERROR_FIELD_CHANGE",
+      "reason": "Retainedtrace даёт actualcoordinate/region mismatch либо inferredregion либо errorattachedlatвместоlng. Defaultdata имеетBaku40.4/49.8; testcaseoutsideGanjaсохраняетих. Exactsubtest boundary ниже; нельзясчитатьвсягеографияправильной по одномуlabel.",
+      "old_label_hint_only": "LOCATION_FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 1964,
+        "statement": "self.place.save(update_fields=[\"address\", \"district\", \"lat\", \"lng\", \"updated_at\"])"
+      },
+      "observed_exception": "django.core.exceptions.ValidationError: {'district': ['Rayonu müəyyən etmək olmadı. Nöqtəni yoxlayın və ya administratorun yoxlaması üçün qaralama saxlayın.']}",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/location_assignment.py; src/catalog/forms.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_can_add_change_and_delete_phone_numbers",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 11,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Fresh trace прямо показывает missing/invalid publication token перед ожидаемой проверкой: self.assertFalse(response.context[\"adminform\"].form.errors, response.context[\"adminform\"].form.errors). source_version требует signed source/schema/snapshot/dependencies. Старый helper/payload token не передаёт. Feature за этой границей не проверена этим failedcase; validtoken replay NOT_RUN.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 1245,
+        "statement": "self.assertFalse(response.context[\"adminform\"].form.errors, response.context[\"adminform\"].form.errors)"
+      },
+      "observed_exception": "AssertionError: {'__all__': ['Publication source token missing/invalid; reload the form.']} is not false : <ul class=\"errorlist\"><li>__all__<ul class=\"errorlist nonfield\"><li>Publication source token missing/invalid; reload the form.</li></ul></li></",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "EXPLICIT_SIGNED_TOKEN_FIRST_FAILURE",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_can_publish_ready_place_from_change_form",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 12,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Точныйfailure self.assertEqual(response.status_code, 302): AssertionError: 200 != 302. Этотстарыйedit/savepayload сформированбезpublicationtoken (helper/data); source_version обязателен. Кромеэтогоname/coords/photo изменяютсяcandidate, невlive; schedule/amount отдельныйexplicitpath. Corefeatureвариантаtest_place_admin_can_publish_ready_place_from_change_form сvalidtoken/approveнепроверенаэтимfailure, требуетсяcausalreplay.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 1681,
+        "statement": "self.assertEqual(response.status_code, 302)"
+      },
+      "observed_exception": "AssertionError: 200 != 302",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "SOURCE_TOKEN_OR_APPROVED_PROJECTION_FEATURE_PREEMPTION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_can_refresh_coordinates_from_address",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 13,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Fresh trace прямо показывает missing/invalid publication token перед ожидаемой проверкой: self.assertFalse(response.context[\"adminform\"].form.errors, response.context[\"adminform\"].form.errors). source_version требует signed source/schema/snapshot/dependencies. Старый helper/payload token не передаёт. Feature за этой границей не проверена этим failedcase; validtoken replay NOT_RUN.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 1846,
+        "statement": "self.assertFalse(response.context[\"adminform\"].form.errors, response.context[\"adminform\"].form.errors)"
+      },
+      "observed_exception": "AssertionError: {'__all__': ['Publication source token missing/invalid; reload the form.']} is not false : <ul class=\"errorlist\"><li>__all__<ul class=\"errorlist nonfield\"><li>Publication source token missing/invalid; reload the form.</li></ul></li></",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "EXPLICIT_SIGNED_TOKEN_FIRST_FAILURE",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_can_save_an_empty_new_place_as_draft",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 14,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Сохранение302 произошло, firstfailure ожидает invented name Черновикбезназвания, actual name пустой.09 допускает незавершённый draft без выдуманного name. Остальные assertions после старого name lookup не выполнены.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 1576,
+        "statement": "self.assertEqual("
+      },
+      "observed_exception": "AssertionError: Lists differ: [''] != ['Черновик без названия']",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "NO_INVENTED_DRAFT_NAME_EXPECTATION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_can_save_place_as_draft_and_continue_later",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 15,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Точныйfailure self.assertEqual(response.status_code, 302): AssertionError: 200 != 302. Этотстарыйedit/savepayload сформированбезpublicationtoken (helper/data); source_version обязателен. Кромеэтогоname/coords/photo изменяютсяcandidate, невlive; schedule/amount отдельныйexplicitpath. Corefeatureвариантаtest_place_admin_can_save_place_as_draft_and_continue_later сvalidtoken/approveнепроверенаэтимfailure, требуетсяcausalreplay.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 1481,
+        "statement": "self.assertEqual(response.status_code, 302)"
+      },
+      "observed_exception": "AssertionError: 200 != 302",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "SOURCE_TOKEN_OR_APPROVED_PROJECTION_FEATURE_PREEMPTION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_can_unpublish_place_from_change_form",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 16,
+      "status": "CONFIRMED_PAYLOAD_VERSION_DEBT",
+      "reason": "Старый POST не содержит unpublish_version. Повтор с единственным добавлением текущей версии даёт302/draft/inactive.",
+      "old_label_hint_only": "BASELINE_ADMIN_ACTION",
+      "old_verdict_adopted": false,
+      "evidence": "domain-results.json:legacy_unpublish",
+      "observation": {
+        "unchanged_assertion_failed": true,
+        "only_missing_version_replay": true,
+        "current_version_http": 302,
+        "draft_inactive": true,
+        "classification": "LEGACY_FORM_VERSION_FIXTURE"
+      },
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 1607,
+        "statement": "self.assertFalse(self.place.is_active)"
+      },
+      "observed_exception": "AssertionError: True is not false",
+      "subtest": ""
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_saves_gallery_photo_with_draft",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 17,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Точныйfailure self.assertEqual(response.status_code, 302): AssertionError: 200 != 302. Этотстарыйedit/savepayload сформированбезpublicationtoken (helper/data); source_version обязателен. Кромеэтогоname/coords/photo изменяютсяcandidate, невlive; schedule/amount отдельныйexplicitpath. Corefeatureвариантаtest_place_admin_saves_gallery_photo_with_draft сvalidtoken/approveнепроверенаэтимfailure, требуетсяcausalreplay.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 1548,
+        "statement": "self.assertEqual(response.status_code, 302)"
+      },
+      "observed_exception": "AssertionError: 200 != 302",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "SOURCE_TOKEN_OR_APPROVED_PROJECTION_FEATURE_PREEMPTION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_saves_pricing_plans_from_change_form",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 18,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Точныйfailure self.assertEqual(response.status_code, 302): AssertionError: 200 != 302. Этотстарыйedit/savepayload сформированбезpublicationtoken (helper/data); source_version обязателен. Кромеэтогоname/coords/photo изменяютсяcandidate, невlive; schedule/amount отдельныйexplicitpath. Corefeatureвариантаtest_place_admin_saves_pricing_plans_from_change_form сvalidtoken/approveнепроверенаэтимfailure, требуетсяcausalreplay.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 1517,
+        "statement": "self.assertEqual(response.status_code, 302)"
+      },
+      "observed_exception": "AssertionError: 200 != 302",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "SOURCE_TOKEN_OR_APPROVED_PROJECTION_FEATURE_PREEMPTION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_saves_valid_structured_schedule",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 19,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Точныйfailure self.assertEqual(response.status_code, 302): AssertionError: 200 != 302. Этотстарыйedit/savepayload сформированбезpublicationtoken (helper/data); source_version обязателен. Кромеэтогоname/coords/photo изменяютсяcandidate, невlive; schedule/amount отдельныйexplicitpath. Corefeatureвариантаtest_place_admin_saves_valid_structured_schedule сvalidtoken/approveнепроверенаэтимfailure, требуетсяcausalreplay.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 1450,
+        "statement": "self.assertEqual(response.status_code, 302)"
+      },
+      "observed_exception": "AssertionError: 200 != 302",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "SOURCE_TOKEN_OR_APPROVED_PROJECTION_FEATURE_PREEMPTION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_admin_shows_coordinates_and_readiness_statuses",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 20,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Точный первый failure: self.assertContains(response, 'data-total=\"12\"', html=False); наблюдение AssertionError: False is not true : Couldn't find 'data-total=\"12\"' in the following response. place_readiness.py удаляет photo/coordinates из requirements, осталось10 вместо12. Для этого subtest счётчик старый; дальнейшие assertions отдельного requirement после него не выполнены и не объявлены проверенными.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 1053,
+        "statement": "self.assertContains(response, 'data-total=\"12\"', html=False)"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'data-total=\"12\"' in the following response",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "NUMERICAL_READINESS_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_review_admin_bulk_hide_and_approve_actions",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 21,
+      "status": "SOURCE_DIAGNOSED_REMOVED_LEGACY_REVIEW_MODERATION_ENTRY",
+      "reason": "Старый action approve/hide/reject или прямойlegacyURL удалён/403; currentversionedworkflowlink требуетcandidate revision. Старыйhead не меняется, рейтинг0 ожидаем дляpending. Это не проверка работоспособности новогоaction: её выполняют Task33 typedreview cases.",
+      "old_label_hint_only": "REVIEW_REVISION_PROTOCOL",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 2089,
+        "statement": "self.assertFalse(review.is_approved)"
+      },
+      "observed_exception": "AssertionError: True is not false",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/domain_admin/review_versions.py:VersionedReviewAdminMixin.get_actions/approve_view"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_place_review_admin_moderation_views_update_visibility",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 22,
+      "status": "SOURCE_DIAGNOSED_REMOVED_LEGACY_REVIEW_MODERATION_ENTRY",
+      "reason": "Старый action approve/hide/reject или прямойlegacyURL удалён/403; currentversionedworkflowlink требуетcandidate revision. Старыйhead не меняется, рейтинг0 ожидаем дляpending. Это не проверка работоспособности новогоaction: её выполняют Task33 typedreview cases.",
+      "old_label_hint_only": "REVIEW_REVISION_PROTOCOL",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 2128,
+        "statement": "self.assertFalse(review.is_approved)"
+      },
+      "observed_exception": "AssertionError: True is not false",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/domain_admin/review_versions.py:VersionedReviewAdminMixin.get_actions/approve_view"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminTemporaryEventInputs.test_place_admin_form_exposes_and_saves_custom_price_badges",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 23,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Fresh trace прямо показывает missing/invalid publication token перед ожидаемой проверкой: self.assertTrue(form.is_valid(), form.errors). source_version требует signed source/schema/snapshot/dependencies. Старый helper/payload token не передаёт. Feature за этой границей не проверена этим failedcase; validtoken replay NOT_RUN.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 204,
+        "statement": "self.assertTrue(form.is_valid(), form.errors)"
+      },
+      "observed_exception": "AssertionError: False is not true : <ul class=\"errorlist\"><li>__all__<ul class=\"errorlist nonfield\"><li>Publication source token missing/invalid; reload the form.</li></ul></li></ul>",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "EXPLICIT_SIGNED_TOKEN_FIRST_FAILURE",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.admin.TestAdminTemporaryEventInputs.test_place_admin_form_supports_open_ended_age",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 24,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Fresh trace прямо показывает missing/invalid publication token перед ожидаемой проверкой: self.assertTrue(form.is_valid(), form.errors). source_version требует signed source/schema/snapshot/dependencies. Старый helper/payload token не передаёт. Feature за этой границей не проверена этим failedcase; validtoken replay NOT_RUN.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 136,
+        "statement": "self.assertTrue(form.is_valid(), form.errors)"
+      },
+      "observed_exception": "AssertionError: False is not true : <ul class=\"errorlist\"><li>__all__<ul class=\"errorlist nonfield\"><li>Publication source token missing/invalid; reload the form.</li></ul></li></ul>",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "EXPLICIT_SIGNED_TOKEN_FIRST_FAILURE",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.admin.TestPlaceRatingsAdmin.test_changelist_pagination_preserves_filters_search_and_sorting",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 25,
+      "status": "CONFIRMED_DISTRICT_FIXTURE_QUERY_DEBT",
+      "reason": "Созданные5 fixtures имеют baku_narimanov, query=baku даёт0. Замена только querydistrict возвращает3 корректные страницы с сохранёнными фильтрами.",
+      "old_label_hint_only": "BASELINE_ADMIN_PAGINATION",
+      "old_verdict_adopted": false,
+      "evidence": "domain-results.json:legacy_pagination",
+      "observation": {
+        "unchanged_assertion_failure": "False is not true : Couldn't find 'km-changelist-pagination__nav' in the following response",
+        "fixture_count": 5,
+        "stored_districts": [
+          "baku_narimanov"
+        ],
+        "query_district": "baku",
+        "matching_district_count": 0,
+        "same_query_actual_district_three_pages_passed": true,
+        "classification": "CONFIRMED_FIXTURE_QUERY_DISTRICT_MISMATCH_NOT_PAGINATION_DEFECT"
+      },
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 3223,
+        "statement": "self.assertContains(response, \"km-changelist-pagination__nav\")"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'km-changelist-pagination__nav' in the following response",
+      "subtest": ""
+    },
+    {
+      "id": "catalog.testcases.admin.TestReviewRatingSyncAndAdminBulkActions.test_place_review_bulk_approve_updates_place_rating_stats",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 26,
+      "status": "SOURCE_DIAGNOSED_REMOVED_LEGACY_REVIEW_MODERATION_ENTRY",
+      "reason": "Старый action approve/hide/reject или прямойlegacyURL удалён/403; currentversionedworkflowlink требуетcandidate revision. Старыйhead не меняется, рейтинг0 ожидаем дляpending. Это не проверка работоспособности новогоaction: её выполняют Task33 typedreview cases.",
+      "old_label_hint_only": "REVIEW_REVISION_PROTOCOL",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 3592,
+        "statement": "self.assertEqual(self.place.rating_count, 2)"
+      },
+      "observed_exception": "AssertionError: 0 != 2",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/domain_admin/review_versions.py:VersionedReviewAdminMixin.get_actions/approve_view"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.admin.TestReviewRatingSyncAndAdminBulkActions.test_specialist_review_bulk_approve_updates_specialist_rating_stats",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 27,
+      "status": "SOURCE_DIAGNOSED_REMOVED_LEGACY_REVIEW_MODERATION_ENTRY",
+      "reason": "Старый action approve/hide/reject или прямойlegacyURL удалён/403; currentversionedworkflowlink требуетcandidate revision. Старыйhead не меняется, рейтинг0 ожидаем дляpending. Это не проверка работоспособности новогоaction: её выполняют Task33 typedreview cases.",
+      "old_label_hint_only": "REVIEW_REVISION_PROTOCOL",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/admin.py",
+        "line": 3615,
+        "statement": "self.assertEqual(self.specialist.rating_count, 1)"
+      },
+      "observed_exception": "AssertionError: 0 != 1",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/domain_admin/review_versions.py:VersionedReviewAdminMixin.get_actions/approve_view"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.adult_classes.PlaceAdultClassesPublicTests.test_catalog_has_no_adult_filter_and_renders_compact_audience",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 28,
+      "status": "CONFIRMED_PRESENTATION_EXPECTATION_DEBT_FACTS_RETAINED",
+      "reason": "Новый causalprobe воспроизвёл оба oldassertion failures. Currentcatalog содержиткороткийВзрослые, detail200содержит6–17 иВзрослыегруппы. Меняетсяexactstring/unitsplacement, age/adultfactsнеутрачены. ЭтоnativeHTTPtext,неполныйrenderedvisualproof.",
+      "old_label_hint_only": "SUPERSEDED PUBLIC PRESENTATION",
+      "old_verdict_adopted": false,
+      "evidence": "domain-results.json:domain-observations.json.legacy_audience",
+      "observation": {
+        "unchanged_failures": [
+          "test_catalog_has_no_adult_filter_and_renders_compact_audience",
+          "test_place_detail_renders_children_only_and_mixed_audience"
+        ],
+        "detail_http": 200,
+        "detail_age_value_retained": true,
+        "detail_adult_label_retained": true,
+        "catalog_short_adult_label_retained": true,
+        "catalog_exact_old_long_label": false,
+        "detail_exact_old_age_suffix": false,
+        "classification": "SOURCE_AND_RUNTIME_PRESENTATION_EXPECTATION_FACTS_RETAINED"
+      },
+      "actual_first_assertion": {
+        "path": "catalog/testcases/adult_classes.py",
+        "line": 212,
+        "statement": "self.assertContains(response, \"Взрослые группы\")"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'Взрослые группы' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/templates/catalog/includes/place_card.html; src/catalog/templates/catalog/place_detail.html"
+      ],
+      "confidence": "HIGH_SOURCE_PLUS_CAUSAL_LOCAL_HTTP",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.adult_classes.PlaceAdultClassesPublicTests.test_place_detail_renders_children_only_and_mixed_audience",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 29,
+      "status": "CONFIRMED_PRESENTATION_EXPECTATION_DEBT_FACTS_RETAINED",
+      "reason": "Новый causalprobe воспроизвёл оба oldassertion failures. Currentcatalog содержиткороткийВзрослые, detail200содержит6–17 иВзрослыегруппы. Меняетсяexactstring/unitsplacement, age/adultfactsнеутрачены. ЭтоnativeHTTPtext,неполныйrenderedvisualproof.",
+      "old_label_hint_only": "SUPERSEDED PUBLIC PRESENTATION",
+      "old_verdict_adopted": false,
+      "evidence": "domain-results.json:domain-observations.json.legacy_audience",
+      "observation": {
+        "unchanged_failures": [
+          "test_catalog_has_no_adult_filter_and_renders_compact_audience",
+          "test_place_detail_renders_children_only_and_mixed_audience"
+        ],
+        "detail_http": 200,
+        "detail_age_value_retained": true,
+        "detail_adult_label_retained": true,
+        "catalog_short_adult_label_retained": true,
+        "catalog_exact_old_long_label": false,
+        "detail_exact_old_age_suffix": false,
+        "classification": "SOURCE_AND_RUNTIME_PRESENTATION_EXPECTATION_FACTS_RETAINED"
+      },
+      "actual_first_assertion": {
+        "path": "catalog/testcases/adult_classes.py",
+        "line": 220,
+        "statement": "self.assertContains(family_response, \"6–17 лет\")"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find '6–17 лет' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/templates/catalog/includes/place_card.html; src/catalog/templates/catalog/place_detail.html"
+      ],
+      "confidence": "HIGH_SOURCE_PLUS_CAUSAL_LOCAL_HTTP",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.catalog.CatalogMapQueryEfficiencyTests.test_map_serialization_query_count_does_not_grow_with_schedules",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 30,
+      "status": "OBSERVED_FIXED_QUERY_OVERHEAD_INCREASE_NOT_DISMISSED",
+      "reason": "Actual9queries вместоold4. Это реальноеувеличениеfixedoverhead наэтомfixture; новоеmatched/venuepresentationдобавляетработу, ноaccepted4budgetнеустановлен. Scalingtestsиотдельный41→8comparison неотменяютэтотfailure. Timing/perfacceptanceчастичная.",
+      "old_label_hint_only": "SUPERSEDED QUERY BUDGET",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/catalog.py",
+        "line": 159,
+        "statement": "with self.assertNumQueries(4):"
+      },
+      "observed_exception": "AssertionError: 9 != 4 : 9 queries executed, 4 expected",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/map_payload.py; full-results.json:stage19-query-comparison.json"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.catalog.CatalogSubcategoryFilterTests.test_subcategory_combines_with_other_filters",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 31,
+      "status": "SOURCE_DIAGNOSED_CANONICAL_DISTRICT_FIXTURE_PARTIAL",
+      "reason": "Fixtureписалdesired district приодинаковыхBakucoords; normalSaveканонизирует district. Districtquery проверяетstoredcanonicalcode. Реальныеfullcombinedsearchтрасы нужны отдельно; не blanketobsolete.",
+      "old_label_hint_only": "INVALID GEOGRAPHY FIXTURE / OLD QUERY BUDGET",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/catalog.py",
+        "line": 1069,
+        "statement": "self.assertEqual(self._names(response), {\"Robotics club\"}, \"район должен сужать выдачу вместе с подкатегорией\")"
+      },
+      "observed_exception": "AssertionError: Items in the first set but not the second:",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/testcases/utils.py:create_quality_place; src/catalog/services/location_assignment.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.image_uploads.TestOwnerImagePersistenceFailures.test_card_changes_are_not_saved_when_gallery_storage_fails",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 32,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Fresh trace прямо показывает missing/invalid publication token перед ожидаемой проверкой: self.assertIn(\"gallery_images\", result.form.errors). source_version требует signed source/schema/snapshot/dependencies. Старый helper/payload token не передаёт. Feature за этой границей не проверена этим failedcase; validtoken replay NOT_RUN.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/image_uploads.py",
+        "line": 178,
+        "statement": "self.assertIn(\"gallery_images\", result.form.errors)"
+      },
+      "observed_exception": "AssertionError: 'gallery_images' not found in {'__all__': ['Publication source token missing/invalid; reload the form.']}",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "EXPLICIT_SIGNED_TOKEN_FIRST_FAILURE",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.image_uploads.TestOwnerImagePersistenceFailures.test_gallery_can_be_added_and_owner_can_delete_a_photo",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 33,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Fresh trace прямо показывает missing/invalid publication token перед ожидаемой проверкой: self.assertTrue(save_result.ok, save_result.form.errors). source_version требует signed source/schema/snapshot/dependencies. Старый helper/payload token не передаёт. Feature за этой границей не проверена этим failedcase; validtoken replay NOT_RUN.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/image_uploads.py",
+        "line": 279,
+        "statement": "self.assertTrue(save_result.ok, save_result.form.errors)"
+      },
+      "observed_exception": "AssertionError: False is not true : <ul class=\"errorlist\"><li>__all__<ul class=\"errorlist nonfield\"><li>Publication source token missing/invalid; reload the form.</li></ul></li></ul>",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "EXPLICIT_SIGNED_TOKEN_FIRST_FAILURE",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.image_uploads.TestOwnerImagePersistenceFailures.test_main_photo_can_be_replaced_and_then_removed",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 34,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Точныйfailure self.assertTrue(replace_result.ok): AssertionError: False is not true. Этотстарыйedit/savepayload сформированбезpublicationtoken (helper/data); source_version обязателен. Кромеэтогоname/coords/photo изменяютсяcandidate, невlive; schedule/amount отдельныйexplicitpath. Corefeatureвариантаtest_main_photo_can_be_replaced_and_then_removed сvalidtoken/approveнепроверенаэтимfailure, требуетсяcausalreplay.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/image_uploads.py",
+        "line": 227,
+        "statement": "self.assertTrue(replace_result.ok)"
+      },
+      "observed_exception": "AssertionError: False is not true",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "SOURCE_TOKEN_OR_APPROVED_PROJECTION_FEATURE_PREEMPTION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_can_resubmit_published_place_for_moderation",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 35,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Firstfailure self.assertEqual(self.manager_place.status, Place.STATUS_PENDING): AssertionError: 'published' != 'pending'. Pending находитсявVolunteerPlaceRevision; newPlacebase остаётсяdraft, publishedcurrent не заменяетсяpending. Sourcepublication.propose поддерживает current/candidate. Массовыеполя/staffsecurityдальнейшихassertions этимfailureнепроверены.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 367,
+        "statement": "self.assertEqual(self.manager_place.status, Place.STATUS_PENDING)"
+      },
+      "observed_exception": "AssertionError: 'published' != 'pending'",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "PUBLICATION_CURRENT_CANDIDATE_STATE_EXPECTATION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_can_save_and_exit_create_draft_before_category_is_selected",
+      "kind": "error",
+      "exception": "DoesNotExist",
+      "entry": 36,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "POST сначалаredirected, firstfailure ищет submittedname_az/name_ru вPlace approved projection: place = Place.objects.get(owner=self.manager_user, name_az=\"Erkən saxlanan qaralama\"). create_from_form создаёт base(name/category/owner,draft), переводы/остальное publication.propose хранитвcandidate. Source показывает другуюпроекцию; candidatecontent именноэтогоfixture runtimeнепроверен, неclaimполностьюharmless.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 731,
+        "statement": "place = Place.objects.get(owner=self.manager_user, name_az=\"Erkən saxlanan qaralama\")"
+      },
+      "observed_exception": "catalog.models.place.Place.DoesNotExist: Place matching query does not exist.",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "CANDIDATE_FIELDS_LOOKED_UP_IN_LIVE_ROW",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_cannot_create_more_than_ten_places",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 37,
+      "status": "SOURCE_DIAGNOSED_ACCEPTED_CREATE_LIMIT_REMOVAL",
+      "reason": "06убираетfixed10limit. OriginalassertищетLimitdolub,11-еPlaceдопускается; конкретныйpositive новыйcase test_eleventh_place_form_is_available rootPASS.",
+      "old_label_hint_only": "CREATE_CAP_REMOVED",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 1154,
+        "statement": "self.assertContains(response, \"Limit dolub\")"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'Limit dolub' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/organization_ownership.py:create_place; docs/task33/prompts/06.md"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_cannot_submit_incomplete_draft_for_moderation",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 38,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Первый failure self.assertContains(first_response, \"Фото: загрузите основное фото\"): AssertionError: False is not true : Couldn't find 'Фото: загрузите основное фото' in the following response. Фото/координаты по08 не обязательны. Конкретная проверка требует прежнюю ошибку/issue/required field; другие действительные errors (price/subcategory/region) остаются и не отменены этим диагнозом.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 1758,
+        "statement": "self.assertContains(first_response, \"Фото: загрузите основное фото\")"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'Фото: загрузите основное фото' in the following response",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "OPTIONAL_FIELD_EXPECTATION_MISMATCH",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_create_page_has_review_and_draft_actions",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 39,
+      "status": "SOURCE_DIAGNOSED_SUPERSEDED_WIZARD_SELECTOR_FIRST_FAILURE",
+      "reason": "Firstassert требуетpw-step/sidebar/7steps/permanent_place_wizard.js.13заменилowner flow наcontinuous4sections/отдельныйJS. Последующиеуникальныеphoto/map/pricingassertions заэтимfirstfailure не выполнены; shared volunteer selectors должныпроверятьсяотдельно.",
+      "old_label_hint_only": "CONTINUOUS_FORM",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 1089,
+        "statement": "self.assertContains(response, 'data-pw-submit', html=False)"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'data-pw-submit' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/templates/pages/owner_place_create.html; docs/task33/prompts/13.md"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_create_page_renders_map_picker",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 40,
+      "status": "SOURCE_DIAGNOSED_SUPERSEDED_WIZARD_SELECTOR_FIRST_FAILURE",
+      "reason": "Firstassert требуетpw-step/sidebar/7steps/permanent_place_wizard.js.13заменилowner flow наcontinuous4sections/отдельныйJS. Последующиеуникальныеphoto/map/pricingassertions заэтимfirstfailure не выполнены; shared volunteer selectors должныпроверятьсяотдельно.",
+      "old_label_hint_only": "CONTINUOUS_FORM",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 598,
+        "statement": "self.assertContains(response, \"pw-step-head\")"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'pw-step-head' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/templates/pages/owner_place_create.html; docs/task33/prompts/13.md"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_create_requires_selected_coordinates_before_saving",
+      "kind": "error",
+      "exception": "KeyError",
+      "entry": 41,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Первый failure self.assertIn(\"lat\", response.context[\"form\"].errors): KeyError: 'form'. Фото/координаты по08 не обязательны. Конкретная проверка требует прежнюю ошибку/issue/required field; другие действительные errors (price/subcategory/region) остаются и не отменены этим диагнозом.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 1205,
+        "statement": "self.assertIn(\"lat\", response.context[\"form\"].errors)"
+      },
+      "observed_exception": "KeyError: 'form'",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "OPTIONAL_FIELD_EXPECTATION_MISMATCH",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_edit_form_can_force_refresh_coordinates",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 42,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Точныйfailure self.assertEqual(self.manager_place.lat, 40.666666): AssertionError: 40.111111 != 40.666666. Этотстарыйedit/savepayload сформированбезpublicationtoken (helper/data); source_version обязателен. Кромеэтогоname/coords/photo изменяютсяcandidate, невlive; schedule/amount отдельныйexplicitpath. Corefeatureвариантаtest_owner_edit_form_can_force_refresh_coordinates сvalidtoken/approveнепроверенаэтимfailure, требуетсяcausalreplay.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 1881,
+        "statement": "self.assertEqual(self.manager_place.lat, 40.666666)"
+      },
+      "observed_exception": "AssertionError: 40.111111 != 40.666666",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "SOURCE_TOKEN_OR_APPROVED_PROJECTION_FEATURE_PREEMPTION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_edit_keeps_manual_map_coordinates_when_address_changes",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 43,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Точныйfailure self.assertEqual(self.manager_place.lat, 40.4555): AssertionError: 40.111111 != 40.4555. Этотстарыйedit/savepayload сформированбезpublicationtoken (helper/data); source_version обязателен. Кромеэтогоname/coords/photo изменяютсяcandidate, невlive; schedule/amount отдельныйexplicitpath. Corefeatureвариантаtest_owner_edit_keeps_manual_map_coordinates_when_address_changes сvalidtoken/approveнепроверенаэтимfailure, требуетсяcausalreplay.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 1930,
+        "statement": "self.assertEqual(self.manager_place.lat, 40.4555)"
+      },
+      "observed_exception": "AssertionError: 40.111111 != 40.4555",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "SOURCE_TOKEN_OR_APPROVED_PROJECTION_FEATURE_PREEMPTION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_edit_page_hides_public_link_for_inactive_place",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 44,
+      "status": "SOURCE_DIAGNOSED_SUPERSEDED_WIZARD_SELECTOR_FIRST_FAILURE",
+      "reason": "Firstassert требуетpw-step/sidebar/7steps/permanent_place_wizard.js.13заменилowner flow наcontinuous4sections/отдельныйJS. Последующиеуникальныеphoto/map/pricingassertions заэтимfirstfailure не выполнены; shared volunteer selectors должныпроверятьсяотдельно.",
+      "old_label_hint_only": "CONTINUOUS_FORM",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 582,
+        "statement": "self.assertContains(response, \"pw-sidebar\")"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'pw-sidebar' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/templates/pages/owner_place_create.html; docs/task33/prompts/13.md"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_edit_page_rehydrates_saved_pricing_plans",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 45,
+      "status": "SOURCE_DIAGNOSED_SUPERSEDED_WIZARD_SELECTOR_FIRST_FAILURE",
+      "reason": "Firstassert требуетpw-step/sidebar/7steps/permanent_place_wizard.js.13заменилowner flow наcontinuous4sections/отдельныйJS. Последующиеуникальныеphoto/map/pricingassertions заэтимfirstfailure не выполнены; shared volunteer selectors должныпроверятьсяотдельно.",
+      "old_label_hint_only": "CONTINUOUS_FORM",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 426,
+        "statement": "self.assertContains(response, \"permanent_place_wizard.js\")"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'permanent_place_wizard.js' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/templates/pages/owner_place_create.html; docs/task33/prompts/13.md"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_edit_page_shows_current_photo_preview",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 46,
+      "status": "SOURCE_DIAGNOSED_SUPERSEDED_WIZARD_SELECTOR_FIRST_FAILURE",
+      "reason": "Firstassert требуетpw-step/sidebar/7steps/permanent_place_wizard.js.13заменилowner flow наcontinuous4sections/отдельныйJS. Последующиеуникальныеphoto/map/pricingassertions заэтимfirstfailure не выполнены; shared volunteer selectors должныпроверятьсяотдельно.",
+      "old_label_hint_only": "CONTINUOUS_FORM",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 399,
+        "statement": "self.assertContains(response, 'data-pw-step=\"6\"')"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'data-pw-step=\"6\"' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/templates/pages/owner_place_create.html; docs/task33/prompts/13.md"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_edit_saves_structured_schedule_and_creates_schedule_audit",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 47,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Точныйfailure self.assertTrue(self.editor_place.schedule_days.filter(weekday=\"mon\", is_closed=False).exists()): AssertionError: False is not true. Этотстарыйedit/savepayload сформированбезpublicationtoken (helper/data); source_version обязателен. Кромеэтогоname/coords/photo изменяютсяcandidate, невlive; schedule/amount отдельныйexplicitpath. Corefeatureвариантаtest_owner_edit_saves_structured_schedule_and_creates_schedule_audit сvalidtoken/approveнепроверенаэтимfailure, требуетсяcausalreplay.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 656,
+        "statement": "self.assertTrue(self.editor_place.schedule_days.filter(weekday=\"mon\", is_closed=False).exists())"
+      },
+      "observed_exception": "AssertionError: False is not true",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "SOURCE_TOKEN_OR_APPROVED_PROJECTION_FEATURE_PREEMPTION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_editor_can_edit_but_cannot_publish",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 48,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Точныйfailure self.assertEqual(self.editor_place.name_ru, \"Кружок редактора обновлен\"): AssertionError: 'Кружок редактора' != 'Кружок редактора обновлен'. Этотстарыйedit/savepayload сформированбезpublicationtoken (helper/data); source_version обязателен. Кромеэтогоname/coords/photo изменяютсяcandidate, невlive; schedule/amount отдельныйexplicitpath. Corefeatureвариантаtest_owner_editor_can_edit_but_cannot_publish сvalidtoken/approveнепроверенаэтимfailure, требуетсяcausalreplay.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 780,
+        "statement": "self.assertEqual(self.editor_place.name_ru, \"Кружок редактора обновлен\")"
+      },
+      "observed_exception": "AssertionError: 'Кружок редактора' != 'Кружок редактора обновлен'",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "SOURCE_TOKEN_OR_APPROVED_PROJECTION_FEATURE_PREEMPTION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_editor_can_save_draft_and_exit_to_dashboard",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 49,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Точныйfailure self.assertEqual(response.status_code, 302): AssertionError: 200 != 302. Этотстарыйedit/savepayload сформированбезpublicationtoken (helper/data); source_version обязателен. Кромеэтогоname/coords/photo изменяютсяcandidate, невlive; schedule/amount отдельныйexplicitpath. Corefeatureвариантаtest_owner_editor_can_save_draft_and_exit_to_dashboard сvalidtoken/approveнепроверенаэтимfailure, требуетсяcausalreplay.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 569,
+        "statement": "self.assertEqual(response.status_code, 302)"
+      },
+      "observed_exception": "AssertionError: 200 != 302",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "SOURCE_TOKEN_OR_APPROVED_PROJECTION_FEATURE_PREEMPTION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_editor_can_save_incomplete_edit_as_draft",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 50,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Точныйfailure self.assertEqual(self.editor_place.description_az, \"Yenilenmis qaralama tesviri\"): AssertionError: 'Ilkin tesvir' != 'Yenilenmis qaralama tesviri'. Этотстарыйedit/savepayload сформированбезpublicationtoken (helper/data); source_version обязателен. Кромеэтогоname/coords/photo изменяютсяcandidate, невlive; schedule/amount отдельныйexplicitpath. Corefeatureвариантаtest_owner_editor_can_save_incomplete_edit_as_draft сvalidtoken/approveнепроверенаэтимfailure, требуетсяcausalreplay.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 520,
+        "statement": "self.assertEqual(self.editor_place.description_az, \"Yenilenmis qaralama tesviri\")"
+      },
+      "observed_exception": "AssertionError: 'Ilkin tesvir' != 'Yenilenmis qaralama tesviri'",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "SOURCE_TOKEN_OR_APPROVED_PROJECTION_FEATURE_PREEMPTION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_manager_can_create_place_and_send_for_moderation",
+      "kind": "error",
+      "exception": "DoesNotExist",
+      "entry": 51,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "POST сначалаredirected, firstfailure ищет submittedname_az/name_ru вPlace approved projection: place = Place.objects.get(owner=self.manager_user, name_ru=\"Новая карточка владельца\"). create_from_form создаёт base(name/category/owner,draft), переводы/остальное publication.propose хранитвcandidate. Source показывает другуюпроекцию; candidatecontent именноэтогоfixture runtimeнепроверен, неclaimполностьюharmless.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 1075,
+        "statement": "place = Place.objects.get(owner=self.manager_user, name_ru=\"Новая карточка владельца\")"
+      },
+      "observed_exception": "catalog.models.place.Place.DoesNotExist: Place matching query does not exist.",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "CANDIDATE_FIELDS_LOOKED_UP_IN_LIVE_ROW",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_manager_can_save_incomplete_place_as_draft",
+      "kind": "error",
+      "exception": "DoesNotExist",
+      "entry": 52,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "POST сначалаredirected, firstfailure ищет submittedname_az/name_ru вPlace approved projection: place = Place.objects.get(owner=self.manager_user, name_az=\"Yarımçıq qaralama\"). create_from_form создаёт base(name/category/owner,draft), переводы/остальное publication.propose хранитвcandidate. Source показывает другуюпроекцию; candidatecontent именноэтогоfixture runtimeнепроверен, неclaimполностьюharmless.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 1133,
+        "statement": "place = Place.objects.get(owner=self.manager_user, name_az=\"Yarımçıq qaralama\")"
+      },
+      "observed_exception": "catalog.models.place.Place.DoesNotExist: Place matching query does not exist.",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "CANDIDATE_FIELDS_LOOKED_UP_IN_LIVE_ROW",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_manager_cannot_submit_a_place_without_coordinates",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 53,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Первый failure self.assertIn(\"lat\", response.context[\"form\"].errors): AssertionError: 'lat' not found in {'subcategory': ['Bu sahə vacibdir.', 'Seçilmiş kateqoriyanın alt kateqoriyasını seçin.'], '__all__': ['Kart dərc edilə bilməz. 10 məcburi bənddən 9 doldurulub. Doldurulmalıdır: Alt kateqoriya — Seçilmiş kateqoriyan. Фото/координаты по08 не обязательны. Конкретная проверка требует прежнюю ошибку/issue/required field; другие действительные errors (price/subcategory/region) остаются и не отменены этим диагнозом.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 1243,
+        "statement": "self.assertIn(\"lat\", response.context[\"form\"].errors)"
+      },
+      "observed_exception": "AssertionError: 'lat' not found in {'subcategory': ['Bu sahə vacibdir.', 'Seçilmiş kateqoriyanın alt kateqoriyasını seçin.'], '__all__': ['Kart dərc edilə bilməz. 10 məcburi bənddən 9 doldurulub. Doldurulmalıdır: Alt kateqoriya — Seçilmiş kateqoriyan",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "OPTIONAL_FIELD_EXPECTATION_MISMATCH",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_manager_create_place_keeps_manual_map_coordinates",
+      "kind": "error",
+      "exception": "DoesNotExist",
+      "entry": 54,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "POST сначалаredirected, firstfailure ищет submittedname_az/name_ru вPlace approved projection: place = Place.objects.get(owner=self.manager_user, name_ru=\"Карточка с ручной точкой\"). create_from_form создаёт base(name/category/owner,draft), переводы/остальное publication.propose хранитвcandidate. Source показывает другуюпроекцию; candidatecontent именноэтогоfixture runtimeнепроверен, неclaimполностьюharmless.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 1295,
+        "statement": "place = Place.objects.get(owner=self.manager_user, name_ru=\"Карточка с ручной точкой\")"
+      },
+      "observed_exception": "catalog.models.place.Place.DoesNotExist: Place matching query does not exist.",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "CANDIDATE_FIELDS_LOOKED_UP_IN_LIVE_ROW",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_moderator_cannot_edit_place",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 55,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Точныйfailure self.assertEqual(self.moderator_place.name_ru, \"Изменение от модератора\"): AssertionError: 'Кружок модератора' != 'Изменение от модератора'. Этотстарыйedit/savepayload сформированбезpublicationtoken (helper/data); source_version обязателен. Кромеэтогоname/coords/photo изменяютсяcandidate, невlive; schedule/amount отдельныйexplicitpath. Corefeatureвариантаtest_owner_moderator_cannot_edit_place сvalidtoken/approveнепроверенаэтимfailure, требуетсяcausalreplay.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 1010,
+        "statement": "self.assertEqual(self.moderator_place.name_ru, \"Изменение от модератора\")"
+      },
+      "observed_exception": "AssertionError: 'Кружок модератора' != 'Изменение от модератора'",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "SOURCE_TOKEN_OR_APPROVED_PROJECTION_FEATURE_PREEMPTION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_place_create_requires_main_photo",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 56,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Первый failure self.assertIn(\"photo\", response.context[\"form\"].errors): AssertionError: 'photo' not found in {'__all__': ['Kart dərc edilə bilməz. 10 məcburi bənddən 9 doldurulub. Doldurulmalıdır: Qiymət — Ən azı bir aktiv tarif əlavə edin və ya uyğun qiymət rejimini seçin (pulsuz / giriş pulsuz / tədbirlər üzrə).'], 'pr. Фото/координаты по08 не обязательны. Конкретная проверка требует прежнюю ошибку/issue/required field; другие действительные errors (price/subcategory/region) остаются и не отменены этим диагнозом.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 1661,
+        "statement": "self.assertIn(\"photo\", response.context[\"form\"].errors)"
+      },
+      "observed_exception": "AssertionError: 'photo' not found in {'__all__': ['Kart dərc edilə bilməz. 10 məcburi bənddən 9 doldurulub. Doldurulmalıdır: Qiymət — Ən azı bir aktiv tarif əlavə edin və ya uyğun qiymət rejimini seçin (pulsuz / giriş pulsuz / tədbirlər üzrə).'], 'pr",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "OPTIONAL_FIELD_EXPECTATION_MISMATCH",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_place_create_requires_name_in_azerbaijani",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 57,
+      "status": "SOURCE_DIAGNOSED_FIRST_DESCRIPTION_EXPECTATION_MISMATCH",
+      "reason": "Firstassert требуетdescription_azerror, ноfixtureимеетdescription_az; отсутствующийname_az даётдругуюошибку. Точноеobservedexception сохранено; name-requiredpositive/negativeTask33source проверяется отдельно.",
+      "old_label_hint_only": "INVALID_OLD_DESCRIPTION_ASSERTION",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 1699,
+        "statement": "self.assertIn(\"description_az\", response.context[\"form\"].errors)"
+      },
+      "observed_exception": "AssertionError: 'description_az' not found in {'name_az': ['Bu sahə vacibdir.', 'Azərbaycan dilində adı daxil edin.'], '__all__': ['Kart dərc edilə bilməz. 10 məcburi bənddən 8 doldurulub. Doldurulmalıdır: Ad — Azərbaycan dilində adı daxil edin.; Qiy",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/testcases/owner.py; src/catalog/forms.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_place_create_requires_point_when_region_cannot_be_resolved",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 58,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Первый failure self.assertIn(\"lat\", response.context[\"form\"].errors): AssertionError: 'lat' not found in {'__all__': ['Kart dərc edilə bilməz. 10 məcburi bənddən 8 doldurulub. Doldurulmalıdır: Rayon / bölgə — Şəhər və ya bölgəni, Bakı üçün isə rayonu seçin.; Qiymət — Ən azı bir aktiv tarif əlavə edin və ya uyğun qiymət. Фото/координаты по08 не обязательны. Конкретная проверка требует прежнюю ошибку/issue/required field; другие действительные errors (price/subcategory/region) остаются и не отменены этим диагнозом.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 1546,
+        "statement": "self.assertIn(\"lat\", response.context[\"form\"].errors)"
+      },
+      "observed_exception": "AssertionError: 'lat' not found in {'__all__': ['Kart dərc edilə bilməz. 10 məcburi bənddən 8 doldurulub. Doldurulmalıdır: Rayon / bölgə — Şəhər və ya bölgəni, Bakı üçün isə rayonu seçin.; Qiymət — Ən azı bir aktiv tarif əlavə edin və ya uyğun qiymət",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "OPTIONAL_FIELD_EXPECTATION_MISMATCH",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_staff_with_change_place_permission_can_publish_after_approval",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 59,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Старый сценарий ожидаетis_active послеownershipapproval; _decide_claim/_change_owner меняет управление, не publication. Тот же boundary воспроизведён отдельным legacy_claimprobe. Реальныйpublishдляэтойstaffроли не доказан этимcase.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 848,
+        "statement": "self.assertTrue(self.manager_place.is_active)"
+      },
+      "observed_exception": "AssertionError: False is not true",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "CLAIM_NOT_PUBLICATION_EXPECTATION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerTeamAndReviewModeration.test_owner_edit_creates_place_change_audit",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 60,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Наблюдениеaudits0; currentcontroller сохраняет publicationcandidate, прежняя ветка legacyPlaceChangeAudit послеsave отсутствует. Старый payloadбезtoken такжеможетостанавливатьsave. Требуетсяtokenreplay/сопоставлениеrevisionauditсобещанием; sourceчастичный, возможныйauditUXдолг, неharmlessverdict.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 2119,
+        "statement": "self.assertGreaterEqual(audits.count(), 1)"
+      },
+      "observed_exception": "AssertionError: 0 not greater than or equal to 1",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "LEGACY_AUDIT_READER_NOT_UPDATED_OR_REQUEST_BLOCKED",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.owner.TestOwnerTeamAndReviewModeration.test_team_moderator_can_moderate_reviews_but_cannot_edit_content",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 61,
+      "status": "SOURCE_DIAGNOSED_ACCEPTED_BUSINESS_MODERATION_DENIAL",
+      "reason": "Старый бизнесgrant place.reviews.moderate/ownerapprove запрещёнD02/22. Currentreply/reporttargetscopeразрешён отдельно; old403/absence не означаетпотерюнужногобизнесуreply/report.",
+      "old_label_hint_only": "BUSINESS_REVIEW_DENIED",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 2026,
+        "statement": "self.assertContains(reviews_response, \"Кружок команды\")"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'Кружок команды' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/business_team.py; src/catalog/services/review_versions.py:business_can_respond/moderate_candidate"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.owner.TestPlaceScopedAccessIsolation.test_member_cannot_moderate_reviews_of_another_place",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 62,
+      "status": "SOURCE_DIAGNOSED_ACCEPTED_BUSINESS_MODERATION_DENIAL",
+      "reason": "Старый бизнесgrant place.reviews.moderate/ownerapprove запрещёнD02/22. Currentreply/reporttargetscopeразрешён отдельно; old403/absence не означаетпотерюнужногобизнесуreply/report.",
+      "old_label_hint_only": "BUSINESS_REVIEW_DENIED",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 2250,
+        "statement": "self.assertEqual(response.status_code, 200)"
+      },
+      "observed_exception": "AssertionError: 403 != 200",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/business_team.py; src/catalog/services/review_versions.py:business_can_respond/moderate_candidate"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.owner.TestPlaceScopedAccessIsolation.test_membership_grants_permissions_only_on_its_own_place",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 63,
+      "status": "SOURCE_DIAGNOSED_ACCEPTED_BUSINESS_MODERATION_DENIAL",
+      "reason": "Старый бизнесgrant place.reviews.moderate/ownerapprove запрещёнD02/22. Currentreply/reporttargetscopeразрешён отдельно; old403/absence не означаетпотерюнужногобизнесуreply/report.",
+      "old_label_hint_only": "BUSINESS_REVIEW_DENIED",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/owner.py",
+        "line": 2193,
+        "statement": "self.assertTrue("
+      },
+      "observed_exception": "AssertionError: False is not true : place.reviews.moderate should be granted on the member's own place",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/business_team.py; src/catalog/services/review_versions.py:business_can_respond/moderate_candidate"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_cannot_set_staff_fields",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 64,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Firstfailure self.assertEqual(place.status,'pending');self.assertFalse(place.is_active);self.assertFalse(place.is_verified): AssertionError: 'draft' != 'pending'. Pending находитсявVolunteerPlaceRevision; newPlacebase остаётсяdraft, publishedcurrent не заменяетсяpending. Sourcepublication.propose поддерживает current/candidate. Массовыеполя/staffsecurityдальнейшихassertions этимfailureнепроверены.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/permanent_place_wizard.py",
+        "line": 139,
+        "statement": "self.assertEqual(place.status,'pending');self.assertFalse(place.is_active);self.assertFalse(place.is_verified)"
+      },
+      "observed_exception": "AssertionError: 'draft' != 'pending'",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "PUBLICATION_CURRENT_CANDIDATE_STATE_EXPECTATION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_edit_preserves_translations_legacy_and_staff_data",
+      "kind": "error",
+      "exception": "DoesNotExist",
+      "entry": 65,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Fixture create() не выполняетreview; create_from_form кладётpricing вcandidate. Первыйfailure ожидаетужеlive PricingPlan: plan=place.pricing_plan_records.get();plan.verified_at=timezone.now();plan.save(); observecatalog.models.pricing_plan.PricingPlan.DoesNotExist: PricingPlan matching query does not exist.. Поэтому coreedit/rollbackfeature не достигнута. Validapprovedsetup replay NOT_RUN.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/permanent_place_wizard.py",
+        "line": 121,
+        "statement": "plan=place.pricing_plan_records.get();plan.verified_at=timezone.now();plan.save()"
+      },
+      "observed_exception": "catalog.models.pricing_plan.PricingPlan.DoesNotExist: PricingPlan matching query does not exist.",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "UNAPPROVED_CREATE_TARIFF_EXPECTATION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_failed_resubmission_does_not_save_changes_or_delete_photo",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 66,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Fixture create() не выполняетreview; create_from_form кладётpricing вcandidate. Первыйfailure ожидаетужеlive PricingPlan: self.assertEqual(place.pricing_plan_records.count(),1); observeAssertionError: 0 != 1. Поэтому coreedit/rollbackfeature не достигнута. Validapprovedsetup replay NOT_RUN.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/permanent_place_wizard.py",
+        "line": 177,
+        "statement": "self.assertEqual(place.pricing_plan_records.count(),1)"
+      },
+      "observed_exception": "AssertionError: 0 != 1",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "UNAPPROVED_CREATE_TARIFF_EXPECTATION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_gallery_removal_is_validated_and_rolled_back_with_upload_failure",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 67,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Fresh trace прямо показывает missing/invalid publication token перед ожидаемой проверкой: self.assertTrue(result.ok,result.form.errors). source_version требует signed source/schema/snapshot/dependencies. Старый helper/payload token не передаёт. Feature за этой границей не проверена этим failedcase; validtoken replay NOT_RUN.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/permanent_place_wizard.py",
+        "line": 157,
+        "statement": "self.assertTrue(result.ok,result.form.errors)"
+      },
+      "observed_exception": "AssertionError: False is not true : <ul class=\"errorlist\"><li>__all__<ul class=\"errorlist nonfield\"><li>Publication source token missing/invalid; reload the form.</li></ul></li></ul>",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "EXPLICIT_SIGNED_TOKEN_FIRST_FAILURE",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_manual_point_is_not_replaced_after_address_edit",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 68,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Fresh trace прямо показывает missing/invalid publication token перед ожидаемой проверкой: self.assertTrue(result.ok,result.form.errors if result.form else result.message). source_version требует signed source/schema/snapshot/dependencies. Старый helper/payload token не передаёт. Feature за этой границей не проверена этим failedcase; validtoken replay NOT_RUN.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/permanent_place_wizard.py",
+        "line": 133,
+        "statement": "self.assertTrue(result.ok,result.form.errors if result.form else result.message)"
+      },
+      "observed_exception": "AssertionError: False is not true : <ul class=\"errorlist\"><li>__all__<ul class=\"errorlist nonfield\"><li>Publication source token missing/invalid; reload the form.</li></ul></li></ul>",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "EXPLICIT_SIGNED_TOKEN_FIRST_FAILURE",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_new_form_renders_seven_steps_in_all_languages",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 69,
+      "status": "SOURCE_DIAGNOSED_SUPERSEDED_WIZARD_SELECTOR_FIRST_FAILURE",
+      "reason": "Firstassert требуетpw-step/sidebar/7steps/permanent_place_wizard.js.13заменилowner flow наcontinuous4sections/отдельныйJS. Последующиеуникальныеphoto/map/pricingassertions заэтимfirstfailure не выполнены; shared volunteer selectors должныпроверятьсяотдельно.",
+      "old_label_hint_only": "CONTINUOUS_FORM",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/permanent_place_wizard.py",
+        "line": 197,
+        "statement": "self.assertContains(response,'data-pw-step=\"7\"')"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'data-pw-step=\"7\"' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/templates/pages/owner_place_create.html; docs/task33/prompts/13.md"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_on_request_can_be_submitted_and_becomes_visible_after_approval",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 70,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Firstfailure self.assertEqual(place.status, 'pending'): AssertionError: 'draft' != 'pending'. Pending находитсявVolunteerPlaceRevision; newPlacebase остаётсяdraft, publishedcurrent не заменяетсяpending. Sourcepublication.propose поддерживает current/candidate. Массовыеполя/staffsecurityдальнейшихassertions этимfailureнепроверены.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/permanent_place_wizard.py",
+        "line": 62,
+        "statement": "self.assertEqual(place.status, 'pending')"
+      },
+      "observed_exception": "AssertionError: 'draft' != 'pending'",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "PUBLICATION_CURRENT_CANDIDATE_STATE_EXPECTATION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_outside_baku_requires_no_district_or_metro",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 71,
+      "status": "SOURCE_DIAGNOSED_GEOGRAPHY_FIXTURE_OR_ERROR_FIELD_CHANGE",
+      "reason": "Retainedtrace даёт actualcoordinate/region mismatch либо inferredregion либо errorattachedlatвместоlng. Defaultdata имеетBaku40.4/49.8; testcaseoutsideGanjaсохраняетих. Exactsubtest boundary ниже; нельзясчитатьвсягеографияправильной по одномуlabel.",
+      "old_label_hint_only": "LOCATION_FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/permanent_place_wizard.py",
+        "line": 57,
+        "statement": "self.assertTrue(result.ok, result.form.errors if result.form else result.message)"
+      },
+      "observed_exception": "AssertionError: False is not true : <ul class=\"errorlist\"><li>region<ul class=\"errorlist\" id=\"id_region_error\"><li>Şəhər xəritədə seçilmiş nöqtəyə uyğun gəlmir.</li></ul></li></ul>",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/location_assignment.py; src/catalog/forms.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_required_fields_report_errors_but_draft_accepts_missing",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "subtest": "(field='region')",
+      "entry": 72,
+      "status": "SOURCE_DIAGNOSED_GEOGRAPHY_FIXTURE_OR_ERROR_FIELD_CHANGE",
+      "reason": "Retainedtrace даёт actualcoordinate/region mismatch либо inferredregion либо errorattachedlatвместоlng. Defaultdata имеетBaku40.4/49.8; testcaseoutsideGanjaсохраняетих. Exactsubtest boundary ниже; нельзясчитатьвсягеографияправильной по одномуlabel.",
+      "old_label_hint_only": "LOCATION_FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/permanent_place_wizard.py",
+        "line": 73,
+        "statement": "self.assertFalse(form.is_valid())"
+      },
+      "observed_exception": "AssertionError: True is not false",
+      "contract_refs": [
+        "src/catalog/services/location_assignment.py; src/catalog/forms.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.permanent_place_wizard.PermanentPlaceWizardTests.test_required_fields_report_errors_but_draft_accepts_missing",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "subtest": "(field='lng')",
+      "entry": 73,
+      "status": "SOURCE_DIAGNOSED_GEOGRAPHY_FIXTURE_OR_ERROR_FIELD_CHANGE",
+      "reason": "Retainedtrace даёт actualcoordinate/region mismatch либо inferredregion либо errorattachedlatвместоlng. Defaultdata имеетBaku40.4/49.8; testcaseoutsideGanjaсохраняетих. Exactsubtest boundary ниже; нельзясчитатьвсягеографияправильной по одномуlabel.",
+      "old_label_hint_only": "LOCATION_FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/permanent_place_wizard.py",
+        "line": 74,
+        "statement": "self.assertIn(field, form.errors)"
+      },
+      "observed_exception": "AssertionError: 'lng' not found in {'district': ['Rayonu müəyyən etmək olmadı. Nöqtəni yoxlayın və ya administratorun yoxlaması üçün qaralama saxlayın.', 'Şəhər və ya bölgəni, Bakı üçün isə rayonu seçin.'], 'lat': ['Düzgün enlik və uzunluq daxil edin",
+      "contract_refs": [
+        "src/catalog/services/location_assignment.py; src/catalog/forms.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.photo_workflow.PhotoWorkflowTests.test_gallery_order_is_persisted_and_foreign_ids_rejected",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 74,
+      "status": "SOURCE_DIAGNOSED_PROTOCOL_OR_PROJECTION_PARTIAL_CAUSAL",
+      "reason": "Точныйfailure self.assertEqual(response.status_code, 200): AssertionError: 422 != 200. Этотстарыйedit/savepayload сформированбезpublicationtoken (helper/data); source_version обязателен. Кромеэтогоname/coords/photo изменяютсяcandidate, невlive; schedule/amount отдельныйexplicitpath. Corefeatureвариантаtest_gallery_order_is_persisted_and_foreign_ids_rejected сvalidtoken/approveнепроверенаэтимfailure, требуетсяcausalreplay.",
+      "old_label_hint_only": "SIGNED_CANDIDATE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/photo_workflow.py",
+        "line": 89,
+        "statement": "self.assertEqual(response.status_code, 200)"
+      },
+      "observed_exception": "AssertionError: 422 != 200",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "src/catalog/services/publication_forms.py:source_version/create_from_form/save_form",
+        "src/catalog/services/publication.py:propose/review",
+        "docs/task33/prompts/08.md"
+      ],
+      "cause": "SOURCE_TOKEN_OR_APPROVED_PROJECTION_FEATURE_PREEMPTION",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceAdminFormReadinessTests.test_form_readiness_matches_the_saved_card",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 75,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Точный первый failure: self.assertEqual(form.place_readiness.completed_count, 11); наблюдение AssertionError: 9 != 11. place_readiness.py удаляет photo/coordinates из requirements, осталось10 вместо12. Для этого subtest счётчик старый; дальнейшие assertions отдельного requirement после него не выполнены и не объявлены проверенными.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 513,
+        "statement": "self.assertEqual(form.place_readiness.completed_count, 11)"
+      },
+      "observed_exception": "AssertionError: 9 != 11",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "NUMERICAL_READINESS_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceAdminFormReadinessTests.test_location_section_names_the_missing_district",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 76,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Первый failure self.assertEqual(states[\"location\"][\"done\"], 4): AssertionError: 3 != 4. Location requirements теперь region/address/phone/schedule безcoordinates; старое ожидаемое число/список содержитcoordinates.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 533,
+        "statement": "self.assertEqual(states[\"location\"][\"done\"], 4)"
+      },
+      "observed_exception": "AssertionError: 3 != 4",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "READINESS_LOCATION_SHAPE_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceAdminFormReadinessTests.test_publish_is_refused_with_the_concrete_missing_items",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 77,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Первый assertion требует summary9из12; реально missing signed token плюс текущие9из10 иphone issue. Это точная совместная причина, не доказательство правильного currentprotocol publish UX.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 398,
+        "statement": "self.assertIn(\"9 из 12 обязательных пунктов\", summary)"
+      },
+      "observed_exception": "AssertionError: '9 из 12 обязательных пунктов' not found in 'Publication source token missing/invalid; reload the form. Карточка не может быть опубликована. Заполнено 9 из 10 обязательных пунктов. Необходимо заполнить: Телефон — Укажите телефон, What",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "MULTIPLE_SOURCE_PROTOCOL_AND_COUNT_MISMATCH",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceAdminFormReadinessTests.test_published_legacy_card_can_still_be_saved",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 78,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Точный первый failure: self.assertEqual(form.place_readiness.completed_count, 10); наблюдение AssertionError: 8 != 10. place_readiness.py удаляет photo/coordinates из requirements, осталось10 вместо12. Для этого subtest счётчик старый; дальнейшие assertions отдельного requirement после него не выполнены и не объявлены проверенными.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 435,
+        "statement": "self.assertEqual(form.place_readiness.completed_count, 10)"
+      },
+      "observed_exception": "AssertionError: 8 != 10",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "NUMERICAL_READINESS_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessConsistencyTests.test_progress_never_reaches_hundred_while_an_issue_blocks_publication",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "subtest": "(overrides=('lat', 'lng'))",
+      "entry": 79,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Первый failure self.assertLess(readiness.percentage, 100): AssertionError: 100 not less than 100. Фото/координаты по08 не обязательны. Конкретная проверка требует прежнюю ошибку/issue/required field; другие действительные errors (price/subcategory/region) остаются и не отменены этим диагнозом.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 305,
+        "statement": "self.assertLess(readiness.percentage, 100)"
+      },
+      "observed_exception": "AssertionError: 100 not less than 100",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "OPTIONAL_FIELD_EXPECTATION_MISMATCH",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessConsistencyTests.test_requirement_codes_are_unique_and_documented",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 80,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Точный первый failure: self.assertEqual(len(codes), 12); наблюдение AssertionError: 10 != 12. place_readiness.py удаляет photo/coordinates из requirements, осталось10 вместо12. Для этого subtest счётчик старый; дальнейшие assertions отдельного requirement после него не выполнены и не объявлены проверенными.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 342,
+        "statement": "self.assertEqual(len(codes), 12)"
+      },
+      "observed_exception": "AssertionError: 10 != 12",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "NUMERICAL_READINESS_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_complete_card_is_ready_with_full_progress",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 81,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Точный первый failure: self.assertEqual(readiness.required_count, 12); наблюдение AssertionError: 10 != 12. place_readiness.py удаляет photo/coordinates из requirements, осталось10 вместо12. Для этого subtest счётчик старый; дальнейшие assertions отдельного requirement после него не выполнены и не объявлены проверенными.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 28,
+        "statement": "self.assertEqual(readiness.required_count, 12)"
+      },
+      "observed_exception": "AssertionError: 10 != 12",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "NUMERICAL_READINESS_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "subtest": "(requirement='name')",
+      "entry": 82,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Точный первый failure: self.assertEqual(readiness.completed_count, 11); наблюдение AssertionError: 9 != 11. place_readiness.py удаляет photo/coordinates из requirements, осталось10 вместо12. Для этого subtest счётчик старый; дальнейшие assertions отдельного requirement после него не выполнены и не объявлены проверенными.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 64,
+        "statement": "self.assertEqual(readiness.completed_count, 11)"
+      },
+      "observed_exception": "AssertionError: 9 != 11",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "NUMERICAL_READINESS_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "subtest": "(requirement='description')",
+      "entry": 83,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Точный первый failure: self.assertEqual(readiness.completed_count, 11); наблюдение AssertionError: 9 != 11. place_readiness.py удаляет photo/coordinates из requirements, осталось10 вместо12. Для этого subtest счётчик старый; дальнейшие assertions отдельного requirement после него не выполнены и не объявлены проверенными.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 64,
+        "statement": "self.assertEqual(readiness.completed_count, 11)"
+      },
+      "observed_exception": "AssertionError: 9 != 11",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "NUMERICAL_READINESS_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "subtest": "(requirement='category')",
+      "entry": 84,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Точный первый failure: self.assertEqual(readiness.completed_count, 11); наблюдение AssertionError: 9 != 11. place_readiness.py удаляет photo/coordinates из requirements, осталось10 вместо12. Для этого subtest счётчик старый; дальнейшие assertions отдельного requirement после него не выполнены и не объявлены проверенными.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 64,
+        "statement": "self.assertEqual(readiness.completed_count, 11)"
+      },
+      "observed_exception": "AssertionError: 9 != 11",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "NUMERICAL_READINESS_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "subtest": "(requirement='subcategory')",
+      "entry": 85,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Точный первый failure: self.assertEqual(readiness.completed_count, 11); наблюдение AssertionError: 9 != 11. place_readiness.py удаляет photo/coordinates из requirements, осталось10 вместо12. Для этого subtest счётчик старый; дальнейшие assertions отдельного requirement после него не выполнены и не объявлены проверенными.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 64,
+        "statement": "self.assertEqual(readiness.completed_count, 11)"
+      },
+      "observed_exception": "AssertionError: 9 != 11",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "NUMERICAL_READINESS_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "subtest": "(requirement='region')",
+      "entry": 86,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Точный первый failure: self.assertEqual(readiness.completed_count, 11); наблюдение AssertionError: 9 != 11. place_readiness.py удаляет photo/coordinates из requirements, осталось10 вместо12. Для этого subtest счётчик старый; дальнейшие assertions отдельного requirement после него не выполнены и не объявлены проверенными.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 64,
+        "statement": "self.assertEqual(readiness.completed_count, 11)"
+      },
+      "observed_exception": "AssertionError: 9 != 11",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "NUMERICAL_READINESS_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "subtest": "(requirement='address')",
+      "entry": 87,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Точный первый failure: self.assertEqual(readiness.completed_count, 11); наблюдение AssertionError: 9 != 11. place_readiness.py удаляет photo/coordinates из requirements, осталось10 вместо12. Для этого subtest счётчик старый; дальнейшие assertions отдельного requirement после него не выполнены и не объявлены проверенными.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 64,
+        "statement": "self.assertEqual(readiness.completed_count, 11)"
+      },
+      "observed_exception": "AssertionError: 9 != 11",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "NUMERICAL_READINESS_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "subtest": "(requirement='coordinates')",
+      "entry": 88,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Первый failure self.assertFalse(readiness.is_ready): AssertionError: True is not false. Фото/координаты по08 не обязательны. Конкретная проверка требует прежнюю ошибку/issue/required field; другие действительные errors (price/subcategory/region) остаются и не отменены этим диагнозом.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 62,
+        "statement": "self.assertFalse(readiness.is_ready)"
+      },
+      "observed_exception": "AssertionError: True is not false",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "OPTIONAL_FIELD_EXPECTATION_MISMATCH",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "subtest": "(requirement='age')",
+      "entry": 89,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Точный первый failure: self.assertEqual(readiness.completed_count, 11); наблюдение AssertionError: 9 != 11. place_readiness.py удаляет photo/coordinates из requirements, осталось10 вместо12. Для этого subtest счётчик старый; дальнейшие assertions отдельного requirement после него не выполнены и не объявлены проверенными.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 64,
+        "statement": "self.assertEqual(readiness.completed_count, 11)"
+      },
+      "observed_exception": "AssertionError: 9 != 11",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "NUMERICAL_READINESS_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "subtest": "(requirement='price')",
+      "entry": 90,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Точный первый failure: self.assertEqual(readiness.completed_count, 11); наблюдение AssertionError: 9 != 11. place_readiness.py удаляет photo/coordinates из requirements, осталось10 вместо12. Для этого subtest счётчик старый; дальнейшие assertions отдельного requirement после него не выполнены и не объявлены проверенными.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 64,
+        "statement": "self.assertEqual(readiness.completed_count, 11)"
+      },
+      "observed_exception": "AssertionError: 9 != 11",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "NUMERICAL_READINESS_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "subtest": "(requirement='phone')",
+      "entry": 91,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Точный первый failure: self.assertEqual(readiness.completed_count, 11); наблюдение AssertionError: 9 != 11. place_readiness.py удаляет photo/coordinates из requirements, осталось10 вместо12. Для этого subtest счётчик старый; дальнейшие assertions отдельного requirement после него не выполнены и не объявлены проверенными.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 64,
+        "statement": "self.assertEqual(readiness.completed_count, 11)"
+      },
+      "observed_exception": "AssertionError: 9 != 11",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "NUMERICAL_READINESS_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "subtest": "(requirement='photo')",
+      "entry": 92,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Первый failure self.assertFalse(readiness.is_ready): AssertionError: True is not false. Фото/координаты по08 не обязательны. Конкретная проверка требует прежнюю ошибку/issue/required field; другие действительные errors (price/subcategory/region) остаются и не отменены этим диагнозом.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 62,
+        "statement": "self.assertFalse(readiness.is_ready)"
+      },
+      "observed_exception": "AssertionError: True is not false",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "OPTIONAL_FIELD_EXPECTATION_MISMATCH",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_gallery_photo_does_not_replace_the_main_photo",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 93,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Первый failure self.assertEqual(: AssertionError: Lists differ: [] != ['photo']. Фото/координаты по08 не обязательны. Конкретная проверка требует прежнюю ошибку/issue/required field; другие действительные errors (price/subcategory/region) остаются и не отменены этим диагнозом.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 242,
+        "statement": "self.assertEqual("
+      },
+      "observed_exception": "AssertionError: Lists differ: [] != ['photo']",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "OPTIONAL_FIELD_EXPECTATION_MISMATCH",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_instagram_and_website_do_not_replace_the_phone",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 94,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Тест требует phone issue даже при website; D06/08 допускает business phone/WhatsApp/website. Текущий _check_phone использует other_contact; observe issues[] против старого[phone]. Не означает принятие Instagram как достаточного контакта.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 268,
+        "statement": "self.assertEqual([issue.code for issue in evaluate_place_readiness(place).issues], [\"phone\"])"
+      },
+      "observed_exception": "AssertionError: Lists differ: [] != ['phone']",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "ACCEPTED_CONTACT_ALTERNATIVE_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_location_reports_the_persisted_district_as_the_missing_fifth_item",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 95,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Первый failure self.assertEqual([item.code for item in location_items], [\"region\", \"address\", \"coordinates\", \"phone\", \"schedule\"]): AssertionError: Lists differ: ['region', 'address', 'phone', 'schedule'] != ['region', 'address', 'coordinates', 'phone', 'schedule']. Location requirements теперь region/address/phone/schedule безcoordinates; старое ожидаемое число/список содержитcoordinates.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 76,
+        "statement": "self.assertEqual([item.code for item in location_items], [\"region\", \"address\", \"coordinates\", \"phone\", \"schedule\"])"
+      },
+      "observed_exception": "AssertionError: Lists differ: ['region', 'address', 'phone', 'schedule'] != ['region', 'address', 'coordinates', 'phone', 'schedule']",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "READINESS_LOCATION_SHAPE_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_short_description_is_advice_and_never_blocks",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 96,
+      "status": "SOURCE_DIAGNOSED_EXPECTATION_DEBT_PARTIAL_FEATURE_COVERAGE",
+      "reason": "Точный первый failure: self.assertEqual(readiness.completed_count, 12); наблюдение AssertionError: 10 != 12. place_readiness.py удаляет photo/coordinates из requirements, осталось10 вместо12. Для этого subtest счётчик старый; дальнейшие assertions отдельного requirement после него не выполнены и не объявлены проверенными.",
+      "old_label_hint_only": "OPTIONAL_MEDIA_COORDS_CONTACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/place_readiness.py",
+        "line": 221,
+        "statement": "self.assertEqual(readiness.completed_count, 12)"
+      },
+      "observed_exception": "AssertionError: 10 != 12",
+      "subtest": "",
+      "confidence": "HIGH_SOURCE_AND_RETAINED_RUNTIME_FIRST_FAILURE",
+      "contract_refs": [
+        "docs/task33/decisions.md:D06",
+        "docs/task33/prompts/08.md:R08-05",
+        "src/catalog/services/place_readiness.py:PLACE_READINESS_REQUIREMENTS/evaluate_readiness"
+      ],
+      "cause": "NUMERICAL_READINESS_EXPECTATION_DEBT",
+      "remaining_boundary": "Source diagnosis plus retained firstfailure; no assertion weakened, no complete unique-feature currentpayload replay except three separately recorded admin probes."
+    },
+    {
+      "id": "catalog.testcases.public.EventsLandingTests.test_event_address_is_localized_for_az_public_pages",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 97,
+      "status": "SOURCE_DIAGNOSED_LIVE_ADDRESS_MUTATED_AFTER_SNAPSHOT",
+      "reason": "Fixture меняет Event.address послесозданияapproved snapshot; public26читаетimmutablevenue_snapshot, не новый address. Localized snapshot сама должнапроверятьсяотдельно; старыймутабельныйsourceнеисточникпрошлогоEvent.",
+      "old_label_hint_only": "EVENT_IMMUTABLE_SNAPSHOT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 3418,
+        "statement": "self.assertContains(events_response, \"küç. Məktəb 9, Bakı\")"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'küç. Məktəb 9, Bakı' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/event_domain.py:capture_venue_snapshot; src/catalog/models/event.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.public.EventsLandingTests.test_event_address_is_localized_for_en_public_pages",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 98,
+      "status": "SOURCE_DIAGNOSED_LIVE_ADDRESS_MUTATED_AFTER_SNAPSHOT",
+      "reason": "Fixture меняет Event.address послесозданияapproved snapshot; public26читаетimmutablevenue_snapshot, не новый address. Localized snapshot сама должнапроверятьсяотдельно; старыймутабельныйsourceнеисточникпрошлогоEvent.",
+      "old_label_hint_only": "EVENT_IMMUTABLE_SNAPSHOT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 3428,
+        "statement": "self.assertContains(response, \"Ave. Huseyn Javid 18, Baku\")"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'Ave. Huseyn Javid 18, Baku' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/event_domain.py:capture_venue_snapshot; src/catalog/models/event.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.public.EventsLandingTests.test_events_landing_does_not_render_filter_controls",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 99,
+      "status": "SOURCE_DIAGNOSED_ACCEPTED_FILTERS_PRESENT",
+      "reason": "27требуетq/category/age/format preserving list/calendar. OldassertNotContainsname=q прямо противоположен принятому27.",
+      "old_label_hint_only": "EVENT_CALENDAR_FILTER_CONTRACT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 3380,
+        "statement": "self.assertNotContains(response, 'name=\"q\"')"
+      },
+      "observed_exception": "AssertionError: 1 != 0 :'name=\"q\"' unexpectedly found in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/event_calendar.py; docs/task33/prompts/27.md"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.public.TestCatalogContentSettingsWiring.test_catalog_filter_values_are_sorted_alphabetically",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 100,
+      "status": "PARTIAL_SPECIFIC_FIRST_FAILURE_SOURCE_BOUNDARY_UNRESOLVED",
+      "reason": "Точноенаблюдение ниже. Несколькоdistrict/count/SEOfixturesиспользуютодноизвестноеBakuместо сдругимlabel иполучаютcanonicaldistrict; metadata21учитываетsubstantivetranslation. ДляэтогоIDбезcurrentfixture replay причинатолькочастичноустановлена, possibleUX/querydefectнеисключён.",
+      "old_label_hint_only": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 1596,
+        "statement": "self.assertEqual([item[\"value\"] for item in response.context[\"district_options\"]], [\"baku\", \"baku_binagadi\", \"ахмедлы\", \"забрат\"])"
+      },
+      "observed_exception": "AssertionError: Lists differ: ['baku', 'baku_narimanov'] != ['baku', 'baku_binagadi', 'ахмедлы', 'забрат']",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/public_filter_options.py; src/catalog/services/public_languages.py; src/catalog/services/map_payload.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.public.TestCatalogContentSettingsWiring.test_home_page_uses_catalog_settings_districts",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 101,
+      "status": "PARTIAL_SPECIFIC_FIRST_FAILURE_SOURCE_BOUNDARY_UNRESOLVED",
+      "reason": "Точноенаблюдение ниже. Несколькоdistrict/count/SEOfixturesиспользуютодноизвестноеBakuместо сдругимlabel иполучаютcanonicaldistrict; metadata21учитываетsubstantivetranslation. ДляэтогоIDбезcurrentfixture replay причинатолькочастичноустановлена, possibleUX/querydefectнеисключён.",
+      "old_label_hint_only": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 1524,
+        "statement": "self.assertEqual([item[\"value\"] for item in response.context[\"home_districts\"]], [\"тестовый район\"])"
+      },
+      "observed_exception": "AssertionError: Lists differ: ['baku', 'baku_narimanov'] != ['тестовый район']",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/public_filter_options.py; src/catalog/services/public_languages.py; src/catalog/services/map_payload.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_card_uses_localized_district_instead_of_code",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 102,
+      "status": "PARTIAL_SPECIFIC_FIRST_FAILURE_SOURCE_BOUNDARY_UNRESOLVED",
+      "reason": "Точноенаблюдение ниже. Несколькоdistrict/count/SEOfixturesиспользуютодноизвестноеBakuместо сдругимlabel иполучаютcanonicaldistrict; metadata21учитываетsubstantivetranslation. ДляэтогоIDбезcurrentfixture replay причинатолькочастичноустановлена, possibleUX/querydefectнеисключён.",
+      "old_label_hint_only": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 2649,
+        "statement": "self.assertContains(response, \"Ağdaş\")"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'Ağdaş' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/public_filter_options.py; src/catalog/services/public_languages.py; src/catalog/services/map_payload.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_district_filter_matches_exact_value_only",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 103,
+      "status": "PARTIAL_SPECIFIC_FIRST_FAILURE_SOURCE_BOUNDARY_UNRESOLVED",
+      "reason": "Точноенаблюдение ниже. Несколькоdistrict/count/SEOfixturesиспользуютодноизвестноеBakuместо сдругимlabel иполучаютcanonicaldistrict; metadata21учитываетsubstantivetranslation. ДляэтогоIDбезcurrentfixture replay причинатолькочастичноустановлена, possibleUX/querydefectнеисключён.",
+      "old_label_hint_only": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 2212,
+        "statement": "self.assertIn(exact_place.name_ru, names)"
+      },
+      "observed_exception": "AssertionError: 'Точный район' not found in []",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/public_filter_options.py; src/catalog/services/public_languages.py; src/catalog/services/map_payload.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_map_serialization_includes_card_fields",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 104,
+      "status": "SOURCE_DIAGNOSED_NEW_VENUE_MEMBERS_PAYLOAD_SHAPE",
+      "reason": "20payloadдобавляетvenuekey/members/matchedoffers, searchtextнаmemberа невtop-level. Старыйdictcomparison/lookupsearch_textнеподдерживаетnestedshape. MapUIconsumptionтребуетотдельногобраузера.",
+      "old_label_hint_only": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 2578,
+        "statement": "self.assertEqual("
+      },
+      "observed_exception": "AssertionError: Lists differ: [{'id[33 chars]е', 'url': '/ru/place/701-keyfiyyetli-usaq-der[2346 chars]'}]}] != [{'id[33 chars]е', 'lat': 40.3771, 'lng': 49.8412, 'url': '/r[952 chars]00'}]",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/public_filter_options.py; src/catalog/services/public_languages.py; src/catalog/services/map_payload.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_map_uses_only_filtered_map_ready_places",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 105,
+      "status": "PARTIAL_SPECIFIC_FIRST_FAILURE_SOURCE_BOUNDARY_UNRESOLVED",
+      "reason": "Точноенаблюдение ниже. Несколькоdistrict/count/SEOfixturesиспользуютодноизвестноеBakuместо сдругимlabel иполучаютcanonicaldistrict; metadata21учитываетsubstantivetranslation. ДляэтогоIDбезcurrentfixture replay причинатолькочастичноустановлена, possibleUX/querydefectнеисключён.",
+      "old_label_hint_only": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 2514,
+        "statement": "self.assertEqual(response.context[\"catalog_map_places_count\"], 1)"
+      },
+      "observed_exception": "AssertionError: 0 != 1",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/public_filter_options.py; src/catalog/services/public_languages.py; src/catalog/services/map_payload.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_price_filter_uses_range_overlap",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 106,
+      "status": "SOURCE_DIAGNOSED_REMOVED_BUDGET_CONTROLS",
+      "reason": "19удаляетbudgetcontrols/pricefilter. Pricequeryignored, старыйassertожидаетфильтрацию/обещаниеbudget. Actualfirstfailure сохранён; localesвдругихстроках не покрыты.",
+      "old_label_hint_only": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 2270,
+        "statement": "self.assertNotIn(out_of_range_place.name_ru, names)"
+      },
+      "observed_exception": "AssertionError: 'Неподходящий диапазон цены' unexpectedly found in ['Неподходящий диапазон цены', 'Подходящий диапазон цены']",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/public_filter_options.py; src/catalog/services/public_languages.py; src/catalog/services/map_payload.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.public.TestPublicFilterCounts.test_catalog_filters_hide_zero_options_and_show_public_counts",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 107,
+      "status": "PARTIAL_SPECIFIC_FIRST_FAILURE_SOURCE_BOUNDARY_UNRESOLVED",
+      "reason": "Точноенаблюдение ниже. Несколькоdistrict/count/SEOfixturesиспользуютодноизвестноеBakuместо сдругимlabel иполучаютcanonicaldistrict; metadata21учитываетsubstantivetranslation. ДляэтогоIDбезcurrentfixture replay причинатолькочастичноустановлена, possibleUX/querydefectнеисключён.",
+      "old_label_hint_only": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 1851,
+        "statement": "self.assertEqual("
+      },
+      "observed_exception": "AssertionError: {'baku': 3, 'baku_narimanov': 3} != {'baku': 3, 'baku_narimanov': 1}",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/public_filter_options.py; src/catalog/services/public_languages.py; src/catalog/services/map_payload.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.public.TestPublicPagesSmoke.test_home_hero_statistics_do_not_add_plus_to_exact_counts",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 108,
+      "status": "SOURCE_DIAGNOSED_TEMPLATE_EXPRESSION_EXPECTATION",
+      "reason": "Assertищетliteraltemplateexpressionmap_places|length; currentcountсчитаетbusinessmembersвsharedvenue, нечислоточек. Неявляетсяruntimeпроверкойexactdisplaycounts.",
+      "old_label_hint_only": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 110,
+        "statement": "self.assertIn(\"<strong>{{ map_places|length }}</strong>\", template_source)"
+      },
+      "observed_exception": "AssertionError: '<strong>{{ map_places|length }}</strong>' not found in '{% extends \"base.html\" %}\\n{% load i18n static catalog_i18n %}\\n\\n{% block title %}{{ seo_title }}{% endblock %}\\n{% block title_plain %}{{ seo_title }}{% endblock %}\\n{% block ",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/public_filter_options.py; src/catalog/services/public_languages.py; src/catalog/services/map_payload.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.public.TestPublicPagesSmoke.test_home_map_search_text_includes_subcategory_name",
+      "kind": "error",
+      "exception": "KeyError",
+      "entry": 109,
+      "status": "SOURCE_DIAGNOSED_NEW_VENUE_MEMBERS_PAYLOAD_SHAPE",
+      "reason": "20payloadдобавляетvenuekey/members/matchedoffers, searchtextнаmemberа невtop-level. Старыйdictcomparison/lookupsearch_textнеподдерживаетnestedshape. MapUIconsumptionтребуетотдельногобраузера.",
+      "old_label_hint_only": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 1432,
+        "statement": "self.assertIn(\"дзюдо\", response.context[\"map_places\"][0][\"search_text\"])"
+      },
+      "observed_exception": "KeyError: 'search_text'",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/public_filter_options.py; src/catalog/services/public_languages.py; src/catalog/services/map_payload.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.public.TestPublicPagesSmoke.test_place_detail_page_includes_breadcrumb_and_aggregate_rating_schema",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 110,
+      "status": "PARTIAL_SPECIFIC_FIRST_FAILURE_SOURCE_BOUNDARY_UNRESOLVED",
+      "reason": "Точноенаблюдение ниже. Несколькоdistrict/count/SEOfixturesиспользуютодноизвестноеBakuместо сдругимlabel иполучаютcanonicaldistrict; metadata21учитываетsubstantivetranslation. ДляэтогоIDбезcurrentfixture replay причинатолькочастичноустановлена, possibleUX/querydefectнеисключён.",
+      "old_label_hint_only": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 1037,
+        "statement": "self.assertContains(response, \"<title>SEO кружок — Образование для детей в регионе Баку, Ясамальский район | KidsMap</title>\", html=False)"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find '<title>SEO кружок — Образование для детей в регионе Баку, Ясамальский район | KidsMap</title>' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/public_filter_options.py; src/catalog/services/public_languages.py; src/catalog/services/map_payload.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_includes_all_languages_and_hreflang_alternates",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 111,
+      "status": "SOURCE_DIAGNOSED_INCOMPLETE_TRANSLATION_HREFLANG",
+      "reason": "FixtureнеимеетполнойRU/ENdescription.21публикуетalternativesтолькосодержательныхпереводов; стараяall-languagesexpectedRUlinkотсутствует.",
+      "old_label_hint_only": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 1186,
+        "statement": "self.assertContains(response, f'<xhtml:link rel=\"alternate\" hreflang=\"ru\" href=\"http://testserver/ru{place.get_absolute_url()}\"', html=False)"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find '<xhtml:link rel=\"alternate\" hreflang=\"ru\" href=\"http://testserver/ru/place/769-keyfiyyetli-usaq-derneyi/\"' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/public_filter_options.py; src/catalog/services/public_languages.py; src/catalog/services/map_payload.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.public.TestReviewEnhancements.test_home_and_catalog_use_localized_strings_in_az_and_en",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 112,
+      "status": "SOURCE_DIAGNOSED_REMOVED_BUDGET_CONTROLS",
+      "reason": "19удаляетbudgetcontrols/pricefilter. Pricequeryignored, старыйassertожидаетфильтрацию/обещаниеbudget. Actualfirstfailure сохранён; localesвдругихстроках не покрыты.",
+      "old_label_hint_only": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 2965,
+        "statement": "self.assertContains(az_catalog, \"Kateqoriya, rayon, yaş və büdcə bir yerdə.\")"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'Kateqoriya, rayon, yaş və büdcə bir yerdə.' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/public_filter_options.py; src/catalog/services/public_languages.py; src/catalog/services/map_payload.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.public.TestReviewEnhancements.test_review_models_disable_anonymous_flag_and_keep_author_name",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 113,
+      "status": "SOURCE_DIAGNOSED_PRESERVED_ANONYMITY_POLICY",
+      "reason": "LegacyReviewis_anonymous=Trueсохранён, старыйassertFalseтребуетотменуprivacyflag.22сохраняетисторию/анонимизацию,непереключаетpolicy.",
+      "old_label_hint_only": "SUPERSEDED CONTRACT OR INVALID FIXTURE",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/public.py",
+        "line": 2894,
+        "statement": "self.assertFalse(place_review.is_anonymous)"
+      },
+      "observed_exception": "AssertionError: True is not false",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/public_filter_options.py; src/catalog/services/public_languages.py; src/catalog/services/map_payload.py"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.specialists.TestOwnerSpecialistManagement.test_owner_can_create_offline_profile_with_location",
+      "kind": "error",
+      "exception": "DoesNotExist",
+      "entry": 114,
+      "status": "SOURCE_DIAGNOSED_PERSON_AND_CERTIFICATE_CONSENT_FIXTURE",
+      "reason": "Авторпредложениянеownerperson; oldqueryowner=self.owner не находитperson. Legacy diploma is_published+approved безverifiedperson/optedinby/at неpubliccertificate. Нужныclaim/личноеconsent; старыйmanagementдоступбизнесанеpersonpermission.",
+      "old_label_hint_only": "D08_SPECIALIST_PERSON_CONSENT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/specialists.py",
+        "line": 274,
+        "statement": "specialist = Specialist.objects.get(owner=self.owner)"
+      },
+      "observed_exception": "catalog.models.specialist.Specialist.DoesNotExist: Specialist matching query does not exist.",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/specialist_domain.py:propose_person/review_claim; src/catalog/services/specialist_documents.py:is_person/is_public_document"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.specialists.TestOwnerSpecialistManagement.test_owner_can_create_online_profile_without_location",
+      "kind": "error",
+      "exception": "DoesNotExist",
+      "entry": 115,
+      "status": "SOURCE_DIAGNOSED_PERSON_AND_CERTIFICATE_CONSENT_FIXTURE",
+      "reason": "Авторпредложениянеownerperson; oldqueryowner=self.owner не находитperson. Legacy diploma is_published+approved безverifiedperson/optedinby/at неpubliccertificate. Нужныclaim/личноеconsent; старыйmanagementдоступбизнесанеpersonpermission.",
+      "old_label_hint_only": "D08_SPECIALIST_PERSON_CONSENT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/specialists.py",
+        "line": 257,
+        "statement": "specialist = Specialist.objects.get(owner=self.owner)"
+      },
+      "observed_exception": "catalog.models.specialist.Specialist.DoesNotExist: Specialist matching query does not exist.",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/specialist_domain.py:propose_person/review_claim; src/catalog/services/specialist_documents.py:is_person/is_public_document"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.specialists.TestOwnerSpecialistManagement.test_owner_can_save_incomplete_draft",
+      "kind": "error",
+      "exception": "DoesNotExist",
+      "entry": 116,
+      "status": "SOURCE_DIAGNOSED_PERSON_AND_CERTIFICATE_CONSENT_FIXTURE",
+      "reason": "Авторпредложениянеownerperson; oldqueryowner=self.owner не находитperson. Legacy diploma is_published+approved безverifiedperson/optedinby/at неpubliccertificate. Нужныclaim/личноеconsent; старыйmanagementдоступбизнесанеpersonpermission.",
+      "old_label_hint_only": "D08_SPECIALIST_PERSON_CONSENT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/specialists.py",
+        "line": 288,
+        "statement": "specialist = Specialist.objects.get(owner=self.owner)"
+      },
+      "observed_exception": "catalog.models.specialist.Specialist.DoesNotExist: Specialist matching query does not exist.",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/specialist_domain.py:propose_person/review_claim; src/catalog/services/specialist_documents.py:is_person/is_public_document"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.specialists.TestOwnerSpecialistManagement.test_owner_uploads_documents_as_pending_private_certificates",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 117,
+      "status": "SOURCE_DIAGNOSED_PERSON_AND_CERTIFICATE_CONSENT_FIXTURE",
+      "reason": "Авторпредложениянеownerperson; oldqueryowner=self.owner не находитperson. Legacy diploma is_published+approved безverifiedperson/optedinby/at неpubliccertificate. Нужныclaim/личноеconsent; старыйmanagementдоступбизнесанеpersonpermission.",
+      "old_label_hint_only": "D08_SPECIALIST_PERSON_CONSENT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/specialists.py",
+        "line": 301,
+        "statement": "self.assertEqual(response.status_code, 302)"
+      },
+      "observed_exception": "AssertionError: 400 != 302",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/specialist_domain.py:propose_person/review_claim; src/catalog/services/specialist_documents.py:is_person/is_public_document"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.specialists.TestSpecialistFlows.test_document_download_authorization",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 118,
+      "status": "SOURCE_DIAGNOSED_PERSON_AND_CERTIFICATE_CONSENT_FIXTURE",
+      "reason": "Авторпредложениянеownerperson; oldqueryowner=self.owner не находитperson. Legacy diploma is_published+approved безverifiedperson/optedinby/at неpubliccertificate. Нужныclaim/личноеconsent; старыйmanagementдоступбизнесанеpersonpermission.",
+      "old_label_hint_only": "D08_SPECIALIST_PERSON_CONSENT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/specialists.py",
+        "line": 171,
+        "statement": "self.assertEqual(response.status_code, 200)"
+      },
+      "observed_exception": "AssertionError: 404 != 200",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/specialist_domain.py:propose_person/review_claim; src/catalog/services/specialist_documents.py:is_person/is_public_document"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.specialists.TestSpecialistFlows.test_specialist_detail_opens",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 119,
+      "status": "SOURCE_DIAGNOSED_PERSON_AND_CERTIFICATE_CONSENT_FIXTURE",
+      "reason": "Авторпредложениянеownerperson; oldqueryowner=self.owner не находитperson. Legacy diploma is_published+approved безverifiedperson/optedinby/at неpubliccertificate. Нужныclaim/личноеconsent; старыйmanagementдоступбизнесанеpersonpermission.",
+      "old_label_hint_only": "D08_SPECIALIST_PERSON_CONSENT",
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/specialists.py",
+        "line": 161,
+        "statement": "self.assertContains(response, \"Диплом МГУ\")"
+      },
+      "observed_exception": "AssertionError: False is not true : Couldn't find 'Диплом МГУ' in the following response",
+      "subtest": "",
+      "contract_refs": [
+        "src/catalog/services/specialist_domain.py:propose_person/review_claim; src/catalog/services/specialist_documents.py:is_person/is_public_document"
+      ],
+      "confidence": "SOURCE_REVIEW_PLUS_FRESH_FIRST_FAILURE; FULL_FEATURE_REPLAY_NOT_RUN",
+      "remaining_boundary": "Firstassert and source cause identified. No wholesale acceptance, no oldassertion change, possible feature-specific gaps retained."
+    },
+    {
+      "id": "catalog.testcases.test_task33_ownership.OwnershipConcurrencyTests.test_transfer_racing_confirmation_never_grants_stale_network_right",
+      "kind": "failure",
+      "exception": "AssertionError",
+      "entry": 120,
+      "status": "FAILED_CURRENT_NONDETERMINISTIC_CONCURRENCY_NOT_DISMISSED",
+      "reason": "Fresh rootfull+security aggregate fail; focusedsecurity causal6PASS не отменяет повтора. Отдельный новый approved/retry structural conflict fixture PASS. Нужны trace/outcome каждого actor, user-visible conflict/retry contract; no demonstrated foreign-access claim.",
+      "old_label_hint_only": null,
+      "old_verdict_adopted": false,
+      "evidence": "full-results.json; source review; security-causal.json",
+      "observation": null,
+      "actual_first_assertion": {
+        "path": "catalog/testcases/test_task33_ownership.py",
+        "line": 362,
+        "statement": "self.place.refresh_from_db();self.assertEqual(self.place.owner_id,self.c.pk)"
+      },
+      "observed_exception": "AssertionError: 30 != 32",
+      "subtest": ""
+    }
+  ],
+  "note": "Every unresolved current failure remains visible. SIGNED_CANDIDATE35/OPTIONAL28 historical buckets are not blanket harmless.",
+  "diagnosed_signed_optional_entries": 63,
+  "unresolved_presentation_or_query_ids": [
+    "catalog.testcases.admin.TestAdminOwnershipModerationUX.test_failed_publish_keeps_published_card_active_and_shows_all_issues",
+    "catalog.testcases.adult_classes.PlaceAdultClassesPublicTests.test_catalog_has_no_adult_filter_and_renders_compact_audience",
+    "catalog.testcases.adult_classes.PlaceAdultClassesPublicTests.test_place_detail_renders_children_only_and_mixed_audience",
+    "catalog.testcases.public.TestCatalogContentSettingsWiring.test_catalog_filter_values_are_sorted_alphabetically",
+    "catalog.testcases.public.TestCatalogContentSettingsWiring.test_home_page_uses_catalog_settings_districts",
+    "catalog.testcases.public.TestCatalogEnhancements.test_catalog_card_uses_localized_district_instead_of_code",
+    "catalog.testcases.public.TestCatalogEnhancements.test_catalog_district_filter_matches_exact_value_only",
+    "catalog.testcases.public.TestCatalogEnhancements.test_catalog_map_uses_only_filtered_map_ready_places",
+    "catalog.testcases.public.TestPublicFilterCounts.test_catalog_filters_hide_zero_options_and_show_public_counts",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_place_detail_page_includes_breadcrumb_and_aggregate_rating_schema"
+  ]
+}

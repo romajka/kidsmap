@@ -1,0 +1,85 @@
+{
+  "independent_test_snapshot": "25-security-green.json",
+  "independent_tests": {
+    "tests_run": 17,
+    "failures": 0,
+    "errors": 0
+  },
+  "final_suite_attribution": "Parent /root reports479/479PASS on final source; not executed by security reviewer",
+  "review": "Late four-template source delta only; no ACL/form/control changes",
+  "source": {
+    "src/catalog/controllers/specialist_workspace.py": {
+      "independent_sha256": "e9650b299554e7ef88fde083ad40f571956b71cadf070b8b15fabed281d91765",
+      "final_sha256": "e9650b299554e7ef88fde083ad40f571956b71cadf070b8b15fabed281d91765",
+      "state": "SAME"
+    },
+    "src/catalog/specialist_forms.py": {
+      "independent_sha256": "794aa0101c614c4de22648481a545dc6c54558e8476e31663d6c59f09f01ad75",
+      "final_sha256": "794aa0101c614c4de22648481a545dc6c54558e8476e31663d6c59f09f01ad75",
+      "state": "SAME"
+    },
+    "src/catalog/services/specialist_documents.py": {
+      "independent_sha256": "a93b2c424ac7542cd8dd265d7716b862bbf7a2f11aa2e043da3c44183ad13ed3",
+      "final_sha256": "a93b2c424ac7542cd8dd265d7716b862bbf7a2f11aa2e043da3c44183ad13ed3",
+      "state": "SAME"
+    },
+    "src/catalog/services/specialist_domain.py": {
+      "independent_sha256": "093179ca93eb35112c2feca3fd252ffce41e38414a2e74be820c592f88cdfa66",
+      "final_sha256": "093179ca93eb35112c2feca3fd252ffce41e38414a2e74be820c592f88cdfa66",
+      "state": "SAME"
+    },
+    "src/catalog/services/owner_specialist_use_cases.py": {
+      "independent_sha256": "ed979152c7778cbd8890ebb484074caff17425908ef99bff09eac8e8309cb25c",
+      "final_sha256": "ed979152c7778cbd8890ebb484074caff17425908ef99bff09eac8e8309cb25c",
+      "state": "SAME"
+    },
+    "src/catalog/services/specialist_presentation.py": {
+      "independent_sha256": "ab9ebcaa93ea1250c92d8f4875df3ae7ef398ee3eeaa2d8cfcaa38f49671de8a",
+      "final_sha256": "ab9ebcaa93ea1250c92d8f4875df3ae7ef398ee3eeaa2d8cfcaa38f49671de8a",
+      "state": "SAME"
+    },
+    "src/catalog/views.py": {
+      "independent_sha256": "165455e8cb55f139445c17a6bcbeb61ad6e26832533c95f861f2c542143f76d4",
+      "final_sha256": "165455e8cb55f139445c17a6bcbeb61ad6e26832533c95f861f2c542143f76d4",
+      "state": "SAME"
+    },
+    "src/catalog/urls.py": {
+      "independent_sha256": "64e6484711c3b07d2253a98cb4bd6ac45ebab6dda879c6c5ca727ac1e591480b",
+      "final_sha256": "64e6484711c3b07d2253a98cb4bd6ac45ebab6dda879c6c5ca727ac1e591480b",
+      "state": "SAME"
+    },
+    "src/catalog/templates/pages/specialist_workspace.html": {
+      "independent_sha256": "c1a408cfee6fc23321ccaf0a33ff894ae514e5efd8fb3b19b25d8fba3d4847b0",
+      "final_sha256": "119ed4e20fb7515adc71b632c5409e2abbd4868b41f2576bf8f9f157232aa169",
+      "state": "REVIEWED_CSS_ONLY",
+      "added_line": "{% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}"
+    },
+    "src/catalog/templates/pages/owner_specialist_create.html": {
+      "independent_sha256": "62f2cb8206dfc962f0be2473e7e4c9d364aea254d7c800fa96048879bba9bacd",
+      "final_sha256": "885e8a9f0ced0c2dc251d1dda44aadb8824467c68c668e68a3bc0d249fc9d6c3",
+      "state": "REVIEWED_CSS_ONLY",
+      "added_line": "{% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}"
+    },
+    "src/catalog/templates/catalog/specialist_detail.html": {
+      "independent_sha256": "52c432c137f389982e80ef4edb24728fd2ecd382c238463b9c030c1b08650090",
+      "final_sha256": "34ebc589f2e7cd1c6889abd793366abc6a9dfd5983b58f81431c9d38a397d7ee",
+      "state": "REVIEWED_CSS_ONLY",
+      "added_line": "{% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}"
+    },
+    "src/catalog/testcases/test_task33_specialist_screens_security.py": {
+      "independent_sha256": "75d2101b81c1975578a41b778831eedb7a52586d5faad706a0c6a3fe856a0abc",
+      "final_sha256": "75d2101b81c1975578a41b778831eedb7a52586d5faad706a0c6a3fe856a0abc",
+      "state": "SAME"
+    },
+    "src/catalog/templates/base.html": {
+      "independent_sha256": "40c004b6392361987045038c9ae6eae0dbdfe836c7b74602465f5b44ef211180",
+      "final_sha256": "1e0974dbba16074260a615d87b1059d0f044040fc3902588b4ab69962391d502",
+      "state": "REVIEWED_EMPTY_BLOCK_ONLY",
+      "added_line": "    {% block navigation_motion %}{% endblock %}"
+    }
+  },
+  "same_security_artifacts": 9,
+  "reviewed_specialist_css_artifacts": 3,
+  "reviewed_base_artifacts": 1,
+  "source_delta_acceptance": "PASS"
+}

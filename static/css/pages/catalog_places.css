@@ -697,7 +697,7 @@
   /* Clean mobile results toolbar card */
   .page-place_list .catalog-layout .results-toolbar {
     display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
     gap: 12px 10px !important;
     padding: 12px 14px !important;
     background: #ffffff !important;
@@ -729,9 +729,10 @@
     font-weight: 750 !important;
     color: #0f172a !important;
     margin: 0 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
   }
 
   .page-place_list .results-count-dot {

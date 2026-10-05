@@ -1,0 +1,653 @@
+/* KidsMap Admin - Staff Access User Changelist Styles */
+
+.km-staff-access-list .content-wrapper > .content.border-bottom {
+  display: none;
+}
+
+.km-staff-workspace {
+  font-family: var(--km-font-sans, 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  width: 100%;
+}
+
+/* Header */
+.km-staff-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 12px;
+  border: 1px solid #E5E7EB;
+  background: #FFFFFF;
+  margin-bottom: 16px;
+}
+
+.km-staff-header .place-admin-dashboard__title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 4px 0;
+  line-height: 1.3;
+}
+
+.km-staff-header .place-admin-dashboard__subtitle {
+  font-size: 13px;
+  color: #6B7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.km-staff-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.km-staff-count-badge {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #F3F4F6;
+  color: #374151;
+  border: 1px solid #E5E7EB;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+a.km-staff-add-btn,
+a.km-staff-add-btn:link,
+a.km-staff-add-btn:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  background: #136F38;
+  color: #FFFFFF !important;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1px solid #136F38;
+  box-shadow: 0 1px 2px rgba(19, 111, 56, 0.15);
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+a.km-staff-add-btn:hover {
+  background: #0E5229;
+  border-color: #0E5229;
+}
+
+a.km-staff-add-btn:active {
+  transform: scale(0.98);
+}
+
+a.km-staff-add-btn .km-i {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* Filter / Search Toolbar */
+.km-staff-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  margin: 0 0 16px;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  background: #FFFFFF;
+}
+
+.km-staff-toolbar__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 440px;
+}
+
+.km-staff-toolbar__icon {
+  position: absolute;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+  color: #9CA3AF;
+  fill: currentColor;
+  pointer-events: none;
+}
+
+.km-staff-toolbar__search input[type="search"] {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px 0 38px;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #111827;
+  font-size: 14px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.km-staff-toolbar__search input[type="search"]:focus {
+  border-color: #136F38;
+  box-shadow: 0 0 0 3px rgba(19, 111, 56, 0.15);
+}
+
+.km-staff-toolbar__select {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.km-staff-toolbar__select select {
+  height: 40px;
+  padding: 0 34px 0 12px;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.km-staff-toolbar__select select:focus {
+  border-color: #136F38;
+  box-shadow: 0 0 0 3px rgba(19, 111, 56, 0.15);
+}
+
+.km-staff-toolbar__arrow {
+  position: absolute;
+  right: 10px;
+  width: 18px;
+  height: 18px;
+  color: #6B7280;
+  fill: currentColor;
+  pointer-events: none;
+}
+
+button.km-staff-toolbar__btn-submit {
+  border: 0;
+  border-radius: 8px;
+  background: #136F38;
+  color: #FFFFFF !important;
+  height: 40px;
+  padding: 0 18px;
+  font-weight: 700;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 1px 2px rgba(19, 111, 56, 0.15);
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+button.km-staff-toolbar__btn-submit:hover {
+  background: #0E5229;
+}
+
+button.km-staff-toolbar__btn-submit:active {
+  transform: scale(0.98);
+}
+
+button.km-staff-toolbar__btn-submit .km-i {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+a.km-staff-toolbar__btn-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  color: #4B5563 !important;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  text-decoration: none;
+  box-sizing: border-box;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+a.km-staff-toolbar__btn-reset:hover {
+  background-color: #F9FAFB;
+  border-color: #9CA3AF;
+  color: #111827 !important;
+}
+
+a.km-staff-toolbar__btn-reset .km-i {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* Table Container & Table */
+.km-staff-workspace .km-table-container {
+  width: 100%;
+  background: #FFFFFF;
+  border-radius: 12px;
+  border: 1px solid #E5E7EB;
+  overflow-x: auto;
+}
+
+.km-staff-workspace #result_list,
+.km-staff-access-list__table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: auto;
+}
+
+.km-staff-workspace #result_list th,
+.km-staff-access-list__table th {
+  padding: 14px 18px;
+  color: #4B5563;
+  background: #F9FAFB;
+  border-bottom: 1px solid #E5E7EB;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.km-staff-workspace #result_list td,
+.km-staff-access-list__table td {
+  padding: 12px 18px;
+  border-bottom: 1px solid #F3F4F6;
+  vertical-align: middle;
+  color: #1F2937;
+  font-size: 13.5px;
+  background: #FFFFFF;
+}
+
+.km-staff-workspace #result_list tr:last-child td,
+.km-staff-access-list__table tr:last-child td {
+  border-bottom: 0;
+}
+
+.km-staff-workspace #result_list tr:hover td,
+.km-staff-access-list__table tr:hover td {
+  background: #FAFAFA;
+}
+
+/* Explicit Staff Column Overrides (defeating kidsmap_changelist.css place-centric nth-child rules) */
+.km-staff-workspace #result_list thead th,
+.km-staff-workspace #result_list tbody td {
+  box-sizing: border-box !important;
+}
+
+.km-staff-workspace #result_list thead th {
+  overflow: visible !important;
+  text-overflow: clip !important;
+  font-size: 11px !important;
+}
+
+/* Col 1: Имя / логин */
+.km-staff-workspace #result_list thead th:nth-child(1),
+.km-staff-workspace #result_list thead th:first-child,
+.km-staff-workspace #result_list tbody td:nth-child(1),
+.km-staff-workspace #result_list tbody td:first-child {
+  width: 22% !important;
+  min-width: 180px !important;
+  max-width: none !important;
+  text-align: left !important;
+  padding: 12px 16px !important;
+}
+
+/* Col 2: Email */
+.km-staff-workspace #result_list thead th:nth-child(2),
+.km-staff-workspace #result_list tbody td:nth-child(2) {
+  width: 20% !important;
+  min-width: 160px !important;
+  max-width: none !important;
+  text-align: left !important;
+  padding: 12px 14px !important;
+  word-break: break-all;
+}
+
+/* Col 3: Роль */
+.km-staff-workspace #result_list thead th:nth-child(3),
+.km-staff-workspace #result_list tbody td:nth-child(3) {
+  width: 100px !important;
+  min-width: 100px !important;
+  max-width: 110px !important;
+  text-align: center !important;
+  padding: 12px 6px !important;
+}
+
+/* Col 4: Добавленные места */
+.km-staff-workspace #result_list thead th:nth-child(4),
+.km-staff-workspace #result_list tbody td:nth-child(4) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 160px !important;
+  text-align: center !important;
+  padding: 12px 6px !important;
+  white-space: nowrap !important;
+}
+
+/* Col 5: Активность */
+.km-staff-workspace #result_list thead th:nth-child(5),
+.km-staff-workspace #result_list tbody td:nth-child(5) {
+  width: 95px !important;
+  min-width: 95px !important;
+  max-width: 105px !important;
+  text-align: center !important;
+  padding: 12px 6px !important;
+}
+
+/* Col 6: Последний вход */
+.km-staff-workspace #result_list thead th:nth-child(6),
+.km-staff-workspace #result_list tbody td:nth-child(6) {
+  width: 125px !important;
+  min-width: 120px !important;
+  max-width: 135px !important;
+  text-align: center !important;
+  padding: 12px 6px !important;
+  white-space: nowrap !important;
+}
+
+/* Col 7: Действия */
+.km-staff-workspace #result_list thead th:nth-child(7),
+.km-staff-workspace #result_list tbody td:nth-child(7),
+.km-staff-col-actions {
+  width: 200px !important;
+  min-width: 200px !important;
+  max-width: none !important;
+  text-align: right !important;
+  padding: 12px 16px !important;
+  white-space: nowrap !important;
+}
+
+/* User Avatar & Name Meta */
+.km-staff-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.km-staff-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ECFDF5;
+  color: #047857;
+  font-size: 13px;
+  font-weight: 800;
+  border: 1px solid #A7F3D0;
+  flex-shrink: 0;
+}
+
+.km-staff-user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+a.km-staff-user-name {
+  color: #111827 !important;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+a.km-staff-user-name:hover {
+  color: #136F38 !important;
+}
+
+.km-staff-user-username {
+  font-size: 12px;
+  color: #6B7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.km-staff-email {
+  color: #374151;
+  font-size: 13.5px;
+}
+
+/* Roles */
+.km-staff-role {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.km-staff-role--super {
+  color: #9D174D;
+  background-color: #FDF2F8;
+  border: 1px solid #FBCFE8;
+}
+
+.km-staff-role--admin {
+  color: #1D4ED8;
+  background-color: #EFF6FF;
+  border: 1px solid #BFDBFE;
+}
+
+.km-staff-role--volunteer {
+  color: #92400E;
+  background-color: #FEF3C7;
+  border: 1px solid #FDE68A;
+}
+
+.km-staff-role--moderator,
+.km-staff-role--content_manager,
+.km-staff-role--content {
+  color: #1D4ED8;
+  background-color: #EFF6FF;
+  border: 1px solid #BFDBFE;
+}
+
+.km-staff-role--staff {
+  color: #4B5563;
+  background-color: #F3F4F6;
+  border: 1px solid #E5E7EB;
+}
+
+.km-staff-queue-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid #BFDBFE;
+  border-radius: 10px;
+  color: #1D4ED8;
+  background: #EFF6FF;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.km-staff-queue-btn .km-i {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.km-staff-queue-btn:focus-visible {
+  outline: 3px solid rgba(19, 111, 56, 0.3);
+  outline-offset: 2px;
+}
+
+/* Statuses */
+.km-staff-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.km-staff-status--active {
+  color: #065F46;
+  background-color: #ECFDF5;
+  border: 1px solid #A7F3D0;
+}
+
+.km-staff-status--active::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #059669;
+}
+
+.km-staff-status--inactive {
+  color: #4B5563;
+  background-color: #F3F4F6;
+  border: 1px solid #E5E7EB;
+}
+
+.km-staff-status--inactive::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #9CA3AF;
+}
+
+.km-staff-count {
+  font-weight: 700;
+  color: #374151;
+  background: #F3F4F6;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  display: inline-block;
+}
+
+.km-staff-date {
+  color: #4B5563;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* Row Action Buttons Container */
+.km-staff-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.km-staff-actions .km-admin-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 4px 9px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: 999px;
+  text-decoration: none;
+  white-space: nowrap;
+  box-sizing: border-box;
+  line-height: 1;
+}
+
+.km-staff-actions .km-admin-action .km-i {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.km-staff-actions .km-admin-action--primary {
+  background-color: #136F38 !important;
+  border: 1px solid #136F38 !important;
+  color: #FFFFFF !important;
+}
+
+.km-staff-actions .km-admin-action--primary:hover {
+  background-color: #0E5229 !important;
+  border-color: #0E5229 !important;
+  color: #FFFFFF !important;
+}
+
+.km-staff-actions .km-admin-action--primary .km-i {
+  fill: #FFFFFF !important;
+}
+
+.km-staff-actions .km-admin-action--danger {
+  background-color: #FEE2E2 !important;
+  border: 1px solid #FECACA !important;
+  color: #991B1B !important;
+}
+
+.km-staff-actions .km-admin-action--danger:hover {
+  background-color: #FCA5A5 !important;
+  border-color: #F87171 !important;
+  color: #7F1D1D !important;
+}
+
+.km-staff-actions .km-admin-action--danger .km-i {
+  fill: #991B1B !important;
+}
+
+/* Empty State */
+.km-staff-access-list__empty {
+  color: #6B7280;
+  text-align: center;
+  padding: 48px 16px !important;
+  font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .km-staff-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .km-staff-header__actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .km-staff-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .km-staff-toolbar__search {
+    max-width: 100%;
+  }
+  .km-staff-toolbar__select select {
+    width: 100%;
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "status": "ENVIRONMENT_FAILURE",
+  "classification": "Reviewer QA wrapper argument error before QA04 execution",
+  "command": "wsl -d Ubuntu-24.04 -u root --exec /bin/bash /mnt/c/kidsmap/docs/task33/qa28/security_release3.sh",
+  "exit": 1,
+  "cause": "19 labels supplied positionally; QA04 requires repeated --label",
+  "corrective_change": "QA-only wrapper supplies --label for each module, uses new fresh final stamp",
+  "suite": "NOT_RUN",
+  "database_migrations": "NOT_RUN",
+  "qa04_isolation_runtime": "NOT_RUN",
+  "application_changes": false,
+  "assertion_changes": false,
+  "before_after_source_inventory": {"files": 50, "all_matches": true},
+  "prior_v2_suite_preserved": "28-security-results-v2.json",
+  "production": "NOT_CONTACTED"
+}

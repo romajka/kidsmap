@@ -1,0 +1,75 @@
+{
+  "stage": 26,
+  "status": "PASS",
+  "execution_identity": "/root/stage26_browser",
+  "role": "browser-qa",
+  "head": "015d031d8eb17114bd860159dde805b38df3c13c",
+  "snapshot": "dirty WORKTREE; composite of two independent frozen runs, not one latest210 run",
+  "languages": [
+    "az",
+    "ru",
+    "en"
+  ],
+  "widths": [
+    320,
+    360,
+    390,
+    768,
+    1024,
+    1280,
+    1440
+  ],
+  "current_distinct_contexts": 210,
+  "passed_contexts": 210,
+  "current_checks": 443,
+  "passed_checks": 443,
+  "unaffected_contexts_from_full_final2": 168,
+  "corrective_contexts_from_admin_final": 42,
+  "corrective_focus_tab_checks": 84,
+  "corrective_total_checks": 88,
+  "corrective_passed_checks": 88,
+  "application_source_files_compared": 2741,
+  "application_delta": [
+    "static/admin/css/pages/kidsmap_admin_form_shell.css"
+  ],
+  "late_delta_is_only_expected_Event_scoped_track_rule": true,
+  "source_current_check": {
+    "checked_source_files": 2774,
+    "mismatches": [],
+    "new_application_files": [],
+    "generated_runtime_locale_files": [
+      "locale/az/LC_MESSAGES/django.mo",
+      "locale/en/LC_MESSAGES/django.mo",
+      "locale/ru/LC_MESSAGES/django.mo"
+    ],
+    "source_manifest_sha256": "54c4c3c6fed1f0fa7471a76db630e2945dce512863436ac376a20161eb0be9c2"
+  },
+  "full_final2_evidence": "/root/task33-evidence/browser26-final2-20261003",
+  "corrective_evidence": "/root/task33-evidence/browser26-admin-final3-20261003",
+  "source_fingerprints": {
+    "full_final2": "f8da4032280247ecd9265ca41d8e7af79a4bc120617d198e0cdd5bd9ea190f4e",
+    "corrective": "54c4c3c6fed1f0fa7471a76db630e2945dce512863436ac376a20161eb0be9c2"
+  },
+  "runtime_paths": {
+    "base": "/root/km26-browser-frozen",
+    "static": "/root/km26-browser-frozen/static/admin/css/pages/kidsmap_admin_form_shell.css",
+    "event": "/root/km26-browser-frozen/src/catalog/models/place.py",
+    "domain": "/root/km26-browser-frozen/src/catalog/services/event_domain.py"
+  },
+  "received_css_sha256": "2f4ca4d28f7a2f57b398d5d51b45874a5966dd1510f200bd638a4f091f135c5d",
+  "errors": 0,
+  "request_failures": 0,
+  "static_failures": 0,
+  "current_overflow_contexts": 0,
+  "cleanup": "PASS bothruns",
+  "browser": "cached real Chromium via Playwright CLI",
+  "external_transport": "External integrations/CDNs stubbed; cached font served locally",
+  "not_run": [
+    "Production",
+    "Real external integrations",
+    "Physical device/full screen-reader audit",
+    "Full application suite by this browser executor",
+    "Stage27 calendar UI",
+    "Deploy/commit/push"
+  ]
+}

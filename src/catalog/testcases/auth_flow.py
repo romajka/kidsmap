@@ -679,14 +679,16 @@ class TestAccountProfileUpdates(TestCase):
         self.assertContains(response, reverse("owner_place_edit", args=[created_place.id]))
 
     def test_account_favorites_lists_liked_places(self):
-        place = Place.objects.create(
+        from catalog.testcases.utils import create_quality_place
+        place = create_quality_place(
             name="Fav Place",
             name_ru="Избранный кружок",
+            description_ru="Подробное описание избранного кружка для родителей.",
             category="EDU",
-            is_active=True,
         )
         PlaceLike.objects.create(place=place, user=self.user)
-        response = self.client.get(reverse("account_favorites"))
+        with override("ru"):
+            response = self.client.get(reverse("account_favorites"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Избранный кружок")
 

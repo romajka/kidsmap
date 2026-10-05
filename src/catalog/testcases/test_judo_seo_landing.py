@@ -47,6 +47,8 @@ class JudoSeoLandingAggregateTests(TestCase):
             category="SPRT",
             subcategory=self.subcategory,
             district="baku_yasamal",
+            lat=40.39,
+            lng=49.81,
             metro="Низами",
             age_from=5,
             age_to=12,

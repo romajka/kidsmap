@@ -5,7 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic.base import RedirectView
 
-from catalog.sitemaps import StaticViewSitemap, PlaceSitemap, SeoLandingSitemap, SpecialistSitemap
+from catalog.sitemaps import StaticViewSitemap, PlaceSitemap, SeoLandingSitemap, SpecialistSitemap, OrganizationSitemap, ActivitySitemap
 from catalog.views import admin_add_choice, place_pricing_api, catalog_search_suggestions
 from catalog.google_auth import google_login, google_callback
 from config.views import (
@@ -21,6 +21,8 @@ from config.views import (
 sitemaps = {
     "static": StaticViewSitemap,
     "places": PlaceSitemap,
+    "organizations": OrganizationSitemap,
+    "activities": ActivitySitemap,
     "seo": SeoLandingSitemap,
     "specialists": SpecialistSitemap,
 }
@@ -60,9 +62,7 @@ urlpatterns += i18n_patterns(
     prefix_default_language=False,
 )
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-elif getattr(settings, "SERVE_MEDIA_FILES", False):
+if settings.DEBUG or getattr(settings, "SERVE_MEDIA_FILES", False):
     media_path = settings.MEDIA_URL.lstrip("/")
     urlpatterns += [
         re_path(

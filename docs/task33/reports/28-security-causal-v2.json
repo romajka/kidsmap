@@ -1,0 +1,61 @@
+{
+  "stage": 28,
+  "scope": "Five unchanged original ownership concurrency cases plus one explicit external QA ordering probe",
+  "evidence": "/root/task33-evidence/stage28-security-causal-v2-20261003",
+  "suite-results.json": {
+    "tests_run": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 6.372,
+    "status": "PASS",
+    "executed_ids": [
+      "catalog.testcases.test_task33_ownership.OwnershipConcurrencyTests.test_competing_claims_have_one_versioned_winner",
+      "catalog.testcases.test_task33_ownership.OwnershipConcurrencyTests.test_concurrent_final_confirmations_are_idempotent",
+      "catalog.testcases.test_task33_ownership.OwnershipConcurrencyTests.test_detach_racing_pending_edit_keeps_approved_local_snapshot",
+      "catalog.testcases.test_task33_ownership.OwnershipConcurrencyTests.test_network_edit_waits_for_org_transfer_and_rechecks_permission",
+      "catalog.testcases.test_task33_ownership.OwnershipConcurrencyTests.test_transfer_racing_confirmation_never_grants_stale_network_right",
+      "catalog.testcases.test_qa28_security_concurrency_probe.OwnershipStructureRetryProbe.test_anchor_change_rejects_first_transfer_and_retry_revokes_network_acl"
+    ],
+    "problems": []
+  },
+  "migrations.json": {
+    "applied_count": 167,
+    "unapplied_count": 0
+  },
+  "discovery.json": {
+    "explicit_count": 1813,
+    "explicit_unique_count": 1813,
+    "duplicate_explicit_ids": 0
+  },
+  "isolation.json": {
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10",
+    "network_guard": true,
+    "libpq_guard": true,
+    "external_credentials_present": false
+  },
+  "run.json": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "checks.json": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.256
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.486
+    }
+  ]
+}

@@ -40,20 +40,23 @@ class OwnerReviewsController:
         return [
             scope
             for scope in resolve_owner_permission_scopes(user=user, team_repository=self.team_repository)
-            if PLACE_PERMISSION_MODERATE_REVIEWS in scope.permissions
+            if {'place.reviews.reply', 'place.reviews.report'} & scope.permissions
         ]
 
     def build_context(self, *, request) -> tuple[dict, OwnerReviewsActionResult]:
         if not request.user.is_authenticated:
             return {}, OwnerReviewsActionResult(ok=False, message=_("Для доступа войдите в аккаунт и повторите действие."))
         scopes = self._moderation_scopes(user=request.user)
-        place_ids = place_ids_for_permission(scopes, PLACE_PERMISSION_MODERATE_REVIEWS)
-        reviews = list(self.review_repository.list_for_place_scope(place_ids=place_ids)) if place_ids else []
-        pending_count = sum(1 for item in reviews if not item.is_approved)
+        place_ids = sorted(set(place_ids_for_permission(scopes, 'place.reviews.reply') + place_ids_for_permission(scopes, 'place.reviews.report')))
+        from catalog.services.content_quality import approved_review_queryset
+        from catalog.models import PlaceReview
+        reviews = list(approved_review_queryset(PlaceReview.objects.filter(place_id__in=place_ids)).select_related('place')) if place_ids else []
+        pending_count = PlaceReview.objects.filter(place_id__in=place_ids, is_current=True,
+            candidate_revision__status='pending').count() if place_ids else 0
 
         from catalog.models import PlaceReview
         user_written_reviews = list(
-            PlaceReview.objects.filter(user=request.user)
+            PlaceReview.objects.filter(user=request.user, is_current=True)
             .select_related("place", "place__category")
             .order_by("-created_at")
         )
@@ -66,8 +69,9 @@ class OwnerReviewsController:
             "scope_place_ids": sorted(set(place_ids)),
             "owner_reviews": reviews,
             "owner_reviews_pending_count": pending_count,
-            "owner_reviews_approved_count": len(reviews) - pending_count,
+            "owner_reviews_approved_count": len(reviews),
             "can_moderate_reviews": bool(place_ids),
+            "can_reply_reviews": bool(place_ids),
             "can_manage_team": any(PLACE_PERMISSION_MANAGE_TEAM in scope.permissions for scope in scopes),
             "user_written_reviews": user_written_reviews,
             'review_moderation_sla_message': submission_message('review'),
@@ -77,20 +81,4 @@ class OwnerReviewsController:
         }, OwnerReviewsActionResult(ok=True, message="")
 
     def set_review_approval(self, *, request, review_id: int, is_approved: bool) -> OwnerReviewsActionResult:
-        if not request.user.is_authenticated:
-            return OwnerReviewsActionResult(ok=False, message=_("Для доступа войдите в аккаунт и повторите действие."))
-        place_ids = place_ids_for_permission(self._moderation_scopes(user=request.user), PLACE_PERMISSION_MODERATE_REVIEWS)
-        if not place_ids:
-            return OwnerReviewsActionResult(ok=False, message=_("У вас нет прав на модерацию отзывов."))
-        review = self.review_repository.get_for_place_scope(review_id=review_id, place_ids=place_ids)
-        if review is None:
-            return OwnerReviewsActionResult(ok=False, message=_("Отзыв не найден или недоступен."))
-        target_status = review.STATUS_APPROVED if is_approved else review.STATUS_REJECTED
-        if review.is_approved == is_approved and review.status == target_status:
-            return OwnerReviewsActionResult(ok=True, message=_("Статус уже актуален."))
-        review.status = target_status
-        review.is_approved = is_approved
-        review.moderated_by = request.user
-        review.save(update_fields=["status", "is_approved", "updated_at", "moderated_by"])
-        review.place.refresh_rating_stats()
-        return OwnerReviewsActionResult(ok=True, message=_("Статус отзыва обновлен."))
+        return OwnerReviewsActionResult(ok=False, message=_("Отзывы проверяет KidsMap. Бизнес может ответить или пожаловаться."))

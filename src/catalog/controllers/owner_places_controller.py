@@ -719,6 +719,29 @@ class OwnerPlacesController:
             )
 
         from catalog.services.publication_forms import save_form
+        if force_coordinate_refresh:
+            # Resolve into a fresh validated candidate, never save geocoded
+            # coordinates directly onto the approved public Place.
+            lookup = self.geocoding_service.geocode_location(
+                address=result.form.cleaned_data.get('address', ''),
+                district=result.form.cleaned_data.get('district', ''),
+                metro=result.form.cleaned_data.get('metro', ''),
+            )
+            if not lookup.resolved or lookup.point is None:
+                result.form.add_error(None, self._build_create_geocoding_message(geocoding_result=lookup))
+                return OwnerPlaceActionResult(ok=False, message='', place=result.place, form=result.form)
+            refreshed_data = data.copy()
+            refreshed_data['lat'] = lookup.point.lat
+            refreshed_data['lng'] = lookup.point.lng
+            result = self.build_edit_form_context(
+                request=request, place_id=place_id, data=refreshed_data, files=files,
+                draft_save_only=draft_save_only, coordinate_refresh_only=True,
+                submit_for_moderation=submit_for_moderation,
+            )
+            if not result.ok or result.form is None:
+                return result
+            if not result.form.is_valid():
+                return OwnerPlaceActionResult(ok=False, message='', place=result.place, form=result.form)
         try:
             save_form(actor=request.user, form=result.form, submit=not draft_save_only)
         except ValidationError as exc:

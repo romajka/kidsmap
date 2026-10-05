@@ -110,6 +110,12 @@ class PublicDetailsTests(TestCase):
         self.assertContains(response, '25')
 
     def test_card_map_and_seo_share_price_and_translation(self):
+        # Alignment uses a substantive EN translation. Incomplete shells now
+        # have AZ canonical metadata (separately covered by stage21 contracts).
+        from catalog.models import Place
+        Place.objects.filter(pk=self.place.pk).update(name_en='Local venue',
+            description_en='Local music lessons for children')
+        self.place.refresh_from_db()
         from catalog.controllers.place_controller import PlaceController
         from catalog.services.seo import build_place_seo_payload
         from django.template.loader import render_to_string

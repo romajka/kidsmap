@@ -16,7 +16,10 @@ PUBLIC_QUERY_PARAMS = {
         "age", "age_from", "age_to", "price_from", "price_to", "sort", "page",
     },
     "place_new": {"q", "category", "subcategory", "district", "metro", "age", "age_from", "age_to", "min_rating", "days", "with_photo", "verified", "page"},
-    "events_landing": {"q", "category", "district", "date_filter", "age_from", "age_to", "free", "sort", "page"},
+    "events_landing": {
+        "q", "category", "district", "date_filter", "age_from", "age_to", "free", "sort", "page",
+        "view", "month", "date", "date_from", "date_to", "format",
+    },
     "specialist_list": {
         "q", "specialization", "format", "region", "district", "metro", "age",
         "price_from", "price_to", "sort", "language", "verified", "min_rating", "page",

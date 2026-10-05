@@ -150,6 +150,24 @@ def seo_urls(request):
         }
         canonical_url = alternate_urls.get(current_lang, canonical_url)
 
+    entity = place if place is not None else getattr(request, '_seo_entity', None)
+    if entity is not None:
+        from catalog.services.public_languages import available_languages
+        from catalog.services.public_presentation import public_url
+        if place is None:
+            alternate_urls = {
+                code: build_public_absolute_uri(request, public_url(entity, code))
+                for code in lang_codes
+            }
+        language_urls = dict(alternate_urls)
+        eligible = available_languages(entity)
+        content_lang = current_lang if current_lang in eligible else 'az'
+        canonical_url = alternate_urls[content_lang]
+        alternate_urls = {code: alternate_urls[code] for code in eligible}
+    else:
+        language_urls = dict(alternate_urls)
+        content_lang = current_lang
+
     resolver_match = getattr(request, "resolver_match", None)
     url_name = getattr(resolver_match, "url_name", "")
     robots_content = DEFAULT_ROBOTS_CONTENT
@@ -167,10 +185,10 @@ def seo_urls(request):
             robots_content = DEFAULT_ROBOTS_CONTENT
 
     og_locale_map = {"ru": "ru_RU", "az": "az_AZ", "en": "en_US"}
-    og_locale = og_locale_map.get(current_lang, "ru_RU")
+    og_locale = og_locale_map.get(content_lang, "az_AZ")
     og_locale_alternates = [
         locale
-        for code in lang_codes
+        for code in alternate_urls
         for locale in [og_locale_map.get(code)]
         if locale and locale != og_locale
     ]
@@ -179,6 +197,7 @@ def seo_urls(request):
         "canonical_url": canonical_url,
         "public_base_url": public_origin(),
         "alternate_urls": alternate_urls,
+        "language_urls": language_urls,
         "x_default_url": alternate_urls.get(default_lang, canonical_url),
         "current_lang_code": current_lang,
         "robots_content": robots_content,

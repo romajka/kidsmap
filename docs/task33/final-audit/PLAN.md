@@ -1,0 +1,20 @@
+# KidsMap №33 — план итогового сквозного аудита
+
+**Goal:** проверить соответствие всех28 этапов исходной задумке и совместную работу доменов, выпустить подробный понятный отчёт, таблицы, roadmap и реальные скриншоты.
+**Architecture:** AUDIT ONLY текущего dirty WORKTREE; source contracts → отдельные безопасные PostgreSQL/browser воспроизведения → независимая сверка → отчёт с границами доказательств.
+**Tech Stack:** существующие Django6/PostgreSQL17/QA04/Chromium, Windows+WSL; DJANGO_TESTING1, disposable DB/cache/media/email, external transport blocked.
+**Spec:** прямое поручение пользователя2026-10-04; docs/task33/prompts01–28, decisions, architecture; canonical agent audit contract.
+
+Новые application fixes, изменения assertions/production/Git-публикация не входят в аудит. Исторические DONE и PASS не переносятся автоматически на этот запуск. Existing skill execution-choice/commit suggestions не требуют нового согласования разрешённого аудита и не разрешают commit.
+
+- [x] Сохранить545 текущих dirty paths, binary patch; проверить218 source hashes stage28 и active_run. Зафиксировать текущий HEAD и границы graph metadata.
+- [x] Root: свежий полный PostgreSQL1817 explicit suite через qa26/backend_run.sh all final-audit-full-20261004; сравнить каждый failed ID/kind с28, выделить исходный долг/изменённый контракт/реальный дефект/неопределённость. Fresh checks/migrations/discovery/guards/cleanup и performance.
+- [x] Django reviewer: прочитать требования28 prompts/decisions; для каждого этапа указать пользовательский результат, actual integration points/source, meaningful test IDs, evidence gaps. Проверить не менее8 сквозных контрактов между этапами; возможные новые probe fixtures только в своём внешнем mirror. Выход domain-review.md,stage-map.json,requirements-review.json,cross-stage evidence.
+- [x] Browser reviewer: новый полный R1/Specialist/Event rendered прогон на одном итоговом source (AZRUEN×7widths). Сохранить actual results и курированную галерею synthetic-only screenshots с подписями/context/sha; независимо проверить прежние P3. Выход browser-review.md,browser-results.json,screenshots/ и index.json; только собственные mirror и QA файлы.
+- [x] Security reviewer: fresh selected260 плюс source/negative review common ACL/publication/reviews/private docs/outbox/ownership/Event venue; объяснить concurrency failure по фактическому новому результату. Затем bounded release/recovery evidence audit, явно отделив fresh execution от retained same-source evidence. Выход security-review.md/security-results.json/release-gates.json; не использовать root/browser mirrors.
+- [x] Root: native recovery repeat с exact V3 artifact на отдельной disposable DB; проверить post-switch/private/outbox retention и release config/image/static identity без production. Передать domain/specialists недостающие доказательства, сверить finding severity.
+- [x] Свести28-row roadmap и requirement-level evidence: реализовано/проверено/частично/не проверено/за рамками. Не называть generic module tests доказательством каждого пункта.
+- [x] Создать REPORT.md и автономный report.html с таблицами, flow diagrams, screenshot captions, подробным списком результатов/известного долга/остатка. Дать простой ответ, что получила семья, бизнес, специалист и модератор; честный verdict об окончательной реализации идеи.
+- [x] Render/inspect report desktop+mobile, проверить local links/screenshots/source+entry preservation/commands/results consistency; обновить audit journal/MASTER_AUDIT pointer, очистить active_run после завершения исполнителей. Никакого production-ready claim без внешних gates.
+
+Ownership: root owns final report/plan/entry/full/recovery/rollup/journal; django owns domain* and requirements/stage-map; browser owns browser* and screenshots; security owns security* and release-gates. Все новые outputs внутри docs/task33/final-audit; prior28 evidence immutable. At most3specialists, no extra roles/duplicate teams. Каждый reviewer следует canonical definition и явно обозначает прежнее авторство, если оно ограничивает независимость.

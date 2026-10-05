@@ -1,0 +1,655 @@
+{
+  "stage": 27,
+  "scope": "ACTUAL_APPLICATION",
+  "execution_identity": "/root/stage26_browser",
+  "role": "browser-qa",
+  "head": "015d031d8eb17114bd860159dde805b38df3c13c",
+  "snapshot": "dirty WORKTREE frozen in own allowlisted mirror",
+  "evidence": "/root/task33-evidence/browser27-diagnostic-20261003",
+  "browser": "Chromium via cached Playwright CLI",
+  "languages": [
+    "ru"
+  ],
+  "widths": [
+    320,
+    360,
+    390,
+    768,
+    1440
+  ],
+  "runtime_paths": {
+    "base": "/root/km27-browser-frozen",
+    "static": "/root/km27-browser-frozen/static/admin/css/pages/kidsmap_admin_form_shell.css",
+    "event": "/root/km27-browser-frozen/src/catalog/models/place.py",
+    "domain": "/root/km27-browser-frozen/src/catalog/services/event_domain.py",
+    "query": "/root/km27-browser-frozen/src/catalog/services/event_queries.py",
+    "calendar": "/root/km27-browser-frozen/src/catalog/services/event_calendar.py",
+    "controller": "/root/km27-browser-frozen/src/catalog/controllers/place_controller.py"
+  },
+  "runtime_css_sha256": null,
+  "runtime_asset_sha256": {
+    "static/css/events_landing.css": {
+      "status": 200,
+      "sha256": "aed645d4ffd28fab086cc9fc33884a6249b73d39f67aaf613bb7877526b5d43d"
+    }
+  },
+  "rows": 5,
+  "passed_rows": 2,
+  "checks": 0,
+  "passed_checks": 0,
+  "failed_rows": [
+    {
+      "screen": "calendar_diagnostic",
+      "actor": "public",
+      "lang": "ru",
+      "width": 320,
+      "issues": [
+        "hero_stat_clipped"
+      ]
+    },
+    {
+      "screen": "calendar_diagnostic",
+      "actor": "public",
+      "lang": "ru",
+      "width": 360,
+      "issues": [
+        "hero_stat_clipped"
+      ]
+    },
+    {
+      "screen": "calendar_diagnostic",
+      "actor": "public",
+      "lang": "ru",
+      "width": 390,
+      "issues": [
+        "hero_stat_clipped"
+      ]
+    }
+  ],
+  "failed_checks": [],
+  "event_counts": {
+    "errors": 0,
+    "failed": 0,
+    "staticFailures": 0,
+    "stubs": 10,
+    "expectedErrors": 0
+  },
+  "screenshots": [
+    "calendar-settled-1440.png",
+    "calendar-settled-320.png",
+    "calendar-settled-360.png",
+    "calendar-settled-390.png",
+    "calendar-settled-768.png",
+    "calendar-top-1440.png",
+    "calendar-top-320.png",
+    "calendar-top-360.png",
+    "calendar-top-390.png",
+    "calendar-top-768.png"
+  ],
+  "executed_matrix_sha256": "778b055279f9151641c3c9c311a1b618b0917a43d4a475a323409a32f4fc7c62",
+  "source_manifest_sha256": "b02c190ed695563ecf2e0412588442aa0749369eb471a0f28bf9671ca32d7e5d",
+  "source_file_count": 2775,
+  "launcher_status": "PASS",
+  "launcher_cleanup": "PASS",
+  "isolation": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10"
+  },
+  "external_transport": "External integrations/CDNs stubbed; actual localCSS/JS/Django, cachedfont.",
+  "not_run": [
+    "Production",
+    "Real external integrations/CDNs",
+    "Real records/private file inventory",
+    "Full screen reader audit",
+    "Stage28+",
+    "Deployment"
+  ],
+  "component_geometry": [
+    {
+      "width": 320,
+      "facts": {
+        "viewport": 320,
+        "scroll": 320,
+        "calendarOpacity": "1",
+        "chains": [
+          {
+            "tag": "DIV",
+            "class": "events-hero__stat",
+            "width": 391.109375,
+            "right": 418.109375,
+            "scroll": 389,
+            "min": "auto",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "nowrap",
+            "display": "flex"
+          },
+          {
+            "tag": "STRONG",
+            "class": "",
+            "width": 331.109375,
+            "right": 403.109375,
+            "scroll": 331,
+            "min": "auto",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "nowrap",
+            "display": "block"
+          },
+          {
+            "tag": "DIV",
+            "class": "events-hero__copy",
+            "width": 172.890625,
+            "right": 199.890625,
+            "scroll": 391,
+            "min": "auto",
+            "max": "65%",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "flex"
+          },
+          {
+            "tag": "SECTION",
+            "class": "panel events-hero reveal-item is-visible",
+            "width": 308,
+            "right": 314,
+            "scroll": 411,
+            "min": "0px",
+            "max": "100%",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "flex"
+          },
+          {
+            "tag": "MAIN",
+            "class": "",
+            "width": 308,
+            "right": 314,
+            "scroll": 412,
+            "min": "auto",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "block"
+          },
+          {
+            "tag": "DIV",
+            "class": "site-shell",
+            "width": 320,
+            "right": 320,
+            "scroll": 418,
+            "min": "0px",
+            "max": "100%",
+            "overflow": "hidden",
+            "whiteSpace": "normal",
+            "display": "flex"
+          },
+          {
+            "tag": "BODY",
+            "class": "page-events_landing",
+            "width": 320,
+            "right": 320,
+            "scroll": 320,
+            "min": "0px",
+            "max": "100%",
+            "overflow": "hidden",
+            "whiteSpace": "normal",
+            "display": "block"
+          },
+          {
+            "tag": "HTML",
+            "class": "",
+            "width": 320,
+            "right": 320,
+            "scroll": 320,
+            "min": "0px",
+            "max": "100%",
+            "overflow": "hidden",
+            "whiteSpace": "normal",
+            "display": "block"
+          }
+        ],
+        "initialCalendarOpacity": "0"
+      }
+    },
+    {
+      "width": 360,
+      "facts": {
+        "viewport": 360,
+        "scroll": 360,
+        "calendarOpacity": "1",
+        "chains": [
+          {
+            "tag": "DIV",
+            "class": "events-hero__stat",
+            "width": 391.109375,
+            "right": 418.109375,
+            "scroll": 389,
+            "min": "auto",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "nowrap",
+            "display": "flex"
+          },
+          {
+            "tag": "STRONG",
+            "class": "",
+            "width": 331.109375,
+            "right": 403.109375,
+            "scroll": 331,
+            "min": "auto",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "nowrap",
+            "display": "block"
+          },
+          {
+            "tag": "DIV",
+            "class": "events-hero__copy",
+            "width": 198.890625,
+            "right": 225.890625,
+            "scroll": 391,
+            "min": "auto",
+            "max": "65%",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "flex"
+          },
+          {
+            "tag": "SECTION",
+            "class": "panel events-hero reveal-item is-visible",
+            "width": 348,
+            "right": 354,
+            "scroll": 411,
+            "min": "0px",
+            "max": "100%",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "flex"
+          },
+          {
+            "tag": "MAIN",
+            "class": "",
+            "width": 348,
+            "right": 354,
+            "scroll": 412,
+            "min": "auto",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "block"
+          },
+          {
+            "tag": "DIV",
+            "class": "site-shell",
+            "width": 360,
+            "right": 360,
+            "scroll": 418,
+            "min": "0px",
+            "max": "100%",
+            "overflow": "hidden",
+            "whiteSpace": "normal",
+            "display": "flex"
+          },
+          {
+            "tag": "BODY",
+            "class": "page-events_landing",
+            "width": 360,
+            "right": 360,
+            "scroll": 360,
+            "min": "0px",
+            "max": "100%",
+            "overflow": "hidden",
+            "whiteSpace": "normal",
+            "display": "block"
+          },
+          {
+            "tag": "HTML",
+            "class": "",
+            "width": 360,
+            "right": 360,
+            "scroll": 360,
+            "min": "0px",
+            "max": "100%",
+            "overflow": "hidden",
+            "whiteSpace": "normal",
+            "display": "block"
+          }
+        ],
+        "initialCalendarOpacity": "0"
+      }
+    },
+    {
+      "width": 390,
+      "facts": {
+        "viewport": 390,
+        "scroll": 390,
+        "calendarOpacity": "1",
+        "chains": [
+          {
+            "tag": "DIV",
+            "class": "events-hero__stat",
+            "width": 391.109375,
+            "right": 418.109375,
+            "scroll": 389,
+            "min": "auto",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "nowrap",
+            "display": "flex"
+          },
+          {
+            "tag": "STRONG",
+            "class": "",
+            "width": 331.109375,
+            "right": 403.109375,
+            "scroll": 331,
+            "min": "auto",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "nowrap",
+            "display": "block"
+          },
+          {
+            "tag": "DIV",
+            "class": "events-hero__copy",
+            "width": 218.390625,
+            "right": 245.390625,
+            "scroll": 391,
+            "min": "auto",
+            "max": "65%",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "flex"
+          },
+          {
+            "tag": "SECTION",
+            "class": "panel events-hero reveal-item is-visible",
+            "width": 378,
+            "right": 384,
+            "scroll": 411,
+            "min": "0px",
+            "max": "100%",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "flex"
+          },
+          {
+            "tag": "MAIN",
+            "class": "",
+            "width": 378,
+            "right": 384,
+            "scroll": 412,
+            "min": "auto",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "block"
+          },
+          {
+            "tag": "DIV",
+            "class": "site-shell",
+            "width": 390,
+            "right": 390,
+            "scroll": 418,
+            "min": "0px",
+            "max": "100%",
+            "overflow": "hidden",
+            "whiteSpace": "normal",
+            "display": "flex"
+          },
+          {
+            "tag": "BODY",
+            "class": "page-events_landing",
+            "width": 390,
+            "right": 390,
+            "scroll": 390,
+            "min": "0px",
+            "max": "100%",
+            "overflow": "hidden",
+            "whiteSpace": "normal",
+            "display": "block"
+          },
+          {
+            "tag": "HTML",
+            "class": "",
+            "width": 390,
+            "right": 390,
+            "scroll": 390,
+            "min": "0px",
+            "max": "100%",
+            "overflow": "hidden",
+            "whiteSpace": "normal",
+            "display": "block"
+          }
+        ],
+        "initialCalendarOpacity": "0"
+      }
+    },
+    {
+      "width": 768,
+      "facts": {
+        "viewport": 768,
+        "scroll": 768,
+        "calendarOpacity": "1",
+        "chains": [
+          {
+            "tag": "DIV",
+            "class": "events-hero__stat",
+            "width": 395.109375,
+            "right": 460.109375,
+            "scroll": 393,
+            "min": "auto",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "nowrap",
+            "display": "flex"
+          },
+          {
+            "tag": "STRONG",
+            "class": "",
+            "width": 331.109375,
+            "right": 443.109375,
+            "scroll": 331,
+            "min": "auto",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "nowrap",
+            "display": "block"
+          },
+          {
+            "tag": "DIV",
+            "class": "events-hero__copy",
+            "width": 331.75,
+            "right": 396.75,
+            "scroll": 395,
+            "min": "auto",
+            "max": "52%",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "flex"
+          },
+          {
+            "tag": "SECTION",
+            "class": "panel events-hero reveal-item is-visible",
+            "width": 740,
+            "right": 754,
+            "scroll": 738,
+            "min": "0px",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "flex"
+          },
+          {
+            "tag": "MAIN",
+            "class": "",
+            "width": 740,
+            "right": 754,
+            "scroll": 740,
+            "min": "auto",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "block"
+          },
+          {
+            "tag": "DIV",
+            "class": "site-shell",
+            "width": 740,
+            "right": 754,
+            "scroll": 740,
+            "min": "0px",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "flex"
+          },
+          {
+            "tag": "BODY",
+            "class": "page-events_landing",
+            "width": 768,
+            "right": 768,
+            "scroll": 768,
+            "min": "0px",
+            "max": "none",
+            "overflow": "hidden",
+            "whiteSpace": "normal",
+            "display": "block"
+          },
+          {
+            "tag": "HTML",
+            "class": "",
+            "width": 768,
+            "right": 768,
+            "scroll": 768,
+            "min": "0px",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "block"
+          }
+        ],
+        "initialCalendarOpacity": "0"
+      }
+    },
+    {
+      "width": 1440,
+      "facts": {
+        "viewport": 1440,
+        "scroll": 1440,
+        "calendarOpacity": "1",
+        "chains": [
+          {
+            "tag": "DIV",
+            "class": "events-hero__stat",
+            "width": 395.109375,
+            "right": 518.109375,
+            "scroll": 393,
+            "min": "auto",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "nowrap",
+            "display": "flex"
+          },
+          {
+            "tag": "STRONG",
+            "class": "",
+            "width": 331.109375,
+            "right": 501.109375,
+            "scroll": 331,
+            "min": "auto",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "nowrap",
+            "display": "block"
+          },
+          {
+            "tag": "DIV",
+            "class": "events-hero__copy",
+            "width": 529.609375,
+            "right": 652.609375,
+            "scroll": 530,
+            "min": "auto",
+            "max": "min(48%, 560px)",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "flex"
+          },
+          {
+            "tag": "SECTION",
+            "class": "panel events-hero reveal-item is-visible",
+            "width": 1300,
+            "right": 1370,
+            "scroll": 1298,
+            "min": "0px",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "flex"
+          },
+          {
+            "tag": "MAIN",
+            "class": "",
+            "width": 1300,
+            "right": 1370,
+            "scroll": 1300,
+            "min": "auto",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "block"
+          },
+          {
+            "tag": "DIV",
+            "class": "site-shell",
+            "width": 1300,
+            "right": 1370,
+            "scroll": 1300,
+            "min": "0px",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "flex"
+          },
+          {
+            "tag": "BODY",
+            "class": "page-events_landing",
+            "width": 1440,
+            "right": 1440,
+            "scroll": 1440,
+            "min": "0px",
+            "max": "none",
+            "overflow": "hidden",
+            "whiteSpace": "normal",
+            "display": "block"
+          },
+          {
+            "tag": "HTML",
+            "class": "",
+            "width": 1440,
+            "right": 1440,
+            "scroll": 1440,
+            "min": "0px",
+            "max": "none",
+            "overflow": "visible",
+            "whiteSpace": "normal",
+            "display": "block"
+          }
+        ],
+        "initialCalendarOpacity": "0"
+      }
+    }
+  ]
+}

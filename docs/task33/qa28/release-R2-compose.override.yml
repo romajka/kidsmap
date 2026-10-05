@@ -1,0 +1,15 @@
+# Future deployment package only. Never applied during LOCAL ACCEPTANCE.
+# Use together with the reviewed base compose file and an explicitly approved image.
+services:
+  web:
+    image: "${TASK33_R2_IMAGE:?reviewed immutable image reference is required}"
+    build:
+      context: "${TASK33_R2_BUILD_CONTEXT:?verified allowlisted artifact standby is required}"
+    environment:
+      TASK33_R1_WRITE_MODE: "${TASK33_R1_WRITE_MODE:-off}"
+      TASK33_R1_WRITE_USER_IDS: "${TASK33_R1_WRITE_USER_IDS:-}"
+    volumes:
+      # settings.PRIVATE_MEDIA_ROOT resolves outside /app, never inside public media.
+      - type: bind
+        source: "${TASK33_PRIVATE_MEDIA_PATH:?absolute private-media path is required}"
+        target: /kidsmap-private-media

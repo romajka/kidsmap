@@ -142,6 +142,13 @@ def redirect_legacy_default_language_prefix(request, path=""):
 
 
 def serve_media_file(request, path=""):
+    from pathlib import PurePosixPath
+    from urllib.parse import unquote
+    normalized = unquote(path).replace('\\', '/')
+    pieces = PurePosixPath(normalized).parts
+    if (not pieces or '..' in pieces or normalized.startswith('/')
+            or pieces[0].casefold() in {'protected_docs', 'specialist-documents', 'private-media'}):
+        raise Http404()
     response = serve_static_file(request, path, document_root=settings.MEDIA_ROOT)
     if response.status_code < 400:
         patch_cache_control(

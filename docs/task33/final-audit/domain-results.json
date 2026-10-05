@@ -1,0 +1,308 @@
+{
+  "suite-results.json": {
+    "tests_run": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 5.916,
+    "problems": [],
+    "skipped_ids": [],
+    "executed_ids": [
+      "domain_probe.DomainCrossStageTests.test_legacy_audience_failures_retain_age_and_adult_facts",
+      "domain_probe.DomainCrossStageTests.test_legacy_claim_failure_is_publication_expectation",
+      "domain_probe.DomainCrossStageTests.test_legacy_ratings_pagination_reason_is_recorded_without_blanket_attribution",
+      "domain_probe.DomainCrossStageTests.test_legacy_unpublish_missing_version_then_current_version_works",
+      "domain_probe.DomainCrossStageTests.test_new_standalone_writer_offer_disappears_on_category_age",
+      "domain_probe.DomainCrossStageTests.test_program_category_writer_works_but_subcategory_has_no_writer"
+    ],
+    "problem_ids_complete": true,
+    "status": "PASS"
+  },
+  "isolation.json": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10"
+  },
+  "migrations.json": {
+    "leaves": [
+      [
+        "account",
+        "0009_emailaddress_unique_primary_email"
+      ],
+      [
+        "admin",
+        "0003_logentry_add_action_flag_choices"
+      ],
+      [
+        "auth",
+        "0012_alter_user_first_name_max_length"
+      ],
+      [
+        "catalog",
+        "0133_task33_event_foundation"
+      ],
+      [
+        "catalog_moderation",
+        "0001_initial"
+      ],
+      [
+        "contenttypes",
+        "0002_remove_content_type_name"
+      ],
+      [
+        "sessions",
+        "0001_initial"
+      ],
+      [
+        "socialaccount",
+        "0006_alter_socialaccount_extra_data"
+      ]
+    ],
+    "applied_count": 167,
+    "unapplied_count": 0,
+    "vendor": "postgresql"
+  },
+  "checks.json": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.108
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.253
+    }
+  ],
+  "domain-observations.json": {
+    "legacy_audience": {
+      "unchanged_failures": [
+        "test_catalog_has_no_adult_filter_and_renders_compact_audience",
+        "test_place_detail_renders_children_only_and_mixed_audience"
+      ],
+      "detail_http": 200,
+      "detail_age_value_retained": true,
+      "detail_adult_label_retained": true,
+      "catalog_short_adult_label_retained": true,
+      "catalog_exact_old_long_label": false,
+      "detail_exact_old_age_suffix": false,
+      "classification": "SOURCE_AND_RUNTIME_PRESENTATION_EXPECTATION_FACTS_RETAINED"
+    },
+    "legacy_claim": {
+      "unchanged_assertion_failed": true,
+      "claim_approved": true,
+      "owner_changed": true,
+      "inactive_retained": true,
+      "classification": "ACCEPTED_MANAGEMENT_IS_NOT_PUBLICATION_CONTRACT"
+    },
+    "legacy_pagination": {
+      "unchanged_assertion_failure": "False is not true : Couldn't find 'km-changelist-pagination__nav' in the following response",
+      "fixture_count": 5,
+      "stored_districts": [
+        "baku_narimanov"
+      ],
+      "query_district": "baku",
+      "matching_district_count": 0,
+      "same_query_actual_district_three_pages_passed": true,
+      "classification": "CONFIRMED_FIXTURE_QUERY_DISTRICT_MISMATCH_NOT_PAGINATION_DEFECT"
+    },
+    "legacy_unpublish": {
+      "unchanged_assertion_failed": true,
+      "only_missing_version_replay": true,
+      "current_version_http": 302,
+      "draft_inactive": true,
+      "classification": "LEGACY_FORM_VERSION_FIXTURE"
+    },
+    "standalone_search": {
+      "real_nested_writer": true,
+      "general_found": true,
+      "age_only_found": true,
+      "category_age_found": false,
+      "snapshot_empty": true,
+      "classification": "CONFIRMED_P2_PRODUCT_GAP_NOT_EXPECTED_PASS_OF_ORIGINAL_IDEA"
+    },
+    "program_search": {
+      "actual_propose_review_used": true,
+      "category_age_found": true,
+      "place_subcategory_known_but_offer_subcategory_age_found": false,
+      "program_subcategory_writer": false,
+      "classification": "CATEGORY_PROVEN_SUBCATEGORY_PRODUCT_GAP"
+    }
+  },
+  "run.json": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "network": "none",
+    "ports_published": false,
+    "postgres_data": "tmpfs",
+    "mounted_checkout": false,
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "executor": "/root/stage28_database sequential django-reviewer",
+  "scope": "6 new external QA-only probes; APP1817 unchanged",
+  "attempts": [
+    {
+      "attempt": "first",
+      "raw": "/root/task33-evidence/final-audit-domain-cross-stage-20261004/first",
+      "run_status": "BASELINE_FAILURE",
+      "cleanup": "PASS",
+      "child_exit": 3,
+      "tests_run": 5,
+      "failures": 0,
+      "errors": 3,
+      "adapter_issue": "missing legacy Client"
+    },
+    {
+      "attempt": "-r2",
+      "raw": "/root/task33-evidence/final-audit-domain-cross-stage-20261004/r2",
+      "run_status": "BASELINE_FAILURE",
+      "cleanup": "PASS",
+      "child_exit": 1,
+      "tests_run": 5,
+      "failures": 0,
+      "errors": 1,
+      "adapter_issue": "missing setUpTestData"
+    },
+    {
+      "attempt": "-r3",
+      "raw": "/root/task33-evidence/final-audit-domain-cross-stage-20261004/r3",
+      "run_status": "PASS",
+      "cleanup": "PASS",
+      "child_exit": 0,
+      "tests_run": 5,
+      "failures": 0,
+      "errors": 0,
+      "adapter_issue": null
+    },
+    {
+      "attempt": "-r4",
+      "raw": "/root/task33-evidence/final-audit-domain-cross-stage-20261004/r4",
+      "run_status": "PASS",
+      "cleanup": "PASS",
+      "child_exit": 0,
+      "tests_run": 5,
+      "failures": 0,
+      "errors": 0,
+      "adapter_issue": null
+    },
+    {
+      "attempt": "r5",
+      "raw": "/root/task33-evidence/final-audit-domain-cross-stage-20261004/r5",
+      "run_status": "PASS",
+      "cleanup": "PASS",
+      "child_exit": 0,
+      "tests_run": 6,
+      "failures": 0,
+      "errors": 0,
+      "adapter_issue": null,
+      "purpose": "additional causal audience facts probe"
+    }
+  ],
+  "production": "NOT_CONTACTED",
+  "mirror": "/root/km-final-domain",
+  "command": "wsl -d Ubuntu-24.04 -u root --exec /root/kidsmap-task33/.venv/bin/python /mnt/c/kidsmap/docs/task33/final-audit/qa/domain_run.py --mode probe --output /tmp/task33-qa-domain-cross-stage-r5-20261004",
+  "helper_sha256": {
+    "docs/task33/final-audit/qa/domain_browser_map.py": "0e9cf9c767632e923fb0e729f015caaf2ea1828eaab3fd362a706d2db03aefe2",
+    "docs/task33/final-audit/qa/domain_browser_refs.py": "9b429d1021266459396fd45a3a20bc625ca63536ebd0fda32292e820de332b01",
+    "docs/task33/final-audit/qa/domain_close.py": "2264023a2401514e8bcc04a5352741453950b1258beb40671ce7fd1206712e5f",
+    "docs/task33/final-audit/qa/domain_collect.py": "fb0e2b283bf72bdd1aee833c3debb6447fface234323369bcfd1829e88c0fcb9",
+    "docs/task33/final-audit/qa/domain_collect_followup.py": "cecedc70e3f42ee614c0f5845e94f835d9374b1ee0e08eef15d87343860722f4",
+    "docs/task33/final-audit/qa/domain_failure_enrich.py": "7379be18fb39ca3a523a43d1b921987b483b48ef686faffa7fa96eefe2118838",
+    "docs/task33/final-audit/qa/domain_failure_remaining.py": "5823fef1e1535b37d1ae81dd92bed5569ba37a8a11eb89873357935777711119",
+    "docs/task33/final-audit/qa/domain_failures.py": "8f0d9b9f2b8c2e6e2f124c80ec5dc2689240d74446c83d90b6ddfd5254477bdc",
+    "docs/task33/final-audit/qa/domain_inventory.py": "862d6f314e89e7c1924645531317eca36df09b28183bdbd01b44a355861aa220",
+    "docs/task33/final-audit/qa/domain_motion_note.py": "a7634ee1d53419dbbca7c4d8b007b0ddde25c4965c0110ecec62782f17f31e68",
+    "docs/task33/final-audit/qa/domain_noncase.py": "d9bfa359c10b4bddd1f6bd566b32ec49eef84fe8e62f65982f46db99c57e5cdf",
+    "docs/task33/final-audit/qa/domain_probe.py": "f4379fb11757b44c0427c201184e4822499d544e0aa9a68ae99529c3dadd2d2b",
+    "docs/task33/final-audit/qa/domain_report.py": "633c599103299040c631241e4364db14bf792b2b2150683af36b06dbbaa1444b",
+    "docs/task33/final-audit/qa/domain_requirement_extra.py": "a24a8587eca27f27e5b082f83179ca79755ed0eef129e72198450a8e07ce4405",
+    "docs/task33/final-audit/qa/domain_review_write.py": "ca5f9b1e645d0acb72355e685ac38bdae8cb0861c2ad33fe9afdcca550760288",
+    "docs/task33/final-audit/qa/domain_run.py": "8cee8fd605c9f1ba70c4a29212093f5d96d7cb403b40c6b6910d49255247e8df",
+    "docs/task33/final-audit/qa/domain_traces.py": "8c88039b55813e26c575e9c1ab39da7d9a2fec4ff0b5013a0ac723bf1ba464d1",
+    "docs/task33/final-audit/qa/domain_validate.py": "c525f893b6ca81a30fff157629ce518afe7fa1e3df6cc4a7338c4e588633e485"
+  },
+  "source_mirror_matches_current": {
+    "src/catalog/services/catalog_search.py": true,
+    "src/catalog/services/pricing_plans.py": true,
+    "src/catalog/services/organization_ownership.py": true,
+    "src/catalog/domain_admin/place.py": true,
+    "src/catalog/forms.py": true
+  },
+  "canonical_full": "1817/109F11E and Task33 579/580 attributed /root; these5 not added to APP suite",
+  "prior_final_r4": {
+    "suite": {
+      "tests_run": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 4.311,
+      "problems": [],
+      "skipped_ids": [],
+      "executed_ids": [
+        "domain_probe.DomainCrossStageTests.test_legacy_claim_failure_is_publication_expectation",
+        "domain_probe.DomainCrossStageTests.test_legacy_ratings_pagination_reason_is_recorded_without_blanket_attribution",
+        "domain_probe.DomainCrossStageTests.test_legacy_unpublish_missing_version_then_current_version_works",
+        "domain_probe.DomainCrossStageTests.test_new_standalone_writer_offer_disappears_on_category_age",
+        "domain_probe.DomainCrossStageTests.test_program_category_writer_works_but_subcategory_has_no_writer"
+      ],
+      "problem_ids_complete": true,
+      "status": "PASS"
+    },
+    "observations": {
+      "legacy_claim": {
+        "unchanged_assertion_failed": true,
+        "claim_approved": true,
+        "owner_changed": true,
+        "inactive_retained": true,
+        "classification": "ACCEPTED_MANAGEMENT_IS_NOT_PUBLICATION_CONTRACT"
+      },
+      "legacy_pagination": {
+        "unchanged_assertion_failure": "False is not true : Couldn't find 'km-changelist-pagination__nav' in the following response",
+        "fixture_count": 5,
+        "stored_districts": [
+          "baku_narimanov"
+        ],
+        "query_district": "baku",
+        "matching_district_count": 0,
+        "same_query_actual_district_three_pages_passed": true,
+        "classification": "CONFIRMED_FIXTURE_QUERY_DISTRICT_MISMATCH_NOT_PAGINATION_DEFECT"
+      },
+      "legacy_unpublish": {
+        "unchanged_assertion_failed": true,
+        "only_missing_version_replay": true,
+        "current_version_http": 302,
+        "draft_inactive": true,
+        "classification": "LEGACY_FORM_VERSION_FIXTURE"
+      },
+      "standalone_search": {
+        "real_nested_writer": true,
+        "general_found": true,
+        "age_only_found": true,
+        "category_age_found": false,
+        "snapshot_empty": true,
+        "classification": "CONFIRMED_P2_PRODUCT_GAP_NOT_EXPECTED_PASS_OF_ORIGINAL_IDEA"
+      },
+      "program_search": {
+        "actual_propose_review_used": true,
+        "category_age_found": true,
+        "place_subcategory_known_but_offer_subcategory_age_found": false,
+        "program_subcategory_writer": false,
+        "classification": "CATEGORY_PROVEN_SUBCATEGORY_PRODUCT_GAP"
+      }
+    }
+  }
+}

@@ -1,0 +1,465 @@
+{
+  "production": "NOT_CONTACTED",
+  "application_changed": false,
+  "host": {
+    "tests": 1817,
+    "failures": 109,
+    "errors": 11,
+    "task33_passed": 579,
+    "task33_total": 580,
+    "evidence": "full-results.json"
+  },
+  "image_initial": {
+    "tests": 1817,
+    "failures": 125,
+    "errors": 28,
+    "task33_passed": 548,
+    "task33_total": 580,
+    "evidence": "image-full-results.json"
+  },
+  "common_problem_ids": 108,
+  "image_only_problem_ids": 34,
+  "host_only_problem_ids": 1,
+  "changed_kind": [],
+  "common_classification": "Not classified as harmless by this comparison; refer to root actual source/trace classification.",
+  "count_semantics": "Failures/errors count result entries including repeated subtest problem IDs; comparisons count distinct test IDs. Host and corrected image each have120 problem entries across109 distinct IDs.",
+  "host_only": [
+    {
+      "id": "catalog.testcases.test_task33_ownership.OwnershipConcurrencyTests.test_transfer_racing_confirmation_never_grants_stale_network_right",
+      "kind": "failure",
+      "exception": "AssertionError"
+    }
+  ],
+  "image_only_groups": {
+    "ARTIFACT_TEST_DOCUMENT_OMITTED": {
+      "evidence": "Allowlisted runtime omits docs/product taxonomy required by this contract test; no file injected.",
+      "cases": [
+        {
+          "id": "catalog.testcases.test_analytics_contract.AnalyticsContractTests.test_taxonomy_documents_every_canonical_event",
+          "kind": "error",
+          "exception": "FileNotFoundError"
+        }
+      ]
+    },
+    "RATING_POPULATION_UNRESOLVED": {
+      "evidence": "Actual aggregate below minimum in image full run; Python version/source similarity alone does not establish cause.",
+      "cases": [
+        {
+          "id": "catalog.testcases.test_rating_ranking_command.RatingRankingCalibrationCommandTests.test_activate_creates_an_active_version",
+          "kind": "error",
+          "exception": "CommandError"
+        }
+      ]
+    },
+    "QA_WRAPPER_SOCKET_CONTRACT": {
+      "evidence": "Socket rewritten outside /app/.tmp/kidsmap-task33-qa04-socket-*/socket; fail-closed guard rejects before tested operation.",
+      "cases": [
+        {
+          "id": "catalog.testcases.test_task33_catalog_schema.CatalogSchemaForwardMigrationTests.test_forward_populated_legacy_preserves_every_original_field_and_url",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_conversion.ConversionConcurrencyTests.test_parallel_apply_uses_one_ledger_and_complete_checkpoint",
+          "kind": "error",
+          "exception": "RuntimeError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_database_rejects_applied_mapping_without_target",
+          "kind": "error",
+          "exception": "RuntimeError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_empty_plan_and_read_only_dry_run",
+          "kind": "error",
+          "exception": "RuntimeError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_existing_url_media_favorite_review_and_reaction_ids_survive",
+          "kind": "error",
+          "exception": "RuntimeError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_failed_batch_rolls_back_mapping_and_checkpoint_together",
+          "kind": "error",
+          "exception": "RuntimeError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_old_plan_never_overwrites_changed_source",
+          "kind": "error",
+          "exception": "RuntimeError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_populated_dry_run_preserves_all_database_rows",
+          "kind": "error",
+          "exception": "RuntimeError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_rehashed_plan_cannot_redirect_an_identity_target",
+          "kind": "error",
+          "exception": "RuntimeError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_repeat_and_resume_do_not_duplicate_mappings",
+          "kind": "error",
+          "exception": "RuntimeError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_testing_flag_with_database_url_cannot_apply",
+          "kind": "error",
+          "exception": "RuntimeError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_unknown_legacy_price_is_queued_and_retained",
+          "kind": "error",
+          "exception": "RuntimeError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_event_schema.EventMigrationTests.test_0132_0133_preserves_ids_reviews_unknown_organizers_and_own_snapshot_only",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_approved_past_and_cancelled_visibility_separate_from_publication",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_approved_snapshot_is_immutable_and_completed_dates_cannot_reuse_id",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_aware_positive_interval_validated_in_save_and_postgres",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_first_approved_format_survives_unpublication_and_blocks_both_content_switches",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_modelform_post_clean_reports_approved_format_change_before_admin_save",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_occurrence_history_append_only_and_unique_event_version",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_online_has_no_fabricated_place_or_geography_and_raw_updates_rejected",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_postgres_organizer_xor_blocks_two_or_zero_resolved_and_resolved_legacy_mismatch",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_r1_acceptance.R1AcceptanceTests.test_conversion_preserves_each_source_row_and_urls_after_resume",
+          "kind": "error",
+          "exception": "RuntimeError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_r1_acceptance.R1AcceptanceTests.test_new_post_switch_row_survives_conversion_reconciliation",
+          "kind": "error",
+          "exception": "RuntimeError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_r1_acceptance.R1AcceptanceTests.test_post_conversion_review_actions_are_target_scoped_and_staff_moderated",
+          "kind": "error",
+          "exception": "RuntimeError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_review_migration.ReviewForwardMigrationTests.test_sources_reactions_election_constraints_and_idempotency",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_specialist_db_review.SpecialistAdditiveMigrationReview.test_0130_to_latest_leaf_keeps_legacy_identity_locations_documents_reviews",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_specialist_db_review.SpecialistDatabaseConstraintReview.test_claim_pending_pair_and_status_version_are_enforced_in_database",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_specialist_db_review.SpecialistDatabaseConstraintReview.test_employment_period_role_status_version_and_two_confirmations_are_database_checks",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_specialist_db_review.SpecialistDatabaseConstraintReview.test_exact_open_ended_duplicate_is_rejected_but_distinct_history_allowed",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_specialist_db_review.SpecialistDatabaseConstraintReview.test_one_verified_account_cannot_claim_two_person_rows_by_direct_sql_write",
+          "kind": "failure",
+          "exception": "AssertionError"
+        },
+        {
+          "id": "catalog.testcases.test_task33_specialist_transfer.SpecialistTransferReconciliationTests.test_duplicate_names_legacy_business_link_and_private_online_offices_survive",
+          "kind": "failure",
+          "exception": "AssertionError"
+        }
+      ]
+    },
+    "QA_WRAPPER_TMP_READ_ONLY": {
+      "evidence": "Unchanged test creates TemporaryDirectory(dir='/tmp'); initial wrapper provides no writable /tmp namespace.",
+      "cases": [
+        {
+          "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_command_dry_run_writes_plan_only_and_apply_is_explicit",
+          "kind": "error",
+          "exception": "OSError"
+        }
+      ]
+    }
+  },
+  "corrected_wrapper": "qa/security_image_full_r2.py",
+  "corrected_full_status": "COMPLETE_WITH_FAILURES",
+  "isolation": {
+    "network_guard": true,
+    "libpq_guard": true,
+    "external_credentials_present": false,
+    "cleanup": "PASS"
+  },
+  "image_id": "sha256:6566a67c0b3ab3da8ea040314b016908b1cbe17e09a50912fc5c80fe5228f5fd",
+  "limitation": "Corrected repeat retains every failure; same-source/same-exception alone does not establish harmless baseline. Taxonomy omission is an artifact test-document dependency; rating/concurrency temporal variation is not an interpreter regression proof.",
+  "corrected_preflight": {
+    "tests": 29,
+    "failures": 0,
+    "errors": 0,
+    "cleanup": "PASS",
+    "evidence": "security-image-preflight.json"
+  },
+  "image_corrected": {
+    "tests": 1817,
+    "failures": 108,
+    "errors": 12,
+    "task33_passed": 580,
+    "task33_total": 580,
+    "evidence": "image-full-r2-results.json",
+    "cleanup": "PASS",
+    "image_only": [
+      {
+        "id": "catalog.testcases.test_analytics_contract.AnalyticsContractTests.test_taxonomy_documents_every_canonical_event",
+        "kind": "error",
+        "exception": "FileNotFoundError"
+      }
+    ],
+    "host_only": [
+      {
+        "id": "catalog.testcases.test_task33_ownership.OwnershipConcurrencyTests.test_transfer_racing_confirmation_never_grants_stale_network_right",
+        "kind": "failure",
+        "exception": "AssertionError"
+      }
+    ],
+    "common_problem_ids": 108,
+    "initial_image_only_resolved": [
+      {
+        "id": "catalog.testcases.test_rating_ranking_command.RatingRankingCalibrationCommandTests.test_activate_creates_an_active_version",
+        "kind": "error",
+        "exception": "CommandError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_catalog_schema.CatalogSchemaForwardMigrationTests.test_forward_populated_legacy_preserves_every_original_field_and_url",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_conversion.ConversionConcurrencyTests.test_parallel_apply_uses_one_ledger_and_complete_checkpoint",
+        "kind": "error",
+        "exception": "RuntimeError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_command_dry_run_writes_plan_only_and_apply_is_explicit",
+        "kind": "error",
+        "exception": "OSError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_database_rejects_applied_mapping_without_target",
+        "kind": "error",
+        "exception": "RuntimeError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_empty_plan_and_read_only_dry_run",
+        "kind": "error",
+        "exception": "RuntimeError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_existing_url_media_favorite_review_and_reaction_ids_survive",
+        "kind": "error",
+        "exception": "RuntimeError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_failed_batch_rolls_back_mapping_and_checkpoint_together",
+        "kind": "error",
+        "exception": "RuntimeError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_old_plan_never_overwrites_changed_source",
+        "kind": "error",
+        "exception": "RuntimeError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_populated_dry_run_preserves_all_database_rows",
+        "kind": "error",
+        "exception": "RuntimeError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_rehashed_plan_cannot_redirect_an_identity_target",
+        "kind": "error",
+        "exception": "RuntimeError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_repeat_and_resume_do_not_duplicate_mappings",
+        "kind": "error",
+        "exception": "RuntimeError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_testing_flag_with_database_url_cannot_apply",
+        "kind": "error",
+        "exception": "RuntimeError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_conversion.ConversionTests.test_unknown_legacy_price_is_queued_and_retained",
+        "kind": "error",
+        "exception": "RuntimeError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_event_schema.EventMigrationTests.test_0132_0133_preserves_ids_reviews_unknown_organizers_and_own_snapshot_only",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_approved_past_and_cancelled_visibility_separate_from_publication",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_approved_snapshot_is_immutable_and_completed_dates_cannot_reuse_id",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_aware_positive_interval_validated_in_save_and_postgres",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_first_approved_format_survives_unpublication_and_blocks_both_content_switches",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_modelform_post_clean_reports_approved_format_change_before_admin_save",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_occurrence_history_append_only_and_unique_event_version",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_online_has_no_fabricated_place_or_geography_and_raw_updates_rejected",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_postgres_organizer_xor_blocks_two_or_zero_resolved_and_resolved_legacy_mismatch",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_r1_acceptance.R1AcceptanceTests.test_conversion_preserves_each_source_row_and_urls_after_resume",
+        "kind": "error",
+        "exception": "RuntimeError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_r1_acceptance.R1AcceptanceTests.test_new_post_switch_row_survives_conversion_reconciliation",
+        "kind": "error",
+        "exception": "RuntimeError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_r1_acceptance.R1AcceptanceTests.test_post_conversion_review_actions_are_target_scoped_and_staff_moderated",
+        "kind": "error",
+        "exception": "RuntimeError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_review_migration.ReviewForwardMigrationTests.test_sources_reactions_election_constraints_and_idempotency",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_specialist_db_review.SpecialistAdditiveMigrationReview.test_0130_to_latest_leaf_keeps_legacy_identity_locations_documents_reviews",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_specialist_db_review.SpecialistDatabaseConstraintReview.test_claim_pending_pair_and_status_version_are_enforced_in_database",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_specialist_db_review.SpecialistDatabaseConstraintReview.test_employment_period_role_status_version_and_two_confirmations_are_database_checks",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_specialist_db_review.SpecialistDatabaseConstraintReview.test_exact_open_ended_duplicate_is_rejected_but_distinct_history_allowed",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_specialist_db_review.SpecialistDatabaseConstraintReview.test_one_verified_account_cannot_claim_two_person_rows_by_direct_sql_write",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_specialist_transfer.SpecialistTransferReconciliationTests.test_duplicate_names_legacy_business_link_and_private_online_offices_survive",
+        "kind": "failure",
+        "exception": "AssertionError"
+      }
+    ],
+    "kind_changes": []
+  },
+  "initial_rating_followup": {
+    "bounded_module": "PASS",
+    "corrected_full_case": "PASS",
+    "cause_of_initial_failure": "UNKNOWN",
+    "application_or_assertions_changed": false
+  },
+  "corrected_runtime": {
+    "image_id": "sha256:6566a67c0b3ab3da8ea040314b016908b1cbe17e09a50912fc5c80fe5228f5fd",
+    "source_sha256": {
+      "src/catalog/domain_admin/place.py": "b36dec7efe5aeff66f5b47dfd09a0e007d2453195ec8bba62c8c5e44a46e5c9e",
+      "src/catalog/forms.py": "deb9c5114d9bd6d7f0d2157c7eb9343c87bb58ff64096b3c28081c72de21cbe9",
+      "src/catalog/testcases/test_task33_event_admin_precision.py": "26963290982c62a7858e1951855ca5f8d102a73f0564a30ab7feda96da4c966d",
+      "docs/task33/qa04/run.py": "995707d16fdcd5391c51af3d905e35b95c9debfbf0410e02e8da40da63b82826",
+      "docs/task33/qa04/commands.py": "d5d6781610d3eb593524858606db3c48ba258b1f43ed72f3ada0a0d7c16bc7a0",
+      "docs/task33/qa04/settings.py": "4d96605c179c15566ac13cb3eb0e965ef25155599f1e4010b6aa6391823ba83e",
+      "docs/task33/qa04/guard.py": "ec56592cadc5084f7aea2b3695a1df6c7fa55d1420bbf5ae4d12a93c695b87a4"
+    },
+    "python": "3.12.15",
+    "source_only_image": true,
+    "child_launched": true,
+    "child_network": "none",
+    "child_ports": false,
+    "child_read_only": true,
+    "child_capabilities_dropped": true,
+    "child_daemon_mount": false,
+    "child_checkout_mount": false,
+    "owned_qa_binds_only": true,
+    "writable_tmpfs": "/tmp rw,noexec,nosuid,size256m",
+    "socket_contract": "/app/.tmp/kidsmap-task33-qa04-socket-*/socket",
+    "child_removed": true
+  }
+}

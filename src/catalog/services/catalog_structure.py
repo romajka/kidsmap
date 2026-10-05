@@ -30,7 +30,7 @@ def _current(model, pk, fields, using):
 
 def _unchanged(before, after):
     if before != after:
-        raise ValidationError('Structure changed concurrently; reload and retry.')
+        raise ValidationError('Structure changed concurrently; reload and retry.',code='structure_changed')
 
 
 def _check_partial_relationships(instance, before, kwargs):
@@ -45,6 +45,32 @@ def _check_partial_relationships(instance, before, kwargs):
 def _active(row):
     if row.archived_at is not None:
         raise ValidationError('Archived parent cannot accept structural writes.')
+
+
+def validate_taxonomy(category_id, subcategory_id, *, using='default'):
+    """Nullable compatibility is allowed; a subcategory requires its real parent."""
+    from catalog.models import Category, Subcategory
+    if category_id is not None and (not isinstance(category_id,str) or not Category.objects.using(using).filter(pk=category_id).exists()):
+        raise ValidationError('Unknown category.')
+    if subcategory_id is not None:
+        if type(subcategory_id) is not int or not Subcategory.objects.using(using).filter(pk=subcategory_id,category_id=category_id).exists():
+            raise ValidationError('Category mismatch.')
+
+
+def taxonomy_ids(program_id,category_id,subcategory_id,program_snapshot):
+    """Pure approved-reader rule, also usable by batched values_list consumers."""
+    if program_id is not None or (category_id is None and subcategory_id is None):
+        snapshot=program_snapshot if isinstance(program_snapshot,dict) else {}
+        category_id,subcategory_id=snapshot.get('category_id'),snapshot.get('subcategory_id')
+    category_id=category_id if isinstance(category_id,str) and category_id else None
+    if isinstance(subcategory_id,str) and subcategory_id.isdigit():subcategory_id=int(subcategory_id)
+    subcategory_id=subcategory_id if type(subcategory_id) is int and subcategory_id>0 else None
+    return category_id,subcategory_id
+
+
+def activity_taxonomy_ids(activity):
+    """No related-object/DB access: linked approved snapshot or standalone copy."""
+    return taxonomy_ids(activity.program_id,activity.category_id,activity.subcategory_id,activity.program_snapshot)
 
 
 PLACE_STRUCTURE_DEFAULTS = {
@@ -126,6 +152,7 @@ def save_program(instance, *args, **kwargs):
                 program_snapshot=approved_program_data(previous), source_program_id=previous.pk,
                 source_program_version=previous.content_version,
             )
+        validate_taxonomy(instance.category_id,instance.subcategory_id,using=using)
         instance.full_clean()
         return models.Model.save(instance, *args, **kwargs)
 
@@ -171,6 +198,7 @@ def save_activity(instance, *args, **kwargs):
             instance.source_program_version = program.content_version
             if kwargs.get('update_fields') is not None:
                 kwargs['update_fields'] = set(kwargs['update_fields']) | {'program_snapshot', 'source_program', 'source_program_version'}
+        validate_taxonomy(instance.category_id,instance.subcategory_id,using=using)
         instance.full_clean()
         return models.Model.save(instance, *args, **kwargs)
 

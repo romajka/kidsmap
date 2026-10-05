@@ -1,0 +1,303 @@
+{
+  "status": "PASS_RED_THEN_GREEN",
+  "red": {
+    "evidence": "/root/task33-evidence/stage28-admin-precision-red3-20261004",
+    "suite-results.json": {
+      "tests_run": 2,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "executed_ids": [
+        "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_changed_minute_still_requires_recorded_occurrence_change",
+        "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_unchanged_rendered_minutes_preserve_approved_seconds"
+      ],
+      "problems": [
+        {
+          "id": "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_unchanged_rendered_minutes_preserve_approved_seconds",
+          "kind": "failure",
+          "exception": "AssertionError"
+        }
+      ],
+      "status": "BASELINE_FAILURE"
+    },
+    "run.json": {
+      "status": "BASELINE_FAILURE",
+      "child_exit": 1,
+      "cleanup": "PASS",
+      "run_root_removed": true,
+      "socket_root_removed": true
+    },
+    "isolation.json": {
+      "network_guard": true,
+      "libpq_guard": true,
+      "external_credentials_present": false
+    },
+    "migrations.json": {
+      "applied_count": 167,
+      "unapplied_count": 0
+    },
+    "discovery.json": {
+      "explicit_count": 1814,
+      "explicit_unique_count": 1814,
+      "duplicate_explicit_ids": 0
+    }
+  },
+  "first_green": {
+    "evidence": "/root/task33-evidence/stage28-admin-precision-green-20261004",
+    "suite-results.json": {
+      "tests_run": 40,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "executed_ids": [
+        "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_changed_minute_still_requires_recorded_occurrence_change",
+        "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_unchanged_rendered_minutes_preserve_approved_seconds",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_admin_bulk_publication_checks_each_organizer_and_private_venue",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_admin_draft_save_cannot_erase_approved_format_or_replace_past_dates",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_admin_save_model_cannot_publish_without_platform_permission",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_deactivated_actor_is_reloaded_before_service_mutation",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_event_review_reply_follows_fresh_organizer_not_venue_or_legacy_owner",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_foreign_event_delete_and_submit_http_boundaries_and_csrf",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_foreign_private_venue_id_cannot_capture_or_publish_secret_address",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_organization_transfer_revokes_stale_actor_and_old_event_owner",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_organizer_cannot_reassign_event_to_foreign_target_through_save",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_organizer_ids_cannot_be_forged_for_foreign_organization_or_person",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_person_verification_revocation_and_legacy_owner_cannot_manage",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_platform_publication_permission_never_grants_organizer_edit",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_private_rejected_deleted_do_not_leak_public_detail_or_reviews",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_public_jsonld_escapes_script_terminator_and_online_has_no_geo",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_review_pending_edit_and_foreign_target_never_change_page_schema_rating",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_stale_revision_cannot_overwrite_saved_edit_or_cancel",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_venue_legacy_owner_and_plain_staff_cannot_save_or_cancel_resolved_event",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_venue_privacy_is_rechecked_at_snapshot_after_initial_validation",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_verified_person_inactive_profile_cannot_create_or_edit",
+        "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_admin_cannot_publish_unverified_person_through_bulk_action",
+        "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_admin_dates_are_baku_and_online_has_no_address_requirement",
+        "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_admin_exposes_organizer_and_format_in_add_and_change",
+        "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_admin_unpublish_changes_publication_without_cancelling_occurrence",
+        "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_form_limits_organizer_and_requires_explicit_choice_even_draft",
+        "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_http_create_persists_resolved_online_and_prevents_forged_owner",
+        "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_new_form_shows_real_organizer_and_format_controls",
+        "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_online_form_uses_baku_even_under_foreign_timezone_override",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_cancel_keeps_approved_publication_and_append_only_period",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_confirmed_online_person_needs_no_geography",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_future_reschedule_retains_original_period_and_stale_retry_fails",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_new_service_does_not_accept_legacy_marker_or_owner_override",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_past_occurrence_cannot_be_reused_under_same_id",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_publication_snapshot_stays_at_original_venue_after_move",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_service_available_for_authorized_organizer",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_stale_save_preserves_newer_content",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_transfer_revokes_old_actor_even_if_stale_event_owner_matches",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_unverified_person_cannot_organize",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_venue_owner_cannot_edit_organizers_event"
+      ],
+      "problems": [],
+      "status": "PASS"
+    },
+    "run.json": {
+      "status": "PASS",
+      "child_exit": 0,
+      "cleanup": "PASS",
+      "run_root_removed": true,
+      "socket_root_removed": true
+    },
+    "isolation.json": {
+      "network_guard": true,
+      "libpq_guard": true,
+      "external_credentials_present": false
+    },
+    "migrations.json": {
+      "applied_count": 167,
+      "unapplied_count": 0
+    },
+    "discovery.json": {
+      "explicit_count": 1814,
+      "explicit_unique_count": 1814,
+      "duplicate_explicit_ids": 0
+    }
+  },
+  "publication_red": {
+    "evidence": "/root/task33-evidence/stage28-admin-publication-red-20261004",
+    "suite-results.json": {
+      "tests_run": 3,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "executed_ids": [
+        "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_changed_minute_still_requires_recorded_occurrence_change",
+        "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_unchanged_publication_timestamp_preserves_approval_precision",
+        "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_unchanged_rendered_minutes_preserve_approved_seconds"
+      ],
+      "problems": [
+        {
+          "id": "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_unchanged_publication_timestamp_preserves_approval_precision",
+          "kind": "failure",
+          "exception": "AssertionError"
+        }
+      ],
+      "status": "BASELINE_FAILURE"
+    },
+    "run.json": {
+      "status": "BASELINE_FAILURE",
+      "child_exit": 1,
+      "cleanup": "PASS",
+      "run_root_removed": true,
+      "socket_root_removed": true
+    },
+    "isolation.json": {
+      "network_guard": true,
+      "libpq_guard": true,
+      "external_credentials_present": false
+    },
+    "migrations.json": {
+      "applied_count": 167,
+      "unapplied_count": 0
+    },
+    "discovery.json": {
+      "explicit_count": 1815,
+      "explicit_unique_count": 1815,
+      "duplicate_explicit_ids": 0
+    }
+  },
+  "owner_red": {
+    "evidence": "/root/task33-evidence/stage28-owner-precision-red3-20261004",
+    "suite-results.json": {
+      "tests_run": 2,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "executed_ids": [
+        "catalog.testcases.test_task33_event_admin_precision.EventOwnerPrecisionTests.test_owner_changed_minute_still_requires_recorded_change",
+        "catalog.testcases.test_task33_event_admin_precision.EventOwnerPrecisionTests.test_unchanged_owner_minutes_preserve_approved_seconds"
+      ],
+      "problems": [
+        {
+          "id": "catalog.testcases.test_task33_event_admin_precision.EventOwnerPrecisionTests.test_unchanged_owner_minutes_preserve_approved_seconds",
+          "kind": "failure",
+          "exception": "AssertionError"
+        }
+      ],
+      "status": "BASELINE_FAILURE"
+    },
+    "run.json": {
+      "status": "BASELINE_FAILURE",
+      "child_exit": 1,
+      "cleanup": "PASS",
+      "run_root_removed": true,
+      "socket_root_removed": true
+    },
+    "isolation.json": {
+      "network_guard": true,
+      "libpq_guard": true,
+      "external_credentials_present": false
+    },
+    "migrations.json": {
+      "applied_count": 167,
+      "unapplied_count": 0
+    },
+    "discovery.json": {
+      "explicit_count": 1817,
+      "explicit_unique_count": 1817,
+      "duplicate_explicit_ids": 0
+    }
+  },
+  "green": {
+    "evidence": "/root/task33-evidence/stage28-admin-precision-final-green-20261004",
+    "suite-results.json": {
+      "tests_run": 43,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "executed_ids": [
+        "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_changed_minute_still_requires_recorded_occurrence_change",
+        "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_unchanged_publication_timestamp_preserves_approval_precision",
+        "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_unchanged_rendered_minutes_preserve_approved_seconds",
+        "catalog.testcases.test_task33_event_admin_precision.EventOwnerPrecisionTests.test_owner_changed_minute_still_requires_recorded_change",
+        "catalog.testcases.test_task33_event_admin_precision.EventOwnerPrecisionTests.test_unchanged_owner_minutes_preserve_approved_seconds",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_admin_bulk_publication_checks_each_organizer_and_private_venue",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_admin_draft_save_cannot_erase_approved_format_or_replace_past_dates",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_admin_save_model_cannot_publish_without_platform_permission",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_deactivated_actor_is_reloaded_before_service_mutation",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_event_review_reply_follows_fresh_organizer_not_venue_or_legacy_owner",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_foreign_event_delete_and_submit_http_boundaries_and_csrf",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_foreign_private_venue_id_cannot_capture_or_publish_secret_address",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_organization_transfer_revokes_stale_actor_and_old_event_owner",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_organizer_cannot_reassign_event_to_foreign_target_through_save",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_organizer_ids_cannot_be_forged_for_foreign_organization_or_person",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_person_verification_revocation_and_legacy_owner_cannot_manage",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_platform_publication_permission_never_grants_organizer_edit",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_private_rejected_deleted_do_not_leak_public_detail_or_reviews",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_public_jsonld_escapes_script_terminator_and_online_has_no_geo",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_review_pending_edit_and_foreign_target_never_change_page_schema_rating",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_stale_revision_cannot_overwrite_saved_edit_or_cancel",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_venue_legacy_owner_and_plain_staff_cannot_save_or_cancel_resolved_event",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_venue_privacy_is_rechecked_at_snapshot_after_initial_validation",
+        "catalog.testcases.test_task33_event_security.EventSecurityTests.test_verified_person_inactive_profile_cannot_create_or_edit",
+        "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_admin_cannot_publish_unverified_person_through_bulk_action",
+        "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_admin_dates_are_baku_and_online_has_no_address_requirement",
+        "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_admin_exposes_organizer_and_format_in_add_and_change",
+        "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_admin_unpublish_changes_publication_without_cancelling_occurrence",
+        "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_form_limits_organizer_and_requires_explicit_choice_even_draft",
+        "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_http_create_persists_resolved_online_and_prevents_forged_owner",
+        "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_new_form_shows_real_organizer_and_format_controls",
+        "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_online_form_uses_baku_even_under_foreign_timezone_override",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_cancel_keeps_approved_publication_and_append_only_period",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_confirmed_online_person_needs_no_geography",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_future_reschedule_retains_original_period_and_stale_retry_fails",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_new_service_does_not_accept_legacy_marker_or_owner_override",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_past_occurrence_cannot_be_reused_under_same_id",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_publication_snapshot_stays_at_original_venue_after_move",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_service_available_for_authorized_organizer",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_stale_save_preserves_newer_content",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_transfer_revokes_old_actor_even_if_stale_event_owner_matches",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_unverified_person_cannot_organize",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_venue_owner_cannot_edit_organizers_event"
+      ],
+      "problems": [],
+      "status": "PASS"
+    },
+    "run.json": {
+      "status": "PASS",
+      "child_exit": 0,
+      "cleanup": "PASS",
+      "run_root_removed": true,
+      "socket_root_removed": true
+    },
+    "isolation.json": {
+      "network_guard": true,
+      "libpq_guard": true,
+      "external_credentials_present": false
+    },
+    "migrations.json": {
+      "applied_count": 167,
+      "unapplied_count": 0
+    },
+    "discovery.json": {
+      "explicit_count": 1817,
+      "explicit_unique_count": 1817,
+      "duplicate_explicit_ids": 0
+    }
+  },
+  "source_artifacts": [
+    {
+      "path": "src/catalog/domain_admin/place.py",
+      "sha256": "b36dec7efe5aeff66f5b47dfd09a0e007d2453195ec8bba62c8c5e44a46e5c9e"
+    },
+    {
+      "path": "src/catalog/forms.py",
+      "sha256": "deb9c5114d9bd6d7f0d2157c7eb9343c87bb58ff64096b3c28081c72de21cbe9"
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_event_admin_precision.py",
+      "sha256": "26963290982c62a7858e1951855ca5f8d102a73f0564a30ab7feda96da4c966d"
+    }
+  ],
+  "scope": "EventAdminForm preserves start/end/publication precision only for unchanged displayed minute; changed occurrence requires guarded service.",
+  "assertions_weakened": false,
+  "production": "NOT_CONTACTED",
+  "earlier_harness_failures": [
+    "First RED invocation missing --label rejected before DB.",
+    "RED2 helper imported TestCase directly and module selected69cases; two precision cases gave expected1red/1pass. Module import alias corrected; RED3 selected2cases only.",
+    "Initial owner test asserted form-level rejection although occurrence validation belongs to save service; moved to actual controller. Published owner fixture is not editable; corrected to approved occurrence returned to draft. These preliminary failed test drafts retained separately, not counted as meaningful RED acceptance."
+  ]
+}

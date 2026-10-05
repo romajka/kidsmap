@@ -15,6 +15,7 @@ from catalog.models import PlaceReview, SiteReview
 from catalog.services.content_quality import review_quality_check
 from .ui_utils import render_primary_action, render_inline_action, render_action_menu, render_row_actions_container, build_admin_query_string
 from .moderation_actor import ModerationActorAdminMixin
+from .review_versions import VersionedReviewAdminMixin
 
 def _localized_admin_url(path: str) -> str:
     from django.utils.translation import get_language
@@ -148,7 +149,7 @@ class ReviewRiskFilter(admin.SimpleListFilter):
 
 
 @admin.register(PlaceReview)
-class PlaceReviewAdmin(ModerationActorAdminMixin, admin.ModelAdmin):
+class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, admin.ModelAdmin):
     change_list_template = "admin/catalog/placereview/change_list.html"
     km_primary_filters = ("review_status", "risk_signal", "rating")
     list_per_page = 15

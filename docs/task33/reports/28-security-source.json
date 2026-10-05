@@ -1,0 +1,360 @@
+{
+  "executor": "/root/stage28_release sequential canonical security-reviewer",
+  "frozen_checkout": "/root/km28-security",
+  "artifact_checkout": "/root/km28-release3",
+  "files": [
+    {
+      "path": "src/config/settings.py",
+      "workspace_sha256": "d2203a0e6676a65582c1168c9a50c3b6acb4704ea3838caa9a686bd986c1714b",
+      "freeze_sha256": "d2203a0e6676a65582c1168c9a50c3b6acb4704ea3838caa9a686bd986c1714b",
+      "artifact_sha256": "d2203a0e6676a65582c1168c9a50c3b6acb4704ea3838caa9a686bd986c1714b",
+      "matches": true
+    },
+    {
+      "path": "src/config/urls.py",
+      "workspace_sha256": "d94a2d0085e3b02654e043f319f12db981643fbfec9661383d30290080aa1470",
+      "freeze_sha256": "d94a2d0085e3b02654e043f319f12db981643fbfec9661383d30290080aa1470",
+      "artifact_sha256": "d94a2d0085e3b02654e043f319f12db981643fbfec9661383d30290080aa1470",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/urls.py",
+      "workspace_sha256": "64e6484711c3b07d2253a98cb4bd6ac45ebab6dda879c6c5ca727ac1e591480b",
+      "freeze_sha256": "64e6484711c3b07d2253a98cb4bd6ac45ebab6dda879c6c5ca727ac1e591480b",
+      "artifact_sha256": "64e6484711c3b07d2253a98cb4bd6ac45ebab6dda879c6c5ca727ac1e591480b",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/views.py",
+      "workspace_sha256": "84a16503863e800359a9551cbe3dc67c7e63bd36b616f00269b8aaf252fa4e07",
+      "freeze_sha256": "84a16503863e800359a9551cbe3dc67c7e63bd36b616f00269b8aaf252fa4e07",
+      "artifact_sha256": "84a16503863e800359a9551cbe3dc67c7e63bd36b616f00269b8aaf252fa4e07",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/middleware.py",
+      "workspace_sha256": "3417034f0ed7e783d4193f1c3b4ea3557d2d6f7aa934e512b0f02091f8acfaf9",
+      "freeze_sha256": "3417034f0ed7e783d4193f1c3b4ea3557d2d6f7aa934e512b0f02091f8acfaf9",
+      "artifact_sha256": "3417034f0ed7e783d4193f1c3b4ea3557d2d6f7aa934e512b0f02091f8acfaf9",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/r1_middleware.py",
+      "workspace_sha256": "40388f986c1ac3e365de02c488b524f5dce24c108afdbb69ee5f3c49c408e5f0",
+      "freeze_sha256": "40388f986c1ac3e365de02c488b524f5dce24c108afdbb69ee5f3c49c408e5f0",
+      "artifact_sha256": "40388f986c1ac3e365de02c488b524f5dce24c108afdbb69ee5f3c49c408e5f0",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/volunteer_middleware.py",
+      "workspace_sha256": "97d3a9640043dc0eb6bf5176fd74bc7c6177789e38ba57a1afe10ea29ccf8fc7",
+      "freeze_sha256": "97d3a9640043dc0eb6bf5176fd74bc7c6177789e38ba57a1afe10ea29ccf8fc7",
+      "artifact_sha256": "97d3a9640043dc0eb6bf5176fd74bc7c6177789e38ba57a1afe10ea29ccf8fc7",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/private_storage.py",
+      "workspace_sha256": "0f9890f42370ba47406fa9cc42efff546d9cec933327b8163a4ab51b9f21fea2",
+      "freeze_sha256": "0f9890f42370ba47406fa9cc42efff546d9cec933327b8163a4ab51b9f21fea2",
+      "artifact_sha256": "0f9890f42370ba47406fa9cc42efff546d9cec933327b8163a4ab51b9f21fea2",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/place_access.py",
+      "workspace_sha256": "4d8bf8a730ca1539a108de2ce259978d7271843639eb65ff6d28a8eb0c9a7c04",
+      "freeze_sha256": "4d8bf8a730ca1539a108de2ce259978d7271843639eb65ff6d28a8eb0c9a7c04",
+      "artifact_sha256": "4d8bf8a730ca1539a108de2ce259978d7271843639eb65ff6d28a8eb0c9a7c04",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/business_team.py",
+      "workspace_sha256": "b5518f79e8c74d8611f915fdc441df97a1fc01e3b7a31221790fb2d595c4ad99",
+      "freeze_sha256": "b5518f79e8c74d8611f915fdc441df97a1fc01e3b7a31221790fb2d595c4ad99",
+      "artifact_sha256": "b5518f79e8c74d8611f915fdc441df97a1fc01e3b7a31221790fb2d595c4ad99",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/staff_roles.py",
+      "workspace_sha256": "f4cb58840cce54ee19bfe94782dcdf6579dfb06ff723081de22f468625cc3dd8",
+      "freeze_sha256": "f4cb58840cce54ee19bfe94782dcdf6579dfb06ff723081de22f468625cc3dd8",
+      "artifact_sha256": "f4cb58840cce54ee19bfe94782dcdf6579dfb06ff723081de22f468625cc3dd8",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/volunteer_places.py",
+      "workspace_sha256": "82a8b133c2f2f45a66a55267729e1f9d53097bbedec82870c92249b8f6eb206a",
+      "freeze_sha256": "82a8b133c2f2f45a66a55267729e1f9d53097bbedec82870c92249b8f6eb206a",
+      "artifact_sha256": "82a8b133c2f2f45a66a55267729e1f9d53097bbedec82870c92249b8f6eb206a",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/r1_cohort.py",
+      "workspace_sha256": "b3860f45dec683a1cbe5af62d12c8c49d60f014621002084fd772cdb5d3f23dc",
+      "freeze_sha256": "b3860f45dec683a1cbe5af62d12c8c49d60f014621002084fd772cdb5d3f23dc",
+      "artifact_sha256": "b3860f45dec683a1cbe5af62d12c8c49d60f014621002084fd772cdb5d3f23dc",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/specialist_domain.py",
+      "workspace_sha256": "093179ca93eb35112c2feca3fd252ffce41e38414a2e74be820c592f88cdfa66",
+      "freeze_sha256": "093179ca93eb35112c2feca3fd252ffce41e38414a2e74be820c592f88cdfa66",
+      "artifact_sha256": "093179ca93eb35112c2feca3fd252ffce41e38414a2e74be820c592f88cdfa66",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/specialist_documents.py",
+      "workspace_sha256": "a93b2c424ac7542cd8dd265d7716b862bbf7a2f11aa2e043da3c44183ad13ed3",
+      "freeze_sha256": "a93b2c424ac7542cd8dd265d7716b862bbf7a2f11aa2e043da3c44183ad13ed3",
+      "artifact_sha256": "a93b2c424ac7542cd8dd265d7716b862bbf7a2f11aa2e043da3c44183ad13ed3",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/specialist_retention.py",
+      "workspace_sha256": "afc052032be436b9eb1457f13722806a9395a00fa64a60348d7f223ff38d7540",
+      "freeze_sha256": "afc052032be436b9eb1457f13722806a9395a00fa64a60348d7f223ff38d7540",
+      "artifact_sha256": "afc052032be436b9eb1457f13722806a9395a00fa64a60348d7f223ff38d7540",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/event_domain.py",
+      "workspace_sha256": "6a78399a6cb64f8276c5fa76078be44f4352ee8cd48720f3d8590d67979a57af",
+      "freeze_sha256": "6a78399a6cb64f8276c5fa76078be44f4352ee8cd48720f3d8590d67979a57af",
+      "artifact_sha256": "6a78399a6cb64f8276c5fa76078be44f4352ee8cd48720f3d8590d67979a57af",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/event_queries.py",
+      "workspace_sha256": "62dee33bcf878a30fd4d3b6cd7aaf7b2230097b023130186d4092b1c286cf278",
+      "freeze_sha256": "62dee33bcf878a30fd4d3b6cd7aaf7b2230097b023130186d4092b1c286cf278",
+      "artifact_sha256": "62dee33bcf878a30fd4d3b6cd7aaf7b2230097b023130186d4092b1c286cf278",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/event_calendar.py",
+      "workspace_sha256": "874193ba8e5ef1d43de78b0a994081e2d5556901172a4f6d255b836cc40856fe",
+      "freeze_sha256": "874193ba8e5ef1d43de78b0a994081e2d5556901172a4f6d255b836cc40856fe",
+      "artifact_sha256": "874193ba8e5ef1d43de78b0a994081e2d5556901172a4f6d255b836cc40856fe",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/features.py",
+      "workspace_sha256": "734d775f9643909d926cda713319ea0bd28d0b1a1b4e3bedfcf3769acaf5bfba",
+      "freeze_sha256": "734d775f9643909d926cda713319ea0bd28d0b1a1b4e3bedfcf3769acaf5bfba",
+      "artifact_sha256": "734d775f9643909d926cda713319ea0bd28d0b1a1b4e3bedfcf3769acaf5bfba",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/public_urls.py",
+      "workspace_sha256": "d62133fb7a1f9ac0261119b54f9293a13370518183fe9baf338e70aa932f614c",
+      "freeze_sha256": "d62133fb7a1f9ac0261119b54f9293a13370518183fe9baf338e70aa932f614c",
+      "artifact_sha256": "d62133fb7a1f9ac0261119b54f9293a13370518183fe9baf338e70aa932f614c",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/seo.py",
+      "workspace_sha256": "6a3a13afd6ce10d4689c16a1d005946a778d7039f79d3dc2f0cec76414ad8e16",
+      "freeze_sha256": "6a3a13afd6ce10d4689c16a1d005946a778d7039f79d3dc2f0cec76414ad8e16",
+      "artifact_sha256": "6a3a13afd6ce10d4689c16a1d005946a778d7039f79d3dc2f0cec76414ad8e16",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/workflow_notifications.py",
+      "workspace_sha256": "f07bf6cbd3cddd453af28bd0ad381637d328b735fa11036c0fd497a3e818e616",
+      "freeze_sha256": "f07bf6cbd3cddd453af28bd0ad381637d328b735fa11036c0fd497a3e818e616",
+      "artifact_sha256": "f07bf6cbd3cddd453af28bd0ad381637d328b735fa11036c0fd497a3e818e616",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/review_use_cases.py",
+      "workspace_sha256": "039b4045151ac581332d375c2541a51131f5d7f5f940d5ca42e9085140cb943c",
+      "freeze_sha256": "039b4045151ac581332d375c2541a51131f5d7f5f940d5ca42e9085140cb943c",
+      "artifact_sha256": "039b4045151ac581332d375c2541a51131f5d7f5f940d5ca42e9085140cb943c",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/review_moderation.py",
+      "workspace_sha256": "1974a3eaf166ec73744917ace25a20ad69f80bd57efc9b45e5d56352104a4a0d",
+      "freeze_sha256": "1974a3eaf166ec73744917ace25a20ad69f80bd57efc9b45e5d56352104a4a0d",
+      "artifact_sha256": "1974a3eaf166ec73744917ace25a20ad69f80bd57efc9b45e5d56352104a4a0d",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/publication.py",
+      "workspace_sha256": "66734c84d34362810534f1f70824a2187ccf898df5c30621de252b33d8ad7811",
+      "freeze_sha256": "66734c84d34362810534f1f70824a2187ccf898df5c30621de252b33d8ad7811",
+      "artifact_sha256": "66734c84d34362810534f1f70824a2187ccf898df5c30621de252b33d8ad7811",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/services/organization_ownership.py",
+      "workspace_sha256": "72e73172aa3495afe0a8514d3f99d70a54a03475663305a0f0292dee6068d295",
+      "freeze_sha256": "72e73172aa3495afe0a8514d3f99d70a54a03475663305a0f0292dee6068d295",
+      "artifact_sha256": "72e73172aa3495afe0a8514d3f99d70a54a03475663305a0f0292dee6068d295",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_security_review.py",
+      "workspace_sha256": "227bbce7b1220d538bb3ad38c570b6006bc77482db2a687bd76673fbb2cd76fe",
+      "freeze_sha256": "227bbce7b1220d538bb3ad38c570b6006bc77482db2a687bd76673fbb2cd76fe",
+      "artifact_sha256": "227bbce7b1220d538bb3ad38c570b6006bc77482db2a687bd76673fbb2cd76fe",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_screens_security.py",
+      "workspace_sha256": "75d2101b81c1975578a41b778831eedb7a52586d5faad706a0c6a3fe856a0abc",
+      "freeze_sha256": "75d2101b81c1975578a41b778831eedb7a52586d5faad706a0c6a3fe856a0abc",
+      "artifact_sha256": "75d2101b81c1975578a41b778831eedb7a52586d5faad706a0c6a3fe856a0abc",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_privacy.py",
+      "workspace_sha256": "db648288760085221f9bf7ab006c466707a15cc1c2ec4e7c8dbb992369d82673",
+      "freeze_sha256": "db648288760085221f9bf7ab006c466707a15cc1c2ec4e7c8dbb992369d82673",
+      "artifact_sha256": "db648288760085221f9bf7ab006c466707a15cc1c2ec4e7c8dbb992369d82673",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_transfer.py",
+      "workspace_sha256": "f876ebb4e7738150ff91f6d80f1051ca78ad9747cbebfe159f2e3e562b0761d4",
+      "freeze_sha256": "f876ebb4e7738150ff91f6d80f1051ca78ad9747cbebfe159f2e3e562b0761d4",
+      "artifact_sha256": "f876ebb4e7738150ff91f6d80f1051ca78ad9747cbebfe159f2e3e562b0761d4",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_specialist_retention.py",
+      "workspace_sha256": "3df476b204a0f7c3281283bf62e0a642bba4e4954395e023f1f4ff0d3e04795c",
+      "freeze_sha256": "3df476b204a0f7c3281283bf62e0a642bba4e4954395e023f1f4ff0d3e04795c",
+      "artifact_sha256": "3df476b204a0f7c3281283bf62e0a642bba4e4954395e023f1f4ff0d3e04795c",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_event_security.py",
+      "workspace_sha256": "2586fb8ca74a34c86347135e2c27a4afc1897933071199612cda23cdf8861a5a",
+      "freeze_sha256": "2586fb8ca74a34c86347135e2c27a4afc1897933071199612cda23cdf8861a5a",
+      "artifact_sha256": "2586fb8ca74a34c86347135e2c27a4afc1897933071199612cda23cdf8861a5a",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_event_owner_contract.py",
+      "workspace_sha256": "403e21b8316d89a9dea789a853d85a245166f626a273d39a4e4c33dd249d747b",
+      "freeze_sha256": "403e21b8316d89a9dea789a853d85a245166f626a273d39a4e4c33dd249d747b",
+      "artifact_sha256": "403e21b8316d89a9dea789a853d85a245166f626a273d39a4e4c33dd249d747b",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_event_queries.py",
+      "workspace_sha256": "3e5ee7c31c72756623e7f456b7777332c6af15a9cd76f083b8f46154548ba795",
+      "freeze_sha256": "3e5ee7c31c72756623e7f456b7777332c6af15a9cd76f083b8f46154548ba795",
+      "artifact_sha256": "3e5ee7c31c72756623e7f456b7777332c6af15a9cd76f083b8f46154548ba795",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_notifications.py",
+      "workspace_sha256": "745aae214e5d54927a788c500549aac147ec3679d7cc5071fec1c44838d8c46c",
+      "freeze_sha256": "745aae214e5d54927a788c500549aac147ec3679d7cc5071fec1c44838d8c46c",
+      "artifact_sha256": "745aae214e5d54927a788c500549aac147ec3679d7cc5071fec1c44838d8c46c",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_review_independent.py",
+      "workspace_sha256": "1df31c61e9face9ce2637916dcda11d90dcb1a836edfe53dc2c5ac60aa4996b7",
+      "freeze_sha256": "1df31c61e9face9ce2637916dcda11d90dcb1a836edfe53dc2c5ac60aa4996b7",
+      "artifact_sha256": "1df31c61e9face9ce2637916dcda11d90dcb1a836edfe53dc2c5ac60aa4996b7",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_r1_cohort.py",
+      "workspace_sha256": "20fb13cf1acf65820d3c5bb526bf00d8c32b26ee72bace375a3c2597f9e60e63",
+      "freeze_sha256": "20fb13cf1acf65820d3c5bb526bf00d8c32b26ee72bace375a3c2597f9e60e63",
+      "artifact_sha256": "20fb13cf1acf65820d3c5bb526bf00d8c32b26ee72bace375a3c2597f9e60e63",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_r1_owner_safety.py",
+      "workspace_sha256": "dcf059a8f691a7bbbe5b75850994c49b5ab67b12087c1268ed2f1cb80676bfa5",
+      "freeze_sha256": "dcf059a8f691a7bbbe5b75850994c49b5ab67b12087c1268ed2f1cb80676bfa5",
+      "artifact_sha256": "dcf059a8f691a7bbbe5b75850994c49b5ab67b12087c1268ed2f1cb80676bfa5",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_volunteer_hub.py",
+      "workspace_sha256": "5d5eed0d54f2124a1270d807e51010ceefd2d4518306ee421d6a4c6adc15677a",
+      "freeze_sha256": "5d5eed0d54f2124a1270d807e51010ceefd2d4518306ee421d6a4c6adc15677a",
+      "artifact_sha256": "5d5eed0d54f2124a1270d807e51010ceefd2d4518306ee421d6a4c6adc15677a",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_ownership.py",
+      "workspace_sha256": "016da8de36901938a388f8f65d9c64f0929f70dd50f76ff563db824781fce258",
+      "freeze_sha256": "016da8de36901938a388f8f65d9c64f0929f70dd50f76ff563db824781fce258",
+      "artifact_sha256": "016da8de36901938a388f8f65d9c64f0929f70dd50f76ff563db824781fce258",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_organization_workspace.py",
+      "workspace_sha256": "d393866829a5ea78bdc273c1ce642a1a86d6f30e9629aa061eff9833c420aaea",
+      "freeze_sha256": "d393866829a5ea78bdc273c1ce642a1a86d6f30e9629aa061eff9833c420aaea",
+      "artifact_sha256": "d393866829a5ea78bdc273c1ce642a1a86d6f30e9629aa061eff9833c420aaea",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_publication.py",
+      "workspace_sha256": "b7978f09f82a76c6b276a522aefa87c31d5c8c70c191db8d964072ab123dc489",
+      "freeze_sha256": "b7978f09f82a76c6b276a522aefa87c31d5c8c70c191db8d964072ab123dc489",
+      "artifact_sha256": "b7978f09f82a76c6b276a522aefa87c31d5c8c70c191db8d964072ab123dc489",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_public_details.py",
+      "workspace_sha256": "ac0774609b74bd8cbf1dbed54b65be9b936ef8714ffe1f366c8e35a769dbf508",
+      "freeze_sha256": "ac0774609b74bd8cbf1dbed54b65be9b936ef8714ffe1f366c8e35a769dbf508",
+      "artifact_sha256": "ac0774609b74bd8cbf1dbed54b65be9b936ef8714ffe1f366c8e35a769dbf508",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_event_public.py",
+      "workspace_sha256": "5cfe571218a84a6d79c36df3dd5e75fdd93a99b6a836f5940279f13517853155",
+      "freeze_sha256": "5cfe571218a84a6d79c36df3dd5e75fdd93a99b6a836f5940279f13517853155",
+      "artifact_sha256": "5cfe571218a84a6d79c36df3dd5e75fdd93a99b6a836f5940279f13517853155",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/domain_admin/place.py",
+      "workspace_sha256": "b36dec7efe5aeff66f5b47dfd09a0e007d2453195ec8bba62c8c5e44a46e5c9e",
+      "freeze_sha256": "b36dec7efe5aeff66f5b47dfd09a0e007d2453195ec8bba62c8c5e44a46e5c9e",
+      "artifact_sha256": "b36dec7efe5aeff66f5b47dfd09a0e007d2453195ec8bba62c8c5e44a46e5c9e",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/forms.py",
+      "workspace_sha256": "deb9c5114d9bd6d7f0d2157c7eb9343c87bb58ff64096b3c28081c72de21cbe9",
+      "freeze_sha256": "deb9c5114d9bd6d7f0d2157c7eb9343c87bb58ff64096b3c28081c72de21cbe9",
+      "artifact_sha256": "deb9c5114d9bd6d7f0d2157c7eb9343c87bb58ff64096b3c28081c72de21cbe9",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_event_admin_precision.py",
+      "workspace_sha256": "26963290982c62a7858e1951855ca5f8d102a73f0564a30ab7feda96da4c966d",
+      "freeze_sha256": "26963290982c62a7858e1951855ca5f8d102a73f0564a30ab7feda96da4c966d",
+      "artifact_sha256": "26963290982c62a7858e1951855ca5f8d102a73f0564a30ab7feda96da4c966d",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/models/place.py",
+      "workspace_sha256": "92581a2166ddfc236347c2ae35355fc03989032a67b88dcc8917161d5467a9a3",
+      "freeze_sha256": "92581a2166ddfc236347c2ae35355fc03989032a67b88dcc8917161d5467a9a3",
+      "artifact_sha256": "92581a2166ddfc236347c2ae35355fc03989032a67b88dcc8917161d5467a9a3",
+      "matches": true
+    },
+    {
+      "path": "src/catalog/models/event_domain.py",
+      "workspace_sha256": "b4385a1600962d14601c788c3cff9f1ed5f969a778ec7740d8eeaa4877777bd5",
+      "freeze_sha256": "b4385a1600962d14601c788c3cff9f1ed5f969a778ec7740d8eeaa4877777bd5",
+      "artifact_sha256": "b4385a1600962d14601c788c3cff9f1ed5f969a778ec7740d8eeaa4877777bd5",
+      "matches": true
+    }
+  ],
+  "all_matches": true,
+  "production": "NOT_CONTACTED",
+  "artifact_identity": "r2-local-sha256-65d8995ff21fb5e5b9fb88d81d18f2f36c4380841f14131cd11dc258bf8c61b2"
+}

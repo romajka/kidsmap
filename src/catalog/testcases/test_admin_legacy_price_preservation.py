@@ -7,6 +7,7 @@ from django.test import TestCase
 from catalog.domain_admin.place import PlaceAdminForm
 from catalog.models import PricingPlan
 from catalog.services.place_schedule import dump_schedule_payload, serialize_place_schedule
+from catalog.services.publication_forms import version_token
 from catalog.testcases.utils import create_quality_place
 
 
@@ -16,7 +17,8 @@ class AdminLegacyPricePreservationTests(TestCase):
     def save_form(self, place, plans):
         data = model_to_dict(place)
         data.update({
-            "region": "baku", "district": "baku_yasamal", "category": place.category_id,
+            "region": "baku", "district": place.district, "category": place.category_id,
+            "publication_token": version_token(place),
             "pricing_plans": json.dumps(plans),
             "structured_schedule": dump_schedule_payload(serialize_place_schedule(place)),
         })

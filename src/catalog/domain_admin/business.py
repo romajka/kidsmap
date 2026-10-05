@@ -52,13 +52,18 @@ class OrganizationForm(CandidateForm):
 class ProgramForm(CandidateForm):
     class Meta:
         model = Program
-        fields = ('organization', 'category', 'name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en')
+        fields = ('organization', 'category', 'subcategory', 'name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en')
 
 
 class ActivityForm(CandidateForm):
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        if self.instance.program_id:
+            for name in ('category','subcategory'):self.fields[name].disabled=True
+
     class Meta:
         model = Activity
-        fields = ('place', 'program', 'name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en', 'supplement_az', 'supplement_ru', 'supplement_en')
+        fields = ('place', 'program', 'category', 'subcategory', 'name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en', 'supplement_az', 'supplement_ru', 'supplement_en')
 
 
 class OfferingGroupForm(CandidateForm):
@@ -199,6 +204,8 @@ class BusinessEditor(admin.ModelAdmin):
             obj._state.db = target._state.db
         patch = publication.snapshot(obj, self.publication_kind)
         patch = {key: value for key, value in patch.items() if key in publication.fields_for(self.publication_kind)}
+        if isinstance(target,Activity) and target.program_id:
+            for key in ('category','subcategory'):patch.pop(key,None)
         publication.propose(
             actor=request.user, target_type=self.publication_kind, target_id=target.pk,
             patch=patch, schema_version=publication.SCHEMA_VERSION,
@@ -269,7 +276,7 @@ class OrganizationAdmin(BusinessEditor):
 
 @admin.register(Program)
 class ProgramAdmin(BusinessEditor):
-    editor_sections = (( _('Организация и рубрика'), ('organization', 'category')), (_('Названия'), ('name_az', 'name_ru', 'name_en')), (_('Описание'), ('description_az', 'description_ru', 'description_en')))
+    editor_sections = (( _('Организация и рубрика'), ('organization', 'category', 'subcategory')), (_('Названия'), ('name_az', 'name_ru', 'name_en')), (_('Описание'), ('description_az', 'description_ru', 'description_en')))
     form = ProgramForm
     list_filter = ('status', 'organization')
     structural_fields = frozenset({'organization'})
@@ -282,7 +289,7 @@ class ProgramAdmin(BusinessEditor):
 
 @admin.register(Activity)
 class ActivityAdmin(BusinessEditor):
-    editor_sections = (( _('Место и программа'), ('place', 'program')), (_('Названия'), ('name_az', 'name_ru', 'name_en')), (_('Описание'), ('description_az', 'description_ru', 'description_en')), (_('Условия занятия'), ('supplement_az', 'supplement_ru', 'supplement_en')))
+    editor_sections = (( _('Место и программа'), ('place', 'program', 'category', 'subcategory')), (_('Названия'), ('name_az', 'name_ru', 'name_en')), (_('Описание'), ('description_az', 'description_ru', 'description_en')), (_('Условия занятия'), ('supplement_az', 'supplement_ru', 'supplement_en')))
     form = ActivityForm
     list_filter = ('status', 'place')
     structural_fields = frozenset({'place', 'program'})

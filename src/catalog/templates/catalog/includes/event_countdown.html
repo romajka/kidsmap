@@ -1,4 +1,7 @@
 {% load i18n %}
+{% if event.occurrence_state == 'cancelled' or event.occurrence_state == 'rescheduled' or event.occurrence_status == 'completed' %}
+<p class="temporary-event-badge{% if variant %} temporary-event-badge--{{ variant }}{% endif %}">{% include 'catalog/includes/event_occurrence_state.html' %}</p>
+{% else %}
 <div
   class="temporary-event-badge{% if variant %} temporary-event-badge--{{ variant }}{% endif %}"
   data-temporary-event-timer
@@ -34,3 +37,4 @@
     </span>
   </span>
 </div>
+{% endif %}

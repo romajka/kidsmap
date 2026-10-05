@@ -1,0 +1,1061 @@
+{
+  "metadata": {
+    "role": "django-reviewer",
+    "executor": "retained stage28_database sequential role transition",
+    "mode": "AUDIT_ONLY",
+    "head": "015d031d8eb17114bd860159dde805b38df3c13c",
+    "snapshot": "dirty WORKTREE V3; not LOCAL HEAD deployment",
+    "active_run": "final-audit-20261004-080525Z",
+    "production": "UNKNOWN_NOT_CONTACTED",
+    "old_generic_status_adopted": false,
+    "authorship": "Earlier stage28 DB/recovery/image evidence was authored by this same executor: no independent self-review claim.",
+    "test_names_are_not_pass": true,
+    "requirements_count": 306,
+    "fresh_root_full": {
+      "tests": 1817,
+      "failures": 109,
+      "errors": 11,
+      "skipped": 0,
+      "task33": "579/580; ownership race failure"
+    },
+    "runtime_source": "docs/task33/final-audit/full-results.json; /root execution, not my independent runtime"
+  },
+  "stages": [
+    {
+      "stage": 1,
+      "title": "Документы и пакет заданий",
+      "promise": "Согласовать границы и очередь 28 работ",
+      "implementation": "Пакет заданий, решения D01–D15 и журнал задают последовательность. Исторические согласования сохраняются.",
+      "status": "HISTORICAL_ACCEPTANCE",
+      "dependencies": [],
+      "source_refs": [
+        "docs/task33/README.md",
+        "docs/task33/decisions.md",
+        "docs/task33/architecture.md"
+      ],
+      "test_ids": [],
+      "test_results": {},
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Историческое согласование нельзя повторно доказать текущим backend тестом."
+      ],
+      "user_value": "Согласовать границы и очередь 28 работ",
+      "prompt_sha256": "316973f94dcae49a9c88874d0a6094ee2fff4e3fbb85711aeb3ad7a37c7b6a40"
+    },
+    {
+      "stage": 2,
+      "title": "Макеты создания и кабинета",
+      "promise": "Согласовать вид каталога и кабинета",
+      "implementation": "Принятые макеты служат входом реализации; текущие шаблоны проверяет отдельный browser reviewer.",
+      "status": "HISTORICAL_ACCEPTANCE",
+      "dependencies": [
+        1
+      ],
+      "source_refs": [
+        "docs/task33/prompts/02.md",
+        "docs/task33/architecture.md"
+      ],
+      "test_ids": [],
+      "test_results": {},
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Согласование макета и совпадение живого интерфейса — разные доказательства."
+      ],
+      "user_value": "Согласовать вид каталога и кабинета",
+      "prompt_sha256": "a10889331f973ea5c167bcd5ea62e40041b42e0600a79dccf7a55e4790873ca1"
+    },
+    {
+      "stage": 3,
+      "title": "Макеты админки и публичного сайта",
+      "promise": "Согласовать вид админки и проверки предложений",
+      "implementation": "Единый admin shell и review workflow реализованы позже в15–16.",
+      "status": "HISTORICAL_ACCEPTANCE",
+      "dependencies": [
+        1,
+        2
+      ],
+      "source_refs": [
+        "docs/task33/prompts/03.md",
+        "src/catalog/domain_admin/place.py"
+      ],
+      "test_ids": [],
+      "test_results": {},
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Текущий визуальный результат относится к browser report, а не к source review."
+      ],
+      "user_value": "Согласовать вид админки и проверки предложений",
+      "prompt_sha256": "3012c6d98d4b19d987559acfba1eabb41e63c6c2c7721846c6df7f174769617f"
+    },
+    {
+      "stage": 4,
+      "title": "Изолированная среда и baseline",
+      "promise": "Зафиксировать безопасный исходный baseline",
+      "implementation": "QA04 создаёт отдельный PostgreSQL/cache/media/email и проверяет сеть/libpq; исходные assertions сохранены.",
+      "status": "HISTORICAL_ACCEPTANCE",
+      "dependencies": [
+        1
+      ],
+      "source_refs": [
+        "docs/task33/qa04/run.py",
+        "docs/task33/qa04/guard.py",
+        "docs/task33/reports/04.md"
+      ],
+      "test_ids": [],
+      "test_results": {},
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Baseline исторический; итоговый полный suite по-прежнему содержит ошибки и не объявляется зелёным."
+      ],
+      "user_value": "Зафиксировать безопасный исходный baseline",
+      "prompt_sha256": "f75a454ff89f5a3cf848e6362e3d5aa8f8d66da0aa5b2d187243f1464f10d747"
+    },
+    {
+      "stage": 5,
+      "title": "Совместимая схема каталога",
+      "promise": "Добавить структуру без потери прежних мест",
+      "implementation": "Org→Program и Place→Activity→Group добавлены рядом с Place; FK, версии и запрет каскадной потери поддерживают сохранение личности карточки.",
+      "status": "PARTIAL",
+      "dependencies": [
+        1,
+        4
+      ],
+      "source_refs": [
+        "src/catalog/models/catalog_structure.py",
+        "src/catalog/models/place.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_hierarchy_protects_old_place_from_cascade",
+        "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_legacy_place_without_org_keeps_public_identity_and_unknown_facts"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_hierarchy_protects_old_place_from_cascade": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_catalog_schema.CatalogSchemaInvariantTests.test_legacy_place_without_org_keeps_public_identity_and_unknown_facts": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Часть межстрочных условий защищена сервисом/ORM, а не SQL trigger; bulk/raw writes не равнозначны нормальному save."
+      ],
+      "user_value": "Добавить структуру без потери прежних мест",
+      "prompt_sha256": "a6377de377fa1656d2e6ee46d43db1a0b12f5def140991cca4d1f565d1a9acb8"
+    },
+    {
+      "stage": 6,
+      "title": "Владение и принадлежность организации",
+      "promise": "Отделить управление от принадлежности к сети",
+      "implementation": "Claim не публикует; join требует обе стороны; transfer отзывает прежние grants; detach сохраняет утверждённые местные данные.",
+      "status": "PARTIAL",
+      "dependencies": [
+        5
+      ],
+      "source_refs": [
+        "src/catalog/services/organization_ownership.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_ownership.ExistingOwnershipBreakTests.test_management_claim_approval_does_not_publish",
+        "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_detach_pending_program_retains_approved_snapshot_ids_and_visibility"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_ownership.ExistingOwnershipBreakTests.test_management_claim_approval_does_not_publish": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_ownership.OrganizationOwnershipTests.test_detach_pending_program_retains_approved_snapshot_ids_and_visibility": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Синтетическое владение не доказывает юридическое владение реальным бизнесом."
+      ],
+      "user_value": "Отделить управление от принадлежности к сети",
+      "prompt_sha256": "8e6a4fb964a6e5647b07dec893d3f72974197d35fc0c709819a65f11b61cf0eb"
+    },
+    {
+      "stage": 7,
+      "title": "Сотрудники и разрешения",
+      "promise": "Дать команде ограниченные полномочия",
+      "implementation": "Business team grants и selected/all_network проверяются заново на сохранении; Program edit отделён от Place edit.",
+      "status": "PARTIAL",
+      "dependencies": [
+        6
+      ],
+      "source_refs": [
+        "src/catalog/services/business_team.py",
+        "src/catalog/services/place_access.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_program_workspace.ProgramWorkspaceTests.test_create_and_edit_program_has_separate_right_and_pending_impact",
+        "catalog.testcases.test_task33_permissions.GrantTests.test_selected_all_current_does_not_include_future_branch",
+        "catalog.testcases.test_task33_permissions.GrantTests.test_all_network_includes_future_branch_but_not_org_or_program_actions"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_program_workspace.ProgramWorkspaceTests.test_create_and_edit_program_has_separate_right_and_pending_impact": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_permissions.GrantTests.test_selected_all_current_does_not_include_future_branch": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_permissions.GrantTests.test_all_network_includes_future_branch_but_not_org_or_program_actions": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Source ACL не заменяет проверку всех прямых URL; независимый security report закрывает свою матрицу."
+      ],
+      "user_value": "Дать команде ограниченные полномочия",
+      "prompt_sha256": "b3fe6685a54d9dab08a50407c6e54e15454a10ea48d7b4c83ec0e1fc962c4b77"
+    },
+    {
+      "stage": 8,
+      "title": "Публикации и редакции",
+      "promise": "Сохранять публичную версию при проверке правки",
+      "implementation": "Один publication pipeline хранит patch/schema/base/version и проверяет свежие зависимости; цена/расписание имеют явные узкие immediate paths.",
+      "status": "PARTIAL",
+      "dependencies": [
+        7
+      ],
+      "source_refs": [
+        "src/catalog/services/publication.py",
+        "src/catalog/services/publication_forms.py",
+        "src/catalog/services/place_readiness.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_publication.PublicationTests.test_pending_and_rejected_keep_approved_live",
+        "catalog.testcases.test_task33_publication.PublicationTests.test_dependent_price_conditions_bundle_wholly_gated",
+        "catalog.testcases.test_task33_publication.PublicationTests.test_overlapping_live_change_refuses_stale_approval"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_publication.PublicationTests.test_pending_and_rejected_keep_approved_live": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_publication.PublicationTests.test_dependent_price_conditions_bundle_wholly_gated": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_publication.PublicationTests.test_overlapping_live_change_refuses_stale_approval": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Старые payload без signed version и прежние обязательные фото/coords не соответствуют принятому контракту; каждое падение требует отдельного разбора."
+      ],
+      "user_value": "Сохранять публичную версию при проверке правки",
+      "prompt_sha256": "b8f58a3083643d7eb00a9a89a03126d827e68091297e54b21fc102983e50302a"
+    },
+    {
+      "stage": 9,
+      "title": "Серверные черновики и автосохранение",
+      "promise": "Восстанавливать незавершённую работу без публикации",
+      "implementation": "ServerDraft имеет actor/object/schema/source/version; приватные фото не становятся public автоматически; create материализуется один раз.",
+      "status": "PARTIAL",
+      "dependencies": [
+        8
+      ],
+      "source_refs": [
+        "src/catalog/services/server_drafts.py",
+        "src/catalog/controllers/server_draft_api.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_drafts.DraftApiTests.test_foreign_actor_cannot_read_or_update",
+        "catalog.testcases.test_task33_drafts.DraftApiTests.test_create_materialize_missing_name_then_idempotent",
+        "catalog.testcases.test_task33_drafts.DraftConcurrencyTests.test_two_devices_with_same_version_only_one_writes"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_drafts.DraftApiTests.test_foreign_actor_cannot_read_or_update": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_drafts.DraftApiTests.test_create_materialize_missing_name_then_idempotent": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_drafts.DraftConcurrencyTests.test_two_devices_with_same_version_only_one_writes": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Offline/reload/device UX отдельно от HTTP shape; nested working copy проверяется при final form, не полностью на autosave."
+      ],
+      "user_value": "Восстанавливать незавершённую работу без публикации",
+      "prompt_sha256": "f4f771a120df918333b905c36bec3a9c5295ded6297d1f591abd3183872b476b"
+    },
+    {
+      "stage": 10,
+      "title": "Тарифы и совместимость",
+      "promise": "Сохранить тарифы и правильно назвать итоговую цену",
+      "implementation": "PricingPlan XOR place/group, scope IDs, versioned nested writer и единый summary; trial не превращает платное занятие в бесплатное.",
+      "status": "PARTIAL",
+      "dependencies": [
+        9
+      ],
+      "source_refs": [
+        "src/catalog/models/pricing_plan.py",
+        "src/catalog/services/pricing_plans.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_pricing.GroupPricingTests.test_xor_is_enforced_by_postgresql_and_group_resolves_place",
+        "catalog.testcases.test_task33_pricing.GroupPricingTests.test_target_scoped_roundtrip_and_foreign_ids",
+        "catalog.testcases.test_task33_pricing.GroupPricingTests.test_trial_fee_and_membership_preserve_regular_headline"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_pricing.GroupPricingTests.test_xor_is_enforced_by_postgresql_and_group_resolves_place": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_pricing.GroupPricingTests.test_target_scoped_roundtrip_and_foreign_ids": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_pricing.GroupPricingTests.test_trial_fee_and_membership_preserve_regular_headline": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Все consumers/CSV/JSON нельзя считать проверенными одним round-trip; соответствующие test cases и browser evidence должны сопоставляться отдельно."
+      ],
+      "user_value": "Сохранить тарифы и правильно назвать итоговую цену",
+      "prompt_sha256": "d6486ab84520f46e5d0cfb47dea5b8c36040bceaa08b81d7a9fa84ed0761e895"
+    },
+    {
+      "stage": 11,
+      "title": "Инструмент переноса",
+      "promise": "Переносить данные явно, повторяемо и без догадок",
+      "implementation": "Ledger/fingerprint/checkpoint и атомарные пакеты; unknown очередь manual review; dry-run не сохраняет модель.",
+      "status": "PARTIAL",
+      "dependencies": [
+        10
+      ],
+      "source_refs": [
+        "src/catalog/services/catalog_conversion.py",
+        "docs/task33/migration-map.md"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_conversion.ConversionTests.test_populated_dry_run_preserves_all_database_rows",
+        "catalog.testcases.test_task33_conversion.ConversionTests.test_failed_batch_rolls_back_mapping_and_checkpoint_together",
+        "catalog.testcases.test_task33_conversion.ConversionTests.test_repeat_and_resume_do_not_duplicate_mappings"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_conversion.ConversionTests.test_populated_dry_run_preserves_all_database_rows": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_conversion.ConversionTests.test_failed_batch_rolls_back_mapping_and_checkpoint_together": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_conversion.ConversionTests.test_repeat_and_resume_do_not_duplicate_mappings": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Репетиция синтетическая; реальный состав production UNKNOWN. Мой прежний DB отчёт не является независимым self-review."
+      ],
+      "user_value": "Переносить данные явно, повторяемо и без догадок",
+      "prompt_sha256": "3953287aac5518fbdf3d1cb8f059326417c5848e1930f0483a6652e50daab5fa"
+    },
+    {
+      "stage": 12,
+      "title": "Кабинет организаций",
+      "promise": "Дать владельцу понятный кабинет организации",
+      "implementation": "Organization workspace использует общий navigation, ownership services и scoped team; Org может быть без филиалов.",
+      "status": "PARTIAL",
+      "dependencies": [
+        11
+      ],
+      "source_refs": [
+        "src/catalog/controllers/organization_workspace.py",
+        "src/catalog/templates/pages/organization_workspace.html"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_organization_workspace.OrganizationWorkspaceTests.test_empty_account_creates_organization_without_address_or_branch",
+        "catalog.testcases.test_task33_organization_workspace.OrganizationWorkspaceTests.test_manager_sees_selected_branch_only_and_direct_url_does_not_expand_scope"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_organization_workspace.OrganizationWorkspaceTests.test_empty_account_creates_organization_without_address_or_branch": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_organization_workspace.OrganizationWorkspaceTests.test_manager_sees_selected_branch_only_and_direct_url_does_not_expand_scope": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Backend route tests не доказывают focus/responsive/accepted design; отдельная fresh browser matrix."
+      ],
+      "user_value": "Дать владельцу понятный кабинет организации",
+      "prompt_sha256": "dd708ca2ef09469d851c570f1580fc9f2071358eba969835df47f2e612d63644",
+      "rendered_evidence": {
+        "ref": "domain-browser-evidence.json; browser-results.json",
+        "scopes": [
+          {
+            "requirement": "R12-10",
+            "family": "r1",
+            "screens": [
+              "network_owner",
+              "selected_manager",
+              "all_network"
+            ],
+            "exact_check_ids": [
+              "keyboard_focus",
+              "organization_last_tab_keyboard",
+              "future_branch_acl"
+            ]
+          }
+        ],
+        "gate": "FAIL pageerror retained"
+      }
+    },
+    {
+      "stage": 13,
+      "title": "Новая форма места",
+      "promise": "Создавать место одной непрерывной формой",
+      "implementation": "Owner form continuous mode с четырьмя разделами, draft transport и явным submit; standalone без Org допустим.",
+      "status": "PARTIAL",
+      "dependencies": [
+        12
+      ],
+      "source_refs": [
+        "src/catalog/forms.py",
+        "src/catalog/controllers/owner_places_controller.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_create_uses_four_visible_sections_and_server_draft_transport",
+        "catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_new_group_with_three_tariffs_stays_candidate_until_place_approval"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_create_uses_four_visible_sections_and_server_draft_transport": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_new_group_with_three_tariffs_stays_candidate_until_place_approval": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Пробел standalone taxonomy проявляется после создания занятия: category+age не находит новый объект;14/19."
+      ],
+      "user_value": "Создавать место одной непрерывной формой",
+      "prompt_sha256": "e31b68983d2ef67c74d60b5c70372cf8637809946b4048100ebfdcfcc4eaaf26",
+      "rendered_evidence": {
+        "ref": "domain-browser-evidence.json; browser-results.json",
+        "scopes": [
+          {
+            "requirement": "R13-11",
+            "family": "r1",
+            "screens": [
+              "standalone_owner"
+            ],
+            "exact_check_ids": [
+              "keyboard_focus"
+            ]
+          }
+        ],
+        "gate": "FAIL pageerror retained"
+      }
+    },
+    {
+      "stage": 14,
+      "title": "Программы и группы",
+      "promise": "Разделить общую программу и местные группы",
+      "implementation": "Program editor имеет отдельное право/impact confirmation; approved snapshot общей части и local supplement, группы и тарифы сохраняются.",
+      "status": "PARTIAL",
+      "dependencies": [
+        13
+      ],
+      "source_refs": [
+        "src/catalog/controllers/program_workspace.py",
+        "src/catalog/services/pricing_plans.py",
+        "src/catalog/services/organization_ownership.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_program_workspace.ProgramWorkspaceTests.test_create_and_edit_program_has_separate_right_and_pending_impact",
+        "catalog.testcases.test_task33_program_workspace.ProgramWorkspaceTests.test_group_conditions_date_changes_only_on_explicit_current_owner_action"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_program_workspace.ProgramWorkspaceTests.test_create_and_edit_program_has_separate_right_and_pending_impact": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_program_workspace.ProgramWorkspaceTests.test_group_conditions_date_changes_only_on_explicit_current_owner_action": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Частично: standalone writer не задаёт category; Program writer задаёт category, но не subcategory. D04 не обещает отдельное поле subcategory Program, однако19 обещает комбинированный поиск."
+      ],
+      "user_value": "Разделить общую программу и местные группы",
+      "prompt_sha256": "e2855f6a5aeb40a9558e8ad7934bf2e86c93b1265789140b36625df39de9b35f",
+      "rendered_evidence": {
+        "ref": "domain-browser-evidence.json; browser-results.json",
+        "scopes": [
+          {
+            "requirement": "R14-11",
+            "family": "targeted",
+            "screens": [
+              "program"
+            ],
+            "exact_check_ids": [
+              "focus",
+              "tab",
+              "impact_confirmation_required_native_POST",
+              "program_native_owner_edit_candidate_only",
+              "program_stale_edit_denied",
+              "program_manage_POST_scope_denied_valid_CSRF"
+            ]
+          }
+        ],
+        "gate": "FAIL pageerror retained"
+      },
+      "own_probe_ids": [
+        "domain_probe.DomainCrossStageTests.test_new_standalone_writer_offer_disappears_on_category_age",
+        "domain_probe.DomainCrossStageTests.test_program_category_writer_works_but_subcategory_has_no_writer"
+      ]
+    },
+    {
+      "stage": 15,
+      "title": "Административные редакторы",
+      "promise": "Редактировать новую структуру в общей админке",
+      "implementation": "Domain admin отделяет draft/submit/approve/unpublish и скрытые carryover values; версия обязательна для снятия публикации.",
+      "status": "PARTIAL",
+      "dependencies": [
+        14
+      ],
+      "source_refs": [
+        "src/catalog/domain_admin/place.py",
+        "src/catalog/domain_admin/business.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_place_admin_unpublish_skips_form_save",
+        "catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_stale_concealed_place_value_cannot_overwrite_fresh_live_value"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_place_admin_unpublish_skips_form_save": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_stale_concealed_place_value_cannot_overwrite_fresh_live_value": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Admin legacy suite не зелёный: два причинных probes объясняют старые expectations; остальные failures не списываются группой."
+      ],
+      "user_value": "Редактировать новую структуру в общей админке",
+      "prompt_sha256": "f6159ea5fb43e2f08dd9e389a5d7d7ec0a87999d4f1fcaf62cf2f72bebdb242b",
+      "rendered_evidence": {
+        "ref": "domain-browser-evidence.json; browser-results.json",
+        "scopes": [
+          {
+            "requirement": "R15-11",
+            "family": "event",
+            "screens": [
+              "admin",
+              "admin_add"
+            ],
+            "exact_check_ids": [
+              "focus",
+              "tab",
+              "admin_actual_publication",
+              "admin_actual_save_online"
+            ]
+          }
+        ],
+        "gate": "FAIL pageerror retained"
+      }
+    },
+    {
+      "stage": 16,
+      "title": "Модерация и волонтёры",
+      "promise": "Проверять предложения в одном hub",
+      "implementation": "Volunteer предложение остаётся отдельным от владения; review показывает current/candidate, version/impact и counters.",
+      "status": "PARTIAL",
+      "dependencies": [
+        15
+      ],
+      "source_refs": [
+        "src/catalog/services/volunteer_places.py",
+        "src/catalog/services/volunteer_editor.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_volunteer_hub.VolunteerHubTests.test_volunteer_a_cannot_read_or_mutate_b_candidate_by_direct_id",
+        "catalog.testcases.test_task33_volunteer_hub.VolunteerHubTests.test_informational_approval_without_business_grant",
+        "catalog.testcases.test_task33_volunteer_hub.VolunteerHubTests.test_owner_handover_schema_and_stale_source_block_approval"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_volunteer_hub.VolunteerHubTests.test_volunteer_a_cannot_read_or_mutate_b_candidate_by_direct_id": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_volunteer_hub.VolunteerHubTests.test_informational_approval_without_business_grant": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_volunteer_hub.VolunteerHubTests.test_owner_handover_schema_and_stale_source_block_approval": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Все GET/POST/AJAX substitution сценарии требуют точной security matrix; UI focus/diff — browser scope."
+      ],
+      "user_value": "Проверять предложения в одном hub",
+      "prompt_sha256": "d64307c1e0b1229a99224c70a6e767be53a2d1b85803aaaa368729b6492c2838",
+      "rendered_evidence": {
+        "ref": "domain-browser-evidence.json; browser-results.json",
+        "scopes": [
+          {
+            "requirement": "R16-11",
+            "family": "r1",
+            "screens": [
+              "volunteer",
+              "moderator"
+            ],
+            "exact_check_ids": [
+              "keyboard_focus"
+            ]
+          }
+        ],
+        "gate": "FAIL pageerror retained"
+      }
+    },
+    {
+      "stage": 17,
+      "title": "Служебные уведомления",
+      "promise": "Сохранять уведомление даже при сбое почты",
+      "implementation": "Transactional inbox/outbox, event/entity/version/recipient dedupe, свежие права и bounded retry; runner не настраивает production cron.",
+      "status": "PARTIAL",
+      "dependencies": [
+        16
+      ],
+      "source_refs": [
+        "src/catalog/services/workflow_notifications.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_notifications.NotificationContractTests.test_emit_is_transactional_and_dedupes_event_entity_version_recipient",
+        "catalog.testcases.test_task33_notifications.NotificationContractTests.test_smtp_failure_keeps_inbox_and_retry_sends_once",
+        "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_join_detach_transfer_and_access_disable_emit_once_for_each_recipient"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_notifications.NotificationContractTests.test_emit_is_transactional_and_dedupes_event_entity_version_recipient": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_notifications.NotificationContractTests.test_smtp_failure_keeps_inbox_and_retry_sends_once": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_join_detach_transfer_and_access_disable_emit_once_for_each_recipient": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "PARTIAL17-03: SMTP success перед DB commit оставляет crash window для повторной физической отправки. Тест normal retry не доказывает exactly-once mail; внешний SMTP NOT_RUN."
+      ],
+      "user_value": "Сохранять уведомление даже при сбое почты",
+      "prompt_sha256": "a38e6de9a52df954e9de0e4889ee91bd416bb896d23b0570d89a8bcfa05baa42"
+    },
+    {
+      "stage": 18,
+      "title": "Публичные страницы",
+      "promise": "Показать честные страницы организации, места и занятия",
+      "implementation": "Public resolver берёт только approved/current, местные overrides и свежую связь; Org без общего рейтинга; detach отключает inherited contacts.",
+      "status": "PARTIAL",
+      "dependencies": [
+        17
+      ],
+      "source_refs": [
+        "src/catalog/services/public_presentation.py",
+        "src/catalog/controllers/public_details.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_active_contacts_fallback_and_detach_remove_live_org_sources",
+        "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_detail_routes_empty_org_and_standalone_place",
+        "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_hidden_parent_or_activity_returns_404_without_public_payload"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_active_contacts_fallback_and_detach_remove_live_org_sources": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_detail_routes_empty_org_and_standalone_place": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_hidden_parent_or_activity_returns_404_without_public_payload": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Новые browser Org/Activity contexts выполняет другой reviewer; ORM display fixture не выдаётся за end-to-end publication."
+      ],
+      "user_value": "Показать честные страницы организации, места и занятия",
+      "prompt_sha256": "14d863f62b74ac575c255993053ae1be7c67638960e124b3c0a8040ad7da6a09",
+      "rendered_evidence": {
+        "ref": "domain-browser-evidence.json; browser-results.json",
+        "scopes": [
+          {
+            "requirement": "R18-11",
+            "family": "targeted",
+            "screens": [
+              "organization",
+              "activity"
+            ],
+            "exact_check_ids": [
+              "focus",
+              "tab",
+              "pending_program_not_public",
+              "private_entity_closed"
+            ]
+          }
+        ],
+        "gate": "FAIL pageerror retained"
+      }
+    },
+    {
+      "stage": 19,
+      "title": "Точный поиск и карточки",
+      "promise": "Находить место по одному подходящему занятию",
+      "implementation": "matching_groups делает conjunction в одной Group, дедуплицирует Place, matched prices отдельно; legacy unknown не получает ложного exact match.",
+      "status": "PARTIAL",
+      "dependencies": [
+        18
+      ],
+      "source_refs": [
+        "src/catalog/services/catalog_search.py",
+        "src/catalog/services/filtering.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_search.ExactSearchTests.test_category_age_must_match_one_group",
+        "catalog.testcases.test_task33_search.ExactSearchTests.test_subcategory_needs_approved_offer_mapping",
+        "catalog.testcases.test_task33_search.ExactSearchTests.test_batch_queries_do_not_grow_per_card"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_search.ExactSearchTests.test_category_age_must_match_one_group": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_search.ExactSearchTests.test_subcategory_needs_approved_offer_mapping": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_search.ExactSearchTests.test_batch_queries_do_not_grow_per_card": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "CONFIRMED P2: реальные новые standalone занятия находятся по возрасту, но теряются при category+age. Subcategory reader работает лишь при готовом snapshot, которого текущие writers не создают. Passing reader fixtures внедряют snapshot напрямую."
+      ],
+      "user_value": "Находить место по одному подходящему занятию",
+      "prompt_sha256": "8e52e2a2000562702c70b64e0f9f60e2409295e035df6a9ba66ee7ec82eda8c0",
+      "rendered_evidence": {
+        "ref": "domain-browser-evidence.json; browser-results.json",
+        "scopes": [
+          {
+            "requirement": "R19-11",
+            "family": "r1",
+            "screens": [
+              "catalog"
+            ],
+            "exact_check_ids": [
+              "public_focus",
+              "public_tab"
+            ]
+          }
+        ],
+        "gate": "FAIL pageerror retained"
+      },
+      "own_probe_ids": [
+        "domain_probe.DomainCrossStageTests.test_new_standalone_writer_offer_disappears_on_category_age",
+        "domain_probe.DomainCrossStageTests.test_program_category_writer_works_but_subcategory_has_no_writer"
+      ]
+    },
+    {
+      "stage": 20,
+      "title": "Карта и общие площадки",
+      "promise": "Показать одну площадку с независимыми бизнесами",
+      "implementation": "Map payload группирует только confirmed venue, применяет те же filters; no coords остаётся в list, близость не создаёт Org.",
+      "status": "PARTIAL",
+      "dependencies": [
+        19
+      ],
+      "source_refs": [
+        "src/catalog/services/map_payload.py",
+        "src/catalog/services/public_presentation.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_map.MapContractsTests.test_verified_venue_one_point_two_independent_cards",
+        "catalog.testcases.test_task33_map.MapContractsTests.test_filtered_members_and_matched_prices",
+        "catalog.testcases.test_task33_map.MapContractsTests.test_address_edit_detaches_only_changed_place_and_preserves_event"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_map.MapContractsTests.test_verified_venue_one_point_two_independent_cards": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_map.MapContractsTests.test_filtered_members_and_matched_prices": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_map.MapContractsTests.test_address_edit_detaches_only_changed_place_and_preserves_event": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Maps transport stubs не доказывают внешний provider; source payload не является rendered popup keyboard evidence."
+      ],
+      "user_value": "Показать одну площадку с независимыми бизнесами",
+      "prompt_sha256": "e586af529a963c463829a6bdf008ef5d11e4c1b00e63f4b5fe534265c6e6c0c1",
+      "rendered_evidence": {
+        "ref": "domain-browser-evidence.json; browser-results.json",
+        "scopes": [
+          {
+            "requirement": "R20-11",
+            "family": "r1",
+            "screens": [
+              "map"
+            ],
+            "exact_check_ids": [
+              "rendered_map_open",
+              "rendered_map_close",
+              "local_map_api",
+              "public_focus",
+              "public_tab"
+            ]
+          }
+        ],
+        "gate": "FAIL pageerror retained"
+      }
+    },
+    {
+      "stage": 21,
+      "title": "Локализация, URL и SEO",
+      "promise": "Сохранить языки, адреса страниц и честную индексацию",
+      "implementation": "AZ fallback маркируется, canonical/hreflang/sitemap по содержательному переводу; старые Place IDs/paths и typed JSON-LD.",
+      "status": "PARTIAL",
+      "dependencies": [
+        20
+      ],
+      "source_refs": [
+        "src/catalog/services/public_languages.py",
+        "src/catalog/sitemaps.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_complete_ru_translation_is_reciprocal_without_en",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_entity_sitemaps_only_offer_substantive_approved_languages",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_script_termination_text_remains_data_in_entity_schema"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_complete_ru_translation_is_reciprocal_without_en": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_entity_sitemaps_only_offer_substantive_approved_languages": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_script_termination_text_remains_data_in_entity_schema": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Timezone lastmod legacy assertion имеет UTC/local disagreement; отдельно классифицировано, не blanket regression. Search product gap влияет и на обнаружение карточек."
+      ],
+      "user_value": "Сохранить языки, адреса страниц и честную индексацию",
+      "prompt_sha256": "27cf988db093dd1bcfe3f1cf202e7b211a048d494759b31fbc84964eb2e58fd7"
+    },
+    {
+      "stage": 22,
+      "title": "Отзывы и версии реакций",
+      "promise": "Сохранить историю отзывов и один видимый вклад",
+      "implementation": "Typed heads/revisions Place/Activity/Specialist/Event; current approved сохраняется при pending, reactions привязаны к revision, unknown authors не объединяются.",
+      "status": "PARTIAL",
+      "dependencies": [
+        21
+      ],
+      "source_refs": [
+        "src/catalog/services/review_versions.py",
+        "src/catalog/models/review.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_reviews.ReviewVersionContractTests.test_pending_edit_keeps_approved_projection_and_one_rating",
+        "catalog.testcases.test_task33_reviews.ReviewVersionContractTests.test_unknown_sources_remain_independent",
+        "catalog.testcases.test_task33_reviews.ReviewVersionContractTests.test_reaction_ids_and_original_revision_are_preserved",
+        "catalog.testcases.test_task33_reviews.ReviewVersionContractTests.test_retention_clears_all_labels_and_pending_candidate"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_reviews.ReviewVersionContractTests.test_pending_edit_keeps_approved_projection_and_one_rating": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_reviews.ReviewVersionContractTests.test_unknown_sources_remain_independent": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_reviews.ReviewVersionContractTests.test_reaction_ids_and_original_revision_are_preserved": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_reviews.ReviewVersionContractTests.test_retention_clears_all_labels_and_pending_candidate": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Compatibility trusted legacy save — отдельный путь; historical migration + deletion hooks надо оценивать вместе. Org не имеет общего балла."
+      ],
+      "user_value": "Сохранить историю отзывов и один видимый вклад",
+      "prompt_sha256": "c545b5cdce02665addafa8f9e7871e00092988479e0923432ffcbcdc28aa9b3c"
+    },
+    {
+      "stage": 23,
+      "title": "Репетиция и приёмка R1",
+      "promise": "Подготовить локальный R1 с сохранением новых данных",
+      "implementation": "R1 cohort fail-closed и конверсия/recovery package; synthetic fixtures не реальные участники пилота.",
+      "status": "HISTORICAL_ACCEPTANCE",
+      "dependencies": [
+        22
+      ],
+      "source_refs": [
+        "docs/task33/reports/23.md",
+        "docs/task33/qa23/rehearsal.py"
+      ],
+      "test_ids": [],
+      "test_results": {},
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Исторический R1 snapshot не итоговый R2 PASS. Прежняя моя DB работа не независимый повторный аудит. Реальный пилот/production запуск NOT_RUN."
+      ],
+      "user_value": "Подготовить локальный R1 с сохранением новых данных",
+      "prompt_sha256": "9c9385e9a50285c5df2cef75219aef9375821970e9d6a65e02d6863695fc2594"
+    },
+    {
+      "stage": 24,
+      "title": "Основа специалистов",
+      "promise": "Проверить личность специалиста и приватные документы",
+      "implementation": "KidsMap claim назначает аккаунт человека; employment bilateral/history; identity evidence private, certificate approved+person opt-in.",
+      "status": "PARTIAL",
+      "dependencies": [
+        23
+      ],
+      "source_refs": [
+        "src/catalog/services/specialist_domain.py",
+        "src/catalog/services/specialist_documents.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_specialist_domain.SpecialistDomainTests.test_claim_assigns_verified_person_and_records_legacy_manager",
+        "catalog.testcases.test_task33_specialist_domain.SpecialistDomainTests.test_organization_invitation_or_proposal_is_not_person_confirmation",
+        "catalog.testcases.test_task33_specialist_domain.SpecialistDomainTests.test_online_switch_preserves_historical_location_and_primary"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_specialist_domain.SpecialistDomainTests.test_claim_assigns_verified_person_and_records_legacy_manager": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_specialist_domain.SpecialistDomainTests.test_organization_invitation_or_proposal_is_not_person_confirmation": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_specialist_domain.SpecialistDomainTests.test_online_switch_preserves_historical_location_and_primary": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Не существует автоматического доказательства личности; private production media transition остаётся отдельной операцией. Upload suffix/size не равно полному MIME анализу."
+      ],
+      "user_value": "Проверить личность специалиста и приватные документы",
+      "prompt_sha256": "212b1c293cfe4f15eba2fd568c682264ec0df7c2279309e8901196033befca1b"
+    },
+    {
+      "stage": 25,
+      "title": "Интерфейсы специалистов",
+      "promise": "Дать человеку и организации разные экраны специалиста",
+      "implementation": "Person workspace, claim/employment/certificate flows; Org не получает biography/docs через Place ACL.",
+      "status": "PARTIAL",
+      "dependencies": [
+        24
+      ],
+      "source_refs": [
+        "src/catalog/controllers/specialist_workspace.py",
+        "src/catalog/services/specialist_documents.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_specialist_workspace.SpecialistWorkspaceTests.test_person_profile_and_business_denial",
+        "catalog.testcases.test_task33_specialist_workspace.SpecialistWorkspaceTests.test_certificate_http_consent_moderation_and_revocation",
+        "catalog.testcases.test_task33_specialist_workspace.SpecialistWorkspaceTests.test_history_is_distinct_from_current_cooperation"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_specialist_workspace.SpecialistWorkspaceTests.test_person_profile_and_business_denial": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_specialist_workspace.SpecialistWorkspaceTests.test_certificate_http_consent_moderation_and_revocation": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_specialist_workspace.SpecialistWorkspaceTests.test_history_is_distinct_from_current_cooperation": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Public certificate требует всех текущих условий одновременно. История и private practice не должны выглядеть текущей работой; fresh browser evidence отдельно."
+      ],
+      "user_value": "Дать человеку и организации разные экраны специалиста",
+      "prompt_sha256": "db11ec924f40d0f500091c1b0901bbe03603ced764f1511235f15cc15110a776",
+      "rendered_evidence": {
+        "ref": "domain-browser-evidence.json; browser-results.json",
+        "scopes": [
+          {
+            "requirement": "R25-10",
+            "family": "specialist",
+            "screens": [
+              "public",
+              "person",
+              "claims",
+              "certificates",
+              "invitations",
+              "org",
+              "review"
+            ],
+            "exact_check_ids": [
+              "focus",
+              "tab",
+              "real_private_certificate_upload",
+              "invalid_upload_rendered_error_preserves_state",
+              "organization_invitation_is_pending",
+              "person_explicit_confirmation",
+              "dedicated_claim_review_verifies_person",
+              "approved_person_optin_public"
+            ]
+          }
+        ],
+        "gate": "FAIL pageerror retained"
+      }
+    },
+    {
+      "stage": 26,
+      "title": "Основа событий",
+      "promise": "Дать событию своего организатора и неизменную историю",
+      "implementation": "Один Org или verified Specialist организатор, venue отдельно; aware Baku интервалы, snapshot при approval, cancellation/reschedule append history.",
+      "status": "PARTIAL",
+      "dependencies": [
+        25
+      ],
+      "source_refs": [
+        "src/catalog/services/event_domain.py",
+        "src/catalog/services/event_queries.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_venue_owner_cannot_edit_organizers_event",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_publication_snapshot_stays_at_original_venue_after_move",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_past_occurrence_cannot_be_reused_under_same_id"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_venue_owner_cannot_edit_organizers_event": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_publication_snapshot_stays_at_original_venue_after_move": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_event_domain.EventDomainTests.test_past_occurrence_cannot_be_reused_under_same_id": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "V3 precision fix сохраняет секунды лишь для неизменившегося отображённого времени, изменение минуты остаётся защищено. История сервисная/ORM, не неуязвимый raw SQL audit log."
+      ],
+      "user_value": "Дать событию своего организатора и неизменную историю",
+      "prompt_sha256": "e2b86dd39e0d760d964f2f0eefaca6cd33a1d333150a523464b5f92ad078aba2"
+    },
+    {
+      "stage": 27,
+      "title": "Афиша и календарь",
+      "promise": "Показывать один список и полный календарь событий",
+      "implementation": "List/calendar используют общие query filters и Baku half-open boundaries; month не ограничен list pagination; реальные Event IDs без generated occurrences.",
+      "status": "PARTIAL",
+      "dependencies": [
+        26
+      ],
+      "source_refs": [
+        "src/catalog/services/event_calendar.py",
+        "src/catalog/controllers/place_controller.py"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_event_calendar_review.EventCalendarIndependentReviewTests.test_month_fourteen_records_not_list_page_and_no_fabricated_ids",
+        "catalog.testcases.test_task33_event_calendar_review.EventCalendarIndependentReviewTests.test_navigation_urls_preserve_filters_and_discard_page_tracking_redirect",
+        "catalog.testcases.test_task33_event_calendar_review.EventCalendarIndependentReviewTests.test_calendar_gets_do_not_create_occurrences_or_mutate_event"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_event_calendar_review.EventCalendarIndependentReviewTests.test_month_fourteen_records_not_list_page_and_no_fabricated_ids": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_event_calendar_review.EventCalendarIndependentReviewTests.test_navigation_urls_preserve_filters_and_discard_page_tracking_redirect": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_event_calendar_review.EventCalendarIndependentReviewTests.test_calendar_gets_do_not_create_occurrences_or_mutate_event": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "Accepted preservation q делает прежний calendar assertion устаревшим. Keyboard/responsive фактически проверяет browser reviewer, feature flag production off."
+      ],
+      "user_value": "Показывать один список и полный календарь событий",
+      "prompt_sha256": "8792d8759cdf2bfeb27b8c5651f24b069ae8bee1b854c75fccdca458711111a7",
+      "rendered_evidence": {
+        "ref": "domain-browser-evidence.json; browser-results.json",
+        "scopes": [
+          {
+            "requirement": "R27-08",
+            "family": "event",
+            "screens": [
+              "calendar",
+              "list"
+            ],
+            "exact_check_ids": [
+              "native_day_keyboard_focus",
+              "selected_mobile_day_and_multiday",
+              "focus",
+              "tab"
+            ]
+          },
+          {
+            "requirement": "R27-11",
+            "family": "event",
+            "screens": [
+              "create",
+              "edit",
+              "calendar",
+              "list",
+              "admin",
+              "admin_add",
+              "online",
+              "cancelled",
+              "rescheduled"
+            ],
+            "exact_check_ids": [
+              "real_online_draft_save",
+              "admin_actual_publication",
+              "owner_previously_approved_draft_ordinary_edit",
+              "published_admin_ordinary_edit_precision",
+              "stale_edit_denied",
+              "mode_keeps_filters_whole_month"
+            ]
+          }
+        ],
+        "gate": "FAIL pageerror retained"
+      }
+    },
+    {
+      "stage": 28,
+      "title": "Итоговая приёмка R2",
+      "promise": "Подготовить проверяемый локальный R2 без запуска production",
+      "implementation": "Exact V3 archive/image/source/schema/media/cohort, frozen compatible reader и native restore с новыми данными; root повторяет полный suite и роли.",
+      "status": "PARTIAL",
+      "dependencies": [
+        27
+      ],
+      "source_refs": [
+        "docs/task33/reports/28-artifact-refresh3.json",
+        "docs/task33/final-audit/recovery-results.json",
+        "docs/task33/final-audit/full-results.json",
+        "docs/task33/final-audit/browser-results.json",
+        "docs/task33/final-audit/release-gates.json",
+        "docs/task33/final-audit/security-causal.json",
+        "docs/task33/final-audit/image-full-comparison.json",
+        "docs/task33/final-audit/image-full-r2-results.json"
+      ],
+      "test_ids": [
+        "catalog.testcases.test_task33_r1_cohort.R1WriteCohortTests.test_disabled_cohort_blocks_http_write_without_deleting_post_switch_rows",
+        "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_unchanged_rendered_minutes_preserve_approved_seconds",
+        "catalog.testcases.test_task33_event_admin_precision.EventOwnerPrecisionTests.test_owner_changed_minute_still_requires_recorded_change"
+      ],
+      "test_results": {
+        "catalog.testcases.test_task33_r1_cohort.R1WriteCohortTests.test_disabled_cohort_blocks_http_write_without_deleting_post_switch_rows": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_unchanged_rendered_minutes_preserve_approved_seconds": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED",
+        "catalog.testcases.test_task33_event_admin_precision.EventOwnerPrecisionTests.test_owner_changed_minute_still_requires_recorded_change": "PASSED_CURRENT_ROOT_FULL_ATTRIBUTED"
+      },
+      "test_evidence_kind": "ASSERTION_SOURCE_REVIEW + current full-results.json runtime attributed to /root",
+      "gaps": [
+        "NOT GREEN full suite, P2 taxonomy product gap, external OAuth/Maps/SMTP/pilot NOT_RUN. Локальная проверка не разрешает production. Авторство прежнего DB/image followup раскрыто."
+      ],
+      "user_value": "Подготовить проверяемый локальный R2 без запуска production",
+      "prompt_sha256": "3366f34f18c9770d7b4ec139ab877f07149136346099db59c904f54bde01461a",
+      "current_runtime_gates": {
+        "host_full": "1817/109F11E;Task33579/580",
+        "native": "PASS98tables/25public+2private/exact2794reader/cleanup",
+        "browser": "816contexts/1724businessDOMPASS;strictFAIL1targetedInvalidStateError",
+        "image_full": "Exact V3 image: 1817 tests, 108 failures, 12 errors, 0 skip; Task33 580/580 PASS. Host Task33 579/580 remains: ownership race differs without source changes. Common 108 failing IDs; image-only taxonomy fixture reads docs/product omitted from frozen artifact. Full suite is not green. Image guards and cleanup PASS.",
+        "production": "NOT_CONTACTED;externalmanualgatesopen"
+      }
+    }
+  ]
+}

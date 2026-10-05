@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
 {% load i18n static %}
 {% get_current_language as CURRENT_LANGUAGE %}
 
@@ -9,16 +10,18 @@
 {% block extra_head %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}" />
   <script src="{% static 'js/specialists.js' %}" defer></script>
+  <script src="{% static 'js/specialist_workspace.js' %}" defer></script>
 {% endblock %}
 
 {% block content %}
 <section class="panel owner-event-page km-specialist-owner-page">
   <div class="owner-page-head">
     <div>
-      <h1>{% if CURRENT_LANGUAGE == "az" %}Profil əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a profile{% else %}Добавить профиль{% endif %}</h1>
+      <h1>{% if specialist %}{% trans 'Редактировать профиль' %}{% else %}{% trans 'Предложить профиль' %}{% endif %}</h1>
       <p class="auth-subtitle">
-        {% if CURRENT_LANGUAGE == "az" %}Profili doldurun, moderasiyaya göndərin — yoxlamadan sonra kataloqunuzda görünəcək.{% elif CURRENT_LANGUAGE == "en" %}Fill in the profile and send for review — it will appear in the catalog after approval.{% else %}Заполните профиль и отправьте на модерацию — после проверки он появится в каталоге.{% endif %}
+        {% if specialist %}{% trans 'Управляйте личными сведениями, форматами и местами практики. Публикация проходит проверку KidsMap.' %}{% else %}{% trans 'Предложите профиль человека. Управление личными сведениями доступно после подтверждения личности.' %}{% endif %}
       </p>
     </div>
     <div class="owner-page-actions">
@@ -34,9 +37,10 @@
     id="specialist-create-form"
   >
     {% csrf_token %}
+    {% if specialist %}<input type="hidden" name="expected_updated_at" value="{{ profile_version }}">{% endif %}
 
     {% if form.non_field_errors %}
-      <div class="auth-errors">{{ form.non_field_errors }}</div>
+      <div class="auth-errors" role="alert">{{ form.non_field_errors }}</div>
     {% endif %}
 
     <div class="owner-event-layout">
@@ -111,8 +115,6 @@
               {{ form.age_to }}
               {% for e in form.age_to.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
             </label>
-          </div>
-
           </div>
 
           <!-- Language checkboxes as inline row -->
@@ -280,6 +282,18 @@
 
       <!-- Sidebar -->
       <aside class="owner-event-side">
+        {% if specialist %}
+        <article class="owner-event-help-card">
+          <h2>{% trans 'Кабинет специалиста' %}</h2>
+          <nav class="sw-nav" aria-label="{% trans 'Кабинет специалиста' %}">
+            <a href="{% url 'specialist_workspace_profile' specialist.pk %}" aria-current="page">{% trans 'Личные сведения' %}</a>
+            <a href="{% url 'specialist_workspace_invitations' specialist.pk %}">{% trans 'Сотрудничество' %}</a>
+            <a href="{% url 'specialist_workspace_certificates' specialist.pk %}">{% trans 'Дипломы и сертификаты' %}</a>
+          </nav>
+          <p>{% trans 'Личными сведениями и документами управляет подтверждённый человек.' %}</p>
+        </article>
+        {% else %}<article class="owner-event-help-card"><h2>{% trans 'Предложение профиля' %}</h2><p>{% trans 'Авторство предложения не даёт права менять личные сведения человека.' %}</p></article>{% endif %}
+        {% if practice_history %}<article class="owner-event-help-card"><h2>{% trans 'История мест практики' %}</h2><p>{% trans 'Эти места не отображаются как текущая практика.' %}</p><ul>{% for loc in practice_history %}<li>{% if loc.place %}{{ loc.place.name_i18n }}{% else %}{% trans 'Собственный кабинет' %}{% endif %}: {{ loc.address }}</li>{% endfor %}</ul></article>{% endif %}
         <article class="owner-event-help-card">
           <h2>{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis nə vaxt seçilir?{% elif CURRENT_LANGUAGE == "en" %}When to choose Specialist?{% else %}Когда выбирать «Специалист»?{% endif %}</h2>
           <ul>

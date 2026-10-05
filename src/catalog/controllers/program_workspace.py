@@ -5,7 +5,7 @@ from django.db import transaction
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
-from catalog.models import Activity, Category, Organization, Program
+from catalog.models import Activity, Category, Subcategory, Organization, Program
 from catalog.services import business_team, publication
 from catalog.services.permanent_place_rules import copy as t
 
@@ -18,9 +18,24 @@ class ProgramForm(forms.Form):
     description_ru = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 4}))
     description_en = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 4}))
     category = forms.ModelChoiceField(queryset=Category.objects.all(), required=False)
+    subcategory = forms.ModelChoiceField(queryset=Subcategory.objects.select_related('category').all(), required=False)
     expected_version = forms.IntegerField(min_value=1, widget=forms.HiddenInput)
     revision_version = forms.IntegerField(min_value=0, widget=forms.HiddenInput)
     impact_confirmed = forms.BooleanField(required=False)
+
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        from catalog.forms import SubcategorySelect
+        self.fields['category'].label_from_instance=lambda obj:obj.name_i18n()
+        self.fields['subcategory'].label_from_instance=lambda obj:obj.name_i18n()
+        self.fields['subcategory'].widget=SubcategorySelect(choices=self.fields['subcategory'].choices)
+
+    def clean(self):
+        data=super().clean()
+        category,subcategory=data.get('category'),data.get('subcategory')
+        if subcategory and (not category or subcategory.category_id!=category.pk):
+            self.add_error('subcategory','Category mismatch.')
+        return data
 
 
 def _authorized(user, org_id, program_id=None):
@@ -41,6 +56,7 @@ def _context(org, program, form=None):
         .values_list('place_id', 'place__name_az').distinct().order_by('place_id'))
     initial = {name: getattr(program, name) for name in ('name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en')}
     initial['category'] = program.category_id
+    initial['subcategory'] = program.subcategory_id
     if revision and revision.status in ('draft', 'pending', 'rejected'):
         initial.update({key: value for key, value in revision.payload.items() if key in initial})
     initial.update(expected_version=program.content_version, revision_version=revision.version if revision else 0)
@@ -83,6 +99,7 @@ def program_save(request, org_id, program_id):
         else:
             patch = {name: form.cleaned_data[name] for name in ('name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en')}
             patch['category'] = form.cleaned_data['category'].pk if form.cleaned_data['category'] else None
+            patch['subcategory'] = form.cleaned_data['subcategory'].pk if form.cleaned_data['subcategory'] else None
             try:
                 publication.propose(actor=request.user, target_type='program', target_id=program.pk,
                     patch=patch, schema_version=publication.SCHEMA_VERSION,

@@ -101,6 +101,7 @@
       extra_head (e.g. catalog_places.css) would otherwise outrank it.
     {% endcomment %}
     <link rel="stylesheet" href="{% static 'css/motion.css' %}" />
+    {% block navigation_motion %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=2">
     <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20260915">
     <script src="{% static 'js/header.js' %}?v=20260915" defer></script>

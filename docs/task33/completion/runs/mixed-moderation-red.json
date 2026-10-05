@@ -1,0 +1,43 @@
+{
+  "stamp": "mixed-moderation-red",
+  "raw_evidence": "/root/task33-evidence/completion-mixed-moderation-red",
+  "suite": {
+    "tests_run": 1,
+    "failures": 0,
+    "errors": 1,
+    "skipped": 0,
+    "elapsed_seconds": 0.196,
+    "problems": [
+      {
+        "id": "catalog.testcases.test_task33_completion_moderation.MixedModerationQueueTests.test_place_review_index_with_pending_program_and_place",
+        "kind": "error",
+        "exception": "NoReverseMatch"
+      }
+    ],
+    "skipped_ids": [],
+    "executed_ids": [
+      "catalog.testcases.test_task33_completion_moderation.MixedModerationQueueTests.test_place_review_index_with_pending_program_and_place"
+    ],
+    "problem_ids_complete": true,
+    "status": "BASELINE_FAILURE"
+  },
+  "run": {
+    "status": "BASELINE_FAILURE",
+    "child_exit": 1,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "isolation": {
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "network_guard": true,
+    "libpq_guard": true,
+    "external_credentials_present": false
+  },
+  "source_manifest_sha256": "d6431853522c9df24b353886bdabb1f684a21ace5de841aff49cea1e9e384d25",
+  "source_count": 2837,
+  "frozen_source_changed": [],
+  "production": "NOT_CONTACTED"
+}

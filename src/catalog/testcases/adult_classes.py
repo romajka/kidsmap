@@ -209,7 +209,7 @@ class PlaceAdultClassesPublicTests(TestCase):
         self.assertContains(response, "Семейный клуб")
         self.assertContains(response, "Только детский клуб")
         self.assertContains(response, "6–17 лет")
-        self.assertContains(response, "Взрослые группы")
+        self.assertContains(response, '<span class="card-age-audience__adult">Взрослые</span>', html=True)
         self.assertNotContains(response, "Для детей")
 
     def test_place_detail_renders_children_only_and_mixed_audience(self):
@@ -217,7 +217,8 @@ class PlaceAdultClassesPublicTests(TestCase):
             family_response = self.client.get(self.family_place.get_absolute_url())
             children_response = self.client.get(self.children_only.get_absolute_url())
 
-        self.assertContains(family_response, "6–17 лет")
+        self.assertContains(family_response, '<strong>6–17</strong>', html=True)
+        self.assertContains(children_response, '<strong>6–17</strong>', html=True)
         self.assertContains(family_response, "Взрослые группы")
         self.assertNotContains(children_response, "Взрослые группы")
         self.assertNotContains(children_response, "Для детей")

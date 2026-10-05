@@ -110,6 +110,18 @@
       </div>
     </details>
 
-    <div class="km-pf-hidden-fields" aria-hidden="true">{{ form.pricing_plans }}{{ form.nested_pricing }}{{ form.price_mode }}</div>
+    <details class="km-pf-nested-offerings">
+      <summary>{{ form.wizard_copy.section_offer }}</summary>
+      {{ form.wizard_copy|json_script:'pw-copy' }}
+      {{ form.offering_choices|json_script:'pc-offering-choices' }}
+      <p>{{ form.wizard_copy.activity_explain }}</p>
+      <div data-pc-offerings>
+        <div data-pc-activity-list></div>
+        <button type="button" class="pw-add" data-pc-add-activity>＋ {{ form.wizard_copy.add_activity }}</button>
+        {{ form.nested_pricing }}
+        {% if form.nested_pricing.errors %}<div role="alert">{{ form.nested_pricing.errors }}</div>{% endif %}
+      </div>
+    </details>
+    <div class="km-pf-hidden-fields" aria-hidden="true">{{ form.pricing_plans }}{{ form.price_mode }}</div>
   </div>
 {% endwith %}

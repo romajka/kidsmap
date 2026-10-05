@@ -19,6 +19,7 @@ from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from urllib.parse import urlparse
 import re
+from zoneinfo import ZoneInfo
 
 from catalog.content_data import BAKU_METRO_STATIONS
 from catalog.forms import PlaceScheduleEditorFormMixin, SubcategorySelect
@@ -123,6 +124,16 @@ class PlaceChangeAuditInline(admin.TabularInline):
 
 
 class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
+    @property
+    def offering_choices(self):
+        from catalog.services.pricing_plans import offering_editor_choices
+        return offering_editor_choices(self.instance)
+
+    @property
+    def wizard_copy(self):
+        from catalog.services.permanent_place_wizard import ui_copy
+        return ui_copy()
+
     location_override_reason = forms.CharField(
         label=_("Причина ручного исправления района"), required=False, max_length=1000,
         help_text=_("Только для исключений: причина сохранится в истории. При переносе точки исправление нужно подтвердить заново."),
@@ -496,6 +507,12 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         self.fields["metro"].error_messages.update({"invalid_choice": _("Выберите станцию метро из списка.")})
 
 
+class BakuEventDateTimeField(forms.DateTimeField):
+    def to_python(self, value):
+        with timezone.override(ZoneInfo("Asia/Baku")):
+            return super().to_python(value)
+
+
 class EventAdminForm(forms.ModelForm):
     DATETIME_LOCAL_FORMAT = ADMIN_DATETIME_LOCAL_FORMAT
     PICKER_DATETIME_FORMAT = "%Y-%m-%d %H:%M"
@@ -504,11 +521,11 @@ class EventAdminForm(forms.ModelForm):
     # The custom admin template renders one text input per date. Declaring the
     # fields prevents ModelAdmin from replacing them with SplitDateTimeField,
     # which expects a two-item POST value and rejects the browser payload.
-    start_datetime = forms.DateTimeField(
+    start_datetime = BakuEventDateTimeField(
         label=_("Начало мероприятия"), required=False,
         widget=forms.TextInput(attrs={"class": "field", "data-kidsmap-datetime-picker": "1", "data-event-datetime": "start", "data-allow-input": "1"}),
     )
-    end_datetime = forms.DateTimeField(
+    end_datetime = BakuEventDateTimeField(
         label=_("Окончание мероприятия"), required=False,
         widget=forms.TextInput(attrs={"class": "field", "data-kidsmap-datetime-picker": "1", "data-event-datetime": "end", "data-allow-input": "1"}),
     )
@@ -561,6 +578,17 @@ class EventAdminForm(forms.ModelForm):
         cleaned = super().clean()
         from catalog.services.locations import clean_location_fields
         cleaned = clean_location_fields(self, cleaned)
+        # The widgets display minutes. An unchanged displayed value must retain
+        # the stored seconds, rather than masquerade as an occurrence change.
+        if self.instance.pk:
+            for name in ("start_datetime", "end_datetime", "published_at"):
+                original = getattr(self.instance, name)
+                raw = self.data.get(name)
+                if name in cleaned and original and timezone.is_aware(original) and isinstance(raw, str):
+                    local = timezone.localtime(original, ZoneInfo("Asia/Baku"))
+                    displayed = {local.strftime(self.PICKER_DATETIME_FORMAT), local.strftime(self.DATETIME_LOCAL_FORMAT)}
+                    if raw.strip() in displayed:
+                        cleaned[name] = original
         start_datetime = cleaned.get("start_datetime")
         end_datetime = cleaned.get("end_datetime")
         if start_datetime and end_datetime and end_datetime <= start_datetime:
@@ -576,7 +604,8 @@ class EventAdminForm(forms.ModelForm):
         if status is None:
             status = getattr(self.instance, "status", "")
         status_published = getattr(self.instance, "STATUS_PUBLISHED", "published")
-        if (is_active or status == status_published) and not skips_publish_validation:
+        wants_publication = is_active or status == status_published or "_publish_event" in self.data
+        if wants_publication and not skips_publish_validation:
             checklist = (
                 ("name", _("Название")),
                 ("category", _("Категория")),
@@ -589,6 +618,8 @@ class EventAdminForm(forms.ModelForm):
             )
             missing = []
             for field_name, label in checklist:
+                if field_name == "address" and cleaned.get("event_format") == Event.FORMAT_ONLINE:
+                    continue
                 val = cleaned.get(field_name)
                 if not val and val != 0:
                     if self.instance and self.instance.pk:
@@ -601,11 +632,41 @@ class EventAdminForm(forms.ModelForm):
                 self.add_error(None, _("Нельзя опубликовать мероприятие. Обязательны для заполнения: {}").format(", ".join(missing)))
         return cleaned
 
+    def _post_clean(self):
+        super()._post_clean()
+        if self.errors:
+            return
+        from catalog.services.event_domain import _validate
+        from catalog.models.event_domain import validate_event_domain
+        try:
+            original = Event.objects.filter(pk=self.instance.pk).first() if self.instance.pk else None
+            validate_event_domain(self.instance, original)
+            if self.instance.organizer_resolution == Event.ORGANIZER_RESOLVED or not self.instance.pk:
+                _validate(self.instance, publication=self.instance.status == Event.STATUS_PUBLISHED or "_publish_event" in self.data)
+            elif self.instance.status == Event.STATUS_PUBLISHED or "_publish_event" in self.data:
+                raise ValidationError(_("Выберите организатора перед публикацией."))
+        except (ValidationError, PermissionDenied) as exc:
+            self.add_error(None, ValidationError(str(exc)))
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         from catalog.services.locations import configure_location_choices, init_location_fields
         init_location_fields(self, self.instance)
         configure_location_choices(self)
+        from django.utils.translation import get_language
+        if "organizer_organization" in self.fields:
+            self.fields["organizer_organization"].label = _("Организация")
+            self.fields["organizer_organization"].label_from_instance = lambda org: (
+                getattr(org, "name_" + (get_language() or "az").split("-")[0], "") or org.name_az
+            )
+        if "organizer_specialist" in self.fields:
+            self.fields["organizer_specialist"].label = _("Специалист")
+            self.fields["organizer_specialist"].label_from_instance = lambda person: person.name
+        if "event_format" in self.fields:
+            self.fields["event_format"].label = _("Формат")
+        for name, label in (("age_from", _("Возраст от")), ("age_to", _("Возраст до"))):
+            if name in self.fields:
+                self.fields[name].widget.attrs["aria-label"] = label
         for field_name in ("start_datetime", "end_datetime", "published_at"):
             if field_name in self.fields:
                 self.fields[field_name].input_formats = [
@@ -616,7 +677,7 @@ class EventAdminForm(forms.ModelForm):
                 ]
                 value = getattr(self.instance, field_name, None)
                 if value:
-                    localized_value = timezone.localtime(value) if timezone.is_aware(value) else value
+                    localized_value = timezone.localtime(value, ZoneInfo("Asia/Baku")) if timezone.is_aware(value) else value
                     display_format = self.PICKER_DATETIME_FORMAT if field_name in {"start_datetime", "end_datetime"} else self.DATETIME_LOCAL_FORMAT
                     self.initial[field_name] = localized_value.strftime(display_format)
         self.fields["photo"].help_text = _(
@@ -1008,15 +1069,19 @@ class EventAdmin(admin.ModelAdmin):
         ),
     )
 
-    def get_fieldsets(self, request, obj=None):
-        if obj is None:
-            return self.add_fieldsets
-        return super().get_fieldsets(request, obj)
-
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)
         initial.setdefault("status", Event.STATUS_DRAFT)
         return initial
+
+    def get_fieldsets(self, request, obj=None):
+        sections = self.add_fieldsets if obj is None else self.fieldsets
+        title, options = sections[0]
+        basics = dict(options)
+        basics["fields"] = tuple(options["fields"]) + (
+            ("organizer_organization", "organizer_specialist"), "event_format",
+        )
+        return ((title, basics),) + tuple(sections[1:])
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
         context["google_maps_api_key"] = getattr(settings, "GOOGLE_MAPS_API_KEY", "")
@@ -1347,16 +1412,17 @@ class EventAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if "_save_draft" in request.POST:
             obj.status = Event.STATUS_DRAFT
-            obj.published_at = None
             obj.rejection_reason = ""
         if "_unpublish_event" in request.POST:
-            obj.status = Event.STATUS_CANCELLED
-            obj.published_at = None
-        if obj.status == Event.STATUS_PUBLISHED and not obj.published_at:
-            obj.published_at = timezone.now()
-        if obj.status != Event.STATUS_REJECTED:
-            obj.rejection_reason = obj.rejection_reason if obj.status == Event.STATUS_PUBLISHED else obj.rejection_reason
+            obj.status = Event.STATUS_DRAFT
+        publish = obj.status == Event.STATUS_PUBLISHED or "_publish_event" in request.POST
+        if publish:
+            obj.status = Event.STATUS_PENDING
         super().save_model(request, obj, form, change)
+        if publish:
+            from catalog.services.event_domain import publish_event
+            approved = publish_event(actor=request.user, event_id=obj.pk, expected_updated_at=obj.updated_at)
+            obj.__dict__.update(approved.__dict__)
 
     def response_add(self, request, obj, post_url_continue=None):
         if "_save_draft" in request.POST:
@@ -1396,40 +1462,12 @@ class EventAdmin(admin.ModelAdmin):
         return HttpResponseRedirect(self._event_change_url(obj))
 
     def _handle_publish_event_submit(self, request, obj: Event):
-        missing_labels = []
-        for field_name, label in (
-            ("name", _("Название")),
-            ("category", _("Категория")),
-            ("description_az", _("Описание (AZ)")),
-            ("start_datetime", _("Дата начала")),
-            ("end_datetime", _("Дата окончания")),
-        ):
-            value = getattr(obj, field_name, None)
-            if value in (None, ""):
-                missing_labels.append(str(label))
-
-        if obj.end_datetime and obj.start_datetime and obj.end_datetime <= obj.start_datetime:
-            missing_labels.append(str(_("Корректный диапазон дат")))
-
-        if missing_labels:
-            obj.status = Event.STATUS_DRAFT
-            obj.published_at = None
-            obj.save(update_fields=["status", "published_at", "updated_at"])
-            self.message_user(
-                request,
-                _("Мероприятие сохранено, но не опубликовано. Заполните: %(fields)s.")
-                % {"fields": ", ".join(missing_labels[:5])},
-                level=messages.WARNING,
-            )
+        from catalog.services.event_domain import publish_event
+        try:
+            publish_event(actor=request.user, event_id=obj.pk, expected_updated_at=obj.updated_at)
+        except (ValidationError, PermissionDenied) as exc:
+            self.message_user(request, str(exc), level=messages.WARNING)
             return HttpResponseRedirect(self._event_change_url(obj))
-
-        update_fields = ["status", "rejection_reason", "updated_at"]
-        obj.status = Event.STATUS_PUBLISHED
-        obj.rejection_reason = ""
-        if obj.published_at is None:
-            obj.published_at = timezone.now()
-            update_fields.append("published_at")
-        obj.save(update_fields=update_fields)
         self.message_user(
             request,
             _("Мероприятие опубликовано и теперь может показываться на сайте."),
@@ -1438,9 +1476,8 @@ class EventAdmin(admin.ModelAdmin):
         return HttpResponseRedirect(self._event_change_url(obj))
 
     def _handle_unpublish_event_submit(self, request, obj: Event):
-        obj.status = Event.STATUS_CANCELLED
-        obj.published_at = None
-        obj.save(update_fields=["status", "published_at", "updated_at"])
+        obj.status = Event.STATUS_DRAFT
+        obj.save(update_fields=["status", "updated_at"])
         self.message_user(
             request,
             _("Мероприятие снято с публикации и скрыто с сайта."),
@@ -1556,16 +1593,13 @@ class EventAdmin(admin.ModelAdmin):
 
     @admin.action(description=_("Опубликовать выбранные мероприятия"))
     def mark_published(self, request, queryset):
-        now = timezone.now()
+        from catalog.services.event_domain import publish_event
         updated_count = 0
         for event in queryset.iterator(chunk_size=100):
-            update_fields = ["status", "rejection_reason", "updated_at"]
-            event.status = Event.STATUS_PUBLISHED
-            event.rejection_reason = ""
-            if event.published_at is None:
-                event.published_at = now
-                update_fields.append("published_at")
-            event.save(update_fields=update_fields)
+            try:
+                publish_event(actor=request.user, event_id=event.pk, expected_updated_at=event.updated_at)
+            except (ValidationError, PermissionDenied):
+                continue
             updated_count += 1
         self.message_user(
             request,
@@ -1998,7 +2032,8 @@ class PlaceAdmin(admin.ModelAdmin):
                 if obj is not None
                 else None
             )
-            if revision is not None:
+            from catalog.services.staff_roles import is_volunteer
+            if revision is not None and revision.author is not None and is_volunteer(revision.author):
                 if not self.has_change_permission(request, obj):
                     raise PermissionDenied
                 return self._volunteer_revision_changeform_view(request, obj=obj, revision=revision)

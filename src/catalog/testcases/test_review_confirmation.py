@@ -49,7 +49,11 @@ class ReviewConfirmationTests(TestCase):
                                                 HTTP_X_REQUESTED_WITH='XMLHttpRequest')
                     self.assertEqual(response.status_code, 200)
                     self.assertTrue(response.json()['ok'])
-                self.assertEqual(model.objects.filter(user=self.user).count(), 2 if model is PlaceReview else 1)
+                if model in (PlaceReview, SpecialistReview):
+                    self.assertEqual(model.objects.filter(user=self.user, is_current=True).count(), 1)
+                    self.assertEqual(model.objects.get(user=self.user, is_current=True).revisions.count(), 2)
+                else:
+                    self.assertEqual(model.objects.filter(user=self.user).count(), 1)
                 self.assertEqual(model.objects.filter(user=self.user).latest('created_at').status, 'pending')
                 response = self.client.post(url, {'rating': '9', 'text': 'Invalid rating'},
                                             HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -146,19 +150,35 @@ class ReviewConfirmationTests(TestCase):
                 review.refresh_from_db()
                 self.assertTrue(review.is_approved)
                 self.assertContains(self.client.get(public_url), review.text)
+                approved_text = review.text
+                approved_revision_id = review.current_revision_id if model is SpecialistReview else None
                 for rating in range(1, 6):
                     response = self.client.post(url, {'rating': str(rating), 'text': 'Edited review pending moderation'},
                                                 HTTP_X_REQUESTED_WITH='XMLHttpRequest')
                     self.assertTrue(response.json()['ok'])
                     review.refresh_from_db()
-                    self.assertEqual(review.rating, rating)
-                    self.assertEqual(review.status, 'pending')
-                    self.assertFalse(review.is_approved)
+                    if model is SpecialistReview:
+                        self.assertEqual(review.rating, 5)
+                        self.assertEqual(review.status, 'approved')
+                        self.assertTrue(review.is_approved)
+                        self.assertEqual(review.current_revision_id, approved_revision_id)
+                        self.assertEqual(review.candidate_revision.rating, rating)
+                        self.assertEqual(review.candidate_revision.status, 'pending')
+                        self.assertContains(self.client.get(public_url), approved_text)
+                    else:
+                        self.assertEqual(review.rating, rating)
+                        self.assertEqual(review.status, 'pending')
+                        self.assertFalse(review.is_approved)
                     self.assertEqual(model.objects.filter(user=self.user).count(), 1)
                 self.assertNotContains(self.client.get(public_url), 'Edited review pending moderation')
                 review.status = 'rejected'
                 review.save()
-                self.assertNotContains(self.client.get(public_url), review.text)
+                if model is SpecialistReview:
+                    review.refresh_from_db()
+                    self.assertEqual(review.current_revision_id, approved_revision_id)
+                    self.assertContains(self.client.get(public_url), approved_text)
+                else:
+                    self.assertNotContains(self.client.get(public_url), review.text)
 
     def test_missing_csrf_does_not_save_review(self):
         from django.test import Client

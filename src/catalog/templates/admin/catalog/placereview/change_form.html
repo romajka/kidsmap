@@ -11,6 +11,7 @@
 {% block submit_buttons_bottom %}{% endblock %}
 
 {% block content %}
+  {% get_current_language as review_language %}
   <div id="content-main" class="km-place-form-page">
     <form
       {% if has_file_field %}enctype="multipart/form-data"{% endif %}
@@ -38,9 +39,9 @@
               {% endif %}
             </h1>
             <p class="km-place-form-hero__subtitle">
-              {% blocktranslate trimmed %}
-                Модерация отзыва. Вы можете редактировать текст, изменить статус (опубликовать, скрыть, отклонить) или просмотреть метрики и реакции.
-              {% endblocktranslate %}
+              {% if review_language == 'ru' %}История отзыва доступна только для чтения. Решение по новой редакции принимается в проверке KidsMap.
+              {% elif review_language == 'en' %}Review history is read-only. Decide on a new version in KidsMap review.
+              {% else %}Rəy tarixçəsi yalnız oxumaq üçündür. Yeni versiya üzrə qərarı KidsMap yoxlamasında verin.{% endif %}
             </p>
           </div>
           {% if not add %}
@@ -127,51 +128,13 @@
               </div>
               {% endif %}
 
-              <div class="km-place-sidebar-card km-place-sidebar-card--actions" style="margin-top: 12px;">
-                <div class="km-place-sidebar-action-buttons">
-                  <!-- Группа 1: Основное действие -->
-                  <div class="km-sidebar-action-group km-sidebar-action-group--primary">
-                    <button type="submit" name="_continue" class="km-btn--sidebar km-btn--primary-save">
-                      <i class="fas fa-save"></i> {% translate "Сохранить и продолжить" %}
-                    </button>
-                  </div>
-
-                  <!-- Группа 2: Вторичные действия -->
-                  <div class="km-sidebar-action-group km-sidebar-action-group--secondary">
-                    <button type="submit" name="_save" class="km-btn--sidebar km-btn--secondary-save">
-                      <i class="fas fa-check-double"></i> {% translate "Сохранить и выйти" %}
-                    </button>
-                  </div>
-
-                  <!-- Группа 3: Быстрые действия модерации -->
-                  {% if not add %}
-                    <div class="km-sidebar-action-group km-sidebar-action-group--service">
-                      <div class="km-sidebar-group-title">{% translate "Быстрые действия" %}</div>
-                      {% if km_review_form_summary.is_approved %}
-                        <a href="{{ km_action_hide_url }}" class="km-btn--sidebar km-btn--warn">
-                          <i class="fas fa-eye-slash"></i> {% translate "Скрыть отзыв" %}
-                        </a>
-                      {% else %}
-                        <a href="{{ km_action_approve_url }}" class="km-btn--sidebar km-btn--success-alt">
-                          <i class="fas fa-globe"></i> {% translate "Опубликовать" %}
-                        </a>
-                        <a href="{{ km_action_reject_url }}" class="km-btn--sidebar km-btn--danger-delete">
-                          <i class="fas fa-ban"></i> {% translate "Отклонить" %}
-                        </a>
-                      {% endif %}
-                    </div>
-                  {% endif %}
-
-                  <!-- Группа 4: Опасные действия -->
-                  {% if has_delete_permission and not add %}
-                    <div class="km-sidebar-action-group km-sidebar-action-group--danger">
-                      <a href="{{ km_action_delete_url }}" class="km-btn--sidebar km-btn--danger-delete deletelink">
-                        <i class="fas fa-trash-alt"></i> {% translate "Удалить отзыв навсегда" %}
-                      </a>
-                    </div>
-                  {% endif %}
+              {% if not add %}
+                <div class="km-place-sidebar-card km-place-sidebar-card--actions" style="margin-top: 12px;">
+                  <a class="km-btn--sidebar km-btn--primary-save" href="{% url 'typed_reviews' 'place' original.place_id %}">
+                    {% if review_language == 'ru' %}Открыть проверку KidsMap{% elif review_language == 'en' %}Open KidsMap review{% else %}KidsMap yoxlamasını aç{% endif %}
+                  </a>
                 </div>
-              </div>
+              {% endif %}
             </div>
           </aside>
         </div>

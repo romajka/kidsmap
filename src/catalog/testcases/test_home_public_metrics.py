@@ -31,6 +31,7 @@ class HomePublicMetricsTests(SimpleTestCase):
         request.LANGUAGE_CODE = 'ru'
         html = render_to_string('pages/home.html', {
             'request': request, 'map_places': [], 'home_categories': [],
+            'map_business_count': 0,
             'total_place_reviews_count': 0,
         })
         metrics = MetricValues()

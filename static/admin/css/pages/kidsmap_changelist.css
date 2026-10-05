@@ -1178,6 +1178,39 @@ details[open] .km-accordion-arrow {
   overflow: visible !important;
 }
 
+.km-status-tabs__more:not([open]) .km-status-tabs__dropdown {
+  display: none;
+}
+
+@media (max-width: 580px) {
+  .place-admin-dashboard__header-actions {
+    flex-wrap: wrap;
+    flex-shrink: 1;
+    max-width: 100%;
+  }
+  .km-status-tabs {
+    position: relative;
+  }
+  .km-status-tabs__more {
+    position: static;
+  }
+  .km-status-tabs__dropdown {
+    left: 0;
+    right: auto;
+    max-width: calc(100vw - 64px);
+  }
+}
+
+/* Keep a wide table inside its own horizontal viewport on phones. Its height
+   stays natural, so the page retains one vertical scrollbar. Row popovers are
+   rendered outside this table wrapper. */
+@media (max-width: 768px) {
+  .km-custom-changelist .card-body.table-responsive {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+}
+
 /* The standard changelist is another white card around our list.  It creates
    the unwanted "card inside a card" effect, so the redesigned table owns the
    only border, radius and shadow. */
@@ -3707,6 +3740,11 @@ a.km-admin-action--muted:hover,
 
 /* Wide region/staff tables scroll horizontally inside their own surface. */
 @media (max-width: 768px) {
+  /* Fixed place columns need room inside the scroll surface; otherwise
+     state/date cells collapse to zero width and stretch every row. */
+  .app-catalog.model-place .km-table-container #result_list {
+    min-width: 900px !important;
+  }
   .km-regions-changelist .km-table-container,
   .km-staff-workspace .km-table-container {
     overflow-x: auto !important;

@@ -1,0 +1,129 @@
+{
+  "suite-results.json": {
+    "tests_run": 17,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 2.181,
+    "problems": [],
+    "skipped_ids": [],
+    "executed_ids": [
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_all_post_surfaces_require_csrf_and_get_actions_do_not_mutate",
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_claim_nested_applicant_withdraw_replay_and_approval",
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_document_public_visibility_and_download_follow_consent_revocation",
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_document_status_aba_cannot_restore_old_decision_token",
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_employment_nested_parent_and_foreign_organization_denied",
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_foreign_document_ids_cannot_publish_or_review",
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_legacy_owner_creator_staff_and_business_grant_cannot_edit_person",
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_malformed_ids_fail_closed_at_http_boundary",
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_owner_epoch_change_rejects_stale_invitation_consent",
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_person_verification_revocation_rechecks_fresh_row",
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_private_foreign_draft_is_not_claim_discovery_but_own_proposal_is",
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_rejection_reason_change_invalidates_old_document_token",
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_revoked_reviewer_same_session_cannot_decide",
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_staff_claim_only_and_document_only_permissions_are_separate",
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_stale_document_decision_does_not_override_new_moderation",
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_stale_profile_token_rejects_second_write_and_missing_token",
+      "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_unstaffed_account_with_accidental_review_permissions_is_denied"
+    ],
+    "problem_ids_complete": true,
+    "status": "PASS"
+  },
+  "checks.json": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.096
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.162
+    }
+  ],
+  "migrations.json": {
+    "leaves": [
+      [
+        "account",
+        "0009_emailaddress_unique_primary_email"
+      ],
+      [
+        "admin",
+        "0003_logentry_add_action_flag_choices"
+      ],
+      [
+        "auth",
+        "0012_alter_user_first_name_max_length"
+      ],
+      [
+        "catalog",
+        "0132_task33_specialist_foundation"
+      ],
+      [
+        "catalog_moderation",
+        "0001_initial"
+      ],
+      [
+        "contenttypes",
+        "0002_remove_content_type_name"
+      ],
+      [
+        "sessions",
+        "0001_initial"
+      ],
+      [
+        "socialaccount",
+        "0006_alter_socialaccount_extra_data"
+      ]
+    ],
+    "applied_count": 166,
+    "unapplied_count": 0,
+    "vendor": "postgresql"
+  },
+  "isolation.json": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10"
+  },
+  "run": {
+    "mode": "all",
+    "selected_labels": [
+      "catalog.testcases.test_task33_specialist_screens_security"
+    ],
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "image_id": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+    "network": "none",
+    "ports_published": false,
+    "postgres_data": "tmpfs",
+    "mounted_checkout": false
+  },
+  "source_sha256": {
+    "src/catalog/controllers/specialist_workspace.py": "e9650b299554e7ef88fde083ad40f571956b71cadf070b8b15fabed281d91765",
+    "src/catalog/specialist_forms.py": "794aa0101c614c4de22648481a545dc6c54558e8476e31663d6c59f09f01ad75",
+    "src/catalog/services/specialist_documents.py": "a93b2c424ac7542cd8dd265d7716b862bbf7a2f11aa2e043da3c44183ad13ed3",
+    "src/catalog/services/specialist_domain.py": "093179ca93eb35112c2feca3fd252ffce41e38414a2e74be820c592f88cdfa66",
+    "src/catalog/services/owner_specialist_use_cases.py": "ed979152c7778cbd8890ebb484074caff17425908ef99bff09eac8e8309cb25c",
+    "src/catalog/services/specialist_presentation.py": "ab9ebcaa93ea1250c92d8f4875df3ae7ef398ee3eeaa2d8cfcaa38f49671de8a",
+    "src/catalog/views.py": "165455e8cb55f139445c17a6bcbeb61ad6e26832533c95f861f2c542143f76d4",
+    "src/catalog/urls.py": "64e6484711c3b07d2253a98cb4bd6ac45ebab6dda879c6c5ca727ac1e591480b",
+    "src/catalog/templates/pages/specialist_workspace.html": "c1a408cfee6fc23321ccaf0a33ff894ae514e5efd8fb3b19b25d8fba3d4847b0",
+    "src/catalog/templates/pages/owner_specialist_create.html": "62f2cb8206dfc962f0be2473e7e4c9d364aea254d7c800fa96048879bba9bacd",
+    "src/catalog/templates/catalog/specialist_detail.html": "52c432c137f389982e80ef4edb24728fd2ecd382c238463b9c030c1b08650090",
+    "src/catalog/testcases/test_task33_specialist_screens_security.py": "75d2101b81c1975578a41b778831eedb7a52586d5faad706a0c6a3fe856a0abc"
+  },
+  "source_manifest_sha256": "7ce11dc2ac771e8aecf65ebc5b7c5e46c505d63d1b580ab8a5f8693579553614"
+}

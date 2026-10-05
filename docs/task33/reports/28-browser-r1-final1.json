@@ -1,0 +1,63 @@
+{
+  "stage": 28,
+  "family": "r1",
+  "executor": "/root/stage26_public",
+  "role": "browser-qa",
+  "scope": "fresh Chromium rendered execution; not independent source review of previous authored backend",
+  "evidence": "/root/task33-evidence/browser28-r1-20261004-final1",
+  "contexts": 357,
+  "unique_contexts": 357,
+  "passed_contexts": 357,
+  "checks": 367,
+  "passed_checks": 367,
+  "failed_rows": [],
+  "failed_checks": [],
+  "event_counts": {
+    "errors": 0,
+    "failed": 0,
+    "staticFailures": 0,
+    "stubs": 510,
+    "expectedRejections": 3
+  },
+  "launcher_status": "PASS",
+  "cleanup": "PASS",
+  "isolation": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10"
+  },
+  "screenshots": [
+    "all_network-ru-390.png",
+    "moderator-ru-390.png",
+    "network_owner-ru-390.png",
+    "parent-ru-390.png",
+    "public-catalog-1440.png",
+    "public-catalog-390.png",
+    "public-detail-1440.png",
+    "public-detail-390.png",
+    "public-map-1440.png",
+    "public-map-390.png",
+    "public-map-open-1440.png",
+    "public-map-open-390.png",
+    "selected_manager-ru-390.png",
+    "standalone_owner-ru-390.png",
+    "volunteer-ru-390.png"
+  ],
+  "source_current": {
+    "application_files": 2749,
+    "mismatches": [],
+    "new_application_files": [],
+    "executed_harness_unchanged": true
+  },
+  "status": "PASS"
+}

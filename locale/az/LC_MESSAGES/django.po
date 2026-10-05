@@ -5380,11 +5380,17 @@ msgstr "Bəyənməmələrə görə"
 msgid "Отзыв"
 msgstr "Rəy"
 
+#: src/catalog/domain_admin/review_versions.py
+msgid "Проверка KidsMap"
+msgstr "KidsMap yoxlaması"
+
+#: src/catalog/domain_admin/review_versions.py
+msgid "История"
+msgstr "Tarixçə"
+
 #: src/catalog/domain_admin/review.py:212
-#, fuzzy
-#| msgid "Служебное"
 msgid "Служебное и метрики"
-msgstr "Xidmət məlumatları"
+msgstr "Xidmət məlumatları və göstəricilər"
 
 #: src/catalog/domain_admin/review.py:271
 #, fuzzy
@@ -6864,10 +6870,9 @@ msgstr "8. İş və qəbul yerləri"
 
 #: src/catalog/domain_admin/specialist.py:437
 #: src/catalog/services/owner_specialist_use_cases.py:46
-#, fuzzy
 #| msgid "Комментарий"
 msgid "Документ"
-msgstr "Şərh"
+msgstr "Sənəd"
 
 #: src/catalog/domain_admin/specialist.py:438
 #, fuzzy
@@ -7050,10 +7055,9 @@ msgid "Проверен"
 msgstr "Yoxlanılıb"
 
 #: src/catalog/domain_admin/specialist.py:768
-#, fuzzy
 #| msgid "Комментарий"
 msgid "Документы"
-msgstr "Şərh"
+msgstr "Sənədlər"
 
 #: src/catalog/domain_admin/specialist.py:776
 #: src/catalog/templates/catalog/includes/place_card.html:120
@@ -7847,10 +7851,9 @@ msgid "Повторите новый пароль"
 msgstr "Yeni parolu təkrar daxil edin"
 
 #: src/catalog/forms.py:851 src/catalog/forms.py:884 src/catalog/forms.py:918
-#, fuzzy
 #| msgid "Неизвестное действие формы."
 msgid "Неизвестное действие."
-msgstr "Formanın naməlum əməliyyatı."
+msgstr "Naməlum əməliyyat."
 
 #: src/catalog/forms.py:857
 msgid "Layihədən ayrılıram / artıq işləmirəm"
@@ -8331,10 +8334,9 @@ msgid "Некорректная роль. Выберите manager, moderator и
 msgstr "Yanlış rol. manager, moderator və ya editor seçin."
 
 #: src/catalog/forms.py:2086
-#, fuzzy
 #| msgid "Педагоги и специалисты"
 msgid "Дипломы и сертификаты"
-msgstr "Pedaqoqlar və mütəxəssislər"
+msgstr "Diplomlar və sertifikatlar"
 
 #: src/catalog/forms.py:2089
 #, fuzzy
@@ -9129,10 +9131,8 @@ msgid "Посещение"
 msgstr "Ziyarət"
 
 #: src/catalog/models/pricing_plan.py:14 src/catalog/models/pricing_plan.py:40
-#, fuzzy
-#| msgid "Найти занятие"
 msgid "Занятие"
-msgstr "Məşğələ tap"
+msgstr "Məşğələ"
 
 #: src/catalog/models/pricing_plan.py:14
 #, fuzzy
@@ -10867,10 +10867,9 @@ msgid "Отзыв о специалисте"
 msgstr "Mütəxəssis haqqında rəy"
 
 #: src/catalog/models/staff_role.py:9
-#, fuzzy
 #| msgid "Дата модерации"
 msgid "Ожидает подтверждения"
-msgstr "Moderasiya tarixi"
+msgstr "Təsdiq gözləyir"
 
 #: src/catalog/models/staff_role.py:10
 #, fuzzy
@@ -11633,26 +11632,21 @@ msgid "Используйте раздел «Мои места» в админк
 msgstr "İdarəetmə panelində «Məkanlarım» bölməsindən istifadə edin."
 
 #: src/catalog/services/owner_specialist_use_cases.py:60
-#, fuzzy
 #| msgid "Ответ модератора"
 msgid "Проверьте поля формы."
-msgstr "Moderator cavabı"
+msgstr "Formanın sahələrini yoxlayın."
 
 #: src/catalog/services/owner_specialist_use_cases.py:73
-#, fuzzy
 #| msgid "Черновики правок"
 msgid "Черновик профиля сохранён."
-msgstr "Düzəliş qaralamaları"
+msgstr "Profilin qaralaması saxlanılıb."
 
 #: src/catalog/services/owner_specialist_use_cases.py:75
-#, fuzzy
 #| msgid ""
 #| "Проверьте фото и отправьте карточку на модерацию. После проверки она "
 #| "появится в каталоге."
 msgid "Профиль отправлен на модерацию. После проверки он появится в каталоге."
-msgstr ""
-"Fotoları yoxlayın və kartı moderasiyaya göndərin. Yoxlamadan sonra o "
-"kataloqda görünəcək."
+msgstr "Profil yoxlamaya göndərilib. Yoxlamadan sonra kataloqda görünəcək."
 
 #: src/catalog/services/ownership_use_cases.py:29
 msgid "Для отправки заявки войдите в аккаунт и повторите действие."
@@ -15755,10 +15749,9 @@ msgstr ""
 "jurnalında saxlanılacaq."
 
 #: src/catalog/templates/admin/catalog/staffaccessuser/superadmin_promotion_request_confirm.html:22
-#, fuzzy
 #| msgid "9 вопросов"
 msgid "Запрос"
-msgstr "9 sual"
+msgstr "Sorğu"
 
 #: src/catalog/templates/admin/catalog/staffaccessuser/superadmin_promotion_request_confirm.html:33
 #, fuzzy
@@ -21488,3 +21481,397 @@ msgstr "Təklifin yoxlanması"
 
 msgid "Добавить занятие"
 msgstr "Məşğələ əlavə et"
+
+#. Task33 stage24 private document boundary
+msgid "Документы остаются приватными. Публичный показ квалификации возможен после вашего выбора и проверки KidsMap."
+msgstr "Sənədlər məxfi qalır. İxtisas sənədləri yalnız sizin seçiminizdən və KidsMap yoxlamasından sonra ictimai göstərilə bilər."
+
+#. Task33 stage24 private document boundary
+msgid "Документы может загрузить только подтверждённый специалист."
+msgstr "Sənədləri yalnız təsdiqlənmiş mütəxəssis yükləyə bilər."
+
+#: task33-specialist-workspace
+msgid "Кабинет специалиста"
+msgstr "Mütəxəssis kabineti"
+
+#: task33-specialist-workspace
+msgid "Личные сведения"
+msgstr "Şəxsi məlumatlar"
+
+#: task33-specialist-workspace
+msgid "Личный профиль"
+msgstr "Şəxsi profil"
+
+#: task33-specialist-workspace
+msgid "Мои профили"
+msgstr "Profillərim"
+
+#: task33-specialist-workspace
+msgid "Мой кабинет"
+msgstr "Kabinetim"
+
+#: task33-specialist-workspace
+msgid "Места практики"
+msgstr "Təcrübə məkanları"
+
+#: task33-specialist-workspace
+msgid "История мест практики"
+msgstr "Təcrübə məkanlarının tarixçəsi"
+
+#: task33-specialist-workspace
+msgid "История сотрудничества"
+msgstr "Əməkdaşlıq tarixçəsi"
+
+#: task33-specialist-workspace
+msgid "Текущее сотрудничество"
+msgstr "Hazırkı əməkdaşlıq"
+
+#: task33-specialist-workspace
+msgid "Предстоящее сотрудничество"
+msgstr "Gələcək əməkdaşlıq"
+
+#: task33-specialist-workspace
+msgid "Сотрудничество"
+msgstr "Əməkdaşlıq"
+
+#: task33-specialist-workspace
+msgid "Связи и периоды сотрудничества"
+msgstr "Əlaqələr və əməkdaşlıq dövrləri"
+
+#: task33-specialist-workspace
+msgid "Согласие организации"
+msgstr "Təşkilatın razılığı"
+
+#: task33-specialist-workspace
+msgid "Согласие специалиста"
+msgstr "Mütəxəssisin razılığı"
+
+#: task33-specialist-workspace
+msgid "Подтверждено"
+msgstr "Təsdiqlənib"
+
+#: task33-specialist-workspace
+msgid "Ожидается"
+msgstr "Gözlənilir"
+
+#: task33-specialist-workspace
+msgid "Участие отменено"
+msgstr "İştirak ləğv edilib"
+
+#: task33-specialist-workspace
+msgid "Отменить участие"
+msgstr "İştirakı ləğv et"
+
+#: task33-specialist-workspace
+msgid "Подтвердить сотрудничество"
+msgstr "Əməkdaşlığı təsdiqlə"
+
+#: task33-specialist-workspace
+msgid "без даты окончания"
+msgstr "bitmə tarixi yoxdur"
+
+#: task33-specialist-workspace
+msgid "Связей пока нет."
+msgstr "Hələ əlaqə yoxdur."
+
+#: task33-specialist-workspace
+msgid "Специалисты организации"
+msgstr "Təşkilatın mütəxəssisləri"
+
+#: task33-specialist-workspace
+msgid "Пригласить специалиста"
+msgstr "Mütəxəssis dəvət et"
+
+#: task33-specialist-workspace
+msgid "Предложить профиль"
+msgstr "Profil təklif et"
+
+#: task33-specialist-workspace
+msgid "Предложение профиля"
+msgstr "Profil təklifi"
+
+#: task33-specialist-workspace
+msgid "Предложенные профили"
+msgstr "Təklif edilmiş profillər"
+
+#: task33-specialist-workspace
+msgid "Предложений пока нет."
+msgstr "Hələ təklif yoxdur."
+
+#: task33-specialist-workspace
+msgid "Это мой профиль"
+msgstr "Bu mənim profilimdir"
+
+#: task33-specialist-workspace
+msgid "Подтверждение личности"
+msgstr "Şəxsiyyətin təsdiqi"
+
+#: task33-specialist-workspace
+msgid "Запросы подтверждения личности"
+msgstr "Şəxsiyyətin təsdiqi sorğuları"
+
+#: task33-specialist-workspace
+msgid "Запросов пока нет."
+msgstr "Hələ sorğu yoxdur."
+
+#: task33-specialist-workspace
+msgid "Запросить управление своим профилем"
+msgstr "Profilinizi idarə etmək üçün sorğu göndərin"
+
+#: task33-specialist-workspace
+msgid "Отозвать запрос"
+msgstr "Sorğunu geri götür"
+
+#: task33-specialist-workspace
+msgid "Подтвердить личность"
+msgstr "Şəxsiyyəti təsdiqlə"
+
+#: task33-specialist-workspace
+msgid "Отклонить запрос"
+msgstr "Sorğunu rədd et"
+
+#: task33-specialist-workspace
+msgid "Название документа"
+msgstr "Sənədin adı"
+
+#: task33-specialist-workspace
+msgid "Загрузить документ"
+msgstr "Sənəd yüklə"
+
+#: task33-specialist-workspace
+msgid "Документов пока нет."
+msgstr "Hələ sənəd yoxdur."
+
+#: task33-specialist-workspace
+msgid "Открыть документ"
+msgstr "Sənədi aç"
+
+#: task33-specialist-workspace
+msgid "Подтвердить документ"
+msgstr "Sənədi təsdiqlə"
+
+#: task33-specialist-workspace
+msgid "Отклонить документ"
+msgstr "Sənədi rədd et"
+
+#: task33-specialist-workspace
+msgid "Приватный"
+msgstr "Məxfi"
+
+#: task33-specialist-workspace
+msgid "Публичный"
+msgstr "İctimai"
+
+#: task33-specialist-workspace
+msgid "Выбор публикации"
+msgstr "Dərc seçimi"
+
+#: task33-specialist-workspace
+msgid "Показывать после проверки"
+msgstr "Yoxlamadan sonra göstər"
+
+#: task33-specialist-workspace
+msgid "Не показывать публично"
+msgstr "İctimai göstərmə"
+
+#: task33-specialist-workspace
+msgid "Сделать приватным"
+msgstr "Məxfi et"
+
+#: task33-specialist-workspace
+msgid "Удостоверение личности всегда приватно."
+msgstr "Şəxsiyyət sənədi həmişə məxfidir."
+
+#: task33-specialist-workspace
+msgid "Выберите доступ к документу."
+msgstr "Sənədə giriş seçimini edin."
+
+#: task33-specialist-workspace
+msgid "Запись изменилась. Обновите страницу."
+msgstr "Qeyd dəyişib. Səhifəni yeniləyin."
+
+#: task33-specialist-workspace
+msgid "Окончание не может быть раньше начала."
+msgstr "Bitmə tarixi başlanğıcdan əvvəl ola bilməz."
+
+#: task33-specialist-workspace
+msgid "Начало сотрудничества"
+msgstr "Əməkdaşlığın başlanğıcı"
+
+#: task33-specialist-workspace
+msgid "Окончание сотрудничества"
+msgstr "Əməkdaşlığın sonu"
+
+#: task33-specialist-workspace
+msgid "Редактировать профиль"
+msgstr "Profili redaktə et"
+
+#: task33-specialist-workspace
+msgid "Управлять своим профилем"
+msgstr "Profilinizi idarə edin"
+
+#: task33-specialist-workspace
+msgid "Собственный кабинет"
+msgstr "Şəxsi kabinet"
+
+#: task33-specialist-workspace
+msgid "Эти места не отображаются как текущая практика."
+msgstr "Bu məkanlar hazırkı təcrübə kimi göstərilmir."
+
+#: task33-specialist-workspace
+msgid "Эти периоды не являются текущей работой."
+msgstr "Bu dövrlər hazırkı iş deyil."
+
+#: task33-specialist-workspace
+msgid "У вас пока нет подтверждённого профиля специалиста."
+msgstr "Hələ təsdiqlənmiş mütəxəssis profiliniz yoxdur."
+
+#: task33-specialist-workspace
+msgid "Личными сведениями и документами управляет подтверждённый человек."
+msgstr "Şəxsi məlumatları və sənədləri təsdiqlənmiş şəxs idarə edir."
+
+#: task33-specialist-workspace
+msgid "Авторство предложения не даёт права менять личные сведения человека."
+msgstr "Təklifin müəllifi olmaq şəxsi məlumatları dəyişmək hüququ vermir."
+
+#: task33-specialist-workspace
+msgid "KidsMap проверяет запрос. Совпадение имени, авторство или доступ к организации не подтверждают личность."
+msgstr "KidsMap sorğunu yoxlayır. Ad uyğunluğu, müəlliflik və ya təşkilata giriş şəxsiyyəti təsdiqləmir."
+
+#: task33-specialist-workspace
+msgid "Приглашение не даёт организации доступа к биографии, контактам или документам человека. Каждая сторона подтверждает сотрудничество отдельно."
+msgstr "Dəvət təşkilata şəxsin bioqrafiyasına, əlaqələrinə və sənədlərinə giriş vermir. Hər tərəf əməkdaşlığı ayrıca təsdiqləyir."
+
+#: task33-specialist-workspace
+msgid "Ожидающие подтверждения связи и завершённые периоды не являются текущей работой."
+msgstr "Təsdiq gözləyən əlaqələr və bitmiş dövrlər hazırkı iş deyil."
+
+#: task33-specialist-workspace
+msgid "По умолчанию документы приватны. Диплом или сертификат станет публичным только после вашего выбора и проверки KidsMap. Удостоверение личности всегда приватно."
+msgstr "Sənədlər ilkin olaraq məxfidir. Diplom və ya sertifikat yalnız sizin seçiminiz və KidsMap yoxlamasından sonra ictimai olur. Şəxsiyyət sənədi həmişə məxfidir."
+
+#: task33-specialist-workspace
+msgid "Проверка документа не меняет выбор публикации человека."
+msgstr "Sənədin yoxlanması şəxsin dərc seçimini dəyişmir."
+
+#: task33-specialist-workspace
+msgid "Действие не выполнено. Проверьте данные и обновите страницу."
+msgstr "Əməliyyat alınmadı. Məlumatları yoxlayın və səhifəni yeniləyin."
+
+#: task33-specialist-workspace
+msgid "Отозвано"
+msgstr "Geri götürülüb"
+
+#: task33-specialist-workspace
+msgid "Создано предложение"
+msgstr "Təklif yaradılıb"
+
+#: task33-specialist-workspace
+msgid "Организация подтвердила"
+msgstr "Təşkilat təsdiqləyib"
+
+#: task33-specialist-workspace
+msgid "Специалист подтвердил"
+msgstr "Mütəxəssis təsdiqləyib"
+
+#: task33-specialist-workspace
+msgid "Очередь проверки"
+msgstr "Yoxlama növbəsi"
+
+#: task33-specialist-workspace
+msgid "Запрос отозван"
+msgstr "Sorğu geri götürülüb"
+
+#: task33-specialist-workspace
+msgid "Мои запросы"
+msgstr "Sorğularım"
+
+#: task33-specialist-workspace
+msgid "Не удалось выполнить действие. Проверьте данные и права доступа."
+msgstr "Əməliyyat alınmadı. Məlumatları və giriş hüquqlarını yoxlayın."
+
+#: task33-specialist-workspace
+msgid "Предложение отправлено"
+msgstr "Təklif göndərilib"
+
+#: task33-specialist-workspace
+msgid "Предложите профиль человека. Управление личными сведениями доступно после подтверждения личности."
+msgstr "Şəxsin profilini təklif edin. Şəxsi məlumatların idarəsi şəxsiyyət təsdiqləndikdən sonra mümkündür."
+
+#: task33-specialist-workspace
+msgid "Сведения обновлены"
+msgstr "Məlumatlar yenilənib"
+
+#: task33-specialist-workspace
+msgid "Управляйте личными сведениями, форматами и местами практики. Публикация проходит проверку KidsMap."
+msgstr "Şəxsi məlumatları, formatları və təcrübə məkanlarını idarə edin. Dərc KidsMap tərəfindən yoxlanılır."
+
+#: task33-specialist-workspace
+msgid "Укажите причину отклонения."
+msgstr "Rədd səbəbini qeyd edin."
+
+#: task33-specialist-workspace
+msgid "PDF, PNG или JPEG. Максимум 10 МБ."
+msgstr "PDF, PNG və ya JPEG. Maksimum 10 MB."
+
+
+#. Task33 stage26 Event interface
+msgid "Организация"
+msgstr "Təşkilat"
+
+#. Task33 stage26 Event interface
+msgid ""
+"Выберите одного организатора: организацию или подтверждённого специалиста."
+msgstr "Bir təşkilatçı seçin: təşkilat və ya təsdiqlənmiş mütəxəssis."
+
+#. Task33 stage26 Event interface
+msgid "Дата мероприятия, ГГГГ-ММ-ДД"
+msgstr "Tədbirin tarixi, İİİİ-AA-GG"
+
+#. Task33 stage26 Event interface
+msgid "Время мероприятия, ЧЧ:ММ"
+msgstr "Tədbirin vaxtı, SS:DD"
+
+#. Task33 stage26 Event interface
+msgid "Цена мероприятия, например: 15 AZN или бесплатно"
+msgstr "Tədbirin qiyməti, məsələn: 15 AZN və ya pulsuz"
+
+#. Task33 stage26 Event interface
+msgid "Телефон мероприятия, например: 050 123 45 67"
+msgstr "Tədbirin telefonu, məsələn: 050 123 45 67"
+
+#. Task33 stage26 Event interface
+msgid "Кратко о мероприятии: что будет и кому подойдёт."
+msgstr "Tədbir haqqında qısa məlumat: nə olacaq və kimlər üçün uyğundur."
+
+#. Task33 stage26 Event interface
+msgid "Выберите город или регион проведения"
+msgstr "Tədbirin şəhərini və ya bölgəsini seçin"
+
+#. Task33 stage26 Event interface
+msgid "Выберите район проведения"
+msgstr "Tədbirin rayonunu seçin"
+
+#. Task33 stage26 Event interface
+msgid "Выберите метро рядом с мероприятием"
+msgstr "Tədbirə yaxın metronu seçin"
+
+#. Task33 stage26 Event interface
+msgid "Поиск площадки мероприятия по названию или адресу"
+msgstr "Tədbir məkanını adına və ya ünvanına görə axtarın"
+
+#. Task33 stage26 Event interface
+msgid "ч."
+msgstr "saat"
+
+#. Task33 stage26 Event interface
+msgid "мин."
+msgstr "dəq."
+
+#. Task33 stage26 Event interface
+msgid "Событие изменилось. Обновите страницу перед сохранением."
+msgstr "Tədbir dəyişib. Saxlamazdan əvvəl səhifəni yeniləyin."
+
+#. Task33 stage26 Event interface
+msgid "Выберите организатора перед публикацией."
+msgstr "Dərc etməzdən əvvəl təşkilatçı seçin."

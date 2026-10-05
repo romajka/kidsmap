@@ -1,0 +1,71 @@
+# Stage26 — independent security review
+
+Executor: `/root/stage26_security`, canonical `.agents/agents/security-reviewer/agent.md`, 2026-10-03. Bounded APPROVED IMPLEMENT delegation permits only independent negative tests, QA helpers and this report. Application changes belong to root lead. LOCAL HEAD `015d031d8eb17114bd860159dde805b38df3c13c`, branch `task33-progress`; actual tested code is dirty WORKTREE, not HEAD. Parent preserved entry265 and owns active_run26. PRODUCTION NOT_CONTACTED; no commit/push/deploy/27+.
+
+## Evidence and boundaries
+
+Codebase Memory: `C-kidsmap`, correct root `C:/kidsmap`, ready. Event graph search was capped; no exhaustive graph conclusion was used. Critical conclusions use actual source. Coverage check at generation `2026-10-03T16:43:47Z`: relevant modified Event service/query/controller/model/template/review paths `coverage_unavailable`, `metadata_changed`. These are graph limitations, not proof of absent code. Source paths were read directly.
+
+Independent tests: `src/catalog/testcases/test_task33_event_security.py:EventSecurityTests`. Synthetic users/Organization/Person/Event/Place/reviews only. Cases cover venue/legacy owner/plain staff/dedicated platform publication authority, fresh Organization transfer/inactive actor/person verification revocation, forbidden organizer changes/forged creation, exact stale-version rejection, owner HTTP/CSRF, private/rejected/deleted public routes, typed EventReview projection and foreign-target rating isolation, safe JSON-LD script serialization, online geography, private foreign venue capture and stale venue access recheck. Venue timing hook executes actual validator then actual synthetic DB mutation; it is a deterministic stale-read test, **not a cross-connection concurrency reproduction**.
+
+All runs use `docs/task33/qa26/security_run.sh`, own frozen mirror `/root/km26-security-frozen`, separate QA04 PostgreSQL container/network-none/tmpfs/socket/runroot. Existing Python dependencies are reused through a venv symlink only; no env/DB/media/git credentials are copied. QA04 fresh environment uses DJANGO_TESTING=1, isolated PostgreSQL/cache/media/locmem email, disabled external transports. Exact commands:
+
+```text
+wsl -d Ubuntu-24.04 -u root --exec /bin/bash /mnt/c/kidsmap/docs/task33/qa26/security_run.sh all stage26-security-red-20261003 --label catalog.testcases.test_task33_event_security
+wsl -d Ubuntu-24.04 -u root --exec /bin/bash /mnt/c/kidsmap/docs/task33/qa26/security_run.sh all stage26-security-red2-20261003 --label catalog.testcases.test_task33_event_security
+wsl -d Ubuntu-24.04 -u root --exec /bin/bash /mnt/c/kidsmap/docs/task33/qa26/security_run.sh all stage26-security-red3-20261003 --label catalog.testcases.test_task33_event_security
+wsl -d Ubuntu-24.04 -u root --exec /bin/bash /mnt/c/kidsmap/docs/task33/qa26/security_run.sh all stage26-security-green-20261003 --label catalog.testcases.test_task33_event_security
+wsl -d Ubuntu-24.04 -u root --exec python3 /mnt/c/kidsmap/docs/task33/qa26/security_results.py /root/task33-evidence/stage26-security-green-20261003 /mnt/c/kidsmap/docs/task33/reports/26-security-green.json
+wsl -d Ubuntu-24.04 -u root --exec python3 /mnt/c/kidsmap/docs/task33/qa26/security_snapshot.py /mnt/c/kidsmap/docs/task33/reports/26-security-source.json
+```
+
+RED1:14 tests,2F1E,0skip, wrapper1/child3. Causal incomplete source: organizer EventReview reply still used legacy Event.owner; owner HTTP still allowed legacy owner; online JSON-LD VirtualLocation was missing (KeyError), while no fake geography/serializer assertions otherwise retained. RED2:15 tests,2F0E,0skip, wrapper1/child2. One causal failure: create accepts a foreign private venue. One fixture expectation: HTTP expected404, new explicit permission denial correctly returns403; assertion corrected to exact403, immutable Event and CSRF assertions retained. Create fixture now uses canonical Category.code FK, not Category.pk; no business assertion changed. RED2 source12/12 matched freeze. RED3 source14/14 matched freeze before root fix. Safe aggregates: `26-security-red.json`, `26-security-red2.json`; raw isolated evidence under `/root/task33-evidence/stage26-security-*-20261003`.
+
+RED3:16 tests,1F0E,0skip, wrapper1/child1; only stale venue validation/capture test fails. Initial venue ACL, HTTP403/CSRF, reply organizer authority and JSON-LD are green. Safe aggregate `26-security-red3.json`.
+
+Observed harness-only quoting attempts failed before test execution; they are not app regressions. QA wrapper labels every non-green suite BASELINE_FAILURE; stage26 incomplete implementation failures above are causal RED, not historical application baseline attribution.
+
+## Review result
+
+PASS for this bounded independent review. Own GREEN executed16/16,0F0E0skip, wrapper0/child0. Django check and makemigrations consistency PASS;167 applied/0 pending. PostgreSQL17.11, Django6.0.2, Python3.12.3, psycopg3.2.10. Network/libpq guards true, external credentials false; cleanup PASS, runroot and socketroot removed. Safe aggregate `26-security-green.json`.
+
+Snapshot `26-security-source.json` contains both Windows/current and actual frozen SHA256 for14 critical artifacts, including Event model helper and0133 migration.13/14 current files match tested bytes. Sole later delta: `place_controller.py` converts QueryDict through `.items()` instead of direct `dict()`, retaining scalar parameters. Diff was independently read; no Event ACL, public SQL predicate, serializer, mutation or review boundary changed. This late parameter normalization is source-reviewed; root final tests must cover its current implementation. It is not misrepresented as byte-identical to the independent test freeze.
+
+Confirmed early trust-boundary findings resolved by root: Event reply authority now delegates to fresh organizer checks; owner mutations use organizer rights and CAS; private venue access is checked before mutation and again on fresh snapshot capture; publication locks Place before validation. `respond_to_review` Event branch calls `lock_event_for_response`, obtaining actor→organizer→Event authority locks before the review lock. The stale-read test now passes, including unchanged publication/snapshot after denial. Actual new-owner response writes succeed; old organizer, venue owner and plain staff response writes are denied. No unresolved confirmed P0/P1 finding in this bounded surface; this is not whole-application certification.
+
+Independent source audit also checked occurrence model guards for constructed-PK overwrites and `bulk_create(update_conflicts=True)`; both explicitly reject. Runtime negatives for these paths belong to the database executor, not this16-case suite. Cross-connection CAS concurrency belongs to root's distinct evidence.
+
+## Final late-source verification
+
+After root froze admin publication, owner create/submit atomicity, current-organizer dashboard, period parameter parsing, model format history and Baku form initial values, this reviewer repeated independent execution with three additional admin tests. **Final19/19 PASS,0F0E0skip**, wrapper0/child0; check/makemigrations PASS167/0; cleanup PASS; isolated network/libpq guards true and external credentials false. `26-security-final.json`, raw `/root/task33-evidence/stage26-security-final-20261003`. Final `26-security-final-source.json`: **15/15 critical current artifacts match actual tested bytes**, including `domain_admin/place.py`,0133 migration and model history helper. Earlier13/14 delta is superseded by this fresh complete freeze.
+
+```text
+wsl -d Ubuntu-24.04 -u root --exec /bin/bash /mnt/c/kidsmap/docs/task33/qa26/security_run.sh all stage26-security-final-20261003 --label catalog.testcases.test_task33_event_security
+wsl -d Ubuntu-24.04 -u root --exec python3 /mnt/c/kidsmap/docs/task33/qa26/security_results.py /root/task33-evidence/stage26-security-final-20261003 /mnt/c/kidsmap/docs/task33/reports/26-security-final.json
+wsl -d Ubuntu-24.04 -u root --exec python3 /mnt/c/kidsmap/docs/task33/qa26/security_snapshot.py /mnt/c/kidsmap/docs/task33/reports/26-security-final-source.json
+```
+
+New independent admin runtime negatives confirm: bulk publication checks every row (valid online Event published with empty geography; foreign private venue and unverified Person Events remain draft); save_model cannot publish without platform permission; admin `_save_draft` cannot replace past approved dates or erase approved online format history. UI message delivery is patched only to avoid RequestFactory message storage; real ORM and publication validators execute.
+
+Late source review confirms admin save/bulk publication invoke the service; unpublish/draft retain original published_at and snapshot; form `_post_clean` applies history and organizer/venue checks. Owner create+submit are in one atomic block; failed submission cannot retain an accidental draft. Model checks approved format before clearing online geography. Baku initial values use server-derived timezone handling. Own19 runtime covers admin/history; owner rollback/Baku/browser and cross-connection concurrency evidence are separately attributed to root/other executor. There is no claimed raw SQL trigger enforcement for snapshots/append-only history.
+
+Late Codebase Memory coverage at generation `2026-10-03T17:22:04Z` remained metadata_changed/coverage_unavailable for modified admin/controller/model/service/review paths; direct source verified. Reviewer-owned Python AST checks (test +2 Python helpers), `bash -n security_run.sh`, and scoped `git diff --check`: exit0. Verification-before-completion skill applied to final evidence checks. No application code edited by this reviewer.
+
+## Post-browser delta audit
+
+After the19-case freeze, browser findings caused four bounded source deltas. This reviewer independently read each exact frozen/current diff and the unchanged middleware path. `26-security-final-delta.json` records both hashes for19 scoped artifacts:15 match the test freeze,4 differ. Within the original15 critical artifacts14 match; only admin form age controls gained static aria-labels. The additional new changed scope is public query sanitation, plus presentation-only template/CSS.
+
+- `domain_admin/place.py:EventAdminForm.__init__`: only `age_from`/`age_to` widget aria-labels; no publication/permission/form validation delta.
+- `pages/owner_event_form.html`: late `navigation_motion` block disables native cross-document transitions; no action/CSRF/token/conditional change.
+- Event-scoped admin CSS: sizing/wrapping/grid rules only; no backend trust boundary.
+- `services/public_urls.py:PUBLIC_QUERY_PARAMS['events_landing']`: adds only `view, month, date, date_from, date_to, format`. Other route allowlists and URL filtering functions are byte-identical. `CleanPublicQueryMiddleware` remains byte-identical: public GET/HEAD sanitation removes keys absent from that route's allowlist; private paths and mutation methods bypass this canonical cleanup. Unknown/tracking parameters (`utm_source`, foreign IDs, `next`) remain outside the Event allowlist and are removed. Clean encoding uses QueryDict.urlencode into the same canonical local path. Preserved values continue through the existing backend date/format validators and public Event queryset; no authority or target visibility change.
+
+Bounded delta source review PASS. Root's two full-client tests in `test_task33_event_queries.py` cover archived Baku date/snapshot district and calendar/month/date/range/format preservation plus tracking removal; this reviewer read their assertions but does **not** claim independent execution of those new tests. Root reported their causal RED3F before the fix and owns the final551 Task33 execution. Own19 runtime is accurately tied to its earlier frozen snapshot; no unnecessary repeat is represented as fresh runtime for these late bytes. No unresolved confirmed security finding from these deltas; browser rendering evidence remains attributed to its executor.
+
+Final CSS refinement was independently source-reviewed: `body.model-event .km-place-form-shell` and `.km-place-form-main` now use `grid-template-columns: minmax(0,1fr)` to resolve narrow-screen residual width. This is a presentation-only selector/declaration delta; no trust boundary changed. Verified current CSS SHA256 `d3d614ee93bd2a94b9e4eaa1c7b642a40fc1067feaf0e6465cc5ab7389a5f213`; refreshed `26-security-final-delta.json` still19 scoped artifacts with15 identical/4 explicitly audited deltas. Root reported fresh551/551 Task33 PASS including own19 and new full-client query tests; that aggregate runtime is root-executed, not this reviewer's independent run. Browser corrective admin/focus evidence is separately attributed. No additional runtime rerun required for this sole CSS refinement.
+
+Latest CSS-only revision supersedes the preceding historical CSS hash: `2f4ca4d28f7a2f57b398d5d51b45874a5966dd1510f200bd638a4f091f135c5d`, independently verified against current file. Event-only sections/body grid remains one-column; at width≤760 the Event hero becomes one-column, progress obtains min-width0/max-width100%, and language tabs wrap with min-width0/max-width100%. Selectors are scoped to `body.model-event`; these are sizing/wrapping declarations with no new content/actions/authority or backend change. Refreshed19-artifact delta remains15 identical/4 source-reviewed changes. Bounded security source review PASS; no backend runtime repeat claimed. Latest corrective browser42 is **RUNNING/pending** according to root at this review; this source review does not establish browser PASS.
+
+Not run by this executor: full application suite, production/deployed storage/nginx/TLS, browser/physical devices/screen reader/external integrations, actual production migration/media transfer. Root/browser/database executors own their distinct evidence. Transaction races are not called reproduced merely because source lock ordering was inspected.
+
+Named handoff: root `django-reviewer` must include these19 tests and the new full-client query tests in its final current-source targeted/all Task33 checks, correlate final source manifest with independent freeze plus the explicit four-file delta audit, and combine database/browser evidence before stage26 DONE. Stage27 requires separate user instruction.

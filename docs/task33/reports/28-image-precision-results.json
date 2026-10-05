@@ -1,0 +1,134 @@
+{
+  "status": "PASS_BOUNDED_IMAGE_PRECISION5",
+  "raw_evidence": "/root/task33-evidence/stage28-image-precision-v3-20261004",
+  "execution_identity": "/root/stage28_database",
+  "scope": "Exact immutable local V3 image; precision5 only, not whole-image suite, image-native restore or production",
+  "command": "wsl -d Ubuntu-24.04 -u root --exec /root/km28-db/.venv/bin/python /mnt/c/kidsmap/docs/task33/qa28/image_precision_run.py --mode all --output /tmp/task33-qa28-image-precision-v3-20261004 --label catalog.testcases.test_task33_event_admin_precision",
+  "image_runtime": {
+    "image_id": "sha256:6566a67c0b3ab3da8ea040314b016908b1cbe17e09a50912fc5c80fe5228f5fd",
+    "source_sha256": {
+      "src/catalog/domain_admin/place.py": "b36dec7efe5aeff66f5b47dfd09a0e007d2453195ec8bba62c8c5e44a46e5c9e",
+      "src/catalog/forms.py": "deb9c5114d9bd6d7f0d2157c7eb9343c87bb58ff64096b3c28081c72de21cbe9",
+      "src/catalog/testcases/test_task33_event_admin_precision.py": "26963290982c62a7858e1951855ca5f8d102a73f0564a30ab7feda96da4c966d",
+      "docs/task33/qa04/run.py": "995707d16fdcd5391c51af3d905e35b95c9debfbf0410e02e8da40da63b82826",
+      "docs/task33/qa04/commands.py": "d5d6781610d3eb593524858606db3c48ba258b1f43ed72f3ada0a0d7c16bc7a0",
+      "docs/task33/qa04/settings.py": "4d96605c179c15566ac13cb3eb0e965ef25155599f1e4010b6aa6391823ba83e",
+      "docs/task33/qa04/guard.py": "ec56592cadc5084f7aea2b3695a1df6c7fa55d1420bbf5ae4d12a93c695b87a4"
+    },
+    "python": "3.12.15",
+    "source_only_image": true,
+    "child_launched": true,
+    "child_network": "none",
+    "child_ports": false,
+    "child_read_only": true,
+    "child_capabilities_dropped": true,
+    "child_daemon_mount": false,
+    "child_checkout_mount": false,
+    "owned_qa_binds_only": true,
+    "child_removed": true
+  },
+  "run": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "isolation": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.15",
+    "psycopg": "3.2.10"
+  },
+  "migrations": {
+    "leaves": [
+      [
+        "account",
+        "0009_emailaddress_unique_primary_email"
+      ],
+      [
+        "admin",
+        "0003_logentry_add_action_flag_choices"
+      ],
+      [
+        "auth",
+        "0012_alter_user_first_name_max_length"
+      ],
+      [
+        "catalog",
+        "0133_task33_event_foundation"
+      ],
+      [
+        "catalog_moderation",
+        "0001_initial"
+      ],
+      [
+        "contenttypes",
+        "0002_remove_content_type_name"
+      ],
+      [
+        "sessions",
+        "0001_initial"
+      ],
+      [
+        "socialaccount",
+        "0006_alter_socialaccount_extra_data"
+      ]
+    ],
+    "applied_count": 167,
+    "unapplied_count": 0,
+    "vendor": "postgresql"
+  },
+  "checks": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.196
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.396
+    }
+  ],
+  "suite": {
+    "tests_run": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.211,
+    "problems": [],
+    "skipped_ids": [],
+    "executed_ids": [
+      "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_changed_minute_still_requires_recorded_occurrence_change",
+      "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_unchanged_publication_timestamp_preserves_approval_precision",
+      "catalog.testcases.test_task33_event_admin_precision.EventAdminPrecisionTests.test_unchanged_rendered_minutes_preserve_approved_seconds",
+      "catalog.testcases.test_task33_event_admin_precision.EventOwnerPrecisionTests.test_owner_changed_minute_still_requires_recorded_change",
+      "catalog.testcases.test_task33_event_admin_precision.EventOwnerPrecisionTests.test_unchanged_owner_minutes_preserve_approved_seconds"
+    ],
+    "problem_ids_complete": true,
+    "status": "PASS"
+  },
+  "daemon_verified_image_children_remaining": 0,
+  "qa_helpers": {
+    "image_precision_run.py": "53210a612830cb8c4111ab6d70b4787be1a953df287d5fdf347b271d78ab52d3",
+    "image_precision_collect.py": "d6d2cae5c568ea1737e86adaba93a1d6805a4475676e0196226fec2d61d3d225"
+  },
+  "qa04_or_application_modified": false,
+  "not_run": [
+    "whole image suite",
+    "native recovery using image interpreter",
+    "production/deployment"
+  ]
+}

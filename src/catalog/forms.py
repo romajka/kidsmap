@@ -1729,18 +1729,8 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
     @property
     def offering_choices(self):
-        from catalog.models import PricingPlan, OfferingGroup, Program
-        return {
-            'product_types': [(value, str(label)) for value, label in PricingPlan.PRODUCT_CHOICES],
-            'price_kinds': [(value, str(label)) for value, label in PricingPlan.PRICE_KIND_CHOICES],
-            'charge_roles': [(value, str(label)) for value, label in PricingPlan.CHARGE_ROLE_CHOICES],
-            'billing_modes': [(value, str(label)) for value, label in PricingPlan.BILLING_MODE_CHOICES],
-            'billing_intervals': [(value, str(label)) for value, label in PricingPlan.INTERVAL_CHOICES],
-            'lesson_formats': [(value, str(label)) for value, label in OfferingGroup._meta.get_field('lesson_format').choices],
-            'programs': list(Program.objects.filter(
-                organization_id=getattr(self.instance, 'organization_id', None), status='published',
-                approved_at__isnull=False, archived_at__isnull=True).order_by('pk').values('id', 'name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en')) if getattr(self.instance, 'organization_id', None) else [],
-        }
+        from catalog.services.pricing_plans import offering_editor_choices
+        return offering_editor_choices(self.instance)
 
     @property
     def publication_schema_version(self):
@@ -1826,6 +1816,7 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
 
 
 class OwnerEventForm(forms.ModelForm):
+    expected_updated_at = forms.CharField(required=False, widget=forms.HiddenInput())
     draft_save_only = False
     require_location_region = False
 
@@ -1908,6 +1899,9 @@ class OwnerEventForm(forms.ModelForm):
         model = Event
         fields = (
             "name_az",
+            "organizer_organization",
+            "organizer_specialist",
+            "event_format",
             "category",
             "start_datetime",
             "end_datetime",
@@ -1959,26 +1953,65 @@ class OwnerEventForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["start_datetime"].input_formats = ["%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"]
         self.fields["end_datetime"].input_formats = ["%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"]
+        from zoneinfo import ZoneInfo
+        baku = ZoneInfo('Asia/Baku')
+        baku_now = timezone.localtime(timezone.now(), baku)
+        offset = baku_now.strftime('%z')
+        self.baku_utc_offset = offset[:3] + ':' + offset[3:]
+        self.baku_timezone_name = baku.key
+        self.online_format = Event.FORMAT_ONLINE
         if self.instance and getattr(self.instance, "pk", None):
+            self.fields["expected_updated_at"].initial = self.instance.updated_at.isoformat()
             if self.instance.start_datetime:
-                localized_start = timezone.localtime(self.instance.start_datetime)
+                localized_start = timezone.localtime(self.instance.start_datetime, baku)
                 self.fields["event_date"].initial = localized_start.date()
                 self.fields["start_time_input"].initial = localized_start.strftime("%H:%M")
             if self.instance.end_datetime:
-                localized_end = timezone.localtime(self.instance.end_datetime)
+                localized_end = timezone.localtime(self.instance.end_datetime, baku)
                 self.fields["end_date"].initial = localized_end.date()
                 self.fields["end_time_input"].initial = localized_end.strftime("%H:%M")
-        if self.user is not None and getattr(self.user, "is_authenticated", False):
-            self.fields["related_place"].queryset = (
-                Place.objects.filter(owner=self.user, deleted_at__isnull=True)
-                .exclude(status=Place.STATUS_REJECTED)
-                .order_by("name_az", "name_ru", "name")
-            )
+        from catalog.models import Organization, Specialist
+        self.fields['organizer_organization'].label = _('Организация')
+        self.fields['organizer_specialist'].label = _('Специалист')
+        self.fields['event_format'].label = _('Формат')
+        self.fields['event_format'].widget.attrs['data-event-format'] = '1'
+        language = (get_language() or 'az').split('-')[0]
+        from catalog.services.public_presentation import translated
+        def organizer_label(organization):
+            name, content_language = translated(organization, 'name', language)
+            return name + (' (AZ)' if content_language != language and name else '')
+        self.fields['organizer_organization'].label_from_instance = organizer_label
+        self.fields['organizer_specialist'].label_from_instance = lambda person: person.name
+        placeholders = {
+            'event_date': _('Дата мероприятия, ГГГГ-ММ-ДД'),
+            'end_date': _('Дата мероприятия, ГГГГ-ММ-ДД'),
+            'start_time_input': _('Время мероприятия, ЧЧ:ММ'),
+            'end_time_input': _('Время мероприятия, ЧЧ:ММ'),
+            'price_text': _('Цена мероприятия, например: 15 AZN или бесплатно'),
+            'phone': _('Телефон мероприятия, например: 050 123 45 67'),
+            'description_az': _('Кратко о мероприятии: что будет и кому подойдёт.'),
+        }
+        for name, placeholder in placeholders.items():
+            self.fields[name].widget.attrs['placeholder'] = placeholder
+        for name in ('organizer_organization', 'organizer_specialist', 'event_format'):
+            self.fields[name].widget.attrs['class'] = 'field'
+        if self.user is not None and getattr(self.user, 'is_authenticated', False):
+            self.fields['organizer_organization'].queryset = Organization.objects.filter(owner=self.user, archived_at__isnull=True)
+            self.fields['organizer_specialist'].queryset = Specialist.objects.filter(verified_person_user=self.user, person_verified_at__isnull=False, is_active=True)
+            self.fields['related_place'].queryset = Place.objects.filter(deleted_at__isnull=True, is_active=True).filter(Q(owner=self.user) | Q(status='published')).order_by('name_az', 'name')
+        else:
+            self.fields['organizer_organization'].queryset = Organization.objects.none()
+            self.fields['organizer_specialist'].queryset = Specialist.objects.none()
+        self.fields['related_place'].help_text = _('Необязательно. Можно добавить мероприятие без постоянного места.')
         self.fields["photo"].help_text = _("JPG, PNG или WEBP. Максимум 2 МБ.")
         self.fields["moderation_note"].help_text = _("Необязательно. Укажите детали для модератора.")
         from catalog.services.locations import configure_location_choices, init_location_fields
         init_location_fields(self, self.instance)
         configure_location_choices(self)
+        for name, label in (('region', _('Выберите город или регион проведения')),
+                            ('district', _('Выберите район проведения')),
+                            ('metro', _('Выберите метро рядом с мероприятием'))):
+            self.fields[name].choices = [('', label)] + [(value, text) for value, text in self.fields[name].choices if value]
         if self.draft_save_only:
             for field in self.fields.values():
                 field.required = False
@@ -2010,6 +2043,13 @@ class OwnerEventForm(forms.ModelForm):
         cleaned = super().clean()
         from catalog.services.locations import clean_location_fields
         cleaned = clean_location_fields(self, cleaned)
+        org = cleaned.get('organizer_organization')
+        person = cleaned.get('organizer_specialist')
+        if bool(org) == bool(person):
+            self.add_error(None, _('Выберите одного организатора: организацию или подтверждённого специалиста.'))
+        online = cleaned.get('event_format') == 'online'
+        if online:
+            cleaned.update(related_place=None, address='', district='', metro='', lat=None, lng=None)
         related_place = cleaned.get("related_place")
         if related_place:
             if not cleaned.get("address"):
@@ -2031,7 +2071,7 @@ class OwnerEventForm(forms.ModelForm):
                 cleaned["metro"] = related_place.metro
                 self.instance.metro = related_place.metro
         if not self.draft_save_only:
-            if not cleaned.get("address"):
+            if not online and not cleaned.get("address"):
                 self.add_error("address", _("Укажите адрес или выберите связанное место с адресом."))
             if not cleaned.get("phone"):
                 self.add_error("phone", _("Укажите телефон / WhatsApp или выберите связанное место с телефоном."))
@@ -2046,11 +2086,24 @@ class OwnerEventForm(forms.ModelForm):
         if event_date and start_time:
             start = datetime.combine(event_date, start_time)
             if timezone.is_naive(start):
-                start = timezone.make_aware(start, timezone.get_current_timezone())
+                start = timezone.make_aware(start, __import__("zoneinfo").ZoneInfo("Asia/Baku"))
         if end_date and end_time:
             end = datetime.combine(end_date, end_time)
             if timezone.is_naive(end):
-                end = timezone.make_aware(end, timezone.get_current_timezone())
+                end = timezone.make_aware(end, __import__("zoneinfo").ZoneInfo("Asia/Baku"))
+
+        # Existing minute widgets must round-trip the approved exact interval.
+        if self.instance.pk:
+            from zoneinfo import ZoneInfo
+            values = {"start_datetime": start, "end_datetime": end}
+            for name, field in (("start_datetime", "start_time_input"), ("end_datetime", "end_time_input")):
+                original = getattr(self.instance, name)
+                raw = self.data.get(field)
+                if values[name] and original and timezone.is_aware(original) and isinstance(raw, str):
+                    local = timezone.localtime(original, ZoneInfo("Asia/Baku"))
+                    if values[name] == local.replace(second=0, microsecond=0) and raw.strip() == local.strftime("%H:%M"):
+                        values[name] = original
+            start, end = values["start_datetime"], values["end_datetime"]
 
         cleaned["start_datetime"] = start
         cleaned["end_datetime"] = end
@@ -2150,7 +2203,7 @@ class OwnerSpecialistForm(forms.ModelForm):
         label=_("Дипломы и сертификаты"),
         widget=MultipleFileInput(attrs={"class": "field", "multiple": True, "accept": ".pdf,image/*"}),
         required=False,
-        help_text=_("Можно загрузить дипломы или сертификаты. Они появятся публично только после проверки."),
+        help_text=_("Документы остаются приватными. Публичный показ квалификации возможен после вашего выбора и проверки KidsMap."),
     )
 
     # Extra location fields (not on Specialist model directly)

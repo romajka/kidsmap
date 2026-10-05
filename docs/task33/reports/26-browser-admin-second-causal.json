@@ -1,0 +1,198 @@
+{
+  "stage": 26,
+  "scope": "ACTUAL_APPLICATION",
+  "execution_identity": "/root/stage26_browser",
+  "role": "browser-qa",
+  "head": "015d031d8eb17114bd860159dde805b38df3c13c",
+  "snapshot": "dirty WORKTREE frozen in own allowlisted mirror",
+  "evidence": "/root/task33-evidence/browser26-admin-final2-20261003",
+  "browser": "Chromium via cached Playwright CLI",
+  "languages": [
+    "az",
+    "ru",
+    "en"
+  ],
+  "widths": [
+    320,
+    360,
+    390,
+    768,
+    1024,
+    1280,
+    1440
+  ],
+  "runtime_paths": {
+    "base": "/root/km26-browser-frozen",
+    "static": "/root/km26-browser-frozen/static/admin/css/pages/kidsmap_admin_form_shell.css",
+    "event": "/root/km26-browser-frozen/src/catalog/models/place.py",
+    "domain": "/root/km26-browser-frozen/src/catalog/services/event_domain.py"
+  },
+  "runtime_css_sha256": "aceb1f613721fa842fbe72c440b4dd73be11569f8315aaf5217c1e9e09756af7",
+  "rows": 42,
+  "passed_rows": 30,
+  "checks": 88,
+  "passed_checks": 87,
+  "failed_rows": [
+    {
+      "screen": "admin",
+      "actor": "reviewer",
+      "lang": "az",
+      "width": 320,
+      "issues": [
+        "overflow"
+      ]
+    },
+    {
+      "screen": "admin_add",
+      "actor": "reviewer",
+      "lang": "az",
+      "width": 320,
+      "issues": [
+        "overflow"
+      ]
+    },
+    {
+      "screen": "admin",
+      "actor": "reviewer",
+      "lang": "ru",
+      "width": 320,
+      "issues": [
+        "overflow"
+      ]
+    },
+    {
+      "screen": "admin_add",
+      "actor": "reviewer",
+      "lang": "ru",
+      "width": 320,
+      "issues": [
+        "overflow"
+      ]
+    },
+    {
+      "screen": "admin",
+      "actor": "reviewer",
+      "lang": "en",
+      "width": 320,
+      "issues": [
+        "overflow"
+      ]
+    },
+    {
+      "screen": "admin_add",
+      "actor": "reviewer",
+      "lang": "en",
+      "width": 320,
+      "issues": [
+        "overflow"
+      ]
+    },
+    {
+      "screen": "admin",
+      "actor": "reviewer",
+      "lang": "az",
+      "width": 360,
+      "issues": [
+        "overflow"
+      ]
+    },
+    {
+      "screen": "admin_add",
+      "actor": "reviewer",
+      "lang": "az",
+      "width": 360,
+      "issues": [
+        "overflow"
+      ]
+    },
+    {
+      "screen": "admin",
+      "actor": "reviewer",
+      "lang": "ru",
+      "width": 360,
+      "issues": [
+        "overflow"
+      ]
+    },
+    {
+      "screen": "admin_add",
+      "actor": "reviewer",
+      "lang": "ru",
+      "width": 360,
+      "issues": [
+        "overflow"
+      ]
+    },
+    {
+      "screen": "admin",
+      "actor": "reviewer",
+      "lang": "en",
+      "width": 360,
+      "issues": [
+        "overflow"
+      ]
+    },
+    {
+      "screen": "admin_add",
+      "actor": "reviewer",
+      "lang": "en",
+      "width": 360,
+      "issues": [
+        "overflow"
+      ]
+    }
+  ],
+  "failed_checks": [
+    {
+      "check": "admin_online_publish_enabled",
+      "pass": false
+    }
+  ],
+  "event_counts": {
+    "errors": 0,
+    "failed": 0,
+    "staticFailures": 0,
+    "stubs": 184,
+    "expectedErrors": 0
+  },
+  "screenshots": [
+    "admin-1440.png",
+    "admin-320.png",
+    "admin-360.png",
+    "admin-390.png",
+    "admin-after-publication.png",
+    "admin_add-1440.png",
+    "admin_add-320.png",
+    "admin_add-360.png",
+    "admin_add-390.png"
+  ],
+  "executed_matrix_sha256": "b8de63e3452c9dc79ebc77b5f0f7926c816613d2f215adc0239ddc992a810d02",
+  "source_manifest_sha256": "3542da20e80ef2095f34d406ae6cbedb6218779f1ee20f4630825956e796a4f1",
+  "source_file_count": 2777,
+  "launcher_status": "PASS",
+  "launcher_cleanup": "PASS",
+  "isolation": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10"
+  },
+  "external_transport": "External CDN and integrations stubbed; cached Material Symbols font only. Actual local CSS/JS/Django routes.",
+  "not_run": [
+    "Production",
+    "Real external integrations/CDNs",
+    "Real records/private file inventory",
+    "Full screen reader audit",
+    "Stage27+",
+    "Deployment"
+  ]
+}

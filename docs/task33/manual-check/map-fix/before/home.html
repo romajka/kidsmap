@@ -1,0 +1,2743 @@
+{% extends "base.html" %}
+{% load i18n static catalog_i18n %}
+
+{% block title %}{{ seo_title }}{% endblock %}
+{% block title_plain %}{{ seo_title }}{% endblock %}
+{% block title_plain_twitter %}{{ seo_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+{% block structured_data %}
+{% if home_featured_schema_json %}
+<script type="application/ld+json">{{ home_featured_schema_json|safe }}</script>
+{% endif %}
+{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20260928_mobile_hero1" />
+{% endblock %}
+
+{% block content %}
+<section class="home-hero panel animate-on-scroll is-visible">
+  <div class="home-hero-bg-glows" aria-hidden="true">
+    <div class="glow-blob blob-1"></div>
+    <div class="glow-blob blob-2"></div>
+    <div class="glow-blob blob-3"></div>
+  </div>
+  {# CSS-only animated dots — visible on mobile/tablet where canvas is off #}
+  <div class="home-hero-float-dots" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  {% if hero_show_decor %}
+  <span class="hero-cloud cloud-left" aria-hidden="true"></span>
+  <span class="hero-cloud cloud-right" aria-hidden="true"></span>
+  {% endif %}
+
+  <div class="home-hero-grid">
+    <div class="home-hero-copy">
+      <div class="home-redesign-eyebrow"><span aria-hidden="true"></span>{% if request.LANGUAGE_CODE == 'az' %}Uşaqlıq kəşflərlə doludur{% elif request.LANGUAGE_CODE == 'en' %}A childhood full of discovery{% else %}Детство, полное открытий{% endif %}</div>
+      <h1>{{ hero_title }}</h1>
+      <p>{{ hero_subtitle }}</p>
+      <div class="home-redesign-actions">
+        <a class="home-redesign-primary" href="{% if map_places %}#home-map-section{% else %}{% url 'place_list' %}{% endif %}">
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Uyğun yer tap{% elif request.LANGUAGE_CODE == 'en' %}Find your next discovery{% else %}Найти своё место{% endif %}</span>
+          <span class="home-btn-icon" aria-hidden="true">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="7" y1="17" x2="17" y2="7"></line>
+              <polyline points="7 7 17 7 17 17"></polyline>
+            </svg>
+          </span>
+        </a>
+        <a class="home-redesign-secondary" href="{% url 'place_list' %}">
+          <span>{% trans "Открыть весь каталог" %}</span>
+          <span class="home-btn-icon" aria-hidden="true">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </a>
+      </div>
+
+      <div class="home-hero-stats" aria-label="{% trans 'Преимущества KidsMap' %}">
+        <a class="home-hero-stat km-stat-card km-stat-places km-stat-link"
+          href="{% if map_places %}#home-map-section{% else %}{% url 'place_list' %}{% endif %}">
+          <div class="km-stat-icon-wrapper">
+            <svg class="km-stat-svg km-stat-svg--places" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <ellipse cx="16" cy="27" rx="6" ry="2" class="km-pin-ground-shadow" fill="rgba(19, 111, 56, 0.2)" />
+              <circle cx="16" cy="27" r="5" class="km-pin-pulse-wave" stroke="currentColor" stroke-width="1.5" />
+              <g class="km-pin-group">
+                <path d="M16 3C11.03 3 7 7.03 7 12C7 18.25 16 27 16 27C16 27 25 18.25 25 12C25 7.03 20.97 3 16 3Z" class="km-pin-body" fill="currentColor" fill-opacity="0.16" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                <circle cx="16" cy="12" r="3.2" class="km-pin-dot" fill="currentColor" />
+              </g>
+            </svg>
+          </div>
+          <div class="km-stat-details">
+            <strong>{{ map_business_count }}</strong>
+            <span>{% trans "мест и занятий на карте" %}</span>
+          </div>
+        </a>
+        <a class="home-hero-stat km-stat-card km-stat-reviews km-stat-link" href="{% url 'place_reviews' %}">
+          <div class="km-stat-icon-wrapper">
+            <svg class="km-stat-svg km-stat-svg--reviews" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <g class="km-bubble-group">
+                <path d="M26 15C26 20.52 21.52 25 16 25C14.07 25 12.27 24.45 10.74 23.5L5 25.5L7.2 20.1C5.83 18.62 5 16.68 5 14.5C5 8.98 9.92 4.5 16 4.5C21.52 4.5 26 8.98 26 14.5V15Z" class="km-bubble-body" fill="currentColor" fill-opacity="0.16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M16 8.5L17.85 12.25L22 12.85L19 15.77L19.7 19.9L16 17.95L12.3 19.9L13 15.77L10 12.85L14.15 12.25L16 8.5Z" class="km-bubble-star" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" />
+              </g>
+              <path d="M25 5.5L25.8 7.2L27.5 8L25.8 8.8L25 10.5L24.2 8.8L22.5 8L24.2 7.2L25 5.5Z" class="km-sparkle km-sparkle-1" fill="currentColor" />
+              <circle cx="28.5" cy="13.5" r="1.2" class="km-sparkle km-sparkle-2" fill="currentColor" />
+            </svg>
+          </div>
+          <div class="km-stat-details">
+            <strong>{% if total_place_reviews_count %}{{ total_place_reviews_count }}{% else %}—{% endif %}</strong>
+            <span>
+              {% if total_place_reviews_count %}
+              {% if request.LANGUAGE_CODE == 'az' %}valideyn rəyi
+              {% elif request.LANGUAGE_CODE == 'en' %}parent reviews
+              {% else %}отзывов родителей{% endif %}
+              {% else %}
+              {% trans "Пока нет отзывов" %}
+              {% endif %}
+            </span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    {% if hero_gallery_slides %}
+    <div class="home-hero-visual">
+      {% if hero_gallery_slides|length > 1 %}
+      <div class="home-hero-slider" data-home-hero-slider>
+        <div class="home-hero-slider-viewport" data-home-hero-slider-viewport>
+          <div class="home-hero-slider-track" data-home-hero-slider-track>
+            {% for slide in hero_gallery_slides %}
+            <article class="home-hero-slide" data-home-hero-slide>
+              <div class="home-hero-slide-grid">
+                <figure class="home-hero-photo-card home-hero-photo-main">
+                  {% include "catalog/includes/hero_photo.html" with item=slide.main sizes="(max-width: 760px) 55vw, (max-width: 1100px) 27vw, 320px" high_priority=forloop.first %}
+                </figure>
+
+                <figure class="home-hero-photo-card home-hero-photo-side-top">
+                  {% include "catalog/includes/hero_photo.html" with item=slide.side_top sizes="(max-width: 760px) 43vw, (max-width: 1100px) 22vw, 260px" high_priority=False %}
+                </figure>
+
+                <figure class="home-hero-photo-card home-hero-photo-side-bottom">
+                  {% include "catalog/includes/hero_photo.html" with item=slide.side_bottom sizes="(max-width: 760px) 43vw, (max-width: 1100px) 22vw, 260px" high_priority=False %}
+                </figure>
+              </div>
+            </article>
+            {% endfor %}
+          </div>
+        </div>
+
+        <button type="button" class="home-hero-slider-arrow home-hero-slider-arrow-prev" data-home-hero-slider-prev
+          aria-label="{% trans 'Предыдущие фото' %}">
+          ‹
+        </button>
+        <button type="button" class="home-hero-slider-arrow home-hero-slider-arrow-next" data-home-hero-slider-next
+          aria-label="{% trans 'Следующие фото' %}">
+          ›
+        </button>
+
+        <div class="home-hero-slider-dots" role="tablist" aria-label="{% trans 'Переключение фото' %}">
+          {% for slide in hero_gallery_slides %}
+          <button type="button" class="home-hero-slider-dot{% if forloop.first %} is-active{% endif %}"
+            data-home-hero-slider-dot data-slide-index="{{ forloop.counter0 }}"
+            aria-label="{% if request.LANGUAGE_CODE == 'az' %}{{ forloop.counter }}-ci şəkli göstər{% elif request.LANGUAGE_CODE == 'en' %}Show photo {{ forloop.counter }}{% else %}Показать фото {{ forloop.counter }}{% endif %}"></button>
+          {% endfor %}
+        </div>
+      </div>
+      {% else %}
+      {% with slide=hero_gallery_slides.0 %}
+      <div class="home-hero-slider home-hero-slider-single" data-home-hero-slider-single>
+        <article class="home-hero-slide home-hero-slide-single">
+          <div class="home-hero-slide-grid">
+            <figure class="home-hero-photo-card home-hero-photo-main">
+              {% include "catalog/includes/hero_photo.html" with item=slide.main sizes="(max-width: 760px) 55vw, (max-width: 1100px) 27vw, 320px" high_priority=True %}
+            </figure>
+
+            <figure class="home-hero-photo-card home-hero-photo-side-top">
+              {% include "catalog/includes/hero_photo.html" with item=slide.side_top sizes="(max-width: 760px) 43vw, (max-width: 1100px) 22vw, 260px" high_priority=False %}
+            </figure>
+
+            <figure class="home-hero-photo-card home-hero-photo-side-bottom">
+              {% include "catalog/includes/hero_photo.html" with item=slide.side_bottom sizes="(max-width: 760px) 43vw, (max-width: 1100px) 22vw, 260px" high_priority=False %}
+            </figure>
+          </div>
+        </article>
+      </div>
+      {% endwith %}
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% include "catalog/includes/home_places_rail.html" %}
+
+{% if home_categories %}
+<section class="home-discover" aria-labelledby="home-discover-title">
+  <div class="home-discover-head">
+    <div class="home-discover-head-text">
+      <span class="home-redesign-kicker">{% if request.LANGUAGE_CODE == 'az' %}MARAQLARDAN BAŞLAYIN{% elif request.LANGUAGE_CODE == 'en' %}FOLLOW THEIR CURIOSITY{% else %}НАЧНИТЕ С ИНТЕРЕСОВ{% endif %}</span>
+      <h2 id="home-discover-title">{% if request.LANGUAGE_CODE == 'az' %}Uşağınız nəyi sevir?{% elif request.LANGUAGE_CODE == 'en' %}What do they love doing?{% else %}Чем увлечён ваш ребёнок?{% endif %}</h2>
+    </div>
+    <a class="home-discover-all-link" href="{% url 'place_list' %}">
+      <span>{% trans "Все категории" %}</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+    </a>
+  </div>
+  <nav class="home-discover-cloud" aria-labelledby="home-discover-title">
+    {% for item in home_categories %}
+    <span class="km-bubble-wrap" style="--bubble-accent:{{ item.color_text|default:'#10b981' }};--bubble-bg:{{ item.color_bg|default:'#ecfdf5' }};">
+      <a class="km-category-bubble" href="{% url 'place_list' %}?category={{ item.value|urlencode }}"
+         title="{{ item.label }}">
+        <span class="hdb-icon" style="background:{{ item.color_bg|default:'#F3F4F6' }};color:{{ item.color_text|default:'#6B7280' }};" aria-hidden="true">{% include "catalog/includes/category_visual_icon.html" with code=item.value icon_file_url=item.icon_file_url icon_is_svg=item.icon_is_svg icon_is_font=item.icon_is_font icon_name=item.icon_name %}</span>
+        <span class="hdb-label">{{ item.label }}</span>{% if item.count %}<span class="hdb-count">{{ item.count }}</span>{% endif %}
+      </a>
+    </span>
+    {% endfor %}
+  </nav>
+</section>
+{% endif %}
+
+
+{% if map_places %}
+<section class="panel home-map-panel" id="home-map-section">
+  <div class="home-map-head">
+    <div class="home-map-copy">
+      <div class="home-map-eyebrow-row">
+        <div class="home-redesign-eyebrow home-map-eyebrow">
+          <span aria-hidden="true"></span>
+          {% if request.LANGUAGE_CODE == 'az' %}İnteraktiv xəritə{% elif request.LANGUAGE_CODE == 'en' %}Interactive map{% else %}Интерактивная карта{% endif %}
+        </div>
+
+      </div>
+      <h2>
+        {% if request.LANGUAGE_CODE == 'az' %}Uşaqlar üçün məkanlar xəritədə{% elif request.LANGUAGE_CODE == 'en' %}Discover kids’ places on the map{% else %}Детские места на карте{% endif %}
+      </h2>
+      <p class="home-map-subtitle">
+        {% if request.LANGUAGE_CODE == 'az' %}Rayon, fəaliyyət və uşağınızın yaşını seçin.{% elif request.LANGUAGE_CODE == 'en' %}Choose an area, an activity and your child’s age.{% else %}Выберите район, занятие и возраст ребёнка.{% endif %}
+      </p>
+    </div>
+    <a class="home-map-catalog-link" href="{% url 'place_list' %}">
+      <span class="home-map-desktop-label">{% trans "Открыть весь каталог" %}</span>
+      <span class="home-map-mobile-label">{% if request.LANGUAGE_CODE == 'az' %}Kataloq{% elif request.LANGUAGE_CODE == 'en' %}Catalog{% else %}Каталог{% endif %}</span>
+      <span class="home-btn-icon" aria-hidden="true">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="7" y1="17" x2="17" y2="7"></line>
+          <polyline points="7 7 17 7 17 17"></polyline>
+        </svg>
+      </span>
+    </a>
+  </div>
+
+  <div class="home-map-search-deck">
+    <form class="home-search home-search-compact" method="get" action="{% url 'place_list' %}"
+      data-home-map-filter-form>
+      {% trans "Начать поиск" as default_search_label %}
+      <div class="home-search-head">
+        <label class="home-search-label" for="home-hero-search-input">{{ hero_search_label }}</label>
+        <span class="home-search-instant-badge">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          {% if request.LANGUAGE_CODE == 'az' %}Xəritədə dərhal axtarış{% elif request.LANGUAGE_CODE == 'en' %}Map updates instantly{% else %}Карта обновляется сразу{% endif %}
+        </span>
+      </div>
+
+      <div class="home-search-primary-row">
+        <div class="home-search-input-wrap">
+          <span class="home-search-input-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
+          <input
+            id="home-hero-search-input"
+            type="search"
+            name="q"
+            value="{{ request.GET.q|default:'' }}"
+            data-search-input
+            autocomplete="off"
+            placeholder="{% if request.LANGUAGE_CODE == 'az' %}Məkan və ya fəaliyyət axtarın{% elif request.LANGUAGE_CODE == 'en' %}Search places or activities{% else %}Название места или занятие{% endif %}"
+            aria-label="{{ hero_search_label }}"
+          />
+          <button
+            class="home-search-clear-btn"
+            type="button"
+            data-home-search-clear
+            data-search-target="home-hero-search-input"
+            aria-label="{% if request.LANGUAGE_CODE == 'az' %}Axtarışı təmizlə{% elif request.LANGUAGE_CODE == 'en' %}Clear search{% else %}Очистить поиск{% endif %}"
+            {% if not request.GET.q %}hidden{% endif %}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="m6 6 12 12M18 6 6 18" />
+            </svg>
+          </button>
+
+          <!-- Autocomplete Dropdown with Live Places -->
+          <div class="home-search-autocomplete" id="home-search-autocomplete" data-home-search-autocomplete
+            data-label-on-map="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə{% elif request.LANGUAGE_CODE == 'en' %}On map{% else %}На карте{% endif %}"
+            data-label-show-all="{% if request.LANGUAGE_CODE == 'az' %}Bütün {count} nəticəni xəritədə göstər{% elif request.LANGUAGE_CODE == 'en' %}Show all {count} results on map{% else %}Показать все {count} мест на карте{% endif %}"
+            hidden>
+            <div class="hs-ac-header">
+              <span class="hs-ac-title" data-hs-ac-count-title>
+                {% if request.LANGUAGE_CODE == 'az' %}Tapılan məkanlar{% elif request.LANGUAGE_CODE == 'en' %}Found places{% else %}Найденные кружки и секции{% endif %}
+              </span>
+              <span class="hs-ac-hint">
+                {% if request.LANGUAGE_CODE == 'az' %}Xəritədə göstərmək üçün klikləyin{% elif request.LANGUAGE_CODE == 'en' %}Click to show on map{% else %}Нажмите, чтобы показать на карте{% endif %}
+              </span>
+            </div>
+            <ul class="hs-ac-list" role="listbox" data-hs-ac-list></ul>
+            <div class="hs-ac-footer" data-hs-ac-footer hidden>
+              <button type="button" class="hs-ac-show-all-btn" data-hs-ac-show-all>
+                <span data-hs-ac-show-all-text>
+                  {% if request.LANGUAGE_CODE == 'az' %}Bütün nəticələri xəritədə göstər{% elif request.LANGUAGE_CODE == 'en' %}Show all results on map{% else %}Показать все на карте{% endif %}
+                </span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+            <div class="hs-ac-empty" data-hs-ac-empty hidden>
+              <div class="hs-ac-empty-icon" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              </div>
+              <p class="hs-ac-empty-text">{% if request.LANGUAGE_CODE == 'az' %}Heç bir məkan tapılmadı{% elif request.LANGUAGE_CODE == 'en' %}No places found for this search{% else %}По этому запросу ничего не найдено{% endif %}</p>
+              <span class="hs-ac-empty-sub">{% if request.LANGUAGE_CODE == 'az' %}Açar sözü dəyişməyə və ya filtrləri sıfırlamağa çalışın{% elif request.LANGUAGE_CODE == 'en' %}Try changing keywords or resetting filters{% else %}Попробуйте изменить запрос или сбросить фильтры{% endif %}</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn home-search-show-map-btn" type="submit" data-home-show-map-btn
+          aria-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə göstər{% elif request.LANGUAGE_CODE == 'en' %}Show on map{% else %}Показать на карте{% endif %}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+            <line x1="8" y1="2" x2="8" y2="18"></line>
+            <line x1="16" y1="6" x2="16" y2="22"></line>
+          </svg>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Xəritədə göstər{% elif request.LANGUAGE_CODE == 'en' %}Show on map{% else %}Показать на карте{% endif %}</span>
+        </button>
+      </div>
+
+      <div class="home-search-row home-search-filters-row">
+        <select name="district" class="home-filter-district-select" hidden>
+          <option value="">{% trans "Регион / район" %}</option>
+          {% for district in home_districts %}
+          <option value="{{ district.value }}" data-label-current="{{ district.label }}"
+            data-label-az="{{ district.label_az }}" data-label-ru="{{ district.label_ru }}"
+            data-label-en="{{ district.label_en }}"
+            data-is-baku-city="{% if district.value == 'baku' %}1{% else %}0{% endif %}"
+            data-is-baku-district="{% if district.value|slice:':5' == 'baku_' %}1{% else %}0{% endif %}" {% if request.GET.district == district.value or request.GET.district == district.label %}selected{% endif %}>
+            {% firstof district.label_with_count district.label %}
+          </option>
+          {% endfor %}
+        </select>
+
+        <div class="km-location-tree" data-tree-select="district">
+          <button type="button" class="km-tree-trigger" id="district-tree-trigger" aria-haspopup="tree"
+            aria-expanded="false" aria-controls="district-tree-dropdown"
+            aria-label="{% if request.LANGUAGE_CODE == 'az' %}Region və ya rayon seç{% elif request.LANGUAGE_CODE == 'en' %}Choose region or district{% else %}Выбрать регион или район{% endif %}">
+            <span class="km-tree-trigger-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </span>
+            <span class="km-tree-trigger-text">
+              {% trans "Регион / район" %}
+            </span>
+          </button>
+          <div id="district-tree-dropdown" class="km-tree-dropdown" role="tree" tabindex="-1"
+            data-all-baku-label="{% trans 'Все районы Баку' %}" data-default-label="{% trans 'Регион / район' %}"
+            data-toggle-label="{% trans 'Переключить раздел' %}" hidden></div>
+        </div>
+
+        <select id="home-search-category" name="category" hidden>
+          <option value="">{% trans "Все категории" %}</option>
+          {% for item in home_categories %}
+          <option value="{{ item.value }}" {% if request.GET.category == item.value %}selected{% endif %}>{% firstof item.label_with_count item.label %}</option>
+          {% endfor %}
+        </select>
+
+        <!-- Custom Category Dropdown -->
+        <div class="km-category-select" data-category-select>
+          <button type="button" class="km-category-trigger" id="category-dropdown-trigger" aria-haspopup="listbox"
+            aria-expanded="false" aria-controls="category-dropdown-menu"
+            aria-label="{% if request.LANGUAGE_CODE == 'az' %}Kateqoriya seç{% elif request.LANGUAGE_CODE == 'en' %}Choose category{% else %}Выбрать категорию{% endif %}">
+            <span class="km-category-trigger-icon" data-category-trigger-icon>
+              <span class="km-category-option-icon all-categories-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                  <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                  <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                  <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                </svg>
+              </span>
+            </span>
+            <span class="km-category-trigger-text" data-category-trigger-text>
+              {% trans "Все категории" %}
+            </span>
+          </button>
+          <div class="km-category-dropdown" id="category-dropdown-menu" role="listbox" hidden>
+            <div class="km-category-option is-active" data-value="" role="option">
+              <span class="km-category-option-icon all-categories-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                  <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                  <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                  <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                </svg>
+              </span>
+              <span class="km-category-option-text">
+                {% trans "Все категории" %}
+              </span>
+            </div>
+            {% for item in home_categories %}
+            <div class="km-category-option" data-value="{{ item.value }}" role="option"
+              data-color-bg="{{ item.color_bg|default:'#F3F4F6' }}"
+              data-color-text="{{ item.color_text|default:'#6B7280' }}">
+              <span class="km-category-option-icon"
+                style="background-color: {{ item.color_bg|default:'#F3F4F6' }}; color: {{ item.color_text|default:'#6B7280' }};">
+                {% include "catalog/includes/category_visual_icon.html" with code=item.value icon_file_url=item.icon_file_url icon_is_svg=item.icon_is_svg icon_is_font=item.icon_is_font icon_name=item.icon_name %}
+              </span>
+              <span class="km-category-option-text">
+                {% firstof item.label_with_count item.label %}
+              </span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="home-age-presets" role="group" aria-label="{% trans 'Возраст' %}">
+          <span class="home-age-presets-label" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>{% if request.LANGUAGE_CODE == 'az' %}Uşağın yaşı{% elif request.LANGUAGE_CODE == 'en' %}Child’s age{% else %}Возраст ребёнка{% endif %}</span>
+          </span>
+          <div class="home-age-chips-wrap">
+            <input type="hidden" name="age" value="{{ selected_age }}" />
+            {% for age in home_age_options %}
+            {% with age_value=age|stringformat:"s" %}
+            <button type="button" class="home-age-chip{% if selected_age == age_value %} is-active{% endif %}"
+              data-home-age-chip data-age-value="{{ age_value }}"
+              aria-pressed="{% if selected_age == age_value %}true{% else %}false{% endif %}"
+              aria-label="{% if request.LANGUAGE_CODE == 'az' %}{{ age }} yaşlı uşaq üçün{% elif request.LANGUAGE_CODE == 'en' %}For a child aged {{ age }}{% else %}Для ребёнка {{ age }} лет{% endif %}">
+              {{ age }}
+            </button>
+            {% endwith %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <button type="button" class="home-search-reset-btn" data-home-search-reset
+          aria-label="{% if request.LANGUAGE_CODE == 'az' %}Filtrləri sıfırla{% elif request.LANGUAGE_CODE == 'en' %}Reset filters{% else %}Сбросить фильтры{% endif %}"
+          title="{% if request.LANGUAGE_CODE == 'az' %}Filtrləri sıfırla{% elif request.LANGUAGE_CODE == 'en' %}Reset filters{% else %}Сбросить фильтры{% endif %}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Sıfırla{% elif request.LANGUAGE_CODE == 'en' %}Reset{% else %}Сбросить{% endif %}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="home-map-results-bar">
+        <div class="home-map-live-pill" role="status" aria-live="polite" aria-atomic="true">
+          <span class="home-map-pulse-dot" aria-hidden="true"></span>
+          <span data-home-map-live-count>{{ map_business_count }}</span>
+          <span class="home-map-live-text">{% if request.LANGUAGE_CODE == 'az' %}məkan xəritədə{% elif request.LANGUAGE_CODE == 'en' %}places on map{% else %}мест на карте{% endif %}</span>
+        </div>
+    <span class="home-map-results-hint home-map-desktop-label">{% if request.LANGUAGE_CODE == 'az' %}Məkanı açmaq üçün xəritədəki işarəyə klikləyin{% elif request.LANGUAGE_CODE == 'en' %}Select a pin to discover a place{% else %}Нажмите на метку, чтобы открыть место{% endif %}</span>
+    <span class="home-map-results-hint home-map-mobile-label">{% if request.LANGUAGE_CODE == 'az' %}İşarəyə toxunun{% elif request.LANGUAGE_CODE == 'en' %}Select a pin{% else %}Выберите метку{% endif %}</span>
+  </div>
+
+  <div id="home-map" data-map-endpoint="{% url 'public_map' %}" class="home-map" data-details-label="{% trans 'Подробнее' %}"
+    data-age-range-label="{% if request.LANGUAGE_CODE == 'az' %}{from}–{to} yaş{% elif request.LANGUAGE_CODE == 'en' %}Ages {from}–{to}{% else %}{from}–{to} лет{% endif %}"
+    data-age-from-label="{% if request.LANGUAGE_CODE == 'az' %}{from}+ yaş{% elif request.LANGUAGE_CODE == 'en' %}Ages {from}+{% else %}от {from} лет{% endif %}"
+    data-age-to-label="{% if request.LANGUAGE_CODE == 'az' %}0–{to} yaş{% elif request.LANGUAGE_CODE == 'en' %}Up to age {to}{% else %}до {to} лет{% endif %}"
+    data-fallback-title="{% trans 'Карта детских мест по Азербайджану' %}"
+    data-empty-label="{% trans 'По выбранным фильтрам на карте пока нет мест' %}"
+    data-marker-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə məkanı aç: {name}{% elif request.LANGUAGE_CODE == 'en' %}Open place on map: {name}{% else %}Открыть место на карте: {name}{% endif %}"
+    data-catalog-url="{% url 'place_list' %}"
+    data-catalog-label="{% trans 'Открыть весь каталог' %}">
+  </div>
+  <p class="home-map-note" id="home-map-note" hidden aria-live="polite"></p>
+  <noscript>
+    <iframe class="home-map home-map-fallback" src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed&hl={{ request.LANGUAGE_CODE|urlencode }}"
+      loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+      title="{% trans 'Карта детских мест по Азербайджану' %}"></iframe>
+  </noscript>
+  {{ map_places|json_script:"home-map-data" }}
+</section>
+{% endif %}
+
+
+
+<section class="home-steps panel home-steps-lite animate-on-scroll" id="how-it-works"
+  aria-label="{% trans 'Как это работает' %}">
+  <div class="home-steps-lite-head">
+    <div>
+      <h2>{% trans "Как это работает" %}</h2>
+      <p>{% trans "Три простых шага, чтобы быстро найти детские занятия и места рядом." %}</p>
+    </div>
+    <a class="home-steps-catalog-link" href="{% url 'place_list' %}">{% trans "Перейти в каталог" %}</a>
+  </div>
+
+  <div class="home-steps-lite-grid">
+    <article class="home-step-lite-card">
+      <div class="home-step-lite-visual" aria-hidden="true">
+        <span class="home-step-lite-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 6h16M7 12h10M10 18h4" />
+            <circle cx="8" cy="6" r="1.5" />
+            <circle cx="15" cy="12" r="1.5" />
+            <circle cx="12" cy="18" r="1.5" />
+          </svg>
+        </span>
+        <span class="home-step-lite-number">1</span>
+      </div>
+      <div class="home-step-lite-content">
+        <h3>{% trans "Выберите фильтры" %}</h3>
+        <p>{% trans "Категория, регион, метро и возраст ребёнка." %}</p>
+      </div>
+    </article>
+    <article class="home-step-lite-card">
+      <div class="home-step-lite-visual" aria-hidden="true">
+        <span class="home-step-lite-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 5h6v14H4zM14 5h6v14h-6zM7 9h0M17 9h0M7 13h0M17 13h0" />
+          </svg>
+        </span>
+        <span class="home-step-lite-number">2</span>
+      </div>
+      <div class="home-step-lite-content">
+        <h3>{% trans "Сравните варианты" %}</h3>
+        <p>{% trans "Смотрите фото, цену, рейтинг, отзывы и расположение на карте." %}</p>
+      </div>
+    </article>
+    <article class="home-step-lite-card">
+      <div class="home-step-lite-visual" aria-hidden="true">
+        <span class="home-step-lite-icon">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M8.4 3.8 6 5.2c-.8.5-1.1 1.4-.8 2.3 1.6 5.2 5.5 9.1 10.7 10.7.9.3 1.8 0 2.3-.8l1.4-2.4-4-2-1.2 1.5c-2.2-.9-4-2.7-4.9-4.9L11 8.4z" />
+          </svg>
+        </span>
+        <span class="home-step-lite-number">3</span>
+      </div>
+      <div class="home-step-lite-content">
+        <h3>{% trans "Свяжитесь с местом" %}</h3>
+        <p>{% trans "Откройте карточку и сразу перейдите к звонку, сайту или Instagram." %}</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+{% url 'owner_places_dashboard' as owner_dashboard_url %}
+<section class="panel home-owner-banner animate-on-scroll" id="add-place">
+  <div class="home-owner-banner-grid">
+    <!-- Left Column: Value Proposition & Action -->
+    <div class="home-owner-copy">
+      <div class="home-redesign-eyebrow home-owner-eyebrow">
+        <span aria-hidden="true"></span>
+        {% if request.LANGUAGE_CODE == 'az' %}Məkan sahibləri üçün
+        {% elif request.LANGUAGE_CODE == 'en' %}For kids venue owners
+        {% else %}Владельцам детских мест{% endif %}
+      </div>
+
+      <h2>{% trans "Помогите родителям найти вас рядом" %}</h2>
+      <p class="home-owner-text">
+        {% if request.LANGUAGE_CODE == 'az' %}KidsMap uşaq dərnəkləri, kurslar, idman bölmələri və əyləncə mərkəzlərini bir xəritədə birləşdirir. Valideynlər sizi asanlıqla tapsın.
+        {% elif request.LANGUAGE_CODE == 'en' %}KidsMap brings together children's clubs, courses, sports sections and play centers on a single map. Help parents discover you nearby.
+        {% else %}KidsMap объединяет детские кружки, курсы, секции и центры развития на одной интерактивной карте. Помогите родителям найти вас рядом с домом.{% endif %}
+      </p>
+
+      <div class="home-owner-adult-note">
+        <span class="note-dot" aria-hidden="true"></span>
+        <span>
+          {% if request.LANGUAGE_CODE == 'az' %}Böyüklər üçün də dərslər varsa, uşaq bölmələri ayrıca vurğulanır
+          {% elif request.LANGUAGE_CODE == 'en' %}If you also offer adult classes, kids programs are featured separately
+          {% else %}Если у вас есть курсы для взрослых, детские направления выделяются отдельно{% endif %}
+        </span>
+      </div>
+
+      <!-- Desktop-only bullet list (clean & compact) -->
+      <ul class="home-owner-checklist desktop-only">
+        <li>
+          <span class="check-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </span>
+          <span>
+            {% if request.LANGUAGE_CODE == 'az' %}Kataloq və xəritədə prioritet görünürlük
+            {% elif request.LANGUAGE_CODE == 'en' %}Priority visibility in catalog and map
+            {% else %}Видимость в каталоге и на интерактивной карте{% endif %}
+          </span>
+        </li>
+        <li>
+          <span class="check-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </span>
+          <span>
+            {% if request.LANGUAGE_CODE == 'az' %}Foto, cədvəl, qiymət və birbaşa əlaqə
+            {% elif request.LANGUAGE_CODE == 'en' %}Photos, schedule, pricing & direct contacts
+            {% else %}Фото, расписание, цены и прямые контакты{% endif %}
+          </span>
+        </li>
+        <li>
+          <span class="check-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </span>
+          <span>
+            {% if request.LANGUAGE_CODE == 'az' %}Valideyn rəyləri ilə reytinq və etibar
+            {% elif request.LANGUAGE_CODE == 'en' %}Trust and ratings from parent reviews
+            {% else %}Доверие родителей и подтверждённые отзывы{% endif %}
+          </span>
+        </li>
+      </ul>
+
+      <!-- CTA Actions -->
+      <div class="home-owner-actions-row">
+        {% if request.user.is_authenticated %}
+        <a class="home-owner-cta-new" href="{% url 'owner_places_dashboard' %}">
+          <span>
+            {% if request.LANGUAGE_CODE == 'az' %}Şəxsi kabinetə keçin
+            {% elif request.LANGUAGE_CODE == 'en' %}Go to Dashboard
+            {% else %}Перейти в кабинет{% endif %}
+          </span>
+          <span class="cta-plus" aria-hidden="true">+</span>
+        </a>
+        {% else %}
+        <a class="home-owner-cta-new"
+          href="{% url 'account_login' %}?intent=add_place&amp;next={{ owner_dashboard_url|urlencode }}">
+          <span>
+            {% if request.LANGUAGE_CODE == 'az' %}Məkanınızı əlavə edin
+            {% elif request.LANGUAGE_CODE == 'en' %}Add your place
+            {% else %}{% trans "Добавить свое место" %}{% endif %}
+          </span>
+          <span class="cta-plus" aria-hidden="true">+</span>
+        </a>
+        {% endif %}
+        <a class="home-owner-link" href="#how-it-works">
+          <span>
+            {% if request.LANGUAGE_CODE == 'az' %}Necə işləyir?
+            {% elif request.LANGUAGE_CODE == 'en' %}How it works
+            {% else %}{% trans "Как это работает?" %}{% endif %}
+          </span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Right Column: KidsMap Business Hub Showcase Card -->
+    <div class="home-owner-right-panel">
+      <div class="km-partner-card">
+        <!-- Top bar with live status -->
+        <div class="km-partner-head">
+          <div class="km-partner-brand">
+            <div class="km-partner-logo-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </div>
+            <div>
+              <span class="km-partner-title">KidsMap Business</span>
+              <span class="km-partner-sub">
+                {% if request.LANGUAGE_CODE == 'az' %}Tərəfdaş paneli
+                {% elif request.LANGUAGE_CODE == 'en' %}Partner showcase
+                {% else %}Панель партнёра{% endif %}
+              </span>
+            </div>
+          </div>
+          <div class="km-live-status-pill">
+            <span class="km-live-dot" aria-hidden="true"></span>
+            <span>
+              {% if request.LANGUAGE_CODE == 'az' %}canlı platforma
+              {% elif request.LANGUAGE_CODE == 'en' %}live platform
+              {% else %}живая платформа{% endif %}
+            </span>
+          </div>
+        </div>
+
+        <!-- Metrics Row -->
+        <div class="km-metrics-row">
+          <div class="km-metric-cell">
+            <strong class="km-metric-val">{{ map_business_count }}</strong>
+            <span class="km-metric-lbl">
+              {% if request.LANGUAGE_CODE == 'az' %}aktiv məkan
+              {% elif request.LANGUAGE_CODE == 'en' %}active places
+              {% else %}активных мест{% endif %}
+            </span>
+          </div>
+          <div class="km-metric-cell km-metric-cell--accent">
+            <strong class="km-metric-val">{% if total_place_reviews_count %}{{ total_place_reviews_count }}{% else %}—{% endif %}</strong>
+            <span class="km-metric-lbl">
+              {% if request.LANGUAGE_CODE == 'az' %}valideyn rəyi
+              {% elif request.LANGUAGE_CODE == 'en' %}parent reviews
+              {% else %}отзывов родителей{% endif %}
+            </span>
+          </div>
+          <div class="km-metric-cell">
+            <strong class="km-metric-val">{{ home_categories|length }}</strong>
+            <span class="km-metric-lbl">
+              {% if request.LANGUAGE_CODE == 'az' %}istiqamət
+              {% elif request.LANGUAGE_CODE == 'en' %}activity categories
+              {% else %}направлений{% endif %}
+            </span>
+          </div>
+        </div>
+
+        <!-- 4 Key Advantages in 2x2 grid -->
+        <div class="km-benefits-2x2">
+          <div class="km-benefit-tile">
+            <div class="km-benefit-icon km-b-emerald" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
+                <line x1="9" y1="3" x2="9" y2="18"></line>
+                <line x1="15" y1="6" x2="15" y2="21"></line>
+              </svg>
+            </div>
+            <div class="km-benefit-text">
+              <h4>{% if request.LANGUAGE_CODE == 'az' %}Xəritədə görünüş{% elif request.LANGUAGE_CODE == 'en' %}Map visibility{% else %}На карте{% endif %}</h4>
+              <p>{% if request.LANGUAGE_CODE == 'az' %}Axtarışda ilk sıralarda{% elif request.LANGUAGE_CODE == 'en' %}Top in search{% else %}Первые в поиске{% endif %}</p>
+            </div>
+          </div>
+
+          <div class="km-benefit-tile">
+            <div class="km-benefit-icon km-b-purple" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+            </div>
+            <div class="km-benefit-text">
+              <h4>{% if request.LANGUAGE_CODE == 'az' %}Foto və cədvəl{% elif request.LANGUAGE_CODE == 'en' %}Photos & info{% else %}Фото и цены{% endif %}</h4>
+              <p>{% if request.LANGUAGE_CODE == 'az' %}Məkanınızı cəlbedici edin{% elif request.LANGUAGE_CODE == 'en' %}Highlight features{% else %}Полное описание{% endif %}</p>
+            </div>
+          </div>
+
+          <div class="km-benefit-tile">
+            <div class="km-benefit-icon km-b-amber" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9" />
+              </svg>
+            </div>
+            <div class="km-benefit-text">
+              <h4>{% if request.LANGUAGE_CODE == 'az' %}Etibar və rəylər{% elif request.LANGUAGE_CODE == 'en' %}Reviews & trust{% else %}Отзывы{% endif %}</h4>
+              <p>{% if request.LANGUAGE_CODE == 'az' %}Valideyn tövsiyələri{% elif request.LANGUAGE_CODE == 'en' %}Parents trust{% else %}Доверие родителей{% endif %}</p>
+            </div>
+          </div>
+
+          <div class="km-benefit-tile">
+            <div class="km-benefit-icon km-b-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            <div class="km-benefit-text">
+              <h4>{% if request.LANGUAGE_CODE == 'az' %}Şəxsi kabinet{% elif request.LANGUAGE_CODE == 'en' %}Dashboard{% else %}Кабинет{% endif %}</h4>
+              <p>{% if request.LANGUAGE_CODE == 'az' %}Sadə və rahat idarəetmə{% elif request.LANGUAGE_CODE == 'en' %}Easy management{% else %}Простое управление{% endif %}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Verified Footer Note -->
+        <div class="km-partner-footer">
+          <div class="km-verified-badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span>
+            {% if request.LANGUAGE_CODE == 'az' %}Məkan əlavə etmək pulsuzdur və cəmi 2 dəqiqə çəkir
+            {% elif request.LANGUAGE_CODE == 'en' %}Adding a place is free and takes just 2 minutes
+            {% else %}Добавление места бесплатно и занимает всего 2 минуты{% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Scoped styles for the Place Owner Section (#add-place) */
+  #add-place {
+    position: relative;
+    background: radial-gradient(circle at 95% 10%, rgba(22, 122, 63, 0.05) 0%, transparent 45%), #ffffff;
+    border: 1px solid rgba(19, 111, 56, 0.12);
+    border-radius: 32px;
+    box-shadow: 0 20px 50px -25px rgba(19, 111, 56, 0.16), 0 8px 24px -12px rgba(16, 42, 28, 0.06);
+    padding: 36px 40px;
+    margin: 48px auto;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    scroll-margin-top: 100px;
+  }
+
+  #how-it-works {
+    scroll-margin-top: 96px;
+  }
+
+  body.page-home .home-owner-banner-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.05fr) minmax(380px, 0.95fr) !important;
+    align-items: center !important;
+    gap: 40px !important;
+  }
+
+  body.page-home .home-owner-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 540px !important;
+  }
+
+  .home-owner-eyebrow {
+    order: -1 !important;
+    align-self: flex-start !important;
+    margin: 0 0 12px 0 !important;
+    display: inline-flex;
+  }
+
+  .home-owner-copy h2 {
+    margin: 0 0 12px;
+    font-size: clamp(24px, 2.6vw, 34px);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+    color: var(--home-ink, #0f172a);
+    text-wrap: balance;
+  }
+
+  .home-owner-text {
+    margin: 0 0 14px;
+    font-size: clamp(14px, 1.05vw, 15.5px);
+    line-height: 1.6;
+    color: var(--home-muted, #4b5563);
+    max-width: 520px;
+  }
+
+  /* Subtle note about adult courses */
+  .home-owner-adult-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 12px;
+    background: rgba(16, 185, 129, 0.07);
+    border: 1px solid rgba(16, 185, 129, 0.14);
+    color: #047857;
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 20px;
+  }
+
+  .home-owner-adult-note .note-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    flex-shrink: 0;
+  }
+
+  /* Desktop checklist */
+  .home-owner-checklist {
+    list-style: none;
+    margin: 0 0 24px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .home-owner-checklist li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--home-ink, #1e293b);
+  }
+
+  .home-owner-checklist .check-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(16, 185, 129, 0.14);
+    color: #10b981;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .home-owner-checklist .check-icon svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  /* CTA actions row */
+  .home-owner-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .home-owner-cta-new {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 24px;
+    min-height: 50px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #167a3f 0%, #105a30 100%);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 10px 22px -6px rgba(19, 111, 56, 0.38);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease;
+    white-space: nowrap;
+  }
+
+  .home-owner-cta-new:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px -6px rgba(19, 111, 56, 0.45);
+    color: #ffffff;
+    background: linear-gradient(135deg, #188645 0%, #0d532b 100%);
+  }
+
+  .home-owner-cta-new:active {
+    transform: scale(0.98);
+  }
+
+  .home-owner-cta-new .cta-plus {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .home-owner-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #167a3f;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 10px;
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+
+  .home-owner-link:hover {
+    color: #0d532b;
+  }
+
+  .home-owner-link:hover .arrow {
+    transform: translateX(3px);
+  }
+
+  .home-owner-link .arrow {
+    transition: transform 0.2s ease;
+  }
+
+  /* ── Right Column: KidsMap Business Hub Showcase Card ── */
+  .home-owner-right-panel {
+    width: 100%;
+  }
+
+  .km-partner-card {
+    background: #ffffff;
+    border: 1.5px solid rgba(19, 111, 56, 0.12);
+    border-radius: 24px;
+    padding: 22px;
+    box-shadow: 0 16px 40px -20px rgba(19, 111, 56, 0.18), 0 4px 12px rgba(0, 0, 0, 0.02);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .km-partner-card:hover {
+    box-shadow: 0 20px 48px -18px rgba(19, 111, 56, 0.24);
+    transform: translateY(-2px);
+  }
+
+  /* Partner Header */
+  .km-partner-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(19, 111, 56, 0.08);
+  }
+
+  .km-partner-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .km-partner-logo-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    background: #e6f4ea;
+    color: #167a3f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .km-partner-logo-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .km-partner-title {
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--home-ink, #0f172a);
+    line-height: 1.2;
+  }
+
+  .km-partner-sub {
+    display: block;
+    font-size: 11.5px;
+    color: var(--home-muted, #64748b);
+    font-weight: 600;
+  }
+
+  .km-live-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(16, 185, 129, 0.08);
+    color: #047857;
+    font-size: 11.5px;
+    font-weight: 750;
+    letter-spacing: 0.02em;
+  }
+
+  .km-live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    animation: km-dot-pulse 2s infinite ease-in-out;
+  }
+
+  @keyframes km-dot-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.75); }
+  }
+
+  /* Metrics Row (3 cells) */
+  .km-metrics-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .km-metric-cell {
+    background: #f8faf8;
+    border: 1px solid rgba(19, 111, 56, 0.08);
+    border-radius: 14px;
+    padding: 10px 8px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+  }
+
+  .km-metric-cell--accent {
+    background: #f0fdf4;
+    border-color: rgba(16, 185, 129, 0.2);
+  }
+
+  .km-metric-val {
+    font-size: clamp(16px, 1.8vw, 20px);
+    font-weight: 850;
+    color: var(--home-ink, #0f172a);
+    line-height: 1.1;
+  }
+
+  .km-metric-cell--accent .km-metric-val {
+    color: #15803d;
+  }
+
+  .km-metric-lbl {
+    font-size: 11px;
+    color: var(--home-muted, #64748b);
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  /* 2x2 Benefits Grid */
+  .km-benefits-2x2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .km-benefit-tile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid rgba(19, 111, 56, 0.08);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .km-benefit-tile:hover {
+    transform: translateY(-1px);
+    border-color: rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+  }
+
+  .km-benefit-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .km-benefit-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .km-b-emerald { background: #ecfdf5; color: #10b981; }
+  .km-b-purple  { background: #f5f3ff; color: #8b5cf6; }
+  .km-b-amber   { background: #fffbeb; color: #f59e0b; }
+  .km-b-blue    { background: #eff6ff; color: #3b82f6; }
+
+  .km-benefit-text h4 {
+    margin: 0 0 1px;
+    font-size: 12.5px;
+    font-weight: 750;
+    color: var(--home-ink, #0f172a);
+    line-height: 1.2;
+  }
+
+  .km-benefit-text p {
+    margin: 0;
+    font-size: 11px;
+    color: var(--home-muted, #64748b);
+    line-height: 1.25;
+  }
+
+  /* Partner Footer Note */
+  .km-partner-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(19, 111, 56, 0.08);
+    font-size: 12px;
+    color: #047857;
+    font-weight: 600;
+  }
+
+  .km-verified-badge {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #10b981;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .km-verified-badge svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  /* ── Mobile Responsive Rules ── */
+  @media (max-width: 960px) {
+    #add-place {
+      padding: 24px 18px;
+      border-radius: 24px;
+      margin: 32px auto;
+    }
+
+    body.page-home .home-owner-banner-grid {
+      grid-template-columns: 1fr !important;
+      gap: 20px !important;
+    }
+
+    body.page-home .home-owner-copy {
+      max-width: 100% !important;
+    }
+
+    .home-owner-copy h2 {
+      font-size: clamp(21px, 5.8vw, 26px);
+      margin-bottom: 10px;
+    }
+
+    .home-owner-text {
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .home-owner-adult-note {
+      font-size: 12px;
+      padding: 5px 10px;
+      margin-bottom: 14px;
+    }
+
+    /* Hide desktop checklist on mobile to avoid duplication with 2x2 grid */
+    .home-owner-checklist.desktop-only {
+      display: none;
+    }
+
+    .km-partner-card {
+      padding: 16px;
+      border-radius: 18px;
+      gap: 12px;
+    }
+
+    .km-metrics-row {
+      gap: 6px;
+    }
+
+    .km-metric-cell {
+      padding: 8px 4px;
+      border-radius: 10px;
+    }
+
+    .km-metric-val {
+      font-size: 16px;
+    }
+
+    .km-metric-lbl {
+      font-size: 10px;
+    }
+
+    .km-benefits-2x2 {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .km-benefit-tile {
+      padding: 8px 10px;
+      border-radius: 12px;
+      gap: 8px;
+    }
+
+    .km-benefit-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+    }
+
+    .km-benefit-icon svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .km-benefit-text h4 {
+      font-size: 11.5px;
+    }
+
+    .km-benefit-text p {
+      font-size: 10px;
+    }
+
+    .home-owner-actions-row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .home-owner-cta-new {
+      width: 100%;
+      box-sizing: border-box;
+      justify-content: center;
+      min-height: 48px;
+      font-size: 14px;
+      border-radius: 14px;
+    }
+
+    .home-owner-link {
+      justify-content: center;
+      font-size: 13.5px;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .km-benefits-2x2 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── Ultra-Modern Clean Animated FAQ Home Block ── */
+  @keyframes faqIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes faqRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  @keyframes faqOrb { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-24px, 18px) scale(1.12); } }
+  @keyframes faqOrb2 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(20px, -16px) scale(1.08); } }
+  @keyframes faqPing { 0% { transform: scale(.5); opacity: .6; } 100% { transform: scale(2.4); opacity: 0; } }
+  @keyframes faqPop { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+
+  .page-home .home-faq-panel {
+    position: relative;
+    background: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Home FAQ Hero Header */
+  .home-faq-header-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 28px;
+    background: linear-gradient(140deg, #f2f9f5 0%, #e7f5ec 100%);
+    border: 1px solid #cbe7d8;
+    padding: clamp(28px, 4vw, 38px) clamp(20px, 4vw, 44px);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: end;
+    animation: faqRise .6s cubic-bezier(.2,.8,.3,1) both;
+  }
+
+  .home-faq-orb1 {
+    position: absolute;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    right: -60px;
+    top: -150px;
+    background: radial-gradient(circle, rgba(19,111,56,.12), rgba(19,111,56,0) 70%);
+    animation: faqOrb 9s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .home-faq-orb2 {
+    position: absolute;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    left: 40%;
+    bottom: -170px;
+    background: radial-gradient(circle, rgba(19,111,56,.08), rgba(19,111,56,0) 70%);
+    animation: faqOrb2 11s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .home-faq-copy {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .home-faq-badge {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: #e2f4ea;
+    border: 1px solid #cbe7d8;
+    color: #0d4924;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+
+  .home-faq-ping-dot {
+    position: relative;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #136f38;
+    display: inline-block;
+  }
+
+  .home-faq-ping-dot span {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #136f38;
+    animation: faqPing 1.8s ease-out infinite;
+  }
+
+  .home-faq-copy h2 {
+    margin: 0;
+    color: #12211f;
+    font-size: clamp(1.6rem, 2.8vw, 2.3rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -.03em;
+  }
+
+  .home-faq-lead {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #4c5b58;
+    max-width: 560px;
+  }
+
+  .home-faq-header-actions {
+    position: relative;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .home-faq-btn {
+    min-height: 50px;
+    padding: 0 20px;
+    border-radius: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all .25s ease;
+  }
+
+  .home-faq-btn--primary {
+    background: #136f38;
+    color: #fff;
+    border: 1px solid #136f38;
+    box-shadow: 0 4px 14px rgba(19,111,56,.2);
+  }
+
+  .home-faq-btn--primary:hover {
+    background: #0d4924;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 16px 30px -20px rgba(13,73,36,.7);
+  }
+
+  .home-faq-btn--outline {
+    border: 1px solid #cfdcd8;
+    background: #fff;
+    color: #12211f;
+  }
+
+  .home-faq-btn--outline:hover {
+    border-color: #136f38;
+    color: #136f38;
+    transform: translateY(-2px);
+  }
+
+  /* List & Cards */
+  .home-faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .home-faq-item {
+    border-radius: 18px;
+    border: 1.5px solid #dfeae6;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .home-faq-item:hover {
+    border-color: #136f38;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -4px rgba(19, 111, 56, 0.08);
+  }
+
+  .home-faq-item[open] {
+    border-color: #136f38;
+    background: #ffffff;
+    box-shadow: 0 12px 28px -6px rgba(19, 111, 56, 0.12), 0 0 0 1px #136f38;
+  }
+
+  .home-faq-question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    text-align: left;
+    list-style: none;
+    user-select: none;
+    outline: none;
+    box-sizing: border-box;
+  }
+
+  .home-faq-question::-webkit-details-marker {
+    display: none;
+  }
+
+  .home-faq-badge-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    border-radius: 12px;
+    background: #e2f4ea;
+    color: #136f38;
+    border: 1px solid #cbe7d8;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .home-faq-badge-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .home-faq-item:hover .home-faq-badge-icon {
+    transform: scale(1.08);
+  }
+
+  .home-faq-item[open] .home-faq-badge-icon {
+    background: #136f38;
+    color: #ffffff;
+    border-color: transparent;
+  }
+
+  .home-faq-title {
+    flex: 1;
+    color: #1e293b;
+    font-size: 16px;
+    line-height: 1.4;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    transition: color 0.2s ease;
+  }
+
+  .home-faq-item[open] .home-faq-title {
+    color: #136f38;
+  }
+
+  .home-faq-toggle-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #64748b;
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .home-faq-item:hover .home-faq-toggle-btn {
+    background: #e2e8f0;
+    color: #0f172a;
+    transform: scale(1.05);
+  }
+
+  .home-faq-toggle-chevron {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .home-faq-item[open] .home-faq-toggle-btn {
+    background: #136f38;
+    color: #ffffff;
+    box-shadow: 0 3px 10px rgba(19, 111, 56, 0.3);
+  }
+
+  .home-faq-item[open] .home-faq-toggle-chevron {
+    transform: rotate(180deg);
+  }
+
+  .home-faq-answer-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .home-faq-item[open] .home-faq-answer-wrapper {
+    grid-template-rows: 1fr;
+  }
+
+  .home-faq-answer-inner {
+    overflow: hidden;
+    padding: 0 22px 20px 82px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    color: #4c5b58;
+    font-size: 15.5px;
+    line-height: 1.65;
+  }
+
+  .home-faq-answer-inner p {
+    margin: 0;
+  }
+
+  .home-faq-card-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-top: 12px;
+    border-top: 1px dashed #dfe8e5;
+  }
+
+  .home-faq-cta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #136f38;
+    text-decoration: none;
+  }
+
+  .home-faq-cta-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Helpful voting */
+  .home-faq-vote-box {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    color: #7d8b88;
+    font-weight: 600;
+  }
+
+  .home-faq-vote-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid #dbe3e1;
+    background: #ffffff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: all .2s;
+  }
+
+  .home-faq-vote-btn:hover {
+    border-color: #136f38;
+    background: #eaf6ef;
+    transform: translateY(-2px);
+  }
+
+  .home-faq-vote-thanks {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #136f38;
+    animation: faqPop .35s ease both;
+  }
+
+  /* Bottom CTA Bar */
+  .home-faq-bottom-bar {
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 18px 24px;
+    border-radius: 20px;
+    border: 1px solid #cbe7d8;
+    background: linear-gradient(140deg, #fbfdfc, #f2f9f5);
+  }
+
+  .home-faq-bottom-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #e2f4ea;
+    color: #136f38;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .home-faq-bottom-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .home-faq-bottom-text {
+    font-size: 15.5px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #12211f;
+  }
+
+  .home-faq-bottom-text span {
+    display: block;
+    font-weight: 600;
+    color: #6b7b78;
+    font-size: 14px;
+  }
+
+  .home-faq-bottom-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  /* Popular queries links */
+  .home-faq-popular {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 24px;
+    border-radius: 20px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    flex-wrap: wrap;
+  }
+
+  .home-faq-popular-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #136f38;
+  }
+
+  .home-faq-popular h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 0.9rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .home-faq-popular-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .home-faq-pill-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 999px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    font-size: 0.84rem;
+    font-weight: 700;
+    line-height: 1.3;
+    text-decoration: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .home-faq-pill-link:hover {
+    background: #136f38;
+    border-color: #136f38;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(19, 111, 56, 0.25);
+  }
+
+  @media (max-width: 900px) {
+    .home-faq-header-card {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .home-faq-bottom-actions {
+      margin-left: 0;
+      width: 100%;
+    }
+    .home-faq-answer-inner {
+      padding-left: 22px;
+    }
+  }
+</style>
+
+<section class="panel home-faq-panel" id="faq">
+  <!-- Top Hero Header -->
+  <div class="home-faq-header-card">
+    <div class="home-faq-orb1" aria-hidden="true"></div>
+    <div class="home-faq-orb2" aria-hidden="true"></div>
+
+    <div class="home-faq-copy">
+      <span class="home-faq-badge">
+        <span class="home-faq-ping-dot"><span></span></span>
+        {% trans "FAQ" %}
+      </span>
+      <h2>{% trans "Частые вопросы о KidsMap" %}</h2>
+      <p class="home-faq-lead">
+        {% if request.LANGUAGE_CODE == 'az' %}Ən çox verilən 4 sual. Qalanları tam FAQ səhifəsindədir.
+        {% elif request.LANGUAGE_CODE == 'en' %}Top 4 frequently asked questions. See all answers on the full FAQ page.
+        {% else %}4 самых частых вопроса. Полный список с поиском доступен на странице FAQ.{% endif %}
+      </p>
+    </div>
+
+    <div class="home-faq-header-actions">
+      <a class="home-faq-btn home-faq-btn--primary" href="{% url 'place_list' %}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+        <span>{% trans "Открыть каталог" %}</span>
+      </a>
+      <a class="home-faq-btn home-faq-btn--outline" href="{% url 'add_place' %}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+        <span>{% trans "Добавить место" %}</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 4 Main Accordion Questions -->
+  <div class="home-faq-list">
+    <!-- Question 1 -->
+    <details class="home-faq-item" open>
+      <summary class="home-faq-question">
+        <span class="home-faq-badge-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </span>
+        <span class="home-faq-title">{% trans "Как быстро найти кружок для ребёнка?" %}</span>
+        <span class="home-faq-toggle-btn" aria-hidden="true">
+          <span class="home-faq-toggle-chevron">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </span>
+        </span>
+      </summary>
+      <div class="home-faq-answer-wrapper">
+        <div class="home-faq-answer-inner">
+          <p>{% trans "Выберите категорию, регион, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку." %}</p>
+          <div class="home-faq-card-footer">
+            <a class="home-faq-cta-link" href="{% url 'place_list' %}">
+              <span>{% trans "Начать поиск" %}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            </a>
+            <div class="home-faq-vote-box" data-vote-id="home-q1">
+              <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+              <button type="button" class="home-faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+              </button>
+              <button type="button" class="home-faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Question 2 -->
+    <details class="home-faq-item">
+      <summary class="home-faq-question">
+        <span class="home-faq-badge-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="21" x2="4" y2="14"></line>
+            <line x1="4" y1="10" x2="4" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12" y2="3"></line>
+            <line x1="20" y1="21" x2="20" y2="16"></line>
+            <line x1="20" y1="12" x2="20" y2="3"></line>
+            <line x1="1" y1="14" x2="7" y2="14"></line>
+            <line x1="9" y1="8" x2="15" y2="8"></line>
+            <line x1="17" y1="16" x2="23" y2="16"></line>
+          </svg>
+        </span>
+        <span class="home-faq-title">{% trans "Есть ли фильтры по возрасту, району и цене?" %}</span>
+        <span class="home-faq-toggle-btn" aria-hidden="true">
+          <span class="home-faq-toggle-chevron">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </span>
+        </span>
+      </summary>
+      <div class="home-faq-answer-wrapper">
+        <div class="home-faq-answer-inner">
+          <p>{% if request.LANGUAGE_CODE == 'az' %}Bəli. Uşağın yaşı, region, metro, kateqoriya və qiymət filtrləri birlikdə işləyir. Seçilmiş yaş məkanın yaş aralığında olmalıdır. Yaş məlumatı olmayan məkanlar yaş filtri seçildikdə göstərilmir. Axtarış linkini paylaşa bilərsiniz.{% elif request.LANGUAGE_CODE == 'en' %}Yes. Child age, region, metro, category and price filters work together. The selected age must fall within the place’s age range. Places without age information are hidden when an age filter is selected. You can share the search link.{% else %}Да. Фильтры по возрасту ребёнка, региону, метро, категории и цене работают одновременно. Выбранный возраст должен входить в возрастной диапазон места. При выборе возраста места без возрастных данных не показываются. Ссылкой на поиск можно делиться.{% endif %}</p>
+          <div class="home-faq-card-footer">
+            <a class="home-faq-cta-link" href="{% url 'place_list' %}">
+              <span>{% trans "Попробовать фильтры" %}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            </a>
+            <div class="home-faq-vote-box" data-vote-id="home-q2">
+              <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+              <button type="button" class="home-faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+              </button>
+              <button type="button" class="home-faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Question 3 -->
+    <details class="home-faq-item">
+      <summary class="home-faq-question">
+        <span class="home-faq-badge-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </span>
+        <span class="home-faq-title">{% trans "Нужно ли регистрироваться, чтобы смотреть каталог?" %}</span>
+        <span class="home-faq-toggle-btn" aria-hidden="true">
+          <span class="home-faq-toggle-chevron">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </span>
+        </span>
+      </summary>
+      <div class="home-faq-answer-wrapper">
+        <div class="home-faq-answer-inner">
+          <p>{% trans "Нет, смотреть каталог, карту и карточки кружков можно без регистрации. Аккаунт нужен, если вы хотите ставить лайки, оставлять отзывы или управлять своими кружками." %}</p>
+          <div class="home-faq-card-footer">
+            <a class="home-faq-cta-link" href="{% url 'place_list' %}">
+              <span>{% trans "Открыть весь каталог" %}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            </a>
+            <div class="home-faq-vote-box" data-vote-id="home-q3">
+              <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+              <button type="button" class="home-faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+              </button>
+              <button type="button" class="home-faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Question 4 -->
+    <details class="home-faq-item">
+      <summary class="home-faq-question">
+        <span class="home-faq-badge-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </span>
+        <span class="home-faq-title">{% trans "Как оставить отзыв или поставить лайк?" %}</span>
+        <span class="home-faq-toggle-btn" aria-hidden="true">
+          <span class="home-faq-toggle-chevron">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </span>
+        </span>
+      </summary>
+      <div class="home-faq-answer-wrapper">
+        <div class="home-faq-answer-inner">
+          <p>{% trans "Откройте карточку кружка или страницу отзывов, войдите в аккаунт и оставьте оценку, текстовый отзыв или реакцию. Это помогает другим родителям быстрее выбирать." %}</p>
+          <div class="home-faq-card-footer">
+            <a class="home-faq-cta-link" href="{% url 'site_reviews' %}">
+              <span>{% trans "Страница отзывов" %}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            </a>
+            <div class="home-faq-vote-box" data-vote-id="home-q4">
+              <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+              <button type="button" class="home-faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+              </button>
+              <button type="button" class="home-faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- Bottom CTA Bar (Link to full FAQ Page) -->
+  <div class="home-faq-bottom-bar">
+    <div class="home-faq-bottom-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+    </div>
+    <div class="home-faq-bottom-text">
+      {% if request.LANGUAGE_CODE == 'az' %}Daha 5 sual — axtarış, rəylər və yerləşdirmə üzrə
+      <span>Tam FAQ səhifəsində cavabları axtarışla tapın.</span>
+      {% elif request.LANGUAGE_CODE == 'en' %}5 more questions — search, reviews, and listings
+      <span>Find all detailed answers on our full FAQ page.</span>
+      {% else %}Ещё 5 вопросов — поиск, отзывы и размещение секций
+      <span>Найдите все ответы и задайте свой вопрос на полной странице FAQ.</span>{% endif %}
+    </div>
+    <div class="home-faq-bottom-actions">
+      <a class="home-faq-btn home-faq-btn--primary" href="{% url 'faq_page' %}">
+        <span>{% if request.LANGUAGE_CODE == 'az' %}Bütün suallar{% elif request.LANGUAGE_CODE == 'en' %}All questions{% else %}Все вопросы{% endif %}</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+      </a>
+      <a class="home-faq-btn home-faq-btn--outline" href="{% url 'faq_page' %}#faq-form">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        <span>{% if request.LANGUAGE_CODE == 'az' %}Sual yaz{% elif request.LANGUAGE_CODE == 'en' %}Ask question{% else %}Задать вопрос{% endif %}</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Bottom: Popular Queries Cloud -->
+  <div class="home-faq-popular" aria-labelledby="home-popular-queries-title">
+    <div class="home-faq-popular-title-wrap">
+      <svg class="home-faq-popular-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <h3 id="home-popular-queries-title">{% trans "Популярные запросы" %}</h3>
+    </div>
+    <div class="home-faq-popular-links">
+      <a class="home-faq-pill-link" href="{% url 'place_list' %}">{% trans "Кружки в Азербайджане для детей" %}</a>
+      {% if 'EDU' in active_category_codes %}<a class="home-faq-pill-link" href="{% url 'place_list' %}?category=EDU">{% trans "Курсы для детей в Азербайджане" %}</a>{% endif %}
+      {% if 'SPRT' in active_category_codes %}<a class="home-faq-pill-link" href="{% url 'place_list' %}?category=SPRT">{% trans "Спортивные секции в Азербайджане" %}</a>{% endif %}
+      {% if 'ART' in active_category_codes %}<a class="home-faq-pill-link" href="{% url 'place_list' %}?category=ART">{% trans "Творческие кружки в Азербайджане" %}</a>{% endif %}
+      {% if 'TECH' in active_category_codes %}<a class="home-faq-pill-link" href="{% url 'place_list' %}?category=TECH&amp;q=program">{% trans "Программирование для детей в Азербайджане" %}</a>{% endif %}
+    </div>
+  </div>
+</section>
+
+<script>
+  (function initHomeFaqAccordion() {
+    const isAnimatingMap = new WeakMap();
+
+    function slideDown(item, wrap) {
+      if (isAnimatingMap.get(item)) return;
+      isAnimatingMap.set(item, true);
+
+      item.open = true;
+      const inner = wrap.firstElementChild || wrap;
+      const endHeight = inner.offsetHeight || wrap.scrollHeight;
+
+      wrap.style.overflow = 'hidden';
+      const anim = wrap.animate([
+        { height: '0px', opacity: 0 },
+        { height: endHeight + 'px', opacity: 1 }
+      ], {
+        duration: 320,
+        easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+      });
+
+      anim.onfinish = () => {
+        wrap.style.height = '';
+        wrap.style.overflow = '';
+        isAnimatingMap.set(item, false);
+      };
+    }
+
+    function slideUp(item, wrap) {
+      if (isAnimatingMap.get(item)) return;
+      isAnimatingMap.set(item, true);
+
+      const startHeight = wrap.offsetHeight || wrap.scrollHeight;
+      wrap.style.overflow = 'hidden';
+
+      const anim = wrap.animate([
+        { height: startHeight + 'px', opacity: 1 },
+        { height: '0px', opacity: 0 }
+      ], {
+        duration: 260,
+        easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+      });
+
+      anim.onfinish = () => {
+        item.open = false;
+        wrap.style.height = '';
+        wrap.style.overflow = '';
+        isAnimatingMap.set(item, false);
+      };
+    }
+
+    document.querySelectorAll('.home-faq-item').forEach(item => {
+      const summary = item.querySelector('.home-faq-question') || item.querySelector('summary');
+      const wrap = item.querySelector('.home-faq-answer-wrapper');
+      if (!summary || !wrap) return;
+
+      summary.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        if (item.open) {
+          slideUp(item, wrap);
+        } else {
+          // Close other open accordions smoothly
+          const parentList = item.closest('.home-faq-list') || item.parentElement;
+          if (parentList) {
+            parentList.querySelectorAll('.home-faq-item').forEach(other => {
+              if (other !== item && other.open) {
+                const otherWrap = other.querySelector('.home-faq-answer-wrapper');
+                if (otherWrap) slideUp(other, otherWrap);
+              }
+            });
+          }
+          slideDown(item, wrap);
+        }
+      });
+    });
+
+    const voteThanksText = {% if request.LANGUAGE_CODE == 'az' %}'Rəyiniz üçün təşəkkür!'{% elif request.LANGUAGE_CODE == 'en' %}'Thank you for your feedback!'{% else %}'Спасибо за отзыв!'{% endif %};
+    document.querySelectorAll('.home-faq-vote-box').forEach(box => {
+      box.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          box.innerHTML = `<span class="home-faq-vote-thanks"><span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">favorite</span> ${voteThanksText}</span>`;
+        });
+      });
+    });
+  })();
+</script>
+
+<script>
+  (function () {
+    document.querySelectorAll("[data-review-stars]").forEach(function (picker) {
+      const input = picker.parentElement.querySelector("[data-rating-input]");
+      if (!input) return;
+      const stars = Array.from(picker.querySelectorAll(".review-star"));
+
+      function paint(value) {
+        stars.forEach((star, idx) => {
+          star.classList.toggle("active", idx < value);
+        });
+      }
+
+      stars.forEach((star) => {
+        const value = Number(star.dataset.value || 0);
+        star.addEventListener("mouseenter", function () {
+          paint(value);
+        });
+        star.addEventListener("click", function () {
+          input.value = String(value);
+          paint(value);
+        });
+      });
+
+      picker.addEventListener("mouseleave", function () {
+        paint(Number(input.value || 0));
+      });
+
+      paint(Number(input.value || 0));
+    });
+  })();
+
+  (function () {
+    function initLocationTreeSelect() {
+      const container = document.querySelector('[data-tree-select="district"]');
+      if (!container) return;
+      const trigger = container.querySelector('.km-tree-trigger');
+      const triggerText = container.querySelector('.km-tree-trigger-text');
+      const dropdown = container.querySelector('.km-tree-dropdown');
+      const targetSelect = document.querySelector('select[name="district"]');
+      if (!trigger || !dropdown || !targetSelect) return;
+
+      const currentLang = (document.documentElement.lang || 'az').split('-')[0].toLowerCase();
+
+      function getBütünBakıRayonlarıLabel() {
+        if (currentLang === 'az') return 'Bütün Bakı rayonları';
+        if (currentLang === 'en') return 'All Baku districts';
+        return 'Все районы Баку';
+      }
+
+      function cleanDistrictLabel(label) {
+        if (label && label.includes(':')) {
+          return label.split(':')[1].trim();
+        }
+        return label;
+      }
+
+      function getOptions() {
+        return Array.from(targetSelect.options).map(function (opt) {
+          const label = opt.dataset.labelCurrent || opt.textContent.trim();
+          const labelWithCount = opt.textContent.trim();
+          return {
+            value: opt.value,
+            label: label,
+            labelWithCount: labelWithCount,
+            count: opt.value ? parseInt(labelWithCount.split('—')[1] || '0') : null
+          };
+        });
+      }
+
+      function createNodeRow(value, label, labelWithCount, hasChildren, isChild, isBakuAll, isLastChild) {
+        const row = document.createElement('div');
+        row.className = 'km-tree-row';
+        row.setAttribute('role', 'treeitem');
+        row.setAttribute('tabindex', '-1');
+        row.dataset.value = value;
+
+        if (isChild) {
+          row.classList.add('km-tree-row--child');
+          if (isBakuAll) {
+            row.classList.add('km-tree-row--baku-all');
+          }
+          if (isLastChild) {
+            row.classList.add('km-tree-row--last-child');
+          }
+        }
+
+        let isSelected = false;
+        if (value === 'baku') {
+          if (targetSelect.value === 'baku' && isBakuAll) {
+            isSelected = true;
+          }
+        } else {
+          if (targetSelect.value === value) {
+            isSelected = true;
+          }
+        }
+
+        if (isSelected) {
+          row.classList.add('is-selected');
+          row.setAttribute('aria-selected', 'true');
+        } else {
+          row.setAttribute('aria-selected', 'false');
+        }
+
+        if (hasChildren) {
+          const toggle = document.createElement('button');
+          toggle.type = 'button';
+          toggle.className = 'km-tree-chevron';
+          toggle.setAttribute('aria-label', 'Toggle');
+          toggle.setAttribute('tabindex', '-1');
+          toggle.innerHTML = `
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="km-tree-chevron-icon">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            `;
+          row.appendChild(toggle);
+        } else if (!isChild) {
+          const spacer = document.createElement('div');
+          spacer.className = 'km-tree-spacer';
+          row.appendChild(spacer);
+        }
+
+        if (isChild) {
+          const branch = document.createElement('div');
+          branch.className = 'km-tree-branch';
+          row.appendChild(branch);
+        }
+
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'km-tree-label';
+
+        const text = label;
+        const countPart = labelWithCount ? (labelWithCount.split('—')[1] || '').trim() : '';
+        labelSpan.innerHTML = text + (countPart ? ` <span class="km-tree-count">— ${countPart}</span>` : '');
+        row.appendChild(labelSpan);
+
+        row.addEventListener('click', function (e) {
+          if (hasChildren && e.target.closest('.km-tree-chevron')) {
+            e.stopPropagation();
+            toggleNode(row);
+          } else {
+            selectValue(value);
+          }
+        });
+
+        return row;
+      }
+
+      function toggleNode(row) {
+        const parentNode = row.closest('.km-tree-node');
+        if (!parentNode) return;
+        const children = parentNode.querySelector('.km-tree-children');
+        if (!children) return;
+
+        const isExpanded = row.getAttribute('aria-expanded') === 'true';
+        row.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+        children.hidden = isExpanded;
+      }
+
+      function selectValue(value) {
+        targetSelect.value = value;
+        targetSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        closeDropdown();
+      }
+
+      function buildTreeHTML() {
+        dropdown.innerHTML = '';
+        const options = getOptions();
+
+        const bakuOption = options.find(o => o.value === 'baku');
+        const bakuDistricts = options.filter(o => o.value.startsWith('baku_'));
+        const otherRegions = options.filter(o => o.value && o.value !== 'baku' && !o.value.startsWith('baku_'));
+
+        if (bakuOption) {
+          const bakuNode = document.createElement('div');
+          bakuNode.className = 'km-tree-node km-tree-parent';
+
+          const hasChildren = bakuDistricts.length > 0;
+          const bakuRow = createNodeRow(bakuOption.value, bakuOption.label, bakuOption.labelWithCount, hasChildren);
+          bakuNode.appendChild(bakuRow);
+
+          if (hasChildren) {
+            const childrenContainer = document.createElement('div');
+            childrenContainer.className = 'km-tree-children';
+            childrenContainer.setAttribute('role', 'group');
+
+            const isBakuSelected = targetSelect.value === 'baku' || targetSelect.value.startsWith('baku_');
+            bakuRow.setAttribute('aria-expanded', isBakuSelected ? 'true' : 'false');
+            childrenContainer.hidden = !isBakuSelected;
+
+            const bakuCountPart = bakuOption.labelWithCount.split('—')[1] || '';
+            const allBakuLabel = getBütünBakıRayonlarıLabel() + (bakuCountPart ? ' — ' + bakuCountPart : '');
+            const allBakuRow = createNodeRow('baku', getBütünBakıRayonlarıLabel(), allBakuLabel, false, true, true);
+            childrenContainer.appendChild(allBakuRow);
+
+            bakuDistricts.forEach((dist, idx) => {
+              const isLast = idx === bakuDistricts.length - 1;
+              const distRow = createNodeRow(dist.value, cleanDistrictLabel(dist.label), cleanDistrictLabel(dist.labelWithCount), false, true, false, isLast);
+              childrenContainer.appendChild(distRow);
+            });
+
+            bakuNode.appendChild(childrenContainer);
+          }
+          dropdown.appendChild(bakuNode);
+        }
+
+        otherRegions.forEach(reg => {
+          const regRow = createNodeRow(reg.value, reg.label, reg.labelWithCount, false);
+          dropdown.appendChild(regRow);
+        });
+      }
+
+      function toggleDropdown() {
+        const isHidden = dropdown.hidden;
+        if (isHidden) {
+          openDropdown();
+        } else {
+          closeDropdown();
+        }
+      }
+
+      function openDropdown() {
+        dropdown.hidden = false;
+        trigger.setAttribute('aria-expanded', 'true');
+        buildTreeHTML();
+
+        const firstItem = dropdown.querySelector('.km-tree-row');
+        if (firstItem) {
+          focusItem(firstItem);
+        }
+      }
+
+      function closeDropdown() {
+        dropdown.hidden = true;
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.focus();
+      }
+
+      function getVisibleItems() {
+        const items = [];
+        const rows = Array.from(dropdown.querySelectorAll('.km-tree-row'));
+        rows.forEach(row => {
+          const parentChildren = row.closest('.km-tree-children');
+          if (!parentChildren || !parentChildren.hidden) {
+            items.push(row);
+          }
+        });
+        return items;
+      }
+
+      function focusItem(item) {
+        if (!item) return;
+        const allRows = dropdown.querySelectorAll('.km-tree-row');
+        allRows.forEach(row => {
+          row.setAttribute('tabindex', '-1');
+        });
+        item.setAttribute('tabindex', '0');
+        item.focus();
+      }
+
+      dropdown.addEventListener('keydown', function (e) {
+        const active = document.activeElement;
+        if (!active || !active.classList.contains('km-tree-row')) return;
+
+        const visibleItems = getVisibleItems();
+        const index = visibleItems.indexOf(active);
+
+        switch (e.key) {
+          case 'ArrowDown':
+            e.preventDefault();
+            if (index < visibleItems.length - 1) {
+              focusItem(visibleItems[index + 1]);
+            }
+            break;
+          case 'ArrowUp':
+            e.preventDefault();
+            if (index > 0) {
+              focusItem(visibleItems[index - 1]);
+            }
+            break;
+          case 'ArrowRight':
+            e.preventDefault();
+            if (active.querySelector('.km-tree-chevron')) {
+              const isExpanded = active.getAttribute('aria-expanded') === 'true';
+              if (!isExpanded) {
+                toggleNode(active);
+              } else {
+                if (index < visibleItems.length - 1) {
+                  focusItem(visibleItems[index + 1]);
+                }
+              }
+            }
+            break;
+          case 'ArrowLeft':
+            e.preventDefault();
+            if (active.querySelector('.km-tree-chevron')) {
+              const isExpanded = active.getAttribute('aria-expanded') === 'true';
+              if (isExpanded) {
+                toggleNode(active);
+              }
+            } else if (active.classList.contains('km-tree-row--child')) {
+              const parentRow = dropdown.querySelector('.km-tree-node > .km-tree-row');
+              if (parentRow) {
+                focusItem(parentRow);
+              }
+            }
+            break;
+          case 'Enter':
+          case ' ':
+            e.preventDefault();
+            active.click();
+            break;
+          case 'Escape':
+            e.preventDefault();
+            closeDropdown();
+            break;
+          case 'Home':
+            e.preventDefault();
+            if (visibleItems.length > 0) {
+              focusItem(visibleItems[0]);
+            }
+            break;
+          case 'End':
+            e.preventDefault();
+            if (visibleItems.length > 0) {
+              focusItem(visibleItems[visibleItems.length - 1]);
+            }
+            break;
+        }
+      });
+
+      trigger.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleDropdown();
+      });
+
+      trigger.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openDropdown();
+        }
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!container.contains(e.target)) {
+          dropdown.hidden = true;
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      function updateTriggerLabel() {
+        const selectedVal = targetSelect.value;
+        const options = getOptions();
+        const selectedOpt = options.find(o => o.value === selectedVal);
+        if (selectedOpt && selectedVal !== '') {
+          if (selectedVal.startsWith('baku_')) {
+            const bakuOpt = options.find(o => o.value === 'baku');
+            const bakuLabel = bakuOpt ? bakuOpt.label : 'Bakı';
+            triggerText.textContent = `${bakuLabel} · ${cleanDistrictLabel(selectedOpt.label)}`;
+          } else {
+            triggerText.textContent = selectedOpt.label;
+          }
+          container.classList.add('is-active');
+        } else {
+          let defaultLabel = 'Region / район';
+          if (currentLang === 'az') defaultLabel = 'Region / rayon';
+          else if (currentLang === 'en') defaultLabel = 'Region / district';
+          else defaultLabel = 'Регион / район';
+          triggerText.textContent = defaultLabel;
+          container.classList.remove('is-active');
+        }
+      }
+
+      targetSelect.addEventListener('change', updateTriggerLabel);
+      updateTriggerLabel();
+    }
+
+    initLocationTreeSelect();
+
+    function initCategorySelect() {
+      const container = document.querySelector('[data-category-select]');
+      if (!container) return;
+      const trigger = container.querySelector('.km-category-trigger');
+      const triggerIcon = container.querySelector('[data-category-trigger-icon]');
+      const triggerText = container.querySelector('[data-category-trigger-text]');
+      const dropdown = container.querySelector('.km-category-dropdown');
+      const targetSelect = document.querySelector('select[name="category"]');
+      if (!trigger || !dropdown || !targetSelect) return;
+
+      function toggleDropdown() {
+        const isHidden = dropdown.hidden;
+        if (isHidden) {
+          openDropdown();
+        } else {
+          closeDropdown();
+        }
+      }
+
+      function openDropdown() {
+        dropdown.hidden = false;
+        trigger.setAttribute('aria-expanded', 'true');
+        const activeOpt = dropdown.querySelector('.km-category-option.is-active') || dropdown.querySelector('.km-category-option');
+        if (activeOpt) {
+          activeOpt.setAttribute('tabindex', '0');
+          activeOpt.focus();
+        }
+      }
+
+      function closeDropdown() {
+        dropdown.hidden = true;
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.focus();
+      }
+
+      dropdown.querySelectorAll('.km-category-option').forEach(option => {
+        option.setAttribute('tabindex', '-1');
+        option.addEventListener('click', function (e) {
+          const value = option.dataset.value;
+          selectValue(value);
+        });
+      });
+
+      function selectValue(value) {
+        targetSelect.value = value;
+        targetSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        closeDropdown();
+      }
+
+      function updateTrigger() {
+        const selectedVal = targetSelect.value;
+        dropdown.querySelectorAll('.km-category-option').forEach(opt => {
+          if (opt.dataset.value === selectedVal) {
+            opt.classList.add('is-active');
+            opt.setAttribute('aria-selected', 'true');
+          } else {
+            opt.classList.remove('is-active');
+            opt.setAttribute('aria-selected', 'false');
+          }
+        });
+
+        const activeOpt = dropdown.querySelector(`.km-category-option[data-value="${selectedVal}"]`) || dropdown.querySelector('.km-category-option[data-value=""]');
+        if (activeOpt) {
+          triggerText.textContent = activeOpt.querySelector('.km-category-option-text').textContent.trim();
+          triggerIcon.innerHTML = activeOpt.querySelector('.km-category-option-icon').innerHTML;
+          if (selectedVal !== '') {
+            container.classList.add('is-active');
+          } else {
+            container.classList.remove('is-active');
+          }
+        }
+      }
+
+      trigger.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleDropdown();
+      });
+
+      trigger.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openDropdown();
+        }
+      });
+
+      dropdown.addEventListener('keydown', function (e) {
+        const active = document.activeElement;
+        if (!active || !active.classList.contains('km-category-option')) return;
+        const options = Array.from(dropdown.querySelectorAll('.km-category-option'));
+        const index = options.indexOf(active);
+
+        switch (e.key) {
+          case 'ArrowDown':
+            e.preventDefault();
+            if (index < options.length - 1) {
+              options.forEach(opt => opt.setAttribute('tabindex', '-1'));
+              options[index + 1].setAttribute('tabindex', '0');
+              options[index + 1].focus();
+            }
+            break;
+          case 'ArrowUp':
+            e.preventDefault();
+            if (index > 0) {
+              options.forEach(opt => opt.setAttribute('tabindex', '-1'));
+              options[index - 1].setAttribute('tabindex', '0');
+              options[index - 1].focus();
+            }
+            break;
+          case 'Enter':
+          case ' ':
+            e.preventDefault();
+            active.click();
+            break;
+          case 'Escape':
+            e.preventDefault();
+            closeDropdown();
+            break;
+        }
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!container.contains(e.target)) {
+          dropdown.hidden = true;
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      targetSelect.addEventListener('change', updateTrigger);
+      updateTrigger();
+    }
+
+    initCategorySelect();
+
+    function initAgeChips() {
+      const form = document.querySelector('[data-home-map-filter-form]');
+      if (!form) return;
+      const ageInput = form.querySelector('input[name="age"]');
+      const chips = form.querySelectorAll('[data-home-age-chip]');
+      if (!ageInput || !chips.length) return;
+
+      function syncChips() {
+        const val = (ageInput.value || '').trim();
+        chips.forEach(chip => {
+          const chipVal = (chip.dataset.ageValue || '').trim();
+          const isActive = chipVal !== '' && chipVal === val;
+          chip.classList.toggle('is-active', isActive);
+          chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+      }
+
+      chips.forEach(chip => {
+        chip.addEventListener('click', function (e) {
+          e.preventDefault();
+          const chipVal = (chip.dataset.ageValue || '').trim();
+          const currentVal = (ageInput.value || '').trim();
+          ageInput.value = (currentVal === chipVal) ? '' : chipVal;
+          syncChips();
+          ageInput.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+      });
+
+      ageInput.addEventListener('change', syncChips);
+      syncChips();
+    }
+
+    initAgeChips();
+
+    // Scroll reveal logic
+    function initScrollReveal() {
+      const revealElements = document.querySelectorAll('.km-reveal, .km-reveal-up');
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, {
+          threshold: 0.1,
+          rootMargin: '0px 0px -40px 0px'
+        });
+        revealElements.forEach(el => observer.observe(el));
+      } else {
+        revealElements.forEach(el => el.classList.add('is-visible'));
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initScrollReveal);
+    } else {
+      initScrollReveal();
+    }
+  })();
+</script>
+{% endblock %}
+
+{% block extra_body %}
+{% if home_rail_places %}<script src="{% static 'js/home_places_rail.js' %}?v=20260909_autoresume1" defer></script>{% endif %}
+{% if hero_gallery_slides|length > 1 %}
+<script src="{% static 'js/home_hero_slider.js' %}?v=20260909_playful1"></script>
+{% endif %}
+<link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20260910" />
+<script src="{% static 'js/google_maps_motion.js' %}?v=20260910"></script>
+<script src="{% static 'js/google_maps_markers.js' %}?v=20260910"></script>
+<script src="{% static 'js/home_map.js' %}?v=20261002_stage20" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
+  data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
+  data-home-map-route-label="{% trans 'Маршрут' %}"
+  data-home-map-language="{{ request.LANGUAGE_CODE|escape }}"
+  data-home-map-unavailable-label="{% trans 'Карта временно недоступна.' %}"
+  data-home-map-leaflet-css="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  data-home-map-leaflet-css-integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  data-home-map-leaflet-js="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  data-home-map-leaflet-js-integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"
+  referrerpolicy="no-referrer"></script>
+
+
+{% if home_categories %}
+<script>
+(function () {
+  'use strict';
+  /* Pause floating animation while a bubble has keyboard focus */
+  var cloud = document.querySelector('.home-discover-cloud');
+  if (!cloud) return;
+  cloud.addEventListener('focusin',  function () { cloud.style.setProperty('--bubble-global-play', 'paused'); });
+  cloud.addEventListener('focusout', function () { cloud.style.removeProperty('--bubble-global-play'); });
+})();
+</script>
+{% endif %}
+{% endblock %}

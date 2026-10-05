@@ -1,0 +1,158 @@
+{% extends "admin/change_list.html" %}
+{% load i18n static admin_urls admin_list admin_dashboard_tags %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=20260915">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_staff_access_list.css' %}?v=120">
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} km-custom-changelist km-staff-access-list{% endblock %}
+{% block content_title %}{% endblock %}
+{% block page_actions %}{% endblock %}
+{% block filters %}{% endblock %}
+
+{% block search %}
+  <div class="col-12 p-0">
+    <div class="place-admin-dashboard km-admin-root km-staff-workspace">
+      <section class="place-admin-dashboard__header km-staff-header">
+        <div class="place-admin-dashboard__title-block">
+          <h1 class="place-admin-dashboard__title">{% translate "Сотрудники админки" %}</h1>
+          <p class="place-admin-dashboard__subtitle">{% translate "Доступ к панели управления и роли сотрудников." %}</p>
+        </div>
+        <div class="km-staff-header__actions">
+          <span class="km-staff-count-badge">{{ cl.result_list|length }} {% translate "сотрудников" %}</span>
+          {% if superadmin_request_list_url %}
+            <a href="{{ superadmin_request_list_url }}" class="km-staff-queue-btn">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-shield"></use></svg>
+              <span>{% translate "Запросы Superadmin" %}{% if pending_superadmin_count %} · {{ pending_superadmin_count }}{% endif %}</span>
+            </a>
+          {% endif %}
+          {% if has_add_permission %}
+            <a href="{% url cl.opts|admin_urlname:'add' %}" class="km-staff-add-btn">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add"></use></svg>
+              <span>{% translate "Добавить сотрудника" %}</span>
+            </a>
+          {% endif %}
+        </div>
+      </section>
+
+      <form class="km-staff-toolbar" method="get">
+        <div class="km-staff-toolbar__search">
+          <svg class="km-i km-staff-toolbar__icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-search"></use></svg>
+          <input type="search" name="q" value="{{ cl.query|default:'' }}" placeholder="{% translate 'Поиск по имени, логину или email' %}" aria-label="{% translate 'Поиск' %}">
+        </div>
+        <div class="km-staff-toolbar__select">
+          <select name="role" aria-label="{% translate 'Роль' %}">
+            <option value="">{% translate "Все роли" %}</option>
+            <option value="superadmin"{% if request.GET.role == 'superadmin' %} selected{% endif %}>{% translate "Суперадмины" %}</option>
+            <option value="volunteer"{% if request.GET.role == 'volunteer' %} selected{% endif %}>{% translate "Волонтёры" %}</option>
+            <option value="moderator"{% if request.GET.role == 'moderator' %} selected{% endif %}>{% translate "Модераторы" %}</option>
+            <option value="content_manager"{% if request.GET.role == 'content_manager' %} selected{% endif %}>{% translate "Контент-менеджеры" %}</option>
+            <option value="staff"{% if request.GET.role == 'staff' %} selected{% endif %}>{% translate "Другие сотрудники" %}</option>
+          </select>
+          <svg class="km-i km-staff-toolbar__arrow" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+        </div>
+        <button type="submit" class="km-staff-toolbar__btn-submit">
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-search"></use></svg>
+          <span>{% translate "Найти" %}</span>
+        </button>
+        {% if cl.query or request.GET.role %}
+          <a href="?" class="km-staff-toolbar__btn-reset">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg>
+            <span>{% translate "Сбросить" %}</span>
+          </a>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+{% endblock %}
+
+{% block result_list %}
+  <div class="col-12 p-0">
+    <div class="place-admin-dashboard km-admin-root km-staff-workspace">
+      <div class="place-admin-dashboard__table-wrap km-table-container">
+        <table class="km-staff-access-list__table" id="result_list">
+          <thead>
+            <tr>
+              <th scope="col">{% translate "Имя / логин" %}</th>
+              <th scope="col">{% translate "Email" %}</th>
+              <th scope="col" class="km-staff-cell-center">{% translate "Роль" %}</th>
+              <th scope="col" class="km-staff-cell-center">{% translate "Добавленные места" %}</th>
+              <th scope="col" class="km-staff-cell-center">{% translate "Активность" %}</th>
+              <th scope="col" class="km-staff-cell-center">{% translate "Последний вход" %}</th>
+              <th scope="col" class="km-staff-col-actions">{% translate "Действия" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for staff_user in cl.result_list %}
+              <tr>
+                <td data-label="{% translate 'Имя / логин' %}">
+                  <div class="km-staff-user-cell">
+                    <span class="km-staff-avatar" aria-hidden="true">{{ staff_user.username|slice:":1"|upper }}</span>
+                    <div class="km-staff-user-meta">
+                      <a href="{% url cl.opts|admin_urlname:'change' staff_user.pk %}" class="km-staff-user-name">
+                        {{ staff_user.get_full_name|default:staff_user.username }}
+                      </a>
+                      <span class="km-staff-user-username">@{{ staff_user.username }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td data-label="{% translate 'Email' %}">
+                  <span class="km-staff-email">{{ staff_user.email|default:"—" }}</span>
+                </td>
+                <td data-label="{% translate 'Роль' %}" class="km-staff-cell-center">
+                  <span class="km-staff-role km-staff-role--{{ staff_user.km_role }}">{{ staff_user.km_role_label }}</span>
+                </td>
+                <td data-label="{% translate 'Добавленные места' %}" class="km-staff-cell-center">
+                  <span class="km-staff-count">{{ staff_user.places_count }}</span>
+                </td>
+                <td data-label="{% translate 'Активность' %}" class="km-staff-cell-center">
+                  {% if staff_user.is_active %}
+                    <span class="km-staff-status km-staff-status--active">{% translate "Активен" %}</span>
+                  {% else %}
+                    <span class="km-staff-status km-staff-status--inactive">{% translate "Неактивен" %}</span>
+                  {% endif %}
+                </td>
+                <td data-label="{% translate 'Последний вход' %}" class="km-staff-cell-center">
+                  <span class="km-staff-date">{% if staff_user.last_login %}{{ staff_user.last_login|date:"d.m.Y H:i" }}{% else %}—{% endif %}</span>
+                </td>
+                <td data-label="{% translate 'Действия' %}" class="km-staff-col-actions">
+                  <div class="km-staff-actions">
+                    <a href="{% url cl.opts|admin_urlname:'change' staff_user.pk %}" class="btn km-admin-action km-admin-action--primary" title="{% translate 'Открыть' %}">
+                      <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-edit"></use></svg>
+                      <span>{% translate "Открыть" %}</span>
+                    </a>
+                    {% if staff_user.km_can_delete %}
+                      <a href="{% url cl.opts|admin_urlname:'delete' staff_user.pk %}" class="btn km-admin-action km-admin-action--danger" title="{% translate 'Удалить' %}">
+                        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-delete"></use></svg>
+                        <span>{% translate "Удалить" %}</span>
+                      </a>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" class="km-staff-access-list__empty">
+                  {% translate "Сотрудники не найдены." %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="km-place-pagination-inline">
+          <div class="km-redesign-pagination">
+            <span class="km-redesign-pagination__count">{% translate "Всего:" %} {{ cl.result_list|length }} {% translate "сотрудников" %}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block pagination %}{% endblock %}

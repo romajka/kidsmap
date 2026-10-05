@@ -145,6 +145,51 @@
 }
 
 /* Сортировка */
+/* The shared result template also serves business models, which do not load
+   the Place changelist stylesheet. Keep the sorting component self-contained. */
+#result_list .km-col-sort-badge {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  padding: 2px 7px;
+  border-radius: var(--km-admin-radius-sm);
+  line-height: 1;
+}
+
+#result_list .km-col-sort-badge.is-active {
+  background: var(--km-admin-accent-soft);
+  color: var(--km-admin-accent);
+  border: 1px solid var(--km-admin-border);
+}
+
+#result_list .km-col-sort-badge .km-i {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  vertical-align: middle;
+  fill: currentColor;
+}
+
+#result_list .km-col-arrow--up {
+  transform: rotate(180deg);
+}
+
+@media (max-width: 768px) {
+  #toolbar .form-group,
+  #changelist-search .form-group {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  #toolbar .select2-container,
+  #changelist-search .select2-container {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100%;
+  }
+}
+
 #result_list thead th.sortable a {
   color: var(--km-admin-text-muted);
   display: flex;

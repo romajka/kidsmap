@@ -1,0 +1,98 @@
+{
+  "project": "C-kidsmap",
+  "indexed_at": "2026-10-04T08:06:12Z",
+  "metadata": {
+    "generation": "2026-10-04T08:06:12Z",
+    "index_mode": "full",
+    "recorded_at": "2026-10-04T08:06:17Z",
+    "recording_status": "truncated",
+    "ignored_files_stored": 2000,
+    "ignored_files_total": 2020,
+    "hash_records_complete": true,
+    "coverage_version": 3,
+    "generation_matches": true
+  },
+  "paths": [
+    {
+      "path": "src/catalog/services/place_access.py",
+      "status": "coverage_unavailable",
+      "freshness": "metadata_changed",
+      "coverage": []
+    },
+    {
+      "path": "src/catalog/services/organization_ownership.py",
+      "status": "coverage_unavailable",
+      "freshness": "metadata_changed",
+      "coverage": []
+    },
+    {
+      "path": "src/catalog/services/specialist_documents.py",
+      "status": "coverage_unavailable",
+      "freshness": "metadata_changed",
+      "coverage": []
+    },
+    {
+      "path": "src/catalog/services/event_domain.py",
+      "status": "coverage_unavailable",
+      "freshness": "metadata_changed",
+      "coverage": []
+    },
+    {
+      "path": "src/catalog/services/workflow_notifications.py",
+      "status": "coverage_unavailable",
+      "freshness": "metadata_changed",
+      "coverage": []
+    },
+    {
+      "path": "src/catalog/private_storage.py",
+      "status": "coverage_unavailable",
+      "freshness": "metadata_changed",
+      "coverage": []
+    },
+    {
+      "path": "docker-compose.yml",
+      "status": "coverage_unavailable",
+      "freshness": "metadata_changed",
+      "coverage": []
+    },
+    {
+      "path": "Dockerfile",
+      "status": "partial",
+      "freshness": "metadata_changed",
+      "coverage": [
+        {
+          "path": "Dockerfile",
+          "kind": "parse_partial",
+          "detail": "10-26",
+          "match": "exact",
+          "ranges": [
+            {
+              "start": 10,
+              "end": 26
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "deploy/nginx/kidsmap.az.conf",
+      "status": "excluded",
+      "freshness": "not_tracked",
+      "coverage": [
+        {
+          "path": "deploy",
+          "kind": "not_indexed_dir",
+          "detail": "excluded subtree",
+          "match": "ancestor"
+        }
+      ]
+    }
+  ],
+  "graph_search": {
+    "total": 4,
+    "returned": 4,
+    "has_more": false
+  },
+  "direct_source_fallback": true,
+  "negative_graph_completeness_claims": false
+}

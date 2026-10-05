@@ -79,3 +79,29 @@ Workflow статусы/действия доступны в cabinet; важны
 Принятие макетов перед dependent implementation обязательно; реальный deploy отдельным поручением. Изолированная PostgreSQL/DB/cache/media/email, DJANGO_TESTING=1. Не коммитить/push/deploy автоматически.
 
 2026-09-29 пользователь отдельно поручил только этап07: business employees/action resolver/Place+Organization grants/invitations/revocation; server scope без новых экранов. Checkpoint acceptance сохраняется. Этап07 завершён с local tests и independent review (reports/07.md); дальнейшие этапы и production не запускались, commit/push/deploy не разрешены.
+
+## D12. Принятие Specialist screens — 2026-10-03
+
+Пользователь ответил «принимаю продолдавй» на specialist-25-r1. Revision ACCEPTED; продолжить интеграцию и проверки только этапа25 по prompts/25.md. Прежние product/ACL/privacy/consent решения сохраняются.26+ и production запуск, commit/push/merge/deploy этим ответом не разрешены. Результат локальной приёмки: reports/25.md.
+
+## D13. Отдельное поручение на этап26 — 2026-10-03
+
+После завершения25 пользователь отдельно поручил только prompts/26.md: Event organizer/venue/format, publication и occurrence/history, snapshot/archive, Baku period query, typed EventReview/page-schema parity. Авторизация APPROVED IMPLEMENT относится к этой границе, прежние продуктовые решения сохраняются. Этап27+, commit/push/merge/deploy и production запуск не разрешены. Локальная реализация и проверки: reports/26.md.
+
+## D14. Продолжение с этапом27 — 2026-10-03
+
+После завершения26 пользователь написал «дальше». Продолжить только следующий этап27 по prompts/27.md: афиша/calendar UI и сохранение filters, с прежним Event domain и принятым admin-public-03-r1. Технический план reports/27-plan.md; прежние продуктовые решения сохраняются.28, production запуск, commit/push/merge/deploy не включены. Existing events feature flag включается только на disposable local QA fixtures; production и глобальные defaults не меняются.
+
+## D16. Завершение пунктов 1–5 — 2026-10-04
+
+Пользователь явно утвердил реализацию плана `completion/PLAN.md`. Разрешены изменения приложения, тестов и документации в текущем WORKTREE в пределах пяти пунктов. Исторические материалы `final-audit/` неизменяемы, новые доказательства сохраняются в `completion/`. Production, реальные внешние интеграции, commit/push/deploy исключены. Готовность к production остаётся отдельным пунктом 6.
+
+Самостоятельное Activity имеет собственные категорию и подкатегорию; категория Place может быть только начальным предложением формы, не подстановкой поиска. Связанное занятие использует одобренную классификацию Program; при отделении сохраняет её как собственную. Старые пустые значения допустимы.
+
+Для почты принята автоматическая повторная отправка при неопределённом результате. Редкий дубль после принятия транспортом до COMMIT допустим; exactly-once не обещается. Inbox и outbox не дублируются, зафиксированный `sent` не отправляется повторно. Перед новой попыткой проверяются получатель, приглашение и права. Обычные ошибки сохраняют интервалы 2/4/8/16 минут и предел 5 попыток; необработанный сбой до COMMIT откатывает счётчик попыток. Это политика повторов, а не безусловная гарантия доставки: отзыв доступа подавляет отправку, исчерпание попыток заканчивается `failed`.
+
+Передача владения при изменившейся структуре возвращает HTTP 409 / `structure_changed` без частичных изменений. Повтор выполняется только явным действием пользователя после обновления данных.
+
+## D15. Итоговая локальная приёмка28 — 2026-10-03
+
+После DONE27 новое «дальше» поручает только28 по prompts/28.md: LOCAL ACCEPTANCE R2, независимые security/database/release reviews, текущие suites/browser/SEO/privacy/outbox/performance, conversion и compatible recovery с post-switch данными, private docs и очередью уведомлений. Существенные дефекты согласованного scope исправляются после воспроизведения и конкретного плана, с повторной проверкой. Прежние product decisions/design acceptance сохраняются. Production/commit/push/merge/deploy не разрешены; exact local artifact не объявляется production image.

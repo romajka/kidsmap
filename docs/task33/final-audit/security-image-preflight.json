@@ -1,0 +1,128 @@
+{
+  "run": "final-audit-image-r2-preflight-20261004",
+  "raw_evidence": "/root/task33-evidence/final-audit-image-r2-preflight-20261004",
+  "executor": "/root/stage28_release",
+  "scope": "fresh comprehensive audit; synthetic disposable only",
+  "production": "NOT_CONTACTED",
+  "run.json": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "isolation.json": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.15",
+    "psycopg": "3.2.10"
+  },
+  "migrations.json": {
+    "applied_count": 167,
+    "unapplied_count": 0,
+    "leaves": [
+      [
+        "account",
+        "0009_emailaddress_unique_primary_email"
+      ],
+      [
+        "admin",
+        "0003_logentry_add_action_flag_choices"
+      ],
+      [
+        "auth",
+        "0012_alter_user_first_name_max_length"
+      ],
+      [
+        "catalog",
+        "0133_task33_event_foundation"
+      ],
+      [
+        "catalog_moderation",
+        "0001_initial"
+      ],
+      [
+        "contenttypes",
+        "0002_remove_content_type_name"
+      ],
+      [
+        "sessions",
+        "0001_initial"
+      ],
+      [
+        "socialaccount",
+        "0006_alter_socialaccount_extra_data"
+      ]
+    ],
+    "vendor": "postgresql"
+  },
+  "discovery.json": {
+    "explicit_count": 1817,
+    "explicit_unique_count": 1817,
+    "duplicate_explicit_ids": 0
+  },
+  "suite-results.json": {
+    "tests_run": 29,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 71.412,
+    "status": "PASS",
+    "executed_ids": [
+      "catalog.testcases.test_task33_conversion.ConversionTests.test_command_dry_run_writes_plan_only_and_apply_is_explicit",
+      "catalog.testcases.test_task33_conversion.ConversionTests.test_database_rejects_applied_mapping_without_target",
+      "catalog.testcases.test_task33_conversion.ConversionTests.test_empty_plan_and_read_only_dry_run",
+      "catalog.testcases.test_task33_conversion.ConversionTests.test_existing_url_media_favorite_review_and_reaction_ids_survive",
+      "catalog.testcases.test_task33_conversion.ConversionTests.test_failed_batch_rolls_back_mapping_and_checkpoint_together",
+      "catalog.testcases.test_task33_conversion.ConversionTests.test_old_plan_never_overwrites_changed_source",
+      "catalog.testcases.test_task33_conversion.ConversionTests.test_populated_dry_run_preserves_all_database_rows",
+      "catalog.testcases.test_task33_conversion.ConversionTests.test_rehashed_plan_cannot_redirect_an_identity_target",
+      "catalog.testcases.test_task33_conversion.ConversionTests.test_repeat_and_resume_do_not_duplicate_mappings",
+      "catalog.testcases.test_task33_conversion.ConversionTests.test_testing_flag_with_database_url_cannot_apply",
+      "catalog.testcases.test_task33_conversion.ConversionTests.test_unknown_legacy_price_is_queued_and_retained",
+      "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_approved_past_and_cancelled_visibility_separate_from_publication",
+      "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_approved_snapshot_is_immutable_and_completed_dates_cannot_reuse_id",
+      "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_aware_positive_interval_validated_in_save_and_postgres",
+      "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_first_approved_format_survives_unpublication_and_blocks_both_content_switches",
+      "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_modelform_post_clean_reports_approved_format_change_before_admin_save",
+      "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_occurrence_history_append_only_and_unique_event_version",
+      "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_online_has_no_fabricated_place_or_geography_and_raw_updates_rejected",
+      "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_postgres_organizer_xor_blocks_two_or_zero_resolved_and_resolved_legacy_mismatch",
+      "catalog.testcases.test_task33_specialist_db_review.SpecialistDatabaseConstraintReview.test_claim_pending_pair_and_status_version_are_enforced_in_database",
+      "catalog.testcases.test_task33_specialist_db_review.SpecialistDatabaseConstraintReview.test_employment_period_role_status_version_and_two_confirmations_are_database_checks",
+      "catalog.testcases.test_task33_specialist_db_review.SpecialistDatabaseConstraintReview.test_exact_open_ended_duplicate_is_rejected_but_distinct_history_allowed",
+      "catalog.testcases.test_task33_specialist_db_review.SpecialistDatabaseConstraintReview.test_one_verified_account_cannot_claim_two_person_rows_by_direct_sql_write",
+      "catalog.testcases.test_rating_ranking_command.RatingRankingCalibrationCommandTests.test_activate_creates_an_active_version",
+      "catalog.testcases.test_rating_ranking_command.RatingRankingCalibrationCommandTests.test_dry_run_outputs_only_aggregate_proposal_and_writes_nothing",
+      "catalog.testcases.test_rating_ranking_command.RatingRankingCalibrationCommandTests.test_rollback_command_clones_the_requested_version",
+      "catalog.testcases.test_task33_conversion.ConversionConcurrencyTests.test_parallel_apply_uses_one_ledger_and_complete_checkpoint",
+      "catalog.testcases.test_task33_event_schema.EventMigrationTests.test_0132_0133_preserves_ids_reviews_unknown_organizers_and_own_snapshot_only",
+      "catalog.testcases.test_task33_specialist_db_review.SpecialistAdditiveMigrationReview.test_0130_to_latest_leaf_keeps_legacy_identity_locations_documents_reviews"
+    ],
+    "problems": [],
+    "problem_ids_complete": true
+  },
+  "checks.json": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.337
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.37
+    }
+  ]
+}

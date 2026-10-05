@@ -1,0 +1,209 @@
+{
+  "status": "PASS",
+  "identity": "r2-local-sha256-2682889e43734eece5b8f0cbc4930e46cc4f75a0f6a5e7c70880cf0bbfde898e",
+  "file_count": 2793,
+  "archive_sha256": "3c705b37c5351fb44e697e308ac73bc51813c64d065eb0d8d1ac3d842b45c26b",
+  "manifest_sha256": "8cc5151a3beb45da606b88a57f54ef62f0d108e3f97d251ed241922b98605e23",
+  "python": "3.12.3",
+  "python_executable_sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+  "dependencies": [
+    [
+      "Brotli",
+      "1.1.0"
+    ],
+    [
+      "Django",
+      "6.0.2"
+    ],
+    [
+      "PyJWT",
+      "2.15.1"
+    ],
+    [
+      "asgiref",
+      "3.11.1"
+    ],
+    [
+      "certifi",
+      "2026.7.22"
+    ],
+    [
+      "cffi",
+      "2.1.1"
+    ],
+    [
+      "charset-normalizer",
+      "3.5.2"
+    ],
+    [
+      "cryptography",
+      "50.0.2"
+    ],
+    [
+      "django-allauth",
+      "65.19.2"
+    ],
+    [
+      "django-jazzmin",
+      "3.0.1"
+    ],
+    [
+      "google-analytics-data",
+      "0.21.0"
+    ],
+    [
+      "google-api-core",
+      "2.40.0"
+    ],
+    [
+      "google-auth",
+      "2.59.1"
+    ],
+    [
+      "googleapis-common-protos",
+      "1.75.5"
+    ],
+    [
+      "grpcio",
+      "1.84.0"
+    ],
+    [
+      "grpcio-status",
+      "1.84.0"
+    ],
+    [
+      "gunicorn",
+      "23.0.0"
+    ],
+    [
+      "idna",
+      "3.20"
+    ],
+    [
+      "mysqlclient",
+      "2.2.4"
+    ],
+    [
+      "oauthlib",
+      "3.3.1"
+    ],
+    [
+      "opentelemetry-api",
+      "1.45.0"
+    ],
+    [
+      "packaging",
+      "26.3"
+    ],
+    [
+      "phonenumberslite",
+      "9.0.17"
+    ],
+    [
+      "pillow",
+      "11.3.0"
+    ],
+    [
+      "pillow_heif",
+      "1.5.0"
+    ],
+    [
+      "pip",
+      "24.0"
+    ],
+    [
+      "proto-plus",
+      "1.29.0"
+    ],
+    [
+      "protobuf",
+      "7.36.2"
+    ],
+    [
+      "psycopg",
+      "3.2.10"
+    ],
+    [
+      "psycopg-binary",
+      "3.2.10"
+    ],
+    [
+      "pyasn1",
+      "0.6.4"
+    ],
+    [
+      "pyasn1_modules",
+      "0.4.2"
+    ],
+    [
+      "pycparser",
+      "3.0"
+    ],
+    [
+      "redis",
+      "5.2.1"
+    ],
+    [
+      "requests",
+      "2.34.2"
+    ],
+    [
+      "sqlparse",
+      "0.5.5"
+    ],
+    [
+      "typing_extensions",
+      "4.16.0"
+    ],
+    [
+      "urllib3",
+      "2.8.0"
+    ],
+    [
+      "whitenoise",
+      "6.9.0"
+    ]
+  ],
+  "dependency_count": 39,
+  "static_source_identity": {
+    "file_count": 1995,
+    "path_sha256_inventory_sha256": "7c7e5e8baa54b9e2e709e09699660cc74136a20537c921a71dd26dd0547d37b9"
+  },
+  "migration_source_identity": {
+    "file_count": 136,
+    "path_sha256_inventory_sha256": "e444963e3bb2f78c77b4269667dfcaa24daf5f5897104a8cbd5a39745ca9af2c"
+  },
+  "compiled_locale_identity": {
+    "file_count": 3,
+    "path_sha256_inventory_sha256": "6c79c4f06dd31667e32b967966a99aab28487eef20621a56293dbea713d88232"
+  },
+  "artifact_verified": true,
+  "workspace_captured_source_mismatches": [],
+  "compiled_locale_deltas": [
+    {
+      "path": "locale/az/LC_MESSAGES/django.mo",
+      "workspace_sha256": "153ff6380799c30e5ca3d7a21043457eef8618d9d77ed855d82d7c213066e04e",
+      "artifact_sha256": "976224bc1be8e0c0c36fc54f2f97ec34a4d5fe693c074c69fc913f9b3818f0e3",
+      "reason": "fresh compilemessages from identical PO source"
+    },
+    {
+      "path": "locale/en/LC_MESSAGES/django.mo",
+      "workspace_sha256": "ca8001a3d80fbb3ed45877524a71ddc3d943b88078f9fbd14fcdcda987e86694",
+      "artifact_sha256": "7073d5861cfb34c5baea91ffbed153b8d4b27e95c7f66e76d9f007cf24464781",
+      "reason": "fresh compilemessages from identical PO source"
+    },
+    {
+      "path": "locale/ru/LC_MESSAGES/django.mo",
+      "workspace_sha256": "f2b611e78de3cfd9be0bea6b820ad3ae6a5afe88a7a939dc20eb16d84a2fb23d",
+      "artifact_sha256": "d9e48a09adb9d7c2126fdc7840a7e279c98936a6c581943c17a3a4c24d0dc91f",
+      "reason": "fresh compilemessages from identical PO source"
+    }
+  ],
+  "actual_application_image": "BUILT_LOCAL_SEPARATE_EVIDENCE",
+  "collected_static": "PASS_HOST_AND_LOCAL_IMAGE",
+  "runtime_schema": "database-reviewer and root own fresh PostgreSQL evidence",
+  "production": "NOT_CONTACTED",
+  "actual_local_image_id": "sha256:e9ba5fb1303f1309a5627c2f7c78fecdc29b5544acccb283e5639be2c756c5a8",
+  "image_evidence": "28-release-image.json / 28-release-image-verification.json",
+  "static_evidence": "28-static.json / 28-release-image-static.json"
+}

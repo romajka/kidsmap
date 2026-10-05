@@ -72,45 +72,16 @@ def toggle_place_like(place, request):
 
 
 def create_or_update_review(place, request, *, rating, review_text, author_name, is_anonymous, contains_profanity=False):
-    defaults = {
-        "status": PlaceReview.STATUS_PENDING,
-        "is_approved": False,
-        "rejection_reason": "",
-        "author_name": author_name,
-        "is_anonymous": is_anonymous,
-        "rating": rating,
-        "text": review_text,
-        "contains_profanity": contains_profanity,
-        "submitted_at": timezone.now(),
-        "moderated_at": None,
-        "moderated_by": None,
-    }
-    if request.user.is_authenticated:
-        review, created = PlaceReview.objects.update_or_create(
-            place=place,
-            user=request.user,
-            defaults=defaults,
-        )
-        return review, created
-
-    session_key = ensure_session_key(request)
-    existing_review = (
-        PlaceReview.objects.filter(place=place, user__isnull=True, session_key=session_key)
-        .order_by("-updated_at", "-id")
-        .first()
-    )
-
-    if existing_review:
-        for field, value in defaults.items():
-            setattr(existing_review, field, value)
-        existing_review.session_key = session_key
-        existing_review.save()
-        return existing_review, False
-
-    defaults["session_key"] = session_key
-    review = PlaceReview.objects.create(place=place, **defaults)
-    return review, True
-
+    if not request.user.is_authenticated:
+        review = PlaceReview.objects.create(place=place, user=None, session_key=ensure_session_key(request),
+            rating=rating, text=review_text, author_name=author_name, is_anonymous=is_anonymous,
+            contains_profanity=contains_profanity, status=PlaceReview.STATUS_PENDING,
+            is_approved=False, submitted_at=timezone.now())
+        return review, True
+    from catalog.services.review_versions import submit_review
+    head, revision = submit_review(target=place, user=request.user, rating=rating, text=review_text,
+        author_name=author_name, contains_profanity=contains_profanity, enforce_cooldown=True)
+    return head, True
 
 def _reaction_actor_defaults(request):
     if request.user.is_authenticated:
@@ -124,8 +95,18 @@ def _toggle_review_reaction(*, review, request, value: int, reaction_model):
 
     with transaction.atomic():
         locked_review = review.__class__.objects.select_for_update().get(pk=review.pk)
+        version_filter = {}
+        if hasattr(locked_review, 'current_revision_id'):
+            from catalog.services.review_versions import ensure_baseline, ReviewConflict
+            if not locked_review.is_current or not locked_review.is_approved or locked_review.status != 'approved':
+                raise PermissionError('Review is not visible')
+            ensure_baseline(locked_review)
+            requested = request.POST.get('revision_id')
+            if requested and str(locked_review.current_revision_id) != str(requested):
+                raise ReviewConflict('Visible review changed; reload before reacting')
+            version_filter = {'revision_id': locked_review.current_revision_id}
         existing_items = list(
-            reaction_model.objects.filter(review=locked_review).filter(identity_filter).order_by("id")
+            reaction_model.objects.filter(review=locked_review, **version_filter).filter(identity_filter).order_by("id")
         )
         existing = existing_items[0] if existing_items else None
         redundant_items = existing_items[1:]
@@ -146,11 +127,12 @@ def _toggle_review_reaction(*, review, request, value: int, reaction_model):
                     review=locked_review,
                     user=user,
                     session_key=session_key,
+                    **version_filter,
                     **defaults,
                 )
             current_reaction = int(value)
 
-        stats = reaction_model.objects.filter(review=locked_review).aggregate(
+        stats = reaction_model.objects.filter(review=locked_review, **version_filter).aggregate(
             likes=Count("id", filter=Q(value=1)),
             dislikes=Count("id", filter=Q(value=-1)),
         )
@@ -194,12 +176,12 @@ def _mark_review_reactions(reviews, request, *, reaction_model):
 
     identity_filter = identity_filter_for_request(request)
     reaction_map = {
-        item.review_id: int(item.value)
+        (item.review_id, getattr(item, 'revision_id', None)): int(item.value)
         for item in reaction_model.objects.filter(review_id__in=[review.id for review in review_list]).filter(identity_filter)
     }
 
     for review in review_list:
-        review.current_reaction = reaction_map.get(review.id, 0)
+        review.current_reaction = reaction_map.get((review.id, getattr(review, 'current_revision_id', None)), 0)
 
     return review_list
 

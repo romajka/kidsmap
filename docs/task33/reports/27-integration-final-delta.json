@@ -1,0 +1,182 @@
+{
+  "head": "015d031d8eb17114bd860159dde805b38df3c13c",
+  "executor": "/root/stage27_integration",
+  "runtime": "10/10 PASS on original freeze; late CSS/template source-only reviews, no runtime repeat",
+  "source_files": [
+    {
+      "path": "src/catalog/services/event_calendar.py",
+      "current_sha256": "874193ba8e5ef1d43de78b0a994081e2d5556901172a4f6d255b836cc40856fe",
+      "executed_frozen_sha256": "874193ba8e5ef1d43de78b0a994081e2d5556901172a4f6d255b836cc40856fe",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/services/event_queries.py",
+      "current_sha256": "62dee33bcf878a30fd4d3b6cd7aaf7b2230097b023130186d4092b1c286cf278",
+      "executed_frozen_sha256": "62dee33bcf878a30fd4d3b6cd7aaf7b2230097b023130186d4092b1c286cf278",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/services/features.py",
+      "current_sha256": "734d775f9643909d926cda713319ea0bd28d0b1a1b4e3bedfcf3769acaf5bfba",
+      "executed_frozen_sha256": "734d775f9643909d926cda713319ea0bd28d0b1a1b4e3bedfcf3769acaf5bfba",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/services/public_urls.py",
+      "current_sha256": "d62133fb7a1f9ac0261119b54f9293a13370518183fe9baf338e70aa932f614c",
+      "executed_frozen_sha256": "d62133fb7a1f9ac0261119b54f9293a13370518183fe9baf338e70aa932f614c",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/controllers/place_controller.py",
+      "current_sha256": "3e4ffce436739608e3b393c6978e7bc5de1282cb7b2ed51fbd55f998c0fd22b0",
+      "executed_frozen_sha256": "3e4ffce436739608e3b393c6978e7bc5de1282cb7b2ed51fbd55f998c0fd22b0",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/models/place.py",
+      "current_sha256": "92581a2166ddfc236347c2ae35355fc03989032a67b88dcc8917161d5467a9a3",
+      "executed_frozen_sha256": "92581a2166ddfc236347c2ae35355fc03989032a67b88dcc8917161d5467a9a3",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/models/event_domain.py",
+      "current_sha256": "b4385a1600962d14601c788c3cff9f1ed5f969a778ec7740d8eeaa4877777bd5",
+      "executed_frozen_sha256": "b4385a1600962d14601c788c3cff9f1ed5f969a778ec7740d8eeaa4877777bd5",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/views.py",
+      "current_sha256": "84a16503863e800359a9551cbe3dc67c7e63bd36b616f00269b8aaf252fa4e07",
+      "executed_frozen_sha256": "84a16503863e800359a9551cbe3dc67c7e63bd36b616f00269b8aaf252fa4e07",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/middleware.py",
+      "current_sha256": "3417034f0ed7e783d4193f1c3b4ea3557d2d6f7aa934e512b0f02091f8acfaf9",
+      "executed_frozen_sha256": "3417034f0ed7e783d4193f1c3b4ea3557d2d6f7aa934e512b0f02091f8acfaf9",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/urls.py",
+      "current_sha256": "64e6484711c3b07d2253a98cb4bd6ac45ebab6dda879c6c5ca727ac1e591480b",
+      "executed_frozen_sha256": "64e6484711c3b07d2253a98cb4bd6ac45ebab6dda879c6c5ca727ac1e591480b",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/events_landing.html",
+      "current_sha256": "e1ede6c4044f62273d7537965c52a19ce799dc339880d3862ae965f87b06522f",
+      "executed_frozen_sha256": "10d74a9678bcb6df2a391cab8bb2c0416d16c76d5ad8f52a545b4dd53cca2fd9",
+      "unchanged": false,
+      "late_source_only_review": true,
+      "reviewed_delta": "landing native navigation motion override",
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/event_detail.html",
+      "current_sha256": "362cab92095741fa7a57679526bb0378558fb8e2c660fd9710ddca6e645dc221",
+      "executed_frozen_sha256": "362cab92095741fa7a57679526bb0378558fb8e2c660fd9710ddca6e645dc221",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/event_calendar.html",
+      "current_sha256": "c7c4e14666dc8d44ecb33da5b49d6b5134da07ce650fdd7df0dadc96780faa27",
+      "executed_frozen_sha256": "c7c4e14666dc8d44ecb33da5b49d6b5134da07ce650fdd7df0dadc96780faa27",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/event_listing_card.html",
+      "current_sha256": "2cb02f576b3dbd1c726d5f809457c866b12c59ea01af59cfc5e2ac7851043289",
+      "executed_frozen_sha256": "2cb02f576b3dbd1c726d5f809457c866b12c59ea01af59cfc5e2ac7851043289",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/event_title_fallback.html",
+      "current_sha256": "670ad548ed794316755fb8a29804e5a403a33d10e6e6fb296bc75ce5667446a4",
+      "executed_frozen_sha256": "670ad548ed794316755fb8a29804e5a403a33d10e6e6fb296bc75ce5667446a4",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/event_occurrence_state.html",
+      "current_sha256": "336149b70af6fa6a49b0040884ba794513d36fc0a32e99b90ccfd257ddc11260",
+      "executed_frozen_sha256": "336149b70af6fa6a49b0040884ba794513d36fc0a32e99b90ccfd257ddc11260",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/includes/event_countdown.html",
+      "current_sha256": "957e15b5a535103397af87315a47c0ed188b6d7d697c9e910a1e38e98005181b",
+      "executed_frozen_sha256": "957e15b5a535103397af87315a47c0ed188b6d7d697c9e910a1e38e98005181b",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "static/css/events_landing.css",
+      "current_sha256": "ab2a88df60d30d18c709d2878836b32415fbd6316f076436d7fcb54e2b042ae0",
+      "executed_frozen_sha256": "aed645d4ffd28fab086cc9fc33884a6249b73d39f67aaf613bb7877526b5d43d",
+      "unchanged": false,
+      "late_source_only_review": true,
+      "reviewed_delta": "hero-stat CSS wrapping",
+      "covered_by_runtime_or_review": true
+    },
+    {
+      "path": "src/catalog/testcases/test_task33_event_calendar_review.py",
+      "current_sha256": "ed8705844072cfe00e8c88423cdf0c297143965209d87959365853006a7b2917",
+      "executed_frozen_sha256": "ed8705844072cfe00e8c88423cdf0c297143965209d87959365853006a7b2917",
+      "unchanged": true,
+      "late_source_only_review": false,
+      "reviewed_delta": null,
+      "covered_by_runtime_or_review": true
+    }
+  ],
+  "unchanged_count": 17,
+  "late_reviewed_count": 2,
+  "current_coverage_count": 19,
+  "production": "NOT_CONTACTED"
+}

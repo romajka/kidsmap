@@ -7,6 +7,7 @@ from decimal import Decimal
 from django.db import transaction
 from django.db.models import (
     Count,
+    Q,
     ExpressionWrapper,
     F,
     FloatField,
@@ -182,6 +183,8 @@ def build_place_rating_calibration_proposal(
     square = ExpressionWrapper(F("rating") * F("rating"), output_field=IntegerField())
     population = public_review_queryset(
         PlaceReview.objects.filter(place_id__in=public_place_ids, created_at__lte=cutoff)
+        .filter(Q(current_revision__isnull=True) | Q(current_revision__moderated_at__lte=cutoff)
+                | Q(current_revision__moderated_at__isnull=True, current_revision__created_at__lte=cutoff))
     ).aggregate(
         review_count=Count("pk"),
         place_count=Count("place_id", distinct=True),

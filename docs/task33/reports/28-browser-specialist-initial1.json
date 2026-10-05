@@ -1,0 +1,300 @@
+{
+  "stage": 28,
+  "family": "specialist",
+  "executor": "/root/stage26_public",
+  "role": "browser-qa",
+  "scope": "fresh Chromium rendered execution; not independent source review of previous authored backend",
+  "evidence": "\\\\wsl.localhost\\Ubuntu-24.04\\root\\task33-evidence\\browser28-specialist-20261004-final1",
+  "contexts": 168,
+  "unique_contexts": 168,
+  "passed_contexts": 147,
+  "checks": 380,
+  "passed_checks": 380,
+  "failed_rows": [
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "az",
+      "width": 320,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "ru",
+      "width": 320,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "en",
+      "width": 320,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "az",
+      "width": 360,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "ru",
+      "width": 360,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "en",
+      "width": 360,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "az",
+      "width": 390,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "ru",
+      "width": 390,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "en",
+      "width": 390,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "az",
+      "width": 768,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "ru",
+      "width": 768,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "en",
+      "width": 768,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "az",
+      "width": 1024,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "ru",
+      "width": 1024,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "en",
+      "width": 1024,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "az",
+      "width": 1280,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "ru",
+      "width": 1280,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "en",
+      "width": 1280,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "az",
+      "width": 1440,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "ru",
+      "width": 1440,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    },
+    {
+      "screen": "public",
+      "role": null,
+      "actor": "public",
+      "lang": "en",
+      "width": 1440,
+      "mode": null,
+      "issues": [
+        "public_seo_head"
+      ]
+    }
+  ],
+  "failed_checks": [],
+  "event_counts": {
+    "errors": 0,
+    "failed": 0,
+    "staticFailures": 0,
+    "stubs": 372,
+    "expectedErrors": 1
+  },
+  "launcher_status": "PASS",
+  "cleanup": "PASS",
+  "isolation": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10"
+  },
+  "screenshots": [
+    "certificate-upload-error-ru-390.png",
+    "certificates-ru-1440.png",
+    "certificates-ru-390.png",
+    "claims-ru-1440.png",
+    "claims-ru-390.png",
+    "index-ru-1440.png",
+    "index-ru-390.png",
+    "invitations-ru-1440.png",
+    "invitations-ru-390.png",
+    "org-ru-1440.png",
+    "org-ru-390.png",
+    "person-ru-1440.png",
+    "person-ru-390.png",
+    "public-ru-1440.png",
+    "public-ru-390.png",
+    "review-ru-1440.png",
+    "review-ru-390.png"
+  ],
+  "source_current": {
+    "application_files": 2750,
+    "mismatches": [],
+    "new_application_files": [
+      "src/catalog/testcases/test_task33_event_admin_precision.py"
+    ],
+    "executed_harness_unchanged": true
+  },
+  "runtime_assets": {},
+  "status": "FAIL"
+}

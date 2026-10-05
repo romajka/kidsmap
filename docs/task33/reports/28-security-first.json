@@ -1,0 +1,26 @@
+{
+  "stage": 28,
+  "scope": "Security first harness label error, suite not executed",
+  "evidence": "/root/task33-evidence/stage28-security-first-20261003",
+  "discovery.json": {
+    "explicit_count": 1812,
+    "explicit_unique_count": 1812,
+    "duplicate_explicit_ids": 0
+  },
+  "isolation.json": {
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10",
+    "network_guard": true,
+    "libpq_guard": true,
+    "external_credentials_present": false
+  },
+  "run.json": {
+    "status": "ENVIRONMENT_FAILURE",
+    "child_exit": 1,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  }
+}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+{% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
+{% block title %}{% trans 'Кабинет специалиста' %}{% endblock %}
+{% block extra_head %}{{ block.super }}<meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}">{% endblock %}
+{% block content %}
+{% get_current_language as language %}
+<section class="sw-workspace">
+  <header class="sw-heading">
+    <p class="sw-eyebrow">{% trans 'Педагоги и специалисты' %}</p>
+    <h1>{% if workspace_mode == 'organization' %}{% trans 'Специалисты организации' %}{% elif workspace_mode == 'claims' %}{% trans 'Это мой профиль' %}{% elif workspace_mode == 'certificates' %}{% trans 'Дипломы и сертификаты' %}{% elif workspace_mode == 'review' %}{% trans 'Проверка KidsMap' %}{% elif workspace_mode == 'invitations' %}{% trans 'Сотрудничество' %}{% else %}{% trans 'Кабинет специалиста' %}{% endif %}</h1>
+    {% if specialist %}<p class="sw-lede">{{ specialist.name }}</p>{% elif organization %}<p class="sw-lede">{% if language == 'ru' %}{{ organization.name_ru|default:organization.name_az }}{% elif language == 'en' %}{{ organization.name_en|default:organization.name_az }}{% else %}{{ organization.name_az }}{% endif %}</p>{% endif %}
+  </header>
+  <div class="sw-layout">
+    <nav class="sw-nav" aria-label="{% trans 'Кабинет специалиста' %}">
+      <a href="{% url 'specialist_workspace_index' %}" {% if workspace_mode == 'index' %}aria-current="page"{% endif %}>{% trans 'Мои профили' %}</a>
+      {% if specialist and can_manage_specialist %}
+      <a href="{% url 'specialist_workspace_profile' specialist.pk %}">{% trans 'Личные сведения' %}</a>
+      <a href="{% url 'specialist_workspace_invitations' specialist.pk %}" {% if workspace_mode == 'invitations' %}aria-current="page"{% endif %}>{% trans 'Сотрудничество' %}</a>
+      <a href="{% url 'specialist_workspace_certificates' specialist.pk %}" {% if workspace_mode == 'certificates' %}aria-current="page"{% endif %}>{% trans 'Дипломы и сертификаты' %}</a>
+      {% endif %}
+      {% if specialist %}<a href="{% url 'specialist_workspace_claims' specialist.pk %}" {% if workspace_mode == 'claims' %}aria-current="page"{% endif %}>{% trans 'Это мой профиль' %}</a>{% endif %}
+      {% if specialist and can_review_claims or specialist and can_review_documents %}<a href="{% url 'specialist_workspace_review' specialist.pk %}" {% if workspace_mode == 'review' %}aria-current="page"{% endif %}>{% trans 'Проверка KidsMap' %}</a>{% endif %}
+      <a href="{% url 'owner_places_dashboard' %}">{% trans 'Мой кабинет' %}</a>
+    </nav>
+    <div class="sw-content">
+      {% if error %}<div class="sw-notice sw-error" role="alert">{{ error }}</div>{% endif %}
+      {% if workspace_mode == 'index' %}
+        <section class="sw-card"><h2>{% trans 'Личный профиль' %}</h2>
+          {% if my_specialist %}<h3>{{ my_specialist.name }}</h3><p>{% trans 'Личными сведениями и документами управляет подтверждённый человек.' %}</p><a class="sw-button sw-primary" href="{% url 'specialist_workspace_profile' my_specialist.pk %}">{% trans 'Редактировать профиль' %}</a>
+          {% else %}<p>{% trans 'У вас пока нет подтверждённого профиля специалиста.' %}</p><a class="sw-button" href="{% url 'owner_specialist_create' %}">{% trans 'Предложить профиль' %}</a>{% endif %}
+        </section>
+        <section class="sw-card"><h2>{% trans 'Предложенные профили' %}</h2><p>{% trans 'Авторство предложения не даёт права менять личные сведения человека.' %}</p><ul class="sw-rows">{% for proposal in proposals %}<li><h3>{{ proposal.name }}</h3><a href="{% url 'specialist_workspace_claims' proposal.pk %}">{% trans 'Это мой профиль' %}</a></li>{% empty %}<li>{% trans 'Предложений пока нет.' %}</li>{% endfor %}</ul></section>
+        {% if owned_organizations %}<section class="sw-card"><h2>{% trans 'Специалисты организации' %}</h2><ul class="sw-rows">{% for org in owned_organizations %}<li><a href="{% url 'organization_specialists' org.pk %}">{% if language == 'ru' %}{{ org.name_ru|default:org.name_az }}{% elif language == 'en' %}{{ org.name_en|default:org.name_az }}{% else %}{{ org.name_az }}{% endif %}</a></li>{% endfor %}</ul></section>{% endif %}
+        {% if review_profiles %}<section class="sw-card"><h2>{% trans 'Проверка KidsMap' %}</h2><ul class="sw-rows">{% for profile in review_profiles %}<li><a href="{% url 'specialist_workspace_review' profile.pk %}">{{ profile.name }}</a></li>{% endfor %}</ul></section>{% endif %}
+        {% if claims %}<section class="sw-card"><h2>{% trans 'Мои запросы' %}</h2><ul class="sw-rows">{% for claim in claims %}<li><a href="{% url 'specialist_workspace_claims' claim.specialist_id %}">{{ claim.specialist.name }}</a><p>{{ claim.created_at|date:'d.m.Y' }}</p></li>{% endfor %}</ul></section>{% endif %}
+      {% endif %}
+      {% if workspace_mode == 'claims' %}
+        <section class="sw-card"><h2>{% trans 'Подтверждение личности' %}</h2><p>{% trans 'KidsMap проверяет запрос. Совпадение имени, авторство или доступ к организации не подтверждают личность.' %}</p>
+          {% if can_request_claim %}<form method="post">{% csrf_token %}<button type="submit" name="action" value="request" class="sw-button sw-primary">{% trans 'Запросить управление своим профилем' %}</button></form>{% endif %}
+          <ul class="sw-rows">{% for claim in claims %}<li><p><strong>{% trans 'Запрос' %} #{{ claim.pk }}</strong> · {{ claim.status_label }}</p><p>{{ claim.created_at|date:'d.m.Y' }}</p>{% if claim.reason %}<p>{{ claim.reason }}</p>{% endif %}
+            {% if claim.can_withdraw %}<form method="post">{% csrf_token %}<input type="hidden" name="claim_id" value="{{ claim.pk }}"><input type="hidden" name="expected_version" value="{{ claim.version }}"><button type="submit" name="action" value="withdraw" class="sw-button">{% trans 'Отозвать запрос' %}</button></form>{% endif %}</li>{% empty %}<li>{% trans 'Запросов пока нет.' %}</li>{% endfor %}</ul>
+        </section>
+      {% endif %}
+      {% if workspace_mode == 'organization' %}
+        <section class="sw-card"><h2>{% trans 'Пригласить специалиста' %}</h2><p>{% trans 'Приглашение не даёт организации доступа к биографии, контактам или документам человека. Каждая сторона подтверждает сотрудничество отдельно.' %}</p>
+          <form method="post" class="sw-form">{% csrf_token %}<input type="hidden" name="action" value="propose">{{ employment_form.non_field_errors }}
+            {% for field in employment_form %}<div class="sw-field">{{ field.label_tag }}{{ field }}{% if field.help_text %}<p class="sw-help" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</p>{% endif %}{{ field.errors }}</div>{% endfor %}
+            <button class="sw-button sw-primary" type="submit">{% trans 'Отправить приглашение' %}</button>
+          </form>
+        </section>
+      {% endif %}
+      {% if workspace_mode == 'organization' or workspace_mode == 'invitations' %}
+        <section class="sw-card"><h2>{% trans 'Связи и периоды сотрудничества' %}</h2><p>{% trans 'Ожидающие подтверждения связи и завершённые периоды не являются текущей работой.' %}</p>
+          <ul class="sw-rows">{% for employment in employments %}<li data-employment-id="{{ employment.pk }}" data-temporal-state="{{ employment.temporal_state }}">
+            <div class="sw-row-head"><h3>{% if workspace_mode == 'organization' %}{{ employment.specialist.name }}{% else %}{% if language == 'ru' %}{{ employment.organization.name_ru|default:employment.organization.name_az }}{% elif language == 'en' %}{{ employment.organization.name_en|default:employment.organization.name_az }}{% else %}{{ employment.organization.name_az }}{% endif %}{% endif %}</h3><span class="sw-pill">{% if employment.temporal_state == 'current' %}{% trans 'Текущее сотрудничество' %}{% elif employment.temporal_state == 'history' %}{% trans 'История сотрудничества' %}{% elif employment.temporal_state == 'future' %}{% trans 'Предстоящее сотрудничество' %}{% else %}{% trans 'Ожидает подтверждения' %}{% endif %}</span></div>
+            <p>{{ employment.role }} · {{ employment.start_date|date:'d.m.Y' }} — {% if employment.end_date %}{{ employment.end_date|date:'d.m.Y' }}{% else %}{% trans 'без даты окончания' %}{% endif %}</p>
+            <div class="sw-consents"><p><strong>{% trans 'Согласие организации' %}</strong><br>{% if employment.organization_confirmed_at %}{% trans 'Подтверждено' %} · {{ employment.organization_confirmed_at|date:'d.m.Y' }}{% else %}{% trans 'Ожидается' %}{% endif %}</p><p><strong>{% trans 'Согласие специалиста' %}</strong><br>{% if employment.person_confirmed_at %}{% trans 'Подтверждено' %} · {{ employment.person_confirmed_at|date:'d.m.Y' }}{% else %}{% trans 'Ожидается' %}{% endif %}</p></div>
+            {% if employment.cancelled_at %}<p>{% trans 'Участие отменено' %} · {{ employment.cancelled_at|date:'d.m.Y' }}</p>{% endif %}
+            {% if employment.can_confirm or employment.can_cancel %}<form method="post" class="sw-actions">{% csrf_token %}<input type="hidden" name="employment_id" value="{{ employment.pk }}"><input type="hidden" name="expected_version" value="{{ employment.version }}">{% if employment.can_confirm %}<button type="submit" name="action" value="confirm" class="sw-button sw-primary">{% trans 'Подтвердить сотрудничество' %}</button>{% endif %}{% if employment.can_cancel %}<button type="submit" name="action" value="cancel" class="sw-button sw-danger">{% trans 'Отменить участие' %}</button>{% endif %}</form>{% endif %}
+            {% if employment.history.all %}<details class="sw-history"><summary>{% trans 'История изменений' %}</summary><ul>{% for event in employment.history.all %}<li>{{ event.created_at|date:'d.m.Y H:i' }} · {{ event.action_label }} · {{ event.role }} · {{ event.start_date|date:'d.m.Y' }}{% if event.end_date %} — {{ event.end_date|date:'d.m.Y' }}{% endif %}</li>{% endfor %}</ul></details>{% endif %}
+          </li>{% empty %}<li>{% trans 'Связей пока нет.' %}</li>{% endfor %}</ul>
+        </section>
+        {% if active_practice_locations %}<section class="sw-card"><h2>{% trans 'Места практики' %}</h2><ul class="sw-rows">{% for loc in active_practice_locations %}<li>{% if loc.place %}{{ loc.place.name_i18n }}{% else %}{% trans 'Собственный кабинет' %}{% endif %}<p>{{ loc.address }}</p>{% if loc.schedule %}<p>{{ loc.schedule }}</p>{% endif %}</li>{% endfor %}</ul></section>{% endif %}
+        {% if practice_history %}<section class="sw-card"><h2>{% trans 'История мест практики' %}</h2><p>{% trans 'Эти места не отображаются как текущая практика.' %}</p><ul class="sw-rows">{% for loc in practice_history %}<li>{% if loc.place %}{{ loc.place.name_i18n }}{% else %}{% trans 'Собственный кабинет' %}{% endif %}<p>{{ loc.address }}</p></li>{% endfor %}</ul></section>{% endif %}
+      {% endif %}
+      {% if workspace_mode == 'certificates' %}
+        <section class="sw-card"><h2>{% trans 'Загрузить документ' %}</h2><p>{% trans 'По умолчанию документы приватны. Диплом или сертификат станет публичным только после вашего выбора и проверки KidsMap. Удостоверение личности всегда приватно.' %}</p>
+          <form method="post" enctype="multipart/form-data" class="sw-form">{% csrf_token %}<input type="hidden" name="action" value="upload">{{ upload_form.non_field_errors }}
+            {% for field in upload_form %}<div class="sw-field">{{ field.label_tag }}{{ field }}{% if field.help_text %}<p class="sw-help" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</p>{% endif %}{{ field.errors }}</div>{% endfor %}<button type="submit" class="sw-button sw-primary">{% trans 'Загрузить документ' %}</button>
+          </form>
+        </section>
+      {% endif %}
+      {% if workspace_mode == 'certificates' or workspace_mode == 'review' and can_review_documents %}
+        <section class="sw-card"><h2>{% trans 'Документы' %}</h2><ul class="sw-rows">{% for document in documents %}<li data-document-id="{{ document.pk }}"><div class="sw-row-head"><h3>{{ document.name }}</h3><span class="sw-pill">{{ document.get_status_display }}</span></div><p>{{ document.get_document_type_display }} · {% if document.is_public %}{% trans 'Публичный' %}{% else %}{% trans 'Приватный' %}{% endif %}</p>
+          <p>{% trans 'Выбор публикации' %}: {% if document.is_published %}{% trans 'Показывать после проверки' %}{% else %}{% trans 'Не показывать публично' %}{% endif %}</p>{% if document.rejection_reason %}<p>{{ document.rejection_reason }}</p>{% endif %}
+          {% if document.can_download %}<p><a href="{% url 'serve_specialist_document' document.pk %}" target="_blank" rel="noopener">{% trans 'Открыть документ' %}</a></p>{% endif %}
+          {% if document.can_publish_choice and workspace_mode == 'certificates' %}<form method="post">{% csrf_token %}<input type="hidden" name="action" value="choice"><input type="hidden" name="document_id" value="{{ document.pk }}"><input type="hidden" name="document_version" value="{{ document.version_token }}"><input type="hidden" name="publish" value="{% if document.is_published %}false{% else %}true{% endif %}"><button type="submit" class="sw-button">{% if document.is_published %}{% trans 'Сделать приватным' %}{% else %}{% trans 'Показывать после проверки' %}{% endif %}</button></form>{% endif %}
+          {% if workspace_mode == 'review' and can_review_documents %}<form method="post" class="sw-form">{% csrf_token %}<input type="hidden" name="document_id" value="{{ document.pk }}"><input type="hidden" name="document_version" value="{{ document.version_token }}"><label for="document-reason-{{ document.pk }}">{% trans 'Причина отклонения' %}</label><textarea id="document-reason-{{ document.pk }}" name="reason" rows="3" maxlength="2000" required></textarea><div class="sw-actions"><button type="submit" name="action" value="document_approve" formnovalidate class="sw-button sw-primary">{% trans 'Подтвердить документ' %}</button><button type="submit" name="action" value="document_reject" class="sw-button sw-danger">{% trans 'Отклонить документ' %}</button></div></form><p class="sw-help">{% trans 'Проверка документа не меняет выбор публикации человека.' %}</p>{% endif %}
+        </li>{% empty %}<li>{% trans 'Документов пока нет.' %}</li>{% endfor %}</ul></section>
+      {% endif %}
+      {% if workspace_mode == 'review' and can_review_claims %}<section class="sw-card"><h2>{% trans 'Запросы подтверждения личности' %}</h2><ul class="sw-rows">{% for claim in claims %}<li><h3>{% trans 'Запрос' %} #{{ claim.pk }}</h3><p>{{ claim.status_label }} · {{ claim.created_at|date:'d.m.Y' }}</p>{% if claim.can_review %}<form method="post" class="sw-form">{% csrf_token %}<input type="hidden" name="claim_id" value="{{ claim.pk }}"><input type="hidden" name="expected_version" value="{{ claim.version }}"><label for="claim-reason-{{ claim.pk }}">{% trans 'Причина отклонения' %}</label><textarea id="claim-reason-{{ claim.pk }}" name="reason" rows="3" maxlength="2000" required></textarea><div class="sw-actions"><button type="submit" name="action" value="claim_approve" formnovalidate class="sw-button sw-primary">{% trans 'Подтвердить личность' %}</button><button type="submit" name="action" value="claim_reject" class="sw-button sw-danger">{% trans 'Отклонить запрос' %}</button></div></form>{% endif %}{% if claim.reason %}<p>{{ claim.reason }}</p>{% endif %}</li>{% empty %}<li>{% trans 'Запросов пока нет.' %}</li>{% endfor %}</ul></section>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

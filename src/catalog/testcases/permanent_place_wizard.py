@@ -11,7 +11,7 @@ from django.utils import timezone
 from PIL import Image
 
 from catalog.forms import OwnerPlaceCreateForm, OwnerPlaceEditForm
-from catalog.models import Place, PricingPlan, PlacePhoto
+from catalog.models import Place, PricingPlan, PlacePhoto, VolunteerPlaceRevision
 from catalog.controllers.owner_places_controller import OwnerPlacesController
 from catalog.services.content_quality import place_quality_check, public_place_queryset
 
@@ -33,6 +33,7 @@ class PermanentPlaceWizardTests(TestCase):
 
     def setUp(self):
         self.user = get_user_model().objects.create_user('placewizard', password='password')
+        self.reviewer = get_user_model().objects.create_superuser('wizardreviewer', password='password')
         self.client.force_login(self.user)
         from catalog.testcases.utils import ensure_quality_subcategory
         self.subcategory = ensure_quality_subcategory("EDU")
@@ -52,28 +53,46 @@ class PermanentPlaceWizardTests(TestCase):
         data.update(overrides)
         return data
 
-    def create(self, **overrides):
-        result = self.controller.create_place(request=self.request, data=self.data(**overrides), files={'photo': self.photo()})
+    def approve(self, place):
+        from catalog.services import publication
+        revision = VolunteerPlaceRevision.objects.get(place=place)
+        publication.review(actor=self.reviewer, revision_id=revision.pk, version=revision.version, approve=True)
+        place.refresh_from_db()
+        return place
+
+    def edit_data(self, place, **overrides):
+        from catalog.services.publication_forms import version_token
+        return self.data(publication_token=version_token(place), **overrides)
+
+    def create(self, approve=True, **overrides):
+        result = self.controller.create_place(request=self.request, data=self.data(create_separate='1', **overrides), files={'photo': self.photo()})
         self.assertTrue(result.ok, result.form.errors if result.form else result.message)
-        return result.place
+        return self.approve(result.place) if approve else result.place
 
     def test_on_request_can_be_submitted_and_becomes_visible_after_approval(self):
-        place = self.create()
-        self.assertEqual(place.status, 'pending')
+        place = self.create(approve=False)
+        self.assertEqual(place.status, 'draft')
+        self.assertEqual(VolunteerPlaceRevision.objects.get(place=place).status, 'pending')
         self.assertFalse(place.is_active)
+        self.assertFalse(public_place_queryset(Place.objects.all()).filter(pk=place.pk).exists())
+        self.approve(place)
         self.assertTrue(place_quality_check(place).is_ready)
-        place.status='published'; place.is_active=True; place.save()
         self.assertTrue(public_place_queryset(Place.objects.all()).filter(pk=place.pk).exists())
         self.assertIsNone(place.price_from)
 
     def test_required_fields_report_errors_but_draft_accepts_missing(self):
-        for field in ('description_az','category','age_from','age_to','address','region','phone1','lat','lng'):
+        for field in ('description_az','category','age_from','age_to','address','phone1'):
             with self.subTest(field=field):
                 form = OwnerPlaceCreateForm(data=self.data(**{field:''}), files={'photo':self.photo()})
                 self.assertFalse(form.is_valid())
                 self.assertIn(field, form.errors)
         draft = OwnerPlaceCreateForm(data={}, draft_save_only=True)
         self.assertTrue(draft.is_valid(), draft.errors)
+        optional = OwnerPlaceCreateForm(data=self.data(lat='', lng=''))
+        self.assertTrue(optional.is_valid(), optional.errors)
+        inferred = OwnerPlaceCreateForm(data=self.data(region=''), files={'photo':self.photo()})
+        self.assertTrue(inferred.is_valid(), inferred.errors)
+        self.assertEqual(inferred.cleaned_data['region'], 'baku')
 
     def test_open_age_all_ages_with_required_az_name(self):
         for start in ('3','0',''):
@@ -84,7 +103,7 @@ class PermanentPlaceWizardTests(TestCase):
             self.assertEqual(form.save(commit=False).name_ru, 'Мастерская')
 
     def test_outside_baku_requires_no_district_or_metro(self):
-        place=self.create(region='ganja',district='',metro='')
+        place=self.create(region='ganja',district='',metro='',lat='',lng='')
         self.assertEqual(place.district,'ganja')
 
     def test_coordinates_reject_partial_nonfinite_and_out_of_range_even_in_draft(self):
@@ -129,14 +148,15 @@ class PermanentPlaceWizardTests(TestCase):
     def test_manual_point_is_not_replaced_after_address_edit(self):
         place=self.create()
         with patch.object(OwnerPlacesController,'_sync_place_coordinates') as geocode:
-            result=self.controller.save_edit_form(request=self.request,place_id=place.pk,data=self.data(address='New address'),files={})
+            result=self.controller.save_edit_form(request=self.request,place_id=place.pk,data=self.edit_data(place,address='New address'),files={})
         self.assertTrue(result.ok,result.form.errors if result.form else result.message)
         geocode.assert_not_called()
         place.refresh_from_db();self.assertEqual(place.lat,40.4)
 
     def test_cannot_set_staff_fields(self):
-        place=self.create(status='published',is_active='1',is_verified='1',custom_price_badge_ru='Free')
-        self.assertEqual(place.status,'pending');self.assertFalse(place.is_active);self.assertFalse(place.is_verified)
+        place=self.create(approve=False,status='published',is_active='1',is_verified='1',custom_price_badge_ru='Free')
+        self.assertEqual(place.status,'draft');self.assertFalse(place.is_active);self.assertFalse(place.is_verified)
+        self.assertEqual(VolunteerPlaceRevision.objects.get(place=place).status,'pending')
         self.assertEqual(place.custom_price_badge_ru,'')
 
     def test_gallery_removal_is_validated_and_rolled_back_with_upload_failure(self):
@@ -147,16 +167,20 @@ class PermanentPlaceWizardTests(TestCase):
         invalid=OwnerPlaceEditForm(instance=place,data=self.data(delete_gallery_ids=['999999']),draft_save_only=True)
         self.assertFalse(invalid.is_valid())
         self.assertTrue(PlacePhoto.objects.filter(pk=image.pk).exists())
-        with patch.object(type(self.controller.owner_place_repository),'add_gallery_images',side_effect=OSError('Storage unavailable')):
-            result=self.controller.save_edit_form(request=self.request,place_id=place.pk,data=self.data(delete_gallery_ids=[str(image.pk)]),files=MultiValueDict({'gallery_images':[self.photo('new.png')]}),draft_save_only=True)
+        with patch.object(image.image.storage,'save',side_effect=OSError('Storage unavailable')):
+            result=self.controller.save_edit_form(request=self.request,place_id=place.pk,data=self.edit_data(place,delete_gallery_ids=[str(image.pk)]),files=MultiValueDict({'gallery_images':[self.photo('new.png')]}),draft_save_only=True)
         self.assertFalse(result.ok)
         self.assertTrue(PlacePhoto.objects.filter(pk=image.pk).exists())
         self.assertTrue(image.image.storage.exists(image_path))
         with self.captureOnCommitCallbacks(execute=True):
-            result=self.controller.save_edit_form(request=self.request,place_id=place.pk,data=self.data(delete_gallery_ids=[str(image.pk)]),files={},draft_save_only=True)
+            result=self.controller.save_edit_form(request=self.request,place_id=place.pk,data=self.edit_data(place,delete_gallery_ids=[str(image.pk)]),files={},draft_save_only=False)
+            self.assertTrue(PlacePhoto.objects.filter(pk=image.pk).exists())
+            self.assertNotIn(image.pk,[row['id'] for row in VolunteerPlaceRevision.objects.get(place=place).payload['gallery']])
+            self.approve(place)
         self.assertTrue(result.ok,result.form.errors)
         self.assertFalse(PlacePhoto.objects.filter(pk=image.pk).exists())
-        self.assertFalse(image.image.storage.exists(image_path))
+        self.assertTrue(image.image.storage.exists(image_path))
+        self.assertIn(image_path,[row['image'] for row in VolunteerPlaceRevision.objects.get(place=place).base_snapshot['gallery']])
 
     def test_scalar_only_legacy_price_survives_unrelated_edit(self):
         place=self.create()
@@ -170,7 +194,7 @@ class PermanentPlaceWizardTests(TestCase):
     def test_failed_resubmission_does_not_save_changes_or_delete_photo(self):
         place=self.create()
         old_name=place.name_az
-        response=self.client.post(reverse('owner_place_edit',args=[place.pk]),self.data(form_action='save_and_publish',name_az='Changed name',pricing_plans='[]'))
+        response=self.client.post(reverse('owner_place_edit',args=[place.pk]),self.edit_data(place,form_action='save_and_publish',name_az='Changed name',pricing_plans='[]'))
         self.assertEqual(response.status_code,200)
         place.refresh_from_db()
         self.assertEqual(place.name_az,old_name)
@@ -194,11 +218,12 @@ class PermanentPlaceWizardTests(TestCase):
                     with override(language):
                         response=self.client.get(reverse('owner_place_edit',args=[place.pk]))
                 self.assertEqual(response.status_code,200)
-                self.assertContains(response,'data-pw-step="7"')
+                self.assertContains(response,'data-place-section="4"')
                 self.assertContains(response,'data-permanent-place-form')
                 self.assertContains(response,'name="phone2"')
-                self.assertContains(response,'data-pw-step="',count=7)
-                self.assertContains(response,'data-pw-go="',count=7)
-                self.assertContains(response,'role="progressbar"')
-                self.assertContains(response,'data-pw-progress-bar')
+                self.assertContains(response,'data-place-section="',count=4)
+                self.assertContains(response,'href="#pc-section-',count=4)
+                self.assertContains(response,'data-pc-save-status')
+                self.assertContains(response,'data-pc-submit')
+                self.assertContains(response,'value="save_draft"' if response.resolver_match.url_name == 'owner_place_edit' else 'data-pc-save-draft')
                 self.assertContains(response,'name="name_az"')

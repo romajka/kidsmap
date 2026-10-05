@@ -1,0 +1,58 @@
+{
+  "evidence": "/root/task33-evidence/stage26-security-red2-20261003",
+  "executor": "/root/stage26_security",
+  "production": "NOT_CONTACTED",
+  "run.json": {
+    "status": "BASELINE_FAILURE",
+    "child_exit": 2,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "suite-results.json": {
+    "tests_run": 15,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0,
+    "status": "BASELINE_FAILURE",
+    "problems": [
+      {
+        "id": "catalog.testcases.test_task33_event_security.EventSecurityTests.test_foreign_event_delete_and_submit_http_boundaries_and_csrf",
+        "kind": "failure",
+        "exception": "AssertionError"
+      },
+      {
+        "id": "catalog.testcases.test_task33_event_security.EventSecurityTests.test_foreign_private_venue_id_cannot_capture_or_publish_secret_address",
+        "kind": "failure",
+        "exception": "AssertionError"
+      }
+    ]
+  },
+  "isolation.json": {
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10",
+    "network_guard": true,
+    "libpq_guard": true,
+    "external_credentials_present": false
+  },
+  "migrations.json": {
+    "applied_count": 167,
+    "unapplied_count": 0
+  },
+  "checks": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.121
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.198
+    }
+  ]
+}

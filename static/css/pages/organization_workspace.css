@@ -1,5 +1,5 @@
 .org-workspace { color: #263b2e; }
-.org-workspace .account-main-content { min-width: 0; }
+.org-workspace .account-main-content { min-width: 0; width: 100%; }
 .org-hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5rem; padding: 1.5rem 0 2rem; border-bottom: 1px solid #e4eae4; }
 .org-hero h1 { margin: .15rem 0 .6rem; font-size: clamp(1.7rem, 3vw, 2.3rem); line-height: 1.2; }
 .org-hero p { margin: 0; color: #586b5e; }
@@ -48,5 +48,5 @@
 .org-pending-row { display: flex; flex-wrap: wrap; gap: .8rem; align-items: center; padding: .7rem 0; border-top: 1px solid #dce8d9; }
 .org-save-status { min-height: 1.4em; color: #41604a; }
 .org-workspace :focus-visible { outline: 3px solid #136f38; outline-offset: 3px; }
-@media (max-width: 768px) { .org-hero { flex-direction: column; } .org-fields { grid-template-columns: 1fr; } .org-row { flex-wrap: wrap; } .org-workspace .account-nav-sidebar { min-width: 0; } }
+@media (max-width: 768px) { .org-hero { flex-direction: column; } .org-tabs { flex-wrap: wrap; } .org-fields { grid-template-columns: 1fr; } .org-row { flex-wrap: wrap; } .org-workspace .account-nav-sidebar { min-width: 0; } }
 @media (max-width: 390px) { .org-form-section, .org-action-panel { padding: 1rem; } .org-empty { padding: 1.25rem; } }

@@ -1,0 +1,192 @@
+{
+  "mode": "all",
+  "selected_labels": [
+    "catalog.testcases.admin",
+    "catalog.testcases.test_task33_admin_editors",
+    "catalog.testcases.test_admin_i18n",
+    "catalog.testcases.place_taxonomy_admin",
+    "catalog.testcases.place_filepond_admin",
+    "catalog.testcases.test_localized_place_admin",
+    "catalog.testcases.test_task33_event_admin_precision"
+  ],
+  "status": "PASS",
+  "container_name": "kidsmap-task33-qa04-fb973e39cead",
+  "ownership_nonce": "fb973e39cead4036a0cb126e719e2ef5",
+  "commands": [
+    {
+      "argv": [
+        "/root/km-manual-adminfix/.venv/bin/python",
+        "/root/km-manual-adminfix/docs/task33/qa04/test_safety.py"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "/usr/bin/docker",
+        "run",
+        "--detach",
+        "--pull=never",
+        "--name",
+        "kidsmap-task33-qa04-fb973e39cead",
+        "--label",
+        "kidsmap.task33.owner=fb973e39cead4036a0cb126e719e2ef5",
+        "--network",
+        "none",
+        "--tmpfs",
+        "/var/lib/postgresql/data:rw",
+        "--mount",
+        "type=bind,src=/root/km-manual-adminfix/.tmp/kidsmap-task33-qa04-socket-hi86qq5m/socket,dst=/qa-socket",
+        "--env",
+        "POSTGRES_USER=qa_stage04",
+        "--env",
+        "POSTGRES_DB=qa_stage04",
+        "--env",
+        "POSTGRES_HOST_AUTH_METHOD=trust",
+        "--env",
+        "PGHOST=/qa-socket",
+        "postgres:17-alpine",
+        "postgres",
+        "-c",
+        "listen_addresses=",
+        "-c",
+        "unix_socket_directories=/qa-socket,/var/run/postgresql"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "/usr/bin/docker",
+        "inspect",
+        "kidsmap-task33-qa04-fb973e39cead",
+        "--format",
+        "{{json .}}"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "/usr/bin/docker",
+        "exec",
+        "kidsmap-task33-qa04-fb973e39cead",
+        "sh",
+        "-c",
+        "test \"$(cat /proc/1/comm)\" = postgres && pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04"
+      ],
+      "exit": 1
+    },
+    {
+      "argv": [
+        "/usr/bin/docker",
+        "exec",
+        "kidsmap-task33-qa04-fb973e39cead",
+        "sh",
+        "-c",
+        "test \"$(cat /proc/1/comm)\" = postgres && pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04"
+      ],
+      "exit": 1
+    },
+    {
+      "argv": [
+        "/usr/bin/docker",
+        "exec",
+        "kidsmap-task33-qa04-fb973e39cead",
+        "sh",
+        "-c",
+        "test \"$(cat /proc/1/comm)\" = postgres && pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04"
+      ],
+      "exit": 1
+    },
+    {
+      "argv": [
+        "/usr/bin/docker",
+        "exec",
+        "kidsmap-task33-qa04-fb973e39cead",
+        "sh",
+        "-c",
+        "test \"$(cat /proc/1/comm)\" = postgres && pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04"
+      ],
+      "exit": 1
+    },
+    {
+      "argv": [
+        "/usr/bin/docker",
+        "exec",
+        "kidsmap-task33-qa04-fb973e39cead",
+        "sh",
+        "-c",
+        "test \"$(cat /proc/1/comm)\" = postgres && pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04"
+      ],
+      "exit": 1
+    },
+    {
+      "argv": [
+        "/usr/bin/docker",
+        "exec",
+        "kidsmap-task33-qa04-fb973e39cead",
+        "sh",
+        "-c",
+        "test \"$(cat /proc/1/comm)\" = postgres && pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04"
+      ],
+      "exit": 1
+    },
+    {
+      "argv": [
+        "/usr/bin/docker",
+        "exec",
+        "kidsmap-task33-qa04-fb973e39cead",
+        "sh",
+        "-c",
+        "test \"$(cat /proc/1/comm)\" = postgres && pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "/usr/bin/docker",
+        "inspect",
+        "kidsmap-task33-qa04-fb973e39cead",
+        "--format",
+        "{{json .}}"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "/root/km-manual-adminfix/.venv/bin/python",
+        "-c",
+        "commands.main(mode,labels)",
+        "all",
+        "[\"catalog.testcases.admin\", \"catalog.testcases.test_task33_admin_editors\", \"catalog.testcases.test_admin_i18n\", \"catalog.testcases.place_taxonomy_admin\", \"catalog.testcases.place_filepond_admin\", \"catalog.testcases.test_localized_place_admin\", \"catalog.testcases.test_task33_event_admin_precision\"]"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "/usr/bin/docker",
+        "inspect",
+        "kidsmap-task33-qa04-fb973e39cead",
+        "--format",
+        "{{json .}}"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "/usr/bin/docker",
+        "rm",
+        "--force",
+        "96b7796aafb3e9dce4924974edd7f651867f3b13e954ef075f55c8a54c8e30a9"
+      ],
+      "exit": 0
+    }
+  ],
+  "cleanup": "PASS",
+  "image_id": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+  "network": "none",
+  "ports_published": false,
+  "postgres_data": "tmpfs",
+  "mounted_checkout": false,
+  "child_exit": 0,
+  "run_root_removed": true,
+  "socket_root_removed": true
+}

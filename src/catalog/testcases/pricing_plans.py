@@ -10,6 +10,7 @@ from catalog.domain_admin.place import PlaceAdminForm
 from catalog.forms import OwnerPlaceEditForm
 from catalog.models import Event, Place, SiteSettings
 from catalog.services.pricing_plans import normalize_pricing_plans, public_pricing_plans
+from catalog.services.publication_forms import version_token
 from catalog.testcases.utils import create_quality_place
 
 
@@ -44,7 +45,7 @@ class PricingPlansTests(TestCase):
                     normalize_pricing_plans(value)
 
     def test_validation_error_identifies_broken_tariff(self):
-        with self.assertRaisesMessage(
+        with override("ru"), self.assertRaisesMessage(
             ValidationError,
             "Тариф 2: поле quantity: Количество и единица должны быть указаны вместе.",
         ):
@@ -104,6 +105,7 @@ class PricingPlansTests(TestCase):
                 "name_az": "Qiymət yeri",
                 "category": "EDU",
                 "status": Place.STATUS_DRAFT,
+                "publication_token": version_token(self.place),
                 "is_active": "",
                 "likes_count": "0",
                 "rating_avg": "0",
@@ -153,6 +155,7 @@ class PricingPlansTests(TestCase):
                 "name_az": "Qiymət yeri",
                 "category": "EDU",
                 "status": Place.STATUS_DRAFT,
+                "publication_token": version_token(self.place),
                 "is_active": "",
                 "likes_count": "0",
                 "rating_avg": "0",
@@ -182,6 +185,7 @@ class PricingPlansTests(TestCase):
                 "name_az": "Qiymət yeri",
                 "category": "EDU",
                 "status": Place.STATUS_DRAFT,
+                "publication_token": version_token(self.place),
                 "is_active": "",
                 "likes_count": "0",
                 "rating_avg": "0",

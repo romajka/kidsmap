@@ -358,7 +358,19 @@ class OwnershipConcurrencyTests(OwnershipFixture,TransactionTestCase):
 
     def test_transfer_racing_confirmation_never_grants_stale_network_right(self):
         item=self.service.request_join(actor=self.a,place_id=self.place.pk,organization_id=self.org.pk)
-        self.race([lambda:self.service.confirm_join(actor=self.b,request_id=item.pk),lambda:self.service.transfer_owner(actor=self.a,target_type='place',target_id=self.place.pk,new_owner_id=self.c.pk,expected_ownership_version=1)])
+        # Either lock order is valid. An anchor conflict must be explicit and
+        # caller-owned retry must re-read the now-current parent/version.
+        conflict=[]
+        def transfer():
+            try:self.service.transfer_owner(actor=self.a,target_type='place',target_id=self.place.pk,new_owner_id=self.c.pk,expected_ownership_version=1)
+            except ValidationError as exc:
+                conflict.append(exc.code)
+                raise
+        self.race([lambda:self.service.confirm_join(actor=self.b,request_id=item.pk),transfer])
+        self.place.refresh_from_db()
+        if self.place.owner_id!=self.c.pk:
+            self.assertEqual(conflict,['structure_changed'])
+            self.service.transfer_owner(actor=self.a,target_type='place',target_id=self.place.pk,new_owner_id=self.c.pk,expected_ownership_version=self.place.ownership_version)
         self.place.refresh_from_db();self.assertEqual(self.place.owner_id,self.c.pk)
         from catalog.services.place_access import has_place_permission
         self.assertFalse(has_place_permission(user=self.b,place=self.place,permission_code='place.edit'))

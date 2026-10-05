@@ -32,20 +32,22 @@ class PlaceReviewCooldownTests(TestCase):
         self.assertFalse(response.json()['ok'])
         self.assertEqual(PlaceReview.objects.get(user=self.user).text, 'Первый отзыв')
 
-    def test_boundary_creates_separate_pending_review_and_preserves_approved_history(self):
+    def test_boundary_creates_pending_version_and_preserves_approved_history(self):
         self.submit()
         first = PlaceReview.objects.get(user=self.user)
         first.status = 'approved'
         first.save()
         response = self.submit('Второй отзыв', self.start + timedelta(seconds=120))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(PlaceReview.objects.filter(user=self.user).count(), 2)
+        self.assertEqual(PlaceReview.objects.filter(user=self.user, is_current=True).count(), 1)
         first.refresh_from_db()
         self.assertEqual(first.status, 'approved')
         self.assertEqual(first.text, 'Первый отзыв')
-        second = PlaceReview.objects.exclude(pk=first.pk).get(user=self.user)
-        self.assertEqual(second.status, 'pending')
-        self.assertFalse(second.is_approved)
+        self.assertEqual(first.revisions.count(), 2)
+        self.assertEqual(first.current_revision.text, 'Первый отзыв')
+        self.assertEqual(first.current_revision.status, 'approved')
+        self.assertEqual(first.candidate_revision.text, 'Второй отзыв')
+        self.assertEqual(first.candidate_revision.status, 'pending')
 
     def test_other_place_and_other_user_are_independent(self):
         self.submit()
@@ -77,7 +79,7 @@ class PlaceReviewCooldownTests(TestCase):
         self.assertFalse(response.context['review_cooldown']['active'])
 
     def test_failed_save_rolls_back_timer_reservation(self):
-        with patch('catalog.services.place_review_submission.PlaceReview.objects.create', side_effect=RuntimeError('synthetic save failure')):
+        with patch('catalog.models.review_versions.PlaceReviewRevision.objects.create', side_effect=RuntimeError('synthetic save failure')):
             with self.assertRaises(RuntimeError):
                 self.submit()
         self.assertEqual(self.submit().status_code, 200)

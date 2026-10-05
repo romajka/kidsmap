@@ -233,17 +233,17 @@ def build_public_specialist_filter_options(*, language_code: str) -> PublicSpeci
     )
 
     region_counts = dict(
-        active_specs.values_list("practice_locations__region_id")
+        active_specs.filter(practice_locations__is_active=True).values_list("practice_locations__region_id")
         .annotate(total=Count("id", distinct=True))
     )
 
     district_counts = dict(
-        active_specs.values_list("practice_locations__district_id")
+        active_specs.filter(practice_locations__is_active=True).values_list("practice_locations__district_id")
         .annotate(total=Count("id", distinct=True))
     )
 
     metro_counts = dict(
-        active_specs.values_list("practice_locations__metro_id")
+        active_specs.filter(practice_locations__is_active=True).values_list("practice_locations__metro_id")
         .annotate(total=Count("id", distinct=True))
     )
 

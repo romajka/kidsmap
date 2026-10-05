@@ -77,6 +77,37 @@ User = get_user_model()
 from catalog.testcases.utils import *
 
 
+def create_reviewable_event(actor, *, name, published=False, **values):
+    """Exercise actual organizer and interval validation, never a publication mock."""
+    from catalog.models import Organization
+    from catalog.services import event_domain
+    organizer = Organization.objects.create(owner=actor, created_by=actor, name_az='Confirmed organizer',
+        status='published', approved_at=timezone.now())
+    start = timezone.now() + timedelta(days=5)
+    event = event_domain.create_event(actor=actor, values={
+        'name': name, 'name_az': name, 'description_az': 'Approved event description', 'category_id': 'EDU',
+        'organizer_organization_id': organizer.pk, 'event_format': 'online',
+        'start_datetime': start, 'end_datetime': start+timedelta(hours=2), **values})
+    if published:
+        event_domain.publish_event(actor=actor, event_id=event.pk, expected_updated_at=event.updated_at)
+        event.refresh_from_db()
+    return event
+
+
+def decide_typed_review(client, head, *, kind, approve):
+    """The current review workflow names an exact pending revision, not a bulk toggle."""
+    head.refresh_from_db()
+    assert head.candidate_revision_id is not None
+    return client.post(reverse('typed_review_action', args=[kind, head.pk, 'approve' if approve else 'reject']),
+        {'revision_id': head.candidate_revision_id, 'reason': 'Reviewed synthetic revision'})
+
+
+def create_pending_review(target, rating, text):
+    from catalog.services.review_versions import submit_review
+    author = User.objects.create_user('versioned_review_' + str(User.objects.count()))
+    return submit_review(target=target, user=author, rating=rating, text=text)[0]
+
+
 class TestAdminTemporaryEventInputs(TestCase):
     def setUp(self):
         Category.objects.get_or_create(
@@ -118,6 +149,7 @@ class TestAdminTemporaryEventInputs(TestCase):
         form = PlaceAdminForm(
             data={
                 "name_az": "Yaş limiti olmayan yer",
+                "publication_token": PlaceAdminForm(instance=self.place).initial['publication_token'],
                 "category": "EDU",
                 "age_from": "3",
                 "age_open_ended": "on",
@@ -192,6 +224,7 @@ class TestAdminTemporaryEventInputs(TestCase):
         form = form_class(
             data={
                 "_save_draft": "1",
+                "publication_token": response.context['adminform'].form.initial['publication_token'],
                 "name_az": self.place.name_az,
                 "category": "EDU",
                 "pricing_plans": "[]",
@@ -577,6 +610,9 @@ class TestAdminOwnershipModerationUX(TestCase):
         }
 
     def _admin_place_change_payload(self, **overrides):
+        source = self.client.get(reverse('admin:catalog_place_change', args=[self.place.pk]))
+        self.assertEqual(source.status_code, 200)
+        token = source.context['adminform'].form.initial['publication_token']
         overridden_district = overrides.pop("district", None)
         overridden_region = overrides.pop("region", None)
 
@@ -609,6 +645,8 @@ class TestAdminOwnershipModerationUX(TestCase):
                 district_val = ""
 
         data = {
+            "publication_token": token,
+            "unpublish_version": Place.objects.get(pk=self.place.pk).content_version,
             "name": self.place.name,
             "name_ru": self.place.name_ru,
             "name_az": self.place.name_az,
@@ -681,6 +719,9 @@ class TestAdminOwnershipModerationUX(TestCase):
             status=Event.STATUS_DRAFT,
         )
         data = {
+            "event_format": event.event_format,
+            "organizer_organization": str(event.organizer_organization_id or ""),
+            "organizer_specialist": str(event.organizer_specialist_id or ""),
             "owner": str(event.owner_id or ""),
             "related_place": str(event.related_place_id or ""),
             "name": event.name,
@@ -723,7 +764,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "Сотрудники админки")
         self.assertContains(response, "Отзывы о сайте")
         self.assertNotContains(response, "Профили пользователей")
-        self.assertNotContains(response, "Группы")
+        self.assertContains(response, reverse('admin:catalog_offeringgroup_changelist'))
         self.assertNotContains(response, "Аудит заявок на владение")
 
     def test_admin_navigation_pending_count_uses_only_ownership_requests(self):
@@ -1010,7 +1051,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.place.refresh_from_db()
         self.assertEqual(self.request_item.status, PlaceOwnershipRequest.STATUS_APPROVED)
         self.assertEqual(self.place.owner, self.owner_user)
-        self.assertTrue(self.place.is_active)
+        self.assertFalse(self.place.is_active)  # Management approval does not publish content.
 
     def test_admin_can_reject_request_with_direct_button_url(self):
         second_request = PlaceOwnershipRequest.objects.create(
@@ -1050,7 +1091,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "Точка на карте есть")
         self.assertContains(response, "Нет координат")
         self.assertContains(response, "data-readiness-trigger", html=False)
-        self.assertContains(response, 'data-total="12"', html=False)
+        self.assertContains(response, 'data-total="10"', html=False)
         self.assertContains(response, "Локация")
         self.assertContains(response, "Состояние")
         self.assertContains(response, "Метки")
@@ -1118,12 +1159,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, 'data-action="mark_pending"', html=False)
 
     def test_event_admin_bulk_publish_action_updates_status(self):
-        event = Event.objects.create(
-            name="Draft Event",
-            name_az="Draft Event",
-            category="EDU",
-            status=Event.STATUS_DRAFT,
-        )
+        event = create_reviewable_event(self.superuser, name='Draft Event')
 
         response = self.client.post(
             reverse("admin:catalog_event_changelist"),
@@ -1243,6 +1279,19 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(response.status_code, 200)
         if response.context and response.context.get("adminform"):
             self.assertFalse(response.context["adminform"].form.errors, response.context["adminform"].form.errors)
+        self.place.refresh_from_db()
+        from catalog.models import VolunteerPlaceRevision
+        from catalog.services import publication
+        revision = VolunteerPlaceRevision.objects.get(place=self.place)
+        self.assertEqual(revision.status, 'draft')
+        self.assertEqual(self.place.phone1, '+994501112233')
+        self.assertEqual(revision.payload['phone1'], '+994509998877')
+        self.assertEqual(revision.payload['phone2'], '')
+        self.assertEqual(revision.payload['phone3'], '+994703332211')
+        revision = publication.propose(actor=self.superuser, target_type='place', target_id=self.place.pk,
+            patch=revision.payload, schema_version=1, expected_version=self.place.content_version,
+            revision_version=revision.version, submit=True)
+        publication.review(actor=self.superuser, revision_id=revision.pk, version=revision.version, approve=True)
         self.place.refresh_from_db()
         self.assertEqual(self.place.phone1, "+994509998877")
         self.assertEqual(self.place.phone2, "")
@@ -1470,7 +1519,8 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "Создание новой карточки")
 
     def test_place_admin_can_save_place_as_draft_and_continue_later(self):
-        payload = self._admin_place_change_payload()
+        before = (self.place.status, self.place.is_active, self.place.published_at)
+        payload = self._admin_place_change_payload(name_az='Candidate draft name')
         payload["_save_draft"] = "1"
 
         response = self.client.post(
@@ -1481,9 +1531,14 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response["Location"], reverse("admin:catalog_place_change", args=[self.place.id]))
         self.place.refresh_from_db()
-        self.assertEqual(self.place.status, Place.STATUS_DRAFT)
-        self.assertFalse(self.place.is_active)
-        self.assertIsNone(self.place.published_at)
+        self.assertEqual((self.place.status, self.place.is_active, self.place.published_at), before)
+        from catalog.models import VolunteerPlaceRevision
+        revision = VolunteerPlaceRevision.objects.get(place=self.place)
+        self.assertEqual(revision.status, 'draft')
+        self.assertEqual(revision.payload['name_az'], 'Candidate draft name')
+        continued = self.client.get(response['Location'])
+        self.assertEqual(continued.status_code, 200)
+        self.assertEqual(continued.context['adminform'].form['name_az'].value(), 'Candidate draft name')
 
     def test_place_admin_saves_pricing_plans_from_change_form(self):
         pricing_plans = [
@@ -1516,6 +1571,17 @@ class TestAdminOwnershipModerationUX(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.place.refresh_from_db()
+        from catalog.models import VolunteerPlaceRevision
+        from catalog.services import publication
+        revision = VolunteerPlaceRevision.objects.get(place=self.place)
+        self.assertEqual(revision.status, 'draft')
+        self.assertEqual(len(revision.payload['pricing_plans']), 2)
+        self.assertEqual(self.place.pricing_plans, [])
+        revision = publication.propose(actor=self.superuser, target_type='place', target_id=self.place.pk,
+            patch=revision.payload, schema_version=1, expected_version=self.place.content_version,
+            revision_version=revision.version, submit=True)
+        publication.review(actor=self.superuser, revision_id=revision.pk, version=revision.version, approve=True)
+        self.place.refresh_from_db()
         self.assertEqual(len(self.place.pricing_plans), 2)
         self.assertEqual(self.place.pricing_plans[0]["price"], "120.00")
         self.assertEqual(self.place.pricing_plans[1]["price"], "40.00")
@@ -1546,6 +1612,17 @@ class TestAdminOwnershipModerationUX(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
+        from catalog.models import VolunteerPlaceRevision
+        from catalog.services import publication
+        revision = VolunteerPlaceRevision.objects.get(place=self.place)
+        self.assertEqual(revision.status, 'draft')
+        self.assertFalse(PlacePhoto.objects.filter(place=self.place).exists())
+        self.assertEqual(len(revision.payload['gallery']), 1)
+        self.assertEqual(revision.payload['gallery'][0]['order'], 1)
+        revision = publication.propose(actor=self.superuser, target_type='place', target_id=self.place.pk,
+            patch=revision.payload, schema_version=1, expected_version=self.place.content_version,
+            revision_version=revision.version, submit=True)
+        publication.review(actor=self.superuser, revision_id=revision.pk, version=revision.version, approve=True)
         saved_photo = PlacePhoto.objects.get(place=self.place)
         self.assertEqual(saved_photo.order, 1)
         self.assertTrue(saved_photo.image.name.startswith("places/gallery/gallery"))
@@ -1632,6 +1709,7 @@ class TestAdminOwnershipModerationUX(TestCase):
             is_active=False,
             published_at=None,
         )
+        self.place = ready_place  # Sign the form for the record actually being posted.
         payload = self._admin_place_change_payload(
             name=ready_place.name,
             name_ru=ready_place.name_ru,
@@ -1671,16 +1749,14 @@ class TestAdminOwnershipModerationUX(TestCase):
         )
         payload["_publish_place"] = "1"
 
-        with patch("catalog.domain_admin.place.place_quality_check") as quality_check_mock:
-            quality_check_mock.return_value.is_ready = True
-            response = self.client.post(
-                reverse("admin:catalog_place_change", args=[ready_place.id]),
-                data=payload,
-            )
+        payload['pricing_plans'] = json.dumps(ready_place.pricing_plans)
+        response = self.client.post(reverse('admin:catalog_place_change', args=[ready_place.pk]), payload)
 
+        if response.context and response.context.get('adminform'):
+            self.assertFalse(response.context['adminform'].form.errors, response.context['adminform'].form.errors)
         self.assertEqual(response.status_code, 302)
         ready_place.refresh_from_db()
-        self.assertTrue(ready_place.is_active)
+        self.assertTrue(ready_place.is_active, [str(m) for m in response.wsgi_request._messages])
         self.assertEqual(ready_place.status, Place.STATUS_PUBLISHED)
         self.assertIsNotNone(ready_place.published_at)
 
@@ -1695,40 +1771,22 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertNotEqual(place_quality_error_labels(("unknown_internal_code",))[0], "unknown_internal_code")
 
     def test_failed_publish_keeps_published_card_active_and_shows_all_issues(self):
-        # Readiness is computed from the card itself, so the gaps are real ones
-        # rather than a patched quality result.
-        self.place = create_quality_place(
-            name="Already published place",
-            name_ru="Уже опубликованная карточка",
-            status=Place.STATUS_PUBLISHED,
-            is_active=True,
-            lat=None,
-            lng=None,
-            photo="",
-            price_from=None,
-            price_to=None,
-        )
-        payload = self._admin_place_change_payload(_publish_place="1")
-
-        response = self.client.post(
-            reverse("admin:catalog_place_change", args=[self.place.id]),
-            data=payload,
-            follow=True,
-        )
-
+        self.place = create_ready_place(name='Approved card', name_ru='Одобренная карточка')
+        before = (self.place.name_az, self.place.description_az, self.place.content_version)
+        payload = self._admin_place_change_payload(_publish_place='1', lat='91', lng='200')
+        response = self.client.post(reverse('admin:catalog_place_change', args=[self.place.pk]), payload)
         self.assertEqual(response.status_code, 200)
+        form = response.context['adminform'].form
+        self.assertIn('lat', form.errors)
+        self.assertIn('lng', form.errors)
+        for field in ('lat', 'lng'):
+            for error in form.errors[field]:
+                self.assertContains(response, escape(error))
         self.place.refresh_from_db()
-        self.assertEqual(self.place.status, Place.STATUS_PUBLISHED)
-        self.assertTrue(self.place.is_active)
-        self.assertContains(response, "Карточка осталась опубликованной")
-
-        readiness = evaluate_place_readiness(self.place)
-        codes = {issue.quality_code for issue in readiness.issues}
-        self.assertTrue({"missing_coordinates", "missing_price", "missing_photo"} <= codes, codes)
-        blocking = [issue.message for issue in readiness.issues if issue.blocking]
-        self.assertTrue(blocking)
-        for message in blocking:
-            self.assertContains(response, escape(message))
+        self.assertEqual(self.place.status, 'published'); self.assertTrue(self.place.is_active)
+        self.assertEqual((self.place.name_az,self.place.description_az,self.place.content_version), before)
+        from catalog.models import VolunteerPlaceRevision
+        self.assertFalse(VolunteerPlaceRevision.objects.filter(place=self.place).exists())
 
     def test_place_admin_change_form_keeps_gallery_reviews_and_audit_sections(self):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
@@ -1798,16 +1856,15 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertIsNone(event.published_at)
 
     def test_event_admin_can_publish_from_change_form(self):
-        event = Event.objects.create(
+        event = create_reviewable_event(self.superuser,
             name="Publish Admin Event",
-            name_az="Publish Admin Event",
-            category="EDU",
             description_az="Описание для публикации",
             start_datetime=timezone.now() + timedelta(days=5),
             end_datetime=timezone.now() + timedelta(days=5, hours=2),
-            status=Event.STATUS_DRAFT,
-            published_at=None,
         )
+        event.phone = '+994501234567'
+        event.photo = 'events/admin-publication-fixture.jpg'
+        event.save(update_fields=['phone', 'photo'])
         payload = self._admin_event_change_payload(event)
         payload["_publish_event"] = "1"
 
@@ -1816,6 +1873,8 @@ class TestAdminOwnershipModerationUX(TestCase):
             data=payload,
         )
 
+        if response.context and response.context.get('adminform'):
+            self.assertFalse(response.context['adminform'].form.errors, response.context['adminform'].form.errors)
         self.assertEqual(response.status_code, 302)
         event.refresh_from_db()
         self.assertEqual(event.status, Event.STATUS_PUBLISHED)
@@ -1956,11 +2015,11 @@ class TestAdminOwnershipModerationUX(TestCase):
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
     def test_place_admin_bulk_action_regeocodes_selected_places(self, geocode_mock):
-        geocode_mock.return_value = GeocodingPoint(lat=40.5001, lng=49.9001, formatted_address="Baku")
+        geocode_mock.return_value = GeocodingPoint(lat=40.409264, lng=49.867092, formatted_address="Baku")
         self.place.address = "Проспект 10"
         self.place.district = "Ясамал"
-        self.place.lat = 40.1001
-        self.place.lng = 49.1001
+        self.place.lat = 40.4093
+        self.place.lng = 49.8671
         self.place.save(update_fields=["address", "district", "lat", "lng", "updated_at"])
 
         response = self.client.post(
@@ -1975,8 +2034,8 @@ class TestAdminOwnershipModerationUX(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.place.refresh_from_db()
-        self.assertEqual(self.place.lat, 40.5001)
-        self.assertEqual(self.place.lng, 49.9001)
+        self.assertEqual(self.place.lat, 40.409264)
+        self.assertEqual(self.place.lng, 49.867092)
         response_content = response.content.decode("utf-8")
         self.assertTrue(
             "Повторное геокодирование завершено: обновлено 1" in response_content
@@ -2071,61 +2130,37 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, reverse("admin:catalog_place_change", args=[self.place.id]))
 
     def test_place_review_admin_bulk_hide_and_approve_actions(self):
-        review = PlaceReview.objects.create(
-            place=self.place,
-            author_name="Ольга",
-            rating=4,
-            text="Полезный отзыв",
-            is_approved=True,
-        )
-
-        hide_response = self.client.post(
-            reverse("admin:catalog_placereview_changelist"),
-            data={"action": "hide_selected", "_selected_action": [str(review.id)], "index": 0},
-            follow=True,
-        )
-        self.assertEqual(hide_response.status_code, 200)
+        from catalog.services.review_versions import submit_review
+        review = create_pending_review(self.place, 4, 'Helpful review')
+        self.assertEqual(decide_typed_review(self.client, review, kind='place', approve=True).status_code, 302)
+        review.refresh_from_db(); approved_id = review.current_revision_id
+        for action in ('hide_selected', 'approve_selected'):
+            response = self.client.post(reverse('admin:catalog_placereview_changelist'),
+                {'action':action, '_selected_action':[review.pk], 'index':0}, follow=True)
+            self.assertEqual(response.status_code, 200)
+            review.refresh_from_db()
+            self.assertTrue(review.is_approved); self.assertEqual(review.current_revision_id, approved_id)
+        review, candidate = submit_review(target=self.place, user=review.user, rating=3, text='New version')
+        self.assertEqual(decide_typed_review(self.client, review, kind='place', approve=True).status_code, 302)
         review.refresh_from_db()
-        self.assertFalse(review.is_approved)
+        self.assertEqual(review.current_revision_id, candidate.pk); self.assertEqual(review.rating, 3)
 
-        approve_response = self.client.post(
-            reverse("admin:catalog_placereview_changelist"),
-            data={"action": "approve_selected", "_selected_action": [str(review.id)], "index": 0},
-            follow=True,
-        )
-        self.assertEqual(approve_response.status_code, 200)
-        review.refresh_from_db()
-        self.assertTrue(review.is_approved)
 
     def test_place_review_admin_moderation_views_update_visibility(self):
-        review = PlaceReview.objects.create(
-            place=self.place,
-            author_name="Ирина",
-            rating=2,
-            text="Нужно проверить",
-            status=PlaceReview.STATUS_PENDING,
-            is_approved=False,
-        )
+        from catalog.services.review_versions import submit_review
+        review = create_pending_review(self.place, 2, 'Needs review')
+        url = reverse('typed_review_action', args=['place',review.pk,'approve'])
+        self.assertEqual(self.client.get(url).status_code, 405)
+        self.assertEqual(decide_typed_review(self.client, review, kind='place', approve=True).status_code, 302)
+        review.refresh_from_db(); approved_id = review.current_revision_id
+        review, candidate = submit_review(target=self.place, user=review.user, rating=1, text='Rejected update')
+        self.assertEqual(decide_typed_review(self.client, review, kind='place', approve=False).status_code, 302)
+        review.refresh_from_db(); candidate.refresh_from_db()
+        self.assertTrue(review.is_approved); self.assertEqual(review.rating, 2)
+        self.assertEqual(review.current_revision_id, approved_id)
+        self.assertEqual(candidate.status, 'rejected'); self.assertIsNone(review.candidate_revision_id)
+        self.assertEqual(self.client.post(url, {'revision_id':candidate.pk}).status_code, 409)
 
-        approve_get = self.client.get(reverse("admin:catalog_placereview_approve", args=[review.id]))
-        self.assertEqual(approve_get.status_code, 200)
-        self.assertContains(approve_get, "Опубликовать отзыв")
-
-        approve_post = self.client.post(
-            reverse("admin:catalog_placereview_approve", args=[review.id]),
-            follow=True,
-        )
-        self.assertEqual(approve_post.status_code, 200)
-        review.refresh_from_db()
-        self.assertTrue(review.is_approved)
-
-        reject_post = self.client.post(
-            reverse("admin:catalog_placereview_reject", args=[review.id]),
-            follow=True,
-        )
-        self.assertEqual(reject_post.status_code, 200)
-        review.refresh_from_db()
-        self.assertFalse(review.is_approved)
 
     def test_place_review_admin_change_form_shows_place_link_and_full_text(self):
         review = PlaceReview.objects.create(
@@ -2819,12 +2854,9 @@ class TestAdminBulkActions(TestCase):
 
     from unittest.mock import patch
 
-    @patch("catalog.domain_admin.place.place_quality_check")
-    def test_place_make_published_action(self, mock_quality):
-        mock_quality.return_value.is_ready = True
-
+    def test_place_make_published_action(self):
         place1 = create_ready_place(name="Place 1", status=Place.STATUS_DRAFT)
-        place2 = create_quality_place(name="Place 2", status=Place.STATUS_DRAFT)
+        place2 = create_ready_place(name="Place 2", status=Place.STATUS_DRAFT)
 
         url = reverse("admin:catalog_place_changelist")
         response = self.client.post(url, {
@@ -2910,34 +2942,24 @@ class TestAdminBulkActions(TestCase):
         self.assertFalse(place1.is_active) # Restored places remain inactive
 
     def test_review_action_approve_and_reject(self):
-        place = create_quality_place(name="Review Place", status=Place.STATUS_PUBLISHED)
-        review1 = PlaceReview.objects.create(place=place, status=PlaceReview.STATUS_PENDING, rating=5, text="Good", session_key="session1")
-        review2 = PlaceReview.objects.create(place=place, status=PlaceReview.STATUS_PENDING, rating=1, text="Bad", session_key="session2")
-
-        url = reverse("admin:catalog_placereview_changelist")
-
-        # Approve review1
-        response = self.client.post(url, {
-            "action": "approve_selected",
-            "_selected_action": [review1.pk]
-        })
+        place = create_quality_place(name='Review Place')
+        first = create_pending_review(place, 5, 'Good')
+        second = create_pending_review(place, 1, 'Needs review')
+        response = self.client.post(reverse('admin:catalog_placereview_changelist'),
+            {'action':'approve_selected', '_selected_action':[first.pk]})
         self.assertEqual(response.status_code, 302)
-        review1.refresh_from_db()
-        self.assertEqual(review1.status, PlaceReview.STATUS_APPROVED)
+        first.refresh_from_db(); self.assertEqual(first.status, 'pending')
+        self.assertEqual(decide_typed_review(self.client, first, kind='place', approve=True).status_code, 302)
+        self.assertEqual(decide_typed_review(self.client, second, kind='place', approve=False).status_code, 302)
+        first.refresh_from_db(); second.refresh_from_db(); place.refresh_from_db()
+        self.assertEqual(first.status, 'approved'); self.assertTrue(first.is_approved)
+        self.assertEqual(second.status, 'rejected'); self.assertFalse(second.is_approved)
+        self.assertEqual(place.rating_count, 1); self.assertEqual(place.rating_avg, 5)
 
-        # Reject review2
-        response = self.client.post(url, {
-            "action": "reject_selected",
-            "_selected_action": [review2.pk]
-        })
-        self.assertEqual(response.status_code, 302)
-        review2.refresh_from_db()
-        self.assertEqual(review2.status, PlaceReview.STATUS_REJECTED)
 
     def test_event_make_published_and_draft_action(self):
-        place = create_quality_place(name="Event Place", status=Place.STATUS_PUBLISHED)
-        event1 = Event.objects.create(name="Event 1", related_place=place, category="EDU", status=Event.STATUS_DRAFT)
-        event2 = Event.objects.create(name="Event 2", related_place=place, category="EDU", status=Event.STATUS_PUBLISHED)
+        event1 = create_reviewable_event(self.admin_user, name='Event 1')
+        event2 = create_reviewable_event(self.admin_user, name='Event 2', published=True)
 
         url = reverse("admin:catalog_event_changelist")
 
@@ -3198,7 +3220,7 @@ class TestPlaceRatingsAdmin(TestCase):
             place = create_quality_place(
                 name=f"Ratings page {index}",
                 name_ru=f"Пагинация рейтинг {index}",
-                district="Bakı",
+                district="baku_narimanov",
                 is_verified=True,
             )
             PlaceReview.objects.create(
@@ -3212,7 +3234,7 @@ class TestPlaceRatingsAdmin(TestCase):
         self.addCleanup(setattr, ratings_admin, "list_per_page", original_per_page)
         ratings_admin.list_per_page = 2
         url = reverse("admin:catalog_placereviewsbyclub_changelist")
-        query = "?category__code__exact=EDU&district=baku&is_active__exact=1&is_verified__exact=1&q=Пагинация&o=-1"
+        query = "?category__code__exact=EDU&district=baku_narimanov&is_active__exact=1&is_verified__exact=1&q=Пагинация&o=-1"
 
         first = self.client.get(url + query)
         second = self.client.get(url + query + "&p=2")
@@ -3222,7 +3244,7 @@ class TestPlaceRatingsAdmin(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, "km-changelist-pagination__nav")
             self.assertContains(response, "category__code__exact=EDU")
-            self.assertContains(response, "district=baku")
+            self.assertContains(response, "district=baku_narimanov")
             self.assertContains(response, "is_verified__exact=1")
             self.assertContains(response, "q=%D0%9F%D0%B0%D0%B3%D0%B8%D0%BD%D0%B0%D1%86%D0%B8%D1%8F")
             self.assertContains(response, "o=-1")
@@ -3574,46 +3596,31 @@ class TestReviewRatingSyncAndAdminBulkActions(TestCase):
         )
 
     def test_place_review_bulk_approve_updates_place_rating_stats(self):
-        from catalog.models.review import PlaceReview
-        review1 = PlaceReview.objects.create(place=self.place, rating=5, text="Great place!", status=PlaceReview.STATUS_PENDING, is_approved=False)
-        review2 = PlaceReview.objects.create(place=self.place, rating=4, text="Good place!", status=PlaceReview.STATUS_PENDING, is_approved=False)
-
+        first = create_pending_review(self.place, 5, 'Great place!')
+        second = create_pending_review(self.place, 4, 'Good place!')
         self.place.refresh_from_db()
-        self.assertEqual(self.place.rating_count, 0)
-        self.assertEqual(self.place.rating_avg, 0.0)
-
-        response = self.client.post(
-            reverse("admin:catalog_placereview_changelist"),
-            {"action": "approve_selected", "_selected_action": [str(review1.pk), str(review2.pk)], "index": "0"},
-            follow=True,
-        )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.place.rating_count, 0); self.assertEqual(self.place.rating_avg, 0)
+        legacy = self.client.post(reverse('admin:catalog_placereview_changelist'),
+            {'action':'approve_selected', '_selected_action':[first.pk, second.pk]}, follow=True)
+        self.assertEqual(legacy.status_code, 200)
+        self.place.refresh_from_db(); self.assertEqual(self.place.rating_count, 0)
+        for head in (first, second):
+            self.assertEqual(decide_typed_review(self.client, head, kind='place', approve=True).status_code, 302)
         self.place.refresh_from_db()
-        self.assertEqual(self.place.rating_count, 2)
-        self.assertEqual(self.place.rating_avg, 4.5)
+        self.assertEqual(self.place.rating_count, 2); self.assertEqual(self.place.rating_avg, 4.5)
+
 
     def test_specialist_review_bulk_approve_updates_specialist_rating_stats(self):
-        from catalog.models.specialist import SpecialistReview
-        review = SpecialistReview.objects.create(
-            specialist=self.specialist,
-            author_name="Test Author",
-            rating=5,
-            text="Awesome specialist!",
-            status=SpecialistReview.STATUS_PENDING,
-            is_approved=False,
-        )
+        review = create_pending_review(self.specialist, 5, 'Awesome specialist!')
+        self.specialist.refresh_from_db(); self.assertEqual(self.specialist.rating_count, 0)
+        legacy = self.client.post(reverse('admin:catalog_specialistreview_changelist'),
+            {'action':'approve_selected', '_selected_action':[review.pk]}, follow=True)
+        self.assertEqual(legacy.status_code, 200)
+        self.specialist.refresh_from_db(); self.assertEqual(self.specialist.rating_count, 0)
+        self.assertEqual(decide_typed_review(self.client, review, kind='specialist', approve=True).status_code, 302)
         self.specialist.refresh_from_db()
-        self.assertEqual(self.specialist.rating_count, 0)
+        self.assertEqual(self.specialist.rating_count, 1); self.assertEqual(self.specialist.rating_avg, 5)
 
-        response = self.client.post(
-            reverse("admin:catalog_specialistreview_changelist"),
-            {"action": "approve_selected", "_selected_action": [str(review.pk)], "index": "0"},
-            follow=True,
-        )
-        self.assertEqual(response.status_code, 200)
-        self.specialist.refresh_from_db()
-        self.assertEqual(self.specialist.rating_count, 1)
-        self.assertEqual(self.specialist.rating_avg, 5.0)
 
     def test_place_detail_self_heals_out_of_sync_rating_stats(self):
         from catalog.models.review import PlaceReview

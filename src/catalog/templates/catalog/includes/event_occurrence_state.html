@@ -1,0 +1,7 @@
+{% if event.occurrence_state == 'cancelled' %}
+  {% if language == 'az' %}Ləğv edilib{% elif language == 'en' %}Cancelled{% else %}Отменено{% endif %}
+{% elif event.occurrence_state == 'rescheduled' %}
+  {% if language == 'az' %}Vaxtı dəyişdirilib{% elif language == 'en' %}Rescheduled{% else %}Перенесено{% endif %}
+{% elif event.occurrence_status == 'completed' %}
+  {% if language == 'az' %}Başa çatıb{% elif language == 'en' %}Ended{% else %}Завершено{% endif %}
+{% endif %}

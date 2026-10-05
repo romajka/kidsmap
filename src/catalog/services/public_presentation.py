@@ -113,9 +113,20 @@ def price_rows(group, language):
         unit = plan_billing_unit(plan, language)
         if unit and plan.price_kind not in {'free', 'on_request'}:
             label += ' / ' + unit
-        rows.append({'id':plan.pk, 'title':plan.title_i18n(language), 'label':label,
-            'conditions':plan.conditions_i18n(language), 'is_required':plan.is_required, 'is_trial':plan.is_trial})
+        with override(language):
+            title = plan.title_i18n(language)
+            conditions = plan.conditions_i18n(language)
+        rows.append({'id':plan.pk, 'title':title, 'label':label,
+            'title_language': _price_text_language(plan, 'title', language),
+            'conditions':conditions, 'conditions_language': _price_text_language(plan, 'conditions', language),
+            'is_required':plan.is_required, 'is_trial':plan.is_trial})
     return rows
+
+
+def _price_text_language(plan, field, language):
+    # Match PricingPlan's existing fallback order, including legacy RU/EN text.
+    return next((code for code in dict.fromkeys((language, 'az', 'ru', 'en'))
+                 if getattr(plan, f'{field}_{code}', '')), language)
 
 
 def activity_groups(activity, language):
@@ -124,9 +135,11 @@ def activity_groups(activity, language):
     for group in groups:
         low, high = group.age_from, group.age_to
         age = f'{low}–{high}' if low is not None and high is not None else f'{low}+' if low is not None else f'≤ {high}' if high is not None else ''
-        result.append({'id':group.pk,'name':translated(group,'name',language)[0], 'age':age,
+        name, name_lang = translated(group, 'name', language)
+        conditions, conditions_lang = translated(group, 'conditions', language)
+        result.append({'id':group.pk,'name':name, 'name_language':name_lang, 'age':age,
             'language':group.language, 'schedule':group.schedule_text, 'teachers':group.teachers_text,
-            'conditions':translated(group,'conditions',language)[0], 'prices':price_rows(group,language)})
+            'conditions':conditions, 'conditions_language':conditions_lang, 'prices':price_rows(group,language)})
     return result
 
 
@@ -140,7 +153,9 @@ def schema_offers(place, lang):
             continue
         if plan.price_kind not in {"exact", "free", "range", "from"}:
             continue
-        offer = {"@type": "Offer", "name": plan.title_i18n(lang), "priceCurrency": plan.currency}
+        with override(lang):
+            offer_name = plan.title_i18n(lang)
+        offer = {"@type": "Offer", "name": offer_name, "priceCurrency": plan.currency}
         descriptions = []
         period = plan_billing_unit(plan, lang)
         if period:
@@ -151,7 +166,9 @@ def schema_offers(place, lang):
                 fee_amount = fee.price if fee.price_kind in {"exact", "free"} else fee.price_min
                 if fee_amount is not None:
                     prefix = {"ru": "Обязательный платёж", "az": "Məcburi ödəniş", "en": "Required fee"}.get(lang, "Required fee")
-                    descriptions.append(f"{prefix}: {fee.title_i18n(lang)} {format_price_amount(fee_amount)} {fee.currency}")
+                    with override(lang):
+                        fee_name = fee.title_i18n(lang)
+                    descriptions.append(f"{prefix}: {fee_name} {format_price_amount(fee_amount)} {fee.currency}")
         if descriptions:
             offer["description"] = "; ".join(descriptions)
         if plan.price_kind in {"exact", "free"}:
@@ -188,11 +205,35 @@ def schema_offers(place, lang):
     return offers if len(offers) > 1 else offers[0] if offers else []
 
 
+def activity_text_source(activity, organization):
+    """Approved live source or permitted detached snapshot; never a candidate."""
+    program = activity.program if activity.program_id else None
+    return (program if program and visible(program) and organization
+            and program.organization_id == organization.pk
+            else activity.program_snapshot if not activity.program_id
+            or (organization and program and program.organization_id == organization.pk) else {})
+
+
+def activity_texts(activity, language, source):
+    """Text/provenance only, sharing precisely the public inheritance contract."""
+    name, name_lang = translated(activity, 'name', language)
+    description, description_lang = translated(activity, 'description', language)
+    if not name:
+        name, name_lang = translated(source, 'name', language)
+    if source:
+        description, description_lang = translated(source, 'description', language)
+    supplement, supplement_lang = translated(activity, 'supplement', language)
+    return {'name': name, 'name_language': name_lang,
+            'description': description, 'description_language': description_lang,
+            'supplement': supplement, 'supplement_language': supplement_lang}
+
+
 def present(obj, language=None):
     lang = language_code(language)
     kind = obj._meta.model_name
     result = {'kind':kind, 'id':obj.pk, 'visible':visible(obj), 'name':'', 'description':'',
         'supplement':'', 'url':'', 'translation_fallback':False, 'content_language':lang,
+        'name_language':lang, 'description_language':lang, 'supplement_language':lang,
         'image_url':'', 'placeholder_icon':'location_on', 'category_label':'', 'contacts':{},
         'prices':{}, 'groups':[], 'organization':None}
     if not result['visible']:
@@ -202,21 +243,25 @@ def present(obj, language=None):
     place = obj if isinstance(obj, Place) else obj.place if isinstance(obj, Activity) else None
     org = current_organization(place) if place else obj.organization if isinstance(obj, Program) and visible(obj.organization) else None
     if isinstance(obj, Activity):
-        program = obj.program if obj.program_id else None
-        source = (program if program and visible(program) and org and program.organization_id == org.pk
-                  else obj.program_snapshot if not obj.program_id or (org and program and program.organization_id == org.pk) else {})
-        # A stale live link cannot read its Program. A detached approved snapshot is local history.
-        if not name:
-            name, name_lang = translated(source,'name',lang)
-        if source:
-            description, description_lang = translated(source,'description',lang)
-        result['supplement'], supplement_lang = translated(obj,'supplement',lang)
+        text = activity_texts(obj, lang, activity_text_source(obj, org))
+        name, name_lang = text['name'], text['name_language']
+        description, description_lang = text['description'], text['description_language']
+        result.update(supplement=text['supplement'], supplement_language=text['supplement_language'])
         result['groups'] = activity_groups(obj,lang)
-        result['translation_fallback'] = bool(result['supplement'] and supplement_lang != lang)
-    result.update(name=name, description=description, url=public_url(obj,lang),
+        result['translation_fallback'] = bool(result['supplement'] and text['supplement_language'] != lang)
+    result.update(name=name, description=description, name_language=name_lang,
+        description_language=description_lang, url=public_url(obj,lang),
         contacts=contact_data(obj), content_language='az' if (name and name_lang != lang) or (description and description_lang != lang) else lang)
     result['translation_fallback'] |= result['content_language'] != lang
-    category = place.category if place else getattr(obj,'category',None)
+    if isinstance(obj, Activity):
+        from catalog.models import Category
+        from catalog.services.catalog_structure import activity_taxonomy_ids
+        category_id, subcategory_id = activity_taxonomy_ids(obj)
+        category = (obj._public_taxonomy_category if hasattr(obj, '_public_taxonomy_category')
+                    else Category.objects.filter(pk=category_id).first() if category_id else None)
+        result.update(category_id=category_id, subcategory_id=subcategory_id)
+    else:
+        category = place.category if place else getattr(obj,'category',None)
     if category:
         result['category_label'] = category.name_i18n(lang)
         result['placeholder_icon'] = category.code
@@ -225,7 +270,8 @@ def present(obj, language=None):
         result['map_available'] = map_identity(place) is not None
         result['image_url'] = place.public_image_url
         if org:
-            result['organization'] = {'name':translated(org,'name',lang)[0], 'url':public_url(org,lang)}
+            org_name, org_lang = translated(org, 'name', lang)
+            result['organization'] = {'name':org_name, 'name_language':org_lang, 'url':public_url(org,lang)}
         price_place = place
         if isinstance(obj, Activity):
             price_place = copy.copy(place)
@@ -246,26 +292,44 @@ def prepare_cards(places, language=None, *, filters=None):
     Batch trust markers exist only while materializing this snapshot. Direct
     detail/contact resolver calls still recheck visibility and affiliation.
     """
-    from django.db.models import Prefetch
+    from django.db.models import Exists, OuterRef, Prefetch, QuerySet
     from catalog.models import OfferingGroup, PricingPlan
     from catalog.services.catalog_search import matching_groups, has_offer_filters
     from catalog.services.pricing_plans import prefetch_place_pricing_records
-    source = list(places)
+    # Re-evaluate QuerySets directly: materializing their old prefetches and then
+    # fetching the same rows again doubles schedule work. Lists still need a
+    # fresh lookup because they may contain objects retained over an ACL change.
+    queryset_input = isinstance(places, QuerySet)
+    source = None if queryset_input else list(places)
+    if source == []:
+        return []
+    lookup = places.all().prefetch_related(None) if queryset_input else Place.objects.filter(pk__in=[p.pk for p in source])
+    live_activities = Activity.objects.filter(place_id=OuterRef('pk'), status='published', archived_at__isnull=True)
+    fresh = {p.pk:p for p in lookup
+        .select_related('organization', 'category', 'subcategory', 'confirmed_location')
+        .annotate(_has_public_activities=Exists(live_activities))
+        .prefetch_related('schedule_days__intervals')}
+    if source is None:
+        source = list(fresh.values())
     if not source:
         return []
-    fresh = {p.pk:p for p in Place.objects.filter(pk__in=[p.pk for p in source])
-        .select_related('organization', 'category', 'subcategory', 'confirmed_location')
-        .prefetch_related('gallery', 'schedule_days__intervals')}
     batch = [fresh[p.pk] for p in source if p.pk in fresh]
     plans = PricingPlan.objects.filter(is_active=True).order_by('sort_order','pk')
     groups = OfferingGroup.objects.filter(archived_at__isnull=True)
     if filters is not None:
         groups = matching_groups(filters)
     groups = groups.prefetch_related(Prefetch('pricing_plan_records',queryset=plans,to_attr='_public_plans'))
-    acts = Activity.objects.filter(place_id__in=fresh,status='published',archived_at__isnull=True)
+    activity_place_ids = [pk for pk, place in fresh.items() if place._has_public_activities]
+    acts = Activity.objects.filter(place_id__in=activity_place_ids,status='published',archived_at__isnull=True)
     acts = acts.select_related('program__organization').prefetch_related(Prefetch('offering_groups',queryset=groups,to_attr='_public_groups'))
     by_place = {pk:[] for pk in fresh}
-    for activity in acts:
+    activities = list(acts)
+    from catalog.models import Category
+    from catalog.services.catalog_structure import activity_taxonomy_ids
+    category_ids = {activity_taxonomy_ids(activity)[0] for activity in activities}
+    categories = Category.objects.in_bulk(category_ids - {None}) if category_ids - {None} else {}
+    for activity in activities:
+        activity._public_taxonomy_category = categories.get(activity_taxonomy_ids(activity)[0])
         activity.place = fresh[activity.place_id]
         by_place[activity.place_id].append(activity)
     prefetch_place_pricing_records(batch)

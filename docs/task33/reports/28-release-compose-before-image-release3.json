@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "standalone_compose": "v5.5.0",
+  "binary_sha256": "c57ab918abd5b05ca7e7d0f275875dd1330a695074f309dc9eab1b49efafcd4b",
+  "official_binary_checksum_matched": true,
+  "positive_merge_exit": 0,
+  "required_variable_negative_cases": [
+    {
+      "omitted_variable": "TASK33_PRIVATE_MEDIA_PATH",
+      "exit": 1,
+      "passed": true
+    },
+    {
+      "omitted_variable": "TASK33_R2_BUILD_CONTEXT",
+      "exit": 1,
+      "passed": true
+    },
+    {
+      "omitted_variable": "TASK33_R2_IMAGE",
+      "exit": 1,
+      "passed": true
+    }
+  ],
+  "resolved_default_write_mode": "off",
+  "resolved_selected_user_ids_empty": true,
+  "resolved_build_context": "/root/km28-image-context3",
+  "resolved_private_mount_target": "/kidsmap-private-media",
+  "synthetic_image_digest_only": true,
+  "actual_application_image": "CONFIG_ONLY_BUILD_EVIDENCE_SEPARATE",
+  "actual_production_config": "UNKNOWN",
+  "production": "NOT_CONTACTED"
+}

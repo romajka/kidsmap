@@ -1,0 +1,980 @@
+{
+  "stage": 26,
+  "runs": [
+    {
+      "stamp": "stage26-admin-red-20261003",
+      "evidence": "/root/task33-evidence/stage26-admin-red-20261003",
+      "suite-results.json": {
+        "tests_run": 6,
+        "failures": 1,
+        "errors": 1,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_admin_dates_are_baku_and_online_has_no_address_requirement",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_admin_unpublish_changes_publication_without_cancelling_occurrence",
+            "kind": "error",
+            "exception": "IntegrityError"
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 2,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1774,
+        "explicit_unique_count": 1774,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-all-red2-20261003",
+      "evidence": "/root/task33-evidence/stage26-all-red2-20261003",
+      "suite-results.json": {
+        "tests_run": 31,
+        "failures": 17,
+        "errors": 17,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_cancel_keeps_approved_publication_and_append_only_period",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_confirmed_online_person_needs_no_geography",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_future_reschedule_retains_original_period_and_stale_retry_fails",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_new_service_does_not_accept_legacy_marker_or_owner_override",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_new_service_does_not_accept_legacy_marker_or_owner_override",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_new_service_does_not_accept_legacy_marker_or_owner_override",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_new_service_does_not_accept_legacy_marker_or_owner_override",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_past_occurrence_cannot_be_reused_under_same_id",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_publication_snapshot_stays_at_original_venue_after_move",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_service_available_for_authorized_organizer",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_stale_save_preserves_newer_content",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_transfer_revokes_old_actor_even_if_stale_event_owner_matches",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_unverified_person_cannot_organize",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_venue_owner_cannot_edit_organizers_event",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_approved_past_and_cancelled_visibility_separate_from_publication",
+            "kind": "error",
+            "exception": "TypeError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_approved_snapshot_is_immutable_and_completed_dates_cannot_reuse_id",
+            "kind": "error",
+            "exception": "TypeError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_aware_positive_interval_validated_in_save_and_postgres",
+            "kind": "error",
+            "exception": "TypeError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_occurrence_history_append_only_and_unique_event_version",
+            "kind": "error",
+            "exception": "LookupError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_online_has_no_fabricated_place_or_geography_and_raw_updates_rejected",
+            "kind": "error",
+            "exception": "TypeError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_postgres_organizer_xor_blocks_two_or_zero_resolved_and_resolved_legacy_mismatch",
+            "kind": "error",
+            "exception": "TypeError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_queries.EventQueryContractTests.test_baku_midnight_multiday_and_exact_exclusive_edges",
+            "kind": "error",
+            "exception": "ModuleNotFoundError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_queries.EventQueryContractTests.test_calendar_full_month_is_not_paginated_list",
+            "kind": "error",
+            "exception": "ModuleNotFoundError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_queries.EventQueryContractTests.test_invalid_dates_fail_closed_and_upcoming_uses_end",
+            "kind": "error",
+            "exception": "ModuleNotFoundError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_queries.EventQueryContractTests.test_month_leap_year_and_inclusive_local_date_to",
+            "kind": "error",
+            "exception": "ModuleNotFoundError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_queries.EventQueryContractTests.test_period_contract_exists",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_queries.EventQueryContractTests.test_publication_and_format_category_age_filters",
+            "kind": "error",
+            "exception": "ModuleNotFoundError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_queries.EventQueryContractTests.test_snapshot_district_does_not_follow_place",
+            "kind": "error",
+            "exception": "ModuleNotFoundError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_approved_past_detail_remains_public",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_cancelled_and_rescheduled_detail_are_truthful",
+            "kind": "error",
+            "exception": "TypeError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_cancelled_and_rescheduled_detail_are_truthful",
+            "kind": "error",
+            "exception": "TypeError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_online_schema_has_no_physical_location",
+            "kind": "error",
+            "exception": "TypeError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_pending_other_target_and_pending_edit_never_change_public_rating",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_snapshot_and_jsonld_share_visible_facts_and_script_safety",
+            "kind": "error",
+            "exception": "FieldDoesNotExist"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_schema.EventMigrationTests.test_0132_0133_preserves_ids_reviews_unknown_organizers_and_own_snapshot_only",
+            "kind": "error",
+            "exception": "NodeNotFoundError"
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 34,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 166,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1747,
+        "explicit_unique_count": 1747,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-dashboard-red-20261003",
+      "evidence": "/root/task33-evidence/stage26-dashboard-red-20261003",
+      "suite-results.json": {
+        "tests_run": 10,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_dashboard.EventDashboardContractTests.test_current_organizer_sees_private_event_and_stale_owner_does_not",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_dashboard.EventDashboardContractTests.test_stats_keep_publication_separate_from_completed_and_cancelled",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_dashboard.EventDashboardContractTests.test_transfer_revokes_previous_organizer_even_when_owner_cache_stays_old",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_dashboard.EventDashboardContractTests.test_verified_person_and_revocation_use_fresh_person_identity",
+            "kind": "failure",
+            "exception": "AssertionError"
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 4,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1778,
+        "explicit_unique_count": 1778,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-domain-red-20261003",
+      "evidence": "/root/task33-evidence/stage26-domain-red-20261003",
+      "suite-results.json": {
+        "tests_run": 11,
+        "failures": 0,
+        "errors": 14,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_cancel_keeps_approved_publication_and_append_only_period",
+            "kind": "error",
+            "exception": "ImportError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_confirmed_online_person_needs_no_geography",
+            "kind": "error",
+            "exception": "ImportError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_future_reschedule_retains_original_period_and_stale_retry_fails",
+            "kind": "error",
+            "exception": "ImportError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_new_service_does_not_accept_legacy_marker_or_owner_override",
+            "kind": "error",
+            "exception": "ImportError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_new_service_does_not_accept_legacy_marker_or_owner_override",
+            "kind": "error",
+            "exception": "ImportError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_new_service_does_not_accept_legacy_marker_or_owner_override",
+            "kind": "error",
+            "exception": "ImportError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_new_service_does_not_accept_legacy_marker_or_owner_override",
+            "kind": "error",
+            "exception": "ImportError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_past_occurrence_cannot_be_reused_under_same_id",
+            "kind": "error",
+            "exception": "ImportError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_publication_snapshot_stays_at_original_venue_after_move",
+            "kind": "error",
+            "exception": "ImportError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_service_available_for_authorized_organizer",
+            "kind": "error",
+            "exception": "ImportError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_stale_save_preserves_newer_content",
+            "kind": "error",
+            "exception": "ImportError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_transfer_revokes_old_actor_even_if_stale_event_owner_matches",
+            "kind": "error",
+            "exception": "ImportError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_unverified_person_cannot_organize",
+            "kind": "error",
+            "exception": "ImportError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_venue_owner_cannot_edit_organizers_event",
+            "kind": "error",
+            "exception": "ImportError"
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 14,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 166,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1747,
+        "explicit_unique_count": 1747,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-edit-timezone-red-20261003",
+      "evidence": "/root/task33-evidence/stage26-edit-timezone-red-20261003",
+      "suite-results.json": {
+        "tests_run": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_dashboard.EventDashboardContractTests.test_edit_initial_dates_are_baku_even_under_new_york_timezone",
+            "kind": "failure",
+            "exception": "AssertionError"
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 1,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1783,
+        "explicit_unique_count": 1783,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-format-red-20261003",
+      "evidence": "/root/task33-evidence/stage26-format-red-20261003",
+      "suite-results.json": {
+        "tests_run": 17,
+        "failures": 4,
+        "errors": 1,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_first_approved_format_survives_unpublication_and_blocks_both_content_switches",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_first_approved_format_survives_unpublication_and_blocks_both_content_switches",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_modelform_post_clean_reports_approved_format_change_before_admin_save",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_modelform_post_clean_reports_approved_format_change_before_admin_save",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_admin_cannot_publish_unverified_person_through_bulk_action",
+            "kind": "error",
+            "exception": "TypeError"
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 5,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1782,
+        "explicit_unique_count": 1782,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-http-period-red-20261003",
+      "evidence": "/root/task33-evidence/stage26-http-period-red-20261003",
+      "suite-results.json": {
+        "tests_run": 2,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_queries.EventQueryContractTests.test_full_http_archive_keeps_baku_date_and_snapshot_district",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_queries.EventQueryContractTests.test_full_http_period_format_modes_survive_query_cleanup",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_queries.EventQueryContractTests.test_full_http_period_format_modes_survive_query_cleanup",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 3,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1788,
+        "explicit_unique_count": 1788,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-links-concurrency-red-20261003",
+      "evidence": "/root/task33-evidence/stage26-links-concurrency-red-20261003",
+      "suite-results.json": {
+        "tests_run": 14,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_queries.EventQueryContractTests.test_keyword_named_date_and_period_survive_pagination_links",
+            "kind": "error",
+            "exception": "KeyError"
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 1,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1772,
+        "explicit_unique_count": 1772,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-owner-red-20261003",
+      "evidence": "/root/task33-evidence/stage26-owner-red-20261003",
+      "run.json": {
+        "status": "ENVIRONMENT_FAILURE",
+        "child_exit": 1,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "discovery.json": {
+        "explicit_count": 1765,
+        "explicit_unique_count": 1765,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-owner-red2-20261003",
+      "evidence": "/root/task33-evidence/stage26-owner-red2-20261003",
+      "suite-results.json": {
+        "tests_run": 18,
+        "failures": 9,
+        "errors": 2,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_form_limits_organizer_and_requires_explicit_choice_even_draft",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_http_create_persists_resolved_online_and_prevents_forged_owner",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_new_form_shows_real_organizer_and_format_controls",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_owner_contract.EventOwnerContractTests.test_online_form_uses_baku_even_under_foreign_timezone_override",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_cancelled_landing_card_has_state_instead_of_countdown",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_explicit_organizer_page_and_schema_match_without_venue_identity",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_explicit_organizer_page_and_schema_match_without_venue_identity",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_security.EventSecurityTests.test_event_review_reply_follows_fresh_organizer_not_venue_or_legacy_owner",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_security.EventSecurityTests.test_foreign_event_delete_and_submit_http_boundaries_and_csrf",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_security.EventSecurityTests.test_public_jsonld_escapes_script_terminator_and_online_has_no_geo",
+            "kind": "error",
+            "exception": "StopIteration"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_security.EventSecurityTests.test_review_pending_edit_and_foreign_target_never_change_page_schema_rating",
+            "kind": "error",
+            "exception": "StopIteration"
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 11,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1765,
+        "explicit_unique_count": 1765,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-schema-venue-red-20261003",
+      "evidence": "/root/task33-evidence/stage26-schema-venue-red-20261003",
+      "run.json": {
+        "status": "ENVIRONMENT_FAILURE",
+        "child_exit": 1,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "discovery.json": {
+        "explicit_count": 1768,
+        "explicit_unique_count": 1768,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-security-final-20261003",
+      "evidence": "/root/task33-evidence/stage26-security-final-20261003",
+      "suite-results.json": {
+        "tests_run": 19,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "status": "PASS",
+        "problems": []
+      },
+      "run.json": {
+        "status": "PASS",
+        "child_exit": 0,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1786,
+        "explicit_unique_count": 1786,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-security-green-20261003",
+      "evidence": "/root/task33-evidence/stage26-security-green-20261003",
+      "suite-results.json": {
+        "tests_run": 16,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "status": "PASS",
+        "problems": []
+      },
+      "run.json": {
+        "status": "PASS",
+        "child_exit": 0,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1770,
+        "explicit_unique_count": 1770,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-security-red-20261003",
+      "evidence": "/root/task33-evidence/stage26-security-red-20261003",
+      "suite-results.json": {
+        "tests_run": 14,
+        "failures": 2,
+        "errors": 1,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_security.EventSecurityTests.test_event_review_reply_follows_fresh_organizer_not_venue_or_legacy_owner",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_security.EventSecurityTests.test_foreign_event_delete_and_submit_http_boundaries_and_csrf",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_security.EventSecurityTests.test_public_jsonld_escapes_script_terminator_and_online_has_no_geo",
+            "kind": "error",
+            "exception": "KeyError"
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 3,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1767,
+        "explicit_unique_count": 1767,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-security-red-source-20261003",
+      "evidence": "/root/task33-evidence/stage26-security-red-source-20261003"
+    },
+    {
+      "stamp": "stage26-security-red2-20261003",
+      "evidence": "/root/task33-evidence/stage26-security-red2-20261003",
+      "suite-results.json": {
+        "tests_run": 15,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_security.EventSecurityTests.test_foreign_event_delete_and_submit_http_boundaries_and_csrf",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_security.EventSecurityTests.test_foreign_private_venue_id_cannot_capture_or_publish_secret_address",
+            "kind": "failure",
+            "exception": "AssertionError"
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 2,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1768,
+        "explicit_unique_count": 1768,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-security-red3-20261003",
+      "evidence": "/root/task33-evidence/stage26-security-red3-20261003",
+      "suite-results.json": {
+        "tests_run": 16,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_security.EventSecurityTests.test_venue_privacy_is_rechecked_at_snapshot_after_initial_validation",
+            "kind": "failure",
+            "exception": "AssertionError"
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 1,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1770,
+        "explicit_unique_count": 1770,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-target-green1-20261003",
+      "evidence": "/root/task33-evidence/stage26-target-green1-20261003",
+      "suite-results.json": {
+        "tests_run": 52,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_approved_past_and_cancelled_visibility_separate_from_publication",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_occurrence_history_append_only_and_unique_event_version",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_schema.EventSchemaTests.test_occurrence_history_append_only_and_unique_event_version",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_domain.EventDomainTests.test_publication_snapshot_stays_at_original_venue_after_move",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_queries.EventQueryContractTests.test_calendar_full_month_is_not_paginated_list",
+            "kind": "failure",
+            "exception": "AssertionError"
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 5,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1768,
+        "explicit_unique_count": 1768,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-task33-final1-20261003",
+      "evidence": "/root/task33-evidence/stage26-task33-final1-20261003",
+      "suite-results.json": {
+        "tests_run": 549,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "status": "PASS",
+        "problems": []
+      },
+      "run.json": {
+        "status": "PASS",
+        "child_exit": 0,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1786,
+        "explicit_unique_count": 1786,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage26-task33-final2-20261003",
+      "evidence": "/root/task33-evidence/stage26-task33-final2-20261003",
+      "suite-results.json": {
+        "tests_run": 551,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "status": "PASS",
+        "problems": []
+      },
+      "run.json": {
+        "status": "PASS",
+        "child_exit": 0,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1788,
+        "explicit_unique_count": 1788,
+        "duplicate_explicit_ids": 0
+      }
+    }
+  ]
+}

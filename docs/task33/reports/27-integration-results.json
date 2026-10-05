@@ -1,0 +1,65 @@
+{
+  "evidence": "/root/task33-evidence/stage27-integration-final-20261003",
+  "executor": "/root/stage27_integration",
+  "production": "NOT_CONTACTED",
+  "run.json": {
+    "status": "PASS",
+    "child_exit": 0,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "suite-results.json": {
+    "tests_run": 10,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "status": "PASS",
+    "problems": [],
+    "elapsed_seconds": 0.906,
+    "executed_ids": [
+      "catalog.testcases.test_task33_event_calendar_review.EventCalendarIndependentReviewTests.test_archived_online_cancelled_rescheduled_remain_real_public_records",
+      "catalog.testcases.test_task33_event_calendar_review.EventCalendarIndependentReviewTests.test_calendar_gets_do_not_create_occurrences_or_mutate_event",
+      "catalog.testcases.test_task33_event_calendar_review.EventCalendarIndependentReviewTests.test_every_closed_publication_and_deleted_record_excluded",
+      "catalog.testcases.test_task33_event_calendar_review.EventCalendarIndependentReviewTests.test_feature_off_and_database_failure_are_fail_closed",
+      "catalog.testcases.test_task33_event_calendar_review.EventCalendarIndependentReviewTests.test_malformed_or_mismatched_explicit_calendar_inputs_fail_closed",
+      "catalog.testcases.test_task33_event_calendar_review.EventCalendarIndependentReviewTests.test_month_fourteen_records_not_list_page_and_no_fabricated_ids",
+      "catalog.testcases.test_task33_event_calendar_review.EventCalendarIndependentReviewTests.test_navigation_urls_preserve_filters_and_discard_page_tracking_redirect",
+      "catalog.testcases.test_task33_event_calendar_review.EventCalendarIndependentReviewTests.test_quick_date_chips_reset_period_conflicts_and_free_keeps_selected_day",
+      "catalog.testcases.test_task33_event_calendar_review.EventCalendarIndependentReviewTests.test_same_filters_in_modes_use_snapshot_not_live_location",
+      "catalog.testcases.test_task33_event_calendar_review.EventCalendarIndependentReviewTests.test_utc_boundary_half_open_days_multiday_and_leap_day"
+    ]
+  },
+  "isolation.json": {
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10",
+    "network_guard": true,
+    "libpq_guard": true,
+    "external_credentials_present": false
+  },
+  "migrations.json": {
+    "applied_count": 167,
+    "unapplied_count": 0
+  },
+  "discovery.json": {
+    "explicit_count": 1812,
+    "explicit_unique_count": 1812,
+    "duplicate_explicit_ids": 0
+  },
+  "checks": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.13
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.234
+    }
+  ]
+}

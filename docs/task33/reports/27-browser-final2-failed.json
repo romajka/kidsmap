@@ -1,0 +1,150 @@
+{
+  "stage": 27,
+  "scope": "ACTUAL_APPLICATION",
+  "execution_identity": "/root/stage26_browser",
+  "role": "browser-qa",
+  "head": "015d031d8eb17114bd860159dde805b38df3c13c",
+  "snapshot": "dirty WORKTREE frozen in own allowlisted mirror",
+  "evidence": "/root/task33-evidence/browser27-final2-20261003",
+  "browser": "Chromium via cached Playwright CLI",
+  "languages": [
+    "az",
+    "en",
+    "ru"
+  ],
+  "widths": [
+    320,
+    360,
+    390,
+    768,
+    1024,
+    1280,
+    1440
+  ],
+  "runtime_paths": {
+    "base": "/root/km27-browser-frozen",
+    "static": "/root/km27-browser-frozen/static/admin/css/pages/kidsmap_admin_form_shell.css",
+    "event": "/root/km27-browser-frozen/src/catalog/models/place.py",
+    "domain": "/root/km27-browser-frozen/src/catalog/services/event_domain.py",
+    "query": "/root/km27-browser-frozen/src/catalog/services/event_queries.py",
+    "calendar": "/root/km27-browser-frozen/src/catalog/services/event_calendar.py",
+    "controller": "/root/km27-browser-frozen/src/catalog/controllers/place_controller.py"
+  },
+  "runtime_css_sha256": "2f4ca4d28f7a2f57b398d5d51b45874a5966dd1510f200bd638a4f091f135c5d",
+  "runtime_asset_sha256": {
+    "static/css/events_landing.css": {
+      "status": 200,
+      "sha256": "ab2a88df60d30d18c709d2878836b32415fbd6316f076436d7fcb54e2b042ae0"
+    },
+    "static/js/temporary_event_timer.js": {
+      "status": 200,
+      "sha256": "7f115b68dab8904ad37b083196816a3b74d601bbb4acf3cee3126eee6bcfb374"
+    }
+  },
+  "rows": 273,
+  "passed_rows": 273,
+  "checks": 924,
+  "passed_checks": 924,
+  "failed_rows": [],
+  "failed_checks": [],
+  "event_counts": {
+    "errors": 30,
+    "failed": 0,
+    "staticFailures": 0,
+    "stubs": 1217,
+    "expectedErrors": 0
+  },
+  "screenshots": [
+    "UTC-midnight-past-rejected.png",
+    "admin-1440.png",
+    "admin-390.png",
+    "admin-after-publication.png",
+    "admin_add-1440.png",
+    "admin_add-390.png",
+    "archive-1440.png",
+    "archive-390.png",
+    "calendar-1440.png",
+    "calendar-390.png",
+    "calendar-grid-1440.png",
+    "calendar-grid-320.png",
+    "calendar-grid-390.png",
+    "calendar-grid-768.png",
+    "cancelled-1440.png",
+    "cancelled-390.png",
+    "create-1440.png",
+    "create-390.png",
+    "edit-1440.png",
+    "edit-390.png",
+    "form-error-390.png",
+    "list-1440.png",
+    "list-390.png",
+    "online-1440.png",
+    "online-390.png",
+    "past-1440.png",
+    "past-390.png",
+    "physical-1440.png",
+    "physical-390.png",
+    "rescheduled-1440.png",
+    "rescheduled-390.png",
+    "zero-1440.png",
+    "zero-390.png"
+  ],
+  "executed_matrix_sha256": "aaf2ecfbd59ec16bf4ff9333e926ff2b7643de7a2968d83c01cbb6d53832552e",
+  "source_manifest_sha256": "71a0663de1c18e466f0a5e65e29ff65037f9c6bbc3e016213b10c0d730df3164",
+  "source_file_count": 2776,
+  "launcher_status": "PASS",
+  "launcher_cleanup": "PASS",
+  "isolation": {
+    "django_testing": true,
+    "single_disposable_postgresql_alias": true,
+    "unix_connection": true,
+    "network_guard": true,
+    "libpq_guard": true,
+    "cache": "LocMemCache",
+    "email": "locmem",
+    "media_isolated": true,
+    "external_credentials_present": false,
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10"
+  },
+  "external_transport": "External CDN and integrations stubbed; cached Material Symbols font only. Actual local CSS/JS/Django routes.",
+  "not_run": [
+    "Production",
+    "Real external integrations/CDNs",
+    "Real records/private file inventory",
+    "Full screen reader audit",
+    "Stage28+",
+    "Deployment"
+  ],
+  "status": "FAIL_PAGEERROR",
+  "pageerror_classes": {
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled": 30
+  },
+  "pageerror_phases": {
+    "calendar_interactions-az-320": 2,
+    "calendar_interactions-ru-320": 7,
+    "calendar_interactions-en-320": 5,
+    "calendar_interactions-az-360": 5,
+    "calendar_interactions-ru-360": 1,
+    "calendar_interactions-en-360": 1,
+    "calendar_interactions-en-390": 1,
+    "calendar_interactions-az-1024": 1,
+    "calendar_interactions-en-1024": 2,
+    "calendar_interactions-az-1280": 2,
+    "calendar_interactions-ru-1280": 1,
+    "calendar_interactions-en-1280": 2
+  },
+  "source_current_check": {
+    "checked_source_files": 2773,
+    "mismatches": [],
+    "new_application_files": [],
+    "generated_runtime_locale_files": [
+      "locale/az/LC_MESSAGES/django.mo",
+      "locale/en/LC_MESSAGES/django.mo",
+      "locale/ru/LC_MESSAGES/django.mo"
+    ],
+    "source_manifest_sha256": "71a0663de1c18e466f0a5e65e29ff65037f9c6bbc3e016213b10c0d730df3164"
+  }
+}

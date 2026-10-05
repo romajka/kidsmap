@@ -1,0 +1,347 @@
+{
+  "stage": 27,
+  "runs": [
+    {
+      "stamp": "stage27-calendar-red-20261003",
+      "evidence": "/root/task33-evidence/stage27-calendar-red-20261003",
+      "suite-results.json": {
+        "tests_run": 8,
+        "failures": 2,
+        "errors": 9,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_calendar.EventCalendarContractTests.test_calendar_contract_exists",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_calendar.EventCalendarContractTests.test_existing_event_feature_flag_remains_fail_closed",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_calendar.EventCalendarContractTests.test_explicit_day_outside_month_is_fail_closed_full_http",
+            "kind": "error",
+            "exception": "KeyError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_calendar.EventCalendarContractTests.test_full_http_month_is_unpaginated_and_selected_day_is_exact",
+            "kind": "error",
+            "exception": "KeyError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_calendar.EventCalendarContractTests.test_invalid_periods_do_not_expand_or_generate_calendar",
+            "kind": "error",
+            "exception": "ModuleNotFoundError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_calendar.EventCalendarContractTests.test_invalid_periods_do_not_expand_or_generate_calendar",
+            "kind": "error",
+            "exception": "ModuleNotFoundError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_calendar.EventCalendarContractTests.test_invalid_periods_do_not_expand_or_generate_calendar",
+            "kind": "error",
+            "exception": "ModuleNotFoundError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_calendar.EventCalendarContractTests.test_invalid_periods_do_not_expand_or_generate_calendar",
+            "kind": "error",
+            "exception": "ModuleNotFoundError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_calendar.EventCalendarContractTests.test_leap_month_weeks_and_baku_day_overlap",
+            "kind": "error",
+            "exception": "ModuleNotFoundError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_calendar.EventCalendarContractTests.test_navigation_preserves_filters_and_drops_unrecognized_input",
+            "kind": "error",
+            "exception": "ModuleNotFoundError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_calendar.EventCalendarContractTests.test_past_cancelled_online_multiday_keeps_actual_event_identity",
+            "kind": "error",
+            "exception": "KeyError"
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 11,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1796,
+        "explicit_unique_count": 1796,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage27-fallback-red-20261003",
+      "evidence": "/root/task33-evidence/stage27-fallback-red-20261003",
+      "suite-results.json": {
+        "tests_run": 1,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_az_only_event_title_marks_actual_fallback_in_list_and_calendar",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_az_only_event_title_marks_actual_fallback_in_list_and_calendar",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_az_only_event_title_marks_actual_fallback_in_list_and_calendar",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_az_only_event_title_marks_actual_fallback_in_list_and_calendar",
+            "kind": "failure",
+            "exception": "AssertionError",
+            "subtest": true
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 4,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1812,
+        "explicit_unique_count": 1812,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage27-integration-final-20261003",
+      "evidence": "/root/task33-evidence/stage27-integration-final-20261003",
+      "suite-results.json": {
+        "tests_run": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "status": "PASS",
+        "problems": []
+      },
+      "run.json": {
+        "status": "PASS",
+        "child_exit": 0,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1812,
+        "explicit_unique_count": 1812,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage27-target-green1-20261003",
+      "evidence": "/root/task33-evidence/stage27-target-green1-20261003",
+      "suite-results.json": {
+        "tests_run": 12,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_calendar.EventCalendarContractTests.test_existing_event_feature_flag_remains_fail_closed",
+            "kind": "failure",
+            "exception": "AssertionError"
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 1,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1810,
+        "explicit_unique_count": 1810,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage27-task33-final1-20261003",
+      "evidence": "/root/task33-evidence/stage27-task33-final1-20261003",
+      "suite-results.json": {
+        "tests_run": 575,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "status": "PASS",
+        "problems": []
+      },
+      "run.json": {
+        "status": "PASS",
+        "child_exit": 0,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1812,
+        "explicit_unique_count": 1812,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage27-taxonomy-red-20261003",
+      "evidence": "/root/task33-evidence/stage27-taxonomy-red-20261003",
+      "suite-results.json": {
+        "tests_run": 13,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_calendar.EventCalendarContractTests.test_filter_taxonomy_uses_public_events_without_place_inventory",
+            "kind": "failure",
+            "exception": "AssertionError"
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 1,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1811,
+        "explicit_unique_count": 1811,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage27-ui-motion-final-20261003",
+      "evidence": "/root/task33-evidence/stage27-ui-motion-final-20261003",
+      "suite-results.json": {
+        "tests_run": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "status": "PASS",
+        "problems": []
+      },
+      "run.json": {
+        "status": "PASS",
+        "child_exit": 0,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1812,
+        "explicit_unique_count": 1812,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "stamp": "stage27-ui-red-20261003",
+      "evidence": "/root/task33-evidence/stage27-ui-red-20261003",
+      "suite-results.json": {
+        "tests_run": 4,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0,
+        "status": "BASELINE_FAILURE",
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_mode_chips_and_filter_form_retain_search_and_period_state",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_month_renders_every_real_event_beyond_list_page",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_selected_day_list_contains_only_overlapping_real_ids",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_event_calendar_ui.EventCalendarUITests.test_unknown_price_is_not_claimed_free_and_reviews_link_same_target",
+            "kind": "failure",
+            "exception": "AssertionError"
+          }
+        ]
+      },
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "child_exit": 4,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "migrations.json": {
+        "applied_count": 167,
+        "unapplied_count": 0
+      },
+      "discovery.json": {
+        "explicit_count": 1800,
+        "explicit_unique_count": 1800,
+        "duplicate_explicit_ids": 0
+      }
+    }
+  ]
+}

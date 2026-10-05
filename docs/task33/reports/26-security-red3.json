@@ -1,0 +1,53 @@
+{
+  "evidence": "/root/task33-evidence/stage26-security-red3-20261003",
+  "executor": "/root/stage26_security",
+  "production": "NOT_CONTACTED",
+  "run.json": {
+    "status": "BASELINE_FAILURE",
+    "child_exit": 1,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "suite-results.json": {
+    "tests_run": 16,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "status": "BASELINE_FAILURE",
+    "problems": [
+      {
+        "id": "catalog.testcases.test_task33_event_security.EventSecurityTests.test_venue_privacy_is_rechecked_at_snapshot_after_initial_validation",
+        "kind": "failure",
+        "exception": "AssertionError"
+      }
+    ]
+  },
+  "isolation.json": {
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "psycopg": "3.2.10",
+    "network_guard": true,
+    "libpq_guard": true,
+    "external_credentials_present": false
+  },
+  "migrations.json": {
+    "applied_count": 167,
+    "unapplied_count": 0
+  },
+  "checks": [
+    {
+      "command": "check",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.099
+    },
+    {
+      "command": "makemigrations",
+      "status": "PASS",
+      "exit": 0,
+      "elapsed_seconds": 0.2
+    }
+  ]
+}

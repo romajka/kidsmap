@@ -1,0 +1,915 @@
+{
+  "native_preflight": {
+    "scope": "native supplementary checks; PostgreSQL launcher acceptance NOT_RUN",
+    "python": "3.12.15",
+    "clean_environment": true,
+    "network_blocked": true,
+    "database": "SQLite :memory: only; no migration execution",
+    "dependency_imports": "PASS",
+    "django_setup": "PASS",
+    "checks": [
+      {
+        "command": "check",
+        "exit": 0,
+        "status": "PASS"
+      },
+      {
+        "command": "makemigrations",
+        "exit": 0,
+        "status": "PASS"
+      }
+    ],
+    "migration_graph": {
+      "status": "PASS",
+      "disk_migrations": 161,
+      "conflicts": {},
+      "catalog_leaves": [
+        [
+          "catalog",
+          "0127_task33_workflow_notifications"
+        ]
+      ]
+    },
+    "supplementary_discovery": {
+      "explicit_count": 1546,
+      "explicit_unique_count": 1546,
+      "duplicate_explicit_ids": 0,
+      "default_catalog_count": 1406
+    },
+    "launcher_attempts": [
+      {
+        "mode": "discovery",
+        "exit": 1,
+        "status": "BLOCKED: Windows paths rejected; Linux .venv and Docker required"
+      },
+      {
+        "mode": "probe",
+        "exit": 1,
+        "status": "BLOCKED: Windows paths rejected; Linux .venv and Docker required"
+      }
+    ],
+    "pure_seo_probes": {
+      "jsonld_script_termination_roundtrip": "PASS",
+      "translated_az_fallback": "PASS",
+      "translated_explicit_ru": "PASS",
+      "incomplete_place_observed": {
+        "canonical_stays_ru": true,
+        "advertised_languages": [
+          "az",
+          "en",
+          "ru"
+        ],
+        "required_stage21_policy": "canonical AZ and only meaningful translated alternates",
+        "classification": "PRE_EXISTING_CONTRACT_GAP; no app fix or DB/browser acceptance"
+      }
+    }
+  },
+  "linux_qa": [
+    {
+      "id": "readiness-discovery-20261003",
+      "raw_evidence": "/root/task33-evidence/readiness-discovery-20261003",
+      "run.json": {
+        "status": "PASS",
+        "mode": "discovery",
+        "child_exit": 0,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "isolation.json": {
+        "django_testing": true,
+        "single_disposable_postgresql_alias": true,
+        "unix_connection": true,
+        "network_guard": true,
+        "libpq_guard": true,
+        "cache": "LocMemCache",
+        "email": "locmem",
+        "media_isolated": true,
+        "external_credentials_present": false,
+        "postgresql": "PostgreSQL 17.11",
+        "django": "6.0.2",
+        "python": "3.12.3",
+        "psycopg": "3.2.10"
+      },
+      "discovery.json": {
+        "explicit_count": 1546,
+        "explicit_unique_count": 1546,
+        "duplicate_explicit_ids": 0
+      }
+    },
+    {
+      "id": "readiness-probe-20261003",
+      "raw_evidence": "/root/task33-evidence/readiness-probe-20261003",
+      "run.json": {
+        "status": "PASS",
+        "mode": "probe",
+        "child_exit": 0,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "isolation.json": {
+        "django_testing": true,
+        "single_disposable_postgresql_alias": true,
+        "unix_connection": true,
+        "network_guard": true,
+        "libpq_guard": true,
+        "cache": "LocMemCache",
+        "email": "locmem",
+        "media_isolated": true,
+        "external_credentials_present": false,
+        "postgresql": "PostgreSQL 17.11",
+        "django": "6.0.2",
+        "python": "3.12.3",
+        "psycopg": "3.2.10"
+      },
+      "discovery.json": {
+        "explicit_count": 1546,
+        "explicit_unique_count": 1546,
+        "duplicate_explicit_ids": 0
+      },
+      "migrations.json": {
+        "applied_count": 161,
+        "unapplied_count": 0,
+        "vendor": "postgresql"
+      },
+      "checks.json": [
+        {
+          "command": "check",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.132
+        },
+        {
+          "command": "makemigrations",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.14
+        }
+      ]
+    },
+    {
+      "id": "before-20261003",
+      "raw_evidence": "/root/task33-evidence/before-20261003",
+      "run.json": {
+        "status": "PASS",
+        "mode": "all",
+        "child_exit": 0,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "isolation.json": {
+        "django_testing": true,
+        "single_disposable_postgresql_alias": true,
+        "unix_connection": true,
+        "network_guard": true,
+        "libpq_guard": true,
+        "cache": "LocMemCache",
+        "email": "locmem",
+        "media_isolated": true,
+        "external_credentials_present": false,
+        "postgresql": "PostgreSQL 17.11",
+        "django": "6.0.2",
+        "python": "3.12.3",
+        "psycopg": "3.2.10"
+      },
+      "discovery.json": {
+        "explicit_count": 1546,
+        "explicit_unique_count": 1546,
+        "duplicate_explicit_ids": 0
+      },
+      "migrations.json": {
+        "applied_count": 161,
+        "unapplied_count": 0,
+        "vendor": "postgresql"
+      },
+      "suite-results.json": {
+        "tests_run": 54,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 14.472,
+        "problems": [],
+        "problem_ids_complete": true,
+        "status": "PASS"
+      },
+      "checks.json": [
+        {
+          "command": "check",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.138
+        },
+        {
+          "command": "makemigrations",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.15
+        }
+      ]
+    },
+    {
+      "id": "red-20261003",
+      "raw_evidence": "/root/task33-evidence/red-20261003",
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "mode": "all",
+        "child_exit": 11,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "isolation.json": {
+        "django_testing": true,
+        "single_disposable_postgresql_alias": true,
+        "unix_connection": true,
+        "network_guard": true,
+        "libpq_guard": true,
+        "cache": "LocMemCache",
+        "email": "locmem",
+        "media_isolated": true,
+        "external_credentials_present": false,
+        "postgresql": "PostgreSQL 17.11",
+        "django": "6.0.2",
+        "python": "3.12.3",
+        "psycopg": "3.2.10"
+      },
+      "discovery.json": {
+        "explicit_count": 1561,
+        "explicit_unique_count": 1561,
+        "duplicate_explicit_ids": 0
+      },
+      "migrations.json": {
+        "applied_count": 161,
+        "unapplied_count": 0,
+        "vendor": "postgresql"
+      },
+      "suite-results.json": {
+        "tests_run": 15,
+        "failures": 11,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 3.016,
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_activity_partial_program_translation_keeps_az_canonical",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_az_only_place_is_canonical_az_and_has_only_az_alternate",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_closed_historical_place_has_200_notice_and_no_current_offers",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_complete_activity_translation_has_own_canonical_and_course_facts",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_complete_ru_translation_is_reciprocal_without_en",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_entity_sitemaps_only_offer_substantive_approved_languages",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_locale_switch_keeps_untranslated_page_accessible",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_name_only_is_not_a_substantive_translation",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_organization_has_factual_schema_and_az_fallback",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_script_termination_text_remains_data_in_entity_schema",
+            "kind": "failure",
+            "exception": "AssertionError"
+          },
+          {
+            "id": "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_sitemap_excludes_incomplete_translations",
+            "kind": "failure",
+            "exception": "AssertionError"
+          }
+        ],
+        "problem_ids_complete": true,
+        "status": "BASELINE_FAILURE"
+      },
+      "checks.json": [
+        {
+          "command": "check",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.134
+        },
+        {
+          "command": "makemigrations",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.172
+        }
+      ]
+    },
+    {
+      "id": "green1-20261003",
+      "raw_evidence": "/root/task33-evidence/green1-20261003",
+      "run.json": {
+        "status": "PASS",
+        "mode": "all",
+        "child_exit": 0,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "isolation.json": {
+        "django_testing": true,
+        "single_disposable_postgresql_alias": true,
+        "unix_connection": true,
+        "network_guard": true,
+        "libpq_guard": true,
+        "cache": "LocMemCache",
+        "email": "locmem",
+        "media_isolated": true,
+        "external_credentials_present": false,
+        "postgresql": "PostgreSQL 17.11",
+        "django": "6.0.2",
+        "python": "3.12.3",
+        "psycopg": "3.2.10"
+      },
+      "discovery.json": {
+        "explicit_count": 1561,
+        "explicit_unique_count": 1561,
+        "duplicate_explicit_ids": 0
+      },
+      "migrations.json": {
+        "applied_count": 161,
+        "unapplied_count": 0,
+        "vendor": "postgresql"
+      },
+      "suite-results.json": {
+        "tests_run": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 4.821,
+        "problems": [],
+        "problem_ids_complete": true,
+        "status": "PASS"
+      },
+      "checks.json": [
+        {
+          "command": "check",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.132
+        },
+        {
+          "command": "makemigrations",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.162
+        }
+      ]
+    },
+    {
+      "id": "red-fields-20261003",
+      "raw_evidence": "/root/task33-evidence/red-fields-20261003",
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "mode": "all",
+        "child_exit": 1,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "isolation.json": {
+        "django_testing": true,
+        "single_disposable_postgresql_alias": true,
+        "unix_connection": true,
+        "network_guard": true,
+        "libpq_guard": true,
+        "cache": "LocMemCache",
+        "email": "locmem",
+        "media_isolated": true,
+        "external_credentials_present": false,
+        "postgresql": "PostgreSQL 17.11",
+        "django": "6.0.2",
+        "python": "3.12.3",
+        "psycopg": "3.2.10"
+      },
+      "discovery.json": {
+        "explicit_count": 1562,
+        "explicit_unique_count": 1562,
+        "duplicate_explicit_ids": 0
+      },
+      "migrations.json": {
+        "applied_count": 161,
+        "unapplied_count": 0,
+        "vendor": "postgresql"
+      },
+      "suite-results.json": {
+        "tests_run": 1,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0,
+        "elapsed_seconds": 0.207,
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_mixed_translation_labels_each_field_with_its_actual_language",
+            "kind": "error",
+            "exception": "KeyError"
+          }
+        ],
+        "problem_ids_complete": true,
+        "status": "BASELINE_FAILURE"
+      },
+      "checks.json": [
+        {
+          "command": "check",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.116
+        },
+        {
+          "command": "makemigrations",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.137
+        }
+      ]
+    },
+    {
+      "id": "regression1-20261003",
+      "raw_evidence": "/root/task33-evidence/regression1-20261003",
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "mode": "all",
+        "child_exit": 1,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "isolation.json": {
+        "django_testing": true,
+        "single_disposable_postgresql_alias": true,
+        "unix_connection": true,
+        "network_guard": true,
+        "libpq_guard": true,
+        "cache": "LocMemCache",
+        "email": "locmem",
+        "media_isolated": true,
+        "external_credentials_present": false,
+        "postgresql": "PostgreSQL 17.11",
+        "django": "6.0.2",
+        "python": "3.12.3",
+        "psycopg": "3.2.10"
+      },
+      "discovery.json": {
+        "explicit_count": 1562,
+        "explicit_unique_count": 1562,
+        "duplicate_explicit_ids": 0
+      },
+      "migrations.json": {
+        "applied_count": 161,
+        "unapplied_count": 0,
+        "vendor": "postgresql"
+      },
+      "suite-results.json": {
+        "tests_run": 140,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0,
+        "elapsed_seconds": 34.325,
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_mixed_translation_labels_each_field_with_its_actual_language",
+            "kind": "error",
+            "exception": "KeyError"
+          }
+        ],
+        "problem_ids_complete": true,
+        "status": "BASELINE_FAILURE"
+      },
+      "checks.json": [
+        {
+          "command": "check",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.119
+        },
+        {
+          "command": "makemigrations",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.154
+        }
+      ]
+    },
+    {
+      "id": "final-regression-20261003",
+      "raw_evidence": "/root/task33-evidence/final-regression-20261003",
+      "run.json": {
+        "status": "PASS",
+        "mode": "all",
+        "child_exit": 0,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "isolation.json": {
+        "django_testing": true,
+        "single_disposable_postgresql_alias": true,
+        "unix_connection": true,
+        "network_guard": true,
+        "libpq_guard": true,
+        "cache": "LocMemCache",
+        "email": "locmem",
+        "media_isolated": true,
+        "external_credentials_present": false,
+        "postgresql": "PostgreSQL 17.11",
+        "django": "6.0.2",
+        "python": "3.12.3",
+        "psycopg": "3.2.10"
+      },
+      "discovery.json": {
+        "explicit_count": 1562,
+        "explicit_unique_count": 1562,
+        "duplicate_explicit_ids": 0
+      },
+      "migrations.json": {
+        "applied_count": 161,
+        "unapplied_count": 0,
+        "vendor": "postgresql"
+      },
+      "suite-results.json": {
+        "tests_run": 140,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 32.333,
+        "problems": [],
+        "problem_ids_complete": true,
+        "status": "PASS"
+      },
+      "checks.json": [
+        {
+          "command": "check",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.114
+        },
+        {
+          "command": "makemigrations",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.14
+        }
+      ]
+    },
+    {
+      "id": "compiled-red-query-20261003",
+      "raw_evidence": "/root/task33-evidence/compiled-red-query-20261003",
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "mode": "all",
+        "child_exit": 1,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "isolation.json": {
+        "django_testing": true,
+        "single_disposable_postgresql_alias": true,
+        "unix_connection": true,
+        "network_guard": true,
+        "libpq_guard": true,
+        "cache": "LocMemCache",
+        "email": "locmem",
+        "media_isolated": true,
+        "external_credentials_present": false,
+        "postgresql": "PostgreSQL 17.11",
+        "django": "6.0.2",
+        "python": "3.12.3",
+        "psycopg": "3.2.10"
+      },
+      "discovery.json": {
+        "explicit_count": 1563,
+        "explicit_unique_count": 1563,
+        "duplicate_explicit_ids": 0
+      },
+      "migrations.json": {
+        "applied_count": 161,
+        "unapplied_count": 0,
+        "vendor": "postgresql"
+      },
+      "suite-results.json": {
+        "tests_run": 141,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 36.011,
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_activity_sitemap_language_checks_do_not_load_full_price_presentations",
+            "kind": "failure",
+            "exception": "AssertionError"
+          }
+        ],
+        "problem_ids_complete": true,
+        "status": "BASELINE_FAILURE"
+      },
+      "checks.json": [
+        {
+          "command": "check",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.106
+        },
+        {
+          "command": "makemigrations",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.131
+        }
+      ]
+    },
+    {
+      "id": "final-scope-20261003",
+      "raw_evidence": "/root/task33-evidence/final-scope-20261003",
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "mode": "all",
+        "child_exit": 1,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "isolation.json": {
+        "django_testing": true,
+        "single_disposable_postgresql_alias": true,
+        "unix_connection": true,
+        "network_guard": true,
+        "libpq_guard": true,
+        "cache": "LocMemCache",
+        "email": "locmem",
+        "media_isolated": true,
+        "external_credentials_present": false,
+        "postgresql": "PostgreSQL 17.11",
+        "django": "6.0.2",
+        "python": "3.12.3",
+        "psycopg": "3.2.10"
+      },
+      "discovery.json": {
+        "explicit_count": 1566,
+        "explicit_unique_count": 1566,
+        "duplicate_explicit_ids": 0
+      },
+      "migrations.json": {
+        "applied_count": 161,
+        "unapplied_count": 0,
+        "vendor": "postgresql"
+      },
+      "suite-results.json": {
+        "tests_run": 155,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 36.231,
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_fallback_metadata_does_not_translate_navigation_or_class_title_to_az",
+            "kind": "failure",
+            "exception": "AssertionError"
+          }
+        ],
+        "problem_ids_complete": true,
+        "status": "BASELINE_FAILURE"
+      },
+      "checks.json": [
+        {
+          "command": "check",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.116
+        },
+        {
+          "command": "makemigrations",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.145
+        }
+      ]
+    },
+    {
+      "id": "accepted-scope-20261003",
+      "raw_evidence": "/root/task33-evidence/accepted-scope-20261003",
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "mode": "all",
+        "child_exit": 1,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "isolation.json": {
+        "django_testing": true,
+        "single_disposable_postgresql_alias": true,
+        "unix_connection": true,
+        "network_guard": true,
+        "libpq_guard": true,
+        "cache": "LocMemCache",
+        "email": "locmem",
+        "media_isolated": true,
+        "external_credentials_present": false,
+        "postgresql": "PostgreSQL 17.11",
+        "django": "6.0.2",
+        "python": "3.12.3",
+        "psycopg": "3.2.10"
+      },
+      "discovery.json": {
+        "explicit_count": 1566,
+        "explicit_unique_count": 1566,
+        "duplicate_explicit_ids": 0
+      },
+      "migrations.json": {
+        "applied_count": 161,
+        "unapplied_count": 0,
+        "vendor": "postgresql"
+      },
+      "suite-results.json": {
+        "tests_run": 155,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 33.32,
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_card_map_and_seo_share_price_and_translation",
+            "kind": "failure",
+            "exception": "AssertionError"
+          }
+        ],
+        "problem_ids_complete": true,
+        "status": "BASELINE_FAILURE"
+      },
+      "checks.json": [
+        {
+          "command": "check",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.114
+        },
+        {
+          "command": "makemigrations",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.138
+        }
+      ]
+    },
+    {
+      "id": "red-explicit-offer-20261003",
+      "raw_evidence": "/root/task33-evidence/red-explicit-offer-20261003",
+      "run.json": {
+        "status": "BASELINE_FAILURE",
+        "mode": "all",
+        "child_exit": 1,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "isolation.json": {
+        "django_testing": true,
+        "single_disposable_postgresql_alias": true,
+        "unix_connection": true,
+        "network_guard": true,
+        "libpq_guard": true,
+        "cache": "LocMemCache",
+        "email": "locmem",
+        "media_isolated": true,
+        "external_credentials_present": false,
+        "postgresql": "PostgreSQL 17.11",
+        "django": "6.0.2",
+        "python": "3.12.3",
+        "psycopg": "3.2.10"
+      },
+      "discovery.json": {
+        "explicit_count": 1567,
+        "explicit_unique_count": 1567,
+        "duplicate_explicit_ids": 0
+      },
+      "migrations.json": {
+        "applied_count": 161,
+        "unapplied_count": 0,
+        "vendor": "postgresql"
+      },
+      "suite-results.json": {
+        "tests_run": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 0.119,
+        "problems": [
+          {
+            "id": "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_explicit_offer_locale_does_not_depend_on_ambient_translation",
+            "kind": "failure",
+            "exception": "AssertionError"
+          }
+        ],
+        "problem_ids_complete": true,
+        "status": "BASELINE_FAILURE"
+      },
+      "checks.json": [
+        {
+          "command": "check",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.121
+        },
+        {
+          "command": "makemigrations",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.15
+        }
+      ]
+    },
+    {
+      "id": "final-accepted-20261003",
+      "raw_evidence": "/root/task33-evidence/final-accepted-20261003",
+      "run.json": {
+        "status": "PASS",
+        "mode": "all",
+        "child_exit": 0,
+        "cleanup": "PASS",
+        "run_root_removed": true,
+        "socket_root_removed": true
+      },
+      "isolation.json": {
+        "django_testing": true,
+        "single_disposable_postgresql_alias": true,
+        "unix_connection": true,
+        "network_guard": true,
+        "libpq_guard": true,
+        "cache": "LocMemCache",
+        "email": "locmem",
+        "media_isolated": true,
+        "external_credentials_present": false,
+        "postgresql": "PostgreSQL 17.11",
+        "django": "6.0.2",
+        "python": "3.12.3",
+        "psycopg": "3.2.10"
+      },
+      "discovery.json": {
+        "explicit_count": 1567,
+        "explicit_unique_count": 1567,
+        "duplicate_explicit_ids": 0
+      },
+      "migrations.json": {
+        "applied_count": 161,
+        "unapplied_count": 0,
+        "vendor": "postgresql"
+      },
+      "suite-results.json": {
+        "tests_run": 156,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 34.874,
+        "problems": [],
+        "problem_ids_complete": true,
+        "status": "PASS"
+      },
+      "checks.json": [
+        {
+          "command": "check",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.112
+        },
+        {
+          "command": "makemigrations",
+          "status": "PASS",
+          "exit": 0,
+          "elapsed_seconds": 0.142
+        }
+      ]
+    }
+  ]
+}

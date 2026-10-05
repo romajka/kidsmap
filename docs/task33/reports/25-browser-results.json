@@ -1,0 +1,493 @@
+{
+  "stage": 25,
+  "scope": "DESIGN_ONLY",
+  "design_status": "REVIEW_PENDING",
+  "reviewer": "/root/stage25_browser",
+  "role": "browser-qa",
+  "head": "015d031d8eb17114bd860159dde805b38df3c13c",
+  "branch": "task33-progress",
+  "browser": "Chromium 1247 via cached Playwright CLI 0.1.22",
+  "server": "allowlisted loopback static HTTP on 127.0.0.1:8795; no Django/DB/external assets",
+  "widths": [
+    320,
+    360,
+    390,
+    768,
+    1024,
+    1280,
+    1440
+  ],
+  "languages": [
+    "az",
+    "ru",
+    "en"
+  ],
+  "runs": {
+    "first": {
+      "evidence": "/root/task33-evidence/stage25-design-first-20261003",
+      "rows": 168,
+      "passed_rows": 168,
+      "checks": 178,
+      "passed_checks": 178,
+      "event_counts": {
+        "errors": 0,
+        "failed": 0,
+        "staticFailures": 0,
+        "external": 0
+      },
+      "failed_checks": [],
+      "failed_rows": [],
+      "screenshots": [
+        "claim-ru-1440.png",
+        "claim-ru-390.png",
+        "documents-ru-1440.png",
+        "documents-ru-390.png",
+        "index-ru-1440.png",
+        "index-ru-390.png",
+        "organization-ru-1440.png",
+        "organization-ru-390.png",
+        "person-ru-1440.png",
+        "person-ru-390.png",
+        "profile-ru-1440.png",
+        "profile-ru-390.png",
+        "reconciliation-ru-1440.png",
+        "reconciliation-ru-390.png",
+        "review-ru-1440.png",
+        "review-ru-390.png"
+      ],
+      "executed_matrix_sha256": "65e1074a0d7ad9059286a68ffd6fbf9433be94211a43f4f5d8eb0bdb01745cf1",
+      "prototype_source_snapshot": [
+        {
+          "path": "claim.html",
+          "sha256": "1ddca61125a1c9e4cd310dd2e0f4ecb5d41ba478afaf012885bfb89a310fdc0b"
+        },
+        {
+          "path": "documents.html",
+          "sha256": "b9ab5d2820bc868927a99f268a437ab42dfee53b40e54db46c5fc5ad8a11518e"
+        },
+        {
+          "path": "index.html",
+          "sha256": "b063bf90b08d0bce5d49060d01d7d5556749ae2233f2dbb89531d24e8b34bf54"
+        },
+        {
+          "path": "organization.html",
+          "sha256": "100a980998a984c095cb3a7b9e35dc5247d906276cec83a09853e950249aafd7"
+        },
+        {
+          "path": "person.html",
+          "sha256": "5dee8591f099b1fabfaace199fdcfd758cf877d9fcb99098f2db3e2a3695562b"
+        },
+        {
+          "path": "profile.html",
+          "sha256": "d0335fef82a6808c29bb281e4587591de219a1f69020ab4dab94e64df0ac5e4e"
+        },
+        {
+          "path": "prototype.css",
+          "sha256": "5672516b42a973dd4dcc43d10cc054f21cb014052a76ac7f84d05f03c427a164"
+        },
+        {
+          "path": "prototype.js",
+          "sha256": "9cbc3c10a43448bd4405983154a29074a8b70abb24889b6bfdd09e0107634ffe"
+        },
+        {
+          "path": "reconciliation.html",
+          "sha256": "125b51e3796bc551fee3f76d9f6dbc92f13e706020f6afa46bf53b52d0376376"
+        },
+        {
+          "path": "review.html",
+          "sha256": "4ae63622238eba4f3c647c415985432bec26e5927d25e1942f0e21f1cd05bad4"
+        }
+      ]
+    },
+    "final": {
+      "evidence": "/root/task33-evidence/stage25-design-final-20261003",
+      "rows": 168,
+      "passed_rows": 168,
+      "checks": 346,
+      "passed_checks": 344,
+      "event_counts": {
+        "errors": 0,
+        "failed": 0,
+        "staticFailures": 0,
+        "external": 0
+      },
+      "failed_checks": [
+        {
+          "file": "navigation",
+          "lang": "ru",
+          "width": 390,
+          "check": "real_language_link_changes_shell",
+          "pass": false
+        },
+        {
+          "file": "navigation",
+          "lang": "ru",
+          "width": 1440,
+          "check": "real_language_link_changes_shell",
+          "pass": false
+        }
+      ],
+      "failed_rows": [],
+      "screenshots": [
+        "claim-ru-1440.png",
+        "claim-ru-390.png",
+        "documents-ru-1440.png",
+        "documents-ru-390.png",
+        "index-ru-1440.png",
+        "index-ru-390.png",
+        "organization-ru-1440.png",
+        "organization-ru-390.png",
+        "person-ru-1440.png",
+        "person-ru-390.png",
+        "profile-ru-1440.png",
+        "profile-ru-390.png",
+        "reconciliation-ru-1440.png",
+        "reconciliation-ru-390.png",
+        "review-ru-1440.png",
+        "review-ru-390.png"
+      ],
+      "executed_matrix_sha256": "a5c98fa6e5206cc1c673326646d9ccc7a83b19fbd4d5ea504143019594832284",
+      "prototype_source_snapshot": [
+        {
+          "path": "README.md",
+          "sha256": "8ba4212dbca59c1cb6f45cd942c0c339f779e67dda6dbebb15bab373b2b2b9f9"
+        },
+        {
+          "path": "claim.html",
+          "sha256": "1ddca61125a1c9e4cd310dd2e0f4ecb5d41ba478afaf012885bfb89a310fdc0b"
+        },
+        {
+          "path": "documents.html",
+          "sha256": "b9ab5d2820bc868927a99f268a437ab42dfee53b40e54db46c5fc5ad8a11518e"
+        },
+        {
+          "path": "index.html",
+          "sha256": "b063bf90b08d0bce5d49060d01d7d5556749ae2233f2dbb89531d24e8b34bf54"
+        },
+        {
+          "path": "organization.html",
+          "sha256": "100a980998a984c095cb3a7b9e35dc5247d906276cec83a09853e950249aafd7"
+        },
+        {
+          "path": "person.html",
+          "sha256": "5dee8591f099b1fabfaace199fdcfd758cf877d9fcb99098f2db3e2a3695562b"
+        },
+        {
+          "path": "profile.html",
+          "sha256": "d0335fef82a6808c29bb281e4587591de219a1f69020ab4dab94e64df0ac5e4e"
+        },
+        {
+          "path": "prototype.css",
+          "sha256": "5672516b42a973dd4dcc43d10cc054f21cb014052a76ac7f84d05f03c427a164"
+        },
+        {
+          "path": "prototype.js",
+          "sha256": "669e4d696beb41c93e668cc9b81654f7b78817800a57029a68993eed4bed6d52"
+        },
+        {
+          "path": "reconciliation.html",
+          "sha256": "125b51e3796bc551fee3f76d9f6dbc92f13e706020f6afa46bf53b52d0376376"
+        },
+        {
+          "path": "review.html",
+          "sha256": "4ae63622238eba4f3c647c415985432bec26e5927d25e1942f0e21f1cd05bad4"
+        }
+      ]
+    },
+    "pending-red": {
+      "evidence": "/root/task33-evidence/stage25-design-pending-red-20261003",
+      "rows": 3,
+      "passed_rows": 0,
+      "checks": 3,
+      "passed_checks": 0,
+      "event_counts": {
+        "errors": 0,
+        "failed": 0,
+        "staticFailures": 0,
+        "external": 0
+      },
+      "failed_checks": [
+        {
+          "check": "pending_certificate_not_public",
+          "lang": "az",
+          "pass": false
+        },
+        {
+          "check": "pending_certificate_not_public",
+          "lang": "ru",
+          "pass": false
+        },
+        {
+          "check": "pending_certificate_not_public",
+          "lang": "en",
+          "pass": false
+        }
+      ],
+      "failed_rows": [
+        {
+          "file": "profile.html",
+          "lang": "az",
+          "width": 1280,
+          "issues": [
+            "pending_certificate_public"
+          ]
+        },
+        {
+          "file": "profile.html",
+          "lang": "ru",
+          "width": 1280,
+          "issues": [
+            "pending_certificate_public"
+          ]
+        },
+        {
+          "file": "profile.html",
+          "lang": "en",
+          "width": 1280,
+          "issues": [
+            "pending_certificate_public"
+          ]
+        }
+      ],
+      "screenshots": [],
+      "executed_matrix_sha256": "542a6369235b0e5c7d637e69482988f8a2fac762097f4b4ee3c0b501b0577eaa",
+      "prototype_source_snapshot": [
+        {
+          "path": "README.md",
+          "sha256": "2463a2f4dbefc0ec9003c42d58bc07f2eaeee4430bec1ab367b09419db5c37f6"
+        },
+        {
+          "path": "claim.html",
+          "sha256": "1ddca61125a1c9e4cd310dd2e0f4ecb5d41ba478afaf012885bfb89a310fdc0b"
+        },
+        {
+          "path": "documents.html",
+          "sha256": "b9ab5d2820bc868927a99f268a437ab42dfee53b40e54db46c5fc5ad8a11518e"
+        },
+        {
+          "path": "index.html",
+          "sha256": "b063bf90b08d0bce5d49060d01d7d5556749ae2233f2dbb89531d24e8b34bf54"
+        },
+        {
+          "path": "organization.html",
+          "sha256": "100a980998a984c095cb3a7b9e35dc5247d906276cec83a09853e950249aafd7"
+        },
+        {
+          "path": "person.html",
+          "sha256": "5dee8591f099b1fabfaace199fdcfd758cf877d9fcb99098f2db3e2a3695562b"
+        },
+        {
+          "path": "profile.html",
+          "sha256": "d0335fef82a6808c29bb281e4587591de219a1f69020ab4dab94e64df0ac5e4e"
+        },
+        {
+          "path": "prototype.css",
+          "sha256": "5672516b42a973dd4dcc43d10cc054f21cb014052a76ac7f84d05f03c427a164"
+        },
+        {
+          "path": "prototype.js",
+          "sha256": "669e4d696beb41c93e668cc9b81654f7b78817800a57029a68993eed4bed6d52"
+        },
+        {
+          "path": "reconciliation.html",
+          "sha256": "125b51e3796bc551fee3f76d9f6dbc92f13e706020f6afa46bf53b52d0376376"
+        },
+        {
+          "path": "review.html",
+          "sha256": "4ae63622238eba4f3c647c415985432bec26e5927d25e1942f0e21f1cd05bad4"
+        }
+      ]
+    },
+    "final2": {
+      "evidence": "/root/task33-evidence/stage25-design-final2-20261003",
+      "rows": 168,
+      "passed_rows": 168,
+      "checks": 586,
+      "passed_checks": 586,
+      "event_counts": {
+        "errors": 0,
+        "failed": 0,
+        "staticFailures": 0,
+        "external": 0
+      },
+      "failed_checks": [],
+      "failed_rows": [],
+      "screenshots": [
+        "claim-pending-ru-1440.png",
+        "claim-pending-ru-390.png",
+        "claim-ru-1440.png",
+        "claim-ru-390.png",
+        "documents-approved-ru-1440.png",
+        "documents-approved-ru-390.png",
+        "documents-ru-1440.png",
+        "documents-ru-390.png",
+        "index-ru-1440.png",
+        "index-ru-390.png",
+        "organization-active-ru-1440.png",
+        "organization-active-ru-390.png",
+        "organization-ru-1440.png",
+        "organization-ru-390.png",
+        "person-ru-1440.png",
+        "person-ru-390.png",
+        "profile-ru-1440.png",
+        "profile-ru-390.png",
+        "reconciliation-ru-1440.png",
+        "reconciliation-ru-390.png",
+        "review-denied-ru-1440.png",
+        "review-denied-ru-390.png",
+        "review-ru-1440.png",
+        "review-ru-390.png"
+      ],
+      "executed_matrix_sha256": "b24bf2fb8150c47cda6c681132ff32c7b3309bcc91cf42320001c52387c74274",
+      "prototype_source_snapshot": [
+        {
+          "path": "README.md",
+          "sha256": "c4b16945540e2e10d8157832d6efe3f7e4576a96c10d28c79d65774adee218e5"
+        },
+        {
+          "path": "claim.html",
+          "sha256": "1ddca61125a1c9e4cd310dd2e0f4ecb5d41ba478afaf012885bfb89a310fdc0b"
+        },
+        {
+          "path": "documents.html",
+          "sha256": "b9ab5d2820bc868927a99f268a437ab42dfee53b40e54db46c5fc5ad8a11518e"
+        },
+        {
+          "path": "index.html",
+          "sha256": "b063bf90b08d0bce5d49060d01d7d5556749ae2233f2dbb89531d24e8b34bf54"
+        },
+        {
+          "path": "organization.html",
+          "sha256": "100a980998a984c095cb3a7b9e35dc5247d906276cec83a09853e950249aafd7"
+        },
+        {
+          "path": "person.html",
+          "sha256": "5dee8591f099b1fabfaace199fdcfd758cf877d9fcb99098f2db3e2a3695562b"
+        },
+        {
+          "path": "profile.html",
+          "sha256": "d0335fef82a6808c29bb281e4587591de219a1f69020ab4dab94e64df0ac5e4e"
+        },
+        {
+          "path": "prototype.css",
+          "sha256": "5672516b42a973dd4dcc43d10cc054f21cb014052a76ac7f84d05f03c427a164"
+        },
+        {
+          "path": "prototype.js",
+          "sha256": "ae981f6024a573e854df303ea0c0ab741f2f1cec28e6a372c2c2cbb210e42151"
+        },
+        {
+          "path": "reconciliation.html",
+          "sha256": "125b51e3796bc551fee3f76d9f6dbc92f13e706020f6afa46bf53b52d0376376"
+        },
+        {
+          "path": "review.html",
+          "sha256": "4ae63622238eba4f3c647c415985432bec26e5927d25e1942f0e21f1cd05bad4"
+        }
+      ]
+    },
+    "final-copy": {
+      "evidence": "/root/task33-evidence/stage25-design-final-copy-20261003",
+      "rows": 78,
+      "passed_rows": 78,
+      "checks": 111,
+      "passed_checks": 111,
+      "event_counts": {
+        "errors": 0,
+        "failed": 0,
+        "staticFailures": 0,
+        "external": 0
+      },
+      "failed_checks": [],
+      "failed_rows": [],
+      "screenshots": [
+        "claim-ru-1440.png",
+        "claim-ru-390.png",
+        "documents-ru-1440.png",
+        "documents-ru-390.png",
+        "index-ru-1440.png",
+        "index-ru-390.png",
+        "organization-ru-1440.png",
+        "organization-ru-390.png",
+        "person-ru-1440.png",
+        "person-ru-390.png",
+        "profile-ru-1440.png",
+        "profile-ru-390.png",
+        "reconciliation-ru-1440.png",
+        "reconciliation-ru-390.png",
+        "review-ru-1440.png",
+        "review-ru-390.png"
+      ],
+      "executed_matrix_sha256": "d621a90385f97f9e3db4c0f7c48360df4c0fb75713cd16b990d65037f06ba0c4",
+      "prototype_source_snapshot": [
+        {
+          "path": "README.md",
+          "sha256": "b5e7d4f9fa21b98073c3d1caa7acc68181b722b791debcdfd01e467b81e49532"
+        },
+        {
+          "path": "claim.html",
+          "sha256": "1ddca61125a1c9e4cd310dd2e0f4ecb5d41ba478afaf012885bfb89a310fdc0b"
+        },
+        {
+          "path": "documents.html",
+          "sha256": "b9ab5d2820bc868927a99f268a437ab42dfee53b40e54db46c5fc5ad8a11518e"
+        },
+        {
+          "path": "index.html",
+          "sha256": "b063bf90b08d0bce5d49060d01d7d5556749ae2233f2dbb89531d24e8b34bf54"
+        },
+        {
+          "path": "organization.html",
+          "sha256": "100a980998a984c095cb3a7b9e35dc5247d906276cec83a09853e950249aafd7"
+        },
+        {
+          "path": "person.html",
+          "sha256": "5dee8591f099b1fabfaace199fdcfd758cf877d9fcb99098f2db3e2a3695562b"
+        },
+        {
+          "path": "profile.html",
+          "sha256": "d0335fef82a6808c29bb281e4587591de219a1f69020ab4dab94e64df0ac5e4e"
+        },
+        {
+          "path": "prototype.css",
+          "sha256": "5672516b42a973dd4dcc43d10cc054f21cb014052a76ac7f84d05f03c427a164"
+        },
+        {
+          "path": "prototype.js",
+          "sha256": "63fb1de6a5ce7a72535d831b87d569dbbde24c4073613f08364da95a91db6f4a"
+        },
+        {
+          "path": "reconciliation.html",
+          "sha256": "125b51e3796bc551fee3f76d9f6dbc92f13e706020f6afa46bf53b52d0376376"
+        },
+        {
+          "path": "review.html",
+          "sha256": "4ae63622238eba4f3c647c415985432bec26e5927d25e1942f0e21f1cd05bad4"
+        }
+      ]
+    }
+  },
+  "final_source_checked": 11,
+  "final_source_mismatches": [],
+  "full_matrix_state_variants": 192,
+  "full_matrix_flow_assertions": 216,
+  "classifications": {
+    "first": "Preliminary render-only matrix on initial prototype source.",
+    "final": "Two RU→EN harness readiness races before deferred JS; corrected navigation wait, no product code change for these two.",
+    "pending-red": "Three actual design defects: pending qualification exposed certificate action. Fixed by prototype author; final2 and final-copy independently verify exclusion.",
+    "final2": "Complete matrix plus state/flow checks on frozen ae981f... source.",
+    "final-copy": "Fresh final source 63fb1d... after bounded copy-only reconciliation/role translations; all eight screens plus denied states and actual keyboard navigation."
+  },
+  "not_run": [
+    "Application UI integration",
+    "Real backend nested-ID/ACL/claim concurrency",
+    "Django checks/migrations or PostgreSQL tests for stage25 design",
+    "Real fixture migration/reconciliation",
+    "Real upload/storage/download",
+    "Production",
+    "User design acceptance",
+    "Screen-reader full audit",
+    "Native file chooser browser/OS localization"
+  ],
+  "cleanup": "Each runner closes only qa25 session and its owned static server; root review server 8796 untouched."
+}

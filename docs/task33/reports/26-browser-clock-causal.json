@@ -1,0 +1,22 @@
+{
+  "stage": 26,
+  "execution_identity": "/root/stage26_browser",
+  "kind": "ACTUAL_UTC_CLOCK_CAUSAL",
+  "facts": {
+    "timezone": "UTC",
+    "now": "2035-02-03T20:30:00.891Z",
+    "date": "2035-02-04",
+    "dateValidation": "",
+    "startValidation": "",
+    "formValid": true
+  },
+  "expected": "Baku local start2035-02-04T00:00+04 occurs before instant2035-02-03T20:30Z; date/start must be invalid",
+  "pastRejected": false,
+  "launcher_status": "PASS",
+  "cleanup": "PASS",
+  "evidence": "/root/task33-evidence/browser26-utc-causal-20261003",
+  "matrix_sha256": "94798ec99eeac5b55d430eac9037236be846a359b06ad5b557273a2eaaa2652e",
+  "source_manifest_sha256": "3b1d24a9a9aeb03d46e60c12b4378a7bbc5f1de3bfd734e33a6a526c686e4b2d",
+  "external_transport": "CDNs stubbed",
+  "post_run": false
+}

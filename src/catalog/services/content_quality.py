@@ -395,13 +395,15 @@ def public_review_filter(prefix: str = "") -> Q:
 def public_review_queryset(queryset: QuerySet) -> QuerySet:
     """Return only moderated reviews that are approved and have a valid rating."""
 
-    return queryset.filter(public_review_filter())
+    from catalog.services.review_versions import current_reviews
+    return current_reviews(queryset).filter(public_review_filter())
 
 
 def approved_review_queryset(queryset: QuerySet) -> QuerySet:
     """Return reviews allowed for reactions and review feeds after moderation."""
 
-    return queryset.filter(
+    from catalog.services.review_versions import current_reviews
+    return current_reviews(queryset).filter(
         is_approved=True,
         status=REVIEW_STATUS_APPROVED,
         rating__gte=1,

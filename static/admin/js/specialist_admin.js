@@ -44,6 +44,30 @@
     }
   }
 
+  // Native Tab scrolling can leave part of a control behind the inline's edge.
+  function initDocumentFocusVisibility() {
+    var wrapper = document.getElementById("documents-group-wrapper");
+    if (!wrapper) return;
+
+    wrapper.addEventListener("focusin", function () {
+      requestAnimationFrame(function () {
+        var control = document.activeElement;
+        if (control === wrapper || !wrapper.contains(control)) return;
+        var region = wrapper.getBoundingClientRect();
+        var bounds = control.getBoundingClientRect();
+        var left = Math.max(0, region.left + wrapper.clientLeft);
+        var right = Math.min(window.innerWidth, region.left + wrapper.clientLeft + wrapper.clientWidth);
+        var delta = bounds.left < left ? bounds.left - left :
+          bounds.right > right ? bounds.right - right : 0;
+        if (delta) {
+          wrapper.scrollLeft = Math.max(0, Math.min(
+            wrapper.scrollWidth - wrapper.clientWidth, wrapper.scrollLeft + delta
+          ));
+        }
+      });
+    });
+  }
+
   /* ── 2. Section navigation ──────────────────────────────── */
   function initNav() {
     var navItems = PAGE.querySelectorAll(".km-nav-item");
@@ -213,6 +237,7 @@
   /* ── Init ────────────────────────────────────────────────── */
   document.addEventListener("DOMContentLoaded", function () {
     moveInlines();
+    initDocumentFocusVisibility();
     initNav();
     markErrorBadges();
     initPhotoPreview();

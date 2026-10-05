@@ -1,0 +1,225 @@
+﻿{
+    "branch":  "task33-progress",
+    "local_head":  "015d031d8eb17114bd860159dde805b38df3c13c",
+    "worktree":  "dirty",
+    "generated_at_utc":  "2026-10-03T10:12:28.7209392Z",
+    "file_count":  54,
+    "files":  [
+                  {
+                      "path":  "locale/az/LC_MESSAGES/django.po",
+                      "sha256":  "4277abf194a71831b43569861e383efe460bcdab5222dc14daa1d8f7f36d2f6d"
+                  },
+                  {
+                      "path":  "locale/en/LC_MESSAGES/django.po",
+                      "sha256":  "ae063f1ace1f704cdc8f519c48c4cff23413e4d794aa72222bd6f45654dc4b38"
+                  },
+                  {
+                      "path":  "locale/ru/LC_MESSAGES/django.po",
+                      "sha256":  "65af888e0ac976e686c8b1b65dd475653d3b4808b44c6e49108fc680426fae71"
+                  },
+                  {
+                      "path":  "src/catalog/context_processors.py",
+                      "sha256":  "1592beedd1140ea2aa1449c61110dc9ac3958145e15bb3548362d25aa691ad76"
+                  },
+                  {
+                      "path":  "src/catalog/controllers/owner_reviews_controller.py",
+                      "sha256":  "e68025ef435584ff38a433d868aeb758cff230a4263a648e71fddb3ff48440a8"
+                  },
+                  {
+                      "path":  "src/catalog/controllers/public_details.py",
+                      "sha256":  "8c40d17ece95846426dcc43ed5a562e9ee05d109addf3eaf22a75f506eeb82c4"
+                  },
+                  {
+                      "path":  "src/catalog/controllers/typed_reviews.py",
+                      "sha256":  "3a369d3c05b2c907e6fe556f3b5fd35298776451f7aceb3e21f619395e31a1f6"
+                  },
+                  {
+                      "path":  "src/catalog/domain_admin/review.py",
+                      "sha256":  "d1b7ec4ba87789c0051c1780d2cc412daf3b6018874addb123149bd8486cd275"
+                  },
+                  {
+                      "path":  "src/catalog/domain_admin/review_versions.py",
+                      "sha256":  "cd5f043cf42b0d11e2569a97970a14932acb87fdf90fdc77aab0761c70471aa6"
+                  },
+                  {
+                      "path":  "src/catalog/domain_admin/specialist.py",
+                      "sha256":  "d9b437471bae9b12c80491bec373ac7e5ce5ce9d89ddce514388905eba7fc0d3"
+                  },
+                  {
+                      "path":  "src/catalog/migrations/0128_task33_review_versions.py",
+                      "sha256":  "124cd7f8cdfef5621def7c1dbd5def1634537b5dce5cd863048788942cecfe1d"
+                  },
+                  {
+                      "path":  "src/catalog/migrations/0129_task33_review_versions.py",
+                      "sha256":  "d880a6a4ff53c0c4dff569fb3c5637ceed91d9696489750afd3e043efe35fc38"
+                  },
+                  {
+                      "path":  "src/catalog/migrations/0130_task33_review_versions.py",
+                      "sha256":  "f767bb6f1fda87dc09d8b956f7582a9dc4d6eb65b7755446d91a9057235b175b"
+                  },
+                  {
+                      "path":  "src/catalog/models/__init__.py",
+                      "sha256":  "58d9d7971d7267d73b9bf9bc9bbd7baccc0338278f671cea0df475208a4e076f"
+                  },
+                  {
+                      "path":  "src/catalog/models/review.py",
+                      "sha256":  "02ea6e1fbc145229795c986e88ff54e27de6ff824fb618bf7d63dde80c6291f8"
+                  },
+                  {
+                      "path":  "src/catalog/models/review_versions.py",
+                      "sha256":  "441436f33cfea92695cb2d172070d6fd2d9c634db8f642ae092cb157e50aca0a"
+                  },
+                  {
+                      "path":  "src/catalog/models/specialist.py",
+                      "sha256":  "ed54022bd02fb06d45dac0a793a24a4ba22b59c82497b4995035dd60e5d9d53e"
+                  },
+                  {
+                      "path":  "src/catalog/services/account_deletion.py",
+                      "sha256":  "8d3c7925da66abbabefccc5e7c492d18caeb92a56a7f590e24252ac83deb2041"
+                  },
+                  {
+                      "path":  "src/catalog/services/content_quality.py",
+                      "sha256":  "8a36340e6fc5673a8ac8ea568694722959a61c26cf1f6200f11cd2d85557d14f"
+                  },
+                  {
+                      "path":  "src/catalog/services/place_review_submission.py",
+                      "sha256":  "1130d772302d9abe43acf06ea11823f81d8d8b361fa1bddd2d8589d35ec3eec2"
+                  },
+                  {
+                      "path":  "src/catalog/services/public_languages.py",
+                      "sha256":  "31056395e16df31f570fa7e8ce0b4614f41e3e08e2d15e58f7e76df676645fd3"
+                  },
+                  {
+                      "path":  "src/catalog/services/public_presentation.py",
+                      "sha256":  "dd06ee23de45f403179d0bd262239cc1ee972462f55f505016027875cfcc13f0"
+                  },
+                  {
+                      "path":  "src/catalog/services/rating_ranking.py",
+                      "sha256":  "325c8f1e948896ba9222d0b53504cb83b5ecca7bd3877f8360db23e92be31306"
+                  },
+                  {
+                      "path":  "src/catalog/services/reactions.py",
+                      "sha256":  "60b76238232678d670257bc5f726998eb2395fddb9d94a205ff8b0eb551a8dbc"
+                  },
+                  {
+                      "path":  "src/catalog/services/review_retention.py",
+                      "sha256":  "48cfc6eb881a8bc35d50854abacdab17d4afea9ed9e3f45d42a8a6387071affe"
+                  },
+                  {
+                      "path":  "src/catalog/services/review_versions.py",
+                      "sha256":  "df377059cc2c4fe008149d48aa9911c0f56eb7fab405a6663aa5f4db2d1dfe99"
+                  },
+                  {
+                      "path":  "src/catalog/services/seo.py",
+                      "sha256":  "0f569c1f1f7e82bc4dfc12e62995acafab92f4508123df4686d7024c3926d2f6"
+                  },
+                  {
+                      "path":  "src/catalog/services/staff_roles.py",
+                      "sha256":  "f4cb58840cce54ee19bfe94782dcdf6579dfb06ff723081de22f468625cc3dd8"
+                  },
+                  {
+                      "path":  "src/catalog/sitemaps.py",
+                      "sha256":  "7f5fd80461b4a40baceb52dafaa9f7314ee3d0978fc2957410d90cdb1da973cd"
+                  },
+                  {
+                      "path":  "src/catalog/templates/admin/catalog/placereview/change_form.html",
+                      "sha256":  "cc2e1a9e1b8b40a460b8c8008ba7787fdb3135b23d112e639ceaaa0a244e33fc"
+                  },
+                  {
+                      "path":  "src/catalog/templates/catalog/event_detail.html",
+                      "sha256":  "d9accb796677fe36babdf6c8060c6f5f2d634b7435927f1353e012195b41c6a8"
+                  },
+                  {
+                      "path":  "src/catalog/templates/catalog/includes/breadcrumbs.html",
+                      "sha256":  "1900ec14d2c0d45f285b0701a29e34f9f121d0fe36291cc79ef9c6e5b43cab5f"
+                  },
+                  {
+                      "path":  "src/catalog/templates/catalog/includes/public_offerings.html",
+                      "sha256":  "7903649cc253f2ea553af23c4e0679646f05c7d0645e3c08799f32a976e72c97"
+                  },
+                  {
+                      "path":  "src/catalog/templates/catalog/includes/review_item.html",
+                      "sha256":  "0fa7a12a81befaac24bb72396764818d76a40a070306104b16e9259e7c951b49"
+                  },
+                  {
+                      "path":  "src/catalog/templates/catalog/includes/typed_review_link.html",
+                      "sha256":  "ecaa0ba47d682a005215906ad73ead59902e2a6fb82c74d507d168940418e068"
+                  },
+                  {
+                      "path":  "src/catalog/templates/catalog/place_detail.html",
+                      "sha256":  "a554a7ed1f9b9c5818ac83a484b92242af46f2860aea3661bcc61ef3f34f7d0e"
+                  },
+                  {
+                      "path":  "src/catalog/templates/catalog/public_entity_detail.html",
+                      "sha256":  "700a83dc3828c50741a52b0bacc976ce8e8020cd266c3722733675b9ec817736"
+                  },
+                  {
+                      "path":  "src/catalog/templates/catalog/specialist_detail.html",
+                      "sha256":  "98c1e4c34b9f635e3225339cb31397a8feeed694d18f9253ceb3fb6a42262c4d"
+                  },
+                  {
+                      "path":  "src/catalog/templates/catalog/typed_reviews.html",
+                      "sha256":  "0eb8bd0f85d3bf292ba4ee4335db0cba0561d5202a0d4abdca660f1e93dc68c7"
+                  },
+                  {
+                      "path":  "src/catalog/templates/includes/header.html",
+                      "sha256":  "b6e8001bbab2334e70b63ddf2c9690a96807fb2a4b9be8a84e3d6945a4c3bf34"
+                  },
+                  {
+                      "path":  "src/catalog/templates/pages/owner_reviews.html",
+                      "sha256":  "ab047c68fa4f81738a5d0d1848a2bade5973014ceb8d24ab751311bfa49b46cc"
+                  },
+                  {
+                      "path":  "src/catalog/testcases/test_localized_place_seo.py",
+                      "sha256":  "e682f29e77095d79c6f3c588606cfc98f4edfdf973829ec664f4e0a12454ca79"
+                  },
+                  {
+                      "path":  "src/catalog/testcases/test_place_review_cooldown.py",
+                      "sha256":  "cf7adf35cbefac44cbd1ddcc33d1f67e09cedacb9603a1a242eab730896c0eb6"
+                  },
+                  {
+                      "path":  "src/catalog/testcases/test_review_confirmation.py",
+                      "sha256":  "230bcf12820f00af39168cb2fe84f55750061dc1dfeb4f918c689baf0013b97a"
+                  },
+                  {
+                      "path":  "src/catalog/testcases/test_task33_localization.py",
+                      "sha256":  "96380fb25c7b65c3cf2de2d93b28f05a166af2c2a6296bfd2305f2c35e17567e"
+                  },
+                  {
+                      "path":  "src/catalog/testcases/test_task33_public_details.py",
+                      "sha256":  "ac0774609b74bd8cbf1dbed54b65be9b936ef8714ffe1f366c8e35a769dbf508"
+                  },
+                  {
+                      "path":  "src/catalog/testcases/test_task33_review_independent.py",
+                      "sha256":  "1df31c61e9face9ce2637916dcda11d90dcb1a836edfe53dc2c5ac60aa4996b7"
+                  },
+                  {
+                      "path":  "src/catalog/testcases/test_task33_review_migration.py",
+                      "sha256":  "d9602bf5abd62e7d76bb519df70b40d6a11700b81fecd03d2eb163cfb91e0577"
+                  },
+                  {
+                      "path":  "src/catalog/testcases/test_task33_reviews.py",
+                      "sha256":  "fdf5d8420802aa20e27952d1cded3ee3ddd0fa518b1484771c440c4a04ba4874"
+                  },
+                  {
+                      "path":  "src/catalog/urls.py",
+                      "sha256":  "f54fdcbb29a3ca8733e6f7f6adbef07eb70b6c06849784a5c59ce2222bc7e48f"
+                  },
+                  {
+                      "path":  "src/catalog/views.py",
+                      "sha256":  "b2c0539c1fed66a1c86c7a39b1fc97b7c5de3045a68585cf215764b744edfa45"
+                  },
+                  {
+                      "path":  "src/config/urls.py",
+                      "sha256":  "f9ada311a82098f5e5b6adce99230284f84617a1b3fdef48c97da7ae02f1b476"
+                  },
+                  {
+                      "path":  "static/admin/css/pages/kidsmap_admin_form_shell.css",
+                      "sha256":  "487fee0548c6c95997d236eebee46e9b7ef73bb87780681430a47271765f5a11"
+                  },
+                  {
+                      "path":  "static/css/pages/typed_reviews.css",
+                      "sha256":  "a3d4eeaa4a48b97dd02643c5e4dfa9e4e2c2f06b6fa16dcf60bd7ab9482d279a"
+                  }
+              ]
+}

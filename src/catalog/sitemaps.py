@@ -5,7 +5,9 @@ from django.conf import settings
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 
-from .models import CatalogContentSettings, Place, Specialist
+from .models import Activity, Organization, CatalogContentSettings, Place, Specialist
+from .services.public_languages import available_languages
+from .services.public_presentation import public_url
 from .services.content_quality import public_place_queryset
 from .services.features import is_events_section_enabled, is_specialists_section_enabled
 from .services.seo_landing_visibility import build_seo_landing_visibility
@@ -62,6 +64,39 @@ class PlaceSitemap(LocalizedSitemap):
 
     def lastmod(self, obj):
         return obj.updated_at
+
+    def get_languages_for_item(self, item):
+        return available_languages(item)
+
+
+class OrganizationSitemap(LocalizedSitemap):
+    def get_urls(self, page=1, site=None, protocol=None):
+        # Reuse within one generation only; the next request revalidates sources.
+        self._language_cache = {}
+        return super().get_urls(page=page, site=site, protocol=protocol)
+
+    def items(self):
+        return Organization.objects.filter(status='published', approved_at__isnull=False,
+                                           archived_at__isnull=True).order_by('pk')
+
+    def get_languages_for_item(self, item):
+        cache = getattr(self, '_language_cache', None)
+        if cache is None:
+            return available_languages(item)
+        if item.pk not in cache:
+            cache[item.pk] = available_languages(item)
+        return cache[item.pk]
+
+    def location(self, item):
+        return public_url(item)
+
+
+class ActivitySitemap(OrganizationSitemap):
+    def items(self):
+        places = public_place_queryset(Place.objects.all())
+        return Activity.objects.filter(status='published', archived_at__isnull=True,
+            place__in=places).select_related('place__category', 'place__organization',
+                                           'program__organization').order_by('pk')
 
 
 class SeoLandingSitemap(LocalizedSitemap):

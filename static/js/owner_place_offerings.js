@@ -24,7 +24,7 @@
     if (kind === 'number') { control.min = '0'; if (key === 'price') control.step = '0.01'; else control.step = '1'; }
     if (kind === 'checkbox') control.checked = Boolean(object[key]); else control.value = object[key] ?? '';
     control.id = `pc-offer-${++sequence}`; control.setAttribute('aria-label', label);
-    const update = () => { object[key] = kind === 'checkbox' ? control.checked : kind === 'number' || key === 'program_id' ? (control.value === '' ? null : Number(control.value)) : control.value; sync(); };
+    const update = () => { object[key] = kind === 'checkbox' ? control.checked : kind === 'number' || key === 'program_id' || key === 'subcategory_id' ? (control.value === '' ? null : Number(control.value)) : key === 'category_id' ? (control.value || null) : control.value; sync(); };
     control.addEventListener(kind === 'checkbox' || kind === 'select' ? 'change' : 'input', update);
     wrap.append(control); parent.append(wrap); return control;
   }
@@ -37,6 +37,38 @@
       if (includeDescription) field(grid, object, `description_${lang}`, ui.activity_description.replace('(AZ)', `(${lang.toUpperCase()})`), 'textarea');
     }
     details.append(grid); parent.append(details);
+  }
+  function taxonomy(parent, activity) {
+    const category = field(parent, activity, 'category_id', ui.category, 'select', {choices: [['', '—'], ...(choices.categories || []).map(item => [String(item.id), item.label])]});
+    category.dataset.activityCategory = '';
+    const subcategory = field(parent, activity, 'subcategory_id', ui.subcategory, 'select');
+    subcategory.dataset.activitySubcategory = '';
+    const status = node('p', 'pc-note'); status.dataset.taxonomyStatus = ''; status.setAttribute('role', 'status'); parent.append(status);
+    function rebuild(announce = false) {
+      const previous = activity.subcategory_id;
+      const available = (choices.subcategories || []).filter(item => String(item.category_id) === String(activity.category_id || ''));
+      subcategory.replaceChildren();
+      for (const item of [{id:'', label:'—'}, ...available]) {const option = node('option', '', item.label); option.value = String(item.id); subcategory.append(option);}
+      if (previous != null && !available.some(item => Number(item.id) === Number(previous))) {
+        activity.subcategory_id = null;
+        if (announce) status.textContent = ui.taxonomy_reset;
+      }
+      subcategory.value = activity.subcategory_id ?? '';
+      subcategory.disabled = !activity.category_id || !available.length;
+    }
+    category.addEventListener('change', () => {status.textContent = ''; rebuild(true); sync();});
+    rebuild();
+    if (choices.place_taxonomy) {
+      const copy = button(parent, ui.copy_place_taxonomy, () => {
+        const form = root.closest('form');
+        const currentCategory = form?.querySelector('select[name="category"]');
+        const currentSubcategory = form?.querySelector('select[name="subcategory"]');
+        activity.category_id = currentCategory ? currentCategory.value || null : choices.place_taxonomy.category_id || null;
+        activity.subcategory_id = currentSubcategory ? Number(currentSubcategory.value) || null : choices.place_taxonomy.subcategory_id || null;
+        category.value = activity.category_id || ''; rebuild(); sync();
+      });
+      copy.dataset.copyPlaceTaxonomy = '';
+    }
   }
   function render() {
     list.replaceChildren(); sequence = 0;
@@ -55,6 +87,7 @@
       } else {
         field(basic, activity, 'name_az', ui.activity_name);
         field(basic, activity, 'description_az', ui.activity_description, 'textarea');
+        taxonomy(basic, activity);
       }
       card.append(basic);
       if (!selected) translations(card, activity, 'name', true);

@@ -17,6 +17,14 @@ def init_version_field(form):
     form.fields['publication_token']=forms.CharField(required=False,widget=forms.HiddenInput())
     live=Place.objects.get(pk=form.instance.pk) if form.instance.pk else form.instance
     form.initial['publication_token']=version_token(live)
+    if live.pk and 'location_override_reason' in form.fields:
+        from catalog.services.location_assignment import can_override_location
+        if can_override_location(getattr(form, 'location_actor', None)):
+            revision = VolunteerPlaceRevision.objects.filter(place=live,
+                status__in=['draft','pending','rejected']).first()
+            metadata = revision.payload.get('location_override') if revision else None
+            if metadata:
+                form.initial['location_override_reason'] = metadata['reason']
 
 
 def source_version(form,place):
@@ -36,6 +44,12 @@ def save_form(*,actor,form,submit=True,explicit_save=True):
             try:value.save(value.name,value.file,save=False)
             except (OSError,RuntimeError) as exc:raise ValidationError({name:'Photo upload failed; retry the save.'}) from exc
     patch=publication.snapshot(candidate,'place')
+    override_request = getattr(candidate, '_location_override_request', None)
+    if override_request:
+        patch['location_override'] = {
+            key: override_request[key] for key in ('city', 'district', 'reason', 'lat', 'lng')
+        }
+        patch['location_override']['actor_id'] = override_request['actor'].pk
     # Explicit values also cancel pending fields reverted to approved live values.
     if 'pricing_plans' in form.cleaned_data:
         plans=form.cleaned_data['pricing_plans']
@@ -56,6 +70,10 @@ def save_form(*,actor,form,submit=True,explicit_save=True):
 def create_from_form(*,actor,form,owner=None,submit=True):
     """New draft has no approved content; form values live in its candidate."""
     candidate=form.instance
+    # Admin may exclude legacy name from ModelForm construction while its clean()
+    # supplies a validated name (including the empty-draft display placeholder).
+    if 'name' in form.cleaned_data:
+        candidate.name=form.cleaned_data['name']
     raw=form.data.get('publication_token')
     if raw:
         try:token=signing.loads(raw,salt='publication-source')
@@ -98,7 +116,11 @@ def gallery_from_form(place,form):
     base=revision.payload.get('gallery',publication.snapshot(place,'place')['gallery']) if revision else publication.snapshot(place,'place')['gallery']
     rows=[dict(row) for row in base if row['id'] not in deleted]
     for file in form.cleaned_data.get('gallery_images') or []:
-        photo=PlacePhoto(place=place,caption='',order=len(rows));photo.image.save(file.name,file,save=False)
+        photo=PlacePhoto(place=place,caption='',order=len(rows))
+        try:
+            photo.image.save(file.name,file,save=False)
+        except (OSError,RuntimeError) as exc:
+            raise ValidationError({'gallery_images':'Photo upload failed; retry the save.'}) from exc
         rows.append({'id':None,'image':photo.image.name,'caption':'','order':len(rows)})
     order=form.cleaned_data.get('gallery_order') or []
     positions={str(key):i for i,key in enumerate(order)}

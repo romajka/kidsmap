@@ -1,0 +1,75 @@
+{
+  "status": "COMPLETE_LOCAL_AUDIT",
+  "findings": [
+    {
+      "id": "FA-BROWSER-01",
+      "severity": "P3",
+      "environment": "LOCAL isolated current V3, synthetic specialist with unknown experience",
+      "title": "Unknown specialist experience is shown as literal None",
+      "user_explanation": "Если стаж не указан, родитель видит техническое слово None вместо понятного сообщения.",
+      "source": "src/catalog/templates/catalog/specialist_detail.html:79",
+      "evidence": "/root/task33-evidence/browser28-specialist-finalaudit-20261004-specialist/public-ru-390.png",
+      "reproduction": "All21 actual public Specialist contexts (AZ/RU/EN,7 widths) contain None; fresh RU390 image inspected",
+      "confidence": "HIGH",
+      "impact": "Information clarity/polish; no confirmed access or data-loss impact",
+      "owner": "frontend-reviewer",
+      "next_step": "Recommend explicit unknown-experience text or omit the line; implementation requires separate scope"
+    },
+    {
+      "id": "FA-BROWSER-02",
+      "severity": "P3",
+      "environment": "LOCAL isolated V3, actual owner Event draft edit redirected to RU dashboard",
+      "title": "RU success toast remains AZ",
+      "user_explanation": "После успешного сохранения черновика русскоязычный владелец получает сообщение на азербайджанском.",
+      "source": "src/catalog/controllers/owner_events_controller.py:67",
+      "evidence": "/root/task33-evidence/browser28-event-finalaudit-20261004-event/owner-precision-after-edit.png",
+      "reproduction": "Fresh native owner draft save; actual RU1440 screenshot reads Qaralama saxlanıldı.",
+      "confidence": "HIGH",
+      "impact": "Feedback language consistency; save correctness checked separately",
+      "owner": "django-reviewer/frontend-reviewer",
+      "next_step": "Recommend completing this gettext entry; no application edit authorized by audit"
+    },
+    {
+      "id": "FA-BROWSER-03",
+      "severity": "P3",
+      "environment": "LOCAL current V3, actual RU catalogue320/390 viewport and measured ancestor clipping",
+      "title": "Count label is clipped by its parent on narrow screens",
+      "user_explanation": "На узком экране часть надписи о числе результатов обрезана. Ошибка в русском склонении не подтверждена: исходный текст корректный.",
+      "source": "static/css/pages/catalog_places.css:724; src/catalog/templates/catalog/place_list.html:553",
+      "evidence": "screenshots/26-targeted-catalog-count-ru-320.png; screenshots/27-targeted-catalog-count-ru-390.png",
+      "reproduction": "Final font-correct targeted3 DOM text Найдено 9 кружков, intrinsic172.625px; overflow:hidden ancestor134px at320 and169px at390. Fresh actual viewport images independently inspected by browser executor and root.",
+      "confidence": "HIGH",
+      "impact": "Search-result information readability, not an incorrect count or confirmed loss of access",
+      "owner": "frontend-reviewer",
+      "next_step": "Recommend allowing count text space/wrapping or shortening the responsive label; no app fix in audit"
+    },
+    {
+      "id": "FA-BROWSER-04",
+      "severity": "P3",
+      "environment": "LOCAL current V3, Program editor AZ/RU/EN390/1280",
+      "title": "Program editor nests a main landmark inside the base main",
+      "user_explanation": "Редактор программы создаёт две основные области страницы. Это может затруднять навигацию по областям для пользователя вспомогательных технологий.",
+      "source": "src/catalog/templates/base.html:134; src/catalog/templates/pages/program_editor.html:4",
+      "evidence": "/root/task33-evidence/browser28-targeted-finalaudit-20261004-targeted3/results.json rows.Program.visible_main_landmarks=2",
+      "reproduction": "Actual DOM has2 visible main elements in all6 Program contexts; source shows nesting. Native form scenarios pass; full screenreader behaviour not tested.",
+      "confidence": "HIGH for DOM structure; screenreader impact not executed",
+      "impact": "Accessibility semantics/maintainability, no confirmed business-flow break",
+      "owner": "frontend-reviewer",
+      "next_step": "Recommend one primary main landmark while retaining layout classes; separate approved implementation"
+    },
+    {
+      "id": "FA-BROWSER-05",
+      "severity": "P3",
+      "environment": "LOCAL current V3, actual Chromium Program native owner POST",
+      "title": "Program native submission emits an uncaught ViewTransition error",
+      "user_explanation": "Форма правильно проверяет подтверждение филиала и сохраняет изменение, но браузер сообщает об ошибке анимации перехода. Поэтому строгий браузерный аудит не прошёл полностью.",
+      "source": "static/css/motion.css:143 (global navigation:auto); src/catalog/templates/pages/program_editor.html lacks scoped navigation:none; precise native internal promise attribution not proved",
+      "evidence": "browser-motion-results.json; targeted3/results.json pageerror1",
+      "reproduction": "Bounded actual RU1280 native Program edit: missing impact POST400 emits InvalidStateError at /save/ and preserves approved state/no candidate; valid confirmed POST302 emits same error at editor redirect and persists pending candidate. Full targeted matrix had1 pageerror; separate diagnostic reproduced2 errors. Counts kept separate.",
+      "confidence": "HIGH for actual triggers and correct persisted business state; motion opt-in boundary verified, exact internal promise cause not asserted",
+      "impact": "Console/motion reliability; no reproduced data loss, failed validation, or access bypass",
+      "owner": "frontend-reviewer/browser-qa",
+      "next_step": "Recommend inspecting scoped Program transition opt-in or safe promise handling, then verify native400/302; audit authorizes no app fix"
+    }
+  ]
+}

@@ -369,8 +369,10 @@ def _place_description(place, language_code: str) -> str:
 
 def build_place_seo_payload(place, request, language_code):
     from catalog.services.public_presentation import present
-    presentation = present(place, language_code)
-    lang = (language_code or "az").split("-")[0].lower()
+    from catalog.services.public_languages import canonical_language
+    lang = canonical_language(place, language_code)
+    presentation = present(place, lang)
+    closed = place.operating_state == 'closed' and place.operating_state_approved_at is not None
     with override(lang):
         gallery = place.gallery_files()
         first_image_url = _absolute_uri(request, gallery[0].url) if gallery else _absolute_uri(request, static("img/logo.svg"))
@@ -426,7 +428,7 @@ def build_place_seo_payload(place, request, language_code):
             "sun": "https://schema.org/Sunday",
         }
         schedule_mode = getattr(place, "schedule_mode", Place.SCHEDULE_MODE_REGULAR) or Place.SCHEDULE_MODE_REGULAR
-        if schedule_mode == Place.SCHEDULE_MODE_ALWAYS_OPEN:
+        if not closed and schedule_mode == Place.SCHEDULE_MODE_ALWAYS_OPEN:
             schema["openingHoursSpecification"] = [
                 {
                     "@type": "OpeningHoursSpecification",
@@ -435,7 +437,7 @@ def build_place_seo_payload(place, request, language_code):
                     "closes": "23:59",
                 }
             ]
-        elif schedule_mode == Place.SCHEDULE_MODE_REGULAR:
+        elif not closed and schedule_mode == Place.SCHEDULE_MODE_REGULAR:
             opening_hours = []
             for day in place.schedule_days.prefetch_related("intervals").all():
                 if day.is_closed:
@@ -476,7 +478,7 @@ def build_place_seo_payload(place, request, language_code):
             }
 
         offers = presentation["prices"].get("schema_offers", [])
-        if offers:
+        if offers and not closed:
             schema["offers"] = offers
 
         map_embed_url = ""
@@ -508,6 +510,23 @@ def build_place_seo_payload(place, request, language_code):
             [{"name": item["name"], "url": _absolute_uri(request, item["url"])} for item in breadcrumb_items]
         )
 
+        # The canonical content may be AZ while navigation remains in the
+        # requested shell locale. Keep UI paths/text separate from JSON-LD.
+        from catalog.services.public_presentation import language_code as normalize_language, translated
+        ui_lang = normalize_language(language_code)
+        with override(ui_lang):
+            breadcrumb_items = [
+                {"name": str(_("Главная")), "url": reverse("home"), "language": ui_lang},
+                {"name": str(_("Каталог")), "url": reverse("place_list"), "language": ui_lang},
+            ]
+            if place.category_id:
+                breadcrumb_items.append({"name": str(place.category.name_i18n(ui_lang)),
+                    "url": f"{reverse('place_list')}?{urlencode({'category': place.category_id})}",
+                    "language": ui_lang})
+            ui_name, ui_name_lang = translated(place, 'name', ui_lang)
+            breadcrumb_items.append({"name": ui_name, "url": place.get_absolute_url(),
+                                     "language": ui_name_lang})
+
         return {
             "title": title,
             "description": description,
@@ -518,6 +537,30 @@ def build_place_seo_payload(place, request, language_code):
             "map_embed_url": map_embed_url,
             "map_open_url": map_open_url,
         }
+
+
+def build_public_entity_seo_payload(entity, request, language_code):
+    """Organization/Course facts from the same approved reader as public SSR."""
+    from catalog.models import Organization
+    from catalog.services.public_languages import canonical_language
+    from catalog.services.public_presentation import present
+    lang = canonical_language(entity, language_code)
+    data = present(entity, lang)
+    schema = {
+        '@context': 'https://schema.org',
+        '@type': 'Organization' if isinstance(entity, Organization) else 'Course',
+        'name': data['name'],
+        'description': data['description'],
+        'url': _absolute_uri(request, data['url']),
+    }
+    # A concrete class inherits only its current approved Organization.
+    if data['organization']:
+        schema['provider'] = {'@type': 'Organization',
+            'name': data['organization']['name'],
+            'url': _absolute_uri(request, data['organization']['url'])}
+    return {'seo_title': data['name'] + ' | KidsMap',
+            'meta_description': _truncate_text(data['description'], 160),
+            'entity_schema_json': _serialize_json_ld(schema)}
 
 
 def build_site_reviews_seo_payload(*, request, review_count: int) -> dict:
@@ -542,6 +585,59 @@ def build_site_reviews_seo_payload(*, request, review_count: int) -> dict:
         "meta_description": _truncate_text(description, 180),
         "site_reviews_breadcrumb_schema_json": breadcrumb_schema_json,
     }
+
+
+def build_event_seo_payload(event, request, language_code, *, public_context):
+    """Serialize the very same approved occurrence facts rendered by Event SSR."""
+    from zoneinfo import ZoneInfo
+    from math import isfinite
+    baku = ZoneInfo('Asia/Baku')
+    schema = {'@context': 'https://schema.org', '@type': 'Event',
+        'name': event.name_i18n(language_code), 'description': event.description_i18n(language_code),
+        'url': _absolute_uri(request, event.get_absolute_url()),
+        'startDate': event.start_datetime.astimezone(baku).isoformat(),
+        'endDate': event.end_datetime.astimezone(baku).isoformat(),
+        'eventAttendanceMode': 'https://schema.org/OnlineEventAttendanceMode' if public_context['event_online'] else 'https://schema.org/OfflineEventAttendanceMode',
+        'eventStatus': {'cancelled':'https://schema.org/EventCancelled',
+                        'rescheduled':'https://schema.org/EventRescheduled'}.get(event.occurrence_state, 'https://schema.org/EventScheduled')}
+    organizer = public_context.get('event_organizer')
+    if organizer:
+        schema['organizer'] = {'@type': organizer['type'], 'name': organizer['name']}
+        if organizer.get('url'):
+            schema['organizer']['url'] = _absolute_uri(request, organizer['url'])
+    if public_context['event_online']:
+        # Online is known; a join URL is not. Never invent physical geography.
+        schema['location'] = {'@type':'VirtualLocation'}
+    else:
+        venue = public_context['event_venue']
+        location = {'@type':'Place'}
+        if venue.get('label'):
+            location['name'] = venue['label']
+        if venue.get('address'):
+            location['address'] = {'@type':'PostalAddress', 'streetAddress': venue['address']}
+        try:
+            lat, lng = float(venue['lat']), float(venue['lng'])
+            if isfinite(lat) and isfinite(lng) and -90 <= lat <= 90 and -180 <= lng <= 180:
+                location['geo'] = {'@type':'GeoCoordinates', 'latitude':lat, 'longitude':lng}
+        except (KeyError, ValueError, TypeError):
+            pass
+        if len(location) > 1:
+            schema['location'] = location
+    history = public_context.get('event_previous_periods') or []
+    if event.occurrence_state == 'rescheduled' and history:
+        schema['previousStartDate'] = history[0]['start'].astimezone(baku).isoformat()
+    reviews = public_context['event_reviews']
+    rating = public_context['event_rating']
+    if rating['count']:
+        schema['aggregateRating'] = {'@type':'AggregateRating', 'ratingValue':rating['average'],
+                                    'reviewCount':rating['count'], 'bestRating':5, 'worstRating':1}
+        schema['review'] = [{'@type':'Review', 'author':{'@type':'Person','name':review.author_name_i18n},
+            'reviewBody':review.current_revision.text,
+            'reviewRating':{'@type':'Rating','ratingValue':review.current_revision.rating, 'bestRating':5,'worstRating':1},
+            'datePublished':review.current_revision.created_at.isoformat()} for review in reviews]
+    return {'seo_title':build_branded_seo_title(event.name_i18n(language_code)),
+            'meta_description':_truncate_text(event.description_i18n(language_code) or event.name_i18n(language_code)),
+            'event_schema_json':_serialize_json_ld(schema)}
 
 
 def build_seo_landing_schema_payload(request, page):

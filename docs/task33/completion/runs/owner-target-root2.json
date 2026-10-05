@@ -1,0 +1,44 @@
+{
+  "stamp": "owner-target-root2",
+  "raw_evidence": "/root/task33-evidence/completion-owner-target-root2",
+  "suite": {
+    "tests_run": 2,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.636,
+    "problems": [
+      {
+        "id": "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_edit_form_can_force_refresh_coordinates",
+        "kind": "failure",
+        "exception": "AssertionError"
+      }
+    ],
+    "skipped_ids": [],
+    "executed_ids": [
+      "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_owner_edit_form_can_force_refresh_coordinates",
+      "catalog.testcases.owner.TestOwnerPlaceManagementAndPermissions.test_staff_with_change_place_permission_can_publish_after_approval"
+    ],
+    "problem_ids_complete": true,
+    "status": "BASELINE_FAILURE"
+  },
+  "run": {
+    "status": "BASELINE_FAILURE",
+    "child_exit": 1,
+    "cleanup": "PASS",
+    "run_root_removed": true,
+    "socket_root_removed": true
+  },
+  "isolation": {
+    "postgresql": "PostgreSQL 17.11",
+    "django": "6.0.2",
+    "python": "3.12.3",
+    "network_guard": true,
+    "libpq_guard": true,
+    "external_credentials_present": false
+  },
+  "source_manifest_sha256": "14d33d7c5373dc5000aff447a0a1e744f4744eba6a197e775583de6c10092a41",
+  "source_count": 2830,
+  "frozen_source_changed": [],
+  "production": "NOT_CONTACTED"
+}

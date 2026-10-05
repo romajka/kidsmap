@@ -802,9 +802,30 @@ class Event(models.Model):
         (STATUS_PENDING, _("На модерации")),
         (STATUS_PUBLISHED, _("Опубликовано")),
         (STATUS_REJECTED, _("Отклонено")),
-        (STATUS_EXPIRED, _("Завершено")),
-        (STATUS_CANCELLED, _("Отменено")),
     ]
+
+    FORMAT_PHYSICAL = 'physical'
+    FORMAT_ONLINE = 'online'
+    ORGANIZER_RESOLVED = 'resolved'
+    ORGANIZER_LEGACY_UNRESOLVED = 'legacy_unresolved'
+    OCCURRENCE_SCHEDULED = 'scheduled'
+    OCCURRENCE_CANCELLED = 'cancelled'
+    OCCURRENCE_RESCHEDULED = 'rescheduled'
+    organizer_organization = models.ForeignKey('catalog.Organization', on_delete=models.PROTECT,
+        null=True, blank=True, related_name='organized_events')
+    organizer_specialist = models.ForeignKey('catalog.Specialist', on_delete=models.PROTECT,
+        null=True, blank=True, related_name='organized_events')
+    organizer_resolution = models.CharField(max_length=24, default=ORGANIZER_LEGACY_UNRESOLVED,
+        choices=((ORGANIZER_RESOLVED, 'Resolved'), (ORGANIZER_LEGACY_UNRESOLVED, 'Legacy unresolved')), editable=False)
+    event_format = models.CharField(max_length=16, default=FORMAT_PHYSICAL,
+        choices=((FORMAT_PHYSICAL, _('Очно')), (FORMAT_ONLINE, _('Онлайн'))))
+    occurrence_state = models.CharField(max_length=16, default=OCCURRENCE_SCHEDULED,
+        choices=((OCCURRENCE_SCHEDULED, _('Запланировано')), (OCCURRENCE_CANCELLED, _('Отменено')),
+                 (OCCURRENCE_RESCHEDULED, _('Перенесено'))), editable=False)
+    occurrence_version = models.PositiveIntegerField(default=0, editable=False)
+    venue_label = models.CharField(max_length=255, blank=True, default='')
+    venue_snapshot = models.JSONField(default=dict, editable=False)
+    legacy_publication_status = models.CharField(max_length=16, blank=True, default='', editable=False)
 
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -883,6 +904,13 @@ class Event(models.Model):
         lang = self._normalize_lang(lang)
         return getattr(self, f"description_{lang}", "") or ""
 
+    def public_venue(self, lang=None):
+        """Localized approved venue copy; never mutate history or read today's Place."""
+        from catalog.services.locations import localize_address_text
+        venue = dict(self.venue_snapshot) if isinstance(self.venue_snapshot, dict) else {}
+        venue['address'] = localize_address_text(venue.get('address', ''), self._normalize_lang(lang))
+        return venue
+
     def address_i18n(self, lang=None):
         from catalog.services.locations import localize_address_text
 
@@ -908,20 +936,28 @@ class Event(models.Model):
 
     @property
     def has_ended(self) -> bool:
-        return bool(self.end_datetime and self.end_datetime < timezone.now())
+        return bool(self.end_datetime and self.end_datetime <= timezone.now())
 
     @property
     def is_running_now(self) -> bool:
         if not self.start_datetime or not self.end_datetime:
             return False
         now = timezone.now()
-        return self.start_datetime <= now <= self.end_datetime
+        return self.occurrence_state != self.OCCURRENCE_CANCELLED and self.start_datetime <= now < self.end_datetime
 
     @property
     def effective_status(self) -> str:
-        if self.status == self.STATUS_PUBLISHED and self.has_ended:
-            return self.STATUS_EXPIRED
         return self.status
+
+    @property
+    def occurrence_status(self) -> str:
+        if self.occurrence_state == self.OCCURRENCE_CANCELLED:
+            return 'cancelled'
+        if self.has_ended:
+            return 'completed'
+        if self.is_running_now:
+            return 'ongoing'
+        return 'upcoming'
 
     @property
     def is_public(self) -> bool:
@@ -930,7 +966,7 @@ class Event(models.Model):
             and not self.deleted_at
             and bool(self.start_datetime)
             and bool(self.end_datetime)
-            and not self.has_ended
+            and self.end_datetime > self.start_datetime
         )
 
     def instagram_url(self):
@@ -964,7 +1000,42 @@ class Event(models.Model):
             self.name = self.name_az or self.name_ru or self.name_en or _("Мероприятие")
         if not self.slug:
             self.slug = self._build_unique_slug()
-        super().save(*args, **kwargs)
+        from .event_domain import validate_event_domain, validate_event_format_history
+        using = kwargs.get('using') or router.db_for_write(type(self), instance=self)
+        with transaction.atomic(using=using):
+            original = type(self).objects.using(using).select_for_update().filter(pk=self.pk).first() if self.pk else None
+            validate_event_format_history(self, original)
+            implicit = set()
+            if self.organizer_organization_id or self.organizer_specialist_id:
+                self.organizer_resolution = self.ORGANIZER_RESOLVED
+                implicit.add('organizer_resolution')
+            if self.event_format == self.FORMAT_ONLINE:
+                for name in ('related_place', 'lat', 'lng'):
+                    setattr(self, name, None)
+                for name in ('venue_label', 'address', 'district', 'metro'):
+                    setattr(self, name, '')
+                self.venue_snapshot = {}
+                implicit.update(('related_place', 'lat', 'lng', 'venue_label', 'address', 'district', 'metro', 'venue_snapshot'))
+            if self.status == self.STATUS_PUBLISHED:
+                if self.published_at is None and (original is None or original.status != self.STATUS_PUBLISHED):
+                    self.published_at = timezone.now()
+                    implicit.add('published_at')
+                if self.event_format == self.FORMAT_PHYSICAL and not self.venue_snapshot:
+                    from catalog.services.event_domain import capture_venue_snapshot
+                    self.venue_snapshot = capture_venue_snapshot(self)
+                    implicit.add('venue_snapshot')
+            validate_event_domain(self, original)
+            if kwargs.get('update_fields') is not None:
+                kwargs['update_fields'] = set(kwargs['update_fields']) | implicit
+            super().save(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+        from .event_domain import validate_event_domain, validate_event_format_history
+        using = self._state.db or router.db_for_read(type(self), instance=self)
+        original = type(self).objects.using(using).filter(pk=self.pk).first() if self.pk else None
+        validate_event_format_history(self, original)
+        validate_event_domain(self)
 
     def __str__(self):
         return self.name_i18n()
@@ -980,6 +1051,23 @@ class Event(models.Model):
 
     class Meta:
         ordering = ("start_datetime", "-created_at")
+        constraints = [
+            models.CheckConstraint(condition=(
+                Q(organizer_resolution='resolved', organizer_organization__isnull=False, organizer_specialist__isnull=True)
+                | Q(organizer_resolution='resolved', organizer_organization__isnull=True, organizer_specialist__isnull=False)
+                | Q(organizer_resolution='legacy_unresolved', organizer_organization__isnull=True, organizer_specialist__isnull=True)
+            ), name='event_organizer_xor'),
+            models.CheckConstraint(condition=Q(event_format__in=('physical', 'online')), name='event_valid_format'),
+            models.CheckConstraint(condition=Q(occurrence_state__in=('scheduled', 'cancelled', 'rescheduled')), name='event_valid_occurrence'),
+            models.CheckConstraint(condition=Q(status__in=('draft', 'pending', 'published', 'rejected')), name='event_valid_publication'),
+            models.CheckConstraint(condition=(Q(organizer_resolution='legacy_unresolved') | Q(start_datetime__isnull=True)
+                | Q(end_datetime__isnull=True) | Q(end_datetime__gt=models.F('start_datetime'))), name='event_resolved_positive_interval'),
+            models.CheckConstraint(condition=(~Q(organizer_resolution='resolved', status='published')
+                | Q(start_datetime__isnull=False, end_datetime__isnull=False)), name='event_resolved_publication_dates'),
+            models.CheckConstraint(condition=(Q(event_format='physical') | Q(related_place__isnull=True,
+                lat__isnull=True, lng__isnull=True, address='', district='', metro='', venue_label='', venue_snapshot={})),
+                name='event_online_no_geography'),
+        ]
         indexes = [
             models.Index(fields=("status", "start_datetime")),
             models.Index(fields=("owner", "status")),

@@ -1,0 +1,20 @@
+{
+  "scope": "Generated audit report only, not application UI",
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "FAIL",
+      "actual": {"viewport": 390, "documentWidth": 520, "requirements": 306, "images": 27, "brokenImages": 0},
+      "reason": "Long technical requirement status text did not wrap in the generated report",
+      "raw": "scratch/final-audit-report-render-attempt1.txt",
+      "resolution": "Report-only CSS overflow-wrap:anywhere; original application and checks unchanged"
+    },
+    {
+      "attempt": 2,
+      "status": "PASS",
+      "actual": "1440 and 390 px document width matches viewport; 306 requirements; filter works; 27 images loaded; zero pageerrors",
+      "evidence": "report-render.json",
+      "followup": "Final report regenerated and checked again after complete runtime results"
+    }
+  ]
+}

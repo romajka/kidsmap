@@ -80,19 +80,28 @@ class PhotoWorkflowTests(TestCase):
         self.assertEqual(Place.objects.count(), 1)
 
     def test_gallery_order_is_persisted_and_foreign_ids_rejected(self):
+        from catalog.models import VolunteerPlaceRevision
+        from catalog.services.publication_forms import version_token
         place = Place.objects.create(name='Gallery', name_az='Gallery', category='EDU', owner=self.user, status='draft')
         a = place.gallery.create(image=build_image_upload('a.png'), order=1)
         b = place.gallery.create(image=build_image_upload('b.png'), order=2)
         url = f'/account/places/{place.pk}/save-photos/'
-        data = {'form_action':'save_draft', 'name_az':'Gallery', 'category':'EDU', 'photo_request_id':str(uuid4()), 'gallery_order':json.dumps([f'saved:{b.pk}', 'new:0', f'saved:{a.pk}'])}
+        data = {'publication_token':version_token(place), 'form_action':'save_draft', 'name_az':'Gallery', 'category':'EDU', 'photo_request_id':str(uuid4()), 'gallery_order':json.dumps([f'saved:{b.pk}', 'new:0', f'saved:{a.pk}'])}
         response = self.client.post(url, {**data, 'gallery_images':build_image_upload('new.png')})
         self.assertEqual(response.status_code, 200)
+        # Draft ordering belongs to the candidate; published gallery is unchanged.
         ids = list(place.gallery.order_by('order').values_list('pk', flat=True))
-        self.assertEqual(ids[0], b.pk); self.assertEqual(ids[-1], a.pk)
-        data.update(photo_request_id=str(uuid4()), gallery_order=json.dumps(['saved:99999']))
+        self.assertEqual(ids, [a.pk, b.pk])
+        revision = VolunteerPlaceRevision.objects.get(place=place)
+        candidate = sorted(revision.payload['gallery'], key=lambda row: row['order'])
+        self.assertEqual([row['id'] for row in candidate], [b.pk, None, a.pk])
+        self.assertTrue(a.image.storage.exists(candidate[1]['image']))
+        data.update(publication_token=version_token(place), photo_request_id=str(uuid4()), gallery_order=json.dumps(['saved:99999']))
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 422)
         self.assertEqual(list(place.gallery.order_by('order').values_list('pk', flat=True)), ids)
+        revision.refresh_from_db()
+        self.assertEqual(sorted(revision.payload['gallery'], key=lambda row: row['order']), candidate)
 
     def test_saved_thumbnail_is_small_and_private(self):
         place = Place.objects.create(name='Thumbnail', category='EDU', owner=self.user, photo=build_image_upload(size=(1000, 800)))

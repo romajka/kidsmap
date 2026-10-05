@@ -1,0 +1,19 @@
+.typed-reviews { max-width: 900px; padding-block: 28px 48px; overflow-wrap: anywhere; }
+.typed-reviews h1 { font-size: clamp(1.55rem, 4vw, 2.2rem); line-height: 1.2; margin-bottom: 16px; }
+.typed-reviews h2 { font-size: 1.25rem; margin: 0 0 16px; }
+.typed-reviews h3 { font-size: 1rem; margin: 0; }
+.typed-reviews section { margin-top: 28px; }
+.typed-reviews p { line-height: 1.65; }
+.typed-reviews article { background: var(--surface, #fff); border: 1px solid var(--border, #dce8df); border-radius: 16px; padding: 20px; margin-block: 16px; min-width: 0; }
+.typed-reviews blockquote { margin: 16px 0; padding: 0; }
+.typed-reviews aside { border-left: 3px solid var(--green); padding-left: 16px; margin-block: 16px; }
+.typed-reviews form { display: flex; flex-wrap: wrap; gap: 12px; margin-block: 16px; align-items: center; }
+.typed-reviews form[data-review-edit] { display: grid; gap: 12px; }
+.typed-reviews label { font-weight: 600; }
+.typed-reviews textarea { width: 100%; box-sizing: border-box; min-height: 90px; resize: vertical; }
+.typed-reviews textarea, .typed-reviews select { border: 1px solid var(--border, #c9d9ce); border-radius: 10px; padding: 12px; font: inherit; background: #fff; color: inherit; }
+.typed-reviews button { border: 1px solid var(--green); border-radius: 10px; min-height: 44px; padding: 10px 16px; background: var(--green); color: #fff; font: inherit; cursor: pointer; max-width: 100%; }
+.typed-reviews button[aria-pressed="true"] { background: var(--green-dark); box-shadow: inset 0 0 0 2px #fff; }
+.typed-reviews :is(button, textarea, select, summary, a):focus-visible { outline: 3px solid var(--green-dark); outline-offset: 3px; }
+.typed-reviews summary { cursor: pointer; padding-block: 12px; }
+@media (max-width: 480px) { .typed-reviews article { padding: 16px; } .typed-reviews form:not([data-review-edit]) label { flex-basis: 100%; } }

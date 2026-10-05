@@ -1,0 +1,25 @@
+{
+  "status": "PASS_CAUSAL_PRESENTATION_PROBE",
+  "checks": [
+    {
+      "case": "generic_detail_and_map",
+      "status": "PASS",
+      "requests": 1,
+      "correct_tel_whatsapp_focus_and_cache": true,
+      "legacy_marker_on_phone_anchor": false
+    },
+    {
+      "case": "compact_card",
+      "status": "PASS",
+      "requests": 1,
+      "correct_tel_whatsapp_focus_and_cache": true,
+      "legacy_marker_on_phone_anchor": true
+    }
+  ],
+  "original_test_unchanged": true,
+  "scope": "Mocked jsdom causal diagnosis only, not rendered browser",
+  "reason": "Old generic fixture expects compact-card CSS marker on the phone anchor; generic detail/map now wrap a call link and copy button. Phone URL/focus/cache remain correct.",
+  "limitations": [
+    "jsdom emitted Not implemented: navigation to another Document on the tel action; native OS call and actual network are not verified."
+  ]
+}

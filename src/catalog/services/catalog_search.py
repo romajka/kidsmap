@@ -35,9 +35,9 @@ def has_offer_filters(filters):
 def matching_groups(filters):
     qs=OfferingGroup.objects.filter(archived_at__isnull=True,activity__status='published',activity__archived_at__isnull=True)
     if filters.category:
-        qs=qs.filter(activity__program_snapshot__category_id=filters.category)
+        qs=qs.filter(offer_taxonomy_q('category_id',filters.category))
     if filters.subcategory:
-        qs=qs.filter(activity__program_snapshot__subcategory_id=int(filters.subcategory))
+        qs=qs.filter(offer_taxonomy_q('subcategory_id',int(filters.subcategory)))
     low,high=filters._normalized_age_bounds()
     if low is not None or high is not None:
         qs=qs.exclude(age_from__isnull=True,age_to__isnull=True)
@@ -50,6 +50,17 @@ def matching_groups(filters):
             names |= Q(**{'activity__program_snapshot__name_'+lang+'__icontains':filters.query})
         qs=qs.filter(text_q(filters.query,'activity__place__') | names)
     return qs
+
+
+def offer_taxonomy_q(field,value):
+    """Linked approved snapshot; standalone own taxonomy; old frozen copies only."""
+    snapshot=Q(**{'activity__program_snapshot__'+field:value})
+    if field=='subcategory_id':
+        snapshot |= Q(activity__program_snapshot__subcategory_id=str(value))
+    own=Q(activity__program__isnull=True,**{'activity__'+field:value})
+    frozen=Q(activity__program__isnull=True,activity__category__isnull=True,
+        activity__subcategory__isnull=True) & snapshot
+    return own | (Q(activity__program__isnull=False) & snapshot) | frozen
 
 
 def general_admission_q():
@@ -66,10 +77,10 @@ def taxonomy_counts(public_qs):
     for pk, category, subcategory in direct.values_list('pk','category_id','subcategory_id'):
         if category:categories[category].add(pk)
         if subcategory:subcategories[str(subcategory)].add(pk)
-    for pk, snapshot in Activity.objects.filter(place_id__in=public_qs.values('pk'),status='published',archived_at__isnull=True,
-        offering_groups__archived_at__isnull=True,offering_groups__isnull=False).values_list('place_id','program_snapshot').distinct():
-        category=snapshot.get('category_id')
-        subcategory=snapshot.get('subcategory_id')
+    for pk,program_id,category_id,subcategory_id,snapshot in Activity.objects.filter(place_id__in=public_qs.values('pk'),status='published',archived_at__isnull=True,
+        offering_groups__archived_at__isnull=True,offering_groups__isnull=False).values_list('place_id','program_id','category_id','subcategory_id','program_snapshot').distinct():
+        from catalog.services.catalog_structure import taxonomy_ids
+        category,subcategory=taxonomy_ids(program_id,category_id,subcategory_id,snapshot)
         if isinstance(category,str) and category:categories[category].add(pk)
         if isinstance(subcategory,(str,int)) and str(subcategory).isdigit():subcategories[str(subcategory)].add(pk)
     return ({key:len(value) for key,value in categories.items()}, {key:len(value) for key,value in subcategories.items()})

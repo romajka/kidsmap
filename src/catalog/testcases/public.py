@@ -107,12 +107,12 @@ class TestPublicPagesSmoke(TestCase):
     def test_home_hero_statistics_do_not_add_plus_to_exact_counts(self):
         template_source = (settings.BASE_DIR / "src/catalog/templates/pages/home.html").read_text(encoding="utf-8")
 
-        self.assertIn("<strong>{{ map_places|length }}</strong>", template_source)
+        self.assertIn("<strong>{{ map_business_count }}</strong>", template_source)
         self.assertIn(
             "<strong>{% if total_place_reviews_count %}{{ total_place_reviews_count }}{% else %}—{% endif %}</strong>",
             template_source,
         )
-        self.assertNotIn("{{ map_places|length }}+</strong>", template_source)
+        self.assertNotIn("{{ map_business_count }}+</strong>", template_source)
         self.assertNotIn("{{ total_place_reviews_count }}+", template_source)
 
     def test_legacy_az_urls_redirect_to_default_language_without_prefix(self):
@@ -1002,7 +1002,7 @@ class TestPublicPagesSmoke(TestCase):
     def test_filtered_catalog_page_uses_noindex_and_itemlist_schema(self):
         create_quality_place(
             name="Seo Place",
-            name_ru="SEO кружок",
+            name_ru="SEO кружок", lat=None, lng=None,
             category="EDU",
             is_active=True,
             district="Ясамал",
@@ -1019,10 +1019,10 @@ class TestPublicPagesSmoke(TestCase):
     def test_place_detail_page_includes_breadcrumb_and_aggregate_rating_schema(self):
         place = create_quality_place(
             name="Seo Place",
-            name_ru="SEO кружок",
+            name_ru="SEO кружок", description_ru="Занятия для детей и родителей с опытными педагогами.",
             category="EDU",
             is_active=True,
-            district="Ясамал",
+            district="Ясамал", lat=None, lng=None,
             rating_avg=4.7,
             rating_count=12,
         )
@@ -1096,15 +1096,15 @@ class TestPublicPagesSmoke(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'aria-label="Хлебные крошки"', html=False)
-        self.assertContains(response, '<a class="km-breadcrumbs__link" href="/ru/catalog/">Каталог</a>', html=False)
+        self.assertContains(response, '<a class="km-breadcrumbs__link" href="/ru/catalog/" lang="ru">Каталог</a>', html=False)
         self.assertContains(
             response,
-            '<a class="km-breadcrumbs__link" href="/ru/catalog/?category=EDU">Образование</a>',
+            '<a class="km-breadcrumbs__link" href="/ru/catalog/?category=EDU" lang="ru">Образование</a>',
             html=False,
         )
         self.assertContains(
             response,
-            '<span class="km-breadcrumbs__current" aria-current="page">SEO кружок</span>',
+            '<span class="km-breadcrumbs__current" aria-current="page" lang="ru">SEO кружок</span>',
             html=False,
         )
         # The visible trail and the BreadcrumbList markup must stay in sync.
@@ -1170,6 +1170,8 @@ class TestPublicPagesSmoke(TestCase):
         place = create_quality_place(
             name="Sitemap place",
             name_ru="Место для sitemap",
+            name_en="Sitemap place", description_ru="Занятия для детей с опытными педагогами.",
+            description_en="Classes for children led by experienced teachers.",
             category="EDU",
             is_active=True,
             district="Баку",
@@ -1305,7 +1307,7 @@ class TestPublicPagesSmoke(TestCase):
             if loc is not None and loc.text.endswith(place_path):
                 lastmod = url_el.find("s:lastmod", ns)
                 self.assertIsNotNone(lastmod, "Place URL must have lastmod")
-                expected_date = place.updated_at.strftime("%Y-%m-%d")
+                expected_date = timezone.localtime(place.updated_at).strftime("%Y-%m-%d")
                 self.assertTrue(
                     lastmod.text.startswith(expected_date),
                     f"lastmod {lastmod.text} should start with {expected_date}",
@@ -1429,7 +1431,14 @@ class TestPublicPagesSmoke(TestCase):
         response = self.client.get("/", follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("дзюдо", response.context["map_places"][0]["search_text"])
+        # Map search now uses the shared server endpoint, including subcategory filters.
+        point = response.context["map_places"][0]
+        filtered = self.client.get(reverse('public_map'), {'category': category.pk, 'subcategory': subcategory.pk})
+        self.assertEqual(filtered.status_code, 200)
+        self.assertEqual([p['id'] for p in filtered.json()['points']], [point['id']])
+        self.assertEqual(filtered.json()['points'][0]['members'][0]['id'], point['id'])
+        wrong = self.client.get(reverse('public_map'), {'category': 'EDU'})
+        self.assertEqual(wrong.json()['points'], [])
 
     def test_public_site_css_uses_subset_font_without_heavy_ttf(self):
         css_path = Path(settings.BASE_DIR) / "static" / "css" / "site.css"
@@ -1515,7 +1524,7 @@ class TestCatalogContentSettingsWiring(TestCase):
         create_quality_place(
             name="District Visible",
             name_ru="Район в фильтре",
-            district="Тестовый район",
+            district="Тестовый район", lat=None, lng=None,
         )
 
         response = self.client.get("/", follow=True)
@@ -1586,14 +1595,16 @@ class TestCatalogContentSettingsWiring(TestCase):
         settings_obj.districts_json = ["Забрат", "Ахмедлы", "Бинагади"]
         settings_obj.metro_stations_json = ["Нариман Нариманов", "20 Января", "Азадлыг проспекти"]
         settings_obj.save(update_fields=["districts_json", "metro_stations_json", "updated_at"])
-        create_quality_place(name="District 1", name_ru="District 1", district="Забрат", metro="Нариман Нариманов")
-        create_quality_place(name="District 2", name_ru="District 2", district="Ахмедлы", metro="20 Января")
-        create_quality_place(name="District 3", name_ru="District 3", district="Бинагади", metro="Азадлыг проспекти")
+        create_quality_place(name="District 1", name_ru="District 1", district="Забрат", lat=None, lng=None, metro="Нариман Нариманов")
+        create_quality_place(name="District 2", name_ru="District 2", district="Ахмедлы", lat=None, lng=None, metro="20 Января")
+        create_quality_place(name="District 3", name_ru="District 3", district="Бинагади", lat=None, lng=None, metro="Азадлыг проспекти")
 
         response = self.client.get(reverse("place_list"), follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual([item["value"] for item in response.context["district_options"]], ["baku", "baku_binagadi", "ахмедлы", "забрат"])
+        self.assertEqual([item["value"] for item in response.context["district_options"]], ["baku", "baku_binagadi", "baku_sabunchu", "baku_khatai"])
+        labels = [item['label'] for item in response.context['district_options']]
+        self.assertEqual(labels, sorted(labels, key=str.casefold))
         self.assertEqual(
             [item["value"] for item in response.context["metro_options"]],
             ["20 Января", "Азадлыг проспекти", "Нариман Нариманов"],
@@ -1771,7 +1782,7 @@ class TestPublicFilterCounts(TestCase):
         )
 
         cls.visible_place_one = create_quality_place(
-            name="Counted One",
+            name="Counted One", lat=None, lng=None,
             name_ru="Счетное место 1",
             category="COUNTED",
             subcategory=cls.visible_subcategory,
@@ -1786,7 +1797,7 @@ class TestPublicFilterCounts(TestCase):
             metro="Ичеришехер",
         )
         cls.visible_place_three = create_quality_place(
-            name="Education One",
+            name="Education One", lat=None, lng=None,
             name_ru="Образовательное место",
             category="EDU",
             district="Баку",
@@ -2014,9 +2025,10 @@ class TestPublicFilterCounts(TestCase):
         self.assertNotContains(en_response, "Пока нет отзывов")
         self.assertNotContains(en_response, "Понедельник")
 
-        self.assertEqual(len(az_response.context["map_places"]), 6)
-        self.assertEqual(len(ru_response.context["map_places"]), 6)
-        self.assertEqual(len(en_response.context["map_places"]), 6)
+        # Two address-only fixture cards stay in the list/counts without invented pins.
+        self.assertEqual(len(az_response.context["map_places"]), 4)
+        self.assertEqual(len(ru_response.context["map_places"]), 4)
+        self.assertEqual(len(en_response.context["map_places"]), 4)
         self.assertEqual(
             {item["value"]: item.get("count") for item in az_response.context["home_categories"]},
             {item["value"]: item.get("count") for item in ru_response.context["home_categories"]},
@@ -2196,12 +2208,12 @@ class TestCatalogEnhancements(TestCase):
         exact_place = create_quality_place(
             name="Exact District",
             name_ru="Точный район",
-            district="Ясамал",
+            district="Ясамал", lat=None, lng=None,
         )
         partial_place = create_quality_place(
             name="Partial District",
             name_ru="Похожий район",
-            district="Новый Ясамал",
+            district="Новый Ясамал", lat=None, lng=None,
         )
 
         with override("ru"):
@@ -2267,7 +2279,10 @@ class TestCatalogEnhancements(TestCase):
         self.assertEqual(response.status_code, 200)
         names = [item.name_ru for item in response.context["places"]]
         self.assertIn(overlapping_place.name_ru, names)
-        self.assertNotIn(out_of_range_place.name_ru, names)
+        self.assertIn(out_of_range_place.name_ru, names)
+        # Budget filtering was removed: a legacy URL must not silently hide cards.
+        self.assertNotContains(response, 'name="price_from"')
+        self.assertNotContains(response, 'name="price_to"')
 
     def test_new_page_with_photo_filter_ignores_null_photo_fields(self):
         with_photo_place = create_quality_place(
@@ -2481,13 +2496,14 @@ class TestCatalogEnhancements(TestCase):
         self.assertNotContains(response, "Есть пробное занятие")
 
     def test_catalog_map_uses_only_filtered_map_ready_places(self):
+        self.maxDiff = None
         matching_place = create_quality_place(
             name="Map Match",
             name_ru="Точка на карте",
             district="Ясамал",
             metro="Низами",
-            lat=40.3771,
-            lng=49.8412,
+            lat=40.4,
+            lng=49.8,
         )
         Place.objects.create(
             name="Map Other District",
@@ -2520,9 +2536,7 @@ class TestCatalogEnhancements(TestCase):
                 part for part in (get_location_translation(matching_place.district, language_code), translate(matching_place.metro)) if part
             )
             expected_category = matching_place.get_category_display()
-        self.assertEqual(
-            response.context["catalog_map_places"],
-            [
+        expected = [
                 {
                     "id": matching_place.id,
                     "name": matching_place.name_i18n(language_code),
@@ -2541,7 +2555,7 @@ class TestCatalogEnhancements(TestCase):
                     "image_url": "",
                     "price": str(matching_place.card_price_badge),
                     "location": expected_location,
-                    "address": "Bakı şəhəri, Nizami küçəsi 10, " + get_location_translation(matching_place.district, language_code),
+                    "address": matching_place.address_i18n(language_code),
                     "district": get_location_translation(matching_place.district, language_code),
                     "metro": translate(matching_place.metro),
                     "rating": 0.0,
@@ -2549,17 +2563,24 @@ class TestCatalogEnhancements(TestCase):
                     "has_phone": True,
                     "schedule": "Bazar ertəsi, çərşənbə və cümə 15:00-17:00",
                 }
-            ],
-        )
+            ]
+        member = expected[0]
+        member.update(district=matching_place.district, district_label=matching_place.district_i18n(language_code),
+            metro=matching_place.metro, metro_label=matching_place.metro_i18n(language_code),
+            matched_offers=[], translation_fallback=False,
+            content_language=language_code, translation_label='')
+        expected = [{**member, 'key': f'place:{matching_place.pk}', 'members': [member]}]
+        self.assertEqual(response.context["catalog_map_places"], expected)
 
     def test_catalog_map_serialization_includes_card_fields(self):
+        self.maxDiff = None
         place = create_quality_place(
             name="Map Card Place",
             name_ru="Карточка на карте",
             district="Ясамал",
             metro="Низами",
-            lat=40.3771,
-            lng=49.8412,
+            lat=40.4,
+            lng=49.8,
             address="Bakı, Yasamal, Mərkəzi küçə 12",
             phone1="+994501234567",
             rating_avg=4.6,
@@ -2575,9 +2596,7 @@ class TestCatalogEnhancements(TestCase):
             expected_url = place.get_absolute_url()
             expected_price = str(place.card_price_badge)
 
-        self.assertEqual(
-            serialized,
-            [
+        expected = [
                 {
                     "id": place.id,
                     "name": place.name_i18n("ru"),
@@ -2596,7 +2615,7 @@ class TestCatalogEnhancements(TestCase):
                     "image_url": "",
                     "price": expected_price,
                     "location": "Баку, Ясамальский район / Низами",
-                    "address": "Bakı, Yasamal, Mərkəzi küçə 12, Баку, Ясамальский район",
+                    "address": "Bakı, Yasamal, Mərkəzi küçə 12",
                     "district": "Баку, Ясамальский район",
                     "metro": "Низами",
                     "rating": 4.6,
@@ -2604,8 +2623,14 @@ class TestCatalogEnhancements(TestCase):
                     "has_phone": True,
                     "schedule": "Bazar ertəsi, çərşənbə və cümə 15:00-17:00",
                 }
-            ],
-        )
+            ]
+        member = expected[0]
+        member.update(district=place.district, district_label=place.district_i18n('ru'),
+            metro=place.metro, metro_label=place.metro_i18n('ru'),
+            matched_offers=[], translation_fallback=True,
+            content_language='az', translation_label='Текст на азербайджанском')
+        expected = [{**member, 'key': f'place:{place.pk}', 'members': [member]}]
+        self.assertEqual(serialized, expected)
 
     def test_az_place_detail_uses_translated_labels_and_duration(self):
         place = create_quality_place(
@@ -2639,7 +2664,7 @@ class TestCatalogEnhancements(TestCase):
         region_place = create_quality_place(
             name="Region Code Place",
             name_az="Region Kodlu Məkan",
-            district="agdash",
+            district="agdash", lat=None, lng=None,
         )
 
         response = self.client.get("/az/catalog/", follow=True)
@@ -2891,9 +2916,11 @@ class TestReviewEnhancements(TestCase):
         place_review.refresh_from_db()
         site_review.refresh_from_db()
 
-        self.assertFalse(place_review.is_anonymous)
+        self.assertTrue(place_review.is_anonymous)
         self.assertFalse(site_review.is_anonymous)
-        self.assertEqual(place_review.author_name_i18n, "Мария")
+        with override("ru"):
+            self.assertEqual(place_review.author_name_i18n, "Аноним")
+        self.assertEqual(place_review.author_name, "Мария")
         self.assertEqual(site_review.author_name_i18n, "Ирина")
 
     def test_site_reviews_page_can_sort_reviews_by_likes(self):
@@ -2962,7 +2989,7 @@ class TestReviewEnhancements(TestCase):
         az_catalog = self.client.get("/az/catalog/", follow=True)
         self.assertEqual(az_catalog.status_code, 200)
         self.assertContains(az_catalog, "Dərnək seçin")
-        self.assertContains(az_catalog, "Kateqoriya, rayon, yaş və büdcə bir yerdə.")
+        self.assertContains(az_catalog, "Kateqoriya, rayon və yaş bir yerdə.")
         self.assertNotContains(az_catalog, "Подобрать кружок")
         self.assertNotContains(az_catalog, "Категория, район, возраст и бюджет в одном месте.")
 
@@ -3377,11 +3404,12 @@ class EventsLandingTests(TestCase):
         response = self.client.get(reverse("events_landing"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'name="q"')
-        self.assertNotContains(response, 'name="category"')
-        self.assertNotContains(response, 'name="district"')
-        self.assertNotContains(response, 'name="age_from"')
-        self.assertNotContains(response, 'name="age_to"')
+        self.assertContains(response, 'name="q"')
+        self.assertContains(response, 'name="category"')
+        self.assertContains(response, 'name="district"')
+        self.assertContains(response, 'name="format"')
+        self.assertContains(response, 'name="age_from"')
+        self.assertContains(response, 'name="age_to"')
 
     def test_home_upcoming_events_link_points_to_events_landing(self):
         response = self.client.get(reverse("home"))
@@ -3407,9 +3435,16 @@ class EventsLandingTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["upcoming_events"]), 4)
 
+    def event_with_approved_address(self, address):
+        event = Event.objects.create(name_ru='Событие с историческим адресом', category='ART',
+            start_datetime=self.upcoming_event.start_datetime, end_datetime=self.upcoming_event.end_datetime,
+            status=Event.STATUS_PUBLISHED, address=address, venue_snapshot={'address': address})
+        event.address = 'Legacy address must not leak'
+        event.save(update_fields=['address', 'updated_at'])
+        return event
+
     def test_event_address_is_localized_for_az_public_pages(self):
-        self.upcoming_event.address = "ул. Школьная 9, Баку"
-        self.upcoming_event.save(update_fields=["address", "updated_at"])
+        self.upcoming_event = self.event_with_approved_address('ул. Школьная 9, Баку')
 
         with override("az"):
             events_response = self.client.get(reverse("events_landing"))
@@ -3417,12 +3452,17 @@ class EventsLandingTests(TestCase):
 
         self.assertContains(events_response, "küç. Məktəb 9, Bakı")
         self.assertContains(detail_response, "küç. Məktəb 9, Bakı")
+        self.assertNotContains(detail_response, 'Legacy address must not leak')
+        self.upcoming_event.refresh_from_db()
+        self.assertEqual(self.upcoming_event.venue_snapshot['address'], 'ул. Школьная 9, Баку')
 
     def test_event_address_is_localized_for_en_public_pages(self):
-        self.upcoming_event.address = "пр. Гусейна Джавида 18, Баку"
-        self.upcoming_event.save(update_fields=["address", "updated_at"])
+        self.upcoming_event = self.event_with_approved_address('пр. Гусейна Джавида 18, Баку')
 
         with override("en"):
             response = self.client.get(reverse("events_landing"))
 
         self.assertContains(response, "Ave. Huseyn Javid 18, Baku")
+        self.assertNotContains(response, 'Legacy address must not leak')
+        self.upcoming_event.refresh_from_db()
+        self.assertEqual(self.upcoming_event.venue_snapshot['address'], 'пр. Гусейна Джавида 18, Баку')
