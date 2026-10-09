@@ -25,10 +25,12 @@ class CatalogIndexabilityTests(TestCase):
                 for language, language_prefix in (("az", ""), ("ru", "/ru"), ("en", "/en")):
                     self.assertEqual(response.context["alternate_urls"][language], f"https://kidsmap.az{language_prefix}/catalog/?page=2")
                 self.assertEqual(response.context["x_default_url"], "https://kidsmap.az/catalog/?page=2")
-                self.assertContains(response, 'href="?page=1"')
+                self.assertContains(response, f'href="{prefix}/catalog/"')
+                self.assertNotContains(response, 'href="?page=1"')
 
     def test_page_one_uses_clean_catalog_canonical(self):
-        response = self.client.get("/catalog/?page=1")
+        response = self.client.get("/catalog/?page=1", follow=True)
+        self.assertEqual(response.redirect_chain, [("/catalog/", 301)])
         self.assertEqual(response.context["robots_content"], DEFAULT_ROBOTS_CONTENT)
         self.assertEqual(response.context["canonical_url"], "https://kidsmap.az/catalog/")
 
@@ -41,12 +43,35 @@ class CatalogIndexabilityTests(TestCase):
                 self.assertEqual(response.context["canonical_url"], f"https://kidsmap.az/catalog/{canonical_suffix}")
 
     def test_filters_and_sorting_stay_noindex_with_pagination(self):
-        for query in ("category=EDU&page=2", "sort=newest&page=2", "q=club&page=2"):
+        for query, canonical_query in (("category=EDU&page=2", "category=EDU&page=2"), ("sort=newest&page=2", "page=2&sort=newest"), ("q=club&page=2", "page=2&q=club")):
             with self.subTest(query=query):
                 response = self.client.get(f"/catalog/?{query}")
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(response.context["robots_content"], "noindex,follow")
-                self.assertEqual(response.context["canonical_url"], "https://kidsmap.az/catalog/")
+                self.assertEqual(response.context["canonical_url"], f"https://kidsmap.az/catalog/?{canonical_query}")
+
+    def test_default_sort_redirect_preserves_indexable_second_page(self):
+        for prefix in ("", "/ru", "/en"):
+            response = self.client.get(f"{prefix}/catalog/?sort=new&page=2", follow=True)
+            self.assertEqual(response.redirect_chain, [(f"{prefix}/catalog/?page=2", 301)])
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["page_obj"].number, 2)
+            self.assertEqual(response.context["robots_content"], DEFAULT_ROBOTS_CONTENT)
+            self.assertEqual(response.context["canonical_url"], f"https://kidsmap.az{prefix}/catalog/?page=2")
+
+    def test_default_values_redirect_without_losing_search_filters(self):
+        for prefix in ("", "/ru", "/en"):
+            response = self.client.get(f"{prefix}/catalog/?category=EDU&sort=new&page=1", follow=True)
+            self.assertEqual(response.redirect_chain, [(f"{prefix}/catalog/?category=EDU", 301)])
+            self.assertEqual(response.context["page_obj"].paginator.count, 13)
+            self.assertEqual(response.context["robots_content"], "noindex,follow")
+            self.assertEqual(response.context["canonical_url"], f"https://kidsmap.az{prefix}/catalog/?category=EDU")
+
+    def test_filter_canonical_uses_stable_key_order(self):
+        response = self.client.get("/ru/catalog/?q=club&category=EDU&page=2")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["canonical_url"], "https://kidsmap.az/ru/catalog/?category=EDU&page=2&q=club")
+        self.assertEqual(response.context["robots_content"], "noindex,follow")
 
     def test_sitemap_includes_localized_faq_without_auth_urls(self):
         response = self.client.get("/sitemap.xml")

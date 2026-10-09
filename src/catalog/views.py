@@ -393,7 +393,7 @@ def place_detail_legacy(request, pk, slug=None):
 def place_detail(request, pk, slug):
     place = place_controller.get_active_place_with_gallery(pk=pk)
     from catalog.services.place_urls import place_slug_for_language
-    if slug != place_slug_for_language(place, request.LANGUAGE_CODE):
+    if slug != place_slug_for_language(place, request.LANGUAGE_CODE) or request.META.get("QUERY_STRING"):
         return redirect(place.get_absolute_url(), permanent=True)
 
     request._seo_place = place

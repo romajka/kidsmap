@@ -9,6 +9,7 @@ from catalog.services.public_urls import (
     filtered_query_string_for_path,
     public_hostname,
     public_origin,
+    resolve_url_name,
 )
 
 
@@ -72,6 +73,10 @@ class CleanPublicQueryMiddleware:
 
         original_query = request.META.get("QUERY_STRING", "")
         if original_query:
+            # Detail views check visibility and normalize slug + query together.
+            # Doing query cleanup here first creates a second redirect hop.
+            if resolve_url_name(request.path) in {"place_detail", "place_detail_legacy", "place_detail_root_legacy"}:
+                return self.get_response(request)
             target_path = canonical_public_path(request.path)
             if not target_path.endswith("/") and is_valid_path(f"{target_path}/"):
                 target_path = f"{target_path}/"

@@ -992,7 +992,7 @@
     <nav class="catalog-pagination-wrap" aria-label="{% trans 'Пагинация' %}">
       <div class="catalog-pagination-bar">
         {% if page_obj.has_previous %}
-          <a class="catalog-pag-btn catalog-pag-nav" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}" aria-label="{% if language == 'az' %}Əvvəlki səhifə{% elif language == 'en' %}Previous page{% else %}Предыдущая страница{% endif %}">
+          <a class="catalog-pag-btn catalog-pag-nav" href="{% if page_obj.previous_page_number == 1 %}{{ request.path }}{% if query_without_page %}?{{ query_without_page }}{% endif %}{% else %}?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}{% endif %}" aria-label="{% if language == 'az' %}Əvvəlki səhifə{% elif language == 'en' %}Previous page{% else %}Предыдущая страница{% endif %}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
             <span class="catalog-pag-nav-text">{% if language == 'az' %}Geri{% elif language == 'en' %}Back{% else %}Назад{% endif %}</span>
           </a>
@@ -1008,9 +1008,9 @@
             {% if num == page_obj.number %}
               <span class="catalog-pag-num is-active" aria-current="page">{{ num }}</span>
             {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-              <a class="catalog-pag-num" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ num }}">{{ num }}</a>
+              <a class="catalog-pag-num" href="{% if num == 1 %}{{ request.path }}{% if query_without_page %}?{{ query_without_page }}{% endif %}{% else %}?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ num }}{% endif %}">{{ num }}</a>
             {% elif num == 1 or num == page_obj.paginator.num_pages %}
-              <a class="catalog-pag-num" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ num }}">{{ num }}</a>
+              <a class="catalog-pag-num" href="{% if num == 1 %}{{ request.path }}{% if query_without_page %}?{{ query_without_page }}{% endif %}{% else %}?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ num }}{% endif %}">{{ num }}</a>
             {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
               <span class="catalog-pag-dots" aria-hidden="true">…</span>
             {% endif %}

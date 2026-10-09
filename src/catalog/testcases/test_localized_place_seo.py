@@ -61,6 +61,21 @@ class LocalizedPlaceSeoTests(TestCase):
             self.assertEqual(response.status_code, 301)
             self.assertEqual(response['Location'], expected)
 
+    def test_old_slug_and_query_redirect_directly_to_final_visible_url(self):
+        for language in ('az', 'ru', 'en'):
+            with override(language):
+                expected = self.place.get_absolute_url()
+            prefix = '' if language == 'az' else '/' + language
+            response = self.client.get(f'{prefix}/place/{self.place.pk}-wrong/?review_sort=likes', follow=True)
+            self.assertEqual(response.redirect_chain, [(expected, 301)])
+            self.assertEqual(response.status_code, 200)
+
+    def test_hidden_place_with_query_does_not_redirect(self):
+        Place.objects.filter(pk=self.place.pk).update(is_active=False)
+        response = self.client.get(f'/ru/place/{self.place.pk}-wrong/?review_sort=likes')
+        self.assertEqual(response.status_code, 404)
+        self.assertNotIn('Location', response)
+
     def test_canonical_pages_render_reciprocal_metadata(self):
         for language in ('az', 'ru', 'en'):
             with override(language):

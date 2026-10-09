@@ -1,3 +1,5 @@
+from urllib.parse import parse_qsl, urlencode
+
 from django.conf import settings
 from django.templatetags.static import static
 from django.db.utils import OperationalError, ProgrammingError
@@ -184,6 +186,14 @@ def seo_urls(request):
         alternate_urls = {code: f"{url}{suffix}" for code, url in alternate_urls.items()}
         if request.GET.getlist("page") == [str(page_number)]:
             robots_content = DEFAULT_ROBOTS_CONTENT
+    elif url_name == "place_list" and request.GET:
+        # Real filters are separate, non-indexable views, not duplicates of
+        # the first unfiltered page. Keep their canonical query deterministic.
+        clean_query = filtered_query_string(request)
+        suffix = urlencode(sorted(parse_qsl(clean_query, keep_blank_values=True), key=lambda pair: pair[0]))
+        if suffix:
+            canonical_url = f"{canonical_url}?{suffix}"
+            alternate_urls = {code: f"{url}?{suffix}" for code, url in alternate_urls.items()}
 
     og_locale_map = {"ru": "ru_RU", "az": "az_AZ", "en": "en_US"}
     og_locale = og_locale_map.get(content_lang, "az_AZ")

@@ -88,6 +88,12 @@ def filtered_query_string_for_path(path: str, params) -> str:
     for key in list(clean_params.keys()):
         if key not in allowed:
             del clean_params[key]
+    if resolve_url_name(canonical_public_path(path)) == "place_list":
+        # Only unambiguous defaults are redundant. Keep invalid/repeated values
+        # for the paginator's existing fallback and noindex handling.
+        for key, default in (("page", "1"), ("sort", "new")):
+            if clean_params.getlist(key) == [default]:
+                del clean_params[key]
     return clean_params.urlencode()
 
 
