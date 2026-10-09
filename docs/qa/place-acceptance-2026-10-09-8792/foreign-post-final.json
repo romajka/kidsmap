@@ -1,0 +1,19 @@
+{
+  "rows": [
+    {
+      "id": "owner-forged-foreign-id-form-post-denied",
+      "status": "PASS",
+      "url": "http://localhost:8792/ru/account/places/158/edit/",
+      "network": [
+        {
+          "status": 302,
+          "url": "http://localhost:8792/qa/login/"
+        },
+        {
+          "status": 403,
+          "url": "http://localhost:8792/ru/account/places/160/save-photos/"
+        }
+      ]
+    }
+  ]
+}

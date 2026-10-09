@@ -325,18 +325,18 @@ def propose(*,actor,target_type,target_id,patch,schema_version,expected_version,
         if not can_override_location(actor) or (patch['location_override'] is not None and
             (not isinstance(patch['location_override'],dict) or patch['location_override'].get('actor_id') != actor.pk)):
             raise PermissionDenied
-    if _integer(schema_version)!=SCHEMA_VERSION:raise ValidationError('Publication schema conflict.')
-    if _integer(expected_version)!=target.content_version:raise ValidationError('Publication source conflict.')
+    if _integer(schema_version)!=SCHEMA_VERSION:raise ValidationError('Publication schema conflict.', code='publication_schema_conflict')
+    if _integer(expected_version)!=target.content_version:raise ValidationError('Publication source conflict.', code='publication_source_conflict')
     revision=VolunteerPlaceRevision.objects.select_for_update().filter(**{target_type:target}).first()
     actual=revision.version if revision else 0
-    if _integer(revision_version)!=actual:raise ValidationError('Candidate version conflict.')
+    if _integer(revision_version)!=actual:raise ValidationError('Candidate version conflict.', code='candidate_version_conflict')
     from catalog.services.staff_roles import is_volunteer
     if revision and is_volunteer(actor) and revision.author_id != actor.pk:
         raise PermissionDenied
     patch=_validate_patch(target,target_type,patch);live=snapshot(target,target_type)
     if revision and revision.status not in {'approved','rejected','declined'}:
-        if revision.schema_version!=SCHEMA_VERSION or revision.dependencies!=dependencies(target,target_type):raise ValidationError('Candidate dependency conflict.')
-        if any(live.get(k)!=revision.base_snapshot.get(k) for k in revision.changed_fields):raise ValidationError('Candidate source conflict.')
+        if revision.schema_version!=SCHEMA_VERSION or revision.dependencies!=dependencies(target,target_type):raise ValidationError('Candidate dependency conflict.', code='candidate_dependency_conflict')
+        if any(live.get(k)!=revision.base_snapshot.get(k) for k in revision.changed_fields):raise ValidationError('Candidate source conflict.', code='candidate_source_conflict')
         base=revision.base_snapshot;pending=dict(revision.payload)
     else:base=live;pending={}
     incoming=dict(patch)

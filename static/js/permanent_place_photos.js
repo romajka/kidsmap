@@ -65,7 +65,7 @@
       input('gallery_images').files = fileList(newFiles().map(item => item.file));
       input('photo-clear').checked = hadMain && !main;
       deletedInputs.forEach(node => { node.checked = !gallery.some(item => item.savedId === node.value); });
-      input('gallery_order').value = JSON.stringify(gallery.filter(item => item.savedId || item.file).map(item => item.savedId ? `saved:${item.savedId}` : `new:${newFiles().indexOf(item)}`));
+      input('gallery_order').value = JSON.stringify(gallery.filter(item => item.savedId || item.file).map(item => item.savedId ? (item.savedId.startsWith('candidate:') ? item.savedId : `saved:${item.savedId}`) : `new:${newFiles().indexOf(item)}`));
       root.querySelector('[data-photo-count]').textContent = `${gallery.length} ${copy.count} ${rules.maxGallery}`;
       if (notify) {
         delete status.dataset.savedError;

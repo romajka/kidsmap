@@ -1,0 +1,47 @@
+{
+  "catalog": [
+    {
+      "name": "0141_alter_activity_options_alter_offeringgroup_options_and_more",
+      "dependencies": [
+        [
+          "catalog",
+          "0140_specialist_proposal_draft"
+        ]
+      ],
+      "operations": [
+        {
+          "type": "AlterModelOptions",
+          "description": "Change Meta options on activity",
+          "options": {
+            "verbose_name": "Направление",
+            "verbose_name_plural": "Направления"
+          }
+        },
+        {
+          "type": "AlterModelOptions",
+          "description": "Change Meta options on offeringgroup",
+          "options": {
+            "verbose_name": "Группа занятий",
+            "verbose_name_plural": "Группы занятий"
+          }
+        },
+        {
+          "type": "AlterModelOptions",
+          "description": "Change Meta options on organization",
+          "options": {
+            "verbose_name": "Организация",
+            "verbose_name_plural": "Организации"
+          }
+        },
+        {
+          "type": "AlterModelOptions",
+          "description": "Change Meta options on program",
+          "options": {
+            "verbose_name": "Программа",
+            "verbose_name_plural": "Программы"
+          }
+        }
+      ]
+    }
+  ]
+}

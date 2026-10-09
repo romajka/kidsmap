@@ -1,0 +1,15 @@
+{
+  "rows": [
+    {
+      "id": "admin-create-draft",
+      "status": "PASS",
+      "url": "http://localhost:8788/admin/catalog/organization/12/change/"
+    },
+    {
+      "id": "admin-draft-reload",
+      "status": "PASS"
+    }
+  ],
+  "error": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#id_description_az')\u001b[22m\n\u001b[2m    - locator resolved to <textarea cols=\"40\" rows=\"10\" name=\"description_az\" id=\"id_description_az\" class=\"vLargeTextField\"></textarea>\u001b[22m\n\u001b[2m    - fill(\"ORGQA Uydurma şəbəkə. Bu təşkilat yerli qəbul sınağı üçündür.\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    13 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying fill action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+  "url": "http://localhost:8788/admin/catalog/organization/12/change/"
+}

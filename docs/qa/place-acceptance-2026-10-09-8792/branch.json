@@ -1,0 +1,359 @@
+{
+  "rows": [],
+  "entities": {
+    "forms": [
+      {
+        "action": "http://localhost:8792/ru/auth/logout/",
+        "names": [
+          {
+            "name": "csrfmiddlewaretoken",
+            "type": "hidden"
+          },
+          {
+            "name": "",
+            "type": "submit",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "action": "http://localhost:8792/ru/auth/logout/",
+        "names": [
+          {
+            "name": "csrfmiddlewaretoken",
+            "type": "hidden"
+          },
+          {
+            "name": "",
+            "type": "submit",
+            "text": ""
+          }
+        ]
+      },
+      {
+        "action": "http://localhost:8792/ru/account/organizations/71/branches/create/",
+        "names": [
+          {
+            "name": "csrfmiddlewaretoken",
+            "type": "hidden"
+          },
+          {
+            "name": "name_az",
+            "type": "text"
+          },
+          {
+            "name": "category_id",
+            "type": "select-one",
+            "options": [
+              [
+                "",
+                "---------"
+              ],
+              [
+                "SPRT",
+                "Спорт"
+              ],
+              [
+                "water-leisure",
+                "Водный отдых"
+              ],
+              [
+                "parks-playgrounds",
+                "Парки и детские площадки"
+              ],
+              [
+                "FUN",
+                "Развлечения и досуг"
+              ],
+              [
+                "ZOO",
+                "Зоопарки"
+              ],
+              [
+                "museums-culture",
+                "Музеи и культура"
+              ],
+              [
+                "dance",
+                "Танцы"
+              ],
+              [
+                "EDU",
+                "Образование"
+              ],
+              [
+                "early-development",
+                "Дошкольное развитие"
+              ],
+              [
+                "ART",
+                "Творчество"
+              ],
+              [
+                "theater-stage",
+                "Театр и сцена"
+              ],
+              [
+                "MUS",
+                "Музыка"
+              ],
+              [
+                "intellect-skills",
+                "Интеллект и навыки"
+              ],
+              [
+                "TECH",
+                "Наука и технологии"
+              ],
+              [
+                "development-support",
+                "Развитие и поддержка"
+              ],
+              [
+                "CAMP",
+                "Лагеря"
+              ],
+              [
+                "excursions-tours",
+                "Экскурсии и туры"
+              ]
+            ]
+          },
+          {
+            "name": "",
+            "type": "submit",
+            "text": "Создать филиал"
+          }
+        ]
+      },
+      {
+        "action": "http://localhost:8792/ru/account/organizations/71/programs/create/",
+        "names": [
+          {
+            "name": "csrfmiddlewaretoken",
+            "type": "hidden"
+          },
+          {
+            "name": "name_az",
+            "type": "text"
+          },
+          {
+            "name": "",
+            "type": "submit",
+            "text": "Создать"
+          }
+        ]
+      },
+      {
+        "action": "http://localhost:8792/ru/account/business/team/organization/71/invite/",
+        "names": [
+          {
+            "name": "csrfmiddlewaretoken",
+            "type": "hidden"
+          },
+          {
+            "name": "email",
+            "type": "email"
+          },
+          {
+            "name": "role",
+            "type": "select-one",
+            "options": [
+              [
+                "EDITOR",
+                "Редактор"
+              ],
+              [
+                "MANAGER",
+                "Менеджер"
+              ],
+              [
+                "MODERATOR",
+                "Наблюдатель"
+              ]
+            ]
+          },
+          {
+            "name": "scope",
+            "type": "select-one",
+            "options": [
+              [
+                "all_network",
+                "Вся сеть"
+              ],
+              [
+                "selected_places",
+                "Выбранные филиалы"
+              ]
+            ]
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "place_ids",
+            "type": "checkbox"
+          },
+          {
+            "name": "",
+            "type": "submit",
+            "text": "Пригласить"
+          },
+          {
+            "name": "",
+            "type": "button",
+            "text": "Обновить список приглашений"
+          }
+        ]
+      },
+      {
+        "action": "http://localhost:8792/ru/account/organizations/71/save/",
+        "names": [
+          {
+            "name": "csrfmiddlewaretoken",
+            "type": "hidden"
+          },
+          {
+            "name": "expected_version",
+            "type": "hidden"
+          },
+          {
+            "name": "revision_version",
+            "type": "hidden"
+          },
+          {
+            "name": "name_az",
+            "type": "text"
+          },
+          {
+            "name": "name_ru",
+            "type": "text"
+          },
+          {
+            "name": "name_en",
+            "type": "text"
+          },
+          {
+            "name": "phone",
+            "type": "text"
+          },
+          {
+            "name": "whatsapp",
+            "type": "text"
+          },
+          {
+            "name": "website",
+            "type": "url"
+          },
+          {
+            "name": "description_az",
+            "type": "textarea"
+          },
+          {
+            "name": "submit",
+            "type": "submit",
+            "text": "send\nОтправить на проверку"
+          }
+        ]
+      }
+    ]
+  },
+  "text": "KidsMap\nГлавная\nКаталог\nОрганизации\nПедагоги и специалисты\nАфиша\nО нас\nperson\nВладелец се…\nRU\ngrid_view\nОбзор\nlocation_on\nМои места\ncorporate_fare\nОрганизации\nperson\nКабинет специалиста\nstar\nОтзывы\nfavorite\nИзбранное\nnotifications\nУведомления\nsettings\nНастройки\narrow_back\nНазад к моим организациям\n\nKIDSMAP · ОРГАНИЗАЦИЯ\n\nQA RA organization final 20261009\ncheck_circle\nОпубликовано на сайте\nhourglass_top\nИзменения на модерации\ncloud_done\nЧерновик на сервере\nadd_location_alt\nДобавить филиал\nchecklist\nСледующие шаги для запуска сети\ncheck_circle\n1. Заполните сведения сети\n\nОписание, сайт и общие контакты сети.\n\nСмотреть\ncheck_circle\n2. Добавьте или свяжите филиалы\n\nСейчас в сети: 26 филиалов.\n\nУправлять\ncheck_circle\n3. Настройте сотрудников\n\nНазначьте менеджеров и редакторов филиалов.\n\nКоманда\nОбзор\nФилиалы (26)\nПрограммы (1)\nСотрудники\nСведения и реквизиты\n\nperson\nСотрудничество со специалистами\n\nОбзор\n\n26\nДоступные филиалы\n\n1\nПрограммы\n\nФилиалы\n+ Создать филиал\nsearch\nПоказано 1–6 из 26\nlocation_on\nQA Foto yaddaşı 20261007\nQA uydurma küçəsi 20\nОпубликовано · Информационная связь · Контакт: из организации\nОткрыть\nОтсоединить: посмотреть последствия\nlocation_on\nORGQA готовое 21\nORGQA Uydurma küçə 21, Bakı\nОпубликовано · Информационная связь · Местный контакт · Сайт из организации\nОткрыть\nОтсоединить: посмотреть последствия\nlocation_on\nORGQA готовое 22\nORGQA Uydurma küçə 22, Bakı\nОпубликовано · Информационная связь · Местный контакт · Сайт из организации\nОткрыть\nОтсоединить: посмотреть последствия\nlocation_on\nORGQA готовое 23\nORGQA Uydurma küçə 23, Bakı\nОпубликовано · Информационная связь · Местный контакт · Сайт из организации\nОткрыть\nОтсоединить: посмотреть последствия\nlocation_on\nORGQA готовое 24\nORGQA Uydurma küçə 24, Bakı\nОпубликовано · Информационная связь · Местный контакт · Сайт из организации\nОткрыть\nОтсоединить: посмотреть последствия\nlocation_on\nORGQA готовое 25\nORGQA Uydurma küçə 25, Bakı\nОпубликовано · Информационная связь · Местный контакт · Сайт из организации\nОткрыть\nОтсоединить: посмотреть последствия\n← Предыдущая\n1\n2\n3\n4\n5\nСледующая →\nСоздать новый филиал\nНазвание филиала (AZ) *\nКатегория *\n---------\nСпорт\nВодный отдых\nПарки и детские площадки\nРазвлечения и досуг\nЗоопарки\nМузеи и культура\nТанцы\nОбразование\nДошкольное развитие\nТворчество\nТеатр и сцена\nМузыка\nИнтеллект и навыки\nНаука и технологии\nРазвитие и поддержка\nЛагеря\nЭкскурсии и туры\nСоздать филиал\nПодключить существующие места\n\nНайдите карточки по названию и адресу. Фото, занятия и цены сохранятся.\n\nНайти и выбрать места\nПрограммы\nmenu_book\nQA Общая программа\nОпубликовано\nРедактировать\nСоздать программу\nНазвание программы (AZ) *\n\nДальнейшее наполнение — в редакторе программы.\n\nСоздать\nСотрудники\n\nВыбранные филиалы не включают будущие. Сетевой доступ действует только при текущей связи.\n\nEmail *\nРоль\nРедактор\nМенеджер\nНаблюдатель\n\nПросмотр и редактирование филиалов\n\nОбласть\nВся сеть\nВыбранные филиалы\n\nПубликация, модерация и управление сотрудниками не входят в эти роли.\n\nВся сеть включает будущие филиалы с актуальной бизнес-связью. Выбранные филиалы ограничивают только права на места. Отдельные права на организацию и общие программы действуют для всей организации.\n\nПригласить\n\nperson\nqa_completion_network\nРедактор · Вся сеть, включая будущие филиалы · Активен\nРазрешения: Просмотр филиалов, Редактирование филиалов\nСведения и реквизиты\nhourglass_top\nИзменения отправлены на проверку\n\nПубличные сведения на сайте обновятся сразу после проверки модератором KidsMap.\n\nНазвание (AZ) \nНазвание (RU) \nНазвание (EN) \nТелефон сети \nWhatsApp \nОфициальный сайт \nОписание сети (AZ)\nsend\nОтправить на проверку\n\nKidsMap\n\nKidsMap — каталог детских кружков и секций по Азербайджану.\n\nsearch\nОткрыть каталог\nКаталог\nОрганизации\nВсе кружки и заведения\nСпорт и единоборства\nОбразование и курсы\nТворчество и музыка\nРазвлечения и досуг\nПедагоги и специалисты\nАфиша\nИнформация\nО проекте\nДобавить место\nЧастые вопросы (FAQ)\nКонтакты\nПравила размещения\nСвязь с нами\ncall\n+994 55 497 97 23\nmail\ninfo@kidsmap.az\nchat\nНаписать в WhatsApp\nМЫ В СОЦСЕТЯХ:\nInstagram\nTelegram\nYouTube\nTikTok\nFacebook\nLinkedIn\n\n© 2026 KidsMap\n\n·\nПолитика конфиденциальности\n·\nУсловия использования\n·\nПравила отзывов\n·\nПравила размещения\ninfo\n\nЧасть информации на сайте может быть получена из открытых источников и от третьих лиц. Перед записью или оплатой уточняйте данные у организации."
+}

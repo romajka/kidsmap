@@ -1,0 +1,1373 @@
+{
+  "HEAD": "2da9d33abbc53d1ac71bcb7e15a0170bef6277d5",
+  "branch": "task33-progress",
+  "initial_dirty_entries": 220,
+  "runtime_digest": "aba704c7f1b63588abcea683f3f713cfff6081a6f92d7949860313ee522771f2",
+  "source_files": 2769,
+  "served_worktree_match": true,
+  "changed_files": [
+    "locale/az/LC_MESSAGES/django.po",
+    "locale/en/LC_MESSAGES/django.po",
+    "locale/ru/LC_MESSAGES/django.po",
+    "src/catalog/templates/admin/catalog/place/change_form.html",
+    "src/catalog/templates/admin/catalog/place/form/section_location.html",
+    "src/catalog/templates/includes/location_resolution.html",
+    "static/admin/css/pages/kidsmap_place_form.css",
+    "static/admin/js/kidsmap_place_form.js",
+    "static/admin/js/kidsmap_place_location.js",
+    "static/js/location_resolution.js",
+    "locale/ru/LC_MESSAGES/django.mo",
+    "locale/az/LC_MESSAGES/django.mo",
+    "locale/en/LC_MESSAGES/django.mo",
+    "scripts/test_location_resolution.cjs"
+  ],
+  "all_other_source_byte_identical": true,
+  "other_translation_entries_preserved": {
+    "locale/ru/LC_MESSAGES/django.po": true,
+    "locale/ru/LC_MESSAGES/django.mo": true,
+    "locale/az/LC_MESSAGES/django.po": true,
+    "locale/az/LC_MESSAGES/django.mo": true,
+    "locale/en/LC_MESSAGES/django.po": true,
+    "locale/en/LC_MESSAGES/django.mo": true
+  },
+  "hashes_before": {
+    "src/catalog/templates/admin/catalog/place/change_form.html": "2f8d36fe2b4d78594e6360b69ce9c7e7e1ecce88119c14195baba4439b2f948a",
+    "src/catalog/templates/admin/catalog/place/form/section_location.html": "4461c6a40bddec1134ca60652aab8467fe473ee5247adfe23066c46b37e0faa9",
+    "static/admin/js/kidsmap_place_location.js": "ca75af361c99aaae244577d104d64e1bd6b5ded8c277e953532c9502cdd2f4ee",
+    "static/admin/js/kidsmap_place_form.js": "16670638f11df6a5024a2f449de469c1761799c7f641cef01541ab95a2e94021",
+    "static/admin/css/pages/kidsmap_place_form.css": "68956ecc50ff3bee61ec1a30cba4cbe4fabad3080bd965b26744f3f2a66fa8be",
+    "locale/ru/LC_MESSAGES/django.po": "6f13f256bda134232d1b00c7c1a96c41d8a20dd8849d48544b43ee596964a8bd",
+    "locale/ru/LC_MESSAGES/django.mo": "bde03f8459fad89384bc7592cb0c4ff23a25e3523322ada4f9c861e798cbfc19",
+    "locale/az/LC_MESSAGES/django.po": "feb8a254928948270c31c91947c5a5267a9911aa7d1cbf6351ea807c9d5df29a",
+    "locale/az/LC_MESSAGES/django.mo": "cbb833903518f211393533196608fbcd399e46a09ee7cf2f2c1ea52768f0be80",
+    "locale/en/LC_MESSAGES/django.po": "5d5e4acf99b0da45ff22c70396b70ed336fd9cbed7449a7834b7cee40b736ab0",
+    "locale/en/LC_MESSAGES/django.mo": "d2dc6f34b3e4d544f285a16aa84c15b7dc06d225240163a8003b0c9f3465e02f",
+    "static/js/location_resolution.js": "fc8e1e663743b477bd1f693a4f5cbaef7a9dbd7feae91c3aafddc07f41a4e245",
+    "scripts/test_location_resolution.cjs": "3f5fb34474931a7928a31230a1a3be91c2c87620cbeeb16d377b54fdd6b4d017",
+    "src/catalog/templates/includes/location_resolution.html": "4b857f231dcf49fc10e213116342b601e68dfc6822625b39c99c9f006faef1c5"
+  },
+  "hashes_after": {
+    "src/catalog/templates/admin/catalog/place/change_form.html": "d769a6f02bcb05925fdf424a6e8b893ff39cf5f30c52f74cecc5cbb2b9b4b622",
+    "src/catalog/templates/admin/catalog/place/form/section_location.html": "ec8df39d9b026ae195356f364aa6843d0a1ed3c963e914d5c48e933b0c09d50f",
+    "static/admin/js/kidsmap_place_location.js": "8812412bf833c8d622dedcba4d4c631651f74132b1669870b67dee745c960f67",
+    "static/admin/js/kidsmap_place_form.js": "dc8c4a9b0624ed8381aea53cdc6c132aeaab991ebdad72629f4032c5b633952b",
+    "static/admin/css/pages/kidsmap_place_form.css": "08beff3152602f2986ee40b26931aaba578599cb66d727be0ac231ccc4360a4a",
+    "locale/ru/LC_MESSAGES/django.po": "8df1da5ce03135bb259e52e26360585cf01c645362209175169adb4c334d4a5c",
+    "locale/ru/LC_MESSAGES/django.mo": "fdb2b41cd8c08cb5ac62a9ae93d172c830e7846ef48fcdf77cbe4fd4197cf05b",
+    "locale/az/LC_MESSAGES/django.po": "dd96c19ea4751cbd09de96e559ca7605822ded0a5004efcbba4d951c5dd36223",
+    "locale/az/LC_MESSAGES/django.mo": "54228cc6a03c7f946718cdb1a98c528dc688aefd2968cd13239905ba5f853b7e",
+    "locale/en/LC_MESSAGES/django.po": "509c3401d2240d668ed0eb902d7f4b227ec4a3d499dc4a359046297e9c2e7d3a",
+    "locale/en/LC_MESSAGES/django.mo": "1b57b3d112cc527ee27032a22a1eefe4d27fc9407979659ec2634d949038c7b6",
+    "static/js/location_resolution.js": "afbb12d43debebac5a04132cde4e22e656022bc86211906dce4a6c9285ce5207",
+    "scripts/test_location_resolution.cjs": "1321d8da383d5eaf301df98f78421d204192338f79b6543c3f13d0b0b3f9456c",
+    "src/catalog/templates/includes/location_resolution.html": "f8ade16e9cedfbf77be8178a8835259c8cd943b6cee2fe479393b44b0b538355"
+  },
+  "browser_runs": [
+    {
+      "run": "offline-panel",
+      "rows": [
+        {
+          "id": "offline-panel-hides-inactive-map",
+          "status": "PASS",
+          "hint": "\n            Нажмите на карту или перетащите маркер\n            Так можно быстро уточнить координаты без ручного ввода.\n          "
+        }
+      ]
+    },
+    {
+      "run": "keyboard",
+      "rows": [
+        {
+          "id": "space-opens-map",
+          "status": "PASS"
+        },
+        {
+          "id": "keyboard-focus-visible",
+          "status": "PASS",
+          "focused": true,
+          "outline": "solid",
+          "width": "2px"
+        },
+        {
+          "id": "confirm-restores-focus-to-toggle",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-reaches-geolocation",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "run": "sdk-repeat",
+      "rows": [
+        {
+          "id": "late-sdk-repeat-reuses-map",
+          "status": "PASS",
+          "maps": 1,
+          "searchDescription": null,
+          "unavailableHidden": true,
+          "searchEnabled": true
+        }
+      ],
+      "simulation": "Local SDK adapter only; real Google NOT RUN"
+    },
+    {
+      "run": "geolocation",
+      "rows": [
+        {
+          "id": "geolocation-feedback/denied",
+          "status": "PASS",
+          "feedback": "Не удалось определить геопозицию. Можно ввести координаты вручную или продолжить без точки."
+        },
+        {
+          "id": "geolocation-no-data-loss/denied",
+          "status": "PASS"
+        },
+        {
+          "id": "geolocation-manual-fallback/denied",
+          "status": "PASS"
+        },
+        {
+          "id": "geolocation-feedback/unsupported",
+          "status": "PASS",
+          "feedback": "Ваш браузер не поддерживает геолокацию. Можно ввести координаты вручную или продолжить без точки."
+        },
+        {
+          "id": "geolocation-no-data-loss/unsupported",
+          "status": "PASS"
+        },
+        {
+          "id": "geolocation-manual-fallback/unsupported",
+          "status": "PASS"
+        },
+        {
+          "id": "geolocation-feedback/granted",
+          "status": "PASS",
+          "feedback": "Выбрана точка: 40.409300, 49.867100"
+        },
+        {
+          "id": "geolocation-no-data-loss/granted",
+          "status": "PASS"
+        },
+        {
+          "id": "geolocation-manual-fallback/granted",
+          "status": "PASS"
+        }
+      ],
+      "simulation": "Denied/unsupported browser API adapters; granted native Chromium geolocation with synthetic coordinates. Physical GPS NOT RUN"
+    },
+    {
+      "run": "bad-point",
+      "rows": [
+        {
+          "id": "invalid-point-not-marked-ready",
+          "status": "PASS"
+        },
+        {
+          "id": "invalid-point-status-not-selected",
+          "status": "PASS"
+        },
+        {
+          "id": "range-error-no-selected-pin",
+          "status": "PASS"
+        },
+        {
+          "id": "range-error-visible-retains-input",
+          "status": "PASS",
+          "error": "Укажите корректные широту и долготу.",
+          "inputVisible": true,
+          "describedby": "id_lat_error id_lat_errors"
+        }
+      ]
+    },
+    {
+      "run": "negative",
+      "rows": [
+        {
+          "id": "confirm-hides-panel-retains-input",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-point-saved-draft",
+          "status": "PASS"
+        },
+        {
+          "id": "invalid-range-not-ready-for-map",
+          "status": "PASS"
+        },
+        {
+          "id": "invalid-range-refused-retains-input",
+          "status": "PASS",
+          "errors": [
+            "Укажите корректные широту и долготу.",
+            "Укажите обе координаты."
+          ]
+        },
+        {
+          "id": "invalid-range-did-not-overwrite-saved-point",
+          "status": "PASS"
+        },
+        {
+          "id": "partial-pair-refused-retains-input",
+          "status": "PASS",
+          "errors": [
+            "Укажите корректные широту и долготу."
+          ]
+        },
+        {
+          "id": "clear-invalidates-map-geography",
+          "status": "PASS"
+        },
+        {
+          "id": "clear-both-coordinates",
+          "status": "PASS"
+        },
+        {
+          "id": "stale-tab-shows-conflict",
+          "status": "PASS"
+        },
+        {
+          "id": "stale-tab-does-not-restore-cleared-point",
+          "status": "PASS"
+        },
+        {
+          "id": "address-geography-explicitly-reselected",
+          "status": "PASS"
+        },
+        {
+          "id": "clear-survives-submit-review",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "run": "lifecycle",
+      "rows": [
+        {
+          "id": "admin-place-create-draft",
+          "status": "PASS"
+        },
+        {
+          "id": "admin-place-draft-reload",
+          "status": "PASS"
+        },
+        {
+          "id": "admin-new-photo-after-reload",
+          "status": "PASS"
+        },
+        {
+          "id": "admin-place-ready",
+          "status": "PASS"
+        },
+        {
+          "id": "coordinates-empty-on-publication",
+          "status": "PASS"
+        },
+        {
+          "id": "admin-place-published",
+          "status": "PASS"
+        },
+        {
+          "id": "admin-new-photo-after-publish",
+          "status": "PASS"
+        }
+      ],
+      "entities": {
+        "place": 157
+      }
+    },
+    {
+      "run": "matrix",
+      "rows": [
+        {
+          "id": "copy/ru/360",
+          "status": "PASS",
+          "text": "Точка на карте необязательна. Рекомендуем указать её; можно вернуться к карте позже."
+        },
+        {
+          "id": "keyboard-map-unavailable/ru/360",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/ru/360",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/ru/360",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/ru/360",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/ru/360",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/ru/360",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/ru/360",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/ru/360",
+          "status": "PASS",
+          "scrollWidth": 360,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/ru/390",
+          "status": "PASS",
+          "text": "Точка на карте необязательна. Рекомендуем указать её; можно вернуться к карте позже."
+        },
+        {
+          "id": "keyboard-map-unavailable/ru/390",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/ru/390",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/ru/390",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/ru/390",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/ru/390",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/ru/390",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/ru/390",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/ru/390",
+          "status": "PASS",
+          "scrollWidth": 390,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/ru/768",
+          "status": "PASS",
+          "text": "Точка на карте необязательна. Рекомендуем указать её; можно вернуться к карте позже."
+        },
+        {
+          "id": "keyboard-map-unavailable/ru/768",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/ru/768",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/ru/768",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/ru/768",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/ru/768",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/ru/768",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/ru/768",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/ru/768",
+          "status": "PASS",
+          "scrollWidth": 768,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/ru/1024",
+          "status": "PASS",
+          "text": "Точка на карте необязательна. Рекомендуем указать её; можно вернуться к карте позже."
+        },
+        {
+          "id": "keyboard-map-unavailable/ru/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/ru/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/ru/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/ru/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/ru/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/ru/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/ru/1024",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/ru/1024",
+          "status": "PASS",
+          "scrollWidth": 1024,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/ru/1280",
+          "status": "PASS",
+          "text": "Точка на карте необязательна. Рекомендуем указать её; можно вернуться к карте позже."
+        },
+        {
+          "id": "keyboard-map-unavailable/ru/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/ru/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/ru/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/ru/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/ru/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/ru/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/ru/1280",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/ru/1280",
+          "status": "PASS",
+          "scrollWidth": 1280,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/ru/1440",
+          "status": "PASS",
+          "text": "Точка на карте необязательна. Рекомендуем указать её; можно вернуться к карте позже."
+        },
+        {
+          "id": "keyboard-map-unavailable/ru/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/ru/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/ru/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/ru/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/ru/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/ru/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/ru/1440",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/ru/1440",
+          "status": "PASS",
+          "scrollWidth": 1440,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/az/360",
+          "status": "PASS",
+          "text": "Xəritədə nöqtə qeyd etmək məcburi deyil. Qeyd etməyi tövsiyə edirik; xəritəyə sonra qayıda bilərsiniz."
+        },
+        {
+          "id": "keyboard-map-unavailable/az/360",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/az/360",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/az/360",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/az/360",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/az/360",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/az/360",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/az/360",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/az/360",
+          "status": "PASS",
+          "scrollWidth": 360,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/az/390",
+          "status": "PASS",
+          "text": "Xəritədə nöqtə qeyd etmək məcburi deyil. Qeyd etməyi tövsiyə edirik; xəritəyə sonra qayıda bilərsiniz."
+        },
+        {
+          "id": "keyboard-map-unavailable/az/390",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/az/390",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/az/390",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/az/390",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/az/390",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/az/390",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/az/390",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/az/390",
+          "status": "PASS",
+          "scrollWidth": 390,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/az/768",
+          "status": "PASS",
+          "text": "Xəritədə nöqtə qeyd etmək məcburi deyil. Qeyd etməyi tövsiyə edirik; xəritəyə sonra qayıda bilərsiniz."
+        },
+        {
+          "id": "keyboard-map-unavailable/az/768",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/az/768",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/az/768",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/az/768",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/az/768",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/az/768",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/az/768",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/az/768",
+          "status": "PASS",
+          "scrollWidth": 768,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/az/1024",
+          "status": "PASS",
+          "text": "Xəritədə nöqtə qeyd etmək məcburi deyil. Qeyd etməyi tövsiyə edirik; xəritəyə sonra qayıda bilərsiniz."
+        },
+        {
+          "id": "keyboard-map-unavailable/az/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/az/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/az/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/az/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/az/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/az/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/az/1024",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/az/1024",
+          "status": "PASS",
+          "scrollWidth": 1024,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/az/1280",
+          "status": "PASS",
+          "text": "Xəritədə nöqtə qeyd etmək məcburi deyil. Qeyd etməyi tövsiyə edirik; xəritəyə sonra qayıda bilərsiniz."
+        },
+        {
+          "id": "keyboard-map-unavailable/az/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/az/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/az/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/az/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/az/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/az/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/az/1280",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/az/1280",
+          "status": "PASS",
+          "scrollWidth": 1280,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/az/1440",
+          "status": "PASS",
+          "text": "Xəritədə nöqtə qeyd etmək məcburi deyil. Qeyd etməyi tövsiyə edirik; xəritəyə sonra qayıda bilərsiniz."
+        },
+        {
+          "id": "keyboard-map-unavailable/az/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/az/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/az/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/az/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/az/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/az/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/az/1440",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/az/1440",
+          "status": "PASS",
+          "scrollWidth": 1440,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/en/360",
+          "status": "PASS",
+          "text": "A map pin is optional. We recommend adding it; you can return to the map later."
+        },
+        {
+          "id": "keyboard-map-unavailable/en/360",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/en/360",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/en/360",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/en/360",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/en/360",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/en/360",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/en/360",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/en/360",
+          "status": "PASS",
+          "scrollWidth": 360,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/en/390",
+          "status": "PASS",
+          "text": "A map pin is optional. We recommend adding it; you can return to the map later."
+        },
+        {
+          "id": "keyboard-map-unavailable/en/390",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/en/390",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/en/390",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/en/390",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/en/390",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/en/390",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/en/390",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/en/390",
+          "status": "PASS",
+          "scrollWidth": 390,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/en/768",
+          "status": "PASS",
+          "text": "A map pin is optional. We recommend adding it; you can return to the map later."
+        },
+        {
+          "id": "keyboard-map-unavailable/en/768",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/en/768",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/en/768",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/en/768",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/en/768",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/en/768",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/en/768",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/en/768",
+          "status": "PASS",
+          "scrollWidth": 768,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/en/1024",
+          "status": "PASS",
+          "text": "A map pin is optional. We recommend adding it; you can return to the map later."
+        },
+        {
+          "id": "keyboard-map-unavailable/en/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/en/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/en/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/en/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/en/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/en/1024",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/en/1024",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/en/1024",
+          "status": "PASS",
+          "scrollWidth": 1024,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/en/1280",
+          "status": "PASS",
+          "text": "A map pin is optional. We recommend adding it; you can return to the map later."
+        },
+        {
+          "id": "keyboard-map-unavailable/en/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/en/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/en/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/en/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/en/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/en/1280",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/en/1280",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/en/1280",
+          "status": "PASS",
+          "scrollWidth": 1280,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "copy/en/1440",
+          "status": "PASS",
+          "text": "A map pin is optional. We recommend adding it; you can return to the map later."
+        },
+        {
+          "id": "keyboard-map-unavailable/en/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "manual-input-focus/en/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "repeat-manual-does-not-hide/en/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "opened-panel-geometry/en/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "tab-to-longitude/en/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "address-no-pin-draft-reload/en/1440",
+          "status": "PASS"
+        },
+        {
+          "id": "buttons-no-clipping/en/1440",
+          "status": "PASS",
+          "clipped": []
+        },
+        {
+          "id": "geometry-and-runtime/en/1440",
+          "status": "PASS",
+          "scrollWidth": 1440,
+          "pageerrors": [],
+          "localFailures": []
+        }
+      ]
+    },
+    {
+      "run": "public",
+      "rows": [
+        {
+          "id": "public-card-no-pin/390",
+          "status": "PASS"
+        },
+        {
+          "id": "public-card-no-pin/1440",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "run": "shared-event",
+      "rows": [
+        {
+          "id": "shared-event-render/390",
+          "status": "PASS",
+          "pageerrors": []
+        },
+        {
+          "id": "shared-event-render/1440",
+          "status": "PASS",
+          "pageerrors": []
+        }
+      ]
+    },
+    {
+      "run": "focus-visibility",
+      "rows": [
+        {
+          "id": "focused-latitude-not-obscured/360",
+          "status": "PASS",
+          "top": 308.0625,
+          "bottom": 348.0625,
+          "visible": true
+        },
+        {
+          "id": "focused-latitude-not-obscured/390",
+          "status": "PASS",
+          "top": 347.6875,
+          "bottom": 387.6875,
+          "visible": true
+        },
+        {
+          "id": "focused-latitude-not-obscured/1440",
+          "status": "PASS",
+          "top": 844.796875,
+          "bottom": 884.796875,
+          "visible": true
+        }
+      ]
+    },
+    {
+      "run": "locale-labels",
+      "rows": [
+        {
+          "id": "localized-fallback/ru/notice",
+          "status": "PASS",
+          "text": "Карта недоступна. Можно ввести координаты вручную или продолжить без точки."
+        },
+        {
+          "id": "localized-fallback/ru/data-locate-error",
+          "status": "PASS",
+          "text": "Не удалось определить геопозицию. Можно ввести координаты вручную или продолжить без точки."
+        },
+        {
+          "id": "localized-fallback/ru/data-locate-unsupported",
+          "status": "PASS",
+          "text": "Ваш браузер не поддерживает геолокацию. Можно ввести координаты вручную или продолжить без точки."
+        },
+        {
+          "id": "localized-fallback/ru/data-offline-closed-label",
+          "status": "PASS",
+          "text": "Указать координаты"
+        },
+        {
+          "id": "localized-fallback/ru/data-offline-open-label",
+          "status": "PASS",
+          "text": "Скрыть координаты"
+        },
+        {
+          "id": "localized-fallback/az/notice",
+          "status": "PASS",
+          "text": "Xəritə əlçatan deyil. Koordinatları əl ilə daxil edə və ya nöqtə olmadan davam edə bilərsiniz."
+        },
+        {
+          "id": "localized-fallback/az/data-locate-error",
+          "status": "PASS",
+          "text": "Coğrafi mövqeyi müəyyən etmək mümkün olmadı. Koordinatları əl ilə daxil edə və ya nöqtə olmadan davam edə bilərsiniz."
+        },
+        {
+          "id": "localized-fallback/az/data-locate-unsupported",
+          "status": "PASS",
+          "text": "Brauzeriniz geolokasiyanı dəstəkləmir. Koordinatları əl ilə daxil edə və ya nöqtə olmadan davam edə bilərsiniz."
+        },
+        {
+          "id": "localized-fallback/az/data-offline-closed-label",
+          "status": "PASS",
+          "text": "Koordinatları daxil et"
+        },
+        {
+          "id": "localized-fallback/az/data-offline-open-label",
+          "status": "PASS",
+          "text": "Koordinatları gizlət"
+        },
+        {
+          "id": "localized-fallback/en/notice",
+          "status": "PASS",
+          "text": "The map is unavailable. Enter coordinates manually or continue without a map pin."
+        },
+        {
+          "id": "localized-fallback/en/data-locate-error",
+          "status": "PASS",
+          "text": "Could not determine your location. Enter coordinates manually or continue without a map pin."
+        },
+        {
+          "id": "localized-fallback/en/data-locate-unsupported",
+          "status": "PASS",
+          "text": "Your browser does not support geolocation. Enter coordinates manually or continue without a map pin."
+        },
+        {
+          "id": "localized-fallback/en/data-offline-closed-label",
+          "status": "PASS",
+          "text": "Enter coordinates"
+        },
+        {
+          "id": "localized-fallback/en/data-offline-open-label",
+          "status": "PASS",
+          "text": "Hide coordinates"
+        }
+      ]
+    }
+  ],
+  "final_browser_counts": {
+    "PASS": 222,
+    "FAIL": 0
+  },
+  "red_runs": {
+    "red": {
+      "rows": [
+        {
+          "id": "no-key-open-by-enter",
+          "status": "FAIL"
+        },
+        {
+          "id": "mobile-buttons-not-clipped",
+          "status": "FAIL",
+          "clipped": [
+            "Найти по адресу",
+            "Указать на карте",
+            "Моё местоположение"
+          ]
+        }
+      ]
+    },
+    "sdk-repeat-red": {
+      "rows": [
+        {
+          "id": "late-sdk-repeat-reuses-map",
+          "status": "FAIL",
+          "maps": 2,
+          "unavailableHidden": true,
+          "searchEnabled": true
+        }
+      ],
+      "simulation": "Local SDK adapter only; real Google NOT RUN"
+    },
+    "bad-point-red": {
+      "rows": [
+        {
+          "id": "invalid-point-not-marked-ready",
+          "status": "PASS"
+        },
+        {
+          "id": "invalid-point-status-not-selected",
+          "status": "FAIL"
+        },
+        {
+          "id": "range-error-visible-retains-input",
+          "status": "FAIL",
+          "error": "Укажите корректные широту и долготу.",
+          "inputVisible": false,
+          "describedby": "id_lat_error id_lat_errors"
+        }
+      ]
+    },
+    "keyboard-red": {
+      "rows": [
+        {
+          "id": "space-opens-map",
+          "status": "PASS"
+        },
+        {
+          "id": "keyboard-focus-visible",
+          "status": "PASS",
+          "focused": true,
+          "outline": "solid",
+          "width": "2px"
+        },
+        {
+          "id": "confirm-restores-focus-to-toggle",
+          "status": "FAIL"
+        },
+        {
+          "id": "tab-reaches-geolocation",
+          "status": "PASS"
+        }
+      ]
+    },
+    "sdk-description-red": {
+      "rows": [
+        {
+          "id": "late-sdk-repeat-reuses-map",
+          "status": "FAIL",
+          "maps": 1,
+          "searchDescription": "km-admin-place-map-unavailable",
+          "unavailableHidden": true,
+          "searchEnabled": true
+        }
+      ],
+      "simulation": "Local SDK adapter only; real Google NOT RUN"
+    },
+    "offline-panel-red": {
+      "rows": [
+        {
+          "id": "offline-panel-hides-inactive-map",
+          "status": "FAIL",
+          "hint": "Нажмите на карту или перетащите маркер\nТак можно быстро уточнить координаты без ручного ввода."
+        }
+      ]
+    },
+    "point-label-red": {
+      "rows": [
+        {
+          "id": "invalid-point-not-marked-ready",
+          "status": "PASS"
+        },
+        {
+          "id": "invalid-point-status-not-selected",
+          "status": "PASS"
+        },
+        {
+          "id": "range-error-no-selected-pin",
+          "status": "FAIL"
+        },
+        {
+          "id": "range-error-visible-retains-input",
+          "status": "PASS",
+          "error": "Укажите корректные широту и долготу.",
+          "inputVisible": true,
+          "describedby": "id_lat_error id_lat_errors"
+        }
+      ]
+    }
+  },
+  "server": {
+    "server-tests": {
+      "tests": 107,
+      "seconds": 64.947,
+      "exit": 0
+    },
+    "final-server-tests": {
+      "tests": 14,
+      "seconds": 15.998,
+      "exit": 0
+    }
+  },
+  "js_tests": {
+    "tests": 7,
+    "pass": 7,
+    "fail": 0,
+    "exit": 0
+  },
+  "harness_initial_negative": {
+    "rows": [
+      {
+        "id": "confirm-hides-panel-retains-input",
+        "status": "PASS"
+      },
+      {
+        "id": "manual-point-saved-draft",
+        "status": "PASS"
+      },
+      {
+        "id": "invalid-range-refused-retains-input",
+        "status": "FAIL",
+        "errors": []
+      },
+      {
+        "id": "invalid-range-did-not-overwrite-saved-point",
+        "status": "PASS"
+      },
+      {
+        "id": "partial-pair-refused-retains-input",
+        "status": "FAIL",
+        "errors": []
+      },
+      {
+        "id": "clear-both-coordinates",
+        "status": "PASS"
+      },
+      {
+        "id": "stale-tab-shows-conflict",
+        "status": "PASS"
+      },
+      {
+        "id": "stale-tab-does-not-restore-cleared-point",
+        "status": "PASS"
+      }
+    ],
+    "error": "TimeoutError: page.waitForNavigation: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================",
+    "formerrors": []
+  },
+  "new_entity": {
+    "place": 157
+  },
+  "final_contract": {
+    "public_path": "/place/157-qa-completion-admin-permanent-10/",
+    "new_without_point": {
+      "published": true,
+      "address_present": true,
+      "lat_absent": true,
+      "lng_absent": true,
+      "ready": true
+    },
+    "cleared": {
+      "published": true,
+      "lat_absent": true,
+      "lng_absent": true
+    },
+    "event_path": "/admin/catalog/event/17/change/"
+  },
+  "screenshots": [
+    "error-coordinates-390.png",
+    "green-1440.png",
+    "green-390.png",
+    "manual-focus-390.png",
+    "no-pin-after-publish-1440.png",
+    "no-pin-after-publish-390.png",
+    "no-pin-before-publish-1440.png",
+    "no-pin-before-publish-390.png",
+    "offline-open-1440.png",
+    "offline-open-390.png",
+    "public-no-pin-1440.png",
+    "public-no-pin-390.png",
+    "red-1440.png",
+    "red-390.png"
+  ],
+  "production_commit_push_deploy": false
+}

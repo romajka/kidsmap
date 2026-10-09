@@ -1,0 +1,17 @@
+{
+  "rows": [
+    {
+      "id": "csrf-403-recovery",
+      "status": "PASS",
+      "http": 403
+    },
+    {
+      "id": "foreign-workspace-denied",
+      "status": "PASS",
+      "http": 404
+    }
+  ],
+  "errors": [
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+  ]
+}

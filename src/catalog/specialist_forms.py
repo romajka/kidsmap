@@ -8,7 +8,7 @@ from catalog.models import Specialist, SpecialistDocument
 
 class EmploymentProposalForm(forms.Form):
     specialist = forms.ModelChoiceField(label=_("Специалист"), queryset=Specialist.objects.none())
-    role = forms.CharField(label=_("Роль"), max_length=255)
+    role = forms.CharField(label=_("Должность / вид сотрудничества"), max_length=255)
     start_date = forms.DateField(label=_("Начало сотрудничества"), widget=forms.DateInput(attrs={'type': 'date'}))
     end_date = forms.DateField(label=_("Окончание сотрудничества"), required=False,
                               widget=forms.DateInput(attrs={'type': 'date'}))

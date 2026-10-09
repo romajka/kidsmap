@@ -887,7 +887,8 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, 'class="home-faq-popular"', html=False)
         self.assertContains(response, 'href="/ru/catalog/?category=EDU"', html=False)
         self.assertContains(response, "Курсы для детей в Азербайджане")
-        self.assertContains(response, "Проверенные и активные места")
+        self.assertContains(response, "Сравните варианты")
+        self.assertContains(response, "Смотрите фото, цену, рейтинг, отзывы и расположение на карте.")
         self.assertNotContains(response, 'class="panel home-events"', html=False)
         self.assertNotContains(response, 'class="home-owner-showcase"', html=False)
 
@@ -3288,7 +3289,7 @@ class PublicLanguageConsistencyTests(TestCase):
                 for phrase in forbidden:
                     self.assertNotContains(response, phrase)
 
-    def test_missing_factual_translation_is_hidden_instead_of_cross_language_fallback(self):
+    def test_place_missing_translation_stays_hidden_and_event_source_is_identified(self):
         place = Place(
             name="Fallback Place",
             name_ru="Место без перевода",
@@ -3307,7 +3308,12 @@ class PublicLanguageConsistencyTests(TestCase):
         self.assertEqual(place.extra_conditions_i18n("ru"), "Условия есть только по-русски.")
         self.assertEqual(place.extra_conditions_i18n("az"), "")
         self.assertEqual(event.description_i18n("ru"), "Описание события есть только по-русски.")
-        self.assertEqual(event.description_i18n("en"), "")
+        self.assertEqual(event.description_i18n("en"), "Описание события есть только по-русски.")
+        from catalog.services.localized_content import localized_content
+        source = localized_content(event, 'description', language='en')
+        self.assertTrue(source['is_fallback'])
+        self.assertEqual(source['language'], 'ru')
+        self.assertEqual(event.description_en, '')
 
     def test_site_settings_and_legacy_seo_json_do_not_leak_ru_or_az_copy(self):
         site = SiteSettings(

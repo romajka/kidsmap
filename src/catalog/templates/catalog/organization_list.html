@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ seo_title }}{% endblock %}
+{% block title_plain %}{{ seo_title }}{% endblock %}
+{% block title_plain_twitter %}{{ seo_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+{% block meta_description_og %}{{ meta_description }}{% endblock %}
+{% block meta_description_twitter %}{{ meta_description }}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/organization_directory.css' %}?v=3">{% endblock %}
+{% block content %}
+<div class="org-directory">
+  <header class="org-hero">
+    <div class="org-hero-copy">
+      <div class="org-hero-badge">
+        <span class="material-symbols-rounded" aria-hidden="true">domain</span>
+        <span>KidsMap · {{ text.title }}</span>
+      </div>
+      <h1>{{ text.intro }}</h1>
+      <p class="org-hero-desc">{{ text.description }}</p>
+    </div>
+    <div class="org-hero-aside" aria-hidden="true">
+      <div class="org-hero-card">
+        <div class="org-hero-card-icon">
+          <span class="material-symbols-rounded">storefront</span>
+        </div>
+        <div class="org-hero-card-info">
+          <strong>{{ text.network_banner_title }}</strong>
+          <span>{{ text.network_banner_sub }}</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+  <div class="org-results-bar">
+    <div class="org-results-count">
+      <h2>{{ text.results }} <span class="org-count-pill">{{ page_obj.paginator.count }}</span></h2>
+    </div>
+    {% if q or district %}
+    <div class="org-active-chips">
+      {% if q %}
+      <a href="?{% if district %}district={{ district }}{% endif %}" class="org-filter-chip" aria-label="{{ text.reset }}: {{ q }}">
+        <span>{{ q }}</span>
+        <span class="material-symbols-rounded" aria-hidden="true">close</span>
+      </a>
+      {% endif %}
+      {% if district %}
+      <a href="?{% if q %}q={{ q }}{% endif %}" class="org-filter-chip" aria-label="{{ text.reset }}: {{ district }}">
+        <span>{% for key, label in districts %}{% if district == key %}{{ label }}{% endif %}{% endfor %}</span>
+        <span class="material-symbols-rounded" aria-hidden="true">close</span>
+      </a>
+      {% endif %}
+      <a href="{% url 'organization_list' %}" class="org-reset-btn">{{ text.reset }}</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="org-grid">
+    {% for card in cards %}
+    <article class="org-card">
+      <div class="org-card-media {% if not card.photos %}org-card-media--empty{% else %}org-card-media--count-{{ card.photos|length }}{% endif %}">
+        {% for photo in card.photos %}
+          <div class="org-media-frame">
+            <img src="{{ photo.url }}" alt="{{ photo.name }}" loading="lazy" decoding="async">
+          </div>
+        {% empty %}
+          <div class="org-empty-media-content">
+            <span class="material-symbols-rounded" aria-hidden="true">apartment</span>
+            <span>{{ text.network_tag }}</span>
+          </div>
+        {% endfor %}
+        {% if card.branch_count %}
+          <div class="org-badge-branches">
+            <span class="material-symbols-rounded" aria-hidden="true">storefront</span>
+            <span>{{ card.branch_count }} {{ text.branches|lower }}</span>
+          </div>
+        {% endif %}
+        {% if card.photos %}
+          <span class="org-photo-caption">
+            <span class="material-symbols-rounded" aria-hidden="true">photo_camera</span>
+            <span>{{ text.photos }}</span>
+          </span>
+        {% endif %}
+      </div>
+
+      <div class="org-card-body">
+        <div class="org-card-topline">
+          <span class="org-card-tag">
+            <span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span>
+            <span>{{ text.network_tag }}</span>
+          </span>
+        </div>
+        <h3 lang="{{ card.name_language }}"><a href="{{ card.url }}">{{ card.name }}</a></h3>
+        {% if card.description %}
+          <p class="org-description" lang="{{ card.description_language }}">{{ card.description|truncatechars:210 }}</p>
+        {% endif %}
+        {% if card.fallback %}<p class="org-fallback">{{ text.fallback }}</p>{% endif %}
+
+        {% if card.districts %}
+          <div class="org-districts">
+            {% for label in card.districts_preview %}
+              <span class="org-district-pill"><span class="material-symbols-rounded" aria-hidden="true">location_on</span> {{ label }}</span>
+            {% endfor %}
+            {% if card.districts_extra_count %}
+              <span class="org-district-more">+{{ card.districts_extra_count }}</span>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {% if not card.branch_count %}
+          <p class="org-fallback org-fallback--nobranches">{{ text.empty_branches }}</p>
+        {% endif %}
+
+        <a class="org-card-cta" href="{{ card.url }}" aria-label="{{ card.name }}: {{ text.view_network }}">
+          <span>{{ text.view_network }}</span>
+          <span class="material-symbols-rounded org-card-cta-arrow" aria-hidden="true">arrow_forward</span>
+        </a>
+      </div>
+    </article>
+    {% empty %}
+    <div class="km-state-card km-state-card--filter" role="status">
+      <div class="km-state-card__icon-box">
+        <span class="material-symbols-rounded km-state-card__icon" aria-hidden="true">{% if q or district %}search_off{% else %}corporate_fare{% endif %}</span>
+      </div>
+      <h3 class="km-state-card__title">
+        {% if q or district %}
+          {{ text.empty }}
+        {% else %}
+          {% if CURRENT_LANGUAGE == 'az' %}Kataloqda hələ təşkilat yoxdur{% elif CURRENT_LANGUAGE == 'en' %}No organizations in the catalog yet{% else %}В каталоге пока нет опубликованных организаций{% endif %}
+        {% endif %}
+      </h3>
+      <p class="km-state-card__desc">
+        {% if q or district %}
+          {{ text.empty_text }}
+        {% else %}
+          {% if CURRENT_LANGUAGE == 'az' %}Tezliklə yeni şəbəkələr əlavə olunacaq. Siz həmçinin uşaq mərkəzləri kataloquna baxa bilərsiniz.{% elif CURRENT_LANGUAGE == 'en' %}New networks will be added soon. You can also explore our places catalog.{% else %}Скоро здесь появятся первые сети. Вы также можете ознакомиться со всеми детскими центрами в основном каталоге.{% endif %}
+        {% endif %}
+      </p>
+      <div class="km-state-card__actions">
+        {% if q or district %}
+          <a href="{% url 'organization_list' %}" class="km-state-btn km-state-btn--primary">
+            <span class="material-symbols-rounded" aria-hidden="true">filter_alt_off</span>
+            <span>{{ text.reset }}</span>
+          </a>
+        {% else %}
+          <a href="{% url 'place_list' %}" class="km-state-btn km-state-btn--primary">
+            <span class="material-symbols-rounded" aria-hidden="true">explore</span>
+            <span>{% if CURRENT_LANGUAGE == 'az' %}Bütün məkanlara bax{% elif CURRENT_LANGUAGE == 'en' %}Browse all places{% else %}Смотреть все заведения{% endif %}</span>
+          </a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+  <nav class="org-pagination" aria-label="{{ text.title }}">
+    <div class="org-pagination-prev">
+      {% if previous_url %}<a href="{{ previous_url }}" rel="prev" class="org-pagination-btn"><span class="material-symbols-rounded" aria-hidden="true">arrow_back</span> {{ text.previous }}</a>{% endif %}
+    </div>
+    <span class="org-pagination-pages">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    <div class="org-pagination-next">
+      {% if next_url %}<a href="{{ next_url }}" rel="next" class="org-pagination-btn">{{ text.next }} <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></a>{% endif %}
+    </div>
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

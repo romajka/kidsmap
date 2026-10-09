@@ -2317,7 +2317,7 @@ msgstr "Name"
 #: src/catalog/domain_admin/place.py:2429 src/catalog/forms.py:1210
 #: src/catalog/models/place.py:77 src/catalog/models/place.py:766
 msgid "Описание (RU)"
-msgstr "Schedule"
+msgstr "Description (RU)"
 
 #: src/catalog/domain_admin/owner.py:207 src/catalog/domain_admin/place.py:554
 #: src/catalog/domain_admin/place.py:1152
@@ -2328,13 +2328,13 @@ msgstr "Schedule"
 #: src/catalog/services/place_readiness.py:322
 #: src/catalog/services/place_readiness.py:433
 msgid "Описание (AZ)"
-msgstr "Schedule"
+msgstr "Description (AZ)"
 
 #: src/catalog/domain_admin/owner.py:208
 #: src/catalog/domain_admin/place.py:2430 src/catalog/forms.py:1211
 #: src/catalog/models/place.py:78 src/catalog/models/place.py:767
 msgid "Описание (EN)"
-msgstr "Schedule"
+msgstr "Description (EN)"
 
 #: src/catalog/domain_admin/owner.py:209 src/catalog/domain_admin/owner.py:617
 #: src/catalog/domain_admin/place.py:553
@@ -4015,18 +4015,18 @@ msgid "Карточка пока не опубликована на сайте."
 msgstr "Published"
 
 #: src/catalog/domain_admin/place.py:2372
-#, fuzzy
 #| msgid "Карточка уже удалена."
 msgid "Карта пока не активна"
-msgstr "The card is already deleted."
+msgstr "Map currently unavailable"
 
 #: src/catalog/domain_admin/place.py:2374
-#, fuzzy
 #| msgid "Геокодирование не настроено. Заполните GOOGLE_MAPS_API_KEY."
 msgid ""
 "Геокодирование не настроено. Заполните GOOGLE_MAPS_API_KEY, чтобы "
 "рассчитывать координаты прямо из формы."
-msgstr "Geocoding is not configured. Set GOOGLE_MAPS_API_KEY."
+msgstr ""
+"Geocoding is not configured. Set GOOGLE_MAPS_API_KEY to calculate "
+"coordinates in this form."
 
 #: src/catalog/domain_admin/place.py:2380
 #, fuzzy
@@ -6113,10 +6113,9 @@ msgid "Пустой результат каталога"
 msgstr "Empty state"
 
 #: src/catalog/domain_admin/site.py:448
-#, fuzzy
 #| msgid "Удалить из команды"
 msgid "Публичное избранное"
-msgstr "Remove from team"
+msgstr "Public favorites"
 
 #: src/catalog/domain_admin/site.py:452
 #, fuzzy
@@ -6828,10 +6827,9 @@ msgid "Поиск по названию RU/AZ/EN или коду региона.
 msgstr "Search by name or address"
 
 #: src/catalog/domain_admin/specialist.py:428
-#, fuzzy
 #| msgid "Места рядом"
 msgid "Место приёма"
-msgstr "Places nearby"
+msgstr "Practice location"
 
 #: src/catalog/domain_admin/specialist.py:429
 #| msgid "Места на модерации"
@@ -6845,10 +6843,9 @@ msgid "Документ"
 msgstr "Document"
 
 #: src/catalog/domain_admin/specialist.py:438
-#, fuzzy
 #| msgid "Подтверждение email"
 msgid "10. Подтверждение квалификации"
-msgstr "Email verification"
+msgstr "10. Qualification verification"
 
 #: src/catalog/domain_admin/specialist.py:442
 msgid "Скачать"
@@ -7005,10 +7002,9 @@ msgid "Направления"
 msgstr "Not submitted"
 
 #: src/catalog/domain_admin/specialist.py:745 src/catalog/forms.py:2098
-#, fuzzy
 #| msgid "Выбрано:"
 msgid "Не выбрано"
-msgstr "Selected:"
+msgstr "Not selected"
 
 #: src/catalog/domain_admin/specialist.py:751
 #: src/catalog/templates/admin/catalog/place/pricing_editor.html:7
@@ -7040,10 +7036,9 @@ msgid "1. Основная информация"
 msgstr "1. Basic information"
 
 #: src/catalog/domain_admin/specialist.py:792
-#, fuzzy
 #| msgid "Фото, описание и CTA"
 msgid "2. Фото и описание"
-msgstr "Photos, description, and CTA"
+msgstr "2. Photo and description"
 
 #: src/catalog/domain_admin/specialist.py:803
 #| msgid "Управление местами"
@@ -7051,28 +7046,24 @@ msgid "3. Направления деятельности"
 msgstr "3. Fields of activity"
 
 #: src/catalog/domain_admin/specialist.py:811
-#, fuzzy
 #| msgid "Возраст до"
 msgid "4. Возраст детей"
-msgstr "Age to"
+msgstr "4. Children's ages"
 
 #: src/catalog/domain_admin/specialist.py:819
-#, fuzzy
 #| msgid "Часы работы"
 msgid "5. Языки работы"
-msgstr "Opening hours"
+msgstr "5. Working languages"
 
 #: src/catalog/domain_admin/specialist.py:827
-#, fuzzy
 #| msgid "Онлайн-контакты"
 msgid "6. Онлайн / очно"
-msgstr "Online contacts"
+msgstr "6. Online / in person"
 
 #: src/catalog/domain_admin/specialist.py:835
-#, fuzzy
 #| msgid "Сохранить и продолжить"
 msgid "7. Стоимость и продолжительность"
-msgstr "Save and continue"
+msgstr "7. Price and duration"
 
 #: src/catalog/domain_admin/specialist.py:845
 #| msgid "Образование"
@@ -7080,10 +7071,9 @@ msgid "9. Образование и опыт"
 msgstr "9. Education and experience"
 
 #: src/catalog/domain_admin/specialist.py:860
-#, fuzzy
 #| msgid "Контакты"
 msgid "11. Контакты"
-msgstr "Contacts"
+msgstr "11. Contacts"
 
 #: src/catalog/domain_admin/specialist.py:871
 #| msgid "для публикации"
@@ -8335,10 +8325,9 @@ msgid "Город / Регион"
 msgstr "City / Region"
 
 #: src/catalog/forms.py:2111
-#, fuzzy
 #| msgid "Выберите метро"
 msgid "Выберите город"
-msgstr "Select metro"
+msgstr "Select city"
 
 #: src/catalog/forms.py:2118 src/catalog/services/locations.py:543
 msgid "Выберите район"
@@ -8350,40 +8339,34 @@ msgid "Имя и фамилия"
 msgstr "First and last name"
 
 #: src/catalog/forms.py:2155
-#, fuzzy
 #| msgid "Описание (Азербайджанский)"
 msgid "О себе на азербайджанском"
-msgstr "Description (Azerbaijani)"
+msgstr "About yourself in Azerbaijani"
 
 #: src/catalog/forms.py:2156
-#, fuzzy
 #| msgid "Описание (Русский)"
 msgid "О себе на русском"
-msgstr "Description (Russian)"
+msgstr "About yourself in Russian"
 
 #: src/catalog/forms.py:2157
-#, fuzzy
 #| msgid "Заявка на владение кружком"
 msgid "О себе на английском"
-msgstr "Ownership request"
+msgstr "About yourself in English"
 
 #: src/catalog/forms.py:2209
-#, fuzzy
 #| msgid "Выберите оценку от 1 до 5, чтобы отправить отзыв."
 msgid "Выберите хотя бы одно направление деятельности."
-msgstr "Select a rating from 1 to 5 to submit a review."
+msgstr "Select at least one direction."
 
 #: src/catalog/forms.py:2212
-#, fuzzy
 #| msgid "Проверьте данные профиля и исправьте ошибки."
 msgid "Добавьте описание профиля хотя бы на одном языке."
-msgstr "Check profile data and fix the errors."
+msgstr "Add a profile description in at least one language."
 
 #: src/catalog/forms.py:2218
-#, fuzzy
 #| msgid "Покажите только базу карточки."
 msgid "Укажите телефон или WhatsApp для связи."
-msgstr "Show only the core card details."
+msgstr "Provide a phone number or WhatsApp contact."
 
 #: src/catalog/forms.py:2230
 msgid ""
@@ -8392,30 +8375,26 @@ msgstr ""
 "For in-person format, select a KidsMap children center or your own address."
 
 #: src/catalog/forms.py:2234
-#, fuzzy
 #| msgid "Выберите город или регион."
 msgid "Выберите город / регион для очной работы."
-msgstr "Select a city or region."
+msgstr "Select a city / region for in-person work."
 
 #: src/catalog/forms.py:2241
-#, fuzzy
 #| msgid "Выберите город или регион."
 msgid "Выберите хотя бы один язык работы."
-msgstr "Select a city or region."
+msgstr "Select at least one working language."
 
 #: src/catalog/forms.py:2250 src/catalog/models/place.py:354
 #: src/catalog/models/pricing_plan.py:210
 #: src/catalog/services/place_readiness.py:235
-#, fuzzy
 #| msgid "Возраст не может быть меньше 0."
 msgid "Возраст «до» не может быть меньше возраста «от»."
-msgstr "Age cannot be less than 0."
+msgstr "The maximum age cannot be less than the minimum age."
 
 #: src/catalog/forms.py:2256
-#, fuzzy
 #| msgid "Возраст не может быть меньше 0."
 msgid "Максимальная стоимость не может быть меньше минимальной."
-msgstr "Age cannot be less than 0."
+msgstr "The maximum price cannot be less than the minimum price."
 
 #: src/catalog/models/analytics.py:12
 msgid "Тестовый или служебный аккаунт"
@@ -10356,10 +10335,9 @@ msgid "Посещения"
 msgstr "Visits"
 
 #: src/catalog/models/site.py:636
-#, fuzzy
 #| msgid "Контакты страницы (i18n)"
 msgid "Просмотр организации"
-msgstr "Contacts for the Contacts page."
+msgstr "View organization"
 
 #: src/catalog/models/site.py:637
 #, fuzzy
@@ -11623,23 +11601,20 @@ msgstr ""
 "Request submitted. After moderation you will get access to this listing."
 
 #: src/catalog/services/photo_gallery.py:11
-#, fuzzy
 #| msgid "Для отправки заявки войдите в аккаунт и повторите действие."
 msgid ""
 "Порядок фотографий изменился. Проверьте галерею и повторите сохранение."
-msgstr "Sign in and retry to submit the request."
+msgstr "The photo order changed. Check the gallery and save again."
 
 #: src/catalog/services/place_access.py:13
-#, fuzzy
 #| msgid "Кабинет владельца"
 msgid "Менеджер"
-msgstr "Owner dashboard"
+msgstr "Manager"
 
 #: src/catalog/services/place_access.py:15
-#, fuzzy
 #| msgid "Редактировать"
 msgid "Редактор"
-msgstr "Edit"
+msgstr "Editor"
 
 #: src/catalog/services/place_readiness.py:160
 msgid "Уберите из названия тестовый текст вроде «test» или «lorem»."
@@ -13224,10 +13199,9 @@ msgstr "Quick filters"
 #: src/catalog/templates/admin/catalog/includes/km_changelist_search_panel.html:259
 #: src/catalog/templates/admin/catalog/region/change_list.html:103
 #: src/catalog/templates/admin/catalog/siteregistereduser/change_list.html:92
-#, fuzzy
 #| msgid "Очистить"
 msgid "Очистить поиск"
-msgstr "Clear"
+msgstr "Clear search"
 
 #: src/catalog/templates/admin/catalog/includes/km_changelist_search_panel.html:268
 #, fuzzy
@@ -13904,8 +13878,8 @@ msgstr "Map and coordinates"
 
 #: src/catalog/templates/admin/catalog/place/form/section_location.html:53
 #| msgid "Карточка появится на карте после публикации."
-msgid "Адрес и точка на карте — два разных обязательных пункта"
-msgstr "Address and map pin are two distinct required items"
+msgid "Точка на карте необязательна. Рекомендуем указать её; можно вернуться к карте позже."
+msgstr "A map pin is optional. We recommend adding it; you can return to the map later."
 
 #: src/catalog/templates/admin/catalog/place/form/section_location.html:57
 #| msgid "Проверить координаты"
@@ -15026,10 +15000,9 @@ msgstr ""
 "automatically."
 
 #: src/catalog/templates/admin/catalog/shared_settings_change_form.html:199
-#, fuzzy
 #| msgid "Настройка сайта"
 msgid "В настройки сайта"
-msgstr "Site settings"
+msgstr "Back to site settings"
 
 #: src/catalog/templates/admin/catalog/shared_settings_change_form.html:201
 #, fuzzy
@@ -15212,10 +15185,9 @@ msgid "Пожалуйста, исправьте ошибки ниже."
 msgstr "Check profile data and fix the errors."
 
 #: src/catalog/templates/admin/catalog/specialist/change_form.html:82
-#, fuzzy
 #| msgid "Разделы сайта"
 msgid "Разделы формы"
-msgstr "Site sections"
+msgstr "Form sections"
 
 #: src/catalog/templates/admin/catalog/specialist/change_form.html:86
 #: src/catalog/templates/admin/catalog/specialist/change_form.html:133
@@ -20009,9 +19981,6 @@ msgstr "About (RU):"
 #~ msgid "Фото и отправка"
 #~ msgstr "Photos and submit"
 
-#~ msgid "Перед отправкой"
-#~ msgstr "Before submitting"
-
 #~ msgid "Проверьте фото и отправьте карточку на модерацию."
 #~ msgstr "Check the photo and submit the card for moderation."
 
@@ -21726,3 +21695,1106 @@ msgstr "The event changed. Reload the page before saving."
 #. Task33 stage26 Event interface
 msgid "Выберите организатора перед публикацией."
 msgstr "Choose an organizer before publishing."
+
+#: event admin readiness
+msgid "Требуется серверная проверка"
+msgstr "Server validation required"
+
+#: event admin readiness
+msgid "Требования публикации"
+msgstr "Publication requirements"
+
+#. Organization connection workflow.
+msgid "Административная роль не заменяет согласие владельцев бизнес-связи."
+msgstr "Admin status does not replace business owners' consent."
+
+#. Organization connection workflow.
+msgid "Бизнес-связь: согласие владельцев"
+msgstr "Business affiliation: owners' consent"
+
+#. Organization connection workflow.
+msgid "Будет обработано"
+msgstr "To be processed"
+
+#. Organization connection workflow.
+msgid ""
+"Вся сеть включает будущие филиалы с актуальной бизнес-связью. Выбранные "
+"филиалы ограничивают только права на места. Отдельные права на организацию и"
+" общие программы действуют для всей организации."
+msgstr ""
+"Network scope includes future branches with a current business affiliation. "
+"Selected branches limit only place permissions. Separate organization and "
+"shared program permissions apply to the whole organization."
+
+#. Organization connection workflow.
+msgid "Вся сеть, включая будущие филиалы"
+msgstr "Whole network, including future branches"
+
+#. Organization connection workflow.
+msgid "Выберите от 1 до 100 доступных мест."
+msgstr "Select 1–100 accessible places."
+
+#. Organization connection workflow.
+msgid "Выберите от 1 до 100 мест."
+msgstr "Select 1–100 places."
+
+#. Organization connection workflow.
+msgid "Выбор мест"
+msgstr "Select places"
+
+#. Organization connection workflow.
+msgid "Выбранные филиалы"
+msgstr "Selected branches"
+
+#. Organization connection workflow.
+msgid "Выбрано мест"
+msgstr "Selected places"
+
+#. Organization connection workflow.
+msgid "Выбрать другую организацию"
+msgstr "Choose another organization"
+
+#. Organization connection workflow.
+msgid "Выбрать организацию"
+msgstr "Choose organization"
+
+#. Organization connection workflow.
+msgid "Данные изменились: проверьте заново"
+msgstr "Data changed: review again"
+
+#. Organization connection workflow.
+msgid "Доступных карточек не найдено. Измените название или адрес."
+msgstr "No accessible cards found. Try another name or address."
+
+#. Organization connection workflow.
+msgid "Доступных организаций нет. Можно создать организацию без филиалов."
+msgstr "No organizations available. You can create one without branches."
+
+#. Organization connection workflow.
+msgid "Другая организация: пропустим, перенос требует отвязки"
+msgstr "Another network: skipped; detach first to transfer"
+
+#. Organization connection workflow.
+msgid "Другой тип связи: нужна отдельная проверка"
+msgstr "Different affiliation type: separate review required"
+
+#. Organization connection workflow.
+msgid "Ждём владельца места"
+msgstr "Waiting for place owner"
+
+#. Organization connection workflow.
+msgid "Ждём владельца организации"
+msgstr "Waiting for organization owner"
+
+#. Organization connection workflow.
+msgid ""
+"Занятия общих программ станут локальными снимками; обновления сети "
+"прекратятся."
+msgstr ""
+"Shared program activities become local snapshots; network updates stop."
+
+#. Organization connection workflow.
+msgid "Занятия связаны с программой другой сети"
+msgstr "Activities use another network's program"
+
+#. Organization connection workflow.
+msgid "Запрос: нужно согласие второго владельца"
+msgstr "Request: other owner's consent required"
+
+#. Organization connection workflow.
+msgid "Информационная связь"
+msgstr "Informational affiliation"
+
+#. Organization connection workflow.
+msgid "Информационная связь: без доступа сотрудников"
+msgstr "Informational affiliation: no employee access"
+
+#. Organization connection workflow.
+msgid "Используется в филиале, если там не указан собственный сайт."
+msgstr "Used by branches without their own website."
+
+#. Organization connection workflow.
+msgid "Используется в филиале, если там не указан собственный телефон."
+msgstr "Used by branches without their own phone."
+
+#. Organization connection workflow.
+msgid "К организациям"
+msgstr "Back to organizations"
+
+#. Organization connection workflow.
+msgid "Карточка недоступна"
+msgstr "Card unavailable"
+
+#. Organization connection workflow.
+msgid "Карточки и состояние связи"
+msgstr "Cards and affiliation status"
+
+#. Organization connection workflow.
+msgid "Место и адрес"
+msgstr "Place and address"
+
+#. Organization connection workflow.
+msgid ""
+"Место остаётся самостоятельным до нового согласованного подключения. Старые "
+"программы не перейдут в новую сеть автоматически."
+msgstr ""
+"The place remains independent until a new affiliation is agreed. Old "
+"programs do not move to the new network automatically."
+
+#. Organization connection workflow.
+msgid "Наблюдатель"
+msgstr "Observer"
+
+#. Organization connection workflow.
+msgid "Название или адрес места"
+msgstr "Place name or address"
+
+#. Organization connection workflow.
+#, python-format
+msgid "Название организации (%(language)s)"
+msgstr "Organization name (%(language)s)"
+
+#. Organization connection workflow.
+msgid "Найдены похожие места. Сначала проверьте готовые карточки."
+msgstr "Similar places found. Check existing cards first."
+
+#. Organization connection workflow.
+msgid ""
+"Найдите карточки по названию и адресу. Фото, занятия и цены сохранятся."
+msgstr ""
+"Find cards by name and address. Photos, activities and prices are preserved."
+
+#. Organization connection workflow.
+msgid "Найти и выбрать места"
+msgstr "Find and select places"
+
+#. Organization connection workflow.
+msgid ""
+"Не удалось подтвердить. Проверьте выбор, согласие и срок просмотра. Обновите"
+" просмотр перед новым действием."
+msgstr ""
+"Confirmation failed. Check selection, consent and preview expiry. Refresh "
+"the preview before trying again."
+
+#. Organization connection workflow.
+msgid "Нет прав владельца стороны"
+msgstr "Requires ownership of either side"
+
+#. Organization connection workflow.
+msgid "Новый выбор карточек"
+msgstr "Select cards again"
+
+#. Organization connection workflow.
+msgid "Новый просмотр проблемных строк"
+msgstr "Review problem rows again"
+
+#. Organization connection workflow.
+msgid "Нужна ручная проверка запроса или программы"
+msgstr "Request or program needs manual review"
+
+#. Organization connection workflow.
+msgid "Нужны владельцы места и организации"
+msgstr "Place and organization owners required"
+
+#. Organization connection workflow.
+msgid "Обновить просмотр"
+msgstr "Refresh preview"
+
+#. Organization connection workflow.
+msgid "Обработка завершена. Проверьте результат каждой строки."
+msgstr "Processing finished. Check each row's result."
+
+#. Organization connection workflow.
+msgid ""
+"Обработка прервана. Можно продолжить ту же операцию без повторения готовых "
+"строк."
+msgstr ""
+"Processing interrupted. Resume the same operation without repeating "
+"completed rows."
+
+#. Organization connection workflow.
+msgid "Обработка… Сохраняем результат каждой строки."
+msgstr "Processing… Saving each row's result."
+
+#. Organization connection workflow.
+msgid ""
+"Общие контакты перестанут наследоваться. Проверьте телефон и сайт места."
+msgstr ""
+"Shared contacts will no longer be inherited. Check the place's phone and "
+"website."
+
+#. Organization connection workflow.
+msgid "Общий WhatsApp организации"
+msgstr "Organization's shared WhatsApp"
+
+#. Organization connection workflow.
+msgid "Общий телефон организации"
+msgstr "Organization's shared phone"
+
+#. Organization connection workflow.
+msgid "Ожидает второго владельца"
+msgstr "Waiting for other owner"
+
+#. Organization connection workflow.
+msgid "Операция"
+msgstr "Operation"
+
+#. Organization connection workflow.
+msgid "Операция не подтверждена. Обновите просмотр и повторите."
+msgstr "Operation not confirmed. Refresh the preview and try again."
+
+#. Organization connection workflow.
+#, python-format
+msgid "Описание организации (%(language)s)"
+msgstr "Organization description (%(language)s)"
+
+#. Organization connection workflow.
+msgid "Организация архивирована"
+msgstr "Organization archived"
+
+#. Organization connection workflow.
+msgid "Организация и филиалы"
+msgstr "Organization and branches"
+
+#. Organization connection workflow.
+msgid "Организация недоступна"
+msgstr "Organization unavailable"
+
+#. Organization connection workflow.
+msgid ""
+"Организация объединяет сеть и общие программы. Филиал — конкретное место с "
+"адресом, занятиями и ценами."
+msgstr ""
+"An organization unites a network and shared programs. A branch is a specific"
+" place with an address, activities and prices."
+
+#. Organization connection workflow.
+msgid "Отсоединение подтверждено"
+msgstr "Detached"
+
+#. Organization connection workflow.
+msgid "Отсоединится после подтверждения"
+msgstr "Will detach after confirmation"
+
+#. Organization connection workflow.
+msgid "Отсоединить место"
+msgstr "Detach place"
+
+#. Organization connection workflow.
+msgid "Отсоединить: посмотреть последствия"
+msgstr "Detach: review consequences"
+
+#. Organization connection workflow.
+msgid "Ошибка: строка не изменена"
+msgstr "Error: row unchanged"
+
+#. Organization connection workflow.
+msgid "Подключение мест"
+msgstr "Connect places"
+
+#. Organization connection workflow.
+msgid "Подключение подтверждено"
+msgstr "Connected"
+
+#. Organization connection workflow.
+msgid "Подключится после подтверждения"
+msgstr "Will connect after confirmation"
+
+#. Organization connection workflow.
+msgid "Подключить к организации"
+msgstr "Connect to organization"
+
+#. Organization connection workflow.
+msgid "Подключить существующие места"
+msgstr "Connect existing places"
+
+#. Organization connection workflow.
+msgid "Подтвердите последствия операции."
+msgstr "Confirm the operation's consequences."
+
+#. Organization connection workflow.
+msgid ""
+"Подтверждаю выбранную организацию и тип связи. Бизнес-связь действует после "
+"согласия обеих сторон и может дать доступ сотрудникам сети."
+msgstr ""
+"I confirm the selected organization and affiliation type. Business "
+"affiliation takes effect with both owners' consent and may grant access to "
+"network employees."
+
+#. Organization connection workflow.
+msgid ""
+"Подтверждаю отвязку и её последствия. Новое подключение будет отдельным "
+"действием."
+msgstr ""
+"I confirm detachment and its consequences. A new affiliation requires a "
+"separate action."
+
+#. Organization connection workflow.
+msgid ""
+"Подтверждение обработает только доступные строки. Конфликты будут пропущены;"
+" успешные строки сохранятся при частичном отказе."
+msgstr ""
+"Confirmation processes only eligible rows. Conflicts are skipped; successful"
+" rows remain committed if others fail."
+
+#. Organization connection workflow.
+msgid "Показаны доступные и публичные карточки. Выбор сохраняется при поиске."
+msgstr ""
+"Accessible and public cards are shown. Selection is preserved during search."
+
+#. Organization connection workflow.
+msgid "Последствия отвязки"
+msgstr "Detachment consequences"
+
+#. Organization connection workflow.
+msgid "Посмотреть список и конфликты"
+msgstr "Review list and conflicts"
+
+#. Organization connection workflow.
+msgid "Проверка и подтверждение"
+msgstr "Review and confirm"
+
+#. Organization connection workflow.
+msgid "Проверьте каждую карточку"
+msgstr "Review each card"
+
+#. Organization connection workflow.
+msgid "Продолжить операцию"
+msgstr "Resume operation"
+
+#. Organization connection workflow.
+msgid "Просмотр действует 10 минут"
+msgstr "Preview valid for 10 minutes"
+
+#. Organization connection workflow.
+msgid "Просмотр и редактирование филиалов"
+msgstr "View and edit branches"
+
+#. Organization connection workflow.
+msgid "Просмотр и статистика филиалов"
+msgstr "View branches and statistics"
+
+#. Organization connection workflow.
+msgid "Просмотр филиалов"
+msgstr "View branches"
+
+#. Organization connection workflow.
+msgid "Просмотр, редактирование и статистика филиалов"
+msgstr "View, edit and branch statistics"
+
+#. Organization connection workflow.
+msgid "Прямых разрешений, которые сохранятся"
+msgstr "Direct grants retained"
+
+#. Organization connection workflow.
+msgid "Публикация, модерация и управление сотрудниками не входят в эти роли."
+msgstr ""
+"These roles do not include publication, moderation or employee management."
+
+#. Organization connection workflow.
+msgid "Разрешения"
+msgstr "Permissions"
+
+#. Organization connection workflow.
+msgid "Редактирование организации"
+msgstr "Edit organization"
+
+#. Organization connection workflow.
+msgid "Редактирование филиалов"
+msgstr "Edit branches"
+
+#. Organization connection workflow.
+msgid "Результат"
+msgstr "Result"
+
+#. Organization connection workflow.
+msgid "Результат по каждой карточке"
+msgstr "Result for each card"
+
+#. Organization connection workflow.
+msgid "Сайт организации"
+msgstr "Organization website"
+
+#. Organization connection workflow.
+msgid "Самостоятельное место"
+msgstr "Independent place"
+
+#. Organization connection workflow.
+msgid "Связь неактуальна: доступ сети не действует"
+msgstr "Affiliation stale: network access inactive"
+
+#. Organization connection workflow.
+msgid ""
+"Сетевые разрешения остаются в сети и могут снова действовать после "
+"повторного подключения."
+msgstr ""
+"Network grants remain in the network and may apply again after rejoining."
+
+#. Organization connection workflow.
+msgid "Следующие 20"
+msgstr "Next 20"
+
+#. Organization connection workflow.
+msgid "Создание филиалов"
+msgstr "Create branches"
+
+#. Organization connection workflow.
+msgid "Сотрудников с сетевым доступом"
+msgstr "Employees with network access"
+
+#. Organization connection workflow.
+msgid "Специальное разрешение"
+msgstr "Custom permission"
+
+#. Organization connection workflow.
+msgid "Статистика филиалов"
+msgstr "Branch statistics"
+
+#. Organization connection workflow.
+msgid "Текущая организация"
+msgstr "Current organization"
+
+#. Organization connection workflow.
+msgid "Тип связи"
+msgstr "Affiliation type"
+
+#. Organization connection workflow.
+msgid "Уже отсоединено"
+msgstr "Already detached"
+
+#. Organization connection workflow.
+msgid "Уже подключено"
+msgstr "Already connected"
+
+#. Organization connection workflow.
+msgid "Управление общими программами"
+msgstr "Manage shared programs"
+
+#. Organization connection workflow.
+msgid ""
+"Фото, занятия, группы, тарифы, часы работы, владелец и статус публикации "
+"сохраняются."
+msgstr ""
+"Photos, activities, groups, prices, opening hours, owner and publication "
+"status are preserved."
+
+#. Organization connection workflow.
+msgid "Этапы подключения"
+msgstr "Connection steps"
+
+#. Organization connection workflow.
+msgid "Проверить состояние операции"
+msgstr "Check operation status"
+
+#. Organization connection workflow.
+msgid "Будет отправлен запрос второму владельцу"
+msgstr "A request will be sent to the other owner"
+
+#. Organization connection workflow.
+msgid "Запрос создан этой операцией"
+msgstr "Request created by this operation"
+
+#. Organization connection workflow.
+msgid "Подключено этой операцией"
+msgstr "Connected by this operation"
+
+#. Organization connection workflow.
+msgid "Сразу"
+msgstr "Immediate"
+
+#. Organization connection workflow.
+msgid "Запросы"
+msgstr "Requests"
+
+#. Organization connection workflow.
+msgid "Без изменений"
+msgstr "Unchanged"
+
+#. Organization connection workflow.
+msgid "Пропустим"
+msgstr "Skipped"
+
+#. Organization connection workflow.
+msgid ""
+"Подтверждаю информационную связь с выбранной организацией. Она не даёт "
+"сотрудникам сети доступ к месту."
+msgstr ""
+"I confirm the informational relationship with the selected organization. It "
+"does not give network staff access to the place."
+
+#. Organization connection workflow.
+msgid "Запрос подтверждён"
+msgstr "Request approved"
+
+#. Organization connection workflow.
+msgid "Запрос отклонён"
+msgstr "Request rejected"
+
+#. Organization connection workflow.
+msgid "Запрос отменён"
+msgstr "Request cancelled"
+
+#. Specialist entry workflow.
+msgid ""
+"Автор предложения, подтверждённый специалист и организация — разные стороны."
+" Место приёма указывается отдельно от сотрудничества."
+msgstr ""
+"The proposal author, verified specialist and organization are separate "
+"parties. Practice locations are separate from cooperation."
+
+#. Specialist entry workflow.
+msgid "Восстановить ввод"
+msgstr "Restore input"
+
+#. Specialist entry workflow.
+msgid ""
+"Данные сервера изменились. Локальную копию нельзя восстановить поверх новой "
+"версии. Скопируйте нужный текст и обновите форму."
+msgstr ""
+"Server data has changed. The local copy cannot replace the new version. Copy"
+" the text you need and refresh the form."
+
+#. Specialist entry workflow.
+msgid ""
+"Есть несохранённая копия в этом браузере. Сравните её с данными сервера "
+"перед восстановлением."
+msgstr ""
+"This browser has an unsaved copy. Compare it with server data before "
+"restoring it."
+
+#. Specialist entry workflow.
+msgid ""
+"Есть несохранённые изменения. Копия ввода сохранена только в этом браузере."
+msgstr ""
+"There are unsaved changes. A copy of your input is stored only in this "
+"browser."
+
+#. Specialist entry workflow.
+msgid "Изменения не сохранены. Проверьте ошибки."
+msgstr "Changes were not saved. Check the errors."
+
+#. Specialist entry workflow.
+msgid "Изменение мест приёма недоступно вашей роли."
+msgstr "Your role cannot edit practice locations."
+
+#. Specialist entry workflow.
+msgid ""
+"Документы личности приватны. Их проверка доступна только специально "
+"уполномоченному проверяющему."
+msgstr ""
+"Identity documents are private. Only a specifically authorized reviewer can "
+"review them."
+
+#. Specialist entry workflow.
+msgid "Должность / вид сотрудничества"
+msgstr "Position / type of cooperation"
+
+#. Specialist entry workflow.
+msgid "Место KidsMap"
+msgstr "KidsMap place"
+
+#. Specialist entry workflow.
+msgid ""
+"Место приёма не подтверждает сотрудничество с организацией. Цена, телефон и "
+"расписание этого места сохраняются отдельно от общих данных профиля."
+msgstr ""
+"A practice location does not confirm cooperation with an organization. Its "
+"price, phone and schedule are stored separately from the general profile."
+
+#. Specialist entry workflow.
+msgid ""
+"Для очного приёма нужны активное место, карточка KidsMap или собственный "
+"адрес и регион. Выключенные места остаются в истории."
+msgstr ""
+"In-person practice needs an active location, a KidsMap place or own address,"
+" and a region. Inactive locations stay in history."
+
+#. Specialist entry workflow.
+msgid "Место приёма не принадлежит этому профилю."
+msgstr "This practice location does not belong to this profile."
+
+#. Specialist entry workflow.
+msgid "Можно добавить до 30 мест приёма."
+msgstr "You can add up to 30 practice locations."
+
+#. Specialist entry workflow.
+msgid "Добавить место приёма"
+msgstr "Add practice location"
+
+#. Specialist entry workflow.
+msgid "Отключить место приёма"
+msgstr "Deactivate practice location"
+
+#. Specialist entry workflow.
+msgid "Проверьте места приёма."
+msgstr "Check the practice locations."
+
+#. Specialist entry workflow.
+msgid "Выберите только одно основное место приёма."
+msgstr "Select only one primary practice location."
+
+#. Specialist entry workflow.
+msgid "Рабочие копии предложений"
+msgstr "Proposal working copies"
+
+#. Specialist entry workflow.
+msgid "Продолжить предложение"
+msgstr "Continue proposal"
+
+#. Specialist entry workflow.
+msgid "Черновиков пока нет."
+msgstr "No drafts yet."
+
+#. Specialist entry workflow.
+msgid "Предложение уже отправлено."
+msgstr "The proposal has already been sent."
+
+#. Specialist entry workflow.
+msgid "Новое предложение ещё не сохранено"
+msgstr "The new proposal has not been saved yet"
+
+#. Specialist entry workflow.
+msgid "Новый профиль ещё не сохранён"
+msgstr "The new profile has not been saved yet"
+
+#. Specialist entry workflow.
+msgid "Сохранено на сервере"
+msgstr "Saved on the server"
+
+#. Specialist entry workflow.
+msgid "Сохранение… Дождитесь ответа сервера."
+msgstr "Saving… Wait for the server response."
+
+#. Specialist entry workflow.
+msgid ""
+"Сохранение черновика или отправка изменений снимает этот профиль с "
+"публикации до следующей проверки KidsMap."
+msgstr ""
+"Saving a draft or sending changes removes this profile from publication "
+"until the next KidsMap review."
+
+#. Specialist entry workflow.
+msgid ""
+"Черновик допускает неполные сведения. Отправка требует имени, формата, "
+"направления, описания, контакта, языка работы и активного места для очного "
+"приёма. Фото, стаж, цена и сертификаты необязательны."
+msgstr ""
+"A draft may be incomplete. Sending requires a name, format, direction, "
+"description, contact, working language and an active location for in-person "
+"practice. Photo, experience, price and certificates are optional."
+
+#. Specialist entry workflow.
+msgid ""
+"Необязательные публичные сведения. Языки этих текстов отличаются от языков "
+"консультации. Переводы автоматически не создаются."
+msgstr ""
+"Optional public information. The languages of these texts are separate from "
+"consultation languages. Translations are not created automatically."
+
+#. Specialist entry workflow.
+msgid "Пусто — стаж не указан. 0 — нет полных лет опыта."
+msgstr ""
+"Empty means experience is unspecified. 0 means no full years of experience."
+
+#. Specialist entry workflow.
+msgid "Удалить локальную копию"
+msgstr "Delete local copy"
+
+#. Specialist entry workflow.
+msgid "Раздел формы"
+msgstr "Form section"
+
+#. Specialist entry workflow.
+msgid "Поиск направлений"
+msgstr "Search directions"
+
+#. Specialist entry workflow.
+msgid "Убрать направление"
+msgstr "Remove direction"
+
+#. Specialist entry workflow.
+msgid "Найдено"
+msgstr "Found"
+
+#. Specialist entry workflow.
+msgid "Личный профиль специалиста"
+msgstr "Specialist's personal profile"
+
+#. Specialist entry workflow.
+msgid ""
+"Предложите профиль человека. Управление личными сведениями доступно "
+"специалисту после подтверждения личности."
+msgstr ""
+"Propose a person's profile. The specialist can manage personal information "
+"after identity verification."
+
+#. Specialist entry workflow.
+msgid "Назад в кабинет"
+msgstr "Back to workspace"
+
+#. Specialist entry workflow.
+msgid "Языки описания"
+msgstr "Description languages"
+
+#. Specialist entry workflow.
+msgid "Предыдущий шаг"
+msgstr "Previous step"
+
+#. Specialist entry workflow.
+msgid "Следующий шаг"
+msgstr "Next step"
+
+#. Specialist entry workflow.
+msgid "Фотография профиля"
+msgstr "Profile photo"
+
+#. Specialist entry workflow.
+msgid "Добавить профиль специалиста"
+msgstr "Add specialist profile"
+
+#. Specialist entry workflow.
+msgid "Прежний владелец (не подтверждает личность)"
+msgstr "Legacy owner (does not verify identity)"
+
+#. Specialist entry workflow.
+msgid "Подтверждённый специалист (аккаунт человека)"
+msgstr "Verified specialist (person's account)"
+
+#. Owner Event entry workflow.
+msgid "Изменения не сохранены."
+msgstr "Changes are not saved."
+
+#. Owner Event entry workflow.
+msgid "Статус:"
+msgstr "Status:"
+
+#. Owner Event entry workflow.
+msgid ""
+"Черновику нужны организатор и категория. Даты можно оставить пустыми "
+"целиком; если начать ввод, заполните весь интервал. Отправка требует всех "
+"отмеченных полей и фото. Карта необязательна."
+msgstr ""
+"A draft needs an organizer and category. Leave dates entirely empty or "
+"complete the interval. Submission needs all marked fields and a photo. The "
+"map is optional."
+
+#. Owner Event entry workflow.
+msgid ""
+"Название и описание сохраняются на азербайджанском (AZ). Язык интерфейса не "
+"создаёт переводы."
+msgstr ""
+"Title and description are saved in Azerbaijani (AZ). The interface language "
+"does not create translations."
+
+#. Owner Event entry workflow.
+msgid "Есть несохранённая копия в этой вкладке"
+msgstr "This tab has an unsaved copy"
+
+#. Owner Event entry workflow.
+msgid "Оставить серверные данные"
+msgstr "Keep server data"
+
+#. Owner Event entry workflow.
+msgid ""
+"Сохранение заблокировано: версия изменилась. Ваш ввод остаётся в форме. "
+"После обновления сравните копию с сервером; автоматической перезаписи нет."
+msgstr ""
+"Saving was blocked because the version changed. Your input remains in the "
+"form. Reload to compare the copy with the server; it is never overwritten "
+"automatically."
+
+#. Owner Event entry workflow.
+msgid "Загрузить актуальную версию"
+msgstr "Load current version"
+
+#. Owner Event entry workflow.
+msgid ""
+"Организатор закреплён за мероприятием и не меняется при редактировании. "
+"Площадка выбирается отдельно."
+msgstr ""
+"The organizer is fixed for this event. The venue is chosen separately."
+
+#. Owner Event entry workflow.
+msgid ""
+"Организатор — ваша действующая организация или профиль специалиста с "
+"подтверждённой связью с вашим аккаунтом. Автор предложения профиля не "
+"получает эти права."
+msgstr ""
+"An organizer is your active organization or a specialist profile with a "
+"confirmed link to your account. Proposing a profile does not grant these "
+"rights."
+
+#. Owner Event entry workflow.
+msgid "Формат мероприятия"
+msgstr "Event format"
+
+#. Owner Event entry workflow.
+msgid "Площадка KidsMap или собственный адрес"
+msgstr "KidsMap venue or your own address"
+
+#. Owner Event entry workflow.
+msgid "Физический адрес не требуется"
+msgstr "No physical address required"
+
+#. Owner Event entry workflow.
+msgid ""
+"Адрес и карта для онлайн-события не требуются. Условия записи и подключения "
+"согласуйте с участниками по контакту события."
+msgstr ""
+"Online events need no address or map. Agree attendance and connection "
+"details through the event contact."
+
+#. Owner Event entry workflow.
+msgid ""
+"Площадка не меняет организатора и не даёт прав на место. Публичная карточка "
+"использует адрес выбранной площадки на момент утверждения. Для иного адреса "
+"выберите собственный."
+msgstr ""
+"The venue does not change the organizer or grant venue rights. The public "
+"card uses the selected venue address at approval. Choose your own address "
+"for a different location."
+
+#. Owner Event entry workflow.
+msgid "Использовать телефон площадки"
+msgstr "Use venue phone"
+
+#. Owner Event entry workflow.
+msgid "Где проходит мероприятие"
+msgstr "Where the event takes place"
+
+#. Owner Event entry workflow.
+msgid "Перед отправкой"
+msgstr "Before submission"
+
+#. Owner Event entry workflow.
+msgid ""
+"Список заполненных полей не заменяет серверную проверку значений и прав."
+msgstr ""
+"The field checklist does not replace server validation and permissions "
+"checks."
+
+#. Owner Event entry workflow.
+msgid "В кабинет"
+msgstr "Dashboard"
+
+#. Owner Event entry workflow.
+msgid ""
+"Отмена оставляет карточку и историю, но отмечает событие отменённым. Перенос"
+" меняет только интервал, сохраняет фото, формат и утверждённую площадку. "
+"Уведомления участникам и возвраты через KidsMap не выполняются."
+msgstr ""
+"Cancellation keeps the card and history and marks the event cancelled. "
+"Rescheduling changes only the interval; the photo, format and approved venue"
+" remain. KidsMap does not send attendee notifications or issue refunds."
+
+#. Owner Event entry workflow.
+msgid "Мероприятие отменено. Перенос недоступен."
+msgstr "This event is cancelled. Rescheduling is unavailable."
+
+#. Owner Event entry workflow.
+msgid ""
+"Перенос доступен только до начала неотменённого события. Для начавшегося или"
+" прошедшего нужен новый ID."
+msgstr ""
+"Reschedule only an event that has not started or been cancelled. Started or "
+"past events need a new ID."
+
+#. Owner Event entry workflow.
+msgid "Новый интервал для переноса"
+msgstr "New interval for rescheduling"
+
+#. Owner Event entry workflow.
+msgid "Проверьте причину и даты. Подтвердите действие отдельной кнопкой."
+msgstr ""
+"Check the reason and dates. Confirm the action with its separate button."
+
+#. Owner Event entry workflow.
+msgid "Подтвердить отмену"
+msgstr "Confirm cancellation"
+
+#. Owner Event entry workflow.
+msgid "Подтвердить перенос"
+msgstr "Confirm reschedule"
+
+#. Owner Event entry workflow.
+msgid "Отмена / перенос"
+msgstr "Cancel / reschedule"
+
+#. Owner Event entry workflow.
+msgid "Название мероприятия (AZ)"
+msgstr "Event title (AZ)"
+
+#. Owner Event entry workflow.
+msgid "Описание мероприятия (AZ)"
+msgstr "Event description (AZ)"
+
+#. Owner Event entry workflow.
+msgid "Телефон мероприятия"
+msgstr "Event phone"
+
+#. Owner Event entry workflow.
+msgid "Площадка мероприятия"
+msgstr "Event venue"
+
+#. Owner Event entry workflow.
+msgid "Укажите телефон мероприятия / WhatsApp."
+msgstr "Enter the event phone / WhatsApp number."
+
+#. Owner Event entry workflow.
+msgid "Новое начало (Asia/Baku)"
+msgstr "New start (Asia/Baku)"
+
+#. Owner Event entry workflow.
+msgid "Новое окончание (Asia/Baku)"
+msgstr "New end (Asia/Baku)"
+
+#. Owner Event entry workflow.
+msgid "Мероприятие перенесено."
+msgstr "Event rescheduled."
+
+#. Owner Event entry workflow.
+msgid "Мероприятие отменено."
+msgstr "Event cancelled."
+
+#. Owner Event entry workflow.
+msgid ""
+"Действие отклонено: проверьте состояние мероприятия, причину и новый "
+"интервал. Начавшееся, прошедшее или отменённое мероприятие нельзя перенести;"
+" для него нужен новый ID."
+msgstr ""
+"Action rejected: check event state, reason and new interval. Started, past "
+"or cancelled events cannot be rescheduled and need a new ID."
+
+#. Owner Event entry workflow.
+#, python-format
+msgid ""
+"JPG, PNG, WEBP, HEIC/HEIF: исходник до %(source)s МБ, %(pixels)s Мп, "
+"%(dimension)s px по стороне; после обработки до %(output)s МБ. HEIF зависит "
+"от доступности кодека."
+msgstr ""
+"JPG, PNG, WEBP, HEIC/HEIF: source up to %(source)s MB, %(pixels)s MP, "
+"%(dimension)s px per side; prepared image up to %(output)s MB. HEIF requires"
+" an available codec."
+
+#. Owner Event entry workflow.
+msgid "Площадка недоступна — выберите другую или собственный адрес"
+msgstr "Venue unavailable — choose another venue or your own address"
+
+#. Owner Event entry workflow.
+msgid "Главная фотография мероприятия"
+msgstr "Main event photo"
+
+#. Local content-entry finalization.
+#, python-format
+msgid "Показан исходный текст (%(language)s)."
+msgstr "Original text shown (%(language)s)."
+
+#. Local content-entry finalization.
+msgid "Владелец назначен"
+msgstr "Owner assigned"
+
+#. Local content-entry finalization.
+msgid "Без владельца"
+msgstr "No owner assigned"
+
+#. Local content-entry finalization.
+msgid "JSON с группами"
+msgstr "JSON with groups"
+
+#. Local content-entry finalization.
+msgid "Экспорт JSON с группами"
+msgstr "Export JSON with groups"
+
+#: src/catalog/domain_admin/place.py:127
+msgid "Галерея изменилась. Обновите страницу."
+msgstr "The gallery has changed. Reload the page."
+
+# ORG-04 private detach review
+msgid "Карточка недоступна для просмотра. Подтверждение относится только к связи места."
+msgstr "The place card is not available to view. Confirmation applies only to its organization link."
+
+# ORG-04 private detach review
+msgid "Сетевой доступ прекратится; актуальные прямые разрешения сохранятся. Общие контакты перестанут наследоваться. Данные приватной карточки здесь не показываются."
+msgstr "Network access will end; current direct permissions will remain. Shared contacts will no longer be inherited. Private place details are not shown here."
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Создать отдельную организацию"
+msgstr "Create a separate organization"
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Версия карточки"
+msgstr "Card version"
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Версия изменений"
+msgstr "Changes version"
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Открыть актуальные данные"
+msgstr "Open current data"
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Изменения уже сохранены в другой вкладке или другим редактором. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
+msgstr "Changes have already been saved in another tab or by another editor. Your input remains in the form. Copy the text you need and compare it with the current data before submitting again."
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Данные организации изменились после открытия формы. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
+msgstr "The organization data has changed since you opened the form. Your input remains in the form. Copy the text you need and compare it with the current data before submitting again."
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Форма устарела. Ваш ввод остался в форме. Скопируйте нужный текст, откройте актуальные данные и проверьте их перед повторной отправкой."
+msgstr "This form is out of date. Your input remains in the form. Copy the text you need, open the current data and review it before submitting again."
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Связанные данные организации изменились. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
+msgstr "Related organization data has changed. Your input remains in the form. Copy the text you need and compare it with the current data before submitting again."
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Не удалось отправить изменения. Ваш ввод остался в форме. Проверьте данные и повторите отправку."
+msgstr "The changes could not be submitted. Your input remains in the form. Check the data and try again."
+
+# Specialist identity verification date in admin
+msgid "Дата подтверждения личности"
+msgstr "Identity verification date"
+
+#: src/catalog/templates/admin/catalog/place/form/section_location.html
+msgid "Карта недоступна. Можно ввести координаты вручную или продолжить без точки."
+msgstr "The map is unavailable. Enter coordinates manually or continue without a map pin."
+
+#: src/catalog/templates/admin/catalog/place/form/section_location.html
+msgid "Не удалось определить геопозицию. Можно ввести координаты вручную или продолжить без точки."
+msgstr "Could not determine your location. Enter coordinates manually or continue without a map pin."
+
+#: src/catalog/templates/admin/catalog/place/form/section_location.html
+msgid "Ваш браузер не поддерживает геолокацию. Можно ввести координаты вручную или продолжить без точки."
+msgstr "Your browser does not support geolocation. Enter coordinates manually or continue without a map pin."
+
+#: src/catalog/templates/admin/catalog/place/form/section_location.html
+msgid "Указать координаты"
+msgstr "Enter coordinates"
+
+#: src/catalog/templates/admin/catalog/place/form/section_location.html
+msgid "Скрыть координаты"
+msgstr "Hide coordinates"
+
+
+msgid "Галочка включена — раздел виден посетителям. Снимите галочку и нажмите «Сохранить», чтобы скрыть раздел до готовности. Данные не удаляются: редактирование в админке остаётся доступным. Чтобы вернуть раздел, поставьте галочку и сохраните снова."
+msgstr "An enabled switch makes the section visible to visitors. Turn it off and click “Save” to hide the section until it is ready. Records are not deleted and remain editable in the admin. To restore the section, turn the switch on and save again."
+
+msgid "Скрывает каталог специалистов, ссылки на него и добавление специалистов в личном кабинете. Записи и их редактирование в админке сохраняются."
+msgstr "Hides the specialist directory, links to it, and specialist creation in the personal account. Records remain available for editing in the admin."
+
+msgid "Показывать «Афишу»"
+msgstr "Show “Events”"
+
+msgid "Скрывает каталог организаций, их публичные страницы и блоки со ссылками на организации. Филиалы, данные, админка и кабинет организаций остаются доступны."
+msgstr "Hides the organization directory, public organization pages, and blocks linking to organizations. Branches, records, the admin, and organization workspaces remain available."
+
+msgid "Показывать «Педагогов и специалистов»"
+msgstr "Show “Educators and specialists”"
+
+msgid "Скрывает афишу, временные карточки, ссылки на них и добавление мероприятий в личном кабинете. Записи и их редактирование в админке сохраняются."
+msgstr "Hides event listings, temporary cards, links to them, and event creation in the personal account. Records remain available for editing in the admin."
+
+msgid "Показывать «Организации»"
+msgstr "Show “Organizations”"

@@ -1,0 +1,20 @@
+--- before/src/catalog/templates/pages/organization_workspace.html
++++ after/src/catalog/templates/pages/organization_workspace.html
+@@ -89,7 +89,7 @@
+             {% if standalone_places|length > 5 %}
+               <div class="org-search-bar">
+                 <span class="material-symbols-rounded" aria-hidden="true">search</span>
+-                <input type="search" class="org-search-input" data-filter-input="#standalone-list" placeholder="{% if CURRENT_LANGUAGE == 'az' %}Məkan adına görə axtarış...{% elif CURRENT_LANGUAGE == 'en' %}Search places by name...{% else %}Поиск по названию места...{% endif %}" aria-label="Поиск по местам">
++                <input type="search" class="org-search-input" data-filter-input="#standalone-list" placeholder="{% if CURRENT_LANGUAGE == 'az' %}Məkan adına görə axtarış...{% elif CURRENT_LANGUAGE == 'en' %}Search places by name...{% else %}Поиск по названию места...{% endif %}" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Məkan axtarışı{% elif CURRENT_LANGUAGE == 'en' %}Place search{% else %}Поиск по местам{% endif %}">
+               </div>
+             {% endif %}
+             <div class="org-list" id="standalone-list">
+@@ -318,7 +318,7 @@
+             </div>
+ 
+             <!-- Контейнер клиентской пагинации -->
+-            <div class="org-pagination" data-branch-pagination aria-label="Пагинация филиалов"></div>
++            <nav class="org-pagination" data-branch-pagination aria-label="{% if CURRENT_LANGUAGE == 'az' %}Filialların səhifələnməsi{% elif CURRENT_LANGUAGE == 'en' %}Branch pagination{% else %}Пагинация филиалов{% endif %}"></nav>
+ 
+           {% else %}
+             <div class="org-empty" data-empty-branches>

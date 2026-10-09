@@ -1,0 +1,36 @@
+{
+  "rows": [
+    {
+      "id": "rejection-reason-visible",
+      "status": "FAIL"
+    },
+    {
+      "id": "corrected-resubmission",
+      "status": "PASS"
+    },
+    {
+      "id": "approved-public-card",
+      "status": "PASS",
+      "http": 200,
+      "h1": "QA PLACE 8792 RU"
+    },
+    {
+      "id": "public-admission-price",
+      "status": "PASS"
+    },
+    {
+      "id": "public-photo-present",
+      "status": "PASS"
+    }
+  ],
+  "entities": {
+    "id": 158,
+    "publicUrl": "http://localhost:8792/ru/place/158-qa-place-8792-az/"
+  },
+  "errors": [],
+  "error": "TimeoutError: locator.press: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-pc-save-draft]')\u001b[22m\n",
+  "url": "http://localhost:8792/ru/account/places/158/edit/",
+  "formerrors": [
+    ""
+  ]
+}

@@ -9,6 +9,8 @@ from catalog.testcases.utils import create_quality_place
 
 class ContinuousPlaceFormTests(TestCase):
     def setUp(self):
+        from catalog.testcases.utils import ensure_quality_subcategory
+        ensure_quality_subcategory('EDU')
         self.owner = get_user_model().objects.create_user(username="continuous_owner")
         self.place = create_quality_place(owner=self.owner, created_by=self.owner)
         self.client.force_login(self.owner)
@@ -26,6 +28,65 @@ class ContinuousPlaceFormTests(TestCase):
         self.assertContains(response, 'data-pc-add-activity')
         self.assertContains(response, 'name="publication_token"')
 
+    def test_submission_summary_does_not_make_map_and_photos_mandatory(self):
+        response = self.client.get(reverse('owner_place_create') + '?type=permanent')
+        summary = response.context['form'].submission_readiness
+        self.assertEqual(summary['required_count'], 10)
+        self.assertNotIn('photo', [item['code'] for item in summary['items']])
+        self.assertNotIn('coordinates', [item['code'] for item in summary['items']])
+        self.assertTrue(summary['issues'])
+
+    def test_submission_summary_counts_group_tariff_without_general_ticket(self):
+        import json
+        from catalog.forms import OwnerPlaceCreateForm
+        from catalog.testcases.utils import ensure_quality_subcategory
+        subcategory = ensure_quality_subcategory('EDU')
+        form = OwnerPlaceCreateForm(data={
+            'name_az': 'Rəsm mərkəzi', 'description_az': 'Uşaqlar üçün rəsm dərsləri.',
+            'category': 'EDU', 'subcategory': str(subcategory.pk), 'nature': 'business',
+            'age_from': '0', 'age_to': '12', 'region': 'baku', 'district': 'baku_yasamal',
+            'address': 'QA küçəsi 1', 'schedule_mode': 'always_open',
+            'website': 'https://example.invalid', 'pricing_plans': '[]',
+            'nested_pricing': json.dumps({'pricing_schema_version': 2, 'activities': [{
+                'name_az': 'Rəsm', 'description_az': 'Rəsm dərsləri', 'groups': [{
+                    'name_az': 'Uşaqlar', 'age_from': 0, 'age_to': 12,
+                    'schedule_text': 'Çərşənbə 15:00',
+                    'pricing_plans': [{'product_type': 'lesson', 'price': '15'}],
+                }],
+            }]}),
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        summary = form.submission_readiness
+        self.assertTrue(next(item for item in summary['items'] if item['code'] == 'price')['complete'])
+        self.assertTrue(summary['is_ready'])
+
+    def test_submission_contact_marker_is_a_choice_and_public_space_is_exempt(self):
+        from catalog.forms import OwnerPlaceEditForm
+        form = OwnerPlaceEditForm(instance=Place(nature='public_space'))
+        summary = form.submission_readiness
+        contact = next(item for item in summary['items'] if item['code'] == 'phone')
+        self.assertTrue(contact['complete'])
+        self.assertTrue(contact['config']['optional'])
+        self.assertEqual(contact['config']['fields'], ['phone1', 'phone2', 'phone3', 'website'])
+
+    def test_admin_displayed_readiness_counts_saved_group_prices(self):
+        from django.contrib import admin
+        from catalog.domain_admin.place import PlaceAdmin, PlaceAdminForm
+        from catalog.models import Activity, OfferingGroup, PricingPlan
+        activity = Activity.objects.create(place=self.place, name_az='Rəsm', status='published')
+        group = OfferingGroup.objects.create(activity=activity, name_az='Kiçik', age_from=5, age_to=8)
+        PricingPlan.objects.create(offering_group=group, product_type='lesson', price='20')
+        summary = PlaceAdmin(Place, admin.site)._build_place_form_summary(
+            form=PlaceAdminForm(instance=self.place), obj=self.place)
+        price = next(item for item in summary['checklist_items'] if item['code'] == 'price')
+        self.assertTrue(price['initial'])
+        import json
+        staff = get_user_model().objects.create_superuser(username='continuous_summary_staff', email='summary@example.invalid')
+        self.client.force_login(staff)
+        response = self.client.get(reverse('admin:catalog_place_change', args=[self.place.pk]))
+        nested = json.loads(response.context['adminform'].form['nested_pricing'].value())
+        self.assertEqual(nested['activities'][0]['groups'][0]['id'], group.pk)
+
     def test_edit_shows_live_and_candidate_separately(self):
         response = self.client.get(reverse("owner_place_edit", args=[self.place.pk]))
         self.assertEqual(response.status_code, 200)
@@ -34,6 +95,21 @@ class ContinuousPlaceFormTests(TestCase):
         self.assertContains(response, 'data-source-version=')
         self.assertContains(response, 'data-target-id=')
         self.assertEqual(response.content.count(b'data-place-section='), 4)
+
+    def test_edit_displays_candidate_nature_and_saved_gallery_without_changing_live(self):
+        from catalog.forms import OwnerPlaceEditForm
+        from catalog.testcases.utils import ensure_quality_subcategory
+        ensure_quality_subcategory('EDU')
+        original_nature = self.place.nature
+        VolunteerPlaceRevision.objects.create(place=self.place, author=self.owner,
+            payload={'nature': 'public_space', 'gallery': [
+                {'id': None, 'image': 'places/qa-candidate.webp', 'caption': '', 'order': 0},
+            ]})
+        form = OwnerPlaceEditForm(instance=self.place)
+        self.assertEqual(form['nature'].value(), 'public_space')
+        self.assertEqual(form.saved_gallery_preview[0]['image'], 'places/qa-candidate.webp')
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.nature, original_nature)
 
     def test_public_space_can_submit_without_organization_photo_coordinates_or_contact(self):
         import json

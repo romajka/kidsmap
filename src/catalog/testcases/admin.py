@@ -270,7 +270,7 @@ class TestAdminTemporaryEventInputs(TestCase):
         self.assertContains(response, "data-place-management", html=False)
         self.assertContains(response, "data-place-recommendation-order", html=False)
         self.assertContains(response, 'id="id_is_active"', count=1, html=False)
-        self.assertContains(response, 'id="id_is_verified"', count=1, html=False)
+        self.assertNotContains(response, 'id="id_is_verified"', html=False)
         self.assertNotContains(response, 'name="likes_count"', html=False)
 
     def test_place_changelist_filters_by_staff_member_who_added_card(self):
@@ -719,6 +719,7 @@ class TestAdminOwnershipModerationUX(TestCase):
             status=Event.STATUS_DRAFT,
         )
         data = {
+            "expected_updated_at": event.updated_at.isoformat(),
             "event_format": event.event_format,
             "organizer_organization": str(event.organizer_organization_id or ""),
             "organizer_specialist": str(event.organizer_specialist_id or ""),
@@ -1309,7 +1310,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Проверено модератором")
+        self.assertNotContains(response, "Проверено модератором")
         self.assertContains(response, "Дата публикации")
         self.assertNotContains(response, "Информация проверена")
         self.assertNotContains(response, 'name="last_verified_at_0"', html=False)
@@ -3555,15 +3556,15 @@ class TestAdminSpecialistChangeList(TestCase):
         response = self.client.get(reverse("admin:catalog_specialist_changelist"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Управляйте публикацией, проверкой")
+        self.assertContains(response, "Управляйте публикацией, модерацией")
         self.assertContains(response, "Всего специалистов")
         self.assertContains(response, "Опубликовано")
         self.assertContains(response, "На модерации")
         self.assertContains(response, "Неактивные")
-        self.assertContains(response, "Без проверки")
+        self.assertNotContains(response, "Без проверки")
         self.assertContains(response, "Все профили")
         self.assertContains(response, 'data-action="mark_published"', html=False)
-        self.assertContains(response, 'data-action="mark_verified"', html=False)
+        self.assertNotContains(response, 'data-action="mark_verified"', html=False)
         self.assertContains(response, 'href="?status__exact=published&amp;is_active__exact=1"', html=False)
 
     def test_specialist_bulk_publish_updates_public_visibility_fields(self):

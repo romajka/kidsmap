@@ -1,0 +1,60 @@
+[
+  {
+    "id": "EDIT-FIELD-ERRORS",
+    "status": "FAIL",
+    "http_status": 400,
+    "field_aria_invalid": true,
+    "error_count": 0,
+    "visible_length_message": false,
+    "note": "POST returned400, no name_ru/phone/whatsapp errors rendered"
+  },
+  {
+    "id": "CREATE-ERROR-LABEL-ru",
+    "status": "FAIL",
+    "http_status": 400,
+    "raw_label": true
+  },
+  {
+    "id": "CREATE-ERROR-LABEL-az",
+    "status": "PASS",
+    "http_status": 301,
+    "raw_label": false
+  },
+  {
+    "id": "CREATE-ERROR-LABEL-en",
+    "status": "FAIL",
+    "http_status": 400,
+    "raw_label": true
+  },
+  {
+    "id": "ADMIN-LIST-owner",
+    "status": "PASS",
+    "http_status": 302,
+    "redirect": "/admin/login/?next=/admin/catalog/place/%3Fq%3DORGQA",
+    "selection_count": 0
+  },
+  {
+    "id": "ADMIN-LIST-moderator",
+    "status": "PASS",
+    "http_status": 200,
+    "redirect": null,
+    "selection_count": 15
+  },
+  {
+    "id": "ADMIN-LIST-manager",
+    "status": "PASS",
+    "http_status": 302,
+    "redirect": "/admin/login/?next=/admin/catalog/place/%3Fq%3DORGQA",
+    "selection_count": 0
+  },
+  {
+    "id": "CHANGED-BETWEEN-PREVIEW-CONFIRM",
+    "status": "PASS",
+    "result": "changed"
+  },
+  {
+    "id": "EXPIRED-PREVIEW",
+    "status": "PASS",
+    "error": "ValidationError"
+  }
+]

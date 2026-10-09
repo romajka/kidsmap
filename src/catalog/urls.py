@@ -1,3 +1,5 @@
+from .controllers.organization_directory import organization_list
+from .controllers.organization_workspace import organization_connections, organization_connection_result, organization_detach_preview, organization_connection_target
 from .controllers.public_map_api import public_map
 from .controllers.public_details import organization_detail as public_organization_detail, activity_detail
 from .controllers.server_draft_api import draft_collection, draft_detail, draft_photo, draft_materialize
@@ -7,7 +9,8 @@ from .controllers.location_resolution import location_resolve
 from .controllers.typed_reviews import target_reviews, review_action
 from .controllers.specialist_workspace import (specialist_workspace_index, specialist_workspace_profile,
     specialist_workspace_claims, specialist_workspace_invitations, specialist_workspace_certificates,
-    specialist_workspace_review, organization_specialists)
+    specialist_workspace_review, organization_specialists, specialist_workspace_proposal,
+    specialist_proposal_photo)
 from django.contrib.auth import views as auth_views
 from django.urls import path, re_path, reverse_lazy
 
@@ -60,6 +63,7 @@ from .views import (
     owner_place_publish,
     owner_place_submit_review,
     owner_event_create,
+    owner_event_manage, owner_event_cancel, owner_event_reschedule,
     owner_event_delete,
     owner_event_edit,
     owner_event_submit_review,
@@ -86,7 +90,7 @@ from .views import (
 from catalog.controllers.organization_ownership_api import organization_ownership_action
 from catalog.controllers.group_conditions import confirm_group_conditions
 from catalog.controllers.program_workspace import program_create, program_detail, program_save
-from catalog.controllers.organization_workspace import (organization_index, organization_create, organization_detail, organization_branch, organization_save, organization_join, organization_confirm, organization_detach, organization_branch_create)
+from catalog.controllers.organization_workspace import (organization_index, organization_create, organization_detail, organization_branch, organization_save, organization_join, organization_confirm, organization_detach, organization_branch_create, organization_join_recovery, organization_cancel)
 
 urlpatterns = [
     path('account/specialists/', specialist_workspace_index, name='specialist_workspace_index'),
@@ -96,6 +100,7 @@ urlpatterns = [
     path('account/specialists/<int:pk>/certificates/', specialist_workspace_certificates, name='specialist_workspace_certificates'),
     path('account/specialists/<int:pk>/review/', specialist_workspace_review, name='specialist_workspace_review'),
     path('account/organizations/<int:org_id>/specialists/', organization_specialists, name='organization_specialists'),
+    path("organizations/", organization_list, name="organization_list"),
     path("organizations/<uuid:public_id>/", public_organization_detail, name="organization_detail"),
     path("activities/<int:pk>/", activity_detail, name="activity_detail"),
     path('account/notifications/', inbox, name='account_notifications'),
@@ -103,6 +108,10 @@ urlpatterns = [
     path('account/notifications/<int:notification_id>/accept/', accept_invitation, name='account_notification_accept'),
     path('account/organizations/', organization_index, name='organization_workspace_index'),
     path('account/organizations/create/', organization_create, name='organization_workspace_create'),
+    path('account/organizations/connect/', organization_connection_target, name='organization_connection_target'),
+    path('account/organization-operations/<uuid:operation_id>/', organization_connection_result, name='organization_connection_result'),
+    path('account/organizations/<int:org_id>/connections/', organization_connections, name='organization_connections'),
+    path('account/organizations/<int:org_id>/branches/<int:place_id>/detach-preview/', organization_detach_preview, name='organization_detach_preview'),
     path('account/organizations/<int:org_id>/', organization_detail, name='organization_workspace_detail'),
     path('account/organizations/<int:org_id>/programs/create/', program_create, name='organization_program_create'),
     path('account/organizations/<int:org_id>/programs/<int:program_id>/', program_detail, name='organization_program_detail'),
@@ -111,6 +120,8 @@ urlpatterns = [
     path('account/organizations/<int:org_id>/branches/<int:place_id>/', organization_branch, name='organization_workspace_branch'),
     path('account/organizations/<int:org_id>/save/', organization_save, name='organization_workspace_save'),
     path('account/organizations/<int:org_id>/join/', organization_join, name='organization_workspace_join'),
+    path('account/organizations/<int:org_id>/requests/<int:request_id>/recovery/', organization_join_recovery, name='organization_join_recovery'),
+    path('account/organizations/<int:org_id>/requests/<int:request_id>/cancel/', organization_cancel, name='organization_workspace_cancel'),
     path('account/organizations/<int:org_id>/requests/<int:request_id>/confirm/', organization_confirm, name='organization_workspace_confirm'),
     path('account/organizations/<int:org_id>/branches/<int:place_id>/detach/', organization_detach, name='organization_workspace_detach'),
     path('account/places/<int:place_id>/groups/<int:group_id>/confirm-conditions/', confirm_group_conditions, name='owner_group_confirm_conditions'),
@@ -196,7 +207,13 @@ urlpatterns = [
     path("account/places/", owner_places_dashboard, name="owner_places_dashboard"),
     path("account/places/<int:pk>/analytics/", owner_place_analytics, name="owner_place_analytics"),
     path("account/places/create/", owner_place_create, name="owner_place_create"),
+    path('account/places/events/<int:pk>/manage/', owner_event_manage, name='owner_event_manage'),
+    path('account/places/events/<int:pk>/cancel/', owner_event_cancel, name='owner_event_cancel'),
+    path('account/places/events/<int:pk>/reschedule/', owner_event_reschedule, name='owner_event_reschedule'),
     path("account/places/events/create/", owner_event_create, name="owner_event_create"),
+    path('account/specialists/proposals/new/',specialist_workspace_proposal,name='specialist_workspace_proposal'),
+    path('account/specialists/proposals/<uuid:draft_id>/',specialist_workspace_proposal,name='specialist_workspace_proposal_resume'),
+    path('account/specialists/proposals/<uuid:draft_id>/photo/',specialist_proposal_photo,name='specialist_proposal_photo'),
     path("account/places/specialists/create/", specialist_workspace_profile, name="owner_specialist_create"),
     path("account/places/specialists/<int:pk>/edit/", specialist_workspace_profile, name="owner_specialist_edit"),
     path("account/places/events/<int:pk>/edit/", owner_event_edit, name="owner_event_edit"),
@@ -245,4 +262,10 @@ urlpatterns = [
     path("specialists/<slug:slug>/", specialist_detail, name="specialist_detail"),
     path("specialists/<int:pk>/review/", add_specialist_review, name="add_specialist_review"),
     path("specialists/documents/<int:document_id>/download/", serve_specialist_document, name="serve_specialist_document"),
+    # Old card links used a root-level ID and slug, before /place/ URLs.
+    re_path(
+        r"^(?P<pk>[0-9]+)-(?P<slug>[^/]+)/$",
+        place_detail_legacy,
+        name="place_detail_root_legacy",
+    ),
 ]

@@ -11,7 +11,7 @@ PLACE_ROLE_MODERATOR = "MODERATOR"
 PLACE_ROLE_EDITOR = "EDITOR"
 PLACE_ROLE_CHOICES = (
     (PLACE_ROLE_MANAGER, _("Менеджер")),
-    (PLACE_ROLE_MODERATOR, _("Модератор")),
+    (PLACE_ROLE_MODERATOR, _("Наблюдатель")),
     (PLACE_ROLE_EDITOR, _("Редактор")),
 )
 

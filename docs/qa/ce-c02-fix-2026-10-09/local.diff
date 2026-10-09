@@ -1,0 +1,53 @@
+--- before/src/catalog/templates/admin/catalog/place/form/section_location.html
++++ after/src/catalog/templates/admin/catalog/place/form/section_location.html
+@@ -56,7 +56,7 @@
+     <div class="km-pf-group" data-pf-group="map">
+       <div class="km-pf-group__head">
+         <span class="km-pf-group__title">{% translate "Карта и координаты" %}</span>
+-        <span class="km-pf-group__note">{% translate "Адрес и точка на карте — два разных обязательных пункта" %}</span>
++        <span class="km-pf-group__note">{% translate "Точка на карте необязательна. Рекомендуем указать её; можно вернуться к карте позже." %}</span>
+       </div>
+ 
+       <div class="km-pf-maprow">
+--- before/locale/ru/LC_MESSAGES/django.po
++++ after/locale/ru/LC_MESSAGES/django.po
+@@ -14964,8 +14964,8 @@
+ msgstr "Карта и координаты"
+ 
+ #: src/catalog/templates/admin/catalog/place/form/section_location.html:53
+-msgid "Адрес и точка на карте — два разных обязательных пункта"
+-msgstr "Адрес и точка на карте — два разных обязательных пункта"
++msgid "Точка на карте необязательна. Рекомендуем указать её; можно вернуться к карте позже."
++msgstr "Точка на карте необязательна. Рекомендуем указать её; можно вернуться к карте позже."
+ 
+ #: src/catalog/templates/admin/catalog/place/form/section_location.html:57
+ msgid "Определение координат"
+Binary translation catalog locale/ru/LC_MESSAGES/django.mo changed only the CE-C-02 entry; semantic preservation verified.
+--- before/locale/az/LC_MESSAGES/django.po
++++ after/locale/az/LC_MESSAGES/django.po
+@@ -13955,8 +13955,8 @@
+ 
+ #: src/catalog/templates/admin/catalog/place/form/section_location.html:53
+ #| msgid "Карточка появится на карте после публикации."
+-msgid "Адрес и точка на карте — два разных обязательных пункта"
+-msgstr "Ünvan və xəritədəki nöqtə — iki fərqli məcburi bənddir"
++msgid "Точка на карте необязательна. Рекомендуем указать её; можно вернуться к карте позже."
++msgstr "Xəritədə nöqtə qeyd etmək məcburi deyil. Qeyd etməyi tövsiyə edirik; xəritəyə sonra qayıda bilərsiniz."
+ 
+ #: src/catalog/templates/admin/catalog/place/form/section_location.html:57
+ #| msgid "Проверить координаты"
+Binary translation catalog locale/az/LC_MESSAGES/django.mo changed only the CE-C-02 entry; semantic preservation verified.
+--- before/locale/en/LC_MESSAGES/django.po
++++ after/locale/en/LC_MESSAGES/django.po
+@@ -13879,8 +13879,8 @@
+ 
+ #: src/catalog/templates/admin/catalog/place/form/section_location.html:53
+ #| msgid "Карточка появится на карте после публикации."
+-msgid "Адрес и точка на карте — два разных обязательных пункта"
+-msgstr "Address and map pin are two distinct required items"
++msgid "Точка на карте необязательна. Рекомендуем указать её; можно вернуться к карте позже."
++msgstr "A map pin is optional. We recommend adding it; you can return to the map later."
+ 
+ #: src/catalog/templates/admin/catalog/place/form/section_location.html:57
+ #| msgid "Проверить координаты"
+Binary translation catalog locale/en/LC_MESSAGES/django.mo changed only the CE-C-02 entry; semantic preservation verified.

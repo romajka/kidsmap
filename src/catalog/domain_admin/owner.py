@@ -681,7 +681,6 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
                 ngettext("%(count)s фото", "%(count)s фото", gallery_count) % {"count": gallery_count} if gallery_count else "",
             ),
             (_("Публикация"), place.is_active and not place.is_deleted, _("Опубликовано") if place.is_active and not place.is_deleted else _("Не опубликовано")),
-            (_("Проверка"), place.is_verified, _("Проверено") if place.is_verified else _("Без проверки")),
             (_("Готовность к карте"), place.is_map_ready, _("Готово для карты") if place.is_map_ready else _("Не готово для карты")),
         )
 

@@ -92,7 +92,7 @@ def own_places(user):
 def candidate_from_payload(place, payload):
     candidate = copy.copy(place)
     candidate._state = copy.copy(place._state)
-    for name in CONTENT_FIELDS:
+    for name in (*CONTENT_FIELDS, 'nature', 'operating_state'):
         if name in payload:
             field = Place._meta.get_field(name)
             setattr(candidate, field.attname, field.to_python(payload[name]) if not field.is_relation else payload[name])
@@ -283,6 +283,10 @@ def review_form(revision):
     data["structured_schedule"] = dump_schedule_payload(data.get("structured_schedule", []))
     data.update(base_token=base_token(revision.place), revision_version=revision.version)
     form = VolunteerPlaceForm(data, instance=candidate)
+    # Review reads this trusted, saved candidate, never an arbitrary review POST.
+    # The shared readiness evaluator expects nested plans in cleaned_data.
+    from django import forms
+    form.fields['nested_pricing'] = forms.JSONField(required=False)
     form.location_publication_required = True
     return form
 

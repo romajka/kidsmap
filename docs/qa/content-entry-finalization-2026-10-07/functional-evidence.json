@@ -1,0 +1,1364 @@
+{
+  "note": "Raw fresh results; superseded diagnostic failures are retained and identified below, never silently changed to PASS. Visual matrix is separate from workflow checks.",
+  "results": {
+    "browser-gallery-edit3.log": {
+      "checks": [
+        {
+          "scenario": "published-gallery-keyboard-reorder",
+          "pass": true
+        },
+        {
+          "scenario": "gallery-order-and-cover-reload",
+          "pass": true
+        },
+        {
+          "scenario": "saved-gallery-delete-add-reload",
+          "pass": true
+        },
+        {
+          "scenario": "published-photo-remains-before-approval",
+          "pass": true
+        },
+        {
+          "scenario": "edited-photo-candidate-ready-to-approve",
+          "pass": true
+        },
+        {
+          "scenario": "gallery-published-after-approval",
+          "pass": true
+        }
+      ]
+    },
+    "browser-place-center.log": {
+      "kind": "center",
+      "name": "QA Qruplu tədris mərkəzi 20261007",
+      "steps": [],
+      "restored": true,
+      "nested": {
+        "pricing_schema_version": 2,
+        "activities": [
+          {
+            "id": null,
+            "program_id": null,
+            "name_az": "QA Robototexnika",
+            "description_az": "Uşaqlar üçün uydurma robototexnika dərsləri.",
+            "supplement_az": "",
+            "groups": [
+              {
+                "id": null,
+                "name_az": "QA Qrup 1",
+                "age_from": 3,
+                "age_to": 7,
+                "lesson_format": "group",
+                "language": "",
+                "schedule_text": "Çərşənbə 14:00–15:00",
+                "pricing_plans": [
+                  {
+                    "product_type": "lesson",
+                    "price_kind": "exact",
+                    "charge_role": "primary",
+                    "billing_mode": "one_time",
+                    "currency": "AZN",
+                    "price": 15,
+                    "title_az": "QA Bir dərs 1",
+                    "is_active": true
+                  }
+                ]
+              },
+              {
+                "id": null,
+                "name_az": "QA Qrup 2",
+                "age_from": 8,
+                "age_to": 15,
+                "lesson_format": "group",
+                "language": "",
+                "schedule_text": "Cümə 16:00–17:00",
+                "pricing_plans": [
+                  {
+                    "product_type": "lesson",
+                    "price_kind": "exact",
+                    "charge_role": "primary",
+                    "billing_mode": "one_time",
+                    "currency": "AZN",
+                    "price": 25,
+                    "title_az": "QA Bir dərs 2",
+                    "is_active": true
+                  }
+                ]
+              }
+            ],
+            "category_id": "EDU",
+            "subcategory_id": 107
+          }
+        ]
+      },
+      "reloadedFull": {
+        "name": "QA Qruplu tədris mərkəzi 20261007",
+        "pricing": "[]",
+        "nested": "{\"activities\":[{\"id\":null,\"groups\":[{\"id\":null,\"age_to\":7,\"name_az\":\"QA Qrup 1\",\"age_from\":3,\"language\":\"\",\"lesson_format\":\"group\",\"pricing_plans\":[{\"price\":15,\"currency\":\"AZN\",\"title_az\":\"QA Bir dərs 1\",\"is_active\":true,\"price_kind\":\"exact\",\"charge_role\":\"primary\",\"billing_mode\":\"one_time\",\"product_type\":\"lesson\"}],\"schedule_text\":\"Çərşənbə 14:00–15:00\"},{\"id\":null,\"age_to\":15,\"name_az\":\"QA Qrup 2\",\"age_from\":8,\"language\":\"\",\"lesson_format\":\"group\",\"pricing_plans\":[{\"price\":25,\"currency\":\"AZN\",\"title_az\":\"QA Bir dərs 2\",\"is_active\":true,\"price_kind\":\"exact\",\"charge_role\":\"primary\",\"billing_mode\":\"one_time\",\"product_type\":\"lesson\"}],\"schedule_text\":\"Cümə 16:00–17:00\"}],\"name_az\":\"QA Robototexnika\",\"program_id\":null,\"category_id\":\"EDU\",\"supplement_az\":\"\",\"description_az\":\"Uşaqlar üçün uydurma robototexnika dərsləri.\",\"subcategory_id\":107}],\"pricing_schema_version\":2}",
+        "hours": "[{\"weekday\":\"mon\",\"intervals\":[{\"end\":\"18:00\",\"start\":\"09:00\"}],\"is_closed\":false,\"is_24_hours\":false},{\"weekday\":\"tue\",\"intervals\":[{\"end\":\"18:00\",\"start\":\"09:00\"}],\"is_closed\":false,\"is_24_hours\":false},{\"weekday\":\"wed\",\"intervals\":[{\"end\":\"18:00\",\"start\":\"09:00\"}],\"is_closed\":false,\"is_24_hours\":false},{\"weekday\":\"thu\",\"intervals\":[{\"end\":\"18:00\",\"start\":\"09:00\"}],\"is_closed\":false,\"is_24_hours\":false},{\"weekday\":\"fri\",\"intervals\":[{\"end\":\"18:00\",\"start\":\"09:00\"}],\"is_closed\":false,\"is_24_hours\":false},{\"weekday\":\"sat\",\"intervals\":[],\"is_closed\":true,\"is_24_hours\":false},{\"weekday\":\"sun\",\"intervals\":[],\"is_closed\":true,\"is_24_hours\":false}]"
+      },
+      "placeId": 20,
+      "submitted": true,
+      "url": "http://localhost:8788/ru/account/places/"
+    },
+    "browser-place-venue.log": {
+      "kind": "venue",
+      "name": "QA Tədbir məkanı 20261007",
+      "steps": [],
+      "restored": true,
+      "reloadedFull": {
+        "name": "QA Tədbir məkanı 20261007",
+        "pricing": "[{\"price\":\"30\",\"currency\":\"AZN\",\"title_az\":\"QA Tədbir bileti\",\"title_en\":\"\",\"title_ru\":\"\",\"is_active\":true,\"price_max\":null,\"price_min\":null,\"price_kind\":\"exact\",\"sort_order\":0,\"charge_role\":\"primary\",\"editor_kind\":\"event\",\"is_required\":false,\"billing_mode\":\"one_time\",\"product_type\":\"event\",\"lesson_format\":\"\",\"billing_cycles\":null,\"billing_interval\":\"\",\"billing_interval_count\":null}]",
+        "nested": "null",
+        "hours": "[{\"weekday\":\"mon\",\"intervals\":[],\"is_closed\":true,\"is_24_hours\":false},{\"weekday\":\"tue\",\"intervals\":[],\"is_closed\":true,\"is_24_hours\":false},{\"weekday\":\"wed\",\"intervals\":[],\"is_closed\":true,\"is_24_hours\":false},{\"weekday\":\"thu\",\"intervals\":[],\"is_closed\":true,\"is_24_hours\":false},{\"weekday\":\"fri\",\"intervals\":[],\"is_closed\":true,\"is_24_hours\":false},{\"weekday\":\"sat\",\"intervals\":[],\"is_closed\":true,\"is_24_hours\":false},{\"weekday\":\"sun\",\"intervals\":[],\"is_closed\":true,\"is_24_hours\":false}]"
+      },
+      "placeId": 21,
+      "submitted": true,
+      "url": "http://localhost:8788/ru/account/places/"
+    },
+    "browser-place-recovery.log": {
+      "conflict": {
+        "afterReload": "conflict",
+        "local": "QA Köhnə B versiyası",
+        "current": "QA Yeni A versiyası",
+        "blockedWrites": true
+      },
+      "rapid": {
+        "values": [
+          "QA Sürətli ilk",
+          "QA Sürətli son"
+        ],
+        "latest": "QA Sürətli son"
+      },
+      "offline": {
+        "message": "Нет соединения. Текст остаётся в этом браузере; отправка будет доступна после подключения.",
+        "restored": "QA Şəbəkəsiz saxlanan"
+      },
+      "storageDisabled": {
+        "restored": "QA Yaddaşsız brauzer",
+        "hasPointer": true,
+        "message": "Браузер не смог сохранить черновик. Сохраните его кнопкой ниже."
+      },
+      "foreign": {
+        "draftStatus": 403,
+        "editorVisible": 0,
+        "url": "http://localhost:8788/ru/account/places/"
+      }
+    },
+    "browser-place-final-errors-confirmed.log": {
+      "checks": [
+        {
+          "scenario": "place-age-validation-preserves-input",
+          "status": 422,
+          "errors": "Исправьте ошибки\nВозраст до Обязательно для отправки: Возраст «до» меньше «от». Укажите значение «до», равное или больше «от».",
+          "pass": true
+        },
+        {
+          "scenario": "place-error-keyboard-focus",
+          "focused": "age_to",
+          "pass": true
+        }
+      ]
+    },
+    "browser-organization-final.log": [
+      {
+        "name": "place_additional_review.js",
+        "result": {
+          "checks": [
+            {
+              "scenario": "legacy-review-publish-20",
+              "pass": true
+            },
+            {
+              "scenario": "public-tariffs-groups-schedules-20",
+              "status": 200,
+              "pass": true
+            },
+            {
+              "scenario": "legacy-review-publish-21",
+              "pass": true
+            },
+            {
+              "scenario": "public-tariffs-groups-schedules-21",
+              "status": 200,
+              "pass": true
+            }
+          ]
+        }
+      },
+      {
+        "name": "organization_workflow.js",
+        "result": {
+          "checks": [
+            {
+              "scenario": "new-organization-server-draft-reload",
+              "pass": true
+            },
+            {
+              "scenario": "organization-invalid-url",
+              "pass": true
+            },
+            {
+              "scenario": "organization-sent-to-review-not-public",
+              "pass": true
+            },
+            {
+              "scenario": "organization-reviewed-public",
+              "status": 200,
+              "pass": true
+            },
+            {
+              "scenario": "published-org-old-version-before-review",
+              "pass": true
+            },
+            {
+              "scenario": "published-org-edit-after-review",
+              "pass": true
+            }
+          ]
+        }
+      },
+      {
+        "name": "fresh-admin_connections.js",
+        "result": {
+          "matrix": [
+            {
+              "lang": "ru",
+              "width": 360,
+              "select": {
+                "scroll": 345,
+                "heading": "Подключение мест"
+              },
+              "review": {
+                "scroll": 345,
+                "eligible": 10
+              },
+              "kind": "informational",
+              "pass": true
+            },
+            {
+              "lang": "ru",
+              "width": 390,
+              "select": {
+                "scroll": 375,
+                "heading": "Подключение мест"
+              },
+              "review": {
+                "scroll": 375,
+                "eligible": 10
+              },
+              "kind": "informational",
+              "pass": true
+            },
+            {
+              "lang": "ru",
+              "width": 768,
+              "select": {
+                "scroll": 768,
+                "heading": "Подключение мест"
+              },
+              "review": {
+                "scroll": 753,
+                "eligible": 10
+              },
+              "kind": "informational",
+              "pass": true
+            },
+            {
+              "lang": "ru",
+              "width": 1440,
+              "select": {
+                "scroll": 1440,
+                "heading": "Подключение мест"
+              },
+              "review": {
+                "scroll": 1425,
+                "eligible": 10
+              },
+              "kind": "informational",
+              "pass": true
+            },
+            {
+              "lang": "az",
+              "width": 360,
+              "select": {
+                "scroll": 345,
+                "heading": "Məkanların qoşulması"
+              },
+              "review": {
+                "scroll": 345,
+                "eligible": 10
+              },
+              "kind": "informational",
+              "pass": true
+            },
+            {
+              "lang": "az",
+              "width": 390,
+              "select": {
+                "scroll": 390,
+                "heading": "Məkanların qoşulması"
+              },
+              "review": {
+                "scroll": 375,
+                "eligible": 10
+              },
+              "kind": "informational",
+              "pass": true
+            },
+            {
+              "lang": "az",
+              "width": 768,
+              "select": {
+                "scroll": 768,
+                "heading": "Məkanların qoşulması"
+              },
+              "review": {
+                "scroll": 753,
+                "eligible": 10
+              },
+              "kind": "informational",
+              "pass": true
+            },
+            {
+              "lang": "az",
+              "width": 1440,
+              "select": {
+                "scroll": 1440,
+                "heading": "Məkanların qoşulması"
+              },
+              "review": {
+                "scroll": 1425,
+                "eligible": 10
+              },
+              "kind": "informational",
+              "pass": true
+            },
+            {
+              "lang": "en",
+              "width": 360,
+              "select": {
+                "scroll": 360,
+                "heading": "Connect places"
+              },
+              "review": {
+                "scroll": 345,
+                "eligible": 10
+              },
+              "kind": "informational",
+              "pass": true
+            },
+            {
+              "lang": "en",
+              "width": 390,
+              "select": {
+                "scroll": 390,
+                "heading": "Connect places"
+              },
+              "review": {
+                "scroll": 375,
+                "eligible": 10
+              },
+              "kind": "informational",
+              "pass": true
+            },
+            {
+              "lang": "en",
+              "width": 768,
+              "select": {
+                "scroll": 768,
+                "heading": "Connect places"
+              },
+              "review": {
+                "scroll": 753,
+                "eligible": 10
+              },
+              "kind": "informational",
+              "pass": true
+            },
+            {
+              "lang": "en",
+              "width": 1440,
+              "select": {
+                "scroll": 1440,
+                "heading": "Connect places"
+              },
+              "review": {
+                "scroll": 1425,
+                "eligible": 10
+              },
+              "kind": "informational",
+              "pass": true
+            }
+          ],
+          "selectionUrl": "http://localhost:8788/admin/catalog/place/organization-connections/?selection=eyJhY3RvciI6NSwiaWRzIjpbMjIsMjMsMjQsMjUsMjYsMjcsMjgsMjksMzAsMzFdfQ%3A1xEgTJ%3AOU2ix70rJrBk9909QM3MoJMVek1p_-XnLQSxGQbAbh0",
+          "receipt": "261c13f0-574d-46fd-9639-10be04151f67",
+          "key": "5d5cb795-51bf-48ed-b296-ce02f76103ac",
+          "url": "http://localhost:8788/admin/catalog/place/organization-connections/?operation=261c13f0-574d-46fd-9639-10be04151f67",
+          "connected": 10,
+          "pass": true
+        }
+      }
+    ],
+    "browser-connect10.log": {
+      "ids": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "preview": "05132a17-99ed-43f0-9151-46dca68f91e2",
+      "key": "1c285270-86f1-4495-8b71-2140ebc7f5b9",
+      "url": "http://localhost:8788/ru/account/organization-operations/05132a17-99ed-43f0-9151-46dca68f91e2/",
+      "executable": 10,
+      "connected": 10,
+      "afterReload": 10,
+      "replay": {
+        "status": 200,
+        "url": "http://localhost:8788/ru/account/organization-operations/05132a17-99ed-43f0-9151-46dca68f91e2/"
+      },
+      "pass": true
+    },
+    "browser-partial.log": {
+      "before": [
+        {
+          "code": "already_connected",
+          "text": "QA Готовое место 01QA Uydurma küçə 01, Bakı#4 · Опубликовано QA Семейная сеть Уже подключено"
+        },
+        {
+          "code": "other_network",
+          "text": "QA Другая сетьQA Uydurma küçə 99#14 · Опубликовано QA Digər şəbəkə Другая организация: пропустим, перенос требует отвязки"
+        },
+        {
+          "code": "requested",
+          "text": "QA Другой владелецQA Uydurma küçə 98#15 · Опубликовано Самостоятельное место Запрос создан этой операцией Запрос #14 Ждём владельца места"
+        }
+      ],
+      "deniedWorkspace": 404,
+      "deniedReceipt": 404,
+      "ready": 1,
+      "confirmed": 1,
+      "pass": true
+    },
+    "browser-org-two-tabs.log": {
+      "before": 1,
+      "changed": 1,
+      "editorStatus": [
+        "\n                  check_circle\n                  Опубликовано на сайте\n                ",
+        "\n                  hourglass_top\n                  Изменения на модерации\n                ",
+        "\n                  cloud_done\n                  Черновик на сервере\n                "
+      ],
+      "receipt": "http://localhost:8788/ru/account/organization-operations/a46352ad-2046-44db-bd56-21829c4530da/",
+      "message": "\n    \n    QA Готовое место 02QA Uydurma küçə 02, Bakı#5 · Опубликовано\n    QA Семейная сеть\n      \n      \n    \n    Данные изменились: проверьте заново\n      \n      \n      \n    ",
+      "pass": true
+    },
+    "browser-detach.log": {
+      "matrix": [
+        {
+          "lang": "ru",
+          "width": 360,
+          "scroll": 345,
+          "impact": "Последствия отвязки\n\nФото, занятия, группы, тарифы, часы работы, владелец и статус публикации сохраняются.\n\nЗанятия общих программ станут локальными снимками; обновления сети прекратятся. 0\n\nСотрудников с сетевым доступом: 0. Прямых разрешений, которые сохранятся: 0.\n\nОбщие контакты перестанут наследоваться. Проверьте телефон и сайт места.\n\nСетевые разрешения остаются в сети и могут снова действовать после повторного подключения.",
+          "heading": "Отсоединить место",
+          "keyboard": true,
+          "pass": true
+        },
+        {
+          "lang": "ru",
+          "width": 390,
+          "scroll": 375,
+          "impact": "Последствия отвязки\n\nФото, занятия, группы, тарифы, часы работы, владелец и статус публикации сохраняются.\n\nЗанятия общих программ станут локальными снимками; обновления сети прекратятся. 0\n\nСотрудников с сетевым доступом: 0. Прямых разрешений, которые сохранятся: 0.\n\nОбщие контакты перестанут наследоваться. Проверьте телефон и сайт места.\n\nСетевые разрешения остаются в сети и могут снова действовать после повторного подключения.",
+          "heading": "Отсоединить место",
+          "keyboard": true,
+          "pass": true
+        },
+        {
+          "lang": "ru",
+          "width": 768,
+          "scroll": 753,
+          "impact": "Последствия отвязки\n\nФото, занятия, группы, тарифы, часы работы, владелец и статус публикации сохраняются.\n\nЗанятия общих программ станут локальными снимками; обновления сети прекратятся. 0\n\nСотрудников с сетевым доступом: 0. Прямых разрешений, которые сохранятся: 0.\n\nОбщие контакты перестанут наследоваться. Проверьте телефон и сайт места.\n\nСетевые разрешения остаются в сети и могут снова действовать после повторного подключения.",
+          "heading": "Отсоединить место",
+          "keyboard": true,
+          "pass": true
+        },
+        {
+          "lang": "ru",
+          "width": 1440,
+          "scroll": 1425,
+          "impact": "Последствия отвязки\n\nФото, занятия, группы, тарифы, часы работы, владелец и статус публикации сохраняются.\n\nЗанятия общих программ станут локальными снимками; обновления сети прекратятся. 0\n\nСотрудников с сетевым доступом: 0. Прямых разрешений, которые сохранятся: 0.\n\nОбщие контакты перестанут наследоваться. Проверьте телефон и сайт места.\n\nСетевые разрешения остаются в сети и могут снова действовать после повторного подключения.",
+          "heading": "Отсоединить место",
+          "keyboard": true,
+          "pass": true
+        },
+        {
+          "lang": "az",
+          "width": 360,
+          "scroll": 345,
+          "impact": "Ayrılmanın nəticələri\n\nŞəkillər, məşğələlər, qruplar, tariflər, iş saatları, sahib və dərc vəziyyəti saxlanılır.\n\nÜmumi proqramların məşğələləri yerli surət kimi qalacaq; şəbəkə yeniləmələri dayanacaq. 0\n\nŞəbəkə girişi olan əməkdaşlar: 0. Saxlanılan birbaşa icazələr: 0.\n\nÜmumi əlaqə məlumatları artıq miras alınmayacaq. Məkanın telefonunu və saytını yoxlayın.\n\nŞəbəkə icazələri şəbəkədə qalır və yenidən qoşulduqdan sonra qüvvəyə minə bilər.",
+          "heading": "Məkanı ayır",
+          "keyboard": true,
+          "pass": true
+        },
+        {
+          "lang": "az",
+          "width": 390,
+          "scroll": 375,
+          "impact": "Ayrılmanın nəticələri\n\nŞəkillər, məşğələlər, qruplar, tariflər, iş saatları, sahib və dərc vəziyyəti saxlanılır.\n\nÜmumi proqramların məşğələləri yerli surət kimi qalacaq; şəbəkə yeniləmələri dayanacaq. 0\n\nŞəbəkə girişi olan əməkdaşlar: 0. Saxlanılan birbaşa icazələr: 0.\n\nÜmumi əlaqə məlumatları artıq miras alınmayacaq. Məkanın telefonunu və saytını yoxlayın.\n\nŞəbəkə icazələri şəbəkədə qalır və yenidən qoşulduqdan sonra qüvvəyə minə bilər.",
+          "heading": "Məkanı ayır",
+          "keyboard": true,
+          "pass": true
+        },
+        {
+          "lang": "az",
+          "width": 768,
+          "scroll": 753,
+          "impact": "Ayrılmanın nəticələri\n\nŞəkillər, məşğələlər, qruplar, tariflər, iş saatları, sahib və dərc vəziyyəti saxlanılır.\n\nÜmumi proqramların məşğələləri yerli surət kimi qalacaq; şəbəkə yeniləmələri dayanacaq. 0\n\nŞəbəkə girişi olan əməkdaşlar: 0. Saxlanılan birbaşa icazələr: 0.\n\nÜmumi əlaqə məlumatları artıq miras alınmayacaq. Məkanın telefonunu və saytını yoxlayın.\n\nŞəbəkə icazələri şəbəkədə qalır və yenidən qoşulduqdan sonra qüvvəyə minə bilər.",
+          "heading": "Məkanı ayır",
+          "keyboard": true,
+          "pass": true
+        },
+        {
+          "lang": "az",
+          "width": 1440,
+          "scroll": 1425,
+          "impact": "Ayrılmanın nəticələri\n\nŞəkillər, məşğələlər, qruplar, tariflər, iş saatları, sahib və dərc vəziyyəti saxlanılır.\n\nÜmumi proqramların məşğələləri yerli surət kimi qalacaq; şəbəkə yeniləmələri dayanacaq. 0\n\nŞəbəkə girişi olan əməkdaşlar: 0. Saxlanılan birbaşa icazələr: 0.\n\nÜmumi əlaqə məlumatları artıq miras alınmayacaq. Məkanın telefonunu və saytını yoxlayın.\n\nŞəbəkə icazələri şəbəkədə qalır və yenidən qoşulduqdan sonra qüvvəyə minə bilər.",
+          "heading": "Məkanı ayır",
+          "keyboard": true,
+          "pass": true
+        },
+        {
+          "lang": "en",
+          "width": 360,
+          "scroll": 345,
+          "impact": "Detachment consequences\n\nPhotos, activities, groups, prices, opening hours, owner and publication status are preserved.\n\nShared program activities become local snapshots; network updates stop. 0\n\nEmployees with network access: 0. Direct grants retained: 0.\n\nShared contacts will no longer be inherited. Check the place's phone and website.\n\nNetwork grants remain in the network and may apply again after rejoining.",
+          "heading": "Detach place",
+          "keyboard": true,
+          "pass": true
+        },
+        {
+          "lang": "en",
+          "width": 390,
+          "scroll": 375,
+          "impact": "Detachment consequences\n\nPhotos, activities, groups, prices, opening hours, owner and publication status are preserved.\n\nShared program activities become local snapshots; network updates stop. 0\n\nEmployees with network access: 0. Direct grants retained: 0.\n\nShared contacts will no longer be inherited. Check the place's phone and website.\n\nNetwork grants remain in the network and may apply again after rejoining.",
+          "heading": "Detach place",
+          "keyboard": true,
+          "pass": true
+        },
+        {
+          "lang": "en",
+          "width": 768,
+          "scroll": 753,
+          "impact": "Detachment consequences\n\nPhotos, activities, groups, prices, opening hours, owner and publication status are preserved.\n\nShared program activities become local snapshots; network updates stop. 0\n\nEmployees with network access: 0. Direct grants retained: 0.\n\nShared contacts will no longer be inherited. Check the place's phone and website.\n\nNetwork grants remain in the network and may apply again after rejoining.",
+          "heading": "Detach place",
+          "keyboard": true,
+          "pass": true
+        },
+        {
+          "lang": "en",
+          "width": 1440,
+          "scroll": 1425,
+          "impact": "Detachment consequences\n\nPhotos, activities, groups, prices, opening hours, owner and publication status are preserved.\n\nShared program activities become local snapshots; network updates stop. 0\n\nEmployees with network access: 0. Direct grants retained: 0.\n\nShared contacts will no longer be inherited. Check the place's phone and website.\n\nNetwork grants remain in the network and may apply again after rejoining.",
+          "heading": "Detach place",
+          "keyboard": true,
+          "pass": true
+        }
+      ],
+      "receipt": "6055f7c3-fdb8-40f9-9302-07fc3b443806",
+      "detached": 1,
+      "replay": {
+        "status": 200,
+        "url": "http://localhost:8788/en/account/organization-operations/6055f7c3-fdb8-40f9-9302-07fc3b443806/"
+      },
+      "url": "http://localhost:8788/en/account/organization-operations/6055f7c3-fdb8-40f9-9302-07fc3b443806/",
+      "pass": true
+    },
+    "browser-org-create.log": {
+      "organizationUrl": "http://localhost:8788/ru/account/organizations/4/",
+      "orgId": 4,
+      "empty": true,
+      "duplicateHidden": true,
+      "branchUrl": "http://localhost:8788/ru/account/organizations/4/branches/19/",
+      "selected": true,
+      "transferred": true,
+      "pass": true
+    },
+    "browser-specialist-functional3.log": {
+      "checks": [
+        {
+          "scenario": "first-step-draft-private-photo",
+          "pass": true,
+          "url": "http://localhost:8788/ru/account/specialists/proposals/d079cd4b-1a64-4a8d-bd62-c44b00f1f987/"
+        },
+        {
+          "scenario": "reload-offers-explicit-recovery",
+          "pass": true
+        },
+        {
+          "scenario": "existing-name-recovery",
+          "pass": true
+        },
+        {
+          "scenario": "draft-step-2",
+          "pass": true
+        },
+        {
+          "scenario": "keyboard-format",
+          "pass": true
+        },
+        {
+          "scenario": "draft-step-3-three-practices",
+          "pass": true
+        },
+        {
+          "scenario": "draft-step-4",
+          "pass": true
+        },
+        {
+          "scenario": "draft-step-5",
+          "pass": true
+        },
+        {
+          "scenario": "submit-validation-retains-input",
+          "pass": false
+        },
+        {
+          "scenario": "error-link-focus-and-step",
+          "pass": true
+        },
+        {
+          "scenario": "proposal-send-pending",
+          "pass": true,
+          "url": "http://localhost:8788/ru/account/specialists/4/claims/"
+        },
+        {
+          "scenario": "repeat-send-same-profile",
+          "pass": true
+        },
+        {
+          "scenario": "author-no-person-authority-",
+          "pass": true
+        },
+        {
+          "scenario": "author-no-person-authority-certificates/",
+          "pass": true
+        },
+        {
+          "scenario": "general-edit-preserves-local-prices",
+          "pass": true,
+          "prices": [
+            "35",
+            "60",
+            "0",
+            ""
+          ]
+        },
+        {
+          "scenario": "two-tabs-owner-conflict",
+          "pass": false
+        }
+      ],
+      "proposalId": 4,
+      "draftUrl": "http://localhost:8788/ru/account/specialists/proposals/d079cd4b-1a64-4a8d-bd62-c44b00f1f987/"
+    },
+    "browser-specialist-errors.log": {
+      "checks": [
+        {
+          "scenario": "specialist-error-status-and-input",
+          "http": 400,
+          "status": "Изменения не сохранены. Проверьте ошибки.",
+          "pass": true
+        },
+        {
+          "scenario": "specialist-owner-two-tab-conflict",
+          "http": 409,
+          "pass": true
+        }
+      ]
+    },
+    "browser-specialist-moderation.log": {
+      "checks": [
+        {
+          "scenario": "admin-jump-focus",
+          "pass": true
+        },
+        {
+          "scenario": "admin-publish",
+          "pass": true
+        },
+        {
+          "scenario": "published-proposal-public-card",
+          "pass": true
+        },
+        {
+          "scenario": "admin-two-tabs-reject-and-retain-stale-token",
+          "pass": true
+        },
+        {
+          "scenario": "published-edit-warning",
+          "pass": true
+        },
+        {
+          "scenario": "null-experience-draft-reload",
+          "pass": true
+        },
+        {
+          "scenario": "draft-is-not-public",
+          "pass": true
+        },
+        {
+          "scenario": "admin-create-online-no-practice",
+          "pass": true
+        }
+      ]
+    },
+    "browser-specialist-privacy.log": {
+      "checks": [
+        {
+          "scenario": "identity-request-explicit",
+          "pass": true
+        },
+        {
+          "scenario": "identity-review",
+          "pass": true
+        },
+        {
+          "scenario": "person-authority-only-after-review",
+          "pass": true
+        },
+        {
+          "scenario": "person-confirms-organization-invitation",
+          "pass": true
+        },
+        {
+          "scenario": "identity-always-private",
+          "pass": true
+        },
+        {
+          "scenario": "certificate-pending-explicit-consent",
+          "pass": true
+        },
+        {
+          "scenario": "anonymous-certificate-vs-identity-ACL",
+          "pass": true,
+          "certificate": 200,
+          "identity": 404,
+          "cache": "private, no-store"
+        },
+        {
+          "scenario": "organization-owner-cannot-read-identity",
+          "pass": true
+        },
+        {
+          "scenario": "certificate-revoke-removes-public-download",
+          "pass": true
+        }
+      ],
+      "certId": "2",
+      "certDownload": "/ru/specialists/documents/2/download/",
+      "identityDownload": "/ru/specialists/documents/1/download/"
+    },
+    "browser-event-functional2.log": {
+      "checks": [
+        {
+          "scenario": "first-step-draft-resume",
+          "pass": true,
+          "id": 9
+        },
+        {
+          "scenario": "edit-refresh-offers-explicit-copy",
+          "pass": true
+        },
+        {
+          "scenario": "edit-input-restored",
+          "pass": true
+        },
+        {
+          "scenario": "second-step-draft-own-address-no-map",
+          "pass": true
+        },
+        {
+          "scenario": "client-accepts-three-mb-source",
+          "pass": true
+        },
+        {
+          "scenario": "third-step-photo-persisted",
+          "pass": true
+        },
+        {
+          "scenario": "submission-missing-phone-retains-fields",
+          "pass": true
+        },
+        {
+          "scenario": "error-link-visible-focus",
+          "pass": true
+        },
+        {
+          "scenario": "venue-address-explicit-phone-empty",
+          "pass": true
+        },
+        {
+          "scenario": "explicit-use-venue-phone",
+          "pass": true
+        },
+        {
+          "scenario": "submit-goes-to-dashboard",
+          "pass": false
+        },
+        {
+          "scenario": "pending-ordinary-editor-closed",
+          "pass": false
+        },
+        {
+          "scenario": "two-tabs-structured-conflict-keeps-text",
+          "pass": true
+        },
+        {
+          "scenario": "stale-recovery-restore-blocked",
+          "pass": true
+        },
+        {
+          "scenario": "verified-specialist-online-draft-reload",
+          "pass": true
+        },
+        {
+          "scenario": "organization-owner-no-foreign-specialist-event-access",
+          "pass": true
+        },
+        {
+          "scenario": "new-recovery-preserves-location-and-step",
+          "pass": true
+        },
+        {
+          "scenario": "cross-account-no-copy-no-organizer",
+          "pass": true
+        }
+      ],
+      "id": 9,
+      "editUrl": "http://localhost:8788/ru/account/places/events/9/edit/",
+      "onlineUrl": "http://localhost:8788/ru/account/places/events/10/edit/"
+    },
+    "browser-event-venue.log": {
+      "checks": [
+        {
+          "scenario": "venue-location-selection-ru",
+          "fields": {
+            "region": "baku",
+            "district": "baku_nasimi",
+            "lat": "40.4",
+            "lng": "49.82"
+          },
+          "pass": true
+        },
+        {
+          "scenario": "venue-draft-reload-ru",
+          "url": "http://localhost:8788/ru/account/places/events/11/edit/",
+          "pass": true
+        },
+        {
+          "scenario": "venue-location-selection-az",
+          "fields": {
+            "region": "baku",
+            "district": "baku_nasimi",
+            "lat": "40.4",
+            "lng": "49.82"
+          },
+          "pass": true
+        },
+        {
+          "scenario": "venue-draft-reload-az",
+          "url": "http://localhost:8788/account/places/events/12/edit/",
+          "pass": true
+        },
+        {
+          "scenario": "venue-location-selection-en",
+          "fields": {
+            "region": "baku",
+            "district": "baku_nasimi",
+            "lat": "40.4",
+            "lng": "49.82"
+          },
+          "pass": true
+        },
+        {
+          "scenario": "venue-draft-reload-en",
+          "url": "http://localhost:8788/en/account/places/events/13/edit/",
+          "pass": true
+        }
+      ]
+    },
+    "browser-event-optional2.log": {
+      "checks": [
+        {
+          "scenario": "venue-empty-numeric-values-remain-empty",
+          "pass": true
+        },
+        {
+          "scenario": "optional-city-and-point-submission",
+          "id": 14,
+          "url": "http://localhost:8788/ru/account/places/",
+          "pass": true
+        }
+      ],
+      "id": 14
+    },
+    "browser-event-final.log": [
+      {
+        "name": "event_moderate.js",
+        "result": {
+          "checks": [],
+          "error": "Error: locator.click: Error: strict mode violation: locator('[name=_continue]:visible') resolved to 2 elements:\n    1) <button type=\"submit\" name=\"_continue\" class=\"km-place-form-mobile-button km-place-form-mobile-button--success\">↵                Сохранить и продолжить↵         …</button> aka getByRole('button', { name: 'Сохранить и продолжить', exact: true })\n    2) <button type=\"submit\" name=\"_continue\" class=\"km-btn--sidebar km-btn--primary-save\">…</button> aka getByRole('button', { name: ' Сохранить и продолжить' })\n\nCall log:\n\u001b[2m  - waiting for locator('[name=_continue]:visible')\u001b[22m\n",
+          "url": "http://localhost:8788/admin/catalog/event/9/change/"
+        }
+      },
+      {
+        "name": "admin_event.js",
+        "result": {
+          "checks": [],
+          "error": "Error: locator.click: Error: strict mode violation: locator('[name=_continue]:visible') resolved to 2 elements:\n    1) <button type=\"submit\" name=\"_continue\" class=\"km-place-form-mobile-button km-place-form-mobile-button--success\">↵                Сохранить и продолжить↵         …</button> aka getByRole('button', { name: 'Сохранить и продолжить', exact: true })\n    2) <button type=\"submit\" name=\"_continue\" class=\"km-btn--sidebar km-btn--primary-save\">…</button> aka getByRole('button', { name: ' Сохранить и продолжить' })\n\nCall log:\n\u001b[2m  - waiting for locator('[name=_continue]:visible')\u001b[22m\n",
+          "url": "http://localhost:8788/admin/catalog/event/7/change/"
+        }
+      },
+      {
+        "name": "fresh-owner-event-browser_management.js",
+        "result": {
+          "checks": [
+            {
+              "scenario": "published-reschedule-baku-interval",
+              "pass": true
+            },
+            {
+              "scenario": "public-rescheduled-label-and-original-venue",
+              "pass": true
+            },
+            {
+              "scenario": "cancel-keeps-card-disables-actions",
+              "pass": true
+            },
+            {
+              "scenario": "repeat-stale-cancel-explicit-conflict",
+              "pass": true
+            },
+            {
+              "scenario": "public-cancelled-retained",
+              "pass": true
+            },
+            {
+              "scenario": "foreign-management-forbidden",
+              "pass": true
+            }
+          ]
+        }
+      }
+    ],
+    "browser-event-final2.log": [
+      {
+        "name": "event_moderate.js",
+        "result": {
+          "checks": [
+            {
+              "scenario": "admin-moderation-event-9",
+              "pass": true
+            },
+            {
+              "scenario": "public-event-9",
+              "status": 200,
+              "pass": true
+            },
+            {
+              "scenario": "admin-moderation-event-10",
+              "pass": true
+            },
+            {
+              "scenario": "public-event-10",
+              "status": 200,
+              "pass": true
+            }
+          ]
+        }
+      },
+      {
+        "name": "admin_event.js",
+        "result": {
+          "checks": [
+            {
+              "scenario": "fresh-admin-event-save",
+              "pass": true
+            },
+            {
+              "scenario": "stale-admin-event-rejected-with-input",
+              "pass": true
+            },
+            {
+              "scenario": "stale-admin-did-not-overwrite",
+              "pass": true
+            }
+          ]
+        }
+      }
+    ],
+    "browser-admin-gallery-contract-green5.log": {
+      "checks": [
+        {
+          "scenario": "gallery-real-form-indices",
+          "names": [
+            "gallery-2-image",
+            "gallery-3-image"
+          ],
+          "pass": true
+        },
+        {
+          "scenario": "gallery-keyboard-handle",
+          "pass": true
+        },
+        {
+          "scenario": "keyboard-order-before-save",
+          "pass": true
+        },
+        {
+          "scenario": "gallery-upload-persistence",
+          "images": [
+            "events/gallery/gallery-two_KVzdyXR.png",
+            "events/gallery/gallery-one_Dh8yi34.png"
+          ],
+          "pass": true
+        },
+        {
+          "scenario": "gallery-keyboard-order-persistence",
+          "pass": true
+        }
+      ]
+    },
+    "browser-section-flags2.log": {
+      "checks": [
+        {
+          "scenario": "disable-organizations_section_enabled-ru",
+          "statuses": [
+            404,
+            200,
+            200
+          ],
+          "admin": 200,
+          "pass": true
+        },
+        {
+          "scenario": "disable-organizations_section_enabled-az",
+          "statuses": [
+            404,
+            200,
+            200
+          ],
+          "admin": 200,
+          "pass": true
+        },
+        {
+          "scenario": "disable-organizations_section_enabled-en",
+          "statuses": [
+            404,
+            200,
+            200
+          ],
+          "admin": 200,
+          "pass": true
+        },
+        {
+          "scenario": "enable-organizations_section_enabled-ru",
+          "statuses": [
+            200,
+            200,
+            200
+          ],
+          "pass": true
+        },
+        {
+          "scenario": "enable-organizations_section_enabled-az",
+          "statuses": [
+            200,
+            200,
+            200
+          ],
+          "pass": true
+        },
+        {
+          "scenario": "enable-organizations_section_enabled-en",
+          "statuses": [
+            200,
+            200,
+            200
+          ],
+          "pass": true
+        },
+        {
+          "scenario": "disable-specialists_section_enabled-ru",
+          "statuses": [
+            200,
+            404,
+            200
+          ],
+          "admin": 200,
+          "pass": true
+        },
+        {
+          "scenario": "disable-specialists_section_enabled-az",
+          "statuses": [
+            200,
+            404,
+            200
+          ],
+          "admin": 200,
+          "pass": true
+        },
+        {
+          "scenario": "disable-specialists_section_enabled-en",
+          "statuses": [
+            200,
+            404,
+            200
+          ],
+          "admin": 200,
+          "pass": true
+        },
+        {
+          "scenario": "enable-specialists_section_enabled-ru",
+          "statuses": [
+            200,
+            200,
+            200
+          ],
+          "pass": true
+        },
+        {
+          "scenario": "enable-specialists_section_enabled-az",
+          "statuses": [
+            200,
+            200,
+            200
+          ],
+          "pass": true
+        },
+        {
+          "scenario": "enable-specialists_section_enabled-en",
+          "statuses": [
+            200,
+            200,
+            200
+          ],
+          "pass": true
+        },
+        {
+          "scenario": "disable-events_section_enabled-ru",
+          "statuses": [
+            200,
+            200,
+            410
+          ],
+          "admin": 200,
+          "pass": true
+        },
+        {
+          "scenario": "disable-events_section_enabled-az",
+          "statuses": [
+            200,
+            200,
+            410
+          ],
+          "admin": 200,
+          "pass": true
+        },
+        {
+          "scenario": "disable-events_section_enabled-en",
+          "statuses": [
+            200,
+            200,
+            410
+          ],
+          "admin": 200,
+          "pass": true
+        },
+        {
+          "scenario": "enable-events_section_enabled-ru",
+          "statuses": [
+            200,
+            200,
+            200
+          ],
+          "pass": true
+        },
+        {
+          "scenario": "enable-events_section_enabled-az",
+          "statuses": [
+            200,
+            200,
+            200
+          ],
+          "pass": true
+        },
+        {
+          "scenario": "enable-events_section_enabled-en",
+          "statuses": [
+            200,
+            200,
+            200
+          ],
+          "pass": true
+        }
+      ]
+    },
+    "browser-confirmed-regressions.log": [
+      {
+        "name": "admin_tariff_responsive.js",
+        "result": {
+          "checks": [
+            {
+              "scenario": "admin-tariff-responsive-free",
+              "mode": "free",
+              "hidden": true,
+              "pass": true
+            },
+            {
+              "scenario": "admin-tariff-responsive-events",
+              "mode": "events",
+              "hidden": true,
+              "pass": true
+            },
+            {
+              "scenario": "admin-tariff-responsive-tariffs",
+              "mode": "tariffs",
+              "hidden": false,
+              "pass": true
+            }
+          ]
+        }
+      },
+      {
+        "name": "admin_candidate_relative.js",
+        "result": {
+          "checks": [
+            {
+              "scenario": "candidate-edit-round-1",
+              "old": [
+                "places/gallery/gallery-two.png",
+                "places/gallery/cover.png",
+                "places/gallery/cover_d5yHA02.png",
+                "places/gallery/gallery-one.png"
+              ],
+              "images": [
+                "places/gallery/gallery-two.png",
+                "places/gallery/cover.png",
+                "places/gallery/cover_L9Me8No.png",
+                "places/gallery/cover_d5yHA02.png"
+              ],
+              "pass": true
+            },
+            {
+              "scenario": "candidate-edit-round-2",
+              "old": [
+                "places/gallery/gallery-two.png",
+                "places/gallery/cover.png",
+                "places/gallery/cover_L9Me8No.png",
+                "places/gallery/cover_d5yHA02.png"
+              ],
+              "images": [
+                "places/gallery/gallery-two.png",
+                "places/gallery/cover.png",
+                "places/gallery/cover_M73WMRl.png",
+                "places/gallery/cover_L9Me8No.png"
+              ],
+              "pass": true
+            },
+            {
+              "scenario": "candidate-published-files-preserved",
+              "pass": true
+            }
+          ]
+        }
+      }
+    ],
+    "browser-final-keyboard-permissions.log": {
+      "checks": [
+        {
+          "scenario": "specialist-sidebar-keyboard",
+          "lang": "ru",
+          "width": 901,
+          "focused": "km-sec-12",
+          "pass": true
+        },
+        {
+          "scenario": "specialist-sidebar-keyboard",
+          "lang": "ru",
+          "width": 1024,
+          "focused": "km-sec-12",
+          "pass": true
+        },
+        {
+          "scenario": "specialist-sidebar-keyboard",
+          "lang": "ru",
+          "width": 1440,
+          "focused": "km-sec-12",
+          "pass": true
+        },
+        {
+          "scenario": "specialist-sidebar-keyboard",
+          "lang": "az",
+          "width": 901,
+          "focused": "km-sec-12",
+          "pass": true
+        },
+        {
+          "scenario": "specialist-sidebar-keyboard",
+          "lang": "az",
+          "width": 1024,
+          "focused": "km-sec-12",
+          "pass": true
+        },
+        {
+          "scenario": "specialist-sidebar-keyboard",
+          "lang": "az",
+          "width": 1440,
+          "focused": "km-sec-12",
+          "pass": true
+        },
+        {
+          "scenario": "specialist-sidebar-keyboard",
+          "lang": "en",
+          "width": 901,
+          "focused": "km-sec-12",
+          "pass": true
+        },
+        {
+          "scenario": "specialist-sidebar-keyboard",
+          "lang": "en",
+          "width": 1024,
+          "focused": "km-sec-12",
+          "pass": true
+        },
+        {
+          "scenario": "specialist-sidebar-keyboard",
+          "lang": "en",
+          "width": 1440,
+          "focused": "km-sec-12",
+          "pass": true
+        },
+        {
+          "scenario": "pending-event-ordinary-editor-closed",
+          "status": 200,
+          "url": "http://localhost:8788/ru/account/places/",
+          "pass": true
+        }
+      ]
+    }
+  },
+  "superseded": {
+    "browser-specialist-functional3.log:submit-validation-retains-input": "browser-specialist-errors.log:specialist-error-status-and-input (wait for POST response)",
+    "browser-specialist-functional3.log:two-tabs-owner-conflict": "browser-specialist-errors.log:specialist-owner-two-tab-conflict (wait for POST response)",
+    "browser-event-functional2.log:submit-goes-to-dashboard": "browser-event-optional2.log:complete optional-geography event submits after null coordinates fix; events 9/10 reviewed in browser-event-final2.log",
+    "browser-event-functional2.log:pending-ordinary-editor-closed": "browser-final-keyboard-permissions.log:pending-event-ordinary-editor-closed, fresh owner GET redirects to dashboard",
+    "browser-event-final.log:admin selector error": "browser-event-final2.log:uses first visible _continue among two genuine buttons"
+  }
+}

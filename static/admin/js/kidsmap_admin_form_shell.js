@@ -1451,6 +1451,11 @@
       return card.querySelector('input[type="hidden"][name$="-id"]');
     }
 
+    function hasSavedImage(card) {
+      var preview = card.querySelector("[data-gallery-preview]");
+      return !!(preview && preview.getAttribute("data-gallery-initial-url"));
+    }
+
     function hasAssignedFile(card) {
       var input = card.querySelector('input[type="file"]');
       return !!(input && input.files && input.files.length);
@@ -1485,9 +1490,31 @@
       var preview = card.querySelector("[data-gallery-preview]");
       var placeholder = card.querySelector("[data-gallery-placeholder]");
 
+      var keyboardHandle = card.querySelector("[data-gallery-drag-handle]");
+      if (keyboardHandle) {
+        keyboardHandle.tabIndex = 0;
+        keyboardHandle.setAttribute("role", "button");
+        keyboardHandle.setAttribute("aria-keyshortcuts", "ArrowLeft ArrowRight ArrowUp ArrowDown");
+        var orderHelp = {ru: 'Порядок фото: стрелками переместите фото', az: 'Şəkil sırası: oxlarla yerini dəyişin', en: 'Photo order: use arrow keys to move'}[(document.documentElement.lang || 'ru').split('-')[0]] || 'Photo order: use arrow keys to move';
+        keyboardHandle.setAttribute("aria-label", orderHelp);
+        keyboardHandle.title = orderHelp;
+        keyboardHandle.addEventListener("keydown", function (event) {
+          var direction = {ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1}[event.key];
+          if (!direction) return;
+          event.preventDefault();
+          var visible = getCards().filter(function (item) { return !item.hidden; });
+          var index = visible.indexOf(card);
+          var target = visible[index + direction];
+          if (!target) return;
+          grid.insertBefore(card, direction < 0 ? target : target.nextSibling);
+          renumberVisibleCards();
+          keyboardHandle.focus();
+        });
+      }
+
       function syncFromInput() {
         var idInput = getPersistedIdInput(card);
-        var persisted = !!(idInput && String(idInput.value || "").trim());
+        var persisted = hasSavedImage(card) || !!(idInput && String(idInput.value || "").trim());
         if (deleteInput && deleteInput.checked) {
           setCardHiddenState(card, true);
           return;
@@ -1578,7 +1605,7 @@
       if (removeButton) {
         removeButton.addEventListener("click", function () {
           var idInput = getPersistedIdInput(card);
-          var persisted = !!(idInput && String(idInput.value || "").trim());
+          var persisted = hasSavedImage(card) || !!(idInput && String(idInput.value || "").trim());
           if (persisted && deleteInput) {
             deleteInput.checked = true;
             setCardHiddenState(card, true);
@@ -1634,13 +1661,13 @@
         var card = cards[i];
         if (card.hidden) {
           var idInput = getPersistedIdInput(card);
-          if (!idInput || !String(idInput.value || "").trim()) {
+          if (!hasSavedImage(card) && (!idInput || !String(idInput.value || "").trim())) {
             return card;
           }
         }
         if (!card.hidden && !hasAssignedFile(card)) {
           var existingId = getPersistedIdInput(card);
-          if (!existingId || !String(existingId.value || "").trim()) {
+          if (!hasSavedImage(card) && (!existingId || !String(existingId.value || "").trim())) {
             return card;
           }
         }
@@ -2496,6 +2523,7 @@
     }
 
     function updateRealtimeProgress() {
+      if (form.hasAttribute("data-event-readiness")) return;
       var total = CHECKLIST_CONFIG.length;
       var missing = [];
       CHECKLIST_CONFIG.forEach(function (item) {

@@ -1,0 +1,31 @@
+{
+  "actions": [
+    {
+      "action": "confirm_org",
+      "result": "ValidationError",
+      "messages": [
+        "Request is stale."
+      ]
+    },
+    {
+      "action": "confirm_place",
+      "result": "ValidationError",
+      "messages": [
+        "Request is stale."
+      ]
+    },
+    {
+      "action": "request_again",
+      "result": "ValidationError",
+      "messages": [
+        "Request is stale."
+      ]
+    }
+  ],
+  "pending_status": "pending",
+  "linked": false,
+  "preview_decisions": [
+    "manual_review"
+  ],
+  "fixture_transaction_rolled_back": true
+}

@@ -1,0 +1,115 @@
+[
+  {
+    "id": "SEC-LEGACY-PRIVATE",
+    "expected": "deny invisible foreign draft; no request, no private name",
+    "actual": {
+      "post_status": 302,
+      "created_request": 1,
+      "private_name_visible": true,
+      "place_linked": false
+    },
+    "status": "FAIL",
+    "role": "organization owner",
+    "url": "/account/organizations/5/join/"
+  },
+  {
+    "id": "SEC-BULK-PRIVATE",
+    "expected": "bulk blocks invisible draft",
+    "actual": true,
+    "status": "PASS"
+  },
+  {
+    "id": "LEGACY-MISSING-ID",
+    "expected": "404/400 for nonexistent place",
+    "actual": 409,
+    "status": "FAIL"
+  },
+  {
+    "id": "LEGACY-DETACH-CONSENT",
+    "expected": "detach with reviewed snapshot and explicit consent",
+    "actual": {
+      "status": 302,
+      "detached": true
+    },
+    "status": "FAIL",
+    "url": "/account/organizations/9/branches/52/detach/"
+  },
+  {
+    "id": "VALIDATE-duplicate",
+    "expected": "reject invalid ID list",
+    "actual": true,
+    "status": "PASS"
+  },
+  {
+    "id": "VALIDATE-bool",
+    "expected": "reject invalid ID list",
+    "actual": true,
+    "status": "PASS"
+  },
+  {
+    "id": "VALIDATE-empty",
+    "expected": "reject invalid ID list",
+    "actual": true,
+    "status": "PASS"
+  },
+  {
+    "id": "VALIDATE-overlimit",
+    "expected": "reject invalid ID list",
+    "actual": true,
+    "status": "PASS"
+  },
+  {
+    "id": "WORKSPACE-outsider",
+    "expected": "outsider 404, granted employee 200",
+    "actual": 404,
+    "status": "PASS"
+  },
+  {
+    "id": "JOIN-RIGHTS-outsider",
+    "expected": "no side ownership cannot connect place32",
+    "actual": "PermissionDenied",
+    "status": "PASS"
+  },
+  {
+    "id": "WORKSPACE-manager",
+    "expected": "outsider 404, granted employee 200",
+    "actual": 200,
+    "status": "PASS"
+  },
+  {
+    "id": "JOIN-RIGHTS-manager",
+    "expected": "no side ownership cannot connect place32",
+    "actual": "PermissionDenied",
+    "status": "PASS"
+  },
+  {
+    "id": "WORKSPACE-person",
+    "expected": "outsider 404, granted employee 200",
+    "actual": 200,
+    "status": "PASS"
+  },
+  {
+    "id": "JOIN-RIGHTS-person",
+    "expected": "no side ownership cannot connect place32",
+    "actual": "PermissionDenied",
+    "status": "PASS"
+  },
+  {
+    "id": "CSRF",
+    "expected": "mutation without token rejected",
+    "actual": 403,
+    "status": "PASS"
+  },
+  {
+    "id": "METHOD-organization_workspace_save",
+    "expected": "GET does not mutate",
+    "actual": 405,
+    "status": "PASS"
+  },
+  {
+    "id": "METHOD-organization_workspace_join",
+    "expected": "GET does not mutate",
+    "actual": 405,
+    "status": "PASS"
+  }
+]

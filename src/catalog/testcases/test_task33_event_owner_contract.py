@@ -108,6 +108,7 @@ class EventOwnerContractTests(TestCase):
             organizer_organization=self.org,event_format='online',phone='+994501234567',photo='synthetic.png')
         data={'name':'Online','name_az':'Online','description_az':'Online description','category':self.category.code,
             'organizer_organization':self.org.pk,'event_format':'online','status':'published',
+            'expected_updated_at':event.updated_at.isoformat(),
             'start_datetime':'2035-02-04 00:00','end_datetime':'2035-02-04 01:00','phone':'+994501234567'}
         with timezone.override(ZoneInfo('America/New_York')):
             form=EventAdminForm(instance=event,data=data)

@@ -1,0 +1,174 @@
+--- before/src/catalog/templates/base.html
++++ after/src/catalog/templates/base.html
+@@ -104,6 +104,7 @@
+     <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=2">
+     <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261005">
+     <script src="{% static 'js/header.js' %}?v=20260915" defer></script>
++    <script src="{% static 'js/motion.js' %}"></script>
+   </head>
+   <body id="top" class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
+     data-analytics-page-type="{{ analytics_page_type }}"
+@@ -860,7 +861,6 @@
+       })();
+     </script>
+     <script src="{% static 'js/ai_referral_tracking.js' %}"></script>
+-    <script src="{% static 'js/motion.js' %}" defer></script>
+     <script src="{% static 'js/review_submission.js' %}" defer></script>
+     {% if analytics_events %}
+       {{ analytics_events|json_script:"kidsmap-analytics-events" }}
+--- before/static/css/pages/account_profile.css
++++ after/static/css/pages/account_profile.css
+@@ -1603,6 +1603,10 @@
+ 
+ /* Responsive Breakpoints */
+ @media (max-width: 860px) {
++  .account-main-content {
++    width: 100%;
++  }
++
+   .account-main-layout {
+     flex-direction: column;
+   }
+--- before/static/js/motion.js
++++ after/static/js/motion.js
+@@ -52,25 +52,28 @@
+   window.addEventListener("pageswap", (event) => {
+     if (!event.viewTransition) return;
+     const target = event.activation && event.activation.entry;
+-    if (!target || !PLACE_URL.test(target.url)) return;
+-
+-    const el = tag(pendingCover);
++    // Account forms opt out. Skip before the incoming document is revealed.
++    if (target && /^\/(?:[a-z]{2}\/)?account\//.test(new URL(target.url, location.href).pathname)) {
++      event.viewTransition.skipTransition();
++    }
++    const el = tag(target && PLACE_URL.test(target.url) ? pendingCover : null);
++    // Opt-out destinations abort ready even when no cover is paired.
++    event.viewTransition.ready.then(() => {}, () => untag(el));
+     // Names must not leak into the back/forward cache snapshot.
+-    event.viewTransition.finished.then(() => untag(el));
++    event.viewTransition.finished.then(() => untag(el), () => untag(el));
+   });
+ 
+   /* ---- incoming page: tag the hero so the pair resolves ----------------- */
+ 
+   window.addEventListener("pagereveal", (event) => {
+     if (!event.viewTransition) return;
+-    if (!PLACE_URL.test(window.location.pathname)) return;
+-
+-    const hero =
+-      document.querySelector(".place-gallery__image") ||
+-      document.querySelector(".detail-top-media img");
++    const hero = PLACE_URL.test(window.location.pathname)
++      ? document.querySelector(".place-gallery__image") ||
++        document.querySelector(".detail-top-media img")
++      : null;
+ 
+     const el = tag(hero);
+-    event.viewTransition.ready.finally(() => untag(el));
++    event.viewTransition.ready.then(() => untag(el), () => untag(el));
+   });
+ 
+   /* ---- favourite burst -------------------------------------------------- */
+--- before/static/js/organization_workspace.js
++++ after/static/js/organization_workspace.js
+@@ -385,6 +385,8 @@
+     let filteredItems = allItems.slice();
+ 
+     function renderPage() {
++      const focusedControl = paginationBox?.contains(document.activeElement)
++        ? document.activeElement.dataset.pageControl : null;
+       const total = filteredItems.length;
+       const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+       if (currentPage > totalPages) currentPage = totalPages;
+@@ -429,6 +431,7 @@
+       // Prev button
+       const prevBtn = document.createElement('button');
+       prevBtn.type = 'button';
++      prevBtn.dataset.pageControl = 'prev';
+       prevBtn.className = 'org-pagination__btn';
+       prevBtn.textContent = copy.prev;
+       prevBtn.disabled = currentPage === 1;
+@@ -443,6 +446,8 @@
+       for (let p = 1; p <= totalPages; p++) {
+         const pageBtn = document.createElement('button');
+         pageBtn.type = 'button';
++        pageBtn.dataset.pageControl = String(p);
++        if (p === currentPage) pageBtn.setAttribute('aria-current', 'page');
+         pageBtn.className = 'org-pagination__btn' + (p === currentPage ? ' is-active' : '');
+         pageBtn.textContent = String(p);
+         pageBtn.addEventListener('click', () => {
+@@ -456,6 +461,7 @@
+       // Next button
+       const nextBtn = document.createElement('button');
+       nextBtn.type = 'button';
++      nextBtn.dataset.pageControl = 'next';
+       nextBtn.className = 'org-pagination__btn';
+       nextBtn.textContent = copy.next;
+       nextBtn.disabled = currentPage === totalPages;
+@@ -465,6 +471,12 @@
+         branchList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+       });
+       paginationBox.appendChild(nextBtn);
++      if (focusedControl) {
++        const controls = Array.from(paginationBox.querySelectorAll('button'));
++        const replacement = controls.find(btn => btn.dataset.pageControl === focusedControl && !btn.disabled)
++          || controls.find(btn => btn.dataset.pageControl === String(currentPage));
++        replacement?.focus({preventScroll: true});
++      }
+     }
+ 
+     if (branchSearch) {
+--- /dev/null
++++ after/src/catalog/migrations/0141_catalog_admin_names.py
+@@ -0,0 +1,25 @@
++from django.db import migrations
++
++
++class Migration(migrations.Migration):
++    dependencies = [('catalog', '0140_specialist_proposal_draft')]
++
++    # Record existing admin labels in migration state; no schema or data changes.
++    operations = [
++        migrations.AlterModelOptions(
++            name='activity',
++            options={'verbose_name': 'Направление', 'verbose_name_plural': 'Направления'},
++        ),
++        migrations.AlterModelOptions(
++            name='offeringgroup',
++            options={'verbose_name': 'Группа занятий', 'verbose_name_plural': 'Группы занятий'},
++        ),
++        migrations.AlterModelOptions(
++            name='organization',
++            options={'verbose_name': 'Организация', 'verbose_name_plural': 'Организации'},
++        ),
++        migrations.AlterModelOptions(
++            name='program',
++            options={'verbose_name': 'Программа', 'verbose_name_plural': 'Программы'},
++        ),
++    ]
+--- /dev/null
++++ after/scripts/test_organization_pagination_focus.cjs
+@@ -0,0 +1,7 @@
++const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
++const {JSDOM}=require('jsdom');
++const source=fs.readFileSync(require('node:path').join(__dirname,'../static/js/organization_workspace.js'),'utf8');
++function setup(){const dom=new JSDOM(`<html lang="en"><input data-branch-search><div data-branch-list>${Array.from({length:13},(_,i)=>`<div data-branch-item data-name="branch ${i+1}">branch ${i+1}</div>`).join('')}</div><nav data-branch-pagination></nav></html>`,{runScripts:'outside-only'});dom.window.HTMLElement.prototype.scrollIntoView=()=>{};dom.window.eval(source);const d=dom.window.document,nav=d.querySelector('nav');return{dom,d,nav,page:n=>[...nav.querySelectorAll('button')].find(b=>b.textContent===String(n))};}
++test('paging retains the selected control and identifies current page',()=>{const {dom,d,page}=setup();page(2).focus();page(2).click();assert.equal(d.activeElement,page(2));assert.equal(page(2).getAttribute('aria-current'),'page');page(2).click();assert.equal(d.activeElement,page(2));dom.window.close();});
++test('next and previous keep focus until disabled, then focus current page',()=>{const {dom,d,nav,page}=setup();nav.lastChild.focus();nav.lastChild.click();assert.equal(d.activeElement,nav.lastChild);nav.lastChild.click();assert.equal(d.activeElement,page(3));nav.firstChild.focus();nav.firstChild.click();assert.equal(d.activeElement,nav.firstChild);nav.firstChild.click();assert.equal(d.activeElement,page(1));dom.window.close();});
++test('filtering and initial render do not steal focus',()=>{const {dom,d,nav}=setup();assert.equal(d.activeElement,d.body);const s=d.querySelector('input');s.focus();for(const query of ['branch 13','no match','']){s.value=query;s.dispatchEvent(new dom.window.Event('input'));assert.equal(d.activeElement,s);}assert.equal(nav.style.display,'flex');dom.window.close();});
+--- /dev/null
++++ after/scripts/test_motion_transition_rejection.cjs
+@@ -0,0 +1,12 @@
++const {test}=require('node:test'),assert=require('node:assert/strict'),{spawnSync}=require('node:child_process');
++for(const kind of ['pageswap','pagereveal'])for(const rejected of [true,false])test(`${kind}: ${rejected?'aborted':'completed'} transition cleans cover without unhandled rejection`,()=>{
++ const code=`const {JSDOM}=require('jsdom'),fs=require('node:fs');const dom=new JSDOM('<div class="card"><a href="/en/place/1-synthetic/"><img class="card-media-img"></a></div><img class="place-gallery__image">',{url:'http://localhost/en/place/1-synthetic/',runScripts:'outside-only'});const w=dom.window;w.matchMedia=()=>({matches:false});let errors=0;process.on('unhandledRejection',()=>errors++);w.eval(fs.readFileSync('static/js/motion.js','utf8'));w.document.querySelector('a').dispatchEvent(new w.MouseEvent('click',{bubbles:true}));const e=new w.Event('${kind}');e.activation={entry:{url:'http://localhost/en/place/1-synthetic/'}};e.viewTransition={skipTransition:()=>{},ready:Promise.resolve(),finished:Promise.resolve(),${kind==='pageswap'?'finished':'ready'}:${rejected?"Promise.reject(new Error('Transition aborted'))":"Promise.resolve()"}};w.dispatchEvent(e);setTimeout(()=>{console.log(JSON.stringify({errors,names:[...w.document.querySelectorAll('img')].map(e=>e.style.viewTransitionName)}));w.close();},20);`;
++ const r=spawnSync(process.execPath,['-e',code],{encoding:'utf8',env:process.env});assert.equal(r.status,0,r.stderr);const data=JSON.parse(r.stdout.trim());assert.equal(data.errors,0);assert.ok(data.names.every(n=>!n));
++});
++for(const kind of ['pageswap','pagereveal'])test(`${kind}: opt-out navigation handles rejected ready outside public place routes`,()=>{
++ const code=`const {JSDOM}=require('jsdom'),fs=require('node:fs');const dom=new JSDOM('<p>Workspace</p>',{url:'http://localhost/en/account/organizations/',runScripts:'outside-only'});const w=dom.window;w.matchMedia=()=>({matches:false});let errors=0;process.on('unhandledRejection',()=>errors++);w.eval(fs.readFileSync('static/js/motion.js','utf8'));const e=new w.Event('${kind}');e.activation={entry:{url:'http://localhost/en/account/places/'}};e.viewTransition={skipTransition:()=>{},ready:Promise.reject(new Error('ViewTransition opt-in disabled')),finished:Promise.resolve()};w.dispatchEvent(e);setTimeout(()=>{console.log(JSON.stringify({errors}));w.close();},20);`;
++ const r=spawnSync(process.execPath,['-e',code],{encoding:'utf8',env:process.env});assert.equal(r.status,0,r.stderr);assert.equal(JSON.parse(r.stdout.trim()).errors,0);
++});
++test('outgoing account navigation skips transition; public place navigation remains enabled',()=>{
++ const {JSDOM}=require('jsdom'),fs=require('node:fs');const dom=new JSDOM('<p>Public catalog</p>',{url:'http://localhost/en/places/',runScripts:'outside-only'});const w=dom.window;w.matchMedia=()=>({matches:false});w.eval(fs.readFileSync('static/js/motion.js','utf8'));for(const path of ['/ru/account/places/','/account/organizations/69/requests/120/recovery/','/en/account/organizations/','/en/place/1-test/']){let skipped=0;const e=new w.Event('pageswap');e.activation={entry:{url:'http://localhost'+path}};e.viewTransition={skipTransition:()=>{},ready:Promise.resolve(),finished:Promise.resolve(),skipTransition:()=>skipped++};w.dispatchEvent(e);assert.equal(skipped,path.includes('/account/')?1:0);}w.close();
++});

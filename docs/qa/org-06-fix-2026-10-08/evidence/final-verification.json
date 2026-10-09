@@ -1,0 +1,287 @@
+{
+  "head": "2da9d33abbc53d1ac71bcb7e15a0170bef6277d5",
+  "branch": "task33-progress",
+  "runtime": {
+    "head": "2da9d33abbc53d1ac71bcb7e15a0170bef6277d5",
+    "source_digest": "9b27c24007370a5e23d1c8a687218028d06652763bd5651397cdee28d1ee18d3",
+    "catalog_files": {
+      "locale/ru/LC_MESSAGES/django.po": "d81119ad60e69e4428fdbfed8be51f982307da0aa3a26a438f7ff8a63eb1a7b5",
+      "locale/ru/LC_MESSAGES/django.mo": "708679df34b9d4fcf7158ba351fcbd6b22f24b8c882c8996ddb8b8af26bc7439",
+      "locale/az/LC_MESSAGES/django.po": "41a0edf6ba113e462fea0e59ea9bd058d9515f93ce0f102703cb0ea06bd7986c",
+      "locale/az/LC_MESSAGES/django.mo": "0a8da7dd12622b27ca9f732b7274e737fb441733d460989cff883f8dc35ab218",
+      "locale/en/LC_MESSAGES/django.po": "22f3eeccb6d9474abf90012e3928cfcedb84f230dc9e6f60e45d378684eb2c0d",
+      "locale/en/LC_MESSAGES/django.mo": "f6969b45205fb8c6b7b7687d948c50dcb5bf8e789b1650ce63315733cb5b5f2d"
+    },
+    "worktree_entries": 196,
+    "DJANGO_TESTING": true,
+    "external_credentials_present": false,
+    "locmem_cache": true,
+    "locmem_email": true,
+    "public_base_url": "http://localhost:8788",
+    "started_at": "2026-10-08T11:48:16.045162+00:00"
+  },
+  "source_files_verified": 2761,
+  "catalog_files_verified": 6,
+  "source_drift": [],
+  "baseline_files": 5553,
+  "baseline_changed": [
+    "docs/task33/implementation-status.md",
+    "src/catalog/services/publication.py",
+    "locale/az/LC_MESSAGES/django.po",
+    "src/catalog/controllers/organization_workspace.py",
+    "locale/ru/LC_MESSAGES/django.po",
+    "static/js/organization_workspace.js",
+    "locale/en/LC_MESSAGES/django.po",
+    "src/catalog/templates/pages/organization_workspace.html"
+  ],
+  "foreign_files_changed": [],
+  "unchanged_baseline_files": 5545,
+  "source_changes": [
+    "src/catalog/controllers/organization_workspace.py",
+    "src/catalog/services/publication.py",
+    "src/catalog/templates/pages/organization_workspace.html",
+    "static/js/organization_workspace.js",
+    "locale/ru/LC_MESSAGES/django.po",
+    "locale/az/LC_MESSAGES/django.po",
+    "locale/en/LC_MESSAGES/django.po",
+    "src/catalog/testcases/test_organization_form_copy.py",
+    "scripts/test_organization_current_data.cjs"
+  ],
+  "source_sha256": {
+    "src/catalog/controllers/organization_workspace.py": "c306613484d5304737718c3b5c6a77a23813b16e5a6a37c031dd591096f81cda",
+    "src/catalog/services/publication.py": "7766db2be4bddb69dbfa4f538013b09331b2e7dcda32514e52b7994647450ef6",
+    "src/catalog/templates/pages/organization_workspace.html": "da14771a0dff6f86d38426ffa2d0806e4be50ab3cbe50d0b0ee66838c46302e3",
+    "static/js/organization_workspace.js": "71cd74521ea246f2695844daff0a77e4af0bcf15457b22524201a6706261672a",
+    "locale/ru/LC_MESSAGES/django.po": "d81119ad60e69e4428fdbfed8be51f982307da0aa3a26a438f7ff8a63eb1a7b5",
+    "locale/az/LC_MESSAGES/django.po": "41a0edf6ba113e462fea0e59ea9bd058d9515f93ce0f102703cb0ea06bd7986c",
+    "locale/en/LC_MESSAGES/django.po": "22f3eeccb6d9474abf90012e3928cfcedb84f230dc9e6f60e45d378684eb2c0d",
+    "src/catalog/testcases/test_organization_form_copy.py": "e88dd65b271654e8dfb17add44f7dd6bda0df48e569a62cf7e623ed61862fbea",
+    "scripts/test_organization_current_data.cjs": "f790b113c855688da19c9f31665cb9d35c49afc200a90e71ce18f68100cb7aa8"
+  },
+  "server_PASS": 140,
+  "JS_PASS": 20,
+  "browser_PASS": 430,
+  "browser_FAIL": 18,
+  "browser_failures": [
+    {
+      "id": "create-summary-focus-existing-gap-ru-360",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-ru-390",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-ru-768",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-ru-1024",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-ru-1280",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-ru-1440",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-az-360",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-az-390",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-az-768",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-az-1024",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-az-1280",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-az-1440",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-en-360",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-en-390",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-en-768",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-en-1024",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-en-1280",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    },
+    {
+      "id": "create-summary-focus-existing-gap-en-1440",
+      "status": "FAIL",
+      "scope": "existing creation accessibility gap; not changed in ORG06"
+    }
+  ],
+  "creation_JS_block_unchanged": true,
+  "db_verification": {
+    "old_domain_rows_unchanged": 438,
+    "changed_old_rows": [],
+    "new_synthetic_rows": {
+      "Organization": 9,
+      "Place": 0,
+      "Program": 0,
+      "Activity": 0,
+      "OfferingGroup": 0,
+      "PricingPlan": 0,
+      "PlacePhoto": 0,
+      "OrganizationPlaceRequest": 0,
+      "OrganizationGrant": 0,
+      "OwnerTeamMembership": 0,
+      "Specialist": 0,
+      "SpecialistDocument": 0,
+      "ServerDraft": 3,
+      "PlaceScheduleDay": 0,
+      "PlaceScheduleInterval": 0,
+      "VolunteerPlaceRevision": 6
+    },
+    "organizations": [
+      {
+        "id": 50,
+        "live_unchanged": true,
+        "candidate_status": null,
+        "candidate_version": null,
+        "private_drafts": 0
+      },
+      {
+        "id": 51,
+        "live_unchanged": true,
+        "candidate_status": null,
+        "candidate_version": null,
+        "private_drafts": 0
+      },
+      {
+        "id": 52,
+        "live_unchanged": true,
+        "candidate_status": null,
+        "candidate_version": null,
+        "private_drafts": 0
+      },
+      {
+        "id": 53,
+        "live_unchanged": true,
+        "candidate_status": "pending",
+        "candidate_version": 7,
+        "private_drafts": 1,
+        "private_draft_kept": true,
+        "draft_after_explicit_review": "reviewed"
+      },
+      {
+        "id": 54,
+        "live_unchanged": true,
+        "candidate_status": "pending",
+        "candidate_version": 7,
+        "private_drafts": 1,
+        "private_draft_kept": true,
+        "draft_after_explicit_review": "B"
+      },
+      {
+        "id": 55,
+        "live_unchanged": true,
+        "candidate_status": "pending",
+        "candidate_version": 7,
+        "private_drafts": 1,
+        "private_draft_kept": true,
+        "draft_after_explicit_review": "B"
+      },
+      {
+        "id": 56,
+        "created_via_browser": true,
+        "live_status": "draft",
+        "candidate_status": "pending"
+      },
+      {
+        "id": 57,
+        "created_via_browser": true,
+        "live_status": "draft",
+        "candidate_status": "pending"
+      },
+      {
+        "id": 58,
+        "created_via_browser": true,
+        "live_status": "draft",
+        "candidate_status": "pending"
+      }
+    ]
+  },
+  "translation_preservation": {
+    "ru": {
+      "old_po_entries": 4385,
+      "old_po_entries_changed": 0,
+      "po_entries_added": 9,
+      "old_mo_translations": 4254,
+      "old_mo_translations_changed": [],
+      "mo_entries_added": 9
+    },
+    "az": {
+      "old_po_entries": 4258,
+      "old_po_entries_changed": 0,
+      "po_entries_added": 9,
+      "old_mo_translations": 2652,
+      "old_mo_translations_changed": [],
+      "mo_entries_added": 9
+    },
+    "en": {
+      "old_po_entries": 4254,
+      "old_po_entries_changed": 0,
+      "po_entries_added": 9,
+      "old_mo_translations": 2652,
+      "old_mo_translations_changed": [],
+      "mo_entries_added": 9
+    }
+  },
+  "screenshots": 23,
+  "new_diff_trailing_whitespace": [],
+  "active_run": "NONE",
+  "commit_push_deploy": false,
+  "graph_evidence": {
+    "project": "home-ramin-kidsmap",
+    "root": "/home/ramin/kidsmap",
+    "status": "ready",
+    "template_locale_parse_partial": true,
+    "propose_graph_callers": 20,
+    "graph_callers_returned": 9,
+    "critical_conditions_verified_in_source": true
+  }
+}

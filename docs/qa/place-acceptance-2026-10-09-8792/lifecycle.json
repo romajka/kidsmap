@@ -1,0 +1,162 @@
+{
+  "rows": [
+    {
+      "id": "partial-server-draft-created",
+      "status": "PASS"
+    },
+    {
+      "id": "partial-draft-reload",
+      "status": "PASS"
+    },
+    {
+      "id": "logout-login-draft-continue",
+      "status": "PASS"
+    },
+    {
+      "id": "explicit-materialized-draft-reload",
+      "status": "PASS"
+    },
+    {
+      "id": "blank-en-not-filled-on-save",
+      "status": "PASS"
+    },
+    {
+      "id": "age-error-retains-input",
+      "status": "PASS",
+      "text": "Исправьте ошибки\nВозраст до Обязательно для отправки: Возраст «до» меньше «от». Укажите значение «до», равное или больше «от».\nИсправьте ошибки: Карточка не может быть опубликована. Заполнено 9 из 10 обязательных пунктов. Необходимо заполнить: Возраст — Возраст «до» не может быть меньше возраста «от».\nВозраст от Обязательно для отправки: Возраст «до» не может быть меньше возраста «от»."
+    },
+    {
+      "id": "error-jump-focus",
+      "status": "PASS"
+    },
+    {
+      "id": "owner-submit-pending",
+      "status": "PASS"
+    }
+  ],
+  "entities": {
+    "pointer": "http://localhost:8792/ru/account/places/create/?type=permanent&draft_session=owner-place-create-7e8a50d4cee54d5aa5c46b1999143fe6&draft_id=d97ffd88-7e27-4ff3-862e-86b926966e1d",
+    "subcategory": "107",
+    "id": 158,
+    "edit": "http://localhost:8792/ru/account/places/158/edit/#pc-section-4",
+    "review": "http://localhost:8792/admin/volunteer/review/158/",
+    "reviewButtons": [
+      {
+        "name": "",
+        "value": "",
+        "text": ""
+      },
+      {
+        "name": "",
+        "value": "",
+        "text": "RU"
+      },
+      {
+        "name": "",
+        "value": "",
+        "text": "\n                                    \n                                    Русский\n                                    RU\n                                    \n                                        \n                                    \n                                "
+      },
+      {
+        "name": "",
+        "value": "",
+        "text": "\n                                    \n                                    Azərbaycan\n                                    AZ\n                                    \n                                "
+      },
+      {
+        "name": "",
+        "value": "",
+        "text": "\n                                    \n                                    English\n                                    EN\n                                    \n                                "
+      },
+      {
+        "name": "",
+        "value": "",
+        "text": ""
+      },
+      {
+        "name": "",
+        "value": "",
+        "text": "\n                                    \n                                    Выйти\n                                "
+      },
+      {
+        "name": "",
+        "value": "",
+        "text": ""
+      },
+      {
+        "name": "",
+        "value": "",
+        "text": ""
+      },
+      {
+        "name": "",
+        "value": "",
+        "text": ""
+      },
+      {
+        "name": "",
+        "value": "",
+        "text": ""
+      },
+      {
+        "name": "",
+        "value": "",
+        "text": ""
+      },
+      {
+        "name": "",
+        "value": "",
+        "text": ""
+      },
+      {
+        "name": "",
+        "value": "",
+        "text": ""
+      },
+      {
+        "name": "",
+        "value": "",
+        "text": ""
+      },
+      {
+        "name": "",
+        "value": "",
+        "text": ""
+      },
+      {
+        "name": "",
+        "value": "",
+        "text": ""
+      },
+      {
+        "name": "action",
+        "value": "reject",
+        "text": "Вернуть на доработку"
+      },
+      {
+        "name": "action",
+        "value": "approve",
+        "text": "Одобрить и опубликовать"
+      }
+    ],
+    "reviewFields": [
+      {
+        "name": "q",
+        "type": "search"
+      },
+      {
+        "name": "note",
+        "type": "textarea"
+      }
+    ]
+  },
+  "errors": [],
+  "network": [
+    {
+      "url": "http://localhost:8792/ru/account/places/158/photo-thumbnail/0/",
+      "status": 404
+    },
+    {
+      "url": "http://localhost:8792/ru/account/places/158/save-photos/",
+      "status": 422
+    }
+  ]
+}

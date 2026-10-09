@@ -8,6 +8,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models, transaction
 from django.db.models import F, Q
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from catalog.models import Organization, Place, Program, Activity, OrganizationPlaceRequest, PlaceOwnershipRequest, OrganizationOwnershipRequest, OwnerTeamMembership, OwnerTeamInvitation, OrganizationGrant, PlaceOwnershipRequestAudit
 from catalog.services.staff_roles import is_volunteer
 from catalog.services.catalog_structure import _lock, _active
@@ -221,6 +222,38 @@ def affiliation_current(place,org):
     return (place.organization_id==org.pk and org.archived_at is None and place.organization_relationship_kind in ('business','informational') and place.organization_join_place_ownership_version==place.ownership_version and place.organization_join_org_ownership_version==org.ownership_version)
 
 
+def join_visible_places(*, actor, organization_id=None):
+    """Connection visibility, without granting any business permissions.
+
+    A private Place can also be shared with the specific organization by its
+    current direct owner's current confirmation. An organization-only pending
+    request is never evidence of visibility.
+    """
+    from catalog.services import business_team
+    from catalog.services.content_quality import public_place_queryset
+    actor = _actor(actor, business=False)
+    public_ids = public_place_queryset(Place.objects.all()).values('pk')
+    own_ids = business_team.accessible_place_ids(user=actor, action='place.view')
+    visible = Q(pk__in=public_ids) | Q(pk__in=own_ids)
+    if organization_id is not None:
+        shared_ids = OrganizationPlaceRequest.objects.filter(
+            organization_id=organization_id, organization__owner=actor,
+            organization__archived_at__isnull=True, status='pending',
+            relationship_kind='business', place_owner_confirmed_at__isnull=False,
+            base_place_owner_id=F('place__owner_id'),
+            base_organization_owner_id=F('organization__owner_id'),
+            base_place_ownership_version=F('place__ownership_version'),
+            base_organization_ownership_version=F('organization__ownership_version'),
+            base_place_content_version=F('place__content_version')).values('place_id')
+        visible |= Q(pk__in=shared_ids)
+    return Place.objects.filter(visible, deleted_at__isnull=True).distinct()
+
+
+def _require_join_visible(actor, place, org):
+    if not join_visible_places(actor=actor, organization_id=org.pk).filter(pk=place.pk).exists():
+        raise PermissionDenied(_('Карточка недоступна'))
+
+
 def _apply_link(item,place,org,actor):
     if place.organization_id not in (None,org.pk):raise ValidationError('Detach previous affiliation first.')
     if Activity.objects.filter(place=place,program__isnull=False).exclude(program__organization_id=org.pk).exists():raise ValidationError('Programs belong to another organization.')
@@ -248,6 +281,7 @@ def request_join(*,actor,place_id,organization_id,relationship_kind='business'):
     elif relationship_kind=='informational':actor=_reviewer(actor)
     else:
         _side_owner(actor,place,org)
+        _require_join_visible(actor,place,org)
         if place.owner_id is None or org.owner_id is None:raise ValidationError('Both business owners must exist.')
     if place.organization_id not in (None,org.pk):raise ValidationError('Detach previous affiliation first.')
     existing=OrganizationPlaceRequest.objects.filter(place=place,organization=org,status='approved',relationship_kind=relationship_kind).order_by('-pk').first()
@@ -269,6 +303,7 @@ def request_join(*,actor,place_id,organization_id,relationship_kind='business'):
 def _confirm(actor,item,place,org):
     _side_owner(actor,place,org)
     if item.relationship_kind!='business':raise ValidationError('Informational request needs KidsMap approval.')
+    _require_join_visible(actor,place,org)
     if not _request_matches(item,place,org):raise ValidationError('Owner changed; new confirmations required.')
     if item.status=='approved':
         if not affiliation_current(place,org):raise ValidationError('Affiliation is no longer current.')
@@ -291,6 +326,95 @@ def _locked_join(request_id):
     place,org=_link_parents(anchor['place_id'],anchor['organization_id']);item=_lock(OrganizationPlaceRequest,[request_id],'default')[request_id]
     if (item.place_id,item.organization_id)!=(place.pk,org.pk):raise ValidationError('Request changed.')
     return item,place,org
+
+
+JOIN_RECOVERY_SALT = 'catalog.organization-place.cancel.v1'
+
+
+def _cancel_parents(request_id):
+    """Same join lock order, permitting safe withdrawal after archive/deletion."""
+    anchor = OrganizationPlaceRequest.objects.filter(pk=request_id).values('place_id', 'organization_id').first()
+    if anchor is None:
+        raise OrganizationPlaceRequest.DoesNotExist
+    org = _lock(Organization, [anchor['organization_id']], 'default')[anchor['organization_id']]
+    place = _lock(Place, [anchor['place_id']], 'default')[anchor['place_id']]
+    item = _lock(OrganizationPlaceRequest, [request_id], 'default')[request_id]
+    if (item.place_id, item.organization_id) != (place.pk, org.pk):
+        raise ValidationError('Request changed.', code='request_conflict')
+    return item, place, org
+
+
+def _cancel_owner(actor, item, place, org):
+    _side_owner(actor, place, org)
+    if item.relationship_kind != 'business':
+        raise PermissionDenied
+
+
+def _cancel_snapshot(item, place, org):
+    import json
+    from django.utils.crypto import salted_hmac
+    values = [item.status, item.relationship_kind, item.base_place_owner_id,
+        item.base_organization_owner_id, item.base_place_ownership_version,
+        item.base_organization_ownership_version, item.base_place_content_version,
+        str(item.place_owner_confirmed_at), str(item.organization_owner_confirmed_at),
+        place.owner_id, place.ownership_version, place.content_version, str(place.deleted_at),
+        org.owner_id, org.ownership_version, org.content_version, str(org.archived_at)]
+    return salted_hmac(JOIN_RECOVERY_SALT + '.state', json.dumps(values), algorithm='sha256').hexdigest()
+
+
+@transaction.atomic
+def join_recovery_state(*, actor, request_id):
+    from django.core import signing
+    actor = _actor(actor)
+    item, place, org = _cancel_parents(request_id)
+    _cancel_owner(actor, item, place, org)
+    return signing.dumps({'actor': actor.pk, 'request': item.pk,
+        'state': _cancel_snapshot(item, place, org)}, salt=JOIN_RECOVERY_SALT, compress=True)
+
+
+@transaction.atomic
+def cancel_join(*, actor, request_id, expected_state):
+    from django.core import signing
+    actor = _actor(actor)
+    item, place, org = _cancel_parents(request_id)
+    _cancel_owner(actor, item, place, org)
+    if not isinstance(expected_state, str) or not 1 <= len(expected_state) <= 8192:
+        raise ValidationError('State required.', code='invalid_state')
+    try:
+        state = signing.loads(expected_state, salt=JOIN_RECOVERY_SALT, max_age=1800)
+    except signing.SignatureExpired:
+        raise ValidationError('State expired.', code='request_conflict')
+    except signing.BadSignature:
+        raise ValidationError('Invalid state.', code='invalid_state')
+    if not isinstance(state, dict) or state.get('actor') != actor.pk or state.get('request') != item.pk:
+        raise ValidationError('Invalid state.', code='invalid_state')
+    if item.status == 'canceled':
+        return item
+    if item.status != 'pending' or state.get('state') != _cancel_snapshot(item, place, org):
+        raise ValidationError('Request changed; review again.', code='request_conflict')
+    item.status = 'canceled'
+    item.decided_by = actor
+    item.decided_at = timezone.now()
+    item.note = (item.note + '\n' if item.note else '') + 'Explicit withdrawal by current owner.'
+    item.save(update_fields=['status', 'decided_by', 'decided_at', 'note'])
+    return item
+
+
+def join_recovery_rows(*, actor, items):
+    """Safe request labels. Cancellation authority never grants parent visibility."""
+    from catalog.services.organization_connections import organization_visible, organization_name
+    actor = _actor(actor)
+    items = list(items)
+    visible = {org_id: set(join_visible_places(actor=actor, organization_id=org_id).filter(
+        pk__in=[r.place_id for r in items if r.organization_id == org_id]).values_list('pk', flat=True))
+        for org_id in {r.organization_id for r in items}}
+    for item in items:
+        item.recovery_place_name = item.place.name_i18n() if item.place_id in visible[item.organization_id] else ''
+        item.recovery_org_name = organization_name(item.organization) if organization_visible(actor, item.organization) else ''
+        item.recovery_stale = (not _request_matches(item, item.place, item.organization)
+            or item.base_place_content_version != item.place.content_version
+            or item.place.deleted_at is not None or item.organization.archived_at is not None)
+    return items
 
 
 @transaction.atomic

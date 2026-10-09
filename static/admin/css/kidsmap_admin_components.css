@@ -245,3 +245,94 @@ select:focus-visible {
   flex-direction: column;
   gap: 4px;
 }
+
+/* ==========================================================================
+   Unified Publication & Lifecycle Status Badges (KidsMap Design System)
+   ========================================================================== */
+.km-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--km-admin-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.km-status-badge.km-status-published,
+.km-status-published {
+  background: var(--km-admin-success-bg, #D1FAE5);
+  color: var(--km-admin-success-text, #047857);
+  border: 1px solid var(--km-admin-success-border, #A7F3D0);
+}
+.km-status-badge.km-status-published::before,
+.km-status-published::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--km-admin-success, #10B981);
+}
+
+.km-status-badge.km-status-pending,
+.km-status-pending {
+  background: var(--km-admin-warning-bg, #FEF3C7);
+  color: var(--km-admin-warning-text, #B45309);
+  border: 1px solid var(--km-admin-warning-border, #FDE68A);
+}
+.km-status-badge.km-status-pending::before,
+.km-status-pending::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--km-admin-warning, #F59E0B);
+}
+
+.km-status-badge.km-status-draft,
+.km-status-draft {
+  background: var(--km-admin-gray-bg, #F1F5F9);
+  color: var(--km-admin-text-muted, #64748B);
+  border: 1px solid var(--km-admin-gray-border, #E2E8F0);
+}
+.km-status-badge.km-status-draft::before,
+.km-status-draft::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--km-admin-gray, #94A3B8);
+}
+
+.km-status-badge.km-status-rejected,
+.km-status-rejected {
+  background: var(--km-admin-danger-bg, #FEE2E2);
+  color: var(--km-admin-danger-text, #B91C1C);
+  border: 1px solid var(--km-admin-danger-border, #FECACA);
+}
+.km-status-badge.km-status-rejected::before,
+.km-status-rejected::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--km-admin-danger, #EF4444);
+}
+
+.km-status-badge.km-status-hidden,
+.km-status-badge.km-status-archived,
+.km-status-hidden,
+.km-status-archived {
+  background: var(--km-admin-badge-muted-bg, #F1F5F9);
+  color: var(--km-admin-badge-muted-fg, #475569);
+  border: 1px solid var(--km-admin-badge-muted-border, #E2E8F0);
+}
+

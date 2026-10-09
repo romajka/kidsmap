@@ -1,0 +1,645 @@
+{
+  "head": "2da9d33abbc53d1ac71bcb7e15a0170bef6277d5",
+  "dirty_before": 218,
+  "runtime_digest": "37ee6734cd60b82e248b3939f4dd001fa1dae586baf58eaad80bacb1472a034c",
+  "runtime_source_files": 2768,
+  "source_matches_runtime": true,
+  "only_changed_existing_application_file": [
+    "src/catalog/domain_admin/place.py",
+    "static/admin/js/kidsmap_place_media.js"
+  ],
+  "other_existing_application_files_byte_identical": true,
+  "locale_files_byte_identical": true,
+  "browser_runs": [
+    {
+      "run": "create-red",
+      "rows": [
+        {
+          "id": "admin-place-create-draft",
+          "status": "PASS"
+        },
+        {
+          "id": "admin-place-draft-reload",
+          "status": "PASS"
+        },
+        {
+          "id": "admin-new-photo-after-reload",
+          "status": "PASS"
+        },
+        {
+          "id": "admin-place-ready",
+          "status": "PASS"
+        },
+        {
+          "id": "admin-place-published",
+          "status": "PASS"
+        },
+        {
+          "id": "admin-new-photo-after-publish",
+          "status": "FAIL"
+        }
+      ],
+      "entities": {
+        "place": 152
+      }
+    },
+    {
+      "run": "create-green",
+      "rows": [
+        {
+          "id": "admin-place-create-draft",
+          "status": "PASS"
+        },
+        {
+          "id": "admin-place-draft-reload",
+          "status": "PASS"
+        },
+        {
+          "id": "admin-new-photo-after-reload",
+          "status": "PASS"
+        },
+        {
+          "id": "admin-place-ready",
+          "status": "PASS"
+        },
+        {
+          "id": "admin-place-published",
+          "status": "PASS"
+        },
+        {
+          "id": "admin-new-photo-after-publish",
+          "status": "PASS"
+        }
+      ],
+      "entities": {
+        "place": 154
+      }
+    },
+    {
+      "run": "matrix",
+      "rows": [
+        {
+          "id": "repeat-save-reload/ru/360",
+          "status": "PASS",
+          "scrollWidth": 360,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/ru/360",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/ru/390",
+          "status": "PASS",
+          "scrollWidth": 390,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/ru/390",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/ru/768",
+          "status": "PASS",
+          "scrollWidth": 768,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/ru/768",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/ru/1024",
+          "status": "PASS",
+          "scrollWidth": 1024,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/ru/1024",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/ru/1280",
+          "status": "PASS",
+          "scrollWidth": 1280,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/ru/1280",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/ru/1440",
+          "status": "PASS",
+          "scrollWidth": 1440,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/ru/1440",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/az/360",
+          "status": "PASS",
+          "scrollWidth": 360,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/az/360",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/az/390",
+          "status": "PASS",
+          "scrollWidth": 390,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/az/390",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/az/768",
+          "status": "PASS",
+          "scrollWidth": 768,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/az/768",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/az/1024",
+          "status": "PASS",
+          "scrollWidth": 1024,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/az/1024",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/az/1280",
+          "status": "PASS",
+          "scrollWidth": 1280,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/az/1280",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/az/1440",
+          "status": "PASS",
+          "scrollWidth": 1440,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/az/1440",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/en/360",
+          "status": "PASS",
+          "scrollWidth": 360,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/en/360",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/en/390",
+          "status": "PASS",
+          "scrollWidth": 390,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/en/390",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/en/768",
+          "status": "PASS",
+          "scrollWidth": 768,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/en/768",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/en/1024",
+          "status": "PASS",
+          "scrollWidth": 1024,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/en/1024",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/en/1280",
+          "status": "PASS",
+          "scrollWidth": 1280,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/en/1280",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        },
+        {
+          "id": "repeat-save-reload/en/1440",
+          "status": "PASS",
+          "scrollWidth": 1440,
+          "pageerrors": [],
+          "localFailures": []
+        },
+        {
+          "id": "public-photo/en/1440",
+          "status": "PASS",
+          "localFailures": [],
+          "pageerrors": []
+        }
+      ]
+    },
+    {
+      "run": "actions",
+      "rows": [
+        {
+          "id": "replacement-draft-reload",
+          "status": "PASS"
+        },
+        {
+          "id": "stale-tab-shows-conflict",
+          "status": "PASS"
+        },
+        {
+          "id": "stale-tab-keeps-newer-cover",
+          "status": "PASS"
+        },
+        {
+          "id": "replacement-published",
+          "status": "PASS"
+        },
+        {
+          "id": "explicit-clear-draft",
+          "status": "PASS"
+        },
+        {
+          "id": "explicit-clear-published",
+          "status": "PASS"
+        },
+        {
+          "id": "reupload-after-clear-published",
+          "status": "PASS"
+        }
+      ]
+    }
+  ],
+  "browser_final_counts": {
+    "PASS": 49,
+    "FAIL": 0
+  },
+  "browser_raw_counts": {
+    "PASS": 54,
+    "FAIL": 1
+  },
+  "server": {
+    "final": {
+      "tests": 151,
+      "elapsed_seconds": 84.971,
+      "exit": 0,
+      "log": "final-green.log"
+    },
+    "previous_phase": {
+      "green": 46,
+      "related": 104
+    }
+  },
+  "screenshots": [
+    "green-after-publish-1440.png",
+    "green-after-publish-390.png",
+    "green-before-publish-1440.png",
+    "green-before-publish-390.png",
+    "public-photo-1440.png",
+    "public-photo-390.png",
+    "red-after-publish-1440.png",
+    "red-after-publish-390.png",
+    "red-before-publish-1440.png",
+    "red-before-publish-390.png"
+  ],
+  "historical_qa_reports_modified": false,
+  "commit_push_deploy_production": false,
+  "clear_checkbox": {
+    "red": {
+      "rows": [],
+      "before": [
+        {
+          "id": "photo-clear_id",
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "after": [
+        {
+          "id": "photo-clear_id",
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "transport": []
+    },
+    "green": {
+      "rows": [],
+      "before": [
+        {
+          "id": "photo-clear_id",
+          "checked": false,
+          "disabled": false
+        }
+      ],
+      "after": [
+        {
+          "id": "photo-clear_id",
+          "checked": true,
+          "disabled": false
+        }
+      ],
+      "transport": [
+        "on"
+      ]
+    }
+  },
+  "harness_stale_meta_matrix": {
+    "rows": [
+      {
+        "id": "repeat-save-reload/ru/360",
+        "status": "FAIL",
+        "scrollWidth": 360,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/ru/360",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/ru/390",
+        "status": "FAIL",
+        "scrollWidth": 390,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/ru/390",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/ru/768",
+        "status": "FAIL",
+        "scrollWidth": 768,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/ru/768",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/ru/1024",
+        "status": "FAIL",
+        "scrollWidth": 1024,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/ru/1024",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/ru/1280",
+        "status": "FAIL",
+        "scrollWidth": 1280,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/ru/1280",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/ru/1440",
+        "status": "FAIL",
+        "scrollWidth": 1440,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/ru/1440",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/az/360",
+        "status": "FAIL",
+        "scrollWidth": 360,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/az/360",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/az/390",
+        "status": "FAIL",
+        "scrollWidth": 390,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/az/390",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/az/768",
+        "status": "FAIL",
+        "scrollWidth": 768,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/az/768",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/az/1024",
+        "status": "FAIL",
+        "scrollWidth": 1024,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/az/1024",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/az/1280",
+        "status": "FAIL",
+        "scrollWidth": 1280,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/az/1280",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/az/1440",
+        "status": "FAIL",
+        "scrollWidth": 1440,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/az/1440",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/en/360",
+        "status": "FAIL",
+        "scrollWidth": 360,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/en/360",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/en/390",
+        "status": "FAIL",
+        "scrollWidth": 390,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/en/390",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/en/768",
+        "status": "FAIL",
+        "scrollWidth": 768,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/en/768",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/en/1024",
+        "status": "FAIL",
+        "scrollWidth": 1024,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/en/1024",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/en/1280",
+        "status": "FAIL",
+        "scrollWidth": 1280,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/en/1280",
+        "status": "FAIL"
+      },
+      {
+        "id": "repeat-save-reload/en/1440",
+        "status": "FAIL",
+        "scrollWidth": 1440,
+        "pageerrors": []
+      },
+      {
+        "id": "public-photo/en/1440",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "intermediate_actions": {
+    "rows": [
+      {
+        "id": "replacement-draft-reload",
+        "status": "PASS"
+      },
+      {
+        "id": "stale-tab-shows-conflict",
+        "status": "PASS"
+      },
+      {
+        "id": "stale-tab-keeps-newer-cover",
+        "status": "PASS"
+      },
+      {
+        "id": "replacement-published",
+        "status": "PASS"
+      },
+      {
+        "id": "explicit-clear-draft",
+        "status": "PASS"
+      },
+      {
+        "id": "explicit-clear-published",
+        "status": "FAIL"
+      },
+      {
+        "id": "reupload-after-clear-published",
+        "status": "PASS"
+      }
+    ]
+  },
+  "harness_limitations": [
+    "initial actions harness used hidden publish control; switched to native submit and review path",
+    "first final matrix run used stale photo URL after actions reupload; refreshed meta and reran"
+  ]
+}

@@ -1,0 +1,1011 @@
+[
+  {
+    "id": "late-response-preserves-latest-input",
+    "status": "PASS",
+    "before": {
+      "value": "ORG02 Latest typed value",
+      "status": "Сохранено на сервере",
+      "local": null,
+      "version": "4"
+    },
+    "restored": "ORG02 Latest typed value",
+    "posts": [
+      {
+        "value": "ORG02 First in flight",
+        "expected_version": 2,
+        "http": 200
+      },
+      {
+        "value": "ORG02 Latest typed value",
+        "expected_version": 3,
+        "http": 200
+      }
+    ]
+  },
+  {
+    "id": "single-in-flight-15",
+    "status": "PASS",
+    "waiting": {
+      "value": "ORG02 Queue C 15",
+      "status": "Черновик сохранён в этом браузере",
+      "local": {
+        "source": "1",
+        "fields": {
+          "name_az": "ORG02 Uydurma race",
+          "name_ru": "ORG02 Вымышленная race",
+          "name_en": "ORG02 Queue C 15",
+          "description_az": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": ""
+        }
+      },
+      "version": "4",
+      "draft_id": "d674e8f0-eac9-4edd-94b0-136fc5411fad"
+    },
+    "posts": 1
+  },
+  {
+    "id": "old-ack-preserves-local-15",
+    "status": "PASS",
+    "acknowledged": {
+      "value": "ORG02 Queue C 15",
+      "status": "Черновик сохранён в этом браузере",
+      "local": {
+        "source": "1",
+        "fields": {
+          "name_az": "ORG02 Uydurma race",
+          "name_ru": "ORG02 Вымышленная race",
+          "name_en": "ORG02 Queue C 15",
+          "description_az": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": ""
+        }
+      },
+      "version": "5",
+      "draft_id": "d674e8f0-eac9-4edd-94b0-136fc5411fad"
+    }
+  },
+  {
+    "id": "latest-confirmed-15",
+    "status": "PASS",
+    "after": {
+      "value": "ORG02 Queue C 15",
+      "status": "Сохранено на сервере",
+      "local": null,
+      "version": "6",
+      "draft_id": "d674e8f0-eac9-4edd-94b0-136fc5411fad"
+    },
+    "posts": [
+      {
+        "value": "ORG02 Queue A 15",
+        "expected_version": 4,
+        "draft_id": "d674e8f0-eac9-4edd-94b0-136fc5411fad",
+        "http": 200
+      },
+      {
+        "value": "ORG02 Queue C 15",
+        "expected_version": 5,
+        "draft_id": "d674e8f0-eac9-4edd-94b0-136fc5411fad",
+        "http": 200
+      }
+    ]
+  },
+  {
+    "id": "reload-latest-15",
+    "status": "PASS"
+  },
+  {
+    "id": "single-in-flight-18",
+    "status": "PASS",
+    "waiting": {
+      "value": "ORG02 Queue C 18",
+      "status": "Черновик сохранён в этом браузере",
+      "local": {
+        "source": "1",
+        "fields": {
+          "name_az": "ORG02 Uydurma first",
+          "name_ru": "ORG02 Вымышленная first",
+          "name_en": "ORG02 Queue C 18",
+          "description_az": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": ""
+        }
+      },
+      "version": "0",
+      "draft_id": ""
+    },
+    "posts": 1
+  },
+  {
+    "id": "old-ack-preserves-local-18",
+    "status": "PASS",
+    "acknowledged": {
+      "value": "ORG02 Queue C 18",
+      "status": "Черновик сохранён в этом браузере",
+      "local": {
+        "source": "1",
+        "fields": {
+          "name_az": "ORG02 Uydurma first",
+          "name_ru": "ORG02 Вымышленная first",
+          "name_en": "ORG02 Queue C 18",
+          "description_az": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": ""
+        }
+      },
+      "version": "1",
+      "draft_id": "3b070bef-7f26-45d2-9097-b668236a24c0"
+    }
+  },
+  {
+    "id": "latest-confirmed-18",
+    "status": "PASS",
+    "after": {
+      "value": "ORG02 Queue C 18",
+      "status": "Сохранено на сервере",
+      "local": null,
+      "version": "2",
+      "draft_id": "3b070bef-7f26-45d2-9097-b668236a24c0"
+    },
+    "posts": [
+      {
+        "value": "ORG02 Queue A 18",
+        "expected_version": 0,
+        "draft_id": null,
+        "http": 201
+      },
+      {
+        "value": "ORG02 Queue C 18",
+        "expected_version": 1,
+        "draft_id": "3b070bef-7f26-45d2-9097-b668236a24c0",
+        "http": 200
+      }
+    ]
+  },
+  {
+    "id": "reload-latest-18",
+    "status": "PASS"
+  },
+  {
+    "id": "two-tabs-409-local-preserved",
+    "status": "PASS",
+    "conflict": {
+      "value": "ORG02 Unsaved from tab B",
+      "status": "Конфликт: ваш ввод сохранён. Обновите страницу и сравните версии.",
+      "local": {
+        "source": "1",
+        "fields": {
+          "name_az": "ORG02 Uydurma conflict",
+          "name_ru": "ORG02 Вымышленная conflict",
+          "name_en": "ORG02 Unsaved from tab B",
+          "description_az": "",
+          "phone": "",
+          "whatsapp": "",
+          "website": ""
+        }
+      },
+      "version": "1",
+      "draft_id": "0e717d86-d346-4c69-8e06-43c3616ccec3"
+    }
+  },
+  {
+    "id": "conflict-no-blind-retry",
+    "status": "PASS",
+    "posts": 1
+  },
+  {
+    "id": "conflict-reload-restores-local",
+    "status": "PASS"
+  },
+  {
+    "id": "winning-tab-remains-intact",
+    "status": "PASS"
+  },
+  {
+    "id": "network-failure-preserves-copy",
+    "status": "PASS"
+  },
+  {
+    "id": "network-failure-reload",
+    "status": "PASS"
+  },
+  {
+    "id": "keyboard-next-field",
+    "status": "PASS"
+  },
+  {
+    "id": "network-retry-persists",
+    "status": "PASS"
+  },
+  {
+    "id": "access-denied-local-preserved",
+    "status": "PASS",
+    "http": 403
+  },
+  {
+    "id": "input-local-ru-360",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360
+  },
+  {
+    "id": "saved-current-ru-360",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "http": 200,
+    "status_text": "Сохранено на сервере",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-ru-360",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "language": "ru",
+    "client": 345,
+    "scroll": 345,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-ru-360",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360
+  },
+  {
+    "id": "input-local-ru-390",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390
+  },
+  {
+    "id": "saved-current-ru-390",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "http": 200,
+    "status_text": "Сохранено на сервере",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-ru-390",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "language": "ru",
+    "client": 375,
+    "scroll": 375,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-ru-390",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390
+  },
+  {
+    "id": "input-local-ru-768",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768
+  },
+  {
+    "id": "saved-current-ru-768",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "http": 200,
+    "status_text": "Сохранено на сервере",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-ru-768",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "language": "ru",
+    "client": 753,
+    "scroll": 753,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-ru-768",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768
+  },
+  {
+    "id": "input-local-ru-1024",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024
+  },
+  {
+    "id": "saved-current-ru-1024",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "http": 200,
+    "status_text": "Сохранено на сервере",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-ru-1024",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "language": "ru",
+    "client": 1009,
+    "scroll": 1009,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-ru-1024",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024
+  },
+  {
+    "id": "input-local-ru-1280",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280
+  },
+  {
+    "id": "saved-current-ru-1280",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "http": 200,
+    "status_text": "Сохранено на сервере",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-ru-1280",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "language": "ru",
+    "client": 1265,
+    "scroll": 1265,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-ru-1280",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280
+  },
+  {
+    "id": "input-local-ru-1440",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440
+  },
+  {
+    "id": "saved-current-ru-1440",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "http": 200,
+    "status_text": "Сохранено на сервере",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-ru-1440",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "language": "ru",
+    "client": 1425,
+    "scroll": 1425,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-ru-1440",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440
+  },
+  {
+    "id": "input-local-az-360",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360
+  },
+  {
+    "id": "saved-current-az-360",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "http": 200,
+    "status_text": "Serverdə saxlanıb",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-az-360",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "language": "az",
+    "client": 345,
+    "scroll": 345,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-az-360",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360
+  },
+  {
+    "id": "input-local-az-390",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390
+  },
+  {
+    "id": "saved-current-az-390",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "http": 200,
+    "status_text": "Serverdə saxlanıb",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-az-390",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "language": "az",
+    "client": 375,
+    "scroll": 375,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-az-390",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390
+  },
+  {
+    "id": "input-local-az-768",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768
+  },
+  {
+    "id": "saved-current-az-768",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "http": 200,
+    "status_text": "Serverdə saxlanıb",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-az-768",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "language": "az",
+    "client": 753,
+    "scroll": 753,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-az-768",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768
+  },
+  {
+    "id": "input-local-az-1024",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024
+  },
+  {
+    "id": "saved-current-az-1024",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "http": 200,
+    "status_text": "Serverdə saxlanıb",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-az-1024",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "language": "az",
+    "client": 1009,
+    "scroll": 1009,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-az-1024",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024
+  },
+  {
+    "id": "input-local-az-1280",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280
+  },
+  {
+    "id": "saved-current-az-1280",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "http": 200,
+    "status_text": "Serverdə saxlanıb",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-az-1280",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "language": "az",
+    "client": 1265,
+    "scroll": 1265,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-az-1280",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280
+  },
+  {
+    "id": "input-local-az-1440",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440
+  },
+  {
+    "id": "saved-current-az-1440",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "http": 200,
+    "status_text": "Serverdə saxlanıb",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-az-1440",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "language": "az",
+    "client": 1425,
+    "scroll": 1425,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-az-1440",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440
+  },
+  {
+    "id": "input-local-en-360",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360
+  },
+  {
+    "id": "saved-current-en-360",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "http": 200,
+    "status_text": "Saved on server",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-en-360",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "language": "en",
+    "client": 345,
+    "scroll": 345,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-en-360",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360
+  },
+  {
+    "id": "input-local-en-390",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390
+  },
+  {
+    "id": "saved-current-en-390",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "http": 200,
+    "status_text": "Saved on server",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-en-390",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "language": "en",
+    "client": 375,
+    "scroll": 375,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-en-390",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390
+  },
+  {
+    "id": "input-local-en-768",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768
+  },
+  {
+    "id": "saved-current-en-768",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "http": 200,
+    "status_text": "Saved on server",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-en-768",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "language": "en",
+    "client": 753,
+    "scroll": 753,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-en-768",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768
+  },
+  {
+    "id": "input-local-en-1024",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024
+  },
+  {
+    "id": "saved-current-en-1024",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "http": 200,
+    "status_text": "Saved on server",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-en-1024",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "language": "en",
+    "client": 1009,
+    "scroll": 1009,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-en-1024",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024
+  },
+  {
+    "id": "input-local-en-1280",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280
+  },
+  {
+    "id": "saved-current-en-1280",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "http": 200,
+    "status_text": "Saved on server",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-en-1280",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "language": "en",
+    "client": 1265,
+    "scroll": 1265,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-en-1280",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280
+  },
+  {
+    "id": "input-local-en-1440",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440
+  },
+  {
+    "id": "saved-current-en-1440",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "http": 200,
+    "status_text": "Saved on server",
+    "aria_live": "polite"
+  },
+  {
+    "id": "geometry-en-1440",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "language": "en",
+    "client": 1425,
+    "scroll": 1425,
+    "aria": "polite",
+    "local": null,
+    "clips": []
+  },
+  {
+    "id": "reload-en-1440",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440
+  },
+  {
+    "id": "localized-conflict-ru-360",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "status_text": "Конфликт: ваш ввод сохранён. Обновите страницу и сравните версии."
+  },
+  {
+    "id": "reload-competing-versions-ru-360",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "status_text": "Черновик сохранён в этом браузере"
+  },
+  {
+    "id": "localized-conflict-ru-390",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "status_text": "Конфликт: ваш ввод сохранён. Обновите страницу и сравните версии."
+  },
+  {
+    "id": "reload-competing-versions-ru-390",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "status_text": "Черновик сохранён в этом браузере"
+  },
+  {
+    "id": "localized-conflict-ru-768",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "status_text": "Конфликт: ваш ввод сохранён. Обновите страницу и сравните версии."
+  },
+  {
+    "id": "reload-competing-versions-ru-768",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "status_text": "Черновик сохранён в этом браузере"
+  },
+  {
+    "id": "localized-conflict-ru-1440",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "status_text": "Конфликт: ваш ввод сохранён. Обновите страницу и сравните версии."
+  },
+  {
+    "id": "reload-competing-versions-ru-1440",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "status_text": "Черновик сохранён в этом браузере"
+  },
+  {
+    "id": "localized-conflict-az-360",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "status_text": "Konflikt: daxil etdiyiniz məlumat saxlanılıb. Səhifəni yeniləyib müqayisə edin."
+  },
+  {
+    "id": "reload-competing-versions-az-360",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "status_text": "Qaralama bu brauzerdə saxlanıb"
+  },
+  {
+    "id": "localized-conflict-az-390",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "status_text": "Konflikt: daxil etdiyiniz məlumat saxlanılıb. Səhifəni yeniləyib müqayisə edin."
+  },
+  {
+    "id": "reload-competing-versions-az-390",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "status_text": "Qaralama bu brauzerdə saxlanıb"
+  },
+  {
+    "id": "localized-conflict-az-768",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "status_text": "Konflikt: daxil etdiyiniz məlumat saxlanılıb. Səhifəni yeniləyib müqayisə edin."
+  },
+  {
+    "id": "reload-competing-versions-az-768",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "status_text": "Qaralama bu brauzerdə saxlanıb"
+  },
+  {
+    "id": "localized-conflict-az-1440",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "status_text": "Konflikt: daxil etdiyiniz məlumat saxlanılıb. Səhifəni yeniləyib müqayisə edin."
+  },
+  {
+    "id": "reload-competing-versions-az-1440",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "status_text": "Qaralama bu brauzerdə saxlanıb"
+  },
+  {
+    "id": "localized-conflict-en-360",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "status_text": "Conflict: your input is preserved. Reload and compare versions."
+  },
+  {
+    "id": "reload-competing-versions-en-360",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "status_text": "Draft saved in this browser"
+  },
+  {
+    "id": "localized-conflict-en-390",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "status_text": "Conflict: your input is preserved. Reload and compare versions."
+  },
+  {
+    "id": "reload-competing-versions-en-390",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "status_text": "Draft saved in this browser"
+  },
+  {
+    "id": "localized-conflict-en-768",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "status_text": "Conflict: your input is preserved. Reload and compare versions."
+  },
+  {
+    "id": "reload-competing-versions-en-768",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "status_text": "Draft saved in this browser"
+  },
+  {
+    "id": "localized-conflict-en-1440",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "status_text": "Conflict: your input is preserved. Reload and compare versions."
+  },
+  {
+    "id": "reload-competing-versions-en-1440",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "status_text": "Draft saved in this browser"
+  },
+  {
+    "id": "production",
+    "status": "NOT RUN"
+  },
+  {
+    "id": "full-suite",
+    "status": "NOT RUN"
+  },
+  {
+    "id": "physical-mobile-screenreader",
+    "status": "NOT RUN"
+  },
+  {
+    "id": "close-tab-other-browser-restoration",
+    "status": "NOT RUN"
+  },
+  {
+    "id": "other-org-findings",
+    "status": "NOT RUN"
+  }
+]

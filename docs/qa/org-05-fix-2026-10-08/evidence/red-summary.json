@@ -1,0 +1,27 @@
+{
+  "js": {
+    "tests": 4,
+    "failures": 3,
+    "defects": [
+      "bound values replaced by OLD",
+      "missing recovery snapshot",
+      "summary focus missing"
+    ]
+  },
+  "server": {
+    "tests": 6,
+    "failures_including_subtests": 7,
+    "defects": [
+      "missing field error DOM and ARIA target",
+      "missing hidden/nonfield summary"
+    ],
+    "harness_failure": "one false fixture expectation: blank AZ at propose returns302; corrected to genuine version nonfield409"
+  },
+  "intermediate_failures": [
+    "94 server tests first green: wrong fixture expectation; final94PASS",
+    "unit render run blocked by occupied disposable test DB; later sequential6PASS",
+    "browser QA login requiresJS; login first then disabledJS/storage",
+    "intermediate3 browser FAIL: harness omittedinput events and used wrong CSRF cookie; final19PASS"
+  ],
+  "raw_HTML_red_logs_copied": false
+}

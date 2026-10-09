@@ -1,0 +1,206 @@
+--- a/src/catalog/templates/pages/organization_workspace.html
++++ b/src/catalog/templates/pages/organization_workspace.html
+@@ -329,19 +329,19 @@
+           {% endif %}
+ 
+           {% if can_create_branch %}
+-            <div class="org-action-panel" id="org-create-branch">
++            <div class="org-action-panel org-control-panel" id="org-create-branch">
+               <h3>{% if CURRENT_LANGUAGE == 'az' %}Yeni filial yarat{% elif CURRENT_LANGUAGE == 'en' %}Create new branch{% else %}Создать новый филиал{% endif %}</h3>
+-              <form method="post" action="{% url 'organization_workspace_branch_create' organization.pk %}">
++              <form class="org-control-form" method="post" action="{% url 'organization_workspace_branch_create' organization.pk %}">
+                 {% csrf_token %}
+                 {{ branch_form.non_field_errors }}
+-                <div class="org-fields">
+-                  <label>
+-                    {% if CURRENT_LANGUAGE == 'az' %}Ad (AZ){% elif CURRENT_LANGUAGE == 'en' %}Name (AZ){% else %}Название (AZ){% endif %}
++                <div class="org-fields org-control-grid">
++                  <label class="org-control-field">
++                    <span>{% if CURRENT_LANGUAGE == 'az' %}Filialın adı (AZ){% elif CURRENT_LANGUAGE == 'en' %}Branch name (AZ){% else %}Название филиала (AZ){% endif %} <span aria-hidden="true">*</span></span>
+                     {{ branch_form.name_az }}
+                     {{ branch_form.name_az.errors }}
+                   </label>
+-                  <label>
+-                    {% if CURRENT_LANGUAGE == 'az' %}Kateqoriya{% elif CURRENT_LANGUAGE == 'en' %}Category{% else %}Категория{% endif %}
++                  <label class="org-control-field">
++                    <span>{% if CURRENT_LANGUAGE == 'az' %}Kateqoriya{% elif CURRENT_LANGUAGE == 'en' %}Category{% else %}Категория{% endif %} <span aria-hidden="true">*</span></span>
+                     {{ branch_form.category_id }}
+                     {{ branch_form.category_id.errors }}
+                   </label>
+@@ -426,14 +426,15 @@
+             <p class="org-muted">{% if CURRENT_LANGUAGE == 'az' %}Hələ ümumi proqram yoxdur.{% elif CURRENT_LANGUAGE == 'en' %}No shared programs yet.{% else %}Общих программ пока нет.{% endif %}</p>
+           {% endif %}
+           {% if can_manage_programs %}
+-            <div class="org-action-panel">
++            <div class="org-action-panel org-control-panel">
+               <h3>{% if CURRENT_LANGUAGE == 'az' %}Proqram yarat{% elif CURRENT_LANGUAGE == 'en' %}Create program{% else %}Создать программу{% endif %}</h3>
+-              <form method="post" action="{% url 'organization_program_create' organization.pk %}">
++              <form class="org-control-form" method="post" action="{% url 'organization_program_create' organization.pk %}">
+                 {% csrf_token %}
+-                <label>
+-                  {% if CURRENT_LANGUAGE == 'az' %}Ad (AZ){% elif CURRENT_LANGUAGE == 'en' %}Name (AZ){% else %}Название (AZ){% endif %}
+-                  <input name="name_az" maxlength="255" required>
+-                </label>
++                <label class="org-control-field">
++                  <span>{% if CURRENT_LANGUAGE == 'az' %}Proqramın adı (AZ){% elif CURRENT_LANGUAGE == 'en' %}Program name (AZ){% else %}Название программы (AZ){% endif %} <span aria-hidden="true">*</span></span>
++                  <input name="name_az" maxlength="255" required aria-describedby="org-program-create-hint">
++                </label>
++                <p class="org-control-hint" id="org-program-create-hint">{% if CURRENT_LANGUAGE == 'az' %}Proqramın digər məlumatları proqram redaktorunda doldurulur.{% elif CURRENT_LANGUAGE == 'en' %}Continue filling in the program in its editor.{% else %}Дальнейшее наполнение — в редакторе программы.{% endif %}</p>
+                 <button class="account-btn-action" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Yarat{% elif CURRENT_LANGUAGE == 'en' %}Create{% else %}Создать{% endif %}</button>
+               </form>
+             </div>
+@@ -445,31 +446,37 @@
+           <h2>{% if CURRENT_LANGUAGE == 'az' %}Komanda{% elif CURRENT_LANGUAGE == 'en' %}Team{% else %}Сотрудники{% endif %}</h2>
+           {% if is_owner %}
+             <p class="org-muted">{% if CURRENT_LANGUAGE == 'az' %}İcazələr cari filiallara tətbiq olunur. Seçilmiş filiallar gələcək filiallara şamil edilmir.{% elif CURRENT_LANGUAGE == 'en' %}Selected branches do not include future branches. Network scope covers current links.{% else %}Выбранные филиалы не включают будущие. Сетевой доступ действует только при текущей связи.{% endif %}</p>
+-            <form method="post" action="{% url 'business_team_action' 'organization' organization.pk 'invite' %}" class="org-team-form" data-team-form data-team-list-url="{% url 'organization_workspace_detail' organization.pk %}" data-team-url="{% url 'business_team_action' 'organization' organization.pk 'invite' %}">
++            <form method="post" action="{% url 'business_team_action' 'organization' organization.pk 'invite' %}" class="org-team-form org-control-form" data-team-form data-team-list-url="{% url 'organization_workspace_detail' organization.pk %}" data-team-url="{% url 'business_team_action' 'organization' organization.pk 'invite' %}">
+               {% csrf_token %}
+               <p id="org-team-unavailable" data-team-unavailable role="status">{% if CURRENT_LANGUAGE == 'az' %}Əməkdaşı dəvət etmək üçün JavaScript lazımdır. Formanı aktivləşdirmək üçün brauzerdə JavaScript-i yandırın və səhifəni yeniləyin. Dəvət göndərilməyib.{% elif CURRENT_LANGUAGE == 'en' %}Inviting a team member requires JavaScript. Enable JavaScript in your browser and reload this page to activate the form. No invitation has been sent.{% else %}Для приглашения сотрудника нужен JavaScript. Включите JavaScript в браузере и обновите страницу, чтобы активировать форму. Приглашение не отправлено.{% endif %}</p>
+-              <label>Email <input type="email" name="email" required disabled data-team-control></label>
+-              <label>
+-                {% if CURRENT_LANGUAGE == 'az' %}Rol{% elif CURRENT_LANGUAGE == 'en' %}Role{% else %}Роль{% endif %}
+-                <select name="role" data-team-role disabled data-team-control>
+-                  <option value="EDITOR" data-summary="{% translate 'Просмотр и редактирование филиалов' %}">{% translate 'Редактор' %}</option>
+-                  <option value="MANAGER" data-summary="{% translate 'Просмотр, редактирование и статистика филиалов' %}">{% translate 'Менеджер' %}</option><option value="MODERATOR" data-summary="{% translate 'Просмотр и статистика филиалов' %}">{% translate 'Наблюдатель' %}</option>
+-                </select>
+-              </label>
+-              <p data-team-role-summary role="status">{% translate 'Просмотр и редактирование филиалов' %}</p>
+-              <p>{% translate 'Публикация, модерация и управление сотрудниками не входят в эти роли.' %}</p>
+-              <p>{% translate 'Вся сеть включает будущие филиалы с актуальной бизнес-связью. Выбранные филиалы ограничивают только права на места. Отдельные права на организацию и общие программы действуют для всей организации.' %}</p>
+-              <label>
+-                {% if CURRENT_LANGUAGE == 'az' %}Əhatə{% elif CURRENT_LANGUAGE == 'en' %}Scope{% else %}Область{% endif %}
+-                <select name="scope" data-team-scope disabled data-team-control>
+-                  <option value="all_network">{% if CURRENT_LANGUAGE == 'az' %}Bütün şəbəkə{% elif CURRENT_LANGUAGE == 'en' %}All network{% else %}Вся сеть{% endif %}</option>
+-                  <option value="selected_places">{% if CURRENT_LANGUAGE == 'az' %}Seçilmiş filiallar{% elif CURRENT_LANGUAGE == 'en' %}Selected branches{% else %}Выбранные филиалы{% endif %}</option>
+-                </select>
+-              </label>
++              <div class="org-control-grid">
++                <label class="org-control-field">
++                  <span>Email <span aria-hidden="true">*</span></span>
++                  <input type="email" name="email" required disabled data-team-control>
++                </label>
++                <div class="org-control-field">
++                  <label for="org-team-role">{% if CURRENT_LANGUAGE == 'az' %}Rol{% elif CURRENT_LANGUAGE == 'en' %}Role{% else %}Роль{% endif %}</label>
++                  <select id="org-team-role" name="role" aria-describedby="org-team-role-hint" data-team-role disabled data-team-control>
++                    <option value="EDITOR" data-summary="{% translate 'Просмотр и редактирование филиалов' %}">{% translate 'Редактор' %}</option>
++                    <option value="MANAGER" data-summary="{% translate 'Просмотр, редактирование и статистика филиалов' %}">{% translate 'Менеджер' %}</option><option value="MODERATOR" data-summary="{% translate 'Просмотр и статистика филиалов' %}">{% translate 'Наблюдатель' %}</option>
++                  </select>
++                  <p id="org-team-role-hint" class="org-control-hint" data-team-role-summary role="status">{% translate 'Просмотр и редактирование филиалов' %}</p>
++                </div>
++                <label class="org-control-field org-control-wide">
++                  <span>{% if CURRENT_LANGUAGE == 'az' %}Əhatə{% elif CURRENT_LANGUAGE == 'en' %}Scope{% else %}Область{% endif %}</span>
++                  <select name="scope" data-team-scope disabled data-team-control>
++                    <option value="all_network">{% if CURRENT_LANGUAGE == 'az' %}Bütün şəbəkə{% elif CURRENT_LANGUAGE == 'en' %}All network{% else %}Вся сеть{% endif %}</option>
++                    <option value="selected_places">{% if CURRENT_LANGUAGE == 'az' %}Seçilmiş filiallar{% elif CURRENT_LANGUAGE == 'en' %}Selected branches{% else %}Выбранные филиалы{% endif %}</option>
++                  </select>
++                </label>
++              </div>
++              <p class="org-control-hint">{% translate 'Публикация, модерация и управление сотрудниками не входят в эти роли.' %}</p>
++              <p class="org-control-hint">{% translate 'Вся сеть включает будущие филиалы с актуальной бизнес-связью. Выбранные филиалы ограничивают только права на места. Отдельные права на организацию и общие программы действуют для всей организации.' %}</p>
+               <fieldset data-team-branches hidden>
+                 <legend>{% if CURRENT_LANGUAGE == 'az' %}Filiallar{% elif CURRENT_LANGUAGE == 'en' %}Branches{% else %}Филиалы{% endif %}</legend>
++                <p class="org-control-hint">{% if CURRENT_LANGUAGE == 'az' %}Ən azı bir cari filial seçin.{% elif CURRENT_LANGUAGE == 'en' %}Select at least one currently linked branch.{% else %}Выберите хотя бы один актуальный филиал.{% endif %}</p>
+                 {% for place in branches %}
+-                  <label><input type="checkbox" name="place_ids" disabled data-team-control value="{{ place.pk }}">{{ place.name_i18n }}</label>
++                  <label class="org-control-check"><input type="checkbox" name="place_ids" disabled data-team-control value="{{ place.pk }}">{{ place.name_i18n }}</label>
+                 {% endfor %}
+               </fieldset>
+               <button class="account-btn-action" type="submit" disabled data-team-control aria-describedby="org-team-unavailable">{% if CURRENT_LANGUAGE == 'az' %}Dəvət et{% elif CURRENT_LANGUAGE == 'en' %}Invite{% else %}Пригласить{% endif %}</button>
+--- a/static/css/pages/organization_workspace.css
++++ b/static/css/pages/organization_workspace.css
+@@ -1177,3 +1177,94 @@
+ .org-team-form [data-team-refresh][hidden] {
+   display: none;
+ }
++
++
++/* ORG-09: branch, program and team creation controls. */
++.org-control-panel h3 { font-size: 20px; line-height: 1.35; }
++.org-control-form { min-width: 0; }
++.org-control-form .org-control-grid {
++  display: grid;
++  grid-template-columns: repeat(2, minmax(0, 1fr));
++  gap: 20px;
++}
++.org-control-form .org-control-field {
++  display: flex;
++  flex-direction: column;
++  gap: 8px;
++  min-width: 0;
++  font-size: 15px;
++  font-weight: 600;
++  color: #17332a;
++}
++.org-control-form .org-control-wide { grid-column: 1 / -1; }
++.org-control-form input:not([type="checkbox"]):not([type="hidden"]),
++.org-control-form select {
++  box-sizing: border-box;
++  width: 100%;
++  min-width: 0;
++  min-height: 48px;
++  padding: 10px 14px;
++  font: inherit;
++  font-size: 16px;
++  font-weight: 400;
++  color: #17332a;
++  background: #fff;
++  border: 1.5px solid #c9d8ce;
++  border-radius: 10px;
++}
++.org-control-form :is(input, select, button):focus-visible {
++  outline: 3px solid #176d45;
++  outline-offset: 3px;
++}
++.org-control-form .account-btn-action {
++  min-height: 48px;
++  margin-top: 20px;
++  white-space: normal;
++}
++.org-control-form input:not([type="checkbox"]):not([type="hidden"]):disabled,
++.org-control-form select:disabled,
++.org-control-form button:disabled {
++  color: #52625a;
++  background: #e9eeeb;
++  border-color: #c9d8ce;
++  cursor: not-allowed;
++}
++.org-control-form .account-btn-action:disabled {
++  color: #52625a !important; /* Account buttons otherwise force white text. */
++  box-shadow: none;
++  transform: none;
++}
++.org-control-form .org-control-hint {
++  margin: 0;
++  font-size: 13.5px;
++  font-weight: 400;
++  line-height: 1.5;
++  color: #52665a;
++}
++.org-control-form > .org-control-hint { margin-top: 12px; }
++.org-control-form fieldset {
++  min-width: 0;
++  margin: 20px 0 0;
++  padding: 12px;
++  border: 1px solid #c9d8ce;
++  border-radius: 10px;
++}
++.org-control-form :is(.org-control-check, .org-check) {
++  display: flex;
++  align-items: center;
++  gap: 12px;
++  min-height: 48px;
++  line-height: 1.5;
++  overflow-wrap: anywhere;
++}
++.org-control-form input[type="checkbox"] {
++  flex: 0 0 20px;
++  width: 20px;
++  height: 20px;
++  accent-color: #176d45;
++}
++.org-control-form .errorlist { margin: 0; padding-left: 20px; font-weight: 400; }
++@media (max-width: 600px) {
++  .org-control-form .org-control-grid { grid-template-columns: minmax(0, 1fr); }
++  .org-control-form .account-btn-action { width: 100%; justify-content: center; }
++}

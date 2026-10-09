@@ -206,7 +206,7 @@ class Place(models.Model):
     )
 
     is_active = models.BooleanField(_("Активно"), default=True)
-    is_verified = models.BooleanField(_("Проверено"), default=False)
+    is_verified = models.BooleanField(_("Проверено"), default=False, editable=False)
     status = models.CharField(_("Статус модерации"), max_length=16, choices=STATUS_CHOICES, default=STATUS_PUBLISHED, db_index=True)
     submitted_at = models.DateTimeField(_("Отправлено на модерацию"), null=True, blank=True, db_index=True)
     needs_changes_at = models.DateTimeField(_("Возвращено на доработку"), null=True, blank=True)
@@ -901,8 +901,8 @@ class Event(models.Model):
         return self.name_az or self.name_ru or self.name_en or self.name
 
     def description_i18n(self, lang=None):
-        lang = self._normalize_lang(lang)
-        return getattr(self, f"description_{lang}", "") or ""
+        from catalog.services.localized_content import localized_content
+        return localized_content(self, 'description', self._normalize_lang(lang))['text']
 
     def public_venue(self, lang=None):
         """Localized approved venue copy; never mutate history or read today's Place."""

@@ -1,0 +1,44 @@
+{
+  "rows": [
+    {
+      "id": "geolocation-feedback/denied",
+      "status": "PASS",
+      "feedback": "Не удалось определить геопозицию. Можно ввести координаты вручную или продолжить без точки."
+    },
+    {
+      "id": "geolocation-no-data-loss/denied",
+      "status": "PASS"
+    },
+    {
+      "id": "geolocation-manual-fallback/denied",
+      "status": "PASS"
+    },
+    {
+      "id": "geolocation-feedback/unsupported",
+      "status": "PASS",
+      "feedback": "Ваш браузер не поддерживает геолокацию. Можно ввести координаты вручную или продолжить без точки."
+    },
+    {
+      "id": "geolocation-no-data-loss/unsupported",
+      "status": "PASS"
+    },
+    {
+      "id": "geolocation-manual-fallback/unsupported",
+      "status": "PASS"
+    },
+    {
+      "id": "geolocation-feedback/granted",
+      "status": "PASS",
+      "feedback": "Выбрана точка: 40.409300, 49.867100"
+    },
+    {
+      "id": "geolocation-no-data-loss/granted",
+      "status": "PASS"
+    },
+    {
+      "id": "geolocation-manual-fallback/granted",
+      "status": "PASS"
+    }
+  ],
+  "simulation": "Denied/unsupported browser API adapters; granted native Chromium geolocation with synthetic coordinates. Physical GPS NOT RUN"
+}

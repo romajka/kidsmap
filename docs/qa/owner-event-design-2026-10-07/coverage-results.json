@@ -1,0 +1,81 @@
+{
+  "project": "home-ramin-kidsmap",
+  "signal": "best_effort",
+  "indexed_at": "2026-10-07T05:48:59Z",
+  "metadata": {
+    "generation": "2026-10-07T05:48:59Z",
+    "index_mode": "full",
+    "recorded_at": "2026-10-07T05:49:01Z",
+    "recording_status": "truncated",
+    "ignored_files_stored": 2000,
+    "ignored_files_total": 2265,
+    "hash_records_complete": true,
+    "coverage_version": 3,
+    "generation_matches": true
+  },
+  "paths": [
+    {
+      "requested_path": ".agents/agents/kidsmap-orchestrator/agent.md",
+      "path": ".agents/agents/kidsmap-orchestrator/agent.md",
+      "status": "no_recorded_issue",
+      "freshness": "metadata_match",
+      "recommended_action": "use_graph_with_best_effort_caveat",
+      "coverage": []
+    },
+    {
+      "requested_path": "docs/qa/owner-event-design-2026-10-07/prototype.html",
+      "path": "docs/qa/owner-event-design-2026-10-07/prototype.html",
+      "status": "no_recorded_issue",
+      "freshness": "metadata_match",
+      "recommended_action": "use_graph_with_best_effort_caveat",
+      "coverage": []
+    },
+    {
+      "requested_path": "docs/qa/owner-event-design-2026-10-07/prototype.js",
+      "path": "docs/qa/owner-event-design-2026-10-07/prototype.js",
+      "status": "no_recorded_issue",
+      "freshness": "metadata_match",
+      "recommended_action": "use_graph_with_best_effort_caveat",
+      "coverage": []
+    },
+    {
+      "requested_path": "docs/qa/owner-event-design-2026-10-07/prototype.css",
+      "path": "docs/qa/owner-event-design-2026-10-07/prototype.css",
+      "status": "no_recorded_issue",
+      "freshness": "metadata_match",
+      "recommended_action": "use_graph_with_best_effort_caveat",
+      "coverage": []
+    }
+  ],
+  "scopes": [
+    {
+      "requested_scope": "src/catalog/controllers",
+      "scope": "src/catalog/controllers",
+      "total": 1,
+      "has_more": false,
+      "entries": [
+        {
+          "path": "src/catalog/controllers/__pycache__",
+          "kind": "not_indexed_dir",
+          "detail": "excluded subtree"
+        }
+      ],
+      "status": "known_gaps"
+    },
+    {
+      "requested_scope": "src/catalog/services",
+      "scope": "src/catalog/services",
+      "total": 1,
+      "has_more": false,
+      "entries": [
+        {
+          "path": "src/catalog/services/__pycache__",
+          "kind": "not_indexed_dir",
+          "detail": "excluded subtree"
+        }
+      ],
+      "status": "known_gaps"
+    }
+  ],
+  "caveat": "Best-effort signal only. No recorded issue does not prove graph or source completeness; read flagged source and qualify claims when metadata is changed or unavailable."
+}

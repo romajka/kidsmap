@@ -3,12 +3,13 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from catalog.models import Organization, Place, OrganizationGrant, OrganizationPlaceRequest
-from catalog.testcases.utils import create_quality_place
+from catalog.testcases.utils import create_quality_place, ensure_quality_subcategory
 from catalog.services import organization_ownership
 
 
 class OrganizationWorkspaceTests(TestCase):
     def setUp(self):
+        ensure_quality_subcategory('EDU')
         User = get_user_model()
         self.owner = User.objects.create_user(username='workspace_owner')
         self.manager = User.objects.create_user(username='workspace_manager')
@@ -147,6 +148,33 @@ class OrganizationWorkspaceTests(TestCase):
         self.client.force_login(self.stranger)
         self.assertEqual(self.client.get(reverse('organization_workspace_detail',args=[self.org.pk])).status_code,404)
         response = self.client.post(reverse('organization_workspace_detach',args=[self.org.pk,external.pk]), {'expected_ownership_version':external.ownership_version})
-        self.assertEqual(response.status_code,302)
+        self.assertRedirects(response,reverse('organization_detach_preview',args=[self.org.pk,external.pk]),fetch_redirect_response=False)
+        external.refresh_from_db()
+        self.assertEqual(external.organization_id,self.org.pk)
+        review=self.client.get(response.url)
+        self.assertEqual(review.status_code,200)
+        confirmed=self.client.post(response.url,{'action':'confirm','preview_id':review.context['operation'].pk,
+            'idempotency_key':review.context['idempotency_key'],'consent':'1'})
+        self.assertEqual(confirmed.status_code,302)
         external.refresh_from_db()
         self.assertIsNone(external.organization_id)
+        self.assertEqual(self.client.get(reverse('organization_workspace_detail',args=[self.org.pk])).status_code,404)
+
+    def test_organization_create_get_screen_and_duplicate_collision(self):
+        self.client.force_login(self.owner)
+        create_url = reverse('organization_workspace_create')
+        # GET renders dedicated creation screen
+        get_res = self.client.get(create_url)
+        self.assertEqual(get_res.status_code, 200)
+        self.assertContains(get_res, 'data-org-create-form')
+        self.assertContains(get_res, 'id_name_az')
+
+        # POST with duplicate name without allow_separate raises 409 and flags duplicate_detected
+        dup_res = self.client.post(create_url, {'name_az': 'Şəbəkə', 'allow_separate': ''})
+        self.assertEqual(dup_res.status_code, 409)
+        self.assertTrue(dup_res.context.get('duplicate_detected'))
+
+        # POST with allow_separate=True creates separate organization
+        sep_res = self.client.post(create_url, {'name_az': 'Şəbəkə', 'allow_separate': '1'})
+        self.assertEqual(sep_res.status_code, 302)
+        self.assertEqual(Organization.objects.filter(name_az='Şəbəkə').count(), 2)

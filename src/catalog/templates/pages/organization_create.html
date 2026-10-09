@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+{% block title %}{% if CURRENT_LANGUAGE == 'az' %}Təşkilat yarat{% elif CURRENT_LANGUAGE == 'en' %}Create organization{% else %}Создать организацию{% endif %}{% endblock %}
+{% block title_plain %}{% if CURRENT_LANGUAGE == 'az' %}Təşkilat yarat{% elif CURRENT_LANGUAGE == 'en' %}Create organization{% else %}Создать организацию{% endif %} | KidsMap{% endblock %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}">
+  <link rel="stylesheet" href="{% static 'css/pages/organization_workspace.css' %}">
+{% endblock %}
+{% block content %}
+<div class="account-page-wrapper org-workspace" data-workspace="create" data-user-id="{{ request.user.pk }}">
+  <div class="account-main-layout">
+    {% include 'pages/includes/account_navigation.html' %}
+    <main class="account-main-content" id="organization-create-main">
+      <nav class="org-back">
+        <a href="{% url 'organization_workspace_index' %}" class="org-back-link">
+          <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
+          <span>{% if CURRENT_LANGUAGE == 'az' %}Təşkilatlarım siyahısına qayıt{% elif CURRENT_LANGUAGE == 'en' %}Back to my organizations{% else %}Назад к моим организациям{% endif %}</span>
+        </a>
+      </nav>
+
+      <header class="org-hero org-hero--create">
+        <div>
+          <p class="org-eyebrow">KidsMap · {% if CURRENT_LANGUAGE == 'az' %}Biznes kabineti{% elif CURRENT_LANGUAGE == 'en' %}Business account{% else %}Кабинет бизнеса{% endif %}</p>
+          <h1>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat yarat{% elif CURRENT_LANGUAGE == 'en' %}Create organization{% else %}Создать организацию{% endif %}</h1>
+          <p>{% if CURRENT_LANGUAGE == 'az' %}Şəbəkə filialları, tədris mərkəzləri və klublar üçün vahid idarəetmə profili.{% elif CURRENT_LANGUAGE == 'en' %}Unified management profile for network branches, learning centers and clubs.{% else %}Зонтичный профиль для сети филиалов, студий и развивающих центров.{% endif %}</p>
+        </div>
+      </header>
+
+      <!-- Разница между организацией и филиалом -->
+      <section class="org-guide-card" aria-labelledby="org-guide-title">
+        <div class="org-guide-card__header">
+          <span class="material-symbols-rounded org-guide-card__bulb" aria-hidden="true">lightbulb</span>
+          <h2 id="org-guide-title" class="org-guide-card__title">
+            {% if CURRENT_LANGUAGE == 'az' %}Təşkilat və filial arasında fərq nədir?{% elif CURRENT_LANGUAGE == 'en' %}What is the difference between an organization and a branch?{% else %}В чем разница между организацией и филиалом?{% endif %}
+          </h2>
+        </div>
+        <div class="org-guide-card__grid">
+          <article class="org-guide-card__col org-guide-card__col--org">
+            <div class="org-guide-card__col-header">
+              <span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span>
+              <h3>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat (Şəbəkə / Brend){% elif CURRENT_LANGUAGE == 'en' %}Organization (Network / Brand){% else %}Организация (Сеть / Бренд){% endif %}</h3>
+            </div>
+            <ul>
+              <li>{% if CURRENT_LANGUAGE == 'az' %}Ümumi brend, proqramlar və komandanı birləşdirir.{% elif CURRENT_LANGUAGE == 'en' %}Unifies brand, shared programs and staff.{% else %}Объединяет бренд, общие программы и команду.{% endif %}</li>
+              <li>{% if CURRENT_LANGUAGE == 'az' %}Əlaqə məlumatları bütün filiallara şamil edilə bilər.{% elif CURRENT_LANGUAGE == 'en' %}Contacts can be inherited by all branches.{% else %}Контакты могут наследоваться всеми филиалами сети.{% endif %}</li>
+              <li><strong>{% if CURRENT_LANGUAGE == 'az' %}Başlanğıc üçün filial və ya ünvan tələb olunmur!{% elif CURRENT_LANGUAGE == 'en' %}No branch or address required to start!{% else %}Для старта не требуются филиал или адрес!{% endif %}</strong></li>
+            </ul>
+          </article>
+          <article class="org-guide-card__col org-guide-card__col--branch">
+            <div class="org-guide-card__col-header">
+              <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
+              <h3>{% if CURRENT_LANGUAGE == 'az' %}Filial (Xəritədə konkret məkan){% elif CURRENT_LANGUAGE == 'en' %}Branch (Specific location on map){% else %}Филиал (Конкретная точка на карте){% endif %}</h3>
+            </div>
+            <ul>
+              <li>{% if CURRENT_LANGUAGE == 'az' %}Dəqiq fiziki ünvan, cədvəl, qiymətlər və rəylər.{% elif CURRENT_LANGUAGE == 'en' %}Specific physical address, schedule, pricing and reviews.{% else %}Точный физический адрес, расписание, цены и отзывы.{% endif %}</li>
+              <li>{% if CURRENT_LANGUAGE == 'az' %}Valideynlər xəritədə məhz filialları görür və axtarır.{% elif CURRENT_LANGUAGE == 'en' %}Parents find specific branches on the map.{% else %}Родители находят на карте именно филиалы.{% endif %}</li>
+              <li>{% if CURRENT_LANGUAGE == 'az' %}Filialı təşkilata yaratdıqdan sonra istənilən vaxt əlavə edə bilərsiniz.{% elif CURRENT_LANGUAGE == 'en' %}You can add branches any time after creating the network.{% else %}Филиал можно добавить в любой момент после создания сети.{% endif %}</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- Форма создания -->
+      <section class="org-create-container">
+        <form method="post" action="{% url 'organization_workspace_create' %}" class="org-create-form" data-org-create-form novalidate>
+          {% csrf_token %}
+
+          {% if duplicate_detected or create_form.errors.possible_duplicate %}
+            <div class="org-collision-banner" role="alert">
+              <div class="org-collision-banner__head">
+                <span class="material-symbols-rounded" aria-hidden="true">warning</span>
+                <div>
+                  <h4>{% if CURRENT_LANGUAGE == 'az' %}KidsMap kataloqunda oxşar ad aşkarlandı{% elif CURRENT_LANGUAGE == 'en' %}Similar name found in KidsMap catalog{% else %}Найдено совпадение в каталоге KidsMap{% endif %}</h4>
+                  <p>{% if CURRENT_LANGUAGE == 'az' %}Bu adda təşkilat artıq mövcuddur. Əgər bu sizin mövcud şəbəkənizdirsə, kataloqdan tapıb qoşulma sorğusu göndərə bilərsiniz.{% elif CURRENT_LANGUAGE == 'en' %}An organization with a similar name already exists. If this is your network, find it in the directory to request access.{% else %}Организация с похожим названием уже зарегистрирована в KidsMap. Если это ваша действующая сеть, найдите ее в каталоге для запроса доступа.{% endif %}</p>
+                </div>
+              </div>
+              <div class="org-collision-banner__action">
+                <label class="org-check org-check--highlight">
+                  {{ create_form.allow_separate }}
+                  <span><strong>{% if CURRENT_LANGUAGE == 'az' %}Təsdiq edirəm: bu ayrıca müstəqil təşkilatdır, ayrıca profil yarat{% elif CURRENT_LANGUAGE == 'en' %}I confirm: this is a separate independent organization, create new profile{% else %}Подтверждаю: это отдельная независимая организация, создать отдельный профиль{% endif %}</strong></span>
+                </label>
+              </div>
+            </div>
+          {% endif %}
+
+          {% include "includes/form_error_summary.html" with form=create_form %}
+
+          <div class="org-card-box">
+            <h2 class="org-card-box__title">
+              {% if CURRENT_LANGUAGE == 'az' %}Əsas məlumat{% elif CURRENT_LANGUAGE == 'en' %}Primary information{% else %}Основные сведения{% endif %}
+            </h2>
+
+            <!-- Обязательное название AZ -->
+            <div class="org-field-group {% if create_form.name_az.errors %}has-error{% endif %}">
+              <label for="id_name_az" class="org-label org-label--required">
+                <span>{% if CURRENT_LANGUAGE == 'az' %}Təşkilatın adı (AZ){% elif CURRENT_LANGUAGE == 'en' %}Organization name (AZ){% else %}Название организации (AZ){% endif %}</span>
+                <span class="org-required-badge">{% if CURRENT_LANGUAGE == 'az' %}Məcburidir{% elif CURRENT_LANGUAGE == 'en' %}Required{% else %}Обязательно{% endif %}</span>
+              </label>
+              {{ create_form.name_az }}
+              {% if create_form.name_az.errors %}
+                <p class="org-field-error" role="alert">{{ create_form.name_az.errors.0 }}</p>
+              {% endif %}
+              <p class="org-field-hint">
+                {% if CURRENT_LANGUAGE == 'az' %}KidsMap kataloqu üçün əsas ad. Məsələn: «Zəka Tədris Mərkəzi». Filial və ünvan tələb olunmur.{% elif CURRENT_LANGUAGE == 'en' %}Primary name for KidsMap. Branches and address are not required.{% else %}Базовое название для каталога KidsMap. Например: «Zəka Tədris Mərkəzi». Филиал и адрес для старта не нужны.{% endif %}
+              </p>
+            </div>
+
+            <!-- Прогрессивное раскрытие: Переводы -->
+            <details class="org-disclosure" id="disclosure-translations" {% if create_form.name_ru.value or create_form.name_en.value or create_form.name_ru.errors or create_form.name_en.errors %}open{% endif %}>
+              <summary class="org-disclosure__summary">
+                <span class="org-disclosure__left">
+                  <span class="material-symbols-rounded" aria-hidden="true">translate</span>
+                  <span class="org-disclosure__title">{% if CURRENT_LANGUAGE == 'az' %}Adın digər dillərdə tərcüməsi (RU / EN){% elif CURRENT_LANGUAGE == 'en' %}Name translations (RU / EN){% else %}Переводы названия (RU / EN){% endif %}</span>
+                </span>
+                <span class="org-disclosure__chevron material-symbols-rounded" aria-hidden="true">expand_more</span>
+              </summary>
+              <div class="org-disclosure__body">
+                <div class="org-fields-grid">
+                  <div class="org-field-group">
+                    <label for="id_name_ru" class="org-label">{% if CURRENT_LANGUAGE == 'az' %}Ad (RU){% elif CURRENT_LANGUAGE == 'en' %}Name (RU){% else %}Название (RU){% endif %}</label>
+                    {{ create_form.name_ru }}
+                  </div>
+                  <div class="org-field-group">
+                    <label for="id_name_en" class="org-label">{% if CURRENT_LANGUAGE == 'az' %}Ad (EN){% elif CURRENT_LANGUAGE == 'en' %}Name (EN){% else %}Название (EN){% endif %}</label>
+                    {{ create_form.name_en }}
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <!-- Прогрессивное раскрытие: Контакты -->
+            <details class="org-disclosure" id="disclosure-contacts" {% if create_form.phone.value or create_form.whatsapp.value or create_form.website.value or create_form.website.errors %}open{% endif %}>
+              <summary class="org-disclosure__summary">
+                <span class="org-disclosure__left">
+                  <span class="material-symbols-rounded" aria-hidden="true">contact_phone</span>
+                  <span class="org-disclosure__title">{% if CURRENT_LANGUAGE == 'az' %}Şəbəkənin əlaqə məlumatları (Telefon, WhatsApp, Sayt){% elif CURRENT_LANGUAGE == 'en' %}Network contacts (Phone, WhatsApp, Website){% else %}Контакты сети (телефон, WhatsApp, сайт){% endif %}</span>
+                </span>
+                <span class="org-disclosure__chevron material-symbols-rounded" aria-hidden="true">expand_more</span>
+              </summary>
+              <div class="org-disclosure__body">
+                <p class="org-disclosure__hint">
+                  {% if CURRENT_LANGUAGE == 'az' %}Bu əlaqələr filialların öz nömrəsi olmadıqda avtomatik olaraq tətbiq olunacaq.{% elif CURRENT_LANGUAGE == 'en' %}These contacts will be inherited by branches that don't have their own contact number.{% else %}Эти контакты будут автоматически наследоваться филиалами, если у филиала нет собственного номера.{% endif %}
+                </p>
+                <div class="org-fields-grid org-fields-grid--3">
+                  <div class="org-field-group">
+                    <label for="id_phone" class="org-label">{% if CURRENT_LANGUAGE == 'az' %}Telefon{% elif CURRENT_LANGUAGE == 'en' %}Phone{% else %}Телефон сети{% endif %}</label>
+                    {{ create_form.phone }}
+                  </div>
+                  <div class="org-field-group">
+                    <label for="id_whatsapp" class="org-label">WhatsApp</label>
+                    {{ create_form.whatsapp }}
+                  </div>
+                  <div class="org-field-group {% if create_form.website.errors %}has-error{% endif %}">
+                    <label for="id_website" class="org-label">{% if CURRENT_LANGUAGE == 'az' %}Rəsmi sayt{% elif CURRENT_LANGUAGE == 'en' %}Website{% else %}Официальный сайт{% endif %}</label>
+                    {{ create_form.website }}
+                    {% if create_form.website.errors %}
+                      <p class="org-field-error" role="alert">{{ create_form.website.errors.0 }}</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <!-- Прогрессивное раскрытие: Описание -->
+            <details class="org-disclosure" id="disclosure-description" {% if create_form.description_az.value %}open{% endif %}>
+              <summary class="org-disclosure__summary">
+                <span class="org-disclosure__left">
+                  <span class="material-symbols-rounded" aria-hidden="true">description</span>
+                  <span class="org-disclosure__title">{% if CURRENT_LANGUAGE == 'az' %}Təşkilat haqqında qısa təsvir (AZ){% elif CURRENT_LANGUAGE == 'en' %}Short description (AZ){% else %}Краткое описание сети (AZ){% endif %}</span>
+                </span>
+                <span class="org-disclosure__chevron material-symbols-rounded" aria-hidden="true">expand_more</span>
+              </summary>
+              <div class="org-disclosure__body">
+                <div class="org-field-group">
+                  <label for="id_description_az" class="org-label">{% if CURRENT_LANGUAGE == 'az' %}Təsvir mətni{% elif CURRENT_LANGUAGE == 'en' %}Description text{% else %}Текст описания{% endif %}</label>
+                  {{ create_form.description_az }}
+                </div>
+              </div>
+            </details>
+
+            <!-- Кнопки действий -->
+            <div class="org-form-actions">
+              <button type="submit" class="account-btn-action org-btn-submit">
+                <span class="material-symbols-rounded" aria-hidden="true">add_business</span>
+                <span>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat yarat{% elif CURRENT_LANGUAGE == 'en' %}Create organization{% else %}Создать организацию{% endif %}</span>
+              </button>
+              <a href="{% url 'organization_workspace_index' %}" class="org-btn-cancel">
+                {% if CURRENT_LANGUAGE == 'az' %}Ləğv et{% elif CURRENT_LANGUAGE == 'en' %}Cancel{% else %}Отмена{% endif %}
+              </a>
+              <p class="org-save-status" role="status" aria-live="polite" data-create-status></p>
+            </div>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+</div>
+<script src="{% static 'js/organization_workspace.js' %}" defer></script>
+{% endblock %}

@@ -14,8 +14,8 @@
 {% endblock %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'vendor/swiper/12.2.0/swiper-bundle.min.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=15" />
-  <link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=1" />
+  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=17" />
+  <link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=3" />
 {% endblock %}
 
 {% block content %}
@@ -36,7 +36,6 @@
       <h1 class="detail-title" lang="{{ presentation.name_language }}">{{ presentation.name }}</h1>
       {% if place.operating_state == 'closed' and place.operating_state_approved_at %}<p class="public-notice" data-operating-state="closed">{% if language == 'ru' %}Это место закрыто. Карточка сохранена для истории; расписание и цены больше не актуальны.{% elif language == 'en' %}This place is closed. This page is kept for its history; schedules and prices are no longer current.{% else %}Bu məkan bağlanıb. Səhifə tarixçə üçün saxlanılır; cədvəl və qiymətlər artıq aktual deyil.{% endif %}</p>{% endif %}
       {% if presentation.translation_fallback %}<p class="public-notice" data-translation-fallback>{% if language == 'ru' %}Часть текста показана на азербайджанском. Перевод пока не добавлен.{% elif language == 'en' %}Some text is shown in Azerbaijani. A translation is not available yet.{% else %}Mətnin bir hissəsi azərbaycanca göstərilir. Tərcümə hələ yoxdur.{% endif %}</p>{% endif %}
-      {% if presentation.organization %}<a class="public-place-org" href="{{ presentation.organization.url }}" lang="{{ presentation.organization.name_language }}">{{ presentation.organization.name }}</a>{% endif %}
 
       <div class="detail-hero">
 
@@ -121,6 +120,37 @@
         </div>
 
         <div class="detail-decision">
+
+          {% if presentation.organization %}
+            <div class="detail-org-banner">
+              {% if organizations_section_enabled %}
+              <a class="public-place-org detail-org-badge" href="{{ presentation.organization.url }}" lang="{{ presentation.organization.name_language }}" title="{{ presentation.organization.name }}">
+                <div class="detail-org-badge__left">
+                  <span class="detail-org-badge__icon">
+                    <span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span>
+                  </span>
+                  <div class="detail-org-badge__text">
+                    <span class="detail-org-badge__label">{% if language == 'az' %}Şəbəkə filialı{% elif language == 'en' %}Network branch{% else %}Филиал сети{% endif %}</span>
+                    <strong class="detail-org-badge__name">{{ presentation.organization.name }}</strong>
+                  </div>
+                </div>
+                <span class="material-symbols-rounded detail-org-badge__arrow" aria-hidden="true">arrow_forward</span>
+              </a>
+              {% else %}
+              <div class="detail-org-badge detail-org-badge--static" lang="{{ presentation.organization.name_language }}">
+                <div class="detail-org-badge__left">
+                  <span class="detail-org-badge__icon">
+                    <span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span>
+                  </span>
+                  <div class="detail-org-badge__text">
+                    <span class="detail-org-badge__label">{% if language == 'az' %}Şəbəkə filialı{% elif language == 'en' %}Network branch{% else %}Филиал сети{% endif %}</span>
+                    <strong class="detail-org-badge__name">{{ presentation.organization.name }}</strong>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          {% endif %}
 
           <div class="detail-decision__head">
             <div class="detail-decision__idents">
@@ -485,6 +515,112 @@
             </div>
           </section>
 
+          {% if place_specialists %}
+            <section id="specialists" class="detail-card">
+              <div class="detail-card__head">
+                <h2 class="detail-card__title">
+                  <span class="material-symbols-rounded" aria-hidden="true">person</span>
+                  <span>{% if language == 'az' %}Filial mütəxəssisləri{% elif language == 'en' %}Branch specialists{% else %}Специалисты филиала{% endif %}</span>
+                </h2>
+                <span class="detail-card__aside">{{ place_specialists|length }}</span>
+              </div>
+              <p class="detail-section-subtitle">
+                {% if language == 'az' %}Bu məkanda qəbul aparan təsdiqlənmiş mütəxəssislər{% elif language == 'en' %}Verified specialists practicing at this location{% else %}Подтверждённые специалисты, ведущие приём в этом филиале{% endif %}
+              </p>
+              <div class="detail-related-grid">
+                {% for item in place_specialists %}
+                  <article class="detail-entity-card">
+                    <div class="detail-entity-card__media">
+                      {% if item.photo %}
+                        <img src="{{ item.photo }}" alt="{{ item.name }}" loading="lazy" decoding="async">
+                      {% else %}
+                        <div class="detail-entity-card__placeholder">
+                          <span class="material-symbols-rounded" aria-hidden="true">person</span>
+                        </div>
+                      {% endif %}
+                    </div>
+                    <div class="detail-entity-card__body">
+                      <div class="detail-entity-card__eyebrow">
+                        {% if item.specializations %}
+                          {{ item.specializations|join:", " }}
+                        {% else %}
+                          {% if language == 'az' %}Mütəxəssis{% elif language == 'en' %}Specialist{% else %}Специалист{% endif %}
+                        {% endif %}
+                      </div>
+                      <h3 class="detail-entity-card__title">
+                        {% if specialists_section_enabled and item.url %}
+                          <a href="{{ item.url }}">{{ item.name }}</a>
+                        {% else %}
+                          <span>{{ item.name }}</span>
+                        {% endif %}
+                      </h3>
+                      {% if item.schedule %}
+                        <p class="detail-entity-card__schedule">
+                          <span class="material-symbols-rounded" aria-hidden="true">schedule</span>
+                          <span><strong>{% if language == 'az' %}Qəbul: {% elif language == 'en' %}Hours: {% else %}Приём: {% endif %}</strong>{{ item.schedule }}</span>
+                        </p>
+                      {% endif %}
+                      <div class="detail-entity-card__footer">
+                        {% if item.price %}
+                          <span class="detail-entity-card__price">{{ item.price }} AZN</span>
+                        {% endif %}
+                        {% if specialists_section_enabled and item.url %}
+                          <a href="{{ item.url }}" class="detail-entity-card__action">
+                            <span>{% if language == 'az' %}Profilə bax{% elif language == 'en' %}View profile{% else %}В профиль{% endif %}</span>
+                            <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+                          </a>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </article>
+                {% endfor %}
+              </div>
+            </section>
+          {% endif %}
+
+          {% if place_events %}
+            <section id="events" class="detail-card">
+              <div class="detail-card__head">
+                <h2 class="detail-card__title">
+                  <span class="material-symbols-rounded" aria-hidden="true">event</span>
+                  <span>{% if language == 'az' %}Məkanda tədbirlər{% elif language == 'en' %}Events at this venue{% else %}Мероприятия на этой площадке{% endif %}</span>
+                </h2>
+                <span class="detail-card__aside">{{ place_events|length }}</span>
+              </div>
+              <div class="detail-related-grid">
+                {% for item in place_events %}
+                  <article class="detail-entity-card detail-entity-card--event">
+                    <div class="detail-entity-card__body">
+                      <div class="detail-entity-card__eyebrow">
+                        <span class="material-symbols-rounded" aria-hidden="true">calendar_today</span>
+                        <span>{{ item.start_datetime|date:"d.m.Y H:i" }}</span>
+                        {% if item.age %} · {{ item.age }}{% endif %}
+                      </div>
+                      <h3 class="detail-entity-card__title">
+                        {% if events_section_enabled and item.url %}
+                          <a href="{{ item.url }}">{{ item.name }}</a>
+                        {% else %}
+                          <span>{{ item.name }}</span>
+                        {% endif %}
+                      </h3>
+                      <div class="detail-entity-card__footer">
+                        {% if item.price %}
+                          <span class="detail-entity-card__price">{{ item.price }}</span>
+                        {% endif %}
+                        {% if events_section_enabled and item.url %}
+                          <a href="{{ item.url }}" class="detail-entity-card__action">
+                            <span>{% if language == 'az' %}Tədbirə bax{% elif language == 'en' %}View event{% else %}Подробнее{% endif %}</span>
+                            <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+                          </a>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </article>
+                {% endfor %}
+              </div>
+            </section>
+          {% endif %}
+
           <section id="reviews" class="detail-card detail-reviews">
             {% include "catalog/includes/review_submission_notice.html" %}
             {% include "catalog/includes/review_cooldown.html" %}
@@ -678,6 +814,30 @@
               {% if place.lat and place.lng %}
                 <p class="detail-note detail-note--muted">{{ place.lat }}, {{ place.lng }}</p>
               {% endif %}
+            </section>
+          {% else %}
+            <section id="map" class="detail-card">
+              <div class="km-map-fallback-card">
+                <span class="material-symbols-rounded km-map-fallback-icon" aria-hidden="true">location_off</span>
+                <h3 class="km-map-fallback-title">
+                  {% if language == 'az' %}İnteraktiv xəritə əlçatan deyil{% elif language == 'en' %}Interactive map is unavailable{% else %}Интерактивная карта недоступна{% endif %}
+                </h3>
+                <p class="km-map-fallback-address">
+                  {% if place.address %}{{ place.address_i18n }}{% else %}{% if language == 'az' %}Dəqiq ünvan dəqiqləşdirilir{% elif language == 'en' %}Exact address being updated{% else %}Точный адрес уточняется организатором{% endif %}{% endif %}
+                </p>
+                <div class="km-map-fallback-links">
+                  {% if place.address %}
+                    <a class="km-map-btn" href="https://www.google.com/maps/search/?api=1&query={{ place.address|urlencode }}" target="_blank" rel="noopener noreferrer">
+                      <span class="material-symbols-rounded" aria-hidden="true">open_in_new</span>
+                      <span>Google Maps</span>
+                    </a>
+                    <a class="km-map-btn" href="https://2gis.az/baku/search/{{ place.address|urlencode }}" target="_blank" rel="noopener noreferrer">
+                      <span class="material-symbols-rounded" aria-hidden="true">open_in_new</span>
+                      <span>2GIS</span>
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
             </section>
           {% endif %}
         </div>

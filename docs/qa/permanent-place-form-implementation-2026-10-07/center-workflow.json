@@ -1,0 +1,72 @@
+{
+  "kind": "center",
+  "name": "QA Qruplu tədris mərkəzi 20261007",
+  "steps": [],
+  "restored": true,
+  "nested": {
+    "pricing_schema_version": 2,
+    "activities": [
+      {
+        "id": null,
+        "program_id": null,
+        "name_az": "QA Robototexnika",
+        "description_az": "Uşaqlar üçün uydurma robototexnika dərsləri.",
+        "supplement_az": "",
+        "groups": [
+          {
+            "id": null,
+            "name_az": "QA Qrup 1",
+            "age_from": 3,
+            "age_to": 7,
+            "lesson_format": "group",
+            "language": "",
+            "schedule_text": "Çərşənbə 14:00–15:00",
+            "pricing_plans": [
+              {
+                "product_type": "lesson",
+                "price_kind": "exact",
+                "charge_role": "primary",
+                "billing_mode": "one_time",
+                "currency": "AZN",
+                "price": 15,
+                "title_az": "QA Bir dərs 1",
+                "is_active": true
+              }
+            ]
+          },
+          {
+            "id": null,
+            "name_az": "QA Qrup 2",
+            "age_from": 8,
+            "age_to": 15,
+            "lesson_format": "group",
+            "language": "",
+            "schedule_text": "Cümə 16:00–17:00",
+            "pricing_plans": [
+              {
+                "product_type": "lesson",
+                "price_kind": "exact",
+                "charge_role": "primary",
+                "billing_mode": "one_time",
+                "currency": "AZN",
+                "price": 25,
+                "title_az": "QA Bir dərs 2",
+                "is_active": true
+              }
+            ]
+          }
+        ],
+        "category_id": "EDU",
+        "subcategory_id": 105
+      }
+    ]
+  },
+  "reloadedFull": {
+    "name": "QA Qruplu tədris mərkəzi 20261007",
+    "pricing": "[]",
+    "nested": "{\"activities\":[{\"id\":null,\"groups\":[{\"id\":null,\"age_to\":7,\"name_az\":\"QA Qrup 1\",\"age_from\":3,\"language\":\"\",\"lesson_format\":\"group\",\"pricing_plans\":[{\"price\":15,\"currency\":\"AZN\",\"title_az\":\"QA Bir dərs 1\",\"is_active\":true,\"price_kind\":\"exact\",\"charge_role\":\"primary\",\"billing_mode\":\"one_time\",\"product_type\":\"lesson\"}],\"schedule_text\":\"Çərşənbə 14:00–15:00\"},{\"id\":null,\"age_to\":15,\"name_az\":\"QA Qrup 2\",\"age_from\":8,\"language\":\"\",\"lesson_format\":\"group\",\"pricing_plans\":[{\"price\":25,\"currency\":\"AZN\",\"title_az\":\"QA Bir dərs 2\",\"is_active\":true,\"price_kind\":\"exact\",\"charge_role\":\"primary\",\"billing_mode\":\"one_time\",\"product_type\":\"lesson\"}],\"schedule_text\":\"Cümə 16:00–17:00\"}],\"name_az\":\"QA Robototexnika\",\"program_id\":null,\"category_id\":\"EDU\",\"supplement_az\":\"\",\"description_az\":\"Uşaqlar üçün uydurma robototexnika dərsləri.\",\"subcategory_id\":105}],\"pricing_schema_version\":2}",
+    "hours": "[{\"weekday\":\"mon\",\"intervals\":[{\"end\":\"18:00\",\"start\":\"09:00\"}],\"is_closed\":false,\"is_24_hours\":false},{\"weekday\":\"tue\",\"intervals\":[{\"end\":\"18:00\",\"start\":\"09:00\"}],\"is_closed\":false,\"is_24_hours\":false},{\"weekday\":\"wed\",\"intervals\":[{\"end\":\"18:00\",\"start\":\"09:00\"}],\"is_closed\":false,\"is_24_hours\":false},{\"weekday\":\"thu\",\"intervals\":[{\"end\":\"18:00\",\"start\":\"09:00\"}],\"is_closed\":false,\"is_24_hours\":false},{\"weekday\":\"fri\",\"intervals\":[{\"end\":\"18:00\",\"start\":\"09:00\"}],\"is_closed\":false,\"is_24_hours\":false},{\"weekday\":\"sat\",\"intervals\":[],\"is_closed\":true,\"is_24_hours\":false},{\"weekday\":\"sun\",\"intervals\":[],\"is_closed\":true,\"is_24_hours\":false}]"
+  },
+  "submitted": true,
+  "url": "http://localhost:8784/ru/account/places/"
+}

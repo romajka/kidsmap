@@ -1,0 +1,475 @@
+[
+  {
+    "id": "ACE-01",
+    "priority": "P2",
+    "title": "Общий тариф места не добавляется",
+    "role": "владелец",
+    "url": "http://localhost:8783/ru/account/places/4/edit/",
+    "steps": [
+      "Открыть «Занятия и цены».",
+      "Нажать «Добавить тариф» в блоке общего билета."
+    ],
+    "expected": "Появляется редактор общего тарифа.",
+    "actual": "Редактор не появляется; контейнер data-tariff-editor отсутствует в DOM.",
+    "cause": "В HTML закрывающая кавычка class пропущена; JS завершает инициализацию без корневого элемента.",
+    "source": "src/catalog/templates/pages/includes/owner_place_continuous.html:31",
+    "scope": "Исправить атрибуты контейнера и проверить общий билет отдельно от тарифов группы.",
+    "evidence": [
+      "screenshots/place-tariff-button-fail-pc.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-02",
+    "priority": "P2",
+    "title": "Явное сохранение нового черновика места теряет выбранные фото после обновления",
+    "role": "владелец",
+    "url": "http://localhost:8783/ru/account/places/create/?type=permanent",
+    "steps": [
+      "Выбрать обложку и два фото галереи.",
+      "Нажать «Сохранить черновик», дождаться ответа сервера.",
+      "Обновить страницу и дождаться восстановления."
+    ],
+    "expected": "Явное сохранение сохраняет фото или до действия ясно объясняет, что сохраняется только текст.",
+    "actual": "Текст, занятия, группы и тариф восстановились, фото исчезли. Сообщение обещает сохранение фото после явного действия, хотя оно уже выполнено.",
+    "cause": "ServerDraft получает JSON полей; выбранные файлы этим действием не передаются в обработчик сохранения фотографий.",
+    "source": "static/js/owner_place_continuous.js:84",
+    "scope": "Согласовать явную кнопку с действующим транспортом фото и точным статусом сохранения; не обещать отсутствующий механизм.",
+    "evidence": [
+      "screenshots/place-draft-photos-before-refresh.png",
+      "screenshots/place-draft-photos-after-refresh.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-03",
+    "priority": "P1",
+    "title": "Модератор не может одобрить место с тарифом группы через обычную форму",
+    "role": "модератор",
+    "url": "http://localhost:8783/admin/volunteer/review/4/",
+    "steps": [
+      "Владелец заполняет занятие, группу и активный тариф 15 AZN.",
+      "Отправляет карточку на модерацию.",
+      "Модератор открывает изменение."
+    ],
+    "expected": "Готовность учитывает тот же тариф, который принял сервер при отправке владельцем.",
+    "actual": "Форма требует цену и скрывает кнопку одобрения. Штатный серверный POST approve успешно публикует эту же редакцию.",
+    "cause": "review_form использует VolunteerPlaceForm, в cleaned_data нет nested_pricing. Общая проверка умеет учитывать nested_pricing, но форма его не передаёт.",
+    "source": "src/catalog/services/volunteer_places.py:267",
+    "scope": "Согласовать адаптер данных модерации с серверным расчётом готовности. Требования цены не ослаблять.",
+    "evidence": [
+      "screenshots/place-moderation-tariff-block.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-04",
+    "priority": "P2",
+    "title": "Редактор места показывает старое фото вместо сохранённого фото новой редакции",
+    "role": "владелец",
+    "url": "http://localhost:8783/ru/account/places/4/edit/",
+    "steps": [
+      "В опубликованном месте заменить обложку на gallery-one.png.",
+      "Нажать «Применить изменения».",
+      "Повторно открыть редактор."
+    ],
+    "expected": "В редакторе новой редакции видна сохранённая новая обложка; опубликованная обложка остаётся прежней до решения.",
+    "actual": "Редакция содержит photo=places/gallery-one.webp, интерфейс показывает cover.webp со статусом «Сохранено».",
+    "cause": "Шаблон фото читает place.photo и place.gallery, то есть опубликованную проекцию, отдельно от данных редактируемой редакции.",
+    "source": "src/catalog/templates/pages/includes/permanent_place_photos.html:15",
+    "scope": "Отображать медиа выбранной редакции с сохранением правил приватного предпросмотра и опубликованной версии.",
+    "evidence": [
+      "screenshots/place-candidate-photo-reopen.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-05",
+    "priority": "P1",
+    "title": "Частичный черновик мероприятия без категории возвращает HTTP 500",
+    "role": "владелец",
+    "url": "http://localhost:8783/ru/account/places/events/create/",
+    "steps": [
+      "Выбрать доступную организацию.",
+      "Ввести название; категорию оставить пустой.",
+      "На первом этапе нажать «Сохранить черновик»."
+    ],
+    "expected": "Работает частичный черновик либо возвращается понятная ошибка формы.",
+    "actual": "IntegrityError: null value in column category violates not-null constraint. Карточка не создана.",
+    "cause": "В draft_save_only все поля становятся необязательными; _values передаёт category_id=None в create_event при NOT NULL в PostgreSQL.",
+    "source": "src/catalog/forms.py:2017",
+    "scope": "Согласовать неполный черновик с существующей моделью хранения и контролируемой валидацией. Не менять требования публикации.",
+    "evidence": [
+      "screenshots/event-partial-draft-500.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-06",
+    "priority": "P2",
+    "title": "Выбор площадки мероприятия ломает координаты в RU и AZ",
+    "role": "владелец",
+    "url": "http://localhost:8783/ru/account/places/events/5/edit/",
+    "steps": [
+      "Переключить черновик на очный формат.",
+      "Выбрать готовое место №4 и город Баку.",
+      "Сохранить черновик; повторить в AZ и EN."
+    ],
+    "expected": "Числовые координаты передаются независимо от языка отображения.",
+    "actual": "RU/AZ: скрытые lat/lng содержат 40,409264 и 49,867092; сервер возвращает «Введите число». EN с точкой сохраняется.",
+    "cause": "data-lat/data-lng локализуются шаблоном; JS копирует их как строки в машинные поля.",
+    "source": "src/catalog/templates/pages/owner_event_form.html:324",
+    "scope": "Передавать машинные числа без локализации, проверить первоначальное открытие и повторное сохранение.",
+    "evidence": [
+      "screenshots/event-coordinates-save-ru.png",
+      "screenshots/event-coordinates-save-az.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-07",
+    "priority": "P2",
+    "title": "Выбор готовой площадки не устанавливает родительский город мероприятия",
+    "role": "владелец",
+    "url": "http://localhost:8783/en/account/places/events/5/edit/",
+    "steps": [
+      "Открыть онлайн-черновик.",
+      "Выбрать очный формат и площадку №4.",
+      "Не менять город вручную; сохранить."
+    ],
+    "expected": "Автоматически подставленный район согласован с городом; ранее сохранённый город восстанавливается корректно.",
+    "actual": "Во всех трёх языках district=baku_narimanov при пустом region; форма отвечает, что район Баку нельзя выбрать для другого региона.",
+    "cause": "syncRelatedPlaceDetails копирует район и метро, но не устанавливает соответствующий region. Проверка сервера корректно отклоняет несовместимые значения.",
+    "source": "static/js/owner_event_form.js:571",
+    "scope": "Согласовать подстановку и восстановление связанных полей города/района без изменения проверки адреса.",
+    "evidence": [
+      "screenshots/event-venue-save-error-en.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-08",
+    "priority": "P2",
+    "title": "Формат мероприятия недоступен с клавиатуры",
+    "role": "владелец",
+    "url": "http://localhost:8783/ru/account/places/events/5/edit/",
+    "steps": [
+      "Перейти на второй этап.",
+      "Пройти элементы Tab и попытаться выбрать формат Space/Enter."
+    ],
+    "expected": "Два доступных варианта формата имеют имя, выбранное состояние и управление клавиатурой.",
+    "actual": "Варианты реализованы DIV без role/tabindex; скрытый SELECT не даёт доступного пути. Space не меняет physical на online, мышь меняет.",
+    "cause": "Карточки имеют только обработчик click; семантический контроль скрыт display:none.",
+    "source": "src/catalog/templates/pages/owner_event_form.html:283",
+    "scope": "Использовать один доступный контроль выбора формата, сохранить существующий event_format и серверные правила.",
+    "evidence": [
+      "screenshots/event-format-keyboard-pc.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-09",
+    "priority": "P2",
+    "title": "Описание нового мероприятия отсутствует в публичных RU и EN",
+    "role": "посетитель",
+    "url": "http://localhost:8783/ru/event/8-qa-qebul-tedbiri-20261007/",
+    "steps": [
+      "Создать и опубликовать мероприятие с описанием AZ, без RU/EN.",
+      "Открыть AZ, RU и EN карточки."
+    ],
+    "expected": "При необязательных переводах посетитель видит исходное описание с понятным обозначением языка.",
+    "actual": "AZ показывает сохранённый текст; RU/EN не показывают описание.",
+    "cause": "Event.description_i18n возвращает только поле выбранного языка. Название имеет fallback, описание его не имеет.",
+    "source": "src/catalog/models/place.py:903",
+    "scope": "Согласовать отображение исходного языка и подпись fallback; не создавать переводы автоматически и не менять требования публикации.",
+    "evidence": [
+      "screenshots/event-public-pc.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-10",
+    "priority": "P2",
+    "title": "Биография нового специалиста пуста в публичных RU и EN",
+    "role": "посетитель",
+    "url": "http://localhost:8783/ru/specialists/qa-specialist-20261007/",
+    "steps": [
+      "Опубликовать профиль с bio_az и пустыми bio_ru/bio_en.",
+      "Открыть три языковые версии."
+    ],
+    "expected": "Исходная биография доступна при отсутствии необязательного перевода.",
+    "actual": "В AZ есть текст, в RU/EN остаётся пустой блок «О специалисте».",
+    "cause": "bio_i18n использует fallback только на bio_ru; bio_az не входит в цепочку.",
+    "source": "src/catalog/models/specialist.py:218",
+    "scope": "Согласовать fallback биографии и проверить образование/другие потребители того же подхода. Переводы в базе не генерировать.",
+    "evidence": [
+      "screenshots/specialist-public-pc.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-11",
+    "priority": "P1",
+    "title": "Каталог специалистов возвращает HTTP 500 для практики в готовом месте",
+    "role": "посетитель",
+    "url": "http://localhost:8783/ru/specialists/",
+    "steps": [
+      "У опубликованного специалиста есть активная практика в Place с заполненным district и без собственного District.",
+      "Открыть каталог специалистов."
+    ],
+    "expected": "Каталог отображает специалиста и локализованную локацию.",
+    "actual": "AttributeError: 'str' object has no attribute 'name_i18n', src/catalog/views.py:2744. Публичная карточка отдельно открывается.",
+    "cause": "Place.district — строковый ключ, код каталога вызывает на нём метод объекта справочника.",
+    "source": "src/catalog/views.py:2744",
+    "scope": "Использовать существующий адаптер локаций для строкового ключа; проверить список и фильтры всех языков.",
+    "evidence": [
+      "screenshots/specialists-list-500.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-12",
+    "priority": "P1",
+    "title": "Пустые неактивные места приёма блокируют модерацию специалиста",
+    "role": "модератор",
+    "url": "http://localhost:8783/admin/catalog/specialist/4/change/",
+    "steps": [
+      "Сохранить первый черновик специалиста без места приёма.",
+      "Позже заполнить место, затем город; отправить профиль.",
+      "Попытаться опубликовать в админке."
+    ],
+    "expected": "Неактивная история частичных черновиков не требует повторного заполнения при модерации действующего места.",
+    "actual": "Админка требует адрес/место и регион для старых неактивных строк. После удаления только вымышленных неактивных пустых строк публикация проходит.",
+    "cause": "_sync_primary_location создаёт пустую локацию для неполного черновика и оставляет старые строки неактивными; clean() локации проверяет их независимо от is_active.",
+    "source": "src/catalog/services/owner_specialist_use_cases.py:22",
+    "scope": "Согласовать хранение неполного черновика и проверку исторических локаций. Сохранить проверку действующих очных мест.",
+    "evidence": [
+      "screenshots/specialist-moderation-location-fail.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-13",
+    "priority": "P2",
+    "title": "Сохранение опубликованного специалиста как черновика скрывает карточку без предупреждения",
+    "role": "подтверждённый специалист",
+    "url": "http://localhost:8783/ru/account/specialists/4/",
+    "steps": [
+      "Открыть свой опубликованный профиль.",
+      "Изменить имя и нажать «Сохранить черновик».",
+      "Открыть публичный URL."
+    ],
+    "expected": "До действия понятно, что произойдёт с публичной карточкой.",
+    "actual": "Статус сразу становится draft, публичный URL возвращает 404; предварительного объяснения снятия с сайта нет.",
+    "cause": "save_owner_specialist_profile присваивает status=draft существующему опубликованному объекту. Отдельной опубликованной проекции здесь нет.",
+    "source": "src/catalog/services/owner_specialist_use_cases.py:90",
+    "scope": "Ясно объяснить действующее последствие кнопки. Изменение модели публикации потребует отдельного согласованного scope.",
+    "evidence": [
+      "screenshots/specialist-conflict.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-14",
+    "priority": "P2",
+    "title": "Ошибки конфликта места и организации показывают внутренние английские строки",
+    "role": "владелец / модератор",
+    "url": "http://localhost:8783/ru/account/organizations/2/save/",
+    "steps": [
+      "Открыть одну редакцию в двух вкладках.",
+      "Сохранить первую, затем устаревшую вторую.",
+      "Повторить для места и его административного редактора."
+    ],
+    "expected": "Понятное локализованное сообщение с действием для пользователя.",
+    "actual": "Защита срабатывает, но RU показывает Candidate version conflict.; в форме места также виден ключ __all__.",
+    "cause": "Исключения публикации выводятся как готовый текст; технические ключи используются как подписи общего блока ошибок.",
+    "source": "src/catalog/controllers/organization_workspace.py:179",
+    "scope": "Добавить отображение известных кодов конфликта и корректную подпись общих ошибок. Сохранить проверку версий.",
+    "evidence": [
+      "screenshots/org-two-tabs-conflict.png",
+      "screenshots/place-two-tabs-conflict.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-15",
+    "priority": "P3",
+    "title": "Роли сотрудников сети подписаны Editor и Manager в RU",
+    "role": "владелец организации",
+    "url": "http://localhost:8783/ru/account/organizations/2/",
+    "steps": [
+      "Открыть приглашение сотрудника.",
+      "Посмотреть выбор роли в RU/AZ."
+    ],
+    "expected": "Понятные локализованные названия и объяснение существующих различий доступа.",
+    "actual": "В локализованном окружении остаются literal Editor и Manager.",
+    "cause": "Названия захардкожены в option, без локализованного вывода.",
+    "source": "src/catalog/templates/pages/organization_workspace.html:461",
+    "scope": "Перевести роли и добавить короткие пояснения по действующим полномочиям; ACL не расширять.",
+    "evidence": [
+      "screenshots/matrix-org-edit-ru-1440.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-16",
+    "priority": "P2",
+    "title": "На телефоне кнопки переключения этапов мероприятия пустые",
+    "role": "владелец",
+    "url": "http://localhost:8783/ru/account/places/events/5/edit/",
+    "steps": [
+      "Открыть форму на 360/390.",
+      "Посмотреть кнопки рядом с индикатором этапа."
+    ],
+    "expected": "Видимые стрелки назад/вперёд при сохранённых доступных именах.",
+    "actual": "Виден только контур двух пустых кнопок. Для fas fa-chevron-* computed ::before=none и системный font-family.",
+    "cause": "Элементы зависят от Font Awesome, правила иконок на странице не подключены.",
+    "source": "src/catalog/templates/pages/owner_event_form.html:114",
+    "scope": "Показать стрелки средствами уже используемой системы иконок или SVG; сохранить aria-label и клавиатурное управление.",
+    "evidence": [
+      "screenshots/steps-event-ru-360-2.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-17",
+    "priority": "P2",
+    "title": "Текст удаления специалиста не читается на белом фоне",
+    "role": "модератор",
+    "url": "http://localhost:8783/admin/catalog/specialist/4/change/",
+    "steps": [
+      "Открыть редактор на PC и телефоне.",
+      "Посмотреть действие удаления в панели сохранения."
+    ],
+    "expected": "Название действия читается в обычном состоянии.",
+    "actual": "Computed color=rgb(255,255,255), background=transparent; фон панели белый, текст почти невидим.",
+    "cause": "Общий km-btn--danger задаёт color:white!important; CSS специалиста меняет фон на прозрачный, цвет без important проигрывает.",
+    "source": "static/admin/css/kidsmap_admin_forms.css:182",
+    "scope": "Устранить конфликт стилей в существующей панели и проверить остальные потребители кнопки.",
+    "evidence": [
+      "screenshots/matrix-specialist-admin-ru-1440.png",
+      "screenshots/matrix-specialist-admin-ru-360.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-18",
+    "priority": "P3",
+    "title": "Перевод действия «Удалить» отображается как «Удалил»",
+    "role": "модератор",
+    "url": "http://localhost:8783/admin/catalog/specialist/4/change/",
+    "steps": [
+      "Открыть RU редактор специалиста.",
+      "Прочитать название удаления (после проверки контраста через DOM)."
+    ],
+    "expected": "Кнопка подписана действием «Удалить».",
+    "actual": "DOM содержит «🗑 Удалил».",
+    "cause": "locale/ru msgid «Удалить» имеет msgstr «Удалил». Строка общая для других административных страниц.",
+    "source": "locale/ru/LC_MESSAGES/django.po:1142",
+    "scope": "Исправить общий перевод и перепроверить потребителей удаления, не менять поведение удаления.",
+    "evidence": [
+      "screenshots/matrix-specialist-admin-ru-360.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-19",
+    "priority": "P2",
+    "title": "Проверка доступа к документам падает на отсутствующей категории в фикстуре",
+    "role": "QA automation",
+    "url": "http://localhost:8783/qa/acceptance-version/",
+    "steps": [
+      "Запустить IndependentSpecialistSecurityTests.test_live_place_owner_and_organization_grantee_cannot_read_person_documents в изолированном PostgreSQL.",
+      "Дождаться проверки ограничений после теста."
+    ],
+    "expected": "Фикстура самодостаточна, тест проверяет ACL.",
+    "actual": "ForeignKeyViolation: category EDU отсутствует. Второй набор: 89 тестов, 1 ERROR.",
+    "cause": "create_quality_place использует EDU; этот тест не создаёт соответствующую Category. Ошибка проявляется на check_constraints.",
+    "source": "src/catalog/testcases/test_task33_specialist_security_review.py:190",
+    "scope": "Исправить только подготовку изолированной фикстуры; проверки прав не ослаблять.",
+    "evidence": [],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-20",
+    "priority": "P2",
+    "title": "Форма места одновременно называет точку карты необязательной и обязательной",
+    "role": "владелец",
+    "url": "http://localhost:8783/ru/account/places/4/edit/",
+    "steps": [
+      "Открыть блок адреса и карты.",
+      "Прочитать обе подсказки."
+    ],
+    "expected": "Одна формулировка, соответствующая действующему контексту и серверу.",
+    "actual": "Рядом стоят «Точка на карте необязательна» и «Это обязательно для отправки».",
+    "cause": "continuous UI использует optional_map и старый общий map_hint. В текущем place_readiness координаты исключены из обязательных требований.",
+    "source": "src/catalog/services/permanent_place_wizard.py:88",
+    "scope": "Согласовать copy по контекстам owner/volunteer/admin. Серверные требования не менять.",
+    "evidence": [],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-21",
+    "priority": "P1",
+    "title": "Админка мероприятия молча перезаписывает изменение из другой вкладки",
+    "role": "модератор",
+    "url": "http://localhost:8783/admin/catalog/event/8/change/",
+    "steps": [
+      "Открыть мероприятие в двух вкладках.",
+      "В A поменять имя и сохранить.",
+      "В B, открытой до сохранения A, поменять имя и сохранить."
+    ],
+    "expected": "Устаревшее сохранение отклонено до записи и публикации.",
+    "actual": "Обе операции успешны; вторая POST возвращает 302 и сообщение успеха. Публичное имя становится QA Event admin tab B.",
+    "cause": "В административном пути нет версии исходной формы. save_model сначала пишет объект, затем publish_event получает уже свежий updated_at.",
+    "source": "src/catalog/domain_admin/place.py:1413",
+    "scope": "Проверить исходную версию до любой записи и публикации, сохранить пользовательский ввод при конфликте. ACL/правила публикации не менять.",
+    "evidence": [
+      "screenshots/event-admin-stale-overwrite.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  },
+  {
+    "id": "ACE-22",
+    "priority": "P1",
+    "title": "Админка специалиста молча перезаписывает изменение из другой вкладки",
+    "role": "модератор",
+    "url": "http://localhost:8783/admin/catalog/specialist/4/change/",
+    "steps": [
+      "Открыть профиль в двух вкладках.",
+      "Сохранить имя QA Specialist admin tab A.",
+      "Сохранить устаревшую вкладку с именем QA Specialist admin tab B."
+    ],
+    "expected": "Устаревшая форма отклонена до изменения профиля и связанных данных.",
+    "actual": "Обе операции успешны, публичная карточка показывает B. В собственном кабинете та же гонка отклоняется с 409.",
+    "cause": "Административный ModelForm не передаёт и не проверяет исходную версию профиля; путь кабинета имеет отдельную проверку updated_at.",
+    "source": "src/catalog/domain_admin/specialist.py:25",
+    "scope": "Защитить административное сохранение профиля и inline-данных одной проверкой исходной версии. Права не расширять.",
+    "evidence": [
+      "screenshots/specialist-admin-stale-overwrite.png"
+    ],
+    "confidence": "высокая",
+    "environment": "LOCAL, изолированный PostgreSQL/QA, текущий WORKTREE"
+  }
+]

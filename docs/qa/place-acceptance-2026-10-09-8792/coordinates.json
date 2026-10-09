@@ -1,0 +1,46 @@
+{
+  "rows": [
+    {
+      "id": "owner-manual-coordinates-draft-roundtrip",
+      "status": "PASS"
+    },
+    {
+      "id": "invalid-range-refused-keeps-input",
+      "status": "FAIL",
+      "text": ""
+    },
+    {
+      "id": "zero-zero-preserved-only-as-draft",
+      "status": "PASS"
+    },
+    {
+      "id": "zero-zero-publication-blocked",
+      "status": "PASS",
+      "text": "Исправьте ошибки\nИсправьте ошибки: Карточка не может быть опубликована. Заполнено 9 из 10 обязательных пунктов. Необходимо заполнить: Район / регион — Выберите город или регион, а для Баку — район.\nРайон Баку Обязательно для отправки: Выберите город или регион, а для Баку — район."
+    },
+    {
+      "id": "half-coordinate-pair-refused",
+      "status": "PASS"
+    },
+    {
+      "id": "owner-no-sdk-clear-functional",
+      "status": "FAIL",
+      "before": [
+        "40.4093",
+        "49.8671"
+      ],
+      "after": [
+        "40.4093",
+        "49.8671"
+      ]
+    },
+    {
+      "id": "owner-no-sdk-locate-feedback",
+      "status": "FAIL",
+      "statusBefore": "Выбрана точка: 40.4093, 49.8671",
+      "statusAfter": "Выбрана точка: 40.4093, 49.8671",
+      "buttonEnabled": true
+    }
+  ],
+  "errors": []
+}

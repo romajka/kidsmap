@@ -14,8 +14,10 @@ from .volunteer import VolunteerPlaceRevision
 from .staff_role import StaffRoleAudit, SuperadminPromotionRequest
 from .analytics import AnalyticsActorExclusion, AnalyticsIngressDaily
 from .rating_ranking import RatingRankingCalibration
+from .organization_connection_operation import OrganizationConnectionOperation, OrganizationConnectionItem
 
 __all__ = [
+    'OrganizationConnectionOperation','OrganizationConnectionItem',
     'PlaceLocationOverride',
     'PlaceReviewCooldown',
     'VolunteerPlaceRevision',
@@ -104,3 +106,6 @@ from .review_versions import (ActivityReview, EventReview, PlaceReviewRevision, 
 __all__ += ['ActivityReview', 'EventReview', 'PlaceReviewRevision', 'SpecialistReviewRevision', 'ActivityReviewRevision', 'EventReviewRevision', 'SpecialistReviewReaction', 'ActivityReviewReaction', 'EventReviewReaction']
 from .review_versions import PlaceReviewResponse, SpecialistReviewResponse, ActivityReviewResponse, EventReviewResponse
 __all__ += ['PlaceReviewResponse', 'SpecialistReviewResponse', 'ActivityReviewResponse', 'EventReviewResponse']
+
+from .specialist_proposal_draft import SpecialistProposalDraft
+__all__ += ['SpecialistProposalDraft']

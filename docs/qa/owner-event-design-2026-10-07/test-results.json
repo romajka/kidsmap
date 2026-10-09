@@ -1,0 +1,36 @@
+{
+  "snapshot": "dirty WORKTREE task33-progress @ 2da9d33abbc53d1ac71bcb7e15a0170bef6277d5",
+  "isolated": true,
+  "DJANGO_TESTING": 1,
+  "originalStock": {
+    "tests": 62,
+    "errors": 19,
+    "exitCode": 1,
+    "seconds": 36.105,
+    "cause": "Security fixture references Category EDU without creating it"
+  },
+  "stockWithSyntheticCategoryFixture": {
+    "tests": 62,
+    "errors": 0,
+    "failures": 0,
+    "exitCode": 0,
+    "seconds": 35.342
+  },
+  "combinedWithDiagnostics": {
+    "tests": 72,
+    "failures": 1,
+    "errors": 0,
+    "exitCode": 1,
+    "seconds": 35.464,
+    "failedProbe": "test_public_venue_phone_can_be_inherited_by_server_form",
+    "failureMeaning": "Current form rejects blank phone despite related venue phone; not fixed"
+  },
+  "imageSource": {
+    "tests": 1,
+    "passed": 1,
+    "exitCode": 0,
+    "seconds": 0.094
+  },
+  "applicationAssertionsModified": false,
+  "fullSuiteRun": false
+}

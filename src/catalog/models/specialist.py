@@ -186,7 +186,7 @@ class Specialist(models.Model):
     rating_count = models.PositiveIntegerField(_("Количество отзывов"), default=0, editable=False)
     
     is_active = models.BooleanField(_("Активен"), default=True)
-    is_verified = models.BooleanField(_("Проверен"), default=False)
+    is_verified = models.BooleanField(_("Проверен"), default=False, editable=False)
     status = models.CharField(
         _("Статус модерации"), 
         max_length=16, 
@@ -216,16 +216,16 @@ class Specialist(models.Model):
         self.save(update_fields=["rating_avg", "rating_count"])
 
     def bio_i18n(self, lang=None):
-        lang = (lang or get_language() or "az").split("-")[0]
-        return getattr(self, f"bio_{lang}", self.bio_ru) or self.bio_ru
+        from catalog.services.localized_content import localized_content
+        return localized_content(self, 'bio', lang)['text']
 
     def education_i18n(self, lang=None):
-        lang = (lang or get_language() or "az").split("-")[0]
-        return getattr(self, f"education_{lang}", self.education_ru) or self.education_ru
+        from catalog.services.localized_content import localized_content
+        return localized_content(self, 'education', lang)['text']
 
     def experience_info_i18n(self, lang=None):
-        lang = (lang or get_language() or "az").split("-")[0]
-        return getattr(self, f"experience_info_{lang}", self.experience_info_ru) or self.experience_info_ru
+        from catalog.services.localized_content import localized_content
+        return localized_content(self, 'experience_info', lang)['text']
 
     def get_absolute_url(self):
         from django.urls import reverse

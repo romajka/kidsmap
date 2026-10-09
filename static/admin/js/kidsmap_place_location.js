@@ -1,9 +1,9 @@
 (function () {
-  function parseCoordinate(value) {
+  function parseCoordinate(value, limit) {
     var normalized = String(value || "").trim().replace(",", ".");
     if (!normalized) return null;
     var parsed = Number(normalized);
-    return Number.isFinite(parsed) ? parsed : null;
+    return Number.isFinite(parsed) && Math.abs(parsed) <= limit ? parsed : null;
   }
 
   function formatCoordinate(value) {
@@ -88,14 +88,17 @@
       clearButton: clearButton,
       fallbackSubmit: fallbackSubmit,
       statusText: statusText,
+      unavailableNote: root.querySelector("[data-km-place-location-unavailable]"),
       coordBadge: coordBadge,
       mapBadge: mapBadge,
       foundBox: foundBox,
       foundText: foundText,
       applyAddressButton: applyAddressButton,
       mapProvider: root.dataset.mapProvider || "leaflet",
-      defaultLat: parseCoordinate(root.dataset.defaultLat) || 40.409264,
-      defaultLng: parseCoordinate(root.dataset.defaultLng) || 49.867092,
+      offlineOpenLabel: root.dataset.offlineOpenLabel,
+      offlineClosedLabel: root.dataset.offlineClosedLabel,
+      defaultLat: parseCoordinate(root.dataset.defaultLat, 90) || 40.409264,
+      defaultLng: parseCoordinate(root.dataset.defaultLng, 180) || 49.867092,
       selectedPrefix: root.dataset.selectedPrefix || "Выбрана точка:",
       emptyLabel: root.dataset.emptyLabel || "Точка на карте не выбрана.",
       locateErrorLabel: root.dataset.locateError || "",
@@ -133,8 +136,8 @@
   }
 
   function updateBadges(state) {
-    var lat = parseCoordinate(state.latInput.value);
-    var lng = parseCoordinate(state.lngInput.value);
+    var lat = parseCoordinate(state.latInput.value, 90);
+    var lng = parseCoordinate(state.lngInput.value, 180);
     var hasCoordinates = lat !== null && lng !== null;
     var addressValue = String(state.addressInput.value || "").trim();
     var isReady = hasCoordinates && !!addressValue;
@@ -202,7 +205,10 @@
       state.toggleButton.setAttribute("aria-expanded", expanded ? "true" : "false");
       var label = state.toggleButton.querySelector("span");
       if (label) {
-        label.textContent = expanded ? state.mapOpenLabel : state.mapClosedLabel;
+        var offline = state.unavailableNote && !state.mapAvailable;
+        label.textContent = expanded
+          ? (offline ? state.offlineOpenLabel : state.mapOpenLabel)
+          : (offline ? state.offlineClosedLabel : state.mapClosedLabel);
       }
     }
   }
@@ -221,8 +227,8 @@
   }
 
   function setPoint(state, lat, lng, options) {
-    var normalizedLat = parseCoordinate(lat);
-    var normalizedLng = parseCoordinate(lng);
+    var normalizedLat = parseCoordinate(lat, 90);
+    var normalizedLng = parseCoordinate(lng, 180);
     if (normalizedLat === null || normalizedLng === null) return;
 
     state.latInput.value = formatCoordinate(normalizedLat);
@@ -383,8 +389,8 @@
       }
     });
 
-    var lat = parseCoordinate(state.latInput.value);
-    var lng = parseCoordinate(state.lngInput.value);
+    var lat = parseCoordinate(state.latInput.value, 90);
+    var lng = parseCoordinate(state.lngInput.value, 180);
     if (lat !== null && lng !== null) {
       state.mapInstance.setView([lat, lng], 15);
       setPoint(state, lat, lng, { recenter: false });
@@ -396,8 +402,8 @@
   function initGoogleMap(state) {
     if (!window.google || !window.google.maps || state.mapInstance) return;
 
-    var lat = parseCoordinate(state.latInput.value);
-    var lng = parseCoordinate(state.lngInput.value);
+    var lat = parseCoordinate(state.latInput.value, 90);
+    var lng = parseCoordinate(state.lngInput.value, 180);
     var hasPoint = lat !== null && lng !== null;
     state.mapInstance = new google.maps.Map(state.mapCanvas, {
       center: hasPoint ? { lat: lat, lng: lng } : { lat: state.defaultLat, lng: state.defaultLng },
@@ -420,7 +426,27 @@
     bindGoogleAutocomplete(state);
   }
 
+  function updateMapAvailability(state) {
+    var available = state.mapProvider === "google"
+      ? !!(window.google && window.google.maps)
+      : state.mapProvider === "leaflet" && !!window.L;
+    state.mapAvailable = available;
+    if (state.unavailableNote) {
+      state.unavailableNote.hidden = available;
+      state.mapCanvas.hidden = !available;
+      var hint = state.root.querySelector(".km-pf-mappanel__hint");
+      if (hint) hint.hidden = !available;
+      if (state.searchButton) {
+        state.searchButton.disabled = !available;
+        if (available) state.searchButton.removeAttribute("aria-describedby");
+        else state.searchButton.setAttribute("aria-describedby", state.unavailableNote.id);
+      }
+    }
+    return available;
+  }
+
   function initMap(state) {
+    if (!updateMapAvailability(state)) return;
     if (state.mapProvider === "google") {
       initGoogleMap(state);
       return;
@@ -500,6 +526,7 @@
       state.confirmButton.addEventListener("click", function () {
         updateBadges(state);
         setToggleState(state, false);
+        if (state.toggleButton) state.toggleButton.focus();
       });
       state.confirmButton.dataset.kmBound = "1";
     }
@@ -545,8 +572,13 @@
   function initRoot(root) {
     if (!root) return;
     initRegionCascade(root);
-    var state = buildState(root);
+    // The SDK callback may run after the local controls are already bound.
+    // Reuse their state instead of creating a second map with stale handlers.
+    var state = root._kidsMapAdminPlaceLocationState || buildState(root);
     if (!state) return;
+    root._kidsMapAdminPlaceLocationState = state;
+    state.mapProvider = root.dataset.mapProvider || "leaflet";
+    updateMapAvailability(state);
     bindActions(state);
     updateBadges(state);
     updateFoundAddress(state, "");

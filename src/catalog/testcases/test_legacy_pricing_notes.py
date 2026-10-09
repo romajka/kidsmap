@@ -51,7 +51,8 @@ class LegacyPricingNotesTests(SimpleTestCase):
                 self.assertIn('data-price-disclaimer', html)
                 place.is_verified = True
                 html = render_to_string('catalog/includes/pricing_notes.html', context)
-                self.assertNotIn('data-price-disclaimer', html)
+                # Retired listing badge no longer suppresses the price caution.
+                self.assertIn('data-price-disclaimer', html)
                 self.assertIn('Line one', html)
 
     def test_no_disclaimer_without_pricing(self):

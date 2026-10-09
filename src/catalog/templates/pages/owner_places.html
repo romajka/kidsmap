@@ -83,9 +83,9 @@
       {% if place_affiliation_requests or affiliated_places or joinable_places and joinable_organizations %}
       <section class="account-card-box" id="organization-links" aria-labelledby="organization-links-title">
         <div class="account-card-box__head"><h2 id="organization-links-title">{% if CURRENT_LANGUAGE == 'az' %}Təşkilat əlaqələri{% elif CURRENT_LANGUAGE == 'en' %}Organization links{% else %}Связи с организациями{% endif %}</h2></div>
-        {% for item in place_affiliation_requests %}<div class="org-pending-row"><span>{{ item.place.name_i18n }} → {{ item.organization.name_az }} · {% if item.place_owner_confirmed_at %}{% if CURRENT_LANGUAGE == 'az' %}Sizin tərəf təsdiqlədi{% elif CURRENT_LANGUAGE == 'en' %}Your side confirmed{% else %}Ваша сторона подтвердила{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Sizin təsdiqiniz gözlənilir{% elif CURRENT_LANGUAGE == 'en' %}Waiting for your confirmation{% else %}Ожидает вашего подтверждения{% endif %}{% endif %}</span><form method="post" action="{% url 'organization_workspace_confirm' item.organization_id item.pk %}">{% csrf_token %}<button class="account-btn-sm" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Təsdiqlə{% elif CURRENT_LANGUAGE == 'en' %}Confirm{% else %}Подтвердить{% endif %}</button></form></div>{% endfor %}
+        {% for item in place_affiliation_requests %}{% include 'pages/includes/organization_join_request.html' %}{% endfor %}
         {% for place in informational_places %}<p>{{ place.name_i18n }} · {% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi; şəbəkə hüququ vermir{% elif CURRENT_LANGUAGE == 'en' %}Information link; no network permission{% else %}Информационная связь; не даёт сетевых прав{% endif %}</p>{% endfor %}
-        {% for place in affiliated_places %}<div class="org-pending-row"><span>{{ place.name_i18n }} → {{ place.organization.name_az }} · {% if place.organization_relationship_kind == 'informational' %}{% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi{% elif CURRENT_LANGUAGE == 'en' %}Information link{% else %}Информационная связь{% endif %}{% endif %}</span><form method="post" action="{% url 'organization_workspace_detach' place.organization_id place.pk %}">{% csrf_token %}<input type="hidden" name="expected_ownership_version" value="{{ place.ownership_version }}"><button class="account-btn-sm" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Ayır{% elif CURRENT_LANGUAGE == 'en' %}Detach{% else %}Отсоединить{% endif %}</button></form></div>{% endfor %}
+        {% for place in affiliated_places %}<div class="org-pending-row"><span>{{ place.name_i18n }} → {{ place.organization.name_az }} · {% if place.organization_relationship_kind == 'informational' %}{% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi{% elif CURRENT_LANGUAGE == 'en' %}Information link{% else %}Информационная связь{% endif %}{% endif %}</span><a class="account-btn-sm" href="{% url 'organization_detach_preview' place.organization_id place.pk %}">{% translate 'Отсоединить: посмотреть последствия' %}</a></div>{% endfor %}
         {% if joinable_places and joinable_organizations %}<form method="post" data-join-form>{% csrf_token %}<label>{% if CURRENT_LANGUAGE == 'az' %}Məkan{% elif CURRENT_LANGUAGE == 'en' %}Place{% else %}Место{% endif %}<select name="place_id">{% for place in joinable_places %}<option value="{{ place.pk }}">{{ place.name_i18n }}</option>{% endfor %}</select></label><label>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat{% elif CURRENT_LANGUAGE == 'en' %}Organization{% else %}Организация{% endif %}<select name="organization_id" data-join-org>{% for org in joinable_organizations %}<option value="{{ org.pk }}" data-url="{% url 'organization_workspace_join' org.pk %}">{{ org.name_az }}</option>{% endfor %}</select></label><button type="submit" class="account-btn-sm">{% if CURRENT_LANGUAGE == 'az' %}Qoşulma istə{% elif CURRENT_LANGUAGE == 'en' %}Request connection{% else %}Запросить присоединение{% endif %}</button></form>{% endif %}
       </section>
       {% endif %}
@@ -523,6 +523,7 @@
                       </div>
                     </div>
                     <div>
+                      {% if event.occurrence_state != "scheduled" %}<span class="account-status-pill">{{ event.get_occurrence_state_display }}</span>{% endif %}
                       {% if event.effective_status == event.STATUS_EXPIRED %}
                         <span class="account-status-pill account-status-pill--draft">{% if CURRENT_LANGUAGE == "az" %}Başa çatıb{% elif CURRENT_LANGUAGE == "en" %}Ended{% else %}Завершено{% endif %}</span>
                       {% elif event.status == event.STATUS_PENDING %}
@@ -550,7 +551,7 @@
                     </div>
                   {% endif %}
 
-                  <div class="account-owner-card__actions">
+                  <div class="account-owner-card__actions"><a class="account-btn-sm account-btn-sm--secondary" href="{% url 'owner_event_manage' event.pk %}">{% trans "Отмена / перенос" %}</a>
                     {% if event.status == event.STATUS_PUBLISHED and not event.has_ended %}
                       <a class="account-btn-sm account-btn-sm--secondary" href="{{ event.get_absolute_url }}">
                         <span class="material-symbols-rounded">visibility</span>

@@ -1,0 +1,86 @@
+{
+  "head": "2da9d33abbc53d1ac71bcb7e15a0170bef6277d5",
+  "branch": "task33-progress",
+  "source_digest": "c0acc75bdb30a2fd13d87d41f6038e877f6b299d1c3e23b94bf6380b78b10c9c",
+  "version_endpoint": {
+    "head": "2da9d33abbc53d1ac71bcb7e15a0170bef6277d5",
+    "source_digest": "c0acc75bdb30a2fd13d87d41f6038e877f6b299d1c3e23b94bf6380b78b10c9c",
+    "worktree_entries": 180,
+    "DJANGO_TESTING": true,
+    "external_credentials_present": false,
+    "locmem_cache": true,
+    "locmem_email": true,
+    "public_base_url": "http://localhost:8788",
+    "started_at": "2026-10-08T05:58:59.031300+00:00"
+  },
+  "pid": 549954,
+  "containers": [
+    {
+      "name": "kidsmap-content-entry-final-20261007",
+      "image": "postgres:17-alpine",
+      "network": "none",
+      "published_ports": false,
+      "running": true,
+      "owner_label": "content-entry-final-20261007"
+    },
+    {
+      "name": "kidsmap-content-final-tests-20261007",
+      "image": "postgres:17-alpine",
+      "network": "none",
+      "published_ports": false,
+      "running": true,
+      "owner_label": "content-final-tests-20261007"
+    }
+  ],
+  "baseline_files": 5149,
+  "baseline_changed_allowed": [
+    "docs/task33/implementation-status.md",
+    "locale/az/LC_MESSAGES/django.po",
+    "locale/en/LC_MESSAGES/django.po",
+    "locale/ru/LC_MESSAGES/django.po",
+    "src/catalog/controllers/owner_events_controller.py",
+    "src/catalog/domain_admin/place.py",
+    "src/catalog/forms.py",
+    "src/catalog/models/place.py",
+    "src/catalog/models/specialist.py",
+    "src/catalog/services/photo_gallery.py",
+    "src/catalog/services/publication_forms.py",
+    "src/catalog/services/volunteer_places.py",
+    "src/catalog/templates/admin/catalog/event/change_form.html",
+    "src/catalog/templates/admin/catalog/place/placephoto_inline.html",
+    "src/catalog/templates/admin/catalog/specialist/change_form.html",
+    "src/catalog/templates/base.html",
+    "src/catalog/templates/catalog/event_detail.html",
+    "src/catalog/templates/catalog/specialist_detail.html",
+    "src/catalog/templates/pages/includes/owner_place_continuous.html",
+    "src/catalog/templates/pages/includes/permanent_place_photos.html",
+    "src/catalog/templates/pages/owner_event_form.html",
+    "src/catalog/templatetags/catalog_i18n.py",
+    "src/catalog/testcases/admin.py",
+    "src/catalog/testcases/owner.py",
+    "src/catalog/testcases/public.py",
+    "src/catalog/testcases/test_task33_event_owner_contract.py",
+    "src/catalog/views.py",
+    "static/admin/css/pages/specialist_form.css",
+    "static/admin/js/kidsmap_admin_form_shell.js",
+    "static/admin/js/kidsmap_place_form.js",
+    "static/admin/js/kidsmap_place_media.js",
+    "static/js/owner_event_form.js",
+    "static/js/owner_place_continuous.js",
+    "static/js/permanent_place_photos.js"
+  ],
+  "baseline_changed_outside_allowed": [],
+  "new_source_files": [
+    "src/catalog/services/localized_content.py",
+    "src/catalog/templates/catalog/includes/localized_content.html",
+    "src/catalog/testcases/test_content_entry_final.py",
+    "static/css/components/icons.css"
+  ],
+  "locale_mo_sha256": {
+    "locale/en/LC_MESSAGES/django.mo": "9ad81f943fe5e843445a753038da84c4cf897046db10ca81b8f2bb1937535539",
+    "locale/az/LC_MESSAGES/django.mo": "c722de3a1196f15ba3ff0571d9c7899980693b374b83710b004cae10069e9ec8",
+    "locale/ru/LC_MESSAGES/django.mo": "d8fcf1d112aab58acf6d2a2ca28ac72c9b4b90751fa1bf2e9891a991a1d20f82"
+  },
+  "source_file_count": 2756,
+  "captured_at": "2026-10-08T05:58:57.833567+00:00"
+}

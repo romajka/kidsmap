@@ -1,0 +1,26 @@
+{
+  "rows": [
+    {
+      "id": "partial-review-codes",
+      "status": "PASS",
+      "pass": true,
+      "decisions": [
+        "already_connected",
+        "other_network",
+        "requested"
+      ]
+    },
+    {
+      "id": "foreign-receipt-404",
+      "status": "PASS",
+      "pass": true
+    },
+    {
+      "id": "foreign-org-workspace-404",
+      "status": "PASS",
+      "pass": true
+    }
+  ],
+  "error": "Error: locator.check: SyntaxError: Failed to execute 'querySelectorAll' on 'Document': 'input[name=place_ids][value=64]' is not a valid selector.\n    at query (<anonymous>:5811:41)\n    at <anonymous>:5821:7\n    at SelectorEvaluatorImpl._cached (<anonymous>:5598:20)\n    at SelectorEvaluatorImpl._queryCSS (<anonymous>:5808:17)\n    at SelectorEvaluatorImpl._querySimple (<anonymous>:5688:19)\n    at <anonymous>:5636:29\n    at SelectorEvaluatorImpl._cached (<anonymous>:5598:20)\n    at SelectorEvaluatorImpl.query (<anonymous>:5629:19)\n    at Object.query (<anonymous>:5843:44)\n    at <anonymous>:5801:21\nCall log:\n\u001b[2m  - waiting for locator('input[name=place_ids][value=64]')\u001b[22m\n",
+  "url": "http://localhost:8788/ru/account/organizations/5/connections/?q=Foreign"
+}

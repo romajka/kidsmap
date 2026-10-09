@@ -24,272 +24,296 @@
 
   <!-- Back link to Cabinet -->
   <a href="{% url 'owner_places_dashboard' %}" class="owner-listing-back-link">
-    <span class="material-symbols-rounded">arrow_back</span>
+    <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
     <span>{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarıma qayıt{% elif CURRENT_LANGUAGE == "en" %}Back to my places{% else %}Назад к моим местам{% endif %}</span>
   </a>
 
   <!-- Header section -->
   <div class="owner-listing-choice-head">
     <span class="owner-listing-choice-kicker">
-      <span class="material-symbols-rounded" style="font-size: 16px;">add_circle</span>
+      <span class="material-symbols-rounded" aria-hidden="true">add_circle</span>
       <span>{% if CURRENT_LANGUAGE == "az" %}KidsMap elanları{% elif CURRENT_LANGUAGE == "en" %}KidsMap listings{% else %}Объявления KidsMap{% endif %}</span>
     </span>
     <h1>{% if CURRENT_LANGUAGE == "az" %}Nə əlavə etmək istəyirsiniz?{% elif CURRENT_LANGUAGE == "en" %}What would you like to add?{% else %}Что вы хотите добавить?{% endif %}</h1>
     <p>
       {% if CURRENT_LANGUAGE == "az" %}
-        Uyğun elan növünü seçin. Kartınız sürətli moderasiyadan sonra Bakı kataloqu və xəritəsində dərc olunacaq.
+        Uyğun elan növünü seçin. Yoxlamadan sonra kartınız Bakı kataloqu və xəritəsində dərc olunacaq.
       {% elif CURRENT_LANGUAGE == "en" %}
-        Choose the suitable listing type. Your card will be published in the Baku catalog and map after quick review.
+        Choose the suitable listing type. Your profile will appear in the Baku catalog and map after review.
       {% else %}
-        Выберите подходящий формат размещения. Ваша карточка появится в каталоге и на карте после быстрой проверки.
+        Выберите подходящий формат публикации. После проверки карточка появится в каталоге и на карте Баку.
       {% endif %}
     </p>
   </div>
 
-  <!-- Cards Grid -->
-  <div class="owner-listing-choice-grid{% if not is_events_section_enabled and not is_specialists_section_enabled %} owner-listing-choice-grid--single{% endif %}">
+  <!-- Cards Grid: 4 distinct choices -->
+  <div class="owner-listing-choice-grid{% if not is_events_section_enabled and not is_specialists_section_enabled and not is_organizations_section_enabled %} owner-listing-choice-grid--single{% endif %}">
 
-    <!-- Permanent Place Card -->
-    <a class="owner-listing-choice-card" href="{% url 'owner_place_create' %}?type=permanent&amp;fresh=1">
+    <!-- 1. Permanent Place Card -->
+    <a class="owner-listing-choice-card owner-listing-choice-card--place" href="{% url 'owner_place_create' %}?type=permanent&amp;fresh=1">
       <div class="owner-listing-choice-card__top">
         <div class="owner-listing-choice-card__icon-box">
-          <span class="material-symbols-rounded">storefront</span>
+          <span class="material-symbols-rounded" aria-hidden="true">storefront</span>
         </div>
         <span class="owner-listing-choice-card__badge">
-          {% if CURRENT_LANGUAGE == "az" %}5 addım · ~3 dəq{% elif CURRENT_LANGUAGE == "en" %}5 steps · ~3 min{% else %}5 шагов · ~3 мин{% endif %}
+          {% if CURRENT_LANGUAGE == "az" %}4 bölmə · Sərbəst keçid{% elif CURRENT_LANGUAGE == "en" %}4 sections · Free navigation{% else %}4 раздела · Свободный переход{% endif %}
         </span>
       </div>
 
       <div class="owner-listing-choice-card__body">
         <strong class="owner-listing-choice-card__title">
-          {% if CURRENT_LANGUAGE == "az" %}Daimi məkan{% elif CURRENT_LANGUAGE == "en" %}Permanent place{% else %}Постоянное место{% endif %}
+          {% if CURRENT_LANGUAGE == "az" %}Konkret məkan{% elif CURRENT_LANGUAGE == "en" %}Physical place{% else %}Конкретная площадка{% endif %}
         </strong>
         <p class="owner-listing-choice-card__text">
           {% if CURRENT_LANGUAGE == "az" %}
-            Klub, kurs, mərkəz, idman bölməsi, bağça, məktəb və ya müntəzəm fəaliyyət göstərən məkan.
+            Daimi ünvanı olan uşaq bağçası, inkişaf mərkəzi, idman bölməsi, hovuz, studiya və ya məktəb.
           {% elif CURRENT_LANGUAGE == "en" %}
-            A club, course, center, sports section, kindergarten, school, or permanent venue.
+            A kindergarten, development center, sports club, swimming pool, studio, or school at a fixed address.
           {% else %}
-            Детский сад, центр развития, спортивная секция, школа, клуб, кружок или постоянное заведение.
+            Детский сад, центр развития, спортивная секция, бассейн, студия или школа с постоянным адресом.
           {% endif %}
         </p>
 
-        <div class="owner-listing-choice-card__note">
-          {% if CURRENT_LANGUAGE == "az" %}
-            Uzunmüddətli fəaliyyət üçün uyğundur. Kataloq və xəritədə daimi kart kimi görünür.
-          {% elif CURRENT_LANGUAGE == "en" %}
-            Best for long-term activity. Appears as a permanent profile in the catalog and map.
-          {% else %}
-            Подходит для постоянной работы. Карточка отображается в каталоге, поиске и на карте Баку.
-          {% endif %}
+        <div class="owner-listing-choice-card__example">
+          <span class="material-symbols-rounded" aria-hidden="true">lightbulb</span>
+          <span><strong>{% if CURRENT_LANGUAGE == "az" %}Nümunə:{% elif CURRENT_LANGUAGE == "en" %}Example:{% else %}Пример:{% endif %}</strong> {% if CURRENT_LANGUAGE == "az" %}Səbaildə rəsm studiyası, bağça filialı{% elif CURRENT_LANGUAGE == "en" %}Art studio in Sabail, kindergarten branch{% else %}Студия рисования на Сабаиле, филиал детского сада{% endif %}</span>
         </div>
 
         <div class="owner-listing-choice-features">
           <div class="owner-listing-feature-item">
-            <span class="material-symbols-rounded">check_circle</span>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Müntəzəm fəaliyyət və daimi kart{% elif CURRENT_LANGUAGE == "en" %}Regular activity & permanent card{% else %}Регулярная работа и постоянный профиль{% endif %}</span>
+            <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Xəritədə və kataloqda daimi nöqtə{% elif CURRENT_LANGUAGE == "en" %}Fixed map point & catalog card{% else %}Постоянная точка на карте и в каталоге{% endif %}</span>
           </div>
           <div class="owner-listing-feature-item">
-            <span class="material-symbols-rounded">check_circle</span>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Ətraflı profil, foto və qiymətlər{% elif CURRENT_LANGUAGE == "en" %}Detailed profile, photos & pricing{% else %}Подробный профиль, фотогалерея и цены{% endif %}</span>
+            <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Ünvan, iş qrafiki və zal şəkilləri{% elif CURRENT_LANGUAGE == "en" %}Address, opening hours & venue photos{% else %}Адрес, график работы и фото залов{% endif %}</span>
           </div>
           <div class="owner-listing-feature-item">
-            <span class="material-symbols-rounded">check_circle</span>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Kataloq və interaktiv xəritə{% elif CURRENT_LANGUAGE == "en" %}Catalog and interactive map{% else %}Размещение в каталоге и на карте{% endif %}</span>
-          </div>
-          <div class="owner-listing-feature-item">
-            <span class="material-symbols-rounded">check_circle</span>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Valideynlərlə birbaşa WhatsApp və zəng{% elif CURRENT_LANGUAGE == "en" %}Direct WhatsApp & phone calls{% else %}Прямой контакт с родителями в WhatsApp и по телефону{% endif %}</span>
+            <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Valideynlərlə birbaşa zəng və WhatsApp{% elif CURRENT_LANGUAGE == "en" %}Direct phone calls & WhatsApp{% else %}Прямой контакт с родителями по телефону и WhatsApp{% endif %}</span>
           </div>
         </div>
-
-        {% if not is_events_section_enabled and not is_specialists_section_enabled %}
-          <!-- 5-Step Roadmap Preview for Single Card -->
-          <div class="owner-steps-roadmap">
-            <h3 class="owner-steps-roadmap__title">
-              {% if CURRENT_LANGUAGE == "az" %}Kartın yaradılma mərhələləri:{% elif CURRENT_LANGUAGE == "en" %}Creation steps:{% else %}Шаги создания карточки:{% endif %}
-            </h3>
-            <div class="owner-steps-roadmap__list">
-              <div class="owner-step-item">
-                <span class="owner-step-number">01</span>
-                <span class="owner-step-name">{% if CURRENT_LANGUAGE == "az" %}Ad və təsvir{% elif CURRENT_LANGUAGE == "en" %}Name & info{% else %}Название и инфо{% endif %}</span>
-              </div>
-              <div class="owner-step-item">
-                <span class="owner-step-number">02</span>
-                <span class="owner-step-name">{% if CURRENT_LANGUAGE == "az" %}Xəritə və ünvan{% elif CURRENT_LANGUAGE == "en" %}Location{% else %}Адрес и карта{% endif %}</span>
-              </div>
-              <div class="owner-step-item">
-                <span class="owner-step-number">03</span>
-                <span class="owner-step-name">{% if CURRENT_LANGUAGE == "az" %}Əlaqə nömrələri{% elif CURRENT_LANGUAGE == "en" %}Contacts{% else %}Контакты{% endif %}</span>
-              </div>
-              <div class="owner-step-item">
-                <span class="owner-step-number">04</span>
-                <span class="owner-step-name">{% if CURRENT_LANGUAGE == "az" %}Şəkillər və loqo{% elif CURRENT_LANGUAGE == "en" %}Photos{% else %}Фотографии{% endif %}</span>
-              </div>
-              <div class="owner-step-item">
-                <span class="owner-step-number">05</span>
-                <span class="owner-step-name">{% if CURRENT_LANGUAGE == "az" %}Qiymət və cədvəl{% elif CURRENT_LANGUAGE == "en" %}Prices{% else %}Цены и график{% endif %}</span>
-              </div>
-            </div>
-          </div>
-        {% endif %}
       </div>
 
       <span class="owner-listing-choice-card__button">
-        <span class="material-symbols-rounded">add_circle</span>
-        <span>{% if CURRENT_LANGUAGE == "az" %}Daimi məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a permanent place{% else %}Добавить постоянное место{% endif %}</span>
+        <span class="material-symbols-rounded" aria-hidden="true">add_circle</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a place{% else %}Добавить место{% endif %}</span>
       </span>
     </a>
 
-    <!-- Temporary Event Card -->
-    {% if is_events_section_enabled %}
-    <a class="owner-listing-choice-card owner-listing-choice-card--event" href="{% url 'owner_event_create' %}?fresh=1">
+    <!-- 2. Organization Card -->
+    {% if is_organizations_section_enabled %}
+    <a class="owner-listing-choice-card owner-listing-choice-card--org" href="{% url 'organization_workspace_create' %}">
       <div class="owner-listing-choice-card__top">
         <div class="owner-listing-choice-card__icon-box">
-          <span class="material-symbols-rounded">event</span>
+          <span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span>
         </div>
         <span class="owner-listing-choice-card__badge">
-          {% if CURRENT_LANGUAGE == "az" %}2 addım · ~1 dəq{% elif CURRENT_LANGUAGE == "en" %}2 steps · ~1 min{% else %}2 шага · ~1 мин{% endif %}
+          {% if CURRENT_LANGUAGE == "az" %}Şəbəkə / Brend · Kabinet{% elif CURRENT_LANGUAGE == "en" %}Network / Brand · Cabinet{% else %}Сеть / Бренд · Кабинет{% endif %}
         </span>
       </div>
 
       <div class="owner-listing-choice-card__body">
         <strong class="owner-listing-choice-card__title">
-          {% if CURRENT_LANGUAGE == "az" %}Müvəqqəti tədbir{% elif CURRENT_LANGUAGE == "en" %}Temporary event{% else %}Временное мероприятие{% endif %}
+          {% if CURRENT_LANGUAGE == "az" %}Şəbəkə və ya şirkət{% elif CURRENT_LANGUAGE == "en" %}Network or company{% else %}Сеть или компания{% endif %}
         </strong>
         <p class="owner-listing-choice-card__text">
           {% if CURRENT_LANGUAGE == "az" %}
-            Master-klas, açıq dərs, turnir, festival, seminar, bayram və tarixə bağlı uşaq aktivliyi.
+            Bir neçə filialı, şəbəkə proqramlarını və mütəxəssisləri birləşdirən şirkət və ya brend profili.
           {% elif CURRENT_LANGUAGE == "en" %}
-            A workshop, open lesson, tournament, festival, seminar, holiday, or date-based activity.
+            A managing brand profile connecting multiple branches, joint programs, and staff specialists.
           {% else %}
-            Мастер-класс, открытый урок, праздник, турнир, спектакль, фестиваль или разовая активность.
+            Управляющий профиль компании, объединяющий несколько филиалов, программы сети и команду специалистов.
           {% endif %}
         </p>
 
-        <div class="owner-listing-choice-card__note">
-          {% if CURRENT_LANGUAGE == "az" %}
-            Tarix və saatla bağlı tədbirlər üçün uyğundur. Yaxın tədbirlər afişasında görünür.
-          {% elif CURRENT_LANGUAGE == "en" %}
-            Best for date-based events. Appears in the upcoming events feed and calendar.
-          {% else %}
-            Подходит для событий с точной датой. Показывается в афише и ленте ближайших мероприятий.
-          {% endif %}
+        <div class="owner-listing-choice-card__example">
+          <span class="material-symbols-rounded" aria-hidden="true">lightbulb</span>
+          <span><strong>{% if CURRENT_LANGUAGE == "az" %}Nümunə:{% elif CURRENT_LANGUAGE == "en" %}Example:{% else %}Пример:{% endif %}</strong> {% if CURRENT_LANGUAGE == "az" %}«Göyqurşağı» uşaq klubları şəbəkəsi (3 filial){% elif CURRENT_LANGUAGE == "en" %}Kiddo Children Club Network (3 branches){% else %}Сеть детских клубов «Радуга» (3 филиала){% endif %}</span>
         </div>
 
         <div class="owner-listing-choice-features">
           <div class="owner-listing-feature-item">
-            <span class="material-symbols-rounded">check_circle</span>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Müəyyən tarix və saat{% elif CURRENT_LANGUAGE == "en" %}Specific date & time{% else %}Точная дата и время проведения{% endif %}</span>
+            <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Vahid brend və ümumi şəbəkə proqramları{% elif CURRENT_LANGUAGE == "en" %}Single brand & shared programs{% else %}Единый бренд и общие программы сети{% endif %}</span>
           </div>
           <div class="owner-listing-feature-item">
-            <span class="material-symbols-rounded">check_circle</span>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Qısa forma (cəmi 2 addım){% elif CURRENT_LANGUAGE == "en" %}Shorter 2-step form{% else %}Быстрое создание всего за 2 шага{% endif %}</span>
+            <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Bir neçə ünvan-filialın birləşdirilməsi{% elif CURRENT_LANGUAGE == "en" %}Connect multiple branch locations{% else %}Подключение нескольких адресов-филиалов{% endif %}</span>
           </div>
           <div class="owner-listing-feature-item">
-            <span class="material-symbols-rounded">check_circle</span>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Başlama vaxtına qədər taymer{% elif CURRENT_LANGUAGE == "en" %}Countdown before start{% else %}Таймер обратного отсчёта до старта{% endif %}</span>
-          </div>
-          <div class="owner-listing-feature-item">
-            <span class="material-symbols-rounded">check_circle</span>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Afişa və axtarışda vurğulanma{% elif CURRENT_LANGUAGE == "en" %}Prominent display in feed{% else %}Выделение в ленте актуальных событий{% endif %}</span>
+            <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Əməkdaşların giriş hüquqlarının idarəsi{% elif CURRENT_LANGUAGE == "en" %}Staff permissions & role access{% else %}Управление доступом сотрудников и филиалами{% endif %}</span>
           </div>
         </div>
       </div>
 
       <span class="owner-listing-choice-card__button">
-        <span class="material-symbols-rounded">add_circle</span>
-        <span>{% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add an event{% else %}Добавить мероприятие{% endif %}</span>
+        <span class="material-symbols-rounded" aria-hidden="true">add_circle</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Təşkilat yarat{% elif CURRENT_LANGUAGE == "en" %}Create organization{% else %}Создать организацию{% endif %}</span>
       </span>
     </a>
     {% endif %}
 
-    <!-- Specialist Card -->
+    <!-- 3. Specialist Card -->
     {% if is_specialists_section_enabled %}
     <a class="owner-listing-choice-card owner-listing-choice-card--specialist" href="{% url 'owner_specialist_create' %}?fresh=1">
       <div class="owner-listing-choice-card__top">
         <div class="owner-listing-choice-card__icon-box">
-          <span class="material-symbols-rounded">psychology</span>
+          <span class="material-symbols-rounded" aria-hidden="true">psychology</span>
         </div>
         <span class="owner-listing-choice-card__badge">
-          {% if CURRENT_LANGUAGE == "az" %}1 addım · ~2 dəq{% elif CURRENT_LANGUAGE == "en" %}1 step · ~2 min{% else %}1 шаг · ~2 мин{% endif %}
+          {% if CURRENT_LANGUAGE == "az" %}5 mərhələ · Fərdi profil{% elif CURRENT_LANGUAGE == "en" %}5 stages · Personal profile{% else %}5 этапов · Персональный профиль{% endif %}
         </span>
       </div>
 
       <div class="owner-listing-choice-card__body">
         <strong class="owner-listing-choice-card__title">
-          {% if CURRENT_LANGUAGE == "az" %}Mütəxəssis / İnsan{% elif CURRENT_LANGUAGE == "en" %}Specialist / Person{% else %}Человек / Специалист{% endif %}
+          {% if CURRENT_LANGUAGE == "az" %}Mütəxəssis profili{% elif CURRENT_LANGUAGE == "en" %}Specialist profile{% else %}Профиль специалиста{% endif %}
         </strong>
         <p class="owner-listing-choice-card__text">
           {% if CURRENT_LANGUAGE == "az" %}
-            Uşaq psixoloqu, loqoped, pediatr, repetitor, məşqçi və ya digər fərdi mütəxəssis.
+            Uşaq psixoloqu, loqoped, repetitor, məşqçi və ya fərdi dərslər keçən müəllimin fərdi kartı.
           {% elif CURRENT_LANGUAGE == "en" %}
-            Child psychologist, speech therapist, pediatrician, tutor, coach, or other specialist.
+            Personal profile for a child psychologist, speech therapist, tutor, or private sports coach.
           {% else %}
-            Детский психолог, логопед, репетитор, тренер, педиатр или педагог индивидуальных занятий.
+            Персональная страница репетитора, детского психолога, логопеда, тренера или частного педагога.
           {% endif %}
         </p>
 
-        <div class="owner-listing-choice-card__note">
-          {% if CURRENT_LANGUAGE == "az" %}
-            Fərdi xidmətlər üçün uyğundur. Əlaqə məlumatları və rəylər ilə vahid mütəxəssis profili.
-          {% elif CURRENT_LANGUAGE == "en" %}
-            Best for personal services. A dedicated specialist profile with contacts and reviews.
-          {% else %}
-            Подходит для частных услуг. Персональный профиль с образованием, контактами и отзывами.
-          {% endif %}
+        <div class="owner-listing-choice-card__example">
+          <span class="material-symbols-rounded" aria-hidden="true">lightbulb</span>
+          <span><strong>{% if CURRENT_LANGUAGE == "az" %}Nümunə:{% elif CURRENT_LANGUAGE == "en" %}Example:{% else %}Пример:{% endif %}</strong> {% if CURRENT_LANGUAGE == "az" %}Loqoped-defektoloq, fərdi üzgüçülük məşqçisi{% elif CURRENT_LANGUAGE == "en" %}Speech therapist, private swimming coach{% else %}Логопед-дефектолог, частный тренер по плаванию{% endif %}</span>
         </div>
 
         <div class="owner-listing-choice-features">
           <div class="owner-listing-feature-item">
-            <span class="material-symbols-rounded">check_circle</span>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Diplomlar, ixtisas və təcrübə{% elif CURRENT_LANGUAGE == "en" %}Diplomas & experience{% else %}Дипломы, квалификация и опыт{% endif %}</span>
+            <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Diplomlar, ixtisas və təcrübə{% elif CURRENT_LANGUAGE == "en" %}Diplomas, credentials & experience{% else %}Дипломы, квалификация и опыт работы{% endif %}</span>
           </div>
           <div class="owner-listing-feature-item">
-            <span class="material-symbols-rounded">check_circle</span>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Telefon və WhatsApp ilə birbaşa əlaqə{% elif CURRENT_LANGUAGE == "en" %}Direct WhatsApp contact{% else %}Прямая связь через WhatsApp и телефон{% endif %}</span>
+            <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Kabinetlərə bağlılıq və ya onlayn qəbul{% elif CURRENT_LANGUAGE == "en" %}Assigned rooms or online practice{% else %}Привязка к кабинетам или онлайн-приём{% endif %}</span>
           </div>
           <div class="owner-listing-feature-item">
-            <span class="material-symbols-rounded">check_circle</span>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Onlayn və ya oflayn format{% elif CURRENT_LANGUAGE == "en" %}Online & in-person format{% else %}Онлайн и офлайн формат работы{% endif %}</span>
-          </div>
-          <div class="owner-listing-feature-item">
-            <span class="material-symbols-rounded">check_circle</span>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Xəritə və ünvanlar{% elif CURRENT_LANGUAGE == "en" %}Map & locations{% else %}Привязка к локациям на карте{% endif %}</span>
+            <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Valideynlərlə birbaşa əlaqə və rəylər{% elif CURRENT_LANGUAGE == "en" %}Direct parent contacts & verified reviews{% else %}Прямая связь с родителями и отзывы{% endif %}</span>
           </div>
         </div>
       </div>
 
       <span class="owner-listing-choice-card__button">
-        <span class="material-symbols-rounded">add_circle</span>
+        <span class="material-symbols-rounded" aria-hidden="true">add_circle</span>
         <span>{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add specialist{% else %}Добавить специалиста{% endif %}</span>
       </span>
     </a>
     {% endif %}
 
+    <!-- 4. Temporary Event Card -->
+    {% if is_events_section_enabled %}
+    <a class="owner-listing-choice-card owner-listing-choice-card--event" href="{% url 'owner_event_create' %}?fresh=1">
+      <div class="owner-listing-choice-card__top">
+        <div class="owner-listing-choice-card__icon-box">
+          <span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>
+        </div>
+        <span class="owner-listing-choice-card__badge">
+          {% if CURRENT_LANGUAGE == "az" %}3 mərhələ · Təqvim elanı{% elif CURRENT_LANGUAGE == "en" %}3 stages · Calendar listing{% else %}3 этапа · Афиша с датой{% endif %}
+        </span>
+      </div>
+
+      <div class="owner-listing-choice-card__body">
+        <strong class="owner-listing-choice-card__title">
+          {% if CURRENT_LANGUAGE == "az" %}Tarixli tədbir{% elif CURRENT_LANGUAGE == "en" %}Dated event{% else %}Событие с датой{% endif %}
+        </strong>
+        <p class="owner-listing-choice-card__text">
+          {% if CURRENT_LANGUAGE == "az" %}
+            Şəhər afişasında dəqiq tarix və başlama saatı olan ustad dərsi, tamaşa, turnir və ya bayram.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            A date-based workshop, theatrical show, festival, tournament, or open day in the events feed.
+          {% else %}
+            Разовое или периодическое событие с точной датой и временем старта в городской афише.
+          {% endif %}
+        </p>
+
+        <div class="owner-listing-choice-card__example">
+          <span class="material-symbols-rounded" aria-hidden="true">lightbulb</span>
+          <span><strong>{% if CURRENT_LANGUAGE == "az" %}Nümunə:{% elif CURRENT_LANGUAGE == "en" %}Example:{% else %}Пример:{% endif %}</strong> {% if CURRENT_LANGUAGE == "az" %}12 oktyabr keramika dərsi, şahmat turniri{% elif CURRENT_LANGUAGE == "en" %}Pottery workshop Oct 12, chess tournament{% else %}Мастер-класс по керамике 12 октября, шахматный турнир{% endif %}</span>
+        </div>
+
+        <div class="owner-listing-choice-features">
+          <div class="owner-listing-feature-item">
+            <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Dəqiq tarix, saat və cədvəl{% elif CURRENT_LANGUAGE == "en" %}Precise date, time & session schedule{% else %}Точная дата, время и расписание старта{% endif %}</span>
+          </div>
+          <div class="owner-listing-feature-item">
+            <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Keçirilmə formatı (məkanda və ya onlayn){% elif CURRENT_LANGUAGE == "en" %}Venue location or online format{% else %}Формат проведения (на площадке или онлайн){% endif %}</span>
+          </div>
+          <div class="owner-listing-feature-item">
+            <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Şəhər afişasında və axtarışda vurğulanma{% elif CURRENT_LANGUAGE == "en" %}Highlight in city events feed & search{% else %}Выделение в городской афише мероприятий{% endif %}</span>
+          </div>
+        </div>
+      </div>
+
+      <span class="owner-listing-choice-card__button">
+        <span class="material-symbols-rounded" aria-hidden="true">add_circle</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add an event{% else %}Добавить мероприятие{% endif %}</span>
+      </span>
+    </a>
+    {% endif %}
+
   </div>
 
-  <!-- How It Works Step Bar -->
+  <!-- Organization vs Branch Explanation Banner -->
+  {% if is_organizations_section_enabled %}
+  <aside class="owner-listing-org-hint" aria-labelledby="org-vs-branch-title">
+    <div class="owner-listing-org-hint__icon">
+      <span class="material-symbols-rounded" aria-hidden="true">help</span>
+    </div>
+    <div class="owner-listing-org-hint__content">
+      <h3 id="org-vs-branch-title">
+        {% if CURRENT_LANGUAGE == "az" %}Təşkilat və filial (məkan) arasındakı fərq nədir?{% elif CURRENT_LANGUAGE == "en" %}What is the difference between an organization and a branch?{% else %}В чём разница между организацией и филиалом?{% endif %}
+      </h3>
+      <div class="owner-listing-org-hint__grid">
+        <div class="owner-listing-org-hint__item">
+          <strong>{% if CURRENT_LANGUAGE == "az" %}Təşkilat (Şəbəkə / Şirkət){% elif CURRENT_LANGUAGE == "en" %}Organization (Network / Company){% else %}Организация (Сеть / Компания){% endif %}</strong>
+          <p>{% if CURRENT_LANGUAGE == "az" %}Şəbəkənin idarəedici brendidir. Ümumi proqramları, vahid əlaqələri və əməkdaşların giriş hüquqlarını birləşdirir.{% elif CURRENT_LANGUAGE == "en" %}The managing network brand. Combines shared programs, central contacts, and employee permissions.{% else %}Управляющий бренд сети. Объединяет общие программы, единые контакты и права доступа сотрудников.{% endif %}</p>
+        </div>
+        <div class="owner-listing-org-hint__item">
+          <strong>{% if CURRENT_LANGUAGE == "az" %}Filial (Konkret Məkan){% elif CURRENT_LANGUAGE == "en" %}Branch (Physical Place){% else %}Филиал (Конкретное место){% endif %}</strong>
+          <p>{% if CURRENT_LANGUAGE == "az" %}Xəritədə konkret ünvandır (məsələn, Yasamal filialı). Öz fotoşəkilləri, iş saatları və otaq cədvəli var.{% elif CURRENT_LANGUAGE == "en" %}A specific address on the map with its own room photos, working hours, and local schedule.{% else %}Конкретный адрес на карте Баку со своими фотографиями залов, графиком работы и расписанием.{% endif %}</p>
+        </div>
+      </div>
+      <p class="owner-listing-org-hint__rule">
+        <span class="material-symbols-rounded" aria-hidden="true">info</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Yalnız bir ünvanınız varsa — birbaşa <strong>Məkan</strong> əlavə edin. Şəbəkəniz varsa — əvvəlcə <strong>Təşkilat</strong> yaradın, sonra filialları qoşun.{% elif CURRENT_LANGUAGE == "en" %}If you have one location — choose <strong>Place</strong>. If you run a network — create an <strong>Organization</strong> first, then add branches.{% else %}Если у вас один адрес — сразу выбирайте <strong>Место</strong>. Если у вас сеть — сначала создайте <strong>Организацию</strong>, а затем подключайте филиалы.{% endif %}</span>
+      </p>
+    </div>
+  </aside>
+  {% endif %}
+
+  <!-- How It Works Step Bar (Realistic, No False Time Promises) -->
   <div class="owner-listing-how-it-works">
     <div class="owner-how-step">
       <div class="owner-how-step__num">1</div>
       <div class="owner-how-step__content">
-        <h3 class="owner-how-step__title">{% if CURRENT_LANGUAGE == "az" %}Məlumatları doldurun{% elif CURRENT_LANGUAGE == "en" %}Fill details{% else %}Заполните данные{% endif %}</h3>
-        <p class="owner-how-step__text">{% if CURRENT_LANGUAGE == "az" %}Ad, ünvan, əlaqə və şəkilləri rahat formaya daxil edin.{% elif CURRENT_LANGUAGE == "en" %}Enter name, location, contacts and photos.{% else %}Укажите контакты, адрес, фото и описание в пошаговой форме.{% endif %}</p>
+        <h3 class="owner-how-step__title">{% if CURRENT_LANGUAGE == "az" %}Məlumatları doldurun{% elif CURRENT_LANGUAGE == "en" %}Fill in details{% else %}Заполните данные{% endif %}</h3>
+        <p class="owner-how-step__text">{% if CURRENT_LANGUAGE == "az" %}Təsvir, əlaqə və şəkilləri rahat addım-addım formaya daxil edin.{% elif CURRENT_LANGUAGE == "en" %}Enter description, contacts, and photos in the step-by-step form.{% else %}Укажите описание, контакты и фотографии в последовательной форме.{% endif %}</p>
       </div>
     </div>
     <div class="owner-how-step">
       <div class="owner-how-step__num">2</div>
       <div class="owner-how-step__content">
-        <h3 class="owner-how-step__title">{% if CURRENT_LANGUAGE == "az" %}Sürətli yoxlama{% elif CURRENT_LANGUAGE == "en" %}Quick review{% else %}Быстрая проверка{% endif %}</h3>
-        <p class="owner-how-step__text">{% if CURRENT_LANGUAGE == "az" %}Moderator məlumatların düzgünlüyünü qısa zamanda təsdiqləyir.{% elif CURRENT_LANGUAGE == "en" %}Moderator checks and approves your card shortly.{% else %}Модератор проверяет корректность данных в течение нескольких часов.{% endif %}</p>
+        <h3 class="owner-how-step__title">{% if CURRENT_LANGUAGE == "az" %}Məlumatların yoxlanması{% elif CURRENT_LANGUAGE == "en" %}Data review{% else %}Проверка данных{% endif %}</h3>
+        <p class="owner-how-step__text">{% if CURRENT_LANGUAGE == "az" %}Moderator ictimai baxışdan əvvəl məlumatların dəqiqliyini yoxlayır.{% elif CURRENT_LANGUAGE == "en" %}A moderator verifies data accuracy before opening public access.{% else %}Модератор проверяет корректность информации перед открытием публичного доступа.{% endif %}</p>
       </div>
     </div>
     <div class="owner-how-step">
       <div class="owner-how-step__num">3</div>
       <div class="owner-how-step__content">
-        <h3 class="owner-how-step__title">{% if CURRENT_LANGUAGE == "az" %}Dərc və zənglər{% elif CURRENT_LANGUAGE == "en" %}Live & leads{% else %}Публикация и заявки{% endif %}</h3>
-        <p class="owner-how-step__text">{% if CURRENT_LANGUAGE == "az" %}Kart xəritə və kataloqda açılır, valideynlər sizə yazır.{% elif CURRENT_LANGUAGE == "en" %}Your card goes live on map and parents can contact you.{% else %}Карточка появляется на карте и в поиске, родители звонят и пишут вам.{% endif %}</p>
+        <h3 class="owner-how-step__title">{% if CURRENT_LANGUAGE == "az" %}Dərc və əlaqə{% elif CURRENT_LANGUAGE == "en" %}Live & contacts{% else %}Публикация и связь{% endif %}</h3>
+        <p class="owner-how-step__text">{% if CURRENT_LANGUAGE == "az" %}Kart kataloq və xəritədə görünür, valideynlər birbaşa sizə müraciət edir.{% elif CURRENT_LANGUAGE == "en" %}The listing appears in the catalog and on the map; parents contact you directly.{% else %}Карточка появляется в каталоге и на карте, родители связываются с вами напрямую.{% endif %}</p>
       </div>
     </div>
   </div>

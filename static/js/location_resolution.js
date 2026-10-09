@@ -25,7 +25,12 @@
       var retry = root.querySelector('[data-location-retry]');
       var ready = state !== 'loading' && state !== 'empty';
       function label(select) { return select.value && select.selectedOptions.length ? select.selectedOptions[0].textContent : '—'; }
-      if (pointLabel) pointLabel.textContent = lat.value.trim() && lng.value.trim() ? root.dataset.pointSelected : root.dataset.pointEmpty;
+      var latitude = Number(lat.value.trim().replace(',', '.'));
+      var longitude = Number(lng.value.trim().replace(',', '.'));
+      var validPoint = lat.value.trim() && lng.value.trim()
+        && Number.isFinite(latitude) && Math.abs(latitude) <= 90
+        && Number.isFinite(longitude) && Math.abs(longitude) <= 180;
+      if (pointLabel) pointLabel.textContent = validPoint ? root.dataset.pointSelected : root.dataset.pointEmpty;
       if (cityLabel) cityLabel.textContent = ready ? label(city) : '—';
       if (districtLabel) districtLabel.textContent = ready ? label(district) : '—';
       if (retry) retry.hidden = state !== 'unavailable';

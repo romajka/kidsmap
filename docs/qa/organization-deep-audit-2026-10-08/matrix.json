@@ -1,0 +1,242 @@
+[
+  {
+    "scenario": "Создание сети без филиалов — кабинет",
+    "status": "PASS",
+    "evidence_or_limit": "Org11: HTML create, zero branches, draft"
+  },
+  {
+    "scenario": "Частичный ввод создания → refresh той же вкладки",
+    "status": "PASS",
+    "evidence_or_limit": "browser-main2; sessionStorage"
+  },
+  {
+    "scenario": "Создание → сбой сети → восстановление",
+    "status": "FAIL",
+    "evidence_or_limit": "ORG-03"
+  },
+  {
+    "scenario": "Обычное server autosave → reload",
+    "status": "PASS",
+    "evidence_or_limit": "browser-main2"
+  },
+  {
+    "scenario": "Перекрывающиеся autosave ответы",
+    "status": "FAIL",
+    "evidence_or_limit": "ORG-02"
+  },
+  {
+    "scenario": "Отправка → модерация → публичная сеть без филиалов",
+    "status": "PASS",
+    "evidence_or_limit": "browser-finish; final-domain-state: Org11 published, public200"
+  },
+  {
+    "scenario": "Изменение опубликованной сети сохраняет старый public до review",
+    "status": "PASS",
+    "evidence_or_limit": "live/candidate divergent; final-domain-state"
+  },
+  {
+    "scenario": "Новый сеанс после explicit submit",
+    "status": "FAIL",
+    "evidence_or_limit": "ORG-13: pending верный, редактор показывает старый рабочий draft"
+  },
+  {
+    "scenario": "Дубликат организации: предупреждение, явное отдельное создание",
+    "status": "PASS",
+    "evidence_or_limit": "browser duplicate409; create separate — fresh server tests"
+  },
+  {
+    "scenario": "Поиск готового места по имени/адресу",
+    "status": "PASS",
+    "evidence_or_limit": "browser selection/search; search-observe: адрес25→ID56"
+  },
+  {
+    "scenario": "Выбор сохраняется при смене поиска",
+    "status": "PASS",
+    "evidence_or_limit": "browser-main2:10 carried IDs"
+  },
+  {
+    "scenario": "Подключение10 готовых мест собственнику сети",
+    "status": "PASS",
+    "evidence_or_limit": "receipt3393a59d…;10 DB business links"
+  },
+  {
+    "scenario": "Галерея/основное фото/порядок/занятия/группы/цены/часы",
+    "status": "PASS",
+    "evidence_or_limit": "10 cards,30 real files SHA+IDs+fields; preservation-result"
+  },
+  {
+    "scenario": "Частичный результат: existing + другая сеть + чужой owner",
+    "status": "PASS",
+    "evidence_or_limit": "already_connected/other_network/requested; pending64 then second consent"
+  },
+  {
+    "scenario": "Чужой владелец: два согласия",
+    "status": "PASS",
+    "evidence_or_limit": "browser-finish; owner remains outsider"
+  },
+  {
+    "scenario": "Новый отдельный филиал в сети",
+    "status": "PASS",
+    "evidence_or_limit": "browser-finish: Place67 draft, separate branch workspace"
+  },
+  {
+    "scenario": "Полное заполнение и публикация этого нового филиала",
+    "status": "NOT RUN",
+    "evidence_or_limit": "Организационный быстрый create прошёл; редактор места67 целиком не проходил"
+  },
+  {
+    "scenario": "Повторное подтверждение того же receipt",
+    "status": "PASS",
+    "evidence_or_limit": "owner connect replay; detach replay; real concurrency tests"
+  },
+  {
+    "scenario": "Другой редактор изменил место после preview",
+    "status": "PASS",
+    "evidence_or_limit": "extra-probes:changed, place53 standalone"
+  },
+  {
+    "scenario": "Expired preview, >100, bool, пустой/повторяющийся ID",
+    "status": "PASS",
+    "evidence_or_limit": "extra-probes/server-probes; controlled errors"
+  },
+  {
+    "scenario": "CSRF, GET-mutation, foreign receipt/workspace",
+    "status": "PASS",
+    "evidence_or_limit": "403/405/404; browser/server probes"
+  },
+  {
+    "scenario": "Угадывание ID чужого приватного draft",
+    "status": "FAIL",
+    "evidence_or_limit": "ORG-01: legacy/API leak, bulk blocks"
+  },
+  {
+    "scenario": "Админ: выбор10 → organization → business без согласий",
+    "status": "PASS",
+    "evidence_or_limit": "browser-admin-supported:10 no_rights, no implicit owner authority"
+  },
+  {
+    "scenario": "Админ: informational explicit review →10 links",
+    "status": "PASS",
+    "evidence_or_limit": "browser-admin-supported; member view32true/view42false"
+  },
+  {
+    "scenario": "Админ: создание → draft → reload → submit → approve → published edit draft",
+    "status": "PASS",
+    "evidence_or_limit": "Org12 browser-admin-editor/final finish; source canonical create/propose"
+  },
+  {
+    "scenario": "Новая отвязка: обзор программ/доступов/контактов и consent",
+    "status": "PASS",
+    "evidence_or_limit": "impact:program1,network grants2,direct1; missing consent409"
+  },
+  {
+    "scenario": "Отвязка: программный snapshot, группы/тарифы/direct grant",
+    "status": "PASS",
+    "evidence_or_limit": "Activity26 local approved snapshot; Group27/Price32 retained; managerfalse,parenttrue"
+  },
+  {
+    "scenario": "Legacy отвязка без обзора",
+    "status": "FAIL",
+    "evidence_or_limit": "ORG-04: authenticated owner POST succeeds without preview"
+  },
+  {
+    "scenario": "Перенос в другую сеть",
+    "status": "PASS",
+    "evidence_or_limit": "Separate detach; old network owner PermissionDenied; actual place+target owner links toOrg6"
+  },
+  {
+    "scenario": "Устаревший pending запрос после content edit",
+    "status": "FAIL",
+    "evidence_or_limit": "ORG-12: manual_review, both confirms +retry rejected; recovery path absent"
+  },
+  {
+    "scenario": "Две вкладки: version conflict и сохранение вводаB",
+    "status": "PASS",
+    "evidence_or_limit": "browser-tabs:409,B retained; raw English message ORG-06"
+  },
+  {
+    "scenario": "Ошибки всех полей редактора/сводка создания",
+    "status": "FAIL",
+    "evidence_or_limit": "ORG-05/06:400 no field errors; technical Name az"
+  },
+  {
+    "scenario": "Обычное приглашение MANAGER",
+    "status": "PASS",
+    "evidence_or_limit": "POST200; one PENDING/MANAGER DB invitation"
+  },
+  {
+    "scenario": "Приглашение: итоговый список/описание после reset",
+    "status": "FAIL",
+    "evidence_or_limit": "ORG-08"
+  },
+  {
+    "scenario": "Приглашение без JS",
+    "status": "FAIL",
+    "evidence_or_limit": "ORG-07: GET email+CSRF;0 invitations"
+  },
+  {
+    "scenario": "Принятие/истечение/повтор приглашения, отзыв, transfer race",
+    "status": "PASS",
+    "evidence_or_limit": "Server test level only: GrantTests/TeamConcurrencyTests"
+  },
+  {
+    "scenario": "Принятие/отклонение/отзыв приглашений через browser UI",
+    "status": "NOT RUN",
+    "evidence_or_limit": "Не подменять backend tests доказательством UI"
+  },
+  {
+    "scenario": "Общие программы: locked revisions, branch override, access",
+    "status": "PASS",
+    "evidence_or_limit": "Fresh test_task33_program_workspace + ownership snapshot tests; local detach snapshot observed"
+  },
+  {
+    "scenario": "Полный UI create/review групп, тарифов и программ из сети",
+    "status": "NOT RUN",
+    "evidence_or_limit": "Здесь проверены сохранность и серверный contract, не все их editors"
+  },
+  {
+    "scenario": "Public-section switches",
+    "status": "PASS",
+    "evidence_or_limit": "4 fresh test_public_section_switches, server/HTTP level"
+  },
+  {
+    "scenario": "Выключение/включение флага через rendered admin UI",
+    "status": "NOT RUN",
+    "evidence_or_limit": "В браузере переключатель в этом прогоне не менялся"
+  },
+  {
+    "scenario": "RU/AZ/EN ×360/390/768/1440: owner6 views +admin3 views",
+    "status": "PASS",
+    "evidence_or_limit": "108 successful layout loads, actual language checked in final admin matrix;0 matrix pageerror"
+  },
+  {
+    "scenario": "Визуальная согласованность и размер secondary controls",
+    "status": "FAIL",
+    "evidence_or_limit": "ORG-09:20–22px; форма визуально неоднородна"
+  },
+  {
+    "scenario": "Язык labels/errors/ARIA",
+    "status": "FAIL",
+    "evidence_or_limit": "ORG-06/10/11; корректная загрузка страницы ≠ локализация всего UI"
+  },
+  {
+    "scenario": "Клавиатура: disclosure,Tab,Space selection/consent,Enter preview",
+    "status": "PASS",
+    "evidence_or_limit": "5 browser_keyboard assertions; no trap in tested segment"
+  },
+  {
+    "scenario": "NVDA/VoiceOver, все controls/зум/контраст",
+    "status": "NOT RUN",
+    "evidence_or_limit": "Native screen readers и полный WCAG audit не запускались"
+  },
+  {
+    "scenario": "Приватные документы специалиста после изменения сети",
+    "status": "NOT RUN",
+    "evidence_or_limit": "В этой организации документацию личности не создавал/не открывал"
+  },
+  {
+    "scenario": "Реальная почта/SMS/внешние карты/production",
+    "status": "NOT RUN",
+    "evidence_or_limit": "External origins blocked; LocMem email/cache, no production credentials"
+  }
+]

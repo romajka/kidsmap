@@ -2,6 +2,7 @@ from functools import partial, update_wrapper
 
 from django import forms
 from django.contrib import admin, messages
+from django.contrib.admin.utils import display_for_field
 from django.db import models
 from django.db.models import Count, Q
 from django.utils.html import format_html, mark_safe
@@ -10,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from django.urls import reverse
 from .moderation_actor import ModerationActorAdminMixin
+from catalog.forms_specialist_locations import BasePracticeLocationFormSet
 
 from catalog.models import (
     Region,
@@ -27,48 +29,23 @@ class SpecialistAdminForm(forms.ModelForm):
     class Meta:
         model = Specialist
         fields = "__all__"
+        widgets = {"specializations": forms.CheckboxSelectMultiple()}
 
     def clean(self):
-        cleaned_data = super().clean()
-        consultation_format = cleaned_data.get("consultation_format")
-        
-        # Enforce that if format is offline or both, at least one location must be provided and active.
-        if consultation_format in [Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH]:
-            total_forms_raw = self.data.get("practice_locations-TOTAL_FORMS")
-            has_location = False
-            if total_forms_raw is not None:
-                try:
-                    total_forms = int(total_forms_raw)
-                    for i in range(total_forms):
-                        # Skip deleted rows
-                        delete_val = self.data.get(f"practice_locations-{i}-DELETE")
-                        if delete_val in ["on", "1", "true"]:
-                            continue
-                        
-                        place = self.data.get(f"practice_locations-{i}-place")
-                        address = self.data.get(f"practice_locations-{i}-address")
-                        region = self.data.get(f"practice_locations-{i}-region")
-                        is_active_val = self.data.get(f"practice_locations-{i}-is_active")
-                        
-                        is_active = (is_active_val not in ["off", "false", "0"])
-                        
-                        if is_active and (place or address):
-                            has_location = True
-                            
-                            # Validate region is filled for active locations
-                            if not region:
-                                raise forms.ValidationError(
-                                    _("Для очной локации необходимо указать город/регион.")
-                                )
-                except ValueError:
-                    pass
-            
-            if not has_location:
-                raise forms.ValidationError(
-                    _("Для очного формата работы (или онлайн и очно) необходимо указать хотя бы одно активное место приема.")
-                )
-                
-        return cleaned_data
+        data = super().clean()
+        if self.instance.pk:
+            # Admin changeform POST is already atomic. Lock the parent before
+            # writing profile/inlines; document decisions advance this epoch too.
+            locked=Specialist.objects.select_for_update().get(pk=self.instance.pk)
+            if self.data.get('expected_updated_at','')!=locked.updated_at.isoformat():
+                raise forms.ValidationError(_('Запись изменилась. Обновите страницу.'),code='stale_version')
+        # When this role has no location inline, do not accept an empty offline
+        # profile or disclose row metadata. Editable rows are checked by formset.
+        if data.get('consultation_format') in (Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH) and 'practice_locations-TOTAL_FORMS' not in self.data:
+            if not self.instance.pk or not self.instance.practice_locations.filter(is_active=True,region__isnull=False).exclude(Q(place__isnull=True,address='')).exists():
+                raise forms.ValidationError(_('Для очного формата работы (или онлайн и очно) необходимо указать хотя бы одно активное место приема.'))
+        return data
+
 
 
 class RegionContentPresenceFilter(admin.SimpleListFilter):
@@ -423,12 +400,13 @@ class SpecialistSpecializationAdmin(admin.ModelAdmin):
     search_fields = ("code", "name_ru", "name_az", "name_en")
 
 
-class SpecialistPracticeLocationInline(admin.TabularInline):
+class SpecialistPracticeLocationInline(admin.StackedInline):
+    formset = BasePracticeLocationFormSet
     model = SpecialistPracticeLocation
-    extra = 0
+    extra = 1
     verbose_name = _("Место приёма")
     verbose_name_plural = _("8. Места работы и приёма")
-    fields = ("place", "address", "region", "district", "metro", "price_per_session", "phone", "is_primary", "is_active")
+    fields = ("place", "address", "region", "district", "metro", "lat", "lng", "schedule", "price_per_session", "phone", "is_primary", "is_active")
     autocomplete_fields = ("place",)
 
 
@@ -465,21 +443,43 @@ class SpecialistDocumentInline(admin.TabularInline):
 class SpecialistAdmin(admin.ModelAdmin):
     class Media:
         css = {"all": ("admin/css/pages/specialist_form.css",)}
-        js = ("admin/js/specialist_admin.js",)
+        js = ()
 
     form = SpecialistAdminForm
     change_form_template = "admin/catalog/specialist/change_form.html"
     change_list_template = "admin/catalog/specialist/change_list.html"
-    km_primary_filters = ("status", "is_verified", "is_active", "consultation_format")
+    km_primary_filters = ("status", "is_active", "consultation_format")
     
-    list_display = ("profile_column", "directions_column", "owner", "format_badge", "status_badge", "verification_badge", "documents_count", "rating_column", "updated_at")
-    list_filter = ("status", "is_verified", "is_active", "consultation_format", "specializations")
+    list_display = ("profile_column", "directions_column", "owner", "format_badge", "status_badge", "documents_count", "rating_column", "updated_at")
+    list_filter = ("status", "is_active", "consultation_format", "specializations")
     search_fields = ("name", "name_alt", "bio_ru", "bio_az", "bio_en")
-    readonly_fields = ("owner", "verified_person_user", "person_verified_at", "created_by",
+    readonly_fields = ("owner", "verified_person_user", "identity_verification_date", "created_by",
                        "rating_avg", "rating_count", "created_at", "updated_at")
-    filter_horizontal = ("specializations",)
+    filter_horizontal = ()
     inlines = [SpecialistPracticeLocationInline, SpecialistDocumentInline]
-    actions = ("mark_published", "mark_draft", "mark_pending", "mark_verified", "mark_rejected")
+    actions = ("mark_published", "mark_draft", "mark_pending", "mark_rejected")
+
+    @admin.display(description=_("Дата подтверждения личности"))
+    def identity_verification_date(self, obj):
+        return display_for_field(
+            obj.person_verified_at, Specialist._meta.get_field("person_verified_at"),
+            self.get_empty_value_display(),
+        )
+
+    def render_change_form(self, request, context, *args, **kwargs):
+        # Keys depend on configured structure, never the translated display heading.
+        numbers = (1,2,3,4,5,6,7,9,11,12)
+        sections = {number: {'number':number,'id':f'km-sec-{number}','title':fieldset.name,'fieldset':fieldset}
+                    for number,fieldset in zip(numbers,context['adminform'])}
+        for inline in context.get('inline_admin_formsets',[]):
+            number = 8 if inline.opts.model is SpecialistPracticeLocation else 10
+            sections[number]={'number':number,'id':f'km-sec-{number}','title':inline.opts.verbose_name_plural,'inline':inline}
+        sections.setdefault(10,{'number':10,'id':'km-sec-10','title':_('10. Подтверждение квалификации'),'private':True})
+        sections.setdefault(8,{'number':8,'id':'km-sec-8','title':_('8. Места работы и приёма'),'unavailable':True})
+        context['specialist_sections']=[sections[i] for i in range(1,13)]
+        original=context.get('original')
+        context['specialist_expected_updated_at']=(request.POST.get('expected_updated_at','') if request.method=='POST' and context.get('errors') else original.updated_at.isoformat()) if original else ''
+        return super().render_change_form(request,context,*args,**kwargs)
 
     def get_queryset(self, request):
         from catalog.services.specialist_documents import can_review_documents
@@ -512,7 +512,6 @@ class SpecialistAdmin(admin.ModelAdmin):
             ),
             pending=Count("pk", filter=Q(status=Specialist.STATUS_PENDING)),
             inactive=Count("pk", filter=Q(is_active=False)),
-            unverified=Count("pk", filter=Q(is_verified=False)),
             draft=Count("pk", filter=Q(status=Specialist.STATUS_DRAFT)),
             rejected=Count("pk", filter=Q(status=Specialist.STATUS_REJECTED)),
         )
@@ -558,22 +557,11 @@ class SpecialistAdmin(admin.ModelAdmin):
                 ),
                 "tone": "muted",
             },
-            {
-                "label": _("Без проверки"),
-                "count": counts["unverified"],
-                "url": self._build_changelist_query_string(
-                    request,
-                    clear=clear,
-                    is_verified__exact="0",
-                ),
-                "tone": "info",
-            },
         )
 
     def _quick_filters(self, request, *, counts):
         current_status = request.GET.get("status__exact")
         current_active = request.GET.get("is_active__exact")
-        current_verified = request.GET.get("is_verified__exact")
         clear = ("status__exact", "is_active__exact", "is_verified__exact")
         return (
             {
@@ -581,7 +569,7 @@ class SpecialistAdmin(admin.ModelAdmin):
                 "label": _("Все профили"),
                 "count": counts["total"],
                 "url": self._build_changelist_query_string(request, clear=clear),
-                "active": not any((current_status, current_active, current_verified)),
+                "active": not any((current_status, current_active)),
             },
             {
                 "key": "published",
@@ -593,7 +581,7 @@ class SpecialistAdmin(admin.ModelAdmin):
                     status__exact=Specialist.STATUS_PUBLISHED,
                     is_active__exact="1",
                 ),
-                "active": current_status == Specialist.STATUS_PUBLISHED and current_active == "1" and not current_verified,
+                "active": current_status == Specialist.STATUS_PUBLISHED and current_active == "1",
             },
             {
                 "key": "pending",
@@ -604,7 +592,7 @@ class SpecialistAdmin(admin.ModelAdmin):
                     clear=clear,
                     status__exact=Specialist.STATUS_PENDING,
                 ),
-                "active": current_status == Specialist.STATUS_PENDING and not current_active and not current_verified,
+                "active": current_status == Specialist.STATUS_PENDING and not current_active,
             },
             {
                 "key": "inactive",
@@ -615,18 +603,7 @@ class SpecialistAdmin(admin.ModelAdmin):
                     clear=clear,
                     is_active__exact="0",
                 ),
-                "active": current_active == "0" and not current_status and not current_verified,
-            },
-            {
-                "key": "unverified",
-                "label": _("Без проверки"),
-                "count": counts["unverified"],
-                "url": self._build_changelist_query_string(
-                    request,
-                    clear=clear,
-                    is_verified__exact="0",
-                ),
-                "active": current_verified == "0" and not current_status and not current_active,
+                "active": current_active == "0" and not current_status,
             },
             {
                 "key": "draft",
@@ -637,7 +614,7 @@ class SpecialistAdmin(admin.ModelAdmin):
                     clear=clear,
                     status__exact=Specialist.STATUS_DRAFT,
                 ),
-                "active": current_status == Specialist.STATUS_DRAFT and not current_active and not current_verified,
+                "active": current_status == Specialist.STATUS_DRAFT and not current_active,
             },
             {
                 "key": "rejected",
@@ -648,7 +625,7 @@ class SpecialistAdmin(admin.ModelAdmin):
                     clear=clear,
                     status__exact=Specialist.STATUS_REJECTED,
                 ),
-                "active": current_status == Specialist.STATUS_REJECTED and not current_active and not current_verified,
+                "active": current_status == Specialist.STATUS_REJECTED and not current_active,
             },
         )
 
@@ -657,7 +634,6 @@ class SpecialistAdmin(admin.ModelAdmin):
             {"name": "mark_published", "label": _("Опубликовать"), "tone": "good", "icon": "fas fa-bullhorn", "description": _("Опубликовать выбранные профили.")},
             {"name": "mark_draft", "label": _("В черновик"), "tone": "muted", "icon": "far fa-file-alt", "description": _("Снять выбранные профили с публикации.")},
             {"name": "mark_pending", "label": _("На модерацию"), "tone": "warn", "icon": "fas fa-hourglass-half", "description": _("Отправить выбранные профили на проверку.")},
-            {"name": "mark_verified", "label": _("Подтвердить"), "tone": "good", "icon": "fas fa-check-circle", "description": _("Отметить выбранные профили как проверенные.")},
         )
 
     def changelist_view(self, request, extra_context=None):
@@ -732,14 +708,6 @@ class SpecialistAdmin(admin.ModelAdmin):
             level=messages.SUCCESS if updated_count else messages.WARNING,
         )
 
-    @admin.action(description=_("Отметить выбранных специалистов как проверенных"))
-    def mark_verified(self, request, queryset):
-        updated_count = queryset.update(is_verified=True, updated_at=timezone.now())
-        self.message_user(
-            request,
-            ngettext("%(count)d профиль подтверждён.", "%(count)d профиля подтверждены.", updated_count) % {"count": updated_count},
-            level=messages.SUCCESS if updated_count else messages.WARNING,
-        )
 
     @admin.display(description=_("Профиль"), ordering="name")
     def profile_column(self, obj):
@@ -778,11 +746,6 @@ class SpecialistAdmin(admin.ModelAdmin):
     def status_badge(self, obj):
         return format_html('<span class="km-status-badge km-status-{}">{}</span>', obj.status, obj.get_status_display())
 
-    @admin.display(description=_("Проверка"), boolean=False)
-    def verification_badge(self, obj):
-        if obj.is_verified:
-            return format_html('<span class="km-status-badge km-status-verified"><i class="fas fa-check-circle"></i>{}</span>', _("Проверен"))
-        return format_html('<span class="km-admin-muted">{}</span>', _("Нет"))
 
     @admin.display(description=_("Документы"))
     def documents_count(self, obj):
@@ -800,7 +763,7 @@ class SpecialistAdmin(admin.ModelAdmin):
             _("1. Основная информация"),
             {
                 "fields": (
-                    "owner",
+                    "created_by", "verified_person_user", "identity_verification_date", "owner",
                     "name",
                     "name_alt",
                     "slug",
@@ -892,7 +855,6 @@ class SpecialistAdmin(admin.ModelAdmin):
                 "fields": (
                     "status",
                     "is_active",
-                    "is_verified",
                     "rejection_reason",
                     "rating_avg",
                     "rating_count",

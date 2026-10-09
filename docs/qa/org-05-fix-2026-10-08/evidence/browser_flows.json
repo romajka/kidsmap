@@ -1,0 +1,106 @@
+{
+  "rows": [
+    {
+      "id": "repeat-invalid-0",
+      "status": "PASS"
+    },
+    {
+      "id": "repeat-invalid-1",
+      "status": "PASS"
+    },
+    {
+      "id": "corrected-submit",
+      "status": "PASS"
+    },
+    {
+      "id": "pending-not-live",
+      "status": "PASS"
+    },
+    {
+      "id": "successful-reopen",
+      "status": "PASS"
+    },
+    {
+      "id": "winning-tab",
+      "status": "PASS"
+    },
+    {
+      "id": "stale-tab-409",
+      "status": "PASS"
+    },
+    {
+      "id": "stale-input-retained",
+      "status": "PASS"
+    },
+    {
+      "id": "conflict-visible-focused",
+      "status": "PASS"
+    },
+    {
+      "id": "conflict-recovery-local-copy",
+      "status": "PASS"
+    },
+    {
+      "id": "nojs-native400",
+      "status": "PASS"
+    },
+    {
+      "id": "nojs-inline-summary",
+      "status": "PASS"
+    },
+    {
+      "id": "nojs-anchor-focus",
+      "status": "PASS"
+    },
+    {
+      "id": "hidden-errors-visible",
+      "status": "PASS"
+    },
+    {
+      "id": "storage-unavailable-400",
+      "status": "PASS"
+    },
+    {
+      "id": "storage-unavailable-retained",
+      "status": "PASS"
+    },
+    {
+      "id": "storage-no-false-saved",
+      "status": "PASS"
+    },
+    {
+      "id": "foreign-get-404",
+      "status": "PASS"
+    },
+    {
+      "id": "foreign-post-404",
+      "status": "PASS",
+      "statusCode": 404
+    }
+  ],
+  "errors": [
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled",
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled",
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled",
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled",
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+  ],
+  "network": [
+    {
+      "status": 400,
+      "url": "http://localhost:8788/ru/account/organizations/46/save/"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:8788/ru/account/organizations/46/save/"
+    },
+    {
+      "status": 400,
+      "url": "http://localhost:8788/ru/account/organizations/49/save/"
+    },
+    {
+      "status": 404,
+      "url": "http://localhost:8788/ru/account/organizations/49/"
+    }
+  ]
+}

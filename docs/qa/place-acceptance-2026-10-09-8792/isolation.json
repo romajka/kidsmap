@@ -1,0 +1,12 @@
+{
+  "name": "/kidsmap-place-acceptance-20261009-8792",
+  "image": "postgres:17-alpine",
+  "network": "none",
+  "db_ports_exposed": false,
+  "qa_label": "kidsmap-place-acceptance-20261009-8792",
+  "running": true,
+  "mount_types": [
+    "bind",
+    "volume"
+  ]
+}

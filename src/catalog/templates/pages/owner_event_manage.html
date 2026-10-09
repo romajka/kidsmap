@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% load i18n static %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/owner_event.css' %}?v=20261007event1">{% endblock %}
+{% block content %}<section class="panel owner-event-page"><a href="{% url 'owner_places_dashboard' %}">{% trans "В кабинет" %}</a><h1>{{ event.name_i18n }}</h1>
+<p>{{ event.get_status_display }} · {{ event.get_occurrence_state_display }} · Asia/Baku</p>
+<p>{{ event.start_datetime|date:'d.m.Y H:i' }} — {{ event.end_datetime|date:'d.m.Y H:i' }}</p>
+<p>{{ event.get_event_format_display }} · {{ event.venue_snapshot.address|default:event.address }}</p>
+<p>{% trans "Отмена оставляет карточку и историю, но отмечает событие отменённым. Перенос меняет только интервал, сохраняет фото, формат и утверждённую площадку. Уведомления участникам и возвраты через KidsMap не выполняются." %}</p>
+{% if event.occurrence_state == 'cancelled' %}<p role="status">{% trans "Мероприятие отменено. Перенос недоступен." %}</p>{% endif %}
+{% if not can_reschedule %}<p>{% trans "Перенос доступен только до начала неотменённого события. Для начавшегося или прошедшего нужен новый ID." %}</p>{% endif %}
+<div data-error-code="{{ event_error_code }}">{% include "includes/form_error_summary.html" with form=occurrence_form %}</div>
+<form method="post" class="km-event-owner-form" data-occurrence-form>{% csrf_token %}{{ occurrence_form.expected_updated_at }}
+<label class="km-field-group">{{ occurrence_form.reason.label }}{{ occurrence_form.reason }}{{ occurrence_form.reason.errors }}</label>
+<fieldset><legend>{% trans "Новый интервал для переноса" %}</legend><div class="km-event-grid">
+<label class="km-field-group">{{ occurrence_form.start_datetime.label }}{{ occurrence_form.start_datetime }}{{ occurrence_form.start_datetime.errors }}</label>
+<label class="km-field-group">{{ occurrence_form.end_datetime.label }}{{ occurrence_form.end_datetime }}{{ occurrence_form.end_datetime.errors }}</label></div></fieldset>
+<p class="helptext">{% trans "Проверьте причину и даты. Подтвердите действие отдельной кнопкой." %}</p>
+<div class="km-event-step-actions"><button type="submit" class="btn-secondary" formaction="{% url 'owner_event_cancel' event.pk %}" {% if event.occurrence_state == 'cancelled' %}disabled{% endif %}>{% trans "Подтвердить отмену" %}</button><button type="submit" class="btn" formaction="{% url 'owner_event_reschedule' event.pk %}" {% if not can_reschedule %}disabled{% endif %}>{% trans "Подтвердить перенос" %}</button></div><p data-occurrence-status role="status"></p></form>
+</section>{% endblock %}
+{% block extra_body %}<script src="{% static 'js/owner_event_form.js' %}?v=20261007event1" defer></script>{% endblock %}

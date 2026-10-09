@@ -1,0 +1,46 @@
+{
+  "rows": [
+    {
+      "id": "foreign-id-owner-editor-denied/outsider",
+      "status": "PASS",
+      "http": 200,
+      "url": "http://localhost:8792/ru/account/places/"
+    },
+    {
+      "id": "insufficient-admin-rights/outsider",
+      "status": "PASS",
+      "http": 200,
+      "url": "http://localhost:8792/admin/login/?next=/admin/catalog/place/158/change/"
+    },
+    {
+      "id": "foreign-id-owner-editor-denied/parent",
+      "status": "PASS",
+      "http": 200,
+      "url": "http://localhost:8792/ru/account/places/"
+    },
+    {
+      "id": "insufficient-admin-rights/parent",
+      "status": "PASS",
+      "http": 200,
+      "url": "http://localhost:8792/admin/login/?next=/admin/catalog/place/158/change/"
+    },
+    {
+      "id": "foreign-id-owner-editor-denied/manager",
+      "status": "PASS",
+      "http": 200,
+      "url": "http://localhost:8792/ru/account/places/"
+    },
+    {
+      "id": "insufficient-admin-rights/manager",
+      "status": "PASS",
+      "http": 200,
+      "url": "http://localhost:8792/admin/login/?next=/admin/catalog/place/158/change/"
+    },
+    {
+      "id": "two-tabs-conflict-input-retained",
+      "status": "PASS"
+    }
+  ],
+  "errors": [],
+  "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded."
+}

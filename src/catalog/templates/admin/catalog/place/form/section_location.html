@@ -9,8 +9,8 @@
     data-default-lng="49.867092"
     data-selected-prefix="{% translate 'Выбрана точка:' %}"
     data-empty-label="{% translate 'Точка на карте не выбрана.' %}"
-    data-locate-error="{% translate 'Не удалось определить геопозицию. Выберите точку вручную на карте.' %}"
-    data-locate-unsupported="{% translate 'Ваш браузер не поддерживает геолокацию. Выберите точку вручную на карте.' %}"
+    data-locate-error="{% translate 'Не удалось определить геопозицию. Можно ввести координаты вручную или продолжить без точки.' %}"
+    data-locate-unsupported="{% translate 'Ваш браузер не поддерживает геолокацию. Можно ввести координаты вручную или продолжить без точки.' %}"
     data-search-error="{% translate 'Не удалось найти место по этому запросу. Уточните адрес.' %}"
     data-search-empty="{% translate 'Введите адрес или выберите точку на карте.' %}"
     data-search-fallback="{% translate 'Поиск выполнится после сохранения формы и серверного пересчёта координат.' %}"
@@ -22,6 +22,8 @@
     data-map-not-ready-label="{% translate 'Не готово для карты' %}"
     data-map-open-label="{% translate 'Скрыть карту' %}"
     data-map-closed-label="{% translate 'Указать на карте' %}"
+    data-offline-open-label="{% translate 'Скрыть координаты' %}"
+    data-offline-closed-label="{% translate 'Указать координаты' %}"
   >
     <div class="km-pf-group" data-pf-group="address">
       <div class="km-pf-group__head">
@@ -56,7 +58,7 @@
     <div class="km-pf-group" data-pf-group="map">
       <div class="km-pf-group__head">
         <span class="km-pf-group__title">{% translate "Карта и координаты" %}</span>
-        <span class="km-pf-group__note">{% translate "Адрес и точка на карте — два разных обязательных пункта" %}</span>
+        <span class="km-pf-group__note">{% translate "Точка на карте необязательна. Рекомендуем указать её; можно вернуться к карте позже." %}</span>
       </div>
 
       <div class="km-pf-maprow">
@@ -90,14 +92,19 @@
         </button>
       </div>
 
+      <p class="km-pf-mapnotice" id="km-admin-place-map-unavailable" data-km-place-location-unavailable role="status" hidden>
+        {% translate "Карта недоступна. Можно ввести координаты вручную или продолжить без точки." %}
+      </p>
+      <p class="km-pf-mapstatus" data-km-place-location-status role="status"></p>
+
       {% include "includes/location_resolution.html" with location_admin=True %}
 
-      <div class="km-pf-maplatlng" data-pf-coord-fields hidden>
+      <div class="km-pf-maplatlng" data-pf-coord-fields{% if not form.lat.errors and not form.lng.errors %} hidden{% endif %}>
         {% include "admin/catalog/place/form/_field.html" with field=form.lat %}
         {% include "admin/catalog/place/form/_field.html" with field=form.lng %}
       </div>
 
-      <div class="km-pf-mappanel" id="km-admin-place-map-panel" data-km-place-location-panel hidden>
+      <div class="km-pf-mappanel" id="km-admin-place-map-panel" data-km-place-location-panel{% if not form.lat.errors and not form.lng.errors %} hidden{% endif %}>
         <div class="km-pf-mappanel__head">
           <div class="km-pf-mappanel__hint">
             <strong>{% translate "Нажмите на карту или перетащите маркер" %}</strong>

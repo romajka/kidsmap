@@ -687,7 +687,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Nə əlavə etmək istəyirsiniz?")
         self.assertContains(response, "Daimi məkan")
-        self.assertContains(response, "Müvəqqəti tədbir")
+        self.assertContains(response, "Tədbir əlavə et")
         self.assertContains(response, reverse("owner_event_create"))
 
     def test_owner_place_create_fresh_page_uses_unique_browser_draft_key(self):
@@ -1606,7 +1606,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertIn("event_date", response.context["form"].errors)
         self.assertIn("start_time_input", response.context["form"].errors)
         self.assertIn("end_time_input", response.context["form"].errors)
-        self.assertContains(response, "Müvəqqəti tədbir")
+        self.assertContains(response, "Yeni tədbir yarat")
         self.assertFalse(Event.objects.filter(name_az="Tarixsiz tədbir").exists())
 
     def test_owner_event_create_prefills_related_place_from_schedule_editor(self):

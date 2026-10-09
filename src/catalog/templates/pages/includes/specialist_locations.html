@@ -1,0 +1,22 @@
+{% load i18n %}
+{% if row %}
+<article class="spec-practice-card" data-practice-row>
+<h4 tabindex="-1">{% trans 'Место приёма' %} <span data-practice-number>{{ forloop.counter }}</span></h4>
+{% for hidden in row.hidden_fields %}{{ hidden }}{{ hidden.errors }}{% endfor %}
+{{ row.non_field_errors }}
+<div class="spec-practice-grid">
+{% for field in row.visible_fields %}{% if field.name != 'DELETE' %}<div class="spec-practice-field">{{ field.label_tag }}{{ field }}{{ field.errors }}{% if field.help_text %}<small id="{{ field.id_for_label }}_helptext">{{ field.help_text }}</small>{% endif %}</div>{% else %}<div hidden>{{ field }}</div>{% endif %}{% endfor %}
+</div>
+<button type="button" class="btn-secondary" data-practice-remove data-label="{% trans 'Отключить место приёма' %}">{% trans 'Отключить место приёма' %}</button>
+</article>
+{% else %}
+<div data-practice-editor>
+<p>{% trans 'Место приёма не подтверждает сотрудничество с организацией. Цена, телефон и расписание этого места сохраняются отдельно от общих данных профиля.' %}</p>
+<p>{% trans 'Для очного приёма нужны активное место, карточка KidsMap или собственный адрес и регион. Выключенные места остаются в истории.' %}</p>
+{{ locations.management_form }}{{ locations.non_form_errors }}
+<div data-practice-rows>{% for location in locations %}{% include 'pages/includes/specialist_locations.html' with row=location %}{% endfor %}</div>
+<template data-practice-template>{% include 'pages/includes/specialist_locations.html' with row=locations.empty_form %}</template>
+<button type="button" class="btn-secondary" data-practice-add hidden>{% trans 'Добавить место приёма' %}</button>
+<p role="status" aria-live="polite" data-practice-status data-limit="{% trans 'Можно добавить до 30 мест приёма.' %}"></p>
+</div>
+{% endif %}

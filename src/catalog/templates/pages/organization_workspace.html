@@ -3,36 +3,597 @@
 {% get_current_language as CURRENT_LANGUAGE %}
 {% block title %}{% if CURRENT_LANGUAGE == 'az' %}Təşkilatlarım{% elif CURRENT_LANGUAGE == 'en' %}My organizations{% else %}Мои организации{% endif %}{% endblock %}
 {% block title_plain %}{% if CURRENT_LANGUAGE == 'az' %}Təşkilatlarım{% elif CURRENT_LANGUAGE == 'en' %}My organizations{% else %}Мои организации{% endif %} | KidsMap{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}"><link rel="stylesheet" href="{% static 'css/pages/organization_workspace.css' %}">{% endblock %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}">
+  <link rel="stylesheet" href="{% static 'css/pages/organization_workspace.css' %}">
+{% endblock %}
 {% block content %}
 <div class="account-page-wrapper org-workspace" data-workspace="{{ workspace_mode }}" data-user-id="{{ request.user.pk }}" {% if organization %}data-org-id="{{ organization.pk }}"{% endif %}>
   <div class="account-main-layout">
     {% include 'pages/includes/account_navigation.html' %}
     <main class="account-main-content" id="organization-main">
       {% if workspace_mode == 'index' %}
-        <header class="org-hero"><div><p class="org-eyebrow">KidsMap · {% if CURRENT_LANGUAGE == 'az' %}Biznes kabineti{% elif CURRENT_LANGUAGE == 'en' %}Business account{% else %}Кабинет бизнеса{% endif %}</p><h1>{% if CURRENT_LANGUAGE == 'az' %}Təşkilatlarım{% elif CURRENT_LANGUAGE == 'en' %}My organizations{% else %}Мои организации{% endif %}</h1><p>{% if CURRENT_LANGUAGE == 'az' %}Məkanları, proqramları və komandanı bir yerdən idarə edin.{% elif CURRENT_LANGUAGE == 'en' %}Manage branches, programs and team in one place.{% else %}Управляйте филиалами, программами и командой в одном месте.{% endif %}</p></div><a class="account-btn-action" href="{% url 'owner_place_create' %}?fresh=1">{% if CURRENT_LANGUAGE == 'az' %}Məkan əlavə et{% elif CURRENT_LANGUAGE == 'en' %}Add place{% else %}Добавить место{% endif %}</a></header>
-        {% if organizations %}
-          <div class="org-list">{% for item in organizations %}<a class="org-row" href="{% url 'organization_workspace_detail' item.pk %}"><span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span><span><strong>{% if CURRENT_LANGUAGE == 'ru' and item.name_ru %}{{ item.name_ru }}{% elif CURRENT_LANGUAGE == 'en' and item.name_en %}{{ item.name_en }}{% else %}{{ item.name_az }}{% endif %}</strong><small>{{ item.get_status_display }}</small></span><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></a>{% endfor %}</div>
-        {% else %}<section class="org-empty" data-empty-organizations><span class="material-symbols-rounded" aria-hidden="true">domain_add</span><h2>{% if CURRENT_LANGUAGE == 'az' %}Hələ təşkilat yoxdur{% elif CURRENT_LANGUAGE == 'en' %}No organizations yet{% else %}Организаций пока нет{% endif %}</h2><p>{% if CURRENT_LANGUAGE == 'az' %}Müstəqil məkan yaratmaq da olar. Təşkilat üçün filial və ünvan məcburi deyil.{% elif CURRENT_LANGUAGE == 'en' %}You can also create a standalone place. An organization needs no branch or address.{% else %}Можно создать и самостоятельное место. Организации не нужны филиал и адрес для старта.{% endif %}</p></section>{% endif %}
-        <section class="org-section" id="standalone-places"><h2>{% if CURRENT_LANGUAGE == 'az' %}Müstəqil məkanlar{% elif CURRENT_LANGUAGE == 'en' %}Standalone places{% else %}Самостоятельные места{% endif %}</h2>{% if standalone_places %}<div class="org-list">{% for place in standalone_places %}<a class="org-row" href="{% url 'owner_place_edit' place.pk %}"><span class="material-symbols-rounded" aria-hidden="true">location_on</span><span><strong>{{ place.name_i18n }}</strong><small>{{ place.get_status_display }}</small></span><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></a>{% endfor %}</div>{% else %}<p class="org-muted" data-empty-standalone>{% if CURRENT_LANGUAGE == 'az' %}Müstəqil məkan yoxdur. Təşkilat yaratmadan məkan əlavə edə bilərsiniz.{% elif CURRENT_LANGUAGE == 'en' %}No standalone places. You can add a place without an organization.{% else %}Самостоятельных мест пока нет. Место можно добавить без организации.{% endif %}</p>{% endif %}</section>
-        <section class="org-form-section" id="create-organization"><h2>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat yarat{% elif CURRENT_LANGUAGE == 'en' %}Create organization{% else %}Создать организацию{% endif %}</h2><p>{% if CURRENT_LANGUAGE == 'az' %}Filialı sonra əlavə edə bilərsiniz.{% elif CURRENT_LANGUAGE == 'en' %}Add branches later.{% else %}Филиалы можно добавить позже.{% endif %}</p><form method="post" action="{% url 'organization_workspace_create' %}" data-org-create-form>{% csrf_token %}{{ create_form.non_field_errors }}<div class="org-fields"><label>{% if CURRENT_LANGUAGE == 'az' %}Ad (AZ){% elif CURRENT_LANGUAGE == 'en' %}Name (AZ){% else %}Название (AZ){% endif %} {{ create_form.name_az }}{{ create_form.name_az.errors }}</label><label>{% if CURRENT_LANGUAGE == 'az' %}Ad (RU){% elif CURRENT_LANGUAGE == 'en' %}Name (RU){% else %}Название (RU){% endif %} {{ create_form.name_ru }}</label><label>{% if CURRENT_LANGUAGE == 'az' %}Ad (EN){% elif CURRENT_LANGUAGE == 'en' %}Name (EN){% else %}Название (EN){% endif %} {{ create_form.name_en }}</label><label>{% if CURRENT_LANGUAGE == 'az' %}Telefon{% elif CURRENT_LANGUAGE == 'en' %}Phone{% else %}Телефон{% endif %} {{ create_form.phone }}</label><label>WhatsApp {{ create_form.whatsapp }}</label><label>{% if CURRENT_LANGUAGE == 'az' %}Sayt{% elif CURRENT_LANGUAGE == 'en' %}Website{% else %}Сайт{% endif %} {{ create_form.website }}{{ create_form.website.errors }}</label></div><label class="org-check">{{ create_form.allow_separate }} {% if CURRENT_LANGUAGE == 'az' %}Oxşar ad olsa da ayrıca təşkilat yarat{% elif CURRENT_LANGUAGE == 'en' %}Create separately even if a similar name exists{% else %}Создать отдельно, даже если есть похожее название{% endif %}</label><p class="org-save-status" role="status" aria-live="polite" data-create-status></p><button class="account-btn-action" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Təşkilat yarat{% elif CURRENT_LANGUAGE == 'en' %}Create organization{% else %}Создать организацию{% endif %}</button></form></section>
+        <!-- Header Index -->
+        <header class="org-hero">
+          <div>
+            <p class="org-eyebrow">KidsMap · {% if CURRENT_LANGUAGE == 'az' %}Biznes kabineti{% elif CURRENT_LANGUAGE == 'en' %}Business account{% else %}Кабинет бизнеса{% endif %}</p>
+            <h1>{% if CURRENT_LANGUAGE == 'az' %}Təşkilatlarım{% elif CURRENT_LANGUAGE == 'en' %}My organizations{% else %}Мои организации{% endif %}</h1>
+            <p>{% if CURRENT_LANGUAGE == 'az' %}Məkanları, proqramları və komandanı bir yerdən idarə edin.{% elif CURRENT_LANGUAGE == 'en' %}Manage branches, programs and team in one place.{% else %}Управляйте филиалами, программами и командой в одном месте.{% endif %}</p>
+          </div>
+          <div class="org-hero__actions">
+            <a class="account-btn-action org-btn-create-primary" href="{% url 'organization_workspace_create' %}">
+              <span class="material-symbols-rounded" aria-hidden="true">add_business</span>
+              <span>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat yarat{% elif CURRENT_LANGUAGE == 'en' %}Create organization{% else %}Создать организацию{% endif %}</span>
+            </a>
+            <a class="account-btn-sm account-btn-sm--secondary" href="{% url 'owner_place_create' %}?fresh=1">
+              <span class="material-symbols-rounded" aria-hidden="true">add_location_alt</span>
+              <span>{% if CURRENT_LANGUAGE == 'az' %}Müstəqil məkan əlavə et{% elif CURRENT_LANGUAGE == 'en' %}Add place{% else %}Добавить место{% endif %}</span>
+            </a>
+          </div>
+        </header>
+
+        <!-- Informational Guide Callout -->
+        <div class="org-info-callout">
+          <span class="material-symbols-rounded org-info-callout__icon" aria-hidden="true">lightbulb</span>
+          <div class="org-info-callout__text">
+            <strong>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat və müstəqil məkanlar{% elif CURRENT_LANGUAGE == 'en' %}Organizations and standalone places{% else %}Организация и самостоятельные места{% endif %}</strong>
+            <p>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat şəbəkə filiallarını və ümumi proqramları birləşdirir (başlanğıc üçün filial tələb olunmur). Əgər yalnız bir filialınız varsa, onu müstəqil məkan kimi apara bilərsiniz.{% elif CURRENT_LANGUAGE == 'en' %}An organization unites branches and shared programs (no branch needed to start). If you have only one location, manage it as a standalone place.{% else %}Организация объединяет сеть филиалов и общие программы (для старта филиал не нужен). Если у вас только один филиал или отдельная студия, её можно вести как самостоятельное место.{% endif %}</p>
+          </div>
+        </div>
+
+        <!-- Organizations List -->
+        <section class="org-section" id="organizations-list">
+          <div class="org-section-head">
+            <h2>{% if CURRENT_LANGUAGE == 'az' %}Təşkilatlar{% elif CURRENT_LANGUAGE == 'en' %}Organizations{% else %}Организации{% endif %}</h2>
+            {% if organizations %}
+              <span class="org-count-pill">{{ organizations|length }}</span>
+            {% endif %}
+          </div>
+          {% if organizations %}
+            <div class="org-list">
+              {% for item in organizations %}
+                <a class="org-row" href="{% url 'organization_workspace_detail' item.pk %}">
+                  <span class="material-symbols-rounded" aria-hidden="true">corporate_fare</span>
+                  <span>
+                    <strong>{% if CURRENT_LANGUAGE == 'ru' and item.name_ru %}{{ item.name_ru }}{% elif CURRENT_LANGUAGE == 'en' and item.name_en %}{{ item.name_en }}{% else %}{{ item.name_az }}{% endif %}</strong>
+                    <small>
+                      <span class="org-status-chip org-status-chip--{{ item.status }}">{{ item.get_status_display }}</span>
+                    </small>
+                  </span>
+                  <span class="material-symbols-rounded org-row__arrow" aria-hidden="true">arrow_forward</span>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <section class="org-empty" data-empty-organizations>
+              <span class="material-symbols-rounded" aria-hidden="true">domain_add</span>
+              <h2>{% if CURRENT_LANGUAGE == 'az' %}Hələ təşkilat yoxdur{% elif CURRENT_LANGUAGE == 'en' %}No organizations yet{% else %}Организаций пока нет{% endif %}</h2>
+              <p>{% if CURRENT_LANGUAGE == 'az' %}Müstəqil məkan yaratmaq da olar. Təşkilat üçün filial və ünvan məcburi deyil.{% elif CURRENT_LANGUAGE == 'en' %}You can also create a standalone place. An organization needs no branch or address.{% else %}Можно создать и самостоятельное место. Организации не нужны филиал и адрес для старта.{% endif %}</p>
+              <a class="account-btn-action org-btn-create-top" href="{% url 'organization_workspace_create' %}">
+                <span class="material-symbols-rounded" aria-hidden="true">add_business</span>
+                <span>{% if CURRENT_LANGUAGE == 'az' %}İlk təşkilatınızı yaradın{% elif CURRENT_LANGUAGE == 'en' %}Create your first organization{% else %}Создать первую организацию{% endif %}</span>
+              </a>
+            </section>
+          {% endif %}
+        </section>
+
+        <!-- Standalone Places Section -->
+        <section class="org-section" id="standalone-places">
+          <div class="org-section-head">
+            <h2>{% if CURRENT_LANGUAGE == 'az' %}Müstəqil məkanlar{% elif CURRENT_LANGUAGE == 'en' %}Standalone places{% else %}Самостоятельные места{% endif %}</h2>
+            {% if standalone_places %}
+              <span class="org-count-pill">{{ standalone_places|length }}</span>
+            {% endif %}
+          </div>
+          {% if standalone_places %}
+            {% if standalone_places|length > 5 %}
+              <div class="org-search-bar">
+                <span class="material-symbols-rounded" aria-hidden="true">search</span>
+                <input type="search" class="org-search-input" data-filter-input="#standalone-list" placeholder="{% if CURRENT_LANGUAGE == 'az' %}Məkan adına görə axtarış...{% elif CURRENT_LANGUAGE == 'en' %}Search places by name...{% else %}Поиск по названию места...{% endif %}" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Məkan axtarışı{% elif CURRENT_LANGUAGE == 'en' %}Place search{% else %}Поиск по местам{% endif %}">
+              </div>
+            {% endif %}
+            <div class="org-list" id="standalone-list">
+              {% for place in standalone_places %}
+                <a class="org-row" href="{% url 'owner_place_edit' place.pk %}" data-filter-item data-filter-text="{{ place.name_i18n }}">
+                  <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
+                  <span>
+                    <strong>{{ place.name_i18n }}</strong>
+                    <small>{{ place.address }}</small>
+                    {% if not place.affiliation_is_current %}<small>{% translate "Связь неактуальна: доступ сети не действует" %}</small>{% endif %}
+                    <small>{{ place.get_status_display }}</small>
+                  </span>
+                  <span class="material-symbols-rounded org-row__arrow" aria-hidden="true">arrow_forward</span>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="org-muted" data-empty-standalone>
+              {% if CURRENT_LANGUAGE == 'az' %}Müstəqil məkan yoxdur. Təşkilat yaratmadan məkan əlavə edə bilərsiniz.{% elif CURRENT_LANGUAGE == 'en' %}No standalone places. You can add a place without an organization.{% else %}Самостоятельных мест пока нет. Место можно добавить без организации.{% endif %}
+            </p>
+          {% endif %}
+        </section>
+
       {% else %}
-        <nav class="org-back"><a href="{% url 'organization_workspace_index' %}">← {% if CURRENT_LANGUAGE == 'az' %}Təşkilatlarım{% elif CURRENT_LANGUAGE == 'en' %}My organizations{% else %}Мои организации{% endif %}</a></nav>
-        <header class="org-hero"><div><p class="org-eyebrow">KidsMap · {% if CURRENT_LANGUAGE == 'az' %}Təşkilat{% elif CURRENT_LANGUAGE == 'en' %}Organization{% else %}Организация{% endif %}</p><h1>{% if CURRENT_LANGUAGE == 'ru' and organization.name_ru %}{{ organization.name_ru }}{% elif CURRENT_LANGUAGE == 'en' and organization.name_en %}{{ organization.name_en }}{% else %}{{ organization.name_az|default:'—' }}{% endif %}</h1><div class="org-chips"><span class="org-status">{{ organization.get_status_display }}</span>{% if revision %}<span class="org-status org-status--candidate">{{ revision.get_status_display }}</span>{% endif %}{% if server_draft %}<span class="org-status">{% if CURRENT_LANGUAGE == 'az' %}Server qaralaması{% elif CURRENT_LANGUAGE == 'en' %}Server draft{% else %}Черновик на сервере{% endif %}</span>{% endif %}</div></div><a class="account-btn-action" href="{% url 'owner_place_create' %}?fresh=1">{% if CURRENT_LANGUAGE == 'az' %}Məkan əlavə et{% elif CURRENT_LANGUAGE == 'en' %}Add place{% else %}Добавить место{% endif %}</a></header>
-        {% if action_error %}<div class="org-alert org-alert--error" role="alert">{% if action_error.code == 'structure_changed' %}{% if CURRENT_LANGUAGE == 'az' %}Əlaqə və ya hüquqlar dəyişib. Davam etməzdən əvvəl səhifəni yeniləyin.{% elif CURRENT_LANGUAGE == 'en' %}The relationship or access changed. Reload before continuing.{% else %}Связь или права изменились. Обновите страницу перед продолжением.{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Əməliyyat alınmadı. Yeniləyin və təkrar yoxlayın.{% elif CURRENT_LANGUAGE == 'en' %}Action failed. Refresh and check the current state.{% else %}Действие не выполнено. Обновите страницу и проверьте состояние.{% endif %}{% endif %} <a href="{{ request.path }}">{% if CURRENT_LANGUAGE == 'az' %}Səhifəni yenilə{% elif CURRENT_LANGUAGE == 'en' %}Reload page{% else %}Обновить страницу{% endif %}</a></div>{% endif %}
-        <nav class="org-tabs" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Təşkilat bölmələri{% elif CURRENT_LANGUAGE == 'en' %}Organization sections{% else %}Разделы организации{% endif %}"><a href="#org-overview">{% if CURRENT_LANGUAGE == 'az' %}İcmal{% elif CURRENT_LANGUAGE == 'en' %}Overview{% else %}Обзор{% endif %}</a><a href="#org-branches">{% if CURRENT_LANGUAGE == 'az' %}Filiallar{% elif CURRENT_LANGUAGE == 'en' %}Branches{% else %}Филиалы{% endif %}</a><a href="#org-programs">{% if CURRENT_LANGUAGE == 'az' %}Proqramlar{% elif CURRENT_LANGUAGE == 'en' %}Programs{% else %}Программы{% endif %}</a><a href="#org-team">{% if CURRENT_LANGUAGE == 'az' %}Komanda{% elif CURRENT_LANGUAGE == 'en' %}Team{% else %}Сотрудники{% endif %}</a><a href="#org-about">{% if CURRENT_LANGUAGE == 'az' %}Məlumat{% elif CURRENT_LANGUAGE == 'en' %}About{% else %}Сведения{% endif %}</a></nav>
-        {% if is_specialists_section_enabled and organization.owner_id == request.user.pk %}<p><a class="account-btn-sm account-btn-sm--secondary" href="{% url 'organization_specialists' organization.pk %}">{% if CURRENT_LANGUAGE == 'az' %}Mütəxəssislərlə əməkdaşlıq{% elif CURRENT_LANGUAGE == 'en' %}Specialist cooperation{% else %}Сотрудничество со специалистами{% endif %}</a></p>{% endif %}
-        <section id="org-overview" class="org-section" tabindex="-1"><h2>{% if CURRENT_LANGUAGE == 'az' %}İcmal{% elif CURRENT_LANGUAGE == 'en' %}Overview{% else %}Обзор{% endif %}</h2><div class="org-metrics"><p><strong>{{ branches|length }}</strong><span>{% if CURRENT_LANGUAGE == 'az' %}Görünən filial{% elif CURRENT_LANGUAGE == 'en' %}Visible branches{% else %}Доступные филиалы{% endif %}</span></p><p><strong>{{ programs|length }}</strong><span>{% if CURRENT_LANGUAGE == 'az' %}Proqram{% elif CURRENT_LANGUAGE == 'en' %}Programs{% else %}Программы{% endif %}</span></p></div>{% if pending_requests %}<div class="org-alert" role="status">{% if CURRENT_LANGUAGE == 'az' %}Qoşulma təsdiq gözləyir{% elif CURRENT_LANGUAGE == 'en' %}Join awaits confirmation{% else %}Присоединение ждёт подтверждения{% endif %}</div>{% endif %}</section>
-        <section id="org-branches" class="org-section" tabindex="-1"><div class="org-section-head"><h2>{% if CURRENT_LANGUAGE == 'az' %}Filiallar{% elif CURRENT_LANGUAGE == 'en' %}Branches{% else %}Филиалы{% endif %}</h2>{% if can_create_branch %}<a href="#org-create-branch" class="org-text-action">+ {% if CURRENT_LANGUAGE == 'az' %}Filial yarat{% elif CURRENT_LANGUAGE == 'en' %}Create branch{% else %}Создать филиал{% endif %}</a>{% endif %}</div>{% if branches %}<div class="org-list">{% for place in branches %}<article class="org-row"><span class="material-symbols-rounded" aria-hidden="true">location_on</span><span><strong>{{ place.name_i18n }}</strong><small>{{ place.get_status_display }} · {% if place.organization_relationship_kind == "informational" %}{% if CURRENT_LANGUAGE == "az" %}Məlumat əlaqəsi{% elif CURRENT_LANGUAGE == "en" %}Information link{% else %}Информационная связь{% endif %} · {% endif %} {% if place.contact_inherited %}{% if CURRENT_LANGUAGE == 'az' %}Əlaqə: təşkilatdan{% elif CURRENT_LANGUAGE == 'en' %}Contact: inherited from organization{% else %}Контакт: из организации{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Yerli əlaqə{% elif CURRENT_LANGUAGE == 'en' %}Local contact{% else %}Местный контакт{% endif %}{% endif %}{% if place.website_inherited %} · {% if CURRENT_LANGUAGE == "az" %}Sayt təşkilatdan{% elif CURRENT_LANGUAGE == "en" %}Website from organization{% else %}Сайт из организации{% endif %}{% endif %}{% if place.whatsapp_inherited %} · WhatsApp: {% if CURRENT_LANGUAGE == "az" %}təşkilatdan{% elif CURRENT_LANGUAGE == "en" %}organization{% else %}из организации{% endif %}{% endif %}</small></span><a href="{% url 'organization_workspace_branch' organization.pk place.pk %}">{% if CURRENT_LANGUAGE == 'az' %}Aç{% elif CURRENT_LANGUAGE == 'en' %}Open{% else %}Открыть{% endif %}</a>{% if is_owner %}<form method="post" action="{% url 'organization_workspace_detach' organization.pk place.pk %}">{% csrf_token %}<input type="hidden" name="expected_ownership_version" value="{{ place.ownership_version }}"><button class="org-text-action" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Ayır{% elif CURRENT_LANGUAGE == 'en' %}Detach{% else %}Отсоединить{% endif %}</button></form>{% endif %}</article>{% endfor %}</div>{% else %}<div class="org-empty" data-empty-branches><span class="material-symbols-rounded" aria-hidden="true">location_on</span><h3>{% if CURRENT_LANGUAGE == 'az' %}Hələ filial yoxdur{% elif CURRENT_LANGUAGE == 'en' %}No branches yet{% else %}Филиалов пока нет{% endif %}</h3><p>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat filial olmadan mövcud ola bilər.{% elif CURRENT_LANGUAGE == 'en' %}An organization can exist without a branch.{% else %}Организация может существовать без филиала.{% endif %}</p></div>{% endif %}
-        {% if can_create_branch %}<div class="org-action-panel" id="org-create-branch"><h3>{% if CURRENT_LANGUAGE == 'az' %}Filial yarat{% elif CURRENT_LANGUAGE == 'en' %}Create branch{% else %}Создать филиал{% endif %}</h3><form method="post" action="{% url 'organization_workspace_branch_create' organization.pk %}">{% csrf_token %}{{ branch_form.non_field_errors }}<div class="org-fields"><label>{% if CURRENT_LANGUAGE == 'az' %}Ad (AZ){% elif CURRENT_LANGUAGE == 'en' %}Name (AZ){% else %}Название (AZ){% endif %}{{ branch_form.name_az }}{{ branch_form.name_az.errors }}</label><label>{% if CURRENT_LANGUAGE == 'az' %}Kateqoriya{% elif CURRENT_LANGUAGE == 'en' %}Category{% else %}Категория{% endif %}{{ branch_form.category_id }}{{ branch_form.category_id.errors }}</label></div><label class="org-check">{{ branch_form.allow_separate }}{% if CURRENT_LANGUAGE == 'az' %}Oxşar adla ayrıca yarat{% elif CURRENT_LANGUAGE == 'en' %}Create separately despite similar name{% else %}Создать отдельно при похожем названии{% endif %}</label><button class="account-btn-action" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Filial yarat{% elif CURRENT_LANGUAGE == 'en' %}Create branch{% else %}Создать филиал{% endif %}</button></form></div>{% endif %}
-        {% if is_owner and owned_places %}<div class="org-action-panel"><h3>{% if CURRENT_LANGUAGE == 'az' %}Öz məkanını qoş{% elif CURRENT_LANGUAGE == 'en' %}Connect your place{% else %}Связать своё место{% endif %}</h3><form method="post" action="{% url 'organization_workspace_join' organization.pk %}">{% csrf_token %}<label>{% if CURRENT_LANGUAGE == 'az' %}Məkan{% elif CURRENT_LANGUAGE == 'en' %}Place{% else %}Место{% endif %}<select name="place_id">{% for place in owned_places %}<option value="{{ place.pk }}">{{ place.name_i18n }}</option>{% endfor %}</select></label><button type="submit" class="account-btn-action">{% if CURRENT_LANGUAGE == 'az' %}Sorğu göndər{% elif CURRENT_LANGUAGE == 'en' %}Request connection{% else %}Запросить связь{% endif %}</button></form></div>{% endif %}
-        {% if pending_requests %}<div class="org-action-panel"><h3>{% if CURRENT_LANGUAGE == 'az' %}Gözləyən sorğular{% elif CURRENT_LANGUAGE == 'en' %}Pending requests{% else %}Ожидают подтверждения{% endif %}</h3>{% for item in pending_requests %}<div class="org-pending-row"><span>{{ item.place.name_i18n }} · {% if item.place_owner_confirmed_at %}{% if CURRENT_LANGUAGE == 'az' %}Məkan təsdiqlədi{% elif CURRENT_LANGUAGE == 'en' %}Place confirmed{% else %}Место подтвердило{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Məkan gözləyir{% elif CURRENT_LANGUAGE == 'en' %}Waiting for place{% else %}Ожидает место{% endif %}{% endif %} · {% if item.organization_owner_confirmed_at %}{% if CURRENT_LANGUAGE == 'az' %}Təşkilat təsdiqlədi{% elif CURRENT_LANGUAGE == 'en' %}Organization confirmed{% else %}Организация подтвердила{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Təşkilat gözləyir{% elif CURRENT_LANGUAGE == 'en' %}Waiting for organization{% else %}Ожидает организацию{% endif %}{% endif %}</span>{% if item.relationship_kind == 'business' %}<form method="post" action="{% url 'organization_workspace_confirm' organization.pk item.pk %}">{% csrf_token %}<button class="org-text-action" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Təsdiqlə{% elif CURRENT_LANGUAGE == 'en' %}Confirm{% else %}Подтвердить{% endif %}</button></form>{% else %}<small>{% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi: KidsMap yoxlayır{% elif CURRENT_LANGUAGE == 'en' %}Information link: KidsMap review{% else %}Информационная связь: проверяет KidsMap{% endif %}</small>{% endif %}</div>{% endfor %}</div>{% endif %}</section>
-        <section id="org-programs" class="org-section" tabindex="-1"><h2>{% if CURRENT_LANGUAGE == 'az' %}Proqramlar{% elif CURRENT_LANGUAGE == 'en' %}Programs{% else %}Программы{% endif %}</h2>{% if programs %}<div class="org-list">{% for program in programs %}<div class="org-row"><span class="material-symbols-rounded" aria-hidden="true">menu_book</span><span><strong>{% if CURRENT_LANGUAGE == 'ru' and program.name_ru %}{{ program.name_ru }}{% elif CURRENT_LANGUAGE == 'en' and program.name_en %}{{ program.name_en }}{% else %}{{ program.name_az }}{% endif %}</strong><small>{{ program.get_status_display }}</small></span>{% if can_manage_programs %}<a href="{% url 'organization_program_detail' organization.pk program.pk %}">{% if CURRENT_LANGUAGE == 'az' %}Aç{% elif CURRENT_LANGUAGE == 'en' %}Edit{% else %}Редактировать{% endif %}</a>{% endif %}</div>{% endfor %}</div>{% else %}<p class="org-muted">{% if CURRENT_LANGUAGE == 'az' %}Hələ ümumi proqram yoxdur.{% elif CURRENT_LANGUAGE == 'en' %}No shared programs yet.{% else %}Общих программ пока нет.{% endif %}</p>{% endif %}{% if can_manage_programs %}<div class="org-action-panel"><h3>{% if CURRENT_LANGUAGE == 'az' %}Proqram yarat{% elif CURRENT_LANGUAGE == 'en' %}Create program{% else %}Создать программу{% endif %}</h3><form method="post" action="{% url 'organization_program_create' organization.pk %}">{% csrf_token %}<label>{% if CURRENT_LANGUAGE == 'az' %}Ad (AZ){% elif CURRENT_LANGUAGE == 'en' %}Name (AZ){% else %}Название (AZ){% endif %}<input name="name_az" maxlength="255" required></label><button class="account-btn-action" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Yarat{% elif CURRENT_LANGUAGE == 'en' %}Create{% else %}Создать{% endif %}</button></form></div>{% endif %}</section>
-        <section id="org-team" class="org-section" tabindex="-1"><h2>{% if CURRENT_LANGUAGE == 'az' %}Komanda{% elif CURRENT_LANGUAGE == 'en' %}Team{% else %}Сотрудники{% endif %}</h2>{% if is_owner %}<p class="org-muted">{% if CURRENT_LANGUAGE == 'az' %}İcazələr cari filiallara tətbiq olunur. Seçilmiş filiallar gələcək filiallara şamil edilmir.{% elif CURRENT_LANGUAGE == 'en' %}Selected branches do not include future branches. Network scope covers current links.{% else %}Выбранные филиалы не включают будущие. Сетевой доступ действует только при текущей связи.{% endif %}</p><form class="org-team-form" data-team-form data-team-url="{% url 'business_team_action' 'organization' organization.pk 'invite' %}">{% csrf_token %}<label>Email <input type="email" name="email" required></label><label>{% if CURRENT_LANGUAGE == 'az' %}Rol{% elif CURRENT_LANGUAGE == 'en' %}Role{% else %}Роль{% endif %}<select name="role"><option value="EDITOR">Editor</option><option value="MANAGER">Manager</option></select></label><label>{% if CURRENT_LANGUAGE == 'az' %}Əhatə{% elif CURRENT_LANGUAGE == 'en' %}Scope{% else %}Область{% endif %}<select name="scope" data-team-scope><option value="all_network">{% if CURRENT_LANGUAGE == 'az' %}Bütün şəbəkə{% elif CURRENT_LANGUAGE == 'en' %}All network{% else %}Вся сеть{% endif %}</option><option value="selected_places">{% if CURRENT_LANGUAGE == 'az' %}Seçilmiş filiallar{% elif CURRENT_LANGUAGE == 'en' %}Selected branches{% else %}Выбранные филиалы{% endif %}</option></select></label><fieldset data-team-branches hidden><legend>{% if CURRENT_LANGUAGE == 'az' %}Filiallar{% elif CURRENT_LANGUAGE == 'en' %}Branches{% else %}Филиалы{% endif %}</legend>{% for place in branches %}<label><input type="checkbox" name="place_ids" value="{{ place.pk }}">{{ place.name_i18n }}</label>{% endfor %}</fieldset><button class="account-btn-action" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Dəvət et{% elif CURRENT_LANGUAGE == 'en' %}Invite{% else %}Пригласить{% endif %}</button><p role="status" aria-live="polite" data-team-status></p></form>{% if team_grants %}<div class="org-list">{% for grant in team_grants %}<div class="org-row"><span class="material-symbols-rounded" aria-hidden="true">person</span><span><strong>{{ grant.member.username }}</strong><small>{{ grant.get_role_display }} · {{ grant.get_scope_display }} · {% if grant.is_active %}{% if CURRENT_LANGUAGE == 'az' %}Aktiv{% elif CURRENT_LANGUAGE == 'en' %}Active{% else %}Активен{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Dayandırılıb{% elif CURRENT_LANGUAGE == 'en' %}Suspended{% else %}Приостановлен{% endif %}{% endif %}</small></span></div>{% endfor %}</div>{% endif %}{% if team_invitations %}<h3>{% if CURRENT_LANGUAGE == 'az' %}Dəvətlər{% elif CURRENT_LANGUAGE == 'en' %}Invitations{% else %}Приглашения{% endif %}</h3><div class="org-list">{% for invite in team_invitations %}<div class="org-row"><span class="material-symbols-rounded" aria-hidden="true">mail</span><span>{{ invite.email }} · {{ invite.get_scope_display }}</span><small>{{ invite.get_status_display }}</small></div>{% endfor %}</div>{% endif %}{% else %}<p class="org-muted">{% if CURRENT_LANGUAGE == 'az' %}Komandanı təşkilat sahibi idarə edir.{% elif CURRENT_LANGUAGE == 'en' %}The organization owner manages the team.{% else %}Командой управляет владелец организации.{% endif %}</p>{% endif %}</section>
-        <section id="org-about" class="org-section" tabindex="-1"><h2>{% if CURRENT_LANGUAGE == 'az' %}Məlumat{% elif CURRENT_LANGUAGE == 'en' %}About{% else %}Сведения{% endif %}</h2>{% if revision and revision.status == 'rejected' %}<div class="org-alert org-alert--error" role="status">{% if CURRENT_LANGUAGE == 'az' %}Düzəliş lazımdır{% elif CURRENT_LANGUAGE == 'en' %}Changes requested{% else %}Нужны исправления{% endif %}{% if revision.review_note %}: {{ revision.review_note }}{% endif %}</div>{% endif %}{% if can_edit %}<form method="post" action="{% url 'organization_workspace_save' organization.pk %}" data-org-edit-form data-draft-url="{% url 'server_draft_collection' %}" data-source-version="{{ organization.content_version }}" data-schema-version="{{ schema_version }}" data-draft-id="{% if server_draft %}{{ server_draft.pk }}{% endif %}" data-draft-version="{% if server_draft %}{{ server_draft.version }}{% else %}0{% endif %}">{% csrf_token %}{{ candidate_form.non_field_errors }}{{ candidate_form.expected_version }}{{ candidate_form.revision_version }}<div class="org-fields"><label>{% if CURRENT_LANGUAGE == 'az' %}Ad (AZ){% elif CURRENT_LANGUAGE == 'en' %}Name (AZ){% else %}Название (AZ){% endif %}{{ candidate_form.name_az }}{{ candidate_form.name_az.errors }}</label><label>{% if CURRENT_LANGUAGE == 'az' %}Ad (RU){% elif CURRENT_LANGUAGE == 'en' %}Name (RU){% else %}Название (RU){% endif %}{{ candidate_form.name_ru }}</label><label>{% if CURRENT_LANGUAGE == 'az' %}Ad (EN){% elif CURRENT_LANGUAGE == 'en' %}Name (EN){% else %}Название (EN){% endif %}{{ candidate_form.name_en }}</label><label>{% if CURRENT_LANGUAGE == 'az' %}Telefon{% elif CURRENT_LANGUAGE == 'en' %}Phone{% else %}Телефон{% endif %}{{ candidate_form.phone }}</label><label>WhatsApp {{ candidate_form.whatsapp }}</label><label>{% if CURRENT_LANGUAGE == 'az' %}Sayt{% elif CURRENT_LANGUAGE == 'en' %}Website{% else %}Сайт{% endif %}{{ candidate_form.website }}{{ candidate_form.website.errors }}</label></div><label class="org-wide">{% if CURRENT_LANGUAGE == 'az' %}Təsvir{% elif CURRENT_LANGUAGE == 'en' %}Description{% else %}Описание{% endif %}{{ candidate_form.description_az }}</label><p class="org-save-status" role="status" aria-live="polite" data-draft-status></p><button class="account-btn-action" type="submit" name="submit" value="1">{% if CURRENT_LANGUAGE == 'az' %}Yoxlamaya göndər{% elif CURRENT_LANGUAGE == 'en' %}Submit for review{% else %}Отправить на проверку{% endif %}</button></form>{% else %}<p class="org-muted">{% if CURRENT_LANGUAGE == 'az' %}Redaktə icazəsi yoxdur.{% elif CURRENT_LANGUAGE == 'en' %}You do not have edit access.{% else %}Нет права редактирования.{% endif %}</p>{% endif %}</section>
+        <!-- Workspace Detail Mode -->
+        <nav class="org-back">
+          <a href="{% url 'organization_workspace_index' %}" class="org-back-link">
+            <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
+            <span>{% if CURRENT_LANGUAGE == 'az' %}Təşkilatlarım siyahısına qayıt{% elif CURRENT_LANGUAGE == 'en' %}Back to my organizations{% else %}Назад к моим организациям{% endif %}</span>
+          </a>
+        </nav>
+
+        <header class="org-hero org-hero--detail">
+          <div>
+            <p class="org-eyebrow">KidsMap · {% if CURRENT_LANGUAGE == 'az' %}Təşkilat{% elif CURRENT_LANGUAGE == 'en' %}Organization{% else %}Организация{% endif %}</p>
+            <h1>{% if CURRENT_LANGUAGE == 'ru' and organization.name_ru %}{{ organization.name_ru }}{% elif CURRENT_LANGUAGE == 'en' and organization.name_en %}{{ organization.name_en }}{% else %}{{ organization.name_az|default:'—' }}{% endif %}</h1>
+            <div class="org-chips">
+              <!-- Публичный статус -->
+              {% if organization.status == 'published' %}
+                <span class="org-status org-status--published" title="{% if CURRENT_LANGUAGE == 'az' %}Təşkilat KidsMap kataloqunda dərc olunub{% elif CURRENT_LANGUAGE == 'en' %}Published in directory{% else %}Опубликовано в каталоге{% endif %}">
+                  <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+                  {% if CURRENT_LANGUAGE == 'az' %}Dərc olunub{% elif CURRENT_LANGUAGE == 'en' %}Published{% else %}Опубликовано на сайте{% endif %}
+                </span>
+              {% else %}
+                <span class="org-status org-status--draft" title="{% if CURRENT_LANGUAGE == 'az' %}Qaralama rejimində{% elif CURRENT_LANGUAGE == 'en' %}In draft mode{% else %}В режиме черновика{% endif %}">
+                  <span class="material-symbols-rounded" aria-hidden="true">edit_note</span>
+                  {% if CURRENT_LANGUAGE == 'az' %}Qaralama{% elif CURRENT_LANGUAGE == 'en' %}Draft{% else %}Черновик сети{% endif %}
+                </span>
+              {% endif %}
+
+              <!-- Статус модерации -->
+              {% if revision and revision.status == 'pending' %}
+                <span class="org-status org-status--candidate" title="{% if CURRENT_LANGUAGE == 'az' %}Dəyişikliklər moderator yoxlamasındadır{% elif CURRENT_LANGUAGE == 'en' %}Changes under review{% else %}Изменения проверяются модератором{% endif %}">
+                  <span class="material-symbols-rounded" aria-hidden="true">hourglass_top</span>
+                  {% if CURRENT_LANGUAGE == 'az' %}Yoxlamada (v{{ revision.version }}){% elif CURRENT_LANGUAGE == 'en' %}In review (v{{ revision.version }}){% else %}Изменения на модерации{% endif %}
+                </span>
+              {% elif revision and revision.status == 'rejected' %}
+                <span class="org-status org-status--rejected" title="{% if CURRENT_LANGUAGE == 'az' %}Düzəliş lazımdır{% elif CURRENT_LANGUAGE == 'en' %}Changes requested{% else %}Нужны исправления{% endif %}">
+                  <span class="material-symbols-rounded" aria-hidden="true">error</span>
+                  {% if CURRENT_LANGUAGE == 'az' %}Düzəliş tələb olunur{% elif CURRENT_LANGUAGE == 'en' %}Changes requested{% else %}Нужны исправления{% endif %}
+                </span>
+              {% endif %}
+
+              <!-- Серверный черновик -->
+              {% if server_draft %}
+                <span class="org-status org-status--server-draft" title="{% if CURRENT_LANGUAGE == 'az' %}Daxil edilmiş məlumat server qaralamasında saxlanılıb{% elif CURRENT_LANGUAGE == 'en' %}Draft saved on server{% else %}Черновик сохранен на сервере{% endif %}">
+                  <span class="material-symbols-rounded" aria-hidden="true">cloud_done</span>
+                  {% if CURRENT_LANGUAGE == 'az' %}Server qaralaması{% elif CURRENT_LANGUAGE == 'en' %}Server draft{% else %}Черновик на сервере{% endif %}
+                </span>
+              {% endif %}
+            </div>
+          </div>
+          {% if can_create_branch %}
+            <a class="account-btn-action" href="#org-create-branch">
+              <span class="material-symbols-rounded" aria-hidden="true">add_location_alt</span>
+              <span>{% if CURRENT_LANGUAGE == 'az' %}Filial əlavə et{% elif CURRENT_LANGUAGE == 'en' %}Add branch{% else %}Добавить филиал{% endif %}</span>
+            </a>
+          {% endif %}
+        </header>
+
+        {% if action_error %}
+          <div class="org-alert org-alert--error" role="alert">
+            {% if action_error.code == 'structure_changed' %}
+              {% if CURRENT_LANGUAGE == 'az' %}Əlaqə və ya hüquqlar dəyişib. Davam etməzdən əvvəl səhifəni yeniləyin.{% elif CURRENT_LANGUAGE == 'en' %}The relationship or access changed. Reload before continuing.{% else %}Связь или права изменились. Обновите страницу перед продолжением.{% endif %}
+            {% else %}
+              {% if CURRENT_LANGUAGE == 'az' %}Əməliyyat alınmadı. Yeniləyin və təkrar yoxlayın.{% elif CURRENT_LANGUAGE == 'en' %}Action failed. Refresh and check the current state.{% else %}Действие не выполнено. Обновите страницу и проверьте состояние.{% endif %}
+            {% endif %}
+            <a href="{{ request.path }}">{% if CURRENT_LANGUAGE == 'az' %}Səhifəni yenilə{% elif CURRENT_LANGUAGE == 'en' %}Reload page{% else %}Обновить страницу{% endif %}</a>
+          </div>
+        {% endif %}
+
+        <!-- Onboarding Hub / Следующие шаги -->
+        <section class="org-onboarding-hub" aria-labelledby="org-onboarding-title">
+          <div class="org-onboarding-hub__head">
+            <span class="material-symbols-rounded" aria-hidden="true">checklist</span>
+            <h2 id="org-onboarding-title" class="org-onboarding-hub__title">
+              {% if CURRENT_LANGUAGE == 'az' %}Şəbəkənin işə salınması üçün növbəti addımlar{% elif CURRENT_LANGUAGE == 'en' %}Next steps to launch your network{% else %}Следующие шаги для запуска сети{% endif %}
+            </h2>
+          </div>
+          <div class="org-onboarding-hub__steps">
+            <!-- Шаг 1: Сведения -->
+            <div class="org-onboarding-step {% if has_details %}is-complete{% endif %}">
+              <div class="org-onboarding-step__icon">
+                <span class="material-symbols-rounded" aria-hidden="true">{% if has_details %}check_circle{% else %}radio_button_unchecked{% endif %}</span>
+              </div>
+              <div class="org-onboarding-step__content">
+                <strong>{% if CURRENT_LANGUAGE == 'az' %}1. Şəbəkə məlumatlarını doldurun{% elif CURRENT_LANGUAGE == 'en' %}1. Fill network details{% else %}1. Заполните сведения сети{% endif %}</strong>
+                <p>{% if CURRENT_LANGUAGE == 'az' %}Təsvir, sayt və vahid əlaqə nömrələri.{% elif CURRENT_LANGUAGE == 'en' %}Description, website and contacts.{% else %}Описание, сайт и общие контакты сети.{% endif %}</p>
+              </div>
+              <a href="#org-about" class="org-onboarding-step__btn">
+                {% if has_details %}{% if CURRENT_LANGUAGE == 'az' %}Bax{% elif CURRENT_LANGUAGE == 'en' %}View{% else %}Смотреть{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Doldur →{% elif CURRENT_LANGUAGE == 'en' %}Fill in →{% else %}Заполнить →{% endif %}{% endif %}
+              </a>
+            </div>
+
+            <!-- Шаг 2: Филиалы -->
+            <div class="org-onboarding-step {% if has_branches %}is-complete{% endif %}">
+              <div class="org-onboarding-step__icon">
+                <span class="material-symbols-rounded" aria-hidden="true">{% if has_branches %}check_circle{% else %}radio_button_unchecked{% endif %}</span>
+              </div>
+              <div class="org-onboarding-step__content">
+                <strong>{% if CURRENT_LANGUAGE == 'az' %}2. Filial yaradın və ya məkan qoşun{% elif CURRENT_LANGUAGE == 'en' %}2. Add or connect branches{% else %}2. Добавьте или свяжите филиалы{% endif %}</strong>
+                <p>{% if CURRENT_LANGUAGE == 'az' %}Hazırda {{ branches|length }} filial mövcuddur.{% elif CURRENT_LANGUAGE == 'en' %}Currently {{ branches|length }} branches.{% else %}Сейчас в сети: {{ branches|length }} филиалов.{% endif %}</p>
+              </div>
+              <a href="#org-branches" class="org-onboarding-step__btn">
+                {% if has_branches %}{% if CURRENT_LANGUAGE == 'az' %}İdarə et{% elif CURRENT_LANGUAGE == 'en' %}Manage{% else %}Управлять{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Filial əlavə et →{% elif CURRENT_LANGUAGE == 'en' %}Add branch →{% else %}Добавить филиал →{% endif %}{% endif %}
+              </a>
+            </div>
+
+            <!-- Шаг 3: Команда -->
+            <div class="org-onboarding-step {% if has_team %}is-complete{% endif %}">
+              <div class="org-onboarding-step__icon">
+                <span class="material-symbols-rounded" aria-hidden="true">{% if has_team %}check_circle{% else %}radio_button_unchecked{% endif %}</span>
+              </div>
+              <div class="org-onboarding-step__content">
+                <strong>{% if CURRENT_LANGUAGE == 'az' %}3. Əməkdaşları təyin edin{% elif CURRENT_LANGUAGE == 'en' %}3. Invite team members{% else %}3. Настройте сотрудников{% endif %}</strong>
+                <p>{% if CURRENT_LANGUAGE == 'az' %}Menecerlər və redaktorlar üçün hüquqlar təyin edin.{% elif CURRENT_LANGUAGE == 'en' %}Assign roles for managers and editors.{% else %}Назначьте менеджеров и редакторов филиалов.{% endif %}</p>
+              </div>
+              <a href="#org-team" class="org-onboarding-step__btn">
+                {% if has_team %}{% if CURRENT_LANGUAGE == 'az' %}Komanda{% elif CURRENT_LANGUAGE == 'en' %}Team{% else %}Команда{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Dəvət et →{% elif CURRENT_LANGUAGE == 'en' %}Invite →{% else %}Пригласить →{% endif %}{% endif %}
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Разделы навигации (Tabs) -->
+        <nav class="org-tabs" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Təşkilat bölmələri{% elif CURRENT_LANGUAGE == 'en' %}Organization sections{% else %}Разделы организации{% endif %}">
+          <a href="#org-overview">{% if CURRENT_LANGUAGE == 'az' %}İcmal{% elif CURRENT_LANGUAGE == 'en' %}Overview{% else %}Обзор{% endif %}</a>
+          <a href="#org-branches">{% if CURRENT_LANGUAGE == 'az' %}Filiallar ({{ branches|length }}){% elif CURRENT_LANGUAGE == 'en' %}Branches ({{ branches|length }}){% else %}Филиалы ({{ branches|length }}){% endif %}</a>
+          <a href="#org-programs">{% if CURRENT_LANGUAGE == 'az' %}Proqramlar ({{ programs|length }}){% elif CURRENT_LANGUAGE == 'en' %}Programs ({{ programs|length }}){% else %}Программы ({{ programs|length }}){% endif %}</a>
+          <a href="#org-team">{% if CURRENT_LANGUAGE == 'az' %}Komanda{% elif CURRENT_LANGUAGE == 'en' %}Team{% else %}Сотрудники{% endif %}</a>
+          <a href="#org-about">{% if CURRENT_LANGUAGE == 'az' %}Məlumat və rekvizitlər{% elif CURRENT_LANGUAGE == 'en' %}About{% else %}Сведения и реквизиты{% endif %}</a>
+        </nav>
+
+        {% if is_specialists_section_enabled and organization.owner_id == request.user.pk %}
+          <p class="org-specialist-link-wrap">
+            <a class="account-btn-sm account-btn-sm--secondary" href="{% url 'organization_specialists' organization.pk %}">
+              <span class="material-symbols-rounded" aria-hidden="true">person</span>
+              <span>{% if CURRENT_LANGUAGE == 'az' %}Mütəxəssislərlə əməkdaşlıq{% elif CURRENT_LANGUAGE == 'en' %}Specialist cooperation{% else %}Сотрудничество со специалистами{% endif %}</span>
+            </a>
+          </p>
+        {% endif %}
+
+        <!-- Обзор (Overview) -->
+        <section id="org-overview" class="org-section" tabindex="-1">
+          <h2>{% if CURRENT_LANGUAGE == 'az' %}İcmal{% elif CURRENT_LANGUAGE == 'en' %}Overview{% else %}Обзор{% endif %}</h2>
+          <div class="org-metrics">
+            <p><strong>{{ branches|length }}</strong><span>{% if CURRENT_LANGUAGE == 'az' %}Görünən filial{% elif CURRENT_LANGUAGE == 'en' %}Visible branches{% else %}Доступные филиалы{% endif %}</span></p>
+            <p><strong>{{ programs|length }}</strong><span>{% if CURRENT_LANGUAGE == 'az' %}Proqram{% elif CURRENT_LANGUAGE == 'en' %}Programs{% else %}Программы{% endif %}</span></p>
+          </div>
+          {% if pending_requests %}
+            <div class="org-alert" role="status">
+              <span class="material-symbols-rounded" aria-hidden="true">pending_actions</span>
+              <span>{% if CURRENT_LANGUAGE == 'az' %}Qoşulma təsdiq gözləyir ({{ pending_requests|length }} sorğu){% elif CURRENT_LANGUAGE == 'en' %}Join awaits confirmation{% else %}Присоединение ждёт подтверждения{% endif %}</span>
+            </div>
+          {% endif %}
+        </section>
+
+        <!-- Филиалы (Branches) -->
+        <section id="org-branches" class="org-section" tabindex="-1">
+          <div class="org-section-head">
+            <h2>{% if CURRENT_LANGUAGE == 'az' %}Filiallar{% elif CURRENT_LANGUAGE == 'en' %}Branches{% else %}Филиалы{% endif %}</h2>
+            {% if can_create_branch %}
+              <a href="#org-create-branch" class="org-text-action">+ {% if CURRENT_LANGUAGE == 'az' %}Filial yarat{% elif CURRENT_LANGUAGE == 'en' %}Create branch{% else %}Создать филиал{% endif %}</a>
+            {% endif %}
+          </div>
+
+          {% if branches %}
+            <!-- Живой поиск филиалов -->
+            <div class="org-search-bar" data-branch-search-wrapper>
+              <span class="material-symbols-rounded" aria-hidden="true">search</span>
+              <input type="search" class="org-search-input" data-branch-search placeholder="{% if CURRENT_LANGUAGE == 'az' %}Filialın adı üzrə axtarış...{% elif CURRENT_LANGUAGE == 'en' %}Search branches by name...{% else %}Поиск филиала по названию...{% endif %}" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Filial axtarışı{% elif CURRENT_LANGUAGE == 'en' %}Branch search{% else %}Поиск филиала{% endif %}">
+              <span class="org-search-counter" data-branch-count-label></span>
+            </div>
+
+            <!-- Список филиалов с пагинацией -->
+            <div class="org-list" data-branch-list>
+              {% for place in branches %}
+                <article class="org-row" data-branch-item data-name="{{ place.name_i18n }} {{ place.address }}" data-status="{{ place.get_status_display }}">
+                  <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
+                  <span>
+                    <strong>{{ place.name_i18n }}</strong>
+                    <small>{{ place.address }}</small>
+                    {% if not place.affiliation_is_current %}<small>{% translate "Связь неактуальна: доступ сети не действует" %}</small>{% endif %}
+                    <small>
+                      <span class="org-status-chip org-status-chip--{{ place.status }}">{{ place.get_status_display }}</span> · 
+                      {% if place.organization_relationship_kind == "informational" %}
+                        {% if CURRENT_LANGUAGE == "az" %}Məlumat əlaqəsi{% elif CURRENT_LANGUAGE == "en" %}Information link{% else %}Информационная связь{% endif %} · 
+                      {% endif %}
+                      {% if place.contact_inherited %}
+                        {% if CURRENT_LANGUAGE == 'az' %}Əlaqə: təşkilatdan{% elif CURRENT_LANGUAGE == 'en' %}Contact: inherited from organization{% else %}Контакт: из организации{% endif %}
+                      {% else %}
+                        {% if CURRENT_LANGUAGE == 'az' %}Yerli əlaqə{% elif CURRENT_LANGUAGE == 'en' %}Local contact{% else %}Местный контакт{% endif %}
+                      {% endif %}
+                      {% if place.website_inherited %} · {% if CURRENT_LANGUAGE == "az" %}Sayt təşkilatdan{% elif CURRENT_LANGUAGE == "en" %}Website from organization{% else %}Сайт из организации{% endif %}{% endif %}
+                      {% if place.whatsapp_inherited %} · WhatsApp: {% if CURRENT_LANGUAGE == "az" %}təşkilatdan{% elif CURRENT_LANGUAGE == "en" %}organization{% else %}из организации{% endif %}{% endif %}
+                    </small>
+                  </span>
+                  <div class="org-row__actions">
+                    <a href="{% url 'organization_workspace_branch' organization.pk place.pk %}" class="org-row__btn-open">{% if CURRENT_LANGUAGE == 'az' %}Aç{% elif CURRENT_LANGUAGE == 'en' %}Open{% else %}Открыть{% endif %}</a>
+                    {% if is_owner %}
+                      <a href="{% url 'organization_detach_preview' organization.pk place.pk %}" class="org-text-action org-text-action--danger">{% translate 'Отсоединить: посмотреть последствия' %}</a>
+                    {% endif %}
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+
+            <!-- Контейнер клиентской пагинации -->
+            <nav class="org-pagination" data-branch-pagination aria-label="{% if CURRENT_LANGUAGE == 'az' %}Filialların səhifələnməsi{% elif CURRENT_LANGUAGE == 'en' %}Branch pagination{% else %}Пагинация филиалов{% endif %}"></nav>
+
+          {% else %}
+            <div class="org-empty" data-empty-branches>
+              <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
+              <h3>{% if CURRENT_LANGUAGE == 'az' %}Hələ filial yoxdur{% elif CURRENT_LANGUAGE == 'en' %}No branches yet{% else %}Филиалов пока нет{% endif %}</h3>
+              <p>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat filial olmadan mövcud ola bilər. İstədiyiniz vaxt yeni filial yarada və ya öz məkanınızı qoşa bilərsiniz.{% elif CURRENT_LANGUAGE == 'en' %}An organization can exist without a branch. You can create a new branch or link an existing place anytime.{% else %}Организация может существовать без филиала. Вы можете создать новый филиал или связать уже имеющееся место.{% endif %}</p>
+            </div>
+          {% endif %}
+
+          {% if can_create_branch %}
+            <div class="org-action-panel org-control-panel" id="org-create-branch">
+              <h3>{% if CURRENT_LANGUAGE == 'az' %}Yeni filial yarat{% elif CURRENT_LANGUAGE == 'en' %}Create new branch{% else %}Создать новый филиал{% endif %}</h3>
+              <form class="org-control-form" method="post" action="{% url 'organization_workspace_branch_create' organization.pk %}">
+                {% csrf_token %}
+                {{ branch_form.non_field_errors }}
+                <div class="org-fields org-control-grid">
+                  <label class="org-control-field">
+                    <span>{% if CURRENT_LANGUAGE == 'az' %}Filialın adı (AZ){% elif CURRENT_LANGUAGE == 'en' %}Branch name (AZ){% else %}Название филиала (AZ){% endif %} <span aria-hidden="true">*</span></span>
+                    {{ branch_form.name_az }}
+                    {{ branch_form.name_az.errors }}
+                  </label>
+                  <label class="org-control-field">
+                    <span>{% if CURRENT_LANGUAGE == 'az' %}Kateqoriya{% elif CURRENT_LANGUAGE == 'en' %}Category{% else %}Категория{% endif %} <span aria-hidden="true">*</span></span>
+                    {{ branch_form.category_id }}
+                    {{ branch_form.category_id.errors }}
+                  </label>
+                </div>
+                {% if branch_duplicate_detected %}
+                <p>{% translate 'Найдены похожие места. Сначала проверьте готовые карточки.' %}</p>
+                {% for match in branch_duplicates %}<p>{{ match.name_i18n }} · {{ match.address }} · #{{ match.pk }}</p>{% endfor %}
+                <a href="{% url 'organization_connections' organization.pk %}?q={{ branch_form.name_az.value|urlencode }}">{% translate 'Найти и выбрать места' %}</a>
+                <label class="org-check">
+                  {{ branch_form.allow_separate }}
+                  {% if CURRENT_LANGUAGE == 'az' %}Oxşar adla ayrıca yarat{% elif CURRENT_LANGUAGE == 'en' %}Create separately despite similar name{% else %}Создать отдельно при похожем названии{% endif %}
+                </label>
+                {% endif %}
+                <button class="account-btn-action" type="submit">
+                  {% if CURRENT_LANGUAGE == 'az' %}Filial yarat{% elif CURRENT_LANGUAGE == 'en' %}Create branch{% else %}Создать филиал{% endif %}
+                </button>
+              </form>
+            </div>
+          {% endif %}
+
+          {% if is_owner %}
+            <div class="org-action-panel">
+              <h3>{% translate 'Подключить существующие места' %}</h3>
+              <p>{% translate 'Найдите карточки по названию и адресу. Фото, занятия и цены сохранятся.' %}</p>
+              <a href="{% url 'organization_connections' organization.pk %}" class="account-btn-action">{% translate 'Найти и выбрать места' %}</a>
+            </div>
+          {% endif %}
+
+          {% if join_recovery_requests %}
+            <div class="org-action-panel">
+              <h3>{% if CURRENT_LANGUAGE == 'az' %}Gözləyən sorğular{% elif CURRENT_LANGUAGE == 'en' %}Pending requests{% else %}Ожидают подтверждения{% endif %}</h3>
+              {% for item in join_recovery_requests %}
+                {% include 'pages/includes/organization_join_request.html' %}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </section>
+
+        <!-- Программы (Programs) -->
+        <section id="org-programs" class="org-section" tabindex="-1">
+          <h2>{% if CURRENT_LANGUAGE == 'az' %}Proqramlar{% elif CURRENT_LANGUAGE == 'en' %}Programs{% else %}Программы{% endif %}</h2>
+          {% if programs %}
+            <div class="org-list">
+              {% for program in programs %}
+                <div class="org-row">
+                  <span class="material-symbols-rounded" aria-hidden="true">menu_book</span>
+                  <span>
+                    <strong>{% if CURRENT_LANGUAGE == 'ru' and program.name_ru %}{{ program.name_ru }}{% elif CURRENT_LANGUAGE == 'en' and program.name_en %}{{ program.name_en }}{% else %}{{ program.name_az }}{% endif %}</strong>
+                    <small>{{ program.get_status_display }}</small>
+                  </span>
+                  {% if can_manage_programs %}
+                    <a href="{% url 'organization_program_detail' organization.pk program.pk %}">{% if CURRENT_LANGUAGE == 'az' %}Aç{% elif CURRENT_LANGUAGE == 'en' %}Edit{% else %}Редактировать{% endif %}</a>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="org-muted">{% if CURRENT_LANGUAGE == 'az' %}Hələ ümumi proqram yoxdur.{% elif CURRENT_LANGUAGE == 'en' %}No shared programs yet.{% else %}Общих программ пока нет.{% endif %}</p>
+          {% endif %}
+          {% if can_manage_programs %}
+            <div class="org-action-panel org-control-panel">
+              <h3>{% if CURRENT_LANGUAGE == 'az' %}Proqram yarat{% elif CURRENT_LANGUAGE == 'en' %}Create program{% else %}Создать программу{% endif %}</h3>
+              <form class="org-control-form" method="post" action="{% url 'organization_program_create' organization.pk %}">
+                {% csrf_token %}
+                <label class="org-control-field">
+                  <span>{% if CURRENT_LANGUAGE == 'az' %}Proqramın adı (AZ){% elif CURRENT_LANGUAGE == 'en' %}Program name (AZ){% else %}Название программы (AZ){% endif %} <span aria-hidden="true">*</span></span>
+                  <input name="name_az" maxlength="255" required aria-describedby="org-program-create-hint">
+                </label>
+                <p class="org-control-hint" id="org-program-create-hint">{% if CURRENT_LANGUAGE == 'az' %}Proqramın digər məlumatları proqram redaktorunda doldurulur.{% elif CURRENT_LANGUAGE == 'en' %}Continue filling in the program in its editor.{% else %}Дальнейшее наполнение — в редакторе программы.{% endif %}</p>
+                <button class="account-btn-action" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Yarat{% elif CURRENT_LANGUAGE == 'en' %}Create{% else %}Создать{% endif %}</button>
+              </form>
+            </div>
+          {% endif %}
+        </section>
+
+        <!-- Сотрудники (Team) -->
+        <section id="org-team" class="org-section" tabindex="-1">
+          <h2>{% if CURRENT_LANGUAGE == 'az' %}Komanda{% elif CURRENT_LANGUAGE == 'en' %}Team{% else %}Сотрудники{% endif %}</h2>
+          {% if is_owner %}
+            <p class="org-muted">{% if CURRENT_LANGUAGE == 'az' %}İcazələr cari filiallara tətbiq olunur. Seçilmiş filiallar gələcək filiallara şamil edilmir.{% elif CURRENT_LANGUAGE == 'en' %}Selected branches do not include future branches. Network scope covers current links.{% else %}Выбранные филиалы не включают будущие. Сетевой доступ действует только при текущей связи.{% endif %}</p>
+            <form method="post" action="{% url 'business_team_action' 'organization' organization.pk 'invite' %}" class="org-team-form org-control-form" data-team-form data-team-list-url="{% url 'organization_workspace_detail' organization.pk %}" data-team-url="{% url 'business_team_action' 'organization' organization.pk 'invite' %}">
+              {% csrf_token %}
+              <p id="org-team-unavailable" data-team-unavailable role="status">{% if CURRENT_LANGUAGE == 'az' %}Əməkdaşı dəvət etmək üçün JavaScript lazımdır. Formanı aktivləşdirmək üçün brauzerdə JavaScript-i yandırın və səhifəni yeniləyin. Dəvət göndərilməyib.{% elif CURRENT_LANGUAGE == 'en' %}Inviting a team member requires JavaScript. Enable JavaScript in your browser and reload this page to activate the form. No invitation has been sent.{% else %}Для приглашения сотрудника нужен JavaScript. Включите JavaScript в браузере и обновите страницу, чтобы активировать форму. Приглашение не отправлено.{% endif %}</p>
+              <div class="org-control-grid">
+                <label class="org-control-field">
+                  <span>Email <span aria-hidden="true">*</span></span>
+                  <input type="email" name="email" required disabled data-team-control>
+                </label>
+                <div class="org-control-field">
+                  <label for="org-team-role">{% if CURRENT_LANGUAGE == 'az' %}Rol{% elif CURRENT_LANGUAGE == 'en' %}Role{% else %}Роль{% endif %}</label>
+                  <select id="org-team-role" name="role" aria-describedby="org-team-role-hint" data-team-role disabled data-team-control>
+                    <option value="EDITOR" data-summary="{% translate 'Просмотр и редактирование филиалов' %}">{% translate 'Редактор' %}</option>
+                    <option value="MANAGER" data-summary="{% translate 'Просмотр, редактирование и статистика филиалов' %}">{% translate 'Менеджер' %}</option><option value="MODERATOR" data-summary="{% translate 'Просмотр и статистика филиалов' %}">{% translate 'Наблюдатель' %}</option>
+                  </select>
+                  <p id="org-team-role-hint" class="org-control-hint" data-team-role-summary role="status">{% translate 'Просмотр и редактирование филиалов' %}</p>
+                </div>
+                <label class="org-control-field org-control-wide">
+                  <span>{% if CURRENT_LANGUAGE == 'az' %}Əhatə{% elif CURRENT_LANGUAGE == 'en' %}Scope{% else %}Область{% endif %}</span>
+                  <select name="scope" data-team-scope disabled data-team-control>
+                    <option value="all_network">{% if CURRENT_LANGUAGE == 'az' %}Bütün şəbəkə{% elif CURRENT_LANGUAGE == 'en' %}All network{% else %}Вся сеть{% endif %}</option>
+                    <option value="selected_places">{% if CURRENT_LANGUAGE == 'az' %}Seçilmiş filiallar{% elif CURRENT_LANGUAGE == 'en' %}Selected branches{% else %}Выбранные филиалы{% endif %}</option>
+                  </select>
+                </label>
+              </div>
+              <p class="org-control-hint">{% translate 'Публикация, модерация и управление сотрудниками не входят в эти роли.' %}</p>
+              <p class="org-control-hint">{% translate 'Вся сеть включает будущие филиалы с актуальной бизнес-связью. Выбранные филиалы ограничивают только права на места. Отдельные права на организацию и общие программы действуют для всей организации.' %}</p>
+              <fieldset data-team-branches hidden>
+                <legend>{% if CURRENT_LANGUAGE == 'az' %}Filiallar{% elif CURRENT_LANGUAGE == 'en' %}Branches{% else %}Филиалы{% endif %}</legend>
+                <p class="org-control-hint">{% if CURRENT_LANGUAGE == 'az' %}Ən azı bir cari filial seçin.{% elif CURRENT_LANGUAGE == 'en' %}Select at least one currently linked branch.{% else %}Выберите хотя бы один актуальный филиал.{% endif %}</p>
+                {% for place in branches %}
+                  <label class="org-control-check"><input type="checkbox" name="place_ids" disabled data-team-control value="{{ place.pk }}">{{ place.name_i18n }}</label>
+                {% endfor %}
+              </fieldset>
+              <button class="account-btn-action" type="submit" disabled data-team-control aria-describedby="org-team-unavailable">{% if CURRENT_LANGUAGE == 'az' %}Dəvət et{% elif CURRENT_LANGUAGE == 'en' %}Invite{% else %}Пригласить{% endif %}</button>
+              <p role="status" aria-live="polite" data-team-status></p>
+              <button class="account-btn-action" type="button" data-team-refresh hidden disabled data-team-control>{% if CURRENT_LANGUAGE == 'az' %}Dəvət siyahısını yenilə{% elif CURRENT_LANGUAGE == 'en' %}Refresh invitations{% else %}Обновить список приглашений{% endif %}</button>
+            </form>
+            {% if team_grants %}
+              <div class="org-list">
+                {% for grant in team_grants %}
+                  <div class="org-row">
+                    <span class="material-symbols-rounded" aria-hidden="true">person</span>
+                    <span>
+                      <strong>{{ grant.member.username }}</strong>
+                      <small>{{ grant.get_role_display }} · {{ grant.get_scope_display }} · 
+                        {% if grant.is_active %}
+                          {% if CURRENT_LANGUAGE == 'az' %}Aktiv{% elif CURRENT_LANGUAGE == 'en' %}Active{% else %}Активен{% endif %}
+                        {% else %}
+                          {% if CURRENT_LANGUAGE == 'az' %}Dayandırılıb{% elif CURRENT_LANGUAGE == 'en' %}Suspended{% else %}Приостановлен{% endif %}
+                        {% endif %}
+                      </small>
+                      <small>{% translate 'Разрешения' %}: {{ grant.action_labels|join:', ' }}</small>
+                    </span>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+            <div data-team-invitations>
+            {% if team_invitations %}
+              <h3>{% if CURRENT_LANGUAGE == 'az' %}Dəvətlər{% elif CURRENT_LANGUAGE == 'en' %}Invitations{% else %}Приглашения{% endif %}</h3>
+              <div class="org-list">
+                {% for invite in team_invitations %}
+                  <div class="org-row" data-team-invitation="{{ invite.pk }}" data-team-invitation-role="{{ invite.role }}">
+                    <span class="material-symbols-rounded" aria-hidden="true">mail</span>
+                    <span><strong>{{ invite.email }}</strong><small>{{ invite.get_role_display }} · {{ invite.get_scope_display }}</small></span>
+                    <small>{{ invite.get_status_display }}</small>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+            </div>
+          {% else %}
+            <p class="org-muted">{% if CURRENT_LANGUAGE == 'az' %}Komandanı təşkilat sahibi idarə edir.{% elif CURRENT_LANGUAGE == 'en' %}The organization owner manages the team.{% else %}Командой управляет владелец организации.{% endif %}</p>
+          {% endif %}
+        </section>
+
+        <!-- Сведения и реквизиты (About) -->
+        <section id="org-about" class="org-section" tabindex="-1">
+          <h2>{% if CURRENT_LANGUAGE == 'az' %}Məlumat və rekvizitlər{% elif CURRENT_LANGUAGE == 'en' %}About{% else %}Сведения и реквизиты{% endif %}</h2>
+
+          {% if revision and revision.status == 'rejected' %}
+            <div class="org-alert org-alert--error" role="status">
+              <span class="material-symbols-rounded" aria-hidden="true">error</span>
+              <div>
+                <strong>{% if CURRENT_LANGUAGE == 'az' %}Düzəliş tələb olunur{% elif CURRENT_LANGUAGE == 'en' %}Changes requested{% else %}Нужны исправления{% endif %}</strong>
+                {% if revision.review_note %}
+                  <p class="org-alert__detail">{{ revision.review_note }}</p>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+
+          {% if revision and revision.status == 'pending' %}
+            <div class="org-alert org-alert--pending" role="status">
+              <span class="material-symbols-rounded" aria-hidden="true">hourglass_top</span>
+              <div>
+                <strong>{% if CURRENT_LANGUAGE == 'az' %}Dəyişikliklər moderator yoxlamasındadır{% elif CURRENT_LANGUAGE == 'en' %}Changes under review{% else %}Изменения отправлены на проверку{% endif %}</strong>
+                <p class="org-alert__detail">{% if CURRENT_LANGUAGE == 'az' %}Məlumatlar moderator tərəfindən təsdiq edildikdən sonra ictimai səhifədə yenilənəcək.{% elif CURRENT_LANGUAGE == 'en' %}Public details will be updated once approved by the moderator.{% else %}Публичные сведения на сайте обновятся сразу после проверки модератором KidsMap.{% endif %}</p>
+              </div>
+            </div>
+          {% endif %}
+
+          {% if can_edit %}
+            <form method="post" action="{% url 'organization_workspace_save' organization.pk %}" data-org-edit-form {% if candidate_form.errors %}data-org-server-errors{% endif %} {% if show_current_data %}data-org-current-data{% endif %} data-draft-url="{% url 'server_draft_collection' %}" data-source-version="{{ organization.content_version }}" data-schema-version="{{ schema_version }}" data-draft-id="{% if server_draft %}{{ server_draft.pk }}{% endif %}" data-draft-version="{% if server_draft %}{{ server_draft.version }}{% else %}0{% endif %}">
+              {% csrf_token %}
+              {% if candidate_form.errors %}
+              <div class="org-alert org-alert--error org-editor-errors" id="org-editor-errors" role="alert" tabindex="-1" aria-labelledby="org-editor-errors-title" data-org-error-summary>
+                <strong id="org-editor-errors-title">{% if CURRENT_LANGUAGE == 'az' %}Formadakı səhvləri düzəldin{% elif CURRENT_LANGUAGE == 'en' %}Please correct the form errors{% else %}Исправьте ошибки в форме{% endif %}</strong>
+                <ul>
+                  {% for error in candidate_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                  {% for field in candidate_form %}{% for error in field.errors %}
+                    <li>{% if field.is_hidden %}{{ field.label }}: {{ error }}{% else %}<a href="#{{ field.id_for_label }}" data-org-error-target="{{ field.id_for_label }}">{{ field.label }}: {{ error }}</a>{% endif %}</li>
+                  {% endfor %}{% endfor %}
+                </ul>
+                {% if candidate_form.version_conflict %}<a href="{% url 'organization_workspace_detail' organization.pk %}?current=1" target="_blank" rel="noopener" data-org-current-link>{% trans 'Открыть актуальные данные' %}</a>{% endif %}
+              </div>
+              {% endif %}
+              {{ candidate_form.expected_version }}
+              {{ candidate_form.revision_version }}
+
+              <div class="org-fields">
+                <div class="org-editor-field{% if candidate_form.name_az.errors %} has-error{% endif %}"><label>
+                  {% if CURRENT_LANGUAGE == 'az' %}Ad (AZ){% elif CURRENT_LANGUAGE == 'en' %}Name (AZ){% else %}Название (AZ){% endif %}
+                  {{ candidate_form.name_az }}
+                </label>
+                  {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.name_az %}</div>
+                <div class="org-editor-field{% if candidate_form.name_ru.errors %} has-error{% endif %}"><label>
+                  {% if CURRENT_LANGUAGE == 'az' %}Ad (RU){% elif CURRENT_LANGUAGE == 'en' %}Name (RU){% else %}Название (RU){% endif %}
+                  {{ candidate_form.name_ru }}
+                </label>
+                  {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.name_ru %}</div>
+                <div class="org-editor-field{% if candidate_form.name_en.errors %} has-error{% endif %}"><label>
+                  {% if CURRENT_LANGUAGE == 'az' %}Ad (EN){% elif CURRENT_LANGUAGE == 'en' %}Name (EN){% else %}Название (EN){% endif %}
+                  {{ candidate_form.name_en }}
+                </label>
+                  {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.name_en %}</div>
+                <div class="org-editor-field{% if candidate_form.phone.errors %} has-error{% endif %}"><label>
+                  {% if CURRENT_LANGUAGE == 'az' %}Telefon{% elif CURRENT_LANGUAGE == 'en' %}Phone{% else %}Телефон сети{% endif %}
+                  {{ candidate_form.phone }}
+                </label>
+                  {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.phone %}</div>
+                <div class="org-editor-field{% if candidate_form.whatsapp.errors %} has-error{% endif %}"><label>WhatsApp {{ candidate_form.whatsapp }}</label>
+                  {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.whatsapp %}</div>
+                <div class="org-editor-field{% if candidate_form.website.errors %} has-error{% endif %}"><label>
+                  {% if CURRENT_LANGUAGE == 'az' %}Rəsmi sayt{% elif CURRENT_LANGUAGE == 'en' %}Website{% else %}Официальный сайт{% endif %}
+                  {{ candidate_form.website }}
+                </label>
+                  {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.website %}</div>
+              </div>
+
+              <div class="org-editor-field{% if candidate_form.description_az.errors %} has-error{% endif %}"><label class="org-wide">
+                {% if CURRENT_LANGUAGE == 'az' %}Təsvir (AZ){% elif CURRENT_LANGUAGE == 'en' %}Description (AZ){% else %}Описание сети (AZ){% endif %}
+                {{ candidate_form.description_az }}
+              </label>
+                  {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.description_az %}</div>
+
+              <div class="org-form-actions">
+                <button class="account-btn-action" type="submit" name="submit" value="1">
+                  <span class="material-symbols-rounded" aria-hidden="true">send</span>
+                  <span>{% if CURRENT_LANGUAGE == 'az' %}Yoxlamaya göndər{% elif CURRENT_LANGUAGE == 'en' %}Submit for review{% else %}Отправить на проверку{% endif %}</span>
+                </button>
+                <p class="org-save-status" role="status" aria-live="polite" data-draft-status></p>
+              </div>
+            </form>
+          {% else %}
+            <p class="org-muted">{% if CURRENT_LANGUAGE == 'az' %}Redaktə icazəsi yoxdur.{% elif CURRENT_LANGUAGE == 'en' %}You do not have edit access.{% else %}Нет права редактирования.{% endif %}</p>
+          {% endif %}
+        </section>
       {% endif %}
     </main>
   </div>
 </div>
+{% if organization_create_confirmation %}{{ organization_create_confirmation|json_script:"org-create-confirmation" }}{% endif %}
 <script src="{% static 'js/organization_workspace.js' %}" defer></script>
 {% endblock %}

@@ -1,0 +1,452 @@
+--- baseline/src/catalog/controllers/organization_workspace.py
++++ worktree/src/catalog/controllers/organization_workspace.py
+@@ -148,6 +148,18 @@
+     return render(request,'pages/organization_detach.html',context)
+ 
+ 
++def _organization_form_labels(form):
++    for language in ('az', 'ru', 'en'):
++        form.fields['name_' + language].label = _('Название организации (%(language)s)') % {'language': language.upper()}
++    form.fields['description_az'].label = _('Описание организации (%(language)s)') % {'language': 'AZ'}
++    for name, label in {'phone': _('Телефон'), 'whatsapp': 'WhatsApp', 'website': _('Сайт организации'),
++                        'allow_separate': _('Создать отдельную организацию'),
++                        'expected_version': _('Версия карточки'), 'revision_version': _('Версия изменений'),
++                        'submit': _('Отправить на проверку')}.items():
++        if name in form.fields:
++            form.fields[name].label = label
++
++
+ class OrganizationCreateForm(forms.Form):
+     name_az = forms.CharField(max_length=255)
+     name_ru = forms.CharField(max_length=255, required=False)
+@@ -157,6 +169,10 @@
+     whatsapp = forms.CharField(max_length=50, required=False)
+     website = forms.URLField(required=False)
+     allow_separate = forms.BooleanField(required=False)
++
++    def __init__(self, *args, **kwargs):
++        super().__init__(*args, **kwargs)
++        _organization_form_labels(self)
+ 
+ 
+ class BranchCreateForm(forms.Form):
+@@ -176,6 +192,29 @@
+     expected_version = forms.IntegerField(min_value=0, widget=forms.HiddenInput)
+     revision_version = forms.IntegerField(min_value=0, widget=forms.HiddenInput)
+     submit = forms.BooleanField(required=False, widget=forms.HiddenInput)
++
++    def __init__(self, *args, **kwargs):
++        super().__init__(*args, **kwargs)
++        _organization_form_labels(self)
++
++
++ORGANIZATION_CONFLICT_COPY = {
++    'candidate_version_conflict': _('Изменения уже сохранены в другой вкладке или другим редактором. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой.'),
++    'publication_source_conflict': _('Данные организации изменились после открытия формы. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой.'),
++    'candidate_source_conflict': _('Данные организации изменились после открытия формы. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой.'),
++    'publication_schema_conflict': _('Форма устарела. Ваш ввод остался в форме. Скопируйте нужный текст, откройте актуальные данные и проверьте их перед повторной отправкой.'),
++    'candidate_dependency_conflict': _('Связанные данные организации изменились. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой.'),
++}
++
++
++def _organization_save_errors(form, exc):
++    errors = exc.error_list if isinstance(exc, ValidationError) and hasattr(exc, 'error_list') else [exc]
++    for error in errors:
++        code = getattr(error, 'code', None)
++        message = ORGANIZATION_CONFLICT_COPY.get(code, _('Не удалось отправить изменения. Ваш ввод остался в форме. Проверьте данные и повторите отправку.'))
++        form.add_error(None, ValidationError(message, code=code))
++        if code in ORGANIZATION_CONFLICT_COPY:
++            form.version_conflict = True
+ 
+ 
+ def _login(request):
+@@ -274,13 +313,15 @@
+     data = {k: getattr(org, k) for k in ('name_az','name_ru','name_en','description_az','phone','whatsapp','website')}
+     if revision and revision.status in ('draft','pending','rejected'):
+         data.update({k:v for k,v in revision.payload.items() if k in data})
+-    if draft and draft.source_version == org.content_version:
++    show_current_data = request.method == 'GET' and request.GET.get('current') == '1'
++    if draft and draft.source_version == org.content_version and not show_current_data:
+         data.update({k:v for k,v in draft.fields.items() if k in data})
+     has_details = bool(data.get('description_az') or data.get('phone') or data.get('whatsapp') or data.get('website'))
+     has_branches = len(branches) > 0
+     has_team = len(grants) > 0 or len(invitations) > 0
+     return {
+         'workspace_mode':'detail', 'organization':org, 'schema_version':publication.SCHEMA_VERSION, 'branches':branches,
++        'show_current_data':show_current_data,
+         'programs':list((Program.objects.filter(organization=org, archived_at__isnull=True) if org.owner_id == request.user.pk or business_team.has_action(user=request.user,target=org,action='program.manage') else Program.objects.filter(organization=org, archived_at__isnull=True, activities__place__in=branches)).distinct().order_by('pk')),
+         'pending_requests':pending, 'owned_places':owned_places,
+         'team_grants':grants, 'team_invitations':invitations,
+@@ -335,7 +376,7 @@
+                 expected_version=form.cleaned_data['expected_version'],revision_version=form.cleaned_data['revision_version'],
+                 submit=form.cleaned_data['submit'])
+             return redirect('organization_workspace_detail',org_id=org.pk)
+-        except (ValidationError, PermissionDenied) as exc: form.add_error(None, exc)
++        except (ValidationError, PermissionDenied) as exc: _organization_save_errors(form, exc)
+     return render(request,'pages/organization_workspace.html',_detail_context(request,org,candidate_form=form),status=409 if form.non_field_errors() else 400)
+ 
+ 
+--- baseline/src/catalog/services/publication.py
++++ worktree/src/catalog/services/publication.py
+@@ -325,18 +325,18 @@
+         if not can_override_location(actor) or (patch['location_override'] is not None and
+             (not isinstance(patch['location_override'],dict) or patch['location_override'].get('actor_id') != actor.pk)):
+             raise PermissionDenied
+-    if _integer(schema_version)!=SCHEMA_VERSION:raise ValidationError('Publication schema conflict.')
+-    if _integer(expected_version)!=target.content_version:raise ValidationError('Publication source conflict.')
++    if _integer(schema_version)!=SCHEMA_VERSION:raise ValidationError('Publication schema conflict.', code='publication_schema_conflict')
++    if _integer(expected_version)!=target.content_version:raise ValidationError('Publication source conflict.', code='publication_source_conflict')
+     revision=VolunteerPlaceRevision.objects.select_for_update().filter(**{target_type:target}).first()
+     actual=revision.version if revision else 0
+-    if _integer(revision_version)!=actual:raise ValidationError('Candidate version conflict.')
++    if _integer(revision_version)!=actual:raise ValidationError('Candidate version conflict.', code='candidate_version_conflict')
+     from catalog.services.staff_roles import is_volunteer
+     if revision and is_volunteer(actor) and revision.author_id != actor.pk:
+         raise PermissionDenied
+     patch=_validate_patch(target,target_type,patch);live=snapshot(target,target_type)
+     if revision and revision.status not in {'approved','rejected','declined'}:
+-        if revision.schema_version!=SCHEMA_VERSION or revision.dependencies!=dependencies(target,target_type):raise ValidationError('Candidate dependency conflict.')
+-        if any(live.get(k)!=revision.base_snapshot.get(k) for k in revision.changed_fields):raise ValidationError('Candidate source conflict.')
++        if revision.schema_version!=SCHEMA_VERSION or revision.dependencies!=dependencies(target,target_type):raise ValidationError('Candidate dependency conflict.', code='candidate_dependency_conflict')
++        if any(live.get(k)!=revision.base_snapshot.get(k) for k in revision.changed_fields):raise ValidationError('Candidate source conflict.', code='candidate_source_conflict')
+         base=revision.base_snapshot;pending=dict(revision.payload)
+     else:base=live;pending={}
+     incoming=dict(patch)
+--- baseline/src/catalog/templates/pages/organization_workspace.html
++++ worktree/src/catalog/templates/pages/organization_workspace.html
+@@ -538,7 +538,7 @@
+           {% endif %}
+ 
+           {% if can_edit %}
+-            <form method="post" action="{% url 'organization_workspace_save' organization.pk %}" data-org-edit-form {% if candidate_form.errors %}data-org-server-errors{% endif %} data-draft-url="{% url 'server_draft_collection' %}" data-source-version="{{ organization.content_version }}" data-schema-version="{{ schema_version }}" data-draft-id="{% if server_draft %}{{ server_draft.pk }}{% endif %}" data-draft-version="{% if server_draft %}{{ server_draft.version }}{% else %}0{% endif %}">
++            <form method="post" action="{% url 'organization_workspace_save' organization.pk %}" data-org-edit-form {% if candidate_form.errors %}data-org-server-errors{% endif %} {% if show_current_data %}data-org-current-data{% endif %} data-draft-url="{% url 'server_draft_collection' %}" data-source-version="{{ organization.content_version }}" data-schema-version="{{ schema_version }}" data-draft-id="{% if server_draft %}{{ server_draft.pk }}{% endif %}" data-draft-version="{% if server_draft %}{{ server_draft.version }}{% else %}0{% endif %}">
+               {% csrf_token %}
+               {% if candidate_form.errors %}
+               <div class="org-alert org-alert--error org-editor-errors" id="org-editor-errors" role="alert" tabindex="-1" aria-labelledby="org-editor-errors-title" data-org-error-summary>
+@@ -549,6 +549,7 @@
+                     <li>{% if field.is_hidden %}{{ field.label }}: {{ error }}{% else %}<a href="#{{ field.id_for_label }}" data-org-error-target="{{ field.id_for_label }}">{{ field.label }}: {{ error }}</a>{% endif %}</li>
+                   {% endfor %}{% endfor %}
+                 </ul>
++                {% if candidate_form.version_conflict %}<a href="{% url 'organization_workspace_detail' organization.pk %}?current=1" target="_blank" rel="noopener" data-org-current-link>{% trans 'Открыть актуальные данные' %}</a>{% endif %}
+               </div>
+               {% endif %}
+               {{ candidate_form.expected_version }}
+--- baseline/static/js/organization_workspace.js
++++ worktree/static/js/organization_workspace.js
+@@ -146,7 +146,7 @@
+         sessionStorage.setItem(key, JSON.stringify({ source: edit.dataset.sourceVersion,
+           fields: Object.fromEntries(fields.map(name => [name, edit.elements[name].value])) }));
+         if (status) status.textContent = copy.browser;
+-      } else {
++      } else if (!edit.hasAttribute('data-org-current-data')) {
+         const local = JSON.parse(sessionStorage.getItem(key) || '{}');
+         if (local.fields && local.source === edit.dataset.sourceVersion) {
+           for (const name of fields) if (typeof local.fields[name] === 'string') edit.elements[name].value = local.fields[name];
+--- baseline/locale/ru/LC_MESSAGES/django.po
++++ worktree/locale/ru/LC_MESSAGES/django.po
+@@ -20290,3 +20290,39 @@
+ # ORG-04 private detach review; prevent default AZ fallback in RU
+ msgid "Сетевой доступ прекратится; актуальные прямые разрешения сохранятся. Общие контакты перестанут наследоваться. Данные приватной карточки здесь не показываются."
+ msgstr "Сетевой доступ прекратится; актуальные прямые разрешения сохранятся. Общие контакты перестанут наследоваться. Данные приватной карточки здесь не показываются."
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Создать отдельную организацию"
++msgstr "Создать отдельную организацию"
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Версия карточки"
++msgstr "Версия карточки"
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Версия изменений"
++msgstr "Версия изменений"
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Открыть актуальные данные"
++msgstr "Открыть актуальные данные"
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Изменения уже сохранены в другой вкладке или другим редактором. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
++msgstr "Изменения уже сохранены в другой вкладке или другим редактором. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Данные организации изменились после открытия формы. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
++msgstr "Данные организации изменились после открытия формы. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Форма устарела. Ваш ввод остался в форме. Скопируйте нужный текст, откройте актуальные данные и проверьте их перед повторной отправкой."
++msgstr "Форма устарела. Ваш ввод остался в форме. Скопируйте нужный текст, откройте актуальные данные и проверьте их перед повторной отправкой."
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Связанные данные организации изменились. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
++msgstr "Связанные данные организации изменились. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Не удалось отправить изменения. Ваш ввод остался в форме. Проверьте данные и повторите отправку."
++msgstr "Не удалось отправить изменения. Ваш ввод остался в форме. Проверьте данные и повторите отправку."
+--- baseline/locale/az/LC_MESSAGES/django.po
++++ worktree/locale/az/LC_MESSAGES/django.po
+@@ -22867,3 +22867,39 @@
+ # ORG-04 private detach review
+ msgid "Сетевой доступ прекратится; актуальные прямые разрешения сохранятся. Общие контакты перестанут наследоваться. Данные приватной карточки здесь не показываются."
+ msgstr "Şəbəkə girişi dayandırılacaq; qüvvədə olan birbaşa icazələr saxlanacaq. Ümumi əlaqə məlumatları daha miras alınmayacaq. Özəl məkan kartının məlumatları burada göstərilmir."
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Создать отдельную организацию"
++msgstr "Ayrıca təşkilat yarat"
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Версия карточки"
++msgstr "Kartın versiyası"
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Версия изменений"
++msgstr "Dəyişikliklərin versiyası"
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Открыть актуальные данные"
++msgstr "Aktual məlumatları aç"
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Изменения уже сохранены в другой вкладке или другим редактором. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
++msgstr "Dəyişikliklər artıq başqa tabda və ya başqa redaktor tərəfindən saxlanılıb. Daxil etdiyiniz məlumatlar formada qalıb. Lazım olan mətni kopyalayın və yenidən göndərməzdən əvvəl aktual məlumatlarla müqayisə edin."
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Данные организации изменились после открытия формы. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
++msgstr "Forma açıldıqdan sonra təşkilatın məlumatları dəyişib. Daxil etdiyiniz məlumatlar formada qalıb. Lazım olan mətni kopyalayın və yenidən göndərməzdən əvvəl aktual məlumatlarla müqayisə edin."
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Форма устарела. Ваш ввод остался в форме. Скопируйте нужный текст, откройте актуальные данные и проверьте их перед повторной отправкой."
++msgstr "Forma köhnəlib. Daxil etdiyiniz məlumatlar formada qalıb. Lazım olan mətni kopyalayın, aktual məlumatları açın və yenidən göndərməzdən əvvəl yoxlayın."
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Связанные данные организации изменились. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
++msgstr "Təşkilatla əlaqəli məlumatlar dəyişib. Daxil etdiyiniz məlumatlar formada qalıb. Lazım olan mətni kopyalayın və yenidən göndərməzdən əvvəl aktual məlumatlarla müqayisə edin."
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Не удалось отправить изменения. Ваш ввод остался в форме. Проверьте данные и повторите отправку."
++msgstr "Dəyişiklikləri göndərmək mümkün olmadı. Daxil etdiyiniz məlumatlar formada qalıb. Məlumatları yoxlayın və yenidən göndərin."
+--- baseline/locale/en/LC_MESSAGES/django.po
++++ worktree/locale/en/LC_MESSAGES/django.po
+@@ -22721,3 +22721,39 @@
+ # ORG-04 private detach review
+ msgid "Сетевой доступ прекратится; актуальные прямые разрешения сохранятся. Общие контакты перестанут наследоваться. Данные приватной карточки здесь не показываются."
+ msgstr "Network access will end; current direct permissions will remain. Shared contacts will no longer be inherited. Private place details are not shown here."
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Создать отдельную организацию"
++msgstr "Create a separate organization"
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Версия карточки"
++msgstr "Card version"
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Версия изменений"
++msgstr "Changes version"
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Открыть актуальные данные"
++msgstr "Open current data"
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Изменения уже сохранены в другой вкладке или другим редактором. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
++msgstr "Changes have already been saved in another tab or by another editor. Your input remains in the form. Copy the text you need and compare it with the current data before submitting again."
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Данные организации изменились после открытия формы. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
++msgstr "The organization data has changed since you opened the form. Your input remains in the form. Copy the text you need and compare it with the current data before submitting again."
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Форма устарела. Ваш ввод остался в форме. Скопируйте нужный текст, откройте актуальные данные и проверьте их перед повторной отправкой."
++msgstr "This form is out of date. Your input remains in the form. Copy the text you need, open the current data and review it before submitting again."
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Связанные данные организации изменились. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
++msgstr "Related organization data has changed. Your input remains in the form. Copy the text you need and compare it with the current data before submitting again."
++
++# ORG-06 owner organization form labels and conflict copy
++msgid "Не удалось отправить изменения. Ваш ввод остался в форме. Проверьте данные и повторите отправку."
++msgstr "The changes could not be submitted. Your input remains in the form. Check the data and try again."
+--- /dev/null
++++ worktree/src/catalog/testcases/test_organization_form_copy.py
+@@ -0,0 +1,160 @@
++"""ORG-06: localized names and safe comparison after canonical version rejection."""
++from unittest.mock import patch
++from django.contrib.auth import get_user_model
++from django.core.exceptions import ValidationError
++from django.test import Client, TestCase
++from django.urls import reverse
++from django.utils.translation import override
++from catalog.models import Organization, ServerDraft
++from catalog.services import publication
++
++
++COPY = {
++    'ru': ('Название организации (AZ)', 'Изменения уже сохранены в другой вкладке', 'Открыть актуальные данные'),
++    'az': ('Təşkilatın adı (AZ)', 'Dəyişikliklər artıq başqa tabda', 'Aktual məlumatları aç'),
++    'en': ('Organization name (AZ)', 'Changes have already been saved in another tab', 'Open current data'),
++}
++
++
++class OrganizationFormCopyTests(TestCase):
++    def setUp(self):
++        self.owner = get_user_model().objects.create_user(username='org06_owner')
++        self.other = get_user_model().objects.create_user(username='org06_other')
++        self.org = Organization.objects.create(owner=self.owner, created_by=self.owner, name_az='ORG06 original')
++        self.client = Client(enforce_csrf_checks=True)
++        self.client.force_login(self.owner)
++        self.detail = reverse('organization_workspace_detail', args=[self.org.pk])
++        response = self.client.get(self.detail)
++        self.token = response.context['csrf_token']
++        self.data = {'name_az': 'ORG06 Winner A', 'name_ru': 'ORG06 RU', 'name_en': 'ORG06 EN',
++                     'description_az': 'ORG06 synthetic description', 'phone': '+994501234567',
++                     'whatsapp': '', 'website': 'https://example.invalid/', 'expected_version': 1,
++                     'revision_version': 0, 'submit': '1', 'csrfmiddlewaretoken': self.token}
++
++    def save(self, **fields):
++        return self.client.post(reverse('organization_workspace_save', args=[self.org.pk]), {**self.data, **fields})
++
++    def test_create_required_error_label_is_localized_and_preserves_input(self):
++        count = Organization.objects.count()
++        for lang, (label, _, _) in COPY.items():
++            with self.subTest(lang=lang), override(lang):
++                response = self.client.post(reverse('organization_workspace_create'), {**self.data, 'name_az': ''})
++                self.assertEqual(response.status_code, 400)
++                self.assertEqual(str(response.context['create_form'].fields['name_az'].label), label)
++                self.assertContains(response, label, status_code=400)
++                self.assertNotContains(response, 'Name az', status_code=400)
++                self.assertEqual(response.context['create_form']['phone'].value(), self.data['phone'])
++        self.assertEqual(Organization.objects.count(), count)
++
++    def test_all_visible_and_hidden_form_labels_use_current_language(self):
++        expected = {'ru': ('Название организации (RU)', 'Телефон', 'Версия карточки', 'Версия изменений'),
++                    'az': ('Təşkilatın adı (RU)', 'Telefon', 'Kartın versiyası', 'Dəyişikliklərin versiyası'),
++                    'en': ('Organization name (RU)', 'Phone', 'Card version', 'Changes version')}
++        for lang, labels in expected.items():
++            with self.subTest(lang=lang), override(lang):
++                form = self.client.get(reverse('organization_workspace_detail', args=[self.org.pk])).context['candidate_form']
++                for name, label in zip(('name_ru', 'phone', 'expected_version', 'revision_version'), labels):
++                    self.assertEqual(str(form.fields[name].label), label)
++
++    def test_repeated_conflict_preserves_loser_winner_and_original_cas_in_each_language(self):
++        self.assertEqual(self.save().status_code, 302)
++        for lang, (_, message, link) in COPY.items():
++            with self.subTest(lang=lang), override(lang):
++                for _ in range(2):
++                    response = self.save(name_az='ORG06 Loser B')
++                    self.assertEqual(response.status_code, 409)
++                    self.assertContains(response, message, status_code=409)
++                    self.assertNotContains(response, 'Candidate version conflict.', status_code=409)
++                    self.assertContains(response, link, status_code=409)
++                    self.assertContains(response, '?current=1', status_code=409)
++                    form = response.context['candidate_form']
++                    self.assertEqual(form['name_az'].value(), 'ORG06 Loser B')
++                    self.assertEqual(form['revision_version'].value(), '0')
++                    self.assertEqual(form.non_field_errors().as_data()[0].code, 'candidate_version_conflict')
++        self.org.refresh_from_db()
++        self.assertEqual(self.org.name_az, 'ORG06 original')
++        self.assertEqual(self.org.content_revision.payload['name_az'], 'ORG06 Winner A')
++        self.assertEqual(self.org.content_revision.version, 1)
++
++    def test_current_view_compares_winner_without_deleting_private_draft(self):
++        self.assertEqual(self.save().status_code, 302)
++        draft = ServerDraft.objects.create(actor=self.owner, target_type='organization', target_id=self.org.pk,
++                                          source_version=1, fields={'name_az': 'ORG06 private B'})
++        current = self.client.get(reverse('organization_workspace_detail', args=[self.org.pk]) + '?current=1')
++        self.assertEqual(current.context['candidate_form']['name_az'].value(), 'ORG06 Winner A')
++        self.assertContains(current, 'data-org-current-data')
++        normal = self.client.get(reverse('organization_workspace_detail', args=[self.org.pk]))
++        self.assertEqual(normal.context['candidate_form']['name_az'].value(), 'ORG06 private B')
++        draft.refresh_from_db()
++        self.assertEqual(draft.fields, {'name_az': 'ORG06 private B'})
++        self.assertEqual(draft.version, 1)
++        self.assertEqual(self.save(name_az='ORG06 Loser B').status_code, 409)
++
++    def test_canonical_rejection_has_code_and_unchanged_message_without_mutation(self):
++        for schema, version, candidate, code, message in (
++            (0, 1, 0, 'publication_schema_conflict', 'Publication schema conflict.'),
++            (publication.SCHEMA_VERSION, 0, 0, 'publication_source_conflict', 'Publication source conflict.'),
++            (publication.SCHEMA_VERSION, 1, 1, 'candidate_version_conflict', 'Candidate version conflict.'),
++        ):
++            with self.subTest(code=code):
++                with self.assertRaises(ValidationError) as raised:
++                    publication.propose(actor=self.owner, target_type='organization', target_id=self.org.pk,
++                                        patch={'name_az': 'ORG06 Blocked'}, schema_version=schema,
++                                        expected_version=version, revision_version=candidate)
++                self.assertEqual(raised.exception.code, code)
++                self.assertEqual(raised.exception.messages, [message])
++        self.org.refresh_from_db()
++        self.assertEqual(self.org.name_az, 'ORG06 original')
++        self.assertFalse(hasattr(self.org, 'content_revision'))
++
++    def test_conflict_codes_are_localized_unknown_detail_does_not_leak(self):
++        codes = ('publication_schema_conflict', 'publication_source_conflict', 'candidate_version_conflict',
++                 'candidate_dependency_conflict', 'candidate_source_conflict', 'unknown_detail')
++        for lang in COPY:
++            with override(lang):
++                for code in codes:
++                    with self.subTest(lang=lang, code=code), patch('catalog.controllers.organization_workspace.publication.propose', side_effect=ValidationError('ORG06 technical detail', code=code)):
++                        response = self.save(name_az='ORG06 Bound B')
++                        self.assertEqual(response.status_code, 409)
++                        self.assertNotContains(response, 'ORG06 technical detail', status_code=409)
++                        self.assertEqual(response.context['candidate_form']['name_az'].value(), 'ORG06 Bound B')
++                        self.assertEqual(response.context['candidate_form'].non_field_errors().as_data()[0].code, code)
++
++    def test_real_dependency_conflict_keeps_candidate_and_bound_input(self):
++        self.assertEqual(self.save().status_code, 302)
++        Organization.objects.filter(pk=self.org.pk).update(ownership_version=2)
++        response = self.save(name_az='ORG06 blocked dependency B', revision_version=1)
++        self.assertEqual(response.status_code, 409)
++        form = response.context['candidate_form']
++        self.assertEqual(form.non_field_errors().as_data()[0].code, 'candidate_dependency_conflict')
++        self.assertEqual(form['name_az'].value(), 'ORG06 blocked dependency B')
++        self.org.refresh_from_db()
++        self.assertEqual(self.org.content_revision.version, 1)
++        self.assertEqual(self.org.content_revision.payload['name_az'], 'ORG06 Winner A')
++        self.assertEqual(self.org.name_az, 'ORG06 original')
++
++    def test_real_candidate_source_conflict_does_not_overwrite_external_live_change(self):
++        self.assertEqual(self.save().status_code, 302)
++        # Simulate a separate legacy producer changing a live field without advancing content_version.
++        Organization.objects.filter(pk=self.org.pk).update(name_az='ORG06 external live change')
++        response = self.save(name_az='ORG06 blocked source B', revision_version=1)
++        self.assertEqual(response.status_code, 409)
++        form = response.context['candidate_form']
++        self.assertEqual(form.non_field_errors().as_data()[0].code, 'candidate_source_conflict')
++        self.assertEqual(form['name_az'].value(), 'ORG06 blocked source B')
++        self.org.refresh_from_db()
++        self.assertEqual(self.org.name_az, 'ORG06 external live change')
++        self.assertEqual(self.org.content_revision.version, 1)
++        self.assertEqual(self.org.content_revision.payload['name_az'], 'ORG06 Winner A')
++
++    def test_foreign_current_view_and_post_and_missing_csrf_remain_denied(self):
++        self.client.force_login(self.other)
++        for suffix in ('', '?current=1'):
++            response = self.client.get(reverse('organization_workspace_detail', args=[self.org.pk]) + suffix)
++            self.assertEqual(response.status_code, 404)
++            self.assertNotContains(response, 'ORG06 original', status_code=404)
++        self.assertEqual(self.save().status_code, 404)
++        client = Client(enforce_csrf_checks=True)
++        client.force_login(self.owner)
++        data = {k: v for k, v in self.data.items() if k != 'csrfmiddlewaretoken'}
++        self.assertEqual(client.post(reverse('organization_workspace_save', args=[self.org.pk]), data).status_code, 403)
+--- /dev/null
++++ worktree/scripts/test_organization_current_data.cjs
+@@ -0,0 +1,16 @@
++// ORG-06: current comparison must not silently substitute or destroy local input.
++const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
++const {JSDOM}=require('jsdom');
++const source=fs.readFileSync(path.join(__dirname,'../static/js/organization_workspace.js'),'utf8');
++const names=['name_az','name_ru','name_en','description_az','phone','whatsapp','website'],key='kidsmap:org:2:99:draft';
++function setup(current){
++ const dom=new JSDOM(`<div data-workspace="detail" data-user-id="2"><div data-org-id="99"></div><form data-org-edit-form data-source-version="1" ${current?'data-org-current-data':''}>${names.map(n=>`<input name="${n}" value="Winner ${n}">`).join('')}<p data-draft-status></p></form></div>`,{url:'http://localhost/ru/account/organizations/99/?current=1',runScripts:'outside-only'});
++ const {window:w}=dom;const local={source:'1',fields:Object.fromEntries(names.map(n=>[n,'Loser '+n]))};w.sessionStorage.setItem(key,JSON.stringify(local));let fetches=0;w.fetch=()=>{fetches++;throw Error('No automatic POST expected')};w.eval(source);return{dom,w,local,fetches:()=>fetches};
++}
++test('current comparison shows server winner and retains the original browser copy',()=>{
++ const {dom,w,local,fetches}=setup(true);for(const n of names)assert.equal(w.document.querySelector(`[name=${n}]`).value,'Winner '+n);
++ assert.deepEqual(JSON.parse(w.sessionStorage.getItem(key)),local);assert.equal(w.document.querySelector('[data-draft-status]').textContent,'');assert.equal(fetches(),0);dom.window.close();
++});
++test('ordinary GET still restores the existing local recovery',()=>{
++ const {dom,w,fetches}=setup(false);for(const n of names)assert.equal(w.document.querySelector(`[name=${n}]`).value,'Loser '+n);assert.equal(fetches(),0);dom.window.close();
++});

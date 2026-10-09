@@ -1,0 +1,316 @@
+{
+  "screenshots": 101,
+  "browser_runs": [
+    {
+      "script": "admin-create",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py admin-create",
+      "PASS": 8,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "admin-create.json"
+    },
+    {
+      "script": "admin-geolocation",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py admin-geolocation",
+      "PASS": 9,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "admin-geolocation.json"
+    },
+    {
+      "script": "branch-create",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py branch-create",
+      "PASS": 0,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "branch-create.json"
+    },
+    {
+      "script": "branch-fill",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py branch-fill",
+      "PASS": 6,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "branch-fill.json"
+    },
+    {
+      "script": "branch-final",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py branch-final",
+      "PASS": 2,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "branch-final.json"
+    },
+    {
+      "script": "branch-public-languages",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py branch-public-languages",
+      "PASS": 3,
+      "FAIL": 3,
+      "error": null,
+      "evidence": "branch-public-languages.json"
+    },
+    {
+      "script": "branch-review-public",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py branch-review-public",
+      "PASS": 3,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "branch-review-public.json"
+    },
+    {
+      "script": "branch",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py branch",
+      "PASS": 0,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "branch.json"
+    },
+    {
+      "script": "coordinate-range",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py coordinate-range",
+      "PASS": 1,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "coordinate-range.json"
+    },
+    {
+      "script": "coordinates",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py coordinates",
+      "PASS": 4,
+      "FAIL": 3,
+      "error": null,
+      "evidence": "coordinates.json"
+    },
+    {
+      "script": "dropdown",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py dropdown",
+      "PASS": 3,
+      "FAIL": 3,
+      "error": null,
+      "evidence": "dropdown.json"
+    },
+    {
+      "script": "error-probe",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py error-probe",
+      "PASS": 1,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "error-probe.json"
+    },
+    {
+      "script": "focus-final",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py focus-final",
+      "PASS": 99,
+      "FAIL": 9,
+      "error": null,
+      "evidence": "focus-final.json"
+    },
+    {
+      "script": "focus-initial",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py focus-initial",
+      "PASS": 85,
+      "FAIL": 23,
+      "error": null,
+      "evidence": "focus-initial.json"
+    },
+    {
+      "script": "focus-probe",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py focus-probe",
+      "PASS": 3,
+      "FAIL": 1,
+      "error": null,
+      "evidence": "focus-probe.json"
+    },
+    {
+      "script": "focus",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py focus",
+      "PASS": 90,
+      "FAIL": 18,
+      "error": null,
+      "evidence": "focus.json"
+    },
+    {
+      "script": "foreign-post-final",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py foreign-post-final",
+      "PASS": 1,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "foreign-post-final.json"
+    },
+    {
+      "script": "foreign-post",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py foreign-post",
+      "PASS": 0,
+      "FAIL": 1,
+      "error": null,
+      "evidence": "foreign-post.json"
+    },
+    {
+      "script": "inspect",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py inspect",
+      "PASS": 0,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "inspect.json"
+    },
+    {
+      "script": "lifecycle",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py lifecycle",
+      "PASS": 8,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "lifecycle.json"
+    },
+    {
+      "script": "matrix-initial-partial",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py matrix-initial-partial",
+      "PASS": 47,
+      "FAIL": 0,
+      "error": "TimeoutError: locator.waitFor: Timeout 7000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-pc-errors]') to be visible\u001b[22m\n\u001b[2m    18 × locator resolved to hidden <div hidden=\"\" role=\"alert\" tabindex=\"-1\" data-pc-errors=\"\" class=\"pw-error-summary\"></div>\u001b[22m\n",
+      "evidence": "matrix-initial-partial.json"
+    },
+    {
+      "script": "matrix",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py matrix",
+      "PASS": 195,
+      "FAIL": 3,
+      "error": null,
+      "evidence": "matrix.json"
+    },
+    {
+      "script": "media-errors",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py media-errors",
+      "PASS": 8,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "media-errors.json"
+    },
+    {
+      "script": "media-map",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py media-map",
+      "PASS": 4,
+      "FAIL": 1,
+      "error": "TimeoutError: locator.getAttribute: Timeout 8000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-photo-items=main] img')\u001b[22m\n",
+      "evidence": "media-map.json"
+    },
+    {
+      "script": "moderation-resume",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py moderation-resume",
+      "PASS": 3,
+      "FAIL": 0,
+      "error": "TimeoutError: locator.press: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button[value=approve]')\u001b[22m\n",
+      "evidence": "moderation-resume.json"
+    },
+    {
+      "script": "moderation",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py moderation",
+      "PASS": 4,
+      "FAIL": 1,
+      "error": "TimeoutError: locator.press: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-pc-save-draft]')\u001b[22m\n",
+      "evidence": "moderation.json"
+    },
+    {
+      "script": "nav-probe",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py nav-probe",
+      "PASS": 0,
+      "FAIL": 3,
+      "error": null,
+      "evidence": "nav-probe.json"
+    },
+    {
+      "script": "nav-ui",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py nav-ui",
+      "PASS": 0,
+      "FAIL": 3,
+      "error": null,
+      "evidence": "nav-ui.json"
+    },
+    {
+      "script": "negative-final",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py negative-final",
+      "PASS": 6,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "negative-final.json"
+    },
+    {
+      "script": "negative",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py negative",
+      "PASS": 7,
+      "FAIL": 0,
+      "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.",
+      "evidence": "negative.json"
+    },
+    {
+      "script": "probe-filled",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py probe-filled",
+      "PASS": 0,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "probe-filled.json"
+    },
+    {
+      "script": "public-parity",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py public-parity",
+      "PASS": 20,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "public-parity.json"
+    },
+    {
+      "script": "recover-lifecycle",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py recover-lifecycle",
+      "PASS": 3,
+      "FAIL": 1,
+      "error": null,
+      "evidence": "recover-lifecycle.json"
+    },
+    {
+      "script": "rejection-roundtrip",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py rejection-roundtrip",
+      "PASS": 0,
+      "FAIL": 3,
+      "error": null,
+      "evidence": "rejection-roundtrip.json"
+    },
+    {
+      "script": "response-loss",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py response-loss",
+      "PASS": 4,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "response-loss.json"
+    },
+    {
+      "script": "review-inspect",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py review-inspect",
+      "PASS": 0,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "review-inspect.json"
+    },
+    {
+      "script": "venue-publish",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py venue-publish",
+      "PASS": 3,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "venue-publish.json"
+    },
+    {
+      "script": "venue",
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py venue",
+      "PASS": 3,
+      "FAIL": 0,
+      "error": null,
+      "evidence": "venue.json"
+    }
+  ],
+  "interrupted": [
+    {
+      "command": ".venv/bin/python .tmp/place-acceptance-20261009-8792/run_browser.py branch-publish",
+      "reason": "UI submitted pending159; harness blocked after redirect; own childcontext closed and childCLI TERM; approval/public continued separately",
+      "status": "NOT RUN full original harness completion"
+    }
+  ]
+}

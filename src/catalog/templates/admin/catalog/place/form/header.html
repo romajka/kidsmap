@@ -15,10 +15,9 @@
         </span>
         <span class="km-pf-chip">{% if summary.is_ready %}{% translate "Готово к публикации" %}{% else %}{% translate "Нужна доработка" %}{% endif %}</span>
         <span class="km-pf-chip">{% if adminform.form.instance.owner_id %}{% translate "Владелец назначен" %}{% else %}{% translate "Без владельца" %}{% endif %}</span>
-        <span class="km-pf-chip">{% if adminform.form.instance.is_verified %}{% translate "Данные проверены" %}{% else %}{% translate "Данные не проверены" %}{% endif %}</span>
         <span class="km-pf-chip" data-pf-coords-chip data-tone="{% if adminform.form.instance.has_coordinates %}good{% else %}warn{% endif %}">
           <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use data-pf-coords-chip-icon href="#kmi-{% if adminform.form.instance.has_coordinates %}place{% else %}location_off{% endif %}"></use></svg>
-          <span data-pf-coords-chip-text>{% if adminform.form.instance.has_coordinates %}{% translate "Координаты указаны" %}{% else %}{% translate "Нужны координаты" %}{% endif %}</span>
+          <span data-pf-coords-chip-text>{% if adminform.form.instance.has_coordinates %}{% translate "Координаты указаны" %}{% else %}{{ km_place_entry_copy.optional_badge }}{% endif %}</span>
         </span>
       </div>
 
@@ -61,9 +60,9 @@
           <a class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm" href="{% url 'admin:catalog_place_export_json' original.pk %}?pricing_schema_version=2" aria-label="{% translate 'Экспорт JSON с группами' %}">{% translate "JSON с группами" %}</a>
         {% endif %}
       </div>
-      <p class="km-pf__header-savestate" data-pf-savestate data-state="idle">
+      <p class="km-pf__header-savestate" data-pf-savestate data-state="idle" role="status" aria-live="polite">
         <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false" data-pf-savestate-icon><use href="#kmi-edit_note"></use></svg>
-        <span data-pf-savestate-text>{% translate "Изменения не сохранены" %}</span>
+        <span data-pf-savestate-text>{{ km_place_entry_copy.not_saved }}</span>
       </p>
     </div>
   </header>

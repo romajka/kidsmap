@@ -72,14 +72,6 @@
           <small>{% translate "Карточка доступна посетителям" %}</small>
         </span>
       </label>
-      <label class="km-pf-switch" for="{{ form.is_verified.id_for_label }}">
-        {{ form.is_verified }}
-        <span class="km-pf-switch__track" aria-hidden="true"></span>
-        <span class="km-pf-switch__copy">
-          <strong>{% translate "Проверено" %}</strong>
-          <small>{% translate "Данные подтверждены модератором" %}</small>
-        </span>
-      </label>
       <label class="km-pf-switch" for="{{ form.is_home_recommended.id_for_label }}">
         {{ form.is_home_recommended }}
         <span class="km-pf-switch__track" aria-hidden="true"></span>

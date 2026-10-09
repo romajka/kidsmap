@@ -16,7 +16,7 @@ from start import HERE, ROOT, STATE, CONTAINER, OWNER, PORTABLE
 
 os.environ.clear()
 os.environ.update({
-    'PATH': '/usr/bin:/bin', 'HOME': str(STATE / 'home'),
+    'PATH': '/usr/bin:/bin:/snap/bin', 'HOME': str(STATE / 'home'),
     'TMPDIR': str(STATE / 'temp'), 'LANG': 'C.UTF-8',
     'DJANGO_SETTINGS_MODULE': 'manual_settings', 'DJANGO_TESTING': '1',
     'DJANGO_DEBUG': '1', 'DJANGO_SECRET_KEY': 'local-synthetic-manual-preview-only',

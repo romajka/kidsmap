@@ -1,0 +1,106 @@
+{% extends base_template|default:'base.html' %}
+{% load i18n static %}
+{% block title %}{% translate 'Подключение мест' %}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/organization_connections.css' %}"><script src="{% static 'js/organization_connections.js' %}" defer></script>{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/organization_connections.css' %}"><script src="{% static 'js/organization_connections.js' %}" defer></script>{% endblock %}
+{% block content %}
+<div class="org-connect" id="organization-connection-main">
+  <a href="{{ back_url|default:'' }}{% if not back_url %}{% url 'organization_workspace_index' %}{% endif %}">{% translate 'К организациям' %}</a>
+  <header><p class="org-connect__eyebrow">KidsMap · {% translate 'Организация и филиалы' %}</p>
+    <h1>{% if result.action == 'detach' %}{% translate 'Отсоединить место' %}{% else %}{% translate 'Подключение мест' %}{% endif %}</h1>
+    <p>{% translate 'Организация объединяет сеть и общие программы. Филиал — конкретное место с адресом, занятиями и ценами.' %}</p>
+    {% if result %}<h2>{% if result.organization_name %}{{ result.organization_name }}{% else %}{% translate 'Организация недоступна' %} #{{ result.organization_id }}{% endif %}</h2>{% elif organization %}<h2>{{ connection_organization_name }}</h2>{% endif %}
+  </header>
+  <ol class="org-connect__steps" aria-label="{% translate 'Этапы подключения' %}">
+    <li {% if search %}aria-current="step"{% endif %}>{% translate 'Выбор мест' %}</li><li {% if admin_select or target_select %}aria-current="step"{% endif %}>{% translate 'Организация' %}</li>
+    <li {% if review %}aria-current="step"{% endif %}>{% translate 'Проверка и подтверждение' %}</li>
+    <li {% if result.status == 'completed' %}aria-current="step"{% endif %}>{% translate 'Результат' %}</li>
+  </ol>
+  {% if connection_error %}<div class="org-connect__error" role="alert" tabindex="-1" data-error-summary>{{ connection_error }}</div>{% endif %}
+  {% if target_select %}
+    <form method="get" class="org-connect__panel">
+      {% for pk in selected %}<input type="hidden" name="place_ids" value="{{ pk }}">{% endfor %}
+      <label for="org-target">{% translate 'Организация' %}</label>
+      <select name="organization_id" id="org-target" required>{% for target in targets %}<option value="{{ target.pk }}">{{ target.connection_display_name }}</option>{% endfor %}</select>
+      <button type="submit" {% if not targets %}disabled{% endif %}>{% translate 'Выбрать организацию' %}</button>
+      {% if not targets %}<p>{% translate 'Доступных организаций нет. Можно создать организацию без филиалов.' %}</p>{% endif %}
+    </form>
+  {% elif admin_select %}
+    <form method="post" class="org-connect__panel">{% csrf_token %}
+      <input type="hidden" name="selection" value="{{ selection }}">
+      <p>{% translate 'Выбрано мест' %}: {{ selected_count }}</p>
+      <label for="org-target">{% translate 'Организация' %}</label>
+      <select id="org-target" name="organization_id" required>{% for target in targets %}<option value="{{ target.pk }}">{{ target.connection_display_name }}</option>{% endfor %}</select>
+      <label for="org-kind">{% translate 'Тип связи' %}</label>
+      <select id="org-kind" name="relationship_kind"><option value="business">{% translate 'Бизнес-связь: согласие владельцев' %}</option>{% if can_information %}<option value="informational">{% translate 'Информационная связь: без доступа сотрудников' %}</option>{% endif %}</select>
+      <p>{% translate 'Административная роль не заменяет согласие владельцев бизнес-связи.' %}</p>
+      <button type="submit" name="action" value="preview">{% translate 'Посмотреть список и конфликты' %}</button>
+    </form>
+  {% elif search %}
+    <form method="post" class="org-connect__panel" data-selection-form>
+      <label for="org-search">{% translate 'Название или адрес места' %}</label>
+      <div class="org-connect__search"><input type="search" id="org-search" name="q" value="{{ query }}"><button type="submit" name="action" value="search">{% translate 'Найти' %}</button></div>
+      <p>{% translate 'Показаны доступные и публичные карточки. Выбор сохраняется при поиске.' %}</p>
+      {% for pk in carried %}<input type="hidden" name="place_ids" value="{{ pk }}">{% endfor %}
+      {% include 'pages/includes/organization_connection_rows.html' with selectable=True %}
+      <div class="org-connect__actions"><span role="status" aria-live="polite">{% translate 'Выбрано мест' %}: <strong data-selection-count>{{ selection_count }}</strong> / 100</span>
+        {% if next_cursor %}<button type="submit" name="cursor" value="{{ next_cursor }}">{% translate 'Следующие 20' %}</button>{% endif %}
+        <button type="submit" formmethod="post" name="action" value="preview" data-preview>{% translate 'Посмотреть список и конфликты' %}</button>
+      </div>{% csrf_token %}
+    </form>
+  {% elif result %}
+    <section class="org-connect__panel" aria-labelledby="org-review-title">
+      <h2 id="org-review-title">{% if review %}{% translate 'Проверьте каждую карточку' %}{% else %}{% translate 'Результат по каждой карточке' %}{% endif %}</h2>
+      <p>{% translate 'Тип связи' %}: <strong>{% if result.relationship_kind == 'informational' %}{% translate 'Информационная связь: без доступа сотрудников' %}{% else %}{% translate 'Бизнес-связь: согласие владельцев' %}{% endif %}</strong></p>
+      {% if review %}<p>{% translate 'Подтверждение обработает только доступные строки. Конфликты будут пропущены; успешные строки сохранятся при частичном отказе.' %}</p>
+        <p>{% translate 'Будет обработано' %}: <strong>{{ result.executable_count }}</strong> / {{ rows|length }} · {% translate 'Просмотр действует 10 минут' %}</p>
+        <p>{% translate 'Сразу' %}: {{ result.summary.immediate }} · {% translate 'Запросы' %}: {{ result.summary.requests }} · {% translate 'Без изменений' %}: {{ result.summary.unchanged }} · {% translate 'Пропустим' %}: {{ result.summary.blocked }}</p>
+      {% else %}<p role="status">{% if result.status == 'completed' %}{% translate 'Обработка завершена. Проверьте результат каждой строки.' %}{% else %}{% translate 'Обработка прервана. Можно продолжить ту же операцию без повторения готовых строк.' %}{% endif %}</p>{% endif %}
+      {% include 'pages/includes/organization_connection_rows.html' %}
+      {% if result.redacted_detach %}
+        <aside class="org-connect__impact"><h3>{% translate 'Последствия отвязки' %}</h3>
+          <p>{% translate 'Фото, занятия, группы, тарифы, часы работы, владелец и статус публикации сохраняются.' %}</p>
+          <p>{% translate 'Занятия общих программ станут локальными снимками; обновления сети прекратятся.' %}</p>
+          <p>{% translate 'Сетевой доступ прекратится; актуальные прямые разрешения сохранятся. Общие контакты перестанут наследоваться. Данные приватной карточки здесь не показываются.' %}</p>
+          <p>{% translate 'Сетевые разрешения остаются в сети и могут снова действовать после повторного подключения.' %}</p>
+        </aside>
+      {% endif %}
+      {% if result.impact %}
+        <aside class="org-connect__impact"><h3>{% translate 'Последствия отвязки' %}</h3>
+          <p>{% translate 'Фото, занятия, группы, тарифы, часы работы, владелец и статус публикации сохраняются.' %}</p>
+          <p>{% translate 'Занятия общих программ станут локальными снимками; обновления сети прекратятся.' %} {{ result.impact.programs }}</p>
+          <p>{% translate 'Сотрудников с сетевым доступом' %}: {{ result.impact.network_grants }}. {% translate 'Прямых разрешений, которые сохранятся' %}: {{ result.impact.direct_grants }}.</p>
+          {% if result.impact.inherited_contacts %}<p>{% translate 'Общие контакты перестанут наследоваться. Проверьте телефон и сайт места.' %}</p>{% endif %}
+          <p>{% translate 'Сетевые разрешения остаются в сети и могут снова действовать после повторного подключения.' %}</p>
+        </aside>
+      {% endif %}
+      {% if review or result.status == 'running' %}
+        <form method="post" action="{{ connection_url }}" data-confirm-form>{% csrf_token %}
+          <input type="hidden" name="preview_id" value="{{ operation.pk }}"><input type="hidden" name="idempotency_key" value="{{ idempotency_key }}">
+          {% if selection %}<input type="hidden" name="selection" value="{{ selection }}">{% endif %}
+          <label class="org-connect__consent"><input type="checkbox" name="consent" value="1" required>
+            {% if result.action == 'detach' %}{% translate 'Подтверждаю отвязку и её последствия. Новое подключение будет отдельным действием.' %}{% elif result.relationship_kind == 'informational' %}{% translate 'Подтверждаю информационную связь с выбранной организацией. Она не даёт сотрудникам сети доступ к месту.' %}{% else %}{% translate 'Подтверждаю выбранную организацию и тип связи. Бизнес-связь действует после согласия обеих сторон и может дать доступ сотрудникам сети.' %}{% endif %}</label>
+          <button type="submit" name="action" value="confirm" {% if not result.executable_count %}disabled data-no-executable{% endif %}>{% if result.status == 'running' %}{% translate 'Продолжить операцию' %}{% else %}{% translate 'Подтвердить' %}{% endif %}</button>
+          <span role="status" aria-live="polite" data-submit-status data-pending="{% translate 'Обработка… Сохраняем результат каждой строки.' %}"></span>
+        </form>
+      {% endif %}
+      <p class="org-connect__receipt">{% translate 'Операция' %}: {{ operation.pk }}</p>
+      <a href="{% if admin_mode %}{{ connection_url }}?operation={{ operation.pk }}{% else %}{% url 'organization_connection_result' operation.pk %}{% endif %}">{% translate 'Проверить состояние операции' %}</a>
+    </section>
+    {% if not admin_mode %}
+      {% if result.action == 'detach' %}
+        {% for row in rows %}{% if row.code == 'changed' or row.code == 'failed' or row.code == 'manual_review' %}<a href="{% url 'organization_detach_preview' result.organization_id row.id %}">{% translate 'Новый просмотр проблемных строк' %}</a>{% endif %}{% endfor %}
+      {% else %}
+      <form method="get" action="{% url 'organization_connections' result.organization_id %}" class="org-connect__actions">
+        {% for row in rows %}{% if row.code == 'changed' or row.code == 'failed' or row.code == 'manual_review' %}<input type="hidden" name="place_ids" value="{{ row.id }}">{% endif %}{% endfor %}
+        <button type="submit">{% translate 'Новый просмотр проблемных строк' %}</button>
+      </form>
+      {% endif %}
+      {% if result.action == 'detach' and result.status == 'completed' %}
+        <p>{% translate 'Место остаётся самостоятельным до нового согласованного подключения. Старые программы не перейдут в новую сеть автоматически.' %}</p>
+        <a href="{% url 'organization_connection_target' %}?{% for row in rows %}place_ids={{ row.id }}&amp;{% endfor %}">{% translate 'Выбрать другую организацию' %}</a>
+      {% endif %}
+    {% else %}<a href="{{ back_url }}">{% translate 'Новый выбор карточек' %}</a>{% endif %}
+  {% else %}<a href="{{ connection_url }}">{% translate 'Обновить просмотр' %}</a>{% endif %}
+</div>
+{% endblock %}

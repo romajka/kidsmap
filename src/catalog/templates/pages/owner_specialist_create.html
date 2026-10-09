@@ -3,29 +3,46 @@
 {% load i18n static %}
 {% get_current_language as CURRENT_LANGUAGE %}
 
-{% block title %}{% if specialist %}{% if CURRENT_LANGUAGE == "az" %}Profili redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit profile{% else %}Редактировать профиль{% endif %}{% else %}{% if CURRENT_LANGUAGE == "az" %}Profil əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a profile{% else %}Добавить профиль{% endif %}{% endif %}{% endblock %}
+{% block title %}{% if specialist %}{% if CURRENT_LANGUAGE == "az" %}Profili redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit profile{% else %}Редактировать профиль{% endif %}{% else %}{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis profili əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add specialist profile{% else %}Добавить профиль специалиста{% endif %}{% endif %}{% endblock %}
 {% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Pedaqoqlar və mütəxəssislər{% elif CURRENT_LANGUAGE == "en" %}Educators and Specialists{% else %}Педагоги и специалисты{% endif %} | KidsMap{% endblock %}
 {% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Pedaqoqlar və mütəxəssislər{% elif CURRENT_LANGUAGE == "en" %}Educators and Specialists{% else %}Педагоги и специалисты{% endif %} | KidsMap{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block extra_head %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261007spec5" />
   <link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}" />
-  <script src="{% static 'js/specialists.js' %}" defer></script>
+  <script src="{% static 'js/specialists.js' %}?v=20261007spec5" defer></script>
   <script src="{% static 'js/specialist_workspace.js' %}" defer></script>
+  <script src="{% static 'js/specialist_locations.js' %}" defer></script>
+  <script src="{% static 'js/specialist_recovery.js' %}" defer></script>
 {% endblock %}
 
 {% block content %}
+{{ clear_specialist_recovery|json_script:'specialist-clear-recovery' }}
+<div id="specialist-recovery-identity" data-actor="{{ recovery_actor }}" hidden></div>
 <section class="panel owner-event-page km-specialist-owner-page">
-  <div class="owner-page-head">
-    <div>
-      <h1>{% if specialist %}{% trans 'Редактировать профиль' %}{% else %}{% trans 'Предложить профиль' %}{% endif %}</h1>
+  <!-- Page Header -->
+  <div class="owner-page-head km-specialist-head">
+    <div class="km-head-title-group">
+      <div class="km-head-top-row">
+        <a class="km-back-btn" href="{% url 'owner_places_dashboard' %}" aria-label="{% trans 'Назад в кабинет' %}">
+          <i class="fas fa-arrow-left" aria-hidden="true"></i>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Kabinetə qayıt{% elif CURRENT_LANGUAGE == "en" %}Back to dashboard{% else %}В кабинет{% endif %}</span>
+        </a>
+        {% if specialist %}
+          <span class="org-status org-status--approved"><i class="fas fa-user-check" aria-hidden="true"></i> {% trans 'Личный профиль специалиста' %}</span>
+        {% else %}
+          <span class="org-status org-status--server-draft"><i class="fas fa-user-plus" aria-hidden="true"></i> {% trans 'Предложение профиля' %}</span>
+        {% endif %}
+      </div>
+      <h1>{% if specialist %}{% trans 'Редактировать профиль' %}{% else %}{% trans 'Добавить профиль специалиста' %}{% endif %}</h1>
       <p class="auth-subtitle">
-        {% if specialist %}{% trans 'Управляйте личными сведениями, форматами и местами практики. Публикация проходит проверку KidsMap.' %}{% else %}{% trans 'Предложите профиль человека. Управление личными сведениями доступно после подтверждения личности.' %}{% endif %}
+        {% if specialist %}
+          {% trans 'Управляйте личными сведениями, форматами и местами практики. Публикация проходит проверку KidsMap.' %}
+        {% else %}
+          {% trans 'Предложите профиль человека. Управление личными сведениями доступно специалисту после подтверждения личности.' %}
+        {% endif %}
       </p>
-    </div>
-    <div class="owner-page-actions">
-      <a class="link-btn" href="{% url 'owner_places_dashboard' %}"><i class="fas fa-arrow-left" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}Назад{% endif %}</a>
     </div>
   </div>
 
@@ -34,279 +51,551 @@
     enctype="multipart/form-data"
     class="owner-event-form km-specialist-owner-form"
     data-loading-form
+    novalidate
     id="specialist-create-form"
+    data-has-errors="{{ form.errors|yesno:'true,false' }}" data-recovery-actor="{{ recovery_actor }}" data-recovery-entity="{{ recovery_entity }}" data-recovery-version="{{ recovery_version }}" data-recovery-server-version="{{ recovery_server_version }}" data-server-saved-at="{{ server_saved_at|date:'c' }}"
+    data-specialist-id="{% if specialist %}{{ specialist.pk }}{% else %}new{% endif %}"
   >
     {% csrf_token %}
+    {% if draft_key %}<input type="hidden" name="draft_key" value="{{ draft_key }}"><input type="hidden" name="draft_version" value="{{ draft_version }}">{% endif %}
+    <div class="spec-save-state" role="status" aria-live="polite" data-specialist-save-status data-error="{% trans 'Изменения не сохранены. Проверьте ошибки.' %}" data-local="{% trans 'Есть несохранённые изменения. Копия ввода сохранена только в этом браузере.' %}" data-dirty="{% trans 'Есть несохранённые изменения' %}" data-saving="{% trans 'Сохранение… Дождитесь ответа сервера.' %}">{% if server_saved_at %}{% trans 'Сохранено на сервере' %}: {{ server_saved_at }}{% else %}{% trans 'Новое предложение ещё не сохранено' %}{% endif %}</div>
+    {% if specialist.status == 'published' %}<p class="org-alert org-alert--warning">{% trans 'Сохранение черновика или отправка изменений снимает этот профиль с публикации до следующей проверки KidsMap.' %}</p>{% endif %}
+    <div class="spec-recovery" data-specialist-recovery hidden><p data-recovery-description data-same="{% trans 'Есть несохранённая копия в этом браузере. Сравните её с данными сервера перед восстановлением.' %}" data-conflict="{% trans 'Данные сервера изменились. Локальную копию нельзя восстановить поверх новой версии. Скопируйте нужный текст и обновите форму.' %}"></p><ul data-recovery-diff></ul><button type="button" class="btn-secondary" data-recovery-restore>{% trans 'Восстановить ввод' %}</button><button type="button" class="btn-secondary" data-recovery-discard>{% trans 'Удалить локальную копию' %}</button></div>
+    <p class="helptext">{% trans 'Черновик допускает неполные сведения. Отправка требует имени, формата, направления, описания, контакта, языка работы и активного места для очного приёма. Фото, стаж, цена и сертификаты необязательны.' %}</p>
     {% if specialist %}<input type="hidden" name="expected_updated_at" value="{{ profile_version }}">{% endif %}
 
-    {% if form.non_field_errors %}
-      <div class="auth-errors" role="alert">{{ form.non_field_errors }}</div>
+    {% if specialist and specialist.status == 'rejected' %}
+      <div class="org-alert org-alert--error km-rejection-banner" role="alert" style="margin-bottom: 20px;">
+        <div style="display:flex; gap:12px; align-items:flex-start;">
+          <span class="material-symbols-rounded" style="color:#dc2626; font-size:28px;" aria-hidden="true">cancel</span>
+          <div>
+            <h3 style="margin:0 0 6px 0; color:#991b1b; font-size:1.1rem; font-weight:700;">
+              {% if CURRENT_LANGUAGE == 'az' %}Profil moderator tərəfindən rədd edilib{% elif CURRENT_LANGUAGE == 'en' %}Profile was rejected by moderator{% else %}Анкета специалиста отклонена модератором{% endif %}
+            </h3>
+            {% if specialist.rejection_reason %}
+              <blockquote style="margin:0 0 8px 0; padding:8px 12px; background:#fff; border-left:3px solid #dc2626; border-radius:6px; color:#450a0a; font-style:italic;">«{{ specialist.rejection_reason }}»</blockquote>
+            {% endif %}
+            <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">
+              {% if CURRENT_LANGUAGE == 'az' %}Zəhmət olmasa, qeyd olunan iradları aradan qaldırın və yenidən göndərin.{% elif CURRENT_LANGUAGE == 'en' %}Please address the moderator notes above and resubmit.{% else %}Пожалуйста, исправьте указанные замечания и отправьте анкету на повторную проверку.{% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+    {% elif specialist and specialist.status == 'pending' %}
+      <div class="org-alert org-alert--warning km-pending-banner" role="status" style="margin-bottom: 20px;">
+        <div style="display:flex; gap:12px; align-items:flex-start;">
+          <span class="material-symbols-rounded" style="color:#d97706; font-size:28px;" aria-hidden="true">hourglass_top</span>
+          <div>
+            <h3 style="margin:0 0 4px 0; color:#92400e; font-size:1.05rem; font-weight:700;">
+              {% if CURRENT_LANGUAGE == 'az' %}Profil yoxlanılır{% elif CURRENT_LANGUAGE == 'en' %}Profile under review{% else %}Анкета проверяется модератором{% endif %}
+            </h3>
+            <p style="margin:0; font-size:0.9rem; color:#78350f;">
+              {% if CURRENT_LANGUAGE == 'az' %}Moderasiya adətən 24 saat ərzində tamamlanır.{% elif CURRENT_LANGUAGE == 'en' %}The profile is awaiting review.{% else %}Профиль ожидает проверки.{% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
     {% endif %}
+
+    {% include "includes/form_error_summary.html" with form=form %}
+    {% if locations.total_error_count %}<div class="auth-errors" role="alert"><h2>{% trans 'Проверьте места приёма.' %}</h2>{{ locations.non_form_errors }}<ul>{% for row in locations %}{% for field in row.visible_fields %}{% for error in field.errors %}<li><a href="#{{ field.id_for_label }}">{% trans 'Место приёма' %} {{ forloop.parentloop.parentloop.counter }} · {{ field.label }}: {{ error }}</a></li>{% endfor %}{% endfor %}{{ row.non_field_errors }}{% endfor %}</ul></div>{% endif %}
 
     <div class="owner-event-layout">
       <div class="owner-event-main">
 
-        <!-- Stepper -->
-        <div class="owner-event-stepper km-owner-stepper" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Addımlar{% elif CURRENT_LANGUAGE == 'en' %}Steps{% else %}Шаги{% endif %}">
-          <button type="button" class="is-active" data-owner-step-target><span>1</span>{% if CURRENT_LANGUAGE == "az" %}Əsas{% elif CURRENT_LANGUAGE == "en" %}Basic{% else %}Основное{% endif %}</button>
-          <button type="button" data-owner-step-target><span>2</span>{% if CURRENT_LANGUAGE == "az" %}İstiqamətlər{% elif CURRENT_LANGUAGE == "en" %}Directions{% else %}Направления{% endif %}</button>
-          <button type="button" data-owner-step-target><span>3</span>{% if CURRENT_LANGUAGE == "az" %}Format və yerlər{% elif CURRENT_LANGUAGE == "en" %}Format & places{% else %}Формат и места{% endif %}</button>
-          <button type="button" data-owner-step-target><span>4</span>{% if CURRENT_LANGUAGE == "az" %}Qiymət və əlaqə{% elif CURRENT_LANGUAGE == "en" %}Price & contacts{% else %}Цена и контакты{% endif %}</button>
-          <button type="button" data-owner-step-target><span>5</span>{% if CURRENT_LANGUAGE == "az" %}Təsvir və sənədlər{% elif CURRENT_LANGUAGE == "en" %}Description & documents{% else %}Описание и документы{% endif %}</button>
-        </div>
+        <!-- Stepper (Desktop) -->
+        <nav class="owner-event-stepper km-owner-stepper" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Addımlar{% elif CURRENT_LANGUAGE == 'en' %}Steps{% else %}Шаги{% endif %}">
+          <button type="button" class="is-active" data-owner-step-target="0">
+            <span class="step-num">1</span>
+            <span class="step-label">{% if CURRENT_LANGUAGE == "az" %}Əsas{% elif CURRENT_LANGUAGE == "en" %}Basic{% else %}Основное{% endif %}</span>
+          </button>
+          <button type="button" data-owner-step-target="1">
+            <span class="step-num">2</span>
+            <span class="step-label">{% if CURRENT_LANGUAGE == "az" %}İstiqamətlər{% elif CURRENT_LANGUAGE == "en" %}Directions{% else %}Направления{% endif %}</span>
+          </button>
+          <button type="button" data-owner-step-target="2">
+            <span class="step-num">3</span>
+            <span class="step-label">{% if CURRENT_LANGUAGE == "az" %}Format və yerlər{% elif CURRENT_LANGUAGE == "en" %}Format & places{% else %}Формат и места{% endif %}</span>
+          </button>
+          <button type="button" data-owner-step-target="3">
+            <span class="step-num">4</span>
+            <span class="step-label">{% if CURRENT_LANGUAGE == "az" %}Qiymət və əlaqə{% elif CURRENT_LANGUAGE == "en" %}Price & contacts{% else %}Цена и контакты{% endif %}</span>
+          </button>
+          <button type="button" data-owner-step-target="4">
+            <span class="step-num">5</span>
+            <span class="step-label">{% if CURRENT_LANGUAGE == "az" %}Təsvir və sənədlər{% elif CURRENT_LANGUAGE == "en" %}Bio & documents{% else %}Описание и документы{% endif %}</span>
+          </button>
+        </nav>
+
+        <!-- Stepper (Mobile compact progress) -->
         <div class="km-owner-mobile-progress">
-          <span data-owner-progress-text data-label="{% if CURRENT_LANGUAGE == 'az' %}Addım {current}/{total}{% elif CURRENT_LANGUAGE == 'en' %}Step {current}/{total}{% else %}Шаг {current} из {total}{% endif %}"></span>
-          <div><span data-owner-progress-bar></span></div>
+          <div class="km-mobile-step-header">
+            <span class="km-mobile-step-name" data-owner-progress-text data-label="{% if CURRENT_LANGUAGE == 'az' %}Addım {current}/{total}: {name}{% elif CURRENT_LANGUAGE == 'en' %}Step {current}/{total}: {name}{% else %}Шаг {current} из {total}: {name}{% endif %}"></span>
+            <div class="km-mobile-step-nav">
+              <button type="button" class="km-step-arrow" data-owner-prev aria-label="{% trans 'Предыдущий шаг' %}"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
+              <button type="button" class="km-step-arrow" data-owner-next aria-label="{% trans 'Следующий шаг' %}"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
+            </div>
+          </div>
+          <div class="km-progress-track"><span data-owner-progress-bar></span></div>
         </div>
 
         <!-- ─── STEP 1: Основное ─── -->
-        <section class="owner-event-section" data-owner-step>
-          <h2><i class="fas fa-user-tie" aria-hidden="true"></i>{% if CURRENT_LANGUAGE == "az" %}Şəxsi məlumatlar{% elif CURRENT_LANGUAGE == "en" %}Personal info{% else %}Личные данные{% endif %}</h2>
-          <div class="owner-event-grid">
+        <section class="owner-event-section km-step-section" data-owner-step="0" data-step-name="{% if CURRENT_LANGUAGE == 'az' %}Əsas{% elif CURRENT_LANGUAGE == 'en' %}Basic{% else %}Основное{% endif %}">
+          <div class="km-step-header">
+            <h2><i class="fas fa-user-circle" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Şəxsi məlumatlar{% elif CURRENT_LANGUAGE == "en" %}Personal info{% else %}Личные данные{% endif %}</h2>
+            <p class="km-step-desc">{% if CURRENT_LANGUAGE == "az" %}Mütəxəssisin adını, təcrübəsini və profil şəklini daxil edin.{% elif CURRENT_LANGUAGE == "en" %}Enter the specialist's name, experience, and profile photo.{% else %}Укажите имя специалиста, опыт работы и фотографию для анкеты.{% endif %}</p>
+          </div>
 
-            <label class="owner-event-full">
-              {% if CURRENT_LANGUAGE == "az" %}Ad və soyad{% elif CURRENT_LANGUAGE == "en" %}Full name{% else %}Имя и фамилия{% endif %} *
+          <div class="owner-event-grid km-step-grid">
+            <label class="owner-event-full km-input-wrapper">
+              <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Ad və soyad{% elif CURRENT_LANGUAGE == "en" %}Full name{% else %}Имя и фамилия{% endif %} <strong class="km-required">*</strong></span>
               {{ form.name }}
               {% for e in form.name.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
             </label>
 
-            <label>
-              {% if CURRENT_LANGUAGE == "az" %}Staj (il){% elif CURRENT_LANGUAGE == "en" %}Experience (yrs){% else %}Стаж (лет){% endif %}
+            <label class="owner-event-full km-input-wrapper">{{ form.name_alt.label_tag }}{{ form.name_alt }}{{ form.name_alt.errors }}</label>
+            <label class="km-input-wrapper km-input-half">
+              <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}İş stajı (tam il){% elif CURRENT_LANGUAGE == "en" %}Work experience (yrs){% else %}Стаж работы (полных лет){% endif %}</span>
               {{ form.experience_years }}
+              <small class="helptext" id="id_experience_years_helptext">{{ form.experience_years.help_text }}</small>
               {% for e in form.experience_years.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
             </label>
 
-            <label class="km-owner-photo-field">
-              {% if CURRENT_LANGUAGE == "az" %}Foto{% elif CURRENT_LANGUAGE == "en" %}Photo{% else %}Фото{% endif %}
-              <span class="km-owner-photo-preview" data-owner-photo-preview>
-                {% if specialist and specialist.photo %}<img src="{{ specialist.photo.url }}" alt="">{% else %}<i class="fas fa-camera" aria-hidden="true"></i>{% endif %}
-              </span>
-              {{ form.photo }}
-              {% for e in form.photo.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-              {% if form.photo.help_text %}<small class="helptext">{{ form.photo.help_text }}</small>{% endif %}
-            </label>
+            <div class="owner-event-full km-photo-component">
+              <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Profil fotosu{% elif CURRENT_LANGUAGE == "en" %}Profile photo{% else %}Фотография профиля{% endif %}</span>
+              <p role="alert" data-specialist-photo-error hidden></p>
+              <div class="km-photo-uploader-box">
+                <div class="km-photo-avatar" data-owner-photo-preview>
+                  {% if proposal_draft.photo %}<img src="{% url 'specialist_proposal_photo' proposal_draft.pk %}" alt="{% trans 'Фотография профиля' %}">
+                  {% elif specialist and specialist.photo %}
+                    <img src="{{ specialist.photo.url }}" alt="{{ specialist.name }}">
+                  {% else %}
+                    <i class="fas fa-camera km-avatar-placeholder" aria-hidden="true"></i>
+                  {% endif %}
+                </div>
+                <div class="km-photo-controls">
+                  <button type="button" data-specialist-photo-choose class="btn-secondary km-photo-upload-btn">
+                    <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
+                    <span>{% if CURRENT_LANGUAGE == "az" %}Foto seçin{% elif CURRENT_LANGUAGE == "en" %}Choose photo{% else %}Выбрать фото{% endif %}</span>
+                  </button>
+                  <div class="km-file-input-hidden">
+                    {{ form.photo }}
+                  </div>
+                  <span class="helptext">{% if CURRENT_LANGUAGE == "az" %}JPG, PNG və ya WEBP. Maksimum 2 MB.{% elif CURRENT_LANGUAGE == "en" %}JPG, PNG or WEBP. Max 2 MB.{% else %}JPG, PNG или WEBP. Максимум 2 МБ.{% endif %}</span>
+                  {% for e in form.photo.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+                </div>
+              </div>
+            </div>
           </div>
+
           <div class="km-owner-step-actions">
-            <button type="button" class="btn" data-owner-next>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}</button>
+            <button type="submit" name="form_action" value="save_draft" class="btn-secondary btn-save-draft" formnovalidate>
+              <i class="fas fa-bookmark" aria-hidden="true"></i>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Qaralama saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}Сохранить черновик{% endif %}</span>
+            </button>
+            <button type="button" class="btn btn-continue" data-owner-next>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}</span>
+              <i class="fas fa-arrow-right" aria-hidden="true"></i>
+            </button>
           </div>
         </section>
 
-        <section class="owner-event-section" data-owner-step hidden>
-          <h2><i class="fas fa-graduation-cap" aria-hidden="true"></i>{% if CURRENT_LANGUAGE == "az" %}Nə ilə məşğulsunuz?{% elif CURRENT_LANGUAGE == "en" %}What do you do?{% else %}Чем вы занимаетесь?{% endif %}</h2>
-          <div class="owner-specialist-chips">
-            {% for checkbox in form.specializations %}
-              <label class="owner-specialist-chip">
-                {{ checkbox.tag }}
-                <span>{{ checkbox.choice_label }}</span>
-              </label>
-            {% endfor %}
+        <!-- ─── STEP 2: Направления ─── -->
+        <section class="owner-event-section km-step-section" data-owner-step="1" data-step-name="{% if CURRENT_LANGUAGE == 'az' %}İstiqamətlər{% elif CURRENT_LANGUAGE == 'en' %}Directions{% else %}Направления{% endif %}">
+          <div class="km-step-header">
+            <h2><i class="fas fa-graduation-cap" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Nə ilə məşğulsunuz?{% elif CURRENT_LANGUAGE == "en" %}What do you do?{% else %}Чем вы занимаетесь?{% endif %} <strong class="km-required">*</strong></h2>
+            <p class="km-step-desc">{% if CURRENT_LANGUAGE == "az" %}Mütəxəssisin fəaliyyət istiqamətlərini, uşaq yaşını və iş dillərini seçin.{% elif CURRENT_LANGUAGE == "en" %}Select areas of practice, children's age range, and working languages.{% else %}Выберите направления деятельности, возраст детей и рабочие языки.{% endif %}</p>
           </div>
-          {% for e in form.specializations.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-          <div class="owner-event-grid km-owner-age-grid">
 
-            <label>
-              {% if CURRENT_LANGUAGE == "az" %}Uşaq yaşı (min){% elif CURRENT_LANGUAGE == "en" %}Child age from{% else %}Возраст детей от{% endif %}
+          <p role="status" aria-live="polite" data-spec-result-count data-found="{% trans 'Найдено' %}"></p>
+          <!-- Quick Search -->
+          <div class="owner-specialist-search-box">
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <label class="sr-only" for="specialist-search">{% trans 'Поиск направлений' %}</label>
+            <input
+              type="search"
+              class="field spec-search-input"
+              placeholder="{% if CURRENT_LANGUAGE == 'az' %}İstiqamət axtarışı (məs.: loqoped, psixoloq, riyaziyyat, məşqçi)...{% elif CURRENT_LANGUAGE == 'en' %}Search direction (e.g. speech therapist, psychologist, math, coach)...{% else %}Поиск направления (например: логопед, психолог, математика, тренер)...{% endif %}"
+              id="specialist-search" data-spec-search
+              autocomplete="off"
+            >
+            <button type="button" class="spec-search-clear" data-spec-search-clear hidden aria-label="{% trans 'Очистить поиск' %}">✕</button>
+          </div>
+
+          <!-- Selected chips bar -->
+          <div class="owner-specialist-selected-bar" data-owner-selected-specs data-remove-label="{% trans 'Убрать направление' %}" hidden>
+            <div class="selected-bar-header">
+              <span class="selected-bar-title">{% if CURRENT_LANGUAGE == "az" %}Seçilmiş istiqamətlər{% elif CURRENT_LANGUAGE == "en" %}Selected directions{% else %}Выбранные направления{% endif %} (<span aria-live="polite" data-selected-count>0</span>):</span>
+              <button type="button" class="btn-clear-selection" data-clear-specs>{% if CURRENT_LANGUAGE == "az" %}Hamısını sil{% elif CURRENT_LANGUAGE == "en" %}Clear all{% else %}Очистить всё{% endif %}</button>
+            </div>
+            <div class="selected-chips-container" data-selected-chips></div>
+          </div>
+
+          {% for e in form.specializations.errors %}<div class="auth-field-error" style="margin-bottom: 1rem;">{{ e }}</div>{% endfor %}
+
+          <!-- Semantic Groups of Specializations -->
+          {% if grouped_specializations %}
+            <div class="owner-specialist-groups" data-spec-groups>
+              {% for group in grouped_specializations %}
+                <div class="owner-spec-group" data-spec-group="{{ group.id }}">
+                  <h3 class="owner-spec-group-title">
+                    <span class="material-symbols-rounded spec-group-icon" aria-hidden="true">{{ group.icon }}</span>
+                    <span>{{ group.title }}</span>
+                  </h3>
+                  <div class="owner-specialist-chips">
+                    {% for item in group.items %}
+                      <label class="owner-specialist-chip" data-spec-code="{{ item.code }}" data-spec-title="{{ item.name|lower }}" data-spec-hint="{{ item.hint|lower }}">
+                        {{ item.subwidget.tag }}
+                        <span class="chip-content">
+                          <strong class="chip-title">{{ item.name }}</strong>
+                          {% if item.hint %}<small class="chip-hint">{{ item.hint }}</small>{% endif %}
+                        </span>
+                      </label>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+              <div class="owner-spec-no-results" data-spec-no-results hidden>
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <p>{% if CURRENT_LANGUAGE == "az" %}Axtarış üzrə istiqamət tapılmadı.{% elif CURRENT_LANGUAGE == "en" %}No directions found matching your query.{% else %}По вашему запросу направлений не найдено.{% endif %}</p>
+              </div>
+            </div>
+          {% else %}
+            <div class="owner-specialist-chips">
+              {% for checkbox in form.specializations %}
+                <label class="owner-specialist-chip">
+                  {{ checkbox.tag }}
+                  <span class="chip-content"><strong class="chip-title">{{ checkbox.choice_label }}</strong></span>
+                </label>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <!-- Child Age Grid -->
+          <div class="owner-event-grid km-owner-age-grid">
+            <label class="km-input-wrapper">
+              <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Uşaq yaşı (min, il){% elif CURRENT_LANGUAGE == "en" %}Child age from (yrs){% else %}Возраст детей от (лет){% endif %}</span>
               {{ form.age_from }}
               {% for e in form.age_from.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
             </label>
 
-            <label>
-              {% if CURRENT_LANGUAGE == "az" %}Uşaq yaşı (max){% elif CURRENT_LANGUAGE == "en" %}Child age to{% else %}Возраст детей до{% endif %}
+            <label class="km-input-wrapper">
+              <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Uşaq yaşı (max, il){% elif CURRENT_LANGUAGE == "en" %}Child age to (yrs){% else %}Возраст детей до (лет){% endif %}</span>
               {{ form.age_to }}
               {% for e in form.age_to.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
             </label>
           </div>
 
-          <!-- Language checkboxes as inline row -->
-          <div class="owner-specialist-lang-row">
-            <span class="owner-specialist-lang-label">{% if CURRENT_LANGUAGE == "az" %}İş dilləri{% elif CURRENT_LANGUAGE == "en" %}Work languages{% else %}Языки работы{% endif %} *</span>
-            <label class="owner-specialist-chip">{{ form.language_az }} <span>{% if CURRENT_LANGUAGE == "az" %}AZ{% elif CURRENT_LANGUAGE == "en" %}AZ{% else %}Азерб.{% endif %}</span></label>
-            <label class="owner-specialist-chip">{{ form.language_ru }} <span>{% if CURRENT_LANGUAGE == "az" %}RU{% elif CURRENT_LANGUAGE == "en" %}RU{% else %}Русский{% endif %}</span></label>
-            <label class="owner-specialist-chip">{{ form.language_en }} <span>{% if CURRENT_LANGUAGE == "az" %}EN{% elif CURRENT_LANGUAGE == "en" %}EN{% else %}Англ.{% endif %}</span></label>
+          <!-- Languages -->
+          <div class="owner-specialist-lang-section">
+            <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}İş dilləri{% elif CURRENT_LANGUAGE == "en" %}Work languages{% else %}Языки работы{% endif %} <strong class="km-required">*</strong></span>
+            <div class="owner-specialist-lang-chips">
+              <label class="owner-specialist-chip">{{ form.language_az }} <span class="chip-content"><strong class="chip-title">{% if CURRENT_LANGUAGE == "az" %}Azərbaycanca (AZ){% elif CURRENT_LANGUAGE == "en" %}Azerbaijani (AZ){% else %}Азербайджанский (AZ){% endif %}</strong></span></label>
+              <label class="owner-specialist-chip">{{ form.language_ru }} <span class="chip-content"><strong class="chip-title">{% if CURRENT_LANGUAGE == "az" %}Rusca (RU){% elif CURRENT_LANGUAGE == "en" %}Russian (RU){% else %}Русский (RU){% endif %}</strong></span></label>
+              <label class="owner-specialist-chip">{{ form.language_en }} <span class="chip-content"><strong class="chip-title">{% if CURRENT_LANGUAGE == "az" %}İngiliscə (EN){% elif CURRENT_LANGUAGE == "en" %}English (EN){% else %}Английский (EN){% endif %}</strong></span></label>
+            </div>
             {% for e in form.language_az.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
           </div>
+
           <div class="km-owner-step-actions">
-            <button type="button" class="btn-secondary" data-owner-prev>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}Назад{% endif %}</button>
-            <button type="button" class="btn" data-owner-next>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}</button>
+            <button type="button" class="btn-secondary" data-owner-prev>
+              <i class="fas fa-arrow-left" aria-hidden="true"></i>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}Назад{% endif %}</span>
+            </button>
+            <button type="submit" name="form_action" value="save_draft" class="btn-secondary btn-save-draft" formnovalidate>
+              <i class="fas fa-bookmark" aria-hidden="true"></i>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Qaralama saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}Сохранить черновик{% endif %}</span>
+            </button>
+            <button type="button" class="btn btn-continue" data-owner-next>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}</span>
+              <i class="fas fa-arrow-right" aria-hidden="true"></i>
+            </button>
           </div>
         </section>
 
-        <section class="owner-event-section" data-owner-step hidden>
-          <h2><i class="fas fa-laptop-house" aria-hidden="true"></i>{% if CURRENT_LANGUAGE == "az" %}Format və qəbul yerləri{% elif CURRENT_LANGUAGE == "en" %}Format and places{% else %}Формат и места работы{% endif %}</h2>
-          <label class="owner-event-full km-owner-format-select">
-            {% if CURRENT_LANGUAGE == "az" %}İş formatı{% elif CURRENT_LANGUAGE == "en" %}Work format{% else %}Формат работы{% endif %} *
+        <!-- ─── STEP 3: Формат и места ─── -->
+        <section class="owner-event-section km-step-section" data-owner-step="2" data-step-name="{% if CURRENT_LANGUAGE == 'az' %}Format və yerlər{% elif CURRENT_LANGUAGE == 'en' %}Format & places{% else %}Формат и места{% endif %}">
+          <div class="km-step-header">
+            <h2><i class="fas fa-laptop-house" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Format və qəbul yerləri{% elif CURRENT_LANGUAGE == "en" %}Format and session places{% else %}Формат и места работы{% endif %} <strong class="km-required">*</strong></h2>
+            <p class="km-step-desc">{% if CURRENT_LANGUAGE == "az" %}Qəbulun onlayn, əyani və ya hər iki formatda keçirildiyini qeyd edin.{% elif CURRENT_LANGUAGE == "en" %}Indicate whether sessions are held online, in-person, or both.{% else %}Укажите, проводите ли вы консультации онлайн, очно или совмещаете форматы.{% endif %}</p>
+          </div>
+
+          <div class="km-input-wrapper km-format-select-wrapper">
+            <label for="id_consultation_format" class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}İş formatı{% elif CURRENT_LANGUAGE == "en" %}Work format{% else %}Формат работы{% endif %}</label>
             {{ form.consultation_format }}
             {% for e in form.consultation_format.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-          </label>
-          <div class="km-owner-format-cards" aria-label="{% if CURRENT_LANGUAGE == 'az' %}İş formatı{% elif CURRENT_LANGUAGE == 'en' %}Work format{% else %}Формат работы{% endif %}">
-            <button type="button" data-owner-format-card="online"><i class="fas fa-video" aria-hidden="true"></i><strong>{% if CURRENT_LANGUAGE == "az" %}Onlayn{% elif CURRENT_LANGUAGE == "en" %}Online{% else %}Онлайн{% endif %}</strong><span>{% if CURRENT_LANGUAGE == "az" %}Şəhərdən asılı deyil{% elif CURRENT_LANGUAGE == "en" %}Independent of city{% else %}Без привязки к городу{% endif %}</span></button>
-            <button type="button" data-owner-format-card="offline"><i class="fas fa-map-marker-alt" aria-hidden="true"></i><strong>{% if CURRENT_LANGUAGE == "az" %}Əyani{% elif CURRENT_LANGUAGE == "en" %}In-person{% else %}Очно{% endif %}</strong><span>{% if CURRENT_LANGUAGE == "az" %}Qəbul ünvanı lazımdır{% elif CURRENT_LANGUAGE == "en" %}Needs a session address{% else %}Нужен адрес приёма{% endif %}</span></button>
-            <button type="button" data-owner-format-card="both"><i class="fas fa-laptop-house" aria-hidden="true"></i><strong>{% if CURRENT_LANGUAGE == "az" %}Hər ikisi{% elif CURRENT_LANGUAGE == "en" %}Both{% else %}Онлайн и очно{% endif %}</strong><span>{% if CURRENT_LANGUAGE == "az" %}Maksimum çeviklik{% elif CURRENT_LANGUAGE == "en" %}Maximum flexibility{% else %}Максимальная гибкость{% endif %}</span></button>
           </div>
-          <div id="spec-location-block" data-owner-location-block>
-          <h3>{% if CURRENT_LANGUAGE == "az" %}İş və qəbul yerləri{% elif CURRENT_LANGUAGE == "en" %}Work and session places{% else %}Места работы и приёма{% endif %}</h3>
-          <p class="helptext km-owner-location-help">{% if CURRENT_LANGUAGE == "az" %}Şəxsi qəbul üçün doldurun.{% elif CURRENT_LANGUAGE == "en" %}Fill in for in-person sessions.{% else %}Заполняется для очного приёма.{% endif %}</p>
-          <div class="owner-event-grid">
-            <label class="owner-event-full">
-              {% if CURRENT_LANGUAGE == "az" %}Uşaq mərkəzi (KidsMap){% elif CURRENT_LANGUAGE == "en" %}Children's center (KidsMap){% else %}Детский центр (KidsMap){% endif %}
-              {{ form.location_place }}
-              {% for e in form.location_place.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-              <small class="helptext">{% if CURRENT_LANGUAGE == "az" %}Mərkəz artıq KidsMap-dədirsə, seçin — ünvan avtomatik doldurulacaq.{% elif CURRENT_LANGUAGE == "en" %}If the center is on KidsMap, select it.{% else %}Если центр уже есть в KidsMap — выберите, адрес подставится автоматически.{% endif %}</small>
-            </label>
-            <label class="owner-event-full">
-              {% if CURRENT_LANGUAGE == "az" %}Öz ünvanı{% elif CURRENT_LANGUAGE == "en" %}Own address{% else %}Собственный адрес/кабинет{% endif %}
-              {{ form.location_address }}
-              {% for e in form.location_address.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-            </label>
-            <label>
-              {% if CURRENT_LANGUAGE == "az" %}Şəhər / Bölgə{% elif CURRENT_LANGUAGE == "en" %}City / Region{% else %}Город / Регион{% endif %}
-              {{ form.location_region }}
-              {% for e in form.location_region.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-            </label>
-            <label>
-              {% if CURRENT_LANGUAGE == "az" %}Rayon{% elif CURRENT_LANGUAGE == "en" %}District{% else %}Район{% endif %}
-              {{ form.location_district }}
-              {% for e in form.location_district.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-            </label>
-            <label>
-              {% if CURRENT_LANGUAGE == "az" %}Metro{% elif CURRENT_LANGUAGE == "en" %}Metro{% else %}Метро{% endif %}
-              {{ form.location_metro }}
-              {% for e in form.location_metro.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-            </label>
+
+          <!-- Format Cards -->
+          <div class="km-owner-format-cards" aria-label="{% if CURRENT_LANGUAGE == 'az' %}İş formatı seçimi{% elif CURRENT_LANGUAGE == 'en' %}Work format selection{% else %}Выбор формата работы{% endif %}">
+            <button type="button" class="km-format-card" data-owner-format-card="online">
+              <i class="fas fa-video" aria-hidden="true"></i>
+              <strong>{% if CURRENT_LANGUAGE == "az" %}Yalnız onlayn{% elif CURRENT_LANGUAGE == "en" %}Online only{% else %}Только онлайн{% endif %}</strong>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Şəhərdən asılı deyil, videozəng ilə{% elif CURRENT_LANGUAGE == "en" %}City independent, via video call{% else %}Консультации по видеосвязи без привязки к городу{% endif %}</span>
+            </button>
+            <button type="button" class="km-format-card" data-owner-format-card="offline">
+              <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+              <strong>{% if CURRENT_LANGUAGE == "az" %}Yalnız əyani{% elif CURRENT_LANGUAGE == "en" %}In-person only{% else %}Только очно{% endif %}</strong>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Mərkəzdə və ya şəxsi kabinetdə{% elif CURRENT_LANGUAGE == "en" %}At a center or private office{% else %}Приём в детском центре или собственном кабинете{% endif %}</span>
+            </button>
+            <button type="button" class="km-format-card" data-owner-format-card="both">
+              <i class="fas fa-laptop-house" aria-hidden="true"></i>
+              <strong>{% if CURRENT_LANGUAGE == "az" %}Onlayn və əyani{% elif CURRENT_LANGUAGE == "en" %}Both formats{% else %}Онлайн и очно{% endif %}</strong>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Maksimum çeviklik və seçim imkanı{% elif CURRENT_LANGUAGE == "en" %}Maximum flexibility and choice{% else %}Максимальное удобство для родителей{% endif %}</span>
+            </button>
           </div>
+
+          <!-- Location block for offline/both -->
+          <div id="spec-location-block" class="km-location-box" data-owner-location-block>
+            <div class="km-location-header">
+              <h3><i class="fas fa-building" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Əyani qəbul ünvanı{% elif CURRENT_LANGUAGE == "en" %}In-person location{% else %}Места работы и очного приёма{% endif %}</h3>
+              <p class="helptext">{% if CURRENT_LANGUAGE == "az" %}Əyani və ya qarışıq format üçün mərkəz və ya fərdi ünvan qeyd edin.{% elif CURRENT_LANGUAGE == "en" %}Specify a children's center or private address for in-person sessions.{% else %}Заполняется для очного или совмещенного приёма клиентов.{% endif %}</p>
+            </div>
+
+            {% if locations %}{% include 'pages/includes/specialist_locations.html' %}{% endif %}
           </div>
+
           <div class="km-owner-step-actions">
-            <button type="button" class="btn-secondary" data-owner-prev>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}Назад{% endif %}</button>
-            <button type="button" class="btn" data-owner-next>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}</button>
+            <button type="button" class="btn-secondary" data-owner-prev>
+              <i class="fas fa-arrow-left" aria-hidden="true"></i>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}Назад{% endif %}</span>
+            </button>
+            <button type="submit" name="form_action" value="save_draft" class="btn-secondary btn-save-draft" formnovalidate>
+              <i class="fas fa-bookmark" aria-hidden="true"></i>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Qaralama saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}Сохранить черновик{% endif %}</span>
+            </button>
+            <button type="button" class="btn btn-continue" data-owner-next>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}</span>
+              <i class="fas fa-arrow-right" aria-hidden="true"></i>
+            </button>
           </div>
         </section>
 
-        <!-- ─── STEP 3: Цена и контакты ─── -->
-        <section class="owner-event-section" data-owner-step hidden>
-          <h2><i class="fas fa-money-bill-wave" aria-hidden="true"></i>{% if CURRENT_LANGUAGE == "az" %}Qiymət və əlaqə{% elif CURRENT_LANGUAGE == "en" %}Price & contacts{% else %}Стоимость и контакты{% endif %}</h2>
-          <h3>{% if CURRENT_LANGUAGE == "az" %}Qiymət və müddət{% elif CURRENT_LANGUAGE == "en" %}Price & duration{% else %}Стоимость и длительность{% endif %}</h3>
-          <div class="owner-event-grid">
-            <label>
-              {% if CURRENT_LANGUAGE == "az" %}Xidmətin qiyməti (min, AZN){% elif CURRENT_LANGUAGE == "en" %}Service price from (AZN){% else %}Стоимость услуги от (AZN){% endif %}
+        <!-- ─── STEP 4: Цена и контакты ─── -->
+        <section class="owner-event-section km-step-section" data-owner-step="3" data-step-name="{% if CURRENT_LANGUAGE == 'az' %}Qiymət və əlaqə{% elif CURRENT_LANGUAGE == 'en' %}Price & contacts{% else %}Цена и контакты{% endif %}">
+          <div class="km-step-header">
+            <h2><i class="fas fa-money-bill-wave" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Qiymət və əlaqə vasitələri{% elif CURRENT_LANGUAGE == "en" %}Price and contact details{% else %}Стоимость и контакты для записи{% endif %}</h2>
+            <p class="km-step-desc">{% if CURRENT_LANGUAGE == "az" %}Xidmət haqqı və valideynlərin əlaqə saxlaması üçün ən azı bir nömrə qeyd edin.{% elif CURRENT_LANGUAGE == "en" %}Specify pricing and at least one contact channel for parent inquiries.{% else %}Укажите ориентировочную стоимость и хотя бы один контакт (телефон или WhatsApp) для связи.{% endif %}</p>
+          </div>
+
+          <h3 class="km-subsection-title"><i class="fas fa-tag" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Qiymət və müddət{% elif CURRENT_LANGUAGE == "en" %}Price & duration{% else %}Стоимость и длительность{% endif %}</h3>
+          <div class="owner-event-grid km-step-grid">
+            <label class="km-input-wrapper">
+              <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Qiymət min. (AZN){% elif CURRENT_LANGUAGE == "en" %}Price from (AZN){% else %}Стоимость от (AZN){% endif %}</span>
               {{ form.price_from }}
               {% for e in form.price_from.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
             </label>
-            <label>
-              {% if CURRENT_LANGUAGE == "az" %}Xidmətin qiyməti (max, AZN){% elif CURRENT_LANGUAGE == "en" %}Service price to (AZN){% else %}Стоимость услуги до (AZN){% endif %}
+
+            <label class="km-input-wrapper">
+              <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Qiymət max. (AZN){% elif CURRENT_LANGUAGE == "en" %}Price to (AZN){% else %}Стоимость до (AZN){% endif %}</span>
               {{ form.price_to }}
               {% for e in form.price_to.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
             </label>
-            <label>
-              {% if CURRENT_LANGUAGE == "az" %}Görüş və ya dərs müddəti (dəq.){% elif CURRENT_LANGUAGE == "en" %}Meeting or lesson duration (min){% else %}Продолжительность встречи или занятия (мин){% endif %}
+
+            <label class="km-input-wrapper">
+              <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Dərs müddəti (dəq.){% elif CURRENT_LANGUAGE == "en" %}Duration (min){% else %}Длительность (мин){% endif %}</span>
               {{ form.duration_minutes }}
               {% for e in form.duration_minutes.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
             </label>
           </div>
-          <h3>{% if CURRENT_LANGUAGE == "az" %}Əlaqə{% elif CURRENT_LANGUAGE == "en" %}Contacts{% else %}Контакты{% endif %}</h3>
-          <div class="owner-event-grid">
-            <label>
-              {% if CURRENT_LANGUAGE == "az" %}Telefon{% elif CURRENT_LANGUAGE == "en" %}Phone{% else %}Телефон{% endif %}
+
+          <h3 class="km-subsection-title"><i class="fas fa-address-book" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Əlaqə vasitələri{% elif CURRENT_LANGUAGE == "en" %}Contact channels{% else %}Контакты для записи{% endif %} <strong class="km-required">*</strong></h3>
+          <div class="owner-event-grid km-step-grid">
+            <label class="km-input-wrapper">
+              <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Telefon nömrəsi{% elif CURRENT_LANGUAGE == "en" %}Phone number{% else %}Телефон для связи{% endif %}</span>
               {{ form.phone }}
               {% for e in form.phone.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
             </label>
-            <label>
-              WhatsApp
+
+            <label class="km-input-wrapper">
+              <span class="km-label-text"><i class="fab fa-whatsapp" aria-hidden="true"></i> WhatsApp</span>
               {{ form.whatsapp }}
               {% for e in form.whatsapp.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
             </label>
-            <label>
-              Instagram
+
+            <label class="km-input-wrapper">
+              <span class="km-label-text"><i class="fab fa-instagram" aria-hidden="true"></i> Instagram</span>
               {{ form.instagram }}
               {% for e in form.instagram.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
             </label>
-            <label>
-              {% if CURRENT_LANGUAGE == "az" %}Sayt{% elif CURRENT_LANGUAGE == "en" %}Website{% else %}Сайт{% endif %}
+
+            <label class="km-input-wrapper">
+              <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Veb-sayt{% elif CURRENT_LANGUAGE == "en" %}Website{% else %}Сайт{% endif %}</span>
               {{ form.website }}
               {% for e in form.website.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
             </label>
           </div>
+
           <div class="km-owner-step-actions">
-            <button type="button" class="btn-secondary" data-owner-prev>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}Назад{% endif %}</button>
-            <button type="button" class="btn" data-owner-next>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}</button>
+            <button type="button" class="btn-secondary" data-owner-prev>
+              <i class="fas fa-arrow-left" aria-hidden="true"></i>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}Назад{% endif %}</span>
+            </button>
+            <button type="submit" name="form_action" value="save_draft" class="btn-secondary btn-save-draft" formnovalidate>
+              <i class="fas fa-bookmark" aria-hidden="true"></i>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Qaralama saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}Сохранить черновик{% endif %}</span>
+            </button>
+            <button type="button" class="btn btn-continue" data-owner-next>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}</span>
+              <i class="fas fa-arrow-right" aria-hidden="true"></i>
+            </button>
           </div>
         </section>
 
-        <section class="owner-event-section" data-owner-step hidden>
-          <h2><i class="fas fa-file-alt" aria-hidden="true"></i>{% if CURRENT_LANGUAGE == "az" %}Təsvir və sənədlər{% elif CURRENT_LANGUAGE == "en" %}Description and documents{% else %}Описание и документы{% endif %}</h2>
-          <h3>{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis haqqında{% elif CURRENT_LANGUAGE == "en" %}About the specialist{% else %}О специалисте{% endif %} *</h3>
-          <div class="owner-specialist-lang-tabs" role="tablist">
-            <button type="button" class="is-active" data-owner-lang-tab="az" aria-selected="true">AZ</button>
-            <button type="button" data-owner-lang-tab="ru" aria-selected="false">RU</button>
-            <button type="button" data-owner-lang-tab="en" aria-selected="false">EN</button>
+        <!-- ─── STEP 5: Описание и документы ─── -->
+        <section class="owner-event-section km-step-section" data-owner-step="4" data-step-name="{% if CURRENT_LANGUAGE == 'az' %}Təsvir və sənədlər{% elif CURRENT_LANGUAGE == 'en' %}Bio & documents{% else %}Описание и документы{% endif %}">
+          <div class="km-step-header">
+            <h2><i class="fas fa-file-alt" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Təsvir və kvalifikasiya{% elif CURRENT_LANGUAGE == "en" %}Bio & qualifications{% else %}Описание и подтверждение квалификации{% endif %}</h2>
+            <p class="km-step-desc">{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis haqqında məlumat verin (təhsil, metodika, yanaşma).{% elif CURRENT_LANGUAGE == "en" %}Tell parents about education, approach, and practical methods.{% else %}Расскажите об образовании, используемых методиках и опыте работы с детьми.{% endif %}</p>
           </div>
-          <div class="owner-specialist-lang-panel is-active" data-owner-lang-panel="az">
-            <label class="owner-event-full">
-              {% if CURRENT_LANGUAGE == "az" %}Azərbaycanca{% elif CURRENT_LANGUAGE == "en" %}In Azerbaijani{% else %}На азербайджанском{% endif %}
-              {{ form.bio_az }}
-              {% for e in form.bio_az.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-            </label>
+
+          <div class="km-bio-section">
+            <div class="km-bio-header">
+              <h3 class="km-subsection-title">{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis haqqında məlumat{% elif CURRENT_LANGUAGE == "en" %}About the specialist{% else %}О себе / О специалисте{% endif %} <strong class="km-required">*</strong></h3>
+              <p class="helptext">{% if CURRENT_LANGUAGE == "az" %}Ən azı bir dildə doldurulması zəruridir.{% elif CURRENT_LANGUAGE == "en" %}Required in at least one language.{% else %}Необходимо заполнить хотя бы на одном языке.{% endif %}</p>
+            </div>
+
+            <!-- Language Tabs -->
+            <div class="owner-specialist-lang-tabs" role="tablist" aria-label="{% trans 'Языки описания' %}">
+              <button type="button" class="is-active" data-owner-lang-tab="az" role="tab" aria-selected="true">
+                <span>Azərbaycan</span>
+                <small class="tab-indicator" data-bio-indicator="az"></small>
+              </button>
+              <button type="button" data-owner-lang-tab="ru" role="tab" aria-selected="false">
+                <span>Русский</span>
+                <small class="tab-indicator" data-bio-indicator="ru"></small>
+              </button>
+              <button type="button" data-owner-lang-tab="en" role="tab" aria-selected="false">
+                <span>English</span>
+                <small class="tab-indicator" data-bio-indicator="en"></small>
+              </button>
+            </div>
+
+            <div class="owner-specialist-lang-panel is-active" data-owner-lang-panel="az">
+              <label class="owner-event-full km-input-wrapper">
+                <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Azərbaycanca təsvir{% elif CURRENT_LANGUAGE == "en" %}Bio in Azerbaijani{% else %}Описание на азербайджанском{% endif %}</span>
+                {{ form.bio_az }}
+                {% for e in form.bio_az.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+              </label>
+            </div>
+            <div class="owner-specialist-lang-panel" data-owner-lang-panel="ru">
+              <label class="owner-event-full km-input-wrapper">
+                <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Rusca təsvir{% elif CURRENT_LANGUAGE == "en" %}Bio in Russian{% else %}Описание на русском{% endif %}</span>
+                {{ form.bio_ru }}
+                {% for e in form.bio_ru.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+              </label>
+            </div>
+            <div class="owner-specialist-lang-panel" data-owner-lang-panel="en">
+              <label class="owner-event-full km-input-wrapper">
+                <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}İngiliscə təsvir{% elif CURRENT_LANGUAGE == "en" %}Bio in English{% else %}Описание на английском{% endif %}</span>
+                {{ form.bio_en }}
+                {% for e in form.bio_en.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+              </label>
+            </div>
           </div>
-          <div class="owner-specialist-lang-panel" data-owner-lang-panel="ru" hidden>
-            <label class="owner-event-full">
-              {% if CURRENT_LANGUAGE == "az" %}Rusca{% elif CURRENT_LANGUAGE == "en" %}In Russian{% else %}На русском{% endif %}
-              {{ form.bio_ru }}
-              {% for e in form.bio_ru.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-            </label>
+
+          <div class="spec-public-text"><h3>{% trans 'Образование и опыт' %}</h3><p>{% trans 'Необязательные публичные сведения. Языки этих текстов отличаются от языков консультации. Переводы автоматически не создаются.' %}</p>
+          <details><summary>Azərbaycan</summary>{{ form.education_az.label_tag }}{{ form.education_az }}{{ form.education_az.errors }}{{ form.experience_info_az.label_tag }}{{ form.experience_info_az }}{{ form.experience_info_az.errors }}</details>
+          <details><summary>Русский</summary>{{ form.education_ru.label_tag }}{{ form.education_ru }}{{ form.education_ru.errors }}{{ form.experience_info_ru.label_tag }}{{ form.experience_info_ru }}{{ form.experience_info_ru.errors }}</details>
+          <details><summary>English</summary>{{ form.education_en.label_tag }}{{ form.education_en }}{{ form.education_en.errors }}{{ form.experience_info_en.label_tag }}{{ form.experience_info_en }}{{ form.experience_info_en.errors }}</details></div>
+          <!-- Documents & Qualification Confirmation -->
+          <div class="km-documents-block">
+            <h3 class="km-subsection-title"><i class="fas fa-certificate" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Diplomlar və sertifikatlar{% elif CURRENT_LANGUAGE == "en" %}Diplomas & certificates{% else %}Дипломы и подтверждение квалификации{% endif %}</h3>
+
+            {% if is_proposal %}
+              <!-- Informational note for proposal authors: documents cannot be uploaded by 3rd party -->
+              <div class="km-owner-info-notice">
+                <div class="notice-icon"><i class="fas fa-user-shield" aria-hidden="true"></i></div>
+                <div class="notice-body">
+                  <h4>{% if CURRENT_LANGUAGE == "az" %}Şəxsi sənədlərin yüklənməsi qaydası{% elif CURRENT_LANGUAGE == "en" %}Document upload guidelines{% else %}Загрузка квалификационных документов{% endif %}</h4>
+                  <p>{% if CURRENT_LANGUAGE == "az" %}Diplom və sertifikatlar profil təklif edən şəxs tərəfindən deyil, şəxsiyyətini təsdiqləmiş mütəxəssisin özü tərəfindən şəxsi kabinetdə yüklənir. Bu, mütəxəssislərin şəxsi məlumatlarının toxunulmazlığını qoruyur.{% elif CURRENT_LANGUAGE == "en" %}Diplomas and certificates are uploaded personally by the verified specialist in their workspace after identity confirmation. Authors of proposals cannot upload documents on behalf of others.{% else %}Дипломы и сертификаты загружаются лично подтверждённым специалистом в своём кабинете. Автор предложения не может загружать чужие персональные документы, что гарантирует защиту личных данных.{% endif %}</p>
+                </div>
+              </div>
+            {% else %}
+              <!-- File upload for verified person -->
+              <div class="km-owner-privacy-card">
+                <div class="privacy-header">
+                  <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                  <h4>{% if CURRENT_LANGUAGE == "az" %}Sənədlərin məxfiliyi və təhlükəsizliyi{% elif CURRENT_LANGUAGE == "en" %}Document privacy & security{% else %}Политика конфиденциальности документов{% endif %}</h4>
+                </div>
+                <ul>
+                  <li>{% if CURRENT_LANGUAGE == "az" %}Yüklənmiş bütün sənədlər susmaya görə <strong>tam məxfidir</strong> və sizin və xüsusi səlahiyyətli KidsMap yoxlayıcıları tərəfindən yoxlanılır.{% elif CURRENT_LANGUAGE == "en" %}All uploaded documents are <strong>strictly private by default</strong> and accessible to you and authorized KidsMap document reviewers.{% else %}Все загруженные документы по умолчанию <strong>строго приватны</strong> и доступны вам и специально уполномоченным проверяющим KidsMap.{% endif %}</li>
+                  <li>{% if CURRENT_LANGUAGE == "az" %}Hansı diplom və ya sertifikatın ictimai profilinizdə görünəcəyini kabinetdə özünüz sərbəst seçirsiniz.{% elif CURRENT_LANGUAGE == "en" %}You can independently choose which certificates to display publicly in your profile via workspace.{% else %}Вы сможете самостоятельно выбрать, какие дипломы показывать родителям в публичной анкете.{% endif %}</li>
+                  <li>{% if CURRENT_LANGUAGE == "az" %}Şəxsiyyət vəsiqəsi heç vaxt saytda dərc olunmur və yalnız hüquqların təsdiqi üçün istifadə edilir.{% elif CURRENT_LANGUAGE == "en" %}Identity documents are never published and are used strictly for rights verification.{% else %}Удостоверения личности никогда не публикуются и служат только для подтверждения прав.{% endif %}</li>
+                </ul>
+              </div>
+
+              <label class="owner-event-full km-input-wrapper">
+                <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Sənəd faylları (PDF, JPG, PNG){% elif CURRENT_LANGUAGE == "en" %}Document files (PDF, JPG, PNG){% else %}Файлы документов (PDF, JPG, PNG){% endif %}</span>
+                {{ form.documents }}
+                {% for e in form.documents.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+              </label>
+            {% endif %}
           </div>
-          <div class="owner-specialist-lang-panel" data-owner-lang-panel="en" hidden>
-            <label class="owner-event-full">
-              {% if CURRENT_LANGUAGE == "az" %}İngiliscə{% elif CURRENT_LANGUAGE == "en" %}In English{% else %}На английском{% endif %}
-              {{ form.bio_en }}
-              {% for e in form.bio_en.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-            </label>
+
+          <div class="km-owner-step-actions km-final-actions">
+            <button type="button" class="btn-secondary" data-owner-prev>
+              <i class="fas fa-arrow-left" aria-hidden="true"></i>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}Назад{% endif %}</span>
+            </button>
+            <button type="submit" name="form_action" value="save_draft" class="btn-secondary btn-save-draft" formnovalidate>
+              <i class="fas fa-bookmark" aria-hidden="true"></i>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Qaralama saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}Сохранить черновик{% endif %}</span>
+            </button>
+            <button type="submit" name="form_action" value="submit" class="btn btn-submit" data-loading-button>
+              <i class="fas fa-paper-plane" aria-hidden="true"></i>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Moderasiyaya göndər{% elif CURRENT_LANGUAGE == "en" %}Send for review{% else %}Отправить на модерацию{% endif %}</span>
+            </button>
           </div>
-          <h3>{% if CURRENT_LANGUAGE == "az" %}Kvalifikasiyanın təsdiqi{% elif CURRENT_LANGUAGE == "en" %}Qualification confirmation{% else %}Подтверждение квалификации{% endif %}</h3>
-          <label class="owner-event-full">
-            {% if CURRENT_LANGUAGE == "az" %}Diplomlar və sertifikatlar{% elif CURRENT_LANGUAGE == "en" %}Diplomas and certificates{% else %}Дипломы и сертификаты{% endif %}
-            {{ form.documents }}
-            {% for e in form.documents.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-            {% if form.documents.help_text %}<small class="helptext">{{ form.documents.help_text }}</small>{% endif %}
-          </label>
-        <div class="owner-event-actions km-owner-final-actions">
-          <a class="link-btn" href="{% url 'owner_places_dashboard' %}">{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}Назад{% endif %}</a>
-          <button type="submit" name="form_action" value="save_draft" class="btn-secondary" data-loading-button formnovalidate>
-            {% if CURRENT_LANGUAGE == "az" %}Qaralama saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}Сохранить черновик{% endif %}
-          </button>
-          <button type="submit" name="form_action" value="submit" class="btn" data-loading-button>
-            {% if CURRENT_LANGUAGE == "az" %}Moderasiyaya göndər{% elif CURRENT_LANGUAGE == "en" %}Send for review{% else %}Отправить на модерацию{% endif %}
-          </button>
-        </div>
         </section>
 
       </div><!-- /.owner-event-main -->
 
       <!-- Sidebar -->
-      <aside class="owner-event-side">
+      <aside class="owner-event-side km-specialist-side">
         {% if specialist %}
-        <article class="owner-event-help-card">
-          <h2>{% trans 'Кабинет специалиста' %}</h2>
-          <nav class="sw-nav" aria-label="{% trans 'Кабинет специалиста' %}">
-            <a href="{% url 'specialist_workspace_profile' specialist.pk %}" aria-current="page">{% trans 'Личные сведения' %}</a>
-            <a href="{% url 'specialist_workspace_invitations' specialist.pk %}">{% trans 'Сотрудничество' %}</a>
-            <a href="{% url 'specialist_workspace_certificates' specialist.pk %}">{% trans 'Дипломы и сертификаты' %}</a>
-          </nav>
-          <p>{% trans 'Личными сведениями и документами управляет подтверждённый человек.' %}</p>
-        </article>
-        {% else %}<article class="owner-event-help-card"><h2>{% trans 'Предложение профиля' %}</h2><p>{% trans 'Авторство предложения не даёт права менять личные сведения человека.' %}</p></article>{% endif %}
-        {% if practice_history %}<article class="owner-event-help-card"><h2>{% trans 'История мест практики' %}</h2><p>{% trans 'Эти места не отображаются как текущая практика.' %}</p><ul>{% for loc in practice_history %}<li>{% if loc.place %}{{ loc.place.name_i18n }}{% else %}{% trans 'Собственный кабинет' %}{% endif %}: {{ loc.address }}</li>{% endfor %}</ul></article>{% endif %}
-        <article class="owner-event-help-card">
-          <h2>{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis nə vaxt seçilir?{% elif CURRENT_LANGUAGE == "en" %}When to choose Specialist?{% else %}Когда выбирать «Специалист»?{% endif %}</h2>
-          <ul>
+          <article class="owner-event-help-card km-sidebar-card">
+            <h2><i class="fas fa-user-circle" aria-hidden="true"></i> {% trans 'Кабинет специалиста' %}</h2>
+            <nav class="sw-nav" aria-label="{% trans 'Кабинет специалиста' %}">
+              <a href="{% url 'specialist_workspace_profile' specialist.pk %}" aria-current="page">{% trans 'Личные сведения' %}</a>
+              <a href="{% url 'specialist_workspace_invitations' specialist.pk %}">{% trans 'Сотрудничество' %}</a>
+              <a href="{% url 'specialist_workspace_certificates' specialist.pk %}">{% trans 'Дипломы и сертификаты' %}</a>
+            </nav>
+            <p class="km-side-notice"><i class="fas fa-info-circle" aria-hidden="true"></i> {% trans 'Личными сведениями и документами управляет подтверждённый человек.' %}</p>
+          </article>
+        {% else %}
+          <article class="owner-event-help-card km-sidebar-card">
+            <h2><i class="fas fa-shield-alt" aria-hidden="true"></i> {% trans 'Предложение профиля' %}</h2>
+            <p>{% trans 'Авторство предложения не даёт права менять личные сведения человека.' %}</p>
+            <p class="km-side-muted">{% trans 'После одобрения модератором настоящий специалист сможет подтвердить свою личность и получить доступ к кабинету.' %}</p>
+          </article>
+        {% endif %}
+
+        {% if practice_history %}
+          <article class="owner-event-help-card km-sidebar-card">
+            <h2><i class="fas fa-history" aria-hidden="true"></i> {% trans 'История мест практики' %}</h2>
+            <p>{% trans 'Эти места не отображаются как текущая практика.' %}</p>
+            <ul class="km-history-list">
+              {% for loc in practice_history %}
+                <li>{% if loc.place %}{{ loc.place.name_i18n }}{% else %}{% trans 'Собственный кабинет' %}{% endif %}: {{ loc.address }}</li>
+              {% endfor %}
+            </ul>
+          </article>
+        {% endif %}
+
+        <article class="owner-event-help-card km-sidebar-card">
+          <h2><i class="fas fa-compass" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Mütəxəssis nə vaxt seçilir?{% elif CURRENT_LANGUAGE == "en" %}When to choose Specialist?{% else %}Когда выбирать «Специалист»?{% endif %}</h2>
+          <ul class="km-help-bullets">
             <li>{% if CURRENT_LANGUAGE == "az" %}Uşaq psixoloqu, loqoped, pediatr{% elif CURRENT_LANGUAGE == "en" %}Child psychologist, speech therapist, pediatrician{% else %}Детский психолог, логопед, педиатр{% endif %}</li>
-            <li>{% if CURRENT_LANGUAGE == "az" %}Repetitor, məşqçi, terapevt{% elif CURRENT_LANGUAGE == "en" %}Tutor, coach, therapist{% else %}Репетитор, тренер, терапевт{% endif %}</li>
+            <li>{% if CURRENT_LANGUAGE == "az" %}Repetitor, məşqçi, terapevt{% elif CURRENT_LANGUAGE == "en" %}Tutor, coach, therapist{% else %}Репетитор, тренер, педагог{% endif %}</li>
             <li>{% if CURRENT_LANGUAGE == "az" %}Onlayn və ya şəxsi qəbul{% elif CURRENT_LANGUAGE == "en" %}Online or in-person sessions{% else %}Онлайн или очный приём{% endif %}</li>
             <li>{% if CURRENT_LANGUAGE == "az" %}Fərdi profil: diplom, reytinq, rəylər{% elif CURRENT_LANGUAGE == "en" %}Personal profile: diplomas, rating, reviews{% else %}Личный профиль с дипломами, рейтингом, отзывами{% endif %}</li>
           </ul>
         </article>
 
-        <article class="owner-event-help-card km-owner-help-card-secondary">
-          <h2>{% if CURRENT_LANGUAGE == "az" %}Məcburi sahələr{% elif CURRENT_LANGUAGE == "en" %}Required fields{% else %}Обязательные поля{% endif %}</h2>
-          <ul>
+        <article class="owner-event-help-card km-sidebar-card km-help-card-requirements">
+          <h2><i class="fas fa-check-circle" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Məcburi sahələr{% elif CURRENT_LANGUAGE == "en" %}Required fields{% else %}Обязательные поля для публикации{% endif %}</h2>
+          <ul class="km-help-bullets">
             <li>{% if CURRENT_LANGUAGE == "az" %}Ad və iş formatı{% elif CURRENT_LANGUAGE == "en" %}Name and work format{% else %}Имя и формат работы{% endif %}</li>
             <li>{% if CURRENT_LANGUAGE == "az" %}Ən azı 1 istiqamət{% elif CURRENT_LANGUAGE == "en" %}At least 1 direction{% else %}Минимум 1 направление деятельности{% endif %}</li>
             <li>{% if CURRENT_LANGUAGE == "az" %}Ən azı 1 iş dili{% elif CURRENT_LANGUAGE == "en" %}At least 1 work language{% else %}Минимум 1 язык работы{% endif %}</li>
@@ -317,6 +606,5 @@
 
     </div><!-- /.owner-event-layout -->
   </form>
-</section>
-
 {% endblock %}
+

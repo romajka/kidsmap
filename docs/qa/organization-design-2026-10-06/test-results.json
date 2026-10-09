@@ -1,0 +1,36 @@
+{
+  "scope": "existing service contracts only; no bulk implementation",
+  "original_stock": {
+    "tests": 101,
+    "exit_code": 1,
+    "failures": 1,
+    "errors": 12,
+    "reason": "Workspace fixture lacks EDU Category after TransactionTestCase flush; branch 400 in same fixture scope",
+    "log": "/home/ramin/kidsmap/.tmp/organization-design-20261006/domain-tests.log"
+  },
+  "final": {
+    "tests": 108,
+    "seconds": 24.722,
+    "exit_code": 0,
+    "result": "OK",
+    "stock_other_tests": 89,
+    "stock_workspace_assertions_with_explicit_synthetic_category": 12,
+    "scratch_probes": 7,
+    "command": ".venv/bin/python .tmp/organization-design-20261006/run-probe.py catalog.testcases.test_task33_ownership catalog.testcases.test_task33_permissions catalog.testcases.test_task33_public_details domain_probe",
+    "log": "/home/ramin/kidsmap/.tmp/organization-design-20261006/probe-tests-final.log"
+  },
+  "isolation": {
+    "django_testing": true,
+    "database": "test_qa_stage04",
+    "production_credentials": false,
+    "external_transport": "blocked",
+    "real_email": false,
+    "real_media_upload": false
+  },
+  "warning": "Existing dirty models have changes not reflected in migration state; no migrations generated or applied for this design.",
+  "current_browser_cases": 48,
+  "prototype_browser_cases": 108,
+  "prototype_keyboard_assertions": 72,
+  "full_suite_run": false,
+  "production_run": false
+}

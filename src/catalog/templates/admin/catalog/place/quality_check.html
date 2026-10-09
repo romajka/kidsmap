@@ -7,9 +7,9 @@
   <p><strong>{{ original }}</strong></p>
 
   {% if result.is_valid %}
-    <div class="messagelist"><div class="success">{% translate "Критических ошибок нет. Карточку можно отметить как проверенную." %}</div></div>
+    <div class="messagelist"><div class="success">{% translate "Критических ошибок нет." %}</div></div>
   {% else %}
-    <div class="messagelist"><div class="error">{% translate "Карточку нельзя отметить как проверенную, пока не исправлены ошибки." %}</div></div>
+    <div class="messagelist"><div class="error">{% translate "Исправьте ошибки, перечисленные ниже." %}</div></div>
     <h2>{% translate "Ошибки" %}</h2>
     <ul>
       {% for issue in result.errors %}

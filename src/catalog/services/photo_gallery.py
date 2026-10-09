@@ -1,11 +1,17 @@
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from hashlib import sha256
 
 
-def validate_gallery_order(order, saved_ids, deleted_ids, new_count):
+def gallery_key(row):
+    return f"saved:{row['id']}" if row['id'] is not None else 'candidate:' + sha256(row['image'].encode()).hexdigest()
+
+
+def validate_gallery_order(order, saved_ids, deleted_ids, new_count, candidate_keys=()):
     if order is None:
         return
     expected = {f'saved:{pk}' for pk in saved_ids if str(pk) not in set(map(str, deleted_ids))}
+    expected.update(key for key in candidate_keys if key not in deleted_ids)
     expected.update(f'new:{index}' for index in range(new_count))
     if not isinstance(order, list) or any(not isinstance(key, str) for key in order) or len(order) != len(expected) or set(order) != expected:
         raise ValidationError(_('Порядок фотографий изменился. Проверьте галерею и повторите сохранение.'))

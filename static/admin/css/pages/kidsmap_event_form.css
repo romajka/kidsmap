@@ -1,0 +1,23 @@
+/* Event's custom media fields must not impose their intrinsic input widths on the grid. */
+#event_form .km-media-section,
+#event_form .km-media-event-status,
+#event_form .km-media-event-status .form-group {
+  min-width: 0;
+}
+#event_form .km-media-event-status input,
+#event_form .km-media-event-status select:not(.select2-hidden-accessible),
+#event_form .km-media-event-status .select2-container {
+  width: 100% !important;
+  max-width: 100%;
+  min-width: 0;
+}
+#event_form .km-media-section__lead > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+/* Select2 also initializes standalone selectors (format/status) with an inline 600px width. */
+#event_form .select2-container {
+  width: 100% !important;
+  max-width: 100%;
+  min-width: 0 !important;
+}

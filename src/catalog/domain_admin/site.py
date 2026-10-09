@@ -305,7 +305,7 @@ class SiteSettingsCompatAdmin(admin.ModelAdmin):
                 "key": "visibility",
                 "icon": "fas fa-eye",
                 "title": _("Разделы сайта"),
-                "description": _("Включение и скрытие публичных разделов сайта."),
+                "description": _("Три переключателя: афиша, педагоги и специалисты, организации."),
                 "url": reverse("admin:catalog_sitevisibilitysettings_changelist"),
                 "complete": True,
             },
@@ -445,22 +445,15 @@ class SiteEmptyStateSettingsAdmin(_BaseSiteSettingsSectionAdmin):
 class SiteVisibilitySettingsAdmin(_BaseSiteSettingsSectionAdmin):
     fieldsets = (
         (
+            _("Разделы сайта"),
+            {
+                "fields": ("events_section_enabled", "specialists_section_enabled", "organizations_section_enabled"),
+                "description": _("Галочка включена — раздел виден посетителям. Снимите галочку и нажмите «Сохранить», чтобы скрыть раздел до готовности. Данные не удаляются: редактирование в админке остаётся доступным. Чтобы вернуть раздел, поставьте галочку и сохраните снова."),
+            },
+        ),
+        (
             _("Публичное избранное"),
             {"fields": ("public_favorites_count_enabled", "public_favorites_minimum")},
-        ),
-        (
-            _("Раздел «Педагоги и специалисты»"),
-            {
-                "fields": ("specialists_section_enabled",),
-                "description": _("Выключите, чтобы скрыть раздел из меню и owner-интерфейса. Публичные ссылки будут перенаправляться в каталог, а данные и админка останутся доступными."),
-            },
-        ),
-        (
-            _("Раздел «Временные мероприятия»"),
-            {
-                "fields": ("events_section_enabled",),
-                "description": _("Выключите, чтобы скрыть афишу, временные карточки, ссылки в навигации и owner-интерфейсе. Публичные ссылки станут недоступны, а данные и админка останутся доступными."),
-            },
         ),
         (_("Служебное"), {"classes": ("collapse",), "fields": ("updated_at",)}),
     )

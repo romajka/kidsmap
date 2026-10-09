@@ -52,25 +52,28 @@
   window.addEventListener("pageswap", (event) => {
     if (!event.viewTransition) return;
     const target = event.activation && event.activation.entry;
-    if (!target || !PLACE_URL.test(target.url)) return;
-
-    const el = tag(pendingCover);
+    // Account forms opt out. Skip before the incoming document is revealed.
+    if (target && /^\/(?:[a-z]{2}\/)?account\//.test(new URL(target.url, location.href).pathname)) {
+      event.viewTransition.skipTransition();
+    }
+    const el = tag(target && PLACE_URL.test(target.url) ? pendingCover : null);
+    // Opt-out destinations abort ready even when no cover is paired.
+    event.viewTransition.ready.then(() => {}, () => untag(el));
     // Names must not leak into the back/forward cache snapshot.
-    event.viewTransition.finished.then(() => untag(el));
+    event.viewTransition.finished.then(() => untag(el), () => untag(el));
   });
 
   /* ---- incoming page: tag the hero so the pair resolves ----------------- */
 
   window.addEventListener("pagereveal", (event) => {
     if (!event.viewTransition) return;
-    if (!PLACE_URL.test(window.location.pathname)) return;
-
-    const hero =
-      document.querySelector(".place-gallery__image") ||
-      document.querySelector(".detail-top-media img");
+    const hero = PLACE_URL.test(window.location.pathname)
+      ? document.querySelector(".place-gallery__image") ||
+        document.querySelector(".detail-top-media img")
+      : null;
 
     const el = tag(hero);
-    event.viewTransition.ready.finally(() => untag(el));
+    event.viewTransition.ready.then(() => untag(el), () => untag(el));
   });
 
   /* ---- favourite burst -------------------------------------------------- */

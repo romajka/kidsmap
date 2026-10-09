@@ -21,8 +21,8 @@
     {{ field }}
     {% if suffix %}<span class="km-pf-field__suffix" aria-hidden="true">{{ suffix }}</span>{% endif %}
   </div>
-  {% if hint %}<p class="km-pf-field__hint">{{ hint }}</p>{% endif %}
-  {% for error in field.errors %}
+  {% if hint %}<p class="km-pf-field__hint" id="{{ field.id_for_label }}_help">{{ hint }}</p>{% endif %}
+  <div id="{{ field.id_for_label }}_errors">{% for error in field.errors %}
     <p class="km-pf-field__error"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-error"></use></svg>{{ error }}</p>
-  {% endfor %}
+  {% endfor %}</div>
 </div>

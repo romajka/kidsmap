@@ -1,0 +1,51 @@
+{
+  "checked_at": "2026-10-07T09:54:11.163619+00:00",
+  "head": "2da9d33abbc53d1ac71bcb7e15a0170bef6277d5",
+  "branch": "task33-progress",
+  "baseline_files": 4924,
+  "changed_application_files": [
+    "locale/az/LC_MESSAGES/django.po",
+    "locale/en/LC_MESSAGES/django.po",
+    "locale/ru/LC_MESSAGES/django.po",
+    "src/catalog/domain_admin/place.py",
+    "src/catalog/forms.py",
+    "src/catalog/services/permanent_place_rules.py",
+    "src/catalog/services/permanent_place_wizard.py",
+    "src/catalog/templates/admin/catalog/place/change_form.html",
+    "src/catalog/templates/admin/catalog/place/form/_field.html",
+    "src/catalog/templates/admin/catalog/place/form/header.html",
+    "src/catalog/templates/admin/catalog/place/form/section_basics.html",
+    "src/catalog/templates/admin/catalog/place/form/section_media.html",
+    "src/catalog/templates/admin/catalog/place/form/section_verification.html",
+    "src/catalog/templates/pages/includes/owner_place_continuous.html",
+    "src/catalog/templates/pages/includes/permanent_place_field.html",
+    "src/catalog/templates/pages/owner_listing_type_select.html",
+    "src/catalog/templates/pages/permanent_place_form.html",
+    "src/catalog/testcases/test_task33_place_continuous.py",
+    "static/admin/css/pages/kidsmap_place_form.css",
+    "static/admin/js/kidsmap_place_form.js",
+    "static/admin/js/kidsmap_place_media.js",
+    "static/css/pages/owner_place_continuous.css",
+    "static/js/owner_place_continuous.js",
+    "static/js/owner_place_offerings.js"
+  ],
+  "outside_allowed_changes": [],
+  "unchanged_files": 4900,
+  "forms_protected_methods": 35,
+  "event_admin_classes_unchanged": [
+    "EventPhotoInline",
+    "BakuEventDateTimeField",
+    "EventAdminForm",
+    "EventDeletedFilter",
+    "EventAdmin"
+  ],
+  "admin_changed_methods": [
+    "PlaceAdmin.render_change_form",
+    "PlaceAdmin._build_place_form_summary"
+  ],
+  "readiness_existing_functions_unchanged": true,
+  "runtime_hashes_match": true,
+  "source_digest": "30ed04103232e9a0c1ed69a8f9a98a0370b57b3454073952b5e00cbd4c737aa6",
+  "added_lines_whitespace_check": "PASS",
+  "ignored_mo_start_hashes_captured": false
+}

@@ -14,8 +14,19 @@
   const newGroup = () => ({id: null, name_az: '', age_from: null, age_to: null, lesson_format: 'group', language: '', schedule_text: '', pricing_plans: [newPlan()]});
   const newActivity = () => ({id: null, program_id: null, name_az: '', description_az: '', supplement_az: '', groups: [newGroup()]});
   let sequence = 0;
+  const opened = new WeakMap();
+  let summaries = [];
+  function disclosure(className, object, title, path) {
+    const details = node('details', className); details.open = opened.get(object) ?? !object.id;
+    Object.assign(details.dataset, path);
+    const summary = node('summary');
+    details.append(summary); summaries.push(() => { summary.textContent = title(); });
+    details.addEventListener('toggle', () => opened.set(object, details.open));
+    return details;
+  }
+  function priceSummary(plan) { return plan.price_kind === 'free' ? ui.free : `${plan.price ?? [plan.price_min, plan.price_max].filter(v => v != null).join('–')} ${plan.currency || 'AZN'}`; }
   function node(tag, className, text) { const element = document.createElement(tag); if (className) element.className = className; if (text) element.textContent = text; return element; }
-  function sync() { input.value = tree.activities.length ? JSON.stringify(tree) : ''; input.dispatchEvent(new Event('input', {bubbles: true})); root.dispatchEvent(new CustomEvent('km:offerings-change', {bubbles: true})); }
+  function sync() { summaries.forEach(update => update()); input.value = tree.activities.length ? JSON.stringify(tree) : ''; input.dispatchEvent(new Event('input', {bubbles: true})); root.dispatchEvent(new CustomEvent('km:offerings-change', {bubbles: true})); }
   function field(parent, object, key, label, kind = 'text', config = {}) {
     const wrap = node('label', 'pc-offering-field'); wrap.append(node('span', '', label));
     const control = node(kind === 'textarea' ? 'textarea' : kind === 'select' ? 'select' : 'input');
@@ -23,7 +34,7 @@
     if (kind === 'select') for (const [value, title] of config.choices || []) { const option = node('option', '', title); option.value = value; control.append(option); }
     if (kind === 'number') { control.min = '0'; if (key === 'price') control.step = '0.01'; else control.step = '1'; }
     if (kind === 'checkbox') control.checked = Boolean(object[key]); else control.value = object[key] ?? '';
-    control.id = `pc-offer-${++sequence}`; control.setAttribute('aria-label', label);
+    control.id = `pc-offer-${++sequence}`; control.dataset.offeringKey = key; control.setAttribute('aria-label', label);
     const update = () => { object[key] = kind === 'checkbox' ? control.checked : kind === 'number' || key === 'program_id' || key === 'subcategory_id' ? (control.value === '' ? null : Number(control.value)) : key === 'category_id' ? (control.value || null) : control.value; sync(); };
     control.addEventListener(kind === 'checkbox' || kind === 'select' ? 'change' : 'input', update);
     wrap.append(control); parent.append(wrap); return control;
@@ -71,12 +82,14 @@
     }
   }
   function render() {
-    list.replaceChildren(); sequence = 0;
+    list.replaceChildren(); sequence = 0; summaries = [];
     tree.activities.forEach((activity, activityIndex) => {
-      const card = node('section', 'pc-activity-card');
-      const heading = node('h4', '', `${ui.add_activity} ${activityIndex + 1}`); card.append(heading);
-      const basic = node('div', 'pc-offering-grid');
       const programs = choices.programs || [];
+      const card = disclosure('pc-activity-card', activity, () => {
+        const program = programs.find(p => p.id === activity.program_id);
+        return program ? `${ui.shared_program}: ${program[`name_${language}`] || program.name_az}` : activity.name_az || `${ui.local_activity} ${activityIndex + 1}`;
+      }, {activityIndex});
+      const basic = node('div', 'pc-offering-grid');
       field(basic, activity, 'program_id', ui.shared_program, 'select', {choices: [['', ui.local_activity], ...programs.map(p => [String(p.id), p[`name_${language}`] || p.name_az])]})
         .addEventListener('change', render);
       const selected = programs.find(p => p.id === activity.program_id);
@@ -92,7 +105,7 @@
       card.append(basic);
       if (!selected) translations(card, activity, 'name', true);
       activity.groups.forEach((group, groupIndex) => {
-        const block = node('div', 'pc-group-card'); block.append(node('h5', '', `${ui.add_group} ${groupIndex + 1}`));
+        const block = disclosure('pc-group-card', group, () => `${group.name_az || ui.add_group} · ${group.age_from ?? '—'}–${group.age_to ?? '—'} · ${group.schedule_text || '—'}`, {groupIndex});
         const grid = node('div', 'pc-offering-grid');
         field(grid, group, 'name_az', ui.group_name);
         field(grid, group, 'age_from', ui.group_age_from, 'number');
@@ -104,7 +117,7 @@
         field(grid, group, 'conditions_az', ui.group_conditions, 'textarea');
         block.append(grid); translations(block, group, 'name');
         group.pricing_plans.forEach((plan, planIndex) => {
-          const planBlock = node('div', 'pc-plan-card'); planBlock.append(node('h6', '', `${ui.add_plan} ${planIndex + 1}`));
+          const planBlock = disclosure('pc-plan-card', plan, () => `${plan.title_az || ui.plan_title} · ${priceSummary(plan)}`, {planIndex});
           const planGrid = node('div', 'pc-offering-grid');
           field(planGrid, plan, 'title_az', ui.plan_title);
           field(planGrid, plan, 'product_type', ui.plan_type, 'select', {choices: choices.product_types});
@@ -135,6 +148,7 @@
       button(card, ui.remove_activity, () => { tree.activities.splice(activityIndex, 1); sync(); render(); });
       list.append(card);
     });
+    summaries.forEach(update => update());
   }
   root.querySelector('[data-pc-add-activity]').addEventListener('click', () => { tree.activities.push(newActivity()); sync(); render(); list.lastElementChild?.querySelector('input')?.focus(); });
   input.addEventListener('change', () => { tree = parse(); render(); });

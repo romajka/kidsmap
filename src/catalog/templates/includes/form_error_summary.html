@@ -1,0 +1,61 @@
+{% load i18n %}
+{% get_current_language as CURRENT_LANGUAGE %}
+{% if form.errors or form.non_field_errors %}
+<div
+  class="km-form-error-summary"
+  id="form-error-summary"
+  role="alert"
+  aria-labelledby="form-error-summary-title"
+  tabindex="-1"
+  data-error-summary
+>
+  <div class="km-form-error-summary__header">
+    <span class="material-symbols-rounded km-form-error-summary__icon" aria-hidden="true">error</span>
+    <div>
+      <h2 id="form-error-summary-title" class="km-form-error-summary__title">
+        {% if CURRENT_LANGUAGE == 'az' %}
+          Formada xətalar aşkarlandı ({{ form.errors|length }})
+        {% elif CURRENT_LANGUAGE == 'en' %}
+          There are errors in the form ({{ form.errors|length }})
+        {% else %}
+          В форме есть ошибки ({{ form.errors|length }})
+        {% endif %}
+      </h2>
+      <p class="km-form-error-summary__subtitle">
+        {% if CURRENT_LANGUAGE == 'az' %}
+          Davam etməzdən əvvəl aşağıdakı sahələri yoxlayın və düzəldin:
+        {% elif CURRENT_LANGUAGE == 'en' %}
+          Please review and fix the following fields before proceeding:
+        {% else %}
+          Пожалуйста, проверьте и исправьте указанные поля перед сохранением:
+        {% endif %}
+      </p>
+    </div>
+  </div>
+
+  <ul class="km-form-error-summary__list">
+    {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}
+        <li class="km-form-error-summary__item km-form-error-summary__item--general">
+          <span class="km-form-error-summary__bullet" aria-hidden="true">•</span>
+          <span class="km-form-error-summary__text">{{ error }}</span>
+        </li>
+      {% endfor %}
+    {% endif %}
+
+    {% for field in form %}
+      {% if field.errors %}
+        {% for error in field.errors %}
+          <li class="km-form-error-summary__item">
+            <span class="km-form-error-summary__bullet" aria-hidden="true">•</span>
+            <a href="#id_{{ field.name }}" class="km-form-error-summary__link" data-error-field-ref="{{ field.name }}">
+              <strong class="km-form-error-summary__field-label">{{ field.label|default:field.name }}:</strong>
+              <span class="km-form-error-summary__field-msg">{{ error }}</span>
+            </a>
+          </li>
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}

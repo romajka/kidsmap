@@ -1,0 +1,1 @@
+async p=>{await p.goto('http://localhost:8788/ru/account/organizations/43/branches/81/detach-preview/');return {rows:[{id:'expiry-review',status:await p.locator('tr[data-result=detached]').count()===1?'PASS':'FAIL'}],operation:await p.locator('[data-confirm-form] [name=preview_id]').inputValue()};}

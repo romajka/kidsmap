@@ -80,3 +80,26 @@ test('visual result clears while moving and network errors can be retried', asyn
   assert.equal(root.querySelector('[data-location-district]').textContent,'Sabail');
   f.dom.window.close();
 });
+
+
+test('invalid numeric coordinates never announce a selected map point', () => {
+  const f = fixture({dataset: {pointSelected: 'Selected', pointEmpty: 'Not chosen'}});
+  const label = f.dom.window.document.createElement('strong');
+  label.setAttribute('data-location-point', '');
+  f.form.querySelector('[data-location-resolution]').append(label);
+  try {
+    for (const [lat, lng] of [['999', '49.8'], ['40.4', '190'], ['Infinity', '49.8']]) {
+      move(f, lat, lng);
+      assert.equal(label.textContent, 'Not chosen');
+    }
+  } finally { f.dom.window.close(); }
+});
+
+test('valid zero coordinates still announce a selected map point', () => {
+  const f = fixture({dataset: {pointSelected: 'Selected', pointEmpty: 'Not chosen'}});
+  const label = f.dom.window.document.createElement('strong');
+  label.setAttribute('data-location-point', '');
+  f.form.querySelector('[data-location-resolution]').append(label);
+  try { move(f, '0', '0'); assert.equal(label.textContent, 'Selected'); }
+  finally { f.dom.window.close(); }
+});

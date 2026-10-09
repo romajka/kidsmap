@@ -1255,7 +1255,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         self.draft_save_only = bool(kwargs.pop("draft_save_only", False))
         self.submit_for_moderation = bool(kwargs.pop("submit_for_moderation", False))
         self.coordinate_refresh_only = bool(kwargs.pop("coordinate_refresh_only", False))
-        if kwargs.get("data") is None and not args and kwargs.get("instance") is not None:
+        if kwargs.get("instance") is not None:
             from catalog.services.publication_forms import candidate_for_edit
             kwargs["instance"]=candidate_for_edit(kwargs["instance"])
         instance = kwargs.get("instance")
@@ -1321,6 +1321,8 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             from catalog.services.pricing_plans import serialize_nested_pricing
             revision = VolunteerPlaceRevision.objects.filter(place_id=instance.pk, status__in=['draft', 'pending', 'rejected']).first()
             self.initial['nested_pricing'] = (revision.payload.get('nested_pricing') if revision and 'nested_pricing' in revision.payload else serialize_nested_pricing(instance))
+            if revision and 'nature' in revision.payload:
+                self.initial['nature'] = revision.payload['nature']
         if "pricing_plans" in self.fields:
             current_plans = getattr(instance, "pricing_plans", None) if instance is not None else None
             if not self.is_bound and current_plans:
@@ -1443,8 +1445,22 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 }
             )
         self._init_schedule_editor()
-        self.fields["delete_gallery_ids"].choices = [(str(photo.pk), photo.image.name) for photo in instance.gallery.all()] if instance and instance.pk else []
-        self.photo_gallery_ids = [int(pk) for pk, _ in self.fields["delete_gallery_ids"].choices]
+        if not self.is_bound and instance is not None and instance.pk and revision and 'structured_schedule' in revision.payload:
+            days = revision.payload['structured_schedule']
+            raw_schedule = dump_schedule_payload(days)
+            self.fields['structured_schedule'].initial = raw_schedule
+            self.initial['structured_schedule'] = raw_schedule
+            self.schedule_editor_payload = raw_schedule
+            self.schedule_editor_days = [{**day, 'errors': []} for day in days]
+        from catalog.services.publication_forms import gallery_for_edit
+        from catalog.services.photo_gallery import gallery_key
+        self._saved_gallery = gallery_for_edit(instance) if instance and instance.pk else []
+        self.fields["delete_gallery_ids"].choices = [
+            (str(row['id']) if row['id'] is not None else gallery_key(row), row['image'])
+            for row in self._saved_gallery
+        ]
+        self.photo_gallery_ids = [row['id'] for row in self._saved_gallery if row['id'] is not None]
+        self.candidate_gallery_keys = [gallery_key(row) for row in self._saved_gallery if row['id'] is None]
         from catalog.services.image_uploads import image_upload_config
         self.photo_upload_config = image_upload_config()
         if self.submit_for_moderation and not self.draft_save_only and not self.coordinate_refresh_only:
@@ -1462,7 +1478,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         self.fields["lat"].label = wizard_text("Широта", "Enlik", "Latitude")
         self.fields["lng"].label = wizard_text("Долгота", "Uzunluq", "Longitude")
         self.fields["lesson_format"].label = wizard_text("Формат занятий", "Məşğələ formatı", "Lesson format")
-        self.fields["name_az"].help_text = wizard_text("Название хотя бы на одном языке.", "Ən azı bir dildə ad daxil edin.", "A name in at least one language.")
+        self.fields["name_az"].help_text = wizard_text("Название AZ нужно для отправки; RU и EN можно добавить позже.", "Göndərmək üçün AZ adı lazımdır; RU və EN daha sonra əlavə oluna bilər.", "An AZ name is needed to submit; RU and EN can be added later.")
         from catalog.services.permanent_place_rules import client_rules
         self.publication_rules = client_rules(self)
         for name in ("lat", "lng"):
@@ -1672,9 +1688,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 self.add_error("photo", exc)
 
         gallery_images = cleaned.get("gallery_images") or []
-        existing_gallery_count = (
-            self.instance.gallery.count() if self.instance and self.instance.pk else 0
-        )
+        existing_gallery_count = len(self._saved_gallery)
         existing_gallery_count -= len(cleaned.get("delete_gallery_ids") or [])
         available_slots = max(_OWNER_GALLERY_MAX_FILES - existing_gallery_count, 0)
         if len(gallery_images) > available_slots:
@@ -1692,7 +1706,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         cleaned["gallery_images"] = normalized_gallery_images
         from catalog.services.photo_gallery import validate_gallery_order
         try:
-            validate_gallery_order(cleaned.get("gallery_order"), self.photo_gallery_ids, cleaned.get("delete_gallery_ids") or [], len(normalized_gallery_images))
+            validate_gallery_order(cleaned.get("gallery_order"), self.photo_gallery_ids, cleaned.get("delete_gallery_ids") or [], len(normalized_gallery_images), self.candidate_gallery_keys)
         except ValidationError as exc:
             self.add_error("gallery_images", exc)
 
@@ -1741,6 +1755,24 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
     def continuous_sections(self):
         from catalog.services.permanent_place_wizard import continuous_sections
         return continuous_sections(self)
+
+    @property
+    def submission_readiness(self):
+        from catalog.services.permanent_place_rules import submission_readiness
+        return submission_readiness(self)
+
+    @property
+    def saved_gallery_preview(self):
+        """Editable saved rows; candidate keys never impersonate database IDs."""
+        from catalog.services.photo_gallery import gallery_key
+        storage = self.instance._meta.get_field('photo').storage
+        return [{**row, 'key': gallery_key(row),
+                 'delete_value': str(row['id']) if row['id'] is not None else gallery_key(row),
+                 'url': storage.url(row['image'])} for row in self._saved_gallery]
+
+    @property
+    def saved_gallery_has_pending(self):
+        return any(row.get('id') is None for row in self.saved_gallery_preview)
 
 
 class OwnerPlaceCreateForm(OwnerPlaceEditForm):
@@ -1817,6 +1849,8 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
 
 class OwnerEventForm(forms.ModelForm):
     expected_updated_at = forms.CharField(required=False, widget=forms.HiddenInput())
+    SUBMIT_REQUIRED_FIELDS = ("name_az", "category", "event_date", "start_time_input", "end_time_input",
+                              "age_from", "age_to", "price_text", "description_az", "photo")
     draft_save_only = False
     require_location_region = False
 
@@ -1974,6 +2008,10 @@ class OwnerEventForm(forms.ModelForm):
         self.fields['organizer_organization'].label = _('Организация')
         self.fields['organizer_specialist'].label = _('Специалист')
         self.fields['event_format'].label = _('Формат')
+        self.fields['name_az'].label = _('Название мероприятия (AZ)')
+        self.fields['description_az'].label = _('Описание мероприятия (AZ)')
+        self.fields['phone'].label = _('Телефон мероприятия')
+        self.fields['related_place'].label = _('Площадка мероприятия')
         self.fields['event_format'].widget.attrs['data-event-format'] = '1'
         language = (get_language() or 'az').split('-')[0]
         from catalog.services.public_presentation import translated
@@ -2003,7 +2041,15 @@ class OwnerEventForm(forms.ModelForm):
             self.fields['organizer_organization'].queryset = Organization.objects.none()
             self.fields['organizer_specialist'].queryset = Specialist.objects.none()
         self.fields['related_place'].help_text = _('Необязательно. Можно добавить мероприятие без постоянного места.')
-        self.fields["photo"].help_text = _("JPG, PNG или WEBP. Максимум 2 МБ.")
+        from catalog.services.image_uploads import image_upload_config
+        self.photo_upload_config = image_upload_config()
+        self.fields["photo"].widget = forms.ClearableFileInput(attrs={"accept": "image/jpeg,image/png,image/webp,.heic,.heif,.hif"})
+        self.fields["photo"].help_text = _("JPG, PNG, WEBP, HEIC/HEIF: исходник до %(source)s МБ, %(pixels)s Мп, %(dimension)s px по стороне; после обработки до %(output)s МБ. HEIF зависит от доступности кодека.") % {
+            'source': self.photo_upload_config['sourceBytes'] // 1024 // 1024,
+            'pixels': self.photo_upload_config['maxPixels'] // 1000000,
+            'dimension': self.photo_upload_config['maxDimension'],
+            'output': self.photo_upload_config['outputBytes'] // 1024 // 1024,
+        }
         self.fields["moderation_note"].help_text = _("Необязательно. Укажите детали для модератора.")
         from catalog.services.locations import configure_location_choices, init_location_fields
         init_location_fields(self, self.instance)
@@ -2015,19 +2061,9 @@ class OwnerEventForm(forms.ModelForm):
         if self.draft_save_only:
             for field in self.fields.values():
                 field.required = False
+            self.fields["category"].required = True
             return
-        for field_name in (
-            "name_az",
-            "category",
-            "event_date",
-            "start_time_input",
-            "end_time_input",
-            "age_from",
-            "age_to",
-            "price_text",
-            "description_az",
-            "photo",
-        ):
+        for field_name in self.SUBMIT_REQUIRED_FIELDS:
             self.fields[field_name].required = True
 
     def clean_name_az(self):
@@ -2055,9 +2091,6 @@ class OwnerEventForm(forms.ModelForm):
             if not cleaned.get("address"):
                 cleaned["address"] = related_place.address
                 self.instance.address = related_place.address
-            if not cleaned.get("phone"):
-                cleaned["phone"] = related_place.phone1
-                self.instance.phone = related_place.phone1
             if cleaned.get("lat") is None:
                 cleaned["lat"] = related_place.lat
                 self.instance.lat = related_place.lat
@@ -2074,7 +2107,7 @@ class OwnerEventForm(forms.ModelForm):
             if not online and not cleaned.get("address"):
                 self.add_error("address", _("Укажите адрес или выберите связанное место с адресом."))
             if not cleaned.get("phone"):
-                self.add_error("phone", _("Укажите телефон / WhatsApp или выберите связанное место с телефоном."))
+                self.add_error("phone", _("Укажите телефон мероприятия / WhatsApp."))
 
         event_date = cleaned.get("event_date")
         end_date = cleaned.get("end_date") or event_date
@@ -2118,6 +2151,15 @@ class OwnerEventForm(forms.ModelForm):
             if not end_time:
                 self.add_error("end_time_input", _("Укажите время окончания."))
 
+        # Drafts may omit the whole interval, but a partial pair is invalid in event_domain.
+        if any((event_date, cleaned.get("end_date"), start_time, end_time)):
+            if not event_date:
+                self.add_error("event_date", _("Укажите дату мероприятия."))
+            if not start_time:
+                self.add_error("start_time_input", _("Укажите время начала."))
+            if not end_time:
+                self.add_error("end_time_input", _("Укажите время окончания."))
+
         if start and end and start >= end:
             self.add_error("end_time_input", _("Время окончания должно быть позже времени начала."))
         if not self.draft_save_only and start and start < timezone.now():
@@ -2144,8 +2186,6 @@ class OwnerEventForm(forms.ModelForm):
         if event.related_place:
             if not event.address:
                 event.address = event.related_place.address
-            if not event.phone:
-                event.phone = event.related_place.phone1
             if not event.instagram:
                 event.instagram = event.related_place.instagram
         if commit:
@@ -2246,6 +2286,9 @@ class OwnerSpecialistForm(forms.ModelForm):
         model = Specialist
         fields = (
             "name",
+            "name_alt",
+            "education_az", "education_ru", "education_en",
+            "experience_info_az", "experience_info_ru", "experience_info_en",
             "photo",
             "bio_az",
             "bio_ru",
@@ -2287,8 +2330,15 @@ class OwnerSpecialistForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.draft_save_only = bool(kwargs.pop("draft_save_only", False))
+        self.actor = kwargs.pop("actor",None)
+        self.locations = kwargs.pop("locations",None)
         super().__init__(*args, **kwargs)
+        for name in ('name_alt','education_az','education_ru','education_en','experience_info_az','experience_info_ru','experience_info_en'):
+            self.fields[name].widget.attrs.update({'class':'field'})
+        self.fields['experience_years'].widget.attrs['min']=0
+        self.fields['experience_years'].help_text=_('Пусто — стаж не указан. 0 — нет полных лет опыта.')
         self.fields["photo"].help_text = _("JPG, PNG или WEBP. Максимум 2 МБ.")
+        self.fields["specializations"].widget = forms.CheckboxSelectMultiple()
         self.fields["specializations"].queryset = SpecialistSpecialization.objects.filter(is_active=True).order_by("order", "name_ru")
         self.fields["specializations"].required = False
 
@@ -2313,6 +2363,10 @@ class OwnerSpecialistForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        if self.locations is not None:
+            self.locations.instance.consultation_format=cleaned.get('consultation_format') or Specialist.FORMAT_ONLINE
+            self.locations.require_active=not self.draft_save_only
+            if not self.locations.is_valid():self.add_error(None,_('Проверьте места приёма.'))
         if self.draft_save_only:
             photo = cleaned.get("photo")
             if photo:
@@ -2338,7 +2392,7 @@ class OwnerSpecialistForm(forms.ModelForm):
 
         # Enforce that if format is offline or both, location fields are required and validated
         consultation_format = cleaned.get("consultation_format")
-        if consultation_format in [Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH]:
+        if self.locations is None and consultation_format in [Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH]:
             loc_place = cleaned.get("location_place")
             loc_address = cleaned.get("location_address")
             loc_region = cleaned.get("location_region")

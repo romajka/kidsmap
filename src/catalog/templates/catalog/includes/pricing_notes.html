@@ -1,12 +1,11 @@
 {% load i18n %}
+{% get_current_language as pricing_note_language %}
 {% if place.extra_conditions_i18n %}
   <p class="detail-note"><strong>{% trans "Дополнительные условия" %}:</strong> {{ place.extra_conditions_i18n|linebreaksbr }}</p>
 {% endif %}
 {% if place.additional_info_i18n %}
   <p class="detail-note">{{ place.additional_info_i18n|linebreaksbr }}</p>
 {% endif %}
-{% if not place.is_verified %}
   {% if pricing_summary.has_price or pricing_summary.plans %}
-    <p class="detail-note detail-note--muted" data-price-disclaimer>{% trans "Цены собраны из открытых источников — уточняйте их у организации перед визитом." %}</p>
+    <p class="detail-note detail-note--muted" data-price-disclaimer>{% if pricing_note_language == "az" %}Ziyarətdən əvvəl qiymətləri təşkilatdan dəqiqləşdirin.{% elif pricing_note_language == "en" %}Confirm prices with the organization before your visit.{% else %}Уточняйте цены у организации перед визитом.{% endif %}</p>
   {% endif %}
-{% endif %}

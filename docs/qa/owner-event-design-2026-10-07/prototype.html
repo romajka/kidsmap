@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>KidsMap · Owner event design</title>
+  <link rel="stylesheet" href="prototype.css">
+  <script src="prototype.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main" id="skip"></a>
+  <header class="header"><div class="top"><span class="logo">KidsMap<span>az</span></span><span id="workspace"></span><label class="language"><span class="sr" id="language-label"></span><select id="language"><option value="ru">RU</option><option value="az">AZ</option><option value="en">EN</option></select></label></div></header>
+  <div class="demo"><strong id="demo-label"></strong><label><span id="scenario-label"></span><select id="scenario"></select></label><span id="demo-help"></span></div>
+  <main id="main" class="shell" tabindex="-1">
+    <div class="breadcrumb" id="breadcrumb"></div>
+    <div class="title-row"><div><h1 id="title"></h1><p class="sub" id="subtitle"></p></div><span id="state-badge" class="badge"></span></div>
+    <div id="global-notice" class="notice" hidden></div>
+    <div id="error-summary" class="notice fail" tabindex="-1" role="alert" hidden></div>
+    <div id="conflict" class="notice warn" tabindex="-1" hidden></div>
+    <nav id="steps" class="steps" aria-label=""></nav>
+    <form id="event-form" novalidate>
+      <div class="layout">
+        <div class="content">
+          <section class="card step" data-step="1">
+            <div class="eyebrow" id="step1-kicker"></div><h2 id="step1-title" tabindex="-1"></h2><p class="sub" id="step1-help"></p>
+            <fieldset id="organizer-fieldset"><legend id="organizer-legend"></legend><div class="choice-row"><label class="choice"><input type="radio" name="organizer_type" value="org" checked><span id="org-label"></span></label><label class="choice"><input type="radio" name="organizer_type" value="specialist"><span id="specialist-label"></span></label></div></fieldset>
+            <label class="field" id="organizer-field"><span id="organizer-label"></span><select id="organizer" aria-describedby="organizer-hint"></select></label><p id="organizer-hint" class="hint"></p>
+            <div class="notice warn" id="empty-organizer" hidden></div>
+            <div class="grid"><label class="field"><span id="name-label"></span><input id="name" value="Robototexnika gecəsi" aria-describedby="name-hint"><small id="name-hint" class="hint"></small></label><label class="field"><span id="category-label"></span><select id="category"><option value=""></option><option value="EDU" selected></option><option value="FUN"></option></select></label></div>
+            <hr><div class="section-title"><h3 id="dates-title"></h3><span class="badge neutral">Asia/Baku · UTC+4</span></div>
+            <div class="grid"><label class="field"><span id="date-label"></span><input id="date" type="date" value="2035-02-04"></label><label class="field"><span id="start-label"></span><input id="start" type="time" value="23:30"></label></div>
+            <label class="check"><input id="overnight" type="checkbox" checked aria-controls="end-date-field"><span id="overnight-label"></span></label>
+            <div class="grid"><label class="field" id="end-date-field"><span id="end-date-label"></span><input id="end-date" type="date" value="2035-02-05"></label><label class="field"><span id="end-label"></span><input id="end" type="time" value="00:30" aria-describedby="date-interval"></label></div>
+            <p id="date-interval" class="notice"></p>
+            <div class="grid"><label class="field"><span id="age-from-label"></span><input id="age-from" type="number" min="0" value="6"></label><label class="field"><span id="age-to-label"></span><input id="age-to" type="number" min="0" value="12"></label><label class="field"><span id="price-label"></span><input id="price" value="15 AZN"><small class="hint" id="price-hint"></small></label><label class="field"><span id="phone-label"></span><input id="phone" type="tel" value="+994500000000"><small class="hint" id="phone-hint"></small></label></div>
+            <label class="field"><span id="description-label"></span><textarea id="description">Uşaqlar sadə robot yığacaq və onu sınaqdan keçirəcəklər. Materiallar qiymətə daxildir.</textarea><small class="hint" id="description-hint"></small></label>
+          </section>
+          <section class="card step" data-step="2" hidden>
+            <div class="eyebrow" id="step2-kicker"></div><h2 id="step2-title" tabindex="-1"></h2><p class="sub" id="step2-help"></p>
+            <fieldset><legend id="format-legend"></legend><div class="format-row"><label class="format"><input type="radio" name="format" value="physical" checked><span><strong id="physical-title"></strong><small id="physical-help"></small></span></label><label class="format"><input type="radio" name="format" value="online"><span><strong id="online-title"></strong><small id="online-help"></small></span></label></div></fieldset>
+            <div class="notice" id="online-note" hidden></div>
+            <fieldset id="physical-fields"><legend id="venue-legend"></legend><div class="choice-row"><label class="choice"><input type="radio" name="venue" value="related" checked><span id="related-label"></span></label><label class="choice"><input type="radio" name="venue" value="custom"><span id="custom-label"></span></label></div>
+              <div id="related-fields"><label class="field"><span id="venue-label"></span><select id="venue"><option value="lab">Kids Lab · Bakı, Sınaq küçəsi 10</option><option value="studio">Art Studio · Bakı, Sınaq küçəsi 20</option></select></label><p class="hint" id="venue-hint"></p><div class="notice fail" id="venue-error" hidden></div><div class="venue-info"><span class="badge neutral" id="venue-badge"></span><h3 id="venue-name">Kids Lab</h3><p id="venue-address">Bakı, Sınaq küçəsi 10</p><div class="contact-row"><span>+994500000001</span><button type="button" id="copy-phone"></button></div><p class="hint" id="snapshot-help"></p></div></div>
+              <div id="custom-fields" hidden><label class="field"><span id="address-label"></span><input id="address" value="Bakı, Sınaq küçəsi 30" aria-describedby="address-help"><small id="address-help" class="hint"></small></label><div class="grid"><label class="field"><span id="district-label"></span><select id="district"><option value=""></option><option value="nasimi">Nəsimi</option></select></label><label class="field"><span id="metro-label"></span><select id="metro"><option value=""></option><option value="28may">28 May</option></select></label></div><div class="map"><span class="map-icon" aria-hidden="true">⌖</span><strong id="map-title"></strong><p id="map-help"></p><button id="map-retry" type="button"></button></div><p class="hint" id="map-optional"></p></div>
+            </fieldset>
+          </section>
+          <section class="card step" data-step="3" hidden>
+            <div class="eyebrow" id="step3-kicker"></div><h2 id="step3-title" tabindex="-1"></h2><p class="sub" id="step3-help"></p>
+            <label class="field"><span id="photo-label"></span><input id="photo" type="file" accept="image/jpeg,image/png,image/webp,.heic,.heif" aria-describedby="photo-hint"><small id="photo-hint" class="hint"></small></label><div class="notice fail" id="file-error" hidden></div>
+            <div class="cover" aria-hidden="true"><svg viewBox="0 0 440 160"><rect width="440" height="160" fill="#e2efe2"/><circle cx="360" cy="35" r="65" fill="#cfdfc6"/><rect x="168" y="35" width="106" height="85" rx="15" fill="#136f38"/><rect x="184" y="51" width="74" height="37" rx="7" fill="#fff"/><circle cx="202" cy="69" r="7" fill="#136f38"/><circle cx="240" cy="69" r="7" fill="#136f38"/><path d="M208 103h26M222 35V19M168 77h-25M274 77h25M191 120v15M251 120v15" stroke="#136f38" stroke-width="8" stroke-linecap="round"/></svg></div><p class="hint" id="cover-demo"></p>
+            <label class="field"><span id="note-label"></span><textarea id="note" rows="2"></textarea><small class="hint" id="note-hint"></small></label>
+            <hr><h3 id="checklist-title"></h3><div id="checklist"></div><p class="hint" id="send-help"></p>
+          </section>
+          <section class="card" id="manage" hidden><div class="eyebrow" id="manage-kicker"></div><h2 id="manage-title" tabindex="-1"></h2><p id="manage-help" class="sub"></p><div class="notice" id="published-period"></div><div id="reschedule-fields" hidden><div class="grid"><label class="field"><span id="new-date-label"></span><input id="new-date" type="date" value="2035-02-06"></label><label class="field"><span id="new-start-label"></span><input id="new-start" type="time" value="23:30"></label><label class="field"><span id="new-end-date-label"></span><input id="new-end-date" type="date" value="2035-02-07"></label><label class="field"><span id="new-end-label"></span><input id="new-end" type="time" value="00:30"></label></div></div><label class="field"><span id="reason-label"></span><textarea id="reason" aria-describedby="reason-hint"></textarea><small id="reason-hint" class="hint"></small></label><div class="notice warn" id="consequences"></div></section>
+        </div>
+        <aside class="aside"><div class="card compact"><div class="eyebrow" id="preview-kicker"></div><h3 id="preview-title"></h3><div class="preview-art" aria-hidden="true">✦</div><h3 id="preview-name">Robototexnika gecəsi</h3><p class="small" id="preview-org"></p><dl><dt id="preview-when-label"></dt><dd id="preview-when"></dd><dt id="preview-where-label"></dt><dd id="preview-where"></dd><dt id="preview-age-label"></dt><dd id="preview-age"></dd><dt id="preview-price-label"></dt><dd id="preview-price"></dd></dl><p class="hint" id="preview-help"></p></div><div class="notice requirement"><strong id="draft-title"></strong><p id="draft-help"></p><strong id="publication-title"></strong><p id="publication-help"></p></div></aside>
+      </div>
+    </form>
+  </main>
+  <footer class="footer"><div class="footer-inner"><div id="save-state" class="save" role="status" aria-live="polite"></div><div class="actions"><button type="button" id="back"></button><button type="button" id="save"></button><button type="button" class="primary" id="next"></button></div></div></footer>
+</body>
+</html>

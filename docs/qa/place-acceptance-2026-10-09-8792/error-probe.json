@@ -1,0 +1,60 @@
+{
+  "rows": [
+    {
+      "id": "filled-branch-submit-invalid-age-errors",
+      "status": "PASS"
+    }
+  ],
+  "events": [
+    {
+      "type": "post",
+      "url": "http://localhost:8792/qa/login/",
+      "status": 302
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "type": "post",
+      "url": "http://localhost:8792/ru/api/drafts/",
+      "status": 200
+    },
+    {
+      "type": "post",
+      "url": "http://localhost:8792/ru/account/places/159/save-photos/",
+      "status": 422
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Entity)"
+    }
+  ],
+  "invalidFields": [
+    {
+      "name": "",
+      "key": "lesson_format",
+      "message": "Please select an item in the list.",
+      "visible": false,
+      "value": "",
+      "required": true
+    }
+  ],
+  "summary": "Исправьте ошибки\nВозраст до Обязательно для отправки: Возраст «до» меньше «от». Укажите значение «до», равное или больше «от».\nИсправьте ошибки: Карточка не может быть опубликована. Заполнено 9 из 10 обязательных пунктов. Необходимо заполнить: Возраст — Возраст «до» не может быть меньше возраста «от».\nВозраст от Обязательно для отправки: Возраст «до» не может быть меньше возраста «от».",
+  "status": "Не удалось сохранить. Данные остались в форме; попробуйте ещё раз.",
+  "buttons": [
+    {
+      "value": "save_draft",
+      "disabled": false
+    },
+    {
+      "value": "save_and_publish",
+      "disabled": false
+    }
+  ],
+  "url": "http://localhost:8792/ru/account/places/159/edit/"
+}

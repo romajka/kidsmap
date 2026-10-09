@@ -1,0 +1,49 @@
+scenario,status,evidence_or_limit
+Создание сети без филиалов — кабинет,PASS,"Org11: HTML create, zero branches, draft"
+Частичный ввод создания → refresh той же вкладки,PASS,browser-main2; sessionStorage
+Создание → сбой сети → восстановление,FAIL,ORG-03
+Обычное server autosave → reload,PASS,browser-main2
+Перекрывающиеся autosave ответы,FAIL,ORG-02
+Отправка → модерация → публичная сеть без филиалов,PASS,"browser-finish; final-domain-state: Org11 published, public200"
+Изменение опубликованной сети сохраняет старый public до review,PASS,live/candidate divergent; final-domain-state
+Новый сеанс после explicit submit,FAIL,"ORG-13: pending верный, редактор показывает старый рабочий draft"
+"Дубликат организации: предупреждение, явное отдельное создание",PASS,browser duplicate409; create separate — fresh server tests
+Поиск готового места по имени/адресу,PASS,browser selection/search; search-observe: адрес25→ID56
+Выбор сохраняется при смене поиска,PASS,browser-main2:10 carried IDs
+Подключение10 готовых мест собственнику сети,PASS,receipt3393a59d…;10 DB business links
+Галерея/основное фото/порядок/занятия/группы/цены/часы,PASS,"10 cards,30 real files SHA+IDs+fields; preservation-result"
+Частичный результат: existing + другая сеть + чужой owner,PASS,already_connected/other_network/requested; pending64 then second consent
+Чужой владелец: два согласия,PASS,browser-finish; owner remains outsider
+Новый отдельный филиал в сети,PASS,"browser-finish: Place67 draft, separate branch workspace"
+Полное заполнение и публикация этого нового филиала,NOT RUN,Организационный быстрый create прошёл; редактор места67 целиком не проходил
+Повторное подтверждение того же receipt,PASS,owner connect replay; detach replay; real concurrency tests
+Другой редактор изменил место после preview,PASS,"extra-probes:changed, place53 standalone"
+"Expired preview, >100, bool, пустой/повторяющийся ID",PASS,extra-probes/server-probes; controlled errors
+"CSRF, GET-mutation, foreign receipt/workspace",PASS,403/405/404; browser/server probes
+Угадывание ID чужого приватного draft,FAIL,"ORG-01: legacy/API leak, bulk blocks"
+Админ: выбор10 → organization → business без согласий,PASS,"browser-admin-supported:10 no_rights, no implicit owner authority"
+Админ: informational explicit review →10 links,PASS,browser-admin-supported; member view32true/view42false
+Админ: создание → draft → reload → submit → approve → published edit draft,PASS,Org12 browser-admin-editor/final finish; source canonical create/propose
+Новая отвязка: обзор программ/доступов/контактов и consent,PASS,"impact:program1,network grants2,direct1; missing consent409"
+"Отвязка: программный snapshot, группы/тарифы/direct grant",PASS,"Activity26 local approved snapshot; Group27/Price32 retained; managerfalse,parenttrue"
+Legacy отвязка без обзора,FAIL,ORG-04: authenticated owner POST succeeds without preview
+Перенос в другую сеть,PASS,Separate detach; old network owner PermissionDenied; actual place+target owner links toOrg6
+Устаревший pending запрос после content edit,FAIL,"ORG-12: manual_review, both confirms +retry rejected; recovery path absent"
+Две вкладки: version conflict и сохранение вводаB,PASS,"browser-tabs:409,B retained; raw English message ORG-06"
+Ошибки всех полей редактора/сводка создания,FAIL,ORG-05/06:400 no field errors; technical Name az
+Обычное приглашение MANAGER,PASS,POST200; one PENDING/MANAGER DB invitation
+Приглашение: итоговый список/описание после reset,FAIL,ORG-08
+Приглашение без JS,FAIL,ORG-07: GET email+CSRF;0 invitations
+"Принятие/истечение/повтор приглашения, отзыв, transfer race",PASS,Server test level only: GrantTests/TeamConcurrencyTests
+Принятие/отклонение/отзыв приглашений через browser UI,NOT RUN,Не подменять backend tests доказательством UI
+"Общие программы: locked revisions, branch override, access",PASS,Fresh test_task33_program_workspace + ownership snapshot tests; local detach snapshot observed
+"Полный UI create/review групп, тарифов и программ из сети",NOT RUN,"Здесь проверены сохранность и серверный contract, не все их editors"
+Public-section switches,PASS,"4 fresh test_public_section_switches, server/HTTP level"
+Выключение/включение флага через rendered admin UI,NOT RUN,В браузере переключатель в этом прогоне не менялся
+RU/AZ/EN ×360/390/768/1440: owner6 views +admin3 views,PASS,"108 successful layout loads, actual language checked in final admin matrix;0 matrix pageerror"
+Визуальная согласованность и размер secondary controls,FAIL,ORG-09:20–22px; форма визуально неоднородна
+Язык labels/errors/ARIA,FAIL,ORG-06/10/11; корректная загрузка страницы ≠ локализация всего UI
+"Клавиатура: disclosure,Tab,Space selection/consent,Enter preview",PASS,5 browser_keyboard assertions; no trap in tested segment
+"NVDA/VoiceOver, все controls/зум/контраст",NOT RUN,Native screen readers и полный WCAG audit не запускались
+Приватные документы специалиста после изменения сети,NOT RUN,В этой организации документацию личности не создавал/не открывал
+Реальная почта/SMS/внешние карты/production,NOT RUN,"External origins blocked; LocMem email/cache, no production credentials"

@@ -1,0 +1,27 @@
+{
+  "rows": [
+    {
+      "id": "invalid-coordinate-range-actual-validation",
+      "status": "PASS",
+      "value": "999",
+      "errors": [
+        "Не удалось сохранить. Данные остались в форме; попробуйте ещё раз.",
+        "Исправьте ошибкиШирота Обязательно для отправки: Укажите корректные широту и долготу. Чтобы отметить место на карте, укажите обе координаты: lat и lng.Долгота Обязательно для отправки: Чтобы отметить место на карте, укажите обе координаты: lat и lng."
+      ],
+      "network": [
+        {
+          "status": 302,
+          "url": "http://localhost:8792/qa/login/"
+        },
+        {
+          "status": 201,
+          "url": "http://localhost:8792/ru/api/drafts/"
+        },
+        {
+          "status": 422,
+          "url": "http://localhost:8792/ru/account/places/158/save-photos/"
+        }
+      ]
+    }
+  ]
+}

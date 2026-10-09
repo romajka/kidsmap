@@ -5499,3 +5499,11 @@ body.model-event .km-place-sidebar-card__title {
     overflow-wrap: anywhere;
   }
 }
+
+@media (max-height: 500px) {
+  body.model-event .km-place-form-mobile-actions,
+  .km-place-form-mobile-actions {
+    position: static !important;
+  }
+}
+

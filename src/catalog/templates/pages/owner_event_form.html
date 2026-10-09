@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static l10n %}
 {% get_current_language as CURRENT_LANGUAGE %}
 {% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
 
@@ -9,26 +9,45 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block extra_head %}
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <link rel="stylesheet" href="{% static 'css/pages/owner_event.css' %}?v=20261007event1" />
 {% endblock %}
 
 {% block content %}
-  <section class="panel owner-event-page" data-owner-legacy-label="Müvəqqəti tədbir">
-    <div class="owner-page-head">
-      <div>
-        <h1>{% if CURRENT_LANGUAGE == "az" %}Müvəqqəti tədbir{% elif CURRENT_LANGUAGE == "en" %}Temporary event{% else %}Временное мероприятие{% endif %}</h1>
-        <p class="auth-subtitle">{% if CURRENT_LANGUAGE == "az" %}Qısa 2 addımlı forma: əsas məlumatlar, foto və moderasiyaya göndərmə.{% elif CURRENT_LANGUAGE == "en" %}A short 2-step form: main details, photo, and moderation submission.{% else %}Короткая форма в 2 шага: данные, фото и отправка на модерацию.{% endif %}</p>
+  <section class="panel owner-event-page km-event-owner-page">
+    <div class="owner-page-head km-event-head">
+      <div class="km-event-top-row">
+        <a class="km-back-btn" href="{% url 'owner_places_dashboard' %}" aria-label="{% trans 'В кабинет' %}">
+          <i class="fas fa-arrow-left" aria-hidden="true"></i>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Kabinetə qayıt{% elif CURRENT_LANGUAGE == "en" %}Back to dashboard{% else %}В кабинет{% endif %}</span>
+        </a>
+        {% if event %}
+          <span class="org-status org-status--candidate"><i class="fas fa-edit" aria-hidden="true"></i> {% trans 'Редактирование мероприятия' %}</span>
+        {% else %}
+          <span class="org-status org-status--server-draft"><i class="fas fa-calendar-plus" aria-hidden="true"></i> {% trans 'Новое мероприятие' %}</span>
+        {% endif %}
       </div>
-      <div class="owner-page-actions">
-        <a class="link-btn" href="{% url 'owner_place_create' %}">← {% if CURRENT_LANGUAGE == "az" %}Elan növünü dəyiş{% elif CURRENT_LANGUAGE == "en" %}Change type{% else %}Изменить тип{% endif %}</a>
-      </div>
+      <h1>{% if event %}{% if CURRENT_LANGUAGE == "az" %}Tədbiri redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit event{% else %}Редактировать мероприятие{% endif %}{% else %}{% if CURRENT_LANGUAGE == "az" %}Yeni tədbir yarat{% elif CURRENT_LANGUAGE == "en" %}Create new event{% else %}Новое мероприятие{% endif %}{% endif %}</h1>
+      <p class="auth-subtitle">
+        {% if CURRENT_LANGUAGE == "az" %}3 mərhələli ardıcıl forma: əsas məlumatlar, məkan və foto ilə önbaxış.{% elif CURRENT_LANGUAGE == "en" %}A 3-step sequential form: main details, venue, and photo with live preview.{% else %}Последовательная форма в 3 шага: данные и дата, формат и место, фото и предпросмотр перед отправкой.{% endif %}
+      </p>
     </div>
 
     <form
       method="post"
       enctype="multipart/form-data"
-      class="owner-event-form"
-      data-loading-form
+      class="owner-event-form km-event-owner-form"
       data-event-form
+      data-recovery-actor="{{ request.user.pk }}"
+      data-recovery-key="{{ event_recovery_key }}"
+      data-recovery-clear-key="{{ event_recovery_clear_key }}"
+      data-base-version="{{ form.expected_updated_at.value|default:'' }}"
+      data-server-version="{{ event_server_version }}"
+      data-error-code="{{ event_error_code }}"
+      data-explicit-save="{% if event_explicit_saved %}1{% else %}0{% endif %}"
+      data-photo-source-bytes="{{ form.photo_upload_config.sourceBytes }}"
+      data-has-photo="{% if event.photo %}1{% else %}0{% endif %}"
+      novalidate
+      id="event-create-form"
       data-map-search-label="{% trans 'Поиск площадки мероприятия по названию или адресу' %}"
       data-duration-hour="{% trans 'ч.' %}"
       data-duration-minute="{% trans 'мин.' %}"
@@ -38,149 +57,454 @@
       data-past-date-message="{% if CURRENT_LANGUAGE == 'az' %}Keçmiş tarix və ya vaxt seçmək olmaz.{% elif CURRENT_LANGUAGE == 'en' %}You cannot choose a past date or time.{% else %}Нельзя выбрать прошедшую дату или время.{% endif %}"
       data-end-before-start-message="{% if CURRENT_LANGUAGE == 'az' %}Bitmə vaxtı başlama vaxtından sonra olmalıdır.{% elif CURRENT_LANGUAGE == 'en' %}End time must be after start time.{% else %}Время окончания должно быть позже времени начала.{% endif %}"
     >
+
+      <div class="km-event-notice" data-event-save-status role="status" aria-live="polite">{% trans "Изменения не сохранены." %}</div>
+      {% if event %}<p class="helptext">{% trans "Статус:" %} {{ event.get_status_display }} · {{ event.updated_at|date:'d.m.Y H:i' }}</p>{% endif %}
+      <p class="helptext">{% trans "Черновику нужны организатор и категория. Даты можно оставить пустыми целиком; если начать ввод, заполните весь интервал. Отправка требует всех отмеченных полей и фото. Карта необязательна." %}</p>
+      <p class="helptext">{% trans "Название и описание сохраняются на азербайджанском (AZ). Язык интерфейса не создаёт переводы." %}</p>
+      <section class="km-event-notice" data-event-recovery hidden>
+        <h2>{% trans "Есть несохранённая копия в этой вкладке" %}</h2>
+        <p data-recovery-message></p><dl data-recovery-diff></dl>
+        <button type="button" class="btn-secondary" data-recovery-restore>{% trans "Восстановить ввод" %}</button>
+        <button type="button" class="btn-secondary" data-recovery-discard>{% trans "Оставить серверные данные" %}</button>
+      </section>
+      {% if event_error_code == 'stale_version' %}<div class="km-event-notice" role="alert">{% trans "Сохранение заблокировано: версия изменилась. Ваш ввод остаётся в форме. После обновления сравните копию с сервером; автоматической перезаписи нет." %}<p>{{ event_current.name_az }} · {{ event_current.updated_at|date:'d.m.Y H:i' }}</p><a href="{% url 'owner_event_edit' event.id %}">{% trans "Загрузить актуальную версию" %}</a></div>{% endif %}
+      {{ event_requirements|json_script:'event-requirements' }}
       {% csrf_token %}
       {{ form.expected_updated_at }}
       {{ form.start_datetime }}
       {{ form.end_datetime }}
-      {% if form.non_field_errors %}
-        <div class="auth-errors">{{ form.non_field_errors }}</div>
+      {% if event and event.status == 'rejected' %}
+        <div class="org-alert org-alert--error km-rejection-banner" role="alert" style="margin-bottom: 20px;">
+          <div style="display:flex; gap:12px; align-items:flex-start;">
+            <span class="material-symbols-rounded" style="color:#dc2626; font-size:28px;" aria-hidden="true">cancel</span>
+            <div>
+              <h3 style="margin:0 0 6px 0; color:#991b1b; font-size:1.1rem; font-weight:700;">
+                {% if CURRENT_LANGUAGE == 'az' %}Tədbir moderator tərəfindən rədd edilib{% elif CURRENT_LANGUAGE == 'en' %}Event was rejected by moderator{% else %}Мероприятие отклонено модератором{% endif %}
+              </h3>
+              {% if event.rejection_reason %}
+                <blockquote style="margin:0 0 8px 0; padding:8px 12px; background:#fff; border-left:3px solid #dc2626; border-radius:6px; color:#450a0a; font-style:italic;">«{{ event.rejection_reason }}»</blockquote>
+              {% endif %}
+              <p style="margin:0; font-size:0.9rem; color:#7f1d1d;">
+                {% if CURRENT_LANGUAGE == 'az' %}Zəhmət olmasa, qeyd olunan iradları aradan qaldırın və yenidən yoxlamaya göndərin.{% elif CURRENT_LANGUAGE == 'en' %}Please address the moderator notes above and resubmit for review.{% else %}Пожалуйста, исправьте указанные замечания и отправьте мероприятие на повторную проверку.{% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+      {% elif event and event.status == 'pending' %}
+        <div class="org-alert org-alert--warning km-pending-banner" role="status" style="margin-bottom: 20px;">
+          <div style="display:flex; gap:12px; align-items:flex-start;">
+            <span class="material-symbols-rounded" style="color:#d97706; font-size:28px;" aria-hidden="true">hourglass_top</span>
+            <div>
+              <h3 style="margin:0 0 4px 0; color:#92400e; font-size:1.05rem; font-weight:700;">
+                {% if CURRENT_LANGUAGE == 'az' %}Tədbir moderasiyadadır{% elif CURRENT_LANGUAGE == 'en' %}Event is under review{% else %}Мероприятие находится на проверке{% endif %}
+              </h3>
+              <p style="margin:0; font-size:0.9rem; color:#78350f;">
+                {% if CURRENT_LANGUAGE == 'az' %}Moderator təsdiq edənədək redaktə məhduddur. Yoxlama tamamlandıqdan sonra status yenilənəcək.{% elif CURRENT_LANGUAGE == 'en' %}Editing is limited until moderator approval. The status updates after review.{% else %}Редактирование ограничено до завершения модерации. Статус обновится после проверки.{% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
       {% endif %}
+
+      {% include "includes/form_error_summary.html" with form=form %}
 
       <div class="owner-event-layout">
         <div class="owner-event-main">
-          <div class="owner-event-stepper" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Tədbir forması addımları{% elif CURRENT_LANGUAGE == 'en' %}Event form steps{% else %}Шаги формы мероприятия{% endif %}">
-            <span class="is-active">1 · {% if CURRENT_LANGUAGE == "az" %}Əsas məlumatlar{% elif CURRENT_LANGUAGE == "en" %}Main details{% else %}Основная информация{% endif %}</span>
-            <span>2 · {% if CURRENT_LANGUAGE == "az" %}Foto və göndərmə{% elif CURRENT_LANGUAGE == "en" %}Photo and submit{% else %}Фото и отправка{% endif %}</span>
+          <!-- Stepper (Desktop) -->
+          <nav class="km-event-stepper" aria-label="{% trans 'Шаги формы мероприятия' %}">
+            <button type="button" class="is-active" data-owner-step-target="0">
+              <span class="step-num">1</span>
+              <span class="step-label">{% if CURRENT_LANGUAGE == "az" %}Əsas və tarix{% elif CURRENT_LANGUAGE == "en" %}Basic & date{% else %}Основное и дата{% endif %}</span>
+            </button>
+            <button type="button" data-owner-step-target="1">
+              <span class="step-num">2</span>
+              <span class="step-label">{% if CURRENT_LANGUAGE == "az" %}Format və məkan{% elif CURRENT_LANGUAGE == "en" %}Format & venue{% else %}Формат и место{% endif %}</span>
+            </button>
+            <button type="button" data-owner-step-target="2">
+              <span class="step-num">3</span>
+              <span class="step-label">{% if CURRENT_LANGUAGE == "az" %}Foto və önbaxış{% elif CURRENT_LANGUAGE == "en" %}Photo & preview{% else %}Фото и предпросмотр{% endif %}</span>
+            </button>
+          </nav>
+
+          <!-- Stepper (Mobile compact progress) -->
+          <div class="km-event-mobile-progress">
+            <div class="km-event-mobile-header">
+              <span class="km-event-mobile-name" data-owner-progress-text data-label="{% if CURRENT_LANGUAGE == 'az' %}Addım {current}/{total}: {name}{% elif CURRENT_LANGUAGE == 'en' %}Step {current}/{total}: {name}{% else %}Шаг {current} из {total}: {name}{% endif %}"></span>
+              <div class="km-event-mobile-arrows">
+                <button type="button" class="km-mobile-arrow-prev" data-owner-prev aria-label="{% trans 'Назад' %}"><span aria-hidden="true">‹</span></button>
+                <button type="button" class="km-mobile-arrow-next" data-owner-next aria-label="{% trans 'Вперёд' %}"><span aria-hidden="true">›</span></button>
+              </div>
+            </div>
+            <div class="km-event-progress-track"><span data-owner-progress-bar></span></div>
           </div>
 
-          <section class="owner-event-section">
-            <h2>{% if CURRENT_LANGUAGE == "az" %}Əsas məlumatlar{% elif CURRENT_LANGUAGE == "en" %}Main details{% else %}Основная информация{% endif %}</h2>
-            <div class="owner-event-grid">
-              <label for="{{ form.organizer_organization.id_for_label }}">{% trans "Организация" %}
-                {{ form.organizer_organization }}{{ form.organizer_organization.errors }}
-              </label>
-              <label for="{{ form.organizer_specialist.id_for_label }}">{% trans "Специалист" %}
-                {{ form.organizer_specialist }}{{ form.organizer_specialist.errors }}
-              </label>
-              <label for="{{ form.event_format.id_for_label }}">{% trans "Формат" %}
-                {{ form.event_format }}{{ form.event_format.errors }}
-              </label>
-              <p class="helptext">{% trans "Выберите одного организатора: организацию или подтверждённого специалиста." %}</p>
+          <!-- ─── STEP 1: Основные данные, организатор, дата/время, возраст и цена ─── -->
+          <section class="km-event-section" data-owner-step="0" data-step-name="{% if CURRENT_LANGUAGE == 'az' %}Əsas və tarix{% elif CURRENT_LANGUAGE == 'en' %}Basic & date{% else %}Основное и дата{% endif %}">
+            <div class="km-event-section-header">
+              <h2><i class="fas fa-info-circle" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Əsas məlumatlar və təşkilatçı{% elif CURRENT_LANGUAGE == "en" %}Main details and organizer{% else %}Основные данные и организатор{% endif %}</h2>
+              <p class="km-event-section-desc">{% if CURRENT_LANGUAGE == "az" %}Təşkilatçını seçin, tədbirin adını, tarixini, yaşını və qiymətini göstərin.{% elif CURRENT_LANGUAGE == "en" %}Select the organizer, event title, date, age range, and pricing.{% else %}Укажите организатора, название мероприятия, дату проведения, возраст детей и цену.{% endif %}</p>
+            </div>
 
-              <label>
-                {% if CURRENT_LANGUAGE == "az" %}Tədbirin adı{% elif CURRENT_LANGUAGE == "en" %}Event title{% else %}Название мероприятия{% endif %} *
+            <!-- Organizer Selection Card -->
+            <div class="km-organizer-card">
+              <div class="km-organizer-header">
+                <h3 class="km-organizer-title">{% if CURRENT_LANGUAGE == "az" %}Təşkilatçı kimdir?{% elif CURRENT_LANGUAGE == "en" %}Who is the organizer?{% else %}От кого публикуется мероприятие?{% endif %} <strong class="km-required">*</strong></h3>
+                <p class="km-organizer-hint">{% trans "Организатор — ваша действующая организация или профиль специалиста с подтверждённой связью с вашим аккаунтом. Автор предложения профиля не получает эти права." %}</p>
+              </div>
+              {% if event %}
+              <div data-organizer-locked><strong>{{ event.organizer_organization|default:event.organizer_specialist }}</strong><p class="helptext">{% trans "Организатор закреплён за мероприятием и не меняется при редактировании. Площадка выбирается отдельно." %}</p></div>
+              <input type="hidden" name="organizer_organization" value="{{ form.organizer_organization.value|default:'' }}">
+              <input type="hidden" name="organizer_specialist" value="{{ form.organizer_specialist.value|default:'' }}">
+              {% else %}
+              <div class="km-organizer-types" role="radiogroup" aria-label="{% trans 'Тип организатора' %}">
+                <label class="km-organizer-type-label {% if not form.organizer_specialist.value %}is-selected{% endif %}" data-organizer-type="org">
+                  <input type="radio" name="organizer_role_switch" value="org" {% if not form.organizer_specialist.value %}checked{% endif %} />
+                  <span><i class="fas fa-building" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Təşkilat{% elif CURRENT_LANGUAGE == "en" %}Organization{% else %}Организация{% endif %}</span>
+                </label>
+                <label class="km-organizer-type-label {% if form.organizer_specialist.value %}is-selected{% endif %}" data-organizer-type="specialist">
+                  <input type="radio" name="organizer_role_switch" value="specialist" {% if form.organizer_specialist.value %}checked{% endif %} />
+                  <span><i class="fas fa-user-md" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Mütəxəssis{% elif CURRENT_LANGUAGE == "en" %}Specialist{% else %}Специалист{% endif %}</span>
+                </label>
+              </div>
+
+              <!-- Organization select container -->
+              <div class="km-organizer-select-wrap" data-organizer-block="org" {% if form.organizer_specialist.value %}hidden style="display:none;"{% endif %}>
+                <label class="km-field-group">
+                  <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Təşkilat seçin{% elif CURRENT_LANGUAGE == "en" %}Select organization{% else %}Выберите организацию{% endif %} *</span>
+                  {{ form.organizer_organization }}
+                  {% for error in form.organizer_organization.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+                </label>
+                {% if not form.organizer_organization.field.queryset.exists %}
+                  <div class="km-organizer-no-entities">
+                    <i class="fas fa-info-circle" aria-hidden="true"></i>
+                    {% if CURRENT_LANGUAGE == "az" %}Sizin hələ təşkilatınız yoxdur. <a href="{% url 'organization_workspace_create' %}">Təşkilat yaradın</a> və ya mütəxəssis seçin.{% elif CURRENT_LANGUAGE == "en" %}You do not have an organization yet. <a href="{% url 'organization_workspace_create' %}">Create an organization</a> or select a specialist.{% else %}У вас пока нет зарегистрированной организации. <a href="{% url 'organization_workspace_create' %}">Создайте организацию</a> или выберите подтверждённого специалиста.{% endif %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Specialist select container -->
+              <div class="km-organizer-select-wrap" data-organizer-block="specialist" {% if not form.organizer_specialist.value %}hidden style="display:none;"{% endif %}>
+                <label class="km-field-group">
+                  <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis seçin{% elif CURRENT_LANGUAGE == "en" %}Select specialist{% else %}Выберите специалиста{% endif %} *</span>
+                  {{ form.organizer_specialist }}
+                  {% for error in form.organizer_specialist.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+                </label>
+                {% if not form.organizer_specialist.field.queryset.exists %}
+                  <div class="km-organizer-no-entities">
+                    <i class="fas fa-info-circle" aria-hidden="true"></i>
+                    {% if CURRENT_LANGUAGE == "az" %}Təsdiqlənmiş mütəxəssis profiliniz yoxdur. <a href="{% url 'owner_specialist_create' %}">Profil əlavə edin</a>.{% elif CURRENT_LANGUAGE == "en" %}You do not have a verified specialist profile. <a href="{% url 'owner_specialist_create' %}">Add a profile</a>.{% else %}У вас пока нет подтверждённого профиля специалиста. <a href="{% url 'owner_specialist_create' %}">Добавьте профиль</a>.{% endif %}
+                  </div>
+                {% endif %}
+              </div>              {% endif %}
+            </div>
+
+            <div class="km-event-grid">
+              <label class="km-field-group km-event-full">
+                <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Tədbirin adı{% elif CURRENT_LANGUAGE == "en" %}Event title{% else %}Название мероприятия{% endif %} (AZ) <strong class="km-required">*</strong></span>
                 {{ form.name_az }}
                 {% for error in form.name_az.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
               </label>
-              <label>
-                {% if CURRENT_LANGUAGE == "az" %}Kateqoriya{% elif CURRENT_LANGUAGE == "en" %}Category{% else %}Категория{% endif %} *
+
+              <label class="km-field-group km-event-full">
+                <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Kateqoriya{% elif CURRENT_LANGUAGE == "en" %}Category{% else %}Категория{% endif %} <strong class="km-required">*</strong></span>
                 {{ form.category }}
                 {% for error in form.category.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
               </label>
-              <label>
-                {% if CURRENT_LANGUAGE == "az" %}Tarix{% elif CURRENT_LANGUAGE == "en" %}Date{% else %}Дата{% endif %} *
-                {{ form.event_date }}
-                {% for error in form.event_date.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
-              </label>
-              <label>
-                {% if CURRENT_LANGUAGE == "az" %}Başlama saatı{% elif CURRENT_LANGUAGE == "en" %}Start time{% else %}Время начала{% endif %} *
-                {{ form.start_time_input }}
-                {% for error in form.start_time_input.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
-              </label>
-              <label>
-                {% if CURRENT_LANGUAGE == "az" %}Bitmə tarixi{% elif CURRENT_LANGUAGE == "en" %}End date{% else %}Дата окончания{% endif %}
-                {{ form.end_date }}
-                <small class="helptext">{% if CURRENT_LANGUAGE == "az" %}Tədbir növbəti gün bitirsə, ayrıca tarix seçin.{% elif CURRENT_LANGUAGE == "en" %}Choose a separate date only if the event ends on the next day.{% else %}Укажите отдельно только если мероприятие заканчивается в другой день.{% endif %}</small>
-                {% for error in form.end_date.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
-              </label>
-              <label>
-                {% if CURRENT_LANGUAGE == "az" %}Bitmə saatı{% elif CURRENT_LANGUAGE == "en" %}End time{% else %}Время окончания{% endif %} *
-                {{ form.end_time_input }}
-                {% for error in form.end_time_input.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
-              </label>
-              <label>
-                {% if CURRENT_LANGUAGE == "az" %}Yaş aralığı, başlanğıc{% elif CURRENT_LANGUAGE == "en" %}Age from{% else %}Возраст от{% endif %} *
+            </div>
+
+            <!-- Unified Baku Datetime Card -->
+            <div class="km-datetime-card">
+              <div class="km-datetime-head">
+                <h3 class="km-organizer-title"><i class="fas fa-calendar-alt" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Tarix və vaxt{% elif CURRENT_LANGUAGE == "en" %}Date and time{% else %}Дата и время проведения{% endif %} <strong class="km-required">*</strong></h3>
+                <span class="km-timezone-badge"><i class="fas fa-globe" aria-hidden="true"></i> Asia/Baku (UTC+4)</span>
+              </div>
+              <div class="km-datetime-grid">
+                <label class="km-field-group">
+                  <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Tədbirin tarixi{% elif CURRENT_LANGUAGE == "en" %}Event date{% else %}Дата мероприятия{% endif %} <strong class="km-required">*</strong></span>
+                  {{ form.event_date }}
+                  {% for error in form.event_date.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+                </label>
+                <label class="km-field-group">
+                  <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Başlama saatı{% elif CURRENT_LANGUAGE == "en" %}Start time{% else %}Время начала{% endif %} <strong class="km-required">*</strong></span>
+                  {{ form.start_time_input }}
+                  {% for error in form.start_time_input.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+                </label>
+
+                <label class="km-multi-day-toggle">
+                  <input type="checkbox" data-toggle-multi-day {% if form.end_date.value and form.end_date.value != form.event_date.value %}checked{% endif %} />
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Tədbir başqa gündə bitir{% elif CURRENT_LANGUAGE == "en" %}Event ends on another day{% else %}Мероприятие заканчивается в другой день{% endif %}</span>
+                </label>
+
+                <label class="km-field-group" data-multi-day-container {% if not form.end_date.value or form.end_date.value == form.event_date.value %}hidden style="display:none;"{% endif %}>
+                  <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Bitmə tarixi{% elif CURRENT_LANGUAGE == "en" %}End date{% else %}Дата окончания{% endif %}</span>
+                  {{ form.end_date }}
+                  {% for error in form.end_date.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+                </label>
+                <label class="km-field-group">
+                  <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Bitmə saatı{% elif CURRENT_LANGUAGE == "en" %}End time{% else %}Время окончания{% endif %} <strong class="km-required">*</strong></span>
+                  {{ form.end_time_input }}
+                  {% for error in form.end_time_input.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+                </label>
+
+                <div class="km-duration-indicator" data-owner-event-datetime-summary data-empty-label="{% if CURRENT_LANGUAGE == 'az' %}Başlama və bitmə vaxtını seçin — müddəti görəcəksiniz.{% elif CURRENT_LANGUAGE == 'en' %}Choose start and end to see the duration.{% else %}Выберите начало и окончание — увидите продолжительность.{% endif %}" data-duration-label="{% if CURRENT_LANGUAGE == 'az' %}Müddət{% elif CURRENT_LANGUAGE == 'en' %}Duration{% else %}Продолжительность{% endif %}" data-invalid-label="{% if CURRENT_LANGUAGE == 'az' %}Bitmə vaxtı başlanğıcdan sonra olmalıdır.{% elif CURRENT_LANGUAGE == 'en' %}End time must be after the start.{% else %}Время окончания должно быть позже времени начала.{% endif %}"></div>
+              </div>
+            </div>
+
+            <div class="km-event-grid">
+              <label class="km-field-group">
+                <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Yaş aralığı (başlanğıc, il){% elif CURRENT_LANGUAGE == "en" %}Age from (yrs){% else %}Возраст от (лет){% endif %} <strong class="km-required">*</strong></span>
                 {{ form.age_from }}
                 {% for error in form.age_from.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
               </label>
-              <label>
-                {% if CURRENT_LANGUAGE == "az" %}Yaş aralığı, son{% elif CURRENT_LANGUAGE == "en" %}Age to{% else %}Возраст до{% endif %} *
+
+              <label class="km-field-group">
+                <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Yaş aralığı (son, il){% elif CURRENT_LANGUAGE == "en" %}Age to (yrs){% else %}Возраст до (лет){% endif %} <strong class="km-required">*</strong></span>
                 {{ form.age_to }}
                 {% for error in form.age_to.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
               </label>
-              <label>
-                {% if CURRENT_LANGUAGE == "az" %}Qiymət{% elif CURRENT_LANGUAGE == "en" %}Price{% else %}Цена{% endif %} *
+
+              <label class="km-field-group km-event-full">
+                <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Qiymət və iştirak şərtləri{% elif CURRENT_LANGUAGE == "en" %}Price and conditions{% else %}Стоимость и условия участия{% endif %} <strong class="km-required">*</strong></span>
                 {{ form.price_text }}
+                <small class="helptext">{% if CURRENT_LANGUAGE == "az" %}Məsələn: 15 AZN, Pulsuz, Giriş sərbəstdir, Əvvəlcədən qeydiyyatla.{% elif CURRENT_LANGUAGE == "en" %}E.g.: 15 AZN, Free, Free admission, By registration.{% else %}Например: 15 AZN, Бесплатно, Вход свободный, По предварительной записи.{% endif %}</small>
                 {% for error in form.price_text.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
               </label>
-              <label data-event-physical {% if form.event_format.value == form.online_format %}hidden style="display:none"{% endif %}>
-                {% if CURRENT_LANGUAGE == "az" %}Əlaqəli məkan{% elif CURRENT_LANGUAGE == "en" %}Related place{% else %}Связанное место{% endif %}
-                <select class="field" name="{{ form.related_place.html_name }}" id="{{ form.related_place.id_for_label }}" data-event-related-place>
-                  <option value="">{% if CURRENT_LANGUAGE == "az" %}Seçilməyib{% elif CURRENT_LANGUAGE == "en" %}Not selected{% else %}Не выбрано{% endif %}</option>
-                  {% for place in form.related_place.field.queryset %}
-                    <option value="{{ place.id }}" {% if form.related_place.value|stringformat:"s" == place.id|stringformat:"s" %}selected{% endif %} data-address="{{ place.address|default:'' }}" data-phone="{{ place.phone1|default:'' }}" data-lat="{{ place.lat|default:'' }}" data-lng="{{ place.lng|default:'' }}" data-district="{{ place.district|default:'' }}" data-metro="{{ place.metro|default:'' }}">{{ place.name_i18n }}</option>
-                  {% endfor %}
-                </select>
-                <small class="helptext">{% if CURRENT_LANGUAGE == "az" %}Opsionaldır. Seçsəniz, ünvan və telefon avtomatik doldurula bilər.{% elif CURRENT_LANGUAGE == "en" %}Optional. If selected, address and phone can be filled automatically.{% else %}Необязательно. При выборе адрес и телефон можно подставить автоматически.{% endif %}</small>
-                {% for error in form.related_place.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
-              </label>
-              <label data-event-physical {% if form.event_format.value == form.online_format %}hidden style="display:none"{% endif %}>
-                {% if CURRENT_LANGUAGE == "az" %}Ünvan{% elif CURRENT_LANGUAGE == "en" %}Address{% else %}Адрес{% endif %}
-                {{ form.address }}
-                {% for error in form.address.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
-              </label>
-              <label>
-                {% if CURRENT_LANGUAGE == "az" %}Telefon / WhatsApp{% elif CURRENT_LANGUAGE == "en" %}Phone / WhatsApp{% else %}Телефон / WhatsApp{% endif %} *
+
+              <label class="km-field-group km-event-full">
+                <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Əlaqə telefonu / WhatsApp{% elif CURRENT_LANGUAGE == "en" %}Phone / WhatsApp{% else %}Телефон / WhatsApp для записи{% endif %} <strong class="km-required">*</strong></span>
                 {{ form.phone }}
                 {% for error in form.phone.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
               </label>
-              <label class="owner-event-full">
-                {% if CURRENT_LANGUAGE == "az" %}Qısa təsvir{% elif CURRENT_LANGUAGE == "en" %}Short description{% else %}Краткое описание{% endif %} *
+
+              <label class="km-field-group km-event-full">
+                <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Qısa təsvir{% elif CURRENT_LANGUAGE == "en" %}Short description{% else %}Краткое описание мероприятия{% endif %} (AZ) <strong class="km-required">*</strong></span>
                 {{ form.description_az }}
-                <small class="helptext"><span id="event-description-counter">0</span>/300</small>
+                <small class="helptext">{% if CURRENT_LANGUAGE == "az" %}Tədbirdə nələr olacaq, uşaqlar nə öyrənəcək.{% elif CURRENT_LANGUAGE == "en" %}What will happen, what children will learn.{% else %}Что будет на мероприятии, чему научатся дети.{% endif %} (<span id="event-description-counter">0</span>/300)</small>
                 {% for error in form.description_az.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
               </label>
             </div>
-            <p class="owner-event-datetime-summary" data-owner-event-datetime-summary data-empty-label="{% if CURRENT_LANGUAGE == 'az' %}Başlama və bitmə vaxtını seçin — müddəti görəcəksiniz.{% elif CURRENT_LANGUAGE == 'en' %}Choose start and end to see the duration.{% else %}Выберите начало и окончание — увидите продолжительность.{% endif %}" data-duration-label="{% if CURRENT_LANGUAGE == 'az' %}Müddət{% elif CURRENT_LANGUAGE == 'en' %}Duration{% else %}Продолжительность{% endif %}" data-invalid-label="{% if CURRENT_LANGUAGE == 'az' %}Bitmə vaxtı başlanğıcdan sonra olmalıdır.{% elif CURRENT_LANGUAGE == 'en' %}End time must be after the start.{% else %}Окончание должно быть позже начала.{% endif %}"></p>
-          </section>
 
-          <section class="owner-event-section owner-form-section-map" data-event-physical {% if form.event_format.value == form.online_format %}hidden style="display:none"{% endif %}>
-            <div class="owner-form-section-head owner-form-section-head-map">
-              <h2><i class="fas fa-map-marker-alt" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Məkan və xəritə{% elif CURRENT_LANGUAGE == "en" %}Location and map{% else %}Локация и карта{% endif %}</h2>
-              <p class="meta">{% if CURRENT_LANGUAGE == "az" %}Fiziki tədbirin ünvanını və ya məkanını göstərin. Xəritə nöqtəsi məlumdursa, onu əlavə edə bilərsiniz.{% elif CURRENT_LANGUAGE == "en" %}Provide the physical event address or venue. Add a map point if it is known.{% else %}Укажите адрес или площадку физического мероприятия. Точку на карте можно добавить, если она известна.{% endif %}</p>
-            </div>
-            <div class="owner-event-grid owner-form-grid-tight">
-              <label>{{ form.region.label }}{{ form.region }}{% for error in form.region.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>
-              <label>{{ form.district.label }}{{ form.district }}{% for error in form.district.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>
-              <label>{{ form.metro.label }}{{ form.metro }}{% for error in form.metro.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}</label>
-            </div>
-            <div class="owner-form-map-grid">
-              {% include "pages/includes/owner_place_map_picker.html" with form=form %}
+            <div class="km-event-step-actions">
+              <button type="submit" name="form_action" value="save_draft" class="btn-secondary btn-save-draft" formnovalidate>
+                <i class="fas fa-bookmark" aria-hidden="true"></i>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}Сохранить черновик{% endif %}</span>
+              </button>
+              <button type="button" class="btn btn-continue" data-owner-next>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}</span>
+                <i class="fas fa-arrow-right" aria-hidden="true"></i>
+              </button>
             </div>
           </section>
 
-          <section class="owner-event-section">
-            <h2>{% if CURRENT_LANGUAGE == "az" %}Foto və göndərmə{% elif CURRENT_LANGUAGE == "en" %}Photo and submit{% else %}Фото и отправка{% endif %}</h2>
-            <div class="owner-event-grid">
-              <label class="owner-event-file owner-event-full">
-                {% if CURRENT_LANGUAGE == "az" %}Əsas şəkil{% elif CURRENT_LANGUAGE == "en" %}Main photo{% else %}Основное фото{% endif %} *
-                {{ form.photo }}
-                {% if event and event.photo %}<small class="helptext">{% if CURRENT_LANGUAGE == "az" %}Hazırkı şəkil saxlanılıb. Yenisini seçsəniz dəyişəcək.{% elif CURRENT_LANGUAGE == "en" %}Current photo is saved. Choose a new one to replace it.{% else %}Текущее фото сохранено. Выберите новое, чтобы заменить.{% endif %}</small>{% endif %}
-                {% for error in form.photo.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
-              </label>
-              <label class="owner-event-full">
-                {% if CURRENT_LANGUAGE == "az" %}Moderasiya üçün şərh{% elif CURRENT_LANGUAGE == "en" %}Comment for moderation{% else %}Комментарий для модерации{% endif %}
-                {{ form.moderation_note }}
-                {% for error in form.moderation_note.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
-              </label>
+          <!-- ─── STEP 2: Формат и место проведения ─── -->
+          <section class="km-event-section" data-owner-step="1" data-step-name="{% if CURRENT_LANGUAGE == 'az' %}Format və məkan{% elif CURRENT_LANGUAGE == 'en' %}Format & venue{% else %}Формат и место{% endif %}" hidden>
+            <div class="km-event-section-header">
+              <h2><i class="fas fa-map-marker-alt" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Format və məkan{% elif CURRENT_LANGUAGE == "en" %}Format and venue{% else %}Формат и место проведения{% endif %}</h2>
+              <p class="km-event-section-desc">{% if CURRENT_LANGUAGE == "az" %}Tədbirin keçirilmə formatını seçin: məkanda və ya onlayn.{% elif CURRENT_LANGUAGE == "en" %}Choose the format: in-person venue or online.{% else %}Выберите формат: очно на площадке или дистанционно онлайн.{% endif %}</p>
+            </div>
+
+            <!-- Format Choice Cards -->
+            <fieldset class="km-format-cards"><legend>{% trans "Формат мероприятия" %}</legend>
+              <label class="km-format-card" data-owner-format-card="offline"><input type="radio" name="event_format" value="physical" {% if form.event_format.value != form.online_format %}checked{% endif %}><strong>{% trans "Очно" %}</strong><span>{% trans "Площадка KidsMap или собственный адрес" %}</span></label>
+              <label class="km-format-card" data-owner-format-card="online"><input type="radio" name="event_format" value="online" {% if form.event_format.value == form.online_format %}checked{% endif %}><strong>{% trans "Онлайн" %}</strong><span>{% trans "Физический адрес не требуется" %}</span></label>
+              {% for error in form.event_format.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+            </fieldset>
+
+            <!-- Online Format Notice -->
+            <div class="km-online-banner" data-event-online-notice {% if form.event_format.value != form.online_format %}hidden style="display:none;"{% endif %}>
+              <span class="km-online-banner-icon"><i class="fas fa-laptop-house" aria-hidden="true"></i></span>
+              <div>
+                <h4>{% if CURRENT_LANGUAGE == "az" %}Onlayn tədbir formatı{% elif CURRENT_LANGUAGE == "en" %}Online event format{% else %}Онлайн-формат мероприятия{% endif %}</h4>
+                <p>{% trans "Адрес и карта для онлайн-события не требуются. Условия записи и подключения согласуйте с участниками по контакту события." %}</p>
+              </div>
+            </div>
+
+            <!-- Physical Venue Block -->
+            <div data-event-physical {% if form.event_format.value == form.online_format %}hidden style="display:none;"{% endif %}>
+              <fieldset class="km-venue-switch"><legend>{% trans "Где проходит мероприятие" %}</legend>
+                <label class="km-venue-radio">
+                  <input type="radio" name="venue_choice_switch" value="related" {% if form.related_place.value or not form.address.value %}checked{% endif %} />
+                  <span><i class="fas fa-store-alt" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}KidsMap məkanı seçin{% elif CURRENT_LANGUAGE == "en" %}Choose KidsMap venue{% else %}Выбрать площадку из KidsMap{% endif %}</span>
+                </label>
+                <label class="km-venue-radio">
+                  <input type="radio" name="venue_choice_switch" value="custom" {% if form.address.value and not form.related_place.value %}checked{% endif %} />
+                  <span><i class="fas fa-map-pin" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Öz ünvanınızı daxil edin{% elif CURRENT_LANGUAGE == "en" %}Enter custom address{% else %}Указать собственный адрес{% endif %}</span>
+                </label>
+              </fieldset>
+
+              <!-- Related place select -->
+              <div class="km-field-group" data-venue-block="related" {% if form.address.value and not form.related_place.value %}hidden style="display:none;"{% endif %} style="margin-bottom: 1.25rem;">
+                <label for="{{ form.related_place.id_for_label }}">{% if CURRENT_LANGUAGE == "az" %}Məkan və ya filial{% elif CURRENT_LANGUAGE == "en" %}Venue or branch{% else %}Площадка проведения (филиал / центр){% endif %}</label>
+                <select class="field" name="{{ form.related_place.html_name }}" id="{{ form.related_place.id_for_label }}" data-event-related-place>
+                  <option value="">{% if CURRENT_LANGUAGE == "az" %}Seçilməyib (öz ünvanınızı daxil edin){% elif CURRENT_LANGUAGE == "en" %}Not selected (enter custom address){% else %}Не выбрано (указать собственный адрес){% endif %}</option>
+                  {% if event_venue_unavailable %}<option selected value="{{ form.related_place.value }}">{% trans "Площадка недоступна — выберите другую или собственный адрес" %}</option>{% endif %}
+                  {% for place in event_venues %}
+                    <option value="{{ place.id }}" {% if form.related_place.value|stringformat:"s" == place.id|stringformat:"s" %}selected{% endif %} data-address="{{ place.address|default:'' }}" data-phone="{{ place.phone1|default:'' }}" data-lat="{{ place.lat|default_if_none:''|unlocalize }}" data-lng="{{ place.lng|default_if_none:''|unlocalize }}" data-region="{{ place.event_region }}" data-district="{{ place.event_district }}" data-metro="{{ place.metro|default:'' }}">{{ place.name_i18n }} — {{ place.address }}</option>
+                  {% endfor %}
+                </select>
+                <small class="helptext">{% trans "Площадка не меняет организатора и не даёт прав на место. Публичная карточка использует адрес выбранной площадки на момент утверждения. Для иного адреса выберите собственный." %}</small>
+                <p data-venue-status role="status"></p>
+                <button type="button" class="btn-secondary" data-use-venue-phone>{% trans "Использовать телефон площадки" %}</button>
+                {% for error in form.related_place.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </div>
+
+              <!-- Address Fields Grid -->
+              <div class="km-event-grid" data-venue-block="address-fields" style="margin-bottom: 1.5rem;">
+                <label class="km-field-group">
+                  <span class="km-field-label">{{ form.region.label }}</span>
+                  {{ form.region }}
+                  {% for error in form.region.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+                </label>
+                <label class="km-field-group">
+                  <span class="km-field-label">{{ form.district.label }}</span>
+                  {{ form.district }}
+                  {% for error in form.district.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+                </label>
+                <label class="km-field-group">
+                  <span class="km-field-label">{{ form.metro.label }}</span>
+                  {{ form.metro }}
+                  {% for error in form.metro.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+                </label>
+                <label class="km-field-group km-event-full">
+                  <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Dəqiq ünvan (küçə, bina, mərtəbə){% elif CURRENT_LANGUAGE == "en" %}Exact address (street, building, floor){% else %}Точный адрес (улица, дом, этаж, ориентир){% endif %} *</span>
+                  {{ form.address }}
+                  {% for error in form.address.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+                </label>
+              </div>
+
+              <!-- Map container -->
+              <div class="km-map-container" data-venue-block="map">
+                {% include "pages/includes/owner_place_map_picker.html" with form=form event_optional_map=True %}
+                  <div class="km-map-fallback-card" data-event-map-fallback {% if google_maps_api_key %}hidden{% endif %}>
+                    <div class="km-map-fallback-icon"><i class="fas fa-map-marked-alt" aria-hidden="true"></i></div>
+                    <div class="km-map-fallback-body">
+                      <h5>{% if CURRENT_LANGUAGE == "az" %}İnteraktiv xəritə müvəqqəti əlçatmazdır{% elif CURRENT_LANGUAGE == "en" %}Interactive map is temporarily unavailable{% else %}Интерактивная карта временно недоступна{% endif %}</h5>
+                      <p>{% if CURRENT_LANGUAGE == "az" %}Xəritə servisi hazırda cavab vermir, lakin xəritə tədbirin dərci üçün məcburi deyil. Yuxarıda dəqiq ünvanı qeyd etməyiniz kifayətdir ki, valideynlər tədbiri asanlıqla tapsınlar.{% elif CURRENT_LANGUAGE == "en" %}The map service is currently unavailable, but a map point is not mandatory to publish the event. Providing an accurate address above is sufficient for parents to find the event.{% else %}Сервис интерактивной карты сейчас недоступен, однако отметка на карте НЕ обязательна для публикации мероприятия. Достаточно указать точный адрес выше, и карточка будет корректно отображаться в каталоге и поиске.{% endif %}</p>
+                    </div>
+                  </div>
+              </div>
+            </div>
+
+            <div class="km-event-step-actions">
+              <button type="button" class="btn-secondary btn-back" data-owner-prev>
+                <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}Назад{% endif %}</span>
+              </button>
+              <button type="submit" name="form_action" value="save_draft" class="btn-secondary btn-save-draft" formnovalidate>
+                <i class="fas fa-bookmark" aria-hidden="true"></i>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}Сохранить черновик{% endif %}</span>
+              </button>
+              <button type="button" class="btn btn-continue" data-owner-next>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}</span>
+                <i class="fas fa-arrow-right" aria-hidden="true"></i>
+              </button>
             </div>
           </section>
 
-          <div class="owner-event-actions">
-            <a class="link-btn" href="{% url 'owner_places_dashboard' %}">{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}Назад{% endif %}</a>
-            <button type="submit" name="form_action" value="save_draft" class="btn-secondary" data-loading-button formnovalidate>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}Сохранить черновик{% endif %}</button>
-            <button type="submit" class="btn" data-loading-button>{% if CURRENT_LANGUAGE == "az" %}Yoxlamaya göndər{% elif CURRENT_LANGUAGE == "en" %}Send for review{% else %}Отправить на проверку{% endif %}</button>
-          </div>
+          <!-- ─── STEP 3: Фото, карточка предпросмотра и отправка ─── -->
+          <section class="km-event-section" data-owner-step="2" data-step-name="{% if CURRENT_LANGUAGE == 'az' %}Foto və önbaxış{% elif CURRENT_LANGUAGE == 'en' %}Photo & preview{% else %}Фото и предпросмотр{% endif %}" hidden>
+            <div class="km-event-section-header">
+              <h2><i class="fas fa-camera-retro" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Foto və göndərmədən öncə baxış{% elif CURRENT_LANGUAGE == "en" %}Photo and review before submit{% else %}Фото и проверка данных перед отправкой{% endif %}</h2>
+              <p class="km-event-section-desc">{% if CURRENT_LANGUAGE == "az" %}Afişa yükləyin və tədbirin valideynlərə necə görünəcəyini yoxlayın.{% elif CURRENT_LANGUAGE == "en" %}Upload a cover and preview how parents will see the event.{% else %}Загрузите афишу и проверьте, как карточка мероприятия будет выглядеть для родителей.{% endif %}</p>
+            </div>
+
+            <!-- Photo Uploader -->
+            <div class="km-event-photo-uploader {% if event and event.photo %}has-preview{% endif %}" data-owner-photo-box>
+              <div class="km-photo-preview-wrap" data-owner-photo-preview>
+                {% if event and event.photo %}
+                  <img src="{{ event.photo.url }}" alt="{{ event.name }}">
+                {% else %}
+                  <i class="fas fa-image" aria-hidden="true"></i>
+                {% endif %}
+              </div>
+              <div class="km-photo-actions">
+                <button type="button" data-choose-photo class="btn-secondary km-photo-btn">
+                  <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Şəkil seçin və ya dəyişin{% elif CURRENT_LANGUAGE == "en" %}Choose or change photo{% else %}Выбрать или заменить фото{% endif %}</span>
+                </button>
+                <div class="km-file-input-hidden"><label for="id_photo">{% trans "Главная фотография мероприятия" %}</label>{{ form.photo }}</div>
+              </div>
+              <small class="helptext">{{ form.photo.help_text }}</small>
+              <div class="km-dropzone-error-box" data-file-error-box style="display:none;" role="alert">
+                <span class="material-symbols-rounded km-dropzone-error-icon" aria-hidden="true">error_outline</span>
+                <h4 class="km-dropzone-error-title" data-file-error-title></h4>
+                <p class="km-dropzone-error-desc" data-file-error-desc></p>
+                <div class="km-dropzone-error-actions">
+                  <button type="button" class="km-state-btn km-state-btn--secondary" data-file-retry-btn>
+                    <span class="material-symbols-rounded" aria-hidden="true">refresh</span>
+                    <span>{% if CURRENT_LANGUAGE == 'az' %}Başqa fayl seçin{% elif CURRENT_LANGUAGE == 'en' %}Choose another file{% else %}Выбрать другой файл{% endif %}</span>
+                  </button>
+                </div>
+              </div>
+              {% for error in form.photo.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+            </div>
+
+            <div class="km-event-notice" data-event-requirements><h3>{% trans "Перед отправкой" %}</h3><p>{% trans "Список заполненных полей не заменяет серверную проверку значений и прав." %}</p><ul data-event-missing></ul></div>
+            <!-- Live Event Preview Card -->
+            <div class="km-event-preview-card" data-event-summary-preview>
+              <div class="km-preview-card-head">
+                <span class="km-preview-badge-live"><i class="fas fa-eye" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Önbaxış (Valideynlər belə görəcək){% elif CURRENT_LANGUAGE == "en" %}Preview (How parents will see it){% else %}Предпросмотр (Как увидят родители){% endif %}</span>
+
+              </div>
+              <div class="km-preview-card-body">
+                <div class="km-preview-media" data-preview-img-wrap>
+                  {% if event and event.photo %}
+                    <img src="{{ event.photo.url }}" alt="Preview" data-preview-img />
+                  {% else %}
+                    <div class="km-preview-no-img" data-preview-no-img style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#e2e8f0;color:#94a3b8;"><i class="fas fa-image" style="font-size:2.5rem;"></i></div>
+                  {% endif %}
+                </div>
+                <div class="km-preview-content">
+                  <div class="km-preview-meta-tags">
+                    <span class="km-tag km-tag-format" data-preview-format-tag>🏛️ {% if CURRENT_LANGUAGE == "az" %}Əyani{% elif CURRENT_LANGUAGE == "en" %}In person{% else %}Очно{% endif %}</span>
+                    <span class="km-tag km-tag-cat" data-preview-cat-tag>Категория</span>
+                  </div>
+                  <h3 class="km-preview-title" data-preview-title>{% if event %}{{ event.name_az }}{% else %}Название мероприятия{% endif %}</h3>
+                  <div class="km-preview-organizer"><i class="fas fa-building" aria-hidden="true"></i> <span data-preview-organizer-text>Организатор</span></div>
+                  <div class="km-preview-datetime"><i class="fas fa-calendar-alt" aria-hidden="true"></i> <span data-preview-datetime-text>Дата и время</span></div>
+                  <div class="km-preview-location text-muted"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> <span data-preview-location-text>Место проведения</span></div>
+                  <div class="km-preview-details-grid">
+                    <div class="km-preview-detail-item">
+                      <span class="km-preview-detail-label">{% if CURRENT_LANGUAGE == "az" %}Yaş{% elif CURRENT_LANGUAGE == "en" %}Age{% else %}Возраст{% endif %}</span>
+                      <span class="km-preview-detail-val" data-preview-age-text>—</span>
+                    </div>
+                    <div class="km-preview-detail-item">
+                      <span class="km-preview-detail-label">{% if CURRENT_LANGUAGE == "az" %}Qiymət{% elif CURRENT_LANGUAGE == "en" %}Price{% else %}Стоимость{% endif %}</span>
+                      <span class="km-preview-detail-val" data-preview-price-text>—</span>
+                    </div>
+                    <div class="km-preview-detail-item">
+                      <span class="km-preview-detail-label">{% if CURRENT_LANGUAGE == "az" %}Əlaqə{% elif CURRENT_LANGUAGE == "en" %}Contacts{% else %}Контакты{% endif %}</span>
+                      <span class="km-preview-detail-val" data-preview-phone-text>—</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Moderation Note -->
+            <label class="km-field-group km-event-full" style="margin-bottom: 1.5rem;">
+              <span class="km-field-label">{% if CURRENT_LANGUAGE == "az" %}Moderasiya üçün qeyd (opsionaldır){% elif CURRENT_LANGUAGE == "en" %}Note for moderation (optional){% else %}Комментарий для модерации (необязательно){% endif %}</span>
+              {{ form.moderation_note }}
+              <small class="helptext">{% if CURRENT_LANGUAGE == "az" %}Yalnız redaktorlar görəcək. Məsələn: əlavə sertifikatlar və ya təşkilat detalları.{% elif CURRENT_LANGUAGE == "en" %}Visible to moderators only. E.g. additional notes or setup details.{% else %}Виден только модераторам KidsMap. Например: информация о помещении, бронировании или преподавателях.{% endif %}</small>
+              {% for error in form.moderation_note.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+            </label>
+
+            <div class="km-event-step-actions">
+              <button type="button" class="btn-secondary btn-back" data-owner-prev>
+                <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}Назад{% endif %}</span>
+              </button>
+              <button type="submit" name="form_action" value="save_draft" class="btn-secondary btn-save-draft" formnovalidate>
+                <i class="fas fa-bookmark" aria-hidden="true"></i>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}Сохранить черновик{% endif %}</span>
+              </button>
+              <button type="submit" name="form_action" value="submit" class="btn btn-submit" data-loading-button>
+                <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Yoxlamaya göndər{% elif CURRENT_LANGUAGE == "en" %}Send for review{% else %}Отправить на модерацию{% endif %}</span>
+              </button>
+            </div>
+          </section>
         </div>
 
         <aside class="owner-event-side">
@@ -188,8 +512,9 @@
             <h2>{% if CURRENT_LANGUAGE == "az" %}Nə vaxt tədbir seçməli?{% elif CURRENT_LANGUAGE == "en" %}When to choose an event?{% else %}Когда выбирать мероприятие?{% endif %}</h2>
             <ul>
               <li>{% if CURRENT_LANGUAGE == "az" %}Müəyyən tarix və saat var{% elif CURRENT_LANGUAGE == "en" %}There is a specific date and time{% else %}Есть конкретная дата и время{% endif %}</li>
-              <li>{% if CURRENT_LANGUAGE == "az" %}Forma qısa və sürətlidir{% elif CURRENT_LANGUAGE == "en" %}The form is short and fast{% else %}Форма короче и быстрее{% endif %}</li>
+              <li>{% if CURRENT_LANGUAGE == "az" %}Afişa və qısa 3 addımlı forma{% elif CURRENT_LANGUAGE == "en" %}Cover and short 3-step form{% else %}Афиша и удобная форма в 3 шага{% endif %}</li>
               <li>{% if CURRENT_LANGUAGE == "az" %}Dərcdən sonra taymer göstərilir{% elif CURRENT_LANGUAGE == "en" %}A countdown is shown after publication{% else %}После публикации показывается таймер{% endif %}</li>
+              <li>{% if CURRENT_LANGUAGE == "az" %}Qaralama hər addımda saxlanıla bilər{% elif CURRENT_LANGUAGE == "en" %}Draft can be saved at any step{% else %}Черновик можно сохранить на каждом шаге{% endif %}</li>
             </ul>
           </article>
         </aside>
@@ -202,7 +527,8 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="{% static 'js/kidsmap_datetime_picker.js' %}"></script>
   <script src="{% static 'js/temporary_event_timer.js' %}"></script>
-  <script src="{% static 'js/owner_event_form.js' %}"></script>
+  <script src="{% static 'js/owner_event_form.js' %}?v=20261007event1" defer></script>
+  <script src="{% static 'js/owner_event_recovery.js' %}?v=20261007event1" defer></script>
   <script src="{% static 'js/owner_place_map_picker.js' %}"></script>
   {% if google_maps_api_key %}
     <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&libraries=places&callback=kidsMapInitOwnerMapPickers"></script>

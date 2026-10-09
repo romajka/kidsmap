@@ -9,7 +9,7 @@ from .services.tracking import (
     PUBLIC_ANALYTICS_PAGE_TYPES,
     pop_queued_google_analytics_events,
 )
-from .services.features import is_events_section_enabled, is_specialists_section_enabled
+from .services.features import is_events_section_enabled, is_specialists_section_enabled, is_organizations_section_enabled
 from .services.public_urls import build_public_absolute_uri, filtered_query_string, public_origin
 from .services.auth_redirects import build_header_login_url
 
@@ -80,6 +80,7 @@ NOINDEX_URL_NAMES = {
 }
 
 QUERY_NOINDEX_URL_NAMES = {
+    "organization_list",
     "place_list",
     "place_new",
     "place_detail",
@@ -262,6 +263,7 @@ def site_settings(request):
             "queued_analytics_events": queued_analytics_events,
             "is_specialists_section_enabled": is_specialists_section_enabled(),
             "is_events_section_enabled": is_events_section_enabled(),
+            "is_organizations_section_enabled": is_organizations_section_enabled(),
             **schema_payload,
         }
 
@@ -316,5 +318,6 @@ def site_settings(request):
         "queued_analytics_events": queued_analytics_events,
         "is_specialists_section_enabled": is_specialists_section_enabled(),
         "is_events_section_enabled": is_events_section_enabled(),
+        "is_organizations_section_enabled": is_organizations_section_enabled(),
         **schema_payload,
     }

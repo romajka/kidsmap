@@ -1,0 +1,418 @@
+--- before/src/catalog/templates/admin/catalog/place/change_form.html
++++ after/src/catalog/templates/admin/catalog/place/change_form.html
+@@ -5,9 +5,9 @@
+ <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_urls.css' %}?v=20260918">
+ <script src="{% static 'admin/js/kidsmap_place_urls.js' %}" defer></script>
+   {{ block.super }}
+-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=20261007_place_r5">
++  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=20261009_map">
+   <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=20260928_1">
+-  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=20261007_place_r5" defer></script>
++  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=20261009_map" defer></script>
+   <script src="{% static 'admin/js/kidsmap_place_media.js' %}?v=20261007_place_r5" defer></script>
+   <script src="{% static 'admin/js/kidsmap_place_duplicates.js' %}?v=1" defer></script>
+   <script src="{% static 'admin/js/kidsmap_place_json_import.js' %}?v=11" defer></script>
+@@ -15,8 +15,8 @@
+   <script src="{% static 'js/owner_pricing_plans.js' %}?v=19" defer></script>
+   <link rel="stylesheet" href="{% static 'admin/css/components/activity_editor.css' %}?v=20261004">
+   <script src="{% static 'js/owner_place_offerings.js' %}?v=20261007_place_r5" defer></script>
++  <script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=20261009_map" defer></script>
+   {% if google_maps_api_key %}
+-    <script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=2" defer></script>
+     <script
+       defer
+       src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&libraries=places&callback=kidsMapInitAdminPlaceLocation"
+--- before/src/catalog/templates/admin/catalog/place/form/section_location.html
++++ after/src/catalog/templates/admin/catalog/place/form/section_location.html
+@@ -9,8 +9,8 @@
+     data-default-lng="49.867092"
+     data-selected-prefix="{% translate 'Выбрана точка:' %}"
+     data-empty-label="{% translate 'Точка на карте не выбрана.' %}"
+-    data-locate-error="{% translate 'Не удалось определить геопозицию. Выберите точку вручную на карте.' %}"
+-    data-locate-unsupported="{% translate 'Ваш браузер не поддерживает геолокацию. Выберите точку вручную на карте.' %}"
++    data-locate-error="{% translate 'Не удалось определить геопозицию. Можно ввести координаты вручную или продолжить без точки.' %}"
++    data-locate-unsupported="{% translate 'Ваш браузер не поддерживает геолокацию. Можно ввести координаты вручную или продолжить без точки.' %}"
+     data-search-error="{% translate 'Не удалось найти место по этому запросу. Уточните адрес.' %}"
+     data-search-empty="{% translate 'Введите адрес или выберите точку на карте.' %}"
+     data-search-fallback="{% translate 'Поиск выполнится после сохранения формы и серверного пересчёта координат.' %}"
+@@ -22,6 +22,8 @@
+     data-map-not-ready-label="{% translate 'Не готово для карты' %}"
+     data-map-open-label="{% translate 'Скрыть карту' %}"
+     data-map-closed-label="{% translate 'Указать на карте' %}"
++    data-offline-open-label="{% translate 'Скрыть координаты' %}"
++    data-offline-closed-label="{% translate 'Указать координаты' %}"
+   >
+     <div class="km-pf-group" data-pf-group="address">
+       <div class="km-pf-group__head">
+@@ -90,14 +92,19 @@
+         </button>
+       </div>
+ 
++      <p class="km-pf-mapnotice" id="km-admin-place-map-unavailable" data-km-place-location-unavailable role="status" hidden>
++        {% translate "Карта недоступна. Можно ввести координаты вручную или продолжить без точки." %}
++      </p>
++      <p class="km-pf-mapstatus" data-km-place-location-status role="status"></p>
++
+       {% include "includes/location_resolution.html" with location_admin=True %}
+ 
+-      <div class="km-pf-maplatlng" data-pf-coord-fields hidden>
++      <div class="km-pf-maplatlng" data-pf-coord-fields{% if not form.lat.errors and not form.lng.errors %} hidden{% endif %}>
+         {% include "admin/catalog/place/form/_field.html" with field=form.lat %}
+         {% include "admin/catalog/place/form/_field.html" with field=form.lng %}
+       </div>
+ 
+-      <div class="km-pf-mappanel" id="km-admin-place-map-panel" data-km-place-location-panel hidden>
++      <div class="km-pf-mappanel" id="km-admin-place-map-panel" data-km-place-location-panel{% if not form.lat.errors and not form.lng.errors %} hidden{% endif %}>
+         <div class="km-pf-mappanel__head">
+           <div class="km-pf-mappanel__hint">
+             <strong>{% translate "Нажмите на карту или перетащите маркер" %}</strong>
+--- before/static/admin/js/kidsmap_place_location.js
++++ after/static/admin/js/kidsmap_place_location.js
+@@ -1,9 +1,9 @@
+ (function () {
+-  function parseCoordinate(value) {
++  function parseCoordinate(value, limit) {
+     var normalized = String(value || "").trim().replace(",", ".");
+     if (!normalized) return null;
+     var parsed = Number(normalized);
+-    return Number.isFinite(parsed) ? parsed : null;
++    return Number.isFinite(parsed) && Math.abs(parsed) <= limit ? parsed : null;
+   }
+ 
+   function formatCoordinate(value) {
+@@ -88,14 +88,17 @@
+       clearButton: clearButton,
+       fallbackSubmit: fallbackSubmit,
+       statusText: statusText,
++      unavailableNote: root.querySelector("[data-km-place-location-unavailable]"),
+       coordBadge: coordBadge,
+       mapBadge: mapBadge,
+       foundBox: foundBox,
+       foundText: foundText,
+       applyAddressButton: applyAddressButton,
+       mapProvider: root.dataset.mapProvider || "leaflet",
+-      defaultLat: parseCoordinate(root.dataset.defaultLat) || 40.409264,
+-      defaultLng: parseCoordinate(root.dataset.defaultLng) || 49.867092,
++      offlineOpenLabel: root.dataset.offlineOpenLabel,
++      offlineClosedLabel: root.dataset.offlineClosedLabel,
++      defaultLat: parseCoordinate(root.dataset.defaultLat, 90) || 40.409264,
++      defaultLng: parseCoordinate(root.dataset.defaultLng, 180) || 49.867092,
+       selectedPrefix: root.dataset.selectedPrefix || "Выбрана точка:",
+       emptyLabel: root.dataset.emptyLabel || "Точка на карте не выбрана.",
+       locateErrorLabel: root.dataset.locateError || "",
+@@ -133,8 +136,8 @@
+   }
+ 
+   function updateBadges(state) {
+-    var lat = parseCoordinate(state.latInput.value);
+-    var lng = parseCoordinate(state.lngInput.value);
++    var lat = parseCoordinate(state.latInput.value, 90);
++    var lng = parseCoordinate(state.lngInput.value, 180);
+     var hasCoordinates = lat !== null && lng !== null;
+     var addressValue = String(state.addressInput.value || "").trim();
+     var isReady = hasCoordinates && !!addressValue;
+@@ -202,7 +205,10 @@
+       state.toggleButton.setAttribute("aria-expanded", expanded ? "true" : "false");
+       var label = state.toggleButton.querySelector("span");
+       if (label) {
+-        label.textContent = expanded ? state.mapOpenLabel : state.mapClosedLabel;
++        var offline = state.unavailableNote && !state.mapAvailable;
++        label.textContent = expanded
++          ? (offline ? state.offlineOpenLabel : state.mapOpenLabel)
++          : (offline ? state.offlineClosedLabel : state.mapClosedLabel);
+       }
+     }
+   }
+@@ -221,8 +227,8 @@
+   }
+ 
+   function setPoint(state, lat, lng, options) {
+-    var normalizedLat = parseCoordinate(lat);
+-    var normalizedLng = parseCoordinate(lng);
++    var normalizedLat = parseCoordinate(lat, 90);
++    var normalizedLng = parseCoordinate(lng, 180);
+     if (normalizedLat === null || normalizedLng === null) return;
+ 
+     state.latInput.value = formatCoordinate(normalizedLat);
+@@ -383,8 +389,8 @@
+       }
+     });
+ 
+-    var lat = parseCoordinate(state.latInput.value);
+-    var lng = parseCoordinate(state.lngInput.value);
++    var lat = parseCoordinate(state.latInput.value, 90);
++    var lng = parseCoordinate(state.lngInput.value, 180);
+     if (lat !== null && lng !== null) {
+       state.mapInstance.setView([lat, lng], 15);
+       setPoint(state, lat, lng, { recenter: false });
+@@ -396,8 +402,8 @@
+   function initGoogleMap(state) {
+     if (!window.google || !window.google.maps || state.mapInstance) return;
+ 
+-    var lat = parseCoordinate(state.latInput.value);
+-    var lng = parseCoordinate(state.lngInput.value);
++    var lat = parseCoordinate(state.latInput.value, 90);
++    var lng = parseCoordinate(state.lngInput.value, 180);
+     var hasPoint = lat !== null && lng !== null;
+     state.mapInstance = new google.maps.Map(state.mapCanvas, {
+       center: hasPoint ? { lat: lat, lng: lng } : { lat: state.defaultLat, lng: state.defaultLng },
+@@ -420,7 +426,27 @@
+     bindGoogleAutocomplete(state);
+   }
+ 
++  function updateMapAvailability(state) {
++    var available = state.mapProvider === "google"
++      ? !!(window.google && window.google.maps)
++      : state.mapProvider === "leaflet" && !!window.L;
++    state.mapAvailable = available;
++    if (state.unavailableNote) {
++      state.unavailableNote.hidden = available;
++      state.mapCanvas.hidden = !available;
++      var hint = state.root.querySelector(".km-pf-mappanel__hint");
++      if (hint) hint.hidden = !available;
++      if (state.searchButton) {
++        state.searchButton.disabled = !available;
++        if (available) state.searchButton.removeAttribute("aria-describedby");
++        else state.searchButton.setAttribute("aria-describedby", state.unavailableNote.id);
++      }
++    }
++    return available;
++  }
++
+   function initMap(state) {
++    if (!updateMapAvailability(state)) return;
+     if (state.mapProvider === "google") {
+       initGoogleMap(state);
+       return;
+@@ -500,6 +526,7 @@
+       state.confirmButton.addEventListener("click", function () {
+         updateBadges(state);
+         setToggleState(state, false);
++        if (state.toggleButton) state.toggleButton.focus();
+       });
+       state.confirmButton.dataset.kmBound = "1";
+     }
+@@ -545,8 +572,13 @@
+   function initRoot(root) {
+     if (!root) return;
+     initRegionCascade(root);
+-    var state = buildState(root);
++    // The SDK callback may run after the local controls are already bound.
++    // Reuse their state instead of creating a second map with stale handlers.
++    var state = root._kidsMapAdminPlaceLocationState || buildState(root);
+     if (!state) return;
++    root._kidsMapAdminPlaceLocationState = state;
++    state.mapProvider = root.dataset.mapProvider || "leaflet";
++    updateMapAvailability(state);
+     bindActions(state);
+     updateBadges(state);
+     updateFoundAddress(state, "");
+--- before/static/admin/js/kidsmap_place_form.js
++++ after/static/admin/js/kidsmap_place_form.js
+@@ -523,8 +523,8 @@
+ 
+     on(qs("[data-pf-coord-manual]", root), "click", function () {
+       if (!coordFields) return;
+-      coordFields.hidden = !coordFields.hidden;
+-      if (!coordFields.hidden && latInput) latInput.focus();
++      coordFields.hidden = false;
++      if (latInput) latInput.focus();
+     });
+ 
+     function coordsValue() {
+--- before/static/admin/css/pages/kidsmap_place_form.css
++++ after/static/admin/css/pages/kidsmap_place_form.css
+@@ -2317,9 +2317,10 @@
+ 
+ .km-pf .km-pf-btngroup {
+   display: inline-flex;
++  max-width: 100%;
++  flex-wrap: wrap;
+   border: 1px solid var(--pf-border);
+   border-radius: 9px;
+-  overflow: hidden;
+   background: var(--pf-surface);
+ }
+ 
+@@ -2327,8 +2328,11 @@
+   display: inline-flex;
+   align-items: center;
+   gap: 8px;
+-  height: 38px;
+-  padding: 0 14px;
++  min-height: 44px;
++  height: auto;
++  padding: 10px 14px;
++  white-space: normal;
++  line-height: 1.4;
+   border: 0;
+   border-left: 1px solid var(--pf-border);
+   background: transparent;
+@@ -4772,3 +4776,33 @@
+ .km-pf__mobile-nav{display:none}.km-pf details.pc-activity-card>summary,.km-pf details.pc-group-card>summary,.km-pf details.pc-plan-card>summary{min-height:44px;padding:10px 0;cursor:pointer;font-weight:700;overflow-wrap:anywhere}
+ .km-pf-entry-enhanced :is(button,a,summary,select):focus-visible{outline:3px solid #136f38;outline-offset:3px}
+ @media(max-width:900px){.km-pf-entry-enhanced .km-pf__mobile-nav{position:sticky;top:60px;z-index:15;display:flex;flex-direction:column;gap:6px;background:#fff;padding:10px 12px;font-size:13px}.km-pf__mobile-nav select{min-height:44px;max-width:100%;width:100%;font:inherit;border:1px solid var(--km-pf-line,#dbe5dd);border-radius:8px;padding:8px;background:#fff}.km-pf-entry-enhanced .km-pf__nav{display:none}.km-pf [data-place-accordion-section]{scroll-margin-top:165px}}
++
++
++/* Local coordinate controls remain usable without an external map SDK. */
++.km-pf .km-pf-btngroup__item:disabled { opacity: .55; cursor: not-allowed; }
++.km-pf .km-pf-btngroup__item:focus-visible { outline: 2px solid var(--pf-accent); outline-offset: 2px; }
++.km-pf .km-pf-btngroup__item .km-i { flex-shrink: 0; }
++.km-pf .km-pf-mapnotice, .km-pf .km-pf-mapstatus {
++  font-size: 13px;
++  line-height: 1.5;
++  color: var(--pf-text-2);
++}
++.km-pf .km-pf-mapnotice {
++  padding: 10px 12px;
++  background: var(--pf-surface-2);
++  border-radius: 9px;
++}
++.km-pf .km-pf-mapstatus:empty { display: none; }
++@media (max-width: 640px) {
++  .km-pf .km-pf-btngroup { width: 100%; }
++  .km-pf .km-pf-btngroup__item {
++    flex: 1 1 100%;
++    min-width: 0;
++    justify-content: flex-start;
++    border-left: 0;
++    border-top: 1px solid var(--pf-border);
++  }
++  .km-pf .km-pf-btngroup__item:first-child { border-top: 0; }
++}
++
++.km-pf .km-pf-mappanel__hint[hidden] { display: none; }
+--- before/locale/ru/LC_MESSAGES/django.po
++++ after/locale/ru/LC_MESSAGES/django.po
+@@ -20330,3 +20330,23 @@
+ # Specialist identity verification date in admin
+ msgid "Дата подтверждения личности"
+ msgstr "Дата подтверждения личности"
++
++#: src/catalog/templates/admin/catalog/place/form/section_location.html
++msgid "Карта недоступна. Можно ввести координаты вручную или продолжить без точки."
++msgstr "Карта недоступна. Можно ввести координаты вручную или продолжить без точки."
++
++#: src/catalog/templates/admin/catalog/place/form/section_location.html
++msgid "Не удалось определить геопозицию. Можно ввести координаты вручную или продолжить без точки."
++msgstr "Не удалось определить геопозицию. Можно ввести координаты вручную или продолжить без точки."
++
++#: src/catalog/templates/admin/catalog/place/form/section_location.html
++msgid "Ваш браузер не поддерживает геолокацию. Можно ввести координаты вручную или продолжить без точки."
++msgstr "Ваш браузер не поддерживает геолокацию. Можно ввести координаты вручную или продолжить без точки."
++
++#: src/catalog/templates/admin/catalog/place/form/section_location.html
++msgid "Указать координаты"
++msgstr "Указать координаты"
++
++#: src/catalog/templates/admin/catalog/place/form/section_location.html
++msgid "Скрыть координаты"
++msgstr "Скрыть координаты"
+Binary translation catalog locale/ru/LC_MESSAGES/django.mo: appended selected keys only; semantic preservation verified.
+--- before/locale/az/LC_MESSAGES/django.po
++++ after/locale/az/LC_MESSAGES/django.po
+@@ -22907,3 +22907,23 @@
+ # Specialist identity verification date in admin
+ msgid "Дата подтверждения личности"
+ msgstr "Şəxsiyyətin təsdiqlənmə tarixi"
++
++#: src/catalog/templates/admin/catalog/place/form/section_location.html
++msgid "Карта недоступна. Можно ввести координаты вручную или продолжить без точки."
++msgstr "Xəritə əlçatan deyil. Koordinatları əl ilə daxil edə və ya nöqtə olmadan davam edə bilərsiniz."
++
++#: src/catalog/templates/admin/catalog/place/form/section_location.html
++msgid "Не удалось определить геопозицию. Можно ввести координаты вручную или продолжить без точки."
++msgstr "Coğrafi mövqeyi müəyyən etmək mümkün olmadı. Koordinatları əl ilə daxil edə və ya nöqtə olmadan davam edə bilərsiniz."
++
++#: src/catalog/templates/admin/catalog/place/form/section_location.html
++msgid "Ваш браузер не поддерживает геолокацию. Можно ввести координаты вручную или продолжить без точки."
++msgstr "Brauzeriniz geolokasiyanı dəstəkləmir. Koordinatları əl ilə daxil edə və ya nöqtə olmadan davam edə bilərsiniz."
++
++#: src/catalog/templates/admin/catalog/place/form/section_location.html
++msgid "Указать координаты"
++msgstr "Koordinatları daxil et"
++
++#: src/catalog/templates/admin/catalog/place/form/section_location.html
++msgid "Скрыть координаты"
++msgstr "Koordinatları gizlət"
+Binary translation catalog locale/az/LC_MESSAGES/django.mo: appended selected keys only; semantic preservation verified.
+--- before/locale/en/LC_MESSAGES/django.po
++++ after/locale/en/LC_MESSAGES/django.po
+@@ -22761,3 +22761,23 @@
+ # Specialist identity verification date in admin
+ msgid "Дата подтверждения личности"
+ msgstr "Identity verification date"
++
++#: src/catalog/templates/admin/catalog/place/form/section_location.html
++msgid "Карта недоступна. Можно ввести координаты вручную или продолжить без точки."
++msgstr "The map is unavailable. Enter coordinates manually or continue without a map pin."
++
++#: src/catalog/templates/admin/catalog/place/form/section_location.html
++msgid "Не удалось определить геопозицию. Можно ввести координаты вручную или продолжить без точки."
++msgstr "Could not determine your location. Enter coordinates manually or continue without a map pin."
++
++#: src/catalog/templates/admin/catalog/place/form/section_location.html
++msgid "Ваш браузер не поддерживает геолокацию. Можно ввести координаты вручную или продолжить без точки."
++msgstr "Your browser does not support geolocation. Enter coordinates manually or continue without a map pin."
++
++#: src/catalog/templates/admin/catalog/place/form/section_location.html
++msgid "Указать координаты"
++msgstr "Enter coordinates"
++
++#: src/catalog/templates/admin/catalog/place/form/section_location.html
++msgid "Скрыть координаты"
++msgstr "Hide coordinates"
+Binary translation catalog locale/en/LC_MESSAGES/django.mo: appended selected keys only; semantic preservation verified.
+--- before/static/js/location_resolution.js
++++ after/static/js/location_resolution.js
+@@ -25,7 +25,12 @@
+       var retry = root.querySelector('[data-location-retry]');
+       var ready = state !== 'loading' && state !== 'empty';
+       function label(select) { return select.value && select.selectedOptions.length ? select.selectedOptions[0].textContent : '—'; }
+-      if (pointLabel) pointLabel.textContent = lat.value.trim() && lng.value.trim() ? root.dataset.pointSelected : root.dataset.pointEmpty;
++      var latitude = Number(lat.value.trim().replace(',', '.'));
++      var longitude = Number(lng.value.trim().replace(',', '.'));
++      var validPoint = lat.value.trim() && lng.value.trim()
++        && Number.isFinite(latitude) && Math.abs(latitude) <= 90
++        && Number.isFinite(longitude) && Math.abs(longitude) <= 180;
++      if (pointLabel) pointLabel.textContent = validPoint ? root.dataset.pointSelected : root.dataset.pointEmpty;
+       if (cityLabel) cityLabel.textContent = ready ? label(city) : '—';
+       if (districtLabel) districtLabel.textContent = ready ? label(district) : '—';
+       if (retry) retry.hidden = state !== 'unavailable';
+--- before/scripts/test_location_resolution.cjs
++++ after/scripts/test_location_resolution.cjs
+@@ -80,3 +80,26 @@
+   assert.equal(root.querySelector('[data-location-district]').textContent,'Sabail');
+   f.dom.window.close();
+ });
++
++
++test('invalid numeric coordinates never announce a selected map point', () => {
++  const f = fixture({dataset: {pointSelected: 'Selected', pointEmpty: 'Not chosen'}});
++  const label = f.dom.window.document.createElement('strong');
++  label.setAttribute('data-location-point', '');
++  f.form.querySelector('[data-location-resolution]').append(label);
++  try {
++    for (const [lat, lng] of [['999', '49.8'], ['40.4', '190'], ['Infinity', '49.8']]) {
++      move(f, lat, lng);
++      assert.equal(label.textContent, 'Not chosen');
++    }
++  } finally { f.dom.window.close(); }
++});
++
++test('valid zero coordinates still announce a selected map point', () => {
++  const f = fixture({dataset: {pointSelected: 'Selected', pointEmpty: 'Not chosen'}});
++  const label = f.dom.window.document.createElement('strong');
++  label.setAttribute('data-location-point', '');
++  f.form.querySelector('[data-location-resolution]').append(label);
++  try { move(f, '0', '0'); assert.equal(label.textContent, 'Selected'); }
++  finally { f.dom.window.close(); }
++});
+--- before/src/catalog/templates/includes/location_resolution.html
++++ after/src/catalog/templates/includes/location_resolution.html
+@@ -21,4 +21,4 @@
+   <p class="km-location__status" role="status" aria-live="polite" aria-atomic="true">{% translate 'Город и район определяются по точке на карте.' %}</p>
+   <button type="button" class="km-location__retry" data-location-retry hidden>{% translate 'Повторить проверку' %}</button>
+ </div>
+-<script src="{% static 'js/location_resolution.js' %}" defer></script>
++<script src="{% static 'js/location_resolution.js' %}?v=20261009_map" defer></script>

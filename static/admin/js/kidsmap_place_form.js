@@ -69,7 +69,21 @@
     if (!root || !form) return;
 
     var labels = form.dataset;
+    var placeEntry = form.id === "place_form";
+    var entryCopy = placeEntry ? JSON.parse(qs('#km-place-entry-copy').textContent) : {};
+    if (placeEntry) {
+    root.classList.add("km-pf-entry-enhanced");
+    var sectionSelect = qs("[data-pf-section-select]", root);
+    if (sectionSelect) on(sectionSelect, "change", function () { focusTarget("#" + sectionSelect.value); });
+    qsa(".km-pf-field", root).forEach(function (wrapper) {
+      var control = qs("input:not([type=hidden]),select,textarea", wrapper);
+      if (!control) return;
+      var ids = qsa(".km-pf-field__hint[id], [id$=_errors]", wrapper).map(function (node) { return node.id; });
+      if (ids.length) control.setAttribute("aria-describedby", ((control.getAttribute("aria-describedby") || "") + " " + ids.join(" ")).trim());
+      if (wrapper.classList.contains("is-error")) control.setAttribute("aria-invalid", "true");
+    });
 
+    }
     /* ----------------------------------------------------------------------
        Sections: collapse, persistence, navigation
        ---------------------------------------------------------------------- */
@@ -152,6 +166,7 @@
         // 1. Immediately highlight clicked item with zero delay
         isManualNavClick = true;
         clearTimeout(manualNavTimer);
+        if (sectionSelect) sectionSelect.value = id;
         navItems.forEach(function (navItem) {
           var isCur = navItem.dataset.pfNavFor === id;
           navItem.classList.toggle("is-current", isCur);
@@ -211,6 +226,7 @@
         current = sections[0];
       }
 
+      if (sectionSelect && current) sectionSelect.value = current.id;
       navItems.forEach(function (item) {
         var isCur = !!current && item.dataset.pfNavFor === current.id;
         item.classList.toggle("is-current", isCur);
@@ -327,13 +343,26 @@
         var active = tab.dataset.pfLangtab === code;
         tab.classList.toggle("is-active", active);
         tab.setAttribute("aria-selected", active ? "true" : "false");
+        if (placeEntry) tab.tabIndex = active ? 0 : -1;
       });
     }
 
     function bindLanguageGroup(group) {
       qsa("[data-pf-langtab]", group).forEach(function (tab) {
         on(tab, "click", function () { setLanguage(group, tab.dataset.pfLangtab); });
+        on(tab, "keydown", function (event) {
+          if (!placeEntry) return;
+          var tabs = qsa("[data-pf-langtab]", group), index = tabs.indexOf(tab), next = index;
+          if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
+          else if (event.key === "ArrowLeft") next = (index + tabs.length - 1) % tabs.length;
+          else if (event.key === "Home") next = 0;
+          else if (event.key === "End") next = tabs.length - 1;
+          else if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault(); setLanguage(group, tabs[next].dataset.pfLangtab); tabs[next].focus();
+        });
       });
+      var activeTab = qs("[data-pf-langtab].is-active", group) || qs("[data-pf-langtab]", group);
+      if (activeTab && placeEntry) setLanguage(group, activeTab.dataset.pfLangtab);
       updateLanguageMarks(group);
       qsa("[data-pf-langpane] input, [data-pf-langpane] textarea", group).forEach(function (field) {
         on(field, "input", function () { updateLanguageMarks(group); });
@@ -494,8 +523,8 @@
 
     on(qs("[data-pf-coord-manual]", root), "click", function () {
       if (!coordFields) return;
-      coordFields.hidden = !coordFields.hidden;
-      if (!coordFields.hidden && latInput) latInput.focus();
+      coordFields.hidden = false;
+      if (latInput) latInput.focus();
     });
 
     function coordsValue() {
@@ -684,7 +713,7 @@
 
       if (freeState) freeState.hidden = !isFree;
       if (eventsState) eventsState.hidden = !isEvents;
-      if (tariffList) tariffList.hidden = isExempt;
+      if (tariffList && tariffList.hidden !== isExempt) tariffList.hidden = isExempt;
       if (foot) foot.hidden = isExempt;
       if (tariffEmpty) {
         tariffEmpty.hidden = isExempt || plans.length > 0;
@@ -824,8 +853,14 @@
           return true;
         }
         var plans = parseJsonInput("[data-tariff-input]");
-        if (!Array.isArray(plans)) return false;
-        return plans.some(planHasPublicPrice);
+        if (Array.isArray(plans) && plans.some(planHasPublicPrice)) return true;
+        if (placeEntry) {
+          var nested = parseJsonInput('[name=nested_pricing]');
+          return !!(nested && (nested.activities || []).some(function (activity) {
+            return (activity.groups || []).some(function (group) { return (group.pricing_plans || []).some(planHasPublicPrice); });
+          }));
+        }
+        return false;
       },
       phone: function (config) { return !!config.optional || !!config.inherited || (config.fields || []).some(function (name) { return !!inputValue("id_" + name); }); },
       schedule: function (config) {
@@ -895,7 +930,7 @@
         error: "error",
         empty: "radio_button_unchecked"
       };
-      var label = hasError ? (labels.labelError || "Есть ошибка") : (total ? done + " из " + total : "");
+      var label = hasError ? (labels.labelError || "Есть ошибка") : (total ? done + " " + (placeEntry ? entryCopy.of : "из") + " " + total : "");
       var missingMessage = missingLabels.length
         ? (labels.labelMissing || "Не заполнено: %(items)s").replace("%(items)s", missingLabels.join(", "))
         : "";
@@ -983,6 +1018,8 @@
 
       var total = CHECKLIST.length;
       var pct = total ? Math.round((done / total) * 100) : 0;
+      // Unsaved input has not received a server verdict.
+      if (placeEntry && (isDirty || errorSummary)) pct = Math.min(pct, 99);
       // The invariant the whole page rests on: 100% only when nothing is missing.
       if (missing.length) pct = Math.min(pct, 99);
 
@@ -1000,7 +1037,7 @@
         badge.dataset.tone = ready ? "good" : "warn";
         var text = qs("[data-progress-readiness-text]", badge);
         setIcon(qs("[data-progress-readiness-icon]", badge), ready ? "check_circle" : "radio_button_checked");
-        if (text) text.textContent = ready ? (labels.labelReady || "") : (labels.labelIncomplete || "");
+        if (text) text.textContent = placeEntry && isDirty ? labels.labelCheck : ready ? (labels.labelReady || "") : (labels.labelIncomplete || "");
       });
 
       if (remainingNode) {
@@ -1017,7 +1054,7 @@
       paintSection("verification", done, total, []);
 
       renderIssues(missing);
-      if (readyBanner) readyBanner.hidden = !ready;
+      if (readyBanner) readyBanner.hidden = !ready || (placeEntry && (isDirty || !!errorSummary));
 
       publishButtons.forEach(function (button) {
         button.disabled = !ready;
@@ -1429,7 +1466,10 @@
       var languageSelect = qs("[data-pf-preview-language]", root);
       var language = languageSelect ? languageSelect.value : "az";
       var name = inputValue("id_name_" + language);
+      if (placeEntry) name = name || inputValue("id_name_az") || inputValue("id_name");
       titleNode.textContent = name || titleNode.dataset.pfDefault || "—";
+      var descriptionNode = qs('[data-pf-preview-description]', root);
+      if (placeEntry && descriptionNode) descriptionNode.textContent = inputValue('id_description_' + language) || inputValue('id_description_az');
 
       var categorySelect = qs('select[name="category"]');
       var categoryNode = qs("[data-pf-preview-category]", root);
@@ -1552,7 +1592,7 @@
       if (isDirty) {
         setSaveState("dirty", "● " + (labels.labelDirty || "Есть несохранённые изменения"));
       } else {
-        setSaveState("saved", "✓ " + (labels.labelSaved || "Все изменения сохранены"));
+        if (placeEntry) setSaveState(errorSummary ? "error" : form.dataset.placeId ? "saved" : "idle", errorSummary ? labels.labelError : form.dataset.placeId ? labels.labelSaved : labels.labelIdle); else setSaveState("saved", "✓ " + (labels.labelSaved || "Все изменения сохранены"));
       }
     }
 
@@ -1561,7 +1601,7 @@
       setInitial: function () {
         initialSnapshot = serializeFormState();
         isDirty = false;
-        setSaveState("saved", "✓ " + (labels.labelSaved || "Все изменения сохранены"));
+        if (placeEntry) setSaveState(errorSummary ? "error" : form.dataset.placeId ? "saved" : "idle", errorSummary ? labels.labelError : form.dataset.placeId ? labels.labelSaved : labels.labelIdle); else setSaveState("saved", "✓ " + (labels.labelSaved || "Все изменения сохранены"));
       },
       markDirty: function () {
         isDirty = true;

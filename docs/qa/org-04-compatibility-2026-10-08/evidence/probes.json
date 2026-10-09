@@ -1,0 +1,37 @@
+{
+  "tests": 4,
+  "rows": [
+    {
+      "probe": "archived_private_org_side_owner",
+      "existing_preview": "PermissionDenied",
+      "canonical_detach_allowed": true,
+      "compatibility_gap": "CONFIRMED",
+      "no_new_read_permission_proposed": true
+    },
+    {
+      "probe": "existing_review_consent",
+      "preview_http": 200,
+      "without_consent_http": 409,
+      "preserved_before_consent": true,
+      "confirmed_http": 302,
+      "detached_after_consent": true,
+      "state": "PASS"
+    },
+    {
+      "probe": "legacy_json_without_receipt_consent",
+      "http": 200,
+      "detached": true,
+      "receipt_created": false,
+      "csrf_enforced": true,
+      "ORG04": "CONFIRMED"
+    },
+    {
+      "probe": "legacy_html_without_receipt_consent",
+      "http": 302,
+      "detached": true,
+      "receipt_created": false,
+      "csrf_enforced": true,
+      "ORG04": "CONFIRMED"
+    }
+  ]
+}

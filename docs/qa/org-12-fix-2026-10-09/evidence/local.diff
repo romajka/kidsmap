@@ -1,0 +1,631 @@
+--- before/src/catalog/controllers/organization_ownership_api.py
++++ after/src/catalog/controllers/organization_ownership_api.py
+@@ -18,9 +18,9 @@
+ @csrf_protect
+ def organization_ownership_action(request,action,target_type,target_id):
+     if not request.user.is_authenticated or not request.user.is_active:return JsonResponse({'error':'forbidden'},status=403)
+-    specs={'create':{'values','allow_separate'},'claim':{'note'},'approve-claim':{'approve','note'},'join':{'organization_id','relationship_kind'},'confirm-join':set(),'approve-info':set(),'detach':{'organization_id','expected_ownership_version'},'transfer':{'new_owner_id','expected_ownership_version'}}
++    specs={'create':{'values','allow_separate'},'claim':{'note'},'approve-claim':{'approve','note'},'join':{'organization_id','relationship_kind'},'confirm-join':set(),'cancel-join':{'expected_state'},'approve-info':set(),'detach':{'organization_id','expected_ownership_version'},'transfer':{'new_owner_id','expected_ownership_version'}}
+     if action not in specs or target_type not in ('place','organization'):return JsonResponse({'error':'unknown_action'},status=404)
+-    if action in ('join','confirm-join','approve-info','detach') and target_type!='place':return JsonResponse({'error':'invalid_target'},status=400)
++    if action in ('join','confirm-join','cancel-join','approve-info','detach') and target_type!='place':return JsonResponse({'error':'invalid_target'},status=400)
+     try:
+         if request.content_type!='application/json' or len(request.body)>65536:raise ValidationError('JSON payload required.')
+         data=json.loads(request.body)
+@@ -40,6 +40,10 @@
+             elif action=='approve-claim':row=service.moderate_claim(actor=request.user,target_type=target_type,request_id=target_id,**{'approve':True,**data})
+             elif action=='join':row=service.request_join(actor=request.user,place_id=target_id,**data)
+             elif action=='confirm-join':row=service.confirm_join(actor=request.user,request_id=target_id)
++            elif action=='cancel-join':
++                if set(data) != {'expected_state'}: raise ValidationError('State required.')
++                row=service.cancel_join(actor=request.user,request_id=target_id,**data)
++                return JsonResponse({'request_id':row.pk,'status':row.status})
+             elif action=='approve-info':row=service.approve_informational_join(actor=request.user,request_id=target_id)
+             elif action=='detach':
+                 if set(data) != specs['detach']: raise ValidationError('Organization and ownership version required.')
+@@ -54,6 +58,8 @@
+     except PermissionDenied:return JsonResponse({'error':'forbidden'},status=403)
+     except ObjectDoesNotExist:return JsonResponse({'error':'not_found'},status=404)
+     except (json.JSONDecodeError,UnicodeDecodeError,TypeError,ValidationError) as exc:
++        if getattr(exc,'code',None)=='request_conflict':
++            return JsonResponse({'error':'request_conflict','reload_required':True},status=409)
+         if getattr(exc,'code',None)=='structure_changed':
+             return JsonResponse({'error':'structure_changed','reload_required':True},status=409)
+         duplicate=getattr(exc,'code',None)=='possible_duplicate'
+--- before/static/css/pages/organization_workspace.css
++++ after/static/css/pages/organization_workspace.css
+@@ -1268,3 +1268,18 @@
+   .org-control-form .org-control-grid { grid-template-columns: minmax(0, 1fr); }
+   .org-control-form .account-btn-action { width: 100%; justify-content: center; }
+ }
++
++/* Explicit request withdrawal; works without JavaScript. */
++.org-recovery { max-width: 720px; margin: 24px auto; padding: 24px; background: var(--color-surface, #fff); border: 1px solid #d7e6df; border-radius: 16px; overflow-wrap: anywhere; }
++.org-recovery > * + * { margin-top: 20px; }
++.org-recovery summary, .org-recovery .org-btn, .org-recovery .org-text-action { min-height: 44px; display: inline-flex; align-items: center; padding: 10px 14px; }
++.org-recovery summary { cursor: pointer; display: list-item; }
++.org-recovery details form { padding-top: 16px; }
++.org-recovery details form > * + * { margin-top: 16px; }
++.org-recovery [role="alert"] { padding: 16px; border: 2px solid #a52b23; border-radius: 12px; }
++.org-recovery :focus-visible { outline: 3px solid #146c43; outline-offset: 3px; }
++.org-pending-row[data-join-request] > span { min-width: 0; overflow-wrap: anywhere; }
++.org-pending-row[data-join-request] small { display: block; }
++@media (max-width: 600px) { .org-recovery { padding: 18px; margin: 16px 0; } .org-pending-row[data-join-request] { flex-wrap: wrap; } }
++
++.org-pending-row[data-join-request] .org-text-action { min-height: 44px; display: inline-flex; align-items: center; padding: 10px 12px; }
+--- before/src/catalog/templates/pages/includes/organization_connection_rows.html
++++ after/src/catalog/templates/pages/includes/organization_connection_rows.html
+@@ -1,4 +1,4 @@
+-{% load i18n %}
++{% load i18n %}{% get_current_language as CURRENT_LANGUAGE %}
+ <table class="org-connect__table"><caption class="org-connect__sr">{% translate 'Карточки и состояние связи' %}</caption>
+   <thead><tr>{% if selectable %}<th scope="col">{% translate 'Выбрать' %}</th>{% endif %}<th scope="col">{% translate 'Место и адрес' %}</th><th scope="col">{% translate 'Текущая организация' %}</th><th scope="col">{% translate 'Состояние' %}</th></tr></thead>
+   <tbody>{% for row in rows %}<tr data-result="{{ row.code }}">
+@@ -11,6 +11,7 @@
+     </td>
+     {% endif %}
+     <td><span class="org-connect__badge">{{ row.message }}</span>
++      {% if row.recovery_required %}<a href="{% url 'organization_join_recovery' row.recovery_organization_id row.request_id %}">{% if CURRENT_LANGUAGE == 'az' %}Sorğuya bax və ləğv et{% elif CURRENT_LANGUAGE == 'en' %}Review and cancel request{% else %}Просмотреть и отменить запрос{% endif %}</a>{% endif %}
+       {% if row.request_id %}<small>{% translate 'Запрос' %} #{{ row.request_id }}</small>{% endif %}
+       {% if row.request_status == 'approved' %}<small>{% translate 'Запрос подтверждён' %}</small>{% elif row.request_status == 'rejected' %}<small>{% translate 'Запрос отклонён' %}</small>{% elif row.request_status == 'canceled' %}<small>{% translate 'Запрос отменён' %}</small>{% endif %}
+       {% if row.waiting_for == 'place_owner' %}<small>{% translate 'Ждём владельца места' %}</small>{% elif row.waiting_for == 'organization_owner' %}<small>{% translate 'Ждём владельца организации' %}</small>{% endif %}
+--- before/src/catalog/templates/pages/organization_workspace.html
++++ after/src/catalog/templates/pages/organization_workspace.html
+@@ -370,35 +370,11 @@
+             </div>
+           {% endif %}
+ 
+-          {% if pending_requests %}
++          {% if join_recovery_requests %}
+             <div class="org-action-panel">
+               <h3>{% if CURRENT_LANGUAGE == 'az' %}Gözləyən sorğular{% elif CURRENT_LANGUAGE == 'en' %}Pending requests{% else %}Ожидают подтверждения{% endif %}</h3>
+-              {% for item in pending_requests %}
+-                <div class="org-pending-row">
+-                  <span>
+-                    {{ item.place.name_i18n }} · 
+-                    {% if item.place_owner_confirmed_at %}
+-                      {% if CURRENT_LANGUAGE == 'az' %}Məkan sahibi təsdiqlədi{% elif CURRENT_LANGUAGE == 'en' %}Place owner confirmed{% else %}Владелец места подтвердил{% endif %}
+-                    {% else %}
+-                      {% if CURRENT_LANGUAGE == 'az' %}Məkan sahibini gözləyirik{% elif CURRENT_LANGUAGE == 'en' %}Waiting for place owner{% else %}Ждём владельца места{% endif %}
+-                    {% endif %} · 
+-                    {% if item.organization_owner_confirmed_at %}
+-                      {% if CURRENT_LANGUAGE == 'az' %}Təşkilat sahibi təsdiqlədi{% elif CURRENT_LANGUAGE == 'en' %}Organization owner confirmed{% else %}Владелец организации подтвердил{% endif %}
+-                    {% else %}
+-                      {% if CURRENT_LANGUAGE == 'az' %}Təşkilat sahibini gözləyirik{% elif CURRENT_LANGUAGE == 'en' %}Waiting for organization owner{% else %}Ждём владельца организации{% endif %}
+-                    {% endif %}
+-                  </span>
+-                  {% if item.relationship_kind == 'business' %}
+-                    <form method="post" action="{% url 'organization_workspace_confirm' organization.pk item.pk %}">
+-                      {% csrf_token %}
+-                      <button class="org-text-action" type="submit">
+-                        {% if CURRENT_LANGUAGE == 'az' %}Təsdiqlə{% elif CURRENT_LANGUAGE == 'en' %}Confirm{% else %}Подтвердить{% endif %}
+-                      </button>
+-                    </form>
+-                  {% else %}
+-                    <small>{% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi: KidsMap yoxlayır{% elif CURRENT_LANGUAGE == 'en' %}Information link: KidsMap review{% else %}Информационная связь: проверяет KidsMap{% endif %}</small>
+-                  {% endif %}
+-                </div>
++              {% for item in join_recovery_requests %}
++                {% include 'pages/includes/organization_join_request.html' %}
+               {% endfor %}
+             </div>
+           {% endif %}
+--- before/src/catalog/urls.py
++++ after/src/catalog/urls.py
+@@ -90,7 +90,7 @@
+ from catalog.controllers.organization_ownership_api import organization_ownership_action
+ from catalog.controllers.group_conditions import confirm_group_conditions
+ from catalog.controllers.program_workspace import program_create, program_detail, program_save
+-from catalog.controllers.organization_workspace import (organization_index, organization_create, organization_detail, organization_branch, organization_save, organization_join, organization_confirm, organization_detach, organization_branch_create)
++from catalog.controllers.organization_workspace import (organization_index, organization_create, organization_detail, organization_branch, organization_save, organization_join, organization_confirm, organization_detach, organization_branch_create, organization_join_recovery, organization_cancel)
+ 
+ urlpatterns = [
+     path('account/specialists/', specialist_workspace_index, name='specialist_workspace_index'),
+@@ -120,6 +120,8 @@
+     path('account/organizations/<int:org_id>/branches/<int:place_id>/', organization_branch, name='organization_workspace_branch'),
+     path('account/organizations/<int:org_id>/save/', organization_save, name='organization_workspace_save'),
+     path('account/organizations/<int:org_id>/join/', organization_join, name='organization_workspace_join'),
++    path('account/organizations/<int:org_id>/requests/<int:request_id>/recovery/', organization_join_recovery, name='organization_join_recovery'),
++    path('account/organizations/<int:org_id>/requests/<int:request_id>/cancel/', organization_cancel, name='organization_workspace_cancel'),
+     path('account/organizations/<int:org_id>/requests/<int:request_id>/confirm/', organization_confirm, name='organization_workspace_confirm'),
+     path('account/organizations/<int:org_id>/branches/<int:place_id>/detach/', organization_detach, name='organization_workspace_detach'),
+     path('account/places/<int:place_id>/groups/<int:group_id>/confirm-conditions/', confirm_group_conditions, name='owner_group_confirm_conditions'),
+--- before/src/catalog/templates/pages/owner_places.html
++++ after/src/catalog/templates/pages/owner_places.html
+@@ -83,7 +83,7 @@
+       {% if place_affiliation_requests or affiliated_places or joinable_places and joinable_organizations %}
+       <section class="account-card-box" id="organization-links" aria-labelledby="organization-links-title">
+         <div class="account-card-box__head"><h2 id="organization-links-title">{% if CURRENT_LANGUAGE == 'az' %}Təşkilat əlaqələri{% elif CURRENT_LANGUAGE == 'en' %}Organization links{% else %}Связи с организациями{% endif %}</h2></div>
+-        {% for item in place_affiliation_requests %}<div class="org-pending-row"><span>{{ item.place.name_i18n }} → {{ item.organization.name_az }} · {% if item.place_owner_confirmed_at %}{% if CURRENT_LANGUAGE == 'az' %}Sizin tərəf təsdiqlədi{% elif CURRENT_LANGUAGE == 'en' %}Your side confirmed{% else %}Ваша сторона подтвердила{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Sizin təsdiqiniz gözlənilir{% elif CURRENT_LANGUAGE == 'en' %}Waiting for your confirmation{% else %}Ожидает вашего подтверждения{% endif %}{% endif %}</span><form method="post" action="{% url 'organization_workspace_confirm' item.organization_id item.pk %}">{% csrf_token %}<button class="account-btn-sm" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Təsdiqlə{% elif CURRENT_LANGUAGE == 'en' %}Confirm{% else %}Подтвердить{% endif %}</button></form></div>{% endfor %}
++        {% for item in place_affiliation_requests %}{% include 'pages/includes/organization_join_request.html' %}{% endfor %}
+         {% for place in informational_places %}<p>{{ place.name_i18n }} · {% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi; şəbəkə hüququ vermir{% elif CURRENT_LANGUAGE == 'en' %}Information link; no network permission{% else %}Информационная связь; не даёт сетевых прав{% endif %}</p>{% endfor %}
+         {% for place in affiliated_places %}<div class="org-pending-row"><span>{{ place.name_i18n }} → {{ place.organization.name_az }} · {% if place.organization_relationship_kind == 'informational' %}{% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi{% elif CURRENT_LANGUAGE == 'en' %}Information link{% else %}Информационная связь{% endif %}{% endif %}</span><a class="account-btn-sm" href="{% url 'organization_detach_preview' place.organization_id place.pk %}">{% translate 'Отсоединить: посмотреть последствия' %}</a></div>{% endfor %}
+         {% if joinable_places and joinable_organizations %}<form method="post" data-join-form>{% csrf_token %}<label>{% if CURRENT_LANGUAGE == 'az' %}Məkan{% elif CURRENT_LANGUAGE == 'en' %}Place{% else %}Место{% endif %}<select name="place_id">{% for place in joinable_places %}<option value="{{ place.pk }}">{{ place.name_i18n }}</option>{% endfor %}</select></label><label>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat{% elif CURRENT_LANGUAGE == 'en' %}Organization{% else %}Организация{% endif %}<select name="organization_id" data-join-org>{% for org in joinable_organizations %}<option value="{{ org.pk }}" data-url="{% url 'organization_workspace_join' org.pk %}">{{ org.name_az }}</option>{% endfor %}</select></label><button type="submit" class="account-btn-sm">{% if CURRENT_LANGUAGE == 'az' %}Qoşulma istə{% elif CURRENT_LANGUAGE == 'en' %}Request connection{% else %}Запросить присоединение{% endif %}</button></form>{% endif %}
+--- before/src/catalog/services/organization_ownership.py
++++ after/src/catalog/services/organization_ownership.py
+@@ -328,6 +328,95 @@
+     return item,place,org
+ 
+ 
++JOIN_RECOVERY_SALT = 'catalog.organization-place.cancel.v1'
++
++
++def _cancel_parents(request_id):
++    """Same join lock order, permitting safe withdrawal after archive/deletion."""
++    anchor = OrganizationPlaceRequest.objects.filter(pk=request_id).values('place_id', 'organization_id').first()
++    if anchor is None:
++        raise OrganizationPlaceRequest.DoesNotExist
++    org = _lock(Organization, [anchor['organization_id']], 'default')[anchor['organization_id']]
++    place = _lock(Place, [anchor['place_id']], 'default')[anchor['place_id']]
++    item = _lock(OrganizationPlaceRequest, [request_id], 'default')[request_id]
++    if (item.place_id, item.organization_id) != (place.pk, org.pk):
++        raise ValidationError('Request changed.', code='request_conflict')
++    return item, place, org
++
++
++def _cancel_owner(actor, item, place, org):
++    _side_owner(actor, place, org)
++    if item.relationship_kind != 'business':
++        raise PermissionDenied
++
++
++def _cancel_snapshot(item, place, org):
++    import json
++    from django.utils.crypto import salted_hmac
++    values = [item.status, item.relationship_kind, item.base_place_owner_id,
++        item.base_organization_owner_id, item.base_place_ownership_version,
++        item.base_organization_ownership_version, item.base_place_content_version,
++        str(item.place_owner_confirmed_at), str(item.organization_owner_confirmed_at),
++        place.owner_id, place.ownership_version, place.content_version, str(place.deleted_at),
++        org.owner_id, org.ownership_version, org.content_version, str(org.archived_at)]
++    return salted_hmac(JOIN_RECOVERY_SALT + '.state', json.dumps(values), algorithm='sha256').hexdigest()
++
++
++@transaction.atomic
++def join_recovery_state(*, actor, request_id):
++    from django.core import signing
++    actor = _actor(actor)
++    item, place, org = _cancel_parents(request_id)
++    _cancel_owner(actor, item, place, org)
++    return signing.dumps({'actor': actor.pk, 'request': item.pk,
++        'state': _cancel_snapshot(item, place, org)}, salt=JOIN_RECOVERY_SALT, compress=True)
++
++
++@transaction.atomic
++def cancel_join(*, actor, request_id, expected_state):
++    from django.core import signing
++    actor = _actor(actor)
++    item, place, org = _cancel_parents(request_id)
++    _cancel_owner(actor, item, place, org)
++    if not isinstance(expected_state, str) or not 1 <= len(expected_state) <= 8192:
++        raise ValidationError('State required.', code='invalid_state')
++    try:
++        state = signing.loads(expected_state, salt=JOIN_RECOVERY_SALT, max_age=1800)
++    except signing.SignatureExpired:
++        raise ValidationError('State expired.', code='request_conflict')
++    except signing.BadSignature:
++        raise ValidationError('Invalid state.', code='invalid_state')
++    if not isinstance(state, dict) or state.get('actor') != actor.pk or state.get('request') != item.pk:
++        raise ValidationError('Invalid state.', code='invalid_state')
++    if item.status == 'canceled':
++        return item
++    if item.status != 'pending' or state.get('state') != _cancel_snapshot(item, place, org):
++        raise ValidationError('Request changed; review again.', code='request_conflict')
++    item.status = 'canceled'
++    item.decided_by = actor
++    item.decided_at = timezone.now()
++    item.note = (item.note + '\n' if item.note else '') + 'Explicit withdrawal by current owner.'
++    item.save(update_fields=['status', 'decided_by', 'decided_at', 'note'])
++    return item
++
++
++def join_recovery_rows(*, actor, items):
++    """Safe request labels. Cancellation authority never grants parent visibility."""
++    from catalog.services.organization_connections import organization_visible, organization_name
++    actor = _actor(actor)
++    items = list(items)
++    visible = {org_id: set(join_visible_places(actor=actor, organization_id=org_id).filter(
++        pk__in=[r.place_id for r in items if r.organization_id == org_id]).values_list('pk', flat=True))
++        for org_id in {r.organization_id for r in items}}
++    for item in items:
++        item.recovery_place_name = item.place.name_i18n() if item.place_id in visible[item.organization_id] else ''
++        item.recovery_org_name = organization_name(item.organization) if organization_visible(actor, item.organization) else ''
++        item.recovery_stale = (not _request_matches(item, item.place, item.organization)
++            or item.base_place_content_version != item.place.content_version
++            or item.place.deleted_at is not None or item.organization.archived_at is not None)
++    return items
++
++
+ @transaction.atomic
+ def confirm_join(*,actor,request_id):
+     actor=_actor(actor);item,place,org=_locked_join(request_id);return _confirm(actor,item,place,org)
+--- before/src/catalog/views.py
++++ after/src/catalog/views.py
+@@ -936,6 +936,8 @@
+     context['joinable_organizations'] = list(Organization.objects.filter(status='published', archived_at__isnull=True).order_by('pk')[:100])
+     context['place_affiliation_requests'] = list(OrganizationPlaceRequest.objects.filter(
+         place__owner=request.user, status='pending').select_related('place', 'organization').order_by('-pk'))
++    from catalog.services.organization_ownership import join_recovery_rows
++    join_recovery_rows(actor=request.user, items=context['place_affiliation_requests'])
+     context['affiliated_places'] = [p for p in direct_places if p.organization_id and affiliation_current(p, p.organization)]
+     context['informational_places'] = [p for p in context['affiliated_places'] if p.organization_relationship_kind == 'informational']
+     context.update(
+--- before/src/catalog/controllers/organization_workspace.py
++++ after/src/catalog/controllers/organization_workspace.py
+@@ -300,6 +300,9 @@
+     pending = list(OrganizationPlaceRequest.objects.filter(organization=org, status='pending', place_id__in=visible_ids)
+         .select_related('place').order_by('-pk'))
+     pending = [r for r in pending if request.user.pk in (r.place.owner_id, org.owner_id)]
++    recovery_requests = list(OrganizationPlaceRequest.objects.filter(organization=org, status='pending', relationship_kind='business').filter(Q(place__owner=request.user) | Q(organization__owner=request.user)).select_related('place', 'organization').order_by('-pk'))
++    recovery_requests += [r for r in pending if r.relationship_kind != 'business']
++    organization_ownership.join_recovery_rows(actor=request.user, items=recovery_requests)
+     grants = list(org.team_grants.select_related('member').order_by('pk')) if org.owner_id == request.user.pk else []
+     invitations = list(org.team_invitations.filter(status='PENDING').order_by('-pk')) if org.owner_id == request.user.pk else []
+     action_labels={'place.view':_('Просмотр филиалов'),'place.edit':_('Редактирование филиалов'),
+@@ -323,7 +326,7 @@
+         'workspace_mode':'detail', 'organization':org, 'schema_version':publication.SCHEMA_VERSION, 'branches':branches,
+         'show_current_data':show_current_data,
+         'programs':list((Program.objects.filter(organization=org, archived_at__isnull=True) if org.owner_id == request.user.pk or business_team.has_action(user=request.user,target=org,action='program.manage') else Program.objects.filter(organization=org, archived_at__isnull=True, activities__place__in=branches)).distinct().order_by('pk')),
+-        'pending_requests':pending, 'owned_places':owned_places,
++        'pending_requests':pending, 'join_recovery_requests':recovery_requests, 'owned_places':owned_places,
+         'team_grants':grants, 'team_invitations':invitations,
+         'can_manage_programs':business_team.has_action(user=request.user,target=org,action='program.manage'),
+         'can_edit':business_team.has_action(user=request.user,target=org,action='organization.edit'),
+@@ -456,3 +459,43 @@
+     if duplicate_detected:
+         context['branch_duplicates']=connections.visible_places(request.user).filter(name_az__iexact=form.cleaned_data['name_az'].strip())
+     return render(request,'pages/organization_workspace.html',context,status=409 if form.non_field_errors() else 400)
++
++
++def _recovery_context(request, org_id, request_id, error=False):
++    item = OrganizationPlaceRequest.objects.select_related('place', 'organization').filter(pk=request_id, organization_id=org_id).first()
++    if item is None or item.relationship_kind != 'business' or request.user.pk not in (item.place.owner_id, item.organization.owner_id):
++        raise Http404
++    organization_ownership.join_recovery_rows(actor=request.user, items=[item])
++    token = organization_ownership.join_recovery_state(actor=request.user, request_id=item.pk)
++    new_url = None
++    if item.status == 'canceled' and item.place.deleted_at is None and item.organization.archived_at is None:
++        if item.organization.owner_id == request.user.pk and organization_ownership.join_visible_places(actor=request.user).filter(pk=item.place_id).exists():
++            new_url = reverse('organization_connections', args=[org_id])
++        elif item.place.owner_id == request.user.pk:
++            new_url = reverse('organization_connections', args=[org_id]) + '?place_ids=' + str(item.place_id)
++    return {'item': item, 'expected_state': token, 'new_request_url': new_url, 'recovery_error': error}
++
++
++def organization_join_recovery(request, org_id, request_id):
++    if not request.user.is_authenticated:
++        return _login(request)
++    if request.method != 'GET':
++        from django.http import HttpResponseNotAllowed
++        return HttpResponseNotAllowed(['GET'])
++    return render(request, 'pages/organization_join_recovery.html', _recovery_context(request, org_id, request_id))
++
++
++@require_POST
++def organization_cancel(request, org_id, request_id):
++    if not request.user.is_authenticated:
++        return _login(request)
++    context = _recovery_context(request, org_id, request_id)
++    if set(request.POST) - {'csrfmiddlewaretoken', 'expected_state'}:
++        return render(request, 'pages/organization_join_recovery.html', {**context, 'recovery_error': True}, status=400)
++    try:
++        organization_ownership.cancel_join(actor=request.user, request_id=request_id, expected_state=request.POST.get('expected_state'))
++    except PermissionDenied:
++        raise Http404
++    except ValidationError as exc:
++        return render(request, 'pages/organization_join_recovery.html', _recovery_context(request, org_id, request_id, error=True), status=409 if exc.code == 'request_conflict' else 400)
++    return redirect('organization_join_recovery', org_id=org_id, request_id=request_id)
+--- before/src/catalog/services/organization_connections.py
++++ after/src/catalog/services/organization_connections.py
+@@ -146,6 +146,8 @@
+         'current_kind':place.organization_relationship_kind, 'code':code,
+         'request_id':pending.pk if pending and can_read_request else None,
+         'request_status':pending.status if pending and can_read_request else None,
++        'recovery_required':bool(pending and pending.relationship_kind == 'business' and can_read_request and (not ownership._request_matches(pending,place,org) or pending.base_place_content_version != place.content_version)),
++        'recovery_organization_id':org.pk if pending and can_read_request else None,
+         'waiting_for':('place_owner' if not pending.place_owner_confirmed_at else 'organization_owner') if can_read_request and pending and pending.relationship_kind == 'business' else None}
+ 
+ 
+--- /dev/null
++++ after/src/catalog/testcases/test_organization_join_recovery.py
+@@ -0,0 +1,235 @@
++"""User outcomes for explicit cancellation and fresh bilateral consent."""
++import json
++from django.contrib.auth import get_user_model
++from django.core.exceptions import PermissionDenied, ValidationError
++from django.db.models import F
++from django.test import TestCase
++from django.urls import reverse
++from catalog.models import Organization, OrganizationPlaceRequest, Place
++from catalog.services import organization_ownership as service
++from catalog.testcases.utils import create_quality_place
++
++class JoinRecoveryTests(TestCase):
++    def setUp(self):
++        User = get_user_model()
++        self.network_owner = User.objects.create_user(username='recovery_network')
++        self.place_owner = User.objects.create_user(username='recovery_place')
++        self.outsider = User.objects.create_user(username='recovery_other')
++        self.org = Organization.objects.create(owner=self.network_owner, name_az='Recovery network')
++        self.place = create_quality_place(owner=self.place_owner, created_by=self.place_owner, name_az='Recovery branch')
++        self.item = service.request_join(actor=self.network_owner, place_id=self.place.pk, organization_id=self.org.pk)
++        Place.objects.filter(pk=self.place.pk).update(content_version=F('content_version')+1)
++        self.place.refresh_from_db()
++
++    def token(self, actor=None):
++        self.assertTrue(callable(getattr(service, 'join_recovery_state', None)), 'No safe explicit recovery for stale join')
++        return service.join_recovery_state(actor=actor or self.network_owner, request_id=self.item.pk)
++
++    def cancel(self, actor=None, token=None):
++        return service.cancel_join(actor=actor or self.network_owner, request_id=self.item.pk, expected_state=token or self.token(actor))
++
++    def test_cancel_then_new_request_requires_new_other_owner_consent(self):
++        old_consent=self.item.organization_owner_confirmed_at
++        self.cancel()
++        self.item.refresh_from_db()
++        self.assertEqual(self.item.status,'canceled')
++        self.assertEqual(self.item.organization_owner_confirmed_at,old_consent)
++        fresh=service.request_join(actor=self.network_owner,place_id=self.place.pk,organization_id=self.org.pk)
++        self.assertNotEqual(fresh.pk,self.item.pk)
++        self.assertEqual(fresh.base_place_content_version,self.place.content_version)
++        self.assertIsNone(fresh.place_owner_confirmed_at)
++        self.assertEqual(fresh.status,'pending')
++        with self.assertRaises(ValidationError):service.confirm_join(actor=self.place_owner,request_id=self.item.pk)
++        service.confirm_join(actor=self.place_owner,request_id=fresh.pk)
++        self.place.refresh_from_db();self.assertEqual(self.place.organization_id,self.org.pk)
++
++    def test_repeat_cancel_does_not_cancel_new_pending(self):
++        token=self.token();self.cancel(token=token)
++        fresh=service.request_join(actor=self.network_owner,place_id=self.place.pk,organization_id=self.org.pk)
++        self.assertEqual(self.cancel(token=token).status,'canceled')
++        fresh.refresh_from_db();self.assertEqual(fresh.status,'pending')
++
++    def test_changed_content_rejects_cancel_without_writes(self):
++        token=self.token();Place.objects.filter(pk=self.place.pk).update(content_version=F('content_version')+1)
++        with self.assertRaises(ValidationError) as cm:self.cancel(token=token)
++        self.assertEqual(cm.exception.code,'request_conflict')
++        self.item.refresh_from_db();self.assertEqual(self.item.status,'pending')
++
++    def test_outsider_and_actor_token_swap_denied(self):
++        token=self.token()
++        with self.assertRaises(PermissionDenied):self.cancel(actor=self.outsider,token=token)
++        with self.assertRaises(ValidationError):self.cancel(actor=self.place_owner,token=token)
++
++    def test_former_owner_cannot_cancel(self):
++        token=self.token();Organization.objects.filter(pk=self.org.pk).update(owner=self.outsider,ownership_version=F('ownership_version')+1)
++        with self.assertRaises(PermissionDenied):self.cancel(token=token)
++
++    def test_archived_organization_can_stop_pending_without_link(self):
++        from django.utils import timezone
++        Organization.objects.filter(pk=self.org.pk).update(archived_at=timezone.now())
++        self.cancel();self.place.refresh_from_db();self.assertIsNone(self.place.organization_id)
++
++    def test_deleted_place_can_stop_pending_without_link(self):
++        from django.utils import timezone
++        Place.objects.filter(pk=self.place.pk).update(deleted_at=timezone.now())
++        self.cancel();self.place.refresh_from_db();self.assertIsNone(self.place.organization_id)
++
++    def test_approved_request_cannot_be_canceled(self):
++        self.cancel();fresh=service.request_join(actor=self.network_owner,place_id=self.place.pk,organization_id=self.org.pk)
++        self.item=fresh;token=self.token();service.confirm_join(actor=self.place_owner,request_id=fresh.pk)
++        with self.assertRaises(ValidationError):self.cancel(token=token)
++        self.place.refresh_from_db();self.assertEqual(self.place.organization_id,self.org.pk)
++
++    def test_informational_request_not_in_business_recovery(self):
++        OrganizationPlaceRequest.objects.filter(pk=self.item.pk).update(relationship_kind='informational')
++        with self.assertRaises(PermissionDenied):self.token()
++
++    def test_private_place_metadata_hidden_but_network_owner_can_cancel(self):
++        Place.objects.filter(pk=self.place.pk).update(status='draft',is_active=False)
++        self.client.force_login(self.network_owner)
++        response=self.client.get(reverse('organization_join_recovery',args=[self.org.pk,self.item.pk]))
++        self.assertEqual(response.status_code,200)
++        self.assertNotContains(response,self.place.name_az)
++        self.assertContains(response,'name="expected_state"')
++        self.assertEqual(self.client.get(reverse('organization_workspace_detail',args=[self.org.pk])).status_code,200)
++
++    def test_json_cancel_strict_payload_and_replay(self):
++        token=self.token();self.client.force_login(self.network_owner)
++        url=reverse('organization_ownership_action',args=['cancel-join','place',self.item.pk])
++        self.assertEqual(self.client.get(url).status_code,405)
++        self.assertEqual(self.client.post(url,data=json.dumps({}),content_type='application/json').status_code,400)
++        for _ in range(2):
++            response=self.client.post(url,data=json.dumps({'expected_state':token}),content_type='application/json')
++            self.assertEqual(response.status_code,200)
++            self.assertEqual(response.json(),{'request_id':self.item.pk,'status':'canceled'})
++
++    def test_html_cancel_requires_csrf_and_explicit_state(self):
++        from django.test import Client
++        url=reverse('organization_workspace_cancel',args=[self.org.pk,self.item.pk])
++        client=Client(enforce_csrf_checks=True);client.force_login(self.network_owner)
++        self.assertEqual(client.post(url,{'expected_state':self.token()}).status_code,403)
++        self.client.force_login(self.network_owner)
++        self.assertEqual(self.client.get(url).status_code,405)
++        response=self.client.post(url,{'expected_state':self.token()})
++        self.assertEqual(response.status_code,302)
++        self.item.refresh_from_db();self.assertEqual(self.item.status,'canceled')
++
++    def test_cancel_preserves_place_and_does_not_grant_access(self):
++        before=Place.objects.filter(pk=self.place.pk).values().get()
++        self.cancel()
++        self.assertEqual(Place.objects.filter(pk=self.place.pk).values().get(),before)
++        from catalog.services.business_team import has_action
++        self.assertFalse(has_action(user=self.network_owner,target=self.place,action='place.edit'))
++
++    def test_employee_with_view_permissions_cannot_cancel(self):
++        from catalog.models import OrganizationGrant
++        OrganizationGrant.objects.create(organization=self.org,owner=self.network_owner,member=self.outsider,base_ownership_version=self.org.ownership_version,role='MANAGER',actions=['organization.view','place.view'],scope='all_network')
++        with self.assertRaises(PermissionDenied):self.token(self.outsider)
++
++    def test_expired_and_tampered_tokens_do_not_cancel(self):
++        from unittest.mock import patch
++        token=self.token()
++        with self.assertRaises(ValidationError):self.cancel(token=token+'x')
++        import time
++        with patch('django.core.signing.time.time',return_value=time.time()+1900):
++            with self.assertRaises(ValidationError) as cm:self.cancel(token=token)
++        self.assertEqual(cm.exception.code,'request_conflict')
++        self.item.refresh_from_db();self.assertEqual(self.item.status,'pending')
++
++    def test_place_owner_can_restart_to_private_network_without_names(self):
++        self.cancel(actor=self.place_owner)
++        self.client.force_login(self.place_owner)
++        response=self.client.get(reverse('organization_join_recovery',args=[self.org.pk,self.item.pk]))
++        self.assertNotContains(response,self.org.name_az)
++        self.assertContains(response,reverse('organization_connections',args=[self.org.pk]))
++        self.assertEqual(self.client.get(reverse('organization_connections',args=[self.org.pk])).status_code,200)
++        fresh=service.request_join(actor=self.place_owner,place_id=self.place.pk,organization_id=self.org.pk)
++        self.assertIsNone(fresh.organization_owner_confirmed_at)
++        self.assertEqual(fresh.status,'pending')
++
++    def test_private_pending_is_visible_only_as_neutral_recovery(self):
++        Place.objects.filter(pk=self.place.pk).update(status='draft',is_active=False)
++        self.client.force_login(self.network_owner)
++        response=self.client.get(reverse('organization_workspace_detail',args=[self.org.pk]))
++        self.assertNotContains(response,self.place.name_az)
++        self.assertContains(response,reverse('organization_join_recovery',args=[self.org.pk,self.item.pk]))
++        self.client.force_login(self.outsider)
++        self.assertEqual(self.client.get(reverse('organization_join_recovery',args=[self.org.pk,self.item.pk])).status_code,404)
++
++    def test_old_preview_cannot_connect_after_cancel_and_new_request(self):
++        import uuid
++        from catalog.services import organization_connections as connections
++        preview=connections.preview_connections(actor=self.network_owner,organization_id=self.org.pk,relationship_kind='business',place_ids=[self.place.pk])
++        self.cancel();service.request_join(actor=self.network_owner,place_id=self.place.pk,organization_id=self.org.pk)
++        connections.execute_connections(actor=self.network_owner,preview_id=preview.pk,idempotency_key=uuid.uuid4())
++        self.place.refresh_from_db();self.assertIsNone(self.place.organization_id)
++
++    def test_stale_search_and_preview_have_recovery_link_not_executable(self):
++        from catalog.services import organization_connections as connections
++        result=connections.search_places(actor=self.network_owner,organization_id=self.org.pk,query='Recovery branch')
++        self.assertTrue(result['rows'][0]['recovery_required'])
++        self.client.force_login(self.network_owner)
++        response=self.client.get(reverse('organization_connections',args=[self.org.pk]),{'q':'Recovery branch'})
++        self.assertContains(response,reverse('organization_join_recovery',args=[self.org.pk,self.item.pk]))
++
++    def test_real_csrf_html_cancel_then_reload(self):
++        from django.test import Client
++        c=Client(enforce_csrf_checks=True);c.force_login(self.network_owner)
++        page=c.get(reverse('organization_join_recovery',args=[self.org.pk,self.item.pk]))
++        self.assertEqual(page.status_code,200)
++        response=c.post(reverse('organization_workspace_cancel',args=[self.org.pk,self.item.pk]),{'csrfmiddlewaretoken':c.cookies['csrftoken'].value,'expected_state':self.token()})
++        self.assertEqual(response.status_code,302)
++        self.assertContains(c.get(response.url),'data-recovery-result')
++
++
++    def test_browser_token_does_not_disclose_private_owner_or_versions(self):
++        from django.core import signing
++        Place.objects.filter(pk=self.place.pk).update(status='draft',is_active=False)
++        self.client.force_login(self.network_owner)
++        page=self.client.get(reverse('organization_join_recovery',args=[self.org.pk,self.item.pk]))
++        payload=signing.loads(page.context['expected_state'],salt=service.JOIN_RECOVERY_SALT)
++        self.assertEqual(set(payload),{'actor','request','state'})
++        self.assertIsInstance(payload['state'],str,'Private owner IDs and versions must not be shipped in a readable token')
++
++
++from django.test import TransactionTestCase
++class JoinRecoveryConcurrencyTests(TransactionTestCase):
++    def setUp(self):
++        from catalog.testcases.utils import ensure_quality_subcategory
++        ensure_quality_subcategory('EDU')
++        U=get_user_model();self.a=U.objects.create_user(username='cancel_network');self.b=U.objects.create_user(username='cancel_place')
++        self.org=Organization.objects.create(owner=self.a,name_az='Race network')
++        self.place=create_quality_place(owner=self.b,name_az='Race branch')
++        self.item=service.request_join(actor=self.a,place_id=self.place.pk,organization_id=self.org.pk)
++        self.token=service.join_recovery_state(actor=self.a,request_id=self.item.pk)
++
++    def race(self, confirm=False):
++        from concurrent.futures import ThreadPoolExecutor
++        from threading import Barrier
++        from django.db import close_old_connections, connection
++        self.assertEqual(connection.vendor,'postgresql')
++        gate=Barrier(2)
++        def job(other):
++            close_old_connections()
++            try:
++                actor=get_user_model().objects.get(pk=self.b.pk if other and confirm else self.a.pk)
++                gate.wait(timeout=10)
++                try:
++                    row=service.confirm_join(actor=actor,request_id=self.item.pk) if other and confirm else service.cancel_join(actor=actor,request_id=self.item.pk,expected_state=self.token)
++                    return row.status
++                except ValidationError:return 'conflict'
++            finally:close_old_connections()
++        with ThreadPoolExecutor(max_workers=2) as pool:
++            fs=[pool.submit(job,x) for x in (False,True)]
++            return [f.result(timeout=30) for f in fs]
++
++    def test_double_cancel_has_one_history_change(self):
++        self.assertEqual(self.race(),['canceled','canceled'])
++        self.item.refresh_from_db();self.assertEqual(self.item.note.count('Explicit withdrawal'),1)
++
++    def test_confirm_and_cancel_have_exactly_one_winner(self):
++        results=self.race(confirm=True)
++        self.item.refresh_from_db();self.place.refresh_from_db()
++        self.assertIn(self.item.status,('approved','canceled'))
++        self.assertEqual(results.count('conflict'),1)
++        self.assertEqual(self.place.organization_id,self.org.pk if self.item.status=='approved' else None)
+--- /dev/null
++++ after/src/catalog/templates/pages/organization_join_recovery.html
+@@ -0,0 +1,23 @@
++{% extends 'base.html' %}{% load i18n static %}{% get_current_language as CURRENT_LANGUAGE %}
++{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}"><link rel="stylesheet" href="{% static 'css/pages/organization_workspace.css' %}">{% endblock %}
++{% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
++{% block content %}
++<div class="account-page-wrapper org-workspace">
++  <main class="org-recovery" data-join-recovery>
++    <h1>{% if CURRENT_LANGUAGE == 'az' %}Qoşulma sorğusu{% elif CURRENT_LANGUAGE == 'en' %}Connection request{% else %}Запрос на подключение{% endif %}</h1>
++    <p>{% if item.recovery_place_name %}{{ item.recovery_place_name }}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Əlçatan olmayan məkan{% elif CURRENT_LANGUAGE == 'en' %}Unavailable place{% else %}Недоступная карточка{% endif %}{% endif %} · {% if item.recovery_org_name %}{{ item.recovery_org_name }}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Əlçatan olmayan təşkilat{% elif CURRENT_LANGUAGE == 'en' %}Unavailable organization{% else %}Недоступная организация{% endif %}{% endif %}</p>
++    {% if recovery_error %}<div role="alert" tabindex="-1" data-recovery-error><strong>{% if CURRENT_LANGUAGE == 'az' %}Sorğu dəyişib və ya təsdiq müddəti bitib.{% elif CURRENT_LANGUAGE == 'en' %}The request changed or confirmation expired.{% else %}Запрос изменился или срок подтверждения истёк.{% endif %}</strong><p>{% if CURRENT_LANGUAGE == 'az' %}Heç nə ləğv edilmədi. Məlumatı yeniləyin.{% elif CURRENT_LANGUAGE == 'en' %}Nothing was canceled. Reload the details.{% else %}Ничего не отменено. Обновите сведения.{% endif %}</p><a class="org-text-action" href="{% url 'organization_join_recovery' item.organization_id item.pk %}">{% if CURRENT_LANGUAGE == 'az' %}Məlumatı yenilə{% elif CURRENT_LANGUAGE == 'en' %}Reload details{% else %}Обновить сведения{% endif %}</a></div>{% endif %}
++    {% if item.status == 'canceled' %}
++      <div role="status" tabindex="-1" data-recovery-result><h2>{% if CURRENT_LANGUAGE == 'az' %}Sorğu ləğv edildi{% elif CURRENT_LANGUAGE == 'en' %}Request canceled{% else %}Запрос отменён{% endif %}</h2><p>{% if CURRENT_LANGUAGE == 'az' %}Yeni sorğu üçün sahiblərin yeni razılığı lazımdır.{% elif CURRENT_LANGUAGE == 'en' %}A new request requires fresh consent from the owners.{% else %}Новый запрос потребует новых согласий владельцев.{% endif %}</p></div>
++      {% if new_request_url %}<a class="account-btn-action org-btn" href="{{ new_request_url }}">{% if CURRENT_LANGUAGE == 'az' %}Yeni sorğu yarat{% elif CURRENT_LANGUAGE == 'en' %}Create new request{% else %}Создать новый запрос{% endif %}</a>{% else %}<p>{% if CURRENT_LANGUAGE == 'az' %}Məkan əlçatan deyilsə, yeni sorğunu onun hazırkı sahibi başlatmalıdır.{% elif CURRENT_LANGUAGE == 'en' %}If the place is unavailable, its current owner must start a new request.{% else %}Если карточка недоступна, новый запрос должен начать её текущий владелец.{% endif %}</p>{% endif %}
++    {% elif item.status == 'pending' %}
++      <h2>{% if item.recovery_stale %}{% if CURRENT_LANGUAGE == 'az' %}Məlumat dəyişib{% elif CURRENT_LANGUAGE == 'en' %}Details changed{% else %}Данные изменились{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Təsdiq gözlənilir{% elif CURRENT_LANGUAGE == 'en' %}Awaiting confirmation{% else %}Ожидает подтверждения{% endif %}{% endif %}</h2>
++      <p>{% if CURRENT_LANGUAGE == 'az' %}Sorğunu açıq şəkildə ləğv edin, sonra yenisini yaradın. Əvvəlki razılıqlar yeni sorğuya keçmir.{% elif CURRENT_LANGUAGE == 'en' %}Cancel this request explicitly, then create a new one. Previous consents will not carry over.{% else %}Явно отмените этот запрос, затем создайте новый. Старые согласия в него не переносятся.{% endif %}</p>
++      <p>{% if CURRENT_LANGUAGE == 'az' %}Ləğv məkanı şəbəkədən ayırmır, foto, məşğələ, qiymət, cədvəl və giriş hüquqlarını dəyişmir.{% elif CURRENT_LANGUAGE == 'en' %}Cancellation does not detach the place or change photos, activities, prices, schedules or access rights.{% else %}Отмена не отсоединяет место и не меняет фото, занятия, цены, расписание или права доступа.{% endif %}</p>
++      {% if not recovery_error %}<details><summary>{% if CURRENT_LANGUAGE == 'az' %}Sorğunu ləğv et{% elif CURRENT_LANGUAGE == 'en' %}Cancel request{% else %}Отменить запрос{% endif %}</summary><form method="post" action="{% url 'organization_workspace_cancel' item.organization_id item.pk %}" data-recovery-form>{% csrf_token %}<input type="hidden" name="expected_state" value="{{ expected_state }}"><p>{% if CURRENT_LANGUAGE == 'az' %}Əvvəlki sorğu tarixçədə qalacaq. Qoşulma avtomatik olmayacaq.{% elif CURRENT_LANGUAGE == 'en' %}The old request stays in history. No connection will be made automatically.{% else %}Старый запрос останется в истории. Подключение автоматически не произойдёт.{% endif %}</p><button class="account-btn-action org-btn" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Ləğvi təsdiqlə{% elif CURRENT_LANGUAGE == 'en' %}Confirm cancellation{% else %}Подтвердить отмену{% endif %}</button><p role="status" data-recovery-pending hidden>{% if CURRENT_LANGUAGE == 'az' %}Ləğv edilir…{% elif CURRENT_LANGUAGE == 'en' %}Canceling…{% else %}Отменяем…{% endif %}</p></form></details>{% endif %}
++    {% else %}<p role="status">{% if CURRENT_LANGUAGE == 'az' %}Sorğu artıq işlənib. Mövcud əlaqə ayrıca ayrılır.{% elif CURRENT_LANGUAGE == 'en' %}The request has been processed. Detaching an existing connection is a separate action.{% else %}Запрос уже обработан. Отсоединение существующей связи — отдельное действие.{% endif %}</p>{% endif %}
++    <a class="org-text-action" href="{% url 'owner_places_dashboard' %}">{% if CURRENT_LANGUAGE == 'az' %}Məkanlarım{% elif CURRENT_LANGUAGE == 'en' %}My places{% else %}Мои места{% endif %}</a>
++  </main>
++</div>
++<script src="{% static 'js/organization_join_recovery.js' %}" defer></script>
++{% endblock %}
+--- /dev/null
++++ after/src/catalog/templates/pages/includes/organization_join_request.html
+@@ -0,0 +1,12 @@
++{% load i18n %}{% get_current_language as CURRENT_LANGUAGE %}
++<div class="org-pending-row" data-join-request="{{ item.pk }}">
++  <span>
++    {% if item.recovery_place_name %}{{ item.recovery_place_name }}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Əlçatan olmayan məkan{% elif CURRENT_LANGUAGE == 'en' %}Unavailable place{% else %}Недоступная карточка{% endif %}{% endif %}
++    · {% if item.recovery_org_name %}{{ item.recovery_org_name }}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Əlçatan olmayan təşkilat{% elif CURRENT_LANGUAGE == 'en' %}Unavailable organization{% else %}Недоступная организация{% endif %}{% endif %}
++    <small>{% if item.relationship_kind == 'informational' %}{% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi: KidsMap yoxlayır{% elif CURRENT_LANGUAGE == 'en' %}Information link: KidsMap review{% else %}Информационная связь: проверяет KidsMap{% endif %}{% elif item.recovery_stale %}{% if CURRENT_LANGUAGE == 'az' %}Məlumat dəyişib. Əvvəlki razılıq artıq qüvvədə deyil.{% elif CURRENT_LANGUAGE == 'en' %}Details changed. Previous consent is no longer valid.{% else %}Данные изменились. Старое согласие больше не действует.{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Sahiblərin təsdiqi gözlənilir.{% elif CURRENT_LANGUAGE == 'en' %}Waiting for owner confirmation.{% else %}Ожидает подтверждения владельцев.{% endif %}{% endif %}</small>
++  </span>
++  {% if item.relationship_kind == 'business' %}
++    {% if not item.recovery_stale %}<form method="post" action="{% url 'organization_workspace_confirm' item.organization_id item.pk %}">{% csrf_token %}<button class="org-text-action" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Təsdiqlə{% elif CURRENT_LANGUAGE == 'en' %}Confirm{% else %}Подтвердить{% endif %}</button></form>{% endif %}
++    <a class="org-text-action" href="{% url 'organization_join_recovery' item.organization_id item.pk %}">{% if CURRENT_LANGUAGE == 'az' %}Sorğuya bax və ləğv et{% elif CURRENT_LANGUAGE == 'en' %}Review and cancel request{% else %}Просмотреть и отменить запрос{% endif %}</a>
++  {% endif %}
++</div>
+--- /dev/null
++++ after/static/js/organization_join_recovery.js
+@@ -0,0 +1,21 @@
++(() => {
++  'use strict';
++  const form = document.querySelector('[data-recovery-form]');
++  if (form) {
++    let submitting = false;
++    form.addEventListener('submit', event => {
++      if (submitting) { event.preventDefault(); return; }
++      submitting = true;
++      form.setAttribute('aria-busy', 'true');
++      form.querySelector('[data-recovery-pending]').hidden = false;
++      setTimeout(() => { form.querySelector('button').disabled = true; }, 0);
++    });
++    window.addEventListener('pageshow', () => {
++      submitting = false;
++      form.removeAttribute('aria-busy');
++      form.querySelector('button').disabled = false;
++      form.querySelector('[data-recovery-pending]').hidden = true;
++    });
++  }
++  (document.querySelector('[data-recovery-error]') || document.querySelector('[data-recovery-result]'))?.focus();
++})();

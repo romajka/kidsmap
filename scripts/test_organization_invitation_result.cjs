@@ -1,0 +1,34 @@
+// ORG-08: real workspace script, canonical POST outcome + server-rendered pending list.
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const {JSDOM}=require('jsdom');
+const source=fs.readFileSync(path.join(__dirname,'../static/js/organization_workspace.js'),'utf8');
+const html='<div data-team-invitations><h3>Invitations</h3><div class="org-row"><span><strong>org08@example.invalid</strong><small>Manager · Selected branches</small></span><small>PENDING</small></div></div>';
+const tick=()=>new Promise(resolve=>setImmediate(resolve));
+function setup(respond){
+ const dom=new JSDOM(`<html lang="en"><div data-workspace="detail" data-user-id="2"><input id="untouched" value="Unsaved editor text"><form method="post" data-team-form data-team-url="/team/invite/" data-team-list-url="/organizations/99/"><input type="hidden" name="csrfmiddlewaretoken" value="synthetic-token"><p data-team-unavailable>Requires JavaScript</p><input name="email" disabled data-team-control><select name="role" disabled data-team-control data-team-role><option value="EDITOR" data-summary="View and edit">Editor</option><option value="MANAGER" data-summary="View, edit and stats">Manager</option></select><p data-team-role-summary></p><select name="scope" disabled data-team-control data-team-scope><option value="all_network">All</option><option value="selected_places">Selected</option></select><fieldset data-team-branches hidden><input name="place_ids" type="checkbox" value="42" disabled data-team-control></fieldset><button type="submit" disabled data-team-control>Invite</button><p role="status" data-team-status></p><button type="button" data-team-refresh hidden>Refresh invitations</button></form><div data-team-invitations><div>Old row</div></div></div></html>`,{url:'http://localhost/organizations/99/',runScripts:'outside-only'});
+ const w=dom.window,calls=[];w.fetch=async(url,options)=>{calls.push({url,options});return respond(url,options,calls.length);};w.eval(source);
+ const form=w.document.querySelector('form');form.elements.email.value='org08@example.invalid';form.elements.role.value='MANAGER';form.elements.role.dispatchEvent(new w.Event('change'));form.elements.scope.value='selected_places';form.elements.scope.dispatchEvent(new w.Event('change'));form.querySelector('[name=place_ids]').checked=true;
+ const submit=()=>form.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));return{dom,w,calls,form,submit};
+}
+const accepted=(_,o)=>o.method==='POST'?{ok:true,status:200}:{ok:true,text:async()=>html};
+test('success synchronizes default role and server list without replacing editor input',async()=>{
+ const {dom,w,form,calls,submit}=setup(accepted);submit();await tick();assert.equal(form.elements.role.value,'EDITOR');assert.equal(form.querySelector('[data-team-role-summary]').textContent,'View and edit');assert.equal(form.elements.scope.value,'all_network');assert.equal(form.querySelector('[data-team-branches]').hidden,true);
+ assert.match(w.document.querySelector('[data-team-invitations]').textContent,/org08@example.invalid.*Manager/s);assert.equal(w.document.querySelector('#untouched').value,'Unsaved editor text');assert.equal(calls.length,2);assert.equal(calls[1].options.method,'GET');assert.equal(form.querySelector('[data-team-refresh]').hidden,true);dom.window.close();
+});
+test('in-flight keyboard or programmatic repeat makes one POST and announces loading',async()=>{
+ let release;const wait=new Promise(resolve=>release=resolve);const {dom,form,calls,submit}=setup((_,o)=>o.method==='POST'?wait:{ok:true,text:async()=>html});submit();submit();
+ assert.equal(calls.length,1);assert.equal(form.getAttribute('aria-busy'),'true');assert.equal(form.elements.email.matches(':disabled'),true);assert.equal(form.querySelector('[type=submit]').textContent,'Inviting…');assert.equal(JSON.parse(calls[0].options.body).role,'MANAGER');
+ release({ok:true,status:200});await tick();assert.equal(form.getAttribute('aria-busy'),'false');assert.equal(form.elements.email.matches(':disabled'),false);assert.equal(form.querySelector('[type=submit]').textContent,'Invite');dom.window.close();
+});
+test('400 and403 preserve the complete submitted scope and release controls',async()=>{
+ for(const status of [400,403]){const {dom,form,calls,submit}=setup(()=>({ok:false,status}));submit();await tick();assert.equal(calls.length,1);assert.equal(form.elements.email.value,'org08@example.invalid');assert.equal(form.elements.role.value,'MANAGER');assert.equal(form.elements.scope.value,'selected_places');assert.equal(form.querySelector('[name=place_ids]').checked,true);assert.equal(form.getAttribute('aria-busy'),'false');assert.equal(form.querySelector('[data-team-refresh]').hidden,true);dom.window.close();}
+});
+test('duplicate409 preserves input and displays authoritative existing invitation',async()=>{
+ const {dom,w,form,calls,submit}=setup((_,o)=>o.method==='POST'?{ok:false,status:409}:{ok:true,text:async()=>html});submit();await tick();assert.equal(calls.length,2);assert.equal(form.elements.role.value,'MANAGER');assert.equal(form.elements.email.value,'org08@example.invalid');assert.match(form.querySelector('[data-team-status]').textContent,/already exists/);assert.match(w.document.querySelector('[data-team-invitations]').textContent,/org08@example.invalid/);dom.window.close();
+});
+test('confirmed POST with failed list read is distinguished and GET retry never sends again',async()=>{
+ let reads=0;const {dom,w,form,calls,submit}=setup((_,o)=>o.method==='POST'?{ok:true,status:200}:++reads===1?{ok:false,status:503}:{ok:true,text:async()=>html});submit();await tick();assert.match(form.querySelector('[data-team-status]').textContent,/Invitation sent.*refresh/s);assert.equal(form.querySelector('[data-team-refresh]').hidden,false);assert.equal(form.elements.email.value,'');form.querySelector('[data-team-refresh]').click();await tick();assert.equal(calls.filter(c=>c.options.method==='POST').length,1);assert.equal(form.querySelector('[data-team-refresh]').hidden,true);assert.match(w.document.querySelector('[data-team-invitations]').textContent,/org08@example.invalid/);dom.window.close();
+});
+test('lost POST response retains input and offers read-only verification without claiming refusal',async()=>{
+ const {dom,form,calls,submit}=setup((_,o)=>{if(o.method==='POST')throw Error('Lost response');return{ok:true,text:async()=>html};});submit();await tick();assert.equal(form.elements.email.value,'org08@example.invalid');assert.match(form.querySelector('[data-team-status]').textContent,/response.*server/);assert.equal(form.querySelector('[data-team-refresh]').hidden,false);form.querySelector('[data-team-refresh]').click();await tick();assert.equal(calls.filter(c=>c.options.method==='POST').length,1);assert.equal(form.elements.role.value,'MANAGER');dom.window.close();
+});

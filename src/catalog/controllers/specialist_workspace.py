@@ -8,18 +8,152 @@ from functools import wraps
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
 from django.db import transaction
-from django.http import Http404, HttpResponseNotAllowed
+from django.http import Http404, HttpResponseNotAllowed, FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, get_language
 
 from catalog.forms import OwnerSpecialistForm
-from catalog.models import Organization, Specialist, SpecialistDocument
+from catalog.models import Organization, Specialist, SpecialistDocument, SpecialistProposalDraft
 from catalog.models.specialist_domain import SpecialistClaim, SpecialistEmployment
 from catalog.services import specialist_documents, specialist_domain
 from catalog.services.features import require_specialists_section_enabled
 from catalog.services.owner_specialist_use_cases import save_owner_specialist_profile
 from catalog.specialist_forms import EmploymentProposalForm, SpecialistDocumentUploadForm
+
+
+SPECIALIZATION_GROUPS = [
+    {
+        'id': 'psychology',
+        'icon': 'psychology',
+        'title_ru': 'Психология и развитие',
+        'title_az': 'Psixologiya və inkişaf',
+        'title_en': 'Psychology & development',
+        'codes': [
+            ('child_psychologist', 'Дошкольный и школьный возраст', 'Məktəbəqədər və məktəb yaşı', 'Preschool & school age'),
+            ('psychologist', 'Подростки, взрослые, семья', 'Yeniyetmələr və ailə', 'Teens & families'),
+            ('sports_psychologist', 'Спорт и мотивация', 'İdman və motivasiya', 'Sports & motivation'),
+            ('early_development_specialist', 'Раннее развитие до 4 лет', '4 yaşa qədər inkişaf', 'Early development up to 4 yrs'),
+            ('career_guidance_specialist', 'Выбор профессии и вуза', 'Peşə seçimi', 'Career guidance'),
+        ],
+    },
+    {
+        'id': 'speech_correction',
+        'icon': 'record_voice_over',
+        'title_ru': 'Речь и коррекция',
+        'title_az': 'Nitq və korreksiya',
+        'title_en': 'Speech & correction',
+        'codes': [
+            ('speech_therapist', 'Постановка звуков и запуск речи', 'Səslərin qoyuluşu və nitq', 'Speech therapy & sound correction'),
+            ('pathologist', 'Развитие познавательных навыков', 'Koqnitiv inkişaf', 'Cognitive development'),
+            ('sensory_integration', 'Сенсорные стимулы и моторика', 'Sensor stimullar', 'Sensory stimuli & motor skills'),
+        ],
+    },
+    {
+        'id': 'health_rehab',
+        'icon': 'medical_services',
+        'title_ru': 'Здоровье и реабилитация',
+        'title_az': 'Sağlamlıq və reabilitasiya',
+        'title_en': 'Health & rehabilitation',
+        'codes': [
+            ('pediatrician', 'Здоровье и профилактика', 'Uşaq sağlamlığı', 'Child healthcare & prevention'),
+            ('neuropediatrician', 'Нервная система и развитие', 'Sinir sistemi və inkişaf', 'Nervous system & development'),
+            ('physiotherapist', 'Физиотерапия и процедуры', 'Fizioterapiya', 'Physical therapy & procedures'),
+            ('rehab_specialist', 'Комплексное восстановление', 'Kompleks bərpa', 'Comprehensive rehabilitation'),
+            ('physical_rehab_specialist', 'ЛФК и двигательная терапия', 'LFQ və hərəki terapiya', 'Motor skills & therapy'),
+            ('posture_correction_specialist', 'Коррекция осанки и стоп', 'Qamət və pəncə korreksiyası', 'Posture & feet correction'),
+        ],
+    },
+    {
+        'id': 'education_languages',
+        'icon': 'menu_book',
+        'title_ru': 'Обучение и подготовка',
+        'title_az': 'Tədris və hazırlıq',
+        'title_en': 'Education & preparation',
+        'codes': [
+            ('school_prep_teacher', 'Счёт, чтение, моторика', 'Oxu, yazı, sayma', 'Preschool reading & counting'),
+            ('primary_teacher', '1–4 классы, сопровождение', '1–4-cü siniflər', 'Grades 1–4 curriculum'),
+            ('tutor', 'Школьные предметы', 'Məktəb fənləri', 'School subjects tutoring'),
+            ('math_tutor', 'Математика и логика', 'Riyaziyyat və məntiq', 'Math & logical thinking'),
+            ('exam_prep_tutor', 'Выпускные и вступительные экзамены', 'Buraxılış və qəbul imtahanları', 'Graduation & admission exams'),
+            ('azerbaijani_teacher', 'Грамматика и разговорная речь', 'Qrammatika və danışıq', 'Grammar & speaking'),
+            ('russian_teacher', 'Грамматика и литература', 'Qrammatika və ədəbiyyat', 'Grammar & literature'),
+            ('english_teacher', 'Международные стандарты и разговорный', 'Beynəlxalq standartlar və danışıq', 'Speaking & international standards'),
+        ],
+    },
+    {
+        'id': 'creative_sports_tech',
+        'icon': 'palette',
+        'title_ru': 'Творчество, IT и спорт',
+        'title_az': 'Yaradıcılıq, İT və idman',
+        'title_en': 'Creativity, IT & sports',
+        'codes': [
+            ('music_teacher', 'Вокал и музыкальные инструменты', 'Vokal və musiqi alətləri', 'Vocals & musical instruments'),
+            ('drawing_teacher', 'Живопись и графика', 'Rəngkarlıq və qrafika', 'Painting & drawing'),
+            ('acting_teacher', 'Сценическая речь и уверенность', 'Səhnə nitqi və sərbəstlik', 'Stage speech & confidence'),
+            ('programming_mentor', 'Кодинг и разработка игр', 'Kodlaşdırma və oyunlar', 'Coding & game development'),
+            ('robotics_teacher', 'Конструирование и схемотехника', 'Konstruksiya və sxemlər', 'Robotics & engineering'),
+            ('sports_coach', 'Секции и виды спорта', 'İdman növləri və bölmələr', 'Sports sections & coaching'),
+            ('personal_trainer', 'Индивидуальные тренировки', 'Fərdi məşqlər', 'Individual training'),
+        ],
+    },
+]
+
+
+def _build_grouped_specializations(form, lang='ru'):
+    specs_by_id = {s.pk: s for s in form.fields['specializations'].queryset}
+    subwidgets_by_code = {}
+    for sub in form['specializations']:
+        pk = sub.data['value'].value
+        spec = specs_by_id.get(pk)
+        if spec:
+            subwidgets_by_code[spec.code] = (sub, spec)
+
+    groups = []
+    used_codes = set()
+    for grp in SPECIALIZATION_GROUPS:
+        title = grp.get(f'title_{lang}') or grp['title_ru']
+        items = []
+        for code, hint_ru, hint_az, hint_en in grp['codes']:
+            entry = subwidgets_by_code.get(code)
+            if entry:
+                sub, spec = entry
+                hint = hint_az if lang == 'az' else (hint_en if lang == 'en' else hint_ru)
+                items.append({
+                    'subwidget': sub,
+                    'spec': spec,
+                    'code': code,
+                    'hint': hint,
+                    'name': spec.name_i18n(lang),
+                })
+                used_codes.add(code)
+        if items:
+            groups.append({
+                'id': grp['id'],
+                'icon': grp['icon'],
+                'title': title,
+                'items': items,
+            })
+
+    remaining_codes = set(subwidgets_by_code.keys()) - used_codes
+    if remaining_codes:
+        other_title = 'Digər istiqamətlər' if lang == 'az' else ('Other directions' if lang == 'en' else 'Другие направления')
+        groups.append({
+            'id': 'other',
+            'icon': 'category',
+            'title': other_title,
+            'items': [
+                {
+                    'subwidget': subwidgets_by_code[c][0],
+                    'spec': subwidgets_by_code[c][1],
+                    'code': c,
+                    'hint': '',
+                    'name': subwidgets_by_code[c][1].name_i18n(lang),
+                }
+                for c in sorted(remaining_codes)
+            ],
+        })
+    return groups
 
 
 def workspace(view):
@@ -95,7 +229,8 @@ def _error_status(exc):
 
 def _context(request, *, mode, specialist=None, organization=None, **extra):
     actor = request.specialist_actor
-    context = {'workspace_mode': mode, 'specialist': specialist, 'organization': organization,
+    context = {'recovery_actor':actor.pk,'clear_specialist_recovery':request.session.pop('specialist_saved_recovery',[]),
+               'workspace_mode': mode, 'specialist': specialist, 'organization': organization,
                'can_review_claims': _claim_reviewer(actor),
                'can_review_documents': specialist_documents.can_review_documents(actor)}
     person_access = specialist and specialist_documents.is_person(actor, specialist)
@@ -154,6 +289,7 @@ def specialist_workspace_index(request):
         review_ids.update(SpecialistDocument.objects.filter(status=SpecialistDocument.STATUS_PENDING)
                           .values_list('specialist_id', flat=True))
     return render(request, 'pages/specialist_workspace.html', _context(request, mode='index',
+        working_proposals=SpecialistProposalDraft.objects.filter(actor=actor,submitted_at__isnull=True).order_by('-updated_at'),
         my_specialist=Specialist.objects.filter(verified_person_user=actor, person_verified_at__isnull=False).first(),
         proposals=Specialist.objects.filter(created_by=actor, verified_person_user__isnull=True).order_by('-pk'),
         claims=SpecialistClaim.objects.filter(applicant=actor).select_related('specialist').order_by('-pk'),
@@ -163,11 +299,19 @@ def specialist_workspace_index(request):
 
 @workspace
 def specialist_workspace_profile(request, pk=None):
+    if pk is None and request.method == 'GET':return redirect('specialist_workspace_proposal')
     person = _person(request, pk) if pk is not None else None
     status = 200
     form = OwnerSpecialistForm(request.POST if request.method == 'POST' else None,
         request.FILES if request.method == 'POST' else None, instance=person,
+        actor=request.specialist_actor,
         draft_save_only=request.method == 'POST' and request.POST.get('form_action') == 'save_draft')
+    from catalog.forms_specialist_locations import practice_location_formset
+    locations=None
+    if person and (request.method=='GET' or 'locations-TOTAL_FORMS' in request.POST):
+        locations=practice_location_formset(actor=request.specialist_actor,specialist=form.instance,
+            data=request.POST if request.method=='POST' else None,require_active=not form.draft_save_only)
+        form.locations=locations
     if request.method == 'POST':
         try:
             result = save_owner_specialist_profile(user=request.specialist_actor, form=form,
@@ -175,6 +319,7 @@ def specialist_workspace_profile(request, pk=None):
                 expected_updated_at=request.POST.get('expected_updated_at', request.POST.get('profile_version', ''))
                     if person else None)
             if result.ok:
+                request.session['specialist_saved_recovery']=[f'profile-{result.specialist.pk}']
                 return redirect('specialist_workspace_profile' if person else 'specialist_workspace_claims',
                                 pk=result.specialist.pk)
             form = result.form or form
@@ -182,9 +327,18 @@ def specialist_workspace_profile(request, pk=None):
         except ValidationError as exc:
             form.add_error(None, exc)
             status = _error_status(exc)
+    lang = (get_language() or 'az').split('-')[0]
+    grouped_specializations = _build_grouped_specializations(form, lang=lang)
     return render(request, 'pages/owner_specialist_create.html', _context(request, mode='profile',
-        specialist=person, form=form, profile_version=person.updated_at.isoformat() if person else '',
-        specializations=form.fields['specializations'].queryset, is_proposal=person is None), status=status)
+        specialist=person, form=form, locations=locations,
+        recovery_actor=request.specialist_actor.pk,recovery_entity=f'profile-{person.pk}' if person else 'legacy',
+        recovery_version=(request.POST.get('expected_updated_at',request.POST.get('profile_version','')) if status==409 else person.updated_at.isoformat()) if person else '',
+        recovery_server_version=person.updated_at.isoformat() if person else '',
+        server_saved_at=person.updated_at if person else None,
+        profile_version=(request.POST.get('expected_updated_at',request.POST.get('profile_version','')) if status==409 else person.updated_at.isoformat()) if person else '',
+        specializations=form.fields['specializations'].queryset,
+        grouped_specializations=grouped_specializations,
+        is_proposal=person is None), status=status)
 
 
 @workspace
@@ -378,3 +532,59 @@ def _claim_status(status):
     return {SpecialistClaim.PENDING: _("На проверке"), SpecialistClaim.APPROVED: _("Подтверждено"),
             SpecialistClaim.REJECTED: _("Отклонено"), SpecialistClaim.WITHDRAWN: _("Запрос отозван")}.get(
                 status, _("На проверке"))
+
+
+@workspace
+def specialist_workspace_proposal(request, draft_id=None):
+    from uuid import uuid4,UUID
+    from catalog.services.specialist_proposal_drafts import get_proposal,proposal_forms,save_proposal
+    draft=None
+    if draft_id is not None:
+        draft=get_proposal(actor=request.specialist_actor,draft_id=draft_id)
+        if draft.submitted_at:
+            if draft.submitted_specialist_id:return redirect('specialist_workspace_claims',pk=draft.submitted_specialist_id)
+            raise Http404
+    key=draft.pk if draft else uuid4()
+    status=200
+    if request.method=='POST':
+        try:
+            key=UUID(request.POST.get('draft_key',''))
+        except ValueError:raise Http404
+        if draft_id and key!=draft_id:raise Http404
+        try:
+            draft=save_proposal(actor=request.specialist_actor,draft_id=key,
+                expected_version=request.POST.get('draft_version',''),data=request.POST,files=request.FILES,
+                submit=request.POST.get('form_action')!='save_draft')
+            request.session['specialist_saved_recovery']=[f'proposal-{key}','proposal-new']
+            if draft.submitted_at:return redirect('specialist_workspace_claims',pk=draft.submitted_specialist_id)
+            return redirect('specialist_workspace_proposal_resume',draft_id=draft.pk)
+        except ValidationError as exc:
+            form=getattr(exc,'form',None)
+            locations=getattr(exc,'locations',None)
+            if form is None:
+                form,locations=proposal_forms(actor=request.specialist_actor,data=request.POST,files=request.FILES)
+                form.is_valid();form.add_error(None,exc)
+            status=_error_status(exc)
+    else:
+        form,locations=proposal_forms(actor=request.specialist_actor,payload=draft.payload if draft else None)
+    lang=(get_language() or 'az').split('-')[0]
+    return render(request,'pages/owner_specialist_create.html',_context(request,mode='profile',
+        form=form,locations=locations,is_proposal=True,proposal_draft=draft,draft_key=key,
+        draft_version=request.POST.get('draft_version','0') if status==409 else draft.version if draft else '0',
+        recovery_actor=request.specialist_actor.pk,recovery_entity=f'proposal-{key}' if draft else 'proposal-new',
+        recovery_version=request.POST.get('draft_version','0') if status==409 else str(draft.version) if draft else '0',
+        recovery_server_version=str(draft.version) if draft else '0',server_saved_at=draft.updated_at if draft else None,
+        grouped_specializations=_build_grouped_specializations(form,lang=lang)),status=status)
+
+
+@workspace
+def specialist_proposal_photo(request,draft_id):
+    from catalog.services.specialist_proposal_drafts import get_proposal
+    if request.method!='GET':return HttpResponseNotAllowed(['GET'])
+    draft=get_proposal(actor=request.specialist_actor,draft_id=draft_id)
+    if not draft.photo or draft.submitted_at:raise Http404
+    response=FileResponse(draft.photo.open('rb'),content_type=draft.photo_content_type or 'image/jpeg')
+    response['Cache-Control']='private, no-store'
+    response['X-Content-Type-Options']='nosniff'
+    response['Content-Security-Policy']="default-src 'none'; sandbox"
+    return response

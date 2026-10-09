@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import Q, F
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from catalog.services.place_access import PLACE_ROLE_CHOICES
 
 
@@ -18,7 +19,7 @@ class OrganizationGrant(models.Model):
     base_ownership_version = models.PositiveBigIntegerField()
     role = models.CharField(max_length=16, choices=PLACE_ROLE_CHOICES, default='EDITOR')
     actions = models.JSONField(default=list)
-    scope = models.CharField(max_length=24, choices=[('selected_places','Selected places'),('all_network','All network')], default='selected_places')
+    scope = models.CharField(max_length=24, choices=[('selected_places',_('Выбранные филиалы')),('all_network',_('Вся сеть, включая будущие филиалы'))], default='selected_places')
     selected_places = models.ManyToManyField('catalog.Place', blank=True, related_name='selected_organization_grants')
     is_active = models.BooleanField(default=True, db_index=True)
     version = models.PositiveBigIntegerField(default=1)
@@ -39,7 +40,7 @@ class OrganizationTeamInvitation(models.Model):
     email = models.EmailField()
     role = models.CharField(max_length=16, choices=PLACE_ROLE_CHOICES, default='EDITOR')
     actions = models.JSONField(default=list)
-    scope = models.CharField(max_length=24, choices=[('selected_places','Selected places'),('all_network','All network')])
+    scope = models.CharField(max_length=24, choices=[('selected_places',_('Выбранные филиалы')),('all_network',_('Вся сеть, включая будущие филиалы'))])
     selected_place_ids = models.JSONField(default=list)
     scope_snapshot = models.JSONField(default=dict)
     base_ownership_version = models.PositiveBigIntegerField()

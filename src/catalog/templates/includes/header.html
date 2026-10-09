@@ -37,6 +37,8 @@
         <span>{% trans "Каталог" %}</span>
       </a>
 
+{% if is_organizations_section_enabled %}      <a href="{% url 'organization_list' %}" class="km-nav-item {% if request.resolver_match.url_name == 'organization_list' or request.resolver_match.url_name == 'organization_detail' %}active{% endif %}" {% if request.resolver_match.url_name == 'organization_list' or request.resolver_match.url_name == 'organization_detail' %}aria-current="page"{% endif %}><span>{% if CURRENT_LANGUAGE == "az" %}Təşkilatlar{% elif CURRENT_LANGUAGE == "en" %}Organizations{% else %}Организации{% endif %}</span></a>{% endif %}
+
       {% if is_specialists_section_enabled %}
         <a
           href="{% url 'specialist_list' %}"
@@ -394,6 +396,7 @@
               {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}<span class="km-drawer-active-dot"></span>{% endif %}
             </a>
           </li>
+{% if is_organizations_section_enabled %}          <li><a href="{% url 'organization_list' %}" class="km-drawer-link {% if request.resolver_match.url_name == 'organization_list' or request.resolver_match.url_name == 'organization_detail' %}active{% endif %}" {% if request.resolver_match.url_name == 'organization_list' or request.resolver_match.url_name == 'organization_detail' %}aria-current="page"{% endif %}><span class="km-drawer-item-icon material-symbols-rounded" aria-hidden="true">domain</span><span class="km-drawer-item-title">{% if CURRENT_LANGUAGE == "az" %}Təşkilatlar{% elif CURRENT_LANGUAGE == "en" %}Organizations{% else %}Организации{% endif %}</span></a></li>{% endif %}
           {% if is_events_section_enabled %}
             <li>
               <a

@@ -62,6 +62,7 @@ def save_form(*,actor,form,submit=True,explicit_save=True):
             patch['nested_pricing']=revision.payload['nested_pricing']
     gallery=gallery_from_form(place,form)
     if gallery is not None:patch['gallery']=gallery
+    else:patch.pop('gallery', None)  # Admin inline is applied separately; retain its saved candidate.
     if getattr(form,'cleaned_schedule_days',None) is not None:patch['structured_schedule']=form.cleaned_schedule_days
     return publication.propose(actor=actor,target_type='place',target_id=place.pk,patch=patch,schema_version=base['schema'],expected_version=base['source'],revision_version=base['candidate'],submit=submit,explicit_save=explicit_save)
 
@@ -110,26 +111,33 @@ def candidate_for_edit(place):
 
 def gallery_from_form(place,form):
     from catalog.models import PlacePhoto
+    from catalog.services.photo_gallery import gallery_key
     if 'gallery_images' not in form.cleaned_data:return None
-    deleted=set(map(int,form.cleaned_data.get('delete_gallery_ids') or []))
-    revision=VolunteerPlaceRevision.objects.filter(place=place,status__in=['draft','pending','rejected']).first()
-    base=revision.payload.get('gallery',publication.snapshot(place,'place')['gallery']) if revision else publication.snapshot(place,'place')['gallery']
-    rows=[dict(row) for row in base if row['id'] not in deleted]
-    for file in form.cleaned_data.get('gallery_images') or []:
+    deleted=set(map(str,form.cleaned_data.get('delete_gallery_ids') or []))
+    rows=[dict(row) for row in gallery_for_edit(place)
+          if (str(row['id']) if row['id'] is not None else gallery_key(row)) not in deleted]
+    keys=[gallery_key(row) for row in rows]
+    for index, file in enumerate(form.cleaned_data.get('gallery_images') or []):
         photo=PlacePhoto(place=place,caption='',order=len(rows))
         try:
             photo.image.save(file.name,file,save=False)
         except (OSError,RuntimeError) as exc:
             raise ValidationError({'gallery_images':'Photo upload failed; retry the save.'}) from exc
         rows.append({'id':None,'image':photo.image.name,'caption':'','order':len(rows)})
+        keys.append(f'new:{index}')
     order=form.cleaned_data.get('gallery_order') or []
     positions={str(key):i for i,key in enumerate(order)}
-    new_index=0
-    for row in rows:
-        key=f"saved:{row['id']}" if row['id'] is not None else f'new:{new_index}'
-        if row['id'] is None:new_index+=1
+    for row, key in zip(rows, keys):
         row['order']=positions.get(key,row['order'])
     return rows
+
+
+def gallery_for_edit(place):
+    if not getattr(place, 'pk', None):
+        return []
+    revision=VolunteerPlaceRevision.objects.filter(place_id=place.pk,status__in=['draft','pending','rejected']).first()
+    rows=revision.payload.get('gallery',publication.snapshot(place,'place')['gallery']) if revision else publication.snapshot(place,'place')['gallery']
+    return sorted(rows, key=lambda row: row['order'])
 
 
 @transaction.atomic
@@ -144,11 +152,17 @@ def save_admin_related(*,actor,place,formsets,uploads,submit):
         for form in formset.forms:
             if not form.has_changed():continue
             changed=True;photo=form.instance;deleted=form.cleaned_data.get('DELETE',False)
-            rows=[r for r in rows if r['id']!=photo.pk] if photo.pk else rows
+            candidate_row = getattr(form, 'candidate_gallery_row', None)
+            if candidate_row is not None:
+                from catalog.services.photo_gallery import gallery_key
+                key = gallery_key(candidate_row)
+                rows = [r for r in rows if gallery_key(r) != key]
+            elif photo.pk:
+                rows = [r for r in rows if r['id'] != photo.pk]
             if deleted:continue
             photo=form.save(commit=False)
             if photo.image and not photo.image._committed:photo.image.save(photo.image.name,photo.image.file,save=False)
-            if photo.image:rows.append({'id':photo.pk,'image':photo.image.name,'caption':photo.caption,'order':photo.order})
+            if photo.image:rows.append({'id':candidate_row['id'] if candidate_row is not None else photo.pk,'image':photo.image.name,'caption':photo.caption,'order':photo.order})
     for file in uploads:
         changed=True;file=normalize_uploaded_image(file);photo=PlacePhoto(place=place,order=len(rows));photo.image.save(file.name,file,save=False)
         rows.append({'id':None,'image':photo.image.name,'caption':'','order':len(rows)})

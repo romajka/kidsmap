@@ -1,0 +1,47 @@
+{
+  "rows": [
+    {
+      "id": "old-creation-ack-preserves-new-input",
+      "status": "PASS"
+    },
+    {
+      "id": "new-input-reopens-after-old-creation",
+      "status": "PASS"
+    },
+    {
+      "id": "successful-tab-cleared",
+      "status": "PASS"
+    },
+    {
+      "id": "other-tab-keeps-copy",
+      "status": "PASS"
+    },
+    {
+      "id": "replayed-receipt-cannot-clear-other-tab",
+      "status": "PASS"
+    },
+    {
+      "id": "other-tab-reopens",
+      "status": "PASS"
+    },
+    {
+      "id": "lost-success-response-preserves-copy",
+      "status": "PASS"
+    },
+    {
+      "id": "retry-after-lost-response-conflicts-without-erasing",
+      "status": "PASS"
+    }
+  ],
+  "errors": [
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled",
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled",
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+  ],
+  "created": [
+    40,
+    41
+  ],
+  "stopped": true,
+  "harness_note": "After 8 passed cases, the CSRF probe stopped because the selector also matched header forms. Remaining denial cases verified with a scoped selector in browser-denials.json."
+}

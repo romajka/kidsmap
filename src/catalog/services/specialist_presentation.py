@@ -38,12 +38,23 @@ def public_profile_context(specialist):
             else:
                 item.temporal_state = 'current'
                 current.append(item)
+
+    from catalog.services.features import is_organizations_section_enabled
+    orgs_enabled = is_organizations_section_enabled()
+    for item in current + past + future:
+        item.organization_linkable = orgs_enabled and visible(item.organization)
+
+    active_locs = list(specialist.practice_locations.filter(is_active=True)
+        .select_related('place', 'region', 'district', 'metro'))
+    for loc in active_locs:
+        loc.is_place_visible = bool(loc.place and visible(loc.place))
+
     return {
         'specialist_current_employment': current,
         'specialist_past_employment': past,
         'specialist_future_employment': future,
-        'specialist_active_practice_locations': list(specialist.practice_locations.filter(is_active=True)
-            .select_related('place', 'region', 'district', 'metro')),
+        'specialist_active_practice_locations': active_locs,
+        'organizations_section_enabled': orgs_enabled,
         # Retired private addresses stay visible only in the person's workspace.
         'practice_history': [],
     }

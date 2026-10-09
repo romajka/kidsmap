@@ -1,0 +1,123 @@
+{
+  "head": "2da9d33abbc53d1ac71bcb7e15a0170bef6277d5",
+  "branch": "task33-progress",
+  "runtime": {
+    "head": "2da9d33abbc53d1ac71bcb7e15a0170bef6277d5",
+    "source_digest": "04233d00b36a2b89b441c38865aa571bdac834c49ffb36375cba4942883f39de",
+    "worktree_entries": 192,
+    "DJANGO_TESTING": true,
+    "external_credentials_present": false,
+    "locmem_cache": true,
+    "locmem_email": true,
+    "public_base_url": "http://localhost:8788",
+    "started_at": "2026-10-08T11:09:59.184028+00:00"
+  },
+  "source_files_verified": 2761,
+  "source_drift": [],
+  "baseline_files": 5519,
+  "baseline_changed": [
+    "static/css/pages/organization_workspace.css",
+    "static/js/organization_workspace.js",
+    "docs/task33/implementation-status.md",
+    "src/catalog/templates/pages/organization_workspace.html"
+  ],
+  "foreign_files_changed": [],
+  "unchanged_baseline_files": 5515,
+  "source_changes": [
+    "src/catalog/templates/pages/organization_workspace.html",
+    "static/js/organization_workspace.js",
+    "static/css/pages/organization_workspace.css",
+    "src/catalog/templates/pages/includes/organization_field_errors.html",
+    "src/catalog/testcases/test_organization_editor_errors.py",
+    "scripts/test_organization_editor_errors.cjs"
+  ],
+  "source_sha256": {
+    "src/catalog/templates/pages/organization_workspace.html": "eba8a79b25f16199a6007c915aded42ae2b82a1b679a1b932ee15b5eeb61637f",
+    "static/js/organization_workspace.js": "a91728981860071e8cc8514c90e9e2e1710f8c7bdb42711ceea210a20145c7ad",
+    "static/css/pages/organization_workspace.css": "f2d5c9b308cd1d13d949bf924a521040ac98d7029a66902cc5cdc7f6b88460e0",
+    "src/catalog/templates/pages/includes/organization_field_errors.html": "1cff3d4a5fc15e722afde93290dff23e8e92a415b6bbc5529fd2e8b9a43a643d",
+    "src/catalog/testcases/test_organization_editor_errors.py": "c4bcc2a0023dc19bcb6092a02e484950aa01f96ba35e1a08ced5bd9b5a01527b",
+    "scripts/test_organization_editor_errors.cjs": "c1fa2bca4585577249dc8f5ce918c19050a10b935f5e86461847675b18d89fbb"
+  },
+  "new_own_tests": 2,
+  "server_tests_PASS": 94,
+  "server_focused_repeat_PASS": 6,
+  "js_tests_PASS": 18,
+  "browser_checks_PASS": 184,
+  "browser_checks_FAIL": 0,
+  "expected_400_matrix": 18,
+  "viewtransition_console_errors_matrix": 15,
+  "viewtransition_console_errors_flows": 5,
+  "db_verification": {
+    "old_domain_rows_unchanged": 421,
+    "changed_old_rows": [],
+    "new_synthetic_rows": {
+      "Organization": 5,
+      "Place": 0,
+      "Program": 0,
+      "Activity": 0,
+      "OfferingGroup": 0,
+      "PricingPlan": 0,
+      "PlacePhoto": 0,
+      "OrganizationPlaceRequest": 0,
+      "OrganizationGrant": 0,
+      "OwnerTeamMembership": 0,
+      "Specialist": 0,
+      "SpecialistDocument": 0,
+      "ServerDraft": 1,
+      "PlaceScheduleDay": 0,
+      "PlaceScheduleInterval": 0
+    },
+    "organizations": [
+      {
+        "id": 45,
+        "live_version": 1,
+        "live_status": "draft",
+        "live_unchanged": true,
+        "candidate_status": null,
+        "candidate_version": null,
+        "draft_count": 0
+      },
+      {
+        "id": 46,
+        "live_version": 1,
+        "live_status": "draft",
+        "live_unchanged": true,
+        "candidate_status": "pending",
+        "candidate_version": 4,
+        "draft_count": 0
+      },
+      {
+        "id": 47,
+        "live_version": 1,
+        "live_status": "draft",
+        "live_unchanged": true,
+        "candidate_status": "pending",
+        "candidate_version": 4,
+        "draft_count": 1
+      },
+      {
+        "id": 48,
+        "live_version": 1,
+        "live_status": "draft",
+        "live_unchanged": true,
+        "candidate_status": null,
+        "candidate_version": null,
+        "draft_count": 0
+      },
+      {
+        "id": 49,
+        "live_version": 1,
+        "live_status": "draft",
+        "live_unchanged": true,
+        "candidate_status": null,
+        "candidate_version": null,
+        "draft_count": 0
+      }
+    ]
+  },
+  "screenshots": 17,
+  "new_diff_trailing_whitespace": [],
+  "active_run": "NONE",
+  "commit_push_deploy": false
+}

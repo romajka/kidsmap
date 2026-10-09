@@ -25,3 +25,16 @@ def is_events_section_enabled() -> bool:
 def require_events_section_enabled():
     if not is_events_section_enabled():
         raise Http404()
+
+
+def is_organizations_section_enabled() -> bool:
+    from catalog.models.site import SiteSettings
+    try:
+        return bool(getattr(SiteSettings.get_solo(), "organizations_section_enabled", False))
+    except (OperationalError, ProgrammingError):
+        return False
+
+
+def require_organizations_section_enabled():
+    if not is_organizations_section_enabled():
+        raise Http404()

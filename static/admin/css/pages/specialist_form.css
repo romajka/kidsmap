@@ -776,8 +776,12 @@
   .km-nav-icon { display: none; }
 
   .km-specialist-actions {
-    position: static;
-    order: -1;
+    position: sticky;
+    bottom: 0;
+    top: auto;
+    z-index: 50;
+    order: 99;
+    margin-top: 16px;
   }
 
   .km-actions-inner {
@@ -785,10 +789,27 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(8px);
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 10px 14px;
   }
 
   .km-actions-title { display: none; }
-  .km-btn { width: auto; }
+  .km-btn {
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 120px;
+    padding: 8px 12px;
+  }
+}
+
+@media (max-height: 500px) {
+  .km-specialist-actions {
+    position: static !important;
+  }
 }
 
 @media (max-width: 768px) {
@@ -809,3 +830,43 @@
   .km-lang-toggle { padding: 7px 12px; font-size: 0.8rem; }
   .km-btn { padding: 10px; }
 }
+/* Entry editor: two columns, native checkboxes, stacked practice cards. */
+.km-specialist-form-page .km-specialist-layout{grid-template-columns:220px minmax(0,1fr)}
+.km-specialist-form-page{padding-bottom:130px;overflow-wrap:anywhere}
+.km-specialist-form-page .km-specialist-content{min-width:0}
+.km-specialist-form-page .km-specialist-jump{display:none}
+.km-specialist-form-page .km-section-body input:not([type=checkbox]):not([type=radio]),.km-specialist-form-page .km-section-body select,.km-specialist-form-page .km-section-body textarea{max-width:100%;box-sizing:border-box}
+.km-specialist-form-page #id_specializations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.km-specialist-form-page #id_specializations label{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid #dfe5ed;border-radius:10px;cursor:pointer;font-size:14px;min-height:44px}
+.km-specialist-form-page #id_specializations input{flex:none}
+.km-specialist-form-page [hidden]{display:none!important}
+.km-specialist-form-page .inline-related{margin-block:16px;padding:14px;border:1px solid #dfe5ed;border-radius:12px}
+.km-specialist-form-page .inline-related .form-row{display:flex;flex-wrap:wrap;gap:10px}
+.km-specialist-form-page .km-specialist-sticky-footer{z-index:30;display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px max(16px,env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:white;border-top:1px solid #dfe5ed;max-height:125px;overflow:auto}
+.km-specialist-form-page .km-specialist-sticky-footer .submit-row{margin:0;border:0;background:transparent;display:flex;flex-wrap:wrap;gap:8px}
+.km-specialist-form-page :focus-visible{outline:3px solid #1568d4;outline-offset:3px}
+.km-specialist-form-page input,.km-specialist-form-page select,.km-specialist-form-page textarea,.km-specialist-form-page h2{scroll-margin-block:100px 150px}
+.km-specialist-form-page .spec-admin-photo{display:block;width:100px;height:100px;object-fit:cover;margin-top:12px;border-radius:12px}
+@media(max-width:900px){.km-specialist-form-page .km-specialist-layout{grid-template-columns:minmax(0,1fr)}.km-specialist-form-page .km-specialist-nav{display:none}.km-specialist-form-page .km-specialist-jump{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}.km-specialist-form-page .km-form-row--multi{grid-template-columns:1fr}.km-specialist-form-page #id_specializations{grid-template-columns:1fr}.km-specialist-form-page .km-inline-body .form-row>div{width:100%;min-width:0}.km-specialist-form-page .km-section-body{padding:16px}.km-specialist-form-page .related-widget-wrapper{max-width:100%}}
+.km-specialist-form-page .km-specialist-header__title{display:block}
+@media(min-width:901px){
+  .km-specialist-form-page .km-specialist-nav__inner,
+  .km-specialist-form-page .km-nav-list{display:block;overflow:visible}
+  .km-specialist-form-page .km-nav-item{white-space:normal;overflow-wrap:anywhere}
+}
+.km-specialist-form-page .km-specialist-sticky-footer{position:fixed;left:0;right:0;bottom:0}
+.km-specialist-form-page .km-specialist-sticky-footer .submit-row{display:flex!important}
+.km-specialist-form-page .km-inline-body .form-row>div,.km-specialist-form-page .km-inline-body .flex-container{min-width:0;max-width:100%;box-sizing:border-box}
+.km-specialist-form-page .km-inline-body .form-row input:not([type=checkbox]),.km-specialist-form-page .km-inline-body textarea{width:100%}
+/* submit_row uses the project's sidebar actions; fit them into this footer. */
+.km-specialist-form-page .km-specialist-sticky-footer{box-sizing:border-box;max-height:190px;gap:8px}
+.km-specialist-form-page .km-specialist-sticky-footer [data-specialist-save-status]{flex:0 0 100%;font-size:14px;line-height:1.4}
+.km-specialist-form-page .km-specialist-sticky-footer .km-admin-sidebar-actions{display:flex;flex-direction:row;flex-wrap:wrap;gap:8px;width:100%;margin:0}
+.km-specialist-form-page .km-specialist-sticky-footer .km-btn--sidebar{width:auto;min-width:0;justify-content:center;white-space:normal;text-align:center;line-height:1.25;padding:8px 12px;box-sizing:border-box}
+.km-specialist-form-page .km-specialist-sticky-footer .km-btn--success{background:var(--km-admin-primary,#009a4e);color:white!important}
+.km-specialist-form-page .km-specialist-sticky-footer .km-btn--danger{background:#fff1f0;color:#b42318!important;border:1px solid #fecdca}
+.km-specialist-form-page .km-specialist-sticky-footer .km-btn--info{background:#f8fafc;color:#344054!important;border:1px solid #d0d5dd}
+.km-specialist-form-page{padding-bottom:220px}
+.km-specialist-form-page input,.km-specialist-form-page select,.km-specialist-form-page textarea,.km-specialist-form-page h2{scroll-margin-bottom:220px}
+@media(min-width:768px){body.sidebar-mini:not(.sidebar-collapse) .km-specialist-form-page .km-specialist-sticky-footer{left:var(--km-admin-sidebar-width,300px)}body.sidebar-mini.sidebar-collapse .km-specialist-form-page .km-specialist-sticky-footer{left:var(--km-admin-sidebar-collapsed-width,72px)}}
+@media(max-width:767px){.km-specialist-form-page .km-specialist-sticky-footer .km-btn--sidebar{flex:1 1 calc(50% - 8px);height:auto;min-height:44px}}

@@ -1,0 +1,23 @@
+{
+  "rows": [
+    {
+      "id": "draft-overlapping-input-not-lost",
+      "status": "FAIL",
+      "before": {
+        "value": "ORGQA Latest typed value",
+        "status": "Сохранено на сервере",
+        "local": null,
+        "posts": 2
+      },
+      "restored": "ORGQA First in flight"
+    },
+    {
+      "id": "submitted-candidate-not-shadowed-by-old-draft",
+      "status": "PASS",
+      "rendered": "ORGQA Explicit submitted latest",
+      "url": "http://localhost:8788/ru/account/organizations/8/"
+    }
+  ],
+  "error": "Error: page.goto: Navigation to \"http://localhost:8788/ru/account/organizations/create/\" is interrupted by another navigation to \"chrome-error://chromewebdata/\"\nCall log:\n\u001b[2m  - navigating to \"http://localhost:8788/ru/account/organizations/create/\", waiting until \"load\"\u001b[22m\n",
+  "url": "chrome-error://chromewebdata/"
+}

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static tz %}
+{% load i18n static tz catalog_i18n %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block title_plain %}{{ seo_title }}{% endblock %}
@@ -14,7 +14,7 @@
       <div class="event-detail-copy">
         <span class="event-detail-kicker">{% if language == "az" %}Müvəqqəti tədbir{% elif language == "en" %}Temporary event{% else %}Временное мероприятие{% endif %}</span>
         <h1>{{ event.name_i18n }}</h1>
-        <p>{{ event.description_i18n }}</p>
+        {% localized_content event 'description' as event_description %}{% include 'catalog/includes/localized_content.html' with content=event_description %}
         <p class="event-detail-status">{{ event_state_label }}</p>
         {% if event.occurrence_state == 'scheduled' %}{% include "catalog/includes/event_countdown.html" with event=event language=language variant="detail" %}{% endif %}
       </div>
@@ -39,13 +39,12 @@
     {% endif %}
 
     <div class="event-detail-grid">
-      <section class="event-detail-card">
+      <section class="event-detail-card event-detail-info">
         <h2>{% if language == "az" %}Tədbir məlumatları{% elif language == "en" %}Event details{% else %}Детали мероприятия{% endif %}</h2>
         <dl class="event-detail-list">
-          <div><dt>{% if language == 'az' %}Təşkilatçı{% elif language == 'en' %}Organizer{% else %}Организатор{% endif %}</dt><dd>{% if event_organizer %}<a href="{{ event_organizer.url }}" lang="{{ event_organizer.language }}">{{ event_organizer.name }}</a>{% if event_organizer.language != language %} <span lang="az">AZ</span>{% endif %}{% else %}{% if language == 'az' %}Məlum deyil{% elif language == 'en' %}Unknown{% else %}Неизвестен{% endif %}{% endif %}</dd></div>
           <div>
-            <dt>{% if language == "az" %}Tarix{% elif language == "en" %}Date{% else %}Дата{% endif %}</dt>
-            <dd>{% timezone "Asia/Baku" %}<time datetime="{{ event.start_datetime|date:'c' }}">{{ event.start_datetime|date:"d.m.Y H:i" }}</time> — <time datetime="{{ event.end_datetime|date:'c' }}">{{ event.end_datetime|date:"d.m.Y H:i" }}</time>{% endtimezone %} (Asia/Baku)</dd>
+            <dt>{% if language == "az" %}Tarix və vaxt{% elif language == "en" %}Date & time{% else %}Дата и время{% endif %}</dt>
+            <dd>{% timezone "Asia/Baku" %}<time datetime="{{ event.start_datetime|date:'c' }}">{{ event.start_datetime|date:"d.m.Y H:i" }}</time> — <time datetime="{{ event.end_datetime|date:'c' }}">{{ event.end_datetime|date:"d.m.Y H:i" }}</time>{% endtimezone %} <span class="event-tz-label">(Asia/Baku)</span></dd>
           </div>
           <div>
             <dt>{% if language == "az" %}Kateqoriya{% elif language == "en" %}Category{% else %}Категория{% endif %}</dt>
@@ -59,26 +58,121 @@
           {% endif %}
           {% if event.price_display %}
             <div>
-              <dt>{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</dt>
-              <dd>{{ event.price_display }}</dd>
+              <dt>{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Стоимость участия{% endif %}</dt>
+              <dd class="event-price-highlight">{{ event.price_display }}</dd>
             </div>
           {% endif %}
-          {% if not event_online %}<div>
-            <dt>{% if language == "az" %}Ünvan{% elif language == "en" %}Address{% else %}Адрес{% endif %}</dt>
-            <dd>{% if event_venue.label %}{{ event_venue.label }}{% if event_venue.address %} — {% endif %}{% endif %}{% if event_venue.address %}{{ event_venue.address }}{% else %}{% if language == 'az' %}Ünvan məlum deyil{% elif language == 'en' %}Address unknown{% else %}Адрес неизвестен{% endif %}{% endif %}</dd>
-          </div>{% else %}<div><dt>{% if language == 'az' %}Format{% elif language == 'en' %}Format{% else %}Формат{% endif %}</dt><dd>{% if language == 'az' %}Onlayn{% elif language == 'en' %}Online{% else %}Онлайн{% endif %}</dd></div>{% endif %}
         </dl>
       </section>
 
-      <aside class="event-detail-card event-detail-contact">
-        <h2>{% if language == "az" %}Əlaqə{% elif language == "en" %}Contact{% else %}Контакты{% endif %}</h2>
-        {% if event.phone %}
-          <a class="btn" href="tel:{{ event.phone }}">{{ event.phone }}</a>
+      <!-- Organizer Card -->
+      <section class="event-detail-card event-organizer-card">
+        <div class="event-card-kicker">
+          <span class="material-symbols-rounded" aria-hidden="true">verified_user</span>
+          <span>{% if language == 'az' %}Təşkilatçı{% elif language == 'en' %}Organizer{% else %}Организатор{% endif %}</span>
+        </div>
+        {% if event_organizer %}
+          <div class="event-organizer-info">
+            <h3 class="event-organizer-name">
+              {% if event_organizer.url %}
+                <a href="{{ event_organizer.url }}" lang="{{ event_organizer.language }}">{{ event_organizer.name }}</a>
+              {% else %}
+                <span lang="{{ event_organizer.language }}">{{ event_organizer.name }}</span>
+              {% endif %}
+            </h3>
+            <span class="event-organizer-badge">
+              {% if event_organizer.type == 'Organization' %}
+                {% if language == 'az' %}Təşkilat / Şəbəkə{% elif language == 'en' %}Organization / Network{% else %}Организация / Сеть{% endif %}
+              {% else %}
+                {% if language == 'az' %}Mütəxəssis{% elif language == 'en' %}Specialist{% else %}Специалист{% endif %}
+              {% endif %}
+            </span>
+          </div>
+          {% if event_organizer.url %}
+            <a href="{{ event_organizer.url }}" class="event-rel-cta">
+              <span>{% if language == 'az' %}Təşkilatçı səhifəsi{% elif language == 'en' %}Organizer profile{% else %}Профиль организатора{% endif %}</span>
+              <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+            </a>
+          {% endif %}
+        {% else %}
+          <div class="event-organizer-info">
+            <h3 class="event-organizer-name">{% if language == 'az' %}Müstəqil tədbir{% elif language == 'en' %}Independent event{% else %}Независимое мероприятие{% endif %}</h3>
+            <p class="event-muted-text">{% if language == 'az' %}Təşkilatçı qeyd edilməyib{% elif language == 'en' %}Organizer is not specified{% else %}Организатор не указан в каталоге{% endif %}</p>
+          </div>
         {% endif %}
-        {% if event.instagram %}
-          <a class="link-btn" href="{{ event.instagram_url }}" target="_blank" rel="noopener">Instagram</a>
+
+        {% if event.phone or event.instagram %}
+          <div class="event-organizer-contacts">
+            <span class="event-contacts-title">{% if language == 'az' %}Qeydiyyat və əlaqə:{% elif language == 'en' %}Registration & contacts:{% else %}Запись и контакты:{% endif %}</span>
+            <div class="event-contacts-row">
+              {% if event.phone %}
+                <a class="btn btn-sm event-contact-btn" href="tel:{{ event.phone }}">
+                  <span class="material-symbols-rounded" aria-hidden="true">call</span>
+                  <span>{{ event.phone }}</span>
+                </a>
+              {% endif %}
+              {% if event.instagram %}
+                <a class="link-btn btn-sm event-contact-btn event-contact-btn--insta" href="{{ event.instagram_url }}" target="_blank" rel="noopener">
+                  <span>Instagram</span>
+                </a>
+              {% endif %}
+            </div>
+          </div>
         {% endif %}
-      </aside>
+      </section>
+
+      <!-- Venue / Place Card -->
+      <section class="event-detail-card event-venue-card">
+        <div class="event-card-kicker">
+          <span class="material-symbols-rounded" aria-hidden="true">{% if event_online %}videocam{% else %}location_on{% endif %}</span>
+          <span>{% if language == 'az' %}Keçirildiyi məkan{% elif language == 'en' %}Event venue{% else %}Место проведения{% endif %}</span>
+        </div>
+        {% if event_online %}
+          <div class="event-venue-online">
+            <h3 class="event-venue-title">{% if language == 'az' %}Onlayn format{% elif language == 'en' %}Online format{% else %}Онлайн-формат{% endif %}</h3>
+            <p class="event-muted-text">{% if language == 'az' %}Tədbir distant formatda keçirilir, fiziki ünvan tələb olunmur.{% elif language == 'en' %}This is an online event, physical venue visit is not required.{% else %}Мероприятие проходит дистанционно, визит на площадку не требуется.{% endif %}</p>
+          </div>
+        {% else %}
+          <div class="event-venue-content">
+            {% if related_place_presentation %}
+              <h3 class="event-venue-title">
+                <a href="{{ related_place_presentation.url }}" lang="{{ related_place_presentation.name_language }}">{{ related_place_presentation.name }}</a>
+              </h3>
+              <span class="event-venue-badge">{% if language == 'az' %}KidsMap mərkəzi{% elif language == 'en' %}KidsMap venue{% else %}Детский центр KidsMap{% endif %}</span>
+              <p class="event-venue-address">
+                <span class="material-symbols-rounded" aria-hidden="true">pin_drop</span>
+                <span>{% if event_venue.address %}{{ event_venue.address }}{% elif related_place_presentation.address %}{{ related_place_presentation.address }}{% else %}{{ event_venue.label }}{% endif %}</span>
+              </p>
+              <a href="{{ related_place_presentation.url }}" class="event-rel-cta">
+                <span>{% if language == 'az' %}Məkan haqqında məlumat{% elif language == 'en' %}About this venue{% else %}О площадке в KidsMap{% endif %}</span>
+                <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+              </a>
+            {% else %}
+              <h3 class="event-venue-title">{% if event_venue.label %}{{ event_venue.label }}{% else %}{% if language == 'az' %}Məkan ünvanı{% elif language == 'en' %}Event address{% else %}Адрес проведения{% endif %}{% endif %}</h3>
+              {% if event_venue.address %}
+                <p class="event-venue-address">
+                  <span class="material-symbols-rounded" aria-hidden="true">pin_drop</span>
+                  <span>{{ event_venue.address }}</span>
+                </p>
+                <div class="km-map-fallback-links" style="margin-top: 12px;">
+                  <a class="km-map-btn" href="https://www.google.com/maps/search/?api=1&query={{ event_venue.address|urlencode }}" target="_blank" rel="noopener noreferrer">
+                    <span class="material-symbols-rounded" aria-hidden="true">open_in_new</span>
+                    <span>Google Maps</span>
+                  </a>
+                  <a class="km-map-btn" href="https://2gis.az/baku/search/{{ event_venue.address|urlencode }}" target="_blank" rel="noopener noreferrer">
+                    <span class="material-symbols-rounded" aria-hidden="true">open_in_new</span>
+                    <span>2GIS</span>
+                  </a>
+                </div>
+              {% else %}
+                <p class="event-muted-text">
+                  {% if language == 'az' %}Dəqiq ünvan göstərilməyib. Zəhmət olmasa, təşkilatçı ilə əlaqə saxlayın.{% elif language == 'en' %}Exact address is not specified. Please contact the organizer for details.{% else %}Точный адрес площадки не указан в каталоге. Уточните детали у организатора перед посещением.{% endif %}
+                </p>
+              {% endif %}
+            {% endif %}
+          </div>
+        {% endif %}
+      </section>
     </div>
     {% if event_previous_periods %}<section class="event-detail-card"><h2>{% if language == 'az' %}Əvvəlki tarixlər{% elif language == 'en' %}Previous dates{% else %}Прежние даты{% endif %}</h2><ul>{% for period in event_previous_periods %}<li>{% timezone 'Asia/Baku' %}{{ period.start|date:'d.m.Y H:i' }} — {{ period.end|date:'d.m.Y H:i' }}{% endtimezone %} (Asia/Baku)</li>{% endfor %}</ul></section>{% endif %}
     <section class="event-detail-card" id="event-reviews"><h2>{% if language == 'az' %}Rəylər{% elif language == 'en' %}Reviews{% else %}Отзывы{% endif %}</h2>

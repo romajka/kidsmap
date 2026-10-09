@@ -6,6 +6,12 @@ register = template.Library()
 
 
 @register.simple_tag
+def localized_content(obj, field):
+    from catalog.services.localized_content import localized_content as display
+    return display(obj, field)
+
+
+@register.simple_tag
 def responsive_image(image):
     from catalog.services.responsive_images import responsive_image as image_urls
     return image_urls(image)

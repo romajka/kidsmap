@@ -1,0 +1,41 @@
+[
+  {
+    "id": "API-PRIVATE-JOIN",
+    "status": "FAIL",
+    "http_status": 200,
+    "url": "/api/ownership/join/place/65/",
+    "response": {
+      "id": 29,
+      "status": "pending",
+      "request_id": 29
+    }
+  },
+  {
+    "id": "BULK-10-DB",
+    "status": "PASS",
+    "linked": 10
+  },
+  {
+    "id": "PRIVATE-NO-TAKEOVER",
+    "status": "PASS"
+  },
+  {
+    "id": "TRANSFER-OLD-NETWORK-CANNOT-CAPTURE",
+    "status": "PASS",
+    "error": "PermissionDenied"
+  },
+  {
+    "id": "TRANSFER-PLACE-AND-TARGET-OWNER",
+    "status": "PASS",
+    "organization_id": 6
+  },
+  {
+    "id": "INVALID-FIELDS-CANONICAL-ERRORS",
+    "status": "PASS",
+    "error_fields": [
+      "name_ru",
+      "phone",
+      "whatsapp"
+    ]
+  }
+]

@@ -2331,7 +2331,7 @@ msgstr "Ad"
 #: src/catalog/domain_admin/place.py:2429 src/catalog/forms.py:1210
 #: src/catalog/models/place.py:77 src/catalog/models/place.py:766
 msgid "Описание (RU)"
-msgstr "Cədvəl"
+msgstr "Təsvir (RU)"
 
 #: src/catalog/domain_admin/owner.py:207 src/catalog/domain_admin/place.py:554
 #: src/catalog/domain_admin/place.py:1152
@@ -2342,13 +2342,13 @@ msgstr "Cədvəl"
 #: src/catalog/services/place_readiness.py:322
 #: src/catalog/services/place_readiness.py:433
 msgid "Описание (AZ)"
-msgstr "Cədvəl"
+msgstr "Təsvir (AZ)"
 
 #: src/catalog/domain_admin/owner.py:208
 #: src/catalog/domain_admin/place.py:2430 src/catalog/forms.py:1211
 #: src/catalog/models/place.py:78 src/catalog/models/place.py:767
 msgid "Описание (EN)"
-msgstr "Cədvəl"
+msgstr "Təsvir (EN)"
 
 #: src/catalog/domain_admin/owner.py:209 src/catalog/domain_admin/owner.py:617
 #: src/catalog/domain_admin/place.py:553
@@ -4036,18 +4036,18 @@ msgid "Карточка пока не опубликована на сайте."
 msgstr "Dərc olunub"
 
 #: src/catalog/domain_admin/place.py:2372
-#, fuzzy
 #| msgid "Карточка уже удалена."
 msgid "Карта пока не активна"
-msgstr "Kart artıq silinib."
+msgstr "Xəritə hazırda əlçatan deyil"
 
 #: src/catalog/domain_admin/place.py:2374
-#, fuzzy
 #| msgid "Геокодирование не настроено. Заполните GOOGLE_MAPS_API_KEY."
 msgid ""
 "Геокодирование не настроено. Заполните GOOGLE_MAPS_API_KEY, чтобы "
 "рассчитывать координаты прямо из формы."
-msgstr "Geokodlaşdırma qurulmayib. GOOGLE_MAPS_API_KEY dəyərini doldurun."
+msgstr ""
+"Geokodlaşdırma qurulmayıb. Formada koordinatları hesablamaq üçün "
+"GOOGLE_MAPS_API_KEY parametrini doldurun."
 
 #: src/catalog/domain_admin/place.py:2380
 #, fuzzy
@@ -6141,10 +6141,9 @@ msgid "Пустой результат каталога"
 msgstr "Boş nəticə"
 
 #: src/catalog/domain_admin/site.py:448
-#, fuzzy
 #| msgid "Удалить из команды"
 msgid "Публичное избранное"
-msgstr "Komandadan sil"
+msgstr "İctimai seçilmişlər"
 
 #: src/catalog/domain_admin/site.py:452
 #, fuzzy
@@ -6858,10 +6857,9 @@ msgid "Поиск по названию RU/AZ/EN или коду региона.
 msgstr "Ad və ya ünvanla axtarış"
 
 #: src/catalog/domain_admin/specialist.py:428
-#, fuzzy
 #| msgid "Места рядом"
 msgid "Место приёма"
-msgstr "Yaxındakı məkanlar"
+msgstr "Qəbul yeri"
 
 #: src/catalog/domain_admin/specialist.py:429
 #| msgid "Места на модерации"
@@ -6875,10 +6873,9 @@ msgid "Документ"
 msgstr "Sənəd"
 
 #: src/catalog/domain_admin/specialist.py:438
-#, fuzzy
 #| msgid "Подтверждение email"
 msgid "10. Подтверждение квалификации"
-msgstr "Email təsdiqi"
+msgstr "10. Kvalifikasiyanın yoxlanması"
 
 #: src/catalog/domain_admin/specialist.py:442
 msgid "Скачать"
@@ -7035,10 +7032,9 @@ msgid "Направления"
 msgstr "Göndərilməyib"
 
 #: src/catalog/domain_admin/specialist.py:745 src/catalog/forms.py:2098
-#, fuzzy
 #| msgid "Выбрано:"
 msgid "Не выбрано"
-msgstr "Seçilib:"
+msgstr "Seçilməyib"
 
 #: src/catalog/domain_admin/specialist.py:751
 #: src/catalog/templates/admin/catalog/place/pricing_editor.html:7
@@ -7070,10 +7066,9 @@ msgid "1. Основная информация"
 msgstr "1. Əsas məlumat"
 
 #: src/catalog/domain_admin/specialist.py:792
-#, fuzzy
 #| msgid "Фото, описание и CTA"
 msgid "2. Фото и описание"
-msgstr "Foto, təsvir və CTA"
+msgstr "2. Foto və təsvir"
 
 #: src/catalog/domain_admin/specialist.py:803
 #| msgid "Управление местами"
@@ -7081,28 +7076,24 @@ msgid "3. Направления деятельности"
 msgstr "3. Fəaliyyət istiqamətləri"
 
 #: src/catalog/domain_admin/specialist.py:811
-#, fuzzy
 #| msgid "Возраст до"
 msgid "4. Возраст детей"
-msgstr "Yaşa qədər"
+msgstr "4. Uşaqların yaşı"
 
 #: src/catalog/domain_admin/specialist.py:819
-#, fuzzy
 #| msgid "Часы работы"
 msgid "5. Языки работы"
-msgstr "İş saatları"
+msgstr "5. İş dilləri"
 
 #: src/catalog/domain_admin/specialist.py:827
-#, fuzzy
 #| msgid "Онлайн-контакты"
 msgid "6. Онлайн / очно"
-msgstr "Onlayn əlaqələr"
+msgstr "6. Onlayn / əyani"
 
 #: src/catalog/domain_admin/specialist.py:835
-#, fuzzy
 #| msgid "Сохранить и продолжить"
 msgid "7. Стоимость и продолжительность"
-msgstr "Yadda saxla və davam et"
+msgstr "7. Qiymət və müddət"
 
 #: src/catalog/domain_admin/specialist.py:845
 #| msgid "Образование"
@@ -7110,10 +7101,9 @@ msgid "9. Образование и опыт"
 msgstr "9. Təhsil və təcrübə"
 
 #: src/catalog/domain_admin/specialist.py:860
-#, fuzzy
 #| msgid "Контакты"
 msgid "11. Контакты"
-msgstr "Əlaqə"
+msgstr "11. Əlaqə"
 
 #: src/catalog/domain_admin/specialist.py:871
 #| msgid "для публикации"
@@ -8369,10 +8359,9 @@ msgid "Город / Регион"
 msgstr "Şəhər / Region"
 
 #: src/catalog/forms.py:2111
-#, fuzzy
 #| msgid "Выберите метро"
 msgid "Выберите город"
-msgstr "Metro seçin"
+msgstr "Şəhər seçin"
 
 #: src/catalog/forms.py:2118 src/catalog/services/locations.py:543
 msgid "Выберите район"
@@ -8384,40 +8373,34 @@ msgid "Имя и фамилия"
 msgstr "Ad və soyad"
 
 #: src/catalog/forms.py:2155
-#, fuzzy
 #| msgid "Описание (Азербайджанский)"
 msgid "О себе на азербайджанском"
-msgstr "Təsvir (Azərbaycan dili)"
+msgstr "Azərbaycan dilində özünüz haqqında"
 
 #: src/catalog/forms.py:2156
-#, fuzzy
 #| msgid "Описание (Русский)"
 msgid "О себе на русском"
-msgstr "Təsvir (Rus dili)"
+msgstr "Rus dilində özünüz haqqında"
 
 #: src/catalog/forms.py:2157
-#, fuzzy
 #| msgid "Заявка на владение кружком"
 msgid "О себе на английском"
-msgstr "Dərnəyə sahiblik müraciəti"
+msgstr "İngilis dilində özünüz haqqında"
 
 #: src/catalog/forms.py:2209
-#, fuzzy
 #| msgid "Выберите оценку от 1 до 5, чтобы отправить отзыв."
 msgid "Выберите хотя бы одно направление деятельности."
-msgstr "Rəy göndərmək üçün 1-dən 5-ə qədər qiymət seçin."
+msgstr "Ən azı bir fəaliyyət istiqaməti seçin."
 
 #: src/catalog/forms.py:2212
-#, fuzzy
 #| msgid "Проверьте данные профиля и исправьте ошибки."
 msgid "Добавьте описание профиля хотя бы на одном языке."
-msgstr "Profil məlumatlarını yoxlayın və səhvləri düzəldin."
+msgstr "Ən azı bir dildə profil təsviri əlavə edin."
 
 #: src/catalog/forms.py:2218
-#, fuzzy
 #| msgid "Покажите только базу карточки."
 msgid "Укажите телефон или WhatsApp для связи."
-msgstr "Kartın yalnız əsas hissəsini göstərin."
+msgstr "Əlaqə üçün telefon və ya WhatsApp göstərin."
 
 #: src/catalog/forms.py:2230
 msgid ""
@@ -8426,30 +8409,26 @@ msgstr ""
 "Əyani format üçün KidsMap uşaq mərkəzini və ya öz ünvanınızı göstərin."
 
 #: src/catalog/forms.py:2234
-#, fuzzy
 #| msgid "Выберите город или регион."
 msgid "Выберите город / регион для очной работы."
-msgstr "Şəhər və ya bölgə seçin."
+msgstr "Əyani iş üçün şəhər / bölgə seçin."
 
 #: src/catalog/forms.py:2241
-#, fuzzy
 #| msgid "Выберите город или регион."
 msgid "Выберите хотя бы один язык работы."
-msgstr "Şəhər və ya bölgə seçin."
+msgstr "Ən azı bir iş dili seçin."
 
 #: src/catalog/forms.py:2250 src/catalog/models/place.py:354
 #: src/catalog/models/pricing_plan.py:210
 #: src/catalog/services/place_readiness.py:235
-#, fuzzy
 #| msgid "Возраст не может быть меньше 0."
 msgid "Возраст «до» не может быть меньше возраста «от»."
-msgstr "Yaş 0-dan kiçik ola bilməz."
+msgstr "Maksimum yaş minimum yaşdan az ola bilməz."
 
 #: src/catalog/forms.py:2256
-#, fuzzy
 #| msgid "Возраст не может быть меньше 0."
 msgid "Максимальная стоимость не может быть меньше минимальной."
-msgstr "Yaş 0-dan kiçik ola bilməz."
+msgstr "Maksimum qiymət minimum qiymətdən az ola bilməz."
 
 #: src/catalog/models/analytics.py:12
 msgid "Тестовый или служебный аккаунт"
@@ -10395,10 +10374,9 @@ msgid "Посещения"
 msgstr "Ziyarətlər"
 
 #: src/catalog/models/site.py:636
-#, fuzzy
 #| msgid "Контакты страницы (i18n)"
 msgid "Просмотр организации"
-msgstr "“Əlaqə” səhifəsi üçün kontaktlar."
+msgstr "Təşkilata baxış"
 
 #: src/catalog/models/site.py:637
 #, fuzzy
@@ -11672,23 +11650,20 @@ msgstr ""
 "edəcəksiniz."
 
 #: src/catalog/services/photo_gallery.py:11
-#, fuzzy
 #| msgid "Для отправки заявки войдите в аккаунт и повторите действие."
 msgid ""
 "Порядок фотографий изменился. Проверьте галерею и повторите сохранение."
-msgstr "Sorğu göndərmək üçün hesaba daxil olun və yenidən cəhd edin."
+msgstr "Şəkillərin sırası dəyişib. Qalereyanı yoxlayın və yenidən saxlayın."
 
 #: src/catalog/services/place_access.py:13
-#, fuzzy
 #| msgid "Кабинет владельца"
 msgid "Менеджер"
-msgstr "Sahib kabineti"
+msgstr "Menecer"
 
 #: src/catalog/services/place_access.py:15
-#, fuzzy
 #| msgid "Редактировать"
 msgid "Редактор"
-msgstr "Redaktə et"
+msgstr "Redaktor"
 
 #: src/catalog/services/place_readiness.py:160
 msgid "Уберите из названия тестовый текст вроде «test» или «lorem»."
@@ -13288,10 +13263,9 @@ msgstr "Sürətli filtrlər"
 #: src/catalog/templates/admin/catalog/includes/km_changelist_search_panel.html:259
 #: src/catalog/templates/admin/catalog/region/change_list.html:103
 #: src/catalog/templates/admin/catalog/siteregistereduser/change_list.html:92
-#, fuzzy
 #| msgid "Очистить"
 msgid "Очистить поиск"
-msgstr "Təmizlə"
+msgstr "Axtarışı təmizlə"
 
 #: src/catalog/templates/admin/catalog/includes/km_changelist_search_panel.html:268
 #, fuzzy
@@ -13980,8 +13954,8 @@ msgstr "Xəritə və koordinatlar"
 
 #: src/catalog/templates/admin/catalog/place/form/section_location.html:53
 #| msgid "Карточка появится на карте после публикации."
-msgid "Адрес и точка на карте — два разных обязательных пункта"
-msgstr "Ünvan və xəritədəki nöqtə — iki fərqli məcburi bənddir"
+msgid "Точка на карте необязательна. Рекомендуем указать её; можно вернуться к карте позже."
+msgstr "Xəritədə nöqtə qeyd etmək məcburi deyil. Qeyd etməyi tövsiyə edirik; xəritəyə sonra qayıda bilərsiniz."
 
 #: src/catalog/templates/admin/catalog/place/form/section_location.html:57
 #| msgid "Проверить координаты"
@@ -15115,10 +15089,9 @@ msgstr ""
 "Məkanlar haqqında faktlar (GPS, şəkillər). Robot onları avtomatik dəyişmir."
 
 #: src/catalog/templates/admin/catalog/shared_settings_change_form.html:199
-#, fuzzy
 #| msgid "Настройка сайта"
 msgid "В настройки сайта"
-msgstr "Sayt ayarı"
+msgstr "Sayt parametrlərinə qayıt"
 
 #: src/catalog/templates/admin/catalog/shared_settings_change_form.html:201
 #, fuzzy
@@ -15303,10 +15276,9 @@ msgid "Пожалуйста, исправьте ошибки ниже."
 msgstr "Profil məlumatlarını yoxlayın və səhvləri düzəldin."
 
 #: src/catalog/templates/admin/catalog/specialist/change_form.html:82
-#, fuzzy
 #| msgid "Разделы сайта"
 msgid "Разделы формы"
-msgstr "Sayt bölmələri"
+msgstr "Forma bölmələri"
 
 #: src/catalog/templates/admin/catalog/specialist/change_form.html:86
 #: src/catalog/templates/admin/catalog/specialist/change_form.html:133
@@ -19972,9 +19944,6 @@ msgstr "Haqqında (RU):"
 #~ msgid "Главный шаг перед отправкой."
 #~ msgstr "Göndərməzdən əvvəl əsas addım."
 
-#~ msgid "Перед отправкой"
-#~ msgstr "Göndərmədən əvvəl"
-
 #~ msgid "Проверьте фото и отправьте карточку на модерацию."
 #~ msgstr "Şəkli yoxlayın və kartı moderasiyaya göndərin."
 
@@ -21875,3 +21844,1103 @@ msgstr "Tədbir dəyişib. Saxlamazdan əvvəl səhifəni yeniləyin."
 #. Task33 stage26 Event interface
 msgid "Выберите организатора перед публикацией."
 msgstr "Dərc etməzdən əvvəl təşkilatçı seçin."
+
+#: event admin readiness
+msgid "Требуется серверная проверка"
+msgstr "Server yoxlaması tələb olunur"
+
+#: event admin readiness
+msgid "Требования публикации"
+msgstr "Dərc tələbləri"
+
+#. Organization connection workflow.
+msgid "Административная роль не заменяет согласие владельцев бизнес-связи."
+msgstr ""
+"Administrator rolu biznes əlaqəsi üçün sahiblərin razılığını əvəz etmir."
+
+#. Organization connection workflow.
+msgid "Бизнес-связь: согласие владельцев"
+msgstr "Biznes əlaqəsi: sahiblərin razılığı"
+
+#. Organization connection workflow.
+msgid "Будет обработано"
+msgstr "İşlənəcək"
+
+#. Organization connection workflow.
+msgid ""
+"Вся сеть включает будущие филиалы с актуальной бизнес-связью. Выбранные "
+"филиалы ограничивают только права на места. Отдельные права на организацию и"
+" общие программы действуют для всей организации."
+msgstr ""
+"Bütün şəbəkə aktual biznes əlaqəsi olan gələcək filialları da əhatə edir. "
+"Seçilmiş filiallar yalnız məkan icazələrini məhdudlaşdırır. Təşkilat və "
+"ümumi proqramlar üçün ayrıca icazələr bütün təşkilata aiddir."
+
+#. Organization connection workflow.
+msgid "Вся сеть, включая будущие филиалы"
+msgstr "Gələcək filiallar daxil olmaqla bütün şəbəkə"
+
+#. Organization connection workflow.
+msgid "Выберите от 1 до 100 доступных мест."
+msgstr "1–100 əlçatan məkan seçin."
+
+#. Organization connection workflow.
+msgid "Выберите от 1 до 100 мест."
+msgstr "1–100 məkan seçin."
+
+#. Organization connection workflow.
+msgid "Выбор мест"
+msgstr "Məkan seçimi"
+
+#. Organization connection workflow.
+msgid "Выбранные филиалы"
+msgstr "Seçilmiş filiallar"
+
+#. Organization connection workflow.
+msgid "Выбрано мест"
+msgstr "Seçilmiş məkanlar"
+
+#. Organization connection workflow.
+msgid "Выбрать другую организацию"
+msgstr "Başqa təşkilat seç"
+
+#. Organization connection workflow.
+msgid "Выбрать организацию"
+msgstr "Təşkilat seç"
+
+#. Organization connection workflow.
+msgid "Данные изменились: проверьте заново"
+msgstr "Məlumatlar dəyişib: yenidən yoxlayın"
+
+#. Organization connection workflow.
+msgid "Доступных карточек не найдено. Измените название или адрес."
+msgstr "Əlçatan kart tapılmadı. Başqa ad və ya ünvan daxil edin."
+
+#. Organization connection workflow.
+msgid "Доступных организаций нет. Можно создать организацию без филиалов."
+msgstr "Əlçatan təşkilat yoxdur. Filialsız təşkilat yarada bilərsiniz."
+
+#. Organization connection workflow.
+msgid "Другая организация: пропустим, перенос требует отвязки"
+msgstr "Başqa təşkilat: keçiləcək; köçürmək üçün əvvəlcə ayırın"
+
+#. Organization connection workflow.
+msgid "Другой тип связи: нужна отдельная проверка"
+msgstr "Başqa əlaqə növü: ayrıca yoxlama lazımdır"
+
+#. Organization connection workflow.
+msgid "Ждём владельца места"
+msgstr "Məkan sahibinin təsdiqini gözləyirik"
+
+#. Organization connection workflow.
+msgid "Ждём владельца организации"
+msgstr "Təşkilat sahibinin təsdiqini gözləyirik"
+
+#. Organization connection workflow.
+msgid ""
+"Занятия общих программ станут локальными снимками; обновления сети "
+"прекратятся."
+msgstr ""
+"Ümumi proqramların məşğələləri yerli surət kimi qalacaq; şəbəkə yeniləmələri"
+" dayanacaq."
+
+#. Organization connection workflow.
+msgid "Занятия связаны с программой другой сети"
+msgstr "Məşğələlər başqa şəbəkənin proqramına bağlıdır"
+
+#. Organization connection workflow.
+msgid "Запрос: нужно согласие второго владельца"
+msgstr "Sorğu: ikinci sahibin razılığı lazımdır"
+
+#. Organization connection workflow.
+msgid "Информационная связь"
+msgstr "Məlumat əlaqəsi"
+
+#. Organization connection workflow.
+msgid "Информационная связь: без доступа сотрудников"
+msgstr "Məlumat əlaqəsi: əməkdaşlara giriş verilmir"
+
+#. Organization connection workflow.
+msgid "Используется в филиале, если там не указан собственный сайт."
+msgstr "Öz saytı göstərilməyən filiallarda istifadə olunur."
+
+#. Organization connection workflow.
+msgid "Используется в филиале, если там не указан собственный телефон."
+msgstr "Öz telefonu göstərilməyən filiallarda istifadə olunur."
+
+#. Organization connection workflow.
+msgid "К организациям"
+msgstr "Təşkilatlara qayıt"
+
+#. Organization connection workflow.
+msgid "Карточка недоступна"
+msgstr "Kart əlçatan deyil"
+
+#. Organization connection workflow.
+msgid "Карточки и состояние связи"
+msgstr "Kartlar və əlaqə vəziyyəti"
+
+#. Organization connection workflow.
+msgid "Место и адрес"
+msgstr "Məkan və ünvan"
+
+#. Organization connection workflow.
+msgid ""
+"Место остаётся самостоятельным до нового согласованного подключения. Старые "
+"программы не перейдут в новую сеть автоматически."
+msgstr ""
+"Yeni əlaqə razılaşdırılana qədər məkan müstəqil qalır. Əvvəlki proqramlar "
+"yeni şəbəkəyə avtomatik keçmir."
+
+#. Organization connection workflow.
+msgid "Наблюдатель"
+msgstr "Müşahidəçi"
+
+#. Organization connection workflow.
+msgid "Название или адрес места"
+msgstr "Məkanın adı və ya ünvanı"
+
+#. Organization connection workflow.
+#, python-format
+msgid "Название организации (%(language)s)"
+msgstr "Təşkilatın adı (%(language)s)"
+
+#. Organization connection workflow.
+msgid "Найдены похожие места. Сначала проверьте готовые карточки."
+msgstr "Oxşar məkanlar tapıldı. Əvvəlcə hazır kartları yoxlayın."
+
+#. Organization connection workflow.
+msgid ""
+"Найдите карточки по названию и адресу. Фото, занятия и цены сохранятся."
+msgstr ""
+"Kartları ad və ünvana görə tapın. Şəkillər, məşğələlər və qiymətlər "
+"saxlanılacaq."
+
+#. Organization connection workflow.
+msgid "Найти и выбрать места"
+msgstr "Məkanları tap və seç"
+
+#. Organization connection workflow.
+msgid ""
+"Не удалось подтвердить. Проверьте выбор, согласие и срок просмотра. Обновите"
+" просмотр перед новым действием."
+msgstr ""
+"Təsdiq alınmadı. Seçimi, razılığı və baxış müddətini yoxlayın. Yeni "
+"əməliyyatdan əvvəl baxışı yeniləyin."
+
+#. Organization connection workflow.
+msgid "Нет прав владельца стороны"
+msgstr "Tərəflərdən birinin sahiblik hüququ lazımdır"
+
+#. Organization connection workflow.
+msgid "Новый выбор карточек"
+msgstr "Kartları yenidən seç"
+
+#. Organization connection workflow.
+msgid "Новый просмотр проблемных строк"
+msgstr "Problemli sətirləri yenidən yoxla"
+
+#. Organization connection workflow.
+msgid "Нужна ручная проверка запроса или программы"
+msgstr "Sorğu və ya proqram əl ilə yoxlanılmalıdır"
+
+#. Organization connection workflow.
+msgid "Нужны владельцы места и организации"
+msgstr "Məkan və təşkilat sahibləri tələb olunur"
+
+#. Organization connection workflow.
+msgid "Обновить просмотр"
+msgstr "Baxışı yenilə"
+
+#. Organization connection workflow.
+msgid "Обработка завершена. Проверьте результат каждой строки."
+msgstr "Emal bitdi. Hər sətrin nəticəsini yoxlayın."
+
+#. Organization connection workflow.
+msgid ""
+"Обработка прервана. Можно продолжить ту же операцию без повторения готовых "
+"строк."
+msgstr ""
+"Emal dayandı. Hazır sətirləri təkrarlamadan eyni əməliyyatı davam etdirə "
+"bilərsiniz."
+
+#. Organization connection workflow.
+msgid "Обработка… Сохраняем результат каждой строки."
+msgstr "Emal olunur… Hər sətrin nəticəsi saxlanılır."
+
+#. Organization connection workflow.
+msgid ""
+"Общие контакты перестанут наследоваться. Проверьте телефон и сайт места."
+msgstr ""
+"Ümumi əlaqə məlumatları artıq miras alınmayacaq. Məkanın telefonunu və "
+"saytını yoxlayın."
+
+#. Organization connection workflow.
+msgid "Общий WhatsApp организации"
+msgstr "Təşkilatın ümumi WhatsApp nömrəsi"
+
+#. Organization connection workflow.
+msgid "Общий телефон организации"
+msgstr "Təşkilatın ümumi telefonu"
+
+#. Organization connection workflow.
+msgid "Ожидает второго владельца"
+msgstr "İkinci sahibin təsdiqi gözlənilir"
+
+#. Organization connection workflow.
+msgid "Операция"
+msgstr "Əməliyyat"
+
+#. Organization connection workflow.
+msgid "Операция не подтверждена. Обновите просмотр и повторите."
+msgstr "Əməliyyat təsdiqlənmədi. Baxışı yeniləyin və yenidən cəhd edin."
+
+#. Organization connection workflow.
+#, python-format
+msgid "Описание организации (%(language)s)"
+msgstr "Təşkilatın təsviri (%(language)s)"
+
+#. Organization connection workflow.
+msgid "Организация архивирована"
+msgstr "Təşkilat arxivləşdirilib"
+
+#. Organization connection workflow.
+msgid "Организация и филиалы"
+msgstr "Təşkilat və filiallar"
+
+#. Organization connection workflow.
+msgid "Организация недоступна"
+msgstr "Təşkilat əlçatan deyil"
+
+#. Organization connection workflow.
+msgid ""
+"Организация объединяет сеть и общие программы. Филиал — конкретное место с "
+"адресом, занятиями и ценами."
+msgstr ""
+"Təşkilat şəbəkəni və ümumi proqramları birləşdirir. Filial ünvanı, "
+"məşğələləri və qiymətləri olan konkret məkandır."
+
+#. Organization connection workflow.
+msgid "Отсоединение подтверждено"
+msgstr "Ayrılma təsdiqləndi"
+
+#. Organization connection workflow.
+msgid "Отсоединится после подтверждения"
+msgstr "Təsdiqdən sonra ayrılacaq"
+
+#. Organization connection workflow.
+msgid "Отсоединить место"
+msgstr "Məkanı ayır"
+
+#. Organization connection workflow.
+msgid "Отсоединить: посмотреть последствия"
+msgstr "Ayır: nəticələrə bax"
+
+#. Organization connection workflow.
+msgid "Ошибка: строка не изменена"
+msgstr "Xəta: sətir dəyişməyib"
+
+#. Organization connection workflow.
+msgid "Подключение мест"
+msgstr "Məkanların qoşulması"
+
+#. Organization connection workflow.
+msgid "Подключение подтверждено"
+msgstr "Qoşulma təsdiqləndi"
+
+#. Organization connection workflow.
+msgid "Подключится после подтверждения"
+msgstr "Təsdiqdən sonra qoşulacaq"
+
+#. Organization connection workflow.
+msgid "Подключить к организации"
+msgstr "Təşkilata qoş"
+
+#. Organization connection workflow.
+msgid "Подключить существующие места"
+msgstr "Hazır məkanları qoş"
+
+#. Organization connection workflow.
+msgid "Подтвердите последствия операции."
+msgstr "Əməliyyatın nəticələrini təsdiqləyin."
+
+#. Organization connection workflow.
+msgid ""
+"Подтверждаю выбранную организацию и тип связи. Бизнес-связь действует после "
+"согласия обеих сторон и может дать доступ сотрудникам сети."
+msgstr ""
+"Seçilmiş təşkilatı və əlaqə növünü təsdiqləyirəm. Biznes əlaqəsi hər iki "
+"sahibin razılığı ilə qüvvəyə minir və şəbəkə əməkdaşlarına giriş verə bilər."
+
+#. Organization connection workflow.
+msgid ""
+"Подтверждаю отвязку и её последствия. Новое подключение будет отдельным "
+"действием."
+msgstr ""
+"Ayrılmanı və nəticələrini təsdiqləyirəm. Yeni qoşulma ayrıca əməliyyat "
+"olacaq."
+
+#. Organization connection workflow.
+msgid ""
+"Подтверждение обработает только доступные строки. Конфликты будут пропущены;"
+" успешные строки сохранятся при частичном отказе."
+msgstr ""
+"Təsdiq yalnız uyğun sətirləri emal edir. Ziddiyyətli sətirlər keçiləcək; "
+"qismən imtinada uğurlu sətirlər saxlanılacaq."
+
+#. Organization connection workflow.
+msgid "Показаны доступные и публичные карточки. Выбор сохраняется при поиске."
+msgstr "Əlçatan və açıq kartlar göstərilir. Axtarış zamanı seçim saxlanılır."
+
+#. Organization connection workflow.
+msgid "Последствия отвязки"
+msgstr "Ayrılmanın nəticələri"
+
+#. Organization connection workflow.
+msgid "Посмотреть список и конфликты"
+msgstr "Siyahıya və ziddiyyətlərə bax"
+
+#. Organization connection workflow.
+msgid "Проверка и подтверждение"
+msgstr "Yoxlama və təsdiq"
+
+#. Organization connection workflow.
+msgid "Проверьте каждую карточку"
+msgstr "Hər kartı yoxlayın"
+
+#. Organization connection workflow.
+msgid "Продолжить операцию"
+msgstr "Əməliyyatı davam etdir"
+
+#. Organization connection workflow.
+msgid "Просмотр действует 10 минут"
+msgstr "Baxış 10 dəqiqə qüvvədədir"
+
+#. Organization connection workflow.
+msgid "Просмотр и редактирование филиалов"
+msgstr "Filiallara baxış və redaktə"
+
+#. Organization connection workflow.
+msgid "Просмотр и статистика филиалов"
+msgstr "Filiallara və statistikaya baxış"
+
+#. Organization connection workflow.
+msgid "Просмотр филиалов"
+msgstr "Filiallara baxış"
+
+#. Organization connection workflow.
+msgid "Просмотр, редактирование и статистика филиалов"
+msgstr "Filiallara baxış, redaktə və statistika"
+
+#. Organization connection workflow.
+msgid "Прямых разрешений, которые сохранятся"
+msgstr "Saxlanılan birbaşa icazələr"
+
+#. Organization connection workflow.
+msgid "Публикация, модерация и управление сотрудниками не входят в эти роли."
+msgstr "Bu rollara dərc, moderasiya və əməkdaş idarəetməsi daxil deyil."
+
+#. Organization connection workflow.
+msgid "Разрешения"
+msgstr "İcazələr"
+
+#. Organization connection workflow.
+msgid "Редактирование организации"
+msgstr "Təşkilatın redaktəsi"
+
+#. Organization connection workflow.
+msgid "Редактирование филиалов"
+msgstr "Filialların redaktəsi"
+
+#. Organization connection workflow.
+msgid "Результат"
+msgstr "Nəticə"
+
+#. Organization connection workflow.
+msgid "Результат по каждой карточке"
+msgstr "Hər kartın nəticəsi"
+
+#. Organization connection workflow.
+msgid "Сайт организации"
+msgstr "Təşkilatın saytı"
+
+#. Organization connection workflow.
+msgid "Самостоятельное место"
+msgstr "Müstəqil məkan"
+
+#. Organization connection workflow.
+msgid "Связь неактуальна: доступ сети не действует"
+msgstr "Əlaqə aktual deyil: şəbəkə girişi işləmir"
+
+#. Organization connection workflow.
+msgid ""
+"Сетевые разрешения остаются в сети и могут снова действовать после "
+"повторного подключения."
+msgstr ""
+"Şəbəkə icazələri şəbəkədə qalır və yenidən qoşulduqdan sonra qüvvəyə minə "
+"bilər."
+
+#. Organization connection workflow.
+msgid "Следующие 20"
+msgstr "Növbəti 20"
+
+#. Organization connection workflow.
+msgid "Создание филиалов"
+msgstr "Filialların yaradılması"
+
+#. Organization connection workflow.
+msgid "Сотрудников с сетевым доступом"
+msgstr "Şəbəkə girişi olan əməkdaşlar"
+
+#. Organization connection workflow.
+msgid "Специальное разрешение"
+msgstr "Xüsusi icazə"
+
+#. Organization connection workflow.
+msgid "Статистика филиалов"
+msgstr "Filial statistikası"
+
+#. Organization connection workflow.
+msgid "Текущая организация"
+msgstr "Cari təşkilat"
+
+#. Organization connection workflow.
+msgid "Тип связи"
+msgstr "Əlaqə növü"
+
+#. Organization connection workflow.
+msgid "Уже отсоединено"
+msgstr "Artıq ayrılıb"
+
+#. Organization connection workflow.
+msgid "Уже подключено"
+msgstr "Artıq qoşulub"
+
+#. Organization connection workflow.
+msgid "Управление общими программами"
+msgstr "Ümumi proqramların idarə edilməsi"
+
+#. Organization connection workflow.
+msgid ""
+"Фото, занятия, группы, тарифы, часы работы, владелец и статус публикации "
+"сохраняются."
+msgstr ""
+"Şəkillər, məşğələlər, qruplar, tariflər, iş saatları, sahib və dərc "
+"vəziyyəti saxlanılır."
+
+#. Organization connection workflow.
+msgid "Этапы подключения"
+msgstr "Qoşulma mərhələləri"
+
+#. Organization connection workflow.
+msgid "Проверить состояние операции"
+msgstr "Əməliyyatın vəziyyətini yoxla"
+
+#. Organization connection workflow.
+msgid "Будет отправлен запрос второму владельцу"
+msgstr "Digər sahibə sorğu göndəriləcək"
+
+#. Organization connection workflow.
+msgid "Запрос создан этой операцией"
+msgstr "Sorğu bu əməliyyatla yaradılıb"
+
+#. Organization connection workflow.
+msgid "Подключено этой операцией"
+msgstr "Bu əməliyyatla qoşulub"
+
+#. Organization connection workflow.
+msgid "Сразу"
+msgstr "Dərhal"
+
+#. Organization connection workflow.
+msgid "Запросы"
+msgstr "Sorğular"
+
+#. Organization connection workflow.
+msgid "Без изменений"
+msgstr "Dəyişikliksiz"
+
+#. Organization connection workflow.
+msgid "Пропустим"
+msgstr "Buraxılacaq"
+
+#. Organization connection workflow.
+msgid ""
+"Подтверждаю информационную связь с выбранной организацией. Она не даёт "
+"сотрудникам сети доступ к месту."
+msgstr ""
+"Seçilmiş təşkilatla məlumat əlaqəsini təsdiqləyirəm. Bu əlaqə şəbəkə "
+"əməkdaşlarına məkana giriş vermir."
+
+#. Organization connection workflow.
+msgid "Запрос подтверждён"
+msgstr "Sorğu təsdiqlənib"
+
+#. Organization connection workflow.
+msgid "Запрос отклонён"
+msgstr "Sorğu rədd edilib"
+
+#. Organization connection workflow.
+msgid "Запрос отменён"
+msgstr "Sorğu ləğv edilib"
+
+#. Specialist entry workflow.
+msgid ""
+"Автор предложения, подтверждённый специалист и организация — разные стороны."
+" Место приёма указывается отдельно от сотрудничества."
+msgstr ""
+"Təklif müəllifi, şəxsiyyəti təsdiqlənmiş mütəxəssis və təşkilat ayrı "
+"tərəflərdir. Qəbul yeri əməkdaşlıqdan ayrı göstərilir."
+
+#. Specialist entry workflow.
+msgid "Восстановить ввод"
+msgstr "Daxil edilənləri bərpa et"
+
+#. Specialist entry workflow.
+msgid ""
+"Данные сервера изменились. Локальную копию нельзя восстановить поверх новой "
+"версии. Скопируйте нужный текст и обновите форму."
+msgstr ""
+"Server məlumatları dəyişib. Yerli nüsxəni yeni versiyanın üzərinə bərpa "
+"etmək olmaz. Lazım olan mətni köçürün və formanı yeniləyin."
+
+#. Specialist entry workflow.
+msgid ""
+"Есть несохранённая копия в этом браузере. Сравните её с данными сервера "
+"перед восстановлением."
+msgstr ""
+"Bu brauzerdə saxlanmamış nüsxə var. Bərpadan əvvəl onu server məlumatları "
+"ilə müqayisə edin."
+
+#. Specialist entry workflow.
+msgid ""
+"Есть несохранённые изменения. Копия ввода сохранена только в этом браузере."
+msgstr ""
+"Saxlanmamış dəyişikliklər var. Daxil edilənlərin nüsxəsi yalnız bu brauzerdə"
+" saxlanılıb."
+
+#. Specialist entry workflow.
+msgid "Изменения не сохранены. Проверьте ошибки."
+msgstr "Dəyişikliklər saxlanmadı. Xətaları yoxlayın."
+
+#. Specialist entry workflow.
+msgid "Изменение мест приёма недоступно вашей роли."
+msgstr "Rolunuz qəbul yerlərini redaktə edə bilməz."
+
+#. Specialist entry workflow.
+msgid ""
+"Документы личности приватны. Их проверка доступна только специально "
+"уполномоченному проверяющему."
+msgstr ""
+"Şəxsiyyət sənədləri məxfidir. Onları yalnız xüsusi səlahiyyətli yoxlayıcı "
+"yoxlaya bilər."
+
+#. Specialist entry workflow.
+msgid "Должность / вид сотрудничества"
+msgstr "Vəzifə / əməkdaşlıq növü"
+
+#. Specialist entry workflow.
+msgid "Место KidsMap"
+msgstr "KidsMap məkanı"
+
+#. Specialist entry workflow.
+msgid ""
+"Место приёма не подтверждает сотрудничество с организацией. Цена, телефон и "
+"расписание этого места сохраняются отдельно от общих данных профиля."
+msgstr ""
+"Qəbul yeri təşkilatla əməkdaşlığı təsdiqləmir. Bu yerin qiyməti, telefonu və"
+" cədvəli ümumi profil məlumatlarından ayrı saxlanılır."
+
+#. Specialist entry workflow.
+msgid ""
+"Для очного приёма нужны активное место, карточка KidsMap или собственный "
+"адрес и регион. Выключенные места остаются в истории."
+msgstr ""
+"Əyani qəbul üçün aktiv yer, KidsMap məkanı və ya şəxsi ünvan və bölgə "
+"lazımdır. Söndürülmüş yerlər tarixçədə qalır."
+
+#. Specialist entry workflow.
+msgid "Место приёма не принадлежит этому профилю."
+msgstr "Bu qəbul yeri bu profilə aid deyil."
+
+#. Specialist entry workflow.
+msgid "Можно добавить до 30 мест приёма."
+msgstr "30-a qədər qəbul yeri əlavə edə bilərsiniz."
+
+#. Specialist entry workflow.
+msgid "Добавить место приёма"
+msgstr "Qəbul yeri əlavə et"
+
+#. Specialist entry workflow.
+msgid "Отключить место приёма"
+msgstr "Qəbul yerini söndür"
+
+#. Specialist entry workflow.
+msgid "Проверьте места приёма."
+msgstr "Qəbul yerlərini yoxlayın."
+
+#. Specialist entry workflow.
+msgid "Выберите только одно основное место приёма."
+msgstr "Yalnız bir əsas qəbul yeri seçin."
+
+#. Specialist entry workflow.
+msgid "Рабочие копии предложений"
+msgstr "Təkliflərin iş nüsxələri"
+
+#. Specialist entry workflow.
+msgid "Продолжить предложение"
+msgstr "Təklifi davam etdir"
+
+#. Specialist entry workflow.
+msgid "Черновиков пока нет."
+msgstr "Hələ qaralama yoxdur."
+
+#. Specialist entry workflow.
+msgid "Предложение уже отправлено."
+msgstr "Təklif artıq göndərilib."
+
+#. Specialist entry workflow.
+msgid "Новое предложение ещё не сохранено"
+msgstr "Yeni təklif hələ saxlanmayıb"
+
+#. Specialist entry workflow.
+msgid "Новый профиль ещё не сохранён"
+msgstr "Yeni profil hələ saxlanmayıb"
+
+#. Specialist entry workflow.
+msgid "Сохранено на сервере"
+msgstr "Serverdə saxlanılıb"
+
+#. Specialist entry workflow.
+msgid "Сохранение… Дождитесь ответа сервера."
+msgstr "Saxlanılır… Serverin cavabını gözləyin."
+
+#. Specialist entry workflow.
+msgid ""
+"Сохранение черновика или отправка изменений снимает этот профиль с "
+"публикации до следующей проверки KidsMap."
+msgstr ""
+"Qaralama saxlanması və ya dəyişikliklərin göndərilməsi profili növbəti "
+"KidsMap yoxlamasına qədər dərcdən çıxarır."
+
+#. Specialist entry workflow.
+msgid ""
+"Черновик допускает неполные сведения. Отправка требует имени, формата, "
+"направления, описания, контакта, языка работы и активного места для очного "
+"приёма. Фото, стаж, цена и сертификаты необязательны."
+msgstr ""
+"Qaralama natamam ola bilər. Göndərmək üçün ad, format, istiqamət, təsvir, "
+"əlaqə, iş dili və əyani qəbul üçün aktiv yer lazımdır. Foto, staj, qiymət və"
+" sertifikatlar məcburi deyil."
+
+#. Specialist entry workflow.
+msgid ""
+"Необязательные публичные сведения. Языки этих текстов отличаются от языков "
+"консультации. Переводы автоматически не создаются."
+msgstr ""
+"İctimai profil üçün məcburi olmayan məlumatlar. Bu mətnlərin dilləri "
+"konsultasiya dillərindən ayrıdır. Tərcümələr avtomatik yaradılmır."
+
+#. Specialist entry workflow.
+msgid "Пусто — стаж не указан. 0 — нет полных лет опыта."
+msgstr "Boş — staj göstərilməyib. 0 — tam illik təcrübə yoxdur."
+
+#. Specialist entry workflow.
+msgid "Удалить локальную копию"
+msgstr "Yerli nüsxəni sil"
+
+#. Specialist entry workflow.
+msgid "Раздел формы"
+msgstr "Forma bölməsi"
+
+#. Specialist entry workflow.
+msgid "Поиск направлений"
+msgstr "İstiqamətləri axtar"
+
+#. Specialist entry workflow.
+msgid "Убрать направление"
+msgstr "İstiqaməti sil"
+
+#. Specialist entry workflow.
+msgid "Найдено"
+msgstr "Tapıldı"
+
+#. Specialist entry workflow.
+msgid "Личный профиль специалиста"
+msgstr "Mütəxəssisin şəxsi profili"
+
+#. Specialist entry workflow.
+msgid ""
+"Предложите профиль человека. Управление личными сведениями доступно "
+"специалисту после подтверждения личности."
+msgstr ""
+"Şəxsin profilini təklif edin. Şəxsi məlumatları mütəxəssis şəxsiyyəti "
+"təsdiqləndikdən sonra idarə edə bilər."
+
+#. Specialist entry workflow.
+msgid "Назад в кабинет"
+msgstr "Kabinetə qayıt"
+
+#. Specialist entry workflow.
+msgid "Языки описания"
+msgstr "Təsvir dilləri"
+
+#. Specialist entry workflow.
+msgid "Предыдущий шаг"
+msgstr "Əvvəlki addım"
+
+#. Specialist entry workflow.
+msgid "Следующий шаг"
+msgstr "Növbəti addım"
+
+#. Specialist entry workflow.
+msgid "Фотография профиля"
+msgstr "Profil fotosu"
+
+#. Specialist entry workflow.
+msgid "Добавить профиль специалиста"
+msgstr "Mütəxəssis profili əlavə et"
+
+#. Specialist entry workflow.
+msgid "Прежний владелец (не подтверждает личность)"
+msgstr "Əvvəlki sahib (şəxsiyyəti təsdiqləmir)"
+
+#. Specialist entry workflow.
+msgid "Подтверждённый специалист (аккаунт человека)"
+msgstr "Şəxsiyyəti təsdiqlənmiş mütəxəssis (şəxsin hesabı)"
+
+#. Owner Event entry workflow.
+msgid "Изменения не сохранены."
+msgstr "Dəyişikliklər saxlanılmayıb."
+
+#. Owner Event entry workflow.
+msgid "Статус:"
+msgstr "Status:"
+
+#. Owner Event entry workflow.
+msgid ""
+"Черновику нужны организатор и категория. Даты можно оставить пустыми "
+"целиком; если начать ввод, заполните весь интервал. Отправка требует всех "
+"отмеченных полей и фото. Карта необязательна."
+msgstr ""
+"Qaralama üçün təşkilatçı və kateqoriya lazımdır. Tarixlər tam boş qala "
+"bilər; daxil etməyə başlasanız, bütün intervalı doldurun. Göndərmək üçün "
+"işarələnmiş sahələr və foto lazımdır. Xəritə məcburi deyil."
+
+#. Owner Event entry workflow.
+msgid ""
+"Название и описание сохраняются на азербайджанском (AZ). Язык интерфейса не "
+"создаёт переводы."
+msgstr ""
+"Ad və təsvir azərbaycanca (AZ) saxlanılır. İnterfeys dili tərcümə yaratmır."
+
+#. Owner Event entry workflow.
+msgid "Есть несохранённая копия в этой вкладке"
+msgstr "Bu vərəqdə saxlanılmamış nüsxə var"
+
+#. Owner Event entry workflow.
+msgid "Оставить серверные данные"
+msgstr "Server məlumatlarını saxla"
+
+#. Owner Event entry workflow.
+msgid ""
+"Сохранение заблокировано: версия изменилась. Ваш ввод остаётся в форме. "
+"После обновления сравните копию с сервером; автоматической перезаписи нет."
+msgstr ""
+"Saxlama bloklanıb: versiya dəyişib. Daxil etdikləriniz formada qalır. "
+"Yenilədikdən sonra nüsxəni serverlə müqayisə edin; avtomatik üzərinə "
+"yazılmır."
+
+#. Owner Event entry workflow.
+msgid "Загрузить актуальную версию"
+msgstr "Aktual versiyanı yüklə"
+
+#. Owner Event entry workflow.
+msgid ""
+"Организатор закреплён за мероприятием и не меняется при редактировании. "
+"Площадка выбирается отдельно."
+msgstr ""
+"Təşkilatçı tədbirə bağlıdır və redaktədə dəyişmir. Məkan ayrıca seçilir."
+
+#. Owner Event entry workflow.
+msgid ""
+"Организатор — ваша действующая организация или профиль специалиста с "
+"подтверждённой связью с вашим аккаунтом. Автор предложения профиля не "
+"получает эти права."
+msgstr ""
+"Təşkilatçı sizin aktiv təşkilatınız və ya hesabınızla əlaqəsi təsdiqlənmiş "
+"mütəxəssis profilidir. Profil təklifinin müəllifi bu hüquqları almır."
+
+#. Owner Event entry workflow.
+msgid "Формат мероприятия"
+msgstr "Tədbirin formatı"
+
+#. Owner Event entry workflow.
+msgid "Площадка KidsMap или собственный адрес"
+msgstr "KidsMap məkanı və ya öz ünvanınız"
+
+#. Owner Event entry workflow.
+msgid "Физический адрес не требуется"
+msgstr "Fiziki ünvan lazım deyil"
+
+#. Owner Event entry workflow.
+msgid ""
+"Адрес и карта для онлайн-события не требуются. Условия записи и подключения "
+"согласуйте с участниками по контакту события."
+msgstr ""
+"Onlayn tədbir üçün ünvan və xəritə tələb olunmur. Qeydiyyat və qoşulma "
+"şərtlərini tədbirin əlaqə vasitəsi ilə iştirakçılarla razılaşdırın."
+
+#. Owner Event entry workflow.
+msgid ""
+"Площадка не меняет организатора и не даёт прав на место. Публичная карточка "
+"использует адрес выбранной площадки на момент утверждения. Для иного адреса "
+"выберите собственный."
+msgstr ""
+"Məkan təşkilatçını dəyişmir və məkan hüquqları vermir. Açıq kart təsdiq "
+"vaxtındakı məkan ünvanını istifadə edir. Başqa ünvan üçün öz ünvanınızı "
+"seçin."
+
+#. Owner Event entry workflow.
+msgid "Использовать телефон площадки"
+msgstr "Məkanın telefonunu istifadə et"
+
+#. Owner Event entry workflow.
+msgid "Где проходит мероприятие"
+msgstr "Tədbir harada keçirilir"
+
+#. Owner Event entry workflow.
+msgid "Перед отправкой"
+msgstr "Göndərməzdən əvvəl"
+
+#. Owner Event entry workflow.
+msgid ""
+"Список заполненных полей не заменяет серверную проверку значений и прав."
+msgstr ""
+"Doldurulmuş sahələr siyahısı serverin dəyər və hüquq yoxlamasını əvəz etmir."
+
+#. Owner Event entry workflow.
+msgid "В кабинет"
+msgstr "Kabinetə"
+
+#. Owner Event entry workflow.
+msgid ""
+"Отмена оставляет карточку и историю, но отмечает событие отменённым. Перенос"
+" меняет только интервал, сохраняет фото, формат и утверждённую площадку. "
+"Уведомления участникам и возвраты через KidsMap не выполняются."
+msgstr ""
+"Ləğv kartı və tarixçəni saxlayır, tədbiri ləğv edilmiş kimi göstərir. "
+"Köçürmə yalnız intervalı dəyişir; foto, format və təsdiqlənmiş məkan qalır. "
+"KidsMap iştirakçı bildirişləri və ödəniş qaytarılması etmir."
+
+#. Owner Event entry workflow.
+msgid "Мероприятие отменено. Перенос недоступен."
+msgstr "Tədbir ləğv edilib. Köçürmə mümkün deyil."
+
+#. Owner Event entry workflow.
+msgid ""
+"Перенос доступен только до начала неотменённого события. Для начавшегося или"
+" прошедшего нужен новый ID."
+msgstr ""
+"Yalnız başlamamış və ləğv edilməmiş tədbiri köçürmək olar. Başlamış və ya "
+"keçmiş tədbir üçün yeni ID lazımdır."
+
+#. Owner Event entry workflow.
+msgid "Новый интервал для переноса"
+msgstr "Köçürmə üçün yeni interval"
+
+#. Owner Event entry workflow.
+msgid "Проверьте причину и даты. Подтвердите действие отдельной кнопкой."
+msgstr "Səbəb və tarixləri yoxlayın. Əməliyyatı ayrıca düymə ilə təsdiqləyin."
+
+#. Owner Event entry workflow.
+msgid "Подтвердить отмену"
+msgstr "Ləğvi təsdiqlə"
+
+#. Owner Event entry workflow.
+msgid "Подтвердить перенос"
+msgstr "Köçürməni təsdiqlə"
+
+#. Owner Event entry workflow.
+msgid "Отмена / перенос"
+msgstr "Ləğv / köçürmə"
+
+#. Owner Event entry workflow.
+msgid "Название мероприятия (AZ)"
+msgstr "Tədbirin adı (AZ)"
+
+#. Owner Event entry workflow.
+msgid "Описание мероприятия (AZ)"
+msgstr "Tədbirin təsviri (AZ)"
+
+#. Owner Event entry workflow.
+msgid "Телефон мероприятия"
+msgstr "Tədbirin telefonu"
+
+#. Owner Event entry workflow.
+msgid "Площадка мероприятия"
+msgstr "Tədbirin məkanı"
+
+#. Owner Event entry workflow.
+msgid "Укажите телефон мероприятия / WhatsApp."
+msgstr "Tədbirin telefonunu / WhatsApp nömrəsini göstərin."
+
+#. Owner Event entry workflow.
+msgid "Новое начало (Asia/Baku)"
+msgstr "Yeni başlama (Asia/Baku)"
+
+#. Owner Event entry workflow.
+msgid "Новое окончание (Asia/Baku)"
+msgstr "Yeni bitmə (Asia/Baku)"
+
+#. Owner Event entry workflow.
+msgid "Мероприятие перенесено."
+msgstr "Tədbirin vaxtı dəyişdirildi."
+
+#. Owner Event entry workflow.
+msgid "Мероприятие отменено."
+msgstr "Tədbir ləğv edildi."
+
+#. Owner Event entry workflow.
+msgid ""
+"Действие отклонено: проверьте состояние мероприятия, причину и новый "
+"интервал. Начавшееся, прошедшее или отменённое мероприятие нельзя перенести;"
+" для него нужен новый ID."
+msgstr ""
+"Əməliyyat rədd edildi: tədbirin vəziyyətini, səbəbi və yeni intervalı "
+"yoxlayın. Başlamış, keçmiş və ya ləğv edilmiş tədbiri köçürmək olmaz; yeni "
+"ID lazımdır."
+
+#. Owner Event entry workflow.
+#, python-format
+msgid ""
+"JPG, PNG, WEBP, HEIC/HEIF: исходник до %(source)s МБ, %(pixels)s Мп, "
+"%(dimension)s px по стороне; после обработки до %(output)s МБ. HEIF зависит "
+"от доступности кодека."
+msgstr ""
+"JPG, PNG, WEBP, HEIC/HEIF: mənbə %(source)s MB, %(pixels)s MP, hər tərəf "
+"%(dimension)s px-dək; emaldan sonra %(output)s MB-dək. HEIF kodekin "
+"mövcudluğundan asılıdır."
+
+#. Owner Event entry workflow.
+msgid "Площадка недоступна — выберите другую или собственный адрес"
+msgstr "Məkan əlçatan deyil — başqa məkan və ya öz ünvanınızı seçin"
+
+#. Owner Event entry workflow.
+msgid "Главная фотография мероприятия"
+msgstr "Tədbirin əsas fotosu"
+
+#. Local content-entry finalization.
+#, python-format
+msgid "Показан исходный текст (%(language)s)."
+msgstr "İlkin mətn göstərilir (%(language)s)."
+
+#. Local content-entry finalization.
+msgid "Владелец назначен"
+msgstr "Sahib təyin edilib"
+
+#. Local content-entry finalization.
+msgid "Без владельца"
+msgstr "Sahib təyin edilməyib"
+
+#. Local content-entry finalization.
+msgid "JSON с группами"
+msgstr "Qruplarla JSON"
+
+#. Local content-entry finalization.
+msgid "Экспорт JSON с группами"
+msgstr "Qruplarla JSON ixracı"
+
+#: src/catalog/domain_admin/place.py:127
+msgid "Галерея изменилась. Обновите страницу."
+msgstr "Qalereya dəyişib. Səhifəni yeniləyin."
+
+# ORG-04 private detach review
+msgid "Карточка недоступна для просмотра. Подтверждение относится только к связи места."
+msgstr "Məkan kartına baxmaq mümkün deyil. Təsdiq yalnız məkanın əlaqəsinə aiddir."
+
+# ORG-04 private detach review
+msgid "Сетевой доступ прекратится; актуальные прямые разрешения сохранятся. Общие контакты перестанут наследоваться. Данные приватной карточки здесь не показываются."
+msgstr "Şəbəkə girişi dayandırılacaq; qüvvədə olan birbaşa icazələr saxlanacaq. Ümumi əlaqə məlumatları daha miras alınmayacaq. Özəl məkan kartının məlumatları burada göstərilmir."
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Создать отдельную организацию"
+msgstr "Ayrıca təşkilat yarat"
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Версия карточки"
+msgstr "Kartın versiyası"
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Версия изменений"
+msgstr "Dəyişikliklərin versiyası"
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Открыть актуальные данные"
+msgstr "Aktual məlumatları aç"
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Изменения уже сохранены в другой вкладке или другим редактором. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
+msgstr "Dəyişikliklər artıq başqa tabda və ya başqa redaktor tərəfindən saxlanılıb. Daxil etdiyiniz məlumatlar formada qalıb. Lazım olan mətni kopyalayın və yenidən göndərməzdən əvvəl aktual məlumatlarla müqayisə edin."
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Данные организации изменились после открытия формы. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
+msgstr "Forma açıldıqdan sonra təşkilatın məlumatları dəyişib. Daxil etdiyiniz məlumatlar formada qalıb. Lazım olan mətni kopyalayın və yenidən göndərməzdən əvvəl aktual məlumatlarla müqayisə edin."
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Форма устарела. Ваш ввод остался в форме. Скопируйте нужный текст, откройте актуальные данные и проверьте их перед повторной отправкой."
+msgstr "Forma köhnəlib. Daxil etdiyiniz məlumatlar formada qalıb. Lazım olan mətni kopyalayın, aktual məlumatları açın və yenidən göndərməzdən əvvəl yoxlayın."
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Связанные данные организации изменились. Ваш ввод остался в форме. Скопируйте нужный текст и сравните его с актуальными данными перед повторной отправкой."
+msgstr "Təşkilatla əlaqəli məlumatlar dəyişib. Daxil etdiyiniz məlumatlar formada qalıb. Lazım olan mətni kopyalayın və yenidən göndərməzdən əvvəl aktual məlumatlarla müqayisə edin."
+
+# ORG-06 owner organization form labels and conflict copy
+msgid "Не удалось отправить изменения. Ваш ввод остался в форме. Проверьте данные и повторите отправку."
+msgstr "Dəyişiklikləri göndərmək mümkün olmadı. Daxil etdiyiniz məlumatlar formada qalıb. Məlumatları yoxlayın və yenidən göndərin."
+
+# Specialist identity verification date in admin
+msgid "Дата подтверждения личности"
+msgstr "Şəxsiyyətin təsdiqlənmə tarixi"
+
+#: src/catalog/templates/admin/catalog/place/form/section_location.html
+msgid "Карта недоступна. Можно ввести координаты вручную или продолжить без точки."
+msgstr "Xəritə əlçatan deyil. Koordinatları əl ilə daxil edə və ya nöqtə olmadan davam edə bilərsiniz."
+
+#: src/catalog/templates/admin/catalog/place/form/section_location.html
+msgid "Не удалось определить геопозицию. Можно ввести координаты вручную или продолжить без точки."
+msgstr "Coğrafi mövqeyi müəyyən etmək mümkün olmadı. Koordinatları əl ilə daxil edə və ya nöqtə olmadan davam edə bilərsiniz."
+
+#: src/catalog/templates/admin/catalog/place/form/section_location.html
+msgid "Ваш браузер не поддерживает геолокацию. Можно ввести координаты вручную или продолжить без точки."
+msgstr "Brauzeriniz geolokasiyanı dəstəkləmir. Koordinatları əl ilə daxil edə və ya nöqtə olmadan davam edə bilərsiniz."
+
+#: src/catalog/templates/admin/catalog/place/form/section_location.html
+msgid "Указать координаты"
+msgstr "Koordinatları daxil et"
+
+#: src/catalog/templates/admin/catalog/place/form/section_location.html
+msgid "Скрыть координаты"
+msgstr "Koordinatları gizlət"
+
+
+msgid "Скрывает афишу, временные карточки, ссылки на них и добавление мероприятий в личном кабинете. Записи и их редактирование в админке сохраняются."
+msgstr "Tədbirlər siyahısını, müvəqqəti kartları, onlara keçidləri və şəxsi kabinetdə tədbir əlavə etməyi gizlədir. Qeydlər saxlanılır və idarəetmə panelində redaktə oluna bilər."
+
+msgid "Скрывает каталог организаций, их публичные страницы и блоки со ссылками на организации. Филиалы, данные, админка и кабинет организаций остаются доступны."
+msgstr "Təşkilatlar kataloqunu, təşkilatların ictimai səhifələrini və təşkilatlara keçid olan blokları gizlədir. Filiallar, məlumatlar, idarəetmə paneli və təşkilat kabinetləri əlçatan qalır."
+
+msgid "Показывать «Педагогов и специалистов»"
+msgstr "“Pedaqoqlar və mütəxəssislər” bölməsini göstər"
+
+msgid "Показывать «Организации»"
+msgstr "“Təşkilatlar” bölməsini göstər"
+
+msgid "Скрывает каталог специалистов, ссылки на него и добавление специалистов в личном кабинете. Записи и их редактирование в админке сохраняются."
+msgstr "Mütəxəssislər kataloqunu, ona keçidləri və şəxsi kabinetdə mütəxəssis əlavə etməyi gizlədir. Qeydlər saxlanılır və idarəetmə panelində redaktə oluna bilər."
+
+msgid "Галочка включена — раздел виден посетителям. Снимите галочку и нажмите «Сохранить», чтобы скрыть раздел до готовности. Данные не удаляются: редактирование в админке остаётся доступным. Чтобы вернуть раздел, поставьте галочку и сохраните снова."
+msgstr "Keçid aktiv olduqda bölmə ziyarətçilərə görünür. Bölmə hazır olana qədər onu gizlətmək üçün keçidi söndürün və “Yadda saxla” düyməsinə basın. Məlumatlar silinmir və idarəetmə panelində redaktə oluna bilər. Bölməni yenidən göstərmək üçün keçidi aktivləşdirin və yenidən yadda saxlayın."
+
+msgid "Показывать «Афишу»"
+msgstr "“Tədbirlər” bölməsini göstər"

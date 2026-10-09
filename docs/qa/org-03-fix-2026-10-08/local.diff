@@ -1,0 +1,201 @@
+--- a/static/js/organization_workspace.js
++++ b/static/js/organization_workspace.js
+@@ -97,9 +97,21 @@
+     });
+ 
+     create.addEventListener('submit', () => {
+-      // Clear key on submit
+-      try { sessionStorage.removeItem(key); } catch (_) {}
+-    });
++      // Native POST can fail; retain the exact submitted input until confirmed.
++      try {
++        sessionStorage.setItem(key, JSON.stringify(Object.fromEntries(createFields.map(name => [name, create.elements[name].value]))));
++      } catch (_) {}
++    });
++  }
++
++  const creationConfirmation = document.getElementById('org-create-confirmation');
++  if (creationConfirmation && workspaceEl) {
++    try {
++      const confirmed = JSON.parse(creationConfirmation.textContent);
++      const key = `kidsmap:org:create:${workspaceEl.dataset.userId || 'anon'}`;
++      const local = JSON.parse(sessionStorage.getItem(key) || 'null');
++      if (local && fields.every(name => local[name] === confirmed[name])) sessionStorage.removeItem(key);
++    } catch (_) { /* Preserve recovery if storage or confirmation is unavailable. */ }
+   }
+ 
+   // Edit organization form with debounced server draft
+--- a/src/catalog/controllers/organization_workspace.py
++++ b/src/catalog/controllers/organization_workspace.py
+@@ -225,7 +225,13 @@
+             try:
+                 org = organization_ownership.create_organization(actor=request.user, values=values,
+                     allow_separate=form.cleaned_data['allow_separate'])
+-                return redirect('organization_workspace_detail', org_id=org.pk)
++                # A nonce carries no form data in the URL and only acknowledges this successful POST.
++                token = uuid.uuid4().hex
++                request.session['organization_create_confirmation'] = {
++                    'token': token, 'organization_id': org.pk, 'actor_id': request.user.pk,
++                    'fields': {name: request.POST.get(name, '') for name in form.fields if name != 'allow_separate'},
++                }
++                return redirect(reverse('organization_workspace_detail', args=[org.pk]) + '?created=' + token)
+             except PermissionDenied: raise Http404
+             except ValidationError as exc:
+                 if getattr(exc, 'code', None) == 'possible_duplicate' or 'possible_duplicate' in str(exc):
+@@ -296,7 +302,14 @@
+ def organization_detail(request, org_id):
+     if not request.user.is_authenticated: return _login(request)
+     org = _organization(request, org_id)
+-    return render(request, 'pages/organization_workspace.html', _detail_context(request, org))
++    context = _detail_context(request, org)
++    receipt = request.session.get('organization_create_confirmation')
++    if (request.method == 'GET' and receipt
++            and receipt['token'] == request.GET.get('created')
++            and receipt['organization_id'] == org.pk and receipt['actor_id'] == request.user.pk):
++        context['organization_create_confirmation'] = receipt['fields']
++        del request.session['organization_create_confirmation']
++    return render(request, 'pages/organization_workspace.html', context)
+ 
+ 
+ def organization_branch(request, org_id, place_id):
+--- a/src/catalog/templates/pages/organization_workspace.html
++++ b/src/catalog/templates/pages/organization_workspace.html
+@@ -591,5 +591,6 @@
+     </main>
+   </div>
+ </div>
++{% if organization_create_confirmation %}{{ organization_create_confirmation|json_script:"org-create-confirmation" }}{% endif %}
+ <script src="{% static 'js/organization_workspace.js' %}" defer></script>
+ {% endblock %}
+--- /dev/null
++++ b/scripts/test_organization_creation_draft.cjs
+@@ -0,0 +1,52 @@
++// ORG-03: real browser script, with page navigation modelled by fresh DOMs.
++const {test} = require('node:test');
++const assert = require('node:assert/strict');
++const fs = require('node:fs');
++const path = require('node:path');
++const {JSDOM} = require('jsdom');
++const source = fs.readFileSync(path.join(__dirname, '../static/js/organization_workspace.js'), 'utf8');
++const names = ['name_az','name_ru','name_en','description_az','phone','whatsapp','website'];
++const key = 'kidsmap:org:create:2';
++const values = Object.fromEntries(names.map(n=>[n, n==='name_az'?'Fictional organization':'']));
++function page({local=null, confirmation=null, create=true, boundName='', user='2', unavailable=false}={}) {
++ const dom = new JSDOM(`<html lang="en"><div data-workspace="${create?'create':'detail'}" data-user-id="${user}">${create?`<form data-org-create-form>${names.map(n=>`<input name="${n}">`).join('')}<span data-create-status></span></form>`:''}</div>${confirmation?`<script type="application/json" id="org-create-confirmation">${JSON.stringify(confirmation)}</script>`:''}</html>`,{url:'http://localhost:8788',runScripts:'outside-only'});
++ const w=dom.window, form=w.document.querySelector('form');
++ if(local)w.sessionStorage.setItem(key,JSON.stringify(local));
++ if(form)form.elements.name_az.value=boundName;
++ if(unavailable)w.Storage.prototype.setItem=()=>{throw new Error('Storage unavailable');};
++ w.eval(source);
++ return {dom,w,form,local:()=>JSON.parse(w.sessionStorage.getItem(key)||'null'),
++  type(name,value){form.elements[name].value=value;form.elements[name].dispatchEvent(new w.Event('input',{bubbles:true}));},
++  submit(){return form.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));},
++  close(){w.close();}};
++}
++test('Native submit keeps input for reopening after a failed network POST',()=>{
++ const p=page();try{p.type('name_az','Latest unsent input');p.submit();
++  assert.equal(p.local()?.name_az,'Latest unsent input');
++  const reopened=page({local:p.local()});try{assert.equal(reopened.form.elements.name_az.value,'Latest unsent input');}finally{reopened.close();}
++ }finally{p.close();}
++});
++test('Submit captures autofilled values even without an input event',()=>{
++ const p=page();try{p.form.elements.name_az.value='Autofilled before failed submit';p.submit();assert.equal(p.local()?.name_az,'Autofilled before failed submit');}finally{p.close();}
++});
++test('Only confirmed creation of the matching input clears its local copy',()=>{
++ const p=page({create:false,local:values,confirmation:values});try{assert.equal(p.local(),null);}finally{p.close();}
++});
++test('Confirmation of older input cannot erase a newer local draft',()=>{
++ const p=page({create:false,local:{...values,phone:'Latest phone'},confirmation:values});try{assert.equal(p.local()?.phone,'Latest phone');}finally{p.close();}
++});
++test('A normal workspace visit without creation confirmation keeps the draft',()=>{
++ const p=page({create:false,local:values});try{assert.deepEqual(p.local(),values);}finally{p.close();}
++});
++test('400/409 bound forms preserve local recovery without replacing server values',()=>{
++ const p=page({local:{...values,name_en:'Local translation'},boundName:'Server bound value'});try{
++  assert.equal(p.form.elements.name_az.value,'Server bound value');assert.equal(p.form.elements.name_en.value,'Local translation');
++  assert.equal(p.local()?.name_en,'Local translation');p.submit();assert.equal(p.local()?.name_az,'Server bound value');
++ }finally{p.close();}
++});
++test('Confirmation never clears another user draft',()=>{
++ const p=page({create:false,user:'3',local:values,confirmation:values});try{assert.deepEqual(p.local(),values);}finally{p.close();}
++});
++test('Unavailable storage leaves native submission available',()=>{
++ const p=page({unavailable:true});try{p.form.elements.name_az.value='Still submitted';assert.equal(p.submit(),true);assert.equal(p.form.elements.name_az.value,'Still submitted');}finally{p.close();}
++});
+--- /dev/null
++++ b/src/catalog/testcases/test_organization_creation_confirmation.py
+@@ -0,0 +1,74 @@
++"""ORG-03: only a successful native create can acknowledge local recovery."""
++from urllib.parse import parse_qs, urlsplit
++
++from django.contrib.auth import get_user_model
++from django.test import Client, TestCase
++from django.urls import reverse
++
++from catalog.models import Organization
++
++
++class OrganizationCreationConfirmationTests(TestCase):
++    def setUp(self):
++        self.owner = get_user_model().objects.create_user(username='org03_owner')
++        self.stranger = get_user_model().objects.create_user(username='org03_stranger')
++        self.client.force_login(self.owner)
++        self.url = reverse('organization_workspace_create')
++        self.fields = dict(name_az='  ORG03 Fictional network  ', name_ru='Синтетическая сеть',
++            name_en='', description_az='  Original input  ', phone='', whatsapp='', website='')
++
++    def create(self):
++        response = self.client.post(self.url, self.fields)
++        self.assertEqual(response.status_code, 302)
++        return response['Location']
++
++    def test_success_acknowledges_exact_submitted_fields_once(self):
++        location = self.create()
++        self.assertEqual(Organization.objects.filter(owner=self.owner).count(), 1)
++        self.assertNotIn('Original', location)
++        response = self.client.get(location)
++        self.assertEqual(response.context.get('organization_create_confirmation'), self.fields)
++        self.assertContains(response, 'id="org-create-confirmation"')
++        self.assertFalse(response.context['organization'].places.exists())
++        repeated = self.client.get(location)
++        self.assertIsNone(repeated.context.get('organization_create_confirmation'))
++        self.assertNotContains(repeated, 'id="org-create-confirmation"')
++
++    def test_invalid_input_does_not_confirm_or_create(self):
++        response = self.client.post(self.url, {**self.fields, 'website':'not a URL'})
++        self.assertEqual(response.status_code, 400)
++        self.assertNotContains(response, 'id="org-create-confirmation"', status_code=400)
++        self.assertFalse(Organization.objects.filter(owner=self.owner).exists())
++        self.assertNotIn('organization_create_confirmation', self.client.session)
++
++    def test_duplicate_conflict_never_confirms_a_second_creation(self):
++        self.create()
++        response = self.client.post(self.url, self.fields)
++        self.assertEqual(response.status_code, 409)
++        self.assertNotContains(response, 'id="org-create-confirmation"', status_code=409)
++        self.assertEqual(Organization.objects.filter(owner=self.owner).count(), 1)
++
++    def test_forged_or_missing_nonce_cannot_confirm_and_does_not_consume_receipt(self):
++        location = self.create()
++        path = urlsplit(location).path
++        for url in [path, path+'?created=forged']:
++            response = self.client.get(url)
++            self.assertIsNone(response.context.get('organization_create_confirmation'))
++        self.assertEqual(self.client.get(location).context.get('organization_create_confirmation'), self.fields)
++
++    def test_receipt_is_bound_to_the_created_organization(self):
++        other = Organization.objects.create(owner=self.owner, created_by=self.owner, name_az='Other network')
++        location = self.create()
++        query = parse_qs(urlsplit(location).query)
++        self.assertIn('created', query)
++        token = query['created'][0]
++        wrong = self.client.get(reverse('organization_workspace_detail',args=[other.pk])+'?created='+token)
++        self.assertIsNone(wrong.context.get('organization_create_confirmation'))
++        self.assertEqual(self.client.get(location).context.get('organization_create_confirmation'), self.fields)
++
++    def test_other_user_cannot_read_creation_confirmation_or_organization(self):
++        location = self.create()
++        stranger_client = Client()
++        stranger_client.force_login(self.stranger)
++        self.assertEqual(stranger_client.get(location).status_code, 404)
++        self.assertEqual(self.client.get(location).context.get('organization_create_confirmation'), self.fields)

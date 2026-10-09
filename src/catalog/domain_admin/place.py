@@ -93,8 +93,46 @@ def place_quality_error_labels(errors) -> str:
     return format_place_quality_errors(errors)
 
 
+class CandidatePlacePhotoFormSet(forms.BaseInlineFormSet):
+    """Edit server-stored candidate files as extra forms; never invent live IDs."""
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance')
+        from catalog.models import VolunteerPlaceRevision
+        from catalog.services.publication_forms import gallery_for_edit
+        self.candidate_rows = None
+        if instance and instance.pk and VolunteerPlaceRevision.objects.filter(
+                place_id=instance.pk, status__in=['draft', 'pending', 'rejected']).exists():
+            self.candidate_rows = gallery_for_edit(instance)
+            kwargs['queryset'] = PlacePhoto.objects.none()
+        super().__init__(*args, **kwargs)
+        if self.candidate_rows is not None:
+            self.extra = len(self.candidate_rows)
+
+    def get_form_kwargs(self, index):
+        kwargs = super().get_form_kwargs(index)
+        if self.candidate_rows is not None and index is not None and index < len(self.candidate_rows):
+            row = self.candidate_rows[index]
+            kwargs['instance'] = PlacePhoto(place=self.instance, image=row['image'],
+                caption=row.get('caption', ''), order=row['order'])
+        return kwargs
+
+    def add_fields(self, form, index):
+        super().add_fields(form, index)
+        if self.candidate_rows is not None and index is not None and index < len(self.candidate_rows):
+            form.candidate_gallery_row = self.candidate_rows[index]
+
+    def clean(self):
+        super().clean()
+        if self.candidate_rows is not None and self.is_bound:
+            if self.initial_form_count() != 0 or self.total_form_count() < len(self.candidate_rows):
+                raise ValidationError(_('Галерея изменилась. Обновите страницу.'))
+            if any(form.cleaned_data.get('id') for form in self.forms):
+                raise ValidationError(_('Галерея изменилась. Обновите страницу.'))
+
+
 class PlacePhotoInline(admin.TabularInline):
     model = PlacePhoto
+    formset = CandidatePlacePhotoFormSet
     template = "admin/catalog/place/placephoto_inline.html"
     extra = 0
     max_num = 10
@@ -330,26 +368,6 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                         if issue.field in self.fields:
                             self.add_error(issue.field, issue.message)
 
-        # Verification is a separate promise to visitors: never trust the
-        # checkbox alone. Run the same server-side validator used by the
-        # manual admin check and by the bulk action.
-        verification_requested = bool(cleaned.get("is_verified")) and not bool(self.initial.get("is_verified"))
-        if verification_requested:
-            candidate = Place(pk=self.instance.pk)
-            for field_name in (
-                "age_from", "age_to", "photo", "cover_photo", "lat", "lng",
-                "district", "phone1", "phone2", "phone3", "instagram", "website", "price_from",
-                "name_az", "name_ru", "name_en", "description_az", "description_ru", "description_en",
-                "extra_conditions_az", "extra_conditions_ru", "extra_conditions_en",
-                "additional_info_az", "additional_info_ru", "additional_info_en",
-            ):
-                setattr(candidate, field_name, cleaned.get(field_name, getattr(self.instance, field_name, None)))
-            candidate.pricing_plans = cleaned.get("pricing_plans", [])
-            validation = validate_place_card(candidate)
-            for issue in validation.errors:
-                self.add_error(issue.field if issue.field in self.fields else None, issue.message)
-            self.card_validation_warnings = validation.warnings
-
         return cleaned
 
     def __init__(self, *args, **kwargs):
@@ -357,6 +375,17 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             from catalog.services.publication_forms import candidate_for_edit
             kwargs["instance"]=candidate_for_edit(kwargs["instance"])
         super().__init__(*args, **kwargs)
+        if self.is_bound and self.instance.pk:
+            from catalog.services.publication_forms import candidate_for_edit
+            candidate = candidate_for_edit(self.instance)
+            # No upload means keep the saved candidate, not the live file.
+            # ClearableFileInput still handles explicit removal and replacement.
+            for name in ("photo", "cover_photo"):
+                value = getattr(candidate, name)
+                self.initial[name] = value
+                # An empty saved candidate must also replace the live value:
+                # FileField.save_form_data(None) otherwise leaves it unchanged.
+                setattr(self.instance, name, value)
         from catalog.services.publication_forms import init_version_field
         init_version_field(self)
         # The order only matters for places selected for the home page. Keep
@@ -514,9 +543,21 @@ class BakuEventDateTimeField(forms.DateTimeField):
 
 
 class EventAdminForm(forms.ModelForm):
+    expected_updated_at = forms.CharField(required=False, widget=forms.HiddenInput())
     DATETIME_LOCAL_FORMAT = ADMIN_DATETIME_LOCAL_FORMAT
     PICKER_DATETIME_FORMAT = "%Y-%m-%d %H:%M"
     require_location_region = False
+
+    PUBLICATION_CHECKLIST = (
+        ("name", _("Название")),
+        ("category", _("Категория")),
+        ("description_az", _("Описание (AZ)")),
+        ("start_datetime", _("Дата начала")),
+        ("end_datetime", _("Дата окончания")),
+        ("address", _("Адрес")),
+        ("phone", _("Телефон")),
+        ("photo", _("Фото")),
+    )
 
     # The custom admin template renders one text input per date. Declaring the
     # fields prevents ModelAdmin from replacing them with SplitDateTimeField,
@@ -576,6 +617,12 @@ class EventAdminForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        if self.instance.pk and self.check_version:
+            # ModelAdmin change POST is atomic; retain the lock through parent,
+            # inline and publication writes instead of checking after save_model.
+            locked = Event.objects.select_for_update().get(pk=self.instance.pk)
+            if self.data.get('expected_updated_at', '') != locked.updated_at.isoformat():
+                raise forms.ValidationError(_('Запись изменилась. Обновите страницу.'), code='stale_version')
         from catalog.services.locations import clean_location_fields
         cleaned = clean_location_fields(self, cleaned)
         # The widgets display minutes. An unchanged displayed value must retain
@@ -606,16 +653,7 @@ class EventAdminForm(forms.ModelForm):
         status_published = getattr(self.instance, "STATUS_PUBLISHED", "published")
         wants_publication = is_active or status == status_published or "_publish_event" in self.data
         if wants_publication and not skips_publish_validation:
-            checklist = (
-                ("name", _("Название")),
-                ("category", _("Категория")),
-                ("description_az", _("Описание (AZ)")),
-                ("start_datetime", _("Дата начала")),
-                ("end_datetime", _("Дата окончания")),
-                ("address", _("Адрес")),
-                ("phone", _("Телефон")),
-                ("photo", _("Фото")),
-            )
+            checklist = self.PUBLICATION_CHECKLIST
             missing = []
             for field_name, label in checklist:
                 if field_name == "address" and cleaned.get("event_format") == Event.FORMAT_ONLINE:
@@ -648,8 +686,11 @@ class EventAdminForm(forms.ModelForm):
         except (ValidationError, PermissionDenied) as exc:
             self.add_error(None, ValidationError(str(exc)))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, check_version=True, **kwargs):
+        self.check_version = check_version
         super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            self.initial['expected_updated_at'] = self.instance.updated_at.isoformat()
         from catalog.services.locations import configure_location_choices, init_location_fields
         init_location_fields(self, self.instance)
         configure_location_choices(self)
@@ -1185,7 +1226,7 @@ class EventAdmin(admin.ModelAdmin):
     def _event_visibility_state(self, obj=None):
         if obj is None or not getattr(obj, "pk", None):
             return {
-                "label": str(_("Черновик")),
+                "label": str(_("Новая карточка")),
                 "tone": "muted",
                 "hint": str(_("Мероприятие ещё не опубликовано на сайте.")),
                 "is_public": False,
@@ -1254,35 +1295,59 @@ class EventAdmin(admin.ModelAdmin):
         return missing
 
     def _build_event_form_summary(self, *, form, obj=None, add=False):
-        checklist = (
-            ("name", _("Название")),
-            ("category", _("Категория")),
-            ("description_az", _("Описание (AZ)")),
-            ("start_datetime", _("Дата начала")),
-            ("end_datetime", _("Дата окончания")),
-            ("address", _("Адрес")),
-            ("phone", _("Телефон")),
-            ("photo", _("Фото")),
-        )
-        completed = 0
+        # Probe the actual publication form, without mutating the displayed model
+        # or writing anything. This includes organizer/venue/domain validation.
+        from copy import copy
+        probe_data = form.data.copy() if form.is_bound else {
+            name: form[name].value() for name in form.fields
+            if name != "photo"
+        }
+        for action in ("_save_draft", "_unpublish_event"):
+            probe_data.pop(action, None)
+        probe_data["_publish_event"] = "1"
+        probe = type(form)(data=probe_data, files=form.files, instance=copy(form.instance), check_version=False)
+        server_ready = probe.is_valid()
+        event_format = probe_data.get("event_format") or form.instance.event_format
+        checklist = list(EventAdminForm.PUBLICATION_CHECKLIST)
+        # The domain service additionally requires the AZ title and an organizer.
+        checklist.append(("name_az", _("Название (Азербайджанский)")))
+        checklist_items = []
         missing = []
-        missing_fields = set()
         for field_name, label in checklist:
-            is_open_ended_age = field_name == "age_to" and self._field_has_value(form, "age_open_ended", obj=obj)
-            if is_open_ended_age or self._field_has_value(form, field_name, obj=obj):
-                completed += 1
-            else:
-                field_id = "id_name_az" if field_name == "name" else f"id_{field_name}"
-                missing.append({
-                    "label": str(label),
-                    "field_id": field_id
-                })
-                missing_fields.add(field_name)
-
-        total = len(checklist)
+            initial = self._field_has_value(form, field_name, obj=obj)
+            if field_name == "name":
+                initial = bool(probe_data.get("name") or getattr(form.instance, "name", ""))
+            item = {
+                "field_name": field_name, "input_id": f"id_{field_name}",
+                "label": str(label), "initial": initial,
+            }
+            if field_name == "photo":
+                item["stored_photo"] = bool(form.initial.get("photo"))
+            if field_name == "address":
+                item["physical_only"] = True
+            checklist_items.append(item)
+            if (field_name != "address" or event_format != Event.FORMAT_ONLINE) and not initial:
+                missing.append({"label": str(label), "field_id": item["input_id"]})
+        organizer_fields = ("organizer_organization", "organizer_specialist")
+        organizer_count = sum(bool(probe_data.get(name)) for name in organizer_fields)
+        organizer_item = {
+            "field_name": "organizer", "input_id": "id_organizer_organization",
+            "input_ids": [f"id_{name}" for name in organizer_fields],
+            "label": str(_("Организатор")), "initial": organizer_count == 1,
+        }
+        checklist_items.append(organizer_item)
+        if not organizer_item["initial"]:
+            missing.append({"label": organizer_item["label"], "field_id": organizer_item["input_id"]})
+        total = len(checklist_items) - (event_format == Event.FORMAT_ONLINE)
+        completed = total - len(missing)
         completion_pct = round(completed / total * 100) if total else 0
+        if not server_ready:
+            completion_pct = min(completion_pct, 99)
         error_count = len(form.errors)
-        visibility = self._event_visibility_state(obj)
+        # Bound ModelForms mutate instance before rejecting a POST. Lifecycle
+        # must describe the saved card, rather than that rejected candidate.
+        saved_obj = Event.objects.filter(pk=obj.pk).first() if form.is_bound and obj is not None and obj.pk else obj
+        visibility = self._event_visibility_state(saved_obj)
         title = str(_("Новое мероприятие"))
         state_badges = [{"label": visibility["label"], "tone": visibility["tone"]}]
         meta_items = []
@@ -1291,8 +1356,8 @@ class EventAdmin(admin.ModelAdmin):
             title = obj.name_ru or obj.name or title
             state_badges.append(
                 {
-                    "label": str(obj.get_status_display()),
-                    "tone": "good" if obj.status == obj.STATUS_PUBLISHED else "muted",
+                    "label": str(saved_obj.get_status_display()),
+                    "tone": "good" if saved_obj.status == saved_obj.STATUS_PUBLISHED else "muted",
                 }
             )
             if obj.start_datetime:
@@ -1340,18 +1405,13 @@ class EventAdmin(admin.ModelAdmin):
             "total": total,
             "error_count": error_count,
             "visibility": visibility,
-            "checklist_items": [
-                {
-                    "field_name": field_name,
-                    "input_id": "id_name_az" if field_name == "name" else f"id_{field_name}",
-                    "label": str(label),
-                    "initial": field_name not in missing_fields,
-                }
-                for field_name, label in checklist
-            ],
-            "missing": missing[:5],
-            "readiness_label": str(_("Готово к публикации")) if not missing else str(_("Нужна доработка")),
-            "readiness_tone": "good" if not missing else "warn",
+            "progress_items": checklist_items,
+            "checklist_items": [item for item in checklist_items if not (item.get("physical_only") and event_format == Event.FORMAT_ONLINE)],
+            "missing": missing,
+            "server_ready": server_ready,
+            "publication_errors": list(probe.errors.values()),
+            "readiness_label": str(_("Готово к публикации")) if server_ready else str(_("Нужна доработка")),
+            "readiness_tone": "good" if server_ready else "warn",
             "state_badges": state_badges,
             "meta_items": meta_items,
         }
@@ -1737,7 +1797,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "is_home_recommended",
         "home_recommended_order",
         "is_active",
-        "is_verified",
+
         "status",
         "rejection_reason",
         "last_verified_at",
@@ -1787,7 +1847,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "organization",
         "is_active",
         "is_home_recommended",
-        "is_verified",
+
         "status",
         "age_from",
         "age_to",
@@ -1817,7 +1877,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "coordinates_status_display",
         "map_ready_status_display",
         "quality_status_display",
-        "last_verified_at_display",
+
         "published_at_display",
         "deleted_at",
         "deleted_by",
@@ -1906,7 +1966,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "extra_conditions", "extra_conditions_az", "extra_conditions_ru", "extra_conditions_en",
         "additional_info", "additional_info_az", "additional_info_ru", "additional_info_en",
         "photo",
-        "is_active", "is_verified", "is_home_recommended", "home_recommended_order",
+        "is_active", "is_home_recommended", "home_recommended_order",
         "status", "rejection_reason", "owner",
     })
 
@@ -1981,7 +2041,7 @@ class PlaceAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "is_active",
-                    "is_verified",
+
                     ("is_home_recommended", "home_recommended_order"),
                     "status",
                     "rejection_reason",
@@ -1995,7 +2055,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 "classes": ("collapse",),
                 "fields": (
                     "cover_photo",
-                    "last_verified_at_display",
+
                     "published_at_display",
                     "lifecycle_status_display",
                     "quality_status_display",
@@ -2104,6 +2164,8 @@ class PlaceAdmin(admin.ModelAdmin):
         return TemplateResponse(request, self.volunteer_revision_change_form_template, context)
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
+        from catalog.services.permanent_place_wizard import ui_copy
+        context["km_place_entry_copy"] = ui_copy()
         context["google_maps_api_key"] = getattr(settings, "GOOGLE_MAPS_API_KEY", "")
         context["km_place_draft_save_failed"] = "_save_draft" in request.POST and bool(context.get("errors"))
         fallback_url = reverse(
@@ -2125,6 +2187,10 @@ class PlaceAdmin(admin.ModelAdmin):
             context["km_admin_back_url"] = fallback_url
         adminform = context.get("adminform")
         if adminform is not None:
+            displayed_form = adminform.form
+            if not displayed_form.is_bound and displayed_form.instance.pk and 'nested_pricing' in displayed_form.fields and not displayed_form.initial.get('nested_pricing'):
+                from catalog.services.pricing_plans import serialize_nested_pricing
+                displayed_form.initial['nested_pricing'] = json.dumps(serialize_nested_pricing(displayed_form.instance), ensure_ascii=False)
             inline_admin_formsets = context.get("inline_admin_formsets", [])
             context["km_place_gallery_inline"] = next(
                 (
@@ -2637,6 +2703,10 @@ class PlaceAdmin(admin.ModelAdmin):
         # A bound form already decided this in ``clean()``; reuse that verdict so
         # the rendered page cannot disagree with the save that just happened.
         readiness = getattr(form, "place_readiness", None) or evaluate_form_readiness(form, instance)
+        if not form.is_bound:
+            from catalog.services.permanent_place_rules import readiness_presentation_snapshot
+            displayed = readiness_presentation_snapshot(form)
+            readiness = evaluate_form_readiness(displayed, displayed.instance)
         # The main photo can be satisfied by a stored cover photo the browser
         # cannot inspect. Tell the live checklist, or it would contradict the
         # server and show a green card as incomplete. Legacy scalar prices are
@@ -2780,13 +2850,14 @@ class PlaceAdmin(admin.ModelAdmin):
         }
 
     actions = (
+        "connect_to_organization",
         "mark_active",
         "mark_inactive",
         "mark_home_recommended",
         "unmark_home_recommended",
         "mark_draft",
-        "mark_verified",
-        "mark_unverified",
+
+
         "mark_pending",
         "mark_published",
         "mark_rejected",
@@ -2850,7 +2921,7 @@ class PlaceAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "is_active",
-                    "is_verified",
+
                     ("is_home_recommended", "home_recommended_order"),
                     "status",
                     "rejection_reason",
@@ -2865,7 +2936,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 "classes": ("collapse",),
                 "fields": (
                     "cover_photo",
-                    "last_verified_at_display",
+
                     "published_at_display",
                     "created_at",
                     "updated_at",
@@ -3511,12 +3582,6 @@ class PlaceAdmin(admin.ModelAdmin):
             )
             badges.append(self._render_place_state_badge(label=status_label, tone=status_tone))
 
-        badges.append(
-            self._render_place_state_badge(
-                label=_("Проверено") if obj.is_verified else _("Без проверки"),
-                tone="good" if obj.is_verified else "warn",
-            )
-        )
         meta_bits: list[str] = []
         if obj.is_temporary:
             meta_bits.append(str(_("Временное")))
@@ -3687,7 +3752,28 @@ class PlaceAdmin(admin.ModelAdmin):
     def get_actions(self, request):
         actions = super().get_actions(request)
         actions.pop("delete_selected", None)
+        from catalog.services.staff_roles import is_volunteer
+        if is_volunteer(request.user): actions.pop('connect_to_organization',None)
         return actions
+
+    def has_connection_permission(self,request):
+        from catalog.services.staff_roles import is_volunteer
+        from catalog.services.organization_ownership import _reviewer
+        if is_volunteer(request.user) or not self.has_view_permission(request):return False
+        if self.has_change_permission(request):return True
+        try:_reviewer(request.user)
+        except PermissionDenied:return False
+        return True
+
+    def connect_to_organization(self,request,queryset):
+        from catalog.domain_admin.organization_connections import connect_to_organization
+        return connect_to_organization(self,request,queryset)
+    connect_to_organization.short_description = _('Подключить к организации')
+    connect_to_organization.allowed_permissions = ['connection']
+
+    def organization_connections_view(self,request):
+        from catalog.domain_admin.organization_connections import organization_connections_view
+        return organization_connections_view(self,request)
 
     def place_state_rules(self, obj: Place, user) -> dict[str, tuple[str, str]]:
         """One transition matrix for row actions; labels stay visible when disabled."""
@@ -4170,6 +4256,7 @@ class PlaceAdmin(admin.ModelAdmin):
     def get_urls(self):
         from catalog.controllers.location_resolution import location_resolve
         custom_urls = [
+            path('organization-connections/',self.admin_site.admin_view(self.organization_connections_view),name=f'{self.opts.app_label}_{self.opts.model_name}_organization_connections'),
             path("location/resolve/", self.admin_site.admin_view(location_resolve), name=f"{self.opts.app_label}_{self.opts.model_name}_location_resolve"),
             path("url-preview/", self.admin_site.admin_view(self.localized_url_preview_view), name=f"{self.opts.app_label}_{self.opts.model_name}_url_preview"),
             path(
@@ -4806,6 +4893,7 @@ class PlaceAdmin(admin.ModelAdmin):
             "km_total_places_count": dashboard_counts.get("quick_all", 0),
             "km_total_trash_count": dashboard_counts.get("quick_deleted", 0),
             "place_bulk_actions": self._place_trash_bulk_actions() if is_trash else self._place_bulk_actions(),
+            "km_can_connect_organization": not is_trash and 'connect_to_organization' in self.get_actions(request),
             "km_is_trash_changelist": is_trash,
             "km_changelist_reset_url": "?deleted_state=deleted" if is_trash else "?",
             "km_place_quality_report_url": (
@@ -4930,55 +5018,7 @@ class PlaceAdmin(admin.ModelAdmin):
             level=messages.SUCCESS if updated_count else messages.WARNING,
         )
 
-    @admin.action(description=_("Отметить как проверенные"))
-    def mark_verified(self, request, queryset):
-        now = timezone.now()
-        updated_count = 0
-        blocked_count = 0
-        for place in queryset.prefetch_related("gallery", "schedule_days__intervals", "pricing_plan_records"):
-            validation = validate_place_card(place)
-            if validation.errors:
-                blocked_count += 1
-                continue
-            place.is_verified = True
-            if place.last_verified_at is None:
-                place.last_verified_at = now
-            place.save(update_fields=["is_verified", "last_verified_at", "updated_at"])
-            updated_count += 1
-        self.message_user(
-            request,
-            ngettext(
-                "Отмечена как проверенная %(count)d карточка.",
-                "Отмечено как проверенные %(count)d карточки.",
-                updated_count,
-            )
-            % {"count": updated_count},
-            level=messages.SUCCESS if updated_count else messages.WARNING,
-        )
-        if blocked_count:
-            self.message_user(
-                request,
-                ngettext(
-                    "%(count)d карточка не отмечена: есть ошибки качества.",
-                    "%(count)d карточки не отмечены: есть ошибки качества.",
-                    blocked_count,
-                ) % {"count": blocked_count},
-                level=messages.WARNING,
-            )
 
-    @admin.action(description=_("Снять отметку проверки"))
-    def mark_unverified(self, request, queryset):
-        updated_count = queryset.update(is_verified=False, updated_at=timezone.now())
-        self.message_user(
-            request,
-            ngettext(
-                "Снята отметка проверки у %(count)d карточки.",
-                "Снята отметка проверки у %(count)d карточек.",
-                updated_count,
-            )
-            % {"count": updated_count},
-            level=messages.SUCCESS if updated_count else messages.WARNING,
-        )
 
     @admin.action(description=_("Опубликовать выбранные карточки"))
     def mark_published(self, request, queryset):
@@ -5456,7 +5496,7 @@ class PlaceAdmin(admin.ModelAdmin):
 @admin.register(PlaceReviewsByClub)
 class PlaceReviewsByClubAdmin(admin.ModelAdmin):
     list_display = ("display_name", "visible_review_count", "visible_rating_avg", "reviews_link", "updated_at")
-    list_filter = ("category", "district", "is_active", "is_verified")
+    list_filter = ("category", "district", "is_active")
     search_fields = ("name_ru", "name_en", "name_az", "name")
     ordering = ()
     readonly_fields = ("rating_count", "rating_avg")

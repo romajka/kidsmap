@@ -5,57 +5,208 @@
 {% block title_plain %}{{ seo_title }}{% endblock %}
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}">{% endblock %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=4">{% endblock %}
 {% block content %}
-<section class="panel events-hero" id="events-hero"><div class="events-hero__copy"><h1>{{ events_heading }}</h1><p>{{ events_intro }}</p><div class="events-hero__stat"><span class="events-icon events-icon-stats" aria-hidden="true"></span><strong>{{ events_stat_label }}</strong></div></div></section>
+<div class="events-page-wrap">
+  <section class="panel events-hero" id="events-hero">
+    <div class="events-hero__copy">
+      <div class="events-hero-badge">
+        <span class="material-symbols-rounded" aria-hidden="true">celebration</span>
+        <span>KidsMap · {{ events_heading }}</span>
+      </div>
+      <h1>{{ events_heading }}</h1>
+      <p class="events-hero-desc">{{ events_intro }}</p>
+      <div class="events-hero__stat">
+        <span class="material-symbols-rounded events-hero-stat-icon" aria-hidden="true">event_available</span>
+        <strong>{{ events_stat_label }}</strong>
+      </div>
+    </div>
+    <div class="events-hero-aside" aria-hidden="true">
+      <div class="events-hero-card">
+        <div class="events-hero-card-icon">
+          <span class="material-symbols-rounded">local_activity</span>
+        </div>
+        <div class="events-hero-card-info">
+          <strong>{% if language == 'az' %}Canlı və maraqlı tədbirlər{% elif language == 'en' %}Live and exciting events{% else %}Интересные события для детей{% endif %}</strong>
+          <span>{% if language == 'az' %}Hər həftə yeni master-klaslar, tamaşalar və açıq dərslər{% elif language == 'en' %}New workshops, shows and classes every week{% else %}Мастер-классы, спектакли и открытые уроки в Баку{% endif %}</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<details class="events-filters" id="events-filters" {% if has_active_filters %}open{% endif %}>
-  <summary class="events-filters__toggle">{% if language == 'az' %}Axtarış və filtrlər{% elif language == 'en' %}Search and filters{% else %}Поиск и фильтры{% endif %}</summary>
-  <form class="events-filters__body" method="get" action="{% url 'events_landing' %}">
-    <input type="hidden" name="view" value="{{ events_mode }}">
-    {% if selected.month %}<input type="hidden" name="month" value="{{ selected.month }}">{% endif %}
-    {% if selected.date %}<input type="hidden" name="date" value="{{ selected.date }}">{% endif %}
-    {% if selected.date_from %}<input type="hidden" name="date_from" value="{{ selected.date_from }}">{% endif %}
-    {% if selected.date_to %}<input type="hidden" name="date_to" value="{{ selected.date_to }}">{% endif %}
-    {% if selected.date_filter %}<input type="hidden" name="date_filter" value="{{ selected.date_filter }}">{% endif %}
-    <label>{% if language == 'az' %}Axtarış{% elif language == 'en' %}Search{% else %}Поиск{% endif %}<input class="events-filter-input" name="q" value="{{ selected.q }}" placeholder="{{ events_search_placeholder }}" maxlength="500"></label>
-    <label>{% if language == 'az' %}Kateqoriya{% elif language == 'en' %}Category{% else %}Категория{% endif %}<select class="events-filter-select" name="category"><option value="">{% if language == 'az' %}Hamısı{% elif language == 'en' %}All{% else %}Все{% endif %}</option>{% for category in categories %}<option value="{{ category.value }}" {% if selected.category == category.value %}selected{% endif %}>{{ category.label }}</option>{% endfor %}</select></label>
-    <label>{% if language == 'az' %}Format{% elif language == 'en' %}Format{% else %}Формат{% endif %}<select class="events-filter-select" name="format"><option value="">{% if language == 'az' %}Hamısı{% elif language == 'en' %}All{% else %}Все{% endif %}</option>{% for value,label in event_format_choices %}<option value="{{ value }}" {% if selected.format == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
-    <label>{% if language == 'az' %}Minimum yaş{% elif language == 'en' %}Minimum age{% else %}Возраст от{% endif %}<input class="events-filter-input" type="number" name="age_from" value="{{ selected.age_from }}" min="0" max="120"></label>
-    <label>{% if language == 'az' %}Maksimum yaş{% elif language == 'en' %}Maximum age{% else %}Возраст до{% endif %}<input class="events-filter-input" type="number" name="age_to" value="{{ selected.age_to }}" min="0" max="120"></label>
-    <label>{% if language == 'az' %}Rayon{% elif language == 'en' %}District{% else %}Район{% endif %}<select class="events-filter-select" name="district"><option value="">{% if language == 'az' %}Hamısı{% elif language == 'en' %}All{% else %}Все{% endif %}</option>{% for option in district_options %}<option value="{{ option.value }}" {% if selected.district == option.value %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></label>
-    <label>{% if language == 'az' %}Sıralama{% elif language == 'en' %}Sort{% else %}Сортировка{% endif %}<select class="events-filter-select" name="sort"><option value="date">{% if language == 'az' %}Tarixə görə{% elif language == 'en' %}By date{% else %}По дате{% endif %}</option><option value="new" {% if selected.sort == 'new' %}selected{% endif %}>{% if language == 'az' %}Yeni əlavə olunanlar{% elif language == 'en' %}Recently added{% else %}Недавно добавленные{% endif %}</option></select></label>
-    <label class="events-free-control"><input type="checkbox" name="free" value="1" {% if selected.free %}checked{% endif %}>{% if language == 'az' %}Yalnız pulsuz{% elif language == 'en' %}Free only{% else %}Только бесплатные{% endif %}</label>
-    <button class="events-card-btn events-card-btn--primary" type="submit">{% if language == 'az' %}Göstər{% elif language == 'en' %}Show events{% else %}Показать{% endif %}</button>
-    <a class="events-card-btn" href="{% url 'events_landing' %}">{% if language == 'az' %}Sıfırla{% elif language == 'en' %}Reset{% else %}Сбросить{% endif %}</a>
-  </form>
-</details>
+  <div class="events-hub">
+    <div class="events-hub-top">
+      <nav class="events-quick-chips" aria-label="{% if language == 'az' %}Sürətli filtrlər{% elif language == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
+        <a class="events-chip{% if selected.date_filter == 'today' %} events-chip--active{% endif %}" data-events-quick="today" href="{{ events_quick_urls.today }}">
+          <span class="material-symbols-rounded events-chip-icon" aria-hidden="true">today</span>
+          <span>{% if language == 'az' %}Bu gün{% elif language == 'en' %}Today{% else %}Сегодня{% endif %}</span>
+        </a>
+        <a class="events-chip{% if selected.date_filter == 'tomorrow' %} events-chip--active{% endif %}" data-events-quick="tomorrow" href="{{ events_quick_urls.tomorrow }}">
+          <span class="material-symbols-rounded events-chip-icon" aria-hidden="true">event</span>
+          <span>{% if language == 'az' %}Sabah{% elif language == 'en' %}Tomorrow{% else %}Завтра{% endif %}</span>
+        </a>
+        <a class="events-chip{% if selected.date_filter == 'this_week' %} events-chip--active{% endif %}" data-events-quick="this_week" href="{{ events_quick_urls.this_week }}">
+          <span class="material-symbols-rounded events-chip-icon" aria-hidden="true">date_range</span>
+          <span>{% if language == 'az' %}Bu həftə{% elif language == 'en' %}This week{% else %}На этой неделе{% endif %}</span>
+        </a>
+        <a class="events-chip{% if selected.date_filter == 'weekend' %} events-chip--active{% endif %}" data-events-quick="weekend" href="{{ events_quick_urls.weekend }}">
+          <span class="material-symbols-rounded events-chip-icon" aria-hidden="true">weekend</span>
+          <span>{% if language == 'az' %}Həftəsonu{% elif language == 'en' %}Weekend{% else %}Выходные{% endif %}</span>
+        </a>
+        <a class="events-chip{% if selected.free %} events-chip--active{% endif %}" data-events-quick="free" href="{{ events_quick_urls.free }}">
+          <span class="material-symbols-rounded events-chip-icon" aria-hidden="true">savings</span>
+          <span>{% if language == 'az' %}Pulsuz{% elif language == 'en' %}Free{% else %}Бесплатно{% endif %}</span>
+        </a>
+      </nav>
 
-<nav class="events-quick-chips" aria-label="{% if language == 'az' %}Sürətli filtrlər{% elif language == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
-  <a class="events-chip{% if selected.date_filter == 'today' %} events-chip--active{% endif %}" data-events-quick="today" href="{{ events_quick_urls.today }}">{% if language == 'az' %}Bu gün{% elif language == 'en' %}Today{% else %}Сегодня{% endif %}</a>
-  <a class="events-chip{% if selected.date_filter == 'tomorrow' %} events-chip--active{% endif %}" data-events-quick="tomorrow" href="{{ events_quick_urls.tomorrow }}">{% if language == 'az' %}Sabah{% elif language == 'en' %}Tomorrow{% else %}Завтра{% endif %}</a>
-  <a class="events-chip{% if selected.date_filter == 'this_week' %} events-chip--active{% endif %}" data-events-quick="this_week" href="{{ events_quick_urls.this_week }}">{% if language == 'az' %}Bu həftə{% elif language == 'en' %}This week{% else %}На этой неделе{% endif %}</a>
-  <a class="events-chip{% if selected.date_filter == 'weekend' %} events-chip--active{% endif %}" data-events-quick="weekend" href="{{ events_quick_urls.weekend }}">{% if language == 'az' %}Həftəsonu{% elif language == 'en' %}Weekend{% else %}Выходные{% endif %}</a>
-  <a class="events-chip{% if selected.free %} events-chip--active{% endif %}" data-events-quick="free" href="{{ events_quick_urls.free }}">{% if language == 'az' %}Pulsuz{% elif language == 'en' %}Free{% else %}Бесплатно{% endif %}</a>
-</nav>
-<nav class="events-mode" id="events-mode" aria-label="{% if language == 'az' %}Görünüş{% elif language == 'en' %}View{% else %}Вид{% endif %}">
-  <a class="events-card-btn{% if events_mode == 'list' %} events-card-btn--primary{% endif %}" data-events-mode="list" href="{{ events_mode_urls.list }}" {% if events_mode == 'list' %}aria-current="page"{% endif %}>{% if language == 'az' %}Siyahı{% elif language == 'en' %}List{% else %}Список{% endif %}</a>
-  <a class="events-card-btn{% if events_mode == 'calendar' %} events-card-btn--primary{% endif %}" data-events-mode="calendar" href="{{ events_mode_urls.calendar }}" {% if events_mode == 'calendar' %}aria-current="page"{% endif %}>{% if language == 'az' %}Təqvim{% elif language == 'en' %}Calendar{% else %}Календарь{% endif %}</a>
-</nav>
-{% if events_mode == 'calendar' %}
-  {% include 'catalog/includes/event_calendar.html' %}
-{% else %}
-  <details class="events-period"><summary>{% if language == 'az' %}Tarix aralığı{% elif language == 'en' %}Date range{% else %}Период{% endif %}</summary>
-    <form class="events-filters__body" method="get" action="{% url 'events_landing' %}">
-      <input type="hidden" name="view" value="list">
-      {% for key,value in selected.items %}{% if value and key != 'view' and key != 'month' and key != 'date' and key != 'date_filter' and key != 'date_from' and key != 'date_to' %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endif %}{% endfor %}
-      <label>{% if language == 'az' %}Başlanğıc tarix{% elif language == 'en' %}From date{% else %}С даты{% endif %}<input class="events-filter-input" type="date" name="date_from" value="{{ selected.date_from }}"></label>
-      <label>{% if language == 'az' %}Son tarix{% elif language == 'en' %}To date{% else %}По дату{% endif %}<input class="events-filter-input" type="date" name="date_to" value="{{ selected.date_to }}"></label>
-      <button class="events-card-btn events-card-btn--primary" type="submit">{% if language == 'az' %}Göstər{% elif language == 'en' %}Show events{% else %}Показать{% endif %}</button>
-    </form>
-  </details>
-  <section id="events-feed" class="events-feed"><p class="events-results-count">{{ results_count_label }}</p><div class="events-list-v2">{% for event in events %}{% include 'catalog/includes/event_listing_card.html' %}{% empty %}<p class="events-empty" role="status">{% if language == 'az' %}Bu filtrlərə uyğun tədbir yoxdur.{% elif language == 'en' %}No events match these filters.{% else %}По этим фильтрам событий нет.{% endif %}</p>{% endfor %}</div></section>
-  {% if page_obj.paginator.num_pages > 1 %}<nav class="pagination" aria-label="{% trans 'Пагинация' %}">{% if page_obj.has_previous %}<a class="page-nav" href="?{{ query_without_page }}&page={{ page_obj.previous_page_number }}">{% trans 'Назад' %}</a>{% endif %}<span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>{% if page_obj.has_next %}<a class="page-nav" href="?{{ query_without_page }}&page={{ page_obj.next_page_number }}">{% trans 'Вперед' %}</a>{% endif %}</nav>{% endif %}
-{% endif %}
+      <nav class="events-mode" id="events-mode" aria-label="{% if language == 'az' %}Görünüş{% elif language == 'en' %}View{% else %}Вид{% endif %}">
+        <a class="events-mode-btn events-card-btn{% if events_mode == 'list' %} events-card-btn--primary events-mode-btn--active{% endif %}" data-events-mode="list" href="{{ events_mode_urls.list }}" {% if events_mode == 'list' %}aria-current="page"{% endif %}>
+          <span class="material-symbols-rounded" aria-hidden="true">view_list</span>
+          <span>{% if language == 'az' %}Siyahı{% elif language == 'en' %}List{% else %}Список{% endif %}</span>
+        </a>
+        <a class="events-mode-btn events-card-btn{% if events_mode == 'calendar' %} events-card-btn--primary events-mode-btn--active{% endif %}" data-events-mode="calendar" href="{{ events_mode_urls.calendar }}" {% if events_mode == 'calendar' %}aria-current="page"{% endif %}>
+          <span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>
+          <span>{% if language == 'az' %}Təqvim{% elif language == 'en' %}Calendar{% else %}Календарь{% endif %}</span>
+        </a>
+      </nav>
+    </div>
+
+    <details class="events-filters" id="events-filters" {% if has_active_filters %}open{% endif %}>
+      <summary class="events-filters__toggle">
+        <span class="material-symbols-rounded events-filters__toggle-icon" aria-hidden="true">tune</span>
+        <span>{% if language == 'az' %}Axtarış və filtrlər{% elif language == 'en' %}Search and filters{% else %}Поиск и фильтры{% endif %}</span>
+        {% if has_active_filters %}<span class="events-filters__badge" aria-hidden="true"></span>{% endif %}
+      </summary>
+      <form class="events-filters__body" method="get" action="{% url 'events_landing' %}">
+        <input type="hidden" name="view" value="{{ events_mode }}">
+        {% if selected.month %}<input type="hidden" name="month" value="{{ selected.month }}">{% endif %}
+        {% if selected.date %}<input type="hidden" name="date" value="{{ selected.date }}">{% endif %}
+        {% if selected.date_from %}<input type="hidden" name="date_from" value="{{ selected.date_from }}">{% endif %}
+        {% if selected.date_to %}<input type="hidden" name="date_to" value="{{ selected.date_to }}">{% endif %}
+        {% if selected.date_filter %}<input type="hidden" name="date_filter" value="{{ selected.date_filter }}">{% endif %}
+        <label>
+          <span>{% if language == 'az' %}Axtarış{% elif language == 'en' %}Search{% else %}Поиск{% endif %}</span>
+          <input class="events-filter-input" name="q" value="{{ selected.q }}" placeholder="{{ events_search_placeholder }}" maxlength="500">
+        </label>
+        <label>
+          <span>{% if language == 'az' %}Kateqoriya{% elif language == 'en' %}Category{% else %}Категория{% endif %}</span>
+          <select class="events-filter-select" name="category"><option value="">{% if language == 'az' %}Hamısı{% elif language == 'en' %}All{% else %}Все{% endif %}</option>{% for category in categories %}<option value="{{ category.value }}" {% if selected.category == category.value %}selected{% endif %}>{{ category.label }}</option>{% endfor %}</select>
+        </label>
+        <label>
+          <span>{% if language == 'az' %}Format{% elif language == 'en' %}Format{% else %}Формат{% endif %}</span>
+          <select class="events-filter-select" name="format"><option value="">{% if language == 'az' %}Hamısı{% elif language == 'en' %}All{% else %}Все{% endif %}</option>{% for value,label in event_format_choices %}<option value="{{ value }}" {% if selected.format == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+        </label>
+        <label>
+          <span>{% if language == 'az' %}Minimum yaş{% elif language == 'en' %}Minimum age{% else %}Возраст от{% endif %}</span>
+          <input class="events-filter-input" type="number" name="age_from" value="{{ selected.age_from }}" min="0" max="120" placeholder="0">
+        </label>
+        <label>
+          <span>{% if language == 'az' %}Maksimum yaş{% elif language == 'en' %}Maximum age{% else %}Возраст до{% endif %}</span>
+          <input class="events-filter-input" type="number" name="age_to" value="{{ selected.age_to }}" min="0" max="120" placeholder="18">
+        </label>
+        <label>
+          <span>{% if language == 'az' %}Rayon{% elif language == 'en' %}District{% else %}Район{% endif %}</span>
+          <select class="events-filter-select" name="district"><option value="">{% if language == 'az' %}Hamısı{% elif language == 'en' %}All{% else %}Все{% endif %}</option>{% for option in district_options %}<option value="{{ option.value }}" {% if selected.district == option.value %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select>
+        </label>
+        <label>
+          <span>{% if language == 'az' %}Sıralama{% elif language == 'en' %}Sort{% else %}Сортировка{% endif %}</span>
+          <select class="events-filter-select" name="sort"><option value="date">{% if language == 'az' %}Tarixə görə{% elif language == 'en' %}By date{% else %}По дате{% endif %}</option><option value="new" {% if selected.sort == 'new' %}selected{% endif %}>{% if language == 'az' %}Yeni əlavə olunanlar{% elif language == 'en' %}Recently added{% else %}Недавно добавленные{% endif %}</option></select>
+        </label>
+        <label class="events-free-control">
+          <input type="checkbox" name="free" value="1" {% if selected.free %}checked{% endif %}>
+          <span>{% if language == 'az' %}Yalnız pulsuz{% elif language == 'en' %}Free only{% else %}Только бесплатные{% endif %}</span>
+        </label>
+        <div class="events-filters__actions-row">
+          <button class="events-card-btn events-card-btn--primary events-btn-submit" type="submit">
+            <span class="material-symbols-rounded" aria-hidden="true">check</span>
+            <span>{% if language == 'az' %}Göstər{% elif language == 'en' %}Show events{% else %}Показать{% endif %}</span>
+          </button>
+          <a class="events-card-btn events-btn-reset" href="{% url 'events_landing' %}">
+            <span>{% if language == 'az' %}Sıfırla{% elif language == 'en' %}Reset{% else %}Сбросить{% endif %}</span>
+          </a>
+        </div>
+      </form>
+    </details>
+  </div>
+
+  {% if events_mode == 'calendar' %}
+    {% include 'catalog/includes/event_calendar.html' %}
+  {% else %}
+    <details class="events-period">
+      <summary>
+        <span class="material-symbols-rounded events-period-icon" aria-hidden="true">date_range</span>
+        <span>{% if language == 'az' %}Tarix aralığı{% elif language == 'en' %}Date range{% else %}Период дат{% endif %}</span>
+      </summary>
+      <form class="events-filters__body events-period__body" method="get" action="{% url 'events_landing' %}">
+        <input type="hidden" name="view" value="list">
+        {% for key,value in selected.items %}{% if value and key != 'view' and key != 'month' and key != 'date' and key != 'date_filter' and key != 'date_from' and key != 'date_to' %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endif %}{% endfor %}
+        <label>
+          <span>{% if language == 'az' %}Başlanğıc tarix{% elif language == 'en' %}From date{% else %}С даты{% endif %}</span>
+          <input class="events-filter-input" type="date" name="date_from" value="{{ selected.date_from }}">
+        </label>
+        <label>
+          <span>{% if language == 'az' %}Son tarix{% elif language == 'en' %}To date{% else %}По дату{% endif %}</span>
+          <input class="events-filter-input" type="date" name="date_to" value="{{ selected.date_to }}">
+        </label>
+        <button class="events-card-btn events-card-btn--primary" type="submit">
+          <span class="material-symbols-rounded" aria-hidden="true">check</span>
+          <span>{% if language == 'az' %}Göstər{% elif language == 'en' %}Show events{% else %}Показать{% endif %}</span>
+        </button>
+      </form>
+    </details>
+
+    <section id="events-feed" class="events-feed">
+      <div class="events-results-header">
+        <p class="events-results-count">{{ results_count_label }}</p>
+      </div>
+      <div class="events-list-v2">
+        {% for event in events %}
+          {% include 'catalog/includes/event_listing_card.html' %}
+        {% empty %}
+          <div class="km-state-card km-state-card--filter" role="status">
+            <div class="km-state-card__icon-box">
+              <span class="material-symbols-rounded km-state-card__icon" aria-hidden="true">{% if request.GET %}event_busy{% else %}calendar_today{% endif %}</span>
+            </div>
+            <h2 class="km-state-card__title">
+              {% if request.GET %}
+                {% if language == 'az' %}Bu filtrlərə uyğun tədbir yoxdur{% elif language == 'en' %}No events match these filters{% else %}По этим фильтрам событий нет{% endif %}
+              {% else %}
+                {% if language == 'az' %}Afişada hələ qarşıdakı tədbir yoxdur{% elif language == 'en' %}No upcoming events in the calendar yet{% else %}В афише пока нет предстоящих мероприятий{% endif %}
+              {% endif %}
+            </h2>
+            <p class="km-state-card__desc">
+              {% if request.GET %}
+                {% if language == 'az' %}Tarix aralığını və ya digər filtrləri dəyişərək yenidən yoxlayın.{% elif language == 'en' %}Try changing the date range or other filter criteria.{% else %}Попробуйте выбрать другие даты или сбросить фильтры.{% endif %}
+              {% else %}
+                {% if language == 'az' %}Tezliklə yeni ustad dərsləri və festivallar əlavə olunacaq. Siz daimi dərslər kataloquna baxa bilərsiniz.{% elif language == 'en' %}New masterclasses and festivals will be added soon. You can explore regular clubs and activities.{% else %}Скоро появятся новые мастер-классы и праздники. Вы можете посмотреть регулярные кружки и секции в каталоге.{% endif %}
+              {% endif %}
+            </p>
+            <div class="km-state-card__actions">
+              {% if request.GET %}
+                <a class="km-state-btn km-state-btn--primary" href="{% url 'events_landing' %}">
+                  <span class="material-symbols-rounded" aria-hidden="true">filter_alt_off</span>
+                  <span>{% if language == 'az' %}Filtrləri sıfırla{% elif language == 'en' %}Reset filters{% else %}Сбросить фильтры{% endif %}</span>
+                </a>
+              {% else %}
+                <a class="km-state-btn km-state-btn--primary" href="{% url 'place_list' %}">
+                  <span class="material-symbols-rounded" aria-hidden="true">explore</span>
+                  <span>{% if language == 'az' %}Kataloqa keç{% elif language == 'en' %}Browse places{% else %}Перейти в каталог заведений{% endif %}</span>
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="pagination" aria-label="{% trans 'Пагинация' %}">
+      {% if page_obj.has_previous %}<a class="page-nav" href="?{{ query_without_page }}&page={{ page_obj.previous_page_number }}">{% trans 'Назад' %}</a>{% endif %}
+      <span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a class="page-nav" href="?{{ query_without_page }}&page={{ page_obj.next_page_number }}">{% trans 'Вперед' %}</a>{% endif %}
+    </nav>
+    {% endif %}
+  {% endif %}
+</div>
 {% endblock %}
 {% block extra_body %}<script src="{% static 'js/temporary_event_timer.js' %}"></script>{% endblock %}

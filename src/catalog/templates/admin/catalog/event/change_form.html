@@ -6,7 +6,9 @@
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_admin_form_shell.css' %}?v=8">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_location.css' %}?v=1">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <script src="{% static 'admin/js/kidsmap_admin_form_shell.js' %}?v=15" defer></script>
+  <script src="{% static 'admin/js/kidsmap_admin_form_shell.js' %}?v=16" defer></script>
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_event_form.css' %}?v=1">
+  <script src="{% static 'admin/js/kidsmap_event_readiness.js' %}?v=1" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
   <script src="{% static 'js/kidsmap_datetime_picker.js' %}?v=2" defer></script>
   <script src="{% static 'admin/js/kidsmap_event_datetime.js' %}?v=1" defer></script>
@@ -20,13 +22,16 @@
   {# The shared photo inline renders SVG icon references. #}
   {% include "admin/catalog/includes/km_icon_sprite.html" %}
   <div id="content-main" class="km-place-form-page">
-    {{ km_event_form_summary.checklist_items|json_script:"km-admin-progress-config" }}
+    {{ km_event_form_summary.progress_items|json_script:"km-admin-progress-config" }}
     <form
       {% if has_file_field %}enctype="multipart/form-data"{% endif %}
       {% if form_url %}action="{{ form_url }}"{% endif %}
       method="post"
       id="{{ opts.model_name }}_form"
       novalidate
+      data-event-readiness
+      data-server-ready="{{ km_event_form_summary.server_ready|yesno:'true,false' }}"
+      data-progress-review-label="{% translate 'Требуется серверная проверка' %}"
       data-km-admin-form
       data-progress-ready-label="{{ km_event_form_summary.readiness_label }}"
       data-progress-ready-tone="{{ km_event_form_summary.readiness_tone }}"
@@ -38,6 +43,7 @@
       data-rejected-status="{{ adminform.form.instance.STATUS_REJECTED|default:'rejected' }}"
     >
       {% csrf_token %}
+      {{ adminform.form.expected_updated_at }}
       {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
       {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
 
@@ -271,6 +277,12 @@
                 </div>
               {% endif %}
 
+              {% if km_event_form_summary.publication_errors %}
+                <details class="km-place-sidebar-checklist-wrap" data-event-server-errors>
+                  <summary>{% translate "Требования публикации" %}</summary>
+                  {% for error in km_event_form_summary.publication_errors %}{{ error }}{% endfor %}
+                </details>
+              {% endif %}
               <details class="km-place-sidebar-checklist-wrap">
                 <summary>{% translate "Что ещё заполнить" %}</summary>
                 <ul class="km-place-sidebar-checklist" data-progress-missing-list {% if not km_event_form_summary.missing %}hidden{% endif %}>

@@ -1,0 +1,166 @@
+{
+  "rows": [
+    {
+      "id": "focus-overlay/owner/768",
+      "status": "FAIL",
+      "active": "description_az",
+      "rect": {
+        "top": 882.59375,
+        "bottom": 952.59375,
+        "height": 70
+      },
+      "point": {
+        "x": 384,
+        "y": 912.59375
+      },
+      "coveredBy": "<footer class=\"pc-actions\"><button type=\"submit\" name=\"form_action\" value=\"save_draft\" formnovalidate=\"\">Применить изменения</button><button type=\"submit\" name=\"form_action\" value=\"save_and_publish\" class=\"pw-primary\" data-pc-submit=\"\">Отправить на модерацию</button></footer>",
+      "uncovered": false,
+      "fixed": [
+        {
+          "class": "toast-stack",
+          "rect": {
+            "top": 18,
+            "bottom": 18
+          },
+          "text": ""
+        },
+        {
+          "class": "km-drawer-wrapper",
+          "rect": {
+            "top": 0,
+            "bottom": 950
+          },
+          "text": ""
+        },
+        {
+          "class": "km-back-to-top",
+          "rect": {
+            "top": 832.0999755859375,
+            "bottom": 869.8999633789062
+          },
+          "text": ""
+        }
+      ],
+      "navigation": [
+        {
+          "tag": "SELECT",
+          "text": "О месте\nАдрес и контакты\nЗанятия и цены\nФото и проверка",
+          "attrs": [
+            [
+              "data-pc-section-select",
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "focus-overlay/owner/390",
+      "status": "PASS",
+      "active": "description_az",
+      "rect": {
+        "top": 451.515625,
+        "bottom": 521.515625,
+        "height": 70
+      },
+      "point": {
+        "x": 181,
+        "y": 481.515625
+      },
+      "coveredBy": "<textarea name=\"description_az\" cols=\"40\" rows=\"2\" class=\"field\" aria-describedby=\"id_description_az_helptext id_description_az_help id_description_az_errors id_description_az_client_error\" id=\"id_description_az\">Yerli sınaq üçün uydurma rəsm filialı. Burada uşaqlar şəkil çəkir və yaradıcılıq dərslərinə qoşulur. Giriş qaydaları və dərslərin cədvəli ayrılıqda göstərilir.</textarea>",
+      "uncovered": true,
+      "fixed": [
+        {
+          "class": "toast-stack",
+          "rect": {
+            "top": 938,
+            "bottom": 938
+          },
+          "text": ""
+        },
+        {
+          "class": "km-drawer-wrapper",
+          "rect": {
+            "top": 0,
+            "bottom": 950
+          },
+          "text": ""
+        },
+        {
+          "class": "km-back-to-top is-visible",
+          "rect": {
+            "top": 814,
+            "bottom": 856
+          },
+          "text": ""
+        }
+      ],
+      "navigation": [
+        {
+          "tag": "SELECT",
+          "text": "О месте\nАдрес и контакты\nЗанятия и цены\nФото и проверка",
+          "attrs": [
+            [
+              "data-pc-section-select",
+              ""
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "focus-overlay/moderator/768",
+      "status": "PASS",
+      "active": "description_az",
+      "rect": {
+        "top": 455.734375,
+        "bottom": 690.609375,
+        "height": 234.875
+      },
+      "point": {
+        "x": 424,
+        "y": 485.734375
+      },
+      "coveredBy": "<textarea name=\"description_az\" cols=\"40\" rows=\"10\" class=\"vLargeTextField\" id=\"id_description_az\" aria-describedby=\"id_description_az_errors\">Uşaqlar üçün təhlükəsiz və maraqlı yaradıcılıq dərsləri. Bu yalnız yerli qəbul sınağı üçün uydurma məkandır.</textarea>",
+      "uncovered": true,
+      "fixed": [
+        {
+          "class": "main-sidebar elevation-4 sidebar-dark-success km-admin-sidebar",
+          "rect": {
+            "top": 0,
+            "bottom": 950
+          },
+          "text": ""
+        }
+      ],
+      "navigation": []
+    },
+    {
+      "id": "focus-overlay/moderator/390",
+      "status": "PASS",
+      "active": "description_az",
+      "rect": {
+        "top": 541.78125,
+        "bottom": 776.65625,
+        "height": 234.875
+      },
+      "point": {
+        "x": 195,
+        "y": 571.78125
+      },
+      "coveredBy": "<textarea name=\"description_az\" cols=\"40\" rows=\"10\" class=\"vLargeTextField\" id=\"id_description_az\" aria-describedby=\"id_description_az_errors\">Uşaqlar üçün təhlükəsiz və maraqlı yaradıcılıq dərsləri. Bu yalnız yerli qəbul sınağı üçün uydurma məkandır.</textarea>",
+      "uncovered": true,
+      "fixed": [
+        {
+          "class": "main-sidebar elevation-4 sidebar-dark-success km-admin-sidebar",
+          "rect": {
+            "top": 0,
+            "bottom": 950
+          },
+          "text": ""
+        }
+      ],
+      "navigation": []
+    }
+  ]
+}

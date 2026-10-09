@@ -93,6 +93,11 @@
 
 {% block result_list %}
   <div class="place-admin-dashboard km-admin-root">
+    {% if km_can_connect_organization %}
+      <p><button type="submit" name="connection_selection" value="1" formnovalidate
+          formaction="{% url 'admin:catalog_place_organization_connections' %}" formmethod="post"
+          class="km-bulk-btn km-bulk-btn--outline">{% translate 'Подключить к организации' %}</button></p>
+    {% endif %}
     {% if action_form and actions_on_top and cl.show_admin_actions %}
       <div class="place-admin-dashboard__native-actions km-place-native-actions" aria-hidden="true">{% admin_actions %}</div>
     {% endif %}

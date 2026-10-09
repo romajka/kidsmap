@@ -1,0 +1,43 @@
+[
+  {
+    "id": "CE-RA-01",
+    "priority": "P3",
+    "status": "FIXED LOCAL",
+    "scope": "specialist admin identity date label only"
+  },
+  {
+    "id": "CE-C-01",
+    "priority": "P2",
+    "status": "OPEN",
+    "role": "demo_moderator",
+    "url": "http://localhost:8790/admin/catalog/place/151/change/",
+    "expected": "Saved candidate cover survives publish without new upload",
+    "actual": "Candidate cover cleared on bound POST and published without photo",
+    "source": "src/catalog/domain_admin/place.py:373 / publication_forms.save_form",
+    "evidence": [
+      "admin-new-photo",
+      "admin-photo-before-publish-390.png",
+      "admin-photo-after-publish-390.png",
+      "admin-photo-probe.json"
+    ],
+    "confidence": "high",
+    "fix_prompt": "../content-completion-2026-10-09.md section3"
+  },
+  {
+    "id": "CE-C-02",
+    "priority": "P3",
+    "status": "OPEN",
+    "role": "demo_moderator",
+    "url": "http://localhost:8790/admin/catalog/place/151/change/",
+    "expected": "Map copy reflects optional coordinate requirement",
+    "actual": "Copy calls coordinates mandatory; server excludes coordinates; published lat/lngNULL",
+    "source": "src/catalog/templates/admin/catalog/place/form/section_location.html:59 / src/catalog/services/place_readiness.py:462",
+    "evidence": [
+      "map-copy",
+      "map-required-copy-390.png",
+      "map-required-copy-1440.png"
+    ],
+    "confidence": "high",
+    "fix_prompt": "../content-completion-2026-10-09.md section3"
+  }
+]

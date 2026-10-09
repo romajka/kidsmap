@@ -2317,9 +2317,10 @@
 
 .km-pf .km-pf-btngroup {
   display: inline-flex;
+  max-width: 100%;
+  flex-wrap: wrap;
   border: 1px solid var(--pf-border);
   border-radius: 9px;
-  overflow: hidden;
   background: var(--pf-surface);
 }
 
@@ -2327,8 +2328,11 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 38px;
-  padding: 0 14px;
+  min-height: 44px;
+  height: auto;
+  padding: 10px 14px;
+  white-space: normal;
+  line-height: 1.4;
   border: 0;
   border-left: 1px solid var(--pf-border);
   background: transparent;
@@ -4279,6 +4283,13 @@
   .km-pf .km-pf__legend { display: none; }
 }
 
+@media (max-height: 500px) {
+  .km-pf .km-pf__stickybar {
+    position: static !important;
+  }
+}
+
+
 
 /* --------------------------------------------------------------------------
    24. Unified Modals and Toasts
@@ -4581,3 +4592,217 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ── Business change-form: related links grid ────────────────────── */
+.km-business-links-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* Ensure buttons work outside the .km-pf shell context */
+.km-business-links-grid .km-pf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 6px;
+  border: 1px solid var(--pf-border, #d0d7d3);
+  background: var(--pf-surface, #fff);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pf-text-2, #3d4d45);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+}
+
+.km-business-links-grid .km-pf-btn:hover {
+  background: var(--pf-surface-2, #f4f7f5);
+  border-color: var(--pf-field-hover, #9eb8a8);
+  color: var(--pf-text, #1a2620);
+  text-decoration: none;
+}
+
+/* ── Business change-form: clean cards, tables and action buttons ──── */
+.change-form section.km-pf-group {
+  background: var(--km-admin-panel-bg, #ffffff);
+  border: 1px solid var(--km-admin-border, #e2e8f0);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.change-form section.km-pf-group h2 {
+  color: var(--km-admin-text-primary, #1e293b);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--km-admin-border, #e2e8f0);
+}
+
+.change-form section.km-pf-group p {
+  color: var(--km-admin-text-muted, #64748b);
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.change-form section.km-pf-group table.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0 16px;
+  border: 1px solid var(--km-admin-border, #e2e8f0);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.change-form section.km-pf-group table.table th,
+.change-form section.km-pf-group table.table td {
+  padding: 10px 14px;
+  border: 1px solid var(--km-admin-border, #e2e8f0);
+  text-align: left;
+  font-size: 13px;
+}
+
+.change-form section.km-pf-group table.table thead th {
+  background: var(--km-admin-bg, #f4f6f9);
+  font-weight: 600;
+  color: var(--km-admin-text-primary, #1e293b);
+  border-bottom: 2px solid var(--km-admin-border, #e2e8f0);
+}
+
+.change-form section.km-pf-group table.table tbody tr:hover {
+  background: var(--km-admin-bg, #f8fafc);
+}
+
+.change-form section.km-pf-group input[type="email"] {
+  display: block;
+  max-width: 420px;
+  width: 100%;
+  height: 38px;
+  padding: 8px 12px;
+  border: 1px solid var(--km-admin-border, #e2e8f0);
+  border-radius: 8px;
+  margin: 6px 0 14px;
+  font-size: 13.5px;
+}
+
+.change-form section.km-pf-group label {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--km-admin-text-primary, #1e293b);
+}
+
+.change-form section.km-pf-group .km-pf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 8px;
+  border: 1px solid var(--km-admin-border, #e2e8f0);
+  background: var(--km-admin-surface, #ffffff);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--km-admin-text-2, #3d4d45);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 140ms ease;
+}
+
+.change-form section.km-pf-group .km-pf-btn--primary {
+  background: var(--km-admin-primary, #009a4e);
+  border-color: var(--km-admin-primary, #009a4e);
+  color: #ffffff;
+}
+
+.change-form section.km-pf-group .km-pf-btn--primary:hover {
+  background: var(--km-admin-accent-strong, #008f46);
+  border-color: var(--km-admin-accent-strong, #008f46);
+  color: #ffffff;
+}
+
+.change-form section.km-pf-group .km-pf-btn--ghost:hover {
+  background: var(--km-admin-bg, #f4f7f5);
+  border-color: var(--km-admin-field-hover, #9eb8a8);
+  color: var(--km-admin-text-primary, #1a2620);
+}
+
+.change-form .submit-row button[name="_save_draft"],
+.change-form .submit-row button[name="_submit_candidate"] {
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid var(--km-admin-border, #e2e8f0);
+  transition: all 0.2s ease;
+  margin-left: 8px;
+}
+
+.change-form .submit-row button[name="_submit_candidate"] {
+  background: var(--km-admin-primary, #009a4e);
+  color: #ffffff;
+  border-color: var(--km-admin-primary, #009a4e);
+}
+
+.change-form .submit-row button[name="_submit_candidate"]:hover {
+  background: var(--km-admin-accent-strong, #008f46);
+}
+
+.change-form .submit-row button[name="_save_draft"] {
+  background: #ffffff;
+  color: var(--km-admin-text-primary, #1e293b);
+}
+
+.change-form .submit-row button[name="_save_draft"]:hover {
+  background: var(--km-admin-bg, #f4f6f9);
+}
+
+
+
+/* Existing five sections: a native selector on narrow screens. */
+.km-pf label.km-pf__mobile-nav{display:none!important}
+@media(max-width:900px){.km-pf-entry-enhanced label.km-pf__mobile-nav{display:flex!important}}
+.km-pf__mobile-nav{display:none}.km-pf details.pc-activity-card>summary,.km-pf details.pc-group-card>summary,.km-pf details.pc-plan-card>summary{min-height:44px;padding:10px 0;cursor:pointer;font-weight:700;overflow-wrap:anywhere}
+.km-pf-entry-enhanced :is(button,a,summary,select):focus-visible{outline:3px solid #136f38;outline-offset:3px}
+@media(max-width:900px){.km-pf-entry-enhanced .km-pf__mobile-nav{position:sticky;top:60px;z-index:15;display:flex;flex-direction:column;gap:6px;background:#fff;padding:10px 12px;font-size:13px}.km-pf__mobile-nav select{min-height:44px;max-width:100%;width:100%;font:inherit;border:1px solid var(--km-pf-line,#dbe5dd);border-radius:8px;padding:8px;background:#fff}.km-pf-entry-enhanced .km-pf__nav{display:none}.km-pf [data-place-accordion-section]{scroll-margin-top:165px}}
+
+
+/* Local coordinate controls remain usable without an external map SDK. */
+.km-pf .km-pf-btngroup__item:disabled { opacity: .55; cursor: not-allowed; }
+.km-pf .km-pf-btngroup__item:focus-visible { outline: 2px solid var(--pf-accent); outline-offset: 2px; }
+.km-pf .km-pf-btngroup__item .km-i { flex-shrink: 0; }
+.km-pf .km-pf-mapnotice, .km-pf .km-pf-mapstatus {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--pf-text-2);
+}
+.km-pf .km-pf-mapnotice {
+  padding: 10px 12px;
+  background: var(--pf-surface-2);
+  border-radius: 9px;
+}
+.km-pf .km-pf-mapstatus:empty { display: none; }
+@media (max-width: 640px) {
+  .km-pf .km-pf-btngroup { width: 100%; }
+  .km-pf .km-pf-btngroup__item {
+    flex: 1 1 100%;
+    min-width: 0;
+    justify-content: flex-start;
+    border-left: 0;
+    border-top: 1px solid var(--pf-border);
+  }
+  .km-pf .km-pf-btngroup__item:first-child { border-top: 0; }
+}
+
+.km-pf .km-pf-mappanel__hint[hidden] { display: none; }

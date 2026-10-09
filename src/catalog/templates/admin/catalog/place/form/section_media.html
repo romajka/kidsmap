@@ -37,7 +37,7 @@
         <div class="km-pf-mainphoto__aside">
           <strong class="km-pf-mainphoto__lead">{% translate "Что увидят посетители" %}</strong>
           <p class="km-pf-mainphoto__copy">
-            {% translate "Это изображение показывается в каталоге, на карте и первым на странице места. Кроп — квадратный, минимум 1200×1200 px." %}
+            {{ km_place_entry_copy.photo_recommendation }} {{ km_place_entry_copy.photo_optional }}
           </p>
           <p class="km-pf-mainphoto__file">
             <span data-main-photo-file-name hidden></span>

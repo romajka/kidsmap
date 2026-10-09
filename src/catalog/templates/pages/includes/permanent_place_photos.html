@@ -20,10 +20,10 @@
     <div id="gallery-photo-errors" data-photo-errors="gallery" aria-live="polite"></div>
     {% for error in form.gallery_images.errors %}<p class="pw-error" role="alert">{{ error }}</p>{% endfor %}
     <span class="pw-client-error" aria-live="polite"></span>
-    <div class="pw-photo-items" data-photo-items="gallery">{% for picture in place.gallery.all %}
-      <div data-photo-saved="{{ picture.pk }}" data-photo-name="{{ picture.image.name }}" data-photo-url="{{ picture.image.url }}" data-photo-preview="{% url 'owner_photo_thumbnail' place.pk picture.pk %}"><img src="{% url 'owner_photo_thumbnail' place.pk picture.pk %}" alt="" width="160" height="120" loading="lazy"></div>
+    <div class="pw-photo-items" data-photo-items="gallery">{% for picture in form.saved_gallery_preview %}
+      <div data-photo-saved="{{ picture.delete_value }}" data-photo-name="{{ picture.image }}" data-photo-url="{{ picture.url }}" data-photo-preview="{{ picture.url }}"><img src="{{ picture.url }}" alt="{{ picture.caption }}" width="160" height="120" loading="lazy"></div>
     {% endfor %}</div>
-    <div data-photo-fallback-delete>{% for picture in place.gallery.all %}<label><input type="checkbox" name="delete_gallery_ids" value="{{ picture.pk }}"{% if picture.pk|stringformat:'s' in form.delete_gallery_ids.value %} checked{% endif %}> {{ ui.remove }} {{ forloop.counter }}</label>{% endfor %}</div>
+    <div data-photo-fallback-delete>{% for picture in form.saved_gallery_preview %}<label><input type="checkbox" name="delete_gallery_ids" value="{{ picture.delete_value }}"{% if picture.delete_value in form.delete_gallery_ids.value %} checked{% endif %}> {{ ui.remove }} {{ forloop.counter }}</label>{% endfor %}</div>
     {% for error in form.delete_gallery_ids.errors %}<p class="pw-error">{{ error }}</p>{% endfor %}
   </div>
   {{ form.gallery_order }}

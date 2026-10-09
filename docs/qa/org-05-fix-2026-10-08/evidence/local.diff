@@ -1,0 +1,249 @@
+--- baseline/src/catalog/templates/pages/organization_workspace.html
++++ worktree/src/catalog/templates/pages/organization_workspace.html
+@@ -538,42 +538,57 @@
+           {% endif %}
+ 
+           {% if can_edit %}
+-            <form method="post" action="{% url 'organization_workspace_save' organization.pk %}" data-org-edit-form data-draft-url="{% url 'server_draft_collection' %}" data-source-version="{{ organization.content_version }}" data-schema-version="{{ schema_version }}" data-draft-id="{% if server_draft %}{{ server_draft.pk }}{% endif %}" data-draft-version="{% if server_draft %}{{ server_draft.version }}{% else %}0{% endif %}">
++            <form method="post" action="{% url 'organization_workspace_save' organization.pk %}" data-org-edit-form {% if candidate_form.errors %}data-org-server-errors{% endif %} data-draft-url="{% url 'server_draft_collection' %}" data-source-version="{{ organization.content_version }}" data-schema-version="{{ schema_version }}" data-draft-id="{% if server_draft %}{{ server_draft.pk }}{% endif %}" data-draft-version="{% if server_draft %}{{ server_draft.version }}{% else %}0{% endif %}">
+               {% csrf_token %}
+-              {{ candidate_form.non_field_errors }}
++              {% if candidate_form.errors %}
++              <div class="org-alert org-alert--error org-editor-errors" id="org-editor-errors" role="alert" tabindex="-1" aria-labelledby="org-editor-errors-title" data-org-error-summary>
++                <strong id="org-editor-errors-title">{% if CURRENT_LANGUAGE == 'az' %}Formadakı səhvləri düzəldin{% elif CURRENT_LANGUAGE == 'en' %}Please correct the form errors{% else %}Исправьте ошибки в форме{% endif %}</strong>
++                <ul>
++                  {% for error in candidate_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
++                  {% for field in candidate_form %}{% for error in field.errors %}
++                    <li>{% if field.is_hidden %}{{ field.label }}: {{ error }}{% else %}<a href="#{{ field.id_for_label }}" data-org-error-target="{{ field.id_for_label }}">{{ field.label }}: {{ error }}</a>{% endif %}</li>
++                  {% endfor %}{% endfor %}
++                </ul>
++              </div>
++              {% endif %}
+               {{ candidate_form.expected_version }}
+               {{ candidate_form.revision_version }}
+ 
+               <div class="org-fields">
+-                <label>
++                <div class="org-editor-field{% if candidate_form.name_az.errors %} has-error{% endif %}"><label>
+                   {% if CURRENT_LANGUAGE == 'az' %}Ad (AZ){% elif CURRENT_LANGUAGE == 'en' %}Name (AZ){% else %}Название (AZ){% endif %}
+                   {{ candidate_form.name_az }}
+-                  {{ candidate_form.name_az.errors }}
+                 </label>
+-                <label>
++                  {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.name_az %}</div>
++                <div class="org-editor-field{% if candidate_form.name_ru.errors %} has-error{% endif %}"><label>
+                   {% if CURRENT_LANGUAGE == 'az' %}Ad (RU){% elif CURRENT_LANGUAGE == 'en' %}Name (RU){% else %}Название (RU){% endif %}
+                   {{ candidate_form.name_ru }}
+                 </label>
+-                <label>
++                  {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.name_ru %}</div>
++                <div class="org-editor-field{% if candidate_form.name_en.errors %} has-error{% endif %}"><label>
+                   {% if CURRENT_LANGUAGE == 'az' %}Ad (EN){% elif CURRENT_LANGUAGE == 'en' %}Name (EN){% else %}Название (EN){% endif %}
+                   {{ candidate_form.name_en }}
+                 </label>
+-                <label>
++                  {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.name_en %}</div>
++                <div class="org-editor-field{% if candidate_form.phone.errors %} has-error{% endif %}"><label>
+                   {% if CURRENT_LANGUAGE == 'az' %}Telefon{% elif CURRENT_LANGUAGE == 'en' %}Phone{% else %}Телефон сети{% endif %}
+                   {{ candidate_form.phone }}
+                 </label>
+-                <label>WhatsApp {{ candidate_form.whatsapp }}</label>
+-                <label>
++                  {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.phone %}</div>
++                <div class="org-editor-field{% if candidate_form.whatsapp.errors %} has-error{% endif %}"><label>WhatsApp {{ candidate_form.whatsapp }}</label>
++                  {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.whatsapp %}</div>
++                <div class="org-editor-field{% if candidate_form.website.errors %} has-error{% endif %}"><label>
+                   {% if CURRENT_LANGUAGE == 'az' %}Rəsmi sayt{% elif CURRENT_LANGUAGE == 'en' %}Website{% else %}Официальный сайт{% endif %}
+                   {{ candidate_form.website }}
+-                  {{ candidate_form.website.errors }}
+                 </label>
+-              </div>
+-
+-              <label class="org-wide">
++                  {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.website %}</div>
++              </div>
++
++              <div class="org-editor-field{% if candidate_form.description_az.errors %} has-error{% endif %}"><label class="org-wide">
+                 {% if CURRENT_LANGUAGE == 'az' %}Təsvir (AZ){% elif CURRENT_LANGUAGE == 'en' %}Description (AZ){% else %}Описание сети (AZ){% endif %}
+                 {{ candidate_form.description_az }}
+               </label>
++                  {% include 'pages/includes/organization_field_errors.html' with field=candidate_form.description_az %}</div>
+ 
+               <div class="org-form-actions">
+                 <button class="account-btn-action" type="submit" name="submit" value="1">
+--- baseline/static/js/organization_workspace.js
++++ worktree/static/js/organization_workspace.js
+@@ -116,6 +116,20 @@
+ 
+   // Edit organization form with debounced server draft
+   const edit = document.querySelector('[data-org-edit-form]');
++  const errorSummary = edit?.querySelector('[data-org-error-summary]');
++  if (errorSummary) {
++    errorSummary.focus();
++    errorSummary.addEventListener('click', event => {
++      const link = event.target.closest('a[data-org-error-target]');
++      if (!link) return;
++      const target = document.getElementById(link.dataset.orgErrorTarget);
++      if (!target || target.type === 'hidden') return;
++      event.preventDefault();
++      target.focus();
++      target.scrollIntoView({ block: 'center' });
++    });
++  }
++
+   if (edit && workspaceEl) {
+     const status = edit.querySelector('[data-draft-status]');
+     const orgIdEl = document.querySelector('[data-org-id]');
+@@ -127,10 +141,17 @@
+     let revision = 0;
+     let conflicted = false;
+     try {
+-      const local = JSON.parse(sessionStorage.getItem(key) || '{}');
+-      if (local.fields && local.source === edit.dataset.sourceVersion) {
+-        for (const name of fields) if (typeof local.fields[name] === 'string') edit.elements[name].value = local.fields[name];
++      if (edit.hasAttribute('data-org-server-errors')) {
++        // A rejected native POST is newer than any saved recovery copy.
++        sessionStorage.setItem(key, JSON.stringify({ source: edit.dataset.sourceVersion,
++          fields: Object.fromEntries(fields.map(name => [name, edit.elements[name].value])) }));
+         if (status) status.textContent = copy.browser;
++      } else {
++        const local = JSON.parse(sessionStorage.getItem(key) || '{}');
++        if (local.fields && local.source === edit.dataset.sourceVersion) {
++          for (const name of fields) if (typeof local.fields[name] === 'string') edit.elements[name].value = local.fields[name];
++          if (status) status.textContent = copy.browser;
++        }
+       }
+     } catch (_) { /* private storage unavailable */ }
+ 
+--- baseline/static/css/pages/organization_workspace.css
++++ worktree/static/css/pages/organization_workspace.css
+@@ -1157,3 +1157,18 @@
+     padding: 14px;
+   }
+ }
++
++/* Bound editor errors: readable messages and a visible keyboard target. */
++.org-editor-errors {
++  display: block;
++  overflow-wrap: anywhere;
++  scroll-margin-top: 100px;
++}
++.org-editor-errors ul { padding-inline-start: 20px; margin: 8px 0 0; }
++.org-editor-errors a { color: inherit; text-decoration: underline; }
++.org-editor-errors:focus,
++.org-editor-errors a:focus-visible { outline: 3px solid #a16207; outline-offset: 3px; }
++[data-org-edit-form] .org-field-error,
++[data-org-edit-form] .org-field-error > span { display: block; overflow-wrap: anywhere; }
++[data-org-edit-form] .org-editor-field { margin-bottom: 12px; }
++[data-org-edit-form] .org-editor-field.has-error input { border-color: #b91c1c; }
+--- /dev/null
++++ worktree/src/catalog/templates/pages/includes/organization_field_errors.html
+@@ -0,0 +1 @@
++{% if field.errors %}<span class="org-field-error" id="{{ field.auto_id }}_error">{% for error in field.errors %}<span>{{ error }}</span>{% endfor %}</span>{% endif %}
+--- /dev/null
++++ worktree/src/catalog/testcases/test_organization_editor_errors.py
+@@ -0,0 +1,71 @@
++"""Visible server validation, accessible error targets and rejected-input retention."""
++from html.parser import HTMLParser
++from django.contrib.auth import get_user_model
++from django.test import Client, RequestFactory, TestCase
++from django.middleware.csrf import get_token
++from django.urls import reverse
++from django.utils.translation import override
++from catalog.models import Organization
++
++class FormDOM(HTMLParser):
++    def __init__(self, html):
++        super().__init__();self.ids={};self.inputs={};self.links=[];self.feed(html)
++    def handle_starttag(self, tag, attrs):
++        attrs=dict(attrs)
++        if attrs.get('id'):self.ids[attrs['id']]=(tag,attrs)
++        if tag in ('input','textarea') and attrs.get('name'):self.inputs[attrs['name']]=attrs
++        if tag=='a':self.links.append(attrs)
++
++class OrganizationEditorErrorTests(TestCase):
++    def setUp(self):
++        self.owner=get_user_model().objects.create_user(username='org05_owner')
++        self.other=get_user_model().objects.create_user(username='org05_other')
++        self.org=Organization.objects.create(owner=self.owner,created_by=self.owner,name_az='Synthetic ORG05 live name')
++        self.client=Client(enforce_csrf_checks=True);self.client.force_login(self.owner)
++        token=get_token(RequestFactory().get('/'));self.client.cookies['csrftoken']=token;self.client.defaults['HTTP_X_CSRFTOKEN']=token
++        self.data={'name_az':'Synthetic ORG05 candidate','name_ru':'Synthetic RU','name_en':'Synthetic EN','phone':'+994 00 000 00 00','whatsapp':'+994 00 000 00 01','website':'https://example.invalid/','description_az':'Synthetic description','expected_version':self.org.content_version,'revision_version':0,'submit':'1'}
++    def save(self, **values):
++        return self.client.post(reverse('organization_workspace_save',args=[self.org.pk]),{**self.data,**values})
++    def unchanged(self):
++        self.org.refresh_from_db();self.assertEqual(self.org.name_az,'Synthetic ORG05 live name');self.assertFalse(hasattr(self.org,'content_revision'))
++    def test_each_rejected_field_has_visible_error_and_accessible_target_in_all_languages(self):
++        bad={'name_ru':'R'*256,'name_en':'E'*256,'phone':'P'*51,'whatsapp':'W'*51,'website':'invalid URL'}
++        for lang in ('ru','az','en'):
++            with self.subTest(lang=lang),override(lang):
++                response=self.save(**bad);self.assertEqual(response.status_code,400);dom=FormDOM(response.content.decode())
++                self.assertIn('org-editor-errors',dom.ids)
++                form=response.context['candidate_form'];self.assertTrue(form.is_bound)
++                for name in bad:
++                    field=form[name];attrs=dom.inputs[name]
++                    self.assertEqual(attrs['value'],bad[name]);self.assertEqual(attrs.get('aria-invalid'),'true')
++                    refs=attrs.get('aria-describedby','').split();self.assertTrue(refs,name)
++                    for ref in refs:self.assertIn(ref,dom.ids,name)
++                    for error in field.errors:self.assertContains(response,str(error),status_code=400)
++                    self.assertTrue(any(a.get('href')=='#'+field.id_for_label and 'data-org-error-target' in a for a in dom.links),name)
++                self.assertContains(response,'data-org-server-errors',status_code=response.status_code);self.unchanged()
++    def test_hidden_version_errors_are_visible_in_summary(self):
++        response=self.save(expected_version='bad',revision_version='bad')
++        self.assertEqual(response.status_code,400);dom=FormDOM(response.content.decode());self.assertIn('org-editor-errors',dom.ids)
++        for name in ('expected_version','revision_version'):
++            for error in response.context['candidate_form'][name].errors:self.assertContains(response,str(error),status_code=400)
++        self.assertFalse(any(a.get('href') in ('#id_expected_version','#id_revision_version') for a in dom.links));self.unchanged()
++    def test_nonfield_version_error_gets_summary_without_losing_values(self):
++        response=self.save(expected_version=0)
++        self.assertEqual(response.status_code,409);self.assertTrue(response.context['candidate_form'].non_field_errors())
++        self.assertContains(response,'id="org-editor-errors"',status_code=409);self.assertContains(response,'data-org-server-errors',status_code=response.status_code)
++        self.assertEqual(response.context['candidate_form']['name_ru'].value(),self.data['name_ru']);self.unchanged()
++    def test_correct_and_repeat_invalid_input_do_not_change_live_or_publish(self):
++        for _ in range(2):
++            response=self.save(phone='P'*51);self.assertEqual(response.status_code,400);self.assertContains(response,'org-editor-errors',status_code=response.status_code);self.unchanged()
++        response=self.save();self.assertEqual(response.status_code,302)
++        self.org.refresh_from_db();self.assertEqual(self.org.name_az,'Synthetic ORG05 live name');self.assertEqual(self.org.content_revision.payload['phone'],self.data['phone']);self.assertEqual(self.org.content_revision.status,'pending')
++    def test_conflict_keeps_winning_candidate_and_returns_losing_input_in_summary(self):
++        self.assertEqual(self.save().status_code,302)
++        response=self.save(name_az='Synthetic losing candidate')
++        self.assertEqual(response.status_code,409);self.assertContains(response,'org-editor-errors',status_code=response.status_code)
++        self.assertEqual(response.context['candidate_form']['name_az'].value(),'Synthetic losing candidate')
++        self.org.refresh_from_db();self.assertEqual(self.org.content_revision.payload['name_az'],self.data['name_az'])
++    def test_foreign_actor_and_csrf_are_still_denied_without_private_form(self):
++        self.client.force_login(self.other);response=self.save(phone='P'*51);self.assertEqual(response.status_code,404);self.assertNotContains(response,'Synthetic ORG05 live name',status_code=404)
++        client=Client(enforce_csrf_checks=True);client.force_login(self.owner)
++        response=client.post(reverse('organization_workspace_save',args=[self.org.pk]),self.data);self.assertEqual(response.status_code,403);self.unchanged()
+--- /dev/null
++++ worktree/scripts/test_organization_editor_errors.cjs
+@@ -0,0 +1,30 @@
++// ORG-05: real editor script, bound errors must not be replaced by old recovery data.
++const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
++const {JSDOM}=require('jsdom');
++const source=fs.readFileSync(path.join(__dirname,'../static/js/organization_workspace.js'),'utf8');
++const names=['name_az','name_ru','name_en','description_az','phone','whatsapp','website'],key='kidsmap:org:2:99:draft';
++function setup({errors=true,cache=true}={}){
++ const values=Object.fromEntries(names.map(n=>[n,'Posted '+n]));
++ const dom=new JSDOM(`<div data-workspace="detail" data-user-id="2"><div data-org-id="99"></div><form data-org-edit-form data-source-version="1" data-schema-version="1" ${errors?'data-org-server-errors':''}>${errors?'<div id="org-editor-errors" tabindex="-1" data-org-error-summary><a href="#id_name_ru" data-org-error-target="id_name_ru">Error</a></div>':''}${names.map(n=>`<label>${n}<input id="id_${n}" name="${n}" value="${values[n]}"></label>`).join('')}<p data-draft-status></p></form></div>`,{url:'http://localhost/ru/account/organizations/99/save/',runScripts:'outside-only'});
++ const {window:w}=dom;let fetches=0;w.fetch=()=>{fetches++;throw Error('No automatic save expected')};
++ w.HTMLElement.prototype.scrollIntoView=function(){this.dataset.scrolled='1'};
++ if(cache)w.sessionStorage.setItem(key,JSON.stringify({source:'1',fields:Object.fromEntries(names.map(n=>[n,'OLD '+n]))}));
++ w.eval(source);return{dom,w,values,fetches:()=>fetches};
++}
++test('bound invalid POST remains authoritative over older recovery values',()=>{
++ const {dom,w,values,fetches}=setup();
++ for(const n of names)assert.equal(w.document.querySelector(`[name=${n}]`).value,values[n]);
++ assert.deepEqual(JSON.parse(w.sessionStorage.getItem(key)).fields,values);assert.equal(fetches(),0);dom.window.close();
++});
++test('fresh bound errors retain the posted input for reload without creating a server draft',()=>{
++ const {dom,w,values,fetches}=setup({cache:false});
++ assert.deepEqual(JSON.parse(w.sessionStorage.getItem(key)).fields,values);assert.equal(fetches(),0);dom.window.close();
++});
++test('error summary receives focus and its link focuses the rejected field',()=>{
++ const {dom,w}=setup();assert.equal(w.document.activeElement.id,'org-editor-errors');
++ w.document.querySelector('[data-org-error-target]').click();assert.equal(w.document.activeElement.id,'id_name_ru');assert.equal(w.document.activeElement.dataset.scrolled,'1');dom.window.close();
++});
++test('a clean GET continues restoring the existing local recovery without focus theft',()=>{
++ const {dom,w}=setup({errors:false});for(const n of names)assert.equal(w.document.querySelector(`[name=${n}]`).value,'OLD '+n);
++ assert.equal(w.document.activeElement,w.document.body);dom.window.close();
++});

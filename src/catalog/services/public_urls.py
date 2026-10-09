@@ -11,18 +11,19 @@ from django.urls import Resolver404, resolve
 
 
 PUBLIC_QUERY_PARAMS = {
+    "organization_list": {"q", "district", "page"},
     "place_list": {
         "q", "category", "subcategory", "district", "metro", "min_rating", "event_type",
         "age", "age_from", "age_to", "price_from", "price_to", "sort", "page",
     },
-    "place_new": {"q", "category", "subcategory", "district", "metro", "age", "age_from", "age_to", "min_rating", "days", "with_photo", "verified", "page"},
+    "place_new": {"q", "category", "subcategory", "district", "metro", "age", "age_from", "age_to", "min_rating", "days", "with_photo", "page"},
     "events_landing": {
         "q", "category", "district", "date_filter", "age_from", "age_to", "free", "sort", "page",
         "view", "month", "date", "date_from", "date_to", "format",
     },
     "specialist_list": {
         "q", "specialization", "format", "region", "district", "metro", "age",
-        "price_from", "price_to", "sort", "language", "verified", "min_rating", "page",
+        "price_from", "price_to", "sort", "language", "min_rating", "page",
     },
     "site_reviews": {"sort", "page"},
     "owner_place_create": {"type", "draft_session"},

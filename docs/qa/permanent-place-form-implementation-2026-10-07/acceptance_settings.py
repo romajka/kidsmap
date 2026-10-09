@@ -1,0 +1,4 @@
+from manual_settings import *
+ROOT_URLCONF='acceptance_urls'
+SESSION_COOKIE_NAME='kidsmap_acceptance_20261007_session'
+CSRF_COOKIE_NAME='kidsmap_acceptance_20261007_csrf'

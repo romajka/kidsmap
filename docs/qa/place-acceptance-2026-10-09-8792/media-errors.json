@@ -1,0 +1,53 @@
+{
+  "rows": [
+    {
+      "id": "file-error-visible/invalid.txt",
+      "status": "PASS",
+      "text": [
+        "invalid.txt: Поддерживаются JPG, PNG, WEBP, HEIC/HEIF×",
+        "cover_XKkqyOI.webpСохраненоУдалить"
+      ]
+    },
+    {
+      "id": "invalid-file-preserves-saved-cover/invalid.txt",
+      "status": "PASS"
+    },
+    {
+      "id": "file-error-visible/corrupt.png",
+      "status": "PASS",
+      "text": [
+        "",
+        "corrupt.pngПоддерживаются JPG, PNG, WEBP, HEIC/HEIFПовторитьУдалить"
+      ]
+    },
+    {
+      "id": "invalid-file-preserves-saved-cover/corrupt.png",
+      "status": "PASS"
+    },
+    {
+      "id": "file-error-visible/empty.png",
+      "status": "PASS",
+      "text": [
+        "empty.png: Файл пустой или превышает 15 МБ×",
+        "cover_XKkqyOI.webpСохраненоУдалить"
+      ]
+    },
+    {
+      "id": "invalid-file-preserves-saved-cover/empty.png",
+      "status": "PASS"
+    },
+    {
+      "id": "file-error-visible/oversize.png",
+      "status": "PASS",
+      "text": [
+        "oversize.png: Файл пустой или превышает 15 МБ×",
+        "cover_XKkqyOI.webpСохраненоУдалить"
+      ]
+    },
+    {
+      "id": "invalid-file-preserves-saved-cover/oversize.png",
+      "status": "PASS"
+    }
+  ],
+  "errors": []
+}

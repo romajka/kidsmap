@@ -9,7 +9,7 @@ from .models import Activity, Organization, CatalogContentSettings, Place, Speci
 from .services.public_languages import available_languages
 from .services.public_presentation import public_url
 from .services.content_quality import public_place_queryset
-from .services.features import is_events_section_enabled, is_specialists_section_enabled
+from .services.features import is_events_section_enabled, is_specialists_section_enabled, is_organizations_section_enabled
 from .services.seo_landing_visibility import build_seo_landing_visibility
 
 
@@ -46,6 +46,8 @@ class StaticViewSitemap(LocalizedSitemap):
             "review_rules",
             "listing_rules",
         ]
+        if is_organizations_section_enabled():
+            items.append("organization_list")
         if is_events_section_enabled():
             items.append("events_landing")
         if is_specialists_section_enabled():
@@ -76,6 +78,8 @@ class OrganizationSitemap(LocalizedSitemap):
         return super().get_urls(page=page, site=site, protocol=protocol)
 
     def items(self):
+        if not is_organizations_section_enabled():
+            return Organization.objects.none()
         return Organization.objects.filter(status='published', approved_at__isnull=False,
                                            archived_at__isnull=True).order_by('pk')
 

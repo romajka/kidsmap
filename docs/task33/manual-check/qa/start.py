@@ -60,7 +60,7 @@ def main():
         if ready.returncode==0:break
         time.sleep(.25)
     else:raise RuntimeError('Local database did not become ready')
-    env={'PATH':'/usr/bin:/bin','HOME':str(STATE/'home'),'TMPDIR':str(STATE/'temp'),'LANG':'C.UTF-8',
+    env={'PATH':'/usr/bin:/bin:/snap/bin','HOME':str(STATE/'home'),'TMPDIR':str(STATE/'temp'),'LANG':'C.UTF-8',
          'PYTHONPATH':os.pathsep.join([str(HERE),str(ROOT/'docs/task33/qa04'),str(ROOT/'src')]),
          'PYTHONDONTWRITEBYTECODE':'1','DJANGO_SETTINGS_MODULE':'manual_settings','DJANGO_TESTING':'1',
          'DJANGO_DEBUG':'1','DJANGO_SECRET_KEY':'local-synthetic-manual-preview-only',

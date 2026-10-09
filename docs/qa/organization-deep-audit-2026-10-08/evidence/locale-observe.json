@@ -1,0 +1,30 @@
+[
+  {
+    "language": "ru",
+    "label": "Təşkilatın adı (AZ)",
+    "expected": "Название организации (AZ)",
+    "type": "str",
+    "status": "FAIL"
+  },
+  {
+    "language": "az",
+    "label": "Təşkilatın adı (AZ)",
+    "expected": "Təşkilatın adı (AZ)",
+    "type": "str",
+    "status": "PASS"
+  },
+  {
+    "language": "en",
+    "label": "Təşkilatın adı (AZ)",
+    "expected": "Organization name (AZ)",
+    "type": "str",
+    "status": "FAIL"
+  },
+  {
+    "language": "az",
+    "case": "create-invalid",
+    "http_status": 400,
+    "raw_label": true,
+    "status": "FAIL"
+  }
+]

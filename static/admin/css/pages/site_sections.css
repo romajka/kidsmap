@@ -1,0 +1,25 @@
+/* Scoped to the existing site-section settings form. */
+.model-sitevisibilitysettings #content-main.km-place-form-page{width:100%!important;float:none!important;min-width:0}
+#sitevisibilitysettings_form{width:100%;min-width:0}
+#sitevisibilitysettings_form .km-place-form-shell{width:100%;max-width:1080px;margin:0 auto}
+#sitevisibilitysettings_form .km-place-form-layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:24px}
+#sitevisibilitysettings_form .km-place-form-main{min-width:0;display:flex;flex-direction:column;gap:20px}
+#sitevisibilitysettings_form .km-place-section{display:block;padding:24px;min-width:0;background:#fff;border:1px solid #dbe8df;border-radius:18px}
+#sitevisibilitysettings_form .km-place-section__head{padding:0 0 18px;margin:0;border-bottom:1px solid #e4eee7}
+#sitevisibilitysettings_form .km-place-section__title{font-size:20px;line-height:1.3;margin:0 0 10px}
+#sitevisibilitysettings_form .km-place-section__description{font-size:14px;line-height:1.6;color:#52675b;margin:0;max-width:none}
+#sitevisibilitysettings_form .km-place-section__body{display:block;width:100%;padding:0;margin:0}
+#sitevisibilitysettings_form .km-visibility-field{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:22px 0;border-bottom:1px solid #e4eee7;min-width:0}
+#sitevisibilitysettings_form .km-visibility-field:last-child{border-bottom:0;padding-bottom:0}
+#sitevisibilitysettings_form .km-visibility-copy{min-width:0;flex:1}
+#sitevisibilitysettings_form .km-visibility-copy label{display:block;font-size:16px;font-weight:700;line-height:1.4;margin:0 0 8px;cursor:pointer;color:#193126}
+#sitevisibilitysettings_form .km-visibility-copy p{font-size:13px;line-height:1.6;color:#52675b;margin:0}
+#sitevisibilitysettings_form input[type="checkbox"]{appearance:none!important;width:52px!important;min-width:52px;height:28px!important;border:0!important;border-radius:99px;background:#9caaa3;position:relative;cursor:pointer;flex:none;margin:0}
+#sitevisibilitysettings_form input[type="checkbox"]::before{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0002}
+#sitevisibilitysettings_form input[type="checkbox"]:checked{background:#0d8a52}
+#sitevisibilitysettings_form input[type="checkbox"]:checked::before{transform:translateX(24px)}
+#sitevisibilitysettings_form input:focus-visible{outline:3px solid #136f38;outline-offset:4px}
+#sitevisibilitysettings_form input[type="number"]{width:110px;max-width:35%;min-height:44px;flex:none;padding:8px;border:1px solid #b8cbbb;border-radius:8px}
+#sitevisibilitysettings_form .collapse{display:none!important}
+@media(max-width:1200px){#sitevisibilitysettings_form .km-place-form-layout{grid-template-columns:1fr}#sitevisibilitysettings_form .km-place-form-sidebar{position:static}}
+@media(max-width:600px){#sitevisibilitysettings_form .km-place-section{padding:20px 16px}#sitevisibilitysettings_form .km-visibility-field{gap:16px}#sitevisibilitysettings_form .km-visibility-copy label{font-size:15px}}

@@ -269,7 +269,8 @@ def present(obj, language=None):
         from catalog.services.map_payload import map_identity
         result['map_available'] = map_identity(place) is not None
         result['image_url'] = place.public_image_url
-        if org:
+        from catalog.services.features import is_organizations_section_enabled
+        if org and is_organizations_section_enabled():
             org_name, org_lang = translated(org, 'name', lang)
             result['organization'] = {'name':org_name, 'name_language':org_lang, 'url':public_url(org,lang)}
         price_place = place
@@ -384,7 +385,8 @@ def prepare_cards(places, language=None, *, filters=None):
 def organization_matches(query, language=None):
     """Name discovery links, including useful published Organizations without branches."""
     from django.db.models import Q
-    if not query:
+    from catalog.services.features import is_organizations_section_enabled
+    if not query or not is_organizations_section_enabled():
         return []
     names=Q()
     for code in ('az','ru','en'):

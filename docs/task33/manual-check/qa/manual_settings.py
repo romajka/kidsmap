@@ -12,4 +12,6 @@ CSRF_COOKIE_SECURE=False
 SESSION_COOKIE_NAME='kidsmap_manual_session'
 CSRF_COOKIE_NAME='kidsmap_manual_csrf'
 EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend'
-SECURE_HSTS_SECONDS=0
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
+STORAGES['staticfiles']['BACKEND'] = 'django.contrib.staticfiles.storage.StaticFilesStorage'

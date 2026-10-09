@@ -1,0 +1,28 @@
+{
+  "rows": [
+    {
+      "id": "gallery-keyboard-reorder-roundtrip",
+      "status": "PASS"
+    },
+    {
+      "id": "gallery-promote-cover-roundtrip",
+      "status": "FAIL"
+    },
+    {
+      "id": "cover-replacement-roundtrip",
+      "status": "PASS"
+    },
+    {
+      "id": "gallery-delete-roundtrip",
+      "status": "PASS"
+    },
+    {
+      "id": "file-error/invalid.txt",
+      "status": "PASS",
+      "text": "invalid.txt: Поддерживаются JPG, PNG, WEBP, HEIC/HEIF\n×"
+    }
+  ],
+  "errors": [],
+  "error": "TimeoutError: locator.getAttribute: Timeout 8000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-photo-items=main] img')\u001b[22m\n",
+  "url": "http://localhost:8792/ru/account/places/159/edit/"
+}

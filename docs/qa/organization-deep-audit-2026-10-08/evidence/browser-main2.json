@@ -1,0 +1,63 @@
+{
+  "rows": [
+    {
+      "id": "create-refresh-restores-input",
+      "status": "PASS"
+    },
+    {
+      "id": "create-empty-organization",
+      "status": "PASS",
+      "org": 11
+    },
+    {
+      "id": "organization-server-draft-reload",
+      "status": "PASS"
+    },
+    {
+      "id": "organization-invalid-url-input-retained",
+      "status": "PASS",
+      "validation": "native browser URL error"
+    },
+    {
+      "id": "organization-submit-review",
+      "status": "FAIL",
+      "url": "http://localhost:8788/ru/account/organizations/11/"
+    },
+    {
+      "id": "organization-duplicate-warning",
+      "status": 409
+    },
+    {
+      "id": "selection-live-count",
+      "status": "PASS"
+    },
+    {
+      "id": "selection-preserved-on-search",
+      "status": "PASS"
+    },
+    {
+      "id": "review-ten-places",
+      "status": "PASS"
+    },
+    {
+      "id": "connect-ten-complete",
+      "status": "PASS",
+      "operation": "3393a59d-5217-448e-8791-1e84fb0c56ad"
+    },
+    {
+      "id": "connect-replay-same-receipt",
+      "status": 200
+    }
+  ],
+  "error": "TimeoutError: locator.check: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[name=place_ids][value=\"63\"]')\u001b[22m\n",
+  "url": "http://localhost:8788/ru/account/organizations/5/connections/?q=ORGQA",
+  "errors": [
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled",
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled",
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled",
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled",
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled",
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled",
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+  ]
+}

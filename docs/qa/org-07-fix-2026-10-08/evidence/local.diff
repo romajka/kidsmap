@@ -1,0 +1,167 @@
+--- a/src/catalog/templates/pages/organization_workspace.html
++++ b/src/catalog/templates/pages/organization_workspace.html
+@@ -445,12 +445,13 @@
+           <h2>{% if CURRENT_LANGUAGE == 'az' %}Komanda{% elif CURRENT_LANGUAGE == 'en' %}Team{% else %}Сотрудники{% endif %}</h2>
+           {% if is_owner %}
+             <p class="org-muted">{% if CURRENT_LANGUAGE == 'az' %}İcazələr cari filiallara tətbiq olunur. Seçilmiş filiallar gələcək filiallara şamil edilmir.{% elif CURRENT_LANGUAGE == 'en' %}Selected branches do not include future branches. Network scope covers current links.{% else %}Выбранные филиалы не включают будущие. Сетевой доступ действует только при текущей связи.{% endif %}</p>
+-            <form class="org-team-form" data-team-form data-team-url="{% url 'business_team_action' 'organization' organization.pk 'invite' %}">
++            <form method="post" action="{% url 'business_team_action' 'organization' organization.pk 'invite' %}" class="org-team-form" data-team-form data-team-url="{% url 'business_team_action' 'organization' organization.pk 'invite' %}">
+               {% csrf_token %}
+-              <label>Email <input type="email" name="email" required></label>
++              <p id="org-team-unavailable" data-team-unavailable role="status">{% if CURRENT_LANGUAGE == 'az' %}Əməkdaşı dəvət etmək üçün JavaScript lazımdır. Formanı aktivləşdirmək üçün brauzerdə JavaScript-i yandırın və səhifəni yeniləyin. Dəvət göndərilməyib.{% elif CURRENT_LANGUAGE == 'en' %}Inviting a team member requires JavaScript. Enable JavaScript in your browser and reload this page to activate the form. No invitation has been sent.{% else %}Для приглашения сотрудника нужен JavaScript. Включите JavaScript в браузере и обновите страницу, чтобы активировать форму. Приглашение не отправлено.{% endif %}</p>
++              <label>Email <input type="email" name="email" required disabled data-team-control></label>
+               <label>
+                 {% if CURRENT_LANGUAGE == 'az' %}Rol{% elif CURRENT_LANGUAGE == 'en' %}Role{% else %}Роль{% endif %}
+-                <select name="role" data-team-role>
++                <select name="role" data-team-role disabled data-team-control>
+                   <option value="EDITOR" data-summary="{% translate 'Просмотр и редактирование филиалов' %}">{% translate 'Редактор' %}</option>
+                   <option value="MANAGER" data-summary="{% translate 'Просмотр, редактирование и статистика филиалов' %}">{% translate 'Менеджер' %}</option><option value="MODERATOR" data-summary="{% translate 'Просмотр и статистика филиалов' %}">{% translate 'Наблюдатель' %}</option>
+                 </select>
+@@ -460,7 +461,7 @@
+               <p>{% translate 'Вся сеть включает будущие филиалы с актуальной бизнес-связью. Выбранные филиалы ограничивают только права на места. Отдельные права на организацию и общие программы действуют для всей организации.' %}</p>
+               <label>
+                 {% if CURRENT_LANGUAGE == 'az' %}Əhatə{% elif CURRENT_LANGUAGE == 'en' %}Scope{% else %}Область{% endif %}
+-                <select name="scope" data-team-scope>
++                <select name="scope" data-team-scope disabled data-team-control>
+                   <option value="all_network">{% if CURRENT_LANGUAGE == 'az' %}Bütün şəbəkə{% elif CURRENT_LANGUAGE == 'en' %}All network{% else %}Вся сеть{% endif %}</option>
+                   <option value="selected_places">{% if CURRENT_LANGUAGE == 'az' %}Seçilmiş filiallar{% elif CURRENT_LANGUAGE == 'en' %}Selected branches{% else %}Выбранные филиалы{% endif %}</option>
+                 </select>
+@@ -468,10 +469,10 @@
+               <fieldset data-team-branches hidden>
+                 <legend>{% if CURRENT_LANGUAGE == 'az' %}Filiallar{% elif CURRENT_LANGUAGE == 'en' %}Branches{% else %}Филиалы{% endif %}</legend>
+                 {% for place in branches %}
+-                  <label><input type="checkbox" name="place_ids" value="{{ place.pk }}">{{ place.name_i18n }}</label>
++                  <label><input type="checkbox" name="place_ids" disabled data-team-control value="{{ place.pk }}">{{ place.name_i18n }}</label>
+                 {% endfor %}
+               </fieldset>
+-              <button class="account-btn-action" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Dəvət et{% elif CURRENT_LANGUAGE == 'en' %}Invite{% else %}Пригласить{% endif %}</button>
++              <button class="account-btn-action" type="submit" disabled data-team-control aria-describedby="org-team-unavailable">{% if CURRENT_LANGUAGE == 'az' %}Dəvət et{% elif CURRENT_LANGUAGE == 'en' %}Invite{% else %}Пригласить{% endif %}</button>
+               <p role="status" aria-live="polite" data-team-status></p>
+             </form>
+             {% if team_grants %}
+--- a/static/js/organization_workspace.js
++++ b/static/js/organization_workspace.js
+@@ -269,6 +269,11 @@
+         if (status) status.textContent = copy.inviteFailed;
+       }
+     });
++    // Release native controls only after safe JSON POST interception is installed.
++    team.querySelectorAll('[data-team-control]').forEach(control => { control.disabled = false; });
++    const unavailable = team.querySelector('[data-team-unavailable]');
++    if (unavailable) unavailable.hidden = true;
++    team.querySelector('[type="submit"]')?.removeAttribute('aria-describedby');
+   }
+ 
+   // Standalone places client-side live filter
+--- /dev/null
++++ b/src/catalog/testcases/test_organization_invitation_transport.py
+@@ -0,0 +1,87 @@
++"""ORG-07: invitation form fails closed until its JSON POST handler is installed."""
++from html.parser import HTMLParser
++from django.contrib.auth import get_user_model
++from django.test import Client, TestCase
++from django.urls import reverse
++from django.utils.translation import override
++from catalog.models import Organization, OrganizationTeamInvitation, OrganizationGrant
++
++
++class InvitationFormParser(HTMLParser):
++    def __init__(self, html):
++        super().__init__()
++        self.form = None
++        self.controls = []
++        self.explanation = None
++        self.inside = False
++        self.feed(html)
++
++    def handle_starttag(self, tag, attrs):
++        attrs = dict(attrs)
++        if tag == 'form':
++            self.inside = 'data-team-form' in attrs
++            if self.inside:
++                self.form = attrs
++        if self.inside and tag in ('input', 'select', 'button') and attrs.get('type') != 'hidden':
++            self.controls.append(attrs)
++        if self.inside and 'data-team-unavailable' in attrs:
++            self.explanation = attrs
++
++    def handle_endtag(self, tag):
++        if tag == 'form':
++            self.inside = False
++
++
++class OrganizationInvitationTransportTests(TestCase):
++    def setUp(self):
++        U = get_user_model()
++        self.owner = U.objects.create_user(username='org07_owner', email='org07-owner@example.invalid')
++        self.other = U.objects.create_user(username='org07_other', email='org07-other@example.invalid')
++        self.org = Organization.objects.create(owner=self.owner, created_by=self.owner, name_az='ORG07 synthetic')
++        self.client = Client(enforce_csrf_checks=True)
++        self.client.force_login(self.owner)
++        self.detail = reverse('organization_workspace_detail', args=[self.org.pk])
++        self.api = reverse('business_team_action', args=['organization', self.org.pk, 'invite'])
++        self.client.get(self.detail)
++        self.token = self.client.cookies['csrftoken'].value
++        self.payload = {'email': self.other.email, 'role': 'EDITOR', 'scope': 'all_network', 'place_ids': []}
++
++    def post(self, **changes):
++        return self.client.post(self.api, {**self.payload, **changes}, content_type='application/json', HTTP_X_CSRFTOKEN=self.token)
++
++    def test_native_form_never_defaults_to_get_or_current_workspace(self):
++        parser = InvitationFormParser(self.client.get(self.detail).content.decode())
++        self.assertEqual(parser.form.get('method'), 'post')
++        self.assertEqual(parser.form.get('action'), self.api)
++
++    def test_nojs_controls_disabled_and_explained_in_all_languages(self):
++        copy = {'ru': 'Для приглашения сотрудника нужен JavaScript', 'az': 'Əməkdaşı dəvət etmək üçün JavaScript lazımdır', 'en': 'Inviting a team member requires JavaScript'}
++        for lang, message in copy.items():
++            with self.subTest(lang=lang), override(lang):
++                response = self.client.get(reverse('organization_workspace_detail', args=[self.org.pk]), HTTP_ACCEPT_LANGUAGE=lang)
++                parser = InvitationFormParser(response.content.decode())
++                self.assertGreaterEqual(len(parser.controls), 4)
++                self.assertTrue(all('disabled' in a and 'data-team-control' in a for a in parser.controls))
++                self.assertIsNotNone(parser.explanation)
++                self.assertNotIn('hidden', parser.explanation)
++                self.assertTrue(message in response.content.decode())
++
++    def test_json_invitation_pending_repeat_conflict_no_grant(self):
++        self.assertEqual(self.post().status_code, 200)
++        self.assertEqual(self.post().status_code, 409)
++        self.assertEqual(OrganizationTeamInvitation.objects.filter(organization=self.org, status='PENDING').count(), 1)
++        self.assertFalse(OrganizationGrant.objects.exists())
++        invitation = OrganizationTeamInvitation.objects.get(organization=self.org)
++        self.assertEqual((invitation.owner_id, invitation.email, invitation.role, invitation.scope), (self.owner.pk, self.other.email, 'EDITOR', 'all_network'))
++
++    def test_native_post_and_get_rejected_without_invitation(self):
++        self.assertEqual(self.client.post(self.api, {**self.payload, 'csrfmiddlewaretoken': self.token}).status_code, 400)
++        self.assertEqual(self.client.get(self.api).status_code, 405)
++        self.assertFalse(OrganizationTeamInvitation.objects.exists())
++
++    def test_missing_csrf_and_foreign_owner_denied(self):
++        self.assertEqual(self.client.post(self.api, self.payload, content_type='application/json').status_code, 403)
++        self.client.force_login(self.other)
++        self.assertEqual(self.post(email='org07-target@example.invalid').status_code, 403)
++        self.assertFalse(OrganizationTeamInvitation.objects.exists())
++        self.assertFalse(InvitationFormParser(self.client.get(self.detail).content.decode()).form)
+--- /dev/null
++++ b/scripts/test_organization_invitation_transport.cjs
+@@ -0,0 +1,19 @@
++// ORG-07: install real POST interception before releasing invitation controls.
++const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
++const {JSDOM}=require('jsdom');
++const source=fs.readFileSync(path.join(__dirname,'../static/js/organization_workspace.js'),'utf8');
++function setup(ok=true){
++ const dom=new JSDOM(`<html lang="en"><div data-workspace="detail" data-user-id="2"><form method="post" action="/team/invite/" data-team-form data-team-url="/team/invite/"><input type="hidden" name="csrfmiddlewaretoken" value="synthetic-token"><p data-team-unavailable>Requires JavaScript</p><input name="email" type="email" disabled data-team-control value="org07@example.invalid"><select name="role" disabled data-team-control data-team-role><option value="EDITOR" data-summary="Edit">Editor</option></select><p data-team-role-summary></p><select name="scope" disabled data-team-control data-team-scope><option value="all_network">All</option><option value="selected_places">Selected</option></select><fieldset data-team-branches hidden><input name="place_ids" type="checkbox" value="42" disabled data-team-control></fieldset><button type="submit" disabled data-team-control>Invite</button><p data-team-status></p></form></div></html>`,{url:'http://localhost/organizations/99/',runScripts:'outside-only'});
++ const w=dom.window,calls=[];w.fetch=async(url,options)=>{calls.push({url,options});return{ok};};return{dom,w,calls,form:w.document.querySelector('form')};
++}
++test('initial disabled invitation becomes keyboard operable only with installed POST handler',async()=>{
++ const {dom,w,calls,form}=setup();assert.equal(form.elements.email.matches(':disabled'),true);w.eval(source);
++ assert.equal(form.elements.email.matches(':disabled'),false);assert.equal(form.querySelector('button').matches(':disabled'),false);assert.equal(form.querySelector('[data-team-unavailable]').hidden,true);
++ const event=new w.Event('submit',{bubbles:true,cancelable:true});form.dispatchEvent(event);await new Promise(resolve=>setImmediate(resolve));
++ assert.equal(event.defaultPrevented,true);assert.equal(calls.length,1);assert.equal(calls[0].url,'/team/invite/');assert.equal(calls[0].options.method,'POST');assert.equal(calls[0].options.headers['X-CSRFToken'],'synthetic-token');assert.equal(calls[0].url.includes('@'),false);assert.equal(form.querySelector('[data-team-status]').textContent,'Invitation sent');dom.window.close();
++});
++test('failed invitation retains input and handler prevents native navigation',async()=>{
++ const {dom,w,calls,form}=setup(false);w.eval(source);form.elements.scope.value='selected_places';form.querySelector('[name=place_ids]').checked=true;
++ const event=new w.Event('submit',{bubbles:true,cancelable:true});form.dispatchEvent(event);await new Promise(resolve=>setImmediate(resolve));
++ assert.equal(event.defaultPrevented,true);assert.equal(calls.length,1);assert.equal(form.elements.email.value,'org07@example.invalid');assert.equal(form.querySelector('[name=place_ids]').checked,true);assert.ok(form.querySelector('[data-team-status]').textContent);dom.window.close();
++});

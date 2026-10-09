@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
-{% load i18n static %}
+{% load i18n static catalog_i18n %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
@@ -12,7 +12,7 @@
 
 {% block content %}
 <div class="km-specialist-detail-page km-specialists-detail">
-  
+
   <!-- Back button -->
   <div>
     <a href="{% url 'specialist_list' %}" class="km-back-link">
@@ -34,7 +34,7 @@
     </div>
 
     <div class="km-detail-header-info">
-      <!-- Specialization Tags & Verification Badge -->
+      <!-- Specialization tags -->
       <div class="km-detail-tags-row">
         {% for spec in specialist.specializations.all %}
           <span class="km-spec-tag">
@@ -42,12 +42,7 @@
           </span>
         {% endfor %}
 
-        {% if specialist.is_verified %}
-          <span class="km-badge-verified">
-            <i class="fas fa-check-circle" aria-hidden="true"></i>
-            {% if language == "az" %}Yoxlanılıb{% elif language == "en" %}Verified{% else %}Проверен модерацией{% endif %}
-          </span>
-        {% endif %}
+
       </div>
 
       <!-- Name & Bio short -->
@@ -101,10 +96,10 @@
 
   <!-- Two column content section -->
   <div class="km-detail-columns">
-    
+
     <!-- Left column: Main Content -->
     <main class="km-detail-main-column">
-      
+
       <!-- About -->
       {% if specialist.bio_ru or specialist.bio_az or specialist.bio_en %}
         <section class="km-detail-section">
@@ -113,21 +108,74 @@
             {% if language == "az" %}Mütəxəssis haqqında{% elif language == "en" %}About the specialist{% else %}О специалисте{% endif %}
           </h2>
           <div class="km-bio-content">
-            {{ specialist.bio_i18n }}
+            {% localized_content specialist 'bio' as section_content %}{% include 'catalog/includes/localized_content.html' with content=section_content %}
           </div>
         </section>
       {% endif %}
 
       {% if specialist_current_employment %}
       <section class="km-detail-section sw-public-employment" id="specialist-current-employment">
-        <h2>{% trans 'Текущее сотрудничество' %}</h2><ul>{% for employment in specialist_current_employment %}<li><h3>{% if language == 'ru' %}{{ employment.organization.name_ru|default:employment.organization.name_az }}{% elif language == 'en' %}{{ employment.organization.name_en|default:employment.organization.name_az }}{% else %}{{ employment.organization.name_az }}{% endif %}</h3><p>{{ employment.role }} · {{ employment.start_date|date:'d.m.Y' }} — {% if employment.end_date %}{{ employment.end_date|date:'d.m.Y' }}{% else %}{% trans 'без даты окончания' %}{% endif %}</p></li>{% endfor %}</ul>
+        <h2>{% trans 'Текущее сотрудничество' %}</h2>
+        <ul>
+          {% for employment in specialist_current_employment %}
+            <li>
+              <h3>
+                {% if employment.organization_linkable %}
+                  <a href="{% url 'organization_detail' employment.organization.public_id %}">
+                    {% if language == 'ru' %}{{ employment.organization.name_ru|default:employment.organization.name_az }}{% elif language == 'en' %}{{ employment.organization.name_en|default:employment.organization.name_az }}{% else %}{{ employment.organization.name_az }}{% endif %}
+                  </a>
+                {% else %}
+                  {% if language == 'ru' %}{{ employment.organization.name_ru|default:employment.organization.name_az }}{% elif language == 'en' %}{{ employment.organization.name_en|default:employment.organization.name_az }}{% else %}{{ employment.organization.name_az }}{% endif %}
+                {% endif %}
+              </h3>
+              <p>{{ employment.role }} · {{ employment.start_date|date:'d.m.Y' }} — {% if employment.end_date %}{{ employment.end_date|date:'d.m.Y' }}{% else %}{% trans 'без даты окончания' %}{% endif %}</p>
+            </li>
+          {% endfor %}
+        </ul>
       </section>
       {% endif %}
       {% if specialist_future_employment %}
-      <section class="km-detail-section sw-public-employment" id="specialist-future-employment"><h2>{% trans 'Предстоящее сотрудничество' %}</h2><ul>{% for employment in specialist_future_employment %}<li><h3>{% if language == 'ru' %}{{ employment.organization.name_ru|default:employment.organization.name_az }}{% elif language == 'en' %}{{ employment.organization.name_en|default:employment.organization.name_az }}{% else %}{{ employment.organization.name_az }}{% endif %}</h3><p>{{ employment.role }} · {{ employment.start_date|date:'d.m.Y' }}{% if employment.end_date %} — {{ employment.end_date|date:'d.m.Y' }}{% endif %}</p></li>{% endfor %}</ul></section>
+      <section class="km-detail-section sw-public-employment" id="specialist-future-employment">
+        <h2>{% trans 'Предстоящее сотрудничество' %}</h2>
+        <ul>
+          {% for employment in specialist_future_employment %}
+            <li>
+              <h3>
+                {% if employment.organization_linkable %}
+                  <a href="{% url 'organization_detail' employment.organization.public_id %}">
+                    {% if language == 'ru' %}{{ employment.organization.name_ru|default:employment.organization.name_az }}{% elif language == 'en' %}{{ employment.organization.name_en|default:employment.organization.name_az }}{% else %}{{ employment.organization.name_az }}{% endif %}
+                  </a>
+                {% else %}
+                  {% if language == 'ru' %}{{ employment.organization.name_ru|default:employment.organization.name_az }}{% elif language == 'en' %}{{ employment.organization.name_en|default:employment.organization.name_az }}{% else %}{{ employment.organization.name_az }}{% endif %}
+                {% endif %}
+              </h3>
+              <p>{{ employment.role }} · {{ employment.start_date|date:'d.m.Y' }}{% if employment.end_date %} — {{ employment.end_date|date:'d.m.Y' }}{% endif %}</p>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
       {% endif %}
       {% if specialist_past_employment %}
-      <section class="km-detail-section sw-public-employment" id="specialist-past-employment"><h2>{% trans 'История сотрудничества' %}</h2><p class="sw-help">{% trans 'Эти периоды не являются текущей работой.' %}</p><ul>{% for employment in specialist_past_employment %}<li><h3>{% if language == 'ru' %}{{ employment.organization.name_ru|default:employment.organization.name_az }}{% elif language == 'en' %}{{ employment.organization.name_en|default:employment.organization.name_az }}{% else %}{{ employment.organization.name_az }}{% endif %}</h3><p>{{ employment.role }} · {{ employment.start_date|date:'d.m.Y' }} — {% if employment.end_date %}{{ employment.end_date|date:'d.m.Y' }}{% else %}{% trans 'без даты окончания' %}{% endif %}{% if employment.cancelled_at %} · {% trans 'Участие отменено' %} {{ employment.cancelled_at|date:'d.m.Y' }}{% endif %}</p></li>{% endfor %}</ul></section>
+      <section class="km-detail-section sw-public-employment" id="specialist-past-employment">
+        <h2>{% trans 'История сотрудничества' %}</h2>
+        <p class="sw-help">{% trans 'Эти периоды не являются текущей работой.' %}</p>
+        <ul>
+          {% for employment in specialist_past_employment %}
+            <li>
+              <h3>
+                {% if employment.organization_linkable %}
+                  <a href="{% url 'organization_detail' employment.organization.public_id %}">
+                    {% if language == 'ru' %}{{ employment.organization.name_ru|default:employment.organization.name_az }}{% elif language == 'en' %}{{ employment.organization.name_en|default:employment.organization.name_az }}{% else %}{{ employment.organization.name_az }}{% endif %}
+                  </a>
+                {% else %}
+                  {% if language == 'ru' %}{{ employment.organization.name_ru|default:employment.organization.name_az }}{% elif language == 'en' %}{{ employment.organization.name_en|default:employment.organization.name_az }}{% else %}{{ employment.organization.name_az }}{% endif %}
+                {% endif %}
+              </h3>
+              <p>{{ employment.role }} · {{ employment.start_date|date:'d.m.Y' }} — {% if employment.end_date %}{{ employment.end_date|date:'d.m.Y' }}{% else %}{% trans 'без даты окончания' %}{% endif %}{% if employment.cancelled_at %} · {% trans 'Участие отменено' %} {{ employment.cancelled_at|date:'d.m.Y' }}{% endif %}</p>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
       {% endif %}
 
       <!-- Education and experience -->
@@ -137,18 +185,18 @@
             <i class="fas fa-graduation-cap" aria-hidden="true"></i>
             {% if language == "az" %}Təhsil və peşəkar təcrübə{% elif language == "en" %}Education and professional experience{% else %}Образование и профессиональный опыт{% endif %}
           </h2>
-          
+
           {% if specialist.education_ru or specialist.education_az or specialist.education_en %}
             <div class="km-detail-info-block">
               <h3>{% if language == "az" %}Təhsil{% elif language == "en" %}Education{% else %}Образование{% endif %}</h3>
-              <p>{{ specialist.education_i18n }}</p>
+              {% localized_content specialist 'education' as section_content %}{% include 'catalog/includes/localized_content.html' with content=section_content %}
             </div>
           {% endif %}
 
           {% if specialist.experience_info_ru or specialist.experience_info_az or specialist.experience_info_en %}
             <div class="km-detail-info-block km-detail-info-block-spaced">
               <h3>{% if language == "az" %}Peşəkar fəaliyyət təcrübəsi{% elif language == "en" %}Professional Experience{% else %}Опыт работы и стажировки{% endif %}</h3>
-              <p>{{ specialist.experience_info_i18n }}</p>
+              {% localized_content specialist 'experience_info' as section_content %}{% include 'catalog/includes/localized_content.html' with content=section_content %}
             </div>
           {% endif %}
         </section>
@@ -224,7 +272,7 @@
 
           <form action="{% url 'add_specialist_review' specialist.pk %}" method="post" data-review-submission data-loading-form>
             {% csrf_token %}
-            
+
             <div class="km-filter-group km-review-rating-field">
               <label>{% if language == "az" %}Sizin qiymətiniz{% elif language == "en" %}Your Rating{% else %}Ваша оценка{% endif %}</label>
               <div class="km-stars-selector" id="rating-stars-picker">
@@ -239,11 +287,11 @@
 
             <div class="km-filter-group km-review-text-field">
               <label for="review-text-field">{% if language == "az" %}Rəyinizin mətni{% elif language == "en" %}Review details{% else %}Текст отзыва{% endif %}</label>
-              <textarea 
-                name="text" 
-                id="review-text-field" 
-                rows="4" 
-                required 
+              <textarea
+                name="text"
+                id="review-text-field"
+                rows="4"
+                required
                 class="km-filter-input"
                 placeholder="{% if language == 'az' %}Məsləhətin gedişatı və nəticələri barədə təəssüratlarınızı bölüşün...{% elif language == 'en' %}Share your impressions about the quality, duration, and results of your session...{% else %}Расскажите, как прошло занятие или консультация и помог ли специалист вашему ребенку...{% endif %}"
               ></textarea>
@@ -273,14 +321,14 @@
 
     <!-- Right column: Sidebar -->
     <aside class="km-detail-sidebar">
-      
+
       <!-- Session Formats, Prices, Duration -->
       <div class="km-side-card">
         <h3>
           <i class="fas fa-clock" aria-hidden="true"></i>
           {% if language == "az" %}Xidmət şərtləri{% elif language == "en" %}Service details{% else %}Условия занятий и консультаций{% endif %}
         </h3>
-        
+
         <div class="km-card-details-box km-side-details-box">
           <div class="km-card-detail-item km-side-detail-row">
             <span class="label">{% if language == "az" %}Format{% elif language == "en" %}Format{% else %}Формат{% endif %}:</span>
@@ -298,9 +346,9 @@
           <div class="km-card-detail-item km-side-detail-row">
             <span class="label">{% if language == "az" %}Xidmətin qiyməti{% elif language == "en" %}Service price{% else %}Стоимость услуги{% endif %}:</span>
             <span class="value">
-              {% if specialist.price_from and specialist.price_to %}
+              {% if specialist.price_from != None and specialist.price_to != None %}
                 {{ specialist.price_from }} – {{ specialist.price_to }} AZN
-              {% elif specialist.price_from %}
+              {% elif specialist.price_from != None %}
                 {% if language == "az" %}od {{ specialist.price_from }} AZN{% elif language == "en" %}from {{ specialist.price_from }} AZN{% else %}от {{ specialist.price_from }} AZN{% endif %}
               {% else %}
                 —
@@ -330,11 +378,26 @@
           <div class="km-detail-locations-list">
             {% for loc in specialist_active_practice_locations %}
               <div class="km-detail-location-item">
-                <p class="km-detail-location-title">
+                <div class="km-detail-location-badge-row">
                   {% if loc.place %}
-                    <a href="{{ loc.place.get_absolute_url }}">{{ loc.place.name_i18n }}</a>
+                    <span class="km-location-status-badge km-location-status-badge--center">
+                      <i class="fas fa-store" aria-hidden="true"></i>
+                      <span>{% if language == 'az' %}KidsMap filialında{% elif language == 'en' %}KidsMap center{% else %}В детском центре KidsMap{% endif %}</span>
+                    </span>
                   {% else %}
-                    {% if language == "az" %}Şəxsi кабинет{% elif language == "en" %}Private cabinet{% else %}Собственный кабинет{% endif %}
+                    <span class="km-location-status-badge km-location-status-badge--private">
+                      <i class="fas fa-door-open" aria-hidden="true"></i>
+                      <span>{% if language == 'az' %}Özəl kabinet{% elif language == 'en' %}Private office{% else %}Собственный кабинет{% endif %}</span>
+                    </span>
+                  {% endif %}
+                </div>
+                <p class="km-detail-location-title">
+                  {% if loc.place and loc.is_place_visible %}
+                    <a href="{{ loc.place.get_absolute_url }}">{{ loc.place.name_i18n }}</a>
+                  {% elif loc.place %}
+                    <span>{{ loc.place.name_i18n }}</span>
+                  {% else %}
+                    {% if language == "az" %}Şəxsi kabinet{% elif language == "en" %}Private cabinet{% else %}Собственный кабинет{% endif %}
                   {% endif %}
                 </p>
                 <p class="km-detail-location-address">
@@ -345,14 +408,20 @@
                       {% if loc.district %}{{ loc.district.name_i18n }}{% endif %}{% if loc.district and loc.metro %}, {% endif %}{% if loc.metro %}m. {{ loc.metro.name_i18n }}{% endif %}
                     </span>
                   {% endif %}
-                  {% if loc.schedule %}
-                    <br />
-                    <span class="km-location-schedule">
-                      {{ loc.schedule }}
-                    </span>
-                  {% endif %}
                 </p>
-                {% if loc.price_per_session %}
+                {% if loc.schedule %}
+                  <p class="km-detail-location-schedule-row">
+                    <i class="far fa-clock" aria-hidden="true"></i>
+                    <span><strong>{% if language == 'az' %}Mütəxəssis qəbulu: {% elif language == 'en' %}Specialist hours: {% else %}Приём специалиста: {% endif %}</strong>{{ loc.schedule }}</span>
+                  </p>
+                {% endif %}
+                {% if loc.phone %}
+                  <p class="km-detail-location-phone-row">
+                    <i class="fas fa-phone-alt" aria-hidden="true"></i>
+                    <span><strong>{% if language == 'az' %}Filialda qeydiyyat: {% elif language == 'en' %}Branch phone: {% else %}Запись в филиале: {% endif %}</strong><a href="tel:{{ loc.phone }}">{{ loc.phone }}</a></span>
+                  </p>
+                {% endif %}
+                {% if loc.price_per_session != None %}
                   <span class="km-detail-location-price-tag">
                     {{ loc.price_per_session }} AZN
                   </span>

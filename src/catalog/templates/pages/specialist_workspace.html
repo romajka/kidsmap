@@ -2,8 +2,10 @@
 {% load i18n static %}
 {% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
 {% block title %}{% trans 'Кабинет специалиста' %}{% endblock %}
-{% block extra_head %}{{ block.super }}<meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}">{% endblock %}
+{% block extra_head %}<script src="{% static 'js/specialist_recovery.js' %}" defer></script>{{ block.super }}<meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}">{% endblock %}
 {% block content %}
+{{ clear_specialist_recovery|json_script:'specialist-clear-recovery' }}
+<div id="specialist-recovery-identity" data-actor="{{ recovery_actor }}" hidden></div>
 {% get_current_language as language %}
 <section class="sw-workspace">
   <header class="sw-heading">
@@ -30,7 +32,8 @@
           {% if my_specialist %}<h3>{{ my_specialist.name }}</h3><p>{% trans 'Личными сведениями и документами управляет подтверждённый человек.' %}</p><a class="sw-button sw-primary" href="{% url 'specialist_workspace_profile' my_specialist.pk %}">{% trans 'Редактировать профиль' %}</a>
           {% else %}<p>{% trans 'У вас пока нет подтверждённого профиля специалиста.' %}</p><a class="sw-button" href="{% url 'owner_specialist_create' %}">{% trans 'Предложить профиль' %}</a>{% endif %}
         </section>
-        <section class="sw-card"><h2>{% trans 'Предложенные профили' %}</h2><p>{% trans 'Авторство предложения не даёт права менять личные сведения человека.' %}</p><ul class="sw-rows">{% for proposal in proposals %}<li><h3>{{ proposal.name }}</h3><a href="{% url 'specialist_workspace_claims' proposal.pk %}">{% trans 'Это мой профиль' %}</a></li>{% empty %}<li>{% trans 'Предложений пока нет.' %}</li>{% endfor %}</ul></section>
+        <section class="sw-card"><h2>{% trans 'Рабочие копии предложений' %}</h2><a href="{% url 'specialist_workspace_proposal' %}">{% trans 'Предложить профиль' %}</a><ul class="sw-rows">{% for draft in working_proposals %}<li><h3>{{ draft.payload.name.0|default:_('Без имени') }}</h3><p>{% trans 'Черновик' %} · {{ draft.updated_at }}</p><a href="{% url 'specialist_workspace_proposal_resume' draft.pk %}">{% trans 'Продолжить предложение' %}</a></li>{% empty %}<li>{% trans 'Черновиков пока нет.' %}</li>{% endfor %}</ul></section>
+        <section class="sw-card"><h2>{% trans 'Предложенные профили' %}</h2><p>{% trans 'Авторство предложения не даёт права менять личные сведения человека.' %}</p><ul class="sw-rows">{% for proposal in proposals %}<li><h3>{{ proposal.name }}</h3><p>{{ proposal.get_status_display }}</p><a href="{% url 'specialist_workspace_claims' proposal.pk %}">{% trans 'Это мой профиль' %}</a></li>{% empty %}<li>{% trans 'Предложений пока нет.' %}</li>{% endfor %}</ul></section>
         {% if owned_organizations %}<section class="sw-card"><h2>{% trans 'Специалисты организации' %}</h2><ul class="sw-rows">{% for org in owned_organizations %}<li><a href="{% url 'organization_specialists' org.pk %}">{% if language == 'ru' %}{{ org.name_ru|default:org.name_az }}{% elif language == 'en' %}{{ org.name_en|default:org.name_az }}{% else %}{{ org.name_az }}{% endif %}</a></li>{% endfor %}</ul></section>{% endif %}
         {% if review_profiles %}<section class="sw-card"><h2>{% trans 'Проверка KidsMap' %}</h2><ul class="sw-rows">{% for profile in review_profiles %}<li><a href="{% url 'specialist_workspace_review' profile.pk %}">{{ profile.name }}</a></li>{% endfor %}</ul></section>{% endif %}
         {% if claims %}<section class="sw-card"><h2>{% trans 'Мои запросы' %}</h2><ul class="sw-rows">{% for claim in claims %}<li><a href="{% url 'specialist_workspace_claims' claim.specialist_id %}">{{ claim.specialist.name }}</a><p>{{ claim.created_at|date:'d.m.Y' }}</p></li>{% endfor %}</ul></section>{% endif %}

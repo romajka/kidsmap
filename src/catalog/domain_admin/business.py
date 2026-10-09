@@ -3,11 +3,15 @@
 Content is proposed through publication; structure is created through its
 locked model services. Review and visibility are explicit POST actions.
 """
+from operator import mod
+
 from django import forms
 from django.contrib import admin, messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.http import HttpResponseRedirect
 from django.urls import path, reverse
+from django.utils.functional import lazy
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from catalog.models import Activity, OfferingGroup, Organization, Program, VolunteerPlaceRevision
@@ -43,10 +47,19 @@ class CandidateForm(forms.ModelForm):
         return data
 
 
+# Keep both translation and percent formatting deferred until rendering.
+_format_label = lazy(mod, str)
+
+
 class OrganizationForm(CandidateForm):
     class Meta:
         model = Organization
         fields = ('name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en', 'phone', 'whatsapp', 'website')
+        labels = {**{f'name_{lang}':_format_label(_('Название организации (%(language)s)'), {'language':lang.upper()}) for lang in ('az','ru','en')},
+            **{f'description_{lang}':_format_label(_('Описание организации (%(language)s)'), {'language':lang.upper()}) for lang in ('az','ru','en')},
+            'phone':_('Общий телефон организации'),'whatsapp':_('Общий WhatsApp организации'),'website':_('Сайт организации')}
+        help_texts = {'phone':_('Используется в филиале, если там не указан собственный телефон.'),
+            'website':_('Используется в филиале, если там не указан собственный сайт.')}
 
 
 class ProgramForm(CandidateForm):
@@ -79,7 +92,7 @@ class BusinessEditor(admin.ModelAdmin):
     def publication_kind(self):
         return 'offering_group' if self.opts.model_name == 'offeringgroup' else self.opts.model_name
     readonly_fields = ('publication_badge', 'ownership_badge', 'verified_badge', 'content_version', 'archived_at')
-    list_display = ('display_name', 'publication_badge', 'content_version', 'updated_at')
+    list_display = ('display_name', 'publication_badge', 'display_content_version', 'display_updated_at')
     search_fields = ('name_az', 'name_ru', 'name_en')
     list_filter = ('status',)
     ordering = ('-updated_at',)
@@ -109,21 +122,41 @@ class BusinessEditor(admin.ModelAdmin):
     @admin.display(description=_('Публикация'))
     def publication_badge(self, obj):
         if isinstance(obj, OfferingGroup):
-            return _('Публикация занятия: %(status)s') % {'status': obj.activity.get_status_display()}
-        return obj.get_status_display()
+            status = getattr(obj.activity, 'status', 'draft')
+            status_text = _('Публикация занятия: %(status)s') % {'status': obj.activity.get_status_display()}
+            return format_html('<span class="km-status-badge km-status-{}">{}</span>', status, status_text)
+        status = getattr(obj, 'status', 'draft')
+        status_text = obj.get_status_display() if hasattr(obj, 'get_status_display') else status
+        return format_html('<span class="km-status-badge km-status-{}">{}</span>', status, status_text)
 
     @admin.display(description=_('Владение'))
     def ownership_badge(self, obj):
         target = obj if isinstance(obj, Organization) else (obj.organization if isinstance(obj, Program) else (obj.activity.place if isinstance(obj, OfferingGroup) else obj.place))
-        return _('Владелец назначен') if target.owner_id else _('Владелец не назначен')
+        if target.owner_id:
+            return format_html('<span class="km-status-badge km-status-published">{}</span>', _('Владелец назначен'))
+        return format_html('<span class="km-status-badge km-status-draft">{}</span>', _('Владелец не назначен'))
 
     @admin.display(description=_('Проверка данных'))
     def verified_badge(self, obj):
         if isinstance(obj, Organization):
-            return _('Владение проверено') if obj.ownership_verified_at else _('Владение не проверено')
+            if obj.ownership_verified_at:
+                return format_html('<span class="km-status-badge km-status-published">{}</span>', _('Владение проверено'))
+            return format_html('<span class="km-status-badge km-status-draft">{}</span>', _('Владение не проверено'))
         if isinstance(obj, OfferingGroup):
-            return _('Условия подтверждены') if obj.conditions_verified_at else _('Условия не подтверждены')
-        return _('Отдельный статус проверки не установлен')
+            if obj.conditions_verified_at:
+                return format_html('<span class="km-status-badge km-status-published">{}</span>', _('Условия подтверждены'))
+            return format_html('<span class="km-status-badge km-status-draft">{}</span>', _('Условия не подтверждены'))
+        return format_html('<span class="km-status-badge km-status-draft">{}</span>', _('Отдельный статус проверки не установлен'))
+
+    @admin.display(description=_('Версия'), ordering='content_version')
+    def display_content_version(self, obj):
+        return obj.content_version
+
+    @admin.display(description=_('Обновлено'), ordering='-updated_at')
+    def display_updated_at(self, obj):
+        from django.utils import timezone
+        local = timezone.localtime(obj.updated_at)
+        return local.strftime('%d.%m.%Y %H:%M')
 
     def get_readonly_fields(self, request, obj=None):
         return self.readonly_fields if obj else ('publication_badge', 'ownership_badge', 'verified_badge')

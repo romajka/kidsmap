@@ -1,0 +1,12 @@
+{% load i18n %}{% get_current_language as CURRENT_LANGUAGE %}
+<div class="org-pending-row" data-join-request="{{ item.pk }}">
+  <span>
+    {% if item.recovery_place_name %}{{ item.recovery_place_name }}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Əlçatan olmayan məkan{% elif CURRENT_LANGUAGE == 'en' %}Unavailable place{% else %}Недоступная карточка{% endif %}{% endif %}
+    · {% if item.recovery_org_name %}{{ item.recovery_org_name }}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Əlçatan olmayan təşkilat{% elif CURRENT_LANGUAGE == 'en' %}Unavailable organization{% else %}Недоступная организация{% endif %}{% endif %}
+    <small>{% if item.relationship_kind == 'informational' %}{% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi: KidsMap yoxlayır{% elif CURRENT_LANGUAGE == 'en' %}Information link: KidsMap review{% else %}Информационная связь: проверяет KidsMap{% endif %}{% elif item.recovery_stale %}{% if CURRENT_LANGUAGE == 'az' %}Məlumat dəyişib. Əvvəlki razılıq artıq qüvvədə deyil.{% elif CURRENT_LANGUAGE == 'en' %}Details changed. Previous consent is no longer valid.{% else %}Данные изменились. Старое согласие больше не действует.{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Sahiblərin təsdiqi gözlənilir.{% elif CURRENT_LANGUAGE == 'en' %}Waiting for owner confirmation.{% else %}Ожидает подтверждения владельцев.{% endif %}{% endif %}</small>
+  </span>
+  {% if item.relationship_kind == 'business' %}
+    {% if not item.recovery_stale %}<form method="post" action="{% url 'organization_workspace_confirm' item.organization_id item.pk %}">{% csrf_token %}<button class="org-text-action" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Təsdiqlə{% elif CURRENT_LANGUAGE == 'en' %}Confirm{% else %}Подтвердить{% endif %}</button></form>{% endif %}
+    <a class="org-text-action" href="{% url 'organization_join_recovery' item.organization_id item.pk %}">{% if CURRENT_LANGUAGE == 'az' %}Sorğuya bax və ləğv et{% elif CURRENT_LANGUAGE == 'en' %}Review and cancel request{% else %}Просмотреть и отменить запрос{% endif %}</a>
+  {% endif %}
+</div>

@@ -1,0 +1,15 @@
+async(page)=>{
+ const role='owner',base='http://localhost:8784';const ctx=await page.context().browser().newContext({reducedMotion:'reduce'});const p=await ctx.newPage();p.setDefaultTimeout(4500);p.on('dialog',d=>d.accept().catch(()=>{}));
+ await p.goto(base+'/qa/');await Promise.all([p.waitForNavigation(),p.getByRole('button',{name:'Войти: demo_'+(role==='owner'?'owner':'moderator'),exact:true}).press('Enter')]);const out=[];
+ for(const lang of ['ru','az','en']){await ctx.addCookies([{name:'django_language',value:lang,url:base}]);for(const width of [360,390,768,1440]){await p.setViewportSize({width,height:900});
+ const path=role==='owner'?(lang==='az'?'':'/'+lang)+'/account/places/5/edit/':'/admin/catalog/place/add/?type=permanent';
+ await p.goto(base+path);await p.waitForFunction(role=>document.querySelector(role==='owner'?'.pc.pc-enhanced':'.km-pf.km-pf-entry-enhanced'),role);await p.waitForTimeout(350);
+ const tabs={};if(role==='admin'){const t=p.locator('[data-pf-langtab]').first();await t.focus();await t.press('ArrowRight');tabs.right=await p.evaluate(()=>document.activeElement.dataset.pfLangtab);await p.keyboard.press('End');tabs.end=await p.evaluate(()=>document.activeElement.dataset.pfLangtab);await p.keyboard.press('Home');tabs.home=await p.evaluate(()=>document.activeElement.dataset.pfLangtab);await p.locator('[name=name_az]').fill('QA Klaviatura '+lang+' '+width);}
+ await p.locator('[name=age_from]').fill('9');await p.locator('[name=age_to]').fill('1');
+ if(role==='owner'){await p.locator('[data-pc-submit]').press('Enter');await p.waitForFunction(()=>!document.querySelector('[data-pc-errors]').hidden);await p.locator('[data-pc-errors] button').first().press('Enter');}
+ else {await p.locator('button[name=_save_draft]').press('Enter');await p.locator('[data-place-error-summary]').waitFor();await p.locator('[data-place-error-summary] a').first().press('Enter');}
+ await p.waitForTimeout(180);const data=await p.evaluate(role=>{const n=document.activeElement,r=n.getBoundingClientRect();const top=role==='owner'?(document.querySelector('.pc-savebar').getBoundingClientRect().bottom):145;return{focus:n.id,top:r.top,bottom:r.bottom,clearOfPanels:r.top>top&&r.bottom<innerHeight-85,describedby:n.getAttribute('aria-describedby'),invalid:n.getAttribute('aria-invalid')};},role);
+ await p.keyboard.press('Shift+Tab');await p.keyboard.press('Tab');data.tabReturns=await p.evaluate(()=>document.activeElement.id==='id_age_to');
+ const file='keyboard-'+role+'-'+lang+'-'+width+'.png';await p.screenshot({path:'/home/ramin/kidsmap/docs/qa/permanent-place-form-implementation-2026-10-07/screenshots/'+file});out.push({role,lang,width,tabs,...data,screenshot:file,pass:data.focus==='id_age_to'&&data.clearOfPanels&&data.tabReturns&&!!data.describedby&&(role==='owner'||tabs.right==='ru'&&tabs.end==='en'&&tabs.home==='az')});
+ }}await ctx.close();return out;
+}

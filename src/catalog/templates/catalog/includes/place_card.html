@@ -114,7 +114,7 @@
     {% if presentation.organization %}
     <p class="meta card-organization"><a href="{{ presentation.organization.url }}">{{ presentation.organization.name }}</a></p>
     {% endif %}
-    {% if presentation.matched_offers %}
+    {% if presentation.matched_offers and presentation.exact_filtered %}
     <ul class="card-matched-offers" data-matched-offers>
       {% for offer in presentation.matched_offers %}
       <li class="card-matched-offer">

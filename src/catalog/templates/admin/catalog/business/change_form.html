@@ -1,12 +1,122 @@
 {% extends 'admin/change_form.html' %}
 {% load i18n static %}
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}">{% endblock %}
 {% block after_field_sets %}
   {{ block.super }}
+  <style>
+    .km-business-links-grid {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 10px !important;
+      margin-top: 8px !important;
+    }
+    .km-business-links-grid .km-pf-btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      height: 36px !important;
+      padding: 0 16px !important;
+      border-radius: 8px !important;
+      border: 1px solid #d0d7d3 !important;
+      background: #ffffff !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: #3d4d45 !important;
+      text-decoration: none !important;
+      white-space: nowrap !important;
+      cursor: pointer !important;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+      transition: all 140ms ease !important;
+    }
+    .km-business-links-grid .km-pf-btn:hover {
+      background: #f4f7f5 !important;
+      border-color: #136f38 !important;
+      color: #136f38 !important;
+    }
+    section.km-pf-group {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 12px !important;
+      padding: 20px 24px !important;
+      margin: 0 0 20px 0 !important;
+      width: 100% !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+    }
+    section.km-pf-group h2 {
+      color: #1e293b !important;
+      font-size: 1.1rem !important;
+      font-weight: 700 !important;
+      margin-top: 0 !important;
+      margin-bottom: 14px !important;
+      padding-bottom: 10px !important;
+      border-bottom: 1px solid #e2e8f0 !important;
+    }
+    section.km-pf-group table.table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+      margin-top: 10px !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 8px !important;
+      overflow: hidden !important;
+    }
+    section.km-pf-group table.table th,
+    section.km-pf-group table.table td {
+      padding: 10px 14px !important;
+      border: 1px solid #e2e8f0 !important;
+      font-size: 13px !important;
+    }
+    section.km-pf-group table.table thead th {
+      background: #f8fafc !important;
+      font-weight: 600 !important;
+      color: #1e293b !important;
+    }
+    section.km-pf-group input[type="email"] {
+      display: block !important;
+      max-width: 400px !important;
+      width: 100% !important;
+      height: 38px !important;
+      padding: 6px 12px !important;
+      border-radius: 8px !important;
+      border: 1px solid #cbd5e1 !important;
+      margin: 8px 0 14px !important;
+    }
+    section.km-pf-group button.km-pf-btn {
+      height: 36px !important;
+      padding: 0 16px !important;
+      border-radius: 8px !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+      border: 1px solid #e2e8f0 !important;
+      background: #ffffff !important;
+    }
+    section.km-pf-group button.km-pf-btn--primary {
+      background: #009a4e !important;
+      border-color: #009a4e !important;
+      color: #ffffff !important;
+    }
+    .submit-row button[name="_save_draft"],
+    .submit-row button[name="_submit_candidate"] {
+      height: 38px !important;
+      padding: 0 18px !important;
+      border-radius: 8px !important;
+      font-weight: 600 !important;
+      font-size: 13px !important;
+      cursor: pointer !important;
+      border: 1px solid #e2e8f0 !important;
+      margin-left: 8px !important;
+    }
+    .submit-row button[name="_submit_candidate"] {
+      background: #009a4e !important;
+      color: #ffffff !important;
+      border-color: #009a4e !important;
+    }
+  </style>
   {% if km_business_links %}
     <section class="km-pf-group" aria-label="{% translate 'Связанные разделы' %}">
       <h2>{% translate 'Связанные разделы' %}</h2>
-      {% for label, url in km_business_links %}<a class="km-pf-btn km-pf-btn--ghost" href="{{ url }}">{{ label }}</a>{% endfor %}
+      <div class="km-business-links-grid">
+        {% for label, url in km_business_links %}<a class="km-pf-btn km-pf-btn--ghost" href="{{ url }}">{{ label }}</a>{% endfor %}
+      </div>
     </section>
   {% endif %}
   {% if km_business_changes %}
@@ -51,6 +161,6 @@
   {% endif %}
 {% endblock %}
 {% block submit_buttons_bottom %}
-  {{ block.super }}
+  {% if km_business_kind != 'organization' %}{{ block.super }}{% endif %}
   {% if has_change_permission %}<div class="submit-row"><button type="submit" name="_save_draft">{% translate 'Сохранить черновик' %}</button><button type="submit" name="_submit_candidate">{% translate 'Отправить на проверку' %}</button></div>{% endif %}
 {% endblock %}

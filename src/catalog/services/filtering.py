@@ -47,7 +47,7 @@ class PlaceListFilters:
             sort=(request.GET.get("sort") or "new").strip(),
             days=(request.GET.get("days") or "30").strip(),
             with_photo=(request.GET.get("with_photo") or "").strip(),
-            verified_only=(request.GET.get("verified") or "").strip(),
+            verified_only="",
             event_type=(request.GET.get("event_type") or "").strip(),
             view_mode="grid",
             force_new_only=force_new_only,
@@ -176,8 +176,6 @@ class PlaceListFilters:
                     (Q(cover_photo="") | Q(cover_photo__isnull=True))
                     & (Q(photo="") | Q(photo__isnull=True))
                 )
-            if self.verified_only == "1":
-                qs = qs.filter(is_verified=True)
 
         if self.metro:
             qs = qs.filter(metro__iexact=self.metro)
@@ -214,7 +212,6 @@ class PlaceListFilters:
             "sort": self.sort,
             "days": self.days,
             "with_photo": self.with_photo,
-            "verified": self.verified_only,
             "event_type": self.event_type,
             "view": self.view_mode,
         }

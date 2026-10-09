@@ -1,0 +1,4273 @@
+{
+  "snapshot": {
+    "head": "2da9d33abbc53d1ac71bcb7e15a0170bef6277d5",
+    "source_digest": "2103684f9e10e93c0fe4fed68c79ffd7215b15804124537abf3fdcc18f22e989",
+    "source_files": 2766,
+    "runtime": "http://localhost:8790",
+    "testing": true
+  },
+  "counts": {
+    "PASS": 478,
+    "FAIL": 2
+  },
+  "origins": [
+    {
+      "run": "place",
+      "included_rows": 3
+    },
+    {
+      "run": "place-studio",
+      "included_rows": 3
+    },
+    {
+      "run": "place-venue",
+      "included_rows": 3
+    },
+    {
+      "run": "place-validation",
+      "included_rows": 2
+    },
+    {
+      "run": "org-create",
+      "included_rows": 2
+    },
+    {
+      "run": "org-lifecycle",
+      "included_rows": 6
+    },
+    {
+      "run": "event",
+      "included_rows": 17
+    },
+    {
+      "run": "event-no-organizer",
+      "included_rows": 2
+    },
+    {
+      "run": "event-management",
+      "included_rows": 6
+    },
+    {
+      "run": "specialist",
+      "included_rows": 15
+    },
+    {
+      "run": "specialist-validation",
+      "included_rows": 2
+    },
+    {
+      "run": "moderation",
+      "included_rows": 4
+    },
+    {
+      "run": "gallery-repeat",
+      "included_rows": 6
+    },
+    {
+      "run": "bulk",
+      "included_rows": 5
+    },
+    {
+      "run": "bulk-negative",
+      "included_rows": 5
+    },
+    {
+      "run": "owner-connect-detach",
+      "included_rows": 5
+    },
+    {
+      "run": "privacy",
+      "included_rows": 5
+    },
+    {
+      "run": "author-access",
+      "included_rows": 2
+    },
+    {
+      "run": "claim-invitation",
+      "included_rows": 6
+    },
+    {
+      "run": "specialist-published",
+      "included_rows": 8
+    },
+    {
+      "run": "specialist-resubmit",
+      "included_rows": 4
+    },
+    {
+      "run": "matrix",
+      "included_rows": 252
+    },
+    {
+      "run": "stage-matrix",
+      "included_rows": 96
+    },
+    {
+      "run": "section-flags",
+      "included_rows": 18
+    },
+    {
+      "run": "labels",
+      "included_rows": 3
+    }
+  ],
+  "rows": [
+    {
+      "id": "place-partial-draft-reload",
+      "status": "PASS",
+      "run": "place"
+    },
+    {
+      "id": "place-filled-nested-reload",
+      "status": "PASS",
+      "run": "place"
+    },
+    {
+      "id": "place-photo-and-submit",
+      "status": "PASS",
+      "run": "place"
+    },
+    {
+      "id": "studio-draft-reload",
+      "status": "PASS",
+      "run": "place-studio"
+    },
+    {
+      "id": "studio-filled-reload",
+      "status": "PASS",
+      "run": "place-studio"
+    },
+    {
+      "id": "studio-submit",
+      "status": "PASS",
+      "run": "place-studio"
+    },
+    {
+      "id": "venue-draft-reload",
+      "status": "PASS",
+      "run": "place-venue"
+    },
+    {
+      "id": "venue-filled-reload",
+      "status": "PASS",
+      "run": "place-venue"
+    },
+    {
+      "id": "venue-submit",
+      "status": "PASS",
+      "run": "place-venue"
+    },
+    {
+      "status": "PASS",
+      "httpStatus": 422,
+      "id": "place-age-validation-preserves-input",
+      "run": "place-validation"
+    },
+    {
+      "id": "place-error-keyboard-focus",
+      "status": "PASS",
+      "run": "place-validation"
+    },
+    {
+      "id": "organization-create-without-branches",
+      "status": "PASS",
+      "run": "org-create"
+    },
+    {
+      "id": "organization-reopen",
+      "status": "PASS",
+      "run": "org-create"
+    },
+    {
+      "id": "new-organization-server-draft-reload",
+      "status": "PASS",
+      "run": "org-lifecycle"
+    },
+    {
+      "id": "organization-invalid-url",
+      "status": "PASS",
+      "run": "org-lifecycle"
+    },
+    {
+      "id": "organization-sent-to-review-not-public",
+      "status": "PASS",
+      "run": "org-lifecycle"
+    },
+    {
+      "id": "organization-reviewed-public",
+      "status": "PASS",
+      "run": "org-lifecycle"
+    },
+    {
+      "id": "published-org-old-version-before-review",
+      "status": "PASS",
+      "run": "org-lifecycle"
+    },
+    {
+      "id": "published-org-edit-after-review",
+      "status": "PASS",
+      "run": "org-lifecycle"
+    },
+    {
+      "id": 15,
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "edit-refresh-offers-explicit-copy",
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "edit-input-restored",
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "second-step-draft-own-address-no-map",
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "client-accepts-three-mb-source",
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "third-step-photo-persisted",
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "submission-missing-phone-retains-fields",
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "error-link-visible-focus",
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "venue-address-explicit-phone-empty",
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "explicit-use-venue-phone",
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "submit-goes-to-dashboard",
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "pending-ordinary-editor-closed",
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "two-tabs-structured-conflict-keeps-text",
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "stale-recovery-restore-blocked",
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "verified-specialist-online-draft-reload",
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "organization-owner-no-foreign-specialist-event-access",
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "new-recovery-preserves-location-and-step",
+      "status": "PASS",
+      "run": "event"
+    },
+    {
+      "id": "no-cross-account-recovery",
+      "status": "PASS",
+      "run": "event-no-organizer"
+    },
+    {
+      "id": "user-without-organizer",
+      "status": "PASS",
+      "run": "event-no-organizer"
+    },
+    {
+      "id": "published-reschedule-baku-interval",
+      "status": "PASS",
+      "run": "event-management"
+    },
+    {
+      "id": "public-rescheduled-label-and-original-venue",
+      "status": "PASS",
+      "run": "event-management"
+    },
+    {
+      "id": "cancel-keeps-card-disables-actions",
+      "status": "PASS",
+      "run": "event-management"
+    },
+    {
+      "id": "repeat-stale-cancel-explicit-conflict",
+      "status": "PASS",
+      "run": "event-management"
+    },
+    {
+      "id": "public-cancelled-retained",
+      "status": "PASS",
+      "run": "event-management"
+    },
+    {
+      "id": "foreign-management-forbidden",
+      "status": "PASS",
+      "run": "event-management"
+    },
+    {
+      "id": "first-step-draft-private-photo",
+      "status": "PASS",
+      "run": "specialist"
+    },
+    {
+      "id": "reload-offers-explicit-recovery",
+      "status": "PASS",
+      "run": "specialist"
+    },
+    {
+      "id": "existing-name-recovery",
+      "status": "PASS",
+      "run": "specialist"
+    },
+    {
+      "id": "draft-step-2",
+      "status": "PASS",
+      "run": "specialist"
+    },
+    {
+      "id": "keyboard-format",
+      "status": "PASS",
+      "run": "specialist"
+    },
+    {
+      "id": "draft-step-3-three-practices",
+      "status": "PASS",
+      "run": "specialist"
+    },
+    {
+      "id": "draft-step-4",
+      "status": "PASS",
+      "run": "specialist"
+    },
+    {
+      "id": "draft-step-5",
+      "status": "PASS",
+      "run": "specialist"
+    },
+    {
+      "id": "error-link-focus-and-step",
+      "status": "PASS",
+      "run": "specialist"
+    },
+    {
+      "id": "proposal-send-pending",
+      "status": "PASS",
+      "run": "specialist"
+    },
+    {
+      "id": "repeat-send-same-profile",
+      "status": "PASS",
+      "run": "specialist"
+    },
+    {
+      "id": "author-no-person-authority-",
+      "status": "PASS",
+      "run": "specialist"
+    },
+    {
+      "id": "author-no-person-authority-certificates/",
+      "status": "PASS",
+      "run": "specialist"
+    },
+    {
+      "id": "general-edit-preserves-local-prices",
+      "status": "PASS",
+      "run": "specialist"
+    },
+    {
+      "id": "two-tabs-owner-conflict",
+      "status": "PASS",
+      "run": "specialist"
+    },
+    {
+      "id": "invalid-submit-preserves-input",
+      "status": "PASS",
+      "run": "specialist-validation"
+    },
+    {
+      "id": "invalid-submit-error-summary",
+      "status": "PASS",
+      "run": "specialist-validation"
+    },
+    {
+      "id": "place-ready-to-moderate",
+      "status": "PASS",
+      "run": "moderation"
+    },
+    {
+      "id": "place-public-nested-groups-and-tariffs",
+      "status": "PASS",
+      "run": "moderation"
+    },
+    {
+      "id": "event-admin-moderate",
+      "status": "PASS",
+      "run": "moderation"
+    },
+    {
+      "id": "event-public",
+      "status": "PASS",
+      "run": "moderation"
+    },
+    {
+      "id": "published-gallery-keyboard-reorder",
+      "status": "PASS",
+      "run": "gallery-repeat"
+    },
+    {
+      "id": "gallery-order-and-cover-reload",
+      "status": "PASS",
+      "run": "gallery-repeat"
+    },
+    {
+      "id": "saved-gallery-delete-add-reload",
+      "status": "PASS",
+      "run": "gallery-repeat"
+    },
+    {
+      "id": "published-photo-remains-before-approval",
+      "status": "PASS",
+      "run": "gallery-repeat"
+    },
+    {
+      "id": "edited-photo-candidate-ready-to-approve",
+      "status": "PASS",
+      "run": "gallery-repeat"
+    },
+    {
+      "id": "gallery-published-after-approval",
+      "status": "PASS",
+      "run": "gallery-repeat"
+    },
+    {
+      "id": "admin-list-ten-existing",
+      "status": "PASS",
+      "run": "bulk"
+    },
+    {
+      "id": "preview-ten",
+      "status": "PASS",
+      "run": "bulk"
+    },
+    {
+      "id": "connect-ten",
+      "status": "PASS",
+      "run": "bulk"
+    },
+    {
+      "id": "reload-ten",
+      "status": "PASS",
+      "run": "bulk"
+    },
+    {
+      "id": "repeat-same-result",
+      "status": "PASS",
+      "run": "bulk"
+    },
+    {
+      "id": "admin-list-ten-existing",
+      "status": "PASS",
+      "run": "bulk-negative"
+    },
+    {
+      "id": "preview-mixed-conflict",
+      "status": "PASS",
+      "run": "bulk-negative"
+    },
+    {
+      "id": "partial-refusal-no-transfer",
+      "status": "PASS",
+      "run": "bulk-negative"
+    },
+    {
+      "id": "reload-partial",
+      "status": "PASS",
+      "run": "bulk-negative"
+    },
+    {
+      "id": "repeat-same-result",
+      "status": "PASS",
+      "run": "bulk-negative"
+    },
+    {
+      "id": "owner-own-place-preview",
+      "status": "PASS",
+      "run": "owner-connect-detach"
+    },
+    {
+      "id": "owner-business-connect",
+      "status": "PASS",
+      "run": "owner-connect-detach"
+    },
+    {
+      "id": "detach-explicit-impact",
+      "status": "PASS",
+      "run": "owner-connect-detach"
+    },
+    {
+      "id": "detach-result",
+      "status": "PASS",
+      "run": "owner-connect-detach"
+    },
+    {
+      "id": "detached-public-content-retained",
+      "status": "PASS",
+      "run": "owner-connect-detach"
+    },
+    {
+      "id": "identity-always-private",
+      "status": "PASS",
+      "run": "privacy"
+    },
+    {
+      "id": "certificate-pending-explicit-consent",
+      "status": "PASS",
+      "run": "privacy"
+    },
+    {
+      "id": "anonymous-certificate-vs-identity-ACL",
+      "status": "PASS",
+      "run": "privacy"
+    },
+    {
+      "id": "organization-owner-cannot-read-identity",
+      "status": "PASS",
+      "run": "privacy"
+    },
+    {
+      "id": "certificate-revoke-removes-public-download",
+      "status": "PASS",
+      "run": "privacy"
+    },
+    {
+      "id": "proposal-author-after-employment-denied-profile",
+      "httpStatus": 404,
+      "status": "PASS",
+      "run": "author-access"
+    },
+    {
+      "id": "proposal-author-after-employment-denied-certificates/",
+      "httpStatus": 404,
+      "status": "PASS",
+      "run": "author-access"
+    },
+    {
+      "id": "before-identity-no-personal-rights",
+      "status": "PASS",
+      "run": "claim-invitation"
+    },
+    {
+      "id": "claim-pending-explicit",
+      "status": "PASS",
+      "run": "claim-invitation"
+    },
+    {
+      "id": "identity-approved-personal-rights",
+      "status": "PASS",
+      "run": "claim-invitation"
+    },
+    {
+      "id": "organization-invitation-created",
+      "status": "PASS",
+      "run": "claim-invitation"
+    },
+    {
+      "id": "invitation-requires-person-consent",
+      "status": "PASS",
+      "run": "claim-invitation"
+    },
+    {
+      "id": "person-confirmed-invitation",
+      "status": "PASS",
+      "run": "claim-invitation"
+    },
+    {
+      "id": "admin-jump-focus",
+      "status": "PASS",
+      "run": "specialist-published"
+    },
+    {
+      "id": "admin-publish",
+      "status": "PASS",
+      "run": "specialist-published"
+    },
+    {
+      "id": "published-proposal-public-card",
+      "status": "PASS",
+      "run": "specialist-published"
+    },
+    {
+      "id": "admin-two-tabs-reject-and-retain-stale-token",
+      "status": "PASS",
+      "run": "specialist-published"
+    },
+    {
+      "id": "published-edit-warning",
+      "status": "PASS",
+      "run": "specialist-published"
+    },
+    {
+      "id": "null-experience-draft-reload",
+      "status": "PASS",
+      "run": "specialist-published"
+    },
+    {
+      "id": "draft-is-not-public",
+      "status": "PASS",
+      "run": "specialist-published"
+    },
+    {
+      "id": "admin-create-online-no-practice",
+      "status": "PASS",
+      "run": "specialist-published"
+    },
+    {
+      "id": "empty-experience-reopen",
+      "status": "PASS",
+      "run": "specialist-resubmit"
+    },
+    {
+      "id": "published-edit-resubmitted",
+      "status": "PASS",
+      "run": "specialist-resubmit"
+    },
+    {
+      "id": "edited-specialist-pending",
+      "status": "PASS",
+      "run": "specialist-resubmit"
+    },
+    {
+      "id": "edited-specialist-republished-practice-prices",
+      "status": "PASS",
+      "run": "specialist-resubmit"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/event-create/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/event-create/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/event-create/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/event-create/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/event-create/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/event-create/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/event-create/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/event-create/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/event-create/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/event-create/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/event-create/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/event-create/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/event-edit/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/event-edit/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/event-edit/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/event-edit/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/event-edit/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/event-edit/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/event-edit/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/event-edit/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/event-edit/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/event-edit/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/event-edit/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/event-edit/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/organization-create/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/organization-create/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/organization-create/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/organization-create/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/organization-create/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/organization-create/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/organization-create/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/organization-create/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/organization-create/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/organization-create/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/organization-create/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/organization-create/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/organization-edit/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/organization-edit/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/organization-edit/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/organization-edit/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/organization-edit/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/organization-edit/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/organization-edit/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/organization-edit/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/organization-edit/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/organization-edit/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/organization-edit/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/organization-edit/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/place-create/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/place-create/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/place-create/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/place-create/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/place-create/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/place-create/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/place-create/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/place-create/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/place-create/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/place-create/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/place-create/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/place-create/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/place-edit/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/place-edit/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/place-edit/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/place-edit/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/place-edit/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/place-edit/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/place-edit/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/place-edit/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/place-edit/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/place-edit/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/place-edit/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/place-edit/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/specialist-create/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/specialist-create/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/specialist-create/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/specialist-create/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/specialist-create/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/specialist-create/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/specialist-create/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/specialist-create/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/specialist-create/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/specialist-create/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/specialist-create/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/specialist-create/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/specialist-edit/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/specialist-edit/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/specialist-edit/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/specialist-edit/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/specialist-edit/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/specialist-edit/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/specialist-edit/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/specialist-edit/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "admin/specialist-edit/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "admin/specialist-edit/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "admin/specialist-edit/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "admin/specialist-edit/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/event-create/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/event-create/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/event-create/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/event-create/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/event-create/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/event-create/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/event-create/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/event-create/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/event-create/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/event-create/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/event-create/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/event-create/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/event-edit/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/event-edit/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/event-edit/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/event-edit/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/event-edit/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/event-edit/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/event-edit/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/event-edit/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/event-edit/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/event-edit/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/event-edit/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/event-edit/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/organization-create/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/organization-create/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/organization-create/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/organization-create/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/organization-create/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/organization-create/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/organization-create/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/organization-create/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/organization-create/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/organization-create/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/organization-create/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/organization-create/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/organization-edit/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/organization-edit/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/organization-edit/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/organization-edit/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/organization-edit/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/organization-edit/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/organization-edit/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/organization-edit/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/organization-edit/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/organization-edit/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/organization-edit/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/organization-edit/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/place-create/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/place-create/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/place-create/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/place-create/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/place-create/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/place-create/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/place-create/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/place-create/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/place-create/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/place-create/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/place-create/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/place-create/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/place-edit/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/place-edit/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/place-edit/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/place-edit/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/place-edit/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/place-edit/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/place-edit/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/place-edit/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/place-edit/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/place-edit/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/place-edit/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/place-edit/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/specialist-proposal/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/specialist-proposal/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/specialist-proposal/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/specialist-proposal/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/specialist-proposal/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/specialist-proposal/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/specialist-proposal/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/specialist-proposal/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "owner/specialist-proposal/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "owner/specialist-proposal/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "owner/specialist-proposal/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "owner/specialist-proposal/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "person/specialist-edit/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "person/specialist-edit/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "person/specialist-edit/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "person/specialist-edit/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "person/specialist-edit/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "person/specialist-edit/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "person/specialist-edit/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "person/specialist-edit/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "person/specialist-edit/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "person/specialist-edit/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "person/specialist-edit/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "person/specialist-edit/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "public/event/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "public/event/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "public/event/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "public/event/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "public/event/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "public/event/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "public/event/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "public/event/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "public/event/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "public/event/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "public/event/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "public/event/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "public/organization/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "public/organization/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "public/organization/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "public/organization/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "public/organization/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "public/organization/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "public/organization/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "public/organization/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "public/organization/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "public/organization/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "public/organization/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "public/organization/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "public/place/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "public/place/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "public/place/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "public/place/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "public/place/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "public/place/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "public/place/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "public/place/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "public/place/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "public/place/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "public/place/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "public/place/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "public/specialist-catalog/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "public/specialist-catalog/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "public/specialist-catalog/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "public/specialist-catalog/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "public/specialist-catalog/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "public/specialist-catalog/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "public/specialist-catalog/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "public/specialist-catalog/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "public/specialist-catalog/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "public/specialist-catalog/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "public/specialist-catalog/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "public/specialist-catalog/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "public/specialist/az/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "public/specialist/az/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "public/specialist/az/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "public/specialist/az/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "public/specialist/en/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "public/specialist/en/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "public/specialist/en/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "public/specialist/en/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "scroll": 1440,
+      "viewport": 1440,
+      "httpStatus": 200,
+      "id": "public/specialist/ru/1440",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "status": "PASS",
+      "scroll": 360,
+      "viewport": 360,
+      "httpStatus": 200,
+      "id": "public/specialist/ru/360",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "status": "PASS",
+      "scroll": 390,
+      "viewport": 390,
+      "httpStatus": 200,
+      "id": "public/specialist/ru/390",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "status": "PASS",
+      "scroll": 768,
+      "viewport": 768,
+      "httpStatus": 200,
+      "id": "public/specialist/ru/768",
+      "run": "matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "step": 1,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "event/ru/360/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "step": 2,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "event/ru/360/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "step": 3,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "event/ru/360/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "step": 1,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "specialist/ru/360/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "step": 2,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "specialist/ru/360/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "step": 3,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "specialist/ru/360/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "step": 4,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "specialist/ru/360/4",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "step": 5,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "specialist/ru/360/5",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "step": 1,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "event/ru/390/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "step": 2,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "event/ru/390/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "step": 3,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "event/ru/390/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "step": 1,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "specialist/ru/390/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "step": 2,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "specialist/ru/390/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "step": 3,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "specialist/ru/390/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "step": 4,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "specialist/ru/390/4",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "step": 5,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "specialist/ru/390/5",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "step": 1,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "event/ru/768/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "step": 2,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "event/ru/768/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "step": 3,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "event/ru/768/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "step": 1,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "specialist/ru/768/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "step": 2,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "specialist/ru/768/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "step": 3,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "specialist/ru/768/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "step": 4,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "specialist/ru/768/4",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 768,
+      "step": 5,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "specialist/ru/768/5",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "step": 1,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "event/ru/1440/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "step": 2,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "event/ru/1440/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "step": 3,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "event/ru/1440/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "step": 1,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "specialist/ru/1440/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "step": 2,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "specialist/ru/1440/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "step": 3,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "specialist/ru/1440/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "step": 4,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "specialist/ru/1440/4",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "step": 5,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "specialist/ru/1440/5",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "step": 1,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "event/az/360/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "step": 2,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "event/az/360/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "step": 3,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "event/az/360/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "step": 1,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "specialist/az/360/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "step": 2,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "specialist/az/360/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "step": 3,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "specialist/az/360/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "step": 4,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "specialist/az/360/4",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "step": 5,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "specialist/az/360/5",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "step": 1,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "event/az/390/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "step": 2,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "event/az/390/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "step": 3,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "event/az/390/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "step": 1,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "specialist/az/390/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "step": 2,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "specialist/az/390/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "step": 3,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "specialist/az/390/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "step": 4,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "specialist/az/390/4",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "step": 5,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "specialist/az/390/5",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "step": 1,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "event/az/768/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "step": 2,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "event/az/768/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "step": 3,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "event/az/768/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "step": 1,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "specialist/az/768/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "step": 2,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "specialist/az/768/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "step": 3,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "specialist/az/768/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "step": 4,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "specialist/az/768/4",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "step": 5,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "specialist/az/768/5",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "step": 1,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "event/az/1440/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "step": 2,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "event/az/1440/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "step": 3,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "event/az/1440/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "step": 1,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "specialist/az/1440/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "step": 2,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "specialist/az/1440/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "step": 3,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "specialist/az/1440/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "step": 4,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "specialist/az/1440/4",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "step": 5,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "specialist/az/1440/5",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "step": 1,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "event/en/360/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "step": 2,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "event/en/360/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "step": 3,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "event/en/360/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "step": 1,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "specialist/en/360/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "step": 2,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "specialist/en/360/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "step": 3,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "specialist/en/360/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "step": 4,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "specialist/en/360/4",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "step": 5,
+      "scroll": 360,
+      "viewport": 360,
+      "id": "specialist/en/360/5",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "step": 1,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "event/en/390/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "step": 2,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "event/en/390/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "step": 3,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "event/en/390/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "step": 1,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "specialist/en/390/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "step": 2,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "specialist/en/390/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "step": 3,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "specialist/en/390/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "step": 4,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "specialist/en/390/4",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "step": 5,
+      "scroll": 390,
+      "viewport": 390,
+      "id": "specialist/en/390/5",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "step": 1,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "event/en/768/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "step": 2,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "event/en/768/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "step": 3,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "event/en/768/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "step": 1,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "specialist/en/768/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "step": 2,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "specialist/en/768/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "step": 3,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "specialist/en/768/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "step": 4,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "specialist/en/768/4",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "step": 5,
+      "scroll": 768,
+      "viewport": 768,
+      "id": "specialist/en/768/5",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "step": 1,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "event/en/1440/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "step": 2,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "event/en/1440/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "step": 3,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "event/en/1440/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "step": 1,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "specialist/en/1440/1",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "step": 2,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "specialist/en/1440/2",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "step": 3,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "specialist/en/1440/3",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "step": 4,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "specialist/en/1440/4",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "step": 5,
+      "scroll": 1440,
+      "viewport": 1440,
+      "id": "specialist/en/1440/5",
+      "status": "PASS",
+      "run": "stage-matrix"
+    },
+    {
+      "id": "disable-organizations_section_enabled-ru",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "disable-organizations_section_enabled-az",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "disable-organizations_section_enabled-en",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "enable-organizations_section_enabled-ru",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "enable-organizations_section_enabled-az",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "enable-organizations_section_enabled-en",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "disable-specialists_section_enabled-ru",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "disable-specialists_section_enabled-az",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "disable-specialists_section_enabled-en",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "enable-specialists_section_enabled-ru",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "enable-specialists_section_enabled-az",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "enable-specialists_section_enabled-en",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "disable-events_section_enabled-ru",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "disable-events_section_enabled-az",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "disable-events_section_enabled-en",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "enable-events_section_enabled-ru",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "enable-events_section_enabled-az",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "enable-events_section_enabled-en",
+      "status": "PASS",
+      "run": "section-flags"
+    },
+    {
+      "id": "specialist-admin-identity-date-ru",
+      "lang": "ru",
+      "label": "Person verified at:",
+      "status": "FAIL",
+      "run": "labels"
+    },
+    {
+      "id": "specialist-admin-identity-date-az",
+      "lang": "az",
+      "label": "Person verified at:",
+      "status": "FAIL",
+      "run": "labels"
+    },
+    {
+      "id": "specialist-admin-identity-date-en",
+      "lang": "en",
+      "label": "Person verified at:",
+      "status": "PASS",
+      "run": "labels"
+    }
+  ],
+  "superseded_checks": {
+    "event": "no-organizer fixture assumption -> event-no-organizer",
+    "specialist": "save status load race -> specialist-validation",
+    "claim-invitation": "HTTP 404 is expected denial; 403-only assertion -> author-access",
+    "gallery": "four input images, not two; async order update -> gallery-repeat",
+    "moderation": "save-and-continue confirmation dismissed -> specialist-admin-probe and specialist-published"
+  }
+}

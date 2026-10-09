@@ -26,6 +26,11 @@
     if (use) use.setAttribute("href", "#kmi-" + name);
   }
 
+  function mediaText(ru, az, en) {
+    if (!document.getElementById('place_form')) return ru;
+    return ({ru:ru, az:az, en:en})[document.documentElement.lang.split('-')[0]] || ru;
+  }
+
   function notifyMediaChange() {
     document.dispatchEvent(new CustomEvent("km-place-media-change"));
   }
@@ -43,7 +48,7 @@
     var mainClearButton = mediaSection.querySelector("[data-main-photo-clear]");
     var mainFileName = mediaSection.querySelector("[data-main-photo-file-name]");
     var mainFileSize = mediaSection.querySelector("[data-main-photo-file-size]");
-    var mainClearCheckbox = mainInput && mainInput.id ? document.getElementById(mainInput.id + "-clear") : null;
+    var mainClearCheckbox = mainInput ? mediaSection.querySelector('input[name="' + mainInput.name + '-clear"]') : null;
     var mainDropzone = mediaSection.querySelector("[data-main-photo-preview-wrap]");
     var mainRoot = mediaSection.querySelector("[data-main-photo-root]");
     var mainState = mediaSection.querySelector("[data-main-photo-state]");
@@ -101,7 +106,7 @@
         mainState.classList.toggle("is-filled", hasPhoto);
         setIcon(mainState.querySelector("svg"), hasPhoto ? "check_circle" : "radio_button_unchecked");
         var stateText = mainState.querySelector("span");
-        if (stateText) stateText.textContent = hasPhoto ? "Главное фото загружено" : "Нет главного фото";
+        if (stateText) stateText.textContent = hasPhoto ? mediaText('Главное фото загружено','Əsas şəkil yüklənib','Main photo uploaded') : mediaText('Нет главного фото','Əsas şəkil yoxdur','No main photo');
       }
 
       if (showSelected) {
@@ -188,16 +193,16 @@
           window.kmModal.show({
             icon: "delete",
             iconTone: "danger",
-            title: "Удалить главное фото?",
-            message: "Без главного фото карточка перестанет соответствовать требованиям публикации.",
+            title: mediaText('Удалить главное фото?','Əsas şəkil silinsin?','Remove main photo?'),
+            message: document.getElementById('place_form') ? mediaText('Фотография будет удалена после сохранения. Отсутствие фото не блокирует публикацию.', 'Şəkil saxlandıqdan sonra silinəcək. Şəklin olmaması dərcə mane olmur.', 'The photo will be removed after saving. Its absence does not block publication.') : 'Без главного фото карточка перестанет соответствовать требованиям публикации.',
             actions: [
-              { label: "Отмена", tone: "quiet" },
+              { label: mediaText('Отмена','Ləğv et','Cancel'), tone: "quiet" },
               {
-                label: "Удалить фото",
+                label: mediaText('Удалить фото','Şəkli sil','Remove photo'),
                 tone: "danger-filled",
                 onClick: function () {
                   clearMainPhoto();
-                  if (window.kmToast) window.kmToast.info("Главное фото удалено");
+                  if (window.kmToast) window.kmToast.info(mediaText('Главное фото удалено','Əsas şəkil silinmək üçün işarələndi','Main photo marked for removal'));
                 }
               }
             ]
@@ -306,7 +311,7 @@
         galleryCountValue.textContent = activeCount + " / 10";
       }
       if (galleryEmptyCount) {
-        galleryEmptyCount.textContent = "Сейчас загружено " + activeCount + " из 10 фото";
+        galleryEmptyCount.textContent = mediaText('Сейчас загружено ','Yüklənib: ','Uploaded: ') + activeCount + mediaText(' из 10 фото',' / 10 şəkil',' of 10 photos');
       }
     }
 
@@ -374,7 +379,7 @@
             placeholder.hidden = false;
           }
           if (fileMeta) {
-            fileMeta.textContent = "Файл не выбран";
+            fileMeta.textContent = mediaText('Файл не выбран','Fayl seçilməyib','No file selected');
           }
         }
       }
@@ -385,6 +390,11 @@
 
     function getPersistedIdInput(card) {
       return card.querySelector('input[type="hidden"][name$="-id"]');
+    }
+
+    function hasSavedImage(card) {
+      var preview = card.querySelector("[data-gallery-preview]");
+      return !!(preview && preview.getAttribute("data-gallery-initial-url"));
     }
 
     function hasAssignedFile(card) {
@@ -421,9 +431,31 @@
       var preview = card.querySelector("[data-gallery-preview]");
       var placeholder = card.querySelector("[data-gallery-placeholder]");
 
+      var keyboardHandle = card.querySelector("[data-gallery-drag-handle]");
+      if (keyboardHandle) {
+        keyboardHandle.tabIndex = 0;
+        keyboardHandle.setAttribute("role", "button");
+        keyboardHandle.setAttribute("aria-keyshortcuts", "ArrowLeft ArrowRight ArrowUp ArrowDown");
+        var orderHelp = {ru: 'Порядок фото: стрелками переместите фото', az: 'Şəkil sırası: oxlarla yerini dəyişin', en: 'Photo order: use arrow keys to move'}[(document.documentElement.lang || 'ru').split('-')[0]] || 'Photo order: use arrow keys to move';
+        keyboardHandle.setAttribute("aria-label", orderHelp);
+        keyboardHandle.title = orderHelp;
+        keyboardHandle.addEventListener("keydown", function (event) {
+          var direction = {ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1}[event.key];
+          if (!direction) return;
+          event.preventDefault();
+          var visible = getCards().filter(function (item) { return !item.hidden; });
+          var index = visible.indexOf(card);
+          var target = visible[index + direction];
+          if (!target) return;
+          grid.insertBefore(card, direction < 0 ? target : target.nextSibling);
+          renumberVisibleCards();
+          keyboardHandle.focus();
+        });
+      }
+
       function syncFromInput() {
         var idInput = getPersistedIdInput(card);
-        var persisted = !!(idInput && String(idInput.value || "").trim());
+        var persisted = hasSavedImage(card) || !!(idInput && String(idInput.value || "").trim());
         if (deleteInput && deleteInput.checked) {
           setCardHiddenState(card, true);
           return;
@@ -465,7 +497,7 @@
             placeholder.hidden = false;
           }
           if (card.querySelector("[data-gallery-file-meta]")) {
-            card.querySelector("[data-gallery-file-meta]").textContent = "Файл не выбран";
+            card.querySelector("[data-gallery-file-meta]").textContent = mediaText('Файл не выбран','Fayl seçilməyib','No file selected');
           }
           setCardHiddenState(card, !persisted);
         }
@@ -514,7 +546,7 @@
       if (removeButton) {
         removeButton.addEventListener("click", function () {
           var idInput = getPersistedIdInput(card);
-          var persisted = !!(idInput && String(idInput.value || "").trim());
+          var persisted = hasSavedImage(card) || !!(idInput && String(idInput.value || "").trim());
           if (persisted && deleteInput) {
             deleteInput.checked = true;
             setCardHiddenState(card, true);
@@ -532,7 +564,7 @@
           updateGalleryEmptyState();
           updateAddCardVisibility();
           if (window.kmToast) {
-            window.kmToast.info("Фотография удалена из галереи");
+            window.kmToast.info(mediaText('Фотография удалена из галереи','Şəkil qalereyadan silinmək üçün işarələndi','Gallery photo marked for removal'));
           }
         });
       }
@@ -573,13 +605,13 @@
         var card = cards[i];
         if (card.hidden) {
           var idInput = getPersistedIdInput(card);
-          if (!idInput || !String(idInput.value || "").trim()) {
+          if (!hasSavedImage(card) && (!idInput || !String(idInput.value || "").trim())) {
             return card;
           }
         }
         if (!card.hidden && !hasAssignedFile(card)) {
           var existingId = getPersistedIdInput(card);
-          if (!existingId || !String(existingId.value || "").trim()) {
+          if (!hasSavedImage(card) && (!existingId || !String(existingId.value || "").trim())) {
             return card;
           }
         }
@@ -594,9 +626,9 @@
       var allowedToAdd = 10 - activeCount;
       if (allowedToAdd <= 0) {
         if (window.kmToast) {
-          window.kmToast.warning("Максимальное количество фотографий — 10.");
+          window.kmToast.warning(mediaText('Максимальное количество фотографий — 10.','Ən çox 10 şəkil.','Up to 10 photos.'));
         } else {
-          alert("Максимальное количество фотографий — 10.");
+          alert(mediaText('Максимальное количество фотографий — 10.','Ən çox 10 şəkil.','Up to 10 photos.'));
         }
         return;
       }
@@ -621,9 +653,9 @@
 
       if (list.length > allowedToAdd) {
         if (window.kmToast) {
-          window.kmToast.warning("Превышен лимит в 10 фотографий. Добавлено только " + allowedToAdd + " шт.");
+          window.kmToast.warning(mediaText('Превышен лимит в 10 фотографий. Добавлено только ','10 şəkil həddi aşılıb. Əlavə edildi: ','The 10 photo limit was exceeded. Added: ') + allowedToAdd + mediaText(' шт.',' ədəd.',' photos.'));
         } else {
-          alert("Превышен лимит в 10 фотографий. Добавлено только " + allowedToAdd + " шт.");
+          alert(mediaText('Превышен лимит в 10 фотографий. Добавлено только ','10 şəkil həddi aşılıb. Əlavə edildi: ','The 10 photo limit was exceeded. Added: ') + allowedToAdd + mediaText(' шт.',' ədəd.',' photos.'));
         }
       }
 
@@ -817,12 +849,12 @@
         return;
       }
       if (maxFiles <= 0) {
-        meta.textContent = "Лимит галереи заполнен. Удалите одно фото, чтобы добавить новое.";
+        meta.textContent = mediaText('Лимит галереи заполнен. Удалите одно фото, чтобы добавить новое.','Qalereya doludur. Yeni şəkil üçün birini silin.','Gallery is full. Remove a photo to add another.');
         return;
       }
       meta.textContent = count
-        ? "Будет добавлено новых фото: " + count + " из " + maxFiles + ". Сохраните карточку, чтобы применить."
-        : "Новые фото добавятся в галерею после сохранения карточки. Можно изменить порядок перетаскиванием.";
+        ? mediaText('Будет добавлено новых фото: ','Yeni şəkillər əlavə ediləcək: ','New photos to add: ') + count + mediaText(' из ',' / ',' of ') + maxFiles + mediaText('. Сохраните карточку, чтобы применить.','. Tətbiq etmək üçün kartı saxlayın.','. Save the listing to apply.')
+        : mediaText('Новые фото добавятся в галерею после сохранения карточки. Можно изменить порядок перетаскиванием.','Yeni şəkillər kart saxlandıqdan sonra əlavə ediləcək. Ardıcıllığı sürükləməklə dəyişə bilərsiniz.','New photos are added after saving. Drag to change their order.');
     }
 
     var maxFiles = Math.max(10 - getExistingGalleryCount(), 0);
@@ -852,20 +884,20 @@
       maxFiles: maxFiles || 1,
       storeAsFile: true,
       labelIdle: maxFiles > 0
-        ? 'Перетащите фото сюда или <span class="filepond--label-action">выберите файлы</span>'
-        : "Лимит галереи заполнен",
-      labelMaxFileCountExceeded: "Можно добавить не больше {maxFiles} фото",
-      labelMaxFileCount: "Максимум {maxFiles} фото",
-      labelTapToCancel: "нажмите для отмены",
-      labelTapToRetry: "нажмите для повтора",
-      labelTapToUndo: "нажмите для отмены",
-      labelButtonRemoveItem: "Удалить",
-      labelButtonAbortItemLoad: "Отменить",
-      labelButtonRetryItemLoad: "Повторить",
-      labelButtonAbortItemProcessing: "Отменить",
-      labelButtonUndoItemProcessing: "Отменить",
-      labelButtonRetryItemProcessing: "Повторить",
-      labelButtonProcessItem: "Загрузить"
+        ? mediaText('Перетащите фото сюда или <span class="filepond--label-action">выберите файлы</span>', 'Şəkilləri buraya sürükləyin və ya <span class="filepond--label-action">faylları seçin</span>', 'Drag photos here or <span class="filepond--label-action">choose files</span>')
+        : mediaText('Лимит галереи заполнен','Qalereya doludur','Gallery is full'),
+      labelMaxFileCountExceeded: mediaText('Можно добавить не больше {maxFiles} фото','Ən çox {maxFiles} şəkil əlavə edə bilərsiniz','Add up to {maxFiles} photos'),
+      labelMaxFileCount: mediaText('Максимум {maxFiles} фото','Ən çox {maxFiles} şəkil','Up to {maxFiles} photos'),
+      labelTapToCancel: mediaText('нажмите для отмены','ləğv etmək üçün basın','press to cancel'),
+      labelTapToRetry: mediaText('нажмите для повтора','təkrar üçün basın','press to retry'),
+      labelTapToUndo: mediaText('нажмите для отмены','ləğv etmək üçün basın','press to cancel'),
+      labelButtonRemoveItem: mediaText('Удалить','Sil','Remove'),
+      labelButtonAbortItemLoad: mediaText('Отменить','Ləğv et','Cancel'),
+      labelButtonRetryItemLoad: mediaText('Повторить','Təkrar et','Retry'),
+      labelButtonAbortItemProcessing: mediaText('Отменить','Ləğv et','Cancel'),
+      labelButtonUndoItemProcessing: mediaText('Отменить','Ləğv et','Cancel'),
+      labelButtonRetryItemProcessing: mediaText('Повторить','Təkrar et','Retry'),
+      labelButtonProcessItem: mediaText('Загрузить','Yüklə','Upload')
     });
 
     if (maxFiles <= 0) {

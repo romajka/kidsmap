@@ -1,0 +1,123 @@
+{
+  "head": "2da9d33abbc53d1ac71bcb7e15a0170bef6277d5",
+  "branch": "task33-progress",
+  "input_files": 5468,
+  "changed_approved_input_files": [
+    "src/catalog/templates/pages/includes/organization_connection_rows.html",
+    "src/catalog/services/organization_connections.py",
+    "docs/task33/implementation-status.md",
+    "src/catalog/testcases/test_task33_organization_workspace.py",
+    "src/catalog/templates/pages/organization_connections.html",
+    "docs/superpowers/plans/2026-10-08-org-04-detach-compatibility.md",
+    "locale/ru/LC_MESSAGES/django.po",
+    "src/catalog/templates/pages/owner_places.html",
+    "locale/az/LC_MESSAGES/django.po",
+    "src/catalog/controllers/organization_ownership_api.py",
+    "src/catalog/controllers/organization_workspace.py",
+    "locale/en/LC_MESSAGES/django.po"
+  ],
+  "unchanged_other_input_files": 5456,
+  "deleted_input_files": [],
+  "source_files": 2759,
+  "source_digest": "44986abb1f358e03932fc266cddeecfdd2022b62f2f77fe8634b053bfc1e46cb",
+  "runtime": {
+    "head": "2da9d33abbc53d1ac71bcb7e15a0170bef6277d5",
+    "source_digest": "44986abb1f358e03932fc266cddeecfdd2022b62f2f77fe8634b053bfc1e46cb",
+    "worktree_entries": 188,
+    "DJANGO_TESTING": true,
+    "external_credentials_present": false,
+    "locmem_cache": true,
+    "locmem_email": true,
+    "public_base_url": "http://localhost:8788",
+    "started_at": "2026-10-08T10:34:33.565014+00:00"
+  },
+  "source_drift": [],
+  "compiled_local_mo_sha256": {
+    "locale/ru/LC_MESSAGES/django.mo": "7de6153b44a70c994efe5c2ce3a524b66fb9c103ad2355d4efe6bf7762623eeb",
+    "locale/az/LC_MESSAGES/django.mo": "30d594dcd382fa7084e1bb89535dc13c9fe39ea3d620f2cc29c1ad5b1a8ed225",
+    "locale/en/LC_MESSAGES/django.mo": "552ea30c840e629e93e3f1e6a3fe77425134a30877ab0957f6e0390338a45f4a"
+  },
+  "translations": {
+    "az": {
+      "existing_changed": 0,
+      "added": 2
+    },
+    "en": {
+      "existing_changed": 0,
+      "added": 2
+    },
+    "ru": {
+      "existing_changed": 0,
+      "added": 2
+    }
+  },
+  "server_final_tests": 127,
+  "server_extra_actor_probes": 3,
+  "browser_functional_pass": 176,
+  "browser_functional_fail": 0,
+  "console_gate": "FAIL",
+  "console_errors": 12,
+  "screenshots": {
+    "screenshots/result-ru-1440.png": "4efe4a17f0c62d6c15311273ff8715df403995b651657cd03246c43255cbcbf0",
+    "screenshots/review-normal-az-390.png": "9b243feafe989622e98909d98058bcfe3abdc0e443ba2d1003f56cbff6fabca4",
+    "screenshots/review-normal-az-1440.png": "c1813d78a79b81305051339d96275c72c89196fdc64f38d22dcd5a74bd27e7ae",
+    "screenshots/review-normal-en-1440.png": "9b1ed990a375da35b17d6f6ebe6cdfb73ddbee830d77b8d7cc2ab196778d063a",
+    "screenshots/conflict-ru-390.png": "102cf0917aaa2a31969f777216cf5b582c82df3b1e73209cb385a3893e1f78a0",
+    "screenshots/result-en-1440.png": "7d906a954154a61f4f832ee82f566f5a9bd446ec74922328969b7ccfb58c8555",
+    "screenshots/review-private-az-390.png": "8686f2dae3e94c76f77f6cf2d875356308cabc407bd3381d32ee8936f3897764",
+    "screenshots/review-private-ru-1440.png": "a1399e12211f90f13411046a691158b420b89040651fab9c1f7f291031c02608",
+    "screenshots/review-normal-en-390.png": "ad0b141028cc781bf75d142e6f8ab3f013af829b22bf4e9e0c19c458519f029e",
+    "screenshots/expired-ru-1440.png": "c732f472fd6a26242ba202238873f985b42efb6af86ce5ddb63170bb6a9270d3",
+    "screenshots/private-result-ru-390.png": "55e3d873a214c9ec95432ad4153dd70d818d5161071f09dbb7a0857eae0fa9b3",
+    "screenshots/review-private-az-1440.png": "88fb0f3ab60bde213a505a48e6fda87572c390b78712fe355646c26ff0648a3e",
+    "screenshots/review-normal-ru-390.png": "6a71055bb32392a8611317aba7440a118f58b31af4b543a13761e8e789bedc30",
+    "screenshots/result-az-1440.png": "1e83bf256b4c241e529fe225300ca9a1538e4ee4e0f4560da36afce4515636c0",
+    "screenshots/review-private-ru-390.png": "b3a23198c7327b7f0c94ab8cdf6ee5b01dfb3828ea6b2ff21746f88a83a41206",
+    "screenshots/result-en-390.png": "4bbfc13dc0b525f18dfd0ea4b595aac0346d048bbdfe1fe3c54be010b51609ed",
+    "screenshots/review-normal-ru-1440.png": "9cb33d1c7a4425e52c8658ee0d74bbd70255e7869ca4eb9d27f94140e4ac09c5",
+    "screenshots/result-az-390.png": "fdc19ec380b1077fce1d16deb43255406c001357d8c136d3e4959288802eb092",
+    "screenshots/review-private-en-1440.png": "7b54f4cac1efc4b72818ac9d22bab5fc23f7881c245f006a512232f7975d2cc2",
+    "screenshots/review-private-en-390.png": "ac8a68f3e8d20bcbc668c0ffe10fd902f52d648da38b65abc3c4fedb24ebacd8",
+    "screenshots/result-ru-390.png": "576bfd6b4e2de7562701e45de74a6c8e72aab9e73cdabb4f3304bfa4ca8b419d"
+  },
+  "db": {
+    "old_domain_rows_unchanged": 384,
+    "changed_old_rows": [],
+    "new_synthetic_rows": {
+      "Organization": 2,
+      "Place": 9,
+      "Program": 1,
+      "Activity": 1,
+      "OfferingGroup": 1,
+      "PricingPlan": 1,
+      "PlacePhoto": 2,
+      "OrganizationPlaceRequest": 18,
+      "OrganizationGrant": 0,
+      "OwnerTeamMembership": 0,
+      "Specialist": 0,
+      "SpecialistDocument": 0,
+      "ServerDraft": 0,
+      "PlaceScheduleDay": 1,
+      "PlaceScheduleInterval": 1
+    },
+    "synthetic_places_detached": 9,
+    "gallery_order_retained": true,
+    "program_local_snapshot_retained": true,
+    "group_price_hours_retained": true,
+    "private_display_still_denied": true
+  },
+  "containers": {
+    "kidsmap-content-entry-final-20261007": {
+      "network": "none",
+      "published_ports": false
+    },
+    "kidsmap-content-final-tests-20261007": {
+      "network": "none",
+      "published_ports": false
+    }
+  },
+  "active_run": "NONE",
+  "browser_session": "closed",
+  "commit_push_deploy_production": "NOT RUN",
+  "verified_at": "2026-10-08T10:49:42.493965+00:00"
+}

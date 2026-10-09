@@ -30,8 +30,6 @@ def _sync_primary_location(*, specialist: Specialist, form: OwnerSpecialistForm)
         'region_id': getattr(form.cleaned_data.get('location_region'), 'pk', None),
         'district_id': getattr(form.cleaned_data.get('location_district'), 'pk', None),
         'metro_id': getattr(form.cleaned_data.get('location_metro'), 'pk', None),
-        'price_per_session': form.cleaned_data.get('price_from'),
-        'phone': form.cleaned_data.get('phone') or form.cleaned_data.get('whatsapp') or '',
     }
     location = specialist.practice_locations.select_for_update().filter(is_primary=True).first()
     if location is not None and any(getattr(location, key) != value for key, value in values.items()):
@@ -62,6 +60,7 @@ def save_owner_specialist_profile(
     form: OwnerSpecialistForm,
     draft_save_only: bool,
     expected_updated_at: str | None = None,
+    locations=None,
 ) -> OwnerSpecialistResult:
     with transaction.atomic():
         user = specialist_domain.lock_actor(user)
@@ -89,7 +88,17 @@ def save_owner_specialist_profile(
         specialist.status = Specialist.STATUS_DRAFT if draft_save_only else Specialist.STATUS_PENDING
         specialist.save()
         form.save_m2m()
-        _sync_primary_location(specialist=specialist, form=form)
+        locations = locations if locations is not None else getattr(form,'locations',None)
+        if locations is not None:
+            locations.instance=specialist
+            locations.full_clean()
+            if not locations.is_valid():
+                from django.core.exceptions import ValidationError
+                raise ValidationError(_('Проверьте места приёма.'))
+            from catalog.forms_specialist_locations import save_practice_locations
+            save_practice_locations(specialist=specialist,formset=locations)
+        else:
+            _sync_primary_location(specialist=specialist, form=form)
         _create_pending_documents(user=user, specialist=specialist, form=form)
 
     message = (

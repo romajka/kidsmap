@@ -5,13 +5,14 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}" />
-<script src="{% static 'js/specialists.js' %}" defer></script>
+<link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261005_catalog_refresh" />
+<script src="{% static 'js/specialists.js' %}?v=20261005_catalog_refresh" defer></script>
 {% endblock %}
 
 {% block content %}
 <div class="km-specialists-page km-specialists-catalog">
-  
+
+  <!-- Compact Hero Section with Contrast Card -->
   <section class="hero km-specialists-hero">
     <picture class="catalog-hero-picture">
       <img
@@ -24,85 +25,187 @@
         decoding="async"
       >
     </picture>
-    <div class="hero-text">
-      <h1>
-        {% if language == "az" %}Uşaqlar üçün pedaqoqlar və mütəxəssislər{% elif language == "en" %}Educators and specialists for children{% else %}Педагоги и специалисты для детей{% endif %}
-      </h1>
-      <p>
-        {% if language == "az" %}Uşağınız üçün repetitor, pedaqoq, psixoloq, loqoped, məşqçi və ya digər mütəxəssis tapın.{% elif language == "en" %}Find a tutor, educator, psychologist, speech therapist, coach, or another specialist for your child.{% else %}Найдите репетитора, педагога, психолога, логопеда, тренера или другого специалиста для ребёнка.{% endif %}
-      </p>
-      <form method="get" class="km-hero-search">
-        <i class="fas fa-search" aria-hidden="true"></i>
-        <input type="search" name="q" value="{{ selected.q }}" placeholder="{% if language == 'az' %}Ad, istiqamət və ya açar söz{% elif language == 'en' %}Name, direction, or keyword{% else %}Имя, направление или ключевое слово{% endif %}">
-        <button type="submit">{% if language == "az" %}Axtar{% elif language == "en" %}Search{% else %}Найти{% endif %}</button>
-      </form>
-      <div class="km-popular-directions" aria-label="{% if language == 'az' %}Populyar istiqamətlər{% elif language == 'en' %}Popular directions{% else %}Популярные направления{% endif %}">
-        {% for spec in filter_options.specializations|slice:":5" %}
-          <a href="?specialization={{ spec.value }}">{{ spec.label }}</a>
-        {% endfor %}
+    <div class="km-hero-card">
+      <div class="hero-text">
+        <h1>
+          {% if language == "az" %}Uşaqlar üçün pedaqoqlar və mütəxəssislər{% elif language == "en" %}Educators and specialists for children{% else %}Педагоги и специалисты для детей{% endif %}
+        </h1>
+        <p>
+          {% if language == "az" %}Bakıda və onlayn repetitorlar, loqopedlər, psixoloqlar və məşqçilər.{% elif language == "en" %}Tutors, speech therapists, psychologists, and coaches in Baku & online.{% else %}Репетиторы, логопеды, психологи, тренеры и педагоги в Баку и онлайн.{% endif %}
+        </p>
+
+        <!-- Integrated Search Form -->
+        <form method="get" class="km-hero-search">
+          {% for key, val in selected.items %}
+            {% if key != 'q' and key != 'sort' and val %}
+              <input type="hidden" name="{{ key }}" value="{{ val }}">
+            {% endif %}
+          {% endfor %}
+          <span class="material-symbols-rounded" aria-hidden="true">search</span>
+          <input
+            type="search"
+            name="q"
+            value="{{ selected.q }}"
+            placeholder="{% if language == 'az' %}Ad, istiqamət və ya xidmət...{% elif language == 'en' %}Name, specialization, or service...{% else %}Имя, направление или услуга...{% endif %}"
+            aria-label="{% if language == 'az' %}Axtarış{% elif language == 'en' %}Search{% else %}Поиск{% endif %}"
+          >
+          <button type="submit">
+            <span>{% if language == "az" %}Axtar{% elif language == "en" %}Search{% else %}Найти{% endif %}</span>
+          </button>
+        </form>
+
+        <!-- Popular Directions Chips -->
+        <div class="km-popular-directions" aria-label="{% if language == 'az' %}Populyar istiqamətlər{% elif language == 'en' %}Popular directions{% else %}Популярные направления{% endif %}">
+          <span class="km-popular-label">{% if language == 'az' %}Populyar:{% elif language == 'en' %}Popular:{% else %}Популярные:{% endif %}</span>
+          {% for spec in filter_options.specializations|slice:":5" %}
+            <a href="?specialization={{ spec.value }}" class="km-popular-tag {% if selected.specialization == spec.value %}is-active{% endif %}">{{ spec.label }}</a>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </section>
 
-  <button type="button" class="km-mobile-filter-button" data-km-filter-open aria-controls="km-specialists-filters" aria-expanded="false">
-    <i class="fas fa-sliders-h" aria-hidden="true"></i>
-    {% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}Фильтры{% endif %}
-    {% if active_filter_chips %}<span>{{ active_filter_chips|length }}</span>{% endif %}
-  </button>
+  <!-- Mobile Filters Bar -->
+  <div class="km-mobile-bar">
+    <button type="button" class="km-mobile-filter-button" data-km-filter-open aria-controls="km-specialists-filters" aria-expanded="false">
+      <span class="material-symbols-rounded" aria-hidden="true">tune</span>
+      <span class="km-filter-btn-text">{% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}Фильтры{% endif %}</span>
+      {% if active_filter_chips %}
+        <span class="km-badge-count">{{ active_filter_chips|length }}</span>
+      {% endif %}
+    </button>
+    {% if active_filter_chips %}
+      <a href="{{ reset_filters_url }}" class="km-mobile-reset-btn" aria-label="{% if language == 'az' %}Sıfırla{% elif language == 'en' %}Reset{% else %}Сбросить{% endif %}">
+        <span class="material-symbols-rounded" aria-hidden="true">restart_alt</span>
+        <span class="km-reset-btn-text">{% if language == "az" %}Sıfırla{% elif language == "en" %}Reset{% else %}Сбросить{% endif %}</span>
+      </a>
+    {% endif %}
+  </div>
+
   <div class="km-filter-overlay" data-km-filter-close hidden></div>
 
   <div class="km-specialists-layout">
-    
+
+    <!-- Filters Sidebar / Mobile Bottom Sheet -->
     <aside class="km-filters-panel" id="km-specialists-filters" aria-label="{% if language == 'az' %}Filtrlər{% elif language == 'en' %}Filters{% else %}Фильтры{% endif %}">
       <form method="get" id="filters-form">
         <div class="km-filter-title">
-          <h2><i class="fas fa-sliders-h" aria-hidden="true"></i>{% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}Фильтры{% endif %}</h2>
-          <button type="button" class="km-filter-close" data-km-filter-close aria-label="{% if language == 'az' %}Bağla{% elif language == 'en' %}Close{% else %}Закрыть{% endif %}"><i class="fas fa-times" aria-hidden="true"></i></button>
+          <h2><span class="material-symbols-rounded" aria-hidden="true">tune</span> {% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}Фильтры{% endif %}</h2>
+          <div class="km-filter-title-actions">
+            {% if active_filter_chips %}
+              <a href="{{ reset_filters_url }}" class="km-filter-head-reset">
+                {% if language == "az" %}Sıfırla{% elif language == "en" %}Reset{% else %}Сбросить{% endif %}
+              </a>
+            {% endif %}
+            <button type="button" class="km-filter-close" data-km-filter-close aria-label="{% if language == 'az' %}Bağla{% elif language == 'en' %}Close{% else %}Закрыть{% endif %}">
+              <span class="material-symbols-rounded" aria-hidden="true">close</span>
+            </button>
+          </div>
         </div>
 
-        <!-- Search input -->
-        <div class="km-filter-group">
-          <label><i class="fas fa-search" aria-hidden="true"></i>{% if language == "az" %}Axtarış{% elif language == "en" %}Search{% else %}Поиск по имени{% endif %}</label>
-          <input 
-            type="search" 
-            name="q" 
-            value="{{ selected.q }}" 
-            class="km-filter-input"
-            placeholder="{% if language == 'az' %}Ad və ya açar söz...{% elif language == 'en' %}Name or keyword...{% else %}Имя или ключевое слово...{% endif %}"
-          />
+        <!-- Preserved query input inside drawer -->
+        <input type="hidden" name="q" value="{{ selected.q }}">
+
+        <!-- Specialization (Custom Select) -->
+        <div class="km-filter-group" data-spec-custom-select-wrap>
+          <label id="spec-select-label"><span class="material-symbols-rounded" aria-hidden="true">school</span> {% if language == "az" %}Fəaliyyət istiqaməti{% elif language == "en" %}Activity direction{% else %}Направление деятельности{% endif %}</label>
+          <div class="km-custom-select km-filter-custom-select" id="custom-select-specialization">
+            <button type="button" class="km-custom-select__trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="spec-select-label custom-select-spec-val">
+              <span class="km-custom-select__value" id="custom-select-spec-val">
+                {% if selected.specialization %}
+                  {% for spec in filter_options.specializations %}{% if selected.specialization == spec.value %}{{ spec.label }}{% if spec.count %} ({{ spec.count }}){% endif %}{% endif %}{% endfor %}
+                {% else %}
+                  {% if language == "az" %}Bütün istiqamətlər{% elif language == "en" %}All directions{% else %}Все направления{% endif %}
+                {% endif %}
+              </span>
+              <span class="km-custom-select__arrow" aria-hidden="true">
+                <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+              </span>
+            </button>
+            <div class="km-custom-select__menu" role="listbox" aria-labelledby="spec-select-label" tabindex="-1">
+              <div class="km-custom-select__option{% if not selected.specialization %} is-selected{% endif %}" role="option" aria-selected="{% if not selected.specialization %}true{% else %}false{% endif %}" data-value="">
+                <span class="km-custom-select__opt-text">{% if language == "az" %}Bütün istiqamətlər{% elif language == "en" %}All directions{% else %}Все направления{% endif %}</span>
+              </div>
+              {% for spec in filter_options.specializations %}
+                <div class="km-custom-select__option{% if selected.specialization == spec.value %} is-selected{% endif %}" role="option" aria-selected="{% if selected.specialization == spec.value %}true{% else %}false{% endif %}" data-value="{{ spec.value }}">
+                  <span class="km-custom-select__opt-text">{{ spec.label }}</span>
+                  {% if spec.count %}<span class="km-custom-select__opt-count">{{ spec.count }}</span>{% endif %}
+                </div>
+              {% endfor %}
+            </div>
+            <select name="specialization" class="km-filter-select km-visually-hidden" tabindex="-1" aria-hidden="true">
+              <option value="">{% if language == "az" %}Bütün istiqamətlər{% elif language == "en" %}All directions{% else %}Все направления{% endif %}</option>
+              {% for spec in filter_options.specializations %}
+                <option value="{{ spec.value }}" {% if selected.specialization == spec.value %}selected{% endif %}>
+                  {{ spec.label }} {% if spec.count %}({{ spec.count }}){% endif %}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
 
-        <!-- Specialization -->
-        <div class="km-filter-group">
-          <label><i class="fas fa-graduation-cap" aria-hidden="true"></i>{% if language == "az" %}Fəaliyyət istiqaməti{% elif language == "en" %}Activity direction{% else %}Направление деятельности{% endif %}</label>
-          <select name="specialization" class="km-filter-select">
-            <option value="">{% if language == "az" %}Bütün istiqamətlər{% elif language == "en" %}All directions{% else %}Все направления{% endif %}</option>
-            {% for spec in filter_options.specializations %}
-              <option value="{{ spec.value }}" {% if selected.specialization == spec.value %}selected{% endif %}>
-                {{ spec.label }} {% if spec.count %}({{ spec.count }}){% endif %}
-              </option>
-            {% endfor %}
-          </select>
+        <!-- Consultation Format (Custom Select) -->
+        <div class="km-filter-group" data-spec-custom-select-wrap>
+          <label id="format-select-label"><span class="material-symbols-rounded" aria-hidden="true">devices</span> {% if language == "az" %}Qəbul formatı{% elif language == "en" %}Format{% else %}Формат работы{% endif %}</label>
+          <div class="km-custom-select km-filter-custom-select" id="custom-select-format">
+            <button type="button" class="km-custom-select__trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="format-select-label custom-select-format-val">
+              <span class="km-custom-select__value" id="custom-select-format-val">
+                {% if selected.format == 'online' %}{% if language == "az" %}Onlayn{% elif language == "en" %}Online{% else %}Только онлайн{% endif %}
+                {% elif selected.format == 'offline' %}{% if language == "az" %}Otaqda (Əyani){% elif language == "en" %}In-person{% else %}Очно (В кабинете){% endif %}
+                {% else %}{% if language == "az" %}İstənilən format{% elif language == "en" %}Any format{% else %}Все форматы{% endif %}{% endif %}
+              </span>
+              <span class="km-custom-select__arrow" aria-hidden="true">
+                <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+              </span>
+            </button>
+            <div class="km-custom-select__menu" role="listbox" aria-labelledby="format-select-label" tabindex="-1">
+              <div class="km-custom-select__option{% if not selected.format %} is-selected{% endif %}" role="option" aria-selected="{% if not selected.format %}true{% else %}false{% endif %}" data-value="">
+                <span class="km-custom-select__opt-text">{% if language == "az" %}İstənilən format{% elif language == "en" %}Any format{% else %}Все форматы{% endif %}</span>
+              </div>
+              <div class="km-custom-select__option{% if selected.format == 'online' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.format == 'online' %}true{% else %}false{% endif %}" data-value="online">
+                <span class="km-custom-select__opt-text">{% if language == "az" %}Onlayn{% elif language == "en" %}Online{% else %}Только онлайн{% endif %}</span>
+              </div>
+              <div class="km-custom-select__option{% if selected.format == 'offline' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.format == 'offline' %}true{% else %}false{% endif %}" data-value="offline">
+                <span class="km-custom-select__opt-text">{% if language == "az" %}Otaqda (Əyani){% elif language == "en" %}In-person{% else %}Очно (В кабинете){% endif %}</span>
+              </div>
+            </div>
+            <select name="format" id="filter-format" class="km-filter-select km-visually-hidden" tabindex="-1" aria-hidden="true">
+              <option value="">{% if language == "az" %}İstənilən format{% elif language == "en" %}Any format{% else %}Все форматы{% endif %}</option>
+              <option value="online" {% if selected.format == "online" %}selected{% endif %}>{% if language == "az" %}Onlayn{% elif language == "en" %}Online{% else %}Только онлайн{% endif %}</option>
+              <option value="offline" {% if selected.format == "offline" %}selected{% endif %}>{% if language == "az" %}Otaqda (Əyani){% elif language == "en" %}In-person{% else %}Очно (В кабинете){% endif %}</option>
+            </select>
+          </div>
         </div>
 
-        <!-- Consultation Format (Online / Offline) -->
-        <div class="km-filter-group">
-          <label><i class="fas fa-laptop-house" aria-hidden="true"></i>{% if language == "az" %}Qəbul formatı{% elif language == "en" %}Format{% else %}Формат работы{% endif %}</label>
-          <select name="format" id="filter-format" class="km-filter-select">
-            <option value="">{% if language == "az" %}İstənilən format{% elif language == "en" %}Any format{% else %}Все форматы{% endif %}</option>
-            <option value="online" {% if selected.format == "online" %}selected{% endif %}>{% if language == "az" %}Onlayn{% elif language == "en" %}Online{% else %}Только онлайн{% endif %}</option>
-            <option value="offline" {% if selected.format == "offline" %}selected{% endif %}>{% if language == "az" %}Otaqda (Əyani){% elif language == "en" %}In-person{% else %}Очно (В кабинете){% endif %}</option>
-          </select>
-        </div>
-
-        <!-- Location Wrapper: Hidden dynamically via JS & CSS if online format is chosen -->
-        <div id="location-filters-container" {% if selected.format == "online" %}hidden{% endif %}>
-          
-          <!-- Region -->
-          <div class="km-filter-group">
-            <label><i class="fas fa-map-marker-alt" aria-hidden="true"></i>{% if language == "az" %}Şəhər / Region{% elif language == "en" %}City / Region{% else %}Город / Регион{% endif %}</label>
-            <select name="region" id="filter-region" class="km-filter-select">
-              <option value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All regions{% else %}Все регионы{% endif %}</option>
+        <!-- City / Region (Custom Select) -->
+        <div class="km-filter-group" id="location-filters-container" {% if selected.format == "online" %}hidden{% endif %} data-spec-custom-select-wrap>
+          <label id="region-select-label"><span class="material-symbols-rounded" aria-hidden="true">location_on</span> {% if language == "az" %}Şəhər / Region{% elif language == "en" %}City / Region{% else %}Город / Регион{% endif %}</label>
+          <div class="km-custom-select km-filter-custom-select" id="custom-select-region">
+            <button type="button" class="km-custom-select__trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="region-select-label custom-select-region-val">
+              <span class="km-custom-select__value" id="custom-select-region-val">
+                {% if selected.region %}
+                  {% for reg in filter_options.regions %}{% if selected.region == reg.value %}{{ reg.label }}{% if reg.count %} ({{ reg.count }}){% endif %}{% endif %}{% endfor %}
+                {% else %}
+                  {% if language == "az" %}Bütün regionlar{% elif language == "en" %}All regions{% else %}Все регионы{% endif %}
+                {% endif %}
+              </span>
+              <span class="km-custom-select__arrow" aria-hidden="true">
+                <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+              </span>
+            </button>
+            <div class="km-custom-select__menu" role="listbox" aria-labelledby="region-select-label" tabindex="-1">
+              <div class="km-custom-select__option{% if not selected.region %} is-selected{% endif %}" role="option" aria-selected="{% if not selected.region %}true{% else %}false{% endif %}" data-value="">
+                <span class="km-custom-select__opt-text">{% if language == "az" %}Bütün regionlar{% elif language == "en" %}All regions{% else %}Все регионы{% endif %}</span>
+              </div>
+              {% for reg in filter_options.regions %}
+                <div class="km-custom-select__option{% if selected.region == reg.value %} is-selected{% endif %}" role="option" aria-selected="{% if selected.region == reg.value %}true{% else %}false{% endif %}" data-value="{{ reg.value }}">
+                  <span class="km-custom-select__opt-text">{{ reg.label }}</span>
+                  {% if reg.count %}<span class="km-custom-select__opt-count">{{ reg.count }}</span>{% endif %}
+                </div>
+              {% endfor %}
+            </div>
+            <select name="region" id="filter-region" class="km-filter-select km-visually-hidden" tabindex="-1" aria-hidden="true">
+              <option value="">{% if language == "az" %}Bütün regionlar{% elif language == "en" %}All regions{% else %}Все регионы{% endif %}</option>
               {% for reg in filter_options.regions %}
                 <option value="{{ reg.value }}" {% if selected.region == reg.value %}selected{% endif %}>
                   {{ reg.label }} {% if reg.count %}({{ reg.count }}){% endif %}
@@ -110,115 +213,115 @@
               {% endfor %}
             </select>
           </div>
-
-          <!-- District -->
-          <div class="km-filter-group">
-            <label><i class="fas fa-map-signs" aria-hidden="true"></i>{% if language == "az" %}Rayon{% elif language == "en" %}District{% else %}Район{% endif %}</label>
-            <select name="district" id="filter-district" class="km-filter-select">
-              <option value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All districts{% else %}Все районы{% endif %}</option>
-              {% for dist in filter_options.districts %}
-                <option value="{{ dist.value }}" data-region="{{ dist.region }}" {% if selected.district == dist.value %}selected{% endif %}>
-                  {{ dist.label }} {% if dist.count %}({{ dist.count }}){% endif %}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <!-- Metro -->
-          <div class="km-filter-group">
-            <label><i class="fas fa-subway" aria-hidden="true"></i>{% if language == "az" %}Metro stansiyası{% elif language == "en" %}Metro station{% else %}Станция метро{% endif %}</label>
-            <select name="metro" class="km-filter-select">
-              <option value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All metro stations{% else %}Все станции метро{% endif %}</option>
-              {% for m in filter_options.metro_stations %}
-                <option value="{{ m.value }}" {% if selected.metro == m.value %}selected{% endif %}>
-                  {{ m.label }} {% if m.count %}({{ m.count }}){% endif %}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
-
         </div>
 
-        <!-- Consultation Language -->
-        <div class="km-filter-group">
-          <label><i class="fas fa-language" aria-hidden="true"></i>{% if language == "az" %}İş dili{% elif language == "en" %}Work language{% else %}Язык работы{% endif %}</label>
-          <select name="language" class="km-filter-select">
-            <option value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All languages{% else %}Все языки{% endif %}</option>
-            <option value="az" {% if selected.language == "az" %}selected{% endif %}>Azərbaycanca</option>
-            <option value="ru" {% if selected.language == "ru" %}selected{% endif %}>Русский</option>
-            <option value="en" {% if selected.language == "en" %}selected{% endif %}>English</option>
-          </select>
-        </div>
-
-        <!-- Age of Child -->
-        <div class="km-filter-group">
-          <label><i class="fas fa-child" aria-hidden="true"></i>{% if language == "az" %}Uşağın yaşı{% elif language == "en" %}Child age{% else %}Возраст ребёнка{% endif %}</label>
-          <input 
-            type="number" 
-            name="age" 
-            value="{{ selected.age }}" 
-            min="0" max="18" 
-            class="km-filter-input"
-            placeholder="{% if language == 'az' %}Məs. 5{% elif language == 'en' %}e.g. 5{% else %}например 5{% endif %}"
-          />
+        <!-- Age of Child (Range Slider matching catalog places) -->
+        <div class="km-filter-group range-filter filter-age-range" data-range data-min="0" data-max="18">
+          <div class="range-filter-head">
+            <label><span class="material-symbols-rounded" aria-hidden="true">child_care</span> {% if language == "az" %}Uşağın yaşı{% elif language == "en" %}Child age{% else %}Возраст ребёнка{% endif %}</label>
+            <strong class="range-filter-current" data-range-caption></strong>
+          </div>
+          <input type="hidden" name="age_from" value="{{ selected.age_from|default:selected.age|default:'0' }}" data-range-from-input />
+          <input type="hidden" name="age_to" value="{{ selected.age_to|default:selected.age|default:'18' }}" data-range-to-input />
+          <div class="range-filter-track">
+            <input class="range-slider range-slider-from" type="range" min="0" max="18" aria-label="{% if language == 'az' %}Minimum yaş{% elif language == 'en' %}Minimum age{% else %}Минимальный возраст{% endif %}" value="{{ selected.age_from|default:selected.age|default:'0' }}" data-range-from-range />
+            <input class="range-slider range-slider-to" type="range" min="0" max="18" aria-label="{% if language == 'az' %}Maksimum yaş{% elif language == 'en' %}Maximum age{% else %}Максимальный возраст{% endif %}" value="{{ selected.age_to|default:selected.age|default:'18' }}" data-range-to-range />
+          </div>
         </div>
 
         <!-- Price Range -->
         <div class="km-filter-group">
-          <label><i class="fas fa-money-bill-wave" aria-hidden="true"></i>{% if language == "az" %}Xidmətin qiyməti (AZN){% elif language == "en" %}Service price (AZN){% else %}Стоимость услуги (AZN){% endif %}</label>
+          <label><span class="material-symbols-rounded" aria-hidden="true">payments</span> {% if language == "az" %}Xidmətin qiyməti (AZN){% elif language == "en" %}Service price (AZN){% else %}Стоимость услуги (AZN){% endif %}</label>
           <div class="km-filter-range-wrapper">
-            <input 
-              type="number" 
-              name="price_from" 
-              value="{{ selected.price_from }}" 
+            <input
+              type="number"
+              name="price_from"
+              value="{{ selected.price_from }}"
               class="km-filter-input"
-              placeholder="min"
+              placeholder="{% if language == 'az' %}Min{% elif language == 'en' %}Min{% else %}от{% endif %}"
             />
-            <input 
-              type="number" 
-              name="price_to" 
-              value="{{ selected.price_to }}" 
+            <input
+              type="number"
+              name="price_to"
+              value="{{ selected.price_to }}"
               class="km-filter-input"
-              placeholder="max"
+              placeholder="{% if language == 'az' %}Maks{% elif language == 'en' %}Max{% else %}до{% endif %}"
             />
           </div>
         </div>
 
-        <!-- Rating selection -->
-        <div class="km-filter-group">
-          <label><i class="fas fa-star" aria-hidden="true"></i>{% if language == "az" %}Minimum reytinq{% elif language == "en" %}Minimum rating{% else %}Минимальный рейтинг{% endif %}</label>
-          <select name="min_rating" class="km-filter-select">
-            <option value="">{% if language == "az" %}İstənilən{% elif language == "en" %}Any{% else %}Любой рейтинг{% endif %}</option>
-            <option value="4.5" {% if selected.min_rating == "4.5" %}selected{% endif %}>4.5 ★ {% if language == "az" %}və daha çox{% else %}и выше{% endif %}</option>
-            <option value="4.0" {% if selected.min_rating == "4.0" %}selected{% endif %}>4.0 ★ {% if language == "az" %}və daha çox{% else %}и выше{% endif %}</option>
-            <option value="3.5" {% if selected.min_rating == "3.5" %}selected{% endif %}>3.5 ★ {% if language == "az" %}və daha çox{% else %}и выше{% endif %}</option>
-          </select>
+        <!-- Consultation Language (Custom Select) -->
+        <div class="km-filter-group" data-spec-custom-select-wrap>
+          <label id="lang-select-label"><span class="material-symbols-rounded" aria-hidden="true">translate</span> {% if language == "az" %}İş dili{% elif language == "en" %}Work language{% else %}Язык работы{% endif %}</label>
+          <div class="km-custom-select km-filter-custom-select" id="custom-select-language">
+            <button type="button" class="km-custom-select__trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="lang-select-label custom-select-lang-val">
+              <span class="km-custom-select__value" id="custom-select-lang-val">
+                {% if selected.language == 'az' %}Azərbaycanca
+                {% elif selected.language == 'ru' %}Русский
+                {% elif selected.language == 'en' %}English
+                {% else %}{% if language == "az" %}Bütün dillər{% elif language == "en" %}All languages{% else %}Все языки{% endif %}{% endif %}
+              </span>
+              <span class="km-custom-select__arrow" aria-hidden="true">
+                <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+              </span>
+            </button>
+            <div class="km-custom-select__menu" role="listbox" aria-labelledby="lang-select-label" tabindex="-1">
+              <div class="km-custom-select__option{% if not selected.language %} is-selected{% endif %}" role="option" aria-selected="{% if not selected.language %}true{% else %}false{% endif %}" data-value="">
+                <span class="km-custom-select__opt-text">{% if language == "az" %}Bütün dillər{% elif language == "en" %}All languages{% else %}Все языки{% endif %}</span>
+              </div>
+              <div class="km-custom-select__option{% if selected.language == 'az' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.language == 'az' %}true{% else %}false{% endif %}" data-value="az">
+                <span class="km-custom-select__opt-text">Azərbaycanca</span>
+              </div>
+              <div class="km-custom-select__option{% if selected.language == 'ru' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.language == 'ru' %}true{% else %}false{% endif %}" data-value="ru">
+                <span class="km-custom-select__opt-text">Русский</span>
+              </div>
+              <div class="km-custom-select__option{% if selected.language == 'en' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.language == 'en' %}true{% else %}false{% endif %}" data-value="en">
+                <span class="km-custom-select__opt-text">English</span>
+              </div>
+            </div>
+            <select name="language" class="km-filter-select km-visually-hidden" tabindex="-1" aria-hidden="true">
+              <option value="">{% if language == "az" %}Bütün dillər{% elif language == "en" %}All languages{% else %}Все языки{% endif %}</option>
+              <option value="az" {% if selected.language == "az" %}selected{% endif %}>Azərbaycanca</option>
+              <option value="ru" {% if selected.language == "ru" %}selected{% endif %}>Русский</option>
+              <option value="en" {% if selected.language == "en" %}selected{% endif %}>English</option>
+            </select>
+          </div>
         </div>
 
-        <!-- Checkbox: Verified Specialist -->
-        <div class="km-filter-group">
-          <label class="km-filter-checkbox-wrapper">
-            <input 
-              type="checkbox" 
-              name="verified" 
-              value="1" 
-              {% if selected.verified == "1" %}checked{% endif %}
-            />
-            <span>
-              {% if language == "az" %}Yalnız yoxlanılmış profillər{% elif language == "en" %}Verified profiles only{% else %}Только проверенные профили{% endif %}
-            </span>
-          </label>
+        <!-- Rating selection (Pills matching catalog places) -->
+        <div class="km-filter-group filter-rating">
+          <div class="filter-rating-head">
+            <label><span class="material-symbols-rounded" aria-hidden="true">star</span> {% if language == "az" %}Reytinq ən azı{% elif language == "en" %}Minimum rating{% else %}Рейтинг не ниже{% endif %}</label>
+          </div>
+          <div class="rating-filter-pills" aria-label="{% if language == 'az' %}Reytinq ən azı{% elif language == 'en' %}Minimum rating{% else %}Рейтинг не ниже{% endif %}">
+            <button type="button" class="rating-filter-pill{% if not selected.min_rating %} is-active{% endif %}" data-select-target="min_rating" data-select-value="">
+              <span class="rating-filter-pill-label">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}Все{% endif %}</span>
+            </button>
+            <button type="button" class="rating-filter-pill{% if selected.min_rating == '4.5' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="4.5">
+              <svg class="rating-star-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+              <span class="rating-filter-pill-label">4.5+</span>
+            </button>
+            <button type="button" class="rating-filter-pill{% if selected.min_rating == '4' or selected.min_rating == '4.0' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="4.0">
+              <svg class="rating-star-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+              <span class="rating-filter-pill-label">4.0+</span>
+            </button>
+            <button type="button" class="rating-filter-pill{% if selected.min_rating == '3.5' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="3.5">
+              <svg class="rating-star-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+              <span class="rating-filter-pill-label">3.5+</span>
+            </button>
+          </div>
+          <input class="km-filter-select km-visually-hidden" type="hidden" name="min_rating" value="{{ selected.min_rating }}" />
         </div>
 
         <!-- Form Actions -->
         <div class="km-filter-actions">
           <button type="submit" class="km-btn-apply">
-            <i class="fas fa-check" aria-hidden="true"></i>
-            {% if language == "az" %}Tətbiq et{% elif language == "en" %}Apply{% else %}Применить{% endif %}
+            <span class="material-symbols-rounded" aria-hidden="true">check</span>
+            <span>{% if language == "az" %}Tətbiq et{% elif language == "en" %}Apply{% else %}Применить{% endif %}</span>
           </button>
           <a href="{{ reset_filters_url }}" class="km-btn-reset">
-            <i class="fas fa-undo" aria-hidden="true"></i>
-            {% if language == "az" %}Sıfırla{% elif language == "en" %}Reset{% else %}Сбросить{% endif %}
+            <span class="material-symbols-rounded" aria-hidden="true">restart_alt</span>
+            <span>{% if language == "az" %}Sıfırla{% elif language == "en" %}Reset{% else %}Сбросить{% endif %}</span>
           </a>
         </div>
 
@@ -227,8 +330,8 @@
 
     <!-- Main Results Column -->
     <main class="km-catalog-main-content">
-      
-      <!-- Toolbar -->
+
+      <!-- Toolbar: Count and Sorting -->
       <div class="km-catalog-toolbar">
         <div>
           <p class="km-results-count">
@@ -237,32 +340,64 @@
         </div>
 
         <div class="km-sort-wrapper">
-          <label for="catalog-sort">
+          <label id="sort-select-label">
             {% if language == "az" %}Sıralama:{% elif language == "en" %}Sort by:{% else %}Сортировка:{% endif %}
           </label>
-          <select id="catalog-sort" name="sort" form="filters-form" onchange="this.form.submit()" class="km-filter-select km-sort-select">
-            <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}Сначала новые{% endif %}</option>
-            <option value="rating" {% if selected.sort == "rating" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə populyarlar{% elif language == "en" %}Highest rated{% else %}По рейтингу{% endif %}</option>
-            <option value="experience" {% if selected.sort == "experience" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə təcrübəlilər{% elif language == "en" %}Most experienced{% else %}По стажу работы{% endif %}</option>
-            <option value="price_asc" {% if selected.sort == "price_asc" %}selected{% endif %}>{% if language == "az" %}Ucuzdan bahaya{% elif language == "en" %}Price: low to high{% else %}Сначала дешевые{% endif %}</option>
-            <option value="price_desc" {% if selected.sort == "price_desc" %}selected{% endif %}>{% if language == "az" %}Bahadan ucuza{% elif language == "en" %}Price: high to low{% else %}Сначала дорогие{% endif %}</option>
-          </select>
+          <div class="km-custom-select km-sort-custom-select" id="custom-select-sort">
+            <button type="button" class="km-custom-select__trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="sort-select-label custom-select-sort-val">
+              <span class="km-custom-select__value" id="custom-select-sort-val">
+                {% if selected.sort == 'rating' %}{% if language == "az" %}Reytinqə görə{% elif language == "en" %}Highest rated{% else %}По рейтингу{% endif %}
+                {% elif selected.sort == 'experience' %}{% if language == "az" %}İş təcrübəsinə görə{% elif language == "en" %}Most experienced{% else %}По стажу работы{% endif %}
+                {% elif selected.sort == 'price_asc' %}{% if language == "az" %}Ucuzdan bahaya{% elif language == "en" %}Price: low to high{% else %}Сначала дешевые{% endif %}
+                {% elif selected.sort == 'price_desc' %}{% if language == "az" %}Bahadan ucuza{% elif language == "en" %}Price: high to low{% else %}Сначала дорогие{% endif %}
+                {% else %}{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}Сначала новые{% endif %}{% endif %}
+              </span>
+              <span class="km-custom-select__arrow" aria-hidden="true">
+                <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+              </span>
+            </button>
+            <div class="km-custom-select__menu" role="listbox" aria-labelledby="sort-select-label" tabindex="-1">
+              <div class="km-custom-select__option{% if selected.sort == 'new' or not selected.sort %} is-selected{% endif %}" role="option" aria-selected="{% if selected.sort == 'new' or not selected.sort %}true{% else %}false{% endif %}" data-value="new">
+                <span class="km-custom-select__opt-text">{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}Сначала новые{% endif %}</span>
+              </div>
+              <div class="km-custom-select__option{% if selected.sort == 'rating' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.sort == 'rating' %}true{% else %}false{% endif %}" data-value="rating">
+                <span class="km-custom-select__opt-text">{% if language == "az" %}Reytinqə görə{% elif language == "en" %}Highest rated{% else %}По рейтингу{% endif %}</span>
+              </div>
+              <div class="km-custom-select__option{% if selected.sort == 'experience' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.sort == 'experience' %}true{% else %}false{% endif %}" data-value="experience">
+                <span class="km-custom-select__opt-text">{% if language == "az" %}İş təcrübəsinə görə{% elif language == "en" %}Most experienced{% else %}По стажу работы{% endif %}</span>
+              </div>
+              <div class="km-custom-select__option{% if selected.sort == 'price_asc' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.sort == 'price_asc' %}true{% else %}false{% endif %}" data-value="price_asc">
+                <span class="km-custom-select__opt-text">{% if language == "az" %}Ucuzdan bahaya{% elif language == "en" %}Price: low to high{% else %}Сначала дешевые{% endif %}</span>
+              </div>
+              <div class="km-custom-select__option{% if selected.sort == 'price_desc' %} is-selected{% endif %}" role="option" aria-selected="{% if selected.sort == 'price_desc' %}true{% else %}false{% endif %}" data-value="price_desc">
+                <span class="km-custom-select__opt-text">{% if language == "az" %}Bahadan ucuza{% elif language == "en" %}Price: high to low{% else %}Сначала дорогие{% endif %}</span>
+              </div>
+            </div>
+            <select id="catalog-sort" name="sort" form="filters-form" onchange="this.form.submit()" class="km-filter-select km-sort-select km-visually-hidden" tabindex="-1" aria-hidden="true">
+              <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}Сначала новые{% endif %}</option>
+              <option value="rating" {% if selected.sort == "rating" %}selected{% endif %}>{% if language == "az" %}Reytinqə görə{% elif language == "en" %}Highest rated{% else %}По рейтингу{% endif %}</option>
+              <option value="experience" {% if selected.sort == "experience" %}selected{% endif %}>{% if language == "az" %}İş təcrübəsinə görə{% elif language == "en" %}Most experienced{% else %}По стажу работы{% endif %}</option>
+              <option value="price_asc" {% if selected.sort == "price_asc" %}selected{% endif %}>{% if language == "az" %}Ucuzdan bahaya{% elif language == "en" %}Price: low to high{% else %}Сначала дешевые{% endif %}</option>
+              <option value="price_desc" {% if selected.sort == "price_desc" %}selected{% endif %}>{% if language == "az" %}Bahadan ucuza{% elif language == "en" %}Price: high to low{% else %}Сначала дорогие{% endif %}</option>
+            </select>
+          </div>
         </div>
       </div>
 
       <!-- Active filter chips -->
       {% if active_filter_chips %}
-        <div class="km-chips-bar">
+        <div class="km-chips-bar" aria-label="{% if language == 'az' %}Aktiv filtrlər{% elif language == 'en' %}Active filters{% else %}Активные фильтры{% endif %}">
           <div class="km-chips-container">
             {% for chip in active_filter_chips %}
-              <a class="km-chip" href="{{ chip.remove_url }}">
+              <a class="km-chip" href="{{ chip.remove_url }}" title="{% if language == 'az' %}Sil{% elif language == 'en' %}Remove{% else %}Удалить{% endif %}">
                 <span>{{ chip.label }}</span>
-                <span class="km-chip-remove">&times;</span>
+                <span class="km-chip-remove" aria-hidden="true">&times;</span>
               </a>
             {% endfor %}
           </div>
           <a class="km-chips-reset-link" href="{{ reset_filters_url }}">
-            {% if language == "az" %}Bütün filtrləri təmizlə{% elif language == "en" %}Reset all{% else %}Сбросить всё{% endif %}
+            <span class="material-symbols-rounded" aria-hidden="true">cancel</span>
+            <span>{% if language == "az" %}Bütün filtrləri təmizlə{% elif language == "en" %}Reset all{% else %}Сбросить всё{% endif %}</span>
           </a>
         </div>
       {% endif %}
@@ -271,62 +406,44 @@
       <div class="km-specialists-grid">
         {% for specialist in specialists %}
           <article class="km-specialist-card">
-            
-            <!-- Photo / Image wrapper -->
+
+            <!-- Card Header / Media Section -->
             <div class="km-card-photo-wrapper">
-              {% if specialist.photo %}
-                <img 
-                  src="{{ specialist.photo.url }}" 
-                  alt="{{ specialist.name }}" 
+              {% if specialist.has_valid_photo %}
+                <img
+                  src="{{ specialist.photo.url }}"
+                  alt="{{ specialist.name }}"
                   class="km-card-photo"
-                  loading="lazy" 
+                  loading="lazy"
+                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
                 />
+                <div class="km-card-avatar-initials" style="display:none;" aria-hidden="true">
+                  {{ specialist.card_initials }}
+                </div>
               {% else %}
-                <div class="km-card-photo-placeholder">
-                  <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="" loading="lazy" decoding="async">
+                <div class="km-card-avatar-initials" aria-hidden="true">
+                  {{ specialist.card_initials }}
                 </div>
               {% endif %}
 
-              <!-- Verification badge -->
-              {% if specialist.is_verified %}
-                <div class="km-card-top-badges">
-                  <span class="km-badge-verified">
-                    <i class="fas fa-check-circle" aria-hidden="true"></i>
-                    {% if language == "az" %}Yoxlanılıb{% elif language == "en" %}Verified{% else %}Проверен{% endif %}
-                  </span>
-                </div>
-              {% endif %}
+              <!-- Format pill on top corner of photo -->
+              <span class="km-card-format-pill format-{{ specialist.consultation_format }}">
+                <span class="material-symbols-rounded" aria-hidden="true">{{ specialist.card_format_icon }}</span>
+                {{ specialist.card_format_label }}
+              </span>
 
-              <!-- Consultation formats badge -->
-              <div class="km-card-bottom-badges">
-                {% if specialist.consultation_format == "online" or specialist.consultation_format == "both" %}
-                  <span class="km-badge-format-online">
-                    <i class="fas fa-video" aria-hidden="true"></i>
-                    {% if language == "az" %}Onlayn{% elif language == "en" %}Online{% else %}Онлайн{% endif %}
-                  </span>
-                {% endif %}
-                {% if specialist.consultation_format == "offline" or specialist.consultation_format == "both" %}
-                  <span class="km-badge-format-offline">
-                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
-                    {% if language == "az" %}Otaqda{% elif language == "en" %}In Office{% else %}Очно{% endif %}
-                  </span>
-                {% endif %}
+              <!-- Floating price pill on bottom-left of photo (matching canonical place cards) -->
+              {% if specialist.card_price %}
+              <div class="card-price-pill km-card-price-pill">
+                <span class="card-price-pill__amount">{{ specialist.card_price }}</span>
               </div>
+              {% endif %}
             </div>
 
             <!-- Body info -->
             <div class="km-card-body">
-              
-              <!-- Specialization tags -->
-              <div class="km-card-specializations">
-                {% for spec in specialist.specializations.all %}
-                  <span class="km-spec-tag">
-                    {{ spec.name_i18n }}
-                  </span>
-                {% endfor %}
-              </div>
 
-              <!-- Name & Translation -->
+              <!-- Name & Headline -->
               <h3 class="km-card-name">
                 <a href="{{ specialist.get_absolute_url }}">
                   {{ specialist.name }}
@@ -336,132 +453,126 @@
                 <p class="km-card-name-alt">{{ specialist.name_alt }}</p>
               {% endif %}
 
-              <!-- Rating status -->
-              {% if specialist.rating_count %}
-                <div class="km-rating-stars-wrapper">
-                  <span class="km-stars">
-                    {% if specialist.rating_avg >= 4.75 %}★★★★★{% elif specialist.rating_avg >= 4.25 %}★★★★☆{% elif specialist.rating_avg >= 3.75 %}★★★☆☆{% elif specialist.rating_avg >= 3.25 %}★★☆☆☆{% else %}★☆☆☆☆{% endif %}
-                  </span>
-                  <span class="km-rating-text">
-                    {{ specialist.rating_avg|floatformat:1 }} ({{ specialist.rating_count }})
-                  </span>
-                </div>
-              {% else %}
-                <div class="km-rating-none">
-                  <span class="km-stars">☆☆☆☆☆</span>
-                  <span>{% if language == "az" %}Rəy yoxdur{% elif language == "en" %}No reviews{% else %}Нет отзывов{% endif %}</span>
-                </div>
-              {% endif %}
+              <!-- Short bio snippet (2 lines clamp, aligned min-height) -->
+              <p class="km-card-bio{% if not specialist.bio_i18n %} is-empty{% endif %}">
+                {% if specialist.bio_i18n %}{{ specialist.bio_i18n|striptags|truncatechars:92 }}{% else %}&nbsp;{% endif %}
+              </p>
 
-              <!-- Short Biography -->
-              {% if specialist.bio_i18n %}
-                <p class="km-card-bio">
-                  {{ specialist.bio_i18n }}
-                </p>
-              {% endif %}
+              <!-- Compact metadata chips row (matching .card-tags-row) -->
+              <div class="card-tags-row km-card-tags-row">
+                {% if specialist.card_age %}
+                  <span class="card-meta-chip card-meta-chip--age">
+                    <span class="card-meta-chip__value">{{ specialist.card_age }}</span>
+                  </span>
+                {% endif %}
+                {% if specialist.card_specializations %}
+                  {% for tag in specialist.card_specializations|slice:":2" %}
+                    <span class="card-meta-chip card-meta-chip--spec">{{ tag }}</span>
+                  {% endfor %}
+                {% endif %}
+                {% if specialist.experience_years %}
+                  <span class="card-meta-chip card-meta-chip--exp">
+                    {% if language == "az" %}{{ specialist.experience_years }} il təcrübə{% elif language == "en" %}{{ specialist.experience_years }}y exp{% else %}{{ specialist.experience_years }} лет стаж{% endif %}
+                  </span>
+                {% endif %}
+              </div>
 
-              <!-- Meta specs box -->
-              <div class="km-card-details-box">
-                <div class="km-card-detail-item">
-                  <span class="label">{% if language == "az" %}Təcrübə{% elif language == "en" %}Experience{% else %}Опыт работы{% endif %}:</span>
-                  <span class="value">
-                    {{ specialist.experience_years }} 
-                    {% if language == "az" %}il{% elif language == "en" %}years{% else %}лет{% endif %}
+              <!-- Rating row (matching .card-rating-row) -->
+              <div class="card-rating-row km-card-rating-row">
+                {% if specialist.rating_count %}
+                  <span class="card-score" aria-label="{% if language == 'az' %}Reytinq {{ specialist.rating_avg|floatformat:1 }}{% elif language == 'en' %}Rating {{ specialist.rating_avg|floatformat:1 }}{% else %}Рейтинг {{ specialist.rating_avg|floatformat:1 }} из 5{% endif %}">
+                    <span class="card-score-star">★</span> {{ specialist.rating_avg|floatformat:1 }}
                   </span>
-                </div>
-                
-                <div class="km-card-detail-item">
-                  <span class="label">{% if language == "az" %}Uşaq yaşı{% elif language == "en" %}Ages{% else %}Возраст детей{% endif %}:</span>
-                  <span class="value">
-                    {% if specialist.age_from or specialist.age_to %}
-                      {% if specialist.age_from and specialist.age_to %}
-                        {{ specialist.age_from }} – {{ specialist.age_to }} {% if language == "az" %}yaş{% elif language == "en" %}yrs{% else %}лет{% endif %}
-                      {% elif specialist.age_from %}
-                        {{ specialist.age_from }}+ {% if language == "az" %}yaş{% else %}лет{% endif %}
-                      {% else %}
-                        &le; {{ specialist.age_to }} {% if language == "az" %}yaş{% else %}лет{% endif %}
-                      {% endif %}
-                    {% else %}
-                      —
-                    {% endif %}
+                  <span class="card-review-count">({{ specialist.rating_count }})</span>
+                {% else %}
+                  <span class="card-score card-score-empty">
+                    <span class="card-score-star card-score-star--empty">★</span>
+                    {% if language == "az" %}Hələ rəy yoxdur{% elif language == "en" %}No reviews{% else %}Пока нет отзывов{% endif %}
                   </span>
-                </div>
-
-                <div class="km-card-detail-item">
-                  <span class="label">{% if language == "az" %}Qiymət (AZN){% elif language == "en" %}Price{% else %}Стоимость{% endif %}:</span>
-                  <span class="value">
-                    {% if specialist.price_from %}
-                      {% if language == "az" %}od {{ specialist.price_from }} AZN{% elif language == "en" %}from {{ specialist.price_from }} AZN{% else %}от {{ specialist.price_from }} AZN{% endif %}
-                    {% else %}
-                      {% if specialist.practice_locations.all %}
-                        {% for loc in specialist.practice_locations.all|slice:":1" %}
-                          {% if loc.is_free %}
-                            {% if language == "az" %}Pulsuz{% elif language == "en" %}Free{% else %}Бесплатно{% endif %}
-                          {% else %}
-                            {{ loc.price_per_session }} AZN
-                          {% endif %}
-                        {% endfor %}
-                      {% else %}
-                        —
-                      {% endif %}
-                    {% endif %}
-                  </span>
-                </div>
-
-                <div class="km-card-detail-item">
-                  <span class="label">{% if language == "az" %}Dillər{% elif language == "en" %}Languages{% else %}Языки{% endif %}:</span>
-                  <span class="value">
-                    {% if specialist.language_az %}<span class="km-lang-pill">AZ</span>{% endif %}{% if specialist.language_ru %}<span class="km-lang-pill">RU</span>{% endif %}{% if specialist.language_en %}<span class="km-lang-pill">EN</span>{% endif %}
-                  </span>
+                {% endif %}
+                <div class="km-card-lang-pills">
+                  {% if specialist.language_az %}<span class="km-lang-pill">AZ</span>{% endif %}
+                  {% if specialist.language_ru %}<span class="km-lang-pill">RU</span>{% endif %}
+                  {% if specialist.language_en %}<span class="km-lang-pill">EN</span>{% endif %}
                 </div>
               </div>
 
-              <!-- Locations Text summary -->
-              {% if specialist.practice_locations.all %}
-                <div class="km-card-locations-list">
-                  <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
-                  <span>
-                    {% for loc in specialist.practice_locations.all %}
-                      {% if loc.place %}{{ loc.place.name_i18n }}{% else %}{{ loc.address }}{% endif %}{% if not forloop.last %}; {% endif %}
-                    {% endfor %}
-                  </span>
-                </div>
-              {% endif %}
+              <!-- Location line (matching .card-location) -->
+              <p class="meta card-location km-card-location{% if not specialist.card_location %} is-empty{% endif %}">
+                <span class="card-location-icon" aria-hidden="true">
+                  <svg class="card-location-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="rgba(16, 185, 129, 0.15)" />
+                    <circle cx="12" cy="10" r="3" fill="#10b981" />
+                  </svg>
+                </span>
+                <span class="card-location-text">{{ specialist.card_location }}</span>
+              </p>
 
               <!-- CTA details -->
-              <div class="km-card-action">
-                <a class="km-btn-card-view" href="{{ specialist.get_absolute_url }}">
-                  <i class="fas fa-arrow-right" aria-hidden="true"></i>
-                  {% if language == "az" %}Ətraflı Bax{% elif language == "en" %}Details{% else %}Подробнее{% endif %}
-                </a>
+              <div class="card-action-stack km-card-action-stack">
+                <div class="card-bottom-row km-card-bottom-row">
+                  <a class="km-btn-card-view card-go-btn" href="{{ specialist.get_absolute_url }}">
+                    <span>{% if language == "az" %}Ətraflı bax{% elif language == "en" %}View profile{% else %}Подробнее{% endif %}</span>
+                    <span class="card-go-arrow" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </span>
+                  </a>
+                </div>
               </div>
 
             </div>
           </article>
         {% empty %}
-          <div class="km-no-results">
-            <i class="fas fa-search" aria-hidden="true"></i>
-            <h3>{% if language == "az" %}Profil tapılmadı{% elif language == "en" %}No profiles found{% else %}Профили не найдены{% endif %}</h3>
-            <p>
-              {% if language == "az" %}Axtarış meyarlarınıza uyğun gələn mütəxəssis tapılmadı. Filtrləri sıfırlamağa çalışın.{% elif language == "en" %}Try resetting filters to view all available specialist profiles.{% else %}Попробуйте сбросить установленные фильтры для отображения всех специалистов.{% endif %}
+          <div class="km-state-card km-state-card--filter" role="status">
+            <div class="km-state-card__icon-box">
+              <span class="material-symbols-rounded km-state-card__icon" aria-hidden="true">{% if active_filter_chips or selected.q %}search_off{% else %}person_search{% endif %}</span>
+            </div>
+            <h3 class="km-state-card__title">
+              {% if active_filter_chips or selected.q %}
+                {% if language == "az" %}Mütəxəssis tapılmadı{% elif language == "en" %}No specialists found{% else %}Специалисты не найдены{% endif %}
+              {% else %}
+                {% if language == "az" %}Kataloqda hələ mütəxəssis yoxdur{% elif language == "en" %}No specialists in catalog yet{% else %}В каталоге пока нет специалистов{% endif %}
+              {% endif %}
+            </h3>
+            <p class="km-state-card__desc">
+              {% if active_filter_chips or selected.q %}
+                {% if language == "az" %}Axtarış parametrlərinizə uyğun mütəxəssis tapılmadı. Parametrləri dəyişin və ya bütün filtrləri sıfırlayın.{% elif language == "en" %}No specialists match your search criteria. Try adjusting the filters or resetting them.{% else %}По выбранным критериям поиска и фильтрам подходящих специалистов не найдено. Попробуйте изменить параметры или сбросить фильтры.{% endif %}
+              {% else %}
+                {% if language == "az" %}Təsdiqlənmiş pedaqoq və ekspertlər tezliklə əlavə olunacaq. Siz həmçinin uşaq mərkəzləri kataloquna baxa bilərsiniz.{% elif language == "en" %}Verified educators will be listed soon. You can also browse our places catalog.{% else %}Анкеты проверенных педагогов и экспертов появятся здесь в ближайшее время. Вы можете ознакомиться с кружками в основном каталоге.{% endif %}
+              {% endif %}
             </p>
+            <div class="km-state-card__actions">
+              {% if active_filter_chips or selected.q %}
+                <a href="{{ reset_filters_url }}" class="km-state-btn km-state-btn--primary">
+                  <span class="material-symbols-rounded" aria-hidden="true">restart_alt</span>
+                  <span>{% if language == "az" %}Bütün filtrləri sıfırla{% elif language == "en" %}Reset all filters{% else %}Сбросить все фильтры{% endif %}</span>
+                </a>
+              {% else %}
+                <a href="{% url 'place_list' %}" class="km-state-btn km-state-btn--primary">
+                  <span class="material-symbols-rounded" aria-hidden="true">explore</span>
+                  <span>{% if language == "az" %}Bütün məkanlara bax{% elif language == "en" %}Browse all places{% else %}Смотреть все заведения{% endif %}</span>
+                </a>
+              {% endif %}
+            </div>
           </div>
         {% endfor %}
       </div>
 
       <!-- Pagination -->
       {% if page_obj.has_other_pages %}
-        <nav class="km-pagination">
+        <nav class="km-pagination" aria-label="{% if language == 'az' %}Səhifələmə{% elif language == 'en' %}Pagination{% else %}Пагинация{% endif %}">
           {% url 'specialist_list' as specialist_list_url %}
           {% if page_obj.has_previous %}
-            <a class="km-pagination-btn" href="{{ specialist_list_url }}?{% if specialist_query_without_page %}{{ specialist_query_without_page }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">
+            <a class="km-pagination-btn" href="{{ specialist_list_url }}?{% if specialist_query_without_page %}{{ specialist_query_without_page }}&amp;{% endif %}page={{ page_obj.previous_page_number }}" aria-label="{% if language == 'az' %}Əvvəlki səhifə{% elif language == 'en' %}Previous page{% else %}Предыдущая страница{% endif %}">
               &larr;
             </a>
           {% endif %}
 
           {% for num in page_obj.paginator.page_range %}
             {% if page_obj.number == num %}
-              <span class="km-pagination-btn active">{{ num }}</span>
+              <span class="km-pagination-btn active" aria-current="page">{{ num }}</span>
             {% else %}
               <a class="km-pagination-btn" href="{{ specialist_list_url }}?{% if specialist_query_without_page %}{{ specialist_query_without_page }}&amp;{% endif %}page={{ num }}">
                 {{ num }}
@@ -470,7 +581,7 @@
           {% endfor %}
 
           {% if page_obj.has_next %}
-            <a class="km-pagination-btn" href="{{ specialist_list_url }}?{% if specialist_query_without_page %}{{ specialist_query_without_page }}&amp;{% endif %}page={{ page_obj.next_page_number }}">
+            <a class="km-pagination-btn" href="{{ specialist_list_url }}?{% if specialist_query_without_page %}{{ specialist_query_without_page }}&amp;{% endif %}page={{ page_obj.next_page_number }}" aria-label="{% if language == 'az' %}Növbəti səhifə{% elif language == 'en' %}Next page{% else %}Следующая страница{% endif %}">
               &rarr;
             </a>
           {% endif %}
@@ -482,3 +593,4 @@
 </div>
 
 {% endblock %}
+

@@ -1,0 +1,496 @@
+--- a/docs/superpowers/plans/2026-10-08-org-04-detach-compatibility.md
++++ b/docs/superpowers/plans/2026-10-08-org-04-detach-compatibility.md
+@@ -1,6 +1,6 @@
+ # ORG-04 Detach Compatibility Implementation Plan
+ 
+-> **For agentic workers:** Выполнять последовательно в текущем чате после пользовательского согласования этого плана. Делегирование и commit/push/deploy не разрешены. Сохранить dirty WORKTREE и актуальную авторизацию; повторно прочитать prompt и свежий source. Статус: AWAITING USER REVIEW, приложение не изменено.
++> **For agentic workers:** Выполнять последовательно в текущем чате после пользовательского согласования этого плана. Делегирование и commit/push/deploy не разрешены. Сохранить dirty WORKTREE и актуальную авторизацию; повторно прочитать prompt и свежий source. Статус: IMPLEMENTED LOCAL 2026-10-08; пользователь согласовал этот scope сообщением «дальше». Проверки и ограничения: docs/qa/org-04-fix-2026-10-08.md.
+ 
+ **Goal:** Закрыть отсоединение без обзора последствий во всех HTTP-входах, сохранив canonical права и данные места.
+ 
+@@ -121,4 +121,4 @@
+ 
+ ## Приёмочное решение
+ 
+-План охватывает оба подтверждённых обхода и обнаруженное исключение lawful archived/private detach. Legacy API intentional409 — главный предмет согласования. Реализация не начата. Для перехода к коду нужно согласовать этот вариант целиком; альтернативного обхода consent нет.
++План охватывает оба подтверждённых обхода и обнаруженное исключение lawful archived/private detach. Legacy API intentional409 — главный предмет согласования. Вариант согласован и реализован локально. Fresh server130/130 и Chromium176 functional PASS; console gate FAIL12 ViewTransition. Детальный отчёт: [ORG-04](../../qa/org-04-fix-2026-10-08.md). Альтернативного обхода consent нет; production/commit/push/deploy NOT RUN.
+--- a/docs/task33/implementation-status.md
++++ b/docs/task33/implementation-status.md
+@@ -421,3 +421,5 @@
+ 
+ 
+ ORG-03 локально завершён 2026-10-08: неудачный native create больше не удаляет sessionStorage; очистка только по одноразовому серверному подтверждению совпадающих полей, без изменения ACL/canonical create. JS14/14, targeted server50/50, Chromium268 functional PASS; отдельный console FAIL53 ViewTransition events сохранён вне scope. RU/AZ/EN×360/390/768/1024/1280/1440, Tab/Space390/1440;282 существующие domain rows неизменны,23 synthetic organizations в QA. ORG-01/ORG-02 и чужие изменения сохранены. Отчёт docs/qa/org-03-fix-2026-10-08.md; full suite/production/commit/push/deploy NOT RUN. active_run NONE.
++
++ORG-04 локально реализован 2026-10-08 по согласованному compatibility plan: legacy HTML302→detach-preview без мутации; legacy JSON409 confirmation_required; lawful archived/private detach с ID-only обзором, canonical права/связи/программы unchanged. Fresh RED14/3F → final server127+3 PASS; Chromium176 functional PASS, отдельный console FAIL12 ViewTransition; RU/AZ/EN×360/390/768/1024/1280/1440, keyboard,2tabs,expiry/loading/replay. Source/runtime2759 SHA44986abb1f358e03932fc266cddeecfdd2022b62f2f77fe8634b053bfc1e46cb;384 старых доменных rows неизменны,9 synthetic places отсоединены. RU fallback потребовал2 локальных перевода; прежний msgfmt duplicate AZ/EN сохранён как отдельный FAIL вне scope. Отчёт docs/qa/org-04-fix-2026-10-08.md; local.diff/evidence/screenshots21. Чужие изменения и ORG-01/02/03 сохранены. Full suite/production/commit/push/deploy NOT RUN. active_run NONE.
+--- a/locale/az/LC_MESSAGES/django.po
++++ b/locale/az/LC_MESSAGES/django.po
+@@ -22859,3 +22859,11 @@
+ #: src/catalog/domain_admin/place.py:127
+ msgid "Галерея изменилась. Обновите страницу."
+ msgstr "Qalereya dəyişib. Səhifəni yeniləyin."
++
++# ORG-04 private detach review
++msgid "Карточка недоступна для просмотра. Подтверждение относится только к связи места."
++msgstr "Məkan kartına baxmaq mümkün deyil. Təsdiq yalnız məkanın əlaqəsinə aiddir."
++
++# ORG-04 private detach review
++msgid "Сетевой доступ прекратится; актуальные прямые разрешения сохранятся. Общие контакты перестанут наследоваться. Данные приватной карточки здесь не показываются."
++msgstr "Şəbəkə girişi dayandırılacaq; qüvvədə olan birbaşa icazələr saxlanacaq. Ümumi əlaqə məlumatları daha miras alınmayacaq. Özəl məkan kartının məlumatları burada göstərilmir."
+--- a/locale/en/LC_MESSAGES/django.po
++++ b/locale/en/LC_MESSAGES/django.po
+@@ -22713,3 +22713,11 @@
+ #: src/catalog/domain_admin/place.py:127
+ msgid "Галерея изменилась. Обновите страницу."
+ msgstr "The gallery has changed. Reload the page."
++
++# ORG-04 private detach review
++msgid "Карточка недоступна для просмотра. Подтверждение относится только к связи места."
++msgstr "The place card is not available to view. Confirmation applies only to its organization link."
++
++# ORG-04 private detach review
++msgid "Сетевой доступ прекратится; актуальные прямые разрешения сохранятся. Общие контакты перестанут наследоваться. Данные приватной карточки здесь не показываются."
++msgstr "Network access will end; current direct permissions will remain. Shared contacts will no longer be inherited. Private place details are not shown here."
+--- a/locale/ru/LC_MESSAGES/django.po
++++ b/locale/ru/LC_MESSAGES/django.po
+@@ -20282,3 +20282,11 @@
+ #: src/catalog/domain_admin/place.py:127
+ msgid "Галерея изменилась. Обновите страницу."
+ msgstr "Галерея изменилась. Обновите страницу."
++
++# ORG-04 private detach review; prevent default AZ fallback in RU
++msgid "Карточка недоступна для просмотра. Подтверждение относится только к связи места."
++msgstr "Карточка недоступна для просмотра. Подтверждение относится только к связи места."
++
++# ORG-04 private detach review; prevent default AZ fallback in RU
++msgid "Сетевой доступ прекратится; актуальные прямые разрешения сохранятся. Общие контакты перестанут наследоваться. Данные приватной карточки здесь не показываются."
++msgstr "Сетевой доступ прекратится; актуальные прямые разрешения сохранятся. Общие контакты перестанут наследоваться. Данные приватной карточки здесь не показываются."
+--- a/src/catalog/controllers/organization_ownership_api.py
++++ b/src/catalog/controllers/organization_ownership_api.py
+@@ -2,6 +2,8 @@
+ import json
+ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
+ from django.http import JsonResponse
++from django.urls import reverse
++from catalog.services.organization_connections import detach_access
+ from django.views.decorators.csrf import csrf_protect
+ from django.views.decorators.http import require_POST
+ from catalog.services import organization_ownership as service
+@@ -39,7 +41,11 @@
+             elif action=='join':row=service.request_join(actor=request.user,place_id=target_id,**data)
+             elif action=='confirm-join':row=service.confirm_join(actor=request.user,request_id=target_id)
+             elif action=='approve-info':row=service.approve_informational_join(actor=request.user,request_id=target_id)
+-            elif action=='detach':row=service.detach(actor=request.user,place_id=target_id,**data)
++            elif action=='detach':
++                if set(data) != specs['detach']: raise ValidationError('Organization and ownership version required.')
++                detach_access(actor=request.user,place_id=target_id,**data)
++                return JsonResponse({'error':'confirmation_required','preview_url':reverse(
++                    'organization_detach_preview',args=[data['organization_id'],target_id])},status=409)
+             else:row=service.transfer_owner(actor=request.user,target_type=target_type,target_id=target_id,**data)
+         response={'id':row.pk,'status':getattr(row,'status',None)}
+         if action in ('join','confirm-join','approve-info','claim'):response['request_id']=row.pk
+--- a/src/catalog/controllers/organization_workspace.py
++++ b/src/catalog/controllers/organization_workspace.py
+@@ -139,8 +139,6 @@
+         if request.method=='POST':
+             operation=connection_request(request,org_id=org_id,detach_place=place_id)
+             if operation: return redirect('organization_connection_result',operation_id=operation.pk)
+-        place=Place.objects.get(pk=place_id,organization_id=org_id)
+-        if request.user.pk not in (place.owner_id,place.organization.owner_id): raise PermissionDenied
+         operation=connections.preview_detach(actor=request.user,place_id=place_id,organization_id=org_id)
+         context=connection_context(request,operation)
+         context.update(connection_url=request.path,org_id=org_id)
+@@ -387,14 +385,12 @@
+     if place is None or request.user.pk not in (place.owner_id, org.owner_id): raise Http404
+     try:
+         version=int(request.POST['expected_ownership_version'])
+-        organization_ownership.detach(actor=request.user,place_id=place_id,organization_id=org.pk,expected_ownership_version=version)
++        connections.detach_access(actor=request.user,place_id=place_id,organization_id=org.pk,expected_ownership_version=version)
+     except (ValueError,KeyError,ValidationError,PermissionDenied) as exc:
+         if business_team.has_action(user=request.user,target=org,action='organization.view'):
+             return _action_error(request,org,exc)
+         return render(request,'pages/organization_connection_error.html',{},status=409)
+-    if business_team.has_action(user=request.user,target=org,action='organization.view'):
+-        return redirect('organization_workspace_detail',org_id=org.pk)
+-    return redirect('owner_places_dashboard')
++    return redirect('organization_detach_preview',org_id=org.pk,place_id=place_id)
+ 
+ 
+ @require_POST
+--- a/src/catalog/services/organization_connections.py
++++ b/src/catalog/services/organization_connections.py
+@@ -83,10 +83,30 @@
+         'dependencies': _hash([activities, programs, revisions, grants, direct,groups,prices,selections]), 'requests': _hash(requests)}
+ 
+ 
++@transaction.atomic
++def detach_access(*, actor, place_id, organization_id, expected_ownership_version=None):
++    """Canonical mutation authority, without granting visibility or changing a link."""
++    actor = ownership._actor(actor)
++    place, org = ownership._link_parents(place_id, organization_id, allow_archived=True)
++    ownership._side_owner(actor, place, org)
++    if expected_ownership_version is not None and place.ownership_version != ownership._version(expected_ownership_version):
++        raise ValidationError('Stale ownership version.')
++    if place.organization_id is None:
++        if actor.pk != place.owner_id and not OrganizationPlaceRequest.objects.filter(
++            place=place, organization=org, status='approved').exists():
++            raise PermissionDenied
++    elif place.organization_id != org.pk:
++        raise ValidationError('Affiliation target mismatch.')
++    return actor, place, org
++
++
+ def _decision(actor, place, org, kind, action='connect'):
+     if action == 'detach':
+         if actor.pk not in (place.owner_id, org.owner_id): return 'no_rights'
+-        if place.organization_id is None: return 'already_detached'
++        if place.deleted_at is not None: return 'unavailable'
++        if place.organization_id is None:
++            if actor.pk != place.owner_id and not OrganizationPlaceRequest.objects.filter(place=place,organization=org,status='approved').exists(): return 'no_rights'
++            return 'already_detached'
+         if place.organization_id != org.pk: return 'other_network'
+         for activity in Activity.objects.filter(place=place, program__isnull=False).select_related('program'):
+             program = activity.program
+@@ -148,9 +168,12 @@
+     if relationship_kind not in ('business','informational'): raise ValidationError('Invalid relationship kind.')
+     _ids([organization_id])
+     ids = _ids(place_ids); org = Organization.objects.get(pk=organization_id)
+-    # A side-owner may detach an archived network even though workspace.view is unavailable.
+-    visible = {p.pk:p for p in visible_places(actor).filter(pk__in=ids)}
+-    if len(visible) != len(ids): raise PermissionDenied
++    if action == 'detach':
++        # Mutating a link does not entitle its side-owner to read a private place.
++        visible = {pk:detach_access(actor=actor,place_id=pk,organization_id=org.pk)[1] for pk in ids}
++    else:
++        visible = {p.pk:p for p in visible_places(actor).filter(pk__in=ids)}
++        if len(visible) != len(ids): raise PermissionDenied
+     states = {pk:_snapshot(visible[pk],org) for pk in ids}
+     operation = OrganizationConnectionOperation.objects.create(actor=actor, organization=org, action=action,
+         relationship_kind=relationship_kind, expires_at=timezone.now()+timedelta(minutes=10),
+@@ -199,7 +222,7 @@
+         list(Activity.objects.select_for_update().filter(place=place).order_by('pk'))
+         list(OrganizationPlaceRequest.objects.select_for_update().filter(place=place).order_by('pk'))
+         fresh_actor = ownership._actor(actor)
+-        code = 'unavailable' if not visible_places(fresh_actor).filter(pk=place.pk).exists() else _decision(fresh_actor,place,org,operation.relationship_kind,operation.action)
++        code = _decision(fresh_actor,place,org,operation.relationship_kind,operation.action) if operation.action == 'detach' or visible_places(fresh_actor).filter(pk=place.pk).exists() else 'unavailable'
+         if code in EXECUTABLE and _snapshot(place,org) != item.snapshot: code='changed'
+         request = None
+         if code in EXECUTABLE and code not in ('already_connected','already_detached'):
+@@ -254,7 +277,15 @@
+     for item in operation.items.select_related('request'):
+         code=item.result or item.decision
+         if item.place_id not in visible:
+-            rows.append({'id':item.place_id,'code':'unavailable'});continue
++            if operation.action == 'detach':
++                place = Place.objects.get(pk=item.place_id)
++                decision = _decision(actor,place,operation.organization,operation.relationship_kind,'detach')
++                lawful = decision in EXECUTABLE or decision == 'manual_review'
++                rows.append({'id':item.place_id, 'code':code if item.completed_at or lawful else 'unavailable',
++                    'complete':item.completed_at is not None, 'executable':lawful and item.decision in EXECUTABLE, 'redacted':True})
++            else:
++                rows.append({'id':item.place_id,'code':'unavailable'})
++            continue
+         place=visible[item.place_id]
+         row = _row(actor,place,operation.organization,code)
+         if item.request_id and actor.pk in (place.owner_id,operation.organization.owner_id):
+@@ -265,6 +296,8 @@
+     result={'id':str(operation.pk),'action':operation.action,'status':operation.status,'organization_id':org.pk,
+         'organization_name':organization_name(org) if organization_visible(actor,org) else None,'relationship_kind':operation.relationship_kind,
+         'expires_at':operation.expires_at,'rows':rows,'executable_count':sum(r.get('executable',False) for r in rows)}
++    if operation.action=='detach' and operation.status!='completed' and any(r.get('redacted') and r.get('executable') for r in rows):
++        result['redacted_detach'] = True
+     if operation.action=='detach' and operation.status!='completed' and visible:
+         place=next(iter(visible.values()))
+         if actor.pk in (place.owner_id,org.owner_id):
+--- a/src/catalog/templates/pages/includes/organization_connection_rows.html
++++ b/src/catalog/templates/pages/includes/organization_connection_rows.html
+@@ -3,11 +3,13 @@
+   <thead><tr>{% if selectable %}<th scope="col">{% translate 'Выбрать' %}</th>{% endif %}<th scope="col">{% translate 'Место и адрес' %}</th><th scope="col">{% translate 'Текущая организация' %}</th><th scope="col">{% translate 'Состояние' %}</th></tr></thead>
+   <tbody>{% for row in rows %}<tr data-result="{{ row.code }}">
+     {% if selectable %}<td><input type="checkbox" name="place_ids" value="{{ row.id }}" id="place-{{ row.id }}" {% if row.selected %}checked{% endif %}><label for="place-{{ row.id }}" class="org-connect__sr">{{ row.name }} · {{ row.address }} · #{{ row.id }}</label></td>{% endif %}
++    {% if row.redacted %}<td><strong>#{{ row.id }}</strong><span>{% translate 'Карточка недоступна для просмотра. Подтверждение относится только к связи места.' %}</span></td><td>—</td>{% else %}
+     <td><strong>{{ row.name|default:'—' }}</strong><span>{{ row.address }}</span><small>#{{ row.id }} · {{ row.publication }}</small></td>
+     <td>{% if row.current_organization %}{{ row.current_organization }}{% elif row.has_organization %}{% translate 'Организация недоступна' %}{% else %}{% translate 'Самостоятельное место' %}{% endif %}
+       {% if row.has_organization and not row.affiliation_current %}<small>{% translate 'Связь неактуальна: доступ сети не действует' %}</small>{% endif %}
+       {% if row.current_kind == 'informational' %}<small>{% translate 'Информационная связь' %}</small>{% endif %}
+     </td>
++    {% endif %}
+     <td><span class="org-connect__badge">{{ row.message }}</span>
+       {% if row.request_id %}<small>{% translate 'Запрос' %} #{{ row.request_id }}</small>{% endif %}
+       {% if row.request_status == 'approved' %}<small>{% translate 'Запрос подтверждён' %}</small>{% elif row.request_status == 'rejected' %}<small>{% translate 'Запрос отклонён' %}</small>{% elif row.request_status == 'canceled' %}<small>{% translate 'Запрос отменён' %}</small>{% endif %}
+--- a/src/catalog/templates/pages/organization_connections.html
++++ b/src/catalog/templates/pages/organization_connections.html
+@@ -57,6 +57,14 @@
+         <p>{% translate 'Сразу' %}: {{ result.summary.immediate }} · {% translate 'Запросы' %}: {{ result.summary.requests }} · {% translate 'Без изменений' %}: {{ result.summary.unchanged }} · {% translate 'Пропустим' %}: {{ result.summary.blocked }}</p>
+       {% else %}<p role="status">{% if result.status == 'completed' %}{% translate 'Обработка завершена. Проверьте результат каждой строки.' %}{% else %}{% translate 'Обработка прервана. Можно продолжить ту же операцию без повторения готовых строк.' %}{% endif %}</p>{% endif %}
+       {% include 'pages/includes/organization_connection_rows.html' %}
++      {% if result.redacted_detach %}
++        <aside class="org-connect__impact"><h3>{% translate 'Последствия отвязки' %}</h3>
++          <p>{% translate 'Фото, занятия, группы, тарифы, часы работы, владелец и статус публикации сохраняются.' %}</p>
++          <p>{% translate 'Занятия общих программ станут локальными снимками; обновления сети прекратятся.' %}</p>
++          <p>{% translate 'Сетевой доступ прекратится; актуальные прямые разрешения сохранятся. Общие контакты перестанут наследоваться. Данные приватной карточки здесь не показываются.' %}</p>
++          <p>{% translate 'Сетевые разрешения остаются в сети и могут снова действовать после повторного подключения.' %}</p>
++        </aside>
++      {% endif %}
+       {% if result.impact %}
+         <aside class="org-connect__impact"><h3>{% translate 'Последствия отвязки' %}</h3>
+           <p>{% translate 'Фото, занятия, группы, тарифы, часы работы, владелец и статус публикации сохраняются.' %}</p>
+@@ -80,10 +88,14 @@
+       <a href="{% if admin_mode %}{{ connection_url }}?operation={{ operation.pk }}{% else %}{% url 'organization_connection_result' operation.pk %}{% endif %}">{% translate 'Проверить состояние операции' %}</a>
+     </section>
+     {% if not admin_mode %}
++      {% if result.action == 'detach' %}
++        {% for row in rows %}{% if row.code == 'changed' or row.code == 'failed' or row.code == 'manual_review' %}<a href="{% url 'organization_detach_preview' result.organization_id row.id %}">{% translate 'Новый просмотр проблемных строк' %}</a>{% endif %}{% endfor %}
++      {% else %}
+       <form method="get" action="{% url 'organization_connections' result.organization_id %}" class="org-connect__actions">
+         {% for row in rows %}{% if row.code == 'changed' or row.code == 'failed' or row.code == 'manual_review' %}<input type="hidden" name="place_ids" value="{{ row.id }}">{% endif %}{% endfor %}
+         <button type="submit">{% translate 'Новый просмотр проблемных строк' %}</button>
+       </form>
++      {% endif %}
+       {% if result.action == 'detach' and result.status == 'completed' %}
+         <p>{% translate 'Место остаётся самостоятельным до нового согласованного подключения. Старые программы не перейдут в новую сеть автоматически.' %}</p>
+         <a href="{% url 'organization_connection_target' %}?{% for row in rows %}place_ids={{ row.id }}&amp;{% endfor %}">{% translate 'Выбрать другую организацию' %}</a>
+--- a/src/catalog/templates/pages/owner_places.html
++++ b/src/catalog/templates/pages/owner_places.html
+@@ -85,7 +85,7 @@
+         <div class="account-card-box__head"><h2 id="organization-links-title">{% if CURRENT_LANGUAGE == 'az' %}Təşkilat əlaqələri{% elif CURRENT_LANGUAGE == 'en' %}Organization links{% else %}Связи с организациями{% endif %}</h2></div>
+         {% for item in place_affiliation_requests %}<div class="org-pending-row"><span>{{ item.place.name_i18n }} → {{ item.organization.name_az }} · {% if item.place_owner_confirmed_at %}{% if CURRENT_LANGUAGE == 'az' %}Sizin tərəf təsdiqlədi{% elif CURRENT_LANGUAGE == 'en' %}Your side confirmed{% else %}Ваша сторона подтвердила{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Sizin təsdiqiniz gözlənilir{% elif CURRENT_LANGUAGE == 'en' %}Waiting for your confirmation{% else %}Ожидает вашего подтверждения{% endif %}{% endif %}</span><form method="post" action="{% url 'organization_workspace_confirm' item.organization_id item.pk %}">{% csrf_token %}<button class="account-btn-sm" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Təsdiqlə{% elif CURRENT_LANGUAGE == 'en' %}Confirm{% else %}Подтвердить{% endif %}</button></form></div>{% endfor %}
+         {% for place in informational_places %}<p>{{ place.name_i18n }} · {% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi; şəbəkə hüququ vermir{% elif CURRENT_LANGUAGE == 'en' %}Information link; no network permission{% else %}Информационная связь; не даёт сетевых прав{% endif %}</p>{% endfor %}
+-        {% for place in affiliated_places %}<div class="org-pending-row"><span>{{ place.name_i18n }} → {{ place.organization.name_az }} · {% if place.organization_relationship_kind == 'informational' %}{% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi{% elif CURRENT_LANGUAGE == 'en' %}Information link{% else %}Информационная связь{% endif %}{% endif %}</span><form method="post" action="{% url 'organization_workspace_detach' place.organization_id place.pk %}">{% csrf_token %}<input type="hidden" name="expected_ownership_version" value="{{ place.ownership_version }}"><button class="account-btn-sm" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Ayır{% elif CURRENT_LANGUAGE == 'en' %}Detach{% else %}Отсоединить{% endif %}</button></form></div>{% endfor %}
++        {% for place in affiliated_places %}<div class="org-pending-row"><span>{{ place.name_i18n }} → {{ place.organization.name_az }} · {% if place.organization_relationship_kind == 'informational' %}{% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi{% elif CURRENT_LANGUAGE == 'en' %}Information link{% else %}Информационная связь{% endif %}{% endif %}</span><a class="account-btn-sm" href="{% url 'organization_detach_preview' place.organization_id place.pk %}">{% translate 'Отсоединить: посмотреть последствия' %}</a></div>{% endfor %}
+         {% if joinable_places and joinable_organizations %}<form method="post" data-join-form>{% csrf_token %}<label>{% if CURRENT_LANGUAGE == 'az' %}Məkan{% elif CURRENT_LANGUAGE == 'en' %}Place{% else %}Место{% endif %}<select name="place_id">{% for place in joinable_places %}<option value="{{ place.pk }}">{{ place.name_i18n }}</option>{% endfor %}</select></label><label>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat{% elif CURRENT_LANGUAGE == 'en' %}Organization{% else %}Организация{% endif %}<select name="organization_id" data-join-org>{% for org in joinable_organizations %}<option value="{{ org.pk }}" data-url="{% url 'organization_workspace_join' org.pk %}">{{ org.name_az }}</option>{% endfor %}</select></label><button type="submit" class="account-btn-sm">{% if CURRENT_LANGUAGE == 'az' %}Qoşulma istə{% elif CURRENT_LANGUAGE == 'en' %}Request connection{% else %}Запросить присоединение{% endif %}</button></form>{% endif %}
+       </section>
+       {% endif %}
+--- a/src/catalog/testcases/test_task33_organization_workspace.py
++++ b/src/catalog/testcases/test_task33_organization_workspace.py
+@@ -148,9 +148,17 @@
+         self.client.force_login(self.stranger)
+         self.assertEqual(self.client.get(reverse('organization_workspace_detail',args=[self.org.pk])).status_code,404)
+         response = self.client.post(reverse('organization_workspace_detach',args=[self.org.pk,external.pk]), {'expected_ownership_version':external.ownership_version})
+-        self.assertEqual(response.status_code,302)
++        self.assertRedirects(response,reverse('organization_detach_preview',args=[self.org.pk,external.pk]),fetch_redirect_response=False)
++        external.refresh_from_db()
++        self.assertEqual(external.organization_id,self.org.pk)
++        review=self.client.get(response.url)
++        self.assertEqual(review.status_code,200)
++        confirmed=self.client.post(response.url,{'action':'confirm','preview_id':review.context['operation'].pk,
++            'idempotency_key':review.context['idempotency_key'],'consent':'1'})
++        self.assertEqual(confirmed.status_code,302)
+         external.refresh_from_db()
+         self.assertIsNone(external.organization_id)
++        self.assertEqual(self.client.get(reverse('organization_workspace_detail',args=[self.org.pk])).status_code,404)
+ 
+     def test_organization_create_get_screen_and_duplicate_collision(self):
+         self.client.force_login(self.owner)
+--- /dev/null
++++ b/src/catalog/testcases/test_organization_detach_transport.py
+@@ -0,0 +1,210 @@
++"""HTTP detach requires a reviewed, actor-bound receipt; private display stays private."""
++import json
++import uuid
++from datetime import timedelta
++from unittest.mock import patch
++from django.contrib.auth import get_user_model
++from django.core.exceptions import PermissionDenied, ValidationError
++from django.db.models import F
++from django.middleware.csrf import get_token
++from django.test import Client, RequestFactory, TestCase
++from django.urls import reverse
++from django.utils import timezone
++from catalog.models import Organization, OrganizationConnectionOperation, OrganizationPlaceRequest, Place
++from catalog.services import organization_connections as connections, organization_ownership as ownership
++from catalog.testcases.utils import create_quality_place, ensure_quality_subcategory
++
++
++class DetachTransportTests(TestCase):
++    def setUp(self):
++        ensure_quality_subcategory('EDU')
++        self.owner = get_user_model().objects.create_user(username='detach_transport_owner')
++        self.other = get_user_model().objects.create_user(username='detach_transport_other')
++        self.staff = get_user_model().objects.create_user(username='detach_transport_staff', is_staff=True, is_superuser=True)
++        self.org = Organization.objects.create(owner=self.owner, name_az='Synthetic detach network')
++        self.place = create_quality_place(owner=self.owner, name_az='Synthetic detach place')
++        ownership.request_join(actor=self.owner, place_id=self.place.pk, organization_id=self.org.pk)
++        self.place.refresh_from_db()
++        self.client = self.csrf_client(self.owner)
++
++    def csrf_client(self, user):
++        client = Client(enforce_csrf_checks=True)
++        client.force_login(user)
++        token = get_token(RequestFactory().get('/'))
++        client.cookies['csrftoken'] = token
++        client.defaults['HTTP_X_CSRFTOKEN'] = token
++        return client
++
++    def url(self, name='organization_detach_preview', place=None, org=None):
++        return reverse(name, args=[(org or self.org).pk, (place or self.place).pk])
++
++    def attached(self):
++        self.place.refresh_from_db()
++        self.assertEqual(self.place.organization_id, self.org.pk)
++
++    def review(self):
++        response = self.client.get(self.url())
++        self.assertEqual(response.status_code, 200)
++        return response.context['operation'], response.context['idempotency_key']
++
++    def confirm(self, op, key, **overrides):
++        data = dict(action='confirm', preview_id=str(op.pk), idempotency_key=str(key), consent='1')
++        data.update(overrides)
++        return self.client.post(self.url(), data)
++
++    def test_legacy_html_redirects_without_mutation_or_receipt(self):
++        response = self.client.post(self.url('organization_workspace_detach'), {'expected_ownership_version': self.place.ownership_version})
++        self.attached()
++        self.assertRedirects(response, self.url(), fetch_redirect_response=False)
++        self.assertFalse(OrganizationConnectionOperation.objects.exists())
++
++    def test_legacy_json_requires_confirmation_without_mutation(self):
++        response = self.client.post(reverse('organization_ownership_action', args=['detach', 'place', self.place.pk]), json.dumps({'organization_id': self.org.pk, 'expected_ownership_version': self.place.ownership_version}), content_type='application/json')
++        self.attached()
++        self.assertEqual(response.status_code, 409)
++        self.assertEqual(response.json(), {'error': 'confirmation_required', 'preview_url': self.url()})
++        self.assertFalse(OrganizationConnectionOperation.objects.exists())
++
++    def test_actual_csrf_required_on_all_transports(self):
++        client = Client(enforce_csrf_checks=True); client.force_login(self.owner)
++        for url, data in [(self.url('organization_workspace_detach'), {'expected_ownership_version': self.place.ownership_version}), (reverse('organization_ownership_action', args=['detach','place',self.place.pk]), '{}'), (self.url(), {'action':'confirm'})]:
++            self.assertEqual(client.post(url, data, content_type='application/json' if isinstance(data,str) else 'application/x-www-form-urlencoded').status_code, 403)
++        self.attached()
++
++    def test_consent_receipt_required_and_valid_repeat_is_idempotent(self):
++        op, key = self.review(); self.attached()
++        self.assertEqual(self.confirm(op, key, consent='0').status_code, 409); self.attached()
++        self.assertEqual(self.confirm(op, key, preview_id=str(uuid.uuid4())).status_code, 404); self.attached()
++        before = (self.place.owner_id, self.place.status, self.place.photo.name)
++        self.assertEqual(self.confirm(op, key).status_code, 302)
++        self.place.refresh_from_db(); self.assertIsNone(self.place.organization_id)
++        version = self.place.content_version
++        self.assertEqual((self.place.owner_id,self.place.status,self.place.photo.name), before)
++        self.assertEqual(self.confirm(op,key).status_code,302)
++        self.place.refresh_from_db(); self.assertEqual(self.place.content_version,version)
++        self.assertEqual(self.confirm(op,uuid.uuid4()).status_code,409)
++
++    def test_foreign_and_staff_get_no_receipt_or_metadata(self):
++        Place.objects.filter(pk=self.place.pk).update(status='draft', is_active=False)
++        for user in (self.other,self.staff):
++            client=self.csrf_client(user)
++            for url in (self.url(),self.url('organization_workspace_detach')):
++                response=client.get(url) if url==self.url() else client.post(url,{'expected_ownership_version':self.place.ownership_version})
++                self.assertEqual(response.status_code,404)
++                self.assertNotContains(response,self.place.name_az,status_code=404)
++            response=client.post(reverse('organization_ownership_action',args=['detach','place',self.place.pk]),json.dumps({'organization_id':self.org.pk,'expected_ownership_version':self.place.ownership_version}),content_type='application/json')
++            self.assertEqual(response.status_code,403); self.assertNotIn('preview_url',response.json())
++        self.assertFalse(OrganizationConnectionOperation.objects.exists()); self.attached()
++
++    def test_archived_network_lawful_private_detach_is_redacted(self):
++        private=create_quality_place(owner=self.other,name_az='DO NOT DISCLOSE PLACE',address='DO NOT DISCLOSE ADDRESS',status='published')
++        req=ownership.request_join(actor=self.owner,place_id=private.pk,organization_id=self.org.pk)
++        ownership.confirm_join(actor=self.other,request_id=req.pk)
++        Place.objects.filter(pk=private.pk).update(status='draft',is_active=False)
++        Organization.objects.filter(pk=self.org.pk).update(archived_at=timezone.now())
++        self.assertFalse(connections.visible_places(self.owner).filter(pk=private.pk).exists())
++        response=self.client.get(self.url(place=private)); self.assertEqual(response.status_code,200)
++        for secret in (private.name_az,private.address): self.assertNotContains(response,secret)
++        op=response.context['operation']; result=connections.connection_result(actor=self.owner,operation_id=op.pk)
++        row=result['rows'][0]
++        self.assertEqual(set(row),{'id','code','complete','executable','redacted'})
++        self.assertTrue(row['redacted']); self.assertTrue(row['executable']); self.assertNotIn('impact',result)
++        confirmed=self.client.post(self.url(place=private),dict(action='confirm',preview_id=str(op.pk),idempotency_key=str(response.context['idempotency_key']),consent='1'))
++        self.assertEqual(confirmed.status_code,302)
++        private.refresh_from_db(); self.assertIsNone(private.organization_id)
++        final=self.client.get(confirmed['Location']); self.assertEqual(final.status_code,200)
++        self.assertNotContains(final,private.name_az)
++        self.assertFalse(connections.visible_places(self.owner).filter(pk=private.pk).exists())
++        with self.assertRaises(PermissionDenied): connections.preview_connections(actor=self.owner,organization_id=self.org.pk,relationship_kind='business',place_ids=[private.pk])
++
++    def test_stale_version_and_extra_api_consent_fields_rejected(self):
++        url=reverse('organization_ownership_action',args=['detach','place',self.place.pk])
++        data={'organization_id':self.org.pk,'expected_ownership_version':self.place.ownership_version+1}
++        self.assertEqual(self.client.post(url,json.dumps(data),content_type='application/json').status_code,400)
++        self.assertEqual(self.client.post(self.url('organization_workspace_detach'),data).status_code,409)
++        data['expected_ownership_version']=self.place.ownership_version; data['consent']=True
++        self.assertEqual(self.client.post(url,json.dumps(data),content_type='application/json').status_code,400)
++        self.attached()
++
++    def test_expired_and_other_actor_receipts_do_not_detach(self):
++        op,key=self.review()
++        OrganizationConnectionOperation.objects.filter(pk=op.pk).update(expires_at=timezone.now()-timedelta(seconds=1))
++        self.assertEqual(self.confirm(op,key).status_code,409); self.attached()
++        other=self.csrf_client(self.other)
++        response=other.post(self.url(),dict(action='confirm',preview_id=str(op.pk),idempotency_key=str(key),consent='1'))
++        self.assertEqual(response.status_code,404); self.attached()
++
++    def test_place_org_action_binding(self):
++        op,key=self.review()
++        other_place=create_quality_place(owner=self.owner,name_az='Synthetic other')
++        org=Organization.objects.create(owner=self.owner,name_az='Synthetic other org')
++        payload=dict(action='confirm',preview_id=str(op.pk),idempotency_key=str(key),consent='1')
++        for url in (self.url(place=other_place),self.url(org=org),reverse('organization_connections',args=[self.org.pk])):
++            self.assertEqual(self.client.post(url,payload).status_code,404)
++        connect=connections.preview_connections(actor=self.owner,organization_id=self.org.pk,relationship_kind='business',place_ids=[self.place.pk])
++        self.assertEqual(self.confirm(connect,key).status_code,404); self.attached()
++
++    def test_content_conflict_preserves_link(self):
++        op,key=self.review()
++        Place.objects.filter(pk=self.place.pk).update(content_version=F('content_version')+1)
++        self.assertEqual(self.confirm(op,key).status_code,302)
++        self.assertEqual(op.items.get().result,'changed'); self.attached()
++
++    def test_lost_authority_preserves_link_and_does_not_reveal_private(self):
++        op,key=self.review()
++        Organization.objects.filter(pk=self.org.pk).update(owner=self.other,ownership_version=F('ownership_version')+1)
++        Place.objects.filter(pk=self.place.pk).update(owner=self.other,ownership_version=F('ownership_version')+1,status='draft',is_active=False)
++        self.assertEqual(self.confirm(op,key).status_code,302)
++        self.assertIn(op.items.get().result,('no_rights','unavailable')); self.attached()
++        self.assertNotIn(self.place.name_az,str(connections.connection_result(actor=self.owner,operation_id=op.pk)))
++
++    def test_old_receipt_after_rejoin_does_not_detach_again(self):
++        op,key=self.review(); self.confirm(op,key)
++        ownership.request_join(actor=self.owner,place_id=self.place.pk,organization_id=self.org.pk)
++        self.assertEqual(self.confirm(op,key).status_code,302); self.attached()
++
++    def test_org_owner_cannot_review_unattached_private_without_history(self):
++        private=create_quality_place(owner=self.other,status='draft',is_active=False)
++        with self.assertRaises(PermissionDenied):
++            connections.preview_detach(actor=self.owner,place_id=private.pk,organization_id=self.org.pk)
++        self.assertFalse(OrganizationConnectionOperation.objects.exists())
++
++    def test_failed_canonical_transition_rolls_back_and_replay_does_not_retry(self):
++        op,key=self.review()
++        with patch.object(ownership,'detach',side_effect=RuntimeError('synthetic transition failure')):
++            result=connections.execute_detach(actor=self.owner,preview_id=op.pk,idempotency_key=key)
++        self.assertEqual(result.items.get().result,'failed'); self.attached()
++        connections.execute_detach(actor=self.owner,preview_id=op.pk,idempotency_key=key); self.attached()
++
++    def test_reviewed_detach_preserves_program_media_group_price_and_hours(self):
++        from catalog.models import Activity, Program, OfferingGroup, PricingPlan, PlacePhoto, PlaceScheduleDay, PlaceScheduleInterval
++        from datetime import time
++        program=Program.objects.create(organization=self.org,name_az='Synthetic approved program',description_az='Approved common text',status='published',approved_at=timezone.now())
++        activity=Activity.objects.create(place=self.place,program=program,supplement_az='Local supplement')
++        group=OfferingGroup.objects.create(activity=activity,age_from=4,age_to=8,schedule_text='Saturday 14:00')
++        price=PricingPlan.objects.create(place=self.place,product_type='membership',billing_mode='recurring',billing_interval='month',billing_interval_count=1,price_kind='exact',price=77)
++        PlacePhoto.objects.create(place=self.place,image='synthetic/first.png',order=7)
++        PlacePhoto.objects.create(place=self.place,image='synthetic/second.png',order=2)
++        day=PlaceScheduleDay.objects.create(place=self.place,weekday='mon',is_closed=False)
++        PlaceScheduleInterval.objects.create(schedule_day=day,start_time=time(9),end_time=time(18))
++        gallery=list(self.place.gallery.values_list('pk','image','order'))
++        hours=list(PlaceScheduleInterval.objects.filter(schedule_day=day).values())
++        op,key=self.review(); self.assertEqual(self.confirm(op,key).status_code,302)
++        activity.refresh_from_db(); group.refresh_from_db(); price.refresh_from_db()
++        self.assertIsNone(activity.program_id); self.assertEqual(activity.source_program_id,program.pk)
++        self.assertEqual(activity.program_snapshot['description_az'],'Approved common text')
++        self.assertEqual(activity.supplement_az,'Local supplement'); self.assertEqual(group.schedule_text,'Saturday 14:00')
++        self.assertEqual(price.price,77); self.assertEqual(list(self.place.gallery.values_list('pk','image','order')),gallery)
++        self.assertEqual(list(PlaceScheduleInterval.objects.filter(schedule_day=day).values()),hours)
++
++    def test_detach_dependency_conflicts_require_new_review(self):
++        from catalog.models import Activity, OfferingGroup, PricingPlan, OrganizationGrant
++        activity=Activity.objects.create(place=self.place,name_az='Synthetic class')
++        group=OfferingGroup.objects.create(activity=activity,name_az='Synthetic group')
++        price=PricingPlan.objects.create(place=self.place,product_type='membership',billing_mode='recurring',billing_interval='month',billing_interval_count=1,price_kind='exact',price=77)
++        mutations=[lambda:OfferingGroup.objects.filter(pk=group.pk).update(content_version=F('content_version')+1),
++            lambda:PricingPlan.objects.filter(pk=price.pk).update(price=88,updated_at=timezone.now()),
++            lambda:OrganizationGrant.objects.create(organization=self.org,owner=self.owner,member=self.other,base_ownership_version=self.org.ownership_version,scope='all_network',actions=['place.view'])]
++        for mutate in mutations:
++            op,key=self.review(); mutate(); self.assertEqual(self.confirm(op,key).status_code,302)
++            self.assertEqual(op.items.get().result,'changed'); self.attached()

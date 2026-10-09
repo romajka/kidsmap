@@ -42,5 +42,11 @@
       <div class="km-place-location__map" data-km-place-location-map aria-label="{% translate 'Карта выбора координат' %}"></div>
       <div class="km-place-location__found" data-km-place-location-found hidden><strong data-km-place-location-found-text></strong></div>
     </div>
+    <div class="km-location-grid km-location-grid--three">
+      {% with field=form.phone %}<div class="km-location-field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
+      {% with field=form.instagram %}<div class="km-location-field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
+      {% with field=form.website %}<div class="km-location-field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
+    </div>
+    {% with field=form.moderation_note %}<div class="km-location-field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
   </div>
 {% endwith %}

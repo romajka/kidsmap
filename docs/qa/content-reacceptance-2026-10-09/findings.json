@@ -1,0 +1,31 @@
+[
+  {
+    "id": "CE-RA-01",
+    "priority": "P3",
+    "environment": "LOCAL dirty WORKTREE",
+    "role": "demo_moderator",
+    "url": "http://localhost:8790/admin/catalog/specialist/6/change/",
+    "steps": [
+      "Open specialist editor",
+      "Select RU or AZ",
+      "Open first section",
+      "Read identity confirmation date label"
+    ],
+    "expected": "Localized identity verification date label",
+    "actual": "Person verified at: in RU and AZ",
+    "root_cause": "person_verified_at has no localized verbose_name; admin readonly field uses generated name",
+    "source": [
+      "src/catalog/models/specialist.py:99",
+      "src/catalog/domain_admin/specialist.py:455",
+      "src/catalog/domain_admin/specialist.py:758"
+    ],
+    "evidence": [
+      "evidence.json: run labels",
+      "screenshots/admin-specialist-edit-ru-1440.png",
+      "screenshots/admin-specialist-edit-ru-390.png"
+    ],
+    "owner": "Django admin / i18n",
+    "confidence": "high",
+    "fixed": false
+  }
+]

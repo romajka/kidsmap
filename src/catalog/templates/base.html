@@ -45,10 +45,9 @@
         gtag("config", "{{ google_analytics_measurement_id|escapejs }}");
       </script>
     {% endif %}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/components/icons.css' %}" />
     <link rel="stylesheet" href="{% static 'css/site.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/components/states.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}" />
     <style>
       /* ── KidsMap Card Overrides ── */
@@ -103,8 +102,9 @@
     <link rel="stylesheet" href="{% static 'css/motion.css' %}" />
     {% block navigation_motion %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=2">
-    <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20260915">
+    <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261005">
     <script src="{% static 'js/header.js' %}?v=20260915" defer></script>
+    <script src="{% static 'js/motion.js' %}"></script>
   </head>
   <body id="top" class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
     data-analytics-page-type="{{ analytics_page_type }}"
@@ -161,7 +161,8 @@
               </h3>
               <div class="footer-accordion-content">
                 <nav class="footer-nav-list" aria-label="{% trans 'Каталог' %}">
-                  <a href="{% url 'place_list' %}">{% if CURRENT_LANGUAGE == "az" %}Bütün dərnəklər və məkanlar{% elif CURRENT_LANGUAGE == "en" %}All clubs & venues{% else %}Все кружки и заведения{% endif %}</a>
+{% if is_organizations_section_enabled %}                  <a href="{% url 'organization_list' %}">{% if CURRENT_LANGUAGE == "az" %}Təşkilatlar{% elif CURRENT_LANGUAGE == "en" %}Organizations{% else %}Организации{% endif %}</a>{% endif %}
+                    <a href="{% url 'place_list' %}">{% if CURRENT_LANGUAGE == "az" %}Bütün dərnəklər və məkanlar{% elif CURRENT_LANGUAGE == "en" %}All clubs & venues{% else %}Все кружки и заведения{% endif %}</a>
                   <a href="{% url 'place_list' %}?category=SPRT">{% if CURRENT_LANGUAGE == "az" %}İdman bölmələri{% elif CURRENT_LANGUAGE == "en" %}Sports & martial arts{% else %}Спорт и единоборства{% endif %}</a>
                   <a href="{% url 'place_list' %}?category=EDU">{% if CURRENT_LANGUAGE == "az" %}Təhsil və kurslar{% elif CURRENT_LANGUAGE == "en" %}Education & courses{% else %}Образование и курсы{% endif %}</a>
                   <a href="{% url 'place_list' %}?category=ART">{% if CURRENT_LANGUAGE == "az" %}Yaradıcılıq və incəsənət{% elif CURRENT_LANGUAGE == "en" %}Arts & creativity{% else %}Творчество и музыка{% endif %}</a>
@@ -860,7 +861,6 @@
       })();
     </script>
     <script src="{% static 'js/ai_referral_tracking.js' %}"></script>
-    <script src="{% static 'js/motion.js' %}" defer></script>
     <script src="{% static 'js/review_submission.js' %}" defer></script>
     {% if analytics_events %}
       {{ analytics_events|json_script:"kidsmap-analytics-events" }}

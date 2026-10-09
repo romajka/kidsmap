@@ -749,11 +749,75 @@ class PlaceController:
             place.refresh_rating_stats()
 
         from catalog.services.public_presentation import present
+        from catalog.services.features import (
+            is_organizations_section_enabled,
+            is_specialists_section_enabled,
+            is_events_section_enabled,
+        )
         presentation = present(place, request.LANGUAGE_CODE)
         activities = [present(a, request.LANGUAGE_CODE) for a in place.activities.filter(status="published", archived_at__isnull=True).select_related("place__organization", "place__category", "program__organization")]
+
+        place_specialists = []
+        if is_specialists_section_enabled():
+            from catalog.models.specialist import SpecialistPracticeLocation
+            spec_locs = (
+                SpecialistPracticeLocation.objects.filter(
+                    place=place,
+                    is_active=True,
+                    specialist__status="published",
+                    specialist__is_active=True,
+                )
+                .select_related("specialist")
+                .prefetch_related("specialist__specializations")
+                .order_by("-is_primary", "specialist__name")
+            )
+            for loc in spec_locs:
+                spec = loc.specialist
+                specs_labels = [s.name_i18n(request.LANGUAGE_CODE) for s in spec.specializations.all()[:2]]
+                place_specialists.append({
+                    "specialist": spec,
+                    "name": spec.name,
+                    "slug": spec.slug,
+                    "url": spec.get_absolute_url(),
+                    "photo": spec.photo.url if spec.photo else None,
+                    "specializations": specs_labels,
+                    "schedule": loc.schedule,
+                    "price": loc.price_per_session or spec.price_from,
+                    "phone": loc.phone or spec.phone,
+                })
+
+        place_events = []
+        if is_events_section_enabled():
+            from django.utils import timezone
+            events_qs = (
+                place.events.filter(
+                    status="published",
+                    deleted_at__isnull=True,
+                    occurrence_state="scheduled",
+                    end_datetime__gte=timezone.now(),
+                )
+                .order_by("start_datetime")[:6]
+            )
+            for ev in events_qs:
+                place_events.append({
+                    "event": ev,
+                    "name": ev.name_i18n(request.LANGUAGE_CODE),
+                    "url": ev.get_absolute_url(),
+                    "start_datetime": ev.start_datetime,
+                    "end_datetime": ev.end_datetime,
+                    "price": ev.price_display,
+                    "age": ev.age_display,
+                    "photo": ev.photo.url if ev.photo else None,
+                })
+
         return {
             "presentation": presentation,
             "activities": activities,
+            "place_specialists": place_specialists,
+            "place_events": place_events,
+            "organizations_section_enabled": is_organizations_section_enabled(),
+            "specialists_section_enabled": is_specialists_section_enabled(),
+            "events_section_enabled": is_events_section_enabled(),
             "place": place,
             "language": request.LANGUAGE_CODE,
             "google_maps_api_key": getattr(settings, "GOOGLE_MAPS_API_KEY", ""),

@@ -1,0 +1,298 @@
+{
+  "graph": {
+    "project": "home-ramin-kidsmap",
+    "signal": "best_effort",
+    "indexed_at": "2026-10-06T13:55:54Z",
+    "metadata": {
+      "generation": "2026-10-06T13:55:54Z",
+      "index_mode": "full",
+      "recorded_at": "2026-10-06T13:55:55Z",
+      "recording_status": "truncated",
+      "ignored_files_stored": 2000,
+      "ignored_files_total": 2258,
+      "hash_records_complete": true,
+      "coverage_version": 3,
+      "generation_matches": true
+    },
+    "paths": [
+      {
+        "requested_path": "src/catalog/forms.py",
+        "path": "src/catalog/forms.py",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "src/catalog/models/specialist.py",
+        "path": "src/catalog/models/specialist.py",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "src/catalog/controllers/specialist_workspace.py",
+        "path": "src/catalog/controllers/specialist_workspace.py",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "src/catalog/services/owner_specialist_use_cases.py",
+        "path": "src/catalog/services/owner_specialist_use_cases.py",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "src/catalog/services/specialist_domain.py",
+        "path": "src/catalog/services/specialist_domain.py",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "src/catalog/services/specialist_documents.py",
+        "path": "src/catalog/services/specialist_documents.py",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "src/catalog/services/specialist_presentation.py",
+        "path": "src/catalog/services/specialist_presentation.py",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "src/catalog/services/publication.py",
+        "path": "src/catalog/services/publication.py",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "src/catalog/domain_admin/specialist.py",
+        "path": "src/catalog/domain_admin/specialist.py",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "src/catalog/templates/admin/catalog/specialist/change_form.html",
+        "path": "src/catalog/templates/admin/catalog/specialist/change_form.html",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "src/catalog/templates/pages/owner_specialist_create.html",
+        "path": "src/catalog/templates/pages/owner_specialist_create.html",
+        "status": "partial",
+        "freshness": "metadata_match",
+        "recommended_action": "read_ranges_and_verify_scope",
+        "coverage": [
+          {
+            "path": "src/catalog/templates/pages/owner_specialist_create.html",
+            "kind": "parse_partial",
+            "detail": "107-107,111-111,115-115,395-395,462-462,513-513,529-529",
+            "match": "exact",
+            "ranges": [
+              {
+                "start": 107,
+                "end": 107
+              },
+              {
+                "start": 111,
+                "end": 111
+              },
+              {
+                "start": 115,
+                "end": 115
+              },
+              {
+                "start": 395,
+                "end": 395
+              },
+              {
+                "start": 462,
+                "end": 462
+              },
+              {
+                "start": 513,
+                "end": 513
+              },
+              {
+                "start": 529,
+                "end": 529
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "requested_path": "src/catalog/templates/pages/specialist_workspace.html",
+        "path": "src/catalog/templates/pages/specialist_workspace.html",
+        "status": "partial",
+        "freshness": "metadata_match",
+        "recommended_action": "read_ranges_and_verify_scope",
+        "coverage": [
+          {
+            "path": "src/catalog/templates/pages/specialist_workspace.html",
+            "kind": "parse_partial",
+            "detail": "16-16,19-19,20-20,22-22,23-23",
+            "match": "exact",
+            "ranges": [
+              {
+                "start": 16,
+                "end": 16
+              },
+              {
+                "start": 19,
+                "end": 19
+              },
+              {
+                "start": 20,
+                "end": 20
+              },
+              {
+                "start": 22,
+                "end": 22
+              },
+              {
+                "start": 23,
+                "end": 23
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "requested_path": "src/catalog/templates/catalog/specialist_detail.html",
+        "path": "src/catalog/templates/catalog/specialist_detail.html",
+        "status": "partial",
+        "freshness": "metadata_match",
+        "recommended_action": "read_ranges_and_verify_scope",
+        "coverage": [
+          {
+            "path": "src/catalog/templates/catalog/specialist_detail.html",
+            "kind": "parse_partial",
+            "detail": "62-62,341-342",
+            "match": "exact",
+            "ranges": [
+              {
+                "start": 62,
+                "end": 62
+              },
+              {
+                "start": 341,
+                "end": 342
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "requested_path": "src/catalog/specialist_forms.py",
+        "path": "src/catalog/specialist_forms.py",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "src/catalog/views.py",
+        "path": "src/catalog/views.py",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "src/catalog/urls.py",
+        "path": "src/catalog/urls.py",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "static/js/specialists.js",
+        "path": "static/js/specialists.js",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "static/admin/js/specialist_admin.js",
+        "path": "static/admin/js/specialist_admin.js",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "static/admin/css/pages/specialist_form.css",
+        "path": "static/admin/css/pages/specialist_form.css",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "static/css/pages/specialists.css",
+        "path": "static/css/pages/specialists.css",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "static/css/pages/specialist_workspace.css",
+        "path": "static/css/pages/specialist_workspace.css",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/qa/specialist-profile-design-2026-10-06.md",
+        "path": "docs/qa/specialist-profile-design-2026-10-06.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/superpowers/plans/2026-10-06-specialist-profile-entry.md",
+        "path": "docs/superpowers/plans/2026-10-06-specialist-profile-entry.md",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      },
+      {
+        "requested_path": "docs/qa/specialist-design-2026-10-06/prototype.html",
+        "path": "docs/qa/specialist-design-2026-10-06/prototype.html",
+        "status": "no_recorded_issue",
+        "freshness": "metadata_match",
+        "recommended_action": "use_graph_with_best_effort_caveat",
+        "coverage": []
+      }
+    ],
+    "scopes": [],
+    "caveat": "Best-effort signal only. No recorded issue does not prove graph or source completeness; read flagged source and qualify claims when metadata is changed or unavailable."
+  },
+  "sourceFallback": "All partial/metadata-changed templates and all plan/design artifacts read directly. Coverage is best effort and does not prove completeness."
+}

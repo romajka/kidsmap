@@ -1,0 +1,28 @@
+{
+  "rows": [
+    {
+      "id": "late-response-preserves-latest-input",
+      "status": "PASS",
+      "before": {
+        "value": "ORG02 Latest typed value",
+        "status": "Сохранено на сервере",
+        "local": null,
+        "version": "4"
+      },
+      "restored": "ORG02 Latest typed value",
+      "posts": [
+        {
+          "value": "ORG02 First in flight",
+          "expected_version": 2,
+          "http": 200
+        },
+        {
+          "value": "ORG02 Latest typed value",
+          "expected_version": 3,
+          "http": 200
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

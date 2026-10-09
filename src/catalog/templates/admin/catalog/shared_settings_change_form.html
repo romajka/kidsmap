@@ -5,174 +5,7 @@
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_admin_form_shell.css' %}">
   <script src="{% static 'admin/js/kidsmap_admin_form_shell.js' %}" defer></script>
-  <style>
-    /* Styling specifically for the Site Visibility Settings form */
-    #sitevisibilitysettings_form .km-place-form-main {
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 16px !important;
-    }
-
-    #sitevisibilitysettings_form .km-place-section {
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      gap: 32px !important;
-      padding: 24px 30px !important;
-      min-height: auto !important;
-      border-radius: 16px !important;
-      background: #ffffff !important;
-      box-shadow: 0 4px 18px rgba(18, 53, 35, 0.035) !important;
-      border: 1px solid var(--km-place-border, #dbe8df) !important;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
-    }
-
-    #sitevisibilitysettings_form .km-place-section:hover {
-      border-color: var(--km-place-border-strong, #c7ddcf) !important;
-      box-shadow: 0 6px 24px rgba(18, 53, 35, 0.05) !important;
-    }
-
-    #sitevisibilitysettings_form .km-place-section__head {
-      padding: 0 !important;
-      margin: 0 !important;
-      border: none !important;
-      background: none !important;
-      flex: 1 1 auto !important;
-    }
-
-    #sitevisibilitysettings_form .km-place-section__title {
-      font-size: 17px !important;
-      font-weight: 700 !important;
-      line-height: 1.3 !important;
-      color: var(--km-place-text, #193126) !important;
-      margin-bottom: 6px !important;
-    }
-
-    #sitevisibilitysettings_form .km-place-section__description {
-      font-size: 13px !important;
-      line-height: 1.5 !important;
-      color: var(--km-place-muted, #678070) !important;
-      margin: 0 !important;
-      max-width: 90% !important;
-    }
-
-    #sitevisibilitysettings_form .km-place-section__body {
-      padding: 0 !important;
-      margin: 0 !important;
-      flex: 0 0 auto !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: flex-end !important;
-      width: 52px !important;
-    }
-
-    /* Hide standard django/bootstrap/jazzmin labels and help text blocks */
-    #sitevisibilitysettings_form label[for^="id_"],
-    #sitevisibilitysettings_form .help-block,
-    #sitevisibilitysettings_form .help {
-      display: none !important;
-    }
-
-    /* Reset bootstrap/jazzmin form rows and grids inside the body */
-    #sitevisibilitysettings_form .km-place-section__body .row,
-    #sitevisibilitysettings_form .km-place-section__body .form-group,
-    #sitevisibilitysettings_form .km-place-section__body .form-row,
-    #sitevisibilitysettings_form .km-place-section__body .fieldBox,
-    #sitevisibilitysettings_form .km-place-section__body .checkbox-row {
-      margin: 0 !important;
-      padding: 0 !important;
-      border: none !important;
-      background: transparent !important;
-      box-shadow: none !important;
-      display: block !important;
-      width: auto !important;
-      min-height: auto !important;
-    }
-
-    #sitevisibilitysettings_form .km-place-section__body .col-sm-3,
-    #sitevisibilitysettings_form .km-place-section__body .col-sm-7,
-    #sitevisibilitysettings_form .km-place-section__body [class*="col-"] {
-      display: block !important;
-      width: auto !important;
-      max-width: none !important;
-      flex: none !important;
-      padding: 0 !important;
-      margin: 0 !important;
-    }
-
-    /* Turn standard checkbox into a sleek iOS-like toggle switch */
-    #sitevisibilitysettings_form .km-place-section__body input[type="checkbox"] {
-      appearance: none !important;
-      -webkit-appearance: none !important;
-      width: 52px !important;
-      height: 28px !important;
-      background-color: #cbd5e1 !important; /* Sleek gray when inactive */
-      border-radius: 9999px !important;
-      position: relative !important;
-      cursor: pointer !important;
-      transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-      outline: none !important;
-      border: none !important;
-      display: block !important;
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08) !important;
-    }
-
-    #sitevisibilitysettings_form .km-place-section__body input[type="checkbox"]::before {
-      content: "" !important;
-      position: absolute !important;
-      top: 3px !important;
-      left: 3px !important;
-      width: 22px !important;
-      height: 22px !important;
-      background-color: #ffffff !important;
-      border-radius: 9999px !important;
-      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 1px 1px rgba(0, 0, 0, 0.04) !important;
-      transform: none !important;
-    }
-
-    #sitevisibilitysettings_form .km-place-section__body input[type="checkbox"]:checked {
-      background-color: var(--km-place-accent, #0d8a52) !important; /* Theme green when active */
-    }
-
-    #sitevisibilitysettings_form .km-place-section__body input[type="checkbox"]:checked::before {
-      transform: translateX(24px) !important;
-    }
-
-    #sitevisibilitysettings_form .km-place-section__body input[type="checkbox"]:hover {
-      background-color: #94a3b8 !important;
-    }
-
-    #sitevisibilitysettings_form .km-place-section__body input[type="checkbox"]:checked:hover {
-      background-color: var(--km-place-accent-deep, #0b6d41) !important;
-    }
-
-    #sitevisibilitysettings_form .km-place-section__body input[type="checkbox"]:focus-visible {
-      box-shadow: 0 0 0 3px rgba(13, 138, 82, 0.3) !important;
-    }
-
-    /* Hide collapsed service block ("Служебное") */
-    #sitevisibilitysettings_form .collapse,
-    #sitevisibilitysettings_form #fieldset-2 {
-      display: none !important;
-    }
-
-    @media (max-width: 768px) {
-      #sitevisibilitysettings_form .km-place-section {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 16px !important;
-        padding: 20px 24px !important;
-      }
-      #sitevisibilitysettings_form .km-place-section__body {
-        align-self: flex-end !important;
-      }
-      #sitevisibilitysettings_form .km-place-section__description {
-        max-width: 100% !important;
-      }
-    }
-  </style>
+  {% if opts.model_name == 'sitevisibilitysettings' %}<link rel="stylesheet" href="{% static 'admin/css/pages/site_sections.css' %}">{% endif %}
 {% endblock %}
 
 {% block submit_buttons_top %}{% endblock %}
@@ -242,7 +75,18 @@
                     </header>
                   {% endif %}
                   <div class="km-place-section__body">
-                    {% include "admin/includes/fieldset.html" %}
+                    {% if opts.model_name == 'sitevisibilitysettings' and 'collapse' not in fieldset.classes %}
+                      {% for line in fieldset %}{% for field in line %}
+                        <div class="km-visibility-field">
+                          <div class="km-visibility-copy">
+                            <label for="{{ field.field.id_for_label }}">{{ field.field.label }}</label>
+                            {% if field.field.help_text %}<p id="{{ field.field.auto_id }}_helptext">{{ field.field.help_text }}</p>{% endif %}
+                            {{ field.errors }}
+                          </div>
+                          {{ field.field }}
+                        </div>
+                      {% endfor %}{% endfor %}
+                    {% else %}{% include "admin/includes/fieldset.html" %}{% endif %}
                   </div>
                 </section>
               {% endfor %}

@@ -23,7 +23,7 @@ from catalog.models import *
 from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepository
 from catalog.services.content_quality import place_quality_check, review_quality_check
 from catalog.services.geocoding import PlaceGeocodingService
-from catalog.services.features import is_events_section_enabled, is_specialists_section_enabled
+from catalog.services.features import is_events_section_enabled, is_specialists_section_enabled, is_organizations_section_enabled
 from catalog.services.staff_roles import is_volunteer
 
 # Clarify similar names in admin navigation.
@@ -358,7 +358,7 @@ def _build_sidebar_sections(request, *, metrics: dict[str, int]) -> list[dict]:
             "label": _("Каталог"),
             "icon": "far fa-folder-open",
             "items": [
-                _build_sidebar_item(request, model=Organization, label=_("Организации"), icon="fas fa-building"),
+                _build_sidebar_item(request, model=Organization, label=_("Организации"), icon="fas fa-building", status_label=_("Скрыто на сайте") if not is_organizations_section_enabled() else ""),
                 _build_sidebar_item(request, model=Place, label=_("Филиалы и места"), icon="fas fa-map-marker-alt", query_params="is_temporary__exact=0"),
                 _build_sidebar_item(request, model=Program, label=_("Общие программы"), icon="fas fa-book-open"),
                 _build_sidebar_item(request, model=Activity, label=_("Занятия"), icon="fas fa-chalkboard-teacher"),

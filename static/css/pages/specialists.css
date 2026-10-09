@@ -262,6 +262,330 @@ body.km-filter-lock {
   text-align: center;
 }
 
+.km-visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  pointer-events: none !important;
+}
+
+/* ─── Premium Custom Select for Specialists Filters ─── */
+.km-specialists-page .km-custom-select {
+  position: relative;
+  width: 100%;
+}
+
+.km-specialists-page .km-custom-select__trigger {
+  width: 100%;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  box-sizing: border-box;
+  border-radius: var(--km-radius-sm);
+  border: 1.5px solid var(--km-line);
+  background: #ffffff;
+  padding: 0 12px;
+  font-size: 13.5px;
+  font-weight: 550;
+  color: var(--km-ink);
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+}
+
+.km-specialists-page .km-custom-select__trigger:hover {
+  border-color: var(--km-primary);
+  background: #fbfdfc;
+  box-shadow: 0 3px 8px rgba(0, 154, 78, 0.08);
+}
+
+.km-specialists-page .km-custom-select.is-open .km-custom-select__trigger,
+.km-specialists-page .km-custom-select__trigger:focus-visible {
+  border-color: var(--km-primary);
+  box-shadow: 0 0 0 3.5px rgba(0, 154, 78, 0.15);
+  background: #ffffff;
+}
+
+.km-specialists-page .km-custom-select__value {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--km-ink);
+}
+
+.km-specialists-page .km-custom-select__arrow {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: #64748b;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
+}
+
+.km-specialists-page .km-custom-select__arrow svg {
+  display: block;
+  width: 17px;
+  height: 17px;
+}
+
+.km-specialists-page .km-custom-select.is-open .km-custom-select__arrow {
+  transform: rotate(180deg);
+  color: var(--km-primary);
+}
+
+/* Floating Custom Select Menu */
+.km-specialists-page .km-custom-select__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  min-width: 200px;
+  max-height: 270px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(0, 154, 78, 0.22);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow:
+    0 12px 28px -4px rgba(15, 23, 42, 0.14),
+    0 4px 10px rgba(15, 23, 42, 0.05);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px) scale(0.98);
+  transform-origin: top center;
+  transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.18s;
+  pointer-events: none;
+}
+
+.km-specialists-page .km-custom-select.is-open .km-custom-select__menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.km-specialists-page .km-custom-select__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 11px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 550;
+  color: #334155;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.14s ease;
+}
+
+.km-specialists-page .km-custom-select__option:hover {
+  background: #edf7f1;
+  color: #067245;
+  transform: translateX(2px);
+}
+
+.km-specialists-page .km-custom-select__option.is-selected {
+  background: #e1f4e9;
+  color: #086b3b;
+  font-weight: 700;
+}
+
+.km-specialists-page .km-custom-select__option.is-selected::after {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--km-primary);
+  box-shadow: 0 0 5px rgba(0, 154, 78, 0.6);
+  flex-shrink: 0;
+}
+
+.km-specialists-page .km-custom-select__opt-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.km-specialists-page .km-custom-select__opt-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #e2e8f0;
+  color: #475569;
+  flex-shrink: 0;
+}
+
+.km-specialists-page .km-custom-select__option:hover .km-custom-select__opt-count,
+.km-specialists-page .km-custom-select__option.is-selected .km-custom-select__opt-count {
+  background: #c2ebd4;
+  color: #086b3b;
+}
+
+/* Sort dropdown specifically on toolbar */
+.km-specialists-page .km-sort-custom-select {
+  min-width: 200px;
+}
+
+/* ─── Age Range Slider in Specialists ─── */
+.km-specialists-page .range-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.km-specialists-page .range-filter-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.km-specialists-page .range-filter-current {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--km-primary);
+  background: #ecfdf5;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid #a7f3d0;
+}
+
+.km-specialists-page .range-filter-track {
+  position: relative;
+  height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.km-specialists-page .range-filter-track::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 6px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  pointer-events: none;
+}
+
+.km-specialists-page .range-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 24px;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.km-specialists-page .range-slider::-webkit-slider-thumb {
+  pointer-events: auto;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2.5px solid var(--km-primary);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.km-specialists-page .range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 5px rgba(0, 154, 78, 0.15);
+}
+
+.km-specialists-page .range-slider::-moz-range-thumb {
+  pointer-events: auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2.5px solid var(--km-primary);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+/* ─── Rating Filter Pills in Specialists ─── */
+.km-specialists-page .filter-rating-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.km-specialists-page .rating-filter-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.km-specialists-page .rating-filter-pill {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 4px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.km-specialists-page .rating-filter-pill:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.km-specialists-page .rating-filter-pill.is-active {
+  background: #fefce8 !important;
+  border-color: #facc15 !important;
+  color: #854d0e !important;
+  box-shadow: 0 1px 4px rgba(234, 179, 8, 0.2) !important;
+}
+
+.km-specialists-page .rating-filter-pill .rating-star-icon {
+  width: 13px;
+  height: 13px;
+  color: #eab308;
+}
+
 .km-filter-input,
 .km-filter-select {
   border-radius: var(--km-radius-sm);
@@ -1734,6 +2058,34 @@ body.km-filter-lock {
   padding-left: 0.85rem;
 }
 
+.km-detail-location-badge-row {
+  margin-bottom: 5px;
+}
+
+.km-location-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.725rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: .025em;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.km-location-status-badge--center {
+  background: #e8f7ee;
+  color: #0b7d3f;
+  border: 1px solid #c2e8cf;
+}
+
+.km-location-status-badge--private {
+  background: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}
+
 .km-detail-location-title {
   font-size: 1rem;
   font-weight: 700;
@@ -1755,6 +2107,36 @@ body.km-filter-lock {
   color: var(--km-gray-600);
   line-height: 1.4;
   margin: 0 0 0.5rem 0;
+}
+
+.km-detail-location-schedule-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.825rem;
+  color: #374151;
+  margin: 4px 0;
+  line-height: 1.35;
+}
+
+.km-detail-location-schedule-row i {
+  color: #0b7d3f;
+  margin-top: 2px;
+}
+
+.km-detail-location-phone-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.825rem;
+  color: #374151;
+  margin: 4px 0 8px;
+}
+
+.km-detail-location-phone-row a {
+  color: #0b7d3f;
+  font-weight: 700;
+  text-decoration: none;
 }
 
 .km-detail-location-price-tag {
@@ -2055,29 +2437,34 @@ body.km-filter-lock {
   }
 }
 
-/* Keep the specialist catalog on the same visual grid as the main catalog. */
+/* ==========================================================================
+   2. SPECIALISTS PUBLIC CATALOG REFRESH (.km-specialists-catalog)
+   ========================================================================== */
+
 .km-specialists-catalog {
-  max-width: none;
+  max-width: 1280px;
+  margin: 0 auto;
   padding: 0 0 42px;
   background: transparent;
-  color: var(--ink);
-  font-family: var(--font-body);
+  color: var(--km-ink);
+  font-family: var(--font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
 }
 
+/* ----------------------------------------------------
+   Hero Banner & Contrast Card
+   ---------------------------------------------------- */
 .km-specialists-catalog .km-specialists-hero {
   position: relative;
-  min-height: clamp(250px, 26vw, 360px);
-  display: grid;
+  min-height: 240px;
+  display: flex;
   align-items: center;
-  max-width: none;
-  margin: 0;
-  padding: 0;
+  margin: 0 0 20px;
+  padding: 24px 32px;
   overflow: hidden;
-  text-align: left;
-  border-radius: 16px;
-  border-color: #d3e5da;
-  background: linear-gradient(180deg, #f7fcf9, #edf7f1);
-  box-shadow: var(--shadow);
+  border-radius: 20px;
+  border: 1px solid #d3e5da;
+  background: linear-gradient(135deg, #f7fcf9 0%, #edf7f1 100%);
+  box-shadow: 0 10px 30px rgba(18, 32, 26, 0.06);
 }
 
 .km-specialists-catalog .km-specialists-hero .catalog-hero-picture,
@@ -2086,170 +2473,917 @@ body.km-filter-lock {
   inset: 0;
   width: 100%;
   height: 100%;
+  z-index: 0;
 }
 
 .km-specialists-catalog .km-specialists-hero .catalog-hero-image {
   object-fit: cover;
   object-position: center;
+  opacity: 0.88;
 }
 
-.km-specialists-catalog .km-specialists-hero .hero-text {
+/* Contrast protective card over graphic banner */
+.km-specialists-catalog .km-hero-card {
   position: relative;
-  z-index: 1;
-  width: min(54%, 650px);
-  padding: clamp(22px, 4vw, 44px);
+  z-index: 2;
+  width: 100%;
+  max-width: 660px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(211, 229, 218, 0.9);
+  border-radius: 18px;
+  padding: 24px 28px;
+  box-shadow: 0 10px 28px rgba(18, 32, 26, 0.08);
+}
+
+.km-specialists-catalog .hero-text {
+  width: 100%;
+  padding: 0;
   text-align: left;
 }
 
 .km-specialists-catalog .km-specialists-hero h1 {
-  max-width: 620px;
-  margin: 0;
-  color: #213946;
-  font-family: var(--font-display);
-  font-size: clamp(38px, 5vw, 58px);
-  line-height: 1.04;
+  margin: 0 0 6px;
+  color: #12201a;
+  font-family: var(--font-display, inherit);
+  font-size: clamp(24px, 2.8vw, 34px);
+  font-weight: 850;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
 .km-specialists-catalog .km-specialists-hero p {
-  max-width: 48ch;
-  margin: 8px 0 18px;
-  color: #58707e;
-  font-size: clamp(16px, 1.6vw, 20px);
-  line-height: 1.45;
+  margin: 0 0 16px;
+  color: #455a50;
+  font-size: clamp(13.5px, 1.35vw, 15.5px);
+  line-height: 1.42;
+  max-width: 580px;
 }
 
+/* Compact Integrated Search Bar */
+.km-specialists-catalog .km-hero-search {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1.5px solid #009a4e;
+  border-radius: 12px;
+  padding: 4px 6px 4px 14px;
+  gap: 10px;
+  box-shadow: 0 4px 14px rgba(0, 154, 78, 0.12);
+  transition: box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.km-specialists-catalog .km-hero-search:focus-within {
+  box-shadow: 0 0 0 3px rgba(0, 154, 78, 0.2), 0 6px 18px rgba(0, 154, 78, 0.16);
+}
+
+.km-specialists-catalog .km-hero-search i,
+.km-specialists-catalog .km-hero-search .material-symbols-rounded {
+  color: #009a4e;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.km-specialists-catalog .km-hero-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 14.5px;
+  color: #12201a;
+  min-height: 38px;
+}
+
+.km-specialists-catalog .km-hero-search input::placeholder {
+  color: #83978c;
+}
+
+.km-specialists-catalog .km-hero-search button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 20px;
+  background: #009a4e;
+  color: #ffffff;
+  border: 0;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.km-specialists-catalog .km-hero-search button:hover {
+  background: #087b43;
+}
+
+.km-specialists-catalog .km-hero-search button:active {
+  transform: scale(0.98);
+}
+
+/* Popular Directions Pills */
+.km-specialists-catalog .km-popular-directions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.km-specialists-catalog .km-popular-label {
+  color: #647067;
+  font-size: 12px;
+  font-weight: 700;
+  margin-right: 2px;
+}
+
+.km-specialists-catalog .km-popular-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #f0f7f3;
+  color: #0f766e;
+  border: 1px solid #d3e5da;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.km-specialists-catalog .km-popular-tag:hover,
+.km-specialists-catalog .km-popular-tag.is-active {
+  background: #009a4e;
+  color: #ffffff;
+  border-color: #009a4e;
+}
+
+/* ----------------------------------------------------
+   Mobile Controls Bar
+   ---------------------------------------------------- */
+.km-mobile-bar {
+  display: none;
+}
+
+/* ----------------------------------------------------
+   Layout Grid (Sidebar + Main Content)
+   ---------------------------------------------------- */
 .km-specialists-catalog .km-specialists-layout {
   display: grid;
-  grid-template-columns: 286px minmax(0, 1fr);
-  gap: 14px;
+  grid-template-columns: 284px minmax(0, 1fr);
+  gap: 20px;
   align-items: start;
-  max-width: none;
-  margin-top: 14px;
+  margin-top: 0;
 }
 
+/* ----------------------------------------------------
+   Filters Sidebar
+   ---------------------------------------------------- */
 .km-specialists-catalog .km-filters-panel {
   position: sticky;
   top: 16px;
   align-self: start;
-  padding: 12px;
-  border-radius: 18px;
-  background: linear-gradient(180deg, #ffffff, #f4faf6);
-  box-shadow: 0 14px 24px rgba(43, 101, 69, 0.12);
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid #dfe8e2;
+  background: #ffffff;
+  box-shadow: 0 6px 20px rgba(18, 32, 26, 0.05);
 }
 
+.km-specialists-catalog .km-filter-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eef3f0;
+}
+
+.km-specialists-catalog .km-filter-title h2 {
+  margin: 0;
+  font-size: 16.5px;
+  font-weight: 800;
+  color: #12201a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.km-specialists-catalog .km-filter-title h2 i,
+.km-specialists-catalog .km-filter-title h2 .material-symbols-rounded {
+  color: #009a4e;
+  font-size: 20px;
+}
+
+.km-specialists-catalog .km-filter-title-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.km-specialists-catalog .km-filter-head-reset {
+  font-size: 13px;
+  font-weight: 700;
+  color: #009a4e;
+  text-decoration: none;
+}
+
+.km-specialists-catalog .km-filter-head-reset:hover {
+  text-decoration: underline;
+}
+
+.km-specialists-catalog .km-filter-group {
+  margin-bottom: 14px;
+}
+
+.km-specialists-catalog .km-filter-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #314038;
+  margin-bottom: 6px;
+}
+
+.km-specialists-catalog .km-filter-group label i,
+.km-specialists-catalog .km-filter-group label .material-symbols-rounded {
+  color: #009a4e;
+  width: 18px;
+  font-size: 18px;
+  text-align: center;
+}
+
+.km-specialists-catalog .km-filter-select,
+.km-specialists-catalog .km-filter-input {
+  width: 100%;
+  min-height: 38px;
+  padding: 6px 10px;
+  border: 1px solid #dfe8e2;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 13.5px;
+  color: #12201a;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.km-specialists-catalog .km-filter-select:focus,
+.km-specialists-catalog .km-filter-input:focus {
+  border-color: #009a4e;
+  box-shadow: 0 0 0 3px rgba(0, 154, 78, 0.14);
+}
+
+.km-specialists-catalog .km-filter-range-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.km-specialists-catalog .km-filter-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #eef3f0;
+}
+
+.km-specialists-catalog .km-btn-apply {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 12px;
+  background: #009a4e;
+  color: #ffffff;
+  border: 0;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.km-specialists-catalog .km-btn-apply:hover {
+  background: #087b43;
+}
+
+.km-specialists-catalog .km-btn-reset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 12px;
+  background: #f4fbf7;
+  color: #455a50;
+  border: 1px solid #dfe8e2;
+  border-radius: 8px;
+  font-weight: 650;
+  font-size: 13px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.km-specialists-catalog .km-btn-reset:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+
+/* ----------------------------------------------------
+   Toolbar (Count & Sort)
+   ---------------------------------------------------- */
 .km-specialists-catalog .km-catalog-toolbar {
-  min-height: 64px;
-  padding: 10px 14px;
-  border-radius: 16px;
-  background: #eef7f2;
-  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 18px;
+  margin-bottom: 14px;
+  border-radius: 14px;
+  border: 1px solid #dfe8e2;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(18, 32, 26, 0.04);
 }
 
 .km-specialists-catalog .km-results-count {
-  color: #213946;
-  font-weight: 900;
+  margin: 0;
+  color: #12201a;
+  font-size: 15px;
+  font-weight: 800;
 }
 
+.km-specialists-catalog .km-sort-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.km-specialists-catalog .km-sort-wrapper label {
+  color: #647067;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.km-specialists-catalog .km-sort-select {
+  min-width: 175px;
+  width: auto;
+  min-height: 36px;
+  font-size: 13px;
+  padding: 4px 28px 4px 10px;
+}
+
+/* ----------------------------------------------------
+   Active Filter Chips Bar
+   ---------------------------------------------------- */
+.km-specialists-catalog .km-chips-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  background: #f0f7f3;
+  border: 1px solid #d3e5da;
+  border-radius: 12px;
+}
+
+.km-specialists-catalog .km-chips-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.km-specialists-catalog .km-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #ffffff;
+  border: 1px solid #b8d9c5;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: #12201a;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.km-specialists-catalog .km-chip:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+
+.km-specialists-catalog .km-chip-remove {
+  font-size: 15px;
+  line-height: 1;
+  font-weight: 700;
+  color: #647067;
+}
+
+.km-specialists-catalog .km-chip:hover .km-chip-remove {
+  color: #991b1b;
+}
+
+.km-specialists-catalog .km-chips-reset-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 750;
+  color: #d32f2f;
+  text-decoration: none;
+  padding: 3px 8px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.km-specialists-catalog .km-chips-reset-link:hover {
+  background: #fee2e2;
+}
+
+/* ----------------------------------------------------
+   Specialists Grid & Unified Cards
+   ---------------------------------------------------- */
 .km-specialists-catalog .km-specialists-grid {
+  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: 16px;
+  align-items: stretch;
 }
 
 .km-specialists-catalog .km-specialist-card {
-  padding: 12px;
-  border-radius: 24px;
-  border-color: #e3eaee;
-  box-shadow: 0 10px 24px rgba(34, 61, 73, 0.08);
-}
-
-.km-specialists-catalog .km-card-photo-wrapper {
-  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
   border-radius: 18px;
-  background: #e8edf0;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  height: 100%;
 }
 
-.km-specialists-catalog .km-card-photo-placeholder {
-  background: #e8edf0;
+.km-specialists-catalog .km-specialist-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+  border-color: #b8d9c5;
 }
 
-.km-specialists-catalog .km-card-photo-placeholder .listing-placeholder-image {
+/* Photo Wrapper: Strictly 4:3 Aspect Ratio */
+.km-specialists-catalog .km-card-photo-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3 !important;
+  overflow: hidden;
+  background: #eef5f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.km-specialists-catalog .km-card-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center top;
+  transition: transform 0.35s ease;
 }
 
+.km-specialists-catalog .km-specialist-card:hover .km-card-photo {
+  transform: scale(1.04);
+}
+
+/* Monogram Avatar Placeholder */
+.km-specialists-catalog .km-card-avatar-initials {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e8f7ef 0%, #d1f0e0 100%);
+  color: #0d8a52;
+  font-size: clamp(32px, 3.5vw, 44px);
+  font-weight: 850;
+  letter-spacing: 1px;
+  user-select: none;
+}
+
+/* Corner Format Badge */
+.km-specialists-catalog .km-card-format-pill {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 750;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #12201a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.km-specialists-catalog .km-card-format-pill.format-online {
+  color: #0f766e;
+}
+
+.km-specialists-catalog .km-card-format-pill.format-offline {
+  color: #0d8a52;
+}
+
+.km-specialists-catalog .km-card-format-pill.format-both {
+  color: #2563eb;
+}
+
+/* Floating Price Pill (on photo bottom-left) */
+.km-specialists-catalog .km-card-price-pill {
+  position: absolute !important;
+  bottom: 10px !important;
+  left: 10px !important;
+  z-index: 4 !important;
+  display: inline-flex !important;
+  align-items: baseline !important;
+  gap: 4px !important;
+  padding: 5px 12px !important;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+  color: #ffffff !important;
+  border-radius: 20px !important;
+  font-weight: 800 !important;
+  font-size: 13px !important;
+  letter-spacing: -0.01em !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35), 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  backdrop-filter: blur(8px) !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+.km-specialists-catalog .km-specialist-card:hover .km-card-price-pill {
+  transform: scale(1.04) !important;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.45) !important;
+}
+
+.km-specialists-catalog .km-card-price-pill .card-price-pill__amount {
+  font-size: 14px !important;
+  font-weight: 900 !important;
+}
+
+/* Card Body */
 .km-specialists-catalog .km-card-body {
-  padding: 12px 4px 4px;
-  gap: 6px;
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: 8px;
 }
 
 .km-specialists-catalog .km-card-name {
-  min-height: 52px;
   margin: 0;
-  font-size: clamp(18px, 1.25vw, 22px);
-  line-height: 1.16;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 .km-specialists-catalog .km-card-name a {
-  color: #213946;
+  color: #0f172a;
+  text-decoration: none;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  transition: color 0.2s ease;
 }
 
+.km-specialists-catalog .km-card-name a:hover {
+  color: #08a769;
+}
+
+.km-specialists-catalog .km-card-name-alt {
+  margin: -4px 0 0;
+  font-size: 12px;
+  color: #647067;
+}
+
+/* Card Bio Snippet (2-line clamp with aligned min-height) */
 .km-specialists-catalog .km-card-bio {
-  min-height: 36px;
-  margin: 2px 0 0;
   font-size: 13px;
-  line-height: 1.38;
+  color: #4f6357;
+  line-height: 1.4;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 36px;
 }
 
-.km-specialists-catalog .km-card-locations-list {
-  min-height: 20px;
-  color: #8a9aa6;
+.km-specialists-catalog .km-card-bio.is-empty {
+  min-height: 0;
+  display: none;
 }
 
-.km-specialists-catalog .km-card-action {
-  margin-top: auto;
+/* Metadata Chips Row */
+.km-specialists-catalog .km-card-tags-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 6px !important;
 }
 
+.km-specialists-catalog .card-meta-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 3px 9px !important;
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+
+.km-specialists-catalog .card-meta-chip--spec {
+  background: #ecfdf5 !important;
+  color: #065f46 !important;
+  border: 1px solid #d1fae5 !important;
+}
+
+.km-specialists-catalog .card-meta-chip--exp {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #64748b !important;
+}
+
+/* Rating, Experience, Languages Row */
+.km-specialists-catalog .km-card-rating-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 13px !important;
+}
+
+.km-specialists-catalog .card-score {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  background: #fffbeb !important;
+  padding: 2px 7px !important;
+  border-radius: 6px !important;
+  border: 1px solid #fef3c7 !important;
+}
+
+.km-specialists-catalog .card-score-star {
+  color: #f59e0b !important;
+  font-size: 14px !important;
+}
+
+.km-specialists-catalog .card-score-empty {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #64748b !important;
+  font-weight: 500 !important;
+  font-size: 12px !important;
+}
+
+.km-specialists-catalog .card-score-star--empty {
+  color: #cbd5e1 !important;
+}
+
+.km-specialists-catalog .card-review-count {
+  color: #64748b !important;
+  font-size: 12px !important;
+}
+
+.km-specialists-catalog .km-card-lang-pills {
+  display: flex;
+  gap: 3px;
+  margin-left: auto;
+}
+
+.km-specialists-catalog .km-lang-pill {
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  background: #e8f7ef;
+  color: #087b43;
+  border: 1px solid #c2e5d2;
+}
+
+/* Location Line */
+.km-specialists-catalog .km-card-location {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  color: #64748b !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  margin: 0 !important;
+}
+
+.km-specialists-catalog .km-card-location.is-empty {
+  display: none !important;
+}
+
+.km-specialists-catalog .km-card-location .card-location-icon {
+  font-size: 13px !important;
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.km-specialists-catalog .km-card-location .card-location-text {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* CTA Action */
+.km-specialists-catalog .km-card-action-stack {
+  margin-top: auto !important;
+  padding-top: 6px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+.km-specialists-catalog .km-card-bottom-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.km-specialists-catalog .km-btn-card-view {
+  flex: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  height: 38px !important;
+  padding: 0 16px !important;
+  background: #08a769 !important;
+  color: #ffffff !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 6px rgba(8, 167, 105, 0.2) !important;
+}
+
+.km-specialists-catalog .km-btn-card-view:hover {
+  background: #068d58 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(8, 167, 105, 0.35) !important;
+  color: #ffffff !important;
+}
+
+.km-specialists-catalog .km-btn-card-view:active {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+.km-specialists-catalog .km-btn-card-view::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* ----------------------------------------------------
+   Empty State Card
+   ---------------------------------------------------- */
+.km-specialists-catalog .km-no-results {
+  grid-column: 1 / -1;
+  background: #ffffff;
+  border: 1.5px dashed #c2e5d2;
+  border-radius: 16px;
+  padding: 44px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.km-specialists-catalog .km-no-results-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #e8f7ef;
+  color: #009a4e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.km-specialists-catalog .km-no-results h3 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  color: #12201a;
+}
+
+.km-specialists-catalog .km-no-results p {
+  max-width: 440px;
+  margin: 0;
+  font-size: 13.5px;
+  color: #58707e;
+  line-height: 1.45;
+}
+
+.km-specialists-catalog .km-btn-reset-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  min-height: 40px;
+  padding: 0 20px;
+  background: #009a4e;
+  color: #ffffff;
+  border-radius: 9px;
+  font-weight: 700;
+  font-size: 13.5px;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.km-specialists-catalog .km-btn-reset-all:hover {
+  background: #087b43;
+  color: #ffffff;
+}
+
+/* ----------------------------------------------------
+   Pagination
+   ---------------------------------------------------- */
+.km-specialists-catalog .km-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 28px;
+}
+
+.km-specialists-catalog .km-pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid #dfe8e2;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #12201a;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.km-specialists-catalog .km-pagination-btn:hover {
+  border-color: #009a4e;
+  color: #009a4e;
+}
+
+.km-specialists-catalog .km-pagination-btn.active {
+  background: #009a4e;
+  border-color: #009a4e;
+  color: #ffffff;
+}
+
+/* ----------------------------------------------------
+   Responsive Adjustments: 1100px, 768px, 520px, 360px
+   ---------------------------------------------------- */
 @media (max-width: 1100px) {
   .km-specialists-catalog .km-specialists-layout {
-    grid-template-columns: 252px minmax(0, 1fr);
-  }
-}
-
-@media (max-width: 760px) {
-  .km-specialists-catalog .km-specialists-hero {
-    min-height: 330px;
-  }
-
-  .km-specialists-catalog .km-specialists-hero .hero-text {
-    width: 100%;
-    padding: 24px 20px;
-  }
-
-  .km-specialists-catalog .km-specialists-hero h1 {
-    max-width: 100%;
-    font-size: clamp(34px, 10vw, 46px);
-  }
-
-  .km-specialists-catalog .km-specialists-layout {
-    display: block;
-  }
-
-  .km-specialists-catalog .km-filters-panel {
-    position: fixed;
-    top: auto;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 999;
-    margin: 0;
-    border-radius: 18px 18px 0 0;
-    transform: translateY(105%);
-    transition: transform 0.22s ease;
-  }
-
-  .km-specialists-catalog .km-filters-panel.is-open {
-    transform: translateY(0);
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 16px;
   }
 
   .km-specialists-catalog .km-specialists-grid {
@@ -2257,62 +3391,1195 @@ body.km-filter-lock {
   }
 }
 
-@media (max-width: 520px) {
-  .km-specialists-catalog .km-specialists-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (min-width: 821px) {
+@media (max-width: 768px) {
+  /* Compact Hero */
   .km-specialists-catalog .km-specialists-hero {
-    box-sizing: border-box;
-    width: 100%;
-    min-height: 0;
-    height: auto;
-    aspect-ratio: 1300 / 455;
+    min-height: auto;
+    padding: 10px;
+    border-radius: 14px;
+    margin-bottom: 12px;
   }
 
-  .km-specialists-catalog .km-specialists-hero .hero-text {
-    width: min(55%, 650px);
-    padding: clamp(26px, 3.2vw, 42px);
-  }
-
-  .km-specialists-catalog .km-specialists-hero h1 {
-    font-size: clamp(38px, 4.45vw, 58px);
-  }
-
-  .km-specialists-catalog .km-specialists-hero p {
-    font-size: clamp(15px, 1.38vw, 19px);
-  }
-}
-
-@media (min-width: 821px) and (max-width: 1100px) {
-  .km-specialists-catalog .km-specialists-hero .hero-text {
-    width: 56%;
-    padding: 22px;
+  .km-specialists-catalog .km-hero-card {
+    padding: 14px 14px 16px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(18, 32, 26, 0.08);
   }
 
   .km-specialists-catalog .km-specialists-hero h1 {
-    font-size: clamp(30px, 4.15vw, 38px);
+    font-size: 20px;
+    line-height: 1.2;
+    margin-bottom: 4px;
   }
 
   .km-specialists-catalog .km-specialists-hero p {
-    margin: 6px 0 12px;
-    font-size: 14px;
+    font-size: 12.5px;
     line-height: 1.35;
+    margin-bottom: 12px;
   }
 
   .km-specialists-catalog .km-hero-search {
-    padding: 6px;
+    padding: 3px 4px 3px 10px;
+    gap: 6px;
+    border-radius: 10px;
   }
 
-  .km-specialists-catalog .km-hero-search input,
+  .km-specialists-catalog .km-hero-search input {
+    font-size: 13.5px;
+    min-height: 34px;
+  }
+
   .km-specialists-catalog .km-hero-search button {
-    min-height: 38px;
+    min-height: 34px;
+    padding: 0 14px;
+    font-size: 13px;
+    border-radius: 7px;
   }
 
   .km-specialists-catalog .km-popular-directions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .km-specialists-catalog .km-popular-directions::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Mobile Bar */
+  .km-specialists-catalog .km-mobile-bar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .km-specialists-catalog .km-mobile-filter-button {
+    flex: 1;
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #ffffff;
+    border: 1.5px solid #d3e5da;
+    border-radius: 10px;
+    font-weight: 750;
+    font-size: 13.5px;
+    color: #12201a;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+
+  .km-specialists-catalog .km-mobile-filter-button .material-symbols-rounded {
+    font-size: 20px;
+    width: auto;
+    height: auto;
+    background: transparent;
+    color: #009a4e;
+    border-radius: 0;
+  }
+
+  .km-specialists-catalog .km-mobile-filter-button span.km-filter-btn-text {
+    display: inline;
+    width: auto;
+    height: auto;
+    background: transparent;
+    color: #12201a;
+    font-size: 13.5px;
+    border-radius: 0;
+  }
+
+  .km-specialists-catalog .km-badge-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #009a4e;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 750;
+  }
+
+  .km-specialists-catalog .km-mobile-reset-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     gap: 6px;
-    margin-top: 10px;
+    min-height: 42px;
+    padding: 0 12px;
+    background: #f4fbf7;
+    border: 1.5px solid #d3e5da;
+    border-radius: 10px;
+    font-weight: 650;
+    font-size: 13px;
+    color: #d32f2f;
+    text-decoration: none;
+  }
+
+  .km-specialists-catalog .km-mobile-reset-btn .material-symbols-rounded {
+    font-size: 18px;
+    color: #d32f2f;
+  }
+
+  /* Layout switch to single column */
+  .km-specialists-catalog .km-specialists-layout {
+    display: block;
+  }
+
+  /* Drawer Bottom Sheet */
+  .km-specialists-catalog .km-filters-panel {
+    position: fixed;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    margin: 0;
+    border-radius: 20px 20px 0 0;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: #ffffff;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+    transform: translateY(105%);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 16px 18px 24px;
+  }
+
+  .km-specialists-catalog .km-filters-panel.is-open {
+    transform: translateY(0);
+  }
+
+  .km-specialists-catalog .km-filter-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #f0f4f2;
+    border: 0;
+    color: #455a50;
+    cursor: pointer;
+  }
+
+  .km-specialists-catalog .km-filter-title {
+    padding-bottom: 12px;
+  }
+
+  .km-specialists-catalog .km-catalog-toolbar {
+    padding: 10px 14px;
+    margin-bottom: 12px;
+  }
+
+  .km-specialists-catalog .km-results-count {
+    font-size: 14px;
+  }
+
+  .km-specialists-catalog .km-sort-select {
+    min-width: 145px;
+    font-size: 12.5px;
   }
 }
+
+@media (max-width: 580px) {
+  .km-specialists-catalog .km-specialists-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .km-specialists-catalog .km-card-photo-wrapper {
+    aspect-ratio: 4 / 3 !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .km-specialists-catalog .km-specialists-hero h1 {
+    font-size: 18px;
+  }
+
+  .km-specialists-catalog .km-card-name {
+    font-size: 16px;
+  }
+
+  .km-specialists-catalog .km-spec-label {
+    min-width: 80px;
+    font-size: 11px;
+  }
+
+  .km-specialists-catalog .km-spec-loc {
+    max-width: 130px;
+  }
+}
+
+
+/* ==========================================================================
+   3. SPECIALIST PROFILE CREATION & EDIT WIZARD (.km-specialist-owner-page)
+   ========================================================================== */
+
+.km-specialist-owner-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.km-specialist-head {
+  margin-bottom: 20px;
+}
+
+.km-head-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.km-head-top-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.km-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.km-back-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.km-specialist-head h1 {
+  font-size: clamp(1.45rem, 2.5vw, 1.85rem);
+  font-weight: 850;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin: 4px 0 0;
+}
+
+.km-specialist-head .auth-subtitle {
+  color: #64748b;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  max-width: 660px;
+  margin: 0;
+}
+
+/* Stepper (Desktop) */
+.km-owner-stepper {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.km-owner-stepper button {
+  min-height: 48px;
+  padding: 8px 10px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #475569;
+  font-weight: 750;
+  font-size: 0.86rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.18s ease;
+}
+
+.km-owner-stepper button .step-num {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: #edf4ef;
+  color: #136f38;
+  font-size: 0.8rem;
+  font-weight: 850;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+}
+
+.km-owner-stepper button:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.km-owner-stepper button.is-active {
+  border-color: #136f38;
+  background: #eaf5e9;
+  color: #136f38;
+  box-shadow: 0 2px 8px rgba(19, 111, 56, 0.12);
+}
+
+.km-owner-stepper button.is-active .step-num {
+  background: #136f38;
+  color: #ffffff;
+}
+
+.km-owner-stepper button.has-error {
+  border-color: #f43f5e !important;
+  color: #e11d48 !important;
+}
+
+.km-owner-stepper button.has-error .step-num {
+  background: #ffe4e6 !important;
+  color: #e11d48 !important;
+}
+
+/* Stepper (Mobile compact progress) */
+.km-owner-mobile-progress {
+  display: none;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.km-mobile-step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.km-mobile-step-name {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.km-mobile-step-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.km-step-arrow {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.km-step-arrow:hover {
+  background: #e2e8f0;
+}
+
+.km-progress-track {
+  height: 6px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.km-progress-track [data-owner-progress-bar] {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #136f38, #22c55e);
+  border-radius: inherit;
+  transition: width 0.25s ease;
+}
+
+/* Step section container */
+.km-specialist-owner-form .km-step-section {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: clamp(16px, 2.5vw, 28px);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+
+.km-step-header {
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.km-step-header h2 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.km-step-header h2 i {
+  color: #136f38;
+}
+
+.km-step-desc {
+  font-size: 0.88rem;
+  color: #64748b;
+  margin: 6px 0 0;
+  line-height: 1.45;
+}
+
+/* Form fields & inputs */
+.km-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 580px;
+}
+
+.km-input-half {
+  max-width: 280px;
+}
+
+.km-label-text {
+  font-size: 0.88rem;
+  font-weight: 750;
+  color: #1e293b;
+}
+
+.km-required {
+  color: #e11d48;
+}
+
+.km-step-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 20px;
+}
+
+.km-step-grid .owner-event-full {
+  grid-column: 1 / -1;
+  max-width: 580px;
+}
+
+.km-specialist-owner-form input.field,
+.km-specialist-owner-form select.field,
+.km-specialist-owner-form textarea.field {
+  width: 100%;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  background: #ffffff;
+  transition: all 0.18s ease;
+  box-sizing: border-box;
+}
+
+.km-specialist-owner-form input.field:focus,
+.km-specialist-owner-form select.field:focus,
+.km-specialist-owner-form textarea.field:focus {
+  border-color: #136f38;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(19, 111, 56, 0.14);
+}
+
+/* Photo Component */
+.km-photo-component {
+  margin-top: 4px;
+}
+
+.km-photo-uploader-box {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 8px;
+}
+
+.km-photo-avatar {
+  width: 96px;
+  height: 96px;
+  min-width: 96px;
+  border-radius: 16px;
+  border: 2px dashed #cbd5e1;
+  background: #f8fafc;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.km-photo-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.km-avatar-placeholder {
+  font-size: 28px;
+  color: #94a3b8;
+}
+
+.km-photo-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.km-photo-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 0.88rem;
+  font-weight: 750;
+  cursor: pointer;
+  width: fit-content;
+  transition: all 0.15s ease;
+}
+
+.km-photo-upload-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.km-file-input-hidden {
+  display: none;
+}
+
+/* Step 2: Specializations search & categories */
+.owner-specialist-search-box {
+  position: relative;
+  margin-bottom: 16px;
+  max-width: 580px;
+}
+
+.owner-specialist-search-box i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 15px;
+  pointer-events: none;
+}
+
+.spec-search-input {
+  width: 100%;
+  height: 46px;
+  padding-left: 40px !important;
+  padding-right: 36px !important;
+  border-radius: 12px !important;
+  border: 1.5px solid #cbd5e1 !important;
+}
+
+.spec-search-clear {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.spec-search-clear:hover {
+  color: #0f172a;
+}
+
+.owner-specialist-selected-bar {
+  background: #f0fdf4;
+  border: 1.5px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.selected-bar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.selected-bar-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #166534;
+}
+
+.btn-clear-selection {
+  background: none;
+  border: none;
+  color: #dc2626;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.selected-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.selected-chip-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #136f38;
+  color: #ffffff;
+  padding: 4px 10px 4px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 750;
+  box-shadow: 0 1px 3px rgba(19, 111, 56, 0.2);
+}
+
+.selected-chip-pill .pill-remove {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0 2px;
+  display: inline-grid;
+  place-items: center;
+}
+
+.selected-chip-pill .pill-remove:hover {
+  color: #ffffff;
+}
+
+.owner-spec-group {
+  margin-bottom: 20px;
+}
+
+.owner-spec-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 10px;
+}
+
+.spec-group-icon {
+  font-size: 20px;
+  color: #136f38;
+}
+
+.owner-specialist-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.owner-specialist-chip {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.owner-specialist-chip:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.owner-specialist-chip input[type="checkbox"] {
+  accent-color: #136f38;
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.owner-specialist-chip.is-checked,
+.owner-specialist-chip:has(input:checked) {
+  border-color: #136f38;
+  background: #eaf5e9;
+  color: #136f38;
+}
+
+.chip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chip-title {
+  font-size: 0.88rem;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.chip-hint {
+  font-size: 0.74rem;
+  color: #64748b;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.owner-specialist-chip.is-checked .chip-hint,
+.owner-specialist-chip:has(input:checked) .chip-hint {
+  color: #166534;
+}
+
+.owner-spec-no-results {
+  text-align: center;
+  padding: 32px 16px;
+  color: #64748b;
+}
+
+.owner-spec-no-results i {
+  font-size: 28px;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.km-owner-age-grid {
+  margin-top: 16px;
+  max-width: 480px;
+}
+
+.owner-specialist-lang-section {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.owner-specialist-lang-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Step 3: Format cards */
+.km-format-select-wrapper {
+  display: none; /* replaced by visual format cards */
+}
+
+.km-owner-format-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0 20px;
+}
+
+.km-format-card {
+  min-height: 104px;
+  padding: 16px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.18s ease;
+}
+
+.km-format-card:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
+.km-format-card.is-selected {
+  border-color: #136f38;
+  background: #eaf5e9;
+  box-shadow: 0 4px 12px rgba(19, 111, 56, 0.12);
+}
+
+.km-format-card i {
+  color: #136f38;
+  font-size: 1.3rem;
+  margin-bottom: 4px;
+}
+
+.km-format-card strong {
+  font-size: 0.96rem;
+  color: #0f172a;
+  display: block;
+}
+
+.km-format-card span {
+  font-size: 0.8rem;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+.km-location-box {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px;
+  background: #f8fafc;
+  margin-top: 14px;
+}
+
+.km-location-header {
+  margin-bottom: 14px;
+}
+
+.km-location-header h3 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.km-location-header h3 i {
+  color: #136f38;
+}
+
+/* Step 4 & 5 subtitles and notices */
+.km-subsection-title {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 10px;
+}
+
+.km-subsection-title i {
+  color: #136f38;
+}
+
+.km-bio-section {
+  margin-bottom: 24px;
+}
+
+.km-bio-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tab-indicator.is-filled {
+  color: #166534;
+  font-weight: 850;
+  margin-left: 4px;
+}
+
+.km-owner-info-notice {
+  display: flex;
+  gap: 14px;
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.km-owner-info-notice .notice-icon {
+  font-size: 24px;
+  color: #136f38;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.km-owner-info-notice .notice-body h4 {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.km-owner-info-notice .notice-body p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.km-owner-privacy-card {
+  background: #f0fdf4;
+  border: 1.5px solid #bbf7d0;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.km-owner-privacy-card .privacy-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #166534;
+  margin-bottom: 10px;
+}
+
+.km-owner-privacy-card .privacy-header h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.km-owner-privacy-card ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.88rem;
+  color: #1e3a29;
+  line-height: 1.55;
+}
+
+/* Step Action Buttons */
+.km-owner-step-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.btn-save-draft {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.9rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-save-draft:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.btn-save-draft i {
+  color: #136f38;
+}
+
+.btn-continue {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #136f38, #0e5229);
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 750;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(19, 111, 56, 0.22);
+  transition: all 0.18s ease;
+}
+
+.btn-continue:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.btn-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #136f38, #0e5229);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(19, 111, 56, 0.25);
+  transition: all 0.18s ease;
+}
+
+.btn-submit:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+/* Sidebar styling */
+.km-sidebar-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+}
+
+.km-sidebar-card h2 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+.km-sidebar-card h2 i {
+  color: #136f38;
+}
+
+.km-help-bullets {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.86rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.km-help-card-requirements {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.km-side-notice {
+  font-size: 0.84rem;
+  color: #166534;
+  font-weight: 600;
+  margin: 10px 0 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.km-side-muted {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-top: 6px;
+}
+
+/* Responsive Overrides */
+@media (max-width: 960px) {
+  .km-specialist-owner-form .owner-event-layout {
+    display: flex;
+    flex-direction: column;
+  }
+  .km-specialist-side {
+    order: 2;
+    margin-top: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .km-owner-stepper {
+    display: none;
+  }
+  .km-owner-mobile-progress {
+    display: block;
+  }
+  .km-owner-format-cards {
+    grid-template-columns: 1fr;
+  }
+  .km-step-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .km-input-half {
+    max-width: 100%;
+  }
+  .km-owner-step-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 30;
+    margin: 20px -16px -16px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid #e2e8f0;
+    box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.05);
+  }
+  .km-owner-step-actions .btn-save-draft,
+  .km-owner-step-actions .btn-continue,
+  .km-owner-step-actions .btn-submit {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .km-owner-step-actions {
+    flex-wrap: wrap;
+  }
+  .km-owner-step-actions .btn-save-draft {
+    order: 2;
+    width: 100%;
+  }
+  .km-owner-step-actions .btn-continue,
+  .km-owner-step-actions .btn-submit {
+    order: 1;
+    width: 100%;
+  }
+}
+
+/* Specialist editor additions, scoped away from the public directory. */
+.km-specialist-owner-page .spec-save-state,.km-specialist-owner-page .spec-recovery{padding:14px 16px;margin-bottom:16px;border:1px solid #dbe4f0;border-radius:12px;background:#f5f8fc}
+.km-specialist-owner-page .spec-recovery li{overflow-wrap:anywhere;margin-block:8px}
+.km-specialist-owner-page .spec-practice-card{padding:18px;margin-block:16px;border:1px solid #dbe4f0;border-radius:14px;background:#fff}
+.km-specialist-owner-page .spec-practice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:16px}
+.km-specialist-owner-page .spec-practice-field{min-width:0}
+.km-specialist-owner-page .spec-practice-field label{display:block;margin-bottom:8px;font-weight:600}
+.km-specialist-owner-page .spec-practice-field input:not([type=checkbox]),.km-specialist-owner-page .spec-practice-field select,.km-specialist-owner-page .spec-practice-field textarea{width:100%;max-width:100%;box-sizing:border-box}
+.km-specialist-owner-page .spec-public-text details{padding:14px;margin-block:12px;border:1px solid #dbe4f0;border-radius:10px}
+.km-specialist-owner-page .spec-public-text summary{cursor:pointer;min-height:30px;font-weight:600}
+.km-specialist-owner-page .spec-public-text label{display:block;margin-block:12px 8px}
+.km-specialist-owner-page :focus-visible{outline:3px solid #1568d4;outline-offset:3px}
+.km-specialist-owner-page [hidden]{display:none!important}
+.km-specialist-owner-page input,.km-specialist-owner-page select,.km-specialist-owner-page textarea{scroll-margin-block:120px}
+.km-specialist-owner-page .spec-practice-card .errorlist{color:#b42318}
+@media(max-width:600px){.km-specialist-owner-page .spec-practice-grid{grid-template-columns:1fr}.km-specialist-owner-page .spec-practice-card{padding:14px}.km-specialist-owner-page .spec-recovery button{width:100%;margin-block:5px}}
+.km-specialist-owner-page .km-owner-stepper button .step-label{width:auto;height:auto;background:transparent;color:inherit;border-radius:0;margin:0;flex:1;line-height:1.25}
+.km-specialist-owner-page .km-owner-stepper button .step-num{margin:0;flex:0 0 24px}
+.km-specialist-owner-page .spec-practice-field:has(input[type=checkbox]){display:flex;align-items:center;gap:12px;min-height:44px}
+.km-specialist-owner-page .spec-practice-field:has(input[type=checkbox]) label{margin:0;flex:1;cursor:pointer}
+.km-specialist-owner-page .spec-practice-field input[type=checkbox]{width:20px;height:20px;min-width:20px;min-height:20px;padding:0;margin:0;flex:none;cursor:pointer}

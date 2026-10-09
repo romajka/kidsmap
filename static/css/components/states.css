@@ -1,0 +1,475 @@
+/* ==========================================================================
+   KidsMap UX States & Error Handling Components (States.css)
+   - Form Error Summary (WCAG 2.1 AA accessible, role="alert")
+   - Empty States (Search/Filters vs Empty Catalog)
+   - File Upload States (Error, Retry, Size/Format validation)
+   - Map Fallback Card (Offline / No Coordinates)
+   - Concurrency Conflict Dialog
+   - Honest Save Status Indicator (No premature optimistic success)
+   ========================================================================== */
+
+/* ─── 1. Form Error Summary (Top of Form) ─── */
+.km-form-error-summary {
+  display: block;
+  margin: 0 0 24px 0;
+  padding: 20px 24px;
+  background-color: #fef2f2;
+  border: 1.5px solid #f87171;
+  border-left: 6px solid #dc2626;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.08);
+  outline: none;
+  scroll-margin-top: 100px;
+}
+
+.km-form-error-summary:focus-visible {
+  outline: 3px solid #dc2626;
+  outline-offset: 2px;
+}
+
+.km-form-error-summary__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.km-form-error-summary__icon {
+  flex-shrink: 0;
+  font-size: 28px;
+  color: #dc2626;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.km-form-error-summary__title {
+  margin: 0 0 4px 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #991b1b;
+  line-height: 1.3;
+}
+
+.km-form-error-summary__subtitle {
+  margin: 0;
+  font-size: 0.92rem;
+  color: #7f1d1d;
+  line-height: 1.45;
+}
+
+.km-form-error-summary__list {
+  margin: 0;
+  padding: 0 0 0 42px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.km-form-error-summary__item {
+  position: relative;
+  font-size: 0.93rem;
+  line-height: 1.4;
+  color: #7f1d1d;
+}
+
+.km-form-error-summary__bullet {
+  position: absolute;
+  left: -16px;
+  color: #dc2626;
+  font-weight: bold;
+}
+
+.km-form-error-summary__link {
+  color: #b91c1c;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+  display: inline-block;
+}
+
+.km-form-error-summary__link:hover {
+  color: #7f1d1d;
+  text-decoration-thickness: 2px;
+}
+
+.km-form-error-summary__link:focus-visible {
+  outline: 2px solid #b91c1c;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.km-form-error-summary__field-label {
+  font-weight: 700;
+  color: #991b1b;
+}
+
+.km-form-error-summary__field-msg {
+  color: #7f1d1d;
+}
+
+/* ─── 2. Stepper Error Badges (Multi-step forms) ─── */
+.km-event-stepper button.has-step-error .step-num,
+.km-stepper-btn.has-step-error .step-num {
+  background: #dc2626 !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.25);
+}
+
+.km-step-error-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  padding: 1px 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fff;
+  background-color: #dc2626;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
+/* ─── 3. Field Errors & Invalid State ─── */
+.is-invalid {
+  border-color: #dc2626 !important;
+  background-color: #fffbfa !important;
+  box-shadow: 0 0 0 1px #dc2626 !important;
+}
+
+.is-invalid:focus {
+  outline: 2px solid #dc2626 !important;
+  outline-offset: 1px;
+}
+
+.auth-field-error,
+.km-field-error {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #b91c1c;
+  line-height: 1.35;
+}
+
+/* ─── 4. Empty State Card (.km-state-card) ─── */
+.km-state-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 44px 28px;
+  margin: 32px auto;
+  max-width: 580px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+}
+
+.km-state-card--embedded {
+  border: 1px dashed #cbd5e1;
+  background: #f8fafc;
+  box-shadow: none;
+  padding: 32px 20px;
+}
+
+.km-state-card__icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  margin-bottom: 20px;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.km-state-card--filter .km-state-card__icon-box {
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.km-state-card--empty-db .km-state-card__icon-box {
+  background: #f8fafc;
+  color: #475569;
+}
+
+.km-state-card--error .km-state-card__icon-box {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.km-state-card__icon {
+  font-size: 34px;
+  line-height: 1;
+}
+
+.km-state-card__title {
+  margin: 0 0 10px 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.35;
+}
+
+.km-state-card__desc {
+  margin: 0 0 24px 0;
+  font-size: 0.95rem;
+  color: #64748b;
+  line-height: 1.55;
+  max-width: 440px;
+}
+
+.km-state-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.km-state-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border-radius: 12px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.km-state-btn--primary {
+  background-color: #136f38;
+  color: #ffffff;
+}
+
+.km-state-btn--primary:hover {
+  background-color: #0e562b;
+}
+
+.km-state-btn--secondary {
+  background-color: #f1f5f9;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+
+.km-state-btn--secondary:hover {
+  background-color: #e2e8f0;
+}
+
+/* ─── 5. File Upload Failure / Dropzone Error State ─── */
+.km-dropzone-error-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 20px;
+  border: 2px dashed #f87171;
+  background-color: #fef2f2;
+  border-radius: 16px;
+  margin-top: 12px;
+  transition: border-color 0.15s ease;
+}
+
+.km-dropzone-error-icon {
+  font-size: 32px;
+  color: #dc2626;
+  margin-bottom: 8px;
+}
+
+.km-dropzone-error-title {
+  margin: 0 0 4px 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #991b1b;
+}
+
+.km-dropzone-error-desc {
+  margin: 0 0 14px 0;
+  font-size: 0.88rem;
+  color: #7f1d1d;
+  max-width: 380px;
+  line-height: 1.45;
+}
+
+.km-dropzone-error-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ─── 6. Map Fallback Card ─── */
+.km-map-fallback-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 36px 24px;
+  min-height: 260px;
+  background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.km-map-fallback-icon {
+  font-size: 38px;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+.km-map-fallback-title {
+  margin: 0 0 8px 0;
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.km-map-fallback-address {
+  margin: 0 0 20px 0;
+  font-size: 0.95rem;
+  color: #475569;
+  max-width: 460px;
+  line-height: 1.5;
+}
+
+.km-map-fallback-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.km-map-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  background: #ffffff;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.km-map-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+/* ─── 7. Save Status Indicator Bar ─── */
+.km-save-status-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.km-save-status-bar--saving {
+  color: #0284c7;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+}
+
+.km-save-status-bar--saved {
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.km-save-status-bar--failed {
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+/* ─── 8. Concurrency Conflict Modal (.km-concurrency-modal) ─── */
+.km-concurrency-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 9999;
+}
+
+.km-concurrency-dialog {
+  background: #ffffff;
+  border-radius: 20px;
+  max-width: 520px;
+  width: 100%;
+  padding: 32px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.km-concurrency-icon {
+  font-size: 48px;
+  color: #f59e0b;
+  margin-bottom: 16px;
+}
+
+.km-concurrency-title {
+  margin: 0 0 10px 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.km-concurrency-desc {
+  margin: 0 0 24px 0;
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.km-concurrency-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ─── 9. Responsive Adjustments ─── */
+@media (max-width: 640px) {
+  .km-form-error-summary {
+    padding: 16px 18px;
+    margin-bottom: 20px;
+  }
+
+  .km-form-error-summary__list {
+    padding-left: 28px;
+  }
+
+  .km-state-card {
+    padding: 32px 18px;
+    margin: 20px auto;
+  }
+
+  .km-state-card__title {
+    font-size: 1.15rem;
+  }
+
+  .km-concurrency-dialog {
+    padding: 24px 18px;
+  }
+}

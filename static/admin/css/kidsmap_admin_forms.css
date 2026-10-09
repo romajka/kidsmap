@@ -416,3 +416,13 @@ body.popup .submit-row a {
     align-items: center !important;
     justify-content: center !important;
 }
+
+/* De-stick submit rows on virtual keyboard / low viewport heights */
+@media (max-height: 500px) {
+    .change-form .submit-row,
+    .km-admin-submit-row {
+        position: static !important;
+        box-shadow: none !important;
+    }
+}
+

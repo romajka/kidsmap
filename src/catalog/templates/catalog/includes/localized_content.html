@@ -1,0 +1,4 @@
+{% if content.text %}
+  {% if content.is_fallback %}<small data-source-language="{{ content.language }}">{{ content.source_label }}</small>{% endif %}
+  <p lang="{{ content.language }}">{{ content.text }}</p>
+{% endif %}

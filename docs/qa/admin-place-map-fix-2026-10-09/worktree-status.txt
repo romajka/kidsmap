@@ -1,0 +1,225 @@
+ M docs/agent-audits/MASTER_AUDIT.md
+ M docs/task33/implementation-status.md
+ M docs/task33/manual-check/qa/add_demo_places.py
+ M docs/task33/manual-check/qa/manual_settings.py
+ M docs/task33/manual-check/qa/start.py
+ M locale/az/LC_MESSAGES/django.po
+ M locale/en/LC_MESSAGES/django.po
+ M locale/ru/LC_MESSAGES/django.po
+ M scripts/test_location_resolution.cjs
+ M src/catalog/context_processors.py
+ M src/catalog/controllers/organization_ownership_api.py
+ M src/catalog/controllers/organization_workspace.py
+ M src/catalog/controllers/owner_events_controller.py
+ M src/catalog/controllers/place_controller.py
+ M src/catalog/controllers/public_details.py
+ M src/catalog/controllers/specialist_workspace.py
+ M src/catalog/domain_admin/__init__.py
+ M src/catalog/domain_admin/business.py
+ M src/catalog/domain_admin/owner.py
+ M src/catalog/domain_admin/place.py
+ M src/catalog/domain_admin/site.py
+ M src/catalog/domain_admin/specialist.py
+ M src/catalog/forms.py
+ M src/catalog/models/__init__.py
+ M src/catalog/models/business_team.py
+ M src/catalog/models/catalog_structure.py
+ M src/catalog/models/place.py
+ M src/catalog/models/site.py
+ M src/catalog/models/specialist.py
+ M src/catalog/services/features.py
+ M src/catalog/services/filtering.py
+ M src/catalog/services/organization_ownership.py
+ M src/catalog/services/owner_specialist_use_cases.py
+ M src/catalog/services/permanent_place_rules.py
+ M src/catalog/services/permanent_place_wizard.py
+ M src/catalog/services/photo_gallery.py
+ M src/catalog/services/place_access.py
+ M src/catalog/services/public_presentation.py
+ M src/catalog/services/public_urls.py
+ M src/catalog/services/publication.py
+ M src/catalog/services/publication_forms.py
+ M src/catalog/services/specialist_presentation.py
+ M src/catalog/services/volunteer_places.py
+ M src/catalog/sitemaps.py
+ M src/catalog/specialist_forms.py
+ M src/catalog/templates/admin/catalog/business/change_form.html
+ M src/catalog/templates/admin/catalog/event/change_form.html
+ M src/catalog/templates/admin/catalog/event/location_section.html
+ M src/catalog/templates/admin/catalog/event/media_section.html
+ M src/catalog/templates/admin/catalog/place/change_form.html
+ M src/catalog/templates/admin/catalog/place/change_list.html
+ M src/catalog/templates/admin/catalog/place/form/_field.html
+ M src/catalog/templates/admin/catalog/place/form/header.html
+ M src/catalog/templates/admin/catalog/place/form/pricing_notes.html
+ M src/catalog/templates/admin/catalog/place/form/section_basics.html
+ M src/catalog/templates/admin/catalog/place/form/section_location.html
+ M src/catalog/templates/admin/catalog/place/form/section_media.html
+ M src/catalog/templates/admin/catalog/place/form/section_verification.html
+ M src/catalog/templates/admin/catalog/place/form/sidebar.html
+ M src/catalog/templates/admin/catalog/place/placephoto_inline.html
+ M src/catalog/templates/admin/catalog/place/quality_check.html
+ M src/catalog/templates/admin/catalog/shared_settings_change_form.html
+ M src/catalog/templates/admin/catalog/specialist/change_form.html
+ M src/catalog/templates/admin/catalog/specialist/change_list.html
+ M src/catalog/templates/base.html
+ M src/catalog/templates/catalog/event_detail.html
+ M src/catalog/templates/catalog/events_landing.html
+ M src/catalog/templates/catalog/includes/catalog_expansion_banner.html
+ M src/catalog/templates/catalog/includes/event_listing_card.html
+ M src/catalog/templates/catalog/includes/home_places_rail.html
+ M src/catalog/templates/catalog/includes/place_card.html
+ M src/catalog/templates/catalog/includes/pricing_notes.html
+ M src/catalog/templates/catalog/place_detail.html
+ M src/catalog/templates/catalog/place_list.html
+ M src/catalog/templates/catalog/public_entity_detail.html
+ M src/catalog/templates/catalog/specialist_detail.html
+ M src/catalog/templates/catalog/specialist_list.html
+ M src/catalog/templates/includes/header.html
+ M src/catalog/templates/includes/location_resolution.html
+ M src/catalog/templates/pages/home.html
+ M src/catalog/templates/pages/includes/owner_place_continuous.html
+ M src/catalog/templates/pages/includes/owner_place_map_picker.html
+ M src/catalog/templates/pages/includes/permanent_place_field.html
+ M src/catalog/templates/pages/includes/permanent_place_photos.html
+ M src/catalog/templates/pages/organization_workspace.html
+ M src/catalog/templates/pages/owner_event_form.html
+ M src/catalog/templates/pages/owner_listing_type_select.html
+ M src/catalog/templates/pages/owner_places.html
+ M src/catalog/templates/pages/owner_specialist_create.html
+ M src/catalog/templates/pages/permanent_place_form.html
+ M src/catalog/templates/pages/specialist_workspace.html
+ M src/catalog/templatetags/catalog_i18n.py
+ M src/catalog/testcases/admin.py
+ M src/catalog/testcases/owner.py
+ M src/catalog/testcases/public.py
+ M src/catalog/testcases/test_legacy_pricing_notes.py
+ M src/catalog/testcases/test_task33_event_owner_contract.py
+ M src/catalog/testcases/test_task33_organization_workspace.py
+ M src/catalog/testcases/test_task33_place_continuous.py
+ M src/catalog/urls.py
+ M src/catalog/views.py
+ M static/admin/css/kidsmap_admin_components.css
+ M static/admin/css/kidsmap_admin_forms.css
+ M static/admin/css/pages/kidsmap_admin_form_shell.css
+ M static/admin/css/pages/kidsmap_changelist.css
+ M static/admin/css/pages/kidsmap_place_form.css
+ M static/admin/css/pages/specialist_form.css
+ M static/admin/js/kidsmap_admin_form_shell.js
+ M static/admin/js/kidsmap_place_form.js
+ M static/admin/js/kidsmap_place_location.js
+ M static/admin/js/kidsmap_place_media.js
+ M static/admin/js/specialist_admin.js
+ M static/css/components/header.css
+ M static/css/events_landing.css
+ M static/css/pages/account_profile.css
+ M static/css/pages/catalog_places.css
+ M static/css/pages/detail.css
+ M static/css/pages/organization_workspace.css
+ M static/css/pages/owner_place_continuous.css
+ M static/css/pages/public_entities.css
+ M static/css/pages/specialists.css
+ M static/css/site.css
+ M static/js/location_resolution.js
+ M static/js/motion.js
+ M static/js/organization_workspace.js
+ M static/js/owner_event_form.js
+ M static/js/owner_place_continuous.js
+ M static/js/owner_place_offerings.js
+ M static/js/permanent_place_photos.js
+ M static/js/specialists.js
+?? docs/qa/
+?? docs/superpowers/plans/2026-10-05-organization-directory.md
+?? docs/superpowers/plans/2026-10-05-public-section-switches.md
+?? docs/superpowers/plans/2026-10-05-remove-verification-badges.md
+?? docs/superpowers/plans/2026-10-06-event-admin-fix.md
+?? docs/superpowers/plans/2026-10-06-organization-management.md
+?? docs/superpowers/plans/2026-10-06-permanent-place-form-design.md
+?? docs/superpowers/plans/2026-10-06-specialist-profile-entry.md
+?? docs/superpowers/plans/2026-10-07-content-entry-finalization.md
+?? docs/superpowers/plans/2026-10-07-owner-event-entry.md
+?? docs/superpowers/plans/2026-10-08-org-04-detach-compatibility.md
+?? docs/superpowers/plans/2026-10-08-org-05-editor-errors.md
+?? docs/superpowers/plans/2026-10-08-org-06-form-copy.md
+?? docs/superpowers/plans/2026-10-08-org-07-fix.md
+?? docs/superpowers/plans/2026-10-08-org-08-fix.md
+?? docs/superpowers/plans/2026-10-08-org-09-controls-design.md
+?? docs/superpowers/plans/2026-10-08-org-10-admin-labels.md
+?? docs/superpowers/plans/2026-10-09-admin-place-map-fallback.md
+?? docs/superpowers/plans/2026-10-09-org-11-accessible-pagination.md
+?? docs/superpowers/plans/2026-10-09-org-12-stale-join-lifecycle.md
+?? docs/superpowers/plans/2026-10-09-org-followup.md
+?? docs/task33/screenshots/
+?? private-media/
+?? scripts/test_motion_transition_rejection.cjs
+?? scripts/test_organization_autosave.cjs
+?? scripts/test_organization_creation_draft.cjs
+?? scripts/test_organization_current_data.cjs
+?? scripts/test_organization_editor_errors.cjs
+?? scripts/test_organization_invitation_result.cjs
+?? scripts/test_organization_invitation_transport.cjs
+?? scripts/test_organization_pagination_focus.cjs
+?? src/catalog/controllers/organization_directory.py
+?? src/catalog/domain_admin/organization_connections.py
+?? src/catalog/forms_specialist_locations.py
+?? src/catalog/migrations/0135_sitesettings_organizations_section_enabled.py
+?? src/catalog/migrations/0136_retire_optional_listing_verification.py
+?? src/catalog/migrations/0137_organization_connection_operation.py
+?? src/catalog/migrations/0138_business_role_labels.py
+?? src/catalog/migrations/0139_connection_receipt_actor_retention.py
+?? src/catalog/migrations/0140_specialist_proposal_draft.py
+?? src/catalog/migrations/0141_catalog_admin_names.py
+?? src/catalog/models/organization_connection_operation.py
+?? src/catalog/models/specialist_proposal_draft.py
+?? src/catalog/services/localized_content.py
+?? src/catalog/services/organization_connections.py
+?? src/catalog/services/specialist_proposal_drafts.py
+?? src/catalog/templates/admin/catalog/place/organization_connections.html
+?? src/catalog/templates/catalog/includes/localized_content.html
+?? src/catalog/templates/catalog/organization_list.html
+?? src/catalog/templates/includes/form_error_summary.html
+?? src/catalog/templates/pages/includes/organization_connection_rows.html
+?? src/catalog/templates/pages/includes/organization_field_errors.html
+?? src/catalog/templates/pages/includes/organization_join_request.html
+?? src/catalog/templates/pages/includes/specialist_locations.html
+?? src/catalog/templates/pages/organization_connections.html
+?? src/catalog/templates/pages/organization_create.html
+?? src/catalog/templates/pages/organization_detach.html
+?? src/catalog/templates/pages/organization_join_recovery.html
+?? src/catalog/templates/pages/owner_event_manage.html
+?? src/catalog/testcases/test_admin_candidate_cover.py
+?? src/catalog/testcases/test_content_entry_final.py
+?? src/catalog/testcases/test_event_admin_readiness.py
+?? src/catalog/testcases/test_organization_admin_labels.py
+?? src/catalog/testcases/test_organization_connections.py
+?? src/catalog/testcases/test_organization_connections_concurrency.py
+?? src/catalog/testcases/test_organization_creation_confirmation.py
+?? src/catalog/testcases/test_organization_detach_transport.py
+?? src/catalog/testcases/test_organization_directory.py
+?? src/catalog/testcases/test_organization_editor_errors.py
+?? src/catalog/testcases/test_organization_form_copy.py
+?? src/catalog/testcases/test_organization_invitation_result.py
+?? src/catalog/testcases/test_organization_invitation_transport.py
+?? src/catalog/testcases/test_organization_join_recovery.py
+?? src/catalog/testcases/test_organization_join_visibility.py
+?? src/catalog/testcases/test_owner_event_entry.py
+?? src/catalog/testcases/test_public_section_switches.py
+?? src/catalog/testcases/test_retired_verification_badges.py
+?? src/catalog/testcases/test_specialist_entry_admin.py
+?? src/catalog/testcases/test_specialist_entry_locations.py
+?? src/catalog/testcases/test_specialist_identity_date_label.py
+?? src/catalog/testcases/test_specialist_proposal_drafts.py
+?? static/admin/css/pages/kidsmap_event_form.css
+?? static/admin/css/pages/site_sections.css
+?? static/admin/js/kidsmap_event_readiness.js
+?? static/css/components/icons.css
+?? static/css/components/states.css
+?? static/css/pages/organization_connections.css
+?? static/css/pages/organization_directory.css
+?? static/css/pages/owner_event.css
+?? static/js/organization_connections.js
+?? static/js/organization_join_recovery.js
+?? static/js/owner_event_recovery.js
+?? static/js/public_organization.js
+?? static/js/specialist_locations.js
+?? static/js/specialist_recovery.js

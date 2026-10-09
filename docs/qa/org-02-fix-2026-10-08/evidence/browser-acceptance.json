@@ -1,0 +1,209 @@
+{
+  "rows": [
+    {
+      "id": "single-in-flight-15",
+      "status": "PASS",
+      "waiting": {
+        "value": "ORG02 Queue C 15",
+        "status": "Черновик сохранён в этом браузере",
+        "local": {
+          "source": "1",
+          "fields": {
+            "name_az": "ORG02 Uydurma race",
+            "name_ru": "ORG02 Вымышленная race",
+            "name_en": "ORG02 Queue C 15",
+            "description_az": "",
+            "phone": "",
+            "whatsapp": "",
+            "website": ""
+          }
+        },
+        "version": "4",
+        "draft_id": "d674e8f0-eac9-4edd-94b0-136fc5411fad"
+      },
+      "posts": 1
+    },
+    {
+      "id": "old-ack-preserves-local-15",
+      "status": "PASS",
+      "acknowledged": {
+        "value": "ORG02 Queue C 15",
+        "status": "Черновик сохранён в этом браузере",
+        "local": {
+          "source": "1",
+          "fields": {
+            "name_az": "ORG02 Uydurma race",
+            "name_ru": "ORG02 Вымышленная race",
+            "name_en": "ORG02 Queue C 15",
+            "description_az": "",
+            "phone": "",
+            "whatsapp": "",
+            "website": ""
+          }
+        },
+        "version": "5",
+        "draft_id": "d674e8f0-eac9-4edd-94b0-136fc5411fad"
+      }
+    },
+    {
+      "id": "latest-confirmed-15",
+      "status": "PASS",
+      "after": {
+        "value": "ORG02 Queue C 15",
+        "status": "Сохранено на сервере",
+        "local": null,
+        "version": "6",
+        "draft_id": "d674e8f0-eac9-4edd-94b0-136fc5411fad"
+      },
+      "posts": [
+        {
+          "value": "ORG02 Queue A 15",
+          "expected_version": 4,
+          "draft_id": "d674e8f0-eac9-4edd-94b0-136fc5411fad",
+          "http": 200
+        },
+        {
+          "value": "ORG02 Queue C 15",
+          "expected_version": 5,
+          "draft_id": "d674e8f0-eac9-4edd-94b0-136fc5411fad",
+          "http": 200
+        }
+      ]
+    },
+    {
+      "id": "reload-latest-15",
+      "status": "PASS"
+    },
+    {
+      "id": "single-in-flight-18",
+      "status": "PASS",
+      "waiting": {
+        "value": "ORG02 Queue C 18",
+        "status": "Черновик сохранён в этом браузере",
+        "local": {
+          "source": "1",
+          "fields": {
+            "name_az": "ORG02 Uydurma first",
+            "name_ru": "ORG02 Вымышленная first",
+            "name_en": "ORG02 Queue C 18",
+            "description_az": "",
+            "phone": "",
+            "whatsapp": "",
+            "website": ""
+          }
+        },
+        "version": "0",
+        "draft_id": ""
+      },
+      "posts": 1
+    },
+    {
+      "id": "old-ack-preserves-local-18",
+      "status": "PASS",
+      "acknowledged": {
+        "value": "ORG02 Queue C 18",
+        "status": "Черновик сохранён в этом браузере",
+        "local": {
+          "source": "1",
+          "fields": {
+            "name_az": "ORG02 Uydurma first",
+            "name_ru": "ORG02 Вымышленная first",
+            "name_en": "ORG02 Queue C 18",
+            "description_az": "",
+            "phone": "",
+            "whatsapp": "",
+            "website": ""
+          }
+        },
+        "version": "1",
+        "draft_id": "3b070bef-7f26-45d2-9097-b668236a24c0"
+      }
+    },
+    {
+      "id": "latest-confirmed-18",
+      "status": "PASS",
+      "after": {
+        "value": "ORG02 Queue C 18",
+        "status": "Сохранено на сервере",
+        "local": null,
+        "version": "2",
+        "draft_id": "3b070bef-7f26-45d2-9097-b668236a24c0"
+      },
+      "posts": [
+        {
+          "value": "ORG02 Queue A 18",
+          "expected_version": 0,
+          "draft_id": null,
+          "http": 201
+        },
+        {
+          "value": "ORG02 Queue C 18",
+          "expected_version": 1,
+          "draft_id": "3b070bef-7f26-45d2-9097-b668236a24c0",
+          "http": 200
+        }
+      ]
+    },
+    {
+      "id": "reload-latest-18",
+      "status": "PASS"
+    },
+    {
+      "id": "two-tabs-409-local-preserved",
+      "status": "PASS",
+      "conflict": {
+        "value": "ORG02 Unsaved from tab B",
+        "status": "Конфликт: ваш ввод сохранён. Обновите страницу и сравните версии.",
+        "local": {
+          "source": "1",
+          "fields": {
+            "name_az": "ORG02 Uydurma conflict",
+            "name_ru": "ORG02 Вымышленная conflict",
+            "name_en": "ORG02 Unsaved from tab B",
+            "description_az": "",
+            "phone": "",
+            "whatsapp": "",
+            "website": ""
+          }
+        },
+        "version": "1",
+        "draft_id": "0e717d86-d346-4c69-8e06-43c3616ccec3"
+      }
+    },
+    {
+      "id": "conflict-no-blind-retry",
+      "status": "PASS",
+      "posts": 1
+    },
+    {
+      "id": "conflict-reload-restores-local",
+      "status": "PASS"
+    },
+    {
+      "id": "winning-tab-remains-intact",
+      "status": "PASS"
+    },
+    {
+      "id": "network-failure-preserves-copy",
+      "status": "PASS"
+    },
+    {
+      "id": "network-failure-reload",
+      "status": "PASS"
+    },
+    {
+      "id": "keyboard-next-field",
+      "status": "PASS"
+    },
+    {
+      "id": "network-retry-persists",
+      "status": "PASS"
+    },
+    {
+      "id": "access-denied-local-preserved",
+      "status": "PASS",
+      "http": 403
+    }
+  ],
+  "errors": []
+}

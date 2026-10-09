@@ -1,0 +1,280 @@
+--- a/src/catalog/templates/pages/organization_workspace.html
++++ b/src/catalog/templates/pages/organization_workspace.html
+@@ -445,7 +445,7 @@
+           <h2>{% if CURRENT_LANGUAGE == 'az' %}Komanda{% elif CURRENT_LANGUAGE == 'en' %}Team{% else %}Сотрудники{% endif %}</h2>
+           {% if is_owner %}
+             <p class="org-muted">{% if CURRENT_LANGUAGE == 'az' %}İcazələr cari filiallara tətbiq olunur. Seçilmiş filiallar gələcək filiallara şamil edilmir.{% elif CURRENT_LANGUAGE == 'en' %}Selected branches do not include future branches. Network scope covers current links.{% else %}Выбранные филиалы не включают будущие. Сетевой доступ действует только при текущей связи.{% endif %}</p>
+-            <form method="post" action="{% url 'business_team_action' 'organization' organization.pk 'invite' %}" class="org-team-form" data-team-form data-team-url="{% url 'business_team_action' 'organization' organization.pk 'invite' %}">
++            <form method="post" action="{% url 'business_team_action' 'organization' organization.pk 'invite' %}" class="org-team-form" data-team-form data-team-list-url="{% url 'organization_workspace_detail' organization.pk %}" data-team-url="{% url 'business_team_action' 'organization' organization.pk 'invite' %}">
+               {% csrf_token %}
+               <p id="org-team-unavailable" data-team-unavailable role="status">{% if CURRENT_LANGUAGE == 'az' %}Əməkdaşı dəvət etmək üçün JavaScript lazımdır. Formanı aktivləşdirmək üçün brauzerdə JavaScript-i yandırın və səhifəni yeniləyin. Dəvət göndərilməyib.{% elif CURRENT_LANGUAGE == 'en' %}Inviting a team member requires JavaScript. Enable JavaScript in your browser and reload this page to activate the form. No invitation has been sent.{% else %}Для приглашения сотрудника нужен JavaScript. Включите JavaScript в браузере и обновите страницу, чтобы активировать форму. Приглашение не отправлено.{% endif %}</p>
+               <label>Email <input type="email" name="email" required disabled data-team-control></label>
+@@ -474,6 +474,7 @@
+               </fieldset>
+               <button class="account-btn-action" type="submit" disabled data-team-control aria-describedby="org-team-unavailable">{% if CURRENT_LANGUAGE == 'az' %}Dəvət et{% elif CURRENT_LANGUAGE == 'en' %}Invite{% else %}Пригласить{% endif %}</button>
+               <p role="status" aria-live="polite" data-team-status></p>
++              <button class="account-btn-action" type="button" data-team-refresh hidden disabled data-team-control>{% if CURRENT_LANGUAGE == 'az' %}Dəvət siyahısını yenilə{% elif CURRENT_LANGUAGE == 'en' %}Refresh invitations{% else %}Обновить список приглашений{% endif %}</button>
+             </form>
+             {% if team_grants %}
+               <div class="org-list">
+@@ -495,18 +496,20 @@
+                 {% endfor %}
+               </div>
+             {% endif %}
++            <div data-team-invitations>
+             {% if team_invitations %}
+               <h3>{% if CURRENT_LANGUAGE == 'az' %}Dəvətlər{% elif CURRENT_LANGUAGE == 'en' %}Invitations{% else %}Приглашения{% endif %}</h3>
+               <div class="org-list">
+                 {% for invite in team_invitations %}
+-                  <div class="org-row">
++                  <div class="org-row" data-team-invitation="{{ invite.pk }}" data-team-invitation-role="{{ invite.role }}">
+                     <span class="material-symbols-rounded" aria-hidden="true">mail</span>
+-                    <span>{{ invite.email }} · {{ invite.get_scope_display }}</span>
++                    <span><strong>{{ invite.email }}</strong><small>{{ invite.get_role_display }} · {{ invite.get_scope_display }}</small></span>
+                     <small>{{ invite.get_status_display }}</small>
+                   </div>
+                 {% endfor %}
+               </div>
+             {% endif %}
++            </div>
+           {% else %}
+             <p class="org-muted">{% if CURRENT_LANGUAGE == 'az' %}Komandanı təşkilat sahibi idarə edir.{% elif CURRENT_LANGUAGE == 'en' %}The organization owner manages the team.{% else %}Командой управляет владелец организации.{% endif %}</p>
+           {% endif %}
+--- a/static/js/organization_workspace.js
++++ b/static/js/organization_workspace.js
+@@ -9,6 +9,13 @@
+       failed: 'Serverdə saxlamaq mümkün olmadı; daxil etdiyiniz məlumat qalıb.',
+       invited: 'Dəvət göndərildi',
+       inviteFailed: 'Dəvət göndərilmədi; icazə və sahəni yoxlayın.',
++      inviting: "Dəvət göndərilir…",
++      invitedListFailed: "Dəvət göndərildi. Siyahını yeniləmək mümkün olmadı; təkrar göndərməzdən əvvəl onu yeniləyin.",
++      inviteConflict: "Dəvət artıq mövcuddur. Təkrar göndərməzdən əvvəl siyahını yoxlayın.",
++      inviteUncertain: "Serverdən cavab almaq mümkün olmadı. Təkrar göndərməzdən əvvəl siyahını yoxlayın.",
++      listRefreshing: "Dəvət siyahısı yenilənir…",
++      listUpdated: "Dəvət siyahısı yeniləndi.",
++      listFailed: "Dəvət siyahısını yeniləmək mümkün olmadı. Yenidən cəhd edin.",
+       showing: 'Göstərilir',
+       from: '/',
+       prev: '← Əvvəlki',
+@@ -23,6 +30,13 @@
+       failed: 'Серверное сохранение не удалось; ваш ввод сохранён.',
+       invited: 'Приглашение отправлено',
+       inviteFailed: 'Приглашение не отправлено; проверьте права и поля.',
++      inviting: "Приглашаем…",
++      invitedListFailed: "Приглашение отправлено. Не удалось обновить список; обновите его перед повторной отправкой.",
++      inviteConflict: "Приглашение уже существует. Проверьте список перед повторной отправкой.",
++      inviteUncertain: "Не удалось получить ответ сервера. Проверьте список перед повторной отправкой.",
++      listRefreshing: "Обновляем список приглашений…",
++      listUpdated: "Список приглашений обновлён.",
++      listFailed: "Не удалось обновить список приглашений. Попробуйте ещё раз.",
+       showing: 'Показано',
+       from: 'из',
+       prev: '← Предыдущая',
+@@ -37,6 +51,13 @@
+       failed: 'Server save failed; your input is preserved.',
+       invited: 'Invitation sent',
+       inviteFailed: 'Invitation failed; check permissions and fields.',
++      inviting: "Inviting…",
++      invitedListFailed: "Invitation sent. Could not refresh the list; refresh it before sending again.",
++      inviteConflict: "An invitation already exists. Check the list before sending again.",
++      inviteUncertain: "Could not receive a response from the server. Check the list before sending again.",
++      listRefreshing: "Refreshing invitations…",
++      listUpdated: "Invitation list refreshed.",
++      listFailed: "Could not refresh the invitation list. Try again.",
+       showing: 'Showing',
+       from: 'of',
+       prev: '← Previous',
+@@ -245,15 +266,50 @@
+         branches.hidden = scope.value !== 'selected_places';
+       });
+     }
++    const controls = [...team.querySelectorAll('[data-team-control]')];
++    const submit = team.querySelector('[type="submit"]');
++    const submitLabel = submit?.textContent;
++    const status = team.querySelector('[data-team-status]');
++    const refresh = team.querySelector('[data-team-refresh]');
++    const invitations = document.querySelector('[data-team-invitations]');
++    let sending = false;
++    const setBusy = (busy, inviting = true) => {
++      sending = busy;
++      team.setAttribute('aria-busy', String(busy));
++      controls.forEach(control => { control.disabled = busy; });
++      if (submit) submit.textContent = busy && inviting ? copy.inviting : submitLabel;
++    };
++    const refreshInvitations = async () => {
++      if (!invitations || !team.dataset.teamListUrl) return true;
++      try {
++        const response = await fetch(team.dataset.teamListUrl, {
++          method: 'GET', credentials: 'same-origin', cache: 'no-store'
++        });
++        if (!response.ok) throw new Error('list');
++        const html = new DOMParser().parseFromString(await response.text(), 'text/html');
++        const current = html.querySelector('[data-team-invitations]');
++        if (!current) throw new Error('list');
++        // Replace only owner-visible, server-rendered invitations; preserve editor input.
++        invitations.replaceChildren(...current.childNodes);
++        if (refresh) refresh.hidden = true;
++        return true;
++      } catch (_) {
++        if (refresh) refresh.hidden = false;
++        return false;
++      }
++    };
+     team.addEventListener('submit', async event => {
+       event.preventDefault();
+-      const status = team.querySelector('[data-team-status]');
++      if (sending) return;
+       const payload = {
+         email: team.elements.email.value,
+         role: team.elements.role.value,
+         scope: scope ? scope.value : 'all_network',
+         place_ids: [...team.querySelectorAll('[name=place_ids]:checked')].map(x => Number(x.value))
+       };
++      setBusy(true);
++      if (status) status.textContent = copy.inviting;
++      if (refresh) refresh.hidden = true;
+       try {
+         const response = await fetch(team.dataset.teamUrl, {
+           method: 'POST',
+@@ -261,12 +317,35 @@
+           headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+           body: JSON.stringify(payload)
+         });
+-        if (!response.ok) throw new Error('invite');
+-        if (status) status.textContent = copy.invited;
++        if (!response.ok) {
++          if (response.status === 409) {
++            await refreshInvitations();
++            if (status) status.textContent = copy.inviteConflict;
++          } else if (status) status.textContent = copy.inviteFailed;
++          return;
++        }
+         team.reset();
+-        if (branches) branches.hidden = true;
++        updateRole();
++        if (branches) branches.hidden = scope?.value !== 'selected_places';
++        const refreshed = await refreshInvitations();
++        if (status) status.textContent = refreshed ? copy.invited : copy.invitedListFailed;
+       } catch (_) {
+-        if (status) status.textContent = copy.inviteFailed;
++        // A lost response cannot prove that the canonical POST was not committed.
++        if (status) status.textContent = copy.inviteUncertain;
++        if (refresh) refresh.hidden = false;
++      } finally {
++        setBusy(false);
++      }
++    });
++    refresh?.addEventListener('click', async () => {
++      if (sending) return;
++      setBusy(true, false);
++      if (status) status.textContent = copy.listRefreshing;
++      try {
++        const refreshed = await refreshInvitations();
++        if (status) status.textContent = refreshed ? copy.listUpdated : copy.listFailed;
++      } finally {
++        setBusy(false);
+       }
+     });
+     // Release native controls only after safe JSON POST interception is installed.
+--- a/static/css/pages/organization_workspace.css
++++ b/static/css/pages/organization_workspace.css
+@@ -1172,3 +1172,8 @@
+ [data-org-edit-form] .org-field-error > span { display: block; overflow-wrap: anywhere; }
+ [data-org-edit-form] .org-editor-field { margin-bottom: 12px; }
+ [data-org-edit-form] .org-editor-field.has-error input { border-color: #b91c1c; }
++
++/* Native hidden must override the shared action-button display rule. */
++.org-team-form [data-team-refresh][hidden] {
++  display: none;
++}
+--- /dev/null
++++ b/src/catalog/testcases/test_organization_invitation_result.py
+@@ -0,0 +1,51 @@
++"""ORG-08: refreshed team fragment is authoritative and owner-scoped."""
++from django.contrib.auth import get_user_model
++from django.test import TestCase
++from django.urls import reverse
++from django.utils.translation import override
++from catalog.models import Organization
++from catalog.services import business_team
++from catalog.testcases.test_organization_invitation_transport import InvitationFormParser
++
++
++class OrganizationInvitationResultTests(TestCase):
++    def setUp(self):
++        U = get_user_model()
++        self.owner = U.objects.create_user(username='org08_owner', email='org08-owner@example.invalid')
++        self.other = U.objects.create_user(username='org08_other', email='org08-other@example.invalid')
++        self.org = Organization.objects.create(owner=self.owner, created_by=self.owner, name_az='ORG08 synthetic')
++        self.client.force_login(self.owner)
++
++    def test_empty_list_fragment_exists_for_first_invitation_in_each_language(self):
++        for lang in ('ru', 'az', 'en'):
++            with override(lang), self.subTest(lang=lang):
++                response = self.client.get(reverse('organization_workspace_detail', args=[self.org.pk]), HTTP_ACCEPT_LANGUAGE=lang)
++                self.assertTrue('data-team-invitations' in response.content.decode())
++                self.assertTrue('data-team-refresh' in response.content.decode())
++                form = InvitationFormParser(response.content.decode()).form
++                self.assertEqual(form.get('data-team-list-url'), reverse('organization_workspace_detail', args=[self.org.pk]))
++
++    def test_pending_fragment_shows_stored_role_and_scope_without_grant(self):
++        invitation = business_team.invite(actor=self.owner, target_type='organization', target_id=self.org.pk, email=self.other.email, role='MANAGER', scope='all_network')
++        response = self.client.get(reverse('organization_workspace_detail', args=[self.org.pk]))
++        from html.parser import HTMLParser
++        class Rows(HTMLParser):
++            def __init__(self):
++                super().__init__(); self.role_ids = []
++            def handle_starttag(self, tag, attrs):
++                a = dict(attrs)
++                if 'data-team-invitation' in a:
++                    self.role_ids.append((a['data-team-invitation'], a.get('data-team-invitation-role')))
++        parser = Rows(); parser.feed(response.content.decode())
++        self.assertEqual(parser.role_ids, [(str(invitation.pk), 'MANAGER')])
++        self.assertFalse(self.org.team_grants.exists())
++        business_team.decide_invitation(actor=self.owner, target_type='organization', invitation_id=invitation.pk, cancel=True)
++        response = self.client.get(reverse('organization_workspace_detail', args=[self.org.pk]))
++        parser = Rows(); parser.feed(response.content.decode()); self.assertEqual(parser.role_ids, [])
++
++    def test_foreign_user_does_not_receive_invitation_fragment_or_email(self):
++        business_team.invite(actor=self.owner, target_type='organization', target_id=self.org.pk, email='org08-private@example.invalid', role='MANAGER', scope='all_network')
++        self.client.force_login(self.other)
++        response = self.client.get(reverse('organization_workspace_detail', args=[self.org.pk]))
++        self.assertNotIn('data-team-invitations', response.content.decode())
++        self.assertNotIn('org08-private@example.invalid', response.content.decode())
+--- /dev/null
++++ b/scripts/test_organization_invitation_result.cjs
+@@ -0,0 +1,34 @@
++// ORG-08: real workspace script, canonical POST outcome + server-rendered pending list.
++const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
++const {JSDOM}=require('jsdom');
++const source=fs.readFileSync(path.join(__dirname,'../static/js/organization_workspace.js'),'utf8');
++const html='<div data-team-invitations><h3>Invitations</h3><div class="org-row"><span><strong>org08@example.invalid</strong><small>Manager · Selected branches</small></span><small>PENDING</small></div></div>';
++const tick=()=>new Promise(resolve=>setImmediate(resolve));
++function setup(respond){
++ const dom=new JSDOM(`<html lang="en"><div data-workspace="detail" data-user-id="2"><input id="untouched" value="Unsaved editor text"><form method="post" data-team-form data-team-url="/team/invite/" data-team-list-url="/organizations/99/"><input type="hidden" name="csrfmiddlewaretoken" value="synthetic-token"><p data-team-unavailable>Requires JavaScript</p><input name="email" disabled data-team-control><select name="role" disabled data-team-control data-team-role><option value="EDITOR" data-summary="View and edit">Editor</option><option value="MANAGER" data-summary="View, edit and stats">Manager</option></select><p data-team-role-summary></p><select name="scope" disabled data-team-control data-team-scope><option value="all_network">All</option><option value="selected_places">Selected</option></select><fieldset data-team-branches hidden><input name="place_ids" type="checkbox" value="42" disabled data-team-control></fieldset><button type="submit" disabled data-team-control>Invite</button><p role="status" data-team-status></p><button type="button" data-team-refresh hidden>Refresh invitations</button></form><div data-team-invitations><div>Old row</div></div></div></html>`,{url:'http://localhost/organizations/99/',runScripts:'outside-only'});
++ const w=dom.window,calls=[];w.fetch=async(url,options)=>{calls.push({url,options});return respond(url,options,calls.length);};w.eval(source);
++ const form=w.document.querySelector('form');form.elements.email.value='org08@example.invalid';form.elements.role.value='MANAGER';form.elements.role.dispatchEvent(new w.Event('change'));form.elements.scope.value='selected_places';form.elements.scope.dispatchEvent(new w.Event('change'));form.querySelector('[name=place_ids]').checked=true;
++ const submit=()=>form.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));return{dom,w,calls,form,submit};
++}
++const accepted=(_,o)=>o.method==='POST'?{ok:true,status:200}:{ok:true,text:async()=>html};
++test('success synchronizes default role and server list without replacing editor input',async()=>{
++ const {dom,w,form,calls,submit}=setup(accepted);submit();await tick();assert.equal(form.elements.role.value,'EDITOR');assert.equal(form.querySelector('[data-team-role-summary]').textContent,'View and edit');assert.equal(form.elements.scope.value,'all_network');assert.equal(form.querySelector('[data-team-branches]').hidden,true);
++ assert.match(w.document.querySelector('[data-team-invitations]').textContent,/org08@example.invalid.*Manager/s);assert.equal(w.document.querySelector('#untouched').value,'Unsaved editor text');assert.equal(calls.length,2);assert.equal(calls[1].options.method,'GET');assert.equal(form.querySelector('[data-team-refresh]').hidden,true);dom.window.close();
++});
++test('in-flight keyboard or programmatic repeat makes one POST and announces loading',async()=>{
++ let release;const wait=new Promise(resolve=>release=resolve);const {dom,form,calls,submit}=setup((_,o)=>o.method==='POST'?wait:{ok:true,text:async()=>html});submit();submit();
++ assert.equal(calls.length,1);assert.equal(form.getAttribute('aria-busy'),'true');assert.equal(form.elements.email.matches(':disabled'),true);assert.equal(form.querySelector('[type=submit]').textContent,'Inviting…');assert.equal(JSON.parse(calls[0].options.body).role,'MANAGER');
++ release({ok:true,status:200});await tick();assert.equal(form.getAttribute('aria-busy'),'false');assert.equal(form.elements.email.matches(':disabled'),false);assert.equal(form.querySelector('[type=submit]').textContent,'Invite');dom.window.close();
++});
++test('400 and403 preserve the complete submitted scope and release controls',async()=>{
++ for(const status of [400,403]){const {dom,form,calls,submit}=setup(()=>({ok:false,status}));submit();await tick();assert.equal(calls.length,1);assert.equal(form.elements.email.value,'org08@example.invalid');assert.equal(form.elements.role.value,'MANAGER');assert.equal(form.elements.scope.value,'selected_places');assert.equal(form.querySelector('[name=place_ids]').checked,true);assert.equal(form.getAttribute('aria-busy'),'false');assert.equal(form.querySelector('[data-team-refresh]').hidden,true);dom.window.close();}
++});
++test('duplicate409 preserves input and displays authoritative existing invitation',async()=>{
++ const {dom,w,form,calls,submit}=setup((_,o)=>o.method==='POST'?{ok:false,status:409}:{ok:true,text:async()=>html});submit();await tick();assert.equal(calls.length,2);assert.equal(form.elements.role.value,'MANAGER');assert.equal(form.elements.email.value,'org08@example.invalid');assert.match(form.querySelector('[data-team-status]').textContent,/already exists/);assert.match(w.document.querySelector('[data-team-invitations]').textContent,/org08@example.invalid/);dom.window.close();
++});
++test('confirmed POST with failed list read is distinguished and GET retry never sends again',async()=>{
++ let reads=0;const {dom,w,form,calls,submit}=setup((_,o)=>o.method==='POST'?{ok:true,status:200}:++reads===1?{ok:false,status:503}:{ok:true,text:async()=>html});submit();await tick();assert.match(form.querySelector('[data-team-status]').textContent,/Invitation sent.*refresh/s);assert.equal(form.querySelector('[data-team-refresh]').hidden,false);assert.equal(form.elements.email.value,'');form.querySelector('[data-team-refresh]').click();await tick();assert.equal(calls.filter(c=>c.options.method==='POST').length,1);assert.equal(form.querySelector('[data-team-refresh]').hidden,true);assert.match(w.document.querySelector('[data-team-invitations]').textContent,/org08@example.invalid/);dom.window.close();
++});
++test('lost POST response retains input and offers read-only verification without claiming refusal',async()=>{
++ const {dom,form,calls,submit}=setup((_,o)=>{if(o.method==='POST')throw Error('Lost response');return{ok:true,text:async()=>html};});submit();await tick();assert.equal(form.elements.email.value,'org08@example.invalid');assert.match(form.querySelector('[data-team-status]').textContent,/response.*server/);assert.equal(form.querySelector('[data-team-refresh]').hidden,false);form.querySelector('[data-team-refresh]').click();await tick();assert.equal(calls.filter(c=>c.options.method==='POST').length,1);assert.equal(form.elements.role.value,'MANAGER');dom.window.close();
++});

@@ -5,18 +5,18 @@
 <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_urls.css' %}?v=20260918">
 <script src="{% static 'admin/js/kidsmap_place_urls.js' %}" defer></script>
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=20261002_15">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=20261009_map">
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=20260928_1">
-  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=62" defer></script>
-  <script src="{% static 'admin/js/kidsmap_place_media.js' %}?v=51" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=20261009_map" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_media.js' %}?v=20261007_place_r5" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_duplicates.js' %}?v=1" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_json_import.js' %}?v=11" defer></script>
   <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=20260915" defer></script>
   <script src="{% static 'js/owner_pricing_plans.js' %}?v=19" defer></script>
   <link rel="stylesheet" href="{% static 'admin/css/components/activity_editor.css' %}?v=20261004">
-  <script src="{% static 'js/owner_place_offerings.js' %}?v=20261004" defer></script>
+  <script src="{% static 'js/owner_place_offerings.js' %}?v=20261007_place_r5" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=20261009_map" defer></script>
   {% if google_maps_api_key %}
-    <script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=2" defer></script>
     <script
       defer
       src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&libraries=places&callback=kidsMapInitAdminPlaceLocation"
@@ -48,6 +48,7 @@
   <div id="content-main" class="km-pf">
     {% include "admin/catalog/includes/km_icon_sprite.html" %}
     {{ km_place_form_summary.checklist_items|json_script:"km-place-progress-config" }}
+    {{ km_place_entry_copy|json_script:"km-place-entry-copy" }}
     {{ km_place_taxonomy_picker|json_script:"km-place-taxonomy-config" }}
 
     <form
@@ -71,7 +72,9 @@
       data-label-saving="{% translate 'Сохранение…' %}"
       data-label-saved="{% translate 'Все изменения сохранены' %}"
       data-label-dirty="{% translate 'Есть несохранённые изменения' %}"
-      data-label-idle="{% translate 'Изменения не сохранены' %}"
+      data-label-idle="{{ km_place_entry_copy.not_saved }}"
+      data-label-check="{{ km_place_entry_copy.needs_check }}"
+      data-label-coords-optional="{{ km_place_entry_copy.optional_badge }}"
       data-label-publish-blocked="{% translate 'Сначала заполните все обязательные пункты' %}"
       data-label-error="{% translate 'Есть ошибка' %}"
     >
@@ -89,6 +92,7 @@
       <div class="km-pf__shell">
         {% include "admin/catalog/place/form/header.html" %}
 
+        <label class="km-pf__mobile-nav">{{ km_place_entry_copy.section_nav }}<select data-pf-section-select>{% for section in km_place_form_sections %}<option value="{{ section.id }}">{{ section.title }}</option>{% endfor %}<option value="{{ km_place_verification_section.id }}">{{ km_place_verification_section.title }}</option></select></label>
         <nav class="km-pf__nav" data-pf-nav aria-label="{% translate 'Разделы карточки' %}">
           {% for section in km_place_form_sections %}
             {% include "admin/catalog/place/form/_navitem.html" %}

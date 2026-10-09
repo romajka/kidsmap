@@ -97,6 +97,8 @@ class Organization(TranslatedContent):
 
     class Meta(TranslatedContent.Meta):
         abstract = False
+        verbose_name = _('Организация')
+        verbose_name_plural = _('Организации')
         constraints = TranslatedContent.Meta.constraints + [
             models.CheckConstraint(condition=Q(ownership_version__gte=1), name='organization_ownership_positive')]
 
@@ -114,6 +116,8 @@ class Program(TranslatedContent):
 
     class Meta(TranslatedContent.Meta):
         abstract = False
+        verbose_name = _('Программа')
+        verbose_name_plural = _('Программы')
 
     def save(self, *args, **kwargs):
         from catalog.services.catalog_structure import save_program
@@ -146,6 +150,8 @@ class Activity(ArchivedEntity):
 
     class Meta(ArchivedEntity.Meta):
         abstract = False
+        verbose_name = _('Направление')
+        verbose_name_plural = _('Направления')
         constraints = ArchivedEntity.Meta.constraints + [
             models.CheckConstraint(condition=Q(status__in=PublicationState.values), name='activity_publication_state'),
             models.CheckConstraint(condition=(Q(source_program__isnull=True, source_program_version__isnull=True)
@@ -179,6 +185,8 @@ class OfferingGroup(ArchivedEntity):
 
     class Meta(ArchivedEntity.Meta):
         abstract = False
+        verbose_name = _('Группа занятий')
+        verbose_name_plural = _('Группы занятий')
         constraints = ArchivedEntity.Meta.constraints + [
             models.CheckConstraint(condition=Q(age_from__isnull=True) | Q(age_to__isnull=True) | Q(age_from__lte=F('age_to')), name='offering_group_age_order'),
             models.CheckConstraint(condition=Q(lesson_format__in=('', 'group', 'individual')), name='offering_group_format_known')]

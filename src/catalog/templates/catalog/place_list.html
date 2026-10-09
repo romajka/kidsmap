@@ -102,11 +102,63 @@
         </div>
         <div class="catalog-hero-tags" aria-label="{% if language == 'az' %}Populyar axtarışlar{% elif language == 'en' %}Popular searches{% else %}Популярные запросы{% endif %}">
           <span class="catalog-hero-tags-label">{% if language == "az" %}Məsələn:{% elif language == "en" %}E.g.:{% else %}Часто ищут:{% endif %}</span>
-          <button type="button" class="catalog-hero-tag-btn" data-search-preset="{% if language == 'az' %}Şahmat{% elif language == 'en' %}Chess{% else %}Шахматы{% endif %}">♟️ {% if language == 'az' %}Şahmat{% elif language == 'en' %}Chess{% else %}Шахматы{% endif %}</button>
-          <button type="button" class="catalog-hero-tag-btn" data-search-preset="{% if language == 'az' %}Robototexnika{% elif language == 'en' %}Robotics{% else %}Робототехника{% endif %}">🤖 {% if language == 'az' %}Robototexnika{% elif language == 'en' %}Robotics{% else %}Робототехника{% endif %}</button>
-          <button type="button" class="catalog-hero-tag-btn" data-search-preset="{% if language == 'az' %}Üzgüçülük{% elif language == 'en' %}Swimming{% else %}Плавание{% endif %}">🏊 {% if language == 'az' %}Üzgüçülük{% elif language == 'en' %}Swimming{% else %}Плавание{% endif %}</button>
-          <button type="button" class="catalog-hero-tag-btn" data-search-preset="{% if language == 'az' %}İngilis dili{% elif language == 'en' %}English{% else %}Английский{% endif %}">🇬🇧 {% if language == 'az' %}İngilis dili{% elif language == 'en' %}English{% else %}Английский{% endif %}</button>
-          <button type="button" class="catalog-hero-tag-btn" data-search-preset="{% if language == 'az' %}Rəsm{% elif language == 'en' %}Art{% else %}Рисование{% endif %}">🎨 {% if language == 'az' %}Rəsm{% elif language == 'en' %}Art{% else %}Рисование{% endif %}</button>
+          
+          <button type="button" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--chess" data-search-preset="{% if language == 'az' %}Şahmat{% elif language == 'en' %}Chess{% else %}Шахматы{% endif %}">
+            <span class="km-hero-bubble__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                <path d="M19 20H5v-2h14v2m-2-4H7l1-3h8l1 3m-2-5h-6l.5-2h5l.5 2m-1-4h-4V5l-1-2 3-1 3 1-1 2v2Z"/>
+              </svg>
+            </span>
+            <span class="km-hero-bubble__label">{% if language == 'az' %}Şahmat{% elif language == 'en' %}Chess{% else %}Шахматы{% endif %}</span>
+          </button>
+
+          <button type="button" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--robotics" data-search-preset="{% if language == 'az' %}Robototexnika{% elif language == 'en' %}Robotics{% else %}Робототехника{% endif %}">
+            <span class="km-hero-bubble__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="10" rx="3"/>
+                <circle cx="8.5" cy="16" r="1.5" fill="currentColor"/>
+                <circle cx="15.5" cy="16" r="1.5" fill="currentColor"/>
+                <path d="M12 2v4M8 6h8M2 15h1M21 15h1"/>
+              </svg>
+            </span>
+            <span class="km-hero-bubble__label">{% if language == 'az' %}Robototexnika{% elif language == 'en' %}Robotics{% else %}Робототехника{% endif %}</span>
+          </button>
+
+          <button type="button" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--swim" data-search-preset="{% if language == 'az' %}Üzgüçülük{% elif language == 'en' %}Swimming{% else %}Плавание{% endif %}">
+            <span class="km-hero-bubble__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="17.5" cy="5.5" r="2" fill="currentColor"/>
+                <path d="M4 18c1.5-1 3.5-1 5 0s3.5 1 5 0s3.5-1 5 0s3.5 1 5 0"/>
+                <path d="M2 21c1.5-1 3.5-1 5 0s3.5 1 5 0s3.5-1 5 0s3.5 1 5 0"/>
+                <path d="M3 11l4.5-2 3.5 3 4-2.5 3 2"/>
+              </svg>
+            </span>
+            <span class="km-hero-bubble__label">{% if language == 'az' %}Üzgüçülük{% elif language == 'en' %}Swimming{% else %}Плавание{% endif %}</span>
+          </button>
+
+          <button type="button" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--english" data-search-preset="{% if language == 'az' %}İngilis dili{% elif language == 'en' %}English{% else %}Английский{% endif %}">
+            <span class="km-hero-bubble__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </span>
+            <span class="km-hero-bubble__label">{% if language == 'az' %}İngilis dili{% elif language == 'en' %}English{% else %}Английский{% endif %}</span>
+          </button>
+
+          <button type="button" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--art" data-search-preset="{% if language == 'az' %}Rəsm{% elif language == 'en' %}Art{% else %}Рисование{% endif %}">
+            <span class="km-hero-bubble__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="13.5" cy="6.5" r=".7" fill="currentColor"/>
+                <circle cx="17.5" cy="10.5" r=".7" fill="currentColor"/>
+                <circle cx="8.5" cy="7.5" r=".7" fill="currentColor"/>
+                <circle cx="6.5" cy="12.5" r=".7" fill="currentColor"/>
+                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1a1.7 1.7 0 0 1 1.7-1.7h2c3 0 5.5-2.5 5.5-5.5C22 6 17.5 2 12 2z"/>
+              </svg>
+            </span>
+            <span class="km-hero-bubble__label">{% if language == 'az' %}Rəsm{% elif language == 'en' %}Art{% else %}Рисование{% endif %}</span>
+          </button>
         </div>
       {% endif %}
     </div>
@@ -136,8 +188,8 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
           </div>
           <div>
-            <div class="faq-hero-stat-val">100% {% if language == "az" %}dəqiq{% elif language == "en" %}verified{% else %}проверено{% endif %}</div>
-            <div class="faq-hero-stat-label">{% if language == "az" %}aktual əlaqə və qiymətlər{% elif language == "en" %}verified contacts & prices{% else %}контакты и актуальные цены{% endif %}</div>
+            <div class="faq-hero-stat-val">{% if language == "az" %}Əlaqələr{% elif language == "en" %}Contacts{% else %}Контакты{% endif %}</div>
+            <div class="faq-hero-stat-label">{% if language == "az" %}məkanla birbaşa əlaqə{% elif language == "en" %}reach the venue directly{% else %}связь с местом напрямую{% endif %}</div>
           </div>
         </div>
       </div>
@@ -510,13 +562,6 @@
           </select>
         </label>
 
-        <label class="filter-item filter-verified">
-          {% trans "Только проверенные" %}
-          <select class="filter-select" name="verified">
-            <option value="">{% trans "Все" %}</option>
-            <option value="1" {% if selected.verified == "1" %}selected{% endif %}>{% trans "Да" %}</option>
-          </select>
-        </label>
       {% endif %}
 
       <div class="actions">
@@ -774,7 +819,7 @@
                   <span class="new-badge-meta">{% if language == "az" %}Əlavə olunub{% elif language == "en" %}Added{% else %}{% trans "Добавлено" %}{% endif %} {{ place.days_since_added }} {% if language == "az" %}gün əvvəl{% elif language == "en" %}days ago{% else %}{% trans "дн. назад" %}{% endif %}</span>
                 </div>
                 <div class="card-trust-badges" aria-label="{% if language == 'az' %}Məkan üstünlükləri{% elif language == 'en' %}Place highlights{% else %}Преимущества места{% endif %}">
-                  {% if place.is_verified %}<span class="card-trust-icon card-trust-icon--verified" title="{% if language == 'az' %}Yoxlanılıb{% elif language == 'en' %}Verified{% else %}Проверено{% endif %}" aria-label="{% if language == 'az' %}Yoxlanılıb{% elif language == 'en' %}Verified{% else %}Проверено{% endif %}"></span>{% endif %}
+
                   {% if place.has_public_image %}<span class="card-trust-icon card-trust-icon--photo" title="{% if language == 'az' %}Foto var{% elif language == 'en' %}Has photos{% else %}Есть фото{% endif %}" aria-label="{% if language == 'az' %}Foto var{% elif language == 'en' %}Has photos{% else %}Есть фото{% endif %}"></span>{% endif %}
                   {% if place.phone1 %}<span class="card-trust-icon card-trust-icon--whatsapp" title="WhatsApp" aria-label="WhatsApp"></span>{% endif %}
                   {% if place.has_coordinates %}<span class="card-trust-icon card-trust-icon--map" title="{% if language == 'az' %}Xəritədə{% elif language == 'en' %}On map{% else %}На карте{% endif %}" aria-label="{% if language == 'az' %}Xəritədə{% elif language == 'en' %}On map{% else %}На карте{% endif %}"></span>{% endif %}
@@ -816,7 +861,7 @@
                 {% if timeline_presentation.organization %}
                 <p class="meta card-organization"><a href="{{ timeline_presentation.organization.url }}">{{ timeline_presentation.organization.name }}</a></p>
                 {% endif %}
-                {% if timeline_presentation.matched_offers %}
+                {% if timeline_presentation.matched_offers and timeline_presentation.exact_filtered %}
                 <ul class="card-matched-offers" data-matched-offers>
                   {% for offer in timeline_presentation.matched_offers %}
                   <li class="card-matched-offer">
@@ -2262,7 +2307,7 @@
           if (bakuOption) {
             const bakuNode = document.createElement('div');
             bakuNode.className = 'km-tree-node km-tree-parent';
-            
+
             const hasChildren = bakuDistricts.length > 0;
             const bakuRow = createNodeRow(bakuOption.value, bakuOption.label, bakuOption.labelWithCount, hasChildren);
             bakuNode.appendChild(bakuRow);

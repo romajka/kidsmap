@@ -385,7 +385,7 @@ def _render_place_list(request, force_new_only=False, created_after=None):
     return render(request, "catalog/place_list.html", context)
 
 
-def place_detail_legacy(request, pk):
+def place_detail_legacy(request, pk, slug=None):
     place = place_controller.get_active_place_for_legacy_redirect(pk=pk)
     return redirect(place.get_absolute_url(), permanent=True)
 
@@ -936,6 +936,8 @@ def owner_places_dashboard(request):
     context['joinable_organizations'] = list(Organization.objects.filter(status='published', archived_at__isnull=True).order_by('pk')[:100])
     context['place_affiliation_requests'] = list(OrganizationPlaceRequest.objects.filter(
         place__owner=request.user, status='pending').select_related('place', 'organization').order_by('-pk'))
+    from catalog.services.organization_ownership import join_recovery_rows
+    join_recovery_rows(actor=request.user, items=context['place_affiliation_requests'])
     context['affiliated_places'] = [p for p in direct_places if p.organization_id and affiliation_current(p, p.organization)]
     context['informational_places'] = [p for p in context['affiliated_places'] if p.organization_relationship_kind == 'informational']
     context.update(
@@ -1143,7 +1145,8 @@ def owner_event_create(request):
         )
         if result.ok:
             messages.success(request, result.message)
-            return redirect("owner_places_dashboard")
+            request.session['owner_event_explicit_save'] = {'key': f"km-owner-event-v2:{request.user.pk}:{'create'}", 'entity': str(result.event.pk), 'revision': result.event.updated_at.isoformat()}
+            return redirect("owner_event_edit", pk=result.event.pk) if draft_save_only else redirect("owner_places_dashboard")
 
         if result.form is None:
             messages.error(request, result.message)
@@ -1161,6 +1164,7 @@ def owner_event_create(request):
         request,
         "pages/owner_event_form.html",
         {
+            **owner_events_controller.entry_context(request, form, error_code=result.error_code if request.method == 'POST' else ''),
             "form": form,
             "event": None,
             "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
@@ -1186,7 +1190,8 @@ def owner_event_edit(request, pk):
         )
         if result.ok:
             messages.success(request, result.message)
-            return redirect("owner_places_dashboard")
+            request.session['owner_event_explicit_save'] = {'key': f"km-owner-event-v2:{request.user.pk}:{result.event.pk}", 'entity': str(result.event.pk), 'revision': result.event.updated_at.isoformat()}
+            return redirect("owner_event_edit", pk=result.event.pk) if draft_save_only else redirect("owner_places_dashboard")
 
         if result.form is None:
             messages.error(request, result.message)
@@ -1206,6 +1211,7 @@ def owner_event_edit(request, pk):
         request,
         "pages/owner_event_form.html",
         {
+            **owner_events_controller.entry_context(request, form, event, error_code=result.error_code if request.method == 'POST' else ''),
             "form": form,
             "event": event,
             "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
@@ -1245,6 +1251,47 @@ def owner_event_delete(request, pk):
     return redirect("owner_places_dashboard")
 
 
+
+def _owner_event_management_response(request, event, form=None, error_code='', reschedule=False):
+    from zoneinfo import ZoneInfo
+    from catalog.controllers.owner_events_controller import EventOccurrenceForm
+    initial = {'expected_updated_at': event.updated_at.isoformat()}
+    for name in ('start_datetime', 'end_datetime'):
+        value = getattr(event, name)
+        initial[name] = timezone.localtime(value, ZoneInfo('Asia/Baku')) if value else None
+    return render(request, 'pages/owner_event_manage.html', {'event': event, 'occurrence_form': form or EventOccurrenceForm(initial=initial),
+        'event_error_code': error_code, 'reschedule_action': reschedule,
+        'can_reschedule': bool(event.start_datetime and event.start_datetime > timezone.now() and event.occurrence_state != 'cancelled')})
+
+
+def owner_event_manage(request, pk):
+    require_events_section_enabled()
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+    event = owner_events_controller._managed_event(request, pk)
+    return _owner_event_management_response(request, event)
+
+
+@require_POST
+def owner_event_cancel(request, pk):
+    return _owner_event_occurrence_action(request, pk, False)
+
+
+@require_POST
+def owner_event_reschedule(request, pk):
+    return _owner_event_occurrence_action(request, pk, True)
+
+
+def _owner_event_occurrence_action(request, pk, reschedule):
+    require_events_section_enabled()
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+    result = owner_events_controller.change_occurrence(request, pk, reschedule=reschedule)
+    if result.ok:
+        messages.success(request, result.message)
+        return redirect('owner_event_manage', pk=pk)
+    return _owner_event_management_response(request, result.event, result.form, result.error_code, reschedule)
+
 def event_detail(request, pk, slug):
     from .services.features import is_events_section_enabled
 
@@ -1277,14 +1324,41 @@ def event_detail(request, pk, slug):
         .filter(current_revision__status='approved').select_related('current_revision').order_by('-moderated_at', '-pk'))
     count = len(reviews)
     rating = {'average':sum(review.current_revision.rating for review in reviews)/count if count else 0.0, 'count':count}
-    from catalog.services.public_presentation import visible, translated, public_url
+    from catalog.services.public_presentation import visible, translated, public_url, present
+    from catalog.services.features import is_organizations_section_enabled, is_specialists_section_enabled
+    orgs_enabled = is_organizations_section_enabled()
+    specs_enabled = is_specialists_section_enabled()
+
     organizer = None
     org, person = event.organizer_organization, event.organizer_specialist
     if org and visible(org):
         name, name_language = translated(org, 'name', language)
-        organizer = {'type':'Organization', 'name':name, 'language':name_language, 'url':public_url(org, language)}
+        url = public_url(org, language) if orgs_enabled else None
+        organizer = {
+            'type': 'Organization',
+            'name': name,
+            'language': name_language,
+            'url': url,
+            'website': org.website or '',
+            'phone': org.phone or '',
+            'whatsapp': org.whatsapp or '',
+        }
     elif person and person.status == 'published' and person.is_active and person.person_verified_at and person.verified_person_user_id:
-        organizer = {'type':'Person', 'name':person.name, 'language':language, 'url':person.get_absolute_url()}
+        url = person.get_absolute_url() if specs_enabled else None
+        organizer = {
+            'type': 'Person',
+            'name': person.name,
+            'language': language,
+            'url': url,
+            'photo': person.photo.url if person.photo else None,
+            'phone': person.phone or '',
+            'whatsapp': person.whatsapp or '',
+        }
+
+    related_place_presentation = None
+    if event.related_place and visible(event.related_place):
+        related_place_presentation = present(event.related_place, language)
+
     previous_periods = []
     for change in event.occurrence_changes.filter(kind='reschedule').order_by('-happened_at', '-pk'):
         before = change.before if isinstance(change.before, dict) else {}
@@ -1297,6 +1371,9 @@ def event_detail(request, pk, slug):
             previous_periods.append({'start':start.astimezone(ZoneInfo('Asia/Baku')), 'end':end.astimezone(ZoneInfo('Asia/Baku'))})
     context = {'event':event, 'language':language, 'event_online':event.event_format == 'online',
         'event_venue':event.public_venue(language),
+        'related_place_presentation': related_place_presentation,
+        'organizations_section_enabled': orgs_enabled,
+        'specialists_section_enabled': specs_enabled,
         'event_state_label':labels.get(language, labels['az']).get(state, ''),
         'event_reviews':reviews, 'event_rating':rating, 'event_previous_periods':previous_periods,
         'event_organizer':organizer}
@@ -2445,9 +2522,20 @@ def specialist_list(request):
             loc_q &= models.Q(practice_locations__metro_id=metro_key)
         qs = qs.filter(loc_q)
 
-    # 5. Age
+    # 5. Age (supports age_from and age_to range like catalog places, with fallback to single age)
     age = (request.GET.get("age") or "").strip()
-    if age.isdigit():
+    age_from = (request.GET.get("age_from") or "").strip()
+    age_to = (request.GET.get("age_to") or "").strip()
+
+    if age_from.isdigit() or age_to.isdigit():
+        af_val = int(age_from) if age_from.isdigit() else 0
+        at_val = int(age_to) if age_to.isdigit() else 18
+        if not (af_val == 0 and at_val == 18):
+            qs = qs.filter(
+                (models.Q(age_from__isnull=True) | models.Q(age_from__lte=at_val))
+                & (models.Q(age_to__isnull=True) | models.Q(age_to__gte=af_val))
+            )
+    elif age.isdigit():
         age_val = int(age)
         qs = qs.filter(
             (models.Q(age_from__isnull=True) | models.Q(age_from__lte=age_val))
@@ -2476,9 +2564,6 @@ def specialist_list(request):
         qs = qs.filter(**{f"language_{consult_lang}": True})
 
     # 6b. Verified Specialist
-    verified = (request.GET.get("verified") or "").strip()
-    if verified in ["1", "true"]:
-        qs = qs.filter(is_verified=True)
 
     # 6c. Minimum Rating
     min_rating = (request.GET.get("min_rating") or "").strip()
@@ -2518,10 +2603,10 @@ def specialist_list(request):
     active_filter_chips = []
     language = (request.LANGUAGE_CODE or "az").split("-")[0]
 
-    def rebuild_url(exclude_param):
+    def rebuild_url(*exclude_params):
         params = request.GET.copy()
-        if exclude_param in params:
-            del params[exclude_param]
+        for p in exclude_params:
+            params.pop(p, None)
         return f"?{params.urlencode()}" if params else request.path
 
     specialist_query_params = request.GET.copy()
@@ -2569,7 +2654,18 @@ def specialist_list(request):
                 "label": metro_obj.name_i18n(language),
                 "remove_url": rebuild_url("metro")
             })
-    if age:
+    if (age_from or age_to) and not (age_from in {"", "0"} and age_to in {"", "18"}):
+        if language == "az":
+            age_label = f"{age_from or '0'}–{age_to or '18'} yaş"
+        elif language == "en":
+            age_label = f"{age_from or '0'}–{age_to or '18'} years"
+        else:
+            age_label = f"{age_from or '0'}–{age_to or '18'} лет"
+        active_filter_chips.append({
+            "label": f"{_('Возраст')}: {age_label}",
+            "remove_url": rebuild_url("age_from", "age_to", "age")
+        })
+    elif age:
         active_filter_chips.append({
             "label": f"{_('Возраст')}: {age}",
             "remove_url": rebuild_url("age")
@@ -2579,7 +2675,7 @@ def specialist_list(request):
         pt = price_to or "..."
         active_filter_chips.append({
             "label": f"{pf} - {pt} AZN",
-            "remove_url": rebuild_url("price_from") if price_from else rebuild_url("price_to")
+            "remove_url": rebuild_url("price_from", "price_to")
         })
     if consult_lang:
         lang_labels = {
@@ -2590,11 +2686,6 @@ def specialist_list(request):
         active_filter_chips.append({
             "label": f"{_('Язык')}: {lang_labels.get(consult_lang, consult_lang)}",
             "remove_url": rebuild_url("language")
-        })
-    if verified in ["1", "true"]:
-        active_filter_chips.append({
-            "label": _("Проверен"),
-            "remove_url": rebuild_url("verified")
         })
     if min_rating:
         active_filter_chips.append({
@@ -2609,9 +2700,139 @@ def specialist_list(request):
     if language == "az":
         results_count_label = f"{count} mütəxəssis tapıldı"
     elif language == "en":
-        results_count_label = f"Found {count} specialists"
+        results_count_label = f"Found {count} specialist" if count == 1 else f"Found {count} specialists"
     else:
-        results_count_label = f"Найдено {count} специалистов"
+        rem10 = count % 10
+        rem100 = count % 100
+        if rem10 == 1 and rem100 != 11:
+            results_count_label = f"Найден {count} специалист"
+        elif 2 <= rem10 <= 4 and not (12 <= rem100 <= 14):
+            results_count_label = f"Найдено {count} специалиста"
+        else:
+            results_count_label = f"Найдено {count} специалистов"
+
+    # Enrich specialist cards with strictly ordered and preformatted metadata
+    for specialist in page_obj:
+        # Check if photo exists on storage
+        specialist.has_valid_photo = False
+        if specialist.photo:
+            try:
+                if specialist.photo.storage.exists(specialist.photo.name):
+                    specialist.has_valid_photo = True
+            except Exception:
+                specialist.has_valid_photo = False
+
+        # 0. Initials for avatar placeholder
+        name_parts = (specialist.name or "").strip().split()
+        if len(name_parts) >= 2:
+            specialist.card_initials = (name_parts[0][:1] + name_parts[1][:1]).upper()
+        elif len(name_parts) == 1:
+            specialist.card_initials = name_parts[0][:2].upper()
+        else:
+            specialist.card_initials = "KM"
+
+        # 1. Specialization list
+        specialist.card_specializations = [s.name_i18n(language) for s in specialist.specializations.all()]
+
+        # 2. Age range
+        if specialist.age_from and specialist.age_to:
+            if language == "az":
+                specialist.card_age = f"{specialist.age_from}–{specialist.age_to} yaş"
+            elif language == "en":
+                specialist.card_age = f"{specialist.age_from}–{specialist.age_to} yrs"
+            else:
+                specialist.card_age = f"{specialist.age_from}–{specialist.age_to} лет"
+        elif specialist.age_from:
+            if language == "az":
+                specialist.card_age = f"{specialist.age_from} yaşdan"
+            elif language == "en":
+                specialist.card_age = f"From {specialist.age_from} yrs"
+            else:
+                specialist.card_age = f"С {specialist.age_from} лет"
+        elif specialist.age_to:
+            if language == "az":
+                specialist.card_age = f"{specialist.age_to} yaşadək"
+            elif language == "en":
+                specialist.card_age = f"Up to {specialist.age_to} yrs"
+            else:
+                specialist.card_age = f"До {specialist.age_to} лет"
+        else:
+            if language == "az":
+                specialist.card_age = "İstənilən yaş"
+            elif language == "en":
+                specialist.card_age = "Any age"
+            else:
+                specialist.card_age = "Любой возраст"
+
+        # 3. Format
+        fmt = specialist.consultation_format
+        if fmt == Specialist.FORMAT_ONLINE:
+            specialist.card_format_label = "Onlayn" if language == "az" else ("Online" if language == "en" else "Онлайн")
+            specialist.card_format_icon = "videocam"
+        elif fmt == Specialist.FORMAT_OFFLINE:
+            specialist.card_format_label = "Otaqda (Əyani)" if language == "az" else ("In Office" if language == "en" else "Очно (в кабинете)")
+            specialist.card_format_icon = "location_on"
+        else:
+            specialist.card_format_label = "Onlayn və əyani" if language == "az" else ("Online & In Office" if language == "en" else "Онлайн и очно")
+            specialist.card_format_icon = "devices"
+
+        # 4. District / Location
+        if fmt == Specialist.FORMAT_ONLINE:
+            specialist.card_location = "Bütün Azərbaycan üzrə onlayn" if language == "az" else ("Online across Azerbaijan" if language == "en" else "Онлайн по всему Азербайджану")
+        else:
+            loc_names = []
+            for loc in specialist.practice_locations.all():
+                loc_label = None
+                if loc.district:
+                    loc_label = loc.district.name_i18n(language)
+                elif loc.metro:
+                    loc_label = loc.metro.name_i18n(language)
+                elif loc.place and loc.place.district:
+                    loc_label = loc.place.district_i18n(language)
+                elif loc.address:
+                    loc_label = loc.address
+                if loc_label and loc_label not in loc_names:
+                    loc_names.append(loc_label)
+            if loc_names:
+                specialist.card_location = ", ".join(loc_names)
+            elif fmt in [Specialist.FORMAT_ONLINE, Specialist.FORMAT_BOTH]:
+                specialist.card_location = "Bütün Azərbaycan üzrə onlayn" if language == "az" else ("Online across Azerbaijan" if language == "en" else "Онлайн по всему Азербайджану")
+            else:
+                specialist.card_location = "Bakı" if language == "az" else ("Baku" if language == "en" else "Баку")
+
+        # 5. Price
+        session_suffix = " / seans" if language == "az" else (" / session" if language == "en" else " / приём")
+        if specialist.price_from and specialist.price_to:
+            specialist.card_price = f"{specialist.price_from}–{specialist.price_to} AZN{session_suffix}"
+        elif specialist.price_from:
+            if language == "az":
+                specialist.card_price = f"{specialist.price_from} AZN-dən{session_suffix}"
+            elif language == "en":
+                specialist.card_price = f"from {specialist.price_from} AZN{session_suffix}"
+            else:
+                specialist.card_price = f"от {specialist.price_from} AZN{session_suffix}"
+        elif specialist.price_to:
+            if language == "az":
+                specialist.card_price = f"{specialist.price_to} AZN-dək{session_suffix}"
+            elif language == "en":
+                specialist.card_price = f"up to {specialist.price_to} AZN{session_suffix}"
+            else:
+                specialist.card_price = f"до {specialist.price_to} AZN{session_suffix}"
+        else:
+            locs = list(specialist.practice_locations.all())
+            is_free = any(l.price_per_session == 0 for l in locs)
+            prices = [l.price_per_session for l in locs if l.price_per_session and l.price_per_session > 0]
+            if is_free and not prices:
+                specialist.card_price = "Pulsuz" if language == "az" else ("Free" if language == "en" else "Бесплатно")
+            elif prices:
+                min_p = min(prices)
+                max_p = max(prices)
+                if min_p == max_p:
+                    specialist.card_price = f"{min_p} AZN{session_suffix}"
+                else:
+                    specialist.card_price = f"{min_p}–{max_p} AZN{session_suffix}"
+            else:
+                specialist.card_price = "Razılaşma yolu ilə" if language == "az" else ("By agreement" if language == "en" else "По договорённости")
 
     context = {
         "page_obj": page_obj,
@@ -2624,11 +2845,12 @@ def specialist_list(request):
             "district": district_key,
             "metro": metro_key,
             "age": age,
+            "age_from": age_from,
+            "age_to": age_to,
             "price_from": price_from,
             "price_to": price_to,
             "sort": sort,
             "language": consult_lang,
-            "verified": verified,
             "min_rating": min_rating,
         },
         "filter_options": filter_options,

@@ -3,3 +3,19 @@
 .pc-open-age{display:flex;align-items:center;gap:10px;min-height:44px;margin:5px 0 18px;font-size:14px}.pc-open-age input{width:19px;height:19px}
 
 .pc-offerings{margin:20px 0}.pc-activity-card,.pc-group-card,.pc-plan-card{border:1px solid var(--pw-line);border-radius:12px;padding:18px;margin:14px 0;background:#fff}.pc-group-card{background:#f7faf7}.pc-plan-card{background:#fff}.pc-offering-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.pc-offering-field{display:flex;flex-direction:column;gap:5px;min-width:0;font-size:14px;font-weight:650}.pc-offering-field input:not([type=checkbox]),.pc-offering-field select,.pc-offering-field textarea{width:100%;min-height:42px;border:1px solid var(--pw-line);border-radius:8px;padding:9px;font:inherit;background:#fff}.pc-offering-field input[type=checkbox]{width:20px;height:20px}.pc-offering-translations{margin:12px 0}.pc-offering-translations summary{cursor:pointer;min-height:44px;padding:10px 0}.pc-offering-translations .pc-offering-grid{margin-top:10px}.pc-activity-card h4,.pc-group-card h5,.pc-plan-card h6{margin:0 0 14px;font-size:17px}.pc-group-card h5{font-size:16px}.pc-plan-card h6{font-size:15px}@media(max-width:767px){.pc-activity-card,.pc-group-card,.pc-plan-card{padding:13px}.pc-offering-grid{grid-template-columns:1fr}}
+
+/* Four freely accessible sections in the existing owner form. */
+body:has([data-place-mode=continuous]),body:has([data-place-mode=continuous]) .site-shell{overflow-x:clip;overflow-y:visible}
+.pc-workspace{display:grid;grid-template-columns:215px minmax(0,1fr);gap:24px;align-items:start}
+.pc-content{min-width:0}.pc-nav{top:90px;display:flex;flex-direction:column;align-items:stretch;align-self:start;padding:12px 0}
+.pc-nav a[aria-current]{background:var(--pw-green);color:#fff}.pc-nav a[aria-current] span{color:inherit}
+.pc-section-picker{display:none}.pc-savebar{position:sticky;top:70px;z-index:6;background:#fff;padding:6px 0;border-bottom:1px solid var(--pw-line)}
+.pc-save-status{overflow-wrap:anywhere}.pc-actions{position:sticky;bottom:0;z-index:7;background:#fff;border-top:1px solid var(--pw-line);padding:12px 0 max(12px,env(safe-area-inset-bottom))}
+.pc-content .pc-section{scroll-margin-top:135px}.pc :is(h2,input,select,textarea,button,summary){scroll-margin-top:135px;scroll-margin-bottom:110px}
+.pc :is(a,button,summary,select):focus-visible{outline:3px solid var(--pw-green);outline-offset:3px}
+.pc-requirements ul{padding-left:22px}.pc-requirements li{margin:10px 0}.pc-requirements button{border:0;background:none;padding:6px 0;text-align:left;color:var(--pw-green);text-decoration:underline;font:inherit;cursor:pointer}
+.pc-preview label{display:flex;align-items:center;flex-wrap:wrap;gap:12px}.pc-preview select{min-height:44px}
+.pc-activity-card>summary,.pc-group-card>summary,.pc-plan-card>summary{min-height:44px;padding:10px 0;cursor:pointer;font-weight:700;overflow-wrap:anywhere}
+.pc :is(.pc-activity-card,.pc-group-card,.pc-plan-card)[open]>summary{margin-bottom:14px;border-bottom:1px solid var(--pw-line)}
+.pc .pw-field-badge:not([hidden]){display:inline-block;font-size:12px;font-weight:500;white-space:normal}
+@media(max-width:900px){.pc-workspace{grid-template-columns:1fr;gap:0}.pc.pc-enhanced .pc-nav{position:sticky;top:60px;z-index:8;background:#fff}.pc.pc-enhanced .pc-nav>a{display:none}.pc.pc-enhanced .pc-section-picker{display:flex;flex-direction:column;gap:6px;font-size:13px}.pc-section-picker select{width:100%;min-height:44px;border:1px solid var(--pw-line);border-radius:8px;padding:8px;background:#fff;font:inherit}.pc-savebar{top:154px}.pc-content .pc-section,.pc :is(h2,input,select,textarea,button,summary){scroll-margin-top:230px}.pc-actions{gap:8px}.pc-actions button{flex:1 1 140px;padding:10px;font-size:14px}}
