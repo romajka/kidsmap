@@ -1,0 +1,119 @@
+async original=>{
+ const F={
+  "actors": {
+    "owner": {
+      "id": 1,
+      "username": "qa11_owner",
+      "email": "owner11@example.invalid"
+    },
+    "staff": {
+      "id": 2,
+      "username": "qa11_staff",
+      "email": "staff11@example.invalid"
+    },
+    "admin": {
+      "id": 3,
+      "username": "qa11_admin",
+      "email": "admin11@example.invalid"
+    },
+    "outsider": {
+      "id": 4,
+      "username": "qa11_outsider",
+      "email": "outsider11@example.invalid"
+    }
+  },
+  "places": {
+    "live": 1,
+    "draft": 2,
+    "inactive": 3,
+    "archived": 4,
+    "deleted": 5
+  },
+  "specialist": 1,
+  "event": 1,
+  "organization": 1,
+  "organization_public_id": "7b78e253-9a64-4772-a308-7e59ae9a390b",
+  "urls": {
+    "ru": {
+      "place": "/ru/place/1-vymyshlennoe-qa11-live/",
+      "specialist": "/ru/specialists/fictional-qa11-specialist/",
+      "event": "/ru/event/1-uydurma-qa11-tedbir/",
+      "organization": "/ru/organizations/7b78e253-9a64-4772-a308-7e59ae9a390b/",
+      "activity": "/ru/activities/1/",
+      "program": "/ru/account/organizations/1/programs/1/",
+      "landing": "/ru/catalog/qa11-strong/",
+      "extras": {
+        "pending": "/ru/place/6-vymyshlennoe-qa11-pending/",
+        "rejected": "/ru/place/7-vymyshlennoe-qa11-rejected/",
+        "fallback": "/ru/place/8-vymyshlennoe-qa11-fallback/",
+        "long": "/ru/place/9-vymyshlennoe-qa11-long-dlinnyitekst-dlinnyitekst-dlinnyiteks/",
+        "escaping": "/ru/place/10-vymyshlennoe-qa11-escaping-scriptscriptwindow__qa11_xss__1sc/"
+      }
+    },
+    "az": {
+      "place": "/place/1-uydurma-qa11-live/",
+      "specialist": "/specialists/fictional-qa11-specialist/",
+      "event": "/event/1-uydurma-qa11-tedbir/",
+      "organization": "/organizations/7b78e253-9a64-4772-a308-7e59ae9a390b/",
+      "activity": "/activities/1/",
+      "program": "/account/organizations/1/programs/1/",
+      "landing": "/catalog/qa11-strong/",
+      "extras": {
+        "pending": "/place/6-uydurma-qa11-pending/",
+        "rejected": "/place/7-uydurma-qa11-rejected/",
+        "fallback": "/place/8-uydurma-qa11-fallback/",
+        "long": "/place/9-uydurma-qa11-long-uzunmetn-uzunmetn-uzunmetn-uzunmetn-uzunme/",
+        "escaping": "/place/10-uydurma-qa11-escaping-scriptscriptwindow__qa11_xss__1script/"
+      }
+    },
+    "en": {
+      "place": "/en/place/1-fictional-qa11-live/",
+      "specialist": "/en/specialists/fictional-qa11-specialist/",
+      "event": "/en/event/1-uydurma-qa11-tedbir/",
+      "organization": "/en/organizations/7b78e253-9a64-4772-a308-7e59ae9a390b/",
+      "activity": "/en/activities/1/",
+      "program": "/en/account/organizations/1/programs/1/",
+      "landing": "/en/catalog/qa11-strong/",
+      "extras": {
+        "pending": "/en/place/6-fictional-qa11-pending/",
+        "rejected": "/en/place/7-fictional-qa11-rejected/",
+        "fallback": "/en/place/8-uydurma-qa11-fallback/",
+        "long": "/en/place/9-fictional-qa11-long-longtext-longtext-longtext-longtext-long/",
+        "escaping": "/en/place/10-fictional-qa11-escaping-scriptscriptwindow__qa11_xss__1scrip/"
+      }
+    }
+  },
+  "settings": 1,
+  "synthetic_only": true,
+  "program": 1,
+  "activity": 1,
+  "extra_places": {
+    "pending": 6,
+    "rejected": 7,
+    "fallback": 8,
+    "long": 9,
+    "escaping": 10
+  }
+},B='http://localhost:8827',ROOT='C:/kidsmap/docs/qa/module11-2026-10-11-r1',rows=[];
+const br=original.context().browser();
+function add(scenario,ok,detail={},role='guest',lang='ru',width=1440,url='',shot=''){const d={...detail};if('status' in d){d.responseStatus=d.status;delete d.status;}rows.push({...d,scenario,status:ok===null?'NOT RUN':ok?'PASS':'FAIL',role,lang,width,url,shot});}
+function prefix(lang){return lang==='az'?'':('/'+lang);}
+async function context(role='guest',lang='ru',width=1440){
+ const c=await br.newContext({viewport:{width,height:950}});await c.route('**/*',r=>new URL(r.request().url()).hostname==='localhost'?r.continue():r.abort());
+ await c.addCookies([{name:'django_language',value:lang,domain:'localhost',path:'/'}]);const p=await c.newPage();p.setDefaultTimeout(10000);p.setDefaultNavigationTimeout(25000);
+ if(role!=='guest'){await p.goto(B+'/ru/auth/login/');await p.locator('input[name=username]').fill(F.actors[role].email);await p.locator('input[name=password]').fill('__LOCAL_PASSWORD__');await p.locator('.register-form--login button[type=submit]').click();await p.waitForTimeout(100);await c.addCookies([{name:'django_language',value:lang,domain:'localhost',path:'/'}]);}
+ return{c,p};
+}
+async function shot(p,name){const file='screenshots/'+name+'.png';await p.screenshot({path:ROOT+'/'+file,fullPage:true,animations:'disabled'});return file;}
+async function visit(p,path){const r=await p.goto(B+path);await p.waitForTimeout(120);return r?.status()??null;}
+async function geometry(p){return p.evaluate(()=>({viewport:innerWidth,document:document.documentElement.scrollWidth,body:document.body.scrollWidth,overflow:[...document.querySelectorAll('h1,h2,h3,p,label,button,input,select,textarea,.km-header-inner,.footer-inner')].map(e=>({tag:e.tagName,cls:e.className,text:e.textContent.trim().slice(0,70),r:e.getBoundingClientRect()})).filter(x=>x.r.width&&x.r.left>=0&&x.r.right>innerWidth+2).slice(0,10).map(x=>({...x,r:{left:x.r.left,right:x.r.right,width:x.r.width}}))}));}
+async function head(p){return p.evaluate(()=>({title:document.title,h1:[...document.querySelectorAll('h1')].map(e=>e.textContent.trim()),description:document.querySelector('meta[name=description]')?.content,ogTitle:document.querySelector('meta[property="og:title"]')?.content,ogDescription:document.querySelector('meta[property="og:description"]')?.content,ogImage:document.querySelector('meta[property="og:image"]')?.content,twTitle:document.querySelector('meta[name="twitter:title"]')?.content,canonical:document.querySelector('link[rel=canonical]')?.href,robots:document.querySelector('meta[name=robots]')?.content,alternates:[...document.querySelectorAll('link[hreflang]')].map(e=>({lang:e.hreflang,href:e.href})),jsonld:[...document.querySelectorAll('script[type="application/ld+json"]')].map(e=>{try{return JSON.parse(e.textContent)}catch{return {parseError:true}}}),xss:window.__QA11_XSS__||0}));}
+
+ const a=await context('admin'),gctx=await context('guest','az'),p=a.p,g=gctx.p;
+ await visit(p,'/admin/catalog/specialist/1/change/');await p.locator('[name=name]').fill('Uydurma QA11 specialist UI rename1');await p.locator('[name=phone]').fill('+994000000011');await p.locator('[name=specializations]').first().check();let posts=0;const onReq=r=>{if(r.method()==='POST')posts++;};p.on('request',onReq);await p.locator('[name=_continue]').click();await p.waitForTimeout(400);const invalid=await p.locator('[name=specializations]').evaluateAll(es=>es.map(e=>({value:e.value,required:e.required,checked:e.checked,valid:e.checkValidity()})));add('specialist-rename-with-one-specialization',posts>0,{postRequests:posts,checkboxes:invalid},'admin','ru',1440,p.url(),await shot(p,'specialist-one-specialization-blocked'));p.off('request',onReq);
+ // Workaround uses the actual exposed controls; no attribute/validation changes.
+ for(const n of [1,2]){if(n===2)await visit(p,'/admin/catalog/specialist/1/change/');const value='Uydurma QA11 specialist UI rename'+n;await p.locator('[name=name]').fill(value);const boxes=p.locator('[name=specializations]');for(let i=0;i<await boxes.count();i++)await boxes.nth(i).check();await p.locator('[name=phone]').fill('+994000000011');const old=await p.locator('[name=slug]').inputValue();const rr=await Promise.all([p.waitForResponse(r=>r.request().method()==='POST'),p.locator('[name=_continue]').click()]);await p.waitForLoadState('load');await p.waitForTimeout(200);const errors=await p.locator('.errorlist').allTextContents();add('specialist-name-save-all-specializations-workaround',rr[0].status()===302&&!errors.length,{responseStatus:rr[0].status(),errors,workaround:'Selected all29 visible specialization checkboxes'},'admin','ru',1440,p.url(),await shot(p,'specialist-workaround-save-'+n));if(errors.length)break;await p.reload();add('specialist-name-reload',(await p.locator('[name=name]').inputValue())===value&&(await p.locator('[name=slug]').inputValue())===old,{value,slug:old},'admin','ru',1440,p.url());for(const lang of ['az','ru','en']){const url=F.urls[lang].specialist;const status=await visit(g,url);add('specialist-name-rename-stableURL',status===200&&(await head(g)).canonical===B+url,{responseStatus:status,head:await head(g)},'guest',lang,1440,g.url(),await shot(g,'specialist-name-rename-'+n+'-'+lang));}}
+ await visit(p,'/admin/catalog/specialist/1/change/');const old=await p.locator('[name=slug]').inputValue(),next='fictional-qa11-specialist-ui-renamed';await p.locator('[name=slug]').fill(next);const rr=await Promise.all([p.waitForResponse(r=>r.request().method()==='POST'),p.locator('[name=_continue]').click()]);await p.waitForLoadState('load');await p.reload();add('specialist-explicit-slug-reload',rr[0].status()===302&&(await p.locator('[name=slug]').inputValue())===next,{old,next,responseStatus:rr[0].status()},'admin','ru',1440,p.url(),await shot(p,'specialist-slug-reload'));
+ for(const lang of ['az','ru','en']){const path=prefix(lang)+'/specialists/'+old+'/',r=await g.request.get(B+path,{maxRedirects:0});await g.goto('http://localhost:8828'+path);add('specialist-old-slug-redirect',r.status()===301,{responseStatus:r.status(),old,next,location:r.headers().location||''},'guest',lang,1440,B+path,await shot(g,'specialist-old-slug-'+lang));const url=prefix(lang)+'/specialists/'+next+'/',status=await visit(g,url);add('specialist-new-slug-public',status===200&&(await head(g)).canonical===B+url,{responseStatus:status,head:await head(g)},'guest',lang,1440,B+url,await shot(g,'specialist-new-slug-'+lang));}
+ await a.c.close();await gctx.c.close();return{rows};
+}

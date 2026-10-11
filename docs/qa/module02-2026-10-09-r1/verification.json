@@ -1,0 +1,64 @@
+{
+  "utc": "2026-10-09T19:10:06.750345+00:00",
+  "decision": "DONE — FAIL",
+  "checkout": "C:\\kidsmap",
+  "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+  "branch": "task33-progress",
+  "final_worktree": [
+    " M docs/qa/module-acceptance-prompts.md",
+    "?? docs/qa/module01-2026-10-09-r1/",
+    "?? docs/qa/module02-2026-10-09-r1/"
+  ],
+  "active_run": "NONE unchanged",
+  "source_files_compared": 2776,
+  "source_added_removed_changed": [],
+  "module01_files_preserved": 413,
+  "active_marker_preserved": true,
+  "journal_only_row02_changed": true,
+  "journal_entry_sha256": "63a96289d3a37a313ed2b6ac6ab2f5c8b4a3c95cace3ee29100aebb9cebb9815",
+  "journal_final_sha256": "b88e21b50277ea0c5a1356a02965d4c599122f7506f5cae8d75fce5cbfd7e72c",
+  "test_count": 216,
+  "test_exit_code": 0,
+  "matrix": {
+    "rows": 288,
+    "statuses": {
+      "PASS": 261,
+      "FAIL": 27
+    },
+    "console_messages": {
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)": 36
+    },
+    "page_errors": [],
+    "blocked_external_origins": {
+      "https://fonts.googleapis.com": 164
+    },
+    "replaced_rows": 108,
+    "note": "Fresh stable-disclosure/empty-state and actual-admin-field probes supersede erroneous generic heuristics; raw attempts retained."
+  },
+  "screenshots": 308,
+  "screenshots_hash_verified": true,
+  "credential_scan_matches": 0,
+  "git_diff_check_exit_code": 0,
+  "runtime": {
+    "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+    "source_digest": "589c2d398f3d24d62af28b72e47bbfaeb1c68f8767a080fd83be3a5a5a96b684",
+    "testing": true,
+    "database": "isolated-postgresql-module02",
+    "cache": "django.core.cache.backends.locmem.LocMemCache",
+    "email": "django.core.mail.backends.locmem.EmailBackend"
+  },
+  "container_names_status_ports": [
+    "kidsmap-module02-20261009-r1\tUp 53 minutes\t127.0.0.1:55432->5432/tcp",
+    "kidsmap-module01-20261009-r1\tUp 2 hours\t127.0.0.1:55431->5432/tcp",
+    "kidsmap-manual-portable\tUp 4 days\t"
+  ],
+  "findings": [
+    "ORG-QA-01 P2",
+    "ORG-QA-02 P2",
+    "ORG-QA-03 P2",
+    "ORG-QA-04 P3"
+  ],
+  "app_changes": false,
+  "commit_push_deploy_production": false,
+  "limits": "Full suites, production, external SDK/SMTP, OS-native selector visuals/assistive technology NOT RUN. No token/env/private production values."
+}

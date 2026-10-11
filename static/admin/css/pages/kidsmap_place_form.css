@@ -1143,7 +1143,8 @@
 }
 
 .km-pf .km-pf-picker-search input {
-  flex: 1 1 auto;
+  flex: 1 1 0;
+  min-width: 0;
   border: none !important;
   background: transparent !important;
   font-family: inherit;
@@ -1231,9 +1232,23 @@
 .km-pf .km-pf-picker-item__name {
   flex: 1 1 auto;
   min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+@media (max-width: 768px) {
+  .km-pf .km-pf-picker-dropdown {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .km-pf .km-pf-picker-item { flex-wrap: wrap; }
+  .km-pf .km-pf-picker-item__count {
+    flex: 0 0 calc(100% - 34px);
+    margin-inline-start: 34px;
+  }
 }
 
 .km-pf .km-pf-picker-item__count {

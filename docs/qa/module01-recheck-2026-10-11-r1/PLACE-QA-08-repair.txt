@@ -1,0 +1,11 @@
+Работай в фактическом корне KidsMap. Прочитай AGENTS.md, канонические .agents и docs/qa/module01-recheck-2026-10-11-r1/REPORT.md, PLACE-QA-08.md. PLACE-QA-08 — alias ранее зарегистрированного CROSS-QA-03: исправляй одну причину, не создавай дубликат.
+
+Сначала зафиксируй HEAD/branch/dirty WORKTREE/active_run и сохрани чужие изменения/стенды. Подготовь конкретный минимальный план исправления RU placeholder района и используй уже имеющееся разрешение на этот scope, если оно есть; иначе предъяви план до реализации по AGENTS.md.
+
+Свежий дефект: /ru/account/places/<synthetic-id>/edit/, select#id_district option[value=""] показывает Rayon seçin даже с новыми MO. Проверь src/catalog/services/locations.py:561 и locale/ru/LC_MESSAGES/django.po:18354: gettext ключ Выберите район в RU только obsolete, активного ключа нет. Дай активный корректный RU перевод без изменения стабильных district codes, geographic validation, request-language/fallback политики, ACL и сохранённых candidate/live данных. PLACE-QA-01–07 повторно не переписывай.
+
+Проверки только DJANGO_TESTING=1, новый изолированный DB/cache/media/private-media/email, вымышленные данные, без production credentials и внешних интеграций. Используй существующий scripts/build_isolated_locales.py в новом ignored output, проверь manifest до django.setup, sole LOCALE_PATHS направь в эту сборку. Не меняй общие MO и чужие runtime без отдельного scope. Не подменяй актуальную сборку старым каталогом.
+
+Добавь осмысленную проверку конкретного gettext/DOM контракта; существующие assertions не ослабляй. Настоящий браузер RU/AZ/EN ×360/390/768/1024/1280/1440: прочитай первую option, открой/выбери её через native UI, проверяй видимость и фокус, сохрани screenshots PC/mobile. Для видимого пустого состояния можно отдельный unsaved контекст с non-GET блокировкой, явно SIMULATED. Отдельно native save/reload корректного выбранного района должен сохранить code; candidate/live и публичный адрес не должны измениться от проверки placeholder. Подтверди runtime source/PO/MO SHA.
+
+Сохрани новый уникальный отчёт и evidence, точные команды/counts/exit codes, PASS/FAIL/NOT RUN и ограничения. Закрой только эту причину, обнови scoped журнал без переписывания чужих строк. Без commit/push/deploy/production.

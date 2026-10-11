@@ -1,0 +1,13 @@
+{
+  "role": "anonymous",
+  "fixture": "active draft, initial fictional data",
+  "expected_http": [
+    400,
+    403,
+    404
+  ],
+  "actual_http": 200,
+  "expected_event_delta": 0,
+  "actual_event_delta": 1,
+  "scope": "Django integration, healthy isolated DB, normal no-port same-origin"
+}

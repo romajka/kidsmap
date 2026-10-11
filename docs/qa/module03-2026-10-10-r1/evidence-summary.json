@@ -1,0 +1,560 @@
+{
+  "generated_utc": "2026-10-09T21:06:05.932248+00:00",
+  "module": "03",
+  "audit_decision": "FAIL",
+  "raw_runs": [
+    {
+      "script": "lifecycle",
+      "result": "lifecycle.result.txt",
+      "raw_counts": {
+        "PASS": 12
+      },
+      "stopped_by_harness_error": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[name=bio_ru]')\u001b[22m\n\u001b[2m    - locator resolved to <textarea rows=\"3\" cols=\"40\" name=\"bio_ru\" class=\"field\" id=\"id_bio_ru\" placeholder=\"О себе на русском\"></textarea>\u001b[22m\n\u001b[2m    - fill(\"Вымышленный специалист для локальной проверки. Работа с детьми, индивидуальные и онлайн занятия. Подробное безопасное описание. Подробное безопасное описание. Подробное безопасное описание. Подробное безопасное описание. Подробное безопасное описание. Подробное безопасное описание. Подробное безопасное описание. Подробное безопасное описание. Подробное безопасное описание. Подробное безопасное описание. \")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    20 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying fill action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+      "page_errors_count": 0,
+      "http_400plus_count": 0
+    },
+    {
+      "script": "complete-proposal",
+      "result": "complete-proposal.result.txt",
+      "raw_counts": {
+        "PASS": 5
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 0
+    },
+    {
+      "script": "moderation-claim",
+      "result": "moderation-claim.result.txt",
+      "raw_counts": {
+        "PASS": 10
+      },
+      "stopped_by_harness_error": "Error: locator.innerText: Error: strict mode violation: locator('main') resolved to 2 elements:\n    1) <main>…</main> aka getByRole('main').filter({ hasText: 'Назад к педагогам и специалистам Детский психолог QA fictional specialist 8814' })\n    2) <main class=\"km-detail-main-column\">…</main> aka getByRole('main').filter({ hasText: 'Назад к педагогам и специалистам Детский психолог QA fictional specialist 8814' }).getByRole('main')\n\nCall log:\n\u001b[2m  - waiting for locator('main')\u001b[22m\n",
+      "page_errors_count": 0,
+      "http_400plus_count": 0
+    },
+    {
+      "script": "cooperation",
+      "result": "cooperation.result.txt",
+      "raw_counts": {
+        "PASS": 10
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 0
+    },
+    {
+      "script": "documents",
+      "result": "documents.result.txt",
+      "raw_counts": {
+        "PASS": 32,
+        "FAIL": 1
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 8
+    },
+    {
+      "script": "negative",
+      "result": "negative.result.txt",
+      "raw_counts": {
+        "PASS": 15,
+        "FAIL": 1
+      },
+      "stopped_by_harness_error": "Error: page.reload: net::ERR_ABORTED; maybe frame was detached?\nCall log:\n\u001b[2m  - waiting for navigation until \"load\"\u001b[22m\n",
+      "page_errors_count": 0,
+      "http_400plus_count": 10
+    },
+    {
+      "script": "error-preview",
+      "result": "error-preview.result.txt",
+      "raw_counts": {
+        "PASS": 1
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 2
+    },
+    {
+      "script": "conflict-recheck",
+      "result": "conflict-recheck.result.txt",
+      "raw_counts": {
+        "PASS": 2,
+        "FAIL": 1
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 2
+    },
+    {
+      "script": "matrix",
+      "result": "matrix.result.txt",
+      "raw_counts": {
+        "PASS": 324
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 0
+    },
+    {
+      "script": "state-matrix",
+      "result": "state-matrix.result.txt",
+      "raw_counts": {
+        "PASS": 90,
+        "FAIL": 18
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 54
+    },
+    {
+      "script": "file-recheck",
+      "result": "file-recheck.result.txt",
+      "raw_counts": {
+        "FAIL": 1
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 0
+    },
+    {
+      "script": "keyboard",
+      "result": "keyboard.result.txt",
+      "raw_counts": {
+        "PASS": 90
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 0
+    },
+    {
+      "script": "duplicate",
+      "result": "duplicate.result.txt",
+      "raw_counts": {
+        "PASS": 3
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 0
+    },
+    {
+      "script": "progress-recheck",
+      "result": "progress-recheck.result.txt",
+      "raw_counts": {
+        "FAIL": 18,
+        "PASS": 18
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 0
+    },
+    {
+      "script": "loading-observer",
+      "result": "loading-observer.result.txt",
+      "raw_counts": {
+        "PASS": 18
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 0
+    },
+    {
+      "script": "boundaries",
+      "result": "boundaries.result.txt",
+      "raw_counts": {
+        "PASS": 16
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 0
+    },
+    {
+      "script": "photo-final",
+      "result": "photo-final.result.txt",
+      "raw_counts": {
+        "PASS": 7
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 0
+    },
+    {
+      "script": "revocation",
+      "result": "revocation.result.txt",
+      "raw_counts": {
+        "PASS": 2,
+        "FAIL": 1
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 0
+    },
+    {
+      "script": "revocation-denial",
+      "result": "revocation-denial.result.txt",
+      "raw_counts": {
+        "PASS": 2
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 0
+    },
+    {
+      "script": "console-final",
+      "result": "console-final.result.txt",
+      "raw_counts": {
+        "FAIL": 19,
+        "PASS": 53
+      },
+      "stopped_by_harness_error": null,
+      "page_errors_count": 0,
+      "http_400plus_count": 0
+    }
+  ],
+  "normalized_matrix_counts": {
+    "PASS": 711,
+    "FAIL": 23,
+    "NOT RUN": 50
+  },
+  "screenshot_png_count": 455,
+  "contact_sheet_count": 13,
+  "harness_exclusions": [
+    {
+      "evidence": "negative.result.txt",
+      "id": "two-tabs-conflict-input-retained",
+      "reason": "Incomplete error selector; genuine409/input retention PASS in conflict-recheck and18 state-matrix cells."
+    }
+  ],
+  "raw_attempts_inventory": [
+    {
+      "file": "boundaries.result.txt",
+      "sha256": "c7285fe575aa6e72b1607bcd9c391dd6c379100e8e908545b309ebef33aa3486",
+      "counts": {
+        "PASS": 16
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "complete-proposal.result.txt",
+      "sha256": "0145885fc002a10fb1e373d3eeb37e584891c56af21e7ff0ea2ab4b6d659b811",
+      "counts": {
+        "PASS": 5
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "conflict-recheck.result.txt",
+      "sha256": "4608c02727e870c65d3f1416e007681f7e86a7b4166156061ebfc4e8c94e647d",
+      "counts": {
+        "PASS": 2,
+        "FAIL": 1
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "console-final.result.txt",
+      "sha256": "56db1cec1a8c44223e78e729ee311b2b038d3598ce2c4ffef6e2a7b66ab38ad4",
+      "counts": {
+        "FAIL": 19,
+        "PASS": 53
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "cooperation.result.attempt1.txt",
+      "sha256": "3b5db057e5562ab01ea890c50bd9809b1e60da024e21c2fe8ffd944a4586e791",
+      "counts": {},
+      "harness_error": "TimeoutError: locator.click: Timeout 7000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('form').filter({ has: locator('[name=action][value=propose]') }).getByRole('button', { name: 'Предложить сотрудничество', exact: true })\u001b[22m\n",
+      "historical_in_this_run_attempt": true
+    },
+    {
+      "file": "cooperation.result.txt",
+      "sha256": "1552c3eb7185cb88f7da294c20d44d282f3e11696f7e5fff4b4c054e27b1b861",
+      "counts": {
+        "PASS": 10
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "documents.result.attempt1.txt",
+      "sha256": "07dde5ff63abb7f098f048f0460056ec7e6d31a40200a9e359817e0ac86ca1ad",
+      "counts": {},
+      "harness_error": "Error: locator.click: Error: strict mode violation: locator('form').filter({ has: locator('[name=action][value=upload]') }).getByRole('button') resolved to 2 elements:\n    1) <input type=\"file\" name=\"file\" required=\"\" id=\"id_file\" accept=\".pdf,.png,.jpg,.jpeg\" aria-describedby=\"id_file_helptext\"/> aka getByRole('button', { name: 'Файл документа:' })\n    2) <button type=\"submit\" class=\"sw-button sw-primary\">Загрузить документ</button> aka getByRole('button', { name: 'Загрузить документ' })\n\nCall log:\n\u001b[2m  - waiting for locator('form').filter({ has: locator('[name=action][value=upload]') }).getByRole('button')\u001b[22m\n",
+      "historical_in_this_run_attempt": true
+    },
+    {
+      "file": "documents.result.attempt2.txt",
+      "sha256": "2c717419568088429d679505ede2300690117a0524fd0864d959dd9006a41505",
+      "counts": {
+        "PASS": 29
+      },
+      "harness_error": "Error: locator.setChecked: Error: strict mode violation: locator('[name=publish]') resolved to 2 elements:\n    1) <input name=\"publish\" type=\"checkbox\" id=\"id_publish\"/> aka getByRole('checkbox', { name: 'Показывать после проверки:' })\n    2) <input type=\"hidden\" value=\"false\" name=\"publish\"/> aka getByRole('list').locator('input[name=\"publish\"]')\n\nCall log:\n\u001b[2m  - waiting for locator('[name=publish]')\u001b[22m\n",
+      "historical_in_this_run_attempt": true
+    },
+    {
+      "file": "documents.result.txt",
+      "sha256": "1e11431b8c076d52a619cba7e63309e5f0bf219891c23d978d4621b09c9f70be",
+      "counts": {
+        "PASS": 32,
+        "FAIL": 1
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "duplicate.result.txt",
+      "sha256": "32e0aa32defaa03ff167f2bb67385be897cdc8ccb2b6889e94787074815dc013",
+      "counts": {
+        "PASS": 3
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "error-preview.result.txt",
+      "sha256": "40bc58f8557fbaf7cb43fb07999d2f20e9e6ee2fbd5b3c65eacfb764f8abe799",
+      "counts": {
+        "PASS": 1
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "file-recheck.result.txt",
+      "sha256": "cf32ca67391a5f292c57905a68602302735cee184cf50ba2817fc64597e83e89",
+      "counts": {
+        "FAIL": 1
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "inspect-access.result.txt",
+      "sha256": "3600389fa4bfda1fb3aa249ebc6ed0b559dacb8ec0c2026095cc8b895c6b799a",
+      "counts": {},
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "inspect-admin.result.attempt1.txt",
+      "sha256": "6587f5e64f6a4b8cb1a5847214fdab8ddee1bf17a5c1d78430144b252579a905",
+      "counts": {},
+      "harness_error": "CLI/harness non-JSON error, see raw file",
+      "historical_in_this_run_attempt": true
+    },
+    {
+      "file": "inspect-admin.result.txt",
+      "sha256": "a028267997ef4fb075942877aa052d9b7a85ef1db24565a79a37a955b023dc05",
+      "counts": {},
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "inspect.result.txt",
+      "sha256": "50f2ace30bc6933638abdc849db7d54b4898150d1faf1a16b5a0c13fe9c6fb0d",
+      "counts": {},
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "keyboard.result.txt",
+      "sha256": "302ce0e908b0296aa4c25ceabf4eb7a73e0ea138c900aedcf23343b9c96af097",
+      "counts": {
+        "PASS": 90
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "lifecycle.result.attempt1.txt",
+      "sha256": "a8bad0784fd5c90769c86e85ca5a29da0e1e7e6889ae1482df6b5b67d60e0131",
+      "counts": {
+        "PASS": 11
+      },
+      "harness_error": "TimeoutError: locator.selectOption: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[name=consultation_format]')\u001b[22m\n\u001b[2m    - locator resolved to <select class=\"field\" name=\"consultation_format\" id=\"id_consultation_format\">…</select>\u001b[22m\n\u001b[2m  - attempting select option action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying select option action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying select option action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    20 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying select option action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+      "historical_in_this_run_attempt": true
+    },
+    {
+      "file": "lifecycle.result.attempt2.txt",
+      "sha256": "3dad19c33ddd5267d891392f61bfca60ed4459cd77120344fda811a029655671",
+      "counts": {
+        "PASS": 11
+      },
+      "harness_error": "TimeoutError: locator.selectOption: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[name=locations-1-place]')\u001b[22m\n\u001b[2m    - locator resolved to <select class=\"field\" name=\"locations-1-place\" id=\"id_locations-1-place\">…</select>\u001b[22m\n\u001b[2m  - attempting select option action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m      - did not find some options\u001b[22m\n\u001b[2m    - retrying select option action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m      - did not find some options\u001b[22m\n\u001b[2m    - retrying select option action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    20 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m       - did not find some options\u001b[22m\n\u001b[2m     - retrying select option action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+      "historical_in_this_run_attempt": true
+    },
+    {
+      "file": "lifecycle.result.attempt3.txt",
+      "sha256": "4e292c2c518b8675847493af930d17b4ff8890ac58b5c204ed856a6483d6ec8f",
+      "counts": {
+        "PASS": 11
+      },
+      "harness_error": "TimeoutError: locator.selectOption: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[name=locations-1-place]')\u001b[22m\n\u001b[2m    - locator resolved to <select class=\"field\" name=\"locations-1-place\" id=\"id_locations-1-place\">…</select>\u001b[22m\n\u001b[2m  - attempting select option action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m      - did not find some options\u001b[22m\n\u001b[2m    - retrying select option action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m      - did not find some options\u001b[22m\n\u001b[2m    - retrying select option action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    20 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m       - did not find some options\u001b[22m\n\u001b[2m     - retrying select option action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+      "historical_in_this_run_attempt": true
+    },
+    {
+      "file": "lifecycle.result.txt",
+      "sha256": "838589f245e8439615f503f0ec30b40b057f67f26add07d28bc6d5f28462dcb3",
+      "counts": {
+        "PASS": 12
+      },
+      "harness_error": "TimeoutError: locator.fill: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[name=bio_ru]')\u001b[22m\n\u001b[2m    - locator resolved to <textarea rows=\"3\" cols=\"40\" name=\"bio_ru\" class=\"field\" id=\"id_bio_ru\" placeholder=\"О себе на русском\"></textarea>\u001b[22m\n\u001b[2m    - fill(\"Вымышленный специалист для локальной проверки. Работа с детьми, индивидуальные и онлайн занятия. Подробное безопасное описание. Подробное безопасное описание. Подробное безопасное описание. Подробное безопасное описание. Подробное безопасное описание. Подробное безопасное описание. Подробное безопасное описание. Подробное безопасное описание. Подробное безопасное описание. Подробное безопасное описание. \")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    20 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying fill action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "loading-observer.result.txt",
+      "sha256": "9dc4bed4ac540f7e27fa27b80be17783fdc0b8b8277134979ec9651f57a73212",
+      "counts": {
+        "PASS": 18
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "loading-recheck.result.txt",
+      "sha256": "91a551c17313819c084dbfb8de3bdcd2d1fe5c3a301b39d7dedc7ba27eb6850e",
+      "counts": {},
+      "harness_error": "CLI/harness non-JSON error, see raw file",
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "matrix.result.txt",
+      "sha256": "2d96d3f38c7da6d38242980f38b5f6ff84154f8d87509655d4cbf07d468966d6",
+      "counts": {
+        "PASS": 324
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "moderation-claim.result.txt",
+      "sha256": "adc82dcb0d468c7606d0065b2d64063632feba16f6f80078fd5c3ea4447c41a6",
+      "counts": {
+        "PASS": 10
+      },
+      "harness_error": "Error: locator.innerText: Error: strict mode violation: locator('main') resolved to 2 elements:\n    1) <main>…</main> aka getByRole('main').filter({ hasText: 'Назад к педагогам и специалистам Детский психолог QA fictional specialist 8814' })\n    2) <main class=\"km-detail-main-column\">…</main> aka getByRole('main').filter({ hasText: 'Назад к педагогам и специалистам Детский психолог QA fictional specialist 8814' }).getByRole('main')\n\nCall log:\n\u001b[2m  - waiting for locator('main')\u001b[22m\n",
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "negative.result.txt",
+      "sha256": "bb9a4831f14b47e0df521e8af843e4ce21be4e096b92351cc0e54d9f4dd80b4b",
+      "counts": {
+        "PASS": 15,
+        "FAIL": 1
+      },
+      "harness_error": "Error: page.reload: net::ERR_ABORTED; maybe frame was detached?\nCall log:\n\u001b[2m  - waiting for navigation until \"load\"\u001b[22m\n",
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "photo-final.result.attempt1.txt",
+      "sha256": "8c46c56bf4779ffb573bd21b0704499f9808e812e8531a0065224bca143c4362",
+      "counts": {},
+      "harness_error": "TimeoutError: locator.getAttribute: Timeout 8000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.km-owner-photo-preview img')\u001b[22m\n",
+      "historical_in_this_run_attempt": true
+    },
+    {
+      "file": "photo-final.result.attempt2.txt",
+      "sha256": "c692cf9ae92d4a6432413a7b166780942b03295280f4971c05255a8097ac3ac2",
+      "counts": {},
+      "harness_error": "TimeoutError: locator.waitFor: Timeout 8000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-specialist-photo-error]') to be visible\u001b[22m\n\u001b[2m    20 × locator resolved to hidden <p hidden=\"\" role=\"alert\" data-specialist-photo-error=\"\"></p>\u001b[22m\n",
+      "historical_in_this_run_attempt": true
+    },
+    {
+      "file": "photo-final.result.txt",
+      "sha256": "1307698ce4a77bf729684966059edcf855bad3ef0c37232ef0a23715b62f9770",
+      "counts": {
+        "PASS": 7
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "progress-recheck.result.txt",
+      "sha256": "9875471b8bf8b081bc71e5126fdf6312a1d113fc59e0dad0d11cfc1362fd5251",
+      "counts": {
+        "FAIL": 18,
+        "PASS": 18
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "republish.result.attempt1.txt",
+      "sha256": "89eacc9187b24eea21f4e4e5c500433677e4a82c410d9c1ce533e09d8fa27410",
+      "counts": {},
+      "harness_error": "CLI/harness non-JSON error, see raw file",
+      "historical_in_this_run_attempt": true
+    },
+    {
+      "file": "republish.result.txt",
+      "sha256": "a18fc5f80c887d37888754c13373aeb04cebab2234106726840ba8f549b7cc6b",
+      "counts": {
+        "PASS": 1
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "revocation-denial.result.txt",
+      "sha256": "90a6ce7b434cc9c2e5fb792760cd91f134625ece2fdf0a9028a61fe4d7830660",
+      "counts": {
+        "PASS": 2
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "revocation.result.txt",
+      "sha256": "3bd960a9d7e5d912b62b597a9e525645f16054cbbf62e24e4bc8d11672921968",
+      "counts": {
+        "PASS": 2,
+        "FAIL": 1
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    },
+    {
+      "file": "state-matrix.result.txt",
+      "sha256": "290cf787f061d5b4d879d8c2d98c3734c6b4e3625667c9978d812ec6afc19166",
+      "counts": {
+        "PASS": 90,
+        "FAIL": 18
+      },
+      "harness_error": null,
+      "historical_in_this_run_attempt": false
+    }
+  ],
+  "app_findings": [
+    {
+      "id": "SPEC-QA-01",
+      "priority": "P2"
+    },
+    {
+      "id": "SPEC-QA-02",
+      "priority": "P2"
+    },
+    {
+      "id": "SPEC-QA-03",
+      "priority": "P3"
+    }
+  ],
+  "environment_failures": [
+    "ENV-01 Windows streamingresponse cleanup WinError32",
+    "ENV-02 System Chrome DevTools policy; recovered Chromium headless rendering",
+    "ENV-03 existing WORKTREE .mo stale versus .po"
+  ],
+  "targeted_backend": {
+    "tests": 107,
+    "pass": 106,
+    "errors": 1,
+    "native_exit": 1,
+    "runner_seconds": 24.856,
+    "launcher_seconds": 57.812
+  },
+  "regression_baseline_comparison": "NOT RUN; no other commit tested; findings are fresh current baseline failures"
+}

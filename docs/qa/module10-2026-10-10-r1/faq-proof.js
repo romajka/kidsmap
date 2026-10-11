@@ -1,0 +1,4 @@
+async original=>{
+ __QA10_COMMON__
+ for(const lang of ['ru','az','en']){const{c,p}=await context('guest',lang);for(const width of [360,390,768,1024,1280,1440]){await p.setViewportSize({width,height:950});await visit(p,prefix(lang)+'/faq/');const s=p.locator('details summary').first();const before=await s.evaluate(e=>e.parentElement.open);await s.focus();await s.press('Space');await p.waitForTimeout(450);const space=await s.evaluate(e=>e.parentElement.open);add('faq-space-after-animation',space!==before,{before,after:space},'guest',lang,width,p.url(),await shot(p,'faq-space-final-'+lang+'-'+width));await s.press('Enter');await p.waitForTimeout(450);const enter=await s.evaluate(e=>e.parentElement.open);add('faq-enter-after-animation',enter!==space,{before:space,after:enter},'guest',lang,width,p.url(),await shot(p,'faq-enter-final-'+lang+'-'+width));}await c.close();}return{rows};
+}

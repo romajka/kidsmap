@@ -19,3 +19,7 @@ body:has([data-place-mode=continuous]),body:has([data-place-mode=continuous]) .s
 .pc :is(.pc-activity-card,.pc-group-card,.pc-plan-card)[open]>summary{margin-bottom:14px;border-bottom:1px solid var(--pw-line)}
 .pc .pw-field-badge:not([hidden]){display:inline-block;font-size:12px;font-weight:500;white-space:normal}
 @media(max-width:900px){.pc-workspace{grid-template-columns:1fr;gap:0}.pc.pc-enhanced .pc-nav{position:sticky;top:60px;z-index:8;background:#fff}.pc.pc-enhanced .pc-nav>a{display:none}.pc.pc-enhanced .pc-section-picker{display:flex;flex-direction:column;gap:6px;font-size:13px}.pc-section-picker select{width:100%;min-height:44px;border:1px solid var(--pw-line);border-radius:8px;padding:8px;background:#fff;font:inherit}.pc-savebar{top:154px}.pc-content .pc-section,.pc :is(h2,input,select,textarea,button,summary){scroll-margin-top:230px}.pc-actions{gap:8px}.pc-actions button{flex:1 1 140px;padding:10px;font-size:14px}}
+
+.pc-review-note { margin-block: 1rem; padding: 1rem; border: 1px solid var(--pw-border, #d6ddd6); border-radius: 12px; }
+.pc-review-note h2 { margin: 0 0 .5rem; font-size: 1rem; }
+.pc-review-note p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }

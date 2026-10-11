@@ -1,0 +1,44 @@
+{
+  "module": "04",
+  "run": "module04-2026-10-10-r1",
+  "verdict": "FAIL",
+  "executed_at": "2026-10-10T06:48:48.023318+00:00",
+  "matrix_geometry_rows": 144,
+  "matrix_geometry_PASS": 144,
+  "state_rows": 126,
+  "screenshots": 328,
+  "normalized_rows": 372,
+  "normalized_counts": {
+    "PASS": 367,
+    "FAIL": 3,
+    "NOT RUN": 2
+  },
+  "application_findings": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 3,
+    "P3": 0
+  },
+  "django": {
+    "run": 129,
+    "pass": 118,
+    "application_baseline_failures": 2,
+    "environment_preflight_failures_NOT_RUN": 9,
+    "native_exit": 1,
+    "assertions_changed": false
+  },
+  "harness_errors": [
+    {
+      "run": "lifecycle",
+      "error": "TimeoutError: locator.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[name=username]')\u001b[22m\n",
+      "completed_rows_retained": 4
+    },
+    {
+      "run": "moderation",
+      "error": "TimeoutError: locator.getAttribute: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/events/1/\"]').first()\u001b[22m\n",
+      "completed_rows_retained": 7
+    }
+  ],
+  "console_network": [],
+  "normalization_note": "Native raw rows preserved. Geometry PASS is not copy acceptance; AZ/EN owner copy FAIL and RU admin fields FAIL are explicit in matrix.csv. Invalid QA expectations remain NOT RUN. Harness failures are not application findings."
+}

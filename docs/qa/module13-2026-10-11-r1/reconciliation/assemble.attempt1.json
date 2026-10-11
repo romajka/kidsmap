@@ -1,0 +1,7 @@
+{
+  "command": ".venv/Scripts/python.exe docs/qa/module13-2026-10-11-r1/reconciliation/assemble.py",
+  "exit_code": 1,
+  "classification": "OWN QA PARSER FAILURE",
+  "cause": "A historical coverage-gaps JSON contains a list row rather than a dict; initial own parser assumed dict. No application evidence or assertions changed.",
+  "result": "Superseded only by successful own parser retry; not an application finding."
+}

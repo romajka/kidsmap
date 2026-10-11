@@ -1,0 +1,370 @@
+{
+  "utc": "2026-10-09T20:02:40.993688+00:00",
+  "scope": "module01 r2, AUDIT ONLY",
+  "snapshot": {
+    "checkout": "C:\\kidsmap",
+    "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+    "branch": "task33-progress",
+    "entry_worktree": [
+      " M docs/qa/module-acceptance-prompts.md",
+      "?? docs/qa/module01-2026-10-09-r1/",
+      "?? docs/qa/module01-2026-10-09-r2/",
+      "?? docs/qa/module02-2026-10-09-r1/"
+    ],
+    "active_run": "NONE",
+    "source_digest": "589c2d398f3d24d62af28b72e47bbfaeb1c68f8767a080fd83be3a5a5a96b684",
+    "entry_worktree_before_harness": [
+      " M docs/qa/module-acceptance-prompts.md",
+      "?? docs/qa/module01-2026-10-09-r1/",
+      "?? docs/qa/module02-2026-10-09-r1/"
+    ],
+    "qa_run": "module01-20261009-r2",
+    "source_scope_note": "Includes current WORKTREE locale .mo generated ignored files; their staleness is separately diagnosed, not pure HEAD catalog evidence."
+  },
+  "isolation": {
+    "python": "3.12.15",
+    "django": "6.0.2",
+    "applied_migrations": 175,
+    "DJANGO_TESTING": true,
+    "database_engine": "django.db.backends.postgresql",
+    "database_name": "module01",
+    "database_port": "55433",
+    "media_roots_isolated": true,
+    "email_backend": "django.core.mail.backends.locmem.EmailBackend",
+    "cache_backend": "django.core.cache.backends.locmem.LocMemCache",
+    "google_maps_key_present": false,
+    "analytics_credentials_present": false,
+    "indexnow_key_present": false
+  },
+  "backend": {
+    "command": [
+      "C:\\kidsmap\\.venv\\Scripts\\python.exe",
+      "C:\\kidsmap\\docs\\qa\\module01-2026-10-09-r2\\run.py",
+      "test",
+      "catalog.testcases.place_readiness",
+      "catalog.testcases.test_admin_candidate_cover",
+      "catalog.testcases.test_task33_place_continuous",
+      "catalog.testcases.photo_workflow",
+      "catalog.testcases.test_place_json_and_pricing_modes"
+    ],
+    "exit_code": 0,
+    "reason_for_repeat": "Fresh r2 native exit capture."
+  },
+  "js": {
+    "command": [
+      "node",
+      "--test",
+      "scripts/test_location_resolution.cjs"
+    ],
+    "KIDSMAP_JSDOM": "C:/kidsmap/.tmp/phone-dom/node_modules/jsdom",
+    "exit_code": 0,
+    "initial_attempt": {
+      "exit_code": 1,
+      "classification": "ENVIRONMENT FAILURE",
+      "reason": "Default historical ignored .tmp/coordinate-location/dom/node_modules/jsdom path absent; supported KIDSMAP_JSDOM points to existing local dependency."
+    }
+  },
+  "matrix_rows": 454,
+  "matrix_counts": {
+    "PASS": 431,
+    "FAIL": 17,
+    "NOT RUN": 6
+  },
+  "screenshots": 381,
+  "matrix_state_groups": {
+    "matrix": {
+      "rows": 90,
+      "counts": {
+        "PASS": 90,
+        "FAIL": 0,
+        "NOT RUN": 0
+      },
+      "pageerrors": [],
+      "network": []
+    },
+    "deep-matrix": {
+      "rows": 144,
+      "counts": {
+        "PASS": 141,
+        "FAIL": 3,
+        "NOT RUN": 0
+      },
+      "pageerrors": [],
+      "network": [
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/ru/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/ru/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/ru/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/ru/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/ru/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/ru/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/en/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/en/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/en/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/en/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/en/account/places/save-photos/"
+        },
+        {
+          "role": "owner",
+          "status": 422,
+          "url": "http://localhost:8813/en/account/places/save-photos/"
+        }
+      ]
+    },
+    "state-matrix": {
+      "rows": 54,
+      "counts": {
+        "PASS": 54,
+        "FAIL": 0,
+        "NOT RUN": 0
+      },
+      "pageerrors": [],
+      "network": [
+        {
+          "status": 409,
+          "path": "/ru/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/ru/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/ru/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/ru/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/ru/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/ru/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/en/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/en/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/en/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/en/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/en/api/drafts/"
+        },
+        {
+          "status": 409,
+          "path": "/en/api/drafts/"
+        }
+      ]
+    },
+    "public-smoke": {
+      "rows": 36,
+      "counts": {
+        "PASS": 36,
+        "FAIL": 0,
+        "NOT RUN": 0
+      },
+      "pageerrors": [],
+      "network": []
+    },
+    "modal-matrix": {
+      "rows": 18,
+      "counts": {
+        "PASS": 18,
+        "FAIL": 0,
+        "NOT RUN": 0
+      },
+      "pageerrors": [],
+      "network": []
+    }
+  },
+  "runtime": {
+    "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+    "source_digest": "589c2d398f3d24d62af28b72e47bbfaeb1c68f8767a080fd83be3a5a5a96b684",
+    "testing": true,
+    "database": "isolated-postgresql-module01",
+    "cache": "django.core.cache.backends.locmem.LocMemCache",
+    "email": "django.core.mail.backends.locmem.EmailBackend"
+  },
+  "source_files_verified": 2776,
+  "source_files_changed": [],
+  "prior_files_verified": 888,
+  "prior_files_changed": [],
+  "journal_other_rows_and_text_preserved": true,
+  "git": {
+    "head": {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "8d188b316f800fbedf0b1e376905dfd4924cb1b6\n",
+      "stderr": ""
+    },
+    "branch": {
+      "argv": [
+        "git",
+        "branch",
+        "--show-current"
+      ],
+      "exit_code": 0,
+      "stdout": "task33-progress\n",
+      "stderr": ""
+    },
+    "status": {
+      "argv": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "exit_code": 0,
+      "stdout": " M docs/qa/module-acceptance-prompts.md\n?? docs/qa/module01-2026-10-09-r1/\n?? docs/qa/module01-2026-10-09-r2/\n?? docs/qa/module02-2026-10-09-r1/\n",
+      "stderr": ""
+    },
+    "diff_check": {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "tracked_diff": {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only"
+      ],
+      "exit_code": 0,
+      "stdout": "docs/qa/module-acceptance-prompts.md\n",
+      "stderr": ""
+    }
+  },
+  "containers": {
+    "argv": [
+      "wsl",
+      "--",
+      "docker",
+      "ps",
+      "--format",
+      "{{.Names}} {{.Ports}}"
+    ],
+    "exit_code": 0,
+    "stdout": "kidsmap-module01-20261009-r2 127.0.0.1:55433->5432/tcp\nkidsmap-module02-20261009-r1 127.0.0.1:55432->5432/tcp\nkidsmap-module01-20261009-r1 127.0.0.1:55431->5432/tcp\nkidsmap-manual-portable \n",
+    "stderr": ""
+  },
+  "active_run_file_preserved": true,
+  "fixture_password_present_in_report_files": []
+}

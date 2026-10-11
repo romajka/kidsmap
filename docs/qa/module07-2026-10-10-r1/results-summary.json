@@ -1,0 +1,211 @@
+{
+  "decision": "FAIL; audit complete with explicit NOT RUN limits",
+  "selected_runs": [
+    "acl",
+    "acl-boundaries",
+    "matrix",
+    "modal-proof",
+    "auth-flow",
+    "auth-resume",
+    "auth-negative",
+    "team-flow",
+    "team-resume",
+    "privacy-flow",
+    "deletion-flow",
+    "cancel-recovery",
+    "supplement-matrix",
+    "access-transitions",
+    "deletion-relations",
+    "person-deletion",
+    "org-conflict-proof",
+    "final-browser-proof",
+    "api-contracts"
+  ],
+  "raw_run_counts": {
+    "acl": {
+      "PASS": 835,
+      "NOT RUN": 1,
+      "FAIL": 32
+    },
+    "acl-boundaries": {
+      "PASS": 147
+    },
+    "matrix": {
+      "PASS": 781,
+      "FAIL": 47
+    },
+    "modal-proof": {
+      "FAIL": 36,
+      "PASS": 36
+    },
+    "auth-flow": {
+      "PASS": 54,
+      "NOT RUN": 3
+    },
+    "auth-resume": {
+      "PASS": 18
+    },
+    "auth-negative": {
+      "PASS": 24
+    },
+    "team-flow": {
+      "PASS": 8,
+      "NOT RUN": 1
+    },
+    "team-resume": {
+      "NOT RUN": 2,
+      "PASS": 9
+    },
+    "privacy-flow": {
+      "PASS": 9
+    },
+    "deletion-flow": {
+      "PASS": 72
+    },
+    "cancel-recovery": {
+      "PASS": 15
+    },
+    "supplement-matrix": {
+      "PASS": 228,
+      "FAIL": 24
+    },
+    "access-transitions": {
+      "PASS": 13
+    },
+    "deletion-relations": {
+      "PASS": 2
+    },
+    "person-deletion": {
+      "FAIL": 1,
+      "PASS": 8
+    },
+    "org-conflict-proof": {
+      "PASS": 54
+    },
+    "final-browser-proof": {
+      "PASS": 165
+    },
+    "api-contracts": {
+      "PASS": 36
+    }
+  },
+  "observations": {
+    "PASS": 2404,
+    "FAIL": 66,
+    "NOT RUN": 1
+  },
+  "not_run_scope_rows": 90,
+  "excluded_own_qa_observations": 204,
+  "fail_rows_by_finding": {
+    "ACCESS-QA-01": 36,
+    "ACCESS-QA-04": 3,
+    "ACCESS-QA-03": 18,
+    "ACCESS-QA-02": 1,
+    "ACCESS-QA-05": 8
+  },
+  "unclassified_fail_rows": [],
+  "by_language_width": {
+    "ru/N/A HTTP": {
+      "PASS": 389
+    },
+    "az/N/A HTTP": {
+      "PASS": 368
+    },
+    "en/N/A HTTP": {
+      "PASS": 375
+    },
+    "ru/360": {
+      "PASS": 60,
+      "FAIL": 4
+    },
+    "ru/390": {
+      "PASS": 116,
+      "FAIL": 4,
+      "NOT RUN": 1
+    },
+    "ru/768": {
+      "PASS": 61,
+      "FAIL": 3
+    },
+    "ru/1024": {
+      "PASS": 61,
+      "FAIL": 3
+    },
+    "ru/1280": {
+      "PASS": 61,
+      "FAIL": 3
+    },
+    "ru/1440": {
+      "PASS": 78,
+      "FAIL": 3
+    },
+    "az/360": {
+      "PASS": 60,
+      "FAIL": 4
+    },
+    "az/390": {
+      "PASS": 91,
+      "FAIL": 5
+    },
+    "az/768": {
+      "PASS": 61,
+      "FAIL": 3
+    },
+    "az/1024": {
+      "PASS": 61,
+      "FAIL": 3
+    },
+    "az/1280": {
+      "PASS": 61,
+      "FAIL": 3
+    },
+    "az/1440": {
+      "PASS": 78,
+      "FAIL": 5
+    },
+    "en/360": {
+      "PASS": 60,
+      "FAIL": 4
+    },
+    "en/390": {
+      "PASS": 91,
+      "FAIL": 5
+    },
+    "en/768": {
+      "PASS": 61,
+      "FAIL": 3
+    },
+    "en/1024": {
+      "PASS": 61,
+      "FAIL": 3
+    },
+    "en/1280": {
+      "PASS": 61,
+      "FAIL": 3
+    },
+    "en/1440": {
+      "PASS": 83,
+      "FAIL": 5
+    },
+    "N/A service/N/A service": {
+      "PASS": 6
+    }
+  },
+  "native_png": 695,
+  "derived_images": 12,
+  "tests": {
+    "methods": 282,
+    "pass": 281,
+    "native_preflight_fail": 1,
+    "error": 0,
+    "application_failures_confirmed": 0,
+    "exit_code": 1,
+    "scenario_body_NOT_RUN": 1
+  },
+  "findings": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 5,
+    "P3": 0
+  }
+}

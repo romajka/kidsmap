@@ -1,0 +1,7 @@
+"""Only assigned module10 row; preserve all other bytes/lines."""
+from pathlib import Path
+P=Path(__file__).resolve().parent;R=P.parents[2];journal=R/'docs/qa/module-acceptance-prompts.md';before=journal.read_bytes();lines=before.decode('utf-8').splitlines(keepends=True);indexes=[i for i,s in enumerate(lines) if s.startswith('| 10 |')];assert len(indexes)==1;i=indexes[0];assert 'NOT RUN' in lines[i]
+ending='\r\n' if lines[i].endswith('\r\n') else '\n'
+lines[i]='| 10 | Настройки, разделы и общие страницы | DONE — FAIL (fresh audit complete; limits NOT RUN) | C:\\kidsmap; task33-progress; 8d188b316f800fbedf0b1e376905dfd4924cb1b6; dirty QA/docs preserved; active_run NONE; runtime WORKTREE + existing .mo | [Отчёт](module10-2026-10-10-r1/REPORT.md), [verification](module10-2026-10-10-r1/verification.json), [matrix](module10-2026-10-10-r1/matrix.csv), [screenshots](module10-2026-10-10-r1/screenshots-manifest.json) | 14 OPEN SITE-QA (1 P1,11 P2,2 P3);41/46 Django PASS,4 baseline/locale FAIL,1 baseline ERROR;2717 PASS/243 FAIL/131 NOT RUN observations;1099 native PNG;SIMULATED/gaps recorded; Далее11; repairs отдельно; [handoff](module10-2026-10-10-r1/next-chat.txt) |'+ending
+assert ''.join(s for j,s in enumerate(lines) if j!=i)==''.join(s for j,s in enumerate(before.decode('utf-8').splitlines(keepends=True)) if j!=i)
+journal.write_bytes(''.join(lines).encode('utf-8'));print('Only module10 row updated, line',i+1)

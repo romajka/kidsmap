@@ -1,0 +1,14 @@
+KidsMap: исправь только MOD-QA-04 — Escape не закрывает мобильную административную навигацию.
+
+Сначала определи фактический checkout, HEAD/branch/dirty WORKTREE и active_run. Прочитай AGENTS.md, канонические .agents и актуальное описание дефекта docs/qa/module08-2026-10-10-r1/findings/MOD-QA-04.md с указанными fresh evidence. Сверь текущий source: исходный snapshot 8d188b316f800fbedf0b1e376905dfd4924cb1b6; не предполагай, что он не изменился. Сохрани чужие изменения, active_run и стенды. Представь конкретный план и работай только в согласованном scope; уже согласованную область не переспрашивай, расширение согласуй отдельно.
+
+Роль/trigger: admin; /ru/admin/; /ru/admin/catalog/place/. Фокусировать кнопку навигации, открыть Enter, нажать Escape. Проверить видимость sidebar и body.sidebar-open. Затем активировать оставшуюся сфокусированной кнопку Enter.
+Факт: После Escape sidebar остаётся видимым и sidebar-open сохраняется во всех 9 cells. Enter на прежней кнопке закрывает его. При pointer попытке нажать эту кнопку открытый sidebar/logo перекрывает её.
+Source: static/admin/js/kidsmap_admin_sidebar.js:1–82; административный header data-widget=pushmenu / Jazzmin PushMenu. Причина: Обёртка использует data-widget=pushmenu; локальный kidsmap_admin_sidebar.js обрабатывает клавиши accordion-пунктов, но не обеспечивает Escape для внешнего sidebar. Runtime подтверждает отсутствие closure. Точная ответственность vendor pushmenu/местного adapter требует решения при исправлении.
+
+Разрешённая область исправления: Интеграция header/sidebar PushMenu: Escape, видимый close/toggle и возврат фокуса.
+Зависимости: Vendor Jazzmin/AdminLTE; accordion semantics не ломать; не приписывать sidebar role=dialog без решения по контракту.
+Целевое поведение: Escape закрывает открытое перекрывающее меню и сохраняет понятный видимый фокус.
+Приёмка: Native Tab/Shift+Tab/Enter/Space/Escape на 360/390/768 во всех языках. Видимый opener/close, меню закрывается Escape и overlay, после закрытия виден правильный фокус.
+
+Создай новый собственный локальный стенд DJANGO_TESTING=1 с отдельными DB/cache/media/private-media/email и вымышленными данными. Проверяемые переходы выполняй через реальный UI; source inspection/jsdom/HTTP200 не заменяют rendered browser, сохранение/reload. Применяй существующие skills и meaningful targeted tests, не ослабляй assertions или авторизацию. Без production credentials/интеграций, commit/push/deploy. Сохрани новый report/evidence/screenshots, exact commands/counts/exit codes, candidate/live readback и NOT RUN ограничения. Обнови статус дефекта только по свежим доказательствам; остальные findings не исправляй автоматически.

@@ -1,0 +1,17 @@
+{
+  "http": "http://localhost:8821",
+  "pid": 42060,
+  "version": {
+    "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+    "source_digest": "933b55c01caf9ab69bce9d81d23b69e87c262ffcf5d192917e8d9272b0f7ee83",
+    "testing": true,
+    "db": "isolated-module08"
+  },
+  "source_evidence": "Startup run.py source guard + no autoreloader + current source manifest + listener PID. /qa/version echoes manifest, not independent attestation.",
+  "postgres": "17.11",
+  "container": "kidsmap-module08-20261010-r1",
+  "container_id": "12335b40e9d6f0eefc923b8d2c27532ee77cf2c7e03f143aef85c7b296662485",
+  "volume": "dad996a1f6374fbc115c363ad3035313c7dcaefab13833c52034ef7dfa3338f9",
+  "browser": "Chromium153.0.8010.12 / module08-r1 / headless shell1243",
+  "runtime_match": true
+}

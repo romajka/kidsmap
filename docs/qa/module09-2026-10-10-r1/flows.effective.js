@@ -1,0 +1,87 @@
+async original=>{
+const F={
+  "actors": {
+    "author": {
+      "id": 1,
+      "username": "qa09_author",
+      "email": "author09@example.invalid"
+    },
+    "owner": {
+      "id": 2,
+      "username": "qa09_owner",
+      "email": "owner09@example.invalid"
+    },
+    "employee": {
+      "id": 3,
+      "username": "qa09_employee",
+      "email": "employee09@example.invalid"
+    },
+    "outsider": {
+      "id": 4,
+      "username": "qa09_outsider",
+      "email": "outsider09@example.invalid"
+    },
+    "moderator": {
+      "id": 5,
+      "username": "qa09_moderator",
+      "email": "moderator09@example.invalid"
+    },
+    "staff": {
+      "id": 6,
+      "username": "qa09_staff",
+      "email": "staff09@example.invalid"
+    },
+    "admin": {
+      "id": 7,
+      "username": "qa09_admin",
+      "email": "admin09@example.invalid"
+    },
+    "empty": {
+      "id": 8,
+      "username": "qa09_empty",
+      "email": "empty09@example.invalid"
+    },
+    "invitee": {
+      "id": 9,
+      "username": "qa09_invitee",
+      "email": "invitee09@example.invalid"
+    }
+  },
+  "places": {
+    "live": 1,
+    "empty": 2,
+    "hidden": 3,
+    "inactive": 4,
+    "archived": 5,
+    "deleted": 6,
+    "foreign": 7
+  },
+  "activity": 1,
+  "specialist": 1,
+  "event": 1,
+  "synthetic_only": true
+},base='http://localhost:8822',dir='C:/kidsmap/docs/qa/module09-2026-10-10-r1/screenshots/',rows=[],contexts=[],browser=original.context().browser();
+const add=(id,ok,data={})=>rows.push({id,status:ok?'PASS':'FAIL',role:'author',lang:'ru',width:1440,...data});
+async function page(role){const c=await browser.newContext({viewport:{width:1440,height:950}});contexts.push(c);await c.route('**/*',r=>new URL(r.request().url()).hostname==='localhost'?r.continue():r.abort());const p=await c.newPage();p.setDefaultTimeout(7000);if(role!=='guest'){await p.goto(base+'/ru/auth/login/');await p.locator('[name=username]').fill(F.actors[role].email);await p.locator('[name=password]').fill('__LOCAL_PASSWORD__');await p.locator('.register-form--login button[type=submit]').click();await p.waitForURL(u=>!u.pathname.includes('/auth/login/'));}return p;}
+async function shot(p,name){await p.screenshot({path:dir+name+'.png'});return'screenshots/'+name+'.png';}
+const state=async p=>(await p.request.get(base+'/qa/state/')).json();
+const a=await page('author'),m=await page('moderator'),g=await page('guest');
+const kinds={place:F.places.empty,specialist:F.specialist,activity:F.activity,event:F.event};
+for(const [kind,pk]of Object.entries(kinds)){const url=base+'/ru/reviews/'+kind+'/target/'+pk+'/';try{
+await a.goto(url);await a.locator('[data-review-edit] button').click();add('required-'+kind,await a.locator('#review-rating').evaluate(e=>!e.validity.valid),{screenshot:await shot(a,'flow-'+kind+'-required'),url});
+await a.locator('#review-rating').selectOption('4');await a.locator('#review-text').fill('QA09 FIRST '+kind+' <img src=x onerror="window.QA09_XSS=2"> & text');await a.locator('[data-review-edit] button').click();await a.waitForLoadState('domcontentloaded');
+let s=await state(a),h=s.typed[kind].heads.find(x=>x.user_id===F.actors.author.id);add('create-pending-'+kind,!!h&&h.candidate_revision_id&&h.current_revision_id===null,{head:h,screenshot:await shot(a,'flow-'+kind+'-pending'),url});
+await a.reload();add('reload-text-'+kind,(await a.locator('#review-text').inputValue()).startsWith('QA09 FIRST'),{ratingValue:await a.locator('#review-rating').inputValue(),screenshot:await shot(a,'flow-'+kind+'-reload')});
+add('reload-rating-'+kind,await a.locator('#review-rating').inputValue()==='4',{observed:await a.locator('#review-rating').inputValue()});
+await g.goto(url);add('pending-private-'+kind,(await g.locator('main').innerText()).includes('QA09 FIRST')===false);
+await m.goto(url);const candidate=m.locator('[data-candidate-id="'+h.candidate_revision_id+'"]');
+if(kind==='event'){await candidate.locator('[name=reason]').fill('QA09 REJECT: clarify fictional event facts');await candidate.locator('form[action$="/reject/"] button').click();}
+else await candidate.locator('form[action$="/approve/"] button').click();await m.waitForLoadState('domcontentloaded');
+s=await state(m);h=s.typed[kind].heads.find(x=>x.user_id===F.actors.author.id);add('moderation-'+kind,kind==='event'?h.status==='rejected':h.is_approved,{head:h,role:'moderator',screenshot:await shot(m,'flow-'+kind+'-decision')});
+await a.goto(url);add('author-rejection-reason-'+kind,kind!=='event'||(await a.locator('main').innerText()).includes('QA09 REJECT'),{role:'author',savedReason:h.rejection_reason,visible:(await a.locator('main').innerText()).slice(-900),screenshot:await shot(a,'flow-'+kind+'-author-decision')});
+await g.goto(url);add('public-projection-'+kind,kind==='event'?await g.locator('article[data-review-id]').count()===0:(await g.locator('article[data-review-id]').innerText()).includes('QA09 FIRST'),{role:'guest',summary:s.summaries[kind][String(pk)],screenshot:await shot(g,'flow-'+kind+'-public')});
+add('escaped-html-'+kind,await g.evaluate(()=>!window.QA09_XSS)&&await g.locator('main script,main img[src=x]').count()===0,{role:'guest'});
+}catch(e){rows.push({id:'harness-'+kind,status:'NOT RUN',role:'author',lang:'ru',width:1440,error:String(e).slice(0,500),screenshot:await shot(a,'flow-'+kind+'-harness').catch(()=>null)});}}
+try{await a.goto(base+'/ru/reviews/');const form=a.locator('[data-review-submit-form]');const observed=await a.locator('form').evaluateAll(es=>es.map(e=>({action:e.getAttribute('action'),data:Array.from(e.attributes).filter(x=>x.name.startsWith('data-')).map(x=>x.name)})));const sf=a.locator('form[action$="/review/"]');await sf.locator('.review-star[data-value="5"]').click();await sf.locator('[name=text]').fill('QA09 SITE NATIVE <script>window.QA09_XSS=3</script>');await sf.locator('button[type=submit]').click();await a.waitForTimeout(450);const s=await state(a);add('site-native-create',s.site.some(x=>x.user_id===F.actors.author.id&&x.status==='pending'),{forms:observed,screenshot:await shot(a,'flow-site-pending')});}catch(e){rows.push({id:'harness-site',status:'NOT RUN',role:'author',lang:'ru',width:1440,error:String(e)});}
+const s=await state(a);for(const c of contexts)await c.close();return{rows,state:s,utc:new Date().toISOString()};
+}

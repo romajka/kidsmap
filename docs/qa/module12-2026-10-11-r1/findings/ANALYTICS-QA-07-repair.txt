@@ -1,0 +1,13 @@
+Исправь только ANALYTICS-QA-07: Отказ analytics write ломает публичную карточку в KidsMap. Работай в фактическом корне checkout; прочитай AGENTS.md, .agents/README.md, registry, canonical role, source-of-truth и engineering/audit contracts. Сохрани чужой dirty WORKTREE, active_run и стенды; зафиксируй HEAD/branch и actual runtime. Отчёт: docs/qa/module12-2026-10-11-r1/findings/ANALYTICS-QA-07.md.
+
+Воспроизведение: При здоровых catalog reads через собственный QA adapter вызвать DatabaseError actual DjangoFunnelEventRepository.create_event; открыть карточку.
+Ожидание: Карточка200, аналитика честно недоступна; без фиктивного записанного события.
+Факт: Native500 на390/1440, event delta0. Own corrected injection confirmed=true; исходный неверно подключённый mock исключён. SIMULATED fault.
+Источник: src/catalog/controllers/place_controller.py:735; первопричина: Tracking write выполняется синхронно в build_detail_context без обработки отказа независимого analytics storage.
+
+Конкретная область исправления: Изолируй отказ analytics persistence от публичного SSR при исправной основной БД; проверь реальный вызванный repository mock и transaction recovery, logs только безопасные агрегаты, не скрывай основную catalog/ACL ошибку. Native200/reload, event delta0, disabled flag и штатный delta+1 обязательны.
+Зависимости и владелец: analytics-reviewer/django-reviewer; transaction handling, telemetry errors без payload leakage.
+
+Сначала подготовь конкретный план и regression evidence, затем действуй в пределах явно разрешённой пользователем области. Соблюдай канонические инструкции о согласовании implementation scope. Тесты только DJANGO_TESTING=1, свежие отдельные DB/cache/media/private-media/email, вымышленные данные; внешние GA/Google/OAuth/Maps выключить. Не менять существующие assertions радиgreen, не использовать ORM для проверяемых UI-переходов. Не commit/push/deploy и не обращаться к production.
+
+Приёмка: функциональный before/after по серверному контракту, настоящий UI/save/reload где применимо, RU/AZ/EN×360/390/768/1024/1280/1440, доступный focus/keyboard/empty/error. Сохрани новый отчёт/скриншоты/commands/counts/exit, различи реальные проверки и SIMULATED adapters/NOT RUN. Объясни пределы исправления и чужие неизменённые файлы.

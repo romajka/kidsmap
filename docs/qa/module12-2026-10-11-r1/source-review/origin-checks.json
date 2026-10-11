@@ -1,0 +1,65 @@
+{
+  "mode": "AUDIT ONLY / source function execution, no Django setup / HTTP / DB",
+  "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+  "django_version": "6.0.2",
+  "app_source_sha256": "4f1ceef8f86fb5c4b33ea4b1688d01702b827bbb715c3bda768c36afb01cd812",
+  "app_matches_head_after_line_ending_normalization": true,
+  "app_functions": [
+    {
+      "name": "_allowed_tracking_hosts",
+      "line": 234,
+      "end_line": 242
+    },
+    {
+      "name": "_has_allowed_tracking_origin",
+      "line": 245,
+      "end_line": 265
+    }
+  ],
+  "django_helper_path": "C:\\kidsmap\\.venv\\Lib\\site-packages\\django\\utils\\http.py",
+  "django_helper_sha256": "d1d6a8f1c0bb5a88df844616f049da7559d18def94b70e1a9b5e986a2dfff042",
+  "results": [
+    {
+      "case": "same-origin explicit local port",
+      "actual": false,
+      "source_expectation": false,
+      "same_origin_contract_expectation": true
+    },
+    {
+      "case": "portless same-host origin",
+      "actual": true,
+      "source_expectation": true,
+      "same_origin_contract_expectation": true
+    },
+    {
+      "case": "foreign origin",
+      "actual": false,
+      "source_expectation": false,
+      "same_origin_contract_expectation": false
+    },
+    {
+      "case": "same-origin explicit local Referer port",
+      "actual": false,
+      "source_expectation": false,
+      "same_origin_contract_expectation": true
+    },
+    {
+      "case": "no Origin or Referer with same-origin fetch marker",
+      "actual": true,
+      "source_expectation": true,
+      "same_origin_contract_expectation": true
+    },
+    {
+      "case": "explicit default port",
+      "actual": false,
+      "source_expectation": false,
+      "same_origin_contract_expectation": null
+    },
+    {
+      "case": "configured trusted origin explicit port",
+      "actual": false,
+      "source_expectation": false,
+      "trusted_origin_contract_expectation": true
+    }
+  ]
+}

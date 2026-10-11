@@ -1,0 +1,26 @@
+Creating test database for alias 'default'...
+.................................................Photo preparation failed for user 33
+Traceback (most recent call last):
+  File "C:\kidsmap\src\catalog\photo_views.py", line 61, in prepare_owner_photo
+    normalized = normalize_uploaded_image(uploads[0])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\kidsmap\scratch\task33-prepare-20261002\python\cpython-3.12.15-windows-x86_64-none\Lib\unittest\mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\kidsmap\scratch\task33-prepare-20261002\python\cpython-3.12.15-windows-x86_64-none\Lib\unittest\mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\kidsmap\scratch\task33-prepare-20261002\python\cpython-3.12.15-windows-x86_64-none\Lib\unittest\mock.py", line 1198, in _execute_mock_call
+    raise effect
+OSError: synthetic storage failure
+............Image upload rejected: {'name': 'photo.png', 'size': 100, 'mime': 'image/png'}; reason=«photo.png» şəkli: maksimum 50 MP və tərəfi üzrə 12000 piksel.
+..Image upload rejected: {'name': 'broken.jpg', 'size': 3, 'mime': 'image/jpeg'}; reason=«broken.jpg» oxumaq mümkün olmadı: fayl zədələnib və ya dəstəklənməyən şəkildir.
+.Image upload rejected: {'name': 'bad.jpg', 'size': 3, 'mime': 'image/jpeg'}; reason=«bad.jpg» oxumaq mümkün olmadı: fayl zədələnib və ya dəstəklənməyən şəkildir.
+....................
+----------------------------------------------------------------------
+Ran 84 tests in 53.978s
+
+OK
+Destroying test database for alias 'default'...
+Found 84 test(s).
+System check identified no issues (0 silenced).

@@ -1,0 +1,5 @@
+async original=>{
+ __QA11_COMMON__
+ const {c,p}=await context('admin','ru'),out={};for(const kind of ['organization','activity','program','event','specialist']){const status=await visit(p,'/admin/catalog/'+kind+'/1/change/');out[kind]={url:p.url(),snap:status>=400?'Error diagnostic settings omitted':(await p.locator('body').ariaSnapshot()).slice(-7000),inputs:await p.locator('input,select,textarea,button').evaluateAll(es=>es.filter(e=>e.name&&e.type!=='hidden').map(e=>({name:e.name,type:e.type,value:e.type==='password'?'[omitted]':e.value,visible:!!e.getClientRects().length,text:e.tagName==='BUTTON'?e.textContent.trim():''})))};}
+ await visit(p,'/admin/catalog/place/?id__exact=1');out.list={snap:(await p.locator('body').ariaSnapshot()).slice(-6000),controls:await p.locator('input,select,button').evaluateAll(es=>es.filter(e=>e.name&&e.type!=='hidden').map(e=>({name:e.name,type:e.type,visible:!!e.getClientRects().length,value:e.value,text:e.tagName==='BUTTON'?e.textContent.trim():''})))};await c.close();return out;
+}

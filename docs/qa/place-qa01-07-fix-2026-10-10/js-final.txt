@@ -1,0 +1,38 @@
+✔ moving clears stale district and ignores response for previous coordinates (1172.3608ms)
+✔ clearing coordinates cancels a pending result (541.9066ms)
+✔ uncovered result leaves old district empty and announces the reason (529.5634ms)
+✔ current override is preserved but an obsolete dataset triggers a new assignment (1056.4154ms)
+✔ visual result clears while moving and network errors can be retried (1577.583ms)
+✔ invalid numeric coordinates never announce a selected map point (12.8562ms)
+✔ valid zero coordinates still announce a selected map point (9.5553ms)
+✔ restoring manual district cancels an already pending coordinate lookup (443.4236ms)
+✔ non-continuous empty-point behavior is preserved (15.7825ms)
+✔ manual point -> clear -> Baku enables district and includes it in submitted data (15.8349ms)
+✔ manual point -> clear -> another region -> Baku enables district (11.0523ms)
+✔ manual region change away from Baku disables and clears stale Baku district (9.2815ms)
+✔ saved manual Baku district without coordinates survives initial boot (8.2892ms)
+✔ partial point is not equivalent to manual mode (9.8186ms)
+✔ resolved point in Baku still enables its district (441.2266ms)
+✔ stale lookup cannot overwrite manual region/district after clear (445.4854ms)
+✔ draft field/change replay restores manual district (coordinates first: false) (8.8139ms)
+✔ draft field/change replay restores manual district (coordinates first: true) (8.6268ms)
+✔ clear manual point with unavailable provider and no SDK (119.4731ms)
+✔ clear manual point with google provider and no SDK (15.388ms)
+✔ no navigator.geolocation gives visible feedback without map SDK (12.8847ms)
+✔ denied geolocation is requested once and explained without map SDK (14.8244ms)
+✔ late Leaflet initialization is not blocked by unavailable placeholder (11.7935ms)
+✔ success without SDK updates one point; clearing cancels delayed geolocation (10.9955ms)
+✔ manual edits and malformed geolocation cannot overwrite entered values (11.2049ms)
+✔ repeated boot never duplicates independent control listeners (12.3386ms)
+✔ timeout geolocation preserves fields and resets busy state (13.4167ms)
+✔ throw geolocation preserves fields and resets busy state (11.7975ms)
+✔ late Google callback initializes once and independent controls emit once (10.8692ms)
+✔ failed renderer construction leaves controls and safe placeholder available (11.0991ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7120.8538

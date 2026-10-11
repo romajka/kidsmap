@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "C:\kidsmap\docs\qa\place-qa01-07-fix-2026-10-10\finalize_evidence.py", line 31, in <module>
+    'active_run':run('rg','-n','active_run','.agents/registry.json'),'worktree':run('git','status','--short').splitlines(),
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\kidsmap\docs\qa\place-qa01-07-fix-2026-10-10\finalize_evidence.py", line 11, in run
+    assert result.returncode==0,(args,result.returncode)
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: (('rg', '-n', 'active_run', '.agents/registry.json'), 1)

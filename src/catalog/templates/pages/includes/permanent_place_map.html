@@ -10,8 +10,9 @@
   data-default-lng="49.867092"
   data-selected-prefix="{% if CURRENT_LANGUAGE == 'az' %}Seçilmiş nöqtə:{% elif CURRENT_LANGUAGE == 'en' %}Selected point:{% else %}{% trans 'Выбрана точка:' %}{% endif %}"
   data-empty-label="{% if CURRENT_LANGUAGE == 'az' %}Xəritədə nöqtə seçilməyib.{% elif CURRENT_LANGUAGE == 'en' %}No map point selected.{% else %}{% trans 'Точка на карте не выбрана.' %}{% endif %}"
-  data-locate-error="{% if CURRENT_LANGUAGE == 'az' %}Geolokasiyanı müəyyən etmək olmadı. Nöqtəni xəritədə seçin.{% elif CURRENT_LANGUAGE == 'en' %}Could not detect your location. Pick a point on the map.{% else %}{% trans 'Не удалось определить геопозицию. Выберите точку вручную на карте.' %}{% endif %}"
-  data-locate-unsupported="{% if CURRENT_LANGUAGE == 'az' %}Brauzeriniz geolokasiyanı dəstəkləmir. Nöqtəni xəritədə seçin.{% elif CURRENT_LANGUAGE == 'en' %}Your browser does not support geolocation. Pick a point on the map.{% else %}{% trans 'Ваш браузер не поддерживает геолокацию. Выберите точку вручную на карте.' %}{% endif %}"
+  data-locate-error="{{ ui.map_locate_error }}"
+  data-locating="{{ ui.map_locating }}"
+  data-locate-unsupported="{{ ui.map_locate_unsupported }}"
   data-search-error="{% if CURRENT_LANGUAGE == 'az' %}Bu sorğu üzrə məkan tapılmadı. Ünvanı dəqiqləşdirin.{% elif CURRENT_LANGUAGE == 'en' %}No place found for this query. Refine the address.{% else %}{% trans 'Не удалось найти место по этому запросу. Уточните название или адрес.' %}{% endif %}"
   data-search-empty="{% if CURRENT_LANGUAGE == 'az' %}Xəritədə axtarış üçün ad və ya ünvan yazın.{% elif CURRENT_LANGUAGE == 'en' %}Enter a name or address to search on the map.{% else %}{% trans 'Введите название места или адрес для поиска на карте.' %}{% endif %}"
   data-search-unsupported="{{ ui.map_unavailable }}"
@@ -47,7 +48,7 @@
 
   <div class="owner-map-picker-toolbar">
     <div class="owner-map-picker-status-wrap">
-      <span class="owner-map-picker-status" data-map-status>
+      <span class="owner-map-picker-status" data-map-status role="status" aria-live="polite" aria-atomic="true">
         {% if form.lat.value and form.lng.value %}
           {% if CURRENT_LANGUAGE == "az" %}Seçilmiş nöqtə: {{ form.lat.value|unlocalize }}, {{ form.lng.value|unlocalize }}{% elif CURRENT_LANGUAGE == "en" %}Selected point: {{ form.lat.value|unlocalize }}, {{ form.lng.value|unlocalize }}{% else %}{% blocktrans with lat=form.lat.value|unlocalize lng=form.lng.value|unlocalize %}Выбрана точка: {{ lat }}, {{ lng }}{% endblocktrans %}{% endif %}
         {% else %}

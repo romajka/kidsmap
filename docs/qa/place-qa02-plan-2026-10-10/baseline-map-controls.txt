@@ -1,0 +1,120 @@
+✖ clear manual point with unavailable provider and no SDK (127.7235ms)
+✖ clear manual point with google provider and no SDK (14.2755ms)
+✖ no navigator.geolocation gives visible feedback without map SDK (13.8271ms)
+✖ denied geolocation is requested once and explained without map SDK (14.1719ms)
+✖ late Leaflet initialization is not blocked by unavailable placeholder (12.7059ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1590.5619
+
+✖ failing tests:
+
+test at docs\qa\place-qa02-plan-2026-10-10\baseline-map-controls.cjs:37:3
+✖ clear manual point with unavailable provider and no SDK (127.7235ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '40.4093' !== ''
+  
+      at TestContext.<anonymous> (C:\kidsmap\docs\qa\place-qa02-plan-2026-10-10\baseline-map-controls.cjs:41:14)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.start (node:internal/test_runner/test:1015:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '40.4093',
+    expected: '',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\qa\place-qa02-plan-2026-10-10\baseline-map-controls.cjs:37:3
+✖ clear manual point with google provider and no SDK (14.2755ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '40.4093' !== ''
+  
+      at TestContext.<anonymous> (C:\kidsmap\docs\qa\place-qa02-plan-2026-10-10\baseline-map-controls.cjs:41:14)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '40.4093',
+    expected: '',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\qa\place-qa02-plan-2026-10-10\baseline-map-controls.cjs:50:1
+✖ no navigator.geolocation gives visible feedback without map SDK (13.8271ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'Selected point: 40.4093, 49.8671'
+  - 'Geolocation unavailable. Enter coordinates manually.'
+  
+      at TestContext.<anonymous> (C:\kidsmap\docs\qa\place-qa02-plan-2026-10-10\baseline-map-controls.cjs:54:12)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Selected point: 40.4093, 49.8671',
+    expected: 'Geolocation unavailable. Enter coordinates manually.',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\qa\place-qa02-plan-2026-10-10\baseline-map-controls.cjs:60:1
+✖ denied geolocation is requested once and explained without map SDK (14.1719ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (C:\kidsmap\docs\qa\place-qa02-plan-2026-10-10\baseline-map-controls.cjs:68:12)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs\qa\place-qa02-plan-2026-10-10\baseline-map-controls.cjs:74:1
+✖ late Leaflet initialization is not blocked by unavailable placeholder (12.7059ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (C:\kidsmap\docs\qa\place-qa02-plan-2026-10-10\baseline-map-controls.cjs:87:12)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

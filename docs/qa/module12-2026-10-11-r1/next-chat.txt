@@ -1,0 +1,40 @@
+Продолжаем KidsMap. Модуль12 завершён DONE—FAIL: docs/qa/module12-2026-10-11-r1/REPORT.md и FINDINGS.md,8OPEN (6P2/2P3). Ничего в приложении не исправлено. Журнал:01–12DONE—FAIL,13NOTRUN. Выполни только13 в AUDIT ONLY с новым изолированным стендом и свежими доказательствами; старые отчёты — чеклист.
+
+Последний checkout C:/kidsmap, branchtask33-progress, HEAD8d188b316f800fbedf0b1e376905dfd4924cb1b6, dirty, active_runNONE — перепроверь. Чужие стенды включая module11 и module12/8829/8830/55443, контейнер kidsmap-module12-20261011-r1, browsermodule12-r1, volumes/PID сохраняй. Credentials/env не читать и не переносить. Дополнительные flags/GA/fault adapters изmodule12 не объявляй production или fresh evidence.
+
+Работай в корне репозитория KidsMap. На исходном ПК это /home/ramin/kidsmap; на другом ПК сначала определи фактический путь checkout. Прочитай AGENTS.md, канонические инструкции .agents и docs/qa/content-entry-audit-2026-10-06.md. Исторические отчёты используй только как чек-лист для свежей проверки.
+
+Зафиксируй HEAD, branch, dirty WORKTREE, active_run и фактическую версию работающего стенда. Подтверди соответствие запущенных исходников WORKTREE. Сохрани чужие изменения, чужой active_run и чужие стенды. Недостающие документы явно перечисли; не подменяй их догадками.
+
+Режим AUDIT ONLY: приложение, правила, миграции и существующие assertions не исправляй. Разрешены собственные QA-скрипты, изолированные фикстуры и новый отчёт. Только DJANGO_TESTING=1, отдельные DB/cache/media/private-media/email, вымышленные данные; без production credentials, внешних интеграций, commit/push/deploy. На другом ПК создай новый изолированный стенд; локальные адреса, PID, volumes и сессии исходного ПК не считаются доступными.
+
+Запускай после отдельных модульных аудитов. Проведи финальную межмодульную приёмку и сведи новые результаты.
+
+Прочитай модульные отчёты текущей серии. Сопоставь routes/models/admin surfaces с coverage; найди непроверенные области. Отчёты другого snapshot не считаются автоматически свежими: изменившиеся критичные сценарии перепроверь.
+
+Пройди один реальный путь:
+1. Создать организацию без филиалов.
+2. Создать/опубликовать места и подключить готовые через canonical request/confirm.
+3. Добавить программу/занятия/группы/тарифы/расписания.
+4. Предложить специалиста, пройти подтверждения, сотрудничество с сетью и несколько мест приёма.
+5. Очное событие на площадке филиала и online event с доступным организатором.
+6. Draft/reload/submit/reject/correct/approve/public card.
+7. Edit published/two-tab conflict/live preservation.
+8. Detach branch/revoke employee/change cooperation/reschedule-cancel event: связанные программы/ACL/public display.
+9. Public sections OFF/ON: menu/direct URLs/search/map/data preservation.
+10. Фото/галерею/private docs/reviews/favorites/redirects/view counters в местах пересечения модулей.
+
+Позитивные/негативные пути, повторы, partial failure. Полные применимые backend/JS-наборы запускай только подтверждённым изолированным launcher. Ничего не ослабляй/отключай ради green. Недоступный набор = NOT RUN с причиной.
+
+Сведи дубли по первопричине, сохрани исходные IDs/evidence. Итог дополнительно:
+— module/scenario/role/snapshot/PASS/FAIL/NOT RUN/evidence;
+— открытые P0–P3, coverage gaps, внешние/device/browser ограничения;
+— counts/exit codes, screenshots, порядок исправления с зависимостями;
+— отдельные repair prompts.
+Новый префикс CROSS-QA-xx. Общий PASS проекта не заявляй при невыполненных обязательных сценариях. Локальная приёмка не доказывает production-состояние.
+
+Реальный браузер: RU/AZ/EN × 360/390/768/1024/1280/1440. Проверь применимые пустые, заполненные, loading/error/conflict состояния, длинные тексты, открытые селекты/модалки, Tab/Shift+Tab/Enter/Space/Escape, видимый фокус, перекрытия/обрезку/overflow и console/network. Сохрани свежие скриншоты PC/mobile, включая ошибки. Source inspection, jsdom и HTTP 200 не заменяют rendered browser и сохранение/reload.
+
+Сохрани новый отчёт и evidence в docs/qa с уникальным module/date/run именем, без secrets и приватных данных. Верни PASS/FAIL/NOT RUN по сценарию/роли/языку/ширине, snapshot, точные команды, counts/exit codes и ссылки на доказательства. Отдели regression, pre-existing baseline failure, environment failure и SIMULATED integrations. Недоступные проверки и ограничения явно оставь NOT RUN; по возможности продолжи независимые проверки.
+
+Каждый подтверждённый дефект оформи отдельно: ID указанного префикса, роль, URL/endpoint, шаги, ожидание, факт, доказательство, первопричина или неподтверждённая гипотеза, P0–P3 с обоснованием, область исправления и зависимости. Дай самостоятельный копируемый промпт на исправление каждого дефекта. Не исправляй автоматически и не выдумывай findings. Вывод «всё работает» допустим только в пределах реально выполненных сценариев.

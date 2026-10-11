@@ -1,0 +1,76 @@
+{
+  "8823": {
+    "pid": 40936,
+    "version": {
+      "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+      "source_digest": "933b55c01caf9ab69bce9d81d23b69e87c262ffcf5d192917e8d9272b0f7ee83",
+      "testing": true,
+      "db": "isolated-module10"
+    },
+    "startup_manifest_match": true,
+    "current_worktree_match": false,
+    "note": "Entry-imports/disk drift: not current attestation"
+  },
+  "8824": {
+    "pid": 17432,
+    "version": {
+      "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+      "source_digest": "933b55c01caf9ab69bce9d81d23b69e87c262ffcf5d192917e8d9272b0f7ee83",
+      "testing": true,
+      "db": "isolated-module10"
+    },
+    "startup_manifest_match": true,
+    "current_worktree_match": false,
+    "note": "Entry-imports/disk drift: not current attestation"
+  },
+  "8825": {
+    "pid": 40836,
+    "version": {
+      "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+      "source_digest": "e13c36f2af3aca03513ff860a1dee7c02a8cb2ab8214c89bcffd7dd5fe5914b1",
+      "testing": true,
+      "db": "isolated-module10"
+    },
+    "startup_manifest_match": true,
+    "current_worktree_match": true,
+    "note": "New matched current snapshot guard / no autoreloader"
+  },
+  "8826": {
+    "pid": 40732,
+    "version": {
+      "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+      "source_digest": "e13c36f2af3aca03513ff860a1dee7c02a8cb2ab8214c89bcffd7dd5fe5914b1",
+      "testing": true,
+      "db": "isolated-module10"
+    },
+    "startup_manifest_match": true,
+    "current_worktree_match": true,
+    "note": "New matched current snapshot guard / no autoreloader"
+  },
+  "source_evidence": "Startup run.py full source guard, use_reloader=False, listener PID and current source manifest. qa/version echoes manifest, not independent attestation.",
+  "container_inspection": "97fac7184d2c877743ba93c42342be06a186ae4a4f110eaf84918e16ec75d463 postgres:17-alpine 09a95b93e1bef30fc385c0203f058ba2befadefe23261f72b5c24ffbc2512568 /var/lib/postgresql/data",
+  "browser": "Chromium153.0.8010.12 / module10-r1 / headless shell1243",
+  "isolation": "DJANGO_TESTING1; own PG55441/module10/test_module10; own LocMem/cache/mail/media/private-media/cookies; no dotenv/credentials/external transports",
+  "process_identity": [
+    {
+      "PID": 40936,
+      "OwnLauncher": true,
+      "NoAutoreloader": true
+    },
+    {
+      "PID": 17432,
+      "OwnLauncher": true,
+      "NoAutoreloader": true
+    },
+    {
+      "PID": 40836,
+      "OwnLauncher": true,
+      "NoAutoreloader": true
+    },
+    {
+      "PID": 40732,
+      "OwnLauncher": true,
+      "NoAutoreloader": true
+    }
+  ]
+}

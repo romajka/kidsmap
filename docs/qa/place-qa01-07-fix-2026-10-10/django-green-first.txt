@@ -1,0 +1,35 @@
+Found 17 test(s).
+System check identified no issues (0 silenced).
+Creating test database for alias 'default'...
+
+..............E.F
+======================================================================
+ERROR: test_manual_baku_district_is_saved_and_reloaded_as_candidate (catalog.testcases.test_place_qa04_manual_location.ManualOwnerLocationTests.test_manual_baku_district_is_saved_and_reloaded_as_candidate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\kidsmap\src\catalog\testcases\test_place_qa04_manual_location.py", line 18, in test_manual_baku_district_is_saved_and_reloaded_as_candidate
+    self.assertEqual(revision.payload.get('region',self.place.region),'baku')
+                                                   ^^^^^^^^^^^^^^^^^
+AttributeError: 'Place' object has no attribute 'region'
+
+======================================================================
+FAIL: test_runtime_choices_in_all_languages (catalog.testcases.test_task33_place_nature_localization.PlaceNatureLabelsTests.test_runtime_choices_in_all_languages) (language='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\kidsmap\src\catalog\testcases\test_task33_place_nature_localization.py", line 19, in test_runtime_choices_in_all_languages
+    self.assertEqual(choices,list(zip(['business','public_space'],labels)))
+AssertionError: Lists differ: [('business', 'Biznes'), ('public_space', 'İctimai məkan')] != [('business', 'Бизнес'), ('public_space', 'Общественное место')]
+
+First differing element 0:
+('business', 'Biznes')
+('business', 'Бизнес')
+
+- [('business', 'Biznes'), ('public_space', 'İctimai məkan')]
++ [('business', 'Бизнес'), ('public_space', 'Общественное место')]
+
+----------------------------------------------------------------------
+Ran 17 tests in 11.775s
+
+FAILED (failures=1, errors=1)
+Destroying test database for alias 'default'...
+

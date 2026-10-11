@@ -1,0 +1,9 @@
+Работай в C:/kidsmap (на другом ПК сначала найди checkout). Прочитай AGENTS.md, канонические .agents, docs/qa/module13-2026-10-11-r1/REPORT.md и findings/SOCIAL-QA-01.md в том же run. Задача: SOCIAL-QA-01, SOCIAL-QA-01 — Сохранённая оценка не восстанавливается в редакторе, P2. Сохрани чужие изменения, active_run и стенды. Без commit/push/deploy/production.
+
+Подтверждённый trigger: Choose rating4 and fictional literal HTML text, submit pending review, reload editor.
+Ожидание: Saved rating4 selected while content remains escaped.
+Факт: Persisted candidate content survives but all four editor rating controls reopen empty. Public approved text escapes correctly.
+Свежие доказательства: docs/qa/module13-2026-10-11-r1/social-private.result.txt; matrix.json; screenshots-manifest.json. Source refs: src/catalog/templates/catalog/typed_reviews.html.
+Группа причины: REVIEW-RATING-READBACK. 
+
+Сначала проверь текущий source и составь конкретный план исправления с файлами, зависимостями и meaningful regression проверками. Согласно audit scope реализацию выполняй только после согласования этого плана. Не меняй существующие assertions ради green. Применимые проверки: DJANGO_TESTING=1, собственные DB/cache/media/private-media/email, вымышленные данные, внешние интеграции выключены. После согласованного исправления повтори реальный UI trigger, сохранение/reload и PC/mobile RU/AZ/EN; сохраняй candidate/live и ACL. Отдельно классифицируй source translation, generated assets, baseline и environment failures. Сохрани свежий отчёт, точные команды/counts/exit codes/screenshots и NOT RUN ограничения.

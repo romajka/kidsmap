@@ -1,0 +1,57 @@
+{
+  "actors": {
+    "owner": {
+      "id": 1,
+      "username": "qa12_owner",
+      "email": "owner12@example.invalid"
+    },
+    "staff": {
+      "id": 2,
+      "username": "qa12_staff",
+      "email": "staff12@example.invalid"
+    },
+    "admin": {
+      "id": 3,
+      "username": "qa12_admin",
+      "email": "admin12@example.invalid"
+    },
+    "outsider": {
+      "id": 4,
+      "username": "qa12_outsider",
+      "email": "outsider12@example.invalid"
+    }
+  },
+  "places": {
+    "live": 1,
+    "draft": 2,
+    "inactive": 3,
+    "archived": 4,
+    "deleted": 5
+  },
+  "specialist": 1,
+  "event": 1,
+  "organization": 1,
+  "organization_public_id": "949e735a-611f-480a-b81f-38f643bac48f",
+  "urls": {
+    "ru": {
+      "place": "/ru/place/1-vymyshlennoe-qa12-live/",
+      "specialist": "/ru/specialists/fictional-qa12-specialist/",
+      "event": "/ru/event/1-uydurma-qa12-tedbir/",
+      "organization": "/ru/organizations/949e735a-611f-480a-b81f-38f643bac48f/"
+    },
+    "az": {
+      "place": "/place/1-uydurma-qa12-live/",
+      "specialist": "/specialists/fictional-qa12-specialist/",
+      "event": "/event/1-uydurma-qa12-tedbir/",
+      "organization": "/organizations/949e735a-611f-480a-b81f-38f643bac48f/"
+    },
+    "en": {
+      "place": "/en/place/1-fictional-qa12-live/",
+      "specialist": "/en/specialists/fictional-qa12-specialist/",
+      "event": "/en/event/1-uydurma-qa12-tedbir/",
+      "organization": "/en/organizations/949e735a-611f-480a-b81f-38f643bac48f/"
+    }
+  },
+  "settings": 1,
+  "synthetic_only": true
+}

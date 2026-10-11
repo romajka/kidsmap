@@ -1,0 +1,252 @@
+{
+  "raw_counts": {
+    "functional": {
+      "PASS": 17,
+      "FAIL": 18,
+      "NOT RUN": 0
+    },
+    "contacts": {
+      "PASS": 17,
+      "FAIL": 3,
+      "NOT RUN": 0
+    },
+    "matrix": {
+      "PASS": 318,
+      "FAIL": 60,
+      "NOT RUN": 0
+    },
+    "keyboard": {
+      "PASS": 18,
+      "FAIL": 0,
+      "NOT RUN": 0
+    },
+    "lifecycle": {
+      "PASS": 27,
+      "FAIL": 2,
+      "NOT RUN": 0
+    },
+    "fault": {
+      "PASS": 0,
+      "FAIL": 2,
+      "NOT RUN": 0
+    },
+    "states": {
+      "PASS": 38,
+      "FAIL": 36,
+      "NOT RUN": 0
+    },
+    "devices-periods": {
+      "PASS": 8,
+      "FAIL": 0,
+      "NOT RUN": 0
+    },
+    "telemetry": {
+      "PASS": 60,
+      "FAIL": 0,
+      "NOT RUN": 0
+    },
+    "empty": {
+      "PASS": 18,
+      "FAIL": 0,
+      "NOT RUN": 0
+    },
+    "private-proof": {
+      "PASS": 1,
+      "FAIL": 1,
+      "NOT RUN": 0
+    }
+  },
+  "corrections": [
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "matrix.result.txt",
+      "scenario": "period-keyboard-enter",
+      "reason": "Waited old load state; replaced by fresh keyboard.js waitForURL18PASS"
+    },
+    {
+      "evidence": "lifecycle.result.txt",
+      "scenario": "rename-approved-1",
+      "reason": "Django CharField strips trailing whitespace; raw expected contained trailing space, not a defect"
+    },
+    {
+      "evidence": "lifecycle.result.txt",
+      "scenario": "rename-approved-2",
+      "reason": "Django CharField strips trailing whitespace; raw expected contained trailing space, not a defect"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    },
+    {
+      "evidence": "states.result.txt",
+      "scenario": "admin-stats-permission",
+      "reason": "Compare pathname; next query contains protected path but body is login and has no KPI"
+    }
+  ],
+  "policy": "Raw attempts retained; no application or existing assertions changed"
+}

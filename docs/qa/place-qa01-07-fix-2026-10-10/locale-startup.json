@@ -1,0 +1,52 @@
+[
+  {
+    "case": "corrupt MO",
+    "argv": [
+      "C:\\kidsmap\\.venv\\Scripts\\python.exe",
+      "C:\\kidsmap\\docs\\qa\\place-qa01-07-fix-2026-10-10\\runtime.py",
+      "serve"
+    ],
+    "exit_code": 1,
+    "http_port_unbound": true
+  },
+  {
+    "case": "missing MO",
+    "argv": [
+      "C:\\kidsmap\\.venv\\Scripts\\python.exe",
+      "C:\\kidsmap\\docs\\qa\\place-qa01-07-fix-2026-10-10\\runtime.py",
+      "serve"
+    ],
+    "exit_code": 1,
+    "http_port_unbound": true
+  },
+  {
+    "case": "missing manifest",
+    "argv": [
+      "C:\\kidsmap\\.venv\\Scripts\\python.exe",
+      "C:\\kidsmap\\docs\\qa\\place-qa01-07-fix-2026-10-10\\runtime.py",
+      "serve"
+    ],
+    "exit_code": 1,
+    "http_port_unbound": true
+  },
+  {
+    "case": "incomplete manifest",
+    "argv": [
+      "C:\\kidsmap\\.venv\\Scripts\\python.exe",
+      "C:\\kidsmap\\docs\\qa\\place-qa01-07-fix-2026-10-10\\runtime.py",
+      "serve"
+    ],
+    "exit_code": 1,
+    "http_port_unbound": true
+  },
+  {
+    "case": "valid full manifest",
+    "argv": [
+      "C:\\kidsmap\\.venv\\Scripts\\python.exe",
+      "C:\\kidsmap\\docs\\qa\\place-qa01-07-fix-2026-10-10\\runtime.py",
+      "preflight"
+    ],
+    "exit_code": 0,
+    "http_port_unbound": true
+  }
+]

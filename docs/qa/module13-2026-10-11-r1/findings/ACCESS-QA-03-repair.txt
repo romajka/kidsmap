@@ -1,0 +1,9 @@
+Работай в C:/kidsmap (на другом ПК сначала найди checkout). Прочитай AGENTS.md, канонические .agents, docs/qa/module13-2026-10-11-r1/REPORT.md и findings/ACCESS-QA-03.md в том же run. Задача: ACCESS-QA-03, ACCESS-QA-03 — управление сотрудниками сети отсутствует в кабинете, P2. Сохрани чужие изменения, active_run и стенды. Без commit/push/deploy/production.
+
+Подтверждённый trigger: Repeat ORG-QA-02 network employee-management inspection.
+Ожидание: Native grant management under current ACL/CAS contract.
+Факт: Same missing surface as ORG-QA-02; preserve both historical IDs, count one cause and one repair scope.
+Свежие доказательства: docs/qa/module13-2026-10-11-r1/cross-effects.result.txt; matrix.json; screenshots-manifest.json. Source refs: src/catalog/templates/pages/organization_workspace.html, static/js/organization_workspace.js.
+Группа причины: NETWORK-GRANT-UI. ORG-QA-02 и ACCESS-QA-03 исправляются одним scope, без дублирования.
+
+Сначала проверь текущий source и составь конкретный план исправления с файлами, зависимостями и meaningful regression проверками. Согласно audit scope реализацию выполняй только после согласования этого плана. Не меняй существующие assertions ради green. Применимые проверки: DJANGO_TESTING=1, собственные DB/cache/media/private-media/email, вымышленные данные, внешние интеграции выключены. После согласованного исправления повтори реальный UI trigger, сохранение/reload и PC/mobile RU/AZ/EN; сохраняй candidate/live и ACL. Отдельно классифицируй source translation, generated assets, baseline и environment failures. Сохрани свежий отчёт, точные команды/counts/exit codes/screenshots и NOT RUN ограничения.

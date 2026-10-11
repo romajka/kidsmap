@@ -1,0 +1,16 @@
+{
+  "python": "3.12.15",
+  "django": "6.0.2",
+  "testing": true,
+  "db": "module13",
+  "db_port": "55444",
+  "cache": {
+    "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    "LOCATION": "module13-r1"
+  },
+  "email": "django.core.mail.backends.locmem.EmailBackend",
+  "media": "C:\\kidsmap\\.tmp\\module13-20261011-r1\\media",
+  "private_media": "C:\\kidsmap\\.tmp\\module13-20261011-r1\\private-media",
+  "migrations": 175,
+  "external_integrations": false
+}

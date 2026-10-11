@@ -1,0 +1,20 @@
+Found 1 test(s).
+System check identified no issues (0 silenced).
+
+Creating test database for alias 'default'...
+
+E
+======================================================================
+ERROR: test_private_photo_survives_reload_is_author_only_and_copies_on_send (catalog.testcases.test_specialist_proposal_drafts.SpecialistProposalDraftTests.test_private_photo_survives_reload_is_author_only_and_copies_on_send)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\kidsmap\.venv\Lib\site-packages\django\core\files\storage\filesystem.py", line 170, in delete
+    os.remove(name)
+PermissionError: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл занят другим процессом: 'C:\\kidsmap\\.tmp\\module03-20261010-r1\\unit-private-media\\specialist-proposal-photos\\601a3f03f4574a3d828ff55774724ce1.bin'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.386s
+
+FAILED (errors=1)
+Destroying test database for alias 'default'...
+

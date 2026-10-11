@@ -1,0 +1,28 @@
+### Error
+TimeoutError: locator.click: Timeout 8000ms exceeded.
+Call log:
+[2m  - waiting for locator('[data-widget=pushmenu]').first()[22m
+[2m    - locator resolved to <button type="button" data-widget="pushmenu" aria-label="Навигация" class="km-admin-header__toggle">…</button>[22m
+[2m  - attempting click action[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <img alt="KidsMap Logo" src="/static/img/logo.svg" class="km-admin-brand-logo brand-image elevation-3"/> from <aside id="jazzy-sidebar" class="main-sidebar elevation-4 sidebar-dark-success km-admin-sidebar">…</aside> subtree intercepts pointer events[22m
+[2m    - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <img alt="KidsMap Logo" src="/static/img/logo.svg" class="km-admin-brand-logo brand-image elevation-3"/> from <aside id="jazzy-sidebar" class="main-sidebar elevation-4 sidebar-dark-success km-admin-sidebar">…</aside> subtree intercepts pointer events[22m
+[2m    - retrying click action[22m
+[2m      - waiting 100ms[22m
+[2m    14 × waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <img alt="KidsMap Logo" src="/static/img/logo.svg" class="km-admin-brand-logo brand-image elevation-3"/> from <aside id="jazzy-sidebar" class="main-sidebar elevation-4 sidebar-dark-success km-admin-sidebar">…</aside> subtree intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+

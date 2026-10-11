@@ -1,0 +1,11 @@
+Работай в фактическом корне KidsMap. Прочитай AGENTS.md, канонические .agents и docs/qa/module09-2026-10-10-r1/findings/SOCIAL-QA-01.md. Проверь текущие HEAD/dirty WORKTREE/active_run; сохрани чужие изменения и стенды. Старый QA09 — checklist, не свежий PASS.
+
+Задача: исправить только SOCIAL-QA-01 «Сохранённая оценка не восстанавливается в редакторе» (P2). Роль/URL: автор; /ru/reviews/{place|specialist|activity|event}/target/<id>/.
+Воспроизведение: Создать отзыв с оценкой4 через UI, отправить и перезагрузить страницу; повторить после одобрения.
+Ожидание: В редакторе выбрана сохранённая оценка текущей либо pending редакции.
+Подтверждённый факт: Текст восстановлен, select показывает «—», value пустой. В БД rating4/5 сохранён; новая отправка требует заново выбрать оценку.
+Проверенный источник/причина: src/catalog/templates/catalog/typed_reviews.html:24; Ни одна option не получает selected; template не читает candidate/current rating.
+Конкретная область: Восстановить selected из действительной candidate/current редакции и не менять рейтинг молча. Проверить pending/approved/rejected, reload и повторную отправку всех4типов.
+Ответственные границы/зависимости: frontend-reviewer + django-reviewer; единый выбор candidate/current, без изменения moderation/cooldown.
+
+Сначала воспроизведи на новом DJANGO_TESTING=1 изолированном DB/cache/media/private-media/email стенде с вымышленными данными и подготовь конкретный план. Реализацию выполняй только в согласованном scope, используя уже данную в новом чате авторизацию; не проси её повторно. Не меняй существующие assertions ради зелёного результата. После scoped исправления выполни meaningful regression checks и настоящий browser/reload RU/AZ/EN×360/390/768/1024/1280/1440; сохрани новый отчёт, exact commands/counts/exit codes, screenshots, candidate/live/ACL readback и NOT RUN. Не расширяй задачу на остальные findings. Без production credentials, внешних интеграций, commit/push/deploy.

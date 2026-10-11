@@ -1,0 +1,15 @@
+✔ moving clears stale district and ignores response for previous coordinates (1203.3067ms)
+✔ clearing coordinates cancels a pending result (539.24ms)
+✔ uncovered result leaves old district empty and announces the reason (514.5214ms)
+✔ current override is preserved but an obsolete dataset triggers a new assignment (1072.3496ms)
+✔ visual result clears while moving and network errors can be retried (1593.5441ms)
+✔ invalid numeric coordinates never announce a selected map point (11.7748ms)
+✔ valid zero coordinates still announce a selected map point (12.9845ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6309.1218

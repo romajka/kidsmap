@@ -1280,6 +1280,7 @@
           if (options.onSelect) options.onSelect(val);
           refreshReadiness();
           refreshPreview();
+          button.focus();
         }
 
         function openDropdown() {
@@ -1333,6 +1334,14 @@
           renderList(searchInput.value);
         });
 
+        container.addEventListener("keydown", function (e) {
+          if (e.key !== "Escape" || dropdown.hidden) return;
+          e.preventDefault();
+          e.stopPropagation();
+          closeDropdown();
+          button.focus();
+        });
+
         searchInput.addEventListener("keydown", function (e) {
           var items = qsa(".km-pf-picker-item", listNode);
           if (!items.length) return;
@@ -1352,10 +1361,6 @@
             } else if (items.length === 1) {
               items[0].click();
             }
-          } else if (e.key === "Escape") {
-            e.preventDefault();
-            closeDropdown();
-            button.focus();
           }
         });
 

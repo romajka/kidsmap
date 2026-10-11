@@ -1,0 +1,42 @@
+✔ moving clears stale district and ignores response for previous coordinates (1147.6531ms)
+✔ clearing coordinates cancels a pending result (535.1561ms)
+✔ uncovered result leaves old district empty and announces the reason (527.0988ms)
+✔ current override is preserved but an obsolete dataset triggers a new assignment (1067.7498ms)
+✔ visual result clears while moving and network errors can be retried (1574.092ms)
+✔ invalid numeric coordinates never announce a selected map point (11.0123ms)
+✔ valid zero coordinates still announce a selected map point (11.8445ms)
+✔ restoring manual district cancels an already pending coordinate lookup (453.4488ms)
+✔ non-continuous empty-point behavior is preserved (16.6155ms)
+✔ manual point -> clear -> Baku enables district and includes it in submitted data (15.3641ms)
+✔ manual point -> clear -> another region -> Baku enables district (9.3637ms)
+✔ manual region change away from Baku disables and clears stale Baku district (8.8212ms)
+✔ saved manual Baku district without coordinates survives initial boot (7.5826ms)
+✔ restored invalid/partial point does not grant manual district: 40.4| (6.9155ms)
+✔ restored invalid/partial point does not grant manual district: |49.8 (8.4388ms)
+✔ restored invalid/partial point does not grant manual district: bad|49.8 (7.3553ms)
+✔ restored invalid/partial point does not grant manual district: 91|49.8 (6.839ms)
+✔ partial point is not equivalent to manual mode (9.5823ms)
+✔ resolved point in Baku still enables its district (442.8013ms)
+✔ stale lookup cannot overwrite manual region/district after clear (445.613ms)
+✔ draft field/change replay restores manual district (coordinates first: false) (7.3407ms)
+✔ draft field/change replay restores manual district (coordinates first: true) (7.3892ms)
+✔ clear manual point with unavailable provider and no SDK (100.1003ms)
+✔ clear manual point with google provider and no SDK (14.3486ms)
+✔ no navigator.geolocation gives visible feedback without map SDK (10.8834ms)
+✔ denied geolocation is requested once and explained without map SDK (13.7712ms)
+✔ late Leaflet initialization is not blocked by unavailable placeholder (10.197ms)
+✔ success without SDK updates one point; clearing cancels delayed geolocation (9.529ms)
+✔ manual edits and malformed geolocation cannot overwrite entered values (9.5604ms)
+✔ repeated boot never duplicates independent control listeners (9.3839ms)
+✔ timeout geolocation preserves fields and resets busy state (9.8193ms)
+✔ throw geolocation preserves fields and resets busy state (9.682ms)
+✔ late Google callback initializes once and independent controls emit once (11.0887ms)
+✔ failed renderer construction leaves controls and safe placeholder available (9.3803ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7033.0707

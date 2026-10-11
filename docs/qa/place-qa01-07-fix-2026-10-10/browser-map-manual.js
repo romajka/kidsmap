@@ -1,0 +1,30 @@
+async (page) => {
+  await page.goto('http://127.0.0.1:8840/ru/account/places/1/edit/');
+  await page.setViewportSize({width:390,height:900});
+  await page.locator('[data-permanent-map] details').locator('summary').click();
+  await page.locator('[name=address]').fill('KMFIX Manual address sentinel');
+  await page.locator('[name=lat]').fill('40.4093');await page.locator('[name=lng]').fill('49.8671');
+  const inputName=await page.locator('[name=name_az]').inputValue();
+  await page.locator('[data-map-clear]').click();
+  const clear={lat:await page.locator('[name=lat]').inputValue(),lng:await page.locator('[name=lng]').inputValue(),status:await page.locator('[data-map-status]').innerText()};
+  if(clear.lat||clear.lng||!clear.status.includes('не выбрана'))throw new Error('No-SDK clear failed');
+  await page.evaluate(()=>Object.defineProperty(navigator,'geolocation',{configurable:true,value:undefined}));
+  await page.locator('[data-map-locate]').click();
+  const unsupported=await page.locator('[data-map-status]').innerText();
+  if(!unsupported.includes('недоступна')||!unsupported.includes('вручную'))throw new Error('Unsupported geolocation feedback missing');
+  await page.evaluate(()=>Object.defineProperty(navigator,'geolocation',{configurable:true,value:{getCurrentPosition(_ok,fail){fail({code:1});}}}));
+  await page.locator('[data-map-locate]').click();
+  const denied=await page.locator('[data-map-status]').innerText();
+  if(!denied.includes('Не удалось'))throw new Error('Denied geolocation feedback missing');
+  await page.locator('[name=region]').selectOption('sumgait');
+  if(!await page.locator('[name=district]').isDisabled())throw new Error('Other region retains Baku district');
+  await page.locator('[name=region]').selectOption('baku');
+  await page.locator('[name=district]').selectOption('baku_yasamal');
+  await page.screenshot({path:'C:/kidsmap/docs/qa/place-qa01-07-fix-2026-10-10/map-manual-clear-390.png'});
+  await Promise.all([page.waitForNavigation(),page.locator('[name=form_action][value=save_draft]').click()]);
+  await page.goto('http://127.0.0.1:8840/ru/account/places/1/edit/');await page.reload();
+  const saved=await page.evaluate(()=>({lat:document.querySelector('[name=lat]').value,lng:document.querySelector('[name=lng]').value,region:document.querySelector('[name=region]').value,district:document.querySelector('[name=district]').value,disabled:document.querySelector('[name=district]').disabled,address:document.querySelector('[name=address]').value,name:document.querySelector('[name=name_az]').value}));
+  if(saved.lat||saved.lng||saved.region!=='baku'||saved.district!=='baku_yasamal'||saved.disabled||saved.address!=='KMFIX Manual address sentinel'||saved.name!==inputName)throw new Error('Manual save/reload failed: '+JSON.stringify(saved));
+  await page.screenshot({path:'C:/kidsmap/docs/qa/place-qa01-07-fix-2026-10-10/map-manual-reload-390.png'});
+  return {clear,unsupported,denied,saved,externalSdk:false};
+}

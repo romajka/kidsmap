@@ -1,0 +1,14 @@
+Работай в фактическом корне KidsMap. Прочитай AGENTS.md и каноническую .agents. Исправь только SEO-QA-02: Social title специалиста остаётся KidsMap.
+
+Исходное подтверждение: docs/qa/module11-2026-10-11-r1/findings/SEO-QA-02.md, source-extra.md и свежие evidence. Это dirty WORKTREE на HEAD8d188b316f800fbedf0b1e376905dfd4924cb1b6; сначала зафиксируй текущий checkout/HEAD/branch/active_run и проверь drift. Сохрани чужие изменения, active_run и стенды. Исторический отчёт — repro/checklist, не новая проверка.
+
+Repro: Переименовать специалиста через админку, подтвердить dialog, reload; открыть карточку и локальный preview.
+Ожидание: og:title/twitter:title содержат идентичность опубликованного специалиста.
+Подтверждённый факт: title/H1 — Uydurma QA11 specialist verified rename2; og:title и twitter:title — KidsMap.
+Область согласованного исправления: Specialist detail social title blocks, общий формат title и approved публичный текст.
+Причина/source: specialist_detail.html override title/meta_description, но не og_title/twitter_title; base.html defaults.15 relevant source files совпадают с HEAD.
+Зависимости: seo-reviewer/frontend-reviewer; согласовать с SEO-QA-01.
+
+Сначала представь конкретный bounded план согласно текущим AGENTS; при реализации сохраняй публичные/приватные границы и остальные контракты. Не исправляй остальные findings в этом scope, не ослабляй существующие assertions. Проверки только DJANGO_TESTING=1, новый изолированный DB/cache/media/private-media/email, вымышленные данные, без внешних интеграций/production credentials. Без commit/push/deploy/production.
+
+Свежая проверка после изменения: существующие релевантные тесты, негативные private/disabled состояния, настоящий native UI→save→reload для применимой мутации, RU/AZ/EN desktop/mobile, HTTP/head отдельно от rendered browser. Для social preview используй собственный локальный preview без внешних ботов; indexing/Search Console/IndexNow не вызывай. Сохрани новый отчёт/evidence/screenshots, counts/exit codes, WORKTREE/runtime соответствие и NOT RUN ограничения. Не утверждай production эффект без его проверки.

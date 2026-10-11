@@ -10,7 +10,13 @@
     return Number(value).toFixed(6);
   }
 
+  function validPoint(lat, lng) {
+    return typeof lat === "number" && typeof lng === "number" &&
+      Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
+  }
+
   function buildSharedState(root) {
+    if (root._kidsMapShared) return root._kidsMapShared;
     const latInput = root.querySelector('input[name="lat"]');
     const lngInput = root.querySelector('input[name="lng"]');
     const mapEl = root.querySelector("[data-map-canvas]");
@@ -63,7 +69,7 @@
       statusEl.textContent = selectedPrefix + " " + formatCoordinate(lat) + ", " + formatCoordinate(lng);
     }
 
-    return {
+    const shared = {
       latInput: latInput,
       lngInput: lngInput,
       mapEl: mapEl,
@@ -84,6 +90,73 @@
       updateGeocodingStatus: updateGeocodingStatus,
       notifyChange: notifyChange,
     };
+    if (root.hasAttribute("data-permanent-map")) root._kidsMapShared = shared;
+    return shared;
+  }
+
+  function bindPermanentControls(root, shared) {
+    if (root.dataset.mapControlsBound === "1") return;
+    root.dataset.mapControlsBound = "1";
+    let generation = 0;
+    function finish() {
+      if (shared.locateBtn) shared.locateBtn.setAttribute("aria-busy", "false");
+    }
+    function invalidate() { generation += 1; finish(); }
+    function point(lat, lng) {
+      if (!validPoint(lat, lng)) return false;
+      if (shared.renderer) shared.renderer.setPoint(lat, lng);
+      else {
+        shared.latInput.value = formatCoordinate(lat);
+        shared.lngInput.value = formatCoordinate(lng);
+        shared.updateStatus(lat, lng);
+        shared.updateGeocodingStatus("refine");
+        shared.notifyChange();
+      }
+      return true;
+    }
+    if (shared.clearBtn) shared.clearBtn.addEventListener("click", function () {
+      invalidate();
+      if (shared.renderer) shared.renderer.clearPoint();
+      else {
+        shared.latInput.value = shared.lngInput.value = "";
+        shared.updateStatus(null, null);
+        shared.updateGeocodingStatus(null);
+        shared.notifyChange();
+      }
+    });
+    [shared.latInput, shared.lngInput].forEach(function (input) {
+      input.addEventListener("input", invalidate);
+      input.addEventListener("change", function () {
+        invalidate();
+        const lat = parseCoordinate(shared.latInput.value), lng = parseCoordinate(shared.lngInput.value);
+        if (validPoint(lat, lng)) point(lat, lng);
+        else if (!shared.latInput.value.trim() && !shared.lngInput.value.trim()) shared.updateStatus(null, null);
+      });
+    });
+    if (shared.locateBtn) shared.locateBtn.addEventListener("click", function () {
+      invalidate();
+      if (!navigator.geolocation || typeof navigator.geolocation.getCurrentPosition !== "function") {
+        shared.statusEl.textContent = shared.locateUnsupportedLabel;
+        return;
+      }
+      const request = generation;
+      const captured = shared.latInput.value + "|" + shared.lngInput.value;
+      const current = () => request === generation && captured === shared.latInput.value + "|" + shared.lngInput.value;
+      shared.statusEl.textContent = root.dataset.locating || shared.locateUnsupportedLabel;
+      shared.locateBtn.setAttribute("aria-busy", "true");
+      function failed() {
+        if (!current()) return;
+        finish();
+        shared.statusEl.textContent = shared.locateErrorLabel;
+      }
+      try {
+        navigator.geolocation.getCurrentPosition(function (position) {
+          if (!current()) return;
+          finish();
+          if (!position || !position.coords || !point(position.coords.latitude, position.coords.longitude)) failed();
+        }, failed, {enableHighAccuracy:true, timeout:10000, maximumAge:0});
+      } catch (_) { failed(); }
+    });
   }
 
   function bindOsmSearch(shared, options) {
@@ -251,8 +324,6 @@
     const shared = buildSharedState(root);
     if (!shared) return;
 
-    root.dataset.mapInitialized = "1";
-
     let marker = null;
     const map = L.map(shared.mapEl, {
       scrollWheelZoom: false,
@@ -265,6 +336,7 @@
     }).addTo(map);
 
     function setPoint(lat, lng, options) {
+      if (!validPoint(lat, lng)) return;
       const recenter = !options || options.recenter !== false;
       const isGeocoded = options && options.isGeocoded;
       shared.latInput.value = formatCoordinate(lat);
@@ -304,18 +376,11 @@
       setPoint(event.latlng.lat, event.latlng.lng);
     });
 
-    bindLocateButton(shared, setPoint);
+    if (!root.hasAttribute("data-permanent-map")) bindLocateButton(shared, setPoint);
     bindOsmSearch(shared, { setPoint: setPoint, map: map });
-    if (root.hasAttribute("data-permanent-map")) {
-      [shared.latInput, shared.lngInput].forEach(function (input) {
-        input.addEventListener("change", function () {
-          const lat = parseCoordinate(shared.latInput.value), lng = parseCoordinate(shared.lngInput.value);
-          if (lat !== null && lng !== null && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) setPoint(lat, lng);
-        });
-      });
-    }
+    if (root.hasAttribute("data-permanent-map")) shared.renderer = {setPoint:setPoint, clearPoint:clearPoint};
 
-    if (shared.clearBtn) {
+    if (shared.clearBtn && !root.hasAttribute("data-permanent-map")) {
       shared.clearBtn.addEventListener("click", function () {
         clearPoint();
       });
@@ -348,14 +413,13 @@
     shared.mapEl.addEventListener("mouseleave", function () {
       map.scrollWheelZoom.disable();
     });
+    root.dataset.mapInitialized = "1";
   }
 
   function initGoogleMapPicker(root) {
     if (!root || !window.google || !window.google.maps || root.dataset.mapInitialized === "1") return;
     const shared = buildSharedState(root);
     if (!shared) return;
-
-    root.dataset.mapInitialized = "1";
 
     let marker = null;
     const initialLat = parseCoordinate(shared.latInput.value);
@@ -373,6 +437,7 @@
     });
 
     function setPoint(lat, lng, options) {
+      if (!validPoint(lat, lng)) return;
       const recenter = !options || options.recenter !== false;
       const isGeocoded = options && options.isGeocoded;
       shared.latInput.value = formatCoordinate(lat);
@@ -420,18 +485,11 @@
       setPoint(event.latLng.lat(), event.latLng.lng());
     });
 
-    bindLocateButton(shared, setPoint);
+    if (!root.hasAttribute("data-permanent-map")) bindLocateButton(shared, setPoint);
     bindGoogleSearch(shared, { setPoint: setPoint, map: map });
-    if (root.hasAttribute("data-permanent-map")) {
-      [shared.latInput, shared.lngInput].forEach(function (input) {
-        input.addEventListener("change", function () {
-          const lat = parseCoordinate(shared.latInput.value), lng = parseCoordinate(shared.lngInput.value);
-          if (lat !== null && lng !== null && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) setPoint(lat, lng);
-        });
-      });
-    }
+    if (root.hasAttribute("data-permanent-map")) shared.renderer = {setPoint:setPoint, clearPoint:clearPoint};
 
-    if (shared.clearBtn) {
+    if (shared.clearBtn && !root.hasAttribute("data-permanent-map")) {
       shared.clearBtn.addEventListener("click", function () {
         clearPoint();
       });
@@ -450,10 +508,47 @@
         ? { lat: lat, lng: lng }
         : { lat: shared.defaultLat, lng: shared.defaultLng });
     };
+    root.dataset.mapInitialized = "1";
   }
 
   function initMapPicker(root) {
     if (!root) return;
+    if (root.hasAttribute("data-permanent-map")) {
+      const shared = buildSharedState(root);
+      if (!shared) return;
+      bindPermanentControls(root, shared);
+      if (root.dataset.mapInitialized === "1") return;
+      function attach() {
+        if (root.dataset.mapInitialized === "1") return;
+        shared.mapEl.textContent = "";
+        try {
+          if (root.dataset.mapProvider === "google" && window.google?.maps) initGoogleMapPicker(root);
+          else if (window.L) initLeafletMapPicker(root);
+        } catch (_) {
+          shared.renderer = null;
+          delete root.dataset.mapInitialized;
+        }
+        const ready = root.dataset.mapInitialized === "1";
+        if (shared.searchBtn) shared.searchBtn.disabled = !ready;
+        if (shared.searchInput) shared.searchInput.disabled = !ready;
+        if (!ready) {
+          const placeholder = document.createElement("div");
+          placeholder.className = "home-map-empty";
+          placeholder.textContent = shared.searchUnsupportedLabel || "Map is temporarily unavailable.";
+          shared.mapEl.replaceChildren(placeholder);
+        }
+      }
+      attach();
+      if (root.dataset.mapRetryBound !== "1") {
+        root.dataset.mapRetryBound = "1";
+        document.querySelectorAll('[data-owner-map-sdk="leaflet"]').forEach(function (script) {
+          script.addEventListener("load", attach);
+          script.addEventListener("error", attach);
+        });
+        if (root.dataset.mapProvider === "google") setTimeout(attach, 5000);
+      }
+      return;
+    }
     const provider = (root.dataset.mapProvider || "").trim();
 
     if (provider === "google") {

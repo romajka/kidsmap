@@ -1,0 +1,121 @@
+{
+  "utc": "2026-10-11T13:05:25.992720+00:00",
+  "exit_code": 0,
+  "checks": [
+    {
+      "check": "81 unique historical IDs",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "Historical severity distribution",
+      "status": "PASS",
+      "detail": {
+        "P2": 67,
+        "P1": 2,
+        "P3": 12
+      }
+    },
+    {
+      "check": "77 historical deduplicated buckets",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "Seven later PLACE repair claims explicitly retained",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "Required nine report sections",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "Only parent-explicit historical IDs receive fresh FAIL",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "Fresh parent artifacts retained and linked",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check": "Local Markdown links exist",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check": "All historical documents unchanged during reconciliation",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check": "Current source matches parent inherited module12 application manifest",
+      "status": "PASS",
+      "detail": {
+        "recorded_files": 2788,
+        "changed": [],
+        "note": "Source preservation only; not fresh runtime attestation."
+      }
+    },
+    {
+      "check": "Parent HEAD and branch retained",
+      "status": "PASS",
+      "detail": {
+        "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+        "branch": "task33-progress"
+      }
+    },
+    {
+      "check": "Parent active_run NONE retained",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "check": "coverage.csv preserves historical vs explicit parent freshness",
+      "status": "PASS",
+      "detail": {
+        "rows": 20362
+      }
+    },
+    {
+      "check": "source-coverage.csv preserves historical vs explicit parent freshness",
+      "status": "PASS",
+      "detail": {
+        "rows": 295
+      }
+    },
+    {
+      "check": "mandatory-gaps.csv preserves historical vs explicit parent freshness",
+      "status": "PASS",
+      "detail": {
+        "rows": 18
+      }
+    },
+    {
+      "check": "Own Python syntax valid",
+      "status": "PASS",
+      "detail": {
+        "files": 5
+      }
+    },
+    {
+      "check": "Own Markdown no trailing whitespace",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "check": "Own JSON valid",
+      "status": "PASS",
+      "detail": {
+        "files": 8
+      }
+    }
+  ],
+  "counts": {
+    "PASS": 18
+  },
+  "scope_note": "Artifact/source/document validation only. Root owns fresh native runtime/test acceptance and foreign-stand preservation."
+}

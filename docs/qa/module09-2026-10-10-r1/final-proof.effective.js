@@ -1,0 +1,70 @@
+async original=>{
+const F={
+  "actors": {
+    "author": {
+      "id": 1,
+      "username": "qa09_author",
+      "email": "author09@example.invalid"
+    },
+    "owner": {
+      "id": 2,
+      "username": "qa09_owner",
+      "email": "owner09@example.invalid"
+    },
+    "employee": {
+      "id": 3,
+      "username": "qa09_employee",
+      "email": "employee09@example.invalid"
+    },
+    "outsider": {
+      "id": 4,
+      "username": "qa09_outsider",
+      "email": "outsider09@example.invalid"
+    },
+    "moderator": {
+      "id": 5,
+      "username": "qa09_moderator",
+      "email": "moderator09@example.invalid"
+    },
+    "staff": {
+      "id": 6,
+      "username": "qa09_staff",
+      "email": "staff09@example.invalid"
+    },
+    "admin": {
+      "id": 7,
+      "username": "qa09_admin",
+      "email": "admin09@example.invalid"
+    },
+    "empty": {
+      "id": 8,
+      "username": "qa09_empty",
+      "email": "empty09@example.invalid"
+    },
+    "invitee": {
+      "id": 9,
+      "username": "qa09_invitee",
+      "email": "invitee09@example.invalid"
+    }
+  },
+  "places": {
+    "live": 1,
+    "empty": 2,
+    "hidden": 3,
+    "inactive": 4,
+    "archived": 5,
+    "deleted": 6,
+    "foreign": 7
+  },
+  "activity": 1,
+  "specialist": 1,
+  "event": 1,
+  "synthetic_only": true
+},base='http://localhost:8822',dir='C:/kidsmap/docs/qa/module09-2026-10-10-r1/screenshots/',rows=[],contexts=[],browser=original.context().browser();const add=(id,ok,data={})=>rows.push({id,status:ok?'PASS':'FAIL',role:'author',lang:'ru',width:1440,...data});
+async function page(role){const c=await browser.newContext({viewport:{width:1440,height:950}});contexts.push(c);await c.route('**/*',r=>new URL(r.request().url()).hostname==='localhost'?r.continue():r.abort());const p=await c.newPage();p.setDefaultTimeout(6000);await p.goto(base+'/ru/auth/login/');await p.locator('[name=username]').fill(F.actors[role].email);await p.locator('[name=password]').fill('__LOCAL_PASSWORD__');await p.locator('.register-form--login button[type=submit]').click();await p.waitForURL(u=>!u.pathname.includes('/auth/login/'));return p;}async function shot(p,name){await p.screenshot({path:dir+name+'.png'});return'screenshots/'+name+'.png';}const state=async p=>(await p.request.get(base+'/qa/state/')).json();const a=await page('author'),o=await page('owner'),i=await page('empty'),m=await page('moderator');
+try{await a.goto(base+'/ru/place-reviews/');const first=await a.locator('.place-review-card,.review-item').allTextContents();await a.locator('.pagination a[href*="page=2"]').first().click();await a.waitForURL(u=>u.searchParams.get('page')==='2');const next=await a.locator('.place-review-card,.review-item').allTextContents();add('place-index-pagination-retry',first.length>0&&next.length>0&&first.every(x=>!next.includes(x)),{firstCount:first.length,secondCount:next.length,url:a.url(),screenshot:await shot(a,'place-pagination2-fresh')});}catch(err){rows.push({id:'pagination-retry-harness',status:'NOT RUN',role:'author',lang:'ru',width:1440,error:String(err).slice(0,350)});}
+for(const lang of ['ru','az','en'])for(const width of [360,390,768,1024,1280,1440]){try{await a.setViewportSize({width,height:950});await a.goto(base+(lang==='az'?'/':'/'+lang+'/')+'reviews/?page=3');const card=a.locator('.site-reviews-list .review-item').filter({hasText:'SYNTHETIC 0'});await card.scrollIntoViewIfNeeded();const geo=await card.evaluate(e=>({right:e.getBoundingClientRect().right,width:e.getBoundingClientRect().width,document:document.documentElement.scrollWidth,viewport:innerWidth}));add('long-review-card-fits',geo.right<=width+1,{lang,width,...geo,screenshot:await shot(a,'long-card-'+lang+'-'+width)});}catch(err){rows.push({id:'long-card-harness',status:'NOT RUN',role:'author',lang,width,error:String(err).slice(0,300)});}}
+try{await o.goto(base+'/ru/account/places/team/');const f=o.locator('.owner-team-invite-form');await f.locator('[name=place]').selectOption(String(F.places.live));await f.locator('[name=email]').fill(F.actors.empty.email);await f.locator('button[type=submit]').click();await o.waitForLoadState('domcontentloaded');let s=await state(o);const inv=s.invitations.find(x=>x.email===F.actors.empty.email),notice=s.notifications.find(x=>x.entity_type==='place_team_invitation'&&x.entity_id===inv.id);await i.goto(base+'/ru/account/notifications/');await shot(i,'notification-empty-pending');await o.goto(base+'/ru/account/places/team/');await o.locator('form[action$="/invitations/'+inv.id+'/cancel/"] button').click();await o.waitForLoadState('domcontentloaded');const wait=i.waitForResponse(r=>r.request().method()==='POST'&&r.url().includes('/accept/'));await i.locator('form[action$="/notifications/'+notice.id+'/accept/"] button').click();const resp=await wait;await i.waitForLoadState('domcontentloaded');const text=await i.locator('body').innerText();add('stale-notification-403-safe',resp.status()===403&&!(await state(o)).memberships.some(x=>x.member_id===F.actors.empty.id),{role:'empty',http:resp.status(),text,screenshot:await shot(i,'notification-403-fresh')});add('stale-notification-usable-feedback',text.includes('отозван')||text.includes('приглашен'),{role:'empty',http:resp.status(),text,links:await i.locator('a').count(),screenshot:await shot(i,'notification-403-feedback')});}catch(err){rows.push({id:'stale-notification-harness',status:'NOT RUN',role:'empty',lang:'ru',width:1440,error:String(err).slice(0,400)});}
+try{const s=await state(m),h=s.typed.specialist.heads.find(x=>x.specialist_id===F.specialist&&x.user_id===F.actors.author.id);await m.goto(base+'/ru/reviews/specialist/target/'+F.specialist+'/');await m.locator('[data-candidate-id="'+h.candidate_revision_id+'"] form[action$="/approve/"] button').click();await m.waitForLoadState('domcontentloaded');add('final-native-approve-current-candidate',(await state(m)).typed.specialist.heads.find(x=>x.id===h.id).candidate_revision_id===null,{role:'moderator',screenshot:await shot(m,'final-candidate-approved')});}catch(err){rows.push({id:'final-candidate-harness',status:'NOT RUN',role:'moderator',lang:'ru',width:1440,error:String(err).slice(0,350)});}
+for(const c of contexts)await c.close();return{rows,utc:new Date().toISOString()};
+}

@@ -1,0 +1,144 @@
+{
+  "scope": "Reconciliation QA commands only; no backend/browser/app transitions executed by this role",
+  "commands": [
+    {
+      "utc": "2026-10-11T13:05:20.315697+00:00",
+      "argv": [
+        "C:\\kidsmap\\.venv\\Scripts\\python.exe",
+        "C:\\kidsmap\\docs\\qa\\module13-2026-10-11-r1\\reconciliation\\inventory.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.984,
+      "summary": {
+        "raw_finding_occurrences": 86,
+        "unique_historical_ids": 81,
+        "severity": {
+          "P2": 67,
+          "P1": 2,
+          "P3": 12
+        },
+        "module_severity": {
+          "01": {
+            "P2": 5,
+            "P1": 1,
+            "P3": 1
+          },
+          "02": {
+            "P2": 3,
+            "P3": 1
+          },
+          "03": {
+            "P2": 2,
+            "P3": 1
+          },
+          "04": {
+            "P2": 3
+          },
+          "05": {
+            "P2": 6,
+            "P3": 2
+          },
+          "06": {
+            "P2": 3,
+            "P3": 1
+          },
+          "07": {
+            "P2": 5
+          },
+          "08": {
+            "P2": 8
+          },
+          "09": {
+            "P2": 8,
+            "P3": 1
+          },
+          "10": {
+            "P1": 1,
+            "P2": 12,
+            "P3": 2
+          },
+          "11": {
+            "P2": 6,
+            "P3": 1
+          },
+          "12": {
+            "P2": 6,
+            "P3": 2
+          }
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-11T13:05:21.357285+00:00",
+      "argv": [
+        "C:\\kidsmap\\.venv\\Scripts\\python.exe",
+        "C:\\kidsmap\\docs\\qa\\module13-2026-10-11-r1\\reconciliation\\asset_readback.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.047,
+      "summary": {
+        "rows": 30,
+        "unfuzzy_po_mo_mismatches": 16,
+        "scope": "asset only"
+      },
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-11T13:05:21.433683+00:00",
+      "argv": [
+        "C:\\kidsmap\\.venv\\Scripts\\python.exe",
+        "C:\\kidsmap\\docs\\qa\\module13-2026-10-11-r1\\reconciliation\\import_root_evidence.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.063,
+      "summary": {
+        "imported_rows": 7,
+        "historical_fail_ids": [
+          "ACCESS-QA-03",
+          "ANALYTICS-QA-01",
+          "ORG-QA-02",
+          "SITE-QA-01"
+        ],
+        "parent_new_ids": [
+          "CROSS-QA-01"
+        ],
+        "attribution": "parent native proof"
+      },
+      "stderr": ""
+    },
+    {
+      "utc": "2026-10-11T13:05:25.324146+00:00",
+      "argv": [
+        "C:\\kidsmap\\.venv\\Scripts\\python.exe",
+        "C:\\kidsmap\\docs\\qa\\module13-2026-10-11-r1\\reconciliation\\assemble.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.89,
+      "summary": {
+        "coverage_rows": 20362,
+        "coverage_kinds": {
+          "HISTORICAL_OBSERVATION": 20167,
+          "HISTORICAL_EXPLICIT_GAP": 188,
+          "FRESH_PARENT_HANDOFF": 7
+        },
+        "source_inventory": {
+          "MODEL_DECLARATION": 102,
+          "ADMIN_DECLARATION": 48,
+          "ROUTE_DECLARATION": 145
+        },
+        "unmapped_source": 3,
+        "unique_historical_ids": 81,
+        "root_cause_buckets": 77,
+        "later_repair_claims": 7,
+        "historical_unresolved_ids": 74,
+        "historical_unresolved_buckets": 71
+      },
+      "stderr": ""
+    }
+  ],
+  "verification_exit_code": 0,
+  "verification_counts": {
+    "PASS": 18
+  }
+}

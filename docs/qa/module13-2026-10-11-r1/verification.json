@@ -1,0 +1,123 @@
+{
+  "utc": "2026-10-11T13:48:30.354747+00:00",
+  "command": ".venv/Scripts/python.exe -X utf8 docs/qa/module13-2026-10-11-r1/verify-final.py",
+  "exit_code": 0,
+  "checks": {
+    "foreign_file_preservation": {
+      "PASS": true,
+      "files": 17218,
+      "allowed_change": "docs/qa/module-acceptance-prompts.md",
+      "changed": []
+    },
+    "source_exact": {
+      "PASS": true,
+      "files": 2788,
+      "digest": "e13c36f2af3aca03513ff860a1dee7c02a8cb2ab8214c89bcffd7dd5fe5914b1"
+    },
+    "head_branch_active_run": {
+      "PASS": true,
+      "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+      "branch": "task33-progress",
+      "active_run": "NONE"
+    },
+    "journal_only_row13": {
+      "PASS": true,
+      "journal_updated": true,
+      "row13": "| 13 | Финальная межмодульная приёмка и сводка | DONE — FAIL (fresh audit complete; mandatory limits NOT RUN) | C:\\kidsmap; task33-progress; 8d188b316f800fbedf0b1e376905dfd4924cb1b6; dirty WORKTREE e13c36f2af3aca03513ff860a1dee7c02a8cb2ab8214c89bcffd7dd5fe5914b1; active_run NONE unchanged; runtime source matched | [Отчёт](module13-2026-10-11-r1/REPORT.md), [MASTER](module13-2026-10-11-r1/MASTER_AUDIT.md), [evidence](module13-2026-10-11-r1/verification.json), [matrix](module13-2026-10-11-r1/matrix.csv), [PNG manifest](module13-2026-10-11-r1/screenshots-manifest.json), [repair prompts](module13-2026-10-11-r1/FINDINGS.md) | 10 fresh IDs /9 causes (7 old,3 CROSS); browser2576 PASS/32 FAIL/73 NOT RUN; Django2036 PASS/11 baseline FAIL/43 NOT RUN; JS20 scripts PASS;846 retained PNG incl12 derived; revoke UI/legacy guards/real integrations/devices/actual GitHub NOT RUN; all13 audit rows DONE; next scoped repair plan, no automatic fixes; [handoff](module13-2026-10-11-r1/next-chat.txt) |"
+    },
+    "journal_all13_completed": {
+      "PASS": true,
+      "complete_rows": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "12",
+        "13"
+      ],
+      "scope": "Audit report completion, not product PASS"
+    },
+    "runtime_sources_match": {
+      "PASS": true,
+      "pid": 23204,
+      "django": "6.0.2",
+      "python": "3.12.15",
+      "http_port": 8831,
+      "postgres_port": 55444
+    },
+    "foreign_stands_preserved": {
+      "PASS": true,
+      "foreign_listeners": 6,
+      "foreign_containers": 2
+    },
+    "json_parse": {
+      "PASS": true,
+      "files": 86,
+      "invalid": []
+    },
+    "qa_python_ast": {
+      "PASS": true,
+      "files": 41,
+      "invalid": []
+    },
+    "png_integrity": {
+      "PASS": true,
+      "files": 846,
+      "invalid": []
+    },
+    "fresh_counts": {
+      "PASS": true,
+      "browser_assertions": {
+        "FAIL": 32,
+        "PASS": 2576,
+        "NOT RUN": 73
+      },
+      "fresh_ids": 10,
+      "fresh_causes": 9
+    },
+    "matrix_evidence_exists": {
+      "PASS": true,
+      "missing": []
+    },
+    "markdown_links": {
+      "PASS": true,
+      "missing": []
+    },
+    "source-review_verifier": {
+      "PASS": true,
+      "record": "source-review/verification.json"
+    },
+    "reconciliation_verifier": {
+      "PASS": true,
+      "record": "reconciliation/verification.json"
+    },
+    "test-review_verifier": {
+      "PASS": true,
+      "record": "test-review/verification.json"
+    },
+    "browser-review_verifier": {
+      "PASS": true,
+      "record": "browser-review/verification.json"
+    },
+    "nine_report_sections": {
+      "PASS": true
+    },
+    "local_credential_absent": {
+      "PASS": true,
+      "found": []
+    },
+    "git_diff_check": {
+      "PASS": true,
+      "exit_code": 0,
+      "output": "warning: in the working copy of 'locale/az/LC_MESSAGES/django.po', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'locale/en/LC_MESSAGES/django.po', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'locale/ru/LC_MESSAGES/django.po', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/test_location_resolution.cjs', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/catalog/services/permanent_place_wizard.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/catalog/services/publication.py', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/catalog/templates/admin/catalog/place/change_form.html', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/catalog/templates/includes/location_resolution.html', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/catalog/templates/pages/includes/owner_place_continuous.html', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/catalog/templates/pages/includes/permanent_place_map.html', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'src/catalog/templates/pages/permanent_place_form.html', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'static/admin/css/pages/kidsmap_place_form.css', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'static/admin/js/kidsmap_place_form.js', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'static/css/pages/owner_place_continuous.css', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'static/js/location_resolution.js', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'static/js/owner_place_continuous.js', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'static/js/owner_place_map_picker.js', LF will be replaced by CRLF the next time Git touches it\n"
+    }
+  },
+  "scope": "Evidence/source/preservation integrity only. Product/backend outcome remains FAIL with explicit NOT RUN."
+}

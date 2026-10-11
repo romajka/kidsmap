@@ -1,0 +1,4 @@
+async original=>{
+__QA12_COMMON__
+const guest=await context('guest','ru',390),owner=await context('owner','ru',390);const b=await(await guest.c.request.get(B+'/qa/state/')).json();const st=await visit(guest.p,'/ru/place/2-vymyshlennoe-qa12-draft/');const s=await shot(guest.p,'private-public-denied-ru-390');add('private-draft-public-denied',st===404,{http:st,contactMetricBefore:b.metrics['2'].contact_actions},'guest','ru',390,guest.p.url(),s);await visit(owner.p,'/ru/account/places/2/analytics/');const values=await owner.p.locator('.owner-analytics__grid article strong').allTextContents();add('private-draft-polluted-metric',Number(values[3])===0,{actualContacts:Number(values[3]),expectedContacts:0,source:'Synthetic forged private-id event from contacts adapter, no public contact UI exists'},'owner','ru',390,owner.p.url(),await shot(owner.p,'private-event-corrupted-owner-ru-390'));await guest.c.close();await owner.c.close();return{rows};
+}

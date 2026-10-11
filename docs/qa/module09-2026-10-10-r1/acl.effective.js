@@ -1,0 +1,90 @@
+async original=>{
+const F={
+  "actors": {
+    "author": {
+      "id": 1,
+      "username": "qa09_author",
+      "email": "author09@example.invalid"
+    },
+    "owner": {
+      "id": 2,
+      "username": "qa09_owner",
+      "email": "owner09@example.invalid"
+    },
+    "employee": {
+      "id": 3,
+      "username": "qa09_employee",
+      "email": "employee09@example.invalid"
+    },
+    "outsider": {
+      "id": 4,
+      "username": "qa09_outsider",
+      "email": "outsider09@example.invalid"
+    },
+    "moderator": {
+      "id": 5,
+      "username": "qa09_moderator",
+      "email": "moderator09@example.invalid"
+    },
+    "staff": {
+      "id": 6,
+      "username": "qa09_staff",
+      "email": "staff09@example.invalid"
+    },
+    "admin": {
+      "id": 7,
+      "username": "qa09_admin",
+      "email": "admin09@example.invalid"
+    },
+    "empty": {
+      "id": 8,
+      "username": "qa09_empty",
+      "email": "empty09@example.invalid"
+    },
+    "invitee": {
+      "id": 9,
+      "username": "qa09_invitee",
+      "email": "invitee09@example.invalid"
+    }
+  },
+  "places": {
+    "live": 1,
+    "empty": 2,
+    "hidden": 3,
+    "inactive": 4,
+    "archived": 5,
+    "deleted": 6,
+    "foreign": 7
+  },
+  "activity": 1,
+  "specialist": 1,
+  "event": 1,
+  "synthetic_only": true
+},base='http://localhost:8822',dir='C:/kidsmap/docs/qa/module09-2026-10-10-r1/screenshots/',rows=[],contexts=[],browser=original.context().browser(),extra={
+  "place": 8,
+  "specialist": 2,
+  "reviews": {
+    "place": 29,
+    "specialist": 2
+  }
+};
+const add=(id,ok,data={})=>rows.push({id,status:ok?'PASS':'FAIL',role:'outsider',lang:'ru',width:1440,...data});
+async function page(role){const c=await browser.newContext({viewport:{width:1440,height:950}});contexts.push(c);await c.route('**/*',r=>new URL(r.request().url()).hostname==='localhost'?r.continue():r.abort());const p=await c.newPage();p.setDefaultTimeout(6000);if(role!=='guest'){await p.goto(base+'/ru/auth/login/');await p.locator('[name=username]').fill(F.actors[role].email);await p.locator('[name=password]').fill('__LOCAL_PASSWORD__');await p.locator('.register-form--login button[type=submit]').click();await p.waitForURL(u=>!u.pathname.includes('/auth/login/'));}return p;}
+async function shot(p,name){await p.screenshot({path:dir+name+'.png'});return'screenshots/'+name+'.png';}const state=async p=>(await p.request.get(base+'/qa/state/')).json();
+for(const role of ['guest','author','owner','employee','outsider','staff','moderator','admin']){const p=await page(role);try{
+const s0=await state(p),h=s0.typed.specialist.heads.find(x=>x.user_id===F.actors.author.id&&x.specialist_id===F.specialist),pk=F.specialist;let guestToken=null;if(role==='guest'){await p.goto(base+'/ru/auth/login/');guestToken=await p.locator('[name=csrfmiddlewaretoken]').first().getAttribute('value');}await p.goto(base+'/ru/reviews/specialist/target/'+pk+'/');const token=guestToken||await p.locator('[name=csrfmiddlewaretoken]').first().getAttribute('value');
+const post=async(path,data)=>p.request.post(base+'/ru/'+path,{form:{csrfmiddlewaretoken:token,...data},maxRedirects:0});
+for(const[action,rev,value]of [['reply',h.current_revision_id,'QA09 unauthorized reply'],['approve',h.current_revision_id,''],['react','0','1'],['react',h.current_revision_id,'8']]){
+const r=await post('reviews/specialist/'+h.id+'/'+action+'/',{revision_id:String(rev),text:value,value});const expect=action==='reply'?403:action==='approve'?(['moderator','admin'].includes(role)?409:403):role==='guest'?403:400;
+add('negative-'+action+'-'+rev+'-'+value,r.status()===expect,{role,http:r.status(),expected:expect,mechanism:'local negative HTTP'});
+}
+const hidden=await p.request.get(base+'/ru/reviews/place/target/'+F.places.hidden+'/',{maxRedirects:0});add('hidden-target-boundary',hidden.status()===(['moderator','admin'].includes(role)?200:404),{role,http:hidden.status(),expected:['moderator','admin'].includes(role)?200:404});
+const get=await p.request.get(base+'/ru/reviews/specialist/'+h.id+'/react/',{maxRedirects:0});add('actions-POST-only',get.status()===405,{role,http:get.status()});
+const current=await state(p);add('negative-no-state-change',JSON.stringify(s0.typed)===JSON.stringify(current.typed),{role});
+}catch(err){rows.push({id:'acl-harness',status:'NOT RUN',role,lang:'ru',width:1440,error:String(err).slice(0,400)});}}
+for(const[kind,pk,role]of [['place',extra.place,'employee'],['specialist',extra.specialist,'owner']]){const p=await page(role);try{
+await p.goto(base+'/ru/reviews/'+kind+'/target/'+pk+'/');const reply=p.locator('form[action$="/reply/"]');await reply.locator('[name=text]').fill('QA09 ALLOWED '+role+' RESPONSE <b>safe</b>');await reply.locator('button').click();await p.waitForLoadState('domcontentloaded');const s=await state(p);add('positive-explicit-ACL-'+kind,s.typed[kind].responses.some(x=>x.actor_id===F.actors[role].id&&x.text.startsWith('QA09 ALLOWED')),{role,screenshot:await shot(p,'allowed-'+kind+'-'+role)});
+await p.locator('details summary').click();await p.locator('form[action$="/report/"] [name=text]').fill('QA09 PRIVATE REPORT '+kind);await p.locator('form[action$="/report/"] button').click();await p.waitForLoadState('domcontentloaded');const ss=await state(p);add('private-report-saved-'+kind,ss.typed[kind].responses.some(x=>x.kind==='report'&&x.text==='QA09 PRIVATE REPORT '+kind),{role});const g=await page('guest');await g.goto(p.url());add('private-report-not-public-'+kind,!(await g.locator('.typed-reviews').innerText()).includes('QA09 PRIVATE REPORT'),{role:'guest',screenshot:await shot(g,'private-report-public-'+kind)});
+}catch(err){rows.push({id:'positive-acl-harness-'+kind,status:'NOT RUN',role,lang:'ru',width:1440,error:String(err).slice(0,350)});}}
+for(const c of contexts)await c.close();return{rows,utc:new Date().toISOString()};
+}

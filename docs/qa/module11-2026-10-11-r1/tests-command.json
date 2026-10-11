@@ -1,0 +1,417 @@
+{
+  "mode": "AUDIT ONLY",
+  "role": "integration-reviewer",
+  "checkout": "C:\\kidsmap",
+  "started_utc": "2026-10-11T09:20:44.562372+00:00",
+  "finished_utc": "2026-10-11T09:24:40.850434+00:00",
+  "command_argv": [
+    "C:\\kidsmap\\.venv\\Scripts\\python.exe",
+    "C:\\kidsmap\\docs\\qa\\module11-2026-10-11-r1\\run.py",
+    "test",
+    "catalog.testcases.test_localized_place_urls",
+    "catalog.testcases.test_localized_place_seo",
+    "catalog.testcases.test_seo_indexability",
+    "catalog.testcases.test_seo_landing_visibility",
+    "catalog.testcases.test_judo_seo_landing",
+    "catalog.testcases.test_task33_localization",
+    "catalog.testcases.public.PublicLanguageConsistencyTests",
+    "catalog.testcases.test_place_json_and_pricing_modes.PlaceSchemaOrgSeoTests",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_legacy_az_urls_redirect_to_default_language_without_prefix",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_legacy_redirect_keeps_catalog_filter_but_drops_foreign_query",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_public_pages_without_trailing_slash_redirect_to_canonical_url",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_www_alias_redirects_permanently_to_canonical_origin",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_legacy_azerbaijani_reviews_url_redirects_to_canonical_reviews_page",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_canonical_host_redirect_does_not_capture_admin_subdomain",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_public_urls_on_admin_host_redirect_to_public_origin",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_public_seo_urls_ignore_request_host_when_origin_is_configured",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_seo_landing_breadcrumbs_include_the_catalog_level",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_catalog_page_renders_visible_breadcrumbs",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_filtered_catalog_breadcrumbs_match_the_place_card_trail",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_bare_place_segment_redirects_to_catalog",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_robots_txt_disallows_private_sections",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_includes_all_languages_and_hreflang_alternates",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_and_robots_use_configured_public_origin",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_xml_is_valid_xml",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_excludes_place_new",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_excludes_draft_places",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_excludes_deleted_places",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_has_no_duplicate_urls",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_lastmod_matches_model_updated_at",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_does_not_contain_changefreq_or_priority",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_seo_landing_uses_matching_language_content_and_hreflang",
+    "catalog.testcases.public.TestCatalogEnhancements.test_place_detail_drops_foreign_next_query_parameter",
+    "catalog.testcases.public.TestCatalogEnhancements.test_catalog_keeps_its_own_filter_query_and_detail_links_are_clean",
+    "catalog.testcases.public.TestCatalogEnhancements.test_language_switch_preserves_catalog_filters_only",
+    "--verbosity=2"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 233.672,
+  "test_body_seconds": 147.282,
+  "expected_discovered_methods": 110,
+  "executed_methods": 110,
+  "passed_methods": 106,
+  "failed_methods": [
+    "catalog.testcases.public.PublicLanguageConsistencyTests.test_place_review_list_has_no_extra_framed_wrapper",
+    "catalog.testcases.public.PublicLanguageConsistencyTests.test_public_pages_keep_system_text_in_url_language_across_requests",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_includes_all_languages_and_hreflang_alternates"
+  ],
+  "errored_methods": [
+    "catalog.testcases.public.PublicLanguageConsistencyTests.test_place_review_block_uses_the_page_language_for_all_system_copy"
+  ],
+  "failure_entries_including_subtests": 4,
+  "error_entries_including_subtests": 2,
+  "skipped_methods": 0,
+  "label_inventory": [
+    {
+      "label": "catalog.testcases.test_localized_place_urls",
+      "source": "src/catalog/testcases/test_localized_place_urls.py",
+      "methods": [
+        "catalog.testcases.test_localized_place_urls.LocalizedPlaceUrlTests.test_language_paths_are_derived_from_each_name",
+        "catalog.testcases.test_localized_place_urls.LocalizedPlaceUrlTests.test_rename_and_injected_slug_do_not_change_saved_url",
+        "catalog.testcases.test_localized_place_urls.LocalizedPlaceUrlTests.test_creation_ignores_supplied_localized_slug",
+        "catalog.testcases.test_localized_place_urls.LocalizedPlaceUrlTests.test_existing_az_url_is_preserved_before_backfill",
+        "catalog.testcases.test_localized_place_urls.LocalizedPlaceUrlTests.test_partial_save_does_not_use_unsaved_translation",
+        "catalog.testcases.test_localized_place_urls.LocalizedPlaceUrlTests.test_new_translation_fills_missing_slug_only",
+        "catalog.testcases.test_localized_place_urls.LocalizedPlaceUrlTests.test_stale_instance_cannot_replace_first_slug",
+        "catalog.testcases.test_localized_place_urls.LocalizedPlaceUrlTests.test_disabled_flag_retains_legacy_paths",
+        "catalog.testcases.test_localized_place_urls.LocalizedPlaceUrlTests.test_missing_translation_uses_legacy_without_read_write",
+        "catalog.testcases.test_localized_place_urls.LocalizedPlaceUrlTests.test_empty_update_fields_is_noop",
+        "catalog.testcases.test_localized_place_urls.LocalizedPlaceUrlTests.test_long_legacy_slug_remains_usable",
+        "catalog.testcases.test_localized_place_urls.LocalizedPlaceUrlTests.test_normalization_and_duplicate_names",
+        "catalog.testcases.test_localized_place_urls.ConcurrentLocalizedPlaceUrlTests.test_concurrent_first_translation_keeps_one_stable_url"
+      ]
+    },
+    {
+      "label": "catalog.testcases.test_localized_place_seo",
+      "source": "src/catalog/testcases/test_localized_place_seo.py",
+      "methods": [
+        "catalog.testcases.test_localized_place_seo.LocalizedPlaceSeoUnitTests.test_indexnow_uses_each_language_slug",
+        "catalog.testcases.test_localized_place_seo.LocalizedPlaceSeoUnitTests.test_context_uses_resolved_place_without_database_lookup",
+        "catalog.testcases.test_localized_place_seo.LocalizedPlaceSeoTests.test_old_and_wrong_language_slugs_redirect_directly",
+        "catalog.testcases.test_localized_place_seo.LocalizedPlaceSeoTests.test_old_slug_and_query_redirect_directly_to_final_visible_url",
+        "catalog.testcases.test_localized_place_seo.LocalizedPlaceSeoTests.test_hidden_place_with_query_does_not_redirect",
+        "catalog.testcases.test_localized_place_seo.LocalizedPlaceSeoTests.test_canonical_pages_render_reciprocal_metadata",
+        "catalog.testcases.test_localized_place_seo.LocalizedPlaceSeoTests.test_hidden_place_does_not_disclose_canonical_slug",
+        "catalog.testcases.test_localized_place_seo.LocalizedPlaceSeoTests.test_sitemap_contains_final_localized_urls",
+        "catalog.testcases.test_localized_place_seo.LocalizedPlaceSeoTests.test_delete_notifies_saved_localized_urls",
+        "catalog.testcases.test_localized_place_seo.LocalizedPlaceSeoTests.test_new_translation_notifies_old_fallback_and_new_url",
+        "catalog.testcases.test_localized_place_seo.LocalizedPlaceSeoTests.test_disabled_flag_preserves_legacy_public_urls",
+        "catalog.testcases.test_localized_place_seo.LocalizedPlaceSeoTests.test_pricing_api_retains_legacy_identifier",
+        "catalog.testcases.test_localized_place_seo.LocalizedPlaceSeoTests.test_query_and_default_language_prefix_redirects_terminate",
+        "catalog.testcases.test_localized_place_seo.LocalizedPlaceSeoTests.test_publication_and_unpublication_submit_correct_urls",
+        "catalog.testcases.test_localized_place_seo.LocalizedPlaceSeoTests.test_creation_submits_public_urls_but_not_draft",
+        "catalog.testcases.test_localized_place_seo.LocalizedPlaceSeoTests.test_legacy_get_rating_refresh_does_not_generate_urls"
+      ]
+    },
+    {
+      "label": "catalog.testcases.test_seo_indexability",
+      "source": "src/catalog/testcases/test_seo_indexability.py",
+      "methods": [
+        "catalog.testcases.test_seo_indexability.CatalogIndexabilityTests.test_catalog_pagination_is_indexable_and_self_canonical_in_each_language",
+        "catalog.testcases.test_seo_indexability.CatalogIndexabilityTests.test_page_one_uses_clean_catalog_canonical",
+        "catalog.testcases.test_seo_indexability.CatalogIndexabilityTests.test_invalid_page_variants_use_rendered_page_canonical_and_noindex",
+        "catalog.testcases.test_seo_indexability.CatalogIndexabilityTests.test_filters_and_sorting_stay_noindex_with_pagination",
+        "catalog.testcases.test_seo_indexability.CatalogIndexabilityTests.test_default_sort_redirect_preserves_indexable_second_page",
+        "catalog.testcases.test_seo_indexability.CatalogIndexabilityTests.test_default_values_redirect_without_losing_search_filters",
+        "catalog.testcases.test_seo_indexability.CatalogIndexabilityTests.test_filter_canonical_uses_stable_key_order",
+        "catalog.testcases.test_seo_indexability.CatalogIndexabilityTests.test_sitemap_includes_localized_faq_without_auth_urls",
+        "catalog.testcases.test_seo_indexability.AdminHostIndexabilityTests.test_admin_robots_allows_crawling_public_redirects_but_not_admin",
+        "catalog.testcases.test_seo_indexability.AdminHostIndexabilityTests.test_public_robots_keeps_authentication_blocked",
+        "catalog.testcases.test_seo_indexability.AdminHostIndexabilityTests.test_public_admin_host_routes_preserve_query_in_permanent_redirect"
+      ]
+    },
+    {
+      "label": "catalog.testcases.test_seo_landing_visibility",
+      "source": "src/catalog/testcases/test_seo_landing_visibility.py",
+      "methods": [
+        "catalog.testcases.test_seo_landing_visibility.SeoLandingIndexabilityTests.test_zero_cards_keeps_all_languages_available_but_noindex",
+        "catalog.testcases.test_seo_landing_visibility.SeoLandingIndexabilityTests.test_four_cards_stays_noindex_and_is_hidden_from_useful_collections",
+        "catalog.testcases.test_seo_landing_visibility.SeoLandingIndexabilityTests.test_five_cards_automatically_indexes_all_languages_and_returns_to_sitemap",
+        "catalog.testcases.test_seo_landing_visibility.SeoLandingIndexabilityTests.test_current_landing_filters_are_counted_in_one_database_query"
+      ]
+    },
+    {
+      "label": "catalog.testcases.test_judo_seo_landing",
+      "source": "src/catalog/testcases/test_judo_seo_landing.py",
+      "methods": [
+        "catalog.testcases.test_judo_seo_landing.JudoSeoLandingAggregateTests.test_ru_page_aggregates_missing_price_open_age_and_multiple_districts",
+        "catalog.testcases.test_judo_seo_landing.JudoSeoLandingAggregateTests.test_az_and_en_pages_localize_interface_and_empty_values",
+        "catalog.testcases.test_judo_seo_landing.JudoSeoLandingAggregateTests.test_aggregate_query_count_does_not_grow_per_place"
+      ]
+    },
+    {
+      "label": "catalog.testcases.test_task33_localization",
+      "source": "src/catalog/testcases/test_task33_localization.py",
+      "methods": [
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_az_only_place_is_canonical_az_and_has_only_az_alternate",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_locale_switch_keeps_untranslated_page_accessible",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_name_only_is_not_a_substantive_translation",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_mixed_translation_labels_each_field_with_its_actual_language",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_complete_ru_translation_is_reciprocal_without_en",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_sitemap_excludes_incomplete_translations",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_organization_has_factual_schema_and_az_fallback",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_activity_partial_program_translation_keeps_az_canonical",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_complete_activity_translation_has_own_canonical_and_course_facts",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_entity_sitemaps_only_offer_substantive_approved_languages",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_activity_sitemap_language_checks_do_not_load_full_price_presentations",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_hidden_program_with_empty_legacy_activity_is_not_a_sitemap_entry",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_related_group_and_tariff_fallback_text_has_actual_language",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_fallback_metadata_does_not_translate_navigation_or_class_title_to_az",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_script_termination_text_remains_data_in_entity_schema",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_closed_historical_place_has_200_notice_and_no_current_offers",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_unpublished_place_does_not_become_a_historical_public_page",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_old_identifier_and_wrong_slug_redirect_to_same_language_without_chain",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_locale_does_not_change_currency_country_or_class_language",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_explicit_offer_locale_does_not_depend_on_ambient_translation",
+        "catalog.testcases.test_task33_localization.LocalizationContractsTests.test_new_publication_requires_az_and_does_not_require_ru_en"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.PublicLanguageConsistencyTests",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.PublicLanguageConsistencyTests.test_public_pages_keep_system_text_in_url_language_across_requests",
+        "catalog.testcases.public.PublicLanguageConsistencyTests.test_place_review_block_uses_the_page_language_for_all_system_copy",
+        "catalog.testcases.public.PublicLanguageConsistencyTests.test_place_review_list_has_no_extra_framed_wrapper",
+        "catalog.testcases.public.PublicLanguageConsistencyTests.test_home_how_it_works_block_uses_one_language_only",
+        "catalog.testcases.public.PublicLanguageConsistencyTests.test_base_template_uses_request_language_even_if_active_locale_differs",
+        "catalog.testcases.public.PublicLanguageConsistencyTests.test_header_and_footer_follow_url_language",
+        "catalog.testcases.public.PublicLanguageConsistencyTests.test_place_missing_translation_stays_hidden_and_event_source_is_identified",
+        "catalog.testcases.public.PublicLanguageConsistencyTests.test_site_settings_and_legacy_seo_json_do_not_leak_ru_or_az_copy",
+        "catalog.testcases.public.PublicLanguageConsistencyTests.test_home_map_javascript_gets_age_and_error_labels_from_template",
+        "catalog.testcases.public.PublicLanguageConsistencyTests.test_home_map_marker_click_uses_shared_age_labels"
+      ]
+    },
+    {
+      "label": "catalog.testcases.test_place_json_and_pricing_modes.PlaceSchemaOrgSeoTests",
+      "source": "src/catalog/testcases/test_place_json_and_pricing_modes.py",
+      "methods": [
+        "catalog.testcases.test_place_json_and_pricing_modes.PlaceSchemaOrgSeoTests.test_always_open_schedule_schema",
+        "catalog.testcases.test_place_json_and_pricing_modes.PlaceSchemaOrgSeoTests.test_non_regular_schedule_omits_opening_hours_schema",
+        "catalog.testcases.test_place_json_and_pricing_modes.PlaceSchemaOrgSeoTests.test_temporary_place_is_not_event_schema",
+        "catalog.testcases.test_place_json_and_pricing_modes.PlaceSchemaOrgSeoTests.test_phone_omitted_from_schema_when_empty",
+        "catalog.testcases.test_place_json_and_pricing_modes.PlaceSchemaOrgSeoTests.test_price_kind_from_includes_min_price_specification",
+        "catalog.testcases.test_place_json_and_pricing_modes.PlaceSchemaOrgSeoTests.test_free_mode_includes_schema_offer"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_legacy_az_urls_redirect_to_default_language_without_prefix",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_legacy_az_urls_redirect_to_default_language_without_prefix"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_legacy_redirect_keeps_catalog_filter_but_drops_foreign_query",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_legacy_redirect_keeps_catalog_filter_but_drops_foreign_query"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_public_pages_without_trailing_slash_redirect_to_canonical_url",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_public_pages_without_trailing_slash_redirect_to_canonical_url"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_www_alias_redirects_permanently_to_canonical_origin",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_www_alias_redirects_permanently_to_canonical_origin"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_legacy_azerbaijani_reviews_url_redirects_to_canonical_reviews_page",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_legacy_azerbaijani_reviews_url_redirects_to_canonical_reviews_page"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_canonical_host_redirect_does_not_capture_admin_subdomain",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_canonical_host_redirect_does_not_capture_admin_subdomain"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_public_urls_on_admin_host_redirect_to_public_origin",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_public_urls_on_admin_host_redirect_to_public_origin"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_public_seo_urls_ignore_request_host_when_origin_is_configured",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_public_seo_urls_ignore_request_host_when_origin_is_configured"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_seo_landing_breadcrumbs_include_the_catalog_level",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_seo_landing_breadcrumbs_include_the_catalog_level"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_catalog_page_renders_visible_breadcrumbs",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_catalog_page_renders_visible_breadcrumbs"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_filtered_catalog_breadcrumbs_match_the_place_card_trail",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_filtered_catalog_breadcrumbs_match_the_place_card_trail"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_bare_place_segment_redirects_to_catalog",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_bare_place_segment_redirects_to_catalog"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_robots_txt_disallows_private_sections",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_robots_txt_disallows_private_sections"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_includes_all_languages_and_hreflang_alternates",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_includes_all_languages_and_hreflang_alternates"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_and_robots_use_configured_public_origin",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_and_robots_use_configured_public_origin"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_xml_is_valid_xml",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_xml_is_valid_xml"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_excludes_place_new",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_excludes_place_new"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_excludes_draft_places",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_excludes_draft_places"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_excludes_deleted_places",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_excludes_deleted_places"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_has_no_duplicate_urls",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_has_no_duplicate_urls"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_lastmod_matches_model_updated_at",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_lastmod_matches_model_updated_at"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_does_not_contain_changefreq_or_priority",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_does_not_contain_changefreq_or_priority"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestPublicPagesSmoke.test_seo_landing_uses_matching_language_content_and_hreflang",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestPublicPagesSmoke.test_seo_landing_uses_matching_language_content_and_hreflang"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestCatalogEnhancements.test_place_detail_drops_foreign_next_query_parameter",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestCatalogEnhancements.test_place_detail_drops_foreign_next_query_parameter"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestCatalogEnhancements.test_catalog_keeps_its_own_filter_query_and_detail_links_are_clean",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestCatalogEnhancements.test_catalog_keeps_its_own_filter_query_and_detail_links_are_clean"
+      ]
+    },
+    {
+      "label": "catalog.testcases.public.TestCatalogEnhancements.test_language_switch_preserves_catalog_filters_only",
+      "source": "src/catalog/testcases/public.py",
+      "methods": [
+        "catalog.testcases.public.TestCatalogEnhancements.test_language_switch_preserves_catalog_filters_only"
+      ]
+    }
+  ],
+  "before": {
+    "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+    "branch": "task33-progress",
+    "source_count": 2788,
+    "source_digest": "e13c36f2af3aca03513ff860a1dee7c02a8cb2ab8214c89bcffd7dd5fe5914b1"
+  },
+  "after": {
+    "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+    "branch": "task33-progress",
+    "source_count": 2788,
+    "source_digest": "e13c36f2af3aca03513ff860a1dee7c02a8cb2ab8214c89bcffd7dd5fe5914b1"
+  },
+  "source_changed": [],
+  "db": "test_module11",
+  "host": "127.0.0.1",
+  "port": 55442,
+  "external": "BLOCKED socket guard; IndexNow enqueue mocked by existing tests",
+  "evidence": "tests.log",
+  "log_sha256": "7dcbe5ce94844e075079a5ff28aa9aede76fa2fd3dfb74f3299a5941c37b3428",
+  "not_run": [
+    "SEO audit/fix management commands",
+    "real IndexNow/Search Console",
+    "production",
+    "full suite",
+    "rendered browser (owned by parent)"
+  ],
+  "normalized_text_sha256": "d70c2ebe0c40dd11d921ff9c8afb56cdb82548fa91008029a428f8ac07129844",
+  "effective_localized_place_urls_enabled": true,
+  "artifact_verification": {
+    "qa_ast_files": 2,
+    "logs_hash_verified": 4,
+    "broken_local_links": 0,
+    "known_secret_hits": 0,
+    "unredacted_csrf_hits": 0,
+    "counts_match_native": true,
+    "application_source_changed_during_runs": false
+  }
+}

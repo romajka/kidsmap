@@ -1,0 +1,5343 @@
+{
+  "snapshot": {
+    "checkout": "C:/kidsmap",
+    "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+    "branch": "task33-progress",
+    "active_run": "NONE",
+    "utc": "2026-10-11T12:56:07.455925+00:00",
+    "mode": "AUDIT_ONLY",
+    "production": "NOT_RUN",
+    "source_hashes": {
+      "src/catalog/controllers/business_team_api.py": "56f56d6787de430d516eba78ce257ccd51b05ba2676ca877d3c80be88fe90349",
+      "src/catalog/controllers/organization_workspace.py": "24c72ec130a0afd0717772e4da23985f68c79784a051b3f0556ef9851a898c34",
+      "src/catalog/controllers/owner_events_controller.py": "b3e403a52d16254d6d88e6eecc53b25e3971c4f1339d6baa17ee09d61e503dc8",
+      "src/catalog/controllers/owner_places_controller.py": "c6990b4483a00fd80920c0d5b5b00d72344b30694a8a6de94af08bc460db972d",
+      "src/catalog/controllers/owner_reviews_controller.py": "e68025ef435584ff38a433d868aeb758cff230a4263a648e71fddb3ff48440a8",
+      "src/catalog/controllers/program_workspace.py": "5590069bc892bde35b3c71538a2c3edca92fbcdecc108704cee9a8fc47140c5e",
+      "src/catalog/controllers/public_details.py": "604bce2ea7d6134430ed4d0713770a469b2e32eebddc4c7527cbb673f77e4867",
+      "src/catalog/controllers/specialist_workspace.py": "3438d24d4c6e139c20c6b3479b10bdbd1f5cab7fc9b43a4be7aee9eea98d182a",
+      "src/catalog/controllers/workflow_notifications.py": "96ec4e9acd3f2652a37cafe363d2fd17e3106a574639d7d3af0153ee0d59b720",
+      "src/catalog/domain_admin/business.py": "748803fc084923b254159dfe599fdbf9a071c22c48cc8a80e2e5772da8c0e9ba",
+      "src/catalog/domain_admin/owner.py": "0cc913bc30f79e7b6540b527821df78c0aadb582db2b1a94df2e573603070950",
+      "src/catalog/domain_admin/place.py": "47e0ec331158fee64312440de9c63bfbb2b75aff66ff8571a81b84dae58461f7",
+      "src/catalog/domain_admin/site.py": "c019f9442b27c1f231f8340b34232db995a0ba038ad0b1e8c90335a2af3b8dbb",
+      "src/catalog/domain_admin/volunteer.py": "0a98067cb2523149e69c6d21d577693244d6e4cb4e5002a7cea0d1013ee07537",
+      "src/catalog/forms_specialist_locations.py": "804ccbe8ff80280db63462d0f3d9167487489884b9b691a607c616073375a612",
+      "src/catalog/models/catalog_structure.py": "40e400952646766363fc0e4faeaf447c151e70f6bfc39119582f4df7cb967e59",
+      "src/catalog/models/specialist_domain.py": "8f24acd3054d9bf464a7f2d1fe299ffe036e14d955b1c0e4f1f2b58928a4123c",
+      "src/catalog/models/volunteer.py": "4fac6b8f72435039a417163fb9c976f926ccafdf5e28dd5e643f60f8356895f5",
+      "src/catalog/services/business_team.py": "b5518f79e8c74d8611f915fdc441df97a1fc01e3b7a31221790fb2d595c4ad99",
+      "src/catalog/services/catalog_structure.py": "ec35ad4b400b545f11e9c1a55d1f83ba79e8898fb36051c85606bfb476d0f63b",
+      "src/catalog/services/event_domain.py": "6a78399a6cb64f8276c5fa76078be44f4352ee8cd48720f3d8590d67979a57af",
+      "src/catalog/services/features.py": "694cccc0ed76451c6cc3e8a9e7a245847f81d16227b28672e2bc6e21ebb6c9d6",
+      "src/catalog/services/organization_connections.py": "c19c739fa99cc4255619b765f33e7341b0f157cf15c860e7712e74f04009cb8c",
+      "src/catalog/services/organization_ownership.py": "6d508d81ee14ce54c160fb094a4969ce5f68574f0d5d439da2ccf8c7f830dd23",
+      "src/catalog/services/owner_specialist_use_cases.py": "8848f79c7faec47464132ea17727f4d6be3a6ec9fffa7906ab0b64d802da2ed7",
+      "src/catalog/services/place_access.py": "45737e53be119aabae4861a77a11a6f2eb4ab1d523a3355b3306528b5a95a9d3",
+      "src/catalog/services/public_presentation.py": "e87f6860ec393c4a417bb5b683a4f27057a759097a69166962637c14bc81eb24",
+      "src/catalog/services/public_urls.py": "c87a5ff07407d9badec66582da2c4b50855965ea8d0914590b5c6ea0043828d4",
+      "src/catalog/services/publication.py": "708ab65435efbca2c4f119caa681517a6ee9104a3efe8598c703bf4d43ee7189",
+      "src/catalog/services/publication_forms.py": "e9b8e17e4363d53a6e24fa22a834b2d99c4e5cd5010cd4dd315d7003018823cf",
+      "src/catalog/services/review_use_cases.py": "039b4045151ac581332d375c2541a51131f5d7f5f940d5ca42e9085140cb943c",
+      "src/catalog/services/seo.py": "6a3a13afd6ce10d4689c16a1d005946a778d7039f79d3dc2f0cec76414ad8e16",
+      "src/catalog/services/specialist_documents.py": "a93b2c424ac7542cd8dd265d7716b862bbf7a2f11aa2e043da3c44183ad13ed3",
+      "src/catalog/services/specialist_domain.py": "093179ca93eb35112c2feca3fd252ffce41e38414a2e74be820c592f88cdfa66",
+      "src/catalog/services/specialist_proposal_drafts.py": "ee74fe4d32078d86c84eb45a4554a9d8bb2d1993ace600fd7af7e13d2d335527",
+      "src/catalog/services/tracking.py": "8184b26cfe1e3cb84baa1adbe2f57afe8d7b77b6c15632d2cd2568ae210e7634",
+      "src/catalog/services/volunteer_proposals.py": "94e724c54c84a5b657dadb7065998f1a45aa7be697752e6bf8a3a67a7dad1f09",
+      "src/catalog/templates/admin/catalog/business/change_form.html": "520b58f5caa6f6bfbc84f7551715dee4e19006ab8b132ebc54630a240a0fa661",
+      "src/catalog/templates/admin/volunteer/hub_detail.html": "ed4f8bbab796350ed36abab9045af04b601e40911be2c76000f527a960ba326f",
+      "src/catalog/templates/pages/includes/organization_join_request.html": "380ff8946216e503ccfc97dbfc7d5a4c68dce89bc8898c518dc7624889bda87b",
+      "src/catalog/templates/pages/organization_connections.html": "9d4debb3bedbec76d1017034f99461cb1a6b97fecb678643a43a67b6fe51c1f3",
+      "src/catalog/templates/pages/organization_create.html": "3a87e6e692eed6b32b3416f612c8aff4eb7fd2c9fa9748bd1a67f75d79d5e564",
+      "src/catalog/templates/pages/organization_workspace.html": "a4c34571361af9c1f954c94bb0cd5320736fced5be8e230b5df03fe031fe8247",
+      "src/catalog/templates/pages/owner_event_manage.html": "3328ada0153229e0117e2ae0033020c60519468a179924e8f6f26e58388459a4",
+      "src/catalog/templates/pages/program_editor.html": "87cf54411389fccb9ea4ddfb79ef561333fe71ca224d8c7cba164271f7eaffb8",
+      "src/catalog/templates/pages/specialist_workspace.html": "e993042f41a131ed08b4a89a1f60cb272c1a7dd3b9a7efc526d8de0aec76a816",
+      "src/catalog/urls.py": "98abdb7e0b5207343e21ccf8216ef4053667ad400e68bb4f6c6b463cfed2eae5",
+      "src/catalog/views.py": "4f1ceef8f86fb5c4b33ea4b1688d01702b827bbb715c3bda768c36afb01cd812",
+      "src/config/urls.py": "d94a2d0085e3b02654e043f319f12db981643fbfec9661383d30290080aa1470"
+    },
+    "missing_cited_sources": [],
+    "dirty_cited_paths": [
+      "src/catalog/services/publication.py"
+    ]
+  },
+  "routes": [
+    {
+      "file": "src/catalog/urls.py",
+      "line": 96,
+      "route": "account/specialists/",
+      "target": "specialist_workspace_index",
+      "name": "specialist_workspace_index",
+      "domain": "specialists",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 97,
+      "route": "account/specialists/<int:pk>/",
+      "target": "specialist_workspace_profile",
+      "name": "specialist_workspace_profile",
+      "domain": "specialists",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 98,
+      "route": "account/specialists/<int:pk>/claims/",
+      "target": "specialist_workspace_claims",
+      "name": "specialist_workspace_claims",
+      "domain": "specialists",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 99,
+      "route": "account/specialists/<int:pk>/invitations/",
+      "target": "specialist_workspace_invitations",
+      "name": "specialist_workspace_invitations",
+      "domain": "specialists",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 100,
+      "route": "account/specialists/<int:pk>/certificates/",
+      "target": "specialist_workspace_certificates",
+      "name": "specialist_workspace_certificates",
+      "domain": "specialists",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 101,
+      "route": "account/specialists/<int:pk>/review/",
+      "target": "specialist_workspace_review",
+      "name": "specialist_workspace_review",
+      "domain": "specialists",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 102,
+      "route": "account/organizations/<int:org_id>/specialists/",
+      "target": "organization_specialists",
+      "name": "organization_specialists",
+      "domain": "specialists",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 103,
+      "route": "organizations/",
+      "target": "organization_list",
+      "name": "organization_list",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 104,
+      "route": "organizations/<uuid:public_id>/",
+      "target": "public_organization_detail",
+      "name": "organization_detail",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 105,
+      "route": "activities/<int:pk>/",
+      "target": "activity_detail",
+      "name": "activity_detail",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 106,
+      "route": "account/notifications/",
+      "target": "inbox",
+      "name": "account_notifications",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 107,
+      "route": "account/notifications/<int:notification_id>/read/",
+      "target": "mark_read",
+      "name": "account_notification_read",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 108,
+      "route": "account/notifications/<int:notification_id>/accept/",
+      "target": "accept_invitation",
+      "name": "account_notification_accept",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 109,
+      "route": "account/organizations/",
+      "target": "organization_index",
+      "name": "organization_workspace_index",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 110,
+      "route": "account/organizations/create/",
+      "target": "organization_create",
+      "name": "organization_workspace_create",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 111,
+      "route": "account/organizations/connect/",
+      "target": "organization_connection_target",
+      "name": "organization_connection_target",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 112,
+      "route": "account/organization-operations/<uuid:operation_id>/",
+      "target": "organization_connection_result",
+      "name": "organization_connection_result",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 113,
+      "route": "account/organizations/<int:org_id>/connections/",
+      "target": "organization_connections",
+      "name": "organization_connections",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 114,
+      "route": "account/organizations/<int:org_id>/branches/<int:place_id>/detach-preview/",
+      "target": "organization_detach_preview",
+      "name": "organization_detach_preview",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 115,
+      "route": "account/organizations/<int:org_id>/",
+      "target": "organization_detail",
+      "name": "organization_workspace_detail",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 116,
+      "route": "account/organizations/<int:org_id>/programs/create/",
+      "target": "program_create",
+      "name": "organization_program_create",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 117,
+      "route": "account/organizations/<int:org_id>/programs/<int:program_id>/",
+      "target": "program_detail",
+      "name": "organization_program_detail",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 118,
+      "route": "account/organizations/<int:org_id>/programs/<int:program_id>/save/",
+      "target": "program_save",
+      "name": "organization_program_save",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 119,
+      "route": "account/organizations/<int:org_id>/branches/create/",
+      "target": "organization_branch_create",
+      "name": "organization_workspace_branch_create",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 120,
+      "route": "account/organizations/<int:org_id>/branches/<int:place_id>/",
+      "target": "organization_branch",
+      "name": "organization_workspace_branch",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 121,
+      "route": "account/organizations/<int:org_id>/save/",
+      "target": "organization_save",
+      "name": "organization_workspace_save",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 122,
+      "route": "account/organizations/<int:org_id>/join/",
+      "target": "organization_join",
+      "name": "organization_workspace_join",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 123,
+      "route": "account/organizations/<int:org_id>/requests/<int:request_id>/recovery/",
+      "target": "organization_join_recovery",
+      "name": "organization_join_recovery",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 124,
+      "route": "account/organizations/<int:org_id>/requests/<int:request_id>/cancel/",
+      "target": "organization_cancel",
+      "name": "organization_workspace_cancel",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 125,
+      "route": "account/organizations/<int:org_id>/requests/<int:request_id>/confirm/",
+      "target": "organization_confirm",
+      "name": "organization_workspace_confirm",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 126,
+      "route": "account/organizations/<int:org_id>/branches/<int:place_id>/detach/",
+      "target": "organization_detach",
+      "name": "organization_workspace_detach",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 127,
+      "route": "account/places/<int:place_id>/groups/<int:group_id>/confirm-conditions/",
+      "target": "confirm_group_conditions",
+      "name": "owner_group_confirm_conditions",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 128,
+      "route": "api/drafts/",
+      "target": "draft_collection",
+      "name": "server_draft_collection",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 129,
+      "route": "api/drafts/<uuid:draft_id>/",
+      "target": "draft_detail",
+      "name": "server_draft_detail",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 130,
+      "route": "api/drafts/<uuid:draft_id>/photo/",
+      "target": "draft_photo",
+      "name": "server_draft_photo",
+      "domain": "media",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 131,
+      "route": "api/drafts/<uuid:draft_id>/materialize/",
+      "target": "draft_materialize",
+      "name": "server_draft_materialize",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 132,
+      "route": "account/business/permissions/",
+      "target": "business_permission_config",
+      "name": "business_permission_config",
+      "domain": "access",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 133,
+      "route": "account/business/team/<str:target_type>/<int:target_id>/<str:action>/",
+      "target": "business_team_action",
+      "name": "business_team_action",
+      "domain": "access",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 134,
+      "route": "api/ownership/<str:action>/<str:target_type>/<int:target_id>/",
+      "target": "organization_ownership_action",
+      "name": "organization_ownership_action",
+      "domain": "business_structure",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 135,
+      "route": "api/location/resolve/",
+      "target": "location_resolve",
+      "name": "location_resolve",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 136,
+      "route": "account/photos/prepare/",
+      "target": "prepare_owner_photo",
+      "name": "owner_photo_prepare",
+      "domain": "media",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 137,
+      "route": "account/places/<int:pk>/photo-thumbnail/<int:photo_id>/",
+      "target": "owner_photo_thumbnail",
+      "name": "owner_photo_thumbnail",
+      "domain": "media",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 138,
+      "route": "account/places/save-photos/",
+      "target": "save_owner_photos",
+      "name": "owner_photo_create_save",
+      "domain": "media",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 139,
+      "route": "account/places/<int:pk>/save-photos/",
+      "target": "save_owner_photos",
+      "name": "owner_photo_edit_save",
+      "domain": "media",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 140,
+      "route": "api/places/<int:pk>/phones/",
+      "target": "reveal_place_phones",
+      "name": "place_phone_reveal",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 141,
+      "route": "api/catalog/map/",
+      "target": "public_map",
+      "name": "public_map",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 142,
+      "route": "api/catalog/suggestions/",
+      "target": "catalog_search_suggestions",
+      "name": "catalog_search_suggestions",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 143,
+      "route": "",
+      "target": "home",
+      "name": "home",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 144,
+      "route": "events/",
+      "target": "events_landing",
+      "name": "events_landing",
+      "domain": "events",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 145,
+      "route": "catalog/",
+      "target": "place_list",
+      "name": "place_list",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 146,
+      "route": "catalog/new/",
+      "target": "place_new",
+      "name": "place_new",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 147,
+      "route": "catalog/<slug:seo_slug>/",
+      "target": "seo_landing",
+      "name": "seo_landing",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 148,
+      "route": "about/",
+      "target": "about",
+      "name": "about",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 149,
+      "route": "faq/",
+      "target": "faq_page",
+      "name": "faq_page",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 150,
+      "route": "contacts/",
+      "target": "contacts",
+      "name": "contacts",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 151,
+      "route": "reviews/",
+      "target": "site_reviews",
+      "name": "site_reviews",
+      "domain": "reviews",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 152,
+      "route": "place-reviews/",
+      "target": "place_reviews",
+      "name": "place_reviews",
+      "domain": "reviews",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 153,
+      "route": "add-place/",
+      "target": "add_place",
+      "name": "add_place",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 154,
+      "route": "for-business/",
+      "target": "legacy_for_business_redirect",
+      "name": "legacy_for_business",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 155,
+      "route": "privacy/",
+      "target": "legal_page",
+      "name": "privacy",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 156,
+      "route": "terms/",
+      "target": "legal_page",
+      "name": "terms",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 157,
+      "route": "review-rules/",
+      "target": "legal_page",
+      "name": "review_rules",
+      "domain": "reviews",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 158,
+      "route": "listing-rules/",
+      "target": "legal_page",
+      "name": "listing_rules",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 159,
+      "route": "account/",
+      "target": "account_dashboard",
+      "name": "account_dashboard",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 160,
+      "route": "account/profile/",
+      "target": "account_profile",
+      "name": "account_profile",
+      "domain": "account",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 161,
+      "route": "account/favorites/",
+      "target": "account_favorites",
+      "name": "account_favorites",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 162,
+      "route": "account/settings/",
+      "target": "account_settings",
+      "name": "account_settings",
+      "domain": "account",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 163,
+      "route": "account/deletion/",
+      "target": "account_deletion_request",
+      "name": "account_deletion_request",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 164,
+      "route": "account/deletion/<uuid:subject_reference>/confirm/",
+      "target": "account_deletion_confirm",
+      "name": "account_deletion_confirm",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 169,
+      "route": "account/deletion/<uuid:subject_reference>/cancel/",
+      "target": "account_deletion_cancel",
+      "name": "account_deletion_cancel",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 174,
+      "route": "account/deletion/<uuid:subject_reference>/status/",
+      "target": "account_deletion_status",
+      "name": "account_deletion_status",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 179,
+      "route": "auth/register/",
+      "target": "account_register",
+      "name": "account_register",
+      "domain": "account",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 180,
+      "route": "auth/verify-email/",
+      "target": "account_verify_email",
+      "name": "account_verify_email",
+      "domain": "account",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 181,
+      "route": "auth/login/",
+      "target": "account_login",
+      "name": "account_login",
+      "domain": "account",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 182,
+      "route": "auth/logout/",
+      "target": "account_logout",
+      "name": "account_logout",
+      "domain": "account",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 183,
+      "route": "auth/password-reset/",
+      "target": "UserPasswordResetView.as_view()",
+      "name": "password_reset",
+      "domain": "account",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 188,
+      "route": "auth/password-reset/done/",
+      "target": "auth_views.PasswordResetDoneView.as_view(template_name='auth/password_reset_done.html')",
+      "name": "password_reset_done",
+      "domain": "account",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 193,
+      "route": "auth/reset/<uidb64>/<token>/",
+      "target": "auth_views.PasswordResetConfirmView.as_view(template_name='auth/password_reset_confirm.html', form_class=UserSetPasswordForm, success_url=reverse_lazy('password_reset_complete'))",
+      "name": "password_reset_confirm",
+      "domain": "account",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 202,
+      "route": "auth/reset/done/",
+      "target": "auth_views.PasswordResetCompleteView.as_view(template_name='auth/password_reset_complete.html')",
+      "name": "password_reset_complete",
+      "domain": "account",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 207,
+      "route": "account/places/",
+      "target": "owner_places_dashboard",
+      "name": "owner_places_dashboard",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 208,
+      "route": "account/places/<int:pk>/analytics/",
+      "target": "owner_place_analytics",
+      "name": "owner_place_analytics",
+      "domain": "analytics",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 209,
+      "route": "account/places/create/",
+      "target": "owner_place_create",
+      "name": "owner_place_create",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 210,
+      "route": "account/places/events/<int:pk>/manage/",
+      "target": "owner_event_manage",
+      "name": "owner_event_manage",
+      "domain": "events",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 211,
+      "route": "account/places/events/<int:pk>/cancel/",
+      "target": "owner_event_cancel",
+      "name": "owner_event_cancel",
+      "domain": "events",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 212,
+      "route": "account/places/events/<int:pk>/reschedule/",
+      "target": "owner_event_reschedule",
+      "name": "owner_event_reschedule",
+      "domain": "events",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 213,
+      "route": "account/places/events/create/",
+      "target": "owner_event_create",
+      "name": "owner_event_create",
+      "domain": "events",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 214,
+      "route": "account/specialists/proposals/new/",
+      "target": "specialist_workspace_proposal",
+      "name": "specialist_workspace_proposal",
+      "domain": "specialists",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 215,
+      "route": "account/specialists/proposals/<uuid:draft_id>/",
+      "target": "specialist_workspace_proposal",
+      "name": "specialist_workspace_proposal_resume",
+      "domain": "specialists",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 216,
+      "route": "account/specialists/proposals/<uuid:draft_id>/photo/",
+      "target": "specialist_proposal_photo",
+      "name": "specialist_proposal_photo",
+      "domain": "specialists",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 217,
+      "route": "account/places/specialists/create/",
+      "target": "specialist_workspace_profile",
+      "name": "owner_specialist_create",
+      "domain": "specialists",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 218,
+      "route": "account/places/specialists/<int:pk>/edit/",
+      "target": "specialist_workspace_profile",
+      "name": "owner_specialist_edit",
+      "domain": "specialists",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 219,
+      "route": "account/places/events/<int:pk>/edit/",
+      "target": "owner_event_edit",
+      "name": "owner_event_edit",
+      "domain": "events",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 220,
+      "route": "account/places/events/<int:pk>/submit-review/",
+      "target": "owner_event_submit_review",
+      "name": "owner_event_submit_review",
+      "domain": "events",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 221,
+      "route": "account/places/events/<int:pk>/delete/",
+      "target": "owner_event_delete",
+      "name": "owner_event_delete",
+      "domain": "events",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 222,
+      "route": "account/places/<int:pk>/edit/",
+      "target": "owner_place_edit",
+      "name": "owner_place_edit",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 223,
+      "route": "account/places/<int:pk>/photos/<int:photo_id>/delete/",
+      "target": "owner_place_gallery_photo_delete",
+      "name": "owner_place_gallery_photo_delete",
+      "domain": "media",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 228,
+      "route": "account/places/<int:pk>/delete/",
+      "target": "owner_place_delete",
+      "name": "owner_place_delete",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 229,
+      "route": "account/places/<int:pk>/publish/",
+      "target": "owner_place_publish",
+      "name": "owner_place_publish",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 230,
+      "route": "account/places/<int:pk>/draft/",
+      "target": "owner_place_draft",
+      "name": "owner_place_draft",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 231,
+      "route": "account/places/<int:pk>/submit-review/",
+      "target": "owner_place_submit_review",
+      "name": "owner_place_submit_review",
+      "domain": "reviews",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 232,
+      "route": "account/places/team/",
+      "target": "owner_team_dashboard",
+      "name": "owner_team_dashboard",
+      "domain": "access",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 233,
+      "route": "account/places/team/invite/",
+      "target": "owner_team_invite",
+      "name": "owner_team_invite",
+      "domain": "access",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 234,
+      "route": "account/places/team/invitations/<int:invitation_id>/cancel/",
+      "target": "owner_team_cancel_invitation",
+      "name": "owner_team_cancel_invitation",
+      "domain": "access",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 235,
+      "route": "account/places/team/invitations/<int:invitation_id>/accept/",
+      "target": "owner_team_accept_invitation",
+      "name": "owner_team_accept_invitation",
+      "domain": "access",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 236,
+      "route": "account/places/team/invitations/<int:invitation_id>/reject/",
+      "target": "owner_team_reject_invitation",
+      "name": "owner_team_reject_invitation",
+      "domain": "access",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 237,
+      "route": "account/places/team/members/<int:membership_id>/role/",
+      "target": "owner_team_update_member_role",
+      "name": "owner_team_update_member_role",
+      "domain": "access",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 238,
+      "route": "account/places/team/members/<int:membership_id>/remove/",
+      "target": "owner_team_remove_member",
+      "name": "owner_team_remove_member",
+      "domain": "access",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 239,
+      "route": "account/places/reviews/",
+      "target": "owner_reviews_dashboard",
+      "name": "owner_reviews_dashboard",
+      "domain": "reviews",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 240,
+      "route": "reviews/<str:kind>/target/<int:pk>/",
+      "target": "target_reviews",
+      "name": "typed_reviews",
+      "domain": "reviews",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 241,
+      "route": "reviews/<str:kind>/<int:pk>/<str:action>/",
+      "target": "review_action",
+      "name": "typed_review_action",
+      "domain": "reviews",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 242,
+      "route": "account/places/reviews/<int:review_id>/approve/",
+      "target": "owner_review_approve",
+      "name": "owner_review_approve",
+      "domain": "reviews",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 243,
+      "route": "account/places/reviews/<int:review_id>/reject/",
+      "target": "owner_review_reject",
+      "name": "owner_review_reject",
+      "domain": "reviews",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 244,
+      "route": "^account/owner/(?P<subpath>.*)$",
+      "target": "legacy_owner_section_redirect",
+      "name": "legacy_owner_section",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 249,
+      "route": "place/",
+      "target": "place_root_redirect",
+      "name": "place_root",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 250,
+      "route": "place/<int:pk>/",
+      "target": "place_detail_legacy",
+      "name": "place_detail_legacy",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 251,
+      "route": "place/<int:pk>-<str:slug>/",
+      "target": "place_detail",
+      "name": "place_detail",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 252,
+      "route": "place/<int:pk>/ownership-request/",
+      "target": "request_place_ownership",
+      "name": "request_place_ownership",
+      "domain": "access",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 253,
+      "route": "place/<int:pk>/like/",
+      "target": "toggle_place_like",
+      "name": "toggle_place_like",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 254,
+      "route": "place/<int:pk>/review/",
+      "target": "add_place_review",
+      "name": "add_place_review",
+      "domain": "reviews",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 255,
+      "route": "event/<int:pk>-<str:slug>/",
+      "target": "event_detail",
+      "name": "event_detail",
+      "domain": "events",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 256,
+      "route": "place-review/<int:review_id>/vote/",
+      "target": "vote_place_review",
+      "name": "vote_place_review",
+      "domain": "reviews",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 257,
+      "route": "review/",
+      "target": "add_site_review",
+      "name": "add_site_review",
+      "domain": "reviews",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 258,
+      "route": "site-review/<int:review_id>/vote/",
+      "target": "vote_site_review",
+      "name": "vote_site_review",
+      "domain": "reviews",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 259,
+      "route": "events/track/",
+      "target": "track_event",
+      "name": "track_event",
+      "domain": "events",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 261,
+      "route": "specialists/",
+      "target": "specialist_list",
+      "name": "specialist_list",
+      "domain": "specialists",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 262,
+      "route": "specialists/<slug:slug>/",
+      "target": "specialist_detail",
+      "name": "specialist_detail",
+      "domain": "specialists",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 263,
+      "route": "specialists/<int:pk>/review/",
+      "target": "add_specialist_review",
+      "name": "add_specialist_review",
+      "domain": "specialists",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 264,
+      "route": "specialists/documents/<int:document_id>/download/",
+      "target": "serve_specialist_document",
+      "name": "serve_specialist_document",
+      "domain": "specialists",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/urls.py",
+      "line": 266,
+      "route": "^(?P<pk>[0-9]+)-(?P<slug>[^/]+)/$",
+      "target": "place_detail_legacy",
+      "name": "place_detail_root_legacy",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 31,
+      "route": "auth/google/",
+      "target": "google_login",
+      "name": "google_login",
+      "domain": "account",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 32,
+      "route": "auth/google/callback/",
+      "target": "google_callback",
+      "name": "google_callback",
+      "domain": "account",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 33,
+      "route": "api/v1/places/<slug:slug>/pricing/",
+      "target": "place_pricing_api",
+      "name": "place_pricing_api",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 34,
+      "route": "api/catalog/suggestions/",
+      "target": "catalog_search_suggestions",
+      "name": "catalog_search_suggestions",
+      "domain": "places",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 35,
+      "route": "favicon.ico",
+      "target": "RedirectView.as_view(url='/static/img/logo-mark.svg', permanent=False)",
+      "name": "",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 36,
+      "route": "i18n/",
+      "target": "include('django.conf.urls.i18n')",
+      "name": "",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 37,
+      "route": "sitemap.xml",
+      "target": "public_sitemap",
+      "name": "django.contrib.sitemaps.views.sitemap",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 38,
+      "route": "sitemap.xsl",
+      "target": "sitemap_xsl",
+      "name": "sitemap_xsl",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 39,
+      "route": "robots.txt",
+      "target": "robots_txt",
+      "name": "robots_txt",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 40,
+      "route": "healthz",
+      "target": "healthz",
+      "name": "healthz",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 41,
+      "route": "^(?P<key>[A-Za-z0-9-]{8,128})\\.txt$",
+      "target": "indexnow_key_file",
+      "name": "indexnow_key_file",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 46,
+      "route": "admin/add-choice/",
+      "target": "admin_add_choice",
+      "name": "",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 47,
+      "route": "admin/",
+      "target": "admin.site.urls",
+      "name": "",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 48,
+      "route": "f\"^{(settings.LANGUAGE_CODE or 'az').split('-')[0]}(?:/(?P<path>.*))?$\"",
+      "target": "redirect_legacy_default_language_prefix",
+      "name": "legacy_default_language_redirect",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 56,
+      "route": "admin/add-choice/",
+      "target": "admin_add_choice",
+      "name": "admin_add_choice",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 57,
+      "route": "admin/",
+      "target": "include((admin.site.get_urls(), 'localized_admin'), namespace='localized_admin')",
+      "name": "",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 61,
+      "route": "",
+      "target": "include('catalog.urls')",
+      "name": "",
+      "domain": "other",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/config/urls.py",
+      "line": 68,
+      "route": "f'^{media_path}(?P<path>.*)$'",
+      "target": "serve_media_file",
+      "name": "",
+      "domain": "media",
+      "kind": "declaration",
+      "runtime_coverage": "UNKNOWN"
+    }
+  ],
+  "admin_routes": [
+    {
+      "file": "src/catalog/domain_admin/business.py",
+      "line": 193,
+      "route": "<path:object_id>/transition/",
+      "target": "self.admin_site.admin_view(self.transition_view)",
+      "name": "f'{name}_transition'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/category.py",
+      "line": 311,
+      "route": "upload-icon/",
+      "target": "self.admin_site.admin_view(self.upload_icon_view)",
+      "name": "catalog_category_upload_icon",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/category.py",
+      "line": 312,
+      "route": "toggle-active/",
+      "target": "self.admin_site.admin_view(self.toggle_active_view)",
+      "name": "catalog_taxonomy_toggle_active",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/moderation_sla.py",
+      "line": 107,
+      "route": "moderation-sla/",
+      "target": "admin.site.admin_view(queue)",
+      "name": "moderation_sla",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/moderation_sla.py",
+      "line": 108,
+      "route": "moderation-sla/place/<int:place_id>/needs-changes/",
+      "target": "admin.site.admin_view(needs_changes)",
+      "name": "moderation_needs_changes",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/owner.py",
+      "line": 562,
+      "route": "<int:request_id>/approve/",
+      "target": "self.admin_site.admin_view(self.approve_request_view)",
+      "name": "catalog_placeownershiprequest_approve",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/owner.py",
+      "line": 567,
+      "route": "<int:request_id>/reject/",
+      "target": "self.admin_site.admin_view(self.reject_request_view)",
+      "name": "catalog_placeownershiprequest_reject",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 4259,
+      "route": "organization-connections/",
+      "target": "self.admin_site.admin_view(self.organization_connections_view)",
+      "name": "f'{self.opts.app_label}_{self.opts.model_name}_organization_connections'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 4260,
+      "route": "location/resolve/",
+      "target": "self.admin_site.admin_view(location_resolve)",
+      "name": "f'{self.opts.app_label}_{self.opts.model_name}_location_resolve'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 4261,
+      "route": "url-preview/",
+      "target": "self.admin_site.admin_view(self.localized_url_preview_view)",
+      "name": "f'{self.opts.app_label}_{self.opts.model_name}_url_preview'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 4262,
+      "route": "pricing/import/validate/",
+      "target": "self.admin_site.admin_view(self.validate_pricing_import_view)",
+      "name": "f'{self.opts.app_label}_{self.opts.model_name}_pricing_import_validate'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 4267,
+      "route": "<int:object_id>/export-json/",
+      "target": "self.admin_site.admin_view(self.export_place_json_view)",
+      "name": "f'{self.opts.app_label}_{self.opts.model_name}_export_json'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 4272,
+      "route": "<int:object_id>/quality-check/",
+      "target": "self.admin_site.admin_view(self.place_quality_check_view)",
+      "name": "f'{self.opts.app_label}_{self.opts.model_name}_quality_check'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 4277,
+      "route": "quality-report/",
+      "target": "self.admin_site.admin_view(self.place_quality_report_view)",
+      "name": "f'{self.opts.app_label}_{self.opts.model_name}_quality_report'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 4282,
+      "route": "duplicate-candidates/",
+      "target": "self.admin_site.admin_view(self.duplicate_candidates_view)",
+      "name": "f'{self.opts.app_label}_{self.opts.model_name}_duplicate_candidates'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 4287,
+      "route": "home-recommendations/candidates/",
+      "target": "self.admin_site.admin_view(self.home_recommendation_candidates_view)",
+      "name": "f'{self.opts.app_label}_{self.opts.model_name}_home_recommendation_candidates'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 4292,
+      "route": "home-recommendations/save/",
+      "target": "self.admin_site.admin_view(self.save_home_recommendations_view)",
+      "name": "f'{self.opts.app_label}_{self.opts.model_name}_home_recommendations_save'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 4297,
+      "route": "search-suggestions/",
+      "target": "self.admin_site.admin_view(self.search_suggestions_view)",
+      "name": "f'{self.opts.app_label}_{self.opts.model_name}_search_suggestions'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 4302,
+      "route": "<int:object_id>/toggle-publication/",
+      "target": "self.admin_site.admin_view(self.toggle_publication_view)",
+      "name": "f'{self.opts.app_label}_{self.opts.model_name}_toggle_publication'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 4307,
+      "route": "<int:object_id>/quick-action/",
+      "target": "self.admin_site.admin_view(self.quick_action_view)",
+      "name": "f'{self.opts.app_label}_{self.opts.model_name}_quick_action'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 4312,
+      "route": "<path:object_id>/restore/",
+      "target": "self.admin_site.admin_view(self.restore_view)",
+      "name": "f'{self.opts.app_label}_{self.opts.model_name}_restore'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/review.py",
+      "line": 539,
+      "route": "<path:object_id>/approve/",
+      "target": "self.admin_site.admin_view(self.approve_view)",
+      "name": "f'{url_prefix}_approve'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/review.py",
+      "line": 540,
+      "route": "<path:object_id>/hide/",
+      "target": "self.admin_site.admin_view(self.hide_view)",
+      "name": "f'{url_prefix}_hide'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/review.py",
+      "line": 541,
+      "route": "<path:object_id>/reject/",
+      "target": "self.admin_site.admin_view(self.reject_view)",
+      "name": "f'{url_prefix}_reject'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/seo.py",
+      "line": 43,
+      "route": "run-audit-now/",
+      "target": "self.admin_site.admin_view(self.run_audit_now_view)",
+      "name": "catalog_seoauditrun_run_now",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/seo.py",
+      "line": 48,
+      "route": "apply-fixes-now/",
+      "target": "self.admin_site.admin_view(self.apply_fixes_now_view)",
+      "name": "catalog_seoauditrun_apply_fixes_now",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/seo.py",
+      "line": 53,
+      "route": "clear-history-now/",
+      "target": "self.admin_site.admin_view(self.clear_history_now_view)",
+      "name": "catalog_seoauditrun_clear_history_now",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/site.py",
+      "line": 973,
+      "route": "ajax-upload/",
+      "target": "self.admin_site.admin_view(self.ajax_upload)",
+      "name": "catalog_sitegalleryimage_ajax_upload",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/site.py",
+      "line": 978,
+      "route": "ajax-delete-main-image/",
+      "target": "self.admin_site.admin_view(self.ajax_delete_main_image)",
+      "name": "catalog_sitegalleryimage_ajax_delete_main_image",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/user.py",
+      "line": 165,
+      "route": "<id>/password/",
+      "target": "self.admin_site.admin_view(self.user_change_password)",
+      "name": "f'{self.model._meta.app_label}_{self.model._meta.model_name}_password_change'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/user.py",
+      "line": 439,
+      "route": "<id>/toggle-active/",
+      "target": "self.admin_site.admin_view(self.user_toggle_active)",
+      "name": "f'{self.model._meta.app_label}_{self.model._meta.model_name}_toggle_active'",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/user.py",
+      "line": 1134,
+      "route": "<int:user_id>/role/",
+      "target": "self.admin_site.admin_view(self.role_change_view)",
+      "name": "catalog_staffaccessuser_role_change",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/user.py",
+      "line": 1139,
+      "route": "<int:user_id>/request-superadmin/",
+      "target": "self.admin_site.admin_view(self.request_superadmin_view)",
+      "name": "catalog_staffaccessuser_request_superadmin",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/user.py",
+      "line": 1144,
+      "route": "superadmin-requests/",
+      "target": "self.admin_site.admin_view(self.superadmin_request_list_view)",
+      "name": "catalog_staffaccessuser_superadmin_request_list",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/user.py",
+      "line": 1149,
+      "route": "superadmin-requests/<int:request_id>/",
+      "target": "self.admin_site.admin_view(self.superadmin_request_confirm_view)",
+      "name": "catalog_staffaccessuser_superadmin_request_confirm",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/volunteer.py",
+      "line": 331,
+      "route": "volunteer/",
+      "target": "wrap(index)",
+      "name": "volunteer_index",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/volunteer.py",
+      "line": 332,
+      "route": "volunteer/add/",
+      "target": "wrap(edit)",
+      "name": "volunteer_add",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/volunteer.py",
+      "line": 333,
+      "route": "volunteer/<int:place_id>/delete/",
+      "target": "wrap(delete)",
+      "name": "volunteer_delete",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/volunteer.py",
+      "line": 334,
+      "route": "volunteer/<int:place_id>/photo/<str:kind>/",
+      "target": "wrap(photo)",
+      "name": "volunteer_photo",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/volunteer.py",
+      "line": 335,
+      "route": "volunteer/<int:place_id>/edit/",
+      "target": "wrap(edit)",
+      "name": "volunteer_edit",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/volunteer.py",
+      "line": 336,
+      "route": "volunteer/<int:place_id>/",
+      "target": "wrap(detail)",
+      "name": "volunteer_detail",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/volunteer.py",
+      "line": 337,
+      "route": "volunteer/proposal/<str:kind>/add/",
+      "target": "wrap(entity_proposal)",
+      "name": "volunteer_proposal_add",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/volunteer.py",
+      "line": 338,
+      "route": "volunteer/proposal/<str:kind>/<int:target_id>/",
+      "target": "wrap(entity_proposal)",
+      "name": "volunteer_proposal_edit",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/volunteer.py",
+      "line": 339,
+      "route": "volunteer/affiliation/add/",
+      "target": "wrap(affiliation_proposal)",
+      "name": "volunteer_affiliation_add",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/volunteer.py",
+      "line": 340,
+      "route": "volunteer/moderation/",
+      "target": "wrap(moderation_hub_index)",
+      "name": "volunteer_moderation_hub",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/volunteer.py",
+      "line": 341,
+      "route": "volunteer/moderation/<str:source>/<int:item_id>/",
+      "target": "wrap(moderation_hub_detail)",
+      "name": "volunteer_moderation_detail",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/volunteer.py",
+      "line": 342,
+      "route": "volunteer/review/",
+      "target": "wrap(review_index)",
+      "name": "volunteer_review_index",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/domain_admin/volunteer.py",
+      "line": 343,
+      "route": "volunteer/review/<int:place_id>/",
+      "target": "wrap(review)",
+      "name": "volunteer_review",
+      "kind": "admin route declaration",
+      "runtime_coverage": "UNKNOWN"
+    }
+  ],
+  "models": [
+    {
+      "file": "src/catalog/models/analytics.py",
+      "line": 7,
+      "name": "AnalyticsActorExclusion",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "user",
+        "reason_code",
+        "actor_key_hash",
+        "starts_at",
+        "ends_at",
+        "created_by",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "analytics",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/analytics.py",
+      "line": 39,
+      "name": "AnalyticsIngressDaily",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "day",
+        "accepted_count",
+        "rejected_count",
+        "rate_limited_count",
+        "updated_at"
+      ],
+      "domain": "analytics",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/business_team.py",
+      "line": 15,
+      "name": "OrganizationGrant",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "organization",
+        "owner",
+        "member",
+        "base_ownership_version",
+        "role",
+        "actions",
+        "scope",
+        "selected_places",
+        "is_active",
+        "version",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "business_structure",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/business_team.py",
+      "line": 37,
+      "name": "OrganizationTeamInvitation",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "organization",
+        "owner",
+        "email",
+        "role",
+        "actions",
+        "scope",
+        "selected_place_ids",
+        "scope_snapshot",
+        "base_ownership_version",
+        "base_grant_version",
+        "status",
+        "expires_at",
+        "invited_user",
+        "responded_at",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "business_structure",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/catalog_structure.py",
+      "line": 41,
+      "name": "ArchivedEntity",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "content_version",
+        "archived_at",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/catalog_structure.py",
+      "line": 71,
+      "name": "TranslatedContent",
+      "bases": [
+        "ArchivedEntity"
+      ],
+      "fields": [
+        "name_az",
+        "name_ru",
+        "name_en",
+        "description_az",
+        "description_ru",
+        "description_en",
+        "status",
+        "approved_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/catalog_structure.py",
+      "line": 87,
+      "name": "Organization",
+      "bases": [
+        "TranslatedContent"
+      ],
+      "fields": [
+        "public_id",
+        "owner",
+        "created_by",
+        "ownership_version",
+        "ownership_verified_at",
+        "ownership_verified_by",
+        "phone",
+        "whatsapp",
+        "website"
+      ],
+      "domain": "business_structure",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/catalog_structure.py",
+      "line": 111,
+      "name": "Program",
+      "bases": [
+        "TranslatedContent"
+      ],
+      "fields": [
+        "organization",
+        "created_by",
+        "category",
+        "subcategory"
+      ],
+      "domain": "business_structure",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/catalog_structure.py",
+      "line": 132,
+      "name": "Activity",
+      "bases": [
+        "ArchivedEntity"
+      ],
+      "fields": [
+        "place",
+        "program",
+        "category",
+        "subcategory",
+        "name_az",
+        "name_ru",
+        "name_en",
+        "description_az",
+        "description_ru",
+        "description_en",
+        "supplement_az",
+        "supplement_ru",
+        "supplement_en",
+        "status",
+        "source_program",
+        "source_program_version",
+        "program_snapshot"
+      ],
+      "domain": "business_structure",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/catalog_structure.py",
+      "line": 170,
+      "name": "OfferingGroup",
+      "bases": [
+        "ArchivedEntity"
+      ],
+      "fields": [
+        "activity",
+        "name_az",
+        "name_ru",
+        "name_en",
+        "age_from",
+        "age_to",
+        "lesson_format",
+        "language",
+        "schedule_text",
+        "teachers_text",
+        "conditions_az",
+        "conditions_ru",
+        "conditions_en",
+        "conditions_verified_at"
+      ],
+      "domain": "business_structure",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/catalog_structure.py",
+      "line": 213,
+      "name": "Location",
+      "bases": [
+        "ArchivedEntity"
+      ],
+      "fields": [
+        "name_az",
+        "address",
+        "lat",
+        "lng",
+        "confirmed_at",
+        "confirmed_by"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/catalog_structure.py",
+      "line": 229,
+      "name": "RelationshipRequest",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "requested_by",
+        "status",
+        "created_at",
+        "decided_at",
+        "decided_by",
+        "note"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/catalog_structure.py",
+      "line": 243,
+      "name": "OrganizationPlaceRequest",
+      "bases": [
+        "RelationshipRequest"
+      ],
+      "fields": [
+        "place",
+        "organization",
+        "relationship_kind",
+        "base_place_ownership_version",
+        "base_organization_ownership_version",
+        "base_place_content_version",
+        "base_place_owner_id",
+        "base_organization_owner_id",
+        "place_owner_confirmed_at",
+        "organization_owner_confirmed_at"
+      ],
+      "domain": "business_structure",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/catalog_structure.py",
+      "line": 263,
+      "name": "PlaceVenueRequest",
+      "bases": [
+        "RelationshipRequest"
+      ],
+      "fields": [
+        "place",
+        "location",
+        "base_place_content_version",
+        "base_location_content_version"
+      ],
+      "domain": "places",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/category.py",
+      "line": 86,
+      "name": "Category",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "code",
+        "name",
+        "name_az",
+        "name_ru",
+        "name_en",
+        "icon",
+        "color_bg",
+        "color_text",
+        "is_active",
+        "order",
+        "deleted_at",
+        "deleted_by",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by"
+      ],
+      "domain": "places",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/category.py",
+      "line": 208,
+      "name": "Subcategory",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "category",
+        "code",
+        "name",
+        "name_az",
+        "name_ru",
+        "name_en",
+        "icon",
+        "is_active",
+        "order",
+        "deleted_at",
+        "deleted_by",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "places",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/conversion.py",
+      "line": 6,
+      "name": "ConversionRun",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "plan_digest",
+        "rule_version",
+        "entry_count",
+        "baseline_counts",
+        "checkpoint",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/conversion.py",
+      "line": 19,
+      "name": "ConversionMapping",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "source_type",
+        "source_id",
+        "rule_version",
+        "piece_key",
+        "source_version",
+        "source_fingerprint",
+        "target_type",
+        "target_id",
+        "state",
+        "reason_code",
+        "run",
+        "updated_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/event_domain.py",
+      "line": 27,
+      "name": "EventOccurrenceChange",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "event",
+        "actor",
+        "kind",
+        "version",
+        "reason",
+        "before",
+        "after",
+        "happened_at"
+      ],
+      "domain": "events",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/location_override.py",
+      "line": 5,
+      "name": "PlaceLocationOverride",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "place",
+        "changed_by",
+        "created_at",
+        "reason",
+        "lat",
+        "lng",
+        "city",
+        "district",
+        "automatic_city",
+        "automatic_district",
+        "automatic_status",
+        "dataset_version",
+        "is_current"
+      ],
+      "domain": "places",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/organization_connection_operation.py",
+      "line": 8,
+      "name": "OrganizationConnectionOperation",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "id",
+        "actor",
+        "organization",
+        "action",
+        "relationship_kind",
+        "status",
+        "idempotency_key",
+        "fingerprint",
+        "expires_at",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "business_structure",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/organization_connection_operation.py",
+      "line": 30,
+      "name": "OrganizationConnectionItem",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "operation",
+        "place",
+        "snapshot",
+        "decision",
+        "result",
+        "request",
+        "completed_at"
+      ],
+      "domain": "business_structure",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/owner.py",
+      "line": 25,
+      "name": "PlaceOwnershipRequest",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "place",
+        "applicant",
+        "status",
+        "request_kind",
+        "base_ownership_version",
+        "base_owner_id",
+        "base_content_version",
+        "base_candidate_version",
+        "note",
+        "moderation_note",
+        "moderated_by",
+        "moderated_at",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "access",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/owner.py",
+      "line": 141,
+      "name": "PlaceOwnershipRequestAudit",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "ownership_request",
+        "actor",
+        "action",
+        "from_status",
+        "to_status",
+        "note",
+        "created_at"
+      ],
+      "domain": "access",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/owner.py",
+      "line": 200,
+      "name": "OwnerTeamMembership",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "actions",
+        "base_ownership_version",
+        "version",
+        "place",
+        "owner",
+        "member",
+        "role",
+        "is_active",
+        "invited_by",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "access",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/owner.py",
+      "line": 265,
+      "name": "OwnerTeamInvitation",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "actions",
+        "base_ownership_version",
+        "base_grant_version",
+        "expires_at",
+        "place",
+        "owner",
+        "email",
+        "role",
+        "status",
+        "token",
+        "invited_by",
+        "invited_user",
+        "responded_at",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "access",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/owner.py",
+      "line": 368,
+      "name": "PlaceChangeAudit",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "place",
+        "changed_by",
+        "field_name",
+        "old_value",
+        "new_value",
+        "source",
+        "created_at"
+      ],
+      "domain": "places",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/owner.py",
+      "line": 415,
+      "name": "OrganizationOwnershipRequest",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "organization",
+        "applicant",
+        "status",
+        "note",
+        "moderation_note",
+        "moderated_by",
+        "moderated_at",
+        "base_ownership_version",
+        "base_owner_id",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "business_structure",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/place.py",
+      "line": 28,
+      "name": "Place",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "name",
+        "slug",
+        "slug_az",
+        "slug_ru",
+        "slug_en",
+        "name_ru",
+        "name_en",
+        "name_az",
+        "description_ru",
+        "description_en",
+        "description_az",
+        "category",
+        "subcategory",
+        "age_from",
+        "age_to",
+        "age_open_ended",
+        "offers_adult_classes",
+        "city",
+        "location_resolution_status",
+        "location_dataset_version",
+        "district",
+        "metro",
+        "address",
+        "phone1",
+        "phone2",
+        "phone3",
+        "owner",
+        "created_by",
+        "organization",
+        "organization_relationship_kind",
+        "organization_join_place_ownership_version",
+        "organization_join_org_ownership_version",
+        "confirmed_location",
+        "venue_confirmed_at",
+        "content_version",
+        "ownership_version",
+        "nature",
+        "nature_approved_at",
+        "operating_state",
+        "operating_state_approved_at",
+        "cover_photo",
+        "photo",
+        "instagram",
+        "website",
+        "schedule",
+        "schedule_mode",
+        "schedule_note_az",
+        "schedule_note_ru",
+        "schedule_note_en",
+        "lesson_duration_minutes",
+        "lesson_format",
+        "lessons_per_week",
+        "lessons_per_month",
+        "pricing_plans_legacy",
+        "is_temporary",
+        "temporary_start",
+        "temporary_end",
+        "lat",
+        "lng",
+        "price_mode",
+        "price_from",
+        "price_to",
+        "price_per_lesson",
+        "price_per_month",
+        "price_per_8_lessons",
+        "extra_conditions",
+        "additional_info",
+        "extra_conditions_az",
+        "extra_conditions_ru",
+        "extra_conditions_en",
+        "additional_info_az",
+        "additional_info_ru",
+        "additional_info_en",
+        "custom_price_badge_az",
+        "custom_price_badge_ru",
+        "custom_price_badge_en",
+        "likes_count",
+        "rating_avg",
+        "rating_count",
+        "is_home_recommended",
+        "home_recommended_order",
+        "is_active",
+        "is_verified",
+        "status",
+        "submitted_at",
+        "needs_changes_at",
+        "moderated_at",
+        "moderated_by",
+        "rejection_reason",
+        "last_verified_at",
+        "published_at",
+        "deleted_at",
+        "deleted_by",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "places",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/place.py",
+      "line": 720,
+      "name": "PlacePhoto",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "place",
+        "image",
+        "caption",
+        "order"
+      ],
+      "domain": "media",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/place.py",
+      "line": 744,
+      "name": "PlaceScheduleDay",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "place",
+        "weekday",
+        "is_closed",
+        "is_24_hours",
+        "order"
+      ],
+      "domain": "places",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/place.py",
+      "line": 773,
+      "name": "PlaceScheduleInterval",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "schedule_day",
+        "start_time",
+        "end_time",
+        "order"
+      ],
+      "domain": "places",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/place.py",
+      "line": 793,
+      "name": "Event",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "organizer_organization",
+        "organizer_specialist",
+        "organizer_resolution",
+        "event_format",
+        "occurrence_state",
+        "occurrence_version",
+        "venue_label",
+        "venue_snapshot",
+        "legacy_publication_status",
+        "owner",
+        "related_place",
+        "name",
+        "slug",
+        "name_az",
+        "name_ru",
+        "name_en",
+        "description_az",
+        "description_ru",
+        "description_en",
+        "category",
+        "start_datetime",
+        "end_datetime",
+        "age_from",
+        "age_to",
+        "price_text",
+        "district",
+        "metro",
+        "address",
+        "lat",
+        "lng",
+        "phone",
+        "instagram",
+        "website",
+        "photo",
+        "moderation_note",
+        "rejection_reason",
+        "status",
+        "published_at",
+        "deleted_at",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "events",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/place.py",
+      "line": 1080,
+      "name": "EventPhoto",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "event",
+        "image",
+        "caption",
+        "order"
+      ],
+      "domain": "events",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/place.py",
+      "line": 1095,
+      "name": "PlaceLike",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "place",
+        "user",
+        "session_key",
+        "created_at"
+      ],
+      "domain": "places",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/place.py",
+      "line": 1124,
+      "name": "PlaceReviewsByClub",
+      "bases": [
+        "Place"
+      ],
+      "fields": [],
+      "domain": "reviews",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/pricing_plan.py",
+      "line": 11,
+      "name": "PricingPlan",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "place",
+        "offering_group",
+        "product_type",
+        "lesson_format",
+        "charge_role",
+        "billing_mode",
+        "billing_interval",
+        "billing_interval_count",
+        "billing_cycles",
+        "price_kind",
+        "price",
+        "price_min",
+        "price_max",
+        "currency",
+        "quantity",
+        "quantity_unit",
+        "sessions_per_week",
+        "sessions_per_month",
+        "is_unlimited",
+        "validity_interval",
+        "validity_interval_count",
+        "valid_from",
+        "valid_until",
+        "audience_type",
+        "age_from",
+        "age_to",
+        "min_people",
+        "max_people",
+        "day_type",
+        "title_az",
+        "title_ru",
+        "title_en",
+        "conditions_az",
+        "conditions_ru",
+        "conditions_en",
+        "is_required",
+        "is_trial",
+        "is_active",
+        "sort_order",
+        "verified_at",
+        "source_url",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/rating_ranking.py",
+      "line": 10,
+      "name": "RatingRankingCalibration",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "version",
+        "status",
+        "prior_mean",
+        "prior_weight",
+        "population_review_count",
+        "population_place_count",
+        "population_rating_sum",
+        "population_rating_sum_squares",
+        "population_standard_deviation",
+        "confidence_z",
+        "margin_stars",
+        "source_cutoff",
+        "calculated_at",
+        "activated_at",
+        "activated_by"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review.py",
+      "line": 21,
+      "name": "PlaceReview",
+      "bases": [
+        "VersionedReview"
+      ],
+      "fields": [
+        "current_revision",
+        "candidate_revision",
+        "place",
+        "user",
+        "author_name",
+        "is_anonymous",
+        "rating",
+        "text",
+        "contains_profanity",
+        "likes_count",
+        "dislikes_count",
+        "is_approved",
+        "status",
+        "submitted_at",
+        "moderated_at",
+        "moderated_by",
+        "rejection_reason",
+        "session_key",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "reviews",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review.py",
+      "line": 111,
+      "name": "PlaceReviewCooldown",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "user",
+        "place",
+        "next_allowed_at"
+      ],
+      "domain": "reviews",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review.py",
+      "line": 147,
+      "name": "PlaceReviewReaction",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "revision",
+        "review",
+        "user",
+        "session_key",
+        "value",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "reviews",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review.py",
+      "line": 209,
+      "name": "SiteReview",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "user",
+        "author_name",
+        "is_anonymous",
+        "rating",
+        "text",
+        "contains_profanity",
+        "likes_count",
+        "dislikes_count",
+        "is_approved",
+        "status",
+        "submitted_at",
+        "moderated_at",
+        "moderated_by",
+        "rejection_reason",
+        "session_key",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "reviews",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review.py",
+      "line": 323,
+      "name": "SiteReviewReaction",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "review",
+        "user",
+        "session_key",
+        "value",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "reviews",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 10,
+      "name": "VersionedReview",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "is_current",
+        "archive_head"
+      ],
+      "domain": "reviews",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 18,
+      "name": "ReviewRevision",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "author_name",
+        "is_anonymous",
+        "rating",
+        "text",
+        "contains_profanity",
+        "status",
+        "submitted_at",
+        "moderated_at",
+        "moderated_by",
+        "rejection_reason",
+        "created_at",
+        "is_baseline",
+        "source_is_approved"
+      ],
+      "domain": "reviews",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 42,
+      "name": "PlaceReviewRevision",
+      "bases": [
+        "ReviewRevision"
+      ],
+      "fields": [
+        "review"
+      ],
+      "domain": "reviews",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 46,
+      "name": "SpecialistReviewRevision",
+      "bases": [
+        "ReviewRevision"
+      ],
+      "fields": [
+        "review"
+      ],
+      "domain": "specialists",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 50,
+      "name": "ActivityReviewRevision",
+      "bases": [
+        "ReviewRevision"
+      ],
+      "fields": [
+        "review"
+      ],
+      "domain": "business_structure",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 54,
+      "name": "EventReviewRevision",
+      "bases": [
+        "ReviewRevision"
+      ],
+      "fields": [
+        "review"
+      ],
+      "domain": "events",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 58,
+      "name": "NewTargetReview",
+      "bases": [
+        "VersionedReview"
+      ],
+      "fields": [
+        "user",
+        "author_name",
+        "is_anonymous",
+        "rating",
+        "text",
+        "contains_profanity",
+        "likes_count",
+        "dislikes_count",
+        "status",
+        "is_approved",
+        "submitted_at",
+        "moderated_at",
+        "moderated_by",
+        "rejection_reason",
+        "session_key",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "reviews",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 98,
+      "name": "ActivityReview",
+      "bases": [
+        "NewTargetReview"
+      ],
+      "fields": [
+        "current_revision",
+        "candidate_revision",
+        "activity"
+      ],
+      "domain": "business_structure",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 106,
+      "name": "EventReview",
+      "bases": [
+        "NewTargetReview"
+      ],
+      "fields": [
+        "current_revision",
+        "candidate_revision",
+        "event"
+      ],
+      "domain": "events",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 114,
+      "name": "TypedReaction",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "user",
+        "session_key",
+        "value",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 137,
+      "name": "SpecialistReviewReaction",
+      "bases": [
+        "TypedReaction"
+      ],
+      "fields": [
+        "review",
+        "revision"
+      ],
+      "domain": "specialists",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 142,
+      "name": "ActivityReviewReaction",
+      "bases": [
+        "TypedReaction"
+      ],
+      "fields": [
+        "review",
+        "revision"
+      ],
+      "domain": "business_structure",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 147,
+      "name": "EventReviewReaction",
+      "bases": [
+        "TypedReaction"
+      ],
+      "fields": [
+        "review",
+        "revision"
+      ],
+      "domain": "events",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 152,
+      "name": "ReviewResponse",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "actor",
+        "kind",
+        "text",
+        "created_at"
+      ],
+      "domain": "reviews",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 163,
+      "name": "PlaceReviewResponse",
+      "bases": [
+        "ReviewResponse"
+      ],
+      "fields": [
+        "revision"
+      ],
+      "domain": "reviews",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 167,
+      "name": "SpecialistReviewResponse",
+      "bases": [
+        "ReviewResponse"
+      ],
+      "fields": [
+        "revision"
+      ],
+      "domain": "specialists",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 171,
+      "name": "ActivityReviewResponse",
+      "bases": [
+        "ReviewResponse"
+      ],
+      "fields": [
+        "revision"
+      ],
+      "domain": "business_structure",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/review_versions.py",
+      "line": 175,
+      "name": "EventReviewResponse",
+      "bases": [
+        "ReviewResponse"
+      ],
+      "fields": [
+        "revision"
+      ],
+      "domain": "events",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/seo.py",
+      "line": 5,
+      "name": "SEOAuditRun",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "started_at",
+        "finished_at",
+        "audit_type",
+        "total_urls",
+        "error_count",
+        "warning_count",
+        "auto_fix_count",
+        "status",
+        "code_version",
+        "environment",
+        "summary_notes"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/seo.py",
+      "line": 63,
+      "name": "SEOIssue",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "audit_run",
+        "url",
+        "page_type",
+        "language",
+        "issue_code",
+        "severity",
+        "level",
+        "description",
+        "current_value",
+        "proposed_value",
+        "rationale",
+        "expected_impact",
+        "risk_assessment",
+        "rollback_instructions",
+        "detected_at",
+        "last_checked_at",
+        "status",
+        "is_auto_fixable",
+        "requires_approval",
+        "place"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/seo.py",
+      "line": 157,
+      "name": "SEOChange",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "issue",
+        "change_summary",
+        "old_value",
+        "new_value",
+        "reason",
+        "source",
+        "applied_at",
+        "recheck_result",
+        "is_reversible",
+        "is_rolled_back",
+        "rolled_back_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/server_draft.py",
+      "line": 8,
+      "name": "ServerDraft",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "id",
+        "actor",
+        "target_type",
+        "target_id",
+        "materialized_place",
+        "schema_version",
+        "source_version",
+        "version",
+        "fields",
+        "photo_name",
+        "saved_at",
+        "created_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/site.py",
+      "line": 76,
+      "name": "SiteSettings",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "brand_name",
+        "logo",
+        "site_background_image",
+        "site_background_mobile_image",
+        "header_background_image",
+        "header_background_mobile_image",
+        "footer_background_image",
+        "footer_background_mobile_image",
+        "home_hero_image",
+        "home_hero_mobile_image",
+        "home_map_image",
+        "home_map_mobile_image",
+        "home_recommended_image",
+        "home_recommended_mobile_image",
+        "home_recommendations_limit",
+        "home_categories_image",
+        "home_categories_mobile_image",
+        "home_steps_image",
+        "home_steps_mobile_image",
+        "home_trust_image",
+        "home_trust_mobile_image",
+        "home_cta_image",
+        "home_cta_mobile_image",
+        "home_hero_show_decor",
+        "home_title_ru",
+        "home_title_en",
+        "home_title_az",
+        "home_subtitle_ru",
+        "home_subtitle_en",
+        "home_subtitle_az",
+        "home_search_label_ru",
+        "home_search_label_en",
+        "home_search_label_az",
+        "home_search_placeholder_ru",
+        "home_search_placeholder_en",
+        "home_search_placeholder_az",
+        "home_cta_text_ru",
+        "home_cta_text_en",
+        "home_cta_text_az",
+        "contacts_text_ru",
+        "contacts_text_en",
+        "contacts_text_az",
+        "about_text_ru",
+        "about_text_en",
+        "about_text_az",
+        "empty_results_text_ru",
+        "empty_results_text_en",
+        "empty_results_text_az",
+        "empty_results_image",
+        "catalog_hero_image",
+        "catalog_hero_mobile_image",
+        "about_hero_image",
+        "about_hero_mobile_image",
+        "reviews_hero_image",
+        "reviews_hero_mobile_image",
+        "for_business_hero_image",
+        "for_business_hero_mobile_image",
+        "dashboard_hero_image",
+        "dashboard_hero_mobile_image",
+        "organizations_section_enabled",
+        "specialists_section_enabled",
+        "events_section_enabled",
+        "public_favorites_count_enabled",
+        "public_favorites_minimum",
+        "footer_phone",
+        "footer_email",
+        "footer_instagram",
+        "footer_telegram",
+        "footer_youtube",
+        "footer_tiktok",
+        "footer_facebook",
+        "footer_linkedin",
+        "footer_whatsapp",
+        "updated_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/site.py",
+      "line": 472,
+      "name": "SiteGalleryImage",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "placement",
+        "image",
+        "category",
+        "title_ru",
+        "title_en",
+        "title_az",
+        "order",
+        "is_active",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/site.py",
+      "line": 531,
+      "name": "SiteBrandingSettings",
+      "bases": [
+        "SiteSettings"
+      ],
+      "fields": [],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/site.py",
+      "line": 538,
+      "name": "SiteAboutSettings",
+      "bases": [
+        "SiteSettings"
+      ],
+      "fields": [],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/site.py",
+      "line": 545,
+      "name": "SiteContactsSettings",
+      "bases": [
+        "SiteSettings"
+      ],
+      "fields": [],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/site.py",
+      "line": 552,
+      "name": "SiteFooterSettings",
+      "bases": [
+        "SiteSettings"
+      ],
+      "fields": [],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/site.py",
+      "line": 559,
+      "name": "SiteEmptyStateSettings",
+      "bases": [
+        "SiteSettings"
+      ],
+      "fields": [],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/site.py",
+      "line": 566,
+      "name": "SiteVisibilitySettings",
+      "bases": [
+        "SiteSettings"
+      ],
+      "fields": [],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/site.py",
+      "line": 573,
+      "name": "SiteAnalytics",
+      "bases": [
+        "SiteSettings"
+      ],
+      "fields": [],
+      "domain": "analytics",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/site.py",
+      "line": 580,
+      "name": "SiteVisit",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "day",
+        "session_key",
+        "hits",
+        "first_path",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/site.py",
+      "line": 607,
+      "name": "FunnelEvent",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "event_type",
+        "schema_version",
+        "subject_type",
+        "subject_id",
+        "occurred_at",
+        "visitor_key_hash",
+        "session_key_hash",
+        "source",
+        "page_type",
+        "language",
+        "device_class",
+        "referrer_domain",
+        "campaign",
+        "day",
+        "path",
+        "place",
+        "user",
+        "session_key",
+        "event_meta",
+        "created_at"
+      ],
+      "domain": "events",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/site.py",
+      "line": 725,
+      "name": "CatalogContentSettings",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "districts_json",
+        "metro_stations_json",
+        "seo_pages_json",
+        "updated_at"
+      ],
+      "domain": "places",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/specialist.py",
+      "line": 10,
+      "name": "Region",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "key",
+        "name_ru",
+        "name_az",
+        "name_en"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/specialist.py",
+      "line": 30,
+      "name": "District",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "key",
+        "region",
+        "name_ru",
+        "name_az",
+        "name_en"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/specialist.py",
+      "line": 51,
+      "name": "MetroStation",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "key",
+        "name_ru",
+        "name_az",
+        "name_en"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/specialist.py",
+      "line": 71,
+      "name": "SpecialistSpecialization",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "code",
+        "name",
+        "name_ru",
+        "name_az",
+        "name_en",
+        "is_active",
+        "order"
+      ],
+      "domain": "specialists",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/specialist.py",
+      "line": 94,
+      "name": "Specialist",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "created_by",
+        "verified_person_user",
+        "person_verified_at",
+        "owner",
+        "name",
+        "name_alt",
+        "slug",
+        "photo",
+        "bio_ru",
+        "bio_az",
+        "bio_en",
+        "specializations",
+        "consultation_format",
+        "experience_years",
+        "age_from",
+        "age_to",
+        "language_az",
+        "language_ru",
+        "language_en",
+        "price_from",
+        "price_to",
+        "duration_minutes",
+        "education_ru",
+        "education_az",
+        "education_en",
+        "experience_info_ru",
+        "experience_info_az",
+        "experience_info_en",
+        "phone",
+        "whatsapp",
+        "instagram",
+        "website",
+        "rating_avg",
+        "rating_count",
+        "is_active",
+        "is_verified",
+        "status",
+        "rejection_reason",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "specialists",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/specialist.py",
+      "line": 260,
+      "name": "SpecialistPracticeLocation",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "specialist",
+        "place",
+        "address",
+        "region",
+        "district",
+        "metro",
+        "lat",
+        "lng",
+        "schedule",
+        "price_per_session",
+        "phone",
+        "is_primary",
+        "is_active"
+      ],
+      "domain": "specialists",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/specialist.py",
+      "line": 310,
+      "name": "SpecialistScheduleDay",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "practice_location",
+        "weekday",
+        "is_closed",
+        "is_24_hours",
+        "order"
+      ],
+      "domain": "specialists",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/specialist.py",
+      "line": 344,
+      "name": "SpecialistScheduleInterval",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "schedule_day",
+        "start_time",
+        "end_time",
+        "order"
+      ],
+      "domain": "specialists",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/specialist.py",
+      "line": 364,
+      "name": "SpecialistDocument",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "opted_in_by",
+        "opted_in_at",
+        "specialist",
+        "document_type",
+        "name",
+        "file",
+        "status",
+        "is_published",
+        "rejection_reason",
+        "created_at"
+      ],
+      "domain": "specialists",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/specialist.py",
+      "line": 438,
+      "name": "SpecialistReview",
+      "bases": [
+        "VersionedReview"
+      ],
+      "fields": [
+        "current_revision",
+        "candidate_revision",
+        "specialist",
+        "user",
+        "author_name",
+        "rating",
+        "text",
+        "is_approved",
+        "status",
+        "rejection_reason",
+        "submitted_at",
+        "moderated_at",
+        "moderated_by",
+        "created_at",
+        "is_anonymous",
+        "contains_profanity",
+        "session_key",
+        "updated_at",
+        "likes_count",
+        "dislikes_count"
+      ],
+      "domain": "specialists",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/specialist_domain.py",
+      "line": 7,
+      "name": "SpecialistClaim",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "specialist",
+        "applicant",
+        "status",
+        "version",
+        "reviewed_by",
+        "reviewed_at",
+        "reason",
+        "previous_legacy_owner",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "specialists",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/specialist_domain.py",
+      "line": 41,
+      "name": "SpecialistEmployment",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "specialist",
+        "organization",
+        "role",
+        "start_date",
+        "end_date",
+        "person_user",
+        "organization_owner",
+        "organization_ownership_version",
+        "person_confirmed_by",
+        "person_confirmed_at",
+        "organization_confirmed_by",
+        "organization_confirmed_at",
+        "status",
+        "version",
+        "created_by",
+        "cancelled_by",
+        "cancelled_at",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "specialists",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/specialist_domain.py",
+      "line": 94,
+      "name": "SpecialistEmploymentEvent",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "employment",
+        "action",
+        "actor",
+        "version",
+        "role",
+        "start_date",
+        "end_date",
+        "created_at"
+      ],
+      "domain": "specialists",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/specialist_proposal_draft.py",
+      "line": 12,
+      "name": "SpecialistProposalDraft",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "id",
+        "actor",
+        "payload",
+        "version",
+        "photo",
+        "photo_content_type",
+        "submitted_specialist",
+        "submitted_at",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "specialists",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/staff_role.py",
+      "line": 7,
+      "name": "SuperadminPromotionRequest",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "target",
+        "initiated_by",
+        "decided_by",
+        "status",
+        "rejection_note",
+        "created_at",
+        "decided_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/staff_role.py",
+      "line": 62,
+      "name": "StaffRoleAudit",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "actor",
+        "target",
+        "actor_display",
+        "target_display",
+        "old_role",
+        "new_role",
+        "action",
+        "promotion_request",
+        "created_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/user.py",
+      "line": 20,
+      "name": "UserProfile",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "user",
+        "phone",
+        "avatar",
+        "gender",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "account",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/user.py",
+      "line": 91,
+      "name": "UserEmailVerification",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "user",
+        "email",
+        "code_hash",
+        "expires_at",
+        "resend_available_at",
+        "attempts_left",
+        "is_verified",
+        "verified_at",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/user.py",
+      "line": 117,
+      "name": "AccountDeletionRequest",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "user",
+        "subject_reference",
+        "status",
+        "policy_version",
+        "policy_snapshot",
+        "confirmation_code_hash",
+        "confirmation_expires_at",
+        "confirmation_attempts_left",
+        "code_purpose",
+        "requested_at",
+        "confirmation_sent_at",
+        "confirmed_at",
+        "canceled_at",
+        "scheduled_for",
+        "processing_started_at",
+        "completed_at",
+        "purge_after",
+        "hold_code",
+        "failure_code",
+        "updated_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/user.py",
+      "line": 182,
+      "name": "AccountDeletionAudit",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "subject_reference",
+        "event_type",
+        "policy_version",
+        "counters",
+        "created_at",
+        "retain_until"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/volunteer.py",
+      "line": 7,
+      "name": "VolunteerPlaceRevision",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "place",
+        "organization",
+        "program",
+        "activity",
+        "offering_group",
+        "schema_version",
+        "base_content_version",
+        "dependencies",
+        "changed_fields",
+        "author",
+        "payload",
+        "base_snapshot",
+        "status",
+        "version",
+        "review_note",
+        "reviewed_by",
+        "created_at",
+        "updated_at",
+        "submitted_at",
+        "needs_changes_at",
+        "moderated_at"
+      ],
+      "domain": "volunteer",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/workflow_notification.py",
+      "line": 7,
+      "name": "WorkflowNotification",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "event_kind",
+        "entity_type",
+        "entity_id",
+        "entity_version",
+        "recipient_key",
+        "recipient_user",
+        "recipient_email",
+        "read_at",
+        "created_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    },
+    {
+      "file": "src/catalog/models/workflow_notification.py",
+      "line": 29,
+      "name": "EmailOutbox",
+      "bases": [
+        "models.Model"
+      ],
+      "fields": [
+        "notification",
+        "recipient_email",
+        "status",
+        "attempts",
+        "next_attempt_at",
+        "sent_at",
+        "last_error_code",
+        "created_at",
+        "updated_at"
+      ],
+      "domain": "other",
+      "runtime_coverage": "UNKNOWN"
+    }
+  ],
+  "admin_surfaces": [
+    {
+      "file": "src/catalog/domain_admin/business.py",
+      "line": 294,
+      "models": [
+        "Organization"
+      ],
+      "admin_class": "OrganizationAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/business.py",
+      "line": 311,
+      "models": [
+        "Program"
+      ],
+      "admin_class": "ProgramAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/business.py",
+      "line": 324,
+      "models": [
+        "Activity"
+      ],
+      "admin_class": "ActivityAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/business.py",
+      "line": 341,
+      "models": [
+        "OfferingGroup"
+      ],
+      "admin_class": "OfferingGroupAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/category.py",
+      "line": 273,
+      "models": [
+        "Category"
+      ],
+      "admin_class": "CategoryAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/category.py",
+      "line": 421,
+      "models": [
+        "Subcategory"
+      ],
+      "admin_class": "SubcategoryAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/owner.py",
+      "line": 60,
+      "models": [
+        "OwnerTeamMembership"
+      ],
+      "admin_class": "OwnerTeamMembershipAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/owner.py",
+      "line": 69,
+      "models": [
+        "OrganizationGrant"
+      ],
+      "admin_class": "OrganizationGrantAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/owner.py",
+      "line": 77,
+      "models": [
+        "OrganizationTeamInvitation"
+      ],
+      "admin_class": "OrganizationTeamInvitationAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/owner.py",
+      "line": 85,
+      "models": [
+        "OwnerTeamInvitation"
+      ],
+      "admin_class": "OwnerTeamInvitationAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/owner.py",
+      "line": 150,
+      "models": [
+        "PlaceChangeAudit"
+      ],
+      "admin_class": "PlaceChangeAuditAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/owner.py",
+      "line": 463,
+      "models": [
+        "PlaceOwnershipRequest"
+      ],
+      "admin_class": "PlaceOwnershipRequestAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/owner.py",
+      "line": 1192,
+      "models": [
+        "PlaceOwnershipRequestAudit"
+      ],
+      "admin_class": "PlaceOwnershipRequestAuditAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 924,
+      "models": [
+        "Event"
+      ],
+      "admin_class": "EventAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 1742,
+      "models": [
+        "Place"
+      ],
+      "admin_class": "PlaceAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/place.py",
+      "line": 5497,
+      "models": [
+        "PlaceReviewsByClub"
+      ],
+      "admin_class": "PlaceReviewsByClubAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/review.py",
+      "line": 152,
+      "models": [
+        "PlaceReview"
+      ],
+      "admin_class": "PlaceReviewAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/review.py",
+      "line": 711,
+      "models": [
+        "SiteReview"
+      ],
+      "admin_class": "SiteReviewAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/review_versions.py",
+      "line": 49,
+      "models": [
+        "ActivityReview",
+        "EventReview"
+      ],
+      "admin_class": "TypedReviewAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/review_versions.py",
+      "line": 56,
+      "models": [
+        "PlaceReviewResponse",
+        "SpecialistReviewResponse",
+        "ActivityReviewResponse",
+        "EventReviewResponse"
+      ],
+      "admin_class": "ReviewResponseAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/seo.py",
+      "line": 10,
+      "models": [
+        "SEOAuditRun"
+      ],
+      "admin_class": "SEOAuditRunAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/seo.py",
+      "line": 221,
+      "models": [
+        "SEOIssue"
+      ],
+      "admin_class": "SEOIssueAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/seo.py",
+      "line": 338,
+      "models": [
+        "SEOChange"
+      ],
+      "admin_class": "SEOChangeAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/site.py",
+      "line": 242,
+      "models": [
+        "SiteSettings"
+      ],
+      "admin_class": "SiteSettingsCompatAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/site.py",
+      "line": 336,
+      "models": [
+        "SiteBrandingSettings"
+      ],
+      "admin_class": "SiteBrandingSettingsAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/site.py",
+      "line": 386,
+      "models": [
+        "SiteAboutSettings"
+      ],
+      "admin_class": "SiteAboutSettingsAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/site.py",
+      "line": 395,
+      "models": [
+        "SiteContactsSettings"
+      ],
+      "admin_class": "SiteContactsSettingsAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/site.py",
+      "line": 403,
+      "models": [
+        "SiteFooterSettings"
+      ],
+      "admin_class": "SiteFooterSettingsAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/site.py",
+      "line": 426,
+      "models": [
+        "SiteEmptyStateSettings"
+      ],
+      "admin_class": "SiteEmptyStateSettingsAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/site.py",
+      "line": 445,
+      "models": [
+        "SiteVisibilitySettings"
+      ],
+      "admin_class": "SiteVisibilitySettingsAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/site.py",
+      "line": 463,
+      "models": [
+        "SiteAnalytics"
+      ],
+      "admin_class": "SiteAnalyticsAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/site.py",
+      "line": 486,
+      "models": [
+        "SiteGalleryImage"
+      ],
+      "admin_class": "SiteGalleryImageAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/site.py",
+      "line": 1092,
+      "models": [
+        "CatalogContentSettings"
+      ],
+      "admin_class": "CatalogContentSettingsAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/site.py",
+      "line": 1129,
+      "models": [
+        "FunnelEvent"
+      ],
+      "admin_class": "FunnelEventAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/site.py",
+      "line": 1147,
+      "models": [
+        "AnalyticsActorExclusion"
+      ],
+      "admin_class": "AnalyticsActorExclusionAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/site.py",
+      "line": 1160,
+      "models": [
+        "RatingRankingCalibration"
+      ],
+      "admin_class": "RatingRankingCalibrationAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/specialist.py",
+      "line": 98,
+      "models": [
+        "Region"
+      ],
+      "admin_class": "RegionAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/specialist.py",
+      "line": 382,
+      "models": [
+        "District"
+      ],
+      "admin_class": "DistrictAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/specialist.py",
+      "line": 391,
+      "models": [
+        "MetroStation"
+      ],
+      "admin_class": "MetroStationAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/specialist.py",
+      "line": 397,
+      "models": [
+        "SpecialistSpecialization"
+      ],
+      "admin_class": "SpecialistSpecializationAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/specialist.py",
+      "line": 443,
+      "models": [
+        "Specialist"
+      ],
+      "admin_class": "SpecialistAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/specialist.py",
+      "line": 874,
+      "models": [
+        "SpecialistReview"
+      ],
+      "admin_class": "SpecialistReviewAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/user.py",
+      "line": 305,
+      "models": [
+        "User"
+      ],
+      "admin_class": "HiddenBaseUserAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/user.py",
+      "line": 385,
+      "models": [
+        "SiteRegisteredUser"
+      ],
+      "admin_class": "SiteRegisteredUserAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/user.py",
+      "line": 958,
+      "models": [
+        "StaffAccessUser"
+      ],
+      "admin_class": "StaffAccessUserAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/user.py",
+      "line": 1306,
+      "models": [
+        "StaffRoleAudit"
+      ],
+      "admin_class": "StaffRoleAuditAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/user.py",
+      "line": 1366,
+      "models": [
+        "UserProfile"
+      ],
+      "admin_class": "UserProfileAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    },
+    {
+      "file": "src/catalog/domain_admin/user.py",
+      "line": 1393,
+      "models": [
+        "UserEmailVerification"
+      ],
+      "admin_class": "UserEmailVerificationAdmin",
+      "runtime_coverage": "UNKNOWN",
+      "kind": "decorator declaration"
+    }
+  ],
+  "domain_map": [
+    {
+      "domain": "places",
+      "modules": [
+        "01",
+        "05",
+        "06",
+        "09",
+        "11",
+        "12"
+      ],
+      "scenarios": [
+        "create",
+        "draft/reload",
+        "moderation",
+        "candidate/live",
+        "map",
+        "photos",
+        "nested pricing",
+        "public cards"
+      ],
+      "sources": [
+        "src/catalog/controllers/owner_places_controller.py",
+        "src/catalog/services/publication.py",
+        "src/catalog/domain_admin/place.py"
+      ],
+      "historical_modules_are_not_current_proof": true,
+      "this_agent_runtime_status": "NOT_RUN"
+    },
+    {
+      "domain": "business_structure",
+      "modules": [
+        "02",
+        "05",
+        "07",
+        "09",
+        "11"
+      ],
+      "scenarios": [
+        "organization no branches",
+        "canonical connect",
+        "program/activity/group",
+        "detach",
+        "contacts inheritance"
+      ],
+      "sources": [
+        "src/catalog/controllers/organization_workspace.py",
+        "src/catalog/controllers/program_workspace.py",
+        "src/catalog/services/organization_ownership.py",
+        "src/catalog/services/organization_connections.py",
+        "src/catalog/services/catalog_structure.py",
+        "src/catalog/domain_admin/business.py"
+      ],
+      "historical_modules_are_not_current_proof": true,
+      "this_agent_runtime_status": "NOT_RUN"
+    },
+    {
+      "domain": "specialists",
+      "modules": [
+        "03",
+        "06",
+        "09",
+        "11"
+      ],
+      "scenarios": [
+        "proposal",
+        "claim",
+        "cooperation",
+        "practice locations",
+        "private docs",
+        "profile publication"
+      ],
+      "sources": [
+        "src/catalog/controllers/specialist_workspace.py",
+        "src/catalog/services/specialist_domain.py",
+        "src/catalog/services/specialist_documents.py",
+        "src/catalog/services/specialist_proposal_drafts.py",
+        "src/catalog/forms_specialist_locations.py"
+      ],
+      "historical_modules_are_not_current_proof": true,
+      "this_agent_runtime_status": "NOT_RUN"
+    },
+    {
+      "domain": "events",
+      "modules": [
+        "04",
+        "06",
+        "09",
+        "11"
+      ],
+      "scenarios": [
+        "onsite/online",
+        "organizer versus venue",
+        "draft/review",
+        "occurrence reschedule/cancel",
+        "venue snapshot"
+      ],
+      "sources": [
+        "src/catalog/controllers/owner_events_controller.py",
+        "src/catalog/services/event_domain.py",
+        "src/catalog/domain_admin/place.py"
+      ],
+      "historical_modules_are_not_current_proof": true,
+      "this_agent_runtime_status": "NOT_RUN"
+    },
+    {
+      "domain": "access",
+      "modules": [
+        "07",
+        "08",
+        "09",
+        "12"
+      ],
+      "scenarios": [
+        "business roles/scopes",
+        "object ACL",
+        "revoke",
+        "foreign IDs",
+        "volunteer rights",
+        "identity"
+      ],
+      "sources": [
+        "src/catalog/services/business_team.py",
+        "src/catalog/services/place_access.py",
+        "src/catalog/controllers/business_team_api.py"
+      ],
+      "historical_modules_are_not_current_proof": true,
+      "this_agent_runtime_status": "NOT_RUN"
+    },
+    {
+      "domain": "settings",
+      "modules": [
+        "10",
+        "11",
+        "12"
+      ],
+      "scenarios": [
+        "sections OFF/ON",
+        "menu/direct/search/map",
+        "locale",
+        "tracking switches"
+      ],
+      "sources": [
+        "src/catalog/services/features.py",
+        "src/catalog/domain_admin/site.py",
+        "src/catalog/services/public_presentation.py",
+        "src/catalog/controllers/public_details.py"
+      ],
+      "historical_modules_are_not_current_proof": true,
+      "this_agent_runtime_status": "NOT_RUN"
+    },
+    {
+      "domain": "reviews_favorites",
+      "modules": [
+        "09",
+        "10"
+      ],
+      "scenarios": [
+        "moderation",
+        "private/public visibility",
+        "favorites toggling",
+        "related feeds"
+      ],
+      "sources": [
+        "src/catalog/services/review_use_cases.py",
+        "src/catalog/controllers/owner_reviews_controller.py",
+        "src/catalog/views.py"
+      ],
+      "historical_modules_are_not_current_proof": true,
+      "this_agent_runtime_status": "NOT_RUN"
+    },
+    {
+      "domain": "seo_analytics",
+      "modules": [
+        "11",
+        "12"
+      ],
+      "scenarios": [
+        "canonical/redirect",
+        "views",
+        "phone events",
+        "candidate/live metadata"
+      ],
+      "sources": [
+        "src/catalog/services/seo.py",
+        "src/catalog/services/public_urls.py",
+        "src/catalog/services/tracking.py",
+        "src/catalog/views.py"
+      ],
+      "historical_modules_are_not_current_proof": true,
+      "this_agent_runtime_status": "NOT_RUN"
+    }
+  ],
+  "history": [
+    {
+      "module": "01",
+      "report": "docs/qa/module01-2026-10-09-r2/REPORT.md",
+      "findings": null,
+      "read_complete_files": 1,
+      "hashes": {
+        "REPORT.md": "0c8ab221dff0545a6bb4ed763284b60abaeb57434cfae2fcc671e4ed1408cdbc"
+      },
+      "snapshot_shas": [
+        "8d188b316f800fbedf0b1e376905dfd4924cb1b6"
+      ],
+      "finding_ids": [
+        "PLACE-QA-01",
+        "PLACE-QA-02",
+        "PLACE-QA-03",
+        "PLACE-QA-04",
+        "PLACE-QA-05",
+        "PLACE-QA-06",
+        "PLACE-QA-07"
+      ],
+      "status": "HISTORICAL_CHECKLIST_ONLY",
+      "fresh_runtime": "NOT_RUN_BY_THIS_AGENT",
+      "section_headings": [
+        "## 1. Состояние области и snapshot",
+        "## 2. Сильные стороны",
+        "## 3. Реальные проблемы",
+        "## 4. Tech debt",
+        "## 5. Risks и simulated integrations",
+        "## 6. Dead/legacy candidates",
+        "## 7. Tests gaps, точные команды и exit codes",
+        "## 8. Recommendations и handoff",
+        "## 9. P0/P1/P2/P3"
+      ],
+      "all_run_folders": [
+        "docs/qa/module01-2026-10-09-r1",
+        "docs/qa/module01-2026-10-09-r2"
+      ]
+    },
+    {
+      "module": "02",
+      "report": "docs/qa/module02-2026-10-09-r1/REPORT.md",
+      "findings": null,
+      "read_complete_files": 1,
+      "hashes": {
+        "REPORT.md": "80b8673295be99753935c124ffc77a0c5f6ee6bc994d9dde776119f5248fac02"
+      },
+      "snapshot_shas": [
+        "8d188b316f800fbedf0b1e376905dfd4924cb1b6"
+      ],
+      "finding_ids": [
+        "ORG-QA-01",
+        "ORG-QA-02",
+        "ORG-QA-03",
+        "ORG-QA-04"
+      ],
+      "status": "HISTORICAL_CHECKLIST_ONLY",
+      "fresh_runtime": "NOT_RUN_BY_THIS_AGENT",
+      "section_headings": [
+        "## 1. Состояние области",
+        "## 2. Сильные стороны",
+        "## 3. Реальные проблемы",
+        "## 4. Tech debt",
+        "## 5. Risks",
+        "## 6. Dead/legacy candidates",
+        "## 7. Tests gaps",
+        "## 8. Recommendations",
+        "## 9. P0/P1/P2/P3"
+      ],
+      "all_run_folders": [
+        "docs/qa/module02-2026-10-09-r1"
+      ]
+    },
+    {
+      "module": "03",
+      "report": "docs/qa/module03-2026-10-10-r1/REPORT.md",
+      "findings": null,
+      "read_complete_files": 1,
+      "hashes": {
+        "REPORT.md": "381919494bca48016120bcea140869913884c77b0bbbd3644513ec0eeb579535"
+      },
+      "snapshot_shas": [
+        "8d188b316f800fbedf0b1e376905dfd4924cb1b6"
+      ],
+      "finding_ids": [
+        "SPEC-QA-01",
+        "SPEC-QA-02",
+        "SPEC-QA-03"
+      ],
+      "status": "HISTORICAL_CHECKLIST_ONLY",
+      "fresh_runtime": "NOT_RUN_BY_THIS_AGENT",
+      "section_headings": [
+        "## 1. Состояние области",
+        "## 2. Сильные стороны",
+        "## 3. Реальные проблемы",
+        "## 4. Tech debt",
+        "## 5. Risks",
+        "## 6. Dead/legacy candidates",
+        "## 7. Tests gaps",
+        "## 8. Recommendations",
+        "## 9. P0/P1/P2/P3"
+      ],
+      "all_run_folders": [
+        "docs/qa/module03-2026-10-10-r1"
+      ]
+    },
+    {
+      "module": "04",
+      "report": "docs/qa/module04-2026-10-10-r1/REPORT.md",
+      "findings": null,
+      "read_complete_files": 1,
+      "hashes": {
+        "REPORT.md": "b759fcd5bab5d95f36e6bdb6e8dd240b60cdc646b76de661363144ab2f890fc1"
+      },
+      "snapshot_shas": [
+        "8d188b316f800fbedf0b1e376905dfd4924cb1b6"
+      ],
+      "finding_ids": [
+        "EVENT-QA-01",
+        "EVENT-QA-02",
+        "EVENT-QA-03"
+      ],
+      "status": "HISTORICAL_CHECKLIST_ONLY",
+      "fresh_runtime": "NOT_RUN_BY_THIS_AGENT",
+      "section_headings": [
+        "## 1. Состояние области",
+        "## 2. Сильные стороны и выполненные сценарии",
+        "## 3. Реальные проблемы",
+        "## 4. Tech debt",
+        "## 5. Risks",
+        "## 6. Dead/legacy candidates",
+        "## 7. Tests gaps, ошибки окружения и NOT RUN",
+        "## 8. Recommendations и передача",
+        "## 9. P0/P1/P2/P3"
+      ],
+      "all_run_folders": [
+        "docs/qa/module04-2026-10-10-r1"
+      ]
+    },
+    {
+      "module": "05",
+      "report": "docs/qa/module05-2026-10-10-r1/REPORT.md",
+      "findings": "docs/qa/module05-2026-10-10-r1/FINDINGS.md",
+      "read_complete_files": 2,
+      "hashes": {
+        "REPORT.md": "9086aba7eae0e617dd947edc85170ff935f6040200e8fdb9ca5576933dfc2581",
+        "FINDINGS.md": "b6b0f395c6e560653bb6f74b4d6ffcf29c8aad5551df008ad7ecb21a79517fdb"
+      },
+      "snapshot_shas": [
+        "8d188b316f800fbedf0b1e376905dfd4924cb1b6"
+      ],
+      "finding_ids": [
+        "OFFER-QA-01",
+        "OFFER-QA-02",
+        "OFFER-QA-03",
+        "OFFER-QA-04",
+        "OFFER-QA-05",
+        "OFFER-QA-06",
+        "OFFER-QA-07",
+        "OFFER-QA-08"
+      ],
+      "status": "HISTORICAL_CHECKLIST_ONLY",
+      "fresh_runtime": "NOT_RUN_BY_THIS_AGENT",
+      "section_headings": [
+        "## 1. Состояние области",
+        "## 2. Сильные стороны",
+        "## 3. Реальные проблемы",
+        "## 4. Tech debt",
+        "## 5. Risks",
+        "## 6. Dead/legacy candidates",
+        "## 7. Tests gaps и точные результаты",
+        "## 8. Recommendations",
+        "## 9. P0/P1/P2/P3"
+      ],
+      "all_run_folders": [
+        "docs/qa/module05-2026-10-10-r1"
+      ]
+    },
+    {
+      "module": "06",
+      "report": "docs/qa/module06-2026-10-10-r1/REPORT.md",
+      "findings": "docs/qa/module06-2026-10-10-r1/FINDINGS.md",
+      "read_complete_files": 2,
+      "hashes": {
+        "REPORT.md": "3be8ac935ea24b3b1188fb3797ad052257f82104e6f2856e2e68a639fda7a5a3",
+        "FINDINGS.md": "c8a52a968be57fc7898e68852e9b2213238ba8e3c1d5ef2d4c60b59e8fb95ae8"
+      },
+      "snapshot_shas": [
+        "8d188b316f800fbedf0b1e376905dfd4924cb1b6"
+      ],
+      "finding_ids": [
+        "PUBLIC-QA-01",
+        "PUBLIC-QA-02",
+        "PUBLIC-QA-03",
+        "PUBLIC-QA-04"
+      ],
+      "status": "HISTORICAL_CHECKLIST_ONLY",
+      "fresh_runtime": "NOT_RUN_BY_THIS_AGENT",
+      "section_headings": [
+        "## 1. Состояние области",
+        "## 2. Сильные стороны",
+        "## 3. Реальные проблемы",
+        "## 4. Tech debt",
+        "## 5. Risks",
+        "## 6. Dead/legacy candidates",
+        "## 7. Tests gaps",
+        "## 8. Recommendations",
+        "## 9. P0/P1/P2/P3",
+        "## PUBLIC-QA-01 — desktop popup общей площадки обрезан, внутреннее закрытие недоступно",
+        "## PUBLIC-QA-02 — отказ загрузки настроенного SDK оставляет вечный loading",
+        "## PUBLIC-QA-03 — локальные compiled locale дают русский текст переключателей на AZ/EN",
+        "## PUBLIC-QA-04 — hero перекрывает фильтры и перехватывает клик по категории"
+      ],
+      "all_run_folders": [
+        "docs/qa/module06-2026-10-10-r1"
+      ]
+    },
+    {
+      "module": "07",
+      "report": "docs/qa/module07-2026-10-10-r1/REPORT.md",
+      "findings": "docs/qa/module07-2026-10-10-r1/FINDINGS.md",
+      "read_complete_files": 2,
+      "hashes": {
+        "REPORT.md": "601d40e5618b291aa451455ec8b339d96447a7deffcd4f87f9b349cfa7415c5d",
+        "FINDINGS.md": "d70ca10df11eb23b358d8ed849a1b0c0e45b9fcf80bcca2b0e4a0fd4d6413e48"
+      },
+      "snapshot_shas": [
+        "8d188b316f800fbedf0b1e376905dfd4924cb1b6"
+      ],
+      "finding_ids": [
+        "ACCESS-QA-01",
+        "ACCESS-QA-02",
+        "ACCESS-QA-03",
+        "ACCESS-QA-04",
+        "ACCESS-QA-05"
+      ],
+      "status": "HISTORICAL_CHECKLIST_ONLY",
+      "fresh_runtime": "NOT_RUN_BY_THIS_AGENT",
+      "section_headings": [
+        "## 1. Состояние области",
+        "## 2. Сильные стороны",
+        "## 3. Реальные проблемы",
+        "## 4. Tech debt",
+        "## 5. Risks",
+        "## 6. Dead/legacy candidates",
+        "## 7. Tests gaps",
+        "## 8. Recommendations",
+        "## 9. P0/P1/P2/P3",
+        "## ACCESS-QA-01 — фокус выходит из модального окна восстановления пароля",
+        "## ACCESS-QA-02 — получатель не может отклонить приглашение через UI",
+        "## ACCESS-QA-03 — управление сотрудниками сети отсутствует в кабинете",
+        "## ACCESS-QA-04 — карточки приглашений места обрезаются на 360px",
+        "## ACCESS-QA-05 — ошибки удаления аккаунта на AZ/EN остаются русскими"
+      ],
+      "all_run_folders": [
+        "docs/qa/module07-2026-10-10-r1"
+      ]
+    },
+    {
+      "module": "08",
+      "report": "docs/qa/module08-2026-10-10-r1/REPORT.md",
+      "findings": "docs/qa/module08-2026-10-10-r1/FINDINGS.md",
+      "read_complete_files": 2,
+      "hashes": {
+        "REPORT.md": "d9c2bc0fbe8996a5f3a5eb97a16778d00d584ac9f45fc01cf0c6fc7c67077c87",
+        "FINDINGS.md": "85042ca6eec06ba0ab15bf54b717ee44eaa52db4717c9e923bae99a9ed06d830"
+      },
+      "snapshot_shas": [
+        "8d188b316f800fbedf0b1e376905dfd4924cb1b6"
+      ],
+      "finding_ids": [
+        "MOD-QA-01",
+        "MOD-QA-02",
+        "MOD-QA-03",
+        "MOD-QA-04",
+        "MOD-QA-05",
+        "MOD-QA-06",
+        "MOD-QA-07",
+        "MOD-QA-08"
+      ],
+      "status": "HISTORICAL_CHECKLIST_ONLY",
+      "fresh_runtime": "NOT_RUN_BY_THIS_AGENT",
+      "section_headings": [
+        "## 1. Состояние области",
+        "## 2. Сильные стороны",
+        "## 3. Реальные проблемы",
+        "## 4. Tech debt",
+        "## 5. Risks",
+        "## 6. Dead/legacy candidates",
+        "## 7. Tests gaps",
+        "## 8. Recommendations",
+        "## 9. P0/P1/P2/P3"
+      ],
+      "all_run_folders": [
+        "docs/qa/module08-2026-10-10-r1"
+      ]
+    },
+    {
+      "module": "09",
+      "report": "docs/qa/module09-2026-10-10-r1/REPORT.md",
+      "findings": "docs/qa/module09-2026-10-10-r1/FINDINGS.md",
+      "read_complete_files": 2,
+      "hashes": {
+        "REPORT.md": "81ec18b355313c62675465260077d677fa8f47bd9cbbf6523d94eb4914aed3ef",
+        "FINDINGS.md": "f301031609f0e09c95775c2ba4054af527be9053d5359f95cc460da5266ccbd5"
+      },
+      "snapshot_shas": [
+        "8d188b316f800fbedf0b1e376905dfd4924cb1b6"
+      ],
+      "finding_ids": [
+        "ACCESS-QA-02",
+        "MOD-QA-03",
+        "SOCIAL-QA-01",
+        "SOCIAL-QA-02",
+        "SOCIAL-QA-03",
+        "SOCIAL-QA-04",
+        "SOCIAL-QA-05",
+        "SOCIAL-QA-06",
+        "SOCIAL-QA-07",
+        "SOCIAL-QA-08",
+        "SOCIAL-QA-09"
+      ],
+      "status": "HISTORICAL_CHECKLIST_ONLY",
+      "fresh_runtime": "NOT_RUN_BY_THIS_AGENT",
+      "section_headings": [
+        "## 1. Состояние области",
+        "## 2. Сильные стороны",
+        "## 3. Реальные проблемы",
+        "## 4. Tech debt",
+        "## 5. Risks и классификация",
+        "## 6. Dead/legacy candidates",
+        "## 7. Проверки и пробелы",
+        "## 8. Recommendations и команды",
+        "## 9. P0/P1/P2/P3"
+      ],
+      "all_run_folders": [
+        "docs/qa/module09-2026-10-10-r1"
+      ]
+    },
+    {
+      "module": "10",
+      "report": "docs/qa/module10-2026-10-10-r1/REPORT.md",
+      "findings": "docs/qa/module10-2026-10-10-r1/FINDINGS.md",
+      "read_complete_files": 2,
+      "hashes": {
+        "REPORT.md": "4c839512287914cf93b789e70cd7017e4d47de6cc30b7ab6a9eb337dec5a5c04",
+        "FINDINGS.md": "137350e795cd7240ac283c2eec026c0d1b318aab20b946fceb00cc4c577ae485"
+      },
+      "snapshot_shas": [
+        "8d188b316f800fbedf0b1e376905dfd4924cb1b6"
+      ],
+      "finding_ids": [
+        "SITE-QA-01",
+        "SITE-QA-02",
+        "SITE-QA-03",
+        "SITE-QA-04",
+        "SITE-QA-05",
+        "SITE-QA-06",
+        "SITE-QA-07",
+        "SITE-QA-08",
+        "SITE-QA-09",
+        "SITE-QA-10",
+        "SITE-QA-11",
+        "SITE-QA-12",
+        "SITE-QA-13",
+        "SITE-QA-14",
+        "SITE-QA-15"
+      ],
+      "status": "HISTORICAL_CHECKLIST_ONLY",
+      "fresh_runtime": "NOT_RUN_BY_THIS_AGENT",
+      "section_headings": [
+        "## 1. Состояние области",
+        "## 2. Сильные стороны",
+        "## 3. Реальные проблемы",
+        "## 4. Tech debt",
+        "## 5. Risks",
+        "## 6. Dead/legacy candidates",
+        "## 7. Tests gaps и результаты",
+        "## 8. Recommendations",
+        "## 9. P0/P1/P2/P3"
+      ],
+      "all_run_folders": [
+        "docs/qa/module10-2026-10-10-r1"
+      ]
+    },
+    {
+      "module": "11",
+      "report": "docs/qa/module11-2026-10-11-r1/REPORT.md",
+      "findings": "docs/qa/module11-2026-10-11-r1/FINDINGS.md",
+      "read_complete_files": 2,
+      "hashes": {
+        "REPORT.md": "4d962cab3f77fb5d220fea5c8009b360a9029a747758861877d106707111c06a",
+        "FINDINGS.md": "1c36fcd89c9180ec348bdd8c888f758f8e04dc60ac84b9965319dd589ce2b01e"
+      },
+      "snapshot_shas": [
+        "8d188b316f800fbedf0b1e376905dfd4924cb1b6"
+      ],
+      "finding_ids": [
+        "SEO-QA-01",
+        "SEO-QA-02",
+        "SEO-QA-03",
+        "SEO-QA-04",
+        "SEO-QA-05",
+        "SEO-QA-06",
+        "SEO-QA-07"
+      ],
+      "status": "HISTORICAL_CHECKLIST_ONLY",
+      "fresh_runtime": "NOT_RUN_BY_THIS_AGENT",
+      "section_headings": [
+        "## 1. Состояние области",
+        "## 2. Сильные стороны",
+        "## 3. Реальные проблемы",
+        "## 4. Tech debt",
+        "## 5. Risks",
+        "## 6. Dead/legacy candidates",
+        "## 7. Tests gaps",
+        "## 8. Recommendations",
+        "## 9. P0/P1/P2/P3"
+      ],
+      "all_run_folders": [
+        "docs/qa/module11-2026-10-11-r1"
+      ]
+    },
+    {
+      "module": "12",
+      "report": "docs/qa/module12-2026-10-11-r1/REPORT.md",
+      "findings": "docs/qa/module12-2026-10-11-r1/FINDINGS.md",
+      "read_complete_files": 2,
+      "hashes": {
+        "REPORT.md": "7685f08cf8e223aca0c3edca14ea814931957f1d7b9c031482dd33ba80eeead8",
+        "FINDINGS.md": "c30123124a5e7ccbdd2a6a037bbbda2909f64e0fe1547954ee3c5e12cdb6a8eb"
+      },
+      "snapshot_shas": [
+        "8d188b316f800fbedf0b1e376905dfd4924cb1b6"
+      ],
+      "finding_ids": [
+        "ANALYTICS-QA-01",
+        "ANALYTICS-QA-02",
+        "ANALYTICS-QA-03",
+        "ANALYTICS-QA-04",
+        "ANALYTICS-QA-05",
+        "ANALYTICS-QA-06",
+        "ANALYTICS-QA-07",
+        "ANALYTICS-QA-08",
+        "SITE-QA-07"
+      ],
+      "status": "HISTORICAL_CHECKLIST_ONLY",
+      "fresh_runtime": "NOT_RUN_BY_THIS_AGENT",
+      "section_headings": [
+        "## 1. Состояние области",
+        "## 2. Сильные стороны",
+        "## 3. Реальные проблемы",
+        "## 4. Tech debt",
+        "## 5. Risks",
+        "## 6. Dead/legacy candidates",
+        "## 7. Tests gaps и coverage",
+        "## 8. Recommendations",
+        "## 9. P0/P1/P2/P3 и handoff"
+      ],
+      "all_run_folders": [
+        "docs/qa/module12-2026-10-11-r1"
+      ]
+    }
+  ],
+  "limitations": [
+    "Static declarations are not runtime URL resolution or actual admin registry.",
+    "Model inheritance/custom registration/dynamic relationships require source/runtime follow-up.",
+    "Every runtime status is UNKNOWN or NOT RUN here; root owns the real-browser evidence.",
+    "Graph best-effort cited coverage metadata_changed, coverage_unavailable; exact source was read."
+  ]
+}

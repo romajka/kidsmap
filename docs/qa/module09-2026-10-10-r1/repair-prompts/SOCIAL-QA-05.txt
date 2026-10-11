@@ -1,0 +1,11 @@
+Работай в фактическом корне KidsMap. Прочитай AGENTS.md, канонические .agents и docs/qa/module09-2026-10-10-r1/findings/SOCIAL-QA-05.md. Проверь текущие HEAD/dirty WORKTREE/active_run; сохрани чужие изменения и стенды. Старый QA09 — checklist, не свежий PASS.
+
+Задача: исправить только SOCIAL-QA-05 «Страница отзывов о сайте переполняется на768px» (P2). Роль/URL: вошедший пользователь; /ru/reviews/, /reviews/, /en/reviews/.
+Воспроизведение: Открыть страницу с доступной формой автора при768px; посмотреть hero, sorting и реакции.
+Ожидание: Контент/кнопки помещаются в viewport без горизонтального scroll и обрезки.
+Подтверждённый факт: Document822px при viewport768; сортировка справа805px, реакции791px. Computed review-form-grid tracks220/260/200px, width708/right784.59; форма содержит только2label. Guest без формы помещается.12matrix cells FAIL + отдельная geometry proof.
+Проверенный источник/причина: static/css/site.css:6160; src/catalog/templates/pages/site_reviews.html:155; Три минимальные grid tracks220/260/200 с gap28 дают intrinsic min-width708 вложенной форме и растягивают внешние блоки; responsive collapse наступает ниже проверенной ширины.
+Конкретная область: Устранить лишнюю/жёсткую колонку и min-content overflow в реальной2полной форме. Не маскировать обрезку overflow-x:hidden; сверить остальные формы и18cells, особенно768.
+Ответственные границы/зависимости: frontend-reviewer; scoped .review-form-grid для site form, сохранение остальных consumers.
+
+Сначала воспроизведи на новом DJANGO_TESTING=1 изолированном DB/cache/media/private-media/email стенде с вымышленными данными и подготовь конкретный план. Реализацию выполняй только в согласованном scope, используя уже данную в новом чате авторизацию; не проси её повторно. Не меняй существующие assertions ради зелёного результата. После scoped исправления выполни meaningful regression checks и настоящий browser/reload RU/AZ/EN×360/390/768/1024/1280/1440; сохрани новый отчёт, exact commands/counts/exit codes, screenshots, candidate/live/ACL readback и NOT RUN. Не расширяй задачу на остальные findings. Без production credentials, внешних интеграций, commit/push/deploy.

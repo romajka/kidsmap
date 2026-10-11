@@ -1,0 +1,95 @@
+{
+  "acceptance_observations": {
+    "PASS": 3611,
+    "NOT RUN": 347,
+    "FAIL": 319
+  },
+  "acceptance_total": 4277,
+  "excluded_observations": 957,
+  "raw_by_script": {
+    "matrix-empty": {
+      "PASS": 972,
+      "FAIL": 18
+    },
+    "settings": {
+      "PASS": 35,
+      "FAIL": 12
+    },
+    "matrix-filled": {
+      "PASS": 670,
+      "FAIL": 122
+    },
+    "flags": {
+      "PASS": 666,
+      "FAIL": 58
+    },
+    "acl": {
+      "PASS": 14,
+      "FAIL": 4
+    },
+    "keyboard": {
+      "PASS": 216,
+      "FAIL": 42
+    },
+    "media-errors": {
+      "PASS": 51,
+      "FAIL": 62
+    },
+    "finish": {
+      "PASS": 43,
+      "FAIL": 3
+    },
+    "faq-proof": {
+      "PASS": 36
+    },
+    "modal-proof": {
+      "FAIL": 18,
+      "PASS": 18
+    },
+    "organization-proof": {
+      "PASS": 7
+    },
+    "network-proof": {
+      "PASS": 1,
+      "FAIL": 1
+    },
+    "visual-final": {
+      "PASS": 18
+    },
+    "focus-proof": {
+      "FAIL": 18,
+      "PASS": 18
+    },
+    "current-settings": {
+      "PASS": 47
+    },
+    "current-matrix": {
+      "PASS": 670,
+      "FAIL": 122
+    },
+    "current-focus": {
+      "FAIL": 18,
+      "PASS": 18
+    },
+    "current-boundary": {
+      "PASS": 10,
+      "FAIL": 75
+    },
+    "current-pages": {
+      "PASS": 828,
+      "FAIL": 180
+    },
+    "current-network": {
+      "PASS": 1,
+      "FAIL": 1
+    },
+    "current-console": {
+      "PASS": 6
+    },
+    "current-concurrency": {
+      "PASS": 4,
+      "FAIL": 1
+    }
+  },
+  "note": "Counts are individual observations, not unique user flows or assertion/test methods. Raw attempts unchanged; matrix references final datasets and explicit NOT RUNs."
+}

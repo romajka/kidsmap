@@ -1,0 +1,7 @@
+Продолжаем KidsMap из фактического checkout. Прочитай AGENTS.md, канонические .agents, docs/qa/module-acceptance-prompts.md, docs/qa/module01-recheck-2026-10-11-r1/REPORT.md и docs/qa/place-qa08-fix-2026-10-11-r1/REPORT.md.
+
+PLACE-QA-08 / CROSS-QA-03 исправлен в dirty WORKTREE: в RU PO активирован ключ «Выберите район». Свежая отдельная сборка MO: Django6/6 PASS, browser87PASS/0FAIL,24 native PNG. Код baku_yasamal, candidate/live и публичный адрес проверены native save/reload. Общие MO и чужие runtime не менялись. PLACE-QA-01–07 не исправляй заново; PLACE-QA-06 подтверждён прежним fresh isolated profile, это не гарантия shared MO другого runtime.
+
+Следующий scope предложен, но ещё не разрешён: AUDIT ONLY недостающей полной приёмки module01 по исходному промпту и REPORT recheck §7. Получи явный выбор этого scope, затем выполняй на новом собственном стенде. Приложение автоматически не исправляй.
+
+Фактические адреса этого запуска на C:\kidsmap: HTTP8842 PID19364; PostgreSQL loopback55447/container kidsmap-place-qa08-fix-20261011-r1; browser place-qa08-fix-r1. Предыдущий recheck8841 и другие стенды сохранены. На другом ПК эти адреса/PID/сессии не переносить. Зафиксируй собственные HEAD/branch/WORKTREE/active_run; сохрани чужие изменения и runtime. Без commit/push/deploy/production.

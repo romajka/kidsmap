@@ -352,8 +352,22 @@ def propose(*,actor,target_type,target_id,patch,schema_version,expected_version,
     # Changed conditions in an existing candidate keep newly changed amounts gated.
     if CONDITIONS.intersection(pending):immediate-=PRICES|{'pricing_plans'}
     if immediate:
+        before_immediate=dict(live)
         _apply(target,target_type,{k:patch[k] for k in immediate});live=snapshot(target,target_type)
-        for k in immediate:base[k]=live[k];pending.pop(k,None)
+        rebase_fields=set(immediate)
+        if target_type=='place' and 'pricing_plans' in immediate:
+            # Applying canonical plans also refreshes their legacy price projections.
+            # A full form may echo the old projection; that echo is not a new intent.
+            projections={k for k in PRICES if before_immediate[k]!=live[k]}
+            for k in projections:
+                if k in incoming and incoming[k]==before_immediate[k]:incoming[k]=live[k]
+                elif k in immediate and incoming[k]!=live[k]:
+                    # The canonical projection replaced a separately entered scalar.
+                    # Keep that distinct intent in the candidate instead of losing it.
+                    immediate.remove(k)
+            rebase_fields.update(projections)
+        for k in rebase_fields:base[k]=live[k]
+        for k in immediate:pending.pop(k,None)
     pending.update({k:v for k,v in incoming.items() if k not in immediate});pending={k:v for k,v in pending.items() if v!=base.get(k)}
     if revision is None:revision=VolunteerPlaceRevision(**{target_type:target},author=actor)
     if not (revision.pk and platform_has_action(user=actor,action='place.publish')):revision.author=actor

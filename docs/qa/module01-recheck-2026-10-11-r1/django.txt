@@ -1,0 +1,26 @@
+Creating test database for alias 'default'...
+
+..........................Photo preparation failed for user 63
+Traceback (most recent call last):
+  File "C:\kidsmap\src\catalog\photo_views.py", line 61, in prepare_owner_photo
+    normalized = normalize_uploaded_image(uploads[0])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\kidsmap\scratch\task33-prepare-20261002\python\cpython-3.12.15-windows-x86_64-none\Lib\unittest\mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\kidsmap\scratch\task33-prepare-20261002\python\cpython-3.12.15-windows-x86_64-none\Lib\unittest\mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\kidsmap\scratch\task33-prepare-20261002\python\cpython-3.12.15-windows-x86_64-none\Lib\unittest\mock.py", line 1198, in _execute_mock_call
+    raise effect
+OSError: synthetic storage failure
+............
+----------------------------------------------------------------------
+Ran 38 tests in 20.498s
+
+OK
+Destroying test database for alias 'default'...
+
+Found 38 test(s).
+System check identified no issues (0 silenced).
+EXIT_CODE=0

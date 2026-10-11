@@ -1,0 +1,368 @@
+{
+  "schema_version": 1,
+  "module": 11,
+  "role": "seo-reviewer",
+  "mode": "AUDIT ONLY",
+  "snapshot": {
+    "checkout": "C:/kidsmap",
+    "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+    "branch": "task33-progress",
+    "checked_at_utc": "2026-10-11T09:54:05Z",
+    "full_dirty_snapshot": "parent-owned",
+    "runtime_observations": "/root attribution only",
+    "production": "UNKNOWN, not contacted"
+  },
+  "coverage": {
+    "generation": "2026-10-11T09:51:18Z",
+    "recording_status": "truncated",
+    "paths": [
+      {
+        "path": "src/catalog/models/site.py",
+        "status": "coverage_unavailable",
+        "freshness": "metadata_changed",
+        "partial_ranges": []
+      },
+      {
+        "path": "src/catalog/domain_admin/site.py",
+        "status": "coverage_unavailable",
+        "freshness": "metadata_changed",
+        "partial_ranges": []
+      },
+      {
+        "path": "src/catalog/models/specialist.py",
+        "status": "coverage_unavailable",
+        "freshness": "metadata_changed",
+        "partial_ranges": []
+      },
+      {
+        "path": "src/catalog/domain_admin/specialist.py",
+        "status": "coverage_unavailable",
+        "freshness": "metadata_changed",
+        "partial_ranges": []
+      },
+      {
+        "path": "src/catalog/proxy_apps/catalog_moderation/admin.py",
+        "status": "coverage_unavailable",
+        "freshness": "metadata_changed",
+        "partial_ranges": []
+      },
+      {
+        "path": "src/catalog/templates/admin/catalog/specialist/change_form.html",
+        "status": "coverage_unavailable",
+        "freshness": "metadata_changed",
+        "partial_ranges": []
+      },
+      {
+        "path": "static/admin/js/specialist_admin.js",
+        "status": "coverage_unavailable",
+        "freshness": "metadata_changed",
+        "partial_ranges": []
+      },
+      {
+        "path": "src/catalog/templates/base.html",
+        "status": "partial",
+        "freshness": "metadata_changed",
+        "partial_ranges": [
+          "165-165,166-166,167-167,168-168,169-169,171-171,200-200"
+        ]
+      },
+      {
+        "path": "src/catalog/templates/catalog/place_detail.html",
+        "status": "partial",
+        "freshness": "metadata_changed",
+        "partial_ranges": [
+          "76-76,95-95,380-380,382-382,398-399,675-675,853-853"
+        ]
+      },
+      {
+        "path": "src/catalog/templates/catalog/event_detail.html",
+        "status": "partial",
+        "freshness": "metadata_changed",
+        "partial_ranges": [
+          "46-46,106-106"
+        ]
+      },
+      {
+        "path": "src/catalog/templates/catalog/public_entity_detail.html",
+        "status": "partial",
+        "freshness": "metadata_changed",
+        "partial_ranges": [
+          "46-46,46-46,46-46,73-73,181-181,344-344,555-555,583-583"
+        ]
+      },
+      {
+        "path": "src/catalog/templates/catalog/specialist_detail.html",
+        "status": "partial",
+        "freshness": "metadata_changed",
+        "partial_ranges": [
+          "62-62,341-342"
+        ]
+      },
+      {
+        "path": "src/catalog/views.py",
+        "status": "coverage_unavailable",
+        "freshness": "metadata_changed",
+        "partial_ranges": []
+      },
+      {
+        "path": "src/catalog/services/seo.py",
+        "status": "coverage_unavailable",
+        "freshness": "metadata_changed",
+        "partial_ranges": []
+      }
+    ]
+  },
+  "head_comparison": [
+    {
+      "path": "src/catalog/models/site.py",
+      "sha256": "f5b41eb75aef716eff97d96f9daa6d0439ce7609209524465c1335f083530fcc",
+      "head_blob": "54a879d54932fac595da5be6dcf410595019c433",
+      "worktree_blob": "54a879d54932fac595da5be6dcf410595019c433",
+      "matches_head": true
+    },
+    {
+      "path": "src/catalog/domain_admin/site.py",
+      "sha256": "c019f9442b27c1f231f8340b34232db995a0ba038ad0b1e8c90335a2af3b8dbb",
+      "head_blob": "25ff02262024201a090f35bc3eb71fbbaf571d27",
+      "worktree_blob": "25ff02262024201a090f35bc3eb71fbbaf571d27",
+      "matches_head": true
+    },
+    {
+      "path": "src/catalog/models/specialist.py",
+      "sha256": "573160ccb2e87a6fa6569b0a24cb8591a4f76ccdeb7e47bc04afe11290b6c27a",
+      "head_blob": "e9d99788ec656ca92505929219f23eff691213f7",
+      "worktree_blob": "e9d99788ec656ca92505929219f23eff691213f7",
+      "matches_head": true
+    },
+    {
+      "path": "src/catalog/domain_admin/specialist.py",
+      "sha256": "11e6cbed5f916ef6851329b7679030087689e68bea5c178b9cffe877815032a7",
+      "head_blob": "12856c80cdbd3cbe4a17e1f4a21ad8f678707029",
+      "worktree_blob": "12856c80cdbd3cbe4a17e1f4a21ad8f678707029",
+      "matches_head": true
+    },
+    {
+      "path": "src/catalog/proxy_apps/catalog_moderation/admin.py",
+      "sha256": "7345fd00d3043517d0c493ec1ce146f083b45562c9ee771acb25131fc72354f9",
+      "head_blob": "4109a66a6960213509f04d0fbc4f0ede11b87ac2",
+      "worktree_blob": "4109a66a6960213509f04d0fbc4f0ede11b87ac2",
+      "matches_head": true
+    },
+    {
+      "path": "src/catalog/templates/admin/catalog/specialist/change_form.html",
+      "sha256": "6385f1b90431ec6175a255297c3940dcbc97b43387fb1eb7c9cc98c6572896b1",
+      "head_blob": "86816ea916d3ad406f375852794414764914116f",
+      "worktree_blob": "86816ea916d3ad406f375852794414764914116f",
+      "matches_head": true
+    },
+    {
+      "path": "static/admin/js/specialist_admin.js",
+      "sha256": "5c950e57dde990f7fc644a4847d82840e63e88f90fe1f19a231656475ac87fa2",
+      "head_blob": "adad6f2ea49d842da6a84b2688ba48e4538e7429",
+      "worktree_blob": "adad6f2ea49d842da6a84b2688ba48e4538e7429",
+      "matches_head": true
+    },
+    {
+      "path": "src/catalog/templates/base.html",
+      "sha256": "56ca17a5cf210dfd0882ab58d464ec53e5b331e9f9fa356446f2d5fe7578bd1d",
+      "head_blob": "0ef7a00ce0502077959e84a5da19bf49539b5915",
+      "worktree_blob": "0ef7a00ce0502077959e84a5da19bf49539b5915",
+      "matches_head": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/place_detail.html",
+      "sha256": "d03fdc4cb5579d365d3e549931b61917feea5e0fb59752a6a5feca917398f777",
+      "head_blob": "81e812054f1c624268f31a80740cf9ad39f2e1c3",
+      "worktree_blob": "81e812054f1c624268f31a80740cf9ad39f2e1c3",
+      "matches_head": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/event_detail.html",
+      "sha256": "6e0c7ba16a22334d5946581448db693c8d3f697f2c8eb6758b78a16f50b6e382",
+      "head_blob": "7897349e6ff22532477a5f9e9f0eaf95c2e7962c",
+      "worktree_blob": "7897349e6ff22532477a5f9e9f0eaf95c2e7962c",
+      "matches_head": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/public_entity_detail.html",
+      "sha256": "0a5baa5f9cb711525a9a6663685a5ecaf235441f660157b776ab596bef8b4f6e",
+      "head_blob": "7cea53c25acbf1cfd55867900069e38a5d80c5be",
+      "worktree_blob": "7cea53c25acbf1cfd55867900069e38a5d80c5be",
+      "matches_head": true
+    },
+    {
+      "path": "src/catalog/templates/catalog/specialist_detail.html",
+      "sha256": "649ea149dfb97fe52a8fb472ad4725a9de4c134021b1cb27bf797d83b3bb6407",
+      "head_blob": "6dad7d4f4f24cda8d0e9ea828729f8a8229bbdd1",
+      "worktree_blob": "6dad7d4f4f24cda8d0e9ea828729f8a8229bbdd1",
+      "matches_head": true
+    },
+    {
+      "path": "src/catalog/views.py",
+      "sha256": "4f1ceef8f86fb5c4b33ea4b1688d01702b827bbb715c3bda768c36afb01cd812",
+      "head_blob": "6bf2f29a0e332bc5e716253ede60b12aa284f487",
+      "worktree_blob": "6bf2f29a0e332bc5e716253ede60b12aa284f487",
+      "matches_head": true
+    },
+    {
+      "path": "src/catalog/services/seo.py",
+      "sha256": "6a3a13afd6ce10d4689c16a1d005946a778d7039f79d3dc2f0cec76414ad8e16",
+      "head_blob": "d90890a43161f375be4abfb627671cf9a925888e",
+      "worktree_blob": "d90890a43161f375be4abfb627671cf9a925888e",
+      "matches_head": true
+    },
+    {
+      "path": "src/catalog/urls.py",
+      "sha256": "98abdb7e0b5207343e21ccf8216ef4053667ad400e68bb4f6c6b463cfed2eae5",
+      "head_blob": "7ef71b498b57e274c00f36844d87035eeedcb417",
+      "worktree_blob": "7ef71b498b57e274c00f36844d87035eeedcb417",
+      "matches_head": true
+    }
+  ],
+  "dependency_source": [
+    {
+      "path": ".venv/Lib/site-packages/django/forms/widgets.py",
+      "sha256": "79ad01a8a882451fca70ada11a6bc7ec4bacfd940cdc7a309dc1782bf858aa5b",
+      "version": "Django 6.0.2",
+      "head_comparison": "NOT APPLICABLE; installed dependency"
+    },
+    {
+      "path": ".venv/Lib/site-packages/django/forms/boundfield.py",
+      "sha256": "940194c36ccdd86d227bdb00c4ada10cec85de512d59da18fdacceb1eb8d3d9f",
+      "version": "Django 6.0.2",
+      "head_comparison": "NOT APPLICABLE; installed dependency"
+    },
+    {
+      "path": ".venv/Lib/site-packages/django/contrib/admin/options.py",
+      "sha256": "5fe3992cb355086f69d21900382af60f31d72134056edb05dfdacb5daae5aecc",
+      "version": "Django 6.0.2",
+      "head_comparison": "NOT APPLICABLE; installed dependency"
+    },
+    {
+      "path": ".venv/Lib/site-packages/django/contrib/admin/widgets.py",
+      "sha256": "5a4a5dd14c11160ab2b8630a7427151cb24d2731c8f0f3818417b1b698ba821b",
+      "version": "Django 6.0.2",
+      "head_comparison": "NOT APPLICABLE; installed dependency"
+    }
+  ],
+  "installed_versions": {
+    "django": "6.0.2",
+    "jazzmin": "3.0.1"
+  },
+  "topics": [
+    {
+      "key": "catalog-settings-500",
+      "status": "ROOT_REPRODUCED_SOURCE_CAUSE",
+      "root_runtime": "GET changeform500 __str__ returned non-string __proxy__",
+      "source": [
+        "src/catalog/models/site.py:10",
+        "src/catalog/models/site.py:784",
+        ".venv/Lib/site-packages/django/contrib/admin/options.py:1911",
+        "src/catalog/domain_admin/site.py:1092"
+      ],
+      "cause": "__str__ returns gettext_lazy proxy; stock admin context calls str(obj)",
+      "head_baseline": true,
+      "suggested_priority": "P2",
+      "owners": [
+        "django-reviewer",
+        "frontend-admin"
+      ],
+      "blocked_scope": "native SEO landing JSON rename through current editor",
+      "historical_dedup": "no matching ID in bounded module03/08/10 records; not exhaustive"
+    },
+    {
+      "key": "specialist-checkbox-block",
+      "status": "EXCLUDED_FALSE_POSITIVE_QA_HARNESS",
+      "source": [
+        "src/catalog/models/specialist.py:143",
+        "src/catalog/domain_admin/specialist.py:32",
+        ".venv/Lib/site-packages/django/contrib/admin/options.py:212",
+        ".venv/Lib/site-packages/django/contrib/admin/widgets.py:262",
+        ".venv/Lib/site-packages/django/contrib/admin/widgets.py:349",
+        ".venv/Lib/site-packages/django/forms/boundfield.py:270",
+        ".venv/Lib/site-packages/django/forms/widgets.py:364",
+        ".venv/Lib/site-packages/django/forms/widgets.py:943",
+        "src/catalog/templates/admin/catalog/specialist/change_form.html:7"
+      ],
+      "attribute_cause": "RelatedFieldWidgetWrapper base use_required_attribute adds required to all inner checkbox attrs",
+      "submission": "root form.noValidate=true; native confirm auto-dismissed by Playwright; with accept POST200 expected practice-location server error",
+      "root_confirmation": "lead correction message received this task",
+      "qa_preflight": "event-specialist.js calls checkValidity before native click, not application gate",
+      "id": null,
+      "severity": null,
+      "historical_nearest": "MOD-QA-07 distinct server error summary; not duplicate"
+    },
+    {
+      "key": "specialist-explicit-slug",
+      "status": "SOURCE_SUPPORTED_PENDING_ROOT_NATIVE_UI",
+      "source": [
+        "src/catalog/domain_admin/specialist.py:769",
+        "src/catalog/models/specialist.py:136",
+        "src/catalog/models/specialist.py:230",
+        "src/catalog/models/specialist.py:234",
+        "src/catalog/views.py:2881",
+        "src/catalog/urls.py:262"
+      ],
+      "ordinary_name_rename": "populated slug stable",
+      "explicit_slug_policy": "editable, exact resolver, no alias in inspected source",
+      "owners": [
+        "seo-reviewer",
+        "django-reviewer",
+        "frontend-admin"
+      ],
+      "potential_priority": "P2 only after genuine native supported edit/old404 evidence"
+    },
+    {
+      "key": "social-metadata",
+      "status": "ROOT_RUNTIME_ATTRIBUTION_SOURCE_CAUSE",
+      "source": [
+        "src/catalog/templates/base.html:29",
+        "src/catalog/templates/base.html:30",
+        "src/catalog/templates/base.html:32",
+        "src/catalog/templates/base.html:34",
+        "src/catalog/templates/base.html:35",
+        "src/catalog/templates/base.html:36",
+        "src/catalog/templates/catalog/place_detail.html:9",
+        "src/catalog/templates/catalog/place_detail.html:10",
+        "src/catalog/templates/catalog/event_detail.html:4",
+        "src/catalog/templates/catalog/event_detail.html:22",
+        "src/catalog/templates/catalog/public_entity_detail.html:3",
+        "src/catalog/templates/catalog/specialist_detail.html:5"
+      ],
+      "description_cause": "normal meta_description overridden; distinct OG/Twitter blocks inherit generic base",
+      "specialist_titles": "base KidsMap",
+      "entity_images": "Event/Organization/Activity/Specialist base logo",
+      "place_images": "both OG and Twitter entity seo_image_url override exists",
+      "correction": "initial source-review Place Twitterlogo hypothesis rejected; this supplement supersedes",
+      "owners": [
+        "frontend-reviewer",
+        "seo-reviewer",
+        "django-reviewer"
+      ],
+      "dedup": "consolidate five entity description symptoms shared cause; separate title/image triggers only if fresh evidence"
+    }
+  ],
+  "commands": [
+    "git rev-parse HEAD",
+    "git branch --show-current",
+    "git diff HEAD -- <15 head_comparison paths>",
+    "git rev-parse HEAD:<path>",
+    "git hash-object -- <path>",
+    "Get-FileHash -LiteralPath <path> -Algorithm SHA256",
+    "rg -n 'required|novalidate|checkValidity|reportValidity' static/admin templates/admin src/catalog/templates/admin -g '*.js' -g '*.html'",
+    "rg -n 'specializations|CheckboxSelectMultiple|readonly_fields|slug' src/catalog/domain_admin/specialist.py",
+    "rg -n 'og:|twitter:|block title_plain|block meta_description|block og_image|block twitter_image' <base and four public templates>"
+  ],
+  "source_execution": false,
+  "db_execution": false,
+  "browser_execution": false,
+  "http_execution": false,
+  "tests_execution": false,
+  "application_edits": [],
+  "changed": [
+    "docs/qa/module11-2026-10-11-r1/source-extra.md",
+    "docs/qa/module11-2026-10-11-r1/source-extra-map.json"
+  ],
+  "handoff": "kidsmap-orchestrator → browser-qa/integration-reviewer; backend semantics django-reviewer; social metadata frontend-reviewer + seo-reviewer"
+}
+

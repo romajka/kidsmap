@@ -1,0 +1,21 @@
+# Ограничения среды, отдельно от SPEC-QA дефектов приложения
+
+ENV-01 — native Windows test lifecycle ERROR. 107 targeted Django tests:106 прошли,1 ERROR; native exit1. Отдельный повтор именно failing test снова дал1 ERROR/exit1. [Основной лог](backend.txt), [команда/exit](backend-result.json), [повтор](backend-platform-recheck.txt), [команда повтора](backend-platform-recheck.json). WinError32 возникает при удалении открытого private photo. В `src/catalog/testcases/test_specialist_proposal_drafts.py:68–88` response от streaming GET не закрыт/не потреблён перед отправкой и cleanup. Это source-backed объяснение платформенной зависимости; Linux comparison и реальное удаление во время открытого live download NOT RUN. Browser proposal→send/reload с фото прошёл. Не объявлять тест зелёным и не считать этот ERROR доказательством потери фото в приложении.
+
+ENV-02 — установленный system Chrome запрещает remote debugging политикой. Первоначальный headed запуск не заработал. Реальная rendered QA продолжена на уже установленном Chromium headless shell1243 через Playwright CLI, без изменения политики/установки браузера. Viewport имитация не является физическим мобильным устройством. DevTools system Chrome/native desktop screenshots NOT RUN.
+
+ENV-03 — **свежий локальный baseline failure существующих compiled catalogs**, а не отсутствие перевода полей профиля. [locale-probe.json](locale-probe.json) сравнил4 сообщения ×3 языка:8 расхождений, все вAZ/EN; `.po` содержит перевод, существующий `.mo` возвращаетRU. [AZ экран](screenshots/person-step-3-az-390.png), [EN экран](screenshots/person-step-3-en-390.png), [contact sheet](contact-sheets/person-step-3.jpg). Assets проверены и сохранены как WORKTREE; compilemessages не выполнялся. Другие строки/production catalogs не проверены. Это повтор причины известного локального ограничения, но доказательства этого запуска новые.
+
+Промпт для отдельного исправления ENV-03:
+
+```text
+В фактическом checkout KidsMap прочитай AGENTS.md/.agents и docs/qa/module03-2026-10-10-r1/environment.md. Проверь ENV-03: в свежем изолированном UI AZ/EN сообщения сохранения/личного профиля/снятия публикации выводятсяRU, хотя locale/*/LC_MESSAGES/django.po содержит переводы. Сверь locale-probe.json и фактическую загрузку каталогов. Подготовь конкретный ограниченный план исправления сборки/проверки locale assets; реализуй после имеющейся авторизации scope или его согласования. Не переписывай правильные переводы, не компилируй каталоги в чужом стенде, не делай production/deploy. Создай собственный изолированный стенд и output compiled assets по согласованной сборочной схеме, повтори RU/AZ/EN UI/error/save labels PC/mobile и сравнение runtime/source catalogs. Сохрани чужие изменения/active_run/стенды, exact commands/exit codes. Без commit/push и ослабления assertions.
+```
+
+Промпт для отдельной диагностики ENV-01:
+
+```text
+Прочитай AGENTS.md/.agents и module03-2026-10-10-r1/environment.md. Разбери WinError32 в test_private_photo_survives_reload_is_author_only_and_copies_on_send наWindows: source test оставляет streaming FileResponse открытым перед delete. Подтверди причину в новом DJANGO_TESTING=1 изолированном стенде, не меняя существующие assertions ради зелёного. Предложи корректный lifecycle потребления/закрытия response и отдельно оцени поведение приложения при реально открытом download. Не подменяй diagnostic mocked/stubbed PASS native выполнением. Изменения — только после конкретного согласованного scope; никаких автоматических app fixes/commit/push/deploy/production. Сохрани чужие файлы и стенды, native error и контрольные evidence.
+```
+
+Внутренние ошибки QA-harness: hidden language tab, ошибочный selector preview, nested `main` strict selector, ожидание404 вместо допустимого denial403, race reload после dblclick, screenshot загрузки после navigation. Raw attempts сохранены; успешные повторные проверки имеют отдельные файлы. Это не defects приложения. [Инвентарь/нормализация](evidence-summary.json) объясняет снятые ложные FAIL. Loading DOM state18PASS получен пассивным observer настоящего submit; **loading screenshot во время native navigation NOT RUN**. Файлы `state-author-loading-*` показывают уже сохранённую форму; не использовать их как доказательство loading.

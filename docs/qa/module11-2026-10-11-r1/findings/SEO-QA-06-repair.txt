@@ -1,0 +1,14 @@
+Работай в фактическом корне KidsMap. Прочитай AGENTS.md и каноническую .agents. Исправь только SEO-QA-06: Редактор «Контент и SEO» возвращает 500.
+
+Исходное подтверждение: docs/qa/module11-2026-10-11-r1/findings/SEO-QA-06.md, source-extra.md и свежие evidence. Это dirty WORKTREE на HEAD8d188b316f800fbedf0b1e376905dfd4924cb1b6; сначала зафиксируй текущий checkout/HEAD/branch/active_run и проверь drift. Сохрани чужие изменения, active_run и стенды. Исторический отчёт — repro/checklist, не новая проверка.
+
+Repro: Войти synthetic superuser; открыть singleton editor в трёх языках; повторить DEBUGFalse в 6 ширинах.
+Ожидание: Редактор открывается и позволяет native save/reload SEO landing config.
+Подтверждённый факт: HTTP500; DEBUGTrue диагностика __str__ returned non-string (type __proxy__); DEBUGFalse native error18cells. Landing rename/repeated rename зависимо NOT RUN.
+Область согласованного исправления: CatalogContentSettings.__str__ Python string contract и bounded native/admin regression.
+Причина/source: models/site.py:10 gettext_lazy; CatalogContentSettings.__str__ :784–785 возвращает proxy; Django6.0.2 options.py:1911 вызывает str(obj). HEAD+WORKTREE source одинаковы.
+Зависимости: django-reviewer/frontend-admin; дальше native landing edit/rename audit.
+
+Сначала представь конкретный bounded план согласно текущим AGENTS; при реализации сохраняй публичные/приватные границы и остальные контракты. Не исправляй остальные findings в этом scope, не ослабляй существующие assertions. Проверки только DJANGO_TESTING=1, новый изолированный DB/cache/media/private-media/email, вымышленные данные, без внешних интеграций/production credentials. Без commit/push/deploy/production.
+
+Свежая проверка после изменения: существующие релевантные тесты, негативные private/disabled состояния, настоящий native UI→save→reload для применимой мутации, RU/AZ/EN desktop/mobile, HTTP/head отдельно от rendered browser. Для social preview используй собственный локальный preview без внешних ботов; indexing/Search Console/IndexNow не вызывай. Сохрани новый отчёт/evidence/screenshots, counts/exit codes, WORKTREE/runtime соответствие и NOT RUN ограничения. Не утверждай production эффект без его проверки.

@@ -1,0 +1,11 @@
+Работай в фактическом корне KidsMap. Прочитай AGENTS.md, канонические .agents и docs/qa/module09-2026-10-10-r1/findings/SOCIAL-QA-02.md. Проверь текущие HEAD/dirty WORKTREE/active_run; сохрани чужие изменения и стенды. Старый QA09 — checklist, не свежий PASS.
+
+Задача: исправить только SOCIAL-QA-02 «Автор не видит сохранённую причину отказа» (P2). Роль/URL: автор; /ru/reviews/event/target/1/ и /reviews/specialist/target/2/.
+Воспроизведение: Автор отправляет; модератор отклоняет с QA09 reason. Для live отзыва отправить новую редакцию и отклонить. Автор делает reload.
+Ожидание: Автор видит отказ, причину и отклонённый текст, может исправить; approved live остаётся прежним.
+Подтверждённый факт: Причины сохранены в revisions; после отказа candidate pointer очищен. Редактор показывает прежний live либо только rejected head text, без причины/понятного статуса.18cells воспроизведены для отклонённого edit.
+Проверенный источник/причина: src/catalog/services/review_versions.py:215; src/catalog/controllers/typed_reviews.py:86; src/catalog/templates/catalog/typed_reviews.html:22; moderate_candidate очищает candidate_revision_id; own view/template не выбирают последнее отклонённое решение и не выводят reason.
+Конкретная область: Показать автору последнее релевантное решение и reason без раскрытия приватных жалоб. Сохранить live/candidate invariant, обеспечить исправление и resubmit с reload.
+Ответственные границы/зависимости: django-reviewer + frontend-reviewer + security-reviewer; причина/жалоба остаются доступны только соответствующему автору/платформе.
+
+Сначала воспроизведи на новом DJANGO_TESTING=1 изолированном DB/cache/media/private-media/email стенде с вымышленными данными и подготовь конкретный план. Реализацию выполняй только в согласованном scope, используя уже данную в новом чате авторизацию; не проси её повторно. Не меняй существующие assertions ради зелёного результата. После scoped исправления выполни meaningful regression checks и настоящий browser/reload RU/AZ/EN×360/390/768/1024/1280/1440; сохрани новый отчёт, exact commands/counts/exit codes, screenshots, candidate/live/ACL readback и NOT RUN. Не расширяй задачу на остальные findings. Без production credentials, внешних интеграций, commit/push/deploy.

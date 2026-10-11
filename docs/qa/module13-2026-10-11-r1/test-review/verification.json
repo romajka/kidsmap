@@ -1,0 +1,80 @@
+{
+  "utc": "2026-10-11T13:32:09.248585+00:00",
+  "command": ".venv/Scripts/python.exe -X utf8 docs/qa/module13-2026-10-11-r1/test-review/verify-artifacts.py",
+  "exit_code": 0,
+  "checks": {
+    "qa_python_ast": {
+      "files": 17,
+      "PASS": true
+    },
+    "evidence_json_parse": {
+      "files": 23,
+      "jsonl_files": 4,
+      "jsonl_rows": 2223,
+      "PASS": true
+    },
+    "normalized_and_raw_counts": {
+      "unique_methods": 2090,
+      "method_slots": 2114,
+      "raw_observation_rows": 2223,
+      "normalized": {
+        "PASS": 2036,
+        "FAIL": 11,
+        "NOT RUN": 43
+      },
+      "PASS": true
+    },
+    "js_standalone_counts": {
+      "scripts": 20,
+      "node_entries": 117,
+      "named_tests": 115,
+      "bare_wrappers": 2,
+      "standalone_windows": {
+        "ERROR": 3,
+        "PASS": 13
+      },
+      "backup_posix_replay": 3,
+      "PASS": true
+    },
+    "discovery_qualification": {
+      "head_missing_tracked": 1452,
+      "worktree_missing": 1472,
+      "worktree_foreign_untracked": 20,
+      "wrapper_missing": 140,
+      "actual_github_execution": "NOT RUN",
+      "PASS": true
+    },
+    "report_links_and_sections": {
+      "local_links": 24,
+      "missing_links": [],
+      "sections": 9,
+      "PASS": true
+    },
+    "application_and_assertion_source_preserved": {
+      "files": 2788,
+      "source_digest": "e13c36f2af3aca03513ff860a1dee7c02a8cb2ab8214c89bcffd7dd5fe5914b1",
+      "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+      "branch": "task33-progress",
+      "active_run": "NONE",
+      "PASS": true
+    },
+    "evidence_privacy": {
+      "exact_isolated_credential_hits": 0,
+      "raw_html_csrf_token_hits": 0,
+      "redaction_record": "redaction.json",
+      "scope": "Own evidence only; no production credentials used",
+      "PASS": true
+    },
+    "git_diff_check": {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "PASS": true
+    }
+  },
+  "limits": [
+    "Verification confirms evidence integrity, not overall application acceptance",
+    "Nine GNU control passes do not change original runtime FAIL",
+    "Actual GitHub CI and real external integrations NOT RUN",
+    "No new tests, application, rules, migrations or assertions edited by this role"
+  ]
+}

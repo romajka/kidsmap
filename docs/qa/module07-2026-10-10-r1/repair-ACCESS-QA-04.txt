@@ -1,0 +1,10 @@
+Работай в фактическом checkout KidsMap. Прочитай AGENTS.md, канонические .agents и свежий docs/qa/module07-2026-10-10-r1/REPORT.md вместе с FINDINGS.md. Сверь текущие HEAD/branch/WORKTREE/active_run и воспроизведи дефект заново: старый evidence не доказывает состояние нового snapshot. Сохрани чужие изменения, active_run и стенды. Для широкого поиска сначала codebase-memory-mcp C-kidsmap, затем проверка нужных source.
+
+Сначала составь конкретный план указанного ниже ремонта и согласуй scope по AGENTS.md, если он ещё не разрешён пользователем. Существующее разрешение повторно не запрашивай. Без production, commit/push/deploy. Проверки только DJANGO_TESTING=1, отдельные DB/cache/media/private-media/email и вымышленные данные. Не менять assertions или бизнес-правила ради green. После разрешённого ремонта сохрани новые результаты, native exit codes и реальные browser screenshots; чётко перечисли NOT RUN.
+
+Цель: ACCESS-QA-04, P2 — убрать обрезку карточок приглашений команды места при360px. Scope: соответствующие responsive selectors static/css/site.css и при необходимости семантическая разметка owner_team.html. Shared owner-review selectors учитывать отдельно. Бизнес-правила/данные/миграции не трогать.
+
+Свежий trigger: cancelled07@example.invalid в h3 карточки; bounds x21..380.1875 при viewport360, body scrollWidth360 маскирует clipping. Ограничь grid min-content/ширины доступной областью и обеспечь перенос email/длинных имён. Не скрывай проблему overflow:hidden и не урезай идентификатор получателя без способа прочитать его полностью.
+
+Acceptance: filled/empty/error team lists с вымышленными длинными email и именами, RU/AZ/EN ×6 widths. Проверяй не только root scrollWidth, но bounds карточек/текста и rendered clipping, role forms/buttons/selects/keyboard focus. PC/mobile PNG; краткая проверка owner reviews как shared CSS regression. Для малой CSS-правки не создавать зеркальные unit tests; реальное browser evidence обязательно.
+

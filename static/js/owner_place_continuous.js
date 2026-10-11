@@ -55,6 +55,8 @@
   function apply(saved) {
     if (!saved || !saved.fields || form.dataset.pwBound === '1') return;
     restoring = true;
+    form.dispatchEvent(new CustomEvent('km:location-restore-start', {bubbles:true}));
+    try {
     for (const [name, value] of Object.entries(saved.fields)) {
       if (!allowed.has(name)) continue;
       const controls = [...form.querySelectorAll('[name]')].filter(input => input.name === name);
@@ -66,7 +68,11 @@
       controls[0]?.dispatchEvent(new Event('change', {bubbles:true}));
     }
     if (openAge) { openAge.checked = form.elements.namedItem('age_open_ended').value === '1'; syncAge(); }
-    restoring = false; updatePreview();
+    } finally {
+      restoring = false;
+      form.dispatchEvent(new CustomEvent('km:location-restore-end', {bubbles:true}));
+    }
+    updatePreview();
   }
   async function restore() {
     if (form.dataset.pwBound === '1') return;

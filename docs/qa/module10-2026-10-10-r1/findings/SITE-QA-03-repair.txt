@@ -1,0 +1,12 @@
+Работай в корне KidsMap; сначала определи фактический checkout (в аудите C:\kidsmap). Прочитай AGENTS.md, .agents/README.md, .agents/registry.json, actual kidsmap-orchestrator, architecture/source-of-truth/audit-contract, docs/qa/module10-2026-10-10-r1/findings/SITE-QA-03.md и приложенные свежие evidence. Старые отчёты — только checklist.
+
+Задача: SITE-QA-03 «Редактируемый текст контактов не используется публичной страницей», приоритет P2. Сначала воспроизведи заново на текущем HEAD/WORKTREE и собственном изолированном стенде: Сохранить contacts_text_ru/az/en через админку, reload и затем публичные contacts в 18 cells.
+Ожидание: Публичная страница выводит сохранённый текст соответствующего языка.
+Аудит наблюдал: Ни один из 18 contacts display checks не находит сохранённый QA10-текст. Footer phone/email при этом обновляются и видны.
+Первопричина/гипотеза: Подтверждено: context processor отдаёт site_contacts_text, но contacts.html не потребляет его.
+Область: Связать текст настройки с публичным содержимым контактов; оставить phone/email/social отдельными полями.
+Зависимости: Единый публичный text rendering и i18n contract; проверить HTML escaping и длинный текст.
+
+Сохрани чужие изменения, active_run, стенды и журналы. Codebase Memory C-kidsmap сначала для broad exploration, freshness/coverage явно; verify source. Согласуй конкретный план и scope до application implementation согласно каноническим инструкциям. Если authorization на этот repair уже явно есть — не проси повторно. Приложенные findings сами по себе не разрешают fixes.
+Только DJANGO_TESTING=1, собственные DB/cache/media/private-media/email, вымышленные данные, без inherited production credentials/внешних интеграций. Проверяемые действия — native UI, негативные HTTP только локально; no direct ORM transitions. Не менять существующие assertions, чтобы получить зелёный результат. No commit/push/deploy/production.
+После согласованного исправления: точечные meaningful regression tests плюс реальный browser RU/AZ/EN ×360/390/768/1024/1280/1440 для затронутых состояний; save→reload→public/candidate/live, relevant keyboard/loading/error. Сохрани новый отчёт/screenshots с HEAD/WORKTREE, exact commands/counts/exit codes; отдельно baseline/environment/SIMULATED/NOT RUN. Не утверждай production fix по локальному результату.

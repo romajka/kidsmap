@@ -1,0 +1,10 @@
+{
+  "role": "active staff without view_siteanalytics/change_siteanalytics",
+  "expected_http": [
+    403,
+    404
+  ],
+  "actual_http": 200,
+  "aggregate_dashboard_visible": true,
+  "transport": "Django integration, no browser"
+}

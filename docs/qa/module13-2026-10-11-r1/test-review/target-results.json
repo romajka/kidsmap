@@ -1,0 +1,46 @@
+{
+  "mode": "target",
+  "labels": [
+    "catalog.testcases.test_seo_audit_system.TestSEOAuditSystem.test_management_commands_execution",
+    "catalog.testcases.test_task33_publication.PublicationTests.test_csv_stale_source_cannot_modify_live"
+  ],
+  "raw_discovery_count": 2,
+  "unique_count": 2,
+  "deduplicated_identical_ids": 0,
+  "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+  "branch": "task33-progress",
+  "source_digest": "e13c36f2af3aca03513ff860a1dee7c02a8cb2ab8214c89bcffd7dd5fe5914b1",
+  "launcher_sha256": "698dcef0285f97e6bc63d2cbdd65db6713706b72ade1a297ab62dfaef2c9a79a",
+  "profile": {
+    "testing": true,
+    "database": "test_module13",
+    "host": "127.0.0.1",
+    "port": 55444,
+    "cache": "LocMem",
+    "email": "LocMem",
+    "localized_place_urls": false,
+    "local_analytics": false,
+    "owner_analytics": false,
+    "external_network": "blocked",
+    "media": "C:\\kidsmap\\.tmp\\module13-20261011-r1\\test-review\\unit-media",
+    "private_media": "C:\\kidsmap\\.tmp\\module13-20261011-r1\\test-review\\unit-private-media"
+  },
+  "elapsed_seconds": 199.031,
+  "exit_code": 0,
+  "statuses": {
+    "PASS": 2
+  },
+  "method_observations": [
+    {
+      "id": "catalog.testcases.test_seo_audit_system.TestSEOAuditSystem.test_management_commands_execution",
+      "status": "PASS",
+      "elapsed_total_seconds": 198.812
+    },
+    {
+      "id": "catalog.testcases.test_task33_publication.PublicationTests.test_csv_stale_source_cannot_modify_live",
+      "status": "PASS",
+      "elapsed_total_seconds": 198.984
+    }
+  ],
+  "not_observed_ids": []
+}

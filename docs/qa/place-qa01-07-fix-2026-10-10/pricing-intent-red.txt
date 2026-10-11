@@ -1,0 +1,20 @@
+Found 1 test(s).
+System check identified no issues (0 silenced).
+Creating test database for alias 'default'...
+
+E
+======================================================================
+ERROR: test_explicit_different_projection_is_not_discarded_as_an_echo (catalog.testcases.test_place_qa03_pricing_rebase.MixedProjectionTests.test_explicit_different_projection_is_not_discarded_as_an_echo)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\kidsmap\src\catalog\testcases\test_place_qa03_pricing_rebase.py", line 113, in test_explicit_different_projection_is_not_discarded_as_an_echo
+    self.assertEqual(revision.payload['price_from'],'19.00')
+                     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+KeyError: 'price_from'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.511s
+
+FAILED (errors=1)
+Destroying test database for alias 'default'...
+

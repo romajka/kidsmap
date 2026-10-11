@@ -1,0 +1,9 @@
+Продолжаем KidsMap. Прочитай AGENTS.md и docs/qa/module-acceptance-prompts.md. Определи фактические checkout, HEAD/WORKTREE и active_run.
+
+Модули 01 и 02 завершены с FAIL. Новый модуль02: docs/qa/module02-2026-10-09-r1/REPORT.md, verification.json, matrix.csv, screenshots-manifest.json и repair-prompts.md. 4 OPEN ORG-QA: autosave после approve (P2), отсутствие UI отзыва сетевого доступа (P2), admin toolbar overflow1024 (P2), остаточные русские admin headersAZ/EN (P3). Приложение не исправлено. 216 профильных tests OK, 308 свежих PNG; ограничения перечислены в отчёте.
+
+За новый запуск выполни только следующий незавершённый модуль — 03 «Специалисты и приватные документы». Модуль13 оставь после01–12. Исторические отчёты использовать только как checklist, не свежее доказательство. Следуй полному промпту03 в журнале.
+
+На прошлом запуске checkout C:\kidsmap, branch task33-progress, HEAD8d188b316f800fbedf0b1e376905dfd4924cb1b6; active_run NONE не изменён. WORKTREE уже содержит journal и оба untracked QA-пакета — сохранить. Старый module01 stand8811/PG55431 и новый module02 stand8812/PG55432/контейнер kidsmap-module02-20261009-r1 оставлены для просмотра; это не стенд для следующего модуля. На другом ПК заново определить путь/доступность, не считать эти адреса существующими.
+
+Создай собственный новый изолированный стенд03 с вымышленными данными, DJANGO_TESTING=1, отдельными DB/cache/media/private-media/email и без production credentials. Сохрани чужие изменения/active_run/стенды. Проверь функционал и реальный browser визуал по промпту03, сохрани новый отчёт/evidence/screenshots и отдельные repair prompts; обнови только строку03. Без application fixes/commit/push/deploy/production. В конце дай текст для следующего чата.

@@ -1,0 +1,17 @@
+[
+  {
+    "file": "matrix.result.json",
+    "raw_archive": "matrix.result.raw-harness-error.txt",
+    "reason": "Interrupted first matrix: stale transformed drawer-close QA automation; no exported assertions."
+  },
+  {
+    "file": "batch.result.json",
+    "raw_archive": "batch.result.raw-harness-error.txt",
+    "reason": "Python batch file was mistakenly sent to the JavaScript CLI; SyntaxError, no application execution."
+  },
+  {
+    "renamed_from": "batch.effective.js",
+    "retained_as": "batch.invalid-python-attempt.txt",
+    "reason": "Preserve wrongly dispatched Python source as text, not executable JS."
+  }
+]

@@ -1,0 +1,223 @@
+{
+  "utc": "2026-10-10T08:30:34.095566+00:00",
+  "selected_runs": [
+    {
+      "name": "functional3",
+      "rows": 4,
+      "raw_counts": {
+        "PASS": 4
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "functional4",
+      "rows": 7,
+      "raw_counts": {
+        "PASS": 5,
+        "FAIL": 2
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "lifecycle",
+      "rows": 14,
+      "raw_counts": {
+        "PASS": 12,
+        "FAIL": 2
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "matrix",
+      "rows": 324,
+      "raw_counts": {
+        "PASS": 316,
+        "FAIL": 8
+      },
+      "harness_error": null,
+      "page_network_errors": [
+        {
+          "role": "owner",
+          "type": "http",
+          "url": "http://localhost:8816/ru/api/drafts/",
+          "http": 409
+        }
+      ]
+    },
+    {
+      "name": "admin-matrix",
+      "rows": 288,
+      "raw_counts": {
+        "PASS": 288
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "schedule-fresh",
+      "rows": 9,
+      "raw_counts": {
+        "PASS": 9
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "events-recheck",
+      "rows": 1,
+      "raw_counts": {
+        "PASS": 1
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "pricing",
+      "rows": 21,
+      "raw_counts": {
+        "PASS": 21
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "restore",
+      "rows": 2,
+      "raw_counts": {
+        "PASS": 2
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "restore-read",
+      "rows": 1,
+      "raw_counts": {
+        "FAIL": 1
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "adversarial",
+      "rows": 24,
+      "raw_counts": {
+        "PASS": 24
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "multiple",
+      "rows": 3,
+      "raw_counts": {
+        "PASS": 3
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "admin-lifecycle",
+      "rows": 5,
+      "raw_counts": {
+        "PASS": 5
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "detach",
+      "rows": 4,
+      "raw_counts": {
+        "FAIL": 1,
+        "PASS": 3
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "roundtrip",
+      "rows": 2,
+      "raw_counts": {
+        "PASS": 2
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "common",
+      "rows": 3,
+      "raw_counts": {
+        "PASS": 3
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "catalog-corrected",
+      "rows": 3,
+      "raw_counts": {
+        "PASS": 3
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "conflict-matrix",
+      "rows": 18,
+      "raw_counts": {
+        "PASS": 18
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "clipping",
+      "rows": 54,
+      "raw_counts": {
+        "FAIL": 24,
+        "PASS": 30
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "rejection",
+      "rows": 2,
+      "raw_counts": {
+        "FAIL": 1,
+        "PASS": 1
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    },
+    {
+      "name": "rejection-repro",
+      "rows": 1,
+      "raw_counts": {
+        "FAIL": 1
+      },
+      "harness_error": null,
+      "page_network_errors": []
+    }
+  ],
+  "matrix_rows": 799,
+  "matrix_counts": {
+    "PASS": 747,
+    "FAIL": 39,
+    "NOT RUN": 13
+  },
+  "screenshots": 692,
+  "browser_screenshots": 688,
+  "derived_images": 4,
+  "screenshots_bytes": 129276077,
+  "django_final_tests": 250,
+  "django_final_pass": 250,
+  "test_native_exit_codes": [
+    0,
+    0
+  ]
+}

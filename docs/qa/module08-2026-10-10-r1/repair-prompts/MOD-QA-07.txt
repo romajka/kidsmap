@@ -1,0 +1,14 @@
+KidsMap: исправь только MOD-QA-07 — Сводка ошибки специалиста разбивает HTML на отдельные символы.
+
+Сначала определи фактический checkout, HEAD/branch/dirty WORKTREE и active_run. Прочитай AGENTS.md, канонические .agents и актуальное описание дефекта docs/qa/module08-2026-10-10-r1/findings/MOD-QA-07.md с указанными fresh evidence. Сверь текущий source: исходный snapshot 8d188b316f800fbedf0b1e376905dfd4924cb1b6; не предполагай, что он не изменился. Сохрани чужие изменения, active_run и стенды. Представь конкретный план и работай только в согласованном scope; уже согласованную область не переспрашивай, расширение согласуй отдельно.
+
+Роль/trigger: admin; передать владельцу модуля03; /ru/admin/catalog/specialist/1/change/. В admin снять все специализации, выбрать rejected, указать причину, нажать Save и принять нативное подтверждение. Сервер отклоняет форму. Посмотреть верхнюю error summary.
+Факт: Одна .errorlist превращается в 84 error-summary links: «Специализации: <», затем «u», «l», символы class/errorlist markup и далее. Красный блок занимает большую часть экрана. Allowlisted persisted state остаётся прежним, что является правильной валидацией.
+Source: src/catalog/templates/admin/catalog/specialist/change_form.html:12–14; Django admin.helpers.AdminField.errors. Причина: В specialist/change_form.html цикл for error in field.errors перебирает AdminField.errors() как HTML string; нужен список ошибок underlying bound field. Подтверждены rendered links и source; это ошибка отображения, а не отсутствие required validation.
+
+Разрешённая область исправления: Specialist server error summary и переход к underlying field/checkbox group; application validation не ослаблять.
+Зависимости: Модуль03; Django AdminField vs BoundField; inline error summaries проверить на тот же тип.
+Целевое поведение: Одна понятная ошибка «Обязательное поле» с переходом к специализациям, честное состояние несохранённого ввода.
+Приёмка: Одна и несколько серверных ошибок, inline errors, длинные тексты и native Save confirmation; понятные сообщения без HTML chars, правильные focus targets, сохранность ввода. RU/AZ/EN × 390/1440 минимум; existing assertions не менять ради зелёного.
+
+Создай новый собственный локальный стенд DJANGO_TESTING=1 с отдельными DB/cache/media/private-media/email и вымышленными данными. Проверяемые переходы выполняй через реальный UI; source inspection/jsdom/HTTP200 не заменяют rendered browser, сохранение/reload. Применяй существующие skills и meaningful targeted tests, не ослабляй assertions или авторизацию. Без production credentials/интеграций, commit/push/deploy. Сохрани новый report/evidence/screenshots, exact commands/counts/exit codes, candidate/live readback и NOT RUN ограничения. Обнови статус дефекта только по свежим доказательствам; остальные findings не исправляй автоматически.

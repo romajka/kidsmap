@@ -11,7 +11,8 @@
     var status = root.querySelector('[role="status"]');
     if (!lat || !lng || !city || !district || !status) return;
     root.dataset.bound = '1';
-    var previous = null, serial = 0, timer, controller, applying = false;
+    var previous = null, serial = 0, timer, controller, applying = false, restoring = false;
+    var continuous = !!form.closest('[data-place-mode="continuous"]');
     var initialPoint = lat.value.trim() + '|' + lng.value.trim();
     function announce(message, busy) {
       status.textContent = message;
@@ -48,8 +49,31 @@
       applying = false;
     }
     function update() {
-      if (applying) return;
+      if (applying || restoring) return;
       var point = lat.value.trim() + '|' + lng.value.trim();
+      if (continuous && point === '|') {
+        if (point !== previous) {
+          ++serial;
+          clearTimeout(timer);
+          if (controller) controller.abort();
+          if (reason && previous !== null) reason.value = '';
+        }
+        previous = point;
+        district.disabled = city.value !== 'baku';
+        if (district.disabled && district.value) {
+          district.value = '';
+          district.dispatchEvent(new Event('change', {bubbles:true}));
+        }
+        paint('empty');
+        announce(root.dataset.empty, false);
+        return;
+      }
+      if (continuous) {
+        var latitude = Number(lat.value.trim().replace(',', '.'));
+        var longitude = Number(lng.value.trim().replace(',', '.'));
+        if (!lat.value.trim() || !lng.value.trim() || !Number.isFinite(latitude) || Math.abs(latitude) > 90
+            || !Number.isFinite(longitude) || Math.abs(longitude) > 180) district.disabled = true;
+      }
       if (point === previous) return;
       var first = previous === null;
       previous = point;
@@ -111,6 +135,20 @@
       lat.addEventListener(event, update); lng.addEventListener(event, update);
     });
     ['km:map-change', 'km:location-change', 'km:json-imported'].forEach(function (event) { form.addEventListener(event, update); });
+    if (continuous) {
+      city.addEventListener('change', update);
+      form.addEventListener('km:location-restore-start', function () {
+        restoring = true;
+        ++serial;
+        clearTimeout(timer);
+        if (controller) controller.abort();
+      });
+      form.addEventListener('km:location-restore-end', function () {
+        restoring = false;
+        previous = null;
+        update();
+      });
+    }
     update();
   }
   function boot() { document.querySelectorAll('[data-location-resolution]').forEach(init); }

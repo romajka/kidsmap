@@ -1,0 +1,49 @@
+Found 6 test(s).
+System check identified no issues (0 silenced).
+Creating test database for alias 'default'...
+
+.FFE..
+======================================================================
+ERROR: test_mixed_save_resubmit_service_can_approve (audit_projection_tests.MixedProjectionTests.test_mixed_save_resubmit_service_can_approve)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\kidsmap\docs\qa\place-qa03-plan-2026-10-10\audit_projection_tests.py", line 75, in test_mixed_save_resubmit_service_can_approve
+    self.approve(revision)
+  File "C:\kidsmap\src\catalog\testcases\test_task33_publication.py", line 18, in approve
+    def approve(self,r,**kw):return self.s.review(actor=self.staff,revision_id=r.pk,version=r.version,approve=True,**kw)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\kidsmap\scratch\task33-prepare-20261002\python\cpython-3.12.15-windows-x86_64-none\Lib\contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\kidsmap\src\catalog\services\publication.py", line 383, in review
+    if any(live.get(k)!=revision.base_snapshot.get(k) for k in patch):raise ValidationError('Publication source conflict.')
+                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.core.exceptions.ValidationError: ['Publication source conflict.']
+
+======================================================================
+FAIL: test_mixed_draft_rebases_scalar_projections (audit_projection_tests.MixedProjectionTests.test_mixed_draft_rebases_scalar_projections)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\kidsmap\docs\qa\place-qa03-plan-2026-10-10\audit_projection_tests.py", line 59, in test_mixed_draft_rebases_scalar_projections
+    self.assertEqual(revision.base_snapshot[name], live[name], name)
+AssertionError: '15.00' != '18.00'
+- 15.00
+?  ^
++ 18.00
+?  ^
+ : price_from
+
+======================================================================
+FAIL: test_mixed_save_resubmit_has_approve_button_and_no_conflict (audit_projection_tests.MixedProjectionTests.test_mixed_save_resubmit_has_approve_button_and_no_conflict)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\kidsmap\docs\qa\place-qa03-plan-2026-10-10\audit_projection_tests.py", line 69, in test_mixed_save_resubmit_has_approve_button_and_no_conflict
+    self.assertFalse(response.context['conflict'])
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 6 tests in 2.672s
+
+FAILED (failures=2, errors=1)
+Destroying test database for alias 'default'...
+

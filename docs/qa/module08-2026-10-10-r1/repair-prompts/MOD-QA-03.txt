@@ -1,0 +1,14 @@
+KidsMap: исправь только MOD-QA-03 — Панель очередей выходит за экран при ширине 1024.
+
+Сначала определи фактический checkout, HEAD/branch/dirty WORKTREE и active_run. Прочитай AGENTS.md, канонические .agents и актуальное описание дефекта docs/qa/module08-2026-10-10-r1/findings/MOD-QA-03.md с указанными fresh evidence. Сверь текущий source: исходный snapshot 8d188b316f800fbedf0b1e376905dfd4924cb1b6; не предполагай, что он не изменился. Сохрани чужие изменения, active_run и стенды. Представь конкретный план и работай только в согласованном scope; уже согласованную область не переспрашивай, расширение согласуй отдельно.
+
+Роль/trigger: admin; /ru/admin/catalog/place/; /ru/admin/catalog/event/; /ru/admin/catalog/specialist/. Открыть очередь на 1024px с обычным sidebar. Дождаться settled layout. Сравнить viewport и правый край toolbar, раскрыть сортировку/колонки. Посмотреть строки мест.
+Факт: Root scrollWidth=1162 в RU/AZ и 1099 в EN при viewport=1024. .km-toolbar-right выходит до x=1162.31/1099.09. Кнопки справа обрезаны; у мест первые строки достигают 548px, колонка обновления сжимается до почти нулевой ширины.
+Source: static/admin/css/pages/kidsmap_changelist.css:445–491,731,989–998,2862; src/catalog/templates/admin/catalog/includes/km_changelist_search_panel.html:95. Причина: Подтверждён источник общего overflow: nowrap в search form, min-width:280px у поиска и toolbar-right при sidebar; wrapping breakpoint только max-width:900. Причина сжатия отдельных table columns/548px row требует дополнительного CSS разбора — гипотеза, не доказанная общая первопричина.
+
+Разрешённая область исправления: Shared changelist toolbar responsive layout и scoped table column rules. Не менять данные/фильтрацию.
+Зависимости: sidebar available content width; Place/Event/Specialist shared template; модули01/03/04.
+Целевое поведение: Панель поиска/сортировки/колонок помещается в доступную ширину; таблица прокручивается в своём контейнере и остаётся читаемой.
+Приёмка: RU/AZ/EN × 360/390/768/1024/1280/1440, sidebar open/closed, dropdowns open. Root overflow ≤1px, все управляющие элементы доступны; таблица имеет локальный scroll, строки обновления не превращаются в вертикальный текст.
+
+Создай новый собственный локальный стенд DJANGO_TESTING=1 с отдельными DB/cache/media/private-media/email и вымышленными данными. Проверяемые переходы выполняй через реальный UI; source inspection/jsdom/HTTP200 не заменяют rendered browser, сохранение/reload. Применяй существующие skills и meaningful targeted tests, не ослабляй assertions или авторизацию. Без production credentials/интеграций, commit/push/deploy. Сохрани новый report/evidence/screenshots, exact commands/counts/exit codes, candidate/live readback и NOT RUN ограничения. Обнови статус дефекта только по свежим доказательствам; остальные findings не исправляй автоматически.

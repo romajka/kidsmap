@@ -1,0 +1,27 @@
+{
+  "kind": "compact_research_metadata_not_graph_cache",
+  "project": "C-kidsmap",
+  "root": "C:/kidsmap",
+  "status": "ready",
+  "nodes": 206957,
+  "edges": 329114,
+  "partial_file_count": 74,
+  "index_generation": "2026-10-11T12:12:21Z",
+  "coverage_signal": "best_effort",
+  "cited_paths_checked": [
+    "src/catalog/urls.py",
+    "src/catalog/controllers/organization_workspace.py",
+    "src/catalog/controllers/program_workspace.py",
+    "src/catalog/services/publication.py",
+    "src/catalog/controllers/specialist_workspace.py"
+  ],
+  "cited_paths_result": "coverage_unavailable / metadata_changed",
+  "negative_claim_support": "UNKNOWN",
+  "fallback": "bounded exact source and route/template wiring read",
+  "queries": [
+    "owner_organization_create owner_program_create owner_activity_create (0 results; no absence conclusion)",
+    "branch request confirm organization (249 results, first50, narrowed to relevant source)",
+    "specialist propose cooperation owner events (323 results, first50, narrowed to relevant source)",
+    "trace_path organization_confirm (dynamic/noisy edges verified against source)"
+  ]
+}

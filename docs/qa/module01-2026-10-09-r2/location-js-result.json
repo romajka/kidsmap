@@ -1,0 +1,14 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "scripts/test_location_resolution.cjs"
+  ],
+  "KIDSMAP_JSDOM": "C:/kidsmap/.tmp/phone-dom/node_modules/jsdom",
+  "exit_code": 0,
+  "initial_attempt": {
+    "exit_code": 1,
+    "classification": "ENVIRONMENT FAILURE",
+    "reason": "Default historical ignored .tmp/coordinate-location/dom/node_modules/jsdom path absent; supported KIDSMAP_JSDOM points to existing local dependency."
+  }
+}

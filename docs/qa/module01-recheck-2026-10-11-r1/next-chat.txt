@@ -1,0 +1,7 @@
+Продолжаем KidsMap из фактического checkout. Прочитай AGENTS.md, канонические .agents, docs/qa/module-acceptance-prompts.md и docs/qa/module01-recheck-2026-10-11-r1/REPORT.md.
+
+Свежий recheck 2026-10-11 подтвердил существующие PLACE-QA-01–07 в dirty WORKTREE на собственном стенде с новыми compiled locales. HEAD 8d188b316f800fbedf0b1e376905dfd4924cb1b6, branch task33-progress, active_run NONE; 38 Django +34 Node +9 locale helper PASS. Browser 252 PASS, 6 FAIL одной причины, 12 scope NOT RUN; 164 native PNG. Полная приёмка всего module01 не повторялась.
+
+Остаток PLACE-QA-08, alias CROSS-QA-03: RU district empty option Rayon seçin; missing active RU gettext key, новая сборка PO сама это не исправляет. Готовый самостоятельный prompt — docs/qa/module01-recheck-2026-10-11-r1/PLACE-QA-08-repair.txt. PLACE-QA-01–07 повторно не исправляй по историческому r2. Для PLACE-QA-06 отличай свежую isolated сборку от общих старых MO любого другого runtime.
+
+В C:\kidsmap текущий стенд этого recheck — localhost:8841, PID16156, PostgreSQL loopback55446/container kidsmap-module01-recheck-20261011-r1, browser place-recheck-r1. На другом ПК эти адреса/PID/сессии не доступны: определи путь и создай свой стенд. Сохрани чужой WORKTREE, active_run и стенды. Приложение в этом запуске не исправлялось. Следующий scope нужно выбрать явно: минимальное исправление PLACE-QA-08 по плану/разрешению или AUDIT ONLY недостающей полной приёмки module01. Без commit/push/deploy/production.

@@ -1,0 +1,333 @@
+{
+  "utc": "2026-10-10T11:47:16.388056+00:00",
+  "checkout": "C:\\kidsmap",
+  "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+  "branch": "task33-progress",
+  "source_files_checked": 2784,
+  "source_changed": [],
+  "prior_files_checked_excluding_journal": 6341,
+  "prior_changed": [],
+  "new_foreign_files_preserved": [],
+  "journal_changed_lines": [
+    27
+  ],
+  "journal_row07_only": true,
+  "active_run": "NONE",
+  "active_run_file_unchanged": true,
+  "runtime": [
+    {
+      "port": 8820,
+      "head": "8d188b316f800fbedf0b1e376905dfd4924cb1b6",
+      "source_digest": "933b55c01caf9ab69bce9d81d23b69e87c262ffcf5d192917e8d9272b0f7ee83",
+      "testing": true,
+      "database": "isolated-postgresql-module07",
+      "cache": "django.core.cache.backends.locmem.LocMemCache",
+      "email": "qa_mail.EmailBackend"
+    }
+  ],
+  "runtime_matches_worktree_snapshot": true,
+  "runtime_proof_limit": "qa/version echoes manifest; proof also requires startup hash guard in own launcher + current 2784 file hash comparison + actual listener command/import path and native UI. Production UNKNOWN.",
+  "processes": [
+    {
+      "port": 8820,
+      "pid": 27660,
+      "address": "127.0.0.1",
+      "command": "\"C:\\kidsmap\\scratch\\task33-prepare-20261002\\python\\cpython-3.12.15-windows-x86_64-none\\python.exe\" docs/qa/module07-2026-10-10-r1/run.py serve"
+    },
+    {
+      "port": 8818,
+      "pid": 36896,
+      "address": "127.0.0.1"
+    },
+    {
+      "port": 8817,
+      "pid": 33848,
+      "address": "127.0.0.1"
+    },
+    {
+      "port": 8816,
+      "pid": 40212,
+      "address": "127.0.0.1"
+    },
+    {
+      "port": 8815,
+      "pid": 43232,
+      "address": "127.0.0.1"
+    },
+    {
+      "port": 8812,
+      "pid": 40848,
+      "address": "127.0.0.1"
+    },
+    {
+      "port": 8811,
+      "pid": 6112,
+      "address": "127.0.0.1"
+    }
+  ],
+  "own_listener_check": true,
+  "foreign_listener_pids_match_entry": true,
+  "own_mounts": [
+    {
+      "Type": "volume",
+      "Name": "3941066b4ad0e309ab85b19307b41917f34410b8b717affa8243e1d3e0d43803",
+      "Source": "/var/lib/docker/volumes/3941066b4ad0e309ab85b19307b41917f34410b8b717affa8243e1d3e0d43803/_data",
+      "Destination": "/var/lib/postgresql/data",
+      "Driver": "local",
+      "Mode": "",
+      "RW": true,
+      "Propagation": ""
+    }
+  ],
+  "own_mounts_read_exit": 0,
+  "container_names_read_exit": 0,
+  "running_container_names": [
+    "kidsmap-module07-20261010-r1",
+    "kidsmap-module06-20261010-r1",
+    "kidsmap-module05-20261010-r1",
+    "kidsmap-module04-20261010-r1",
+    "kidsmap-module03-20261010-r1",
+    "kidsmap-module01-20261009-r2",
+    "kidsmap-module02-20261009-r1",
+    "kidsmap-module01-20261009-r1",
+    "kidsmap-manual-portable"
+  ],
+  "expected_foreign_container_names": [
+    "kidsmap-module06-20261010-r1",
+    "kidsmap-module05-20261010-r1",
+    "kidsmap-module04-20261010-r1",
+    "kidsmap-module03-20261010-r1",
+    "kidsmap-module01-20261009-r2",
+    "kidsmap-module02-20261009-r1",
+    "kidsmap-module01-20261009-r1",
+    "kidsmap-manual-portable"
+  ],
+  "missing_expected_foreign_containers": [],
+  "credential_scan_pass": true,
+  "credential_leak_files": [],
+  "broken_local_links": [],
+  "git_diff_check_exit": 0,
+  "git_diff_check_output": "",
+  "qa_js_syntax_exit": 0,
+  "qa_python_syntax_errors": [],
+  "final_worktree": [
+    " M docs/qa/module-acceptance-prompts.md",
+    "?? docs/qa/module01-2026-10-09-r1/",
+    "?? docs/qa/module01-2026-10-09-r2/",
+    "?? docs/qa/module02-2026-10-09-r1/",
+    "?? docs/qa/module03-2026-10-10-r1/",
+    "?? docs/qa/module04-2026-10-10-r1/",
+    "?? docs/qa/module05-2026-10-10-r1/",
+    "?? docs/qa/module06-2026-10-10-r1/",
+    "?? docs/qa/module07-2026-10-10-r1/",
+    "?? docs/qa/place-qa01-plan-2026-10-10/",
+    "?? docs/qa/place-qa02-plan-2026-10-10/",
+    "?? docs/qa/place-qa03-plan-2026-10-10/",
+    "?? docs/qa/place-qa04-plan-2026-10-10/",
+    "?? docs/qa/place-qa05-plan-2026-10-10/",
+    "?? docs/qa/place-qa06-plan-2026-10-10/",
+    "?? docs/qa/place-qa07-plan-2026-10-10/",
+    "?? docs/superpowers/plans/2026-10-10-place-qa01-rejection-feedback.md",
+    "?? docs/superpowers/plans/2026-10-10-place-qa02-map-fallback.md",
+    "?? docs/superpowers/plans/2026-10-10-place-qa03-pricing-rebase.md",
+    "?? docs/superpowers/plans/2026-10-10-place-qa04-manual-district.md",
+    "?? docs/superpowers/plans/2026-10-10-place-qa05-category-popup.md",
+    "?? docs/superpowers/plans/2026-10-10-place-qa06-isolated-locales.md",
+    "?? docs/superpowers/plans/2026-10-10-place-qa07-nature-translations.md"
+  ],
+  "counts": {
+    "decision": "FAIL; audit complete with explicit NOT RUN limits",
+    "raw_run_counts": {
+      "acl": {
+        "PASS": 835,
+        "NOT RUN": 1,
+        "FAIL": 32
+      },
+      "acl-boundaries": {
+        "PASS": 147
+      },
+      "matrix": {
+        "PASS": 781,
+        "FAIL": 47
+      },
+      "modal-proof": {
+        "FAIL": 36,
+        "PASS": 36
+      },
+      "auth-flow": {
+        "PASS": 54,
+        "NOT RUN": 3
+      },
+      "auth-resume": {
+        "PASS": 18
+      },
+      "auth-negative": {
+        "PASS": 24
+      },
+      "team-flow": {
+        "PASS": 8,
+        "NOT RUN": 1
+      },
+      "team-resume": {
+        "NOT RUN": 2,
+        "PASS": 9
+      },
+      "privacy-flow": {
+        "PASS": 9
+      },
+      "deletion-flow": {
+        "PASS": 72
+      },
+      "cancel-recovery": {
+        "PASS": 15
+      },
+      "supplement-matrix": {
+        "PASS": 228,
+        "FAIL": 24
+      },
+      "access-transitions": {
+        "PASS": 13
+      },
+      "deletion-relations": {
+        "PASS": 2
+      },
+      "person-deletion": {
+        "FAIL": 1,
+        "PASS": 8
+      },
+      "org-conflict-proof": {
+        "PASS": 54
+      },
+      "final-browser-proof": {
+        "PASS": 165
+      },
+      "api-contracts": {
+        "PASS": 36
+      }
+    },
+    "observations": {
+      "PASS": 2404,
+      "FAIL": 66,
+      "NOT RUN": 1
+    },
+    "not_run_scope_rows": 90,
+    "excluded_own_qa_observations": 204,
+    "fail_rows_by_finding": {
+      "ACCESS-QA-01": 36,
+      "ACCESS-QA-04": 3,
+      "ACCESS-QA-03": 18,
+      "ACCESS-QA-02": 1,
+      "ACCESS-QA-05": 8
+    },
+    "unclassified_fail_rows": [],
+    "by_language_width": {
+      "ru/N/A HTTP": {
+        "PASS": 389
+      },
+      "az/N/A HTTP": {
+        "PASS": 368
+      },
+      "en/N/A HTTP": {
+        "PASS": 375
+      },
+      "ru/360": {
+        "PASS": 60,
+        "FAIL": 4
+      },
+      "ru/390": {
+        "PASS": 116,
+        "FAIL": 4,
+        "NOT RUN": 1
+      },
+      "ru/768": {
+        "PASS": 61,
+        "FAIL": 3
+      },
+      "ru/1024": {
+        "PASS": 61,
+        "FAIL": 3
+      },
+      "ru/1280": {
+        "PASS": 61,
+        "FAIL": 3
+      },
+      "ru/1440": {
+        "PASS": 78,
+        "FAIL": 3
+      },
+      "az/360": {
+        "PASS": 60,
+        "FAIL": 4
+      },
+      "az/390": {
+        "PASS": 91,
+        "FAIL": 5
+      },
+      "az/768": {
+        "PASS": 61,
+        "FAIL": 3
+      },
+      "az/1024": {
+        "PASS": 61,
+        "FAIL": 3
+      },
+      "az/1280": {
+        "PASS": 61,
+        "FAIL": 3
+      },
+      "az/1440": {
+        "PASS": 78,
+        "FAIL": 5
+      },
+      "en/360": {
+        "PASS": 60,
+        "FAIL": 4
+      },
+      "en/390": {
+        "PASS": 91,
+        "FAIL": 5
+      },
+      "en/768": {
+        "PASS": 61,
+        "FAIL": 3
+      },
+      "en/1024": {
+        "PASS": 61,
+        "FAIL": 3
+      },
+      "en/1280": {
+        "PASS": 61,
+        "FAIL": 3
+      },
+      "en/1440": {
+        "PASS": 83,
+        "FAIL": 5
+      },
+      "N/A service/N/A service": {
+        "PASS": 6
+      }
+    },
+    "native_png": 695,
+    "derived_images": 12,
+    "tests": {
+      "methods": 282,
+      "pass": 281,
+      "native_preflight_fail": 1,
+      "error": 0,
+      "application_failures_confirmed": 0,
+      "exit_code": 1,
+      "scenario_body_NOT_RUN": 1
+    },
+    "findings": {
+      "P0": 0,
+      "P1": 0,
+      "P2": 5,
+      "P3": 0
+    }
+  },
+  "own_scope_integrity_pass": true,
+  "all_prior_bytes_unchanged": true,
+  "preservation_status": "ENTRY BYTES UNCHANGED",
+  "foreign_drift": [],
+  "pass": true
+}

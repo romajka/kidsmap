@@ -1,0 +1,11 @@
+Работай в фактическом корне KidsMap. Прочитай AGENTS.md, канонические .agents и docs/qa/module09-2026-10-10-r1/findings/SOCIAL-QA-08.md. Проверь текущие HEAD/dirty WORKTREE/active_run; сохрани чужие изменения и стенды. Старый QA09 — checklist, не свежий PASS.
+
+Задача: исправить только SOCIAL-QA-08 «Отозванное приглашение оставляет пустую403страницу» (P2). Роль/URL: получатель приглашения; /ru/account/notifications/<id>/accept/.
+Воспроизведение: Владелец отправляет приглашение через UI. Получатель оставляет inbox открытым; владелец отменяет приглашение. Получатель нажимает старую Accept.
+Ожидание: Доступ не выдан; интерфейс объясняет устаревшее/отозванное приглашение и предлагает вернуться/обновить inbox.
+Подтверждённый факт: 403 корректно запрещает выдачу прав, но body пустой, ссылок0; пользователь видит белую страницу. Native empty recipient case и БД CANCELLED/no grant подтверждены.
+Проверенный источник/причина: src/catalog/controllers/workflow_notifications.py:63; Исключение stale/ValidationError преобразовано в HttpResponseForbidden() без content/template/messages.
+Конкретная область: Обработать собственное stale/cancelled приглашение понятным AZ/RU/EN состоянием с возвратом в inbox, сохранив403/guard и отсутствие повторного grant. Чужой ID остаётся без информационной утечки.
+Ответственные границы/зависимости: django-reviewer + frontend-reviewer + security-reviewer; не раскрывать чужое приглашение, не ослаблять проверки версии/владельца/email/expiry.
+
+Сначала воспроизведи на новом DJANGO_TESTING=1 изолированном DB/cache/media/private-media/email стенде с вымышленными данными и подготовь конкретный план. Реализацию выполняй только в согласованном scope, используя уже данную в новом чате авторизацию; не проси её повторно. Не меняй существующие assertions ради зелёного результата. После scoped исправления выполни meaningful regression checks и настоящий browser/reload RU/AZ/EN×360/390/768/1024/1280/1440; сохрани новый отчёт, exact commands/counts/exit codes, screenshots, candidate/live/ACL readback и NOT RUN. Не расширяй задачу на остальные findings. Без production credentials, внешних интеграций, commit/push/deploy.

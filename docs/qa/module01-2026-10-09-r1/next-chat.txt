@@ -1,0 +1,9 @@
+Продолжаем KidsMap. Прочитай AGENTS.md, canonical .agents и docs/qa/module-acceptance-prompts.md целиком. Определи фактический checkout, текущий HEAD/WORKTREE и active_run.
+
+В журнале модуль01 завершён с FAIL: docs/qa/module01-2026-10-09-r1/REPORT.md. Пять открытых PLACE-QA findings и repair prompts сохранены отдельно. Старые результаты не являются свежим доказательством для нового запуска.
+
+Выполни только первый незавершённый модуль среди01–12 — ожидается02 «Организации, готовые места и сотрудники». Модуль13 после остальных. Проверь функционал и визуал по полному промпту02; создай новый isolated DJANGO_TESTING=1 стенд с вымышленными данными, отдельными DB/cache/media/private-media/email и свободным port.
+
+Сохрани чужие изменения и QA-пакет01. На этом ПК C:\kidsmap, task33-progress, прошлый HEAD8d188b316f800fbedf0b1e376905dfd4924cb1b6; перепроверь, не принимай значения за текущие. Stand01 localhost:8811 и контейнер kidsmap-module01-20261009-r1:55431 оставлены; их не сбрасывай. Существующий kidsmap-manual-portable также сохрани. active_run в docs/task33/implementation-status.md был NONE и не изменён.
+
+Приложение не исправляй. Отдельно оформи подтверждённые дефекты и самостоятельные repair prompts. Сохрани свежий отчёт/evidence/screenshots, обнови только строку02 журнала и дай текст следующего чата. Без commit/push/deploy/production.

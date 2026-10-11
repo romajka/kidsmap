@@ -1,0 +1,14 @@
+KidsMap: исправь только MOD-QA-05 — В подтверждении снятия с публикации фокус остаётся на BODY.
+
+Сначала определи фактический checkout, HEAD/branch/dirty WORKTREE и active_run. Прочитай AGENTS.md, канонические .agents и актуальное описание дефекта docs/qa/module08-2026-10-10-r1/findings/MOD-QA-05.md с указанными fresh evidence. Сверь текущий source: исходный snapshot 8d188b316f800fbedf0b1e376905dfd4924cb1b6; не предполагай, что он не изменился. Сохрани чужие изменения, active_run и стенды. Представь конкретный план и работай только в согласованном scope; уже согласованную область не переспрашивай, расширение согласуй отдельно.
+
+Роль/trigger: admin; /ru/admin/catalog/place/ → row menu → toggle-publication confirmation. Фокусировать row more-actions, Enter, выбрать снятие с публикации. Нажимать Tab и Shift+Tab, затем Escape.
+Факт: Начальный фокус BODY, последовательные Tab остаются BODY. Escape закрывает modal, но фокус не возвращается opener. В списке focusables первый элемент — SVG use href=#kmi-warning с tabIndex=-1 и aria-hidden=true.
+Source: static/admin/js/kidsmap_notifications.js:64–75,90–138,157–177,319–327; static/admin/js/kidsmap_place_changelist.js:row action handler. Причина: getFocusableElements включает любой [href], в том числе SVG use. Warning confirm не соответствует primary/danger selector, поэтому autofocus и trapping используют нефокусируемый use. lastFocusedElement записывается после закрытия row menu, без явного видимого opener; native readback возвращает BODY.
+
+Разрешённая область исправления: Общий kmModal focus engine + передача/восстановление row trigger. Только реально focusable HTML controls; warning tone учитывать.
+Зависимости: Общий компонент влияет на confirmations в других модулях; отдельно MOD-QA-06 i18n.
+Целевое поведение: Начальный фокус внутри alertdialog, кнопки доступны Tab/Shift+Tab, после Escape фокус возвращается на видимый row opener.
+Приёмка: Реальный browser, sprite и fallback icons, primary/danger/warning, первый/последний Tab/Shift+Tab, Enter/Space/Escape, close/cancel, видимый focus return. Все 18 cells; не ограничиваться jsdom.
+
+Создай новый собственный локальный стенд DJANGO_TESTING=1 с отдельными DB/cache/media/private-media/email и вымышленными данными. Проверяемые переходы выполняй через реальный UI; source inspection/jsdom/HTTP200 не заменяют rendered browser, сохранение/reload. Применяй существующие skills и meaningful targeted tests, не ослабляй assertions или авторизацию. Без production credentials/интеграций, commit/push/deploy. Сохрани новый report/evidence/screenshots, exact commands/counts/exit codes, candidate/live readback и NOT RUN ограничения. Обнови статус дефекта только по свежим доказательствам; остальные findings не исправляй автоматически.

@@ -1,0 +1,1013 @@
+{
+  "organization": {
+    "url": "http://localhost:8827/admin/catalog/organization/1/change/",
+    "snap": "- navigation:\n  - button \"Навигация\"\n  - navigation \"Хлебные крошки\":\n    - list:\n      - listitem:\n        - link \"Главная\":\n          - /url: /admin/\n      - listitem:\n        - text: ›\n        - link \"Каталог\":\n          - /url: /admin/catalog/\n      - listitem:\n        - text: ›\n        - link \"Организации\":\n          - /url: /admin/catalog/organization/\n      - listitem: › Organization object (1)\n  - searchbox \"Поиск Постоянные Места...\"\n  - link \"Перейти на сайт\":\n    - /url: /\n  - button \"RU\"\n  - button \"qa11_admin\"\n- complementary:\n  - link \"KidsMap Logo\":\n    - /url: /admin/\n    - img \"KidsMap Logo\"\n  - link \"qa11_admin\":\n    - /url: /admin/auth/user/3/change/\n  - text: Администратор\n  - navigation \"Боковая панель\":\n    - list:\n      - listitem:\n        - link \"Панель управления\":\n          - /url: /admin/\n    - button \"Каталог\" [expanded]\n    - list:\n      - listitem:\n        - link \"Организации\":\n          - /url: /admin/catalog/organization/\n      - listitem:\n        - link \"Филиалы и места\":\n          - /url: /admin/catalog/place/?is_temporary__exact=0\n      - listitem:\n        - link \"Общие программы\":\n          - /url: /admin/catalog/program/\n      - listitem:\n        - link \"Занятия\":\n          - /url: /admin/catalog/activity/\n      - listitem:\n        - link \"Группы и тарифы\":\n          - /url: /admin/catalog/offeringgroup/\n      - listitem:\n        - link \"Сотрудники организаций\":\n          - /url: /admin/catalog/organizationgrant/\n      - listitem:\n        - link \"Постоянные места 21\":\n          - /url: /admin/catalog/place/?is_temporary__exact=0\n      - listitem:\n        - link \"Временные мероприятия 4\":\n          - /url: /admin/catalog/event/\n      - listitem:\n        - link \"Специалисты 5\":\n          - /url: /admin/catalog/specialist/\n      - listitem:\n        - link \"Отзывы\":\n          - /url: /admin/catalog/placereview/\n      - listitem:\n        - link \"Корзина 1\":\n          - /url: /admin/catalog/place/?deleted_state=deleted\n    - button \"Модерация\"\n    - button \"Справочники\"\n    - button \"Пользователи и доступ\"\n    - button \"Контент сайта\"\n    - button \"Аналитика\"\n    - button \"SEO Мониторинг\"\n    - button \"Система\"\n    - button \"Волонтёры\"\n    - button \"Сроки модерации\"\n- text: Организации\n- tablist:\n  - listitem:\n    - tab \"Состояние\" [selected]\n  - listitem:\n    - tab \"Названия\"\n  - listitem:\n    - tab \"Описание\"\n  - listitem:\n    - tab \"Контакты\"\n  - listitem:\n    - tab \"Основная информация\"\n- tabpanel \"Публикация Опубликовано Владение Владелец назначен Проверка данных Владение не проверено\"\n- region \"Связанные разделы\":\n  - heading \"Связанные разделы\" [level=2]\n  - link \"Филиалы\":\n    - /url: /admin/catalog/place/?organization__id__exact=1\n  - link \"Программы\":\n    - /url: /admin/catalog/program/?organization__id__exact=1\n  - link \"Сотрудники\":\n    - /url: /admin/catalog/organizationgrant/?organization__id__exact=1\n- region \"Публикация\":\n  - heading \"Публикация\" [level=2]\n  - paragraph: Черновик и проверка не меняют публичные данные до одобрения.\n  - button \"Снять с публикации\"\n- contentinfo:\n  - text: Jazzmin Version 3.0.1\n  - strong: Авторские права © 2026 KidsMap.\n  - text: Все права защищены.",
+    "inputs": [
+      {
+        "name": "q",
+        "type": "search",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "action",
+        "type": "submit",
+        "value": "unpublish",
+        "visible": true,
+        "text": "Снять с публикации"
+      }
+    ]
+  },
+  "activity": {
+    "url": "http://localhost:8827/admin/catalog/activity/1/change/",
+    "snap": "[Django DEBUG diagnostic settings table omitted by QA sanitizer; route404, inputs0]",
+    "inputs": [
+      {
+        "name": "content",
+        "type": "textarea",
+        "value": "Environment:\n\n\nRequest Method: GET\nRequest URL: http://localhost:8827/admin/catalog/activity/1/change/\n\nDjango Version: 6.0.2\nPython Version: 3.12.15\nInstalled Applications:\n['jazzmin',\n 'django.contrib.admin',\n 'django.contrib.auth',\n 'django.contrib.contenttypes',\n 'django.contrib.sessions',\n 'django.contrib.messages',\n 'django.contrib.staticfiles',\n 'django.contrib.sitemaps',\n 'allauth',\n 'allauth.account',\n 'allauth.socialaccount',\n 'allauth.socialaccount.providers.google',\n 'catalog',\n 'catalog.proxy_apps.catalog_moderation.apps.CatalogModerationConfig']\nInstalled Middleware:\n['catalog.middleware.CanonicalPublicHostMiddleware',\n 'whitenoise.middleware.WhiteNoiseMiddleware',\n 'django.middleware.security.SecurityMiddleware',\n 'django.contrib.sessions.middleware.SessionMiddleware',\n 'catalog.middleware.AdminHostRedirectMiddleware',\n 'django.middleware.locale.LocaleMiddleware',\n 'catalog.middleware.CleanPublicQueryMiddleware',\n 'config.middleware.AdminLocaleMiddleware',\n 'django.middleware.common.CommonMiddleware',\n 'django.middleware.csrf.CsrfViewMiddleware',\n 'django.contrib.auth.middleware.AuthenticationMiddleware',\n 'catalog.r1_middleware.R1WriteCohortMiddleware',\n 'catalog.volunteer_middleware.VolunteerAccessMiddleware',\n 'django.contrib.messages.middleware.MessageMiddleware',\n 'allauth.account.middleware.AccountMiddleware',\n 'django.middleware.clickjacking.XFrameOptionsMiddleware']\n\n\n\nTraceback (most recent call last):\n  File \"C:\\kidsmap\\.venv\\Lib\\site-packages\\django\\core\\handlers\\exception.py\", line 55, in inner\n    response = get_response(request)\n               ^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\kidsmap\\.venv\\Lib\\site-packages\\django\\core\\handlers\\base.py\", line 198, in _get_response\n    response = wrapped_callback(request, *callback_args, **callback_kwargs)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\kidsmap\\.venv\\Lib\\site-packages\\django\\contrib\\admin\\options.py\", line 710, in wrapper\n    return self.admin_site.admin_view(view)(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\kidsmap\\.venv\\Lib\\site-packages\\django\\utils\\decorators.py\", line 192, in _view_wrapper\n    result = _process_exception(request, e)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\kidsmap\\.venv\\Lib\\site-packages\\django\\utils\\decorators.py\", line 190, in _view_wrapper\n    response = view_func(request, *args, **kwargs)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\kidsmap\\.venv\\Lib\\site-packages\\django\\views\\decorators\\cache.py\", line 80, in _view_wrapper\n    response = view_func(request, *args, **kwargs)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\kidsmap\\.venv\\Lib\\site-packages\\django\\contrib\\admin\\sites.py\", line 247, in inner\n    return view(request, *args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\kidsmap\\.venv\\Lib\\site-packages\\django\\contrib\\admin\\options.py\", line 1945, in change_view\n    return self.changeform_view(request, object_id, form_url, extra_context)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\kidsmap\\src\\catalog\\domain_admin\\business.py\", line 218, in changeform_view\n    return super().changeform_view(request, object_id, form_url, context)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\kidsmap\\.venv\\Lib\\site-packages\\django\\utils\\decorators.py\", line 48, in _wrapper\n    return bound_method(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\kidsmap\\.venv\\Lib\\site-packages\\django\\utils\\decorators.py\", line 192, in _view_wrapper\n    result = _process_exception(request, e)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\kidsmap\\.venv\\Lib\\site-packages\\django\\utils\\decorators.py\", line 190, in _view_wrapper\n    response = view_func(request, *args, **kwargs)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\kidsmap\\.venv\\Lib\\site-packages\\django\\contrib\\admin\\options.py\", line 1798, in changeform_view\n    return self._changeform_view(request, object_id, form_url, extra_context)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\kidsmap\\.venv\\Lib\\site-packages\\django\\contrib\\admin\\options.py\", line 1873, in _changeform_view\n    form = ModelForm(instance=obj)\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\kidsmap\\src\\catalog\\domain_admin\\business.py\", line 75, in __init__\n    for name in ('category','subcategory'):self.fields[name].disabled=True\n                                           ^^^^^^^^^^^^^^^^^\n\nException Type: KeyError at /admin/catalog/activity/1/change/\nException Value: 'category'\n",
+        "visible": false,
+        "text": ""
+      }
+    ]
+  },
+  "program": {
+    "url": "http://localhost:8827/admin/catalog/program/1/change/",
+    "snap": "- navigation:\n  - button \"Навигация\"\n  - navigation \"Хлебные крошки\":\n    - list:\n      - listitem:\n        - link \"Главная\":\n          - /url: /admin/\n      - listitem:\n        - text: ›\n        - link \"Каталог\":\n          - /url: /admin/catalog/\n      - listitem:\n        - text: ›\n        - link \"Программы\":\n          - /url: /admin/catalog/program/\n      - listitem: › Program object (1)\n  - searchbox \"Поиск Постоянные Места...\"\n  - link \"Перейти на сайт\":\n    - /url: /\n  - button \"RU\"\n  - button \"qa11_admin\"\n- complementary:\n  - link \"KidsMap Logo\":\n    - /url: /admin/\n    - img \"KidsMap Logo\"\n  - link \"qa11_admin\":\n    - /url: /admin/auth/user/3/change/\n  - text: Администратор\n  - navigation \"Боковая панель\":\n    - list:\n      - listitem:\n        - link \"Панель управления\":\n          - /url: /admin/\n    - button \"Каталог\" [expanded]\n    - list:\n      - listitem:\n        - link \"Организации\":\n          - /url: /admin/catalog/organization/\n      - listitem:\n        - link \"Филиалы и места\":\n          - /url: /admin/catalog/place/?is_temporary__exact=0\n      - listitem:\n        - link \"Общие программы\":\n          - /url: /admin/catalog/program/\n      - listitem:\n        - link \"Занятия\":\n          - /url: /admin/catalog/activity/\n      - listitem:\n        - link \"Группы и тарифы\":\n          - /url: /admin/catalog/offeringgroup/\n      - listitem:\n        - link \"Сотрудники организаций\":\n          - /url: /admin/catalog/organizationgrant/\n      - listitem:\n        - link \"Постоянные места 21\":\n          - /url: /admin/catalog/place/?is_temporary__exact=0\n      - listitem:\n        - link \"Временные мероприятия 4\":\n          - /url: /admin/catalog/event/\n      - listitem:\n        - link \"Специалисты 5\":\n          - /url: /admin/catalog/specialist/\n      - listitem:\n        - link \"Отзывы\":\n          - /url: /admin/catalog/placereview/\n      - listitem:\n        - link \"Корзина 1\":\n          - /url: /admin/catalog/place/?deleted_state=deleted\n    - button \"Модерация\"\n    - button \"Справочники\"\n    - button \"Пользователи и доступ\"\n    - button \"Контент сайта\"\n    - button \"Аналитика\"\n    - button \"SEO Мониторинг\"\n    - button \"Система\"\n    - button \"Волонтёры\"\n    - button \"Сроки модерации\"\n- text: Программы\n- tablist:\n  - listitem:\n    - tab \"Состояние\" [selected]\n  - listitem:\n    - tab \"Организация и рубрика\"\n  - listitem:\n    - tab \"Названия\"\n  - listitem:\n    - tab \"Описание\"\n  - listitem:\n    - tab \"Основная информация\"\n- tabpanel \"Публикация Опубликовано Владение Владелец назначен Проверка данных Отдельный статус проверки не установлен\"\n- region \"Публикация\":\n  - heading \"Публикация\" [level=2]\n  - paragraph: Черновик и проверка не меняют публичные данные до одобрения.\n  - button \"Снять с публикации\"\n- link \" Закрыть\":\n  - /url: /admin/catalog/program/\n- link \"История\":\n  - /url: /admin/catalog/program/1/history/\n- contentinfo:\n  - text: Jazzmin Version 3.0.1\n  - strong: Авторские права © 2026 KidsMap.\n  - text: Все права защищены.",
+    "inputs": [
+      {
+        "name": "q",
+        "type": "search",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "action",
+        "type": "submit",
+        "value": "unpublish",
+        "visible": true,
+        "text": "Снять с публикации"
+      }
+    ]
+  },
+  "event": {
+    "url": "http://localhost:8827/admin/catalog/event/1/change/",
+    "snap": "аполненность\n- text: Готово 6 из 9 ключевых пунктов\n- main:\n  - navigation \"Шаги формы\":\n    - link \"01. Основное. Название события, категория, владелец и связанное место.\":\n      - /url: \"#basics\"\n      - text: \"01\"\n      - strong: Основное\n    - link \"02. Названия и описания. Тексты мероприятия на языках сайта. Минимум один качественный язык обязателен.\":\n      - /url: \"#copy\"\n      - text: \"02\"\n      - strong: Названия и описания\n    - link \"03. Дата и формат. Время проведения, возраст, цена и формат участия.\":\n      - /url: \"#schedule\"\n      - text: \"03\"\n      - strong: Дата и формат\n    - link \"04. Локация и контакты. Адрес, телефон, Instagram и комментарии для модерации.\":\n      - /url: \"#location\"\n      - text: \"04\"\n      - strong: Локация и контакты\n    - link \"05. Фото и публикация. Основное изображение, видимость на сайте и текущий статус публикации.\":\n      - /url: \"#media\"\n      - text: \"05\"\n      - strong: Фото и публикация\n  - text: \"01\"\n  - heading \"Основное\" [level=2]\n  - paragraph: Название события, категория, владелец и связанное место.\n  - text: Название *\n  - textbox \"Название *\": Fictional QA11 event\n  - text: Категория *\n  - combobox \"Образование\":\n    - textbox \"Образование\"\n  - link \"Добавить ещё один объект типа\":\n    - /url: /admin/catalog/category/add/?_to_field=code&_popup=1\n  - text: Начало мероприятия\n  - combobox \"qa11_owner\":\n    - textbox \"qa11_owner\"\n  - link \"Добавить ещё один объект типа\":\n    - /url: /admin/auth/user/add/?_to_field=id&_popup=1\n  - text: Главное фото\n  - combobox \"---------\":\n    - textbox \"---------\"\n  - link \"Добавить ещё один объект типа\":\n    - /url: /admin/catalog/place/add/?_to_field=id&_popup=1\n  - text: URL-слаг uydurma-qa11-tedbir Организация\n  - combobox \"---------\":\n    - textbox \"---------\"\n  - link \"Добавить ещё один объект типа\":\n    - /url: /admin/catalog/organization/add/?_to_field=id&_popup=1\n  - text: Специалист\n  - combobox \"---------\":\n    - textbox \"---------\"\n  - link \"Добавить ещё один объект типа\":\n    - /url: /admin/catalog/specialist/add/?_to_field=id&_popup=1\n  - text: Формат *\n  - combobox \"Онлайн\":\n    - textbox \"Онлайн\"\n  - text: \"02\"\n  - heading \"Названия и описания\" [level=2]\n  - paragraph: Тексты мероприятия на языках сайта. Минимум один качественный язык обязателен.\n  - button \"Азербайджанский (Основной)\"\n  - button \"Русский\"\n  - button \"English\"\n  - text: AZ Название (Азербайджанский)\n  - textbox \"AZ Название (Азербайджанский)\": Uydurma QA11 tədbir\n  - text: Описание (Азербайджанский)\n  - textbox \"Описание (Азербайджанский)\": Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir.\n  - text: \"03\"\n  - heading \"Дата и формат\" [level=2]\n  - paragraph: Время проведения, возраст, цена и формат участия.\n  - text: Начало мероприятия\n  - textbox \"Начало мероприятия\": 2026-10-16 13:20\n  - text: Дата и время старта. Без этого поле мероприятие нельзя опубликовать. Окончание мероприятия\n  - textbox \"Окончание мероприятия\": 2026-10-16 14:20\n  - text: Дата и время окончания. Используется для определения актуальности и завершения. Возраст (от — до)\n  - spinbutton \"Возраст от\"\n  - text: лет —\n  - spinbutton \"Возраст до\"\n  - text: лет Стоимость и условия\n  - textbox \"Стоимость и условия\"\n  - paragraph: Выберите начало и окончание — система покажет продолжительность.\n  - text: \"04\"\n  - heading \"Локация и контакты\" [level=2]\n  - paragraph: Адрес, телефон, Instagram и комментарии для модерации.\n  - heading \"Адрес и координаты\" [level=3]\n  - paragraph: Укажите адрес или выберите точку на карте. Координаты сохранятся вместе с мероприятием.\n  - text: \"Город / регион:\"\n  - combobox \"Выберите регион\":\n    - textbox \"Выберите регион\"\n  - text: \"Район города:\"\n  - combobox \"Rayon seçin\":\n    - textbox \"Rayon seçin\"\n  - text: \"Метро:\"\n  - combobox:\n    - textbox\n  - text: \"Адрес:\"\n  - textbox \"Адрес:\":\n    - /placeholder: Напр., ул. Низами 10, Баку\n  - button \"Рассчитать по адресу\"\n  - button \"Указать на карте\"\n  - button \"Моё местоположение\"\n  - text: \"Нет координат Телефон 1:\"\n  - textbox \"Телефон 1:\":\n    - /placeholder: Напр., +994 50 123 45 67\n  - text: \"Instagram:\"\n  - textbox \"Instagram:\":\n    - /placeholder: Напр., @kidsmap\n  - text: \"Сайт:\"\n  - textbox \"Сайт:\":\n    - /placeholder: Напр., https://example.com\n  - text: \"Комментарий для модерации:\"\n  - textbox \"Комментарий для модерации:\"\n  - text: \"05\"\n  - heading \"Фото и публикация\" [level=2]\n  - paragraph: Основное изображение, видимость на сайте и текущий статус публикации.\n  - paragraph: Публикуйте мероприятие только после проверки дат, описания и основной картинки.\n  - heading \"Главное фото\" [level=3]\n  - paragraph: Используется в афише мероприятий и на странице события.\n  - paragraph: Рекомендуется изображение не меньше 1200×1200 px. В афише оно показывается квадратным.\n  - strong: Добавить главное фото\n  - text: Перетащите изображение или выберите файл Превью показывает квадратный кроп для афиши.\n  - region \"Əlavə şəkillər\":\n    - heading \"Əlavə şəkillər\" [level=3]\n    - paragraph: Добавьте до 10 фотографий мероприятия. Их можно перетаскивать для изменения порядка.\n    - text: Загружено\n    - strong: 0 / 10\n    - paragraph: Дополнительные фото не добавлены\n    - paragraph: Сейчас загружено 0 из 10 фото\n    - button \"Добавить фото\"\n  - text: \"Статус модерации:\"\n  - combobox \"Опубликовано\":\n    - textbox \"Опубликовано\"\n  - text: \"Дата публикации:\"\n  - textbox \"Дата публикации:\": 2026-10-11T13:20\n  - group:\n    - text: \"Служебное Служебные статусы, причины отклонения и временные метки. Удалено Дата:\"\n    - paragraph:\n      - textbox \"Дата:\"\n      - button \"Сегодня\"\n      - text: \"|\"\n      - link \"\":\n        - /url: \"#\"\n      - text: \"Время:\"\n      - textbox \"Время:\"\n      - button \"Сейчас\"\n      - text: \"|\"\n      - link \"\":\n        - /url: \"#\"\n    - text: Created at 11 октября 2026 г. 13:20 Обновлено 11 октября 2026 г. 13:20\n  - button \"Сохранить и продолжить\"\n  - button \"Снять с публикации\"\n  - button \"Сохранить черновик\"\n- complementary:\n  - text: Сводка карточки\n  - paragraph: Fictional QA11 event\n  - text: Видимость Опубликовано Готовность Заявка уже обработана\n  - strong: 67%\n  - text: 6 / 9 Опубликовано Опубликовано\n  - term: Режим\n  - definition: Редактирование карточки\n  - term: Старт\n  - definition: 16.10.2026 13:20\n  - term: Завершение\n  - definition: 16.10.2026 14:20\n  - term: Владелец\n  - definition: qa11_owner\n  - group: ► Требования публикации\n  - group: ► Что ещё заполнить\n  - button \" Сохранить и продолжить\"\n  - button \" Сохранить черновик\"\n  - button \" Снять с публикации\"\n- contentinfo:\n  - text: Jazzmin Version 3.0.1\n  - strong: Авторские права © 2026 KidsMap.\n  - text: Все права защищены.",
+    "inputs": [
+      {
+        "name": "q",
+        "type": "search",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "name",
+        "type": "text",
+        "value": "Fictional QA11 event",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "category",
+        "type": "select-one",
+        "value": "EDU",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "owner",
+        "type": "select-one",
+        "value": "1",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "related_place",
+        "type": "select-one",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "organizer_organization",
+        "type": "select-one",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "organizer_specialist",
+        "type": "select-one",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "event_format",
+        "type": "select-one",
+        "value": "online",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "name_az",
+        "type": "text",
+        "value": "Uydurma QA11 tədbir",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "description_az",
+        "type": "textarea",
+        "value": "Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. Uydurma tədbir. ",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "name_ru",
+        "type": "text",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "description_ru",
+        "type": "textarea",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "name_en",
+        "type": "text",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "description_en",
+        "type": "textarea",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "start_datetime",
+        "type": "text",
+        "value": "2026-10-16 13:20",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "end_datetime",
+        "type": "text",
+        "value": "2026-10-16 14:20",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "age_from",
+        "type": "number",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "age_to",
+        "type": "number",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "price_text",
+        "type": "text",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "region",
+        "type": "select-one",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "district",
+        "type": "select-one",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "metro",
+        "type": "select-one",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "address",
+        "type": "text",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "lat",
+        "type": "number",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "lng",
+        "type": "number",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "phone",
+        "type": "text",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "instagram",
+        "type": "text",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "website",
+        "type": "url",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "moderation_note",
+        "type": "textarea",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "photo",
+        "type": "file",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "status",
+        "type": "select-one",
+        "value": "published",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "published_at",
+        "type": "datetime-local",
+        "value": "2026-10-11T13:20",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "rejection_reason",
+        "type": "textarea",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "deleted_at_0",
+        "type": "text",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "deleted_at_1",
+        "type": "text",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "_continue",
+        "type": "submit",
+        "value": "",
+        "visible": true,
+        "text": "Сохранить и продолжить"
+      },
+      {
+        "name": "_unpublish_event",
+        "type": "submit",
+        "value": "",
+        "visible": true,
+        "text": "Снять с публикации"
+      },
+      {
+        "name": "_save_draft",
+        "type": "submit",
+        "value": "",
+        "visible": true,
+        "text": "Сохранить черновик"
+      },
+      {
+        "name": "_continue",
+        "type": "submit",
+        "value": "",
+        "visible": true,
+        "text": "Сохранить и продолжить"
+      },
+      {
+        "name": "_save_draft",
+        "type": "submit",
+        "value": "",
+        "visible": true,
+        "text": "Сохранить черновик"
+      },
+      {
+        "name": "_unpublish_event",
+        "type": "submit",
+        "value": "",
+        "visible": true,
+        "text": "Снять с публикации"
+      }
+    ]
+  },
+  "specialist": {
+    "url": "http://localhost:8827/admin/catalog/specialist/1/change/",
+    "snap": " \"Возраст от:\"\n- spinbutton \"Возраст от:\"\n- text: \"Возраст до:\"\n- spinbutton \"Возраст до:\"\n- heading \"5. Языки работы\" [level=2]\n- text: Азербайджанский\n- checkbox \"Азербайджанский\"\n- text: Русский\n- checkbox \"Русский\"\n- text: Английский\n- checkbox \"Английский\"\n- heading \"6. Онлайн / очно\" [level=2]\n- text: \"Формат работы:\"\n- combobox \"Формат работы:\":\n  - option \"Только онлайн\"\n  - option \"Только очно\"\n  - option \"Онлайн и очно\" [selected]\n- heading \"7. Стоимость и продолжительность\" [level=2]\n- text: \"Стоимость от (AZN):\"\n- spinbutton \"Стоимость от (AZN):\"\n- text: \"Стоимость до (AZN):\"\n- spinbutton \"Стоимость до (AZN):\"\n- text: \"Продолжительность приема (минут):\"\n- spinbutton \"Продолжительность приема (минут):\"\n- heading \"8. Места работы и приёма\" [level=2]\n- group:\n  - heading \"+ Новый Место приёма\" [level=3]\n  - text: Детский центр (KidsMap)\n  - combobox:\n    - textbox\n  - link \"Добавить ещё один объект типа\":\n    - /url: /admin/catalog/place/add/?_to_field=id&_popup=1\n  - text: Собственный адрес/кабинет\n  - textbox\n  - text: Город / Регион\n  - combobox:\n    - option \"---------\" [selected]\n    - option \"Абшерон\"\n    - option \"Агдам\"\n    - option \"Агдаш\"\n    - option \"Агджабеди\"\n    - option \"Агстафа\"\n    - option \"Агсу\"\n    - option \"Астара\"\n    - option \"Бабек\"\n    - option \"Баку\"\n    - option \"Балакен\"\n    - option \"Барда\"\n    - option \"Бейлаган\"\n    - option \"Билясувар\"\n    - option \"Габала\"\n    - option \"Гаджикабул\"\n    - option \"Газах\"\n    - option \"Гах\"\n    - option \"Гедабек\"\n    - option \"Гобустан\"\n    - option \"Горанбой\"\n    - option \"Губа\"\n    - option \"Губадлы\"\n    - option \"Гусар\"\n    - option \"Гянджа\"\n    - option \"Гёйгёль\"\n    - option \"Гёйчай\"\n    - option \"Дашкесан\"\n    - option \"Джалилабад\"\n    - option \"Джебраил\"\n    - option \"Джульфа\"\n    - option \"Евлах\"\n    - option \"Загатала\"\n    - option \"Зангилан\"\n    - option \"Зардаб\"\n    - option \"Имишли\"\n    - option \"Исмаиллы\"\n    - option \"Кельбаджар\"\n    - option \"Кенгерли\"\n    - option \"Кюрдамир\"\n    - option \"Лачин\"\n    - option \"Ленкорань\"\n    - option \"Лерик\"\n    - option \"Масаллы\"\n    - option \"Мингячевир\"\n    - option \"Нафталан\"\n    - option \"Нахчыван\"\n    - option \"Нефтчала\"\n    - option \"Огуз\"\n    - option \"Ордубад\"\n    - option \"Саатлы\"\n    - option \"Сабирабад\"\n    - option \"Садарак\"\n    - option \"Сальян\"\n    - option \"Самух\"\n    - option \"Сиазань\"\n    - option \"Сумгаит\"\n    - option \"Тертер\"\n    - option \"Товуз\"\n    - option \"Уджар\"\n    - option \"Физули\"\n    - option \"Ханкенди\"\n    - option \"Хачмаз\"\n    - option \"Ходжавенд\"\n    - option \"Ходжалы\"\n    - option \"Хызы\"\n    - option \"Шабран\"\n    - option \"Шамахы\"\n    - option \"Шамкир\"\n    - option \"Шарур\"\n    - option \"Шахбуз\"\n    - option \"Шеки\"\n    - option \"Ширван\"\n    - option \"Шуша\"\n    - option \"Ярдымлы\"\n  - link \"Добавить ещё один объект типа\":\n    - /url: /admin/catalog/region/add/?_to_field=key&_popup=1\n  - text: Район\n  - combobox:\n    - option \"---------\" [selected]\n    - option \"Баку · Бинагадинский\"\n    - option \"Баку · Гарадагский\"\n    - option \"Баку · Наримановский\"\n    - option \"Баку · Насиминский\"\n    - option \"Баку · Низаминский\"\n    - option \"Баку · Пираллахинский\"\n    - option \"Баку · Сабаильский\"\n    - option \"Баку · Сабунчинский\"\n    - option \"Баку · Сураханский\"\n    - option \"Баку · Хазарский\"\n    - option \"Баку · Хатаинский\"\n    - option \"Баку · Ясамальский\"\n  - link \"Добавить ещё один объект типа\":\n    - /url: /admin/catalog/district/add/?_to_field=key&_popup=1\n  - text: Метро\n  - combobox:\n    - option \"---------\" [selected]\n    - option \"20 Yanvar\"\n    - option \"28 May\"\n    - option \"8 Noyabr\"\n    - option \"Avtovağzal\"\n    - option \"Azadlıq Prospekti\"\n    - option \"Bakmil\"\n    - option \"Cəfər Cabbarlı\"\n    - option \"Dərnəgül\"\n    - option \"Elmlər Akademiyası\"\n    - option \"Gənclik\"\n    - option \"Həzi Aslanov\"\n    - option \"Koroğlu\"\n    - option \"Memar Əcəmi\"\n    - option \"Memar Əcəmi-2\"\n    - option \"Neftçilər\"\n    - option \"Nizami\"\n    - option \"Nəriman Nərimanov\"\n    - option \"Nəsimi\"\n    - option \"Qara Qarayev\"\n    - option \"Sahil\"\n    - option \"Ulduz\"\n    - option \"Xalqlar Dostluğu\"\n    - option \"Xocəsən\"\n    - option \"İnşaatçılar\"\n    - option \"Şah İsmayıl Xətai\"\n    - option \"Əhmədli\"\n    - option \"Ичеришехер\"\n  - link \"Добавить ещё один объект типа\":\n    - /url: /admin/catalog/metrostation/add/?_to_field=key&_popup=1\n  - text: Широта\n  - spinbutton\n  - text: Долгота\n  - spinbutton\n  - text: Расписание (текст)\n  - textbox\n  - text: Стоимость приема (AZN)\n  - spinbutton\n  - text: Телефон для записи в филиале\n  - textbox\n  - text: Основной адрес\n  - checkbox\n  - text: Активен\n  - checkbox [checked]\n  - button \"Удалить\"\n  - button \"Добавить еще один Место приёма\"\n- heading \"9. Образование и опыт\" [level=2]\n- text: \"Стаж (лет):\"\n- spinbutton \"Стаж (лет):\"\n- text: \"Образование (AZ):\"\n- textbox \"Образование (AZ):\"\n- text: \"Образование (RU):\"\n- textbox \"Образование (RU):\"\n- text: \"Образование (EN):\"\n- textbox \"Образование (EN):\"\n- text: \"Опыт работы (AZ):\"\n- textbox \"Опыт работы (AZ):\"\n- text: \"Опыт работы (RU):\"\n- textbox \"Опыт работы (RU):\"\n- text: \"Опыт работы (EN):\"\n- textbox \"Опыт работы (EN):\"\n- heading \"10. Подтверждение квалификации\" [level=2]\n- group:\n  - table:\n    - rowgroup:\n      - row \"Тип документа Название / Описание документа Скачать Статус проверки Показывать в профиле (Разрешить публичный показ диплома/сертификата после прохождения проверки) Причина отклонения\":\n        - columnheader\n        - columnheader \"Тип документа\"\n        - columnheader \"Название / Описание документа\"\n        - columnheader \"Скачать\"\n        - columnheader \"Статус проверки\"\n        - columnheader \"Показывать в профиле (Разрешить публичный показ диплома/сертификата после прохождения проверки)\":\n          - text: Показывать в профиле\n          - img \"(Разрешить публичный показ диплома/сертификата после прохождения проверки)\"\n        - columnheader \"Причина отклонения\"\n    - rowgroup\n- heading \"11. Контакты\" [level=2]\n- text: \"Телефон:\"\n- textbox \"Телефон для записи в филиале Телефон для записи в филиале Телефон:\"\n- text: \"WhatsApp:\"\n- textbox \"WhatsApp:\"\n- text: \"Instagram:\"\n- textbox \"Instagram:\"\n- text: \"Сайт:\"\n- textbox \"Сайт:\"\n- heading \"12. Модерация и публикация\" [level=2]\n- text: \"Статус модерации:\"\n- combobox \"Статус модерации:\":\n  - option \"Черновик\"\n  - option \"На модерации\"\n  - option \"Опубликовано\" [selected]\n  - option \"Отклонено\"\n- text: Активен\n- checkbox \"Активен Активен Активен\" [checked]\n- text: \"Причина отклонения:\"\n- textbox \"Причина отклонения:\"\n- text: \"Средний рейтинг: 0,0 Количество отзывов: 0 Created at: 11 октября 2026 г. 13:20 Updated at: 11 октября 2026 г. 13:20\"\n- status: \"Сохранено на сервере: 11 октября 2026 г. 13:20\"\n- button \" Сохранить\"\n- link \" Удалил\":\n  - /url: /admin/catalog/specialist/1/delete/\n- button \"+ Сохранить и добавить другой\"\n- button \" Сохранить и продолжить\"\n- contentinfo:\n  - text: Jazzmin Version 3.0.1\n  - strong: Авторские права © 2026 KidsMap.\n  - text: Все права защищены.",
+    "inputs": [
+      {
+        "name": "q",
+        "type": "search",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "name",
+        "type": "text",
+        "value": "Fictional QA11 specialist",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "name_alt",
+        "type": "text",
+        "value": "Uydurma QA11 mütəxəssis",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "slug",
+        "type": "text",
+        "value": "fictional-qa11-specialist",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "photo",
+        "type": "file",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "bio_az",
+        "type": "textarea",
+        "value": "Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. Uydurma mütəxəssis. ",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "bio_ru",
+        "type": "textarea",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "bio_en",
+        "type": "textarea",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "7",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "3",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "2",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "8",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "1",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "5",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "6",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "4",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "9",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "10",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "11",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "12",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "13",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "14",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "15",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "16",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "17",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "18",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "19",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "20",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "21",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "22",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "23",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "24",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "25",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "26",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "27",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "28",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "specializations",
+        "type": "checkbox",
+        "value": "29",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "age_from",
+        "type": "number",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "age_to",
+        "type": "number",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "language_az",
+        "type": "checkbox",
+        "value": "on",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "language_ru",
+        "type": "checkbox",
+        "value": "on",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "language_en",
+        "type": "checkbox",
+        "value": "on",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "consultation_format",
+        "type": "select-one",
+        "value": "both",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "price_from",
+        "type": "number",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "price_to",
+        "type": "number",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "duration_minutes",
+        "type": "number",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-0-place",
+        "type": "select-one",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-0-address",
+        "type": "text",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-0-region",
+        "type": "select-one",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-0-district",
+        "type": "select-one",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-0-metro",
+        "type": "select-one",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-0-lat",
+        "type": "number",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-0-lng",
+        "type": "number",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-0-schedule",
+        "type": "textarea",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-0-price_per_session",
+        "type": "number",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-0-phone",
+        "type": "text",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-0-is_primary",
+        "type": "checkbox",
+        "value": "on",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-0-is_active",
+        "type": "checkbox",
+        "value": "on",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-__prefix__-place",
+        "type": "select-one",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-__prefix__-address",
+        "type": "text",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-__prefix__-region",
+        "type": "select-one",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-__prefix__-district",
+        "type": "select-one",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-__prefix__-metro",
+        "type": "select-one",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-__prefix__-lat",
+        "type": "number",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-__prefix__-lng",
+        "type": "number",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-__prefix__-schedule",
+        "type": "textarea",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-__prefix__-price_per_session",
+        "type": "number",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-__prefix__-phone",
+        "type": "text",
+        "value": "",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-__prefix__-is_primary",
+        "type": "checkbox",
+        "value": "on",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "practice_locations-__prefix__-is_active",
+        "type": "checkbox",
+        "value": "on",
+        "visible": false,
+        "text": ""
+      },
+      {
+        "name": "experience_years",
+        "type": "number",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "education_az",
+        "type": "textarea",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "education_ru",
+        "type": "textarea",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "education_en",
+        "type": "textarea",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "experience_info_az",
+        "type": "textarea",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "experience_info_ru",
+        "type": "textarea",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "experience_info_en",
+        "type": "textarea",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "phone",
+        "type": "text",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "whatsapp",
+        "type": "text",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "instagram",
+        "type": "text",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "website",
+        "type": "url",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "status",
+        "type": "select-one",
+        "value": "published",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "is_active",
+        "type": "checkbox",
+        "value": "on",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "rejection_reason",
+        "type": "textarea",
+        "value": "",
+        "visible": true,
+        "text": ""
+      },
+      {
+        "name": "_save",
+        "type": "submit",
+        "value": "",
+        "visible": true,
+        "text": "Сохранить"
+      },
+      {
+        "name": "_addanother",
+        "type": "submit",
+        "value": "",
+        "visible": true,
+        "text": "Сохранить и добавить другой"
+      },
+      {
+        "name": "_continue",
+        "type": "submit",
+        "value": "",
+        "visible": true,
+        "text": "Сохранить и продолжить"
+      }
+    ]
+  },
+  "list": {
+    "snap": "- navigation:\n  - button \"Навигация\"\n  - navigation \"Хлебные крошки\":\n    - list \"Навигация\":\n      - listitem:\n        - link \"Главная\":\n          - /url: /admin/\n      - listitem:\n        - text: ›\n        - link \"Каталог\":\n          - /url: /admin/catalog/\n      - listitem: › Постоянные места\n  - searchbox \"Поиск Постоянные Места...\"\n  - link \"Перейти на сайт\":\n    - /url: /\n  - button \"RU\"\n  - button \"qa11_admin\"\n- complementary:\n  - link \"KidsMap Logo\":\n    - /url: /admin/\n    - img \"KidsMap Logo\"\n  - link \"qa11_admin\":\n    - /url: /admin/auth/user/3/change/\n  - text: Администратор\n  - navigation \"Боковая панель\":\n    - list:\n      - listitem:\n        - link \"Панель управления\":\n          - /url: /admin/\n    - button \"Каталог\"\n    - button \"Модерация\"\n    - button \"Справочники\"\n    - button \"Пользователи и доступ\"\n    - button \"Контент сайта\"\n    - button \"Аналитика\"\n    - button \"SEO Мониторинг\"\n    - button \"Система\"\n    - button \"Волонтёры\"\n    - button \"Сроки модерации\"\n- heading \"Постоянные места\" [level=1]\n- paragraph: Публикация, качество данных и координаты — 21 карточки\n- link \"Отчёт качества\":\n  - /url: /admin/catalog/place/quality-report/\n- link \"Добавить место\":\n  - /url: /admin/catalog/place/add/?_changelist_filters=id__exact%3D1\n- group: Рекомендуемые места на главной 0 из 4 · порядок сохраняется автоматически Настроить\n- region:\n  - link \"Все карточки 21\":\n    - /url: \"?id__exact=1\"\n  - link \"Опубликованы 16\":\n    - /url: \"?id__exact=1&deleted_state=active&is_active__exact=1&status__exact=published\"\n  - link \"Черновики 1\":\n    - /url: \"?id__exact=1&status__exact=draft\"\n  - link \"На модерации 1\":\n    - /url: \"?id__exact=1&status__exact=pending\"\n  - link \"Без координат 0\":\n    - /url: \"?id__exact=1&coordinates_status=no\"\n  - link \"В удалённых 1\":\n    - /url: \"?id__exact=1&deleted_state=deleted\"\n  - group: Ещё\n  - text: Вкладки — единственный фильтр по статусу\n  - search:\n    - textbox \"Поиск\":\n      - /placeholder: Название AZ/RU/EN, адрес, телефон, владелец\n    - button \"Фильтры\"\n    - group:\n      - 'button \"Сортировка: Обновлено (новые)\"'\n    - group: Колонки\n- paragraph:\n  - button \"Подключить к организации\"\n- table:\n  - rowgroup:\n    - 'row \"Выбрать все объекты на этой странице, чтобы применить к ним действие Место Локация Состояние Метки Обновлено / Создано Обновлено: новые Действия\"':\n      - columnheader \"Выбрать все объекты на этой странице, чтобы применить к ним действие\":\n        - checkbox \"Выбрать все объекты на этой странице, чтобы применить к ним действие\"\n      - columnheader \"Место\":\n        - link \"Место\":\n          - /url: \"?id__exact=1&sort=name_asc\"\n      - columnheader \"Локация\"\n      - columnheader \"Состояние\"\n      - columnheader \"Метки\"\n      - 'columnheader \"Обновлено / Создано Обновлено: новые\"':\n        - 'link \"Обновлено / Создано Обновлено: новые\"':\n          - /url: \"?id__exact=1&sort=updated_asc\"\n      - columnheader \"Действия\"\n  - rowgroup:\n    - 'row \"Выбрать этот объект, чтобы применить к нему действие - Вымышленное QA11 live Вымышленное QA11 live ID 1 · Образование · Subcategory EDU Баку город, Nizami küçəsi 10 Баку, Ясамальский район Опубликовано 100% Отзывов: 0 Рейтинг: — 11.10 13:20 Fictional QA11 owner · создано Создано: 11.10.2026\"':\n      - cell \"Выбрать этот объект, чтобы применить к нему действие - Вымышленное QA11 live\":\n        - checkbox \"Выбрать этот объект, чтобы применить к нему действие - Вымышленное QA11 live\"\n      - rowheader \"Вымышленное QA11 live ID 1 · Образование · Subcategory EDU\":\n        - link:\n          - /url: /admin/catalog/place/1/change/?_changelist_filters=id__exact%3D1\n        - link:\n          - /url: /admin/catalog/place/1/change/?_changelist_filters=id__exact%3D1\n        - link:\n          - /url: /admin/catalog/place/1/change/?_changelist_filters=id__exact%3D1\n        - link \"Вымышленное QA11 live\":\n          - /url: /admin/catalog/place/1/change/\n        - text: ID 1 ·\n        - link \"Образование\":\n          - /url: \"?id__exact=1&category__id__exact=EDU\"\n        - text: ·\n        - link \"Subcategory EDU\":\n          - /url: \"?id__exact=1&subcategory__id__exact=105\"\n      - cell \"Баку город, Nizami küçəsi 10 Баку, Ясамальский район\"\n      - cell \"Опубликовано 100%\":\n        - link \"Опубликовано\":\n          - /url: \"?id__exact=1&deleted_state=active&is_active__exact=1&status__exact=published\"\n        - button \"100%\"\n      - 'cell \"Отзывов: 0 Рейтинг: —\"': 0 —\n      - 'cell \"11.10 13:20 Fictional QA11 owner · создано Создано: 11.10.2026\"':\n        - text: 11.10 13:20\n        - link \"Fictional QA11 owner\":\n          - /url: \"?id__exact=1&created_by=1\"\n        - text: \"· создано Создано: 11.10.2026\"\n      - cell:\n        - link \"Редактировать\":\n          - /url: /admin/catalog/place/1/change/\n        - link \"Просмотр на сайте\":\n          - /url: /ru/place/1-vymyshlennoe-qa11-live/\n        - button \"Ещё действия\"\n- text: 1–1 из 1 1 / 1",
+    "controls": [
+      {
+        "name": "q",
+        "type": "search",
+        "visible": true,
+        "value": "",
+        "text": ""
+      },
+      {
+        "name": "q",
+        "type": "text",
+        "visible": true,
+        "value": "",
+        "text": ""
+      },
+      {
+        "name": "connection_selection",
+        "type": "submit",
+        "visible": true,
+        "value": "1",
+        "text": "Подключить к организации"
+      },
+      {
+        "name": "action",
+        "type": "select-one",
+        "visible": false,
+        "value": "",
+        "text": ""
+      },
+      {
+        "name": "index",
+        "type": "submit",
+        "visible": false,
+        "value": "0",
+        "text": "Выполнить"
+      },
+      {
+        "name": "_selected_action",
+        "type": "checkbox",
+        "visible": true,
+        "value": "1",
+        "text": ""
+      }
+    ]
+  },
+  "qa_redactions": {
+    "debug_settings_snapshots": 1
+  }
+}

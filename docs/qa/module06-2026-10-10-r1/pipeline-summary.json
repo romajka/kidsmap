@@ -1,0 +1,42 @@
+[
+  {
+    "script": "tail.js",
+    "native_exit": 0,
+    "rows": 84,
+    "statuses": {
+      "PASS": 84
+    }
+  },
+  {
+    "script": "public-native.js",
+    "native_exit": 0,
+    "harness_result_error": "Expecting value: line 1 column 1 (char 0)"
+  },
+  {
+    "script": "map-geometry.js",
+    "native_exit": 0,
+    "rows": 36,
+    "statuses": {
+      "PASS": 12,
+      "FAIL": 24
+    }
+  },
+  {
+    "script": "admin-functional.js",
+    "native_exit": 0,
+    "rows": 26,
+    "statuses": {
+      "PASS": 21,
+      "FAIL": 4,
+      "NOT RUN": 1
+    }
+  },
+  {
+    "script": "event-native.js",
+    "native_exit": 0,
+    "rows": 5,
+    "statuses": {
+      "PASS": 5
+    }
+  }
+]

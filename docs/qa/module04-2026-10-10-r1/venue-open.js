@@ -1,0 +1,1 @@
+async p=>{await p.goto('http://localhost:8815/ru/account/places/events/3/edit/');await p.locator('[data-owner-step-target="1"]:visible').click();return {selected:await p.locator('[name=related_place]').inputValue(),url:p.url()};}

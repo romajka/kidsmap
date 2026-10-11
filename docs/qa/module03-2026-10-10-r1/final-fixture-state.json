@@ -1,0 +1,46 @@
+{
+  "specialists_count": 3,
+  "documents_count": 7,
+  "proposal_drafts_count": 42,
+  "specialist_status_counts": [
+    {
+      "status": "draft",
+      "count": 1
+    },
+    {
+      "status": "published",
+      "count": 1
+    },
+    {
+      "status": "pending",
+      "count": 1
+    }
+  ],
+  "document_status_counts": [
+    {
+      "status": "pending",
+      "count": 3
+    },
+    {
+      "status": "approved",
+      "count": 4
+    }
+  ],
+  "profile1": {
+    "published": true,
+    "verified_person_is_different_from_author": true,
+    "experience_is_zero": true,
+    "photo_file_exists": true,
+    "bio_az_present": false,
+    "bio_ru_present": true,
+    "bio_en_present": false
+  },
+  "corrupt_document7": {
+    "status": "pending",
+    "size": 9,
+    "private_file_exists": true
+  },
+  "review_permission_after_ui_role_change": false,
+  "only_synthetic_data": true,
+  "mutations": "NONE; read-only aggregate observation"
+}

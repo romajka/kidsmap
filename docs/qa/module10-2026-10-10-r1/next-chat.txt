@@ -1,0 +1,36 @@
+Продолжаем KidsMap. Выполни только один модуль: 11 «SEO, языковые URL и redirects». 01–10 завершены FAIL с указанными NOT RUN; 13 последним. Прочитай журнал docs/qa/module-acceptance-prompts.md и docs/qa/module10-2026-10-10-r1/REPORT.md. QA10 HEAD 8d188b316f800fbedf0b1e376905dfd4924cb1b6, branch task33-progress, active_run NONE. Во время10 чужой WORKTREE изменился:16 modified source +4 new tests, сохранены. Финальная current source2788 digest e13c36f2af3aca03513ff860a1dee7c02a8cb2ab8214c89bcffd7dd5fe5914b1; см. SOURCE-DRIFT.md. Данные/доказательства QA10 — исторический checklist, не свежая проверка11.
+
+Сохрани чужие docs/изменения/active_run/стенды. QA10 own stand localhost8823 PID40936, DEBUGFalse8824 PID17432, PG55441/container kidsmap-module10-20261010-r1/volume09a95b93e1bef30fc385c0203f058ba2befadefe23261f72b5c24ffbc2512568, дополнительные own current8825 PID40836 / DEBUGFalse8826 PID40732, browser module10-r1 оставлены для review. Эти PID/порты на другом ПК не считать доступными. Для11 создай новый isolated stand. Не исправляй findings; отдельные prompts docs/qa/module10-2026-10-10-r1/FINDINGS.md.
+
+Работай в корне репозитория KidsMap. На исходном ПК это /home/ramin/kidsmap; на другом ПК сначала определи фактический путь checkout. Прочитай AGENTS.md, канонические инструкции .agents и docs/qa/content-entry-audit-2026-10-06.md. Исторические отчёты используй только как чек-лист для свежей проверки.
+
+Зафиксируй HEAD, branch, dirty WORKTREE, active_run и фактическую версию работающего стенда. Подтверди соответствие запущенных исходников WORKTREE. Сохрани чужие изменения, чужой active_run и чужие стенды. Недостающие документы явно перечисли; не подменяй их догадками.
+
+Режим AUDIT ONLY: приложение, правила, миграции и существующие assertions не исправляй. Разрешены собственные QA-скрипты, изолированные фикстуры и новый отчёт. Только DJANGO_TESTING=1, отдельные DB/cache/media/private-media/email, вымышленные данные; без production credentials, внешних интеграций, commit/push/deploy. На другом ПК создай новый изолированный стенд; локальные адреса, PID, volumes и сессии исходного ПК не считаются доступными.
+
+Проведи локальную функциональную и визуальную приёмку URL, redirects и SEO.
+
+Прочитай актуальную SEO source-map. Не отправляй IndexNow/Search Console запросы. SEO-команды сначала проверь на побочные записи.
+
+Проверь:
+1. URL мест/организаций/специалистов/мероприятий/занятий/реальных SEO landing pages.
+2. Старый URL, неверный slug, rename и несколько rename: конечную сущность, HTTP status, число redirects, отсутствие loop, допустимые params.
+3. AZ/RU/EN/default-language redirects, canonical/hreflang/language switch.
+4. title/description/headings/Open Graph/images и preview без обращения к внешним ботам.
+5. robots/sitemap/structured data по фактической public visibility.
+6. Draft/pending/rejected/inactive/archived и disabled sections: отсутствие приватных данных в sitemap/HTML/JSON-LD/metadata.
+7. Pagination/filter/empty/direct URL и действующий indexability contract.
+8. Ссылки между сетью/филиалом/занятием/специалистом/событием после изменения/отвязки.
+9. Escaping пользовательского текста в metadata/JSON-LD.
+
+Не предполага́й наличие новостей/статей: найди реальные routes/models. Если модуль есть, включи его rename/redirect/SEO; иначе явно укажи отсутствие в текущем коде.
+
+HTTP/head/schema проверь отдельно от visual browser: заголовки/breadcrumbs/links/страница после redirect. Локальную корректность не называй подтверждённой индексацией поисковиком. Префикс SEO-QA-xx.
+
+Реальный браузер: RU/AZ/EN × 360/390/768/1024/1280/1440. Проверь применимые пустые, заполненные, loading/error/conflict состояния, длинные тексты, открытые селекты/модалки, Tab/Shift+Tab/Enter/Space/Escape, видимый фокус, перекрытия/обрезку/overflow и console/network. Сохрани свежие скриншоты PC/mobile, включая ошибки. Source inspection, jsdom и HTTP 200 не заменяют rendered browser и сохранение/reload.
+
+Сохрани новый отчёт и evidence в docs/qa с уникальным module/date/run именем, без secrets и приватных данных. Верни PASS/FAIL/NOT RUN по сценарию/роли/языку/ширине, snapshot, точные команды, counts/exit codes и ссылки на доказательства. Отдели regression, pre-existing baseline failure, environment failure и SIMULATED integrations. Недоступные проверки и ограничения явно оставь NOT RUN; по возможности продолжи независимые проверки.
+
+Каждый подтверждённый дефект оформи отдельно: ID указанного префикса, роль, URL/endpoint, шаги, ожидание, факт, доказательство, первопричина или неподтверждённая гипотеза, P0–P3 с обоснованием, область исправления и зависимости. Дай самостоятельный копируемый промпт на исправление каждого дефекта. Не исправляй автоматически и не выдумывай findings. Вывод «всё работает» допустим только в пределах реально выполненных сценариев.
+
+После приёмки11 сохрани свежий отчёт/evidence/screenshots, измени только row11 и подготовь handoff12. No commit/push/deploy/production.

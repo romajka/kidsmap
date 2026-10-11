@@ -1,0 +1,40 @@
+Found 76 test(s).
+System check identified no issues (0 silenced).
+{
+  "processed": 1,
+  "created": 1,
+  "skipped": 0,
+  "conflicts": 0,
+  "ambiguous": []
+}
+{
+  "processed": 1,
+  "created": 0,
+  "skipped": 1,
+  "conflicts": 0,
+  "ambiguous": []
+}
+Creating test database for alias 'default'...
+
+......................Draft save unavailable
+Traceback (most recent call last):
+  File "C:\kidsmap\src\catalog\controllers\server_draft_api.py", line 39, in draft_collection
+    draft=service.save(user=request.user,data=data)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\kidsmap\scratch\task33-prepare-20261002\python\cpython-3.12.15-windows-x86_64-none\Lib\unittest\mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\kidsmap\scratch\task33-prepare-20261002\python\cpython-3.12.15-windows-x86_64-none\Lib\unittest\mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\kidsmap\scratch\task33-prepare-20261002\python\cpython-3.12.15-windows-x86_64-none\Lib\unittest\mock.py", line 1198, in _execute_mock_call
+    raise effect
+OSError: synthetic storage unavailable
+............Image upload rejected: {'name': 'bad.jpg', 'size': 7, 'mime': 'image/jpeg'}; reason=«bad.jpg» oxumaq mümkün olmadı: fayl zədələnib və ya dəstəklənməyən şəkildir.
+..........................................
+----------------------------------------------------------------------
+Ran 76 tests in 19.711s
+
+OK
+Destroying test database for alias 'default'...
+
