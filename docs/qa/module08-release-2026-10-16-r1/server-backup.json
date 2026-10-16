@@ -1,0 +1,33 @@
+{
+  "path": "/opt/kidsmap-release-backups/module08-20261016-r1",
+  "database_format": "custom",
+  "pg_restore_list_exit": 0,
+  "toc_lines": 1201,
+  "gzip_integrity": true,
+  "restore_drill": "NOT RUN: production records not imported into local QA",
+  "schema_change_expected": false,
+  "rollback": "restore previous image+static; preserve current same-schema DB/media/private; DB dump retained for disaster recovery",
+  "files": {
+    "static.tar.gz": {
+      "bytes": 61849891,
+      "sha256": "8e61ca4fa9bef6d8c516f4116e53709077bf1b0f77a3b6af63724a1b7bc1c9f4",
+      "mode": "0o600"
+    },
+    "media.tar.gz": {
+      "bytes": 250539097,
+      "sha256": "dfbd1d1f9bf3b5acd5af285cc90b04542867783c106a1e6da351a9e71dac6b97",
+      "mode": "0o600"
+    },
+    "database.dump": {
+      "bytes": 1395842,
+      "sha256": "3d3fe984d76061f23c3f2102f31830d1041343e6688ac574be44961235a3c90b",
+      "mode": "0o600"
+    },
+    "private.tar.gz": {
+      "bytes": 124,
+      "sha256": "e16ead9ba059480a887af03f00b1c8b945630fdcd8e17ac91aa5c4466af21c8e",
+      "mode": "0o600"
+    }
+  },
+  "old_image": "sha256:e02868b8dbe837425330743a2fc987a2957f3787fd7430a988f75cdc71c1e376"
+}
