@@ -1,0 +1,8 @@
+{% load i18n %}
+{% for plan in plans %}<article class="km-inspection-tariff">
+  <h3>{{ plan.title }}</h3>
+  {% include 'admin/catalog/placeownershiprequest/preview_fields.html' with rows=plan.rows only %}
+  <details data-preview-details><summary>{% translate 'Все условия тарифа' %}</summary>
+    {% include 'admin/catalog/placeownershiprequest/preview_fields.html' with rows=plan.details translations=plan.translations only %}
+  </details>
+</article>{% empty %}<p class="km-inspection-empty">{% translate 'Тарифы не добавлены' %}</p>{% endfor %}

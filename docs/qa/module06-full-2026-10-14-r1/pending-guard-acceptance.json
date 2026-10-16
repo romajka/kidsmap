@@ -1,0 +1,19 @@
+{
+  "rows": [
+    {
+      "id": "pending-candidate-rejects-unpublish-preserves-live",
+      "role": "admin/public",
+      "lang": "ru",
+      "width": 1440,
+      "status": "PASS",
+      "evidence": [
+        "unpublish-probe.result.json",
+        "unpublish-state-readback.command.json",
+        "unpublish-state-readback.txt"
+      ],
+      "native_POST": true,
+      "readonly_confirmation": true,
+      "classification": "existing intentional candidate/live guard; earlier expectation of immediate edit/unpublish was QA_WRONG_CONTRACT"
+    }
+  ]
+}

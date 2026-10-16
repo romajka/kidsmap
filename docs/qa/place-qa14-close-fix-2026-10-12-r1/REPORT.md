@@ -1,0 +1,11 @@
+# PLACE-QA-14 close/focus repair — LOCAL ACCEPTED — 2026-10-12 r1
+
+Approved [concrete extension](../../superpowers/plans/2026-10-12-place-qa14-close-race.md), user 2026-10-12; implementation LOCAL only. Actual checkout /home/ramin/kidsmap, task33-progress, HEAD e4e05cc213b34e2d771ecb854901bfd016d1db51, dirty prior work preserved, active_run NONE.
+
+Cause: old220ms close callback restored a shared trigger after another visible modal opened. Initial focus also attempted while inherited visibility was hidden. Fix only notifications.js close/show/shared initial focus plus existing approved unsaved/filter bounds: per-instance trigger/generation, guarded restore, cancellable visibility-aware focus. Callback behavior/animation/textContent/business/ACL/CAS unchanged. No CSS/PO/backend/schema changes.
+
+RED closing race exit1 retained; final7 semantic regressions PASS exit0, affected JS52PASS/1SKIP. Native unsaved90, rapid12, actual shared confirm/show/alertdialog72, save/error/CAS9 PASS. Complete module acceptance943 assertions,540 PNG; authoritative count/manifests in [full LOCAL acceptance](../module01-full-2026-10-12-r6/REPORT.md). Backend470 retained by unchanged569 Python hashes, not rerun. All raw failures and QA harness corrections described in that report; earlier QA14 partial/r5 reports remain historical.
+
+Own runtime127.0.0.1:35119 PID780409/DBqa14close_20261012_r1, owned PG explicit loopback52523; isolated cache/media/private-media/email/cookies and fresh single RU/AZ/EN locale root. runtime-final.json/served-js-source-match.json prove current loaded source and asset match. preservation.json proves seven old stands/container/HEAD/branch/active_run/report/MO preservation. screenshots-manifest.json contains actual540 PNG hashes. Credentials literal scan0 hits, scoped to owned ignored credential values, not a universal secret audit.
+
+QA14 CLOSED only for accepted focus cause. External providers/GPS/engines/screenreader/global corpus/production/commit/push/deploy NOT RUN. Exported literal kmAlert has no actual UI caller; actual consumers and alertdialog role covered. Existing generic shared RU copy belongs to separate localization backlog. Review notifications-worktree.diff and scripts/test_admin_modal_keyboard.cjs; complete native/evidence/tests/risks/handoff are linked above. Next module remains separate PLAN/approval scope.

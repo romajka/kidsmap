@@ -1,0 +1,32 @@
+[
+  {
+    "script": "branch.js",
+    "result": "branch.result.json",
+    "reason": "TimeoutError: locator.selectOption: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-tariff-key=price_kind]')\u001b[22m\n\u001b[2m    - locator resolved to <select hidden=\"\" required=\"\" class=\"field\" data-tariff-key=\"price_kind\">…</select>\u001b[22m\n\u001b[2m  - attempting select option action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying select option action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying select option action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    24 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying select option action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n"
+  },
+  {
+    "script": "gallery-payment-schedule.js",
+    "result": "gallery-payment-schedule.result.attempt1791785912.json",
+    "reason": "own oracle wrong error container; visible row error independently verified gallery-corpus"
+  },
+  {
+    "script": "recovery.js",
+    "result": "recovery.result.attempt1791786027.json",
+    "reason": "own409/canonical oracle;422 AS-IS and third fresh context current candidate independently verified conflict-recovery"
+  },
+  {
+    "script": "recovery.js",
+    "result": "recovery.result.attempt1791786027.json",
+    "reason": "own409/canonical oracle;422 AS-IS and third fresh context current candidate independently verified conflict-recovery"
+  },
+  {
+    "script": "coordinate-corpus.js",
+    "result": "coordinate-corpus.result.json",
+    "reason": "Error: locator.fill: Error: Cannot type text into input[type=number]\nCall log:\n\u001b[2m  - waiting for locator('[name=lat]')\u001b[22m\n\u001b[2m    - locator resolved to <input name=\"lat\" step=\"any\" id=\"id_lat\" type=\"number\" data-map-coordinate=\"lat\" aria-describedby=\"id_lat_errors id_lat_client_error\"/>\u001b[22m\n\u001b[2m    - fill(\"invalid\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and editable\u001b[22m\n"
+  },
+  {
+    "script": "admin-save-diagnostic.js",
+    "result": "admin-save-diagnostic.result.json",
+    "reason": "own CLI/parser error"
+  }
+]

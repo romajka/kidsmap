@@ -1,0 +1,99 @@
+Creating test database for alias 'default'...
+/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /home/ramin/kidsmap/.tmp/ownership-preview-fix-2026-10-14/staticfiles/
+  mw_instance = middleware(adapted_handler)
+FFFFF.FFFFFF
+======================================================================
+FAIL: test_claim_does_not_display_an_unsubmitted_content_draft (catalog.testcases.test_ownership_admin_preview.OwnershipAdminPreviewTests.test_claim_does_not_display_an_unsubmitted_content_draft)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_admin_preview.py", line 116, in test_claim_does_not_display_an_unsubmitted_content_draft
+    self.assertNotContains(response, 'Несохранённая для проверки версия')
+AssertionError: 302 != 200 : Couldn't retrieve content: Response code was 302 (expected 200)
+
+======================================================================
+FAIL: test_explicit_empty_candidate_tree_is_not_replaced_by_live_groups (catalog.testcases.test_ownership_admin_preview.OwnershipAdminPreviewTests.test_explicit_empty_candidate_tree_is_not_replaced_by_live_groups)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_admin_preview.py", line 101, in test_explicit_empty_candidate_tree_is_not_replaced_by_live_groups
+    self.assertEqual(response.status_code, 200)
+AssertionError: 302 != 200
+
+======================================================================
+FAIL: test_get_is_read_only_even_in_a_postgres_read_only_transaction (catalog.testcases.test_ownership_admin_preview.OwnershipAdminPreviewTests.test_get_is_read_only_even_in_a_postgres_read_only_transaction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_admin_preview.py", line 66, in test_get_is_read_only_even_in_a_postgres_read_only_transaction
+    self.assertEqual(response.status_code, 200)
+AssertionError: 302 != 200
+
+======================================================================
+FAIL: test_list_preview_link_does_not_use_the_public_page (catalog.testcases.test_ownership_admin_preview.OwnershipAdminPreviewTests.test_list_preview_link_does_not_use_the_public_page)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_admin_preview.py", line 56, in test_list_preview_link_does_not_use_the_public_page
+    self.assertIn(self.url, str(html))
+AssertionError: '/admin/catalog/placeownershiprequest/4/preview/' not found in '<div class="km-col-actions"><a href="/admin/catalog_moderation/moderationplaceownershiprequest/4/approve/?next=/admin/catalog/placeownershiprequest/" class="km-action-icon-btn km-action-icon-btn--approve" title="Qəbul et"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check"></use></svg></a><a href="/admin/catalog_moderation/moderationplaceownershiprequest/4/reject/?next=/admin/catalog/placeownershiprequest/" class="km-action-icon-btn km-action-icon-btn--reject" title="Rədd et"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-close"></use></svg></a><a href="/admin/catalog/placeownershiprequest/4/change/" class="km-action-icon-btn" title="Открыть заявку"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-edit"></use></svg></a><a href="/place/4-keyfiyyetli-usaq-derneyi/" target="_blank" class="km-action-icon-btn" title="Посмотреть кружок на сайте"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-open_in_new"></use></svg></a></div>'
+
+======================================================================
+FAIL: test_object_and_model_permissions_are_required (catalog.testcases.test_ownership_admin_preview.OwnershipAdminPreviewTests.test_object_and_model_permissions_are_required)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_admin_preview.py", line 123, in test_object_and_model_permissions_are_required
+    self.assertEqual(self.client.get(self.url).status_code, 403)
+AssertionError: 302 != 403
+
+======================================================================
+FAIL: test_pending_candidate_and_all_unchanged_sections_are_shown (catalog.testcases.test_ownership_admin_preview.OwnershipAdminPreviewTests.test_pending_candidate_and_all_unchanged_sections_are_shown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_admin_preview.py", line 87, in test_pending_candidate_and_all_unchanged_sections_are_shown
+    self.assertContains(response, 'Предложенное описание RU')
+AssertionError: 302 != 200 : Couldn't retrieve content: Response code was 302 (expected 200)
+
+======================================================================
+FAIL: test_preview_post_cannot_publish_or_edit (catalog.testcases.test_ownership_admin_preview.OwnershipAdminPreviewTests.test_preview_post_cannot_publish_or_edit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_admin_preview.py", line 75, in test_preview_post_cannot_publish_or_edit
+    self.assertEqual(self.client.post(self.url, {'action':'approve','name_ru':'Spoof'}).status_code, 405)
+AssertionError: 302 != 405
+
+======================================================================
+FAIL: test_processed_request_keeps_content_but_no_decision_buttons (catalog.testcases.test_ownership_admin_preview.OwnershipAdminPreviewTests.test_processed_request_keeps_content_but_no_decision_buttons)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_admin_preview.py", line 149, in test_processed_request_keeps_content_but_no_decision_buttons
+    self.assertEqual(response.status_code, 200)
+AssertionError: 302 != 200
+
+======================================================================
+FAIL: test_stale_publication_request_is_flagged_without_approve_action (catalog.testcases.test_ownership_admin_preview.OwnershipAdminPreviewTests.test_stale_publication_request_is_flagged_without_approve_action)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_admin_preview.py", line 108, in test_stale_publication_request_is_flagged_without_approve_action
+    self.assertContains(response, 'Заявка устарела')
+AssertionError: 302 != 200 : Couldn't retrieve content: Response code was 302 (expected 200)
+
+======================================================================
+FAIL: test_unpublished_full_card_is_available_inside_admin (catalog.testcases.test_ownership_admin_preview.OwnershipAdminPreviewTests.test_unpublished_full_card_is_available_inside_admin)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_admin_preview.py", line 43, in test_unpublished_full_card_is_available_inside_admin
+    self.assertEqual(response.status_code, 200)
+AssertionError: 302 != 200
+
+======================================================================
+FAIL: test_untrusted_text_and_external_links_are_not_executable (catalog.testcases.test_ownership_admin_preview.OwnershipAdminPreviewTests.test_untrusted_text_and_external_links_are_not_executable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_admin_preview.py", line 143, in test_untrusted_text_and_external_links_are_not_executable
+    self.assertContains(response, '&lt;script&gt;preview_xss()&lt;/script&gt;')
+AssertionError: 302 != 200 : Couldn't retrieve content: Response code was 302 (expected 200)
+
+----------------------------------------------------------------------
+Ran 12 tests in 10.932s
+
+FAILED (failures=11)
+Destroying test database for alias 'default'...
+Found 12 test(s).
+System check identified no issues (0 silenced).

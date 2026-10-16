@@ -1,0 +1,15 @@
+{
+  "session": "mod01fixr1",
+  "driver_chain": [
+    "browser_run.py",
+    "drive.py",
+    "playwright_cli.sh -s=mod01fixr1 run-code <actual JS text>"
+  ],
+  "meaning": "commands.jsonl <scriptpath> placeholder is a display reference; actual argument contains template text. Password fetched from own loopback fixture in JS memory, no secret substitution into source.",
+  "template_hashes_at_final": {
+    "native-RED.js": "840fdd53744b68910592f262aea6a7446429cc7e59a07d8aa8859f4b3292b339",
+    "native-GREEN.js": "747c42f2583f1b745c6aea5fdcac5403bb204de6bb9aa3e7cfcedaeacbadcab7",
+    "native-AZ-recheck.js": "1c099cccd2c321fafbddaf5aab6fbd707a2987beb68c4e85a4805a5d868d1eb8"
+  },
+  "reproduction": "Only fresh owned prepared profile; final auth/session state should not be reused blindly."
+}

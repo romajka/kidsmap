@@ -1,0 +1,523 @@
+[
+  {
+    "script": "lifecycle",
+    "id": "create-partial-reload",
+    "status": "PASS"
+  },
+  {
+    "script": "lifecycle",
+    "id": "create-url-error-input-retained",
+    "status": "PASS"
+  },
+  {
+    "script": "lifecycle",
+    "id": 1,
+    "status": "PASS"
+  },
+  {
+    "script": "lifecycle",
+    "id": "organization-draft-reload",
+    "status": "PASS"
+  },
+  {
+    "script": "lifecycle",
+    "id": "edit-server-draft-reload",
+    "status": "PASS"
+  },
+  {
+    "script": "lifecycle",
+    "id": "organization-submit",
+    "status": "PASS"
+  },
+  {
+    "script": "lifecycle",
+    "id": "organization-approved-ui",
+    "status": "PASS"
+  },
+  {
+    "script": "lifecycle",
+    "id": "organization-public-no-branches",
+    "status": "PASS"
+  },
+  {
+    "script": "lifecycle",
+    "id": "published-edit-draft-reload",
+    "status": "PASS"
+  },
+  {
+    "script": "lifecycle",
+    "id": "published-live-protected",
+    "status": "PASS"
+  },
+  {
+    "script": "bulk",
+    "id": "search-ten-by-name",
+    "status": "PASS"
+  },
+  {
+    "script": "bulk",
+    "id": "bulk-preview-10-rows",
+    "status": "PASS",
+    "preview": "3c025a73-7485-43bb-80a2-30118a8be9f7"
+  },
+  {
+    "script": "bulk",
+    "id": "bulk-confirm-ten",
+    "status": "PASS",
+    "resultUrl": "http://127.0.0.1:47277/ru/account/organization-operations/3c025a73-7485-43bb-80a2-30118a8be9f7/",
+    "body": "К организациям\n\nKidsMap · Организация и филиалы\n\nПодключение мест\n\nОрганизация объединяет сеть и общие программы. Филиал — конкретное место с адресом, занятиями и ценами.\n\nQA02 Сеть A\nВыбор мест\nОрганизация\nПроверка и подтверждение\nРезультат\nРезультат по каждой карточке\n\nТип связи: Бизнес-связь: согласие владельцев\n\nОбработка завершена. Проверьте результат каждой строки.\n\nКарточки и состояние связи\nМесто и адрес\tТекущая организация\tСостояние\nQA02 BULK 01 RU\nQA02 fictional address 01\n#1 · Опубликовано\n\tQA02 Сеть A\tПодключено этой операцией\nЗапрос #1\nЗапрос подтверждён\n\nQA02 BULK 02 RU\nQA02 fictional address 02\n#2 · Опубликовано\n\tQA02 Сеть A\tПодключено этой операцией\nЗапрос #2\nЗапрос подтверждён\n\nQA02 BULK 03 RU\nQA02 fictional address 03\n#3 · Опубликовано\n\tQA02 Сеть A\tПодключено этой операцией\nЗапрос #3\nЗапрос подтверждён\n\nQA02 BULK 04 RU\nQA02 fictional address 04\n#4 · Опубликовано\n\tQA02 Сеть A\tПодключено этой операцией\nЗапрос #4\nЗапрос подтверждён\n\nQA02 BULK 05 RU\nQA02 fictional address 05\n#5 · Опубликовано\n\tQA02 Сеть A\tПодключено этой операцией\nЗапрос #5\nЗапрос подтверждён\n\nQA02 BULK 06 RU\nQA02 fictional address 06\n#6 · Опубликовано\n\tQA02 Сеть A\tПодключено этой операцией\nЗапрос #6\nЗапрос подтверждён\n\nQA02 BULK 07 RU\nQA02 fictional address 07\n#7 · Опубликовано\n\tQA02 Сеть A\tПодключено этой операцией\nЗапрос #7\nЗапрос подтверждён\n\nQA02 BULK 08 RU\nQA02 fictional address 08\n#8 · Опубликовано\n\tQA02 Сеть A\tПодключено этой операцией\nЗапрос #8\nЗапрос подтверждён\n\nQA02 BULK 09 RU\nQA02 fictional address 09\n#9 · Опубликовано\n\tQA02 Сеть A\tПодключено этой операцией\nЗапрос #9\nЗапрос подтверждён\n\nQA02 BULK 10 RU\nQA02 fictional address 10\n#10 · Опубликовано\n\tQA02 Сеть A\tПодключено этой операцией\nЗапрос #10\nЗапрос подтверждён\n\nОперация: 3c025a73-7485-43bb-80a2-30118a8be9f7\n\nПроверить состояние операции\nНовый просмотр проблемных строк"
+  },
+  {
+    "script": "bulk",
+    "id": "search-address-finds-linked-id",
+    "status": "PASS"
+  },
+  {
+    "script": "api-core",
+    "id": 2,
+    "status": "PASS",
+    "http": 200
+  },
+  {
+    "script": "api-core",
+    "id": 3,
+    "status": "PASS",
+    "http": 200
+  },
+  {
+    "script": "api-core",
+    "id": "canonical-same-owner-join-11",
+    "status": "PASS",
+    "http": 200,
+    "request": 11
+  },
+  {
+    "script": "api-core",
+    "id": "canonical-same-owner-join-12",
+    "status": "PASS",
+    "http": 200,
+    "request": 12
+  },
+  {
+    "script": "api-core",
+    "id": "canonical-same-owner-join-14",
+    "status": "PASS",
+    "http": 200,
+    "request": 13
+  },
+  {
+    "script": "api-core",
+    "id": "canonical-same-owner-join-15",
+    "status": "PASS",
+    "http": 200,
+    "request": 14
+  },
+  {
+    "script": "api-core",
+    "id": "api-private-foreign-draft-denied",
+    "status": "PASS",
+    "http": 403
+  },
+  {
+    "script": "api-core",
+    "id": "legacy-private-foreign-draft-denied",
+    "status": "PASS",
+    "http": 409
+  },
+  {
+    "script": "api-core",
+    "id": "pending-no-private-title-disclosure",
+    "status": "PASS"
+  },
+  {
+    "script": "api-core",
+    "id": "first-consent-pending",
+    "status": "PASS",
+    "request": 15
+  },
+  {
+    "script": "api-core",
+    "id": "employee-cannot-confirm",
+    "status": "PASS",
+    "http": 403
+  },
+  {
+    "script": "api-core",
+    "id": "second-owner-confirms",
+    "status": "PASS",
+    "http": 200
+  },
+  {
+    "script": "api-core",
+    "id": "double-confirm-idempotent",
+    "status": "PASS",
+    "http": 200
+  },
+  {
+    "script": "api-core",
+    "id": "ownership-transfer-real-api",
+    "status": "PASS",
+    "http": 200,
+    "version": 2
+  },
+  {
+    "script": "api-core",
+    "id": "old-consent-after-owner-change-denied",
+    "status": "PASS",
+    "http": 400
+  },
+  {
+    "script": "api-core",
+    "id": "legacy-detach-redirects-to-review",
+    "status": "PASS",
+    "http": 302,
+    "location": "/ru/account/organizations/1/branches/15/detach-preview/"
+  },
+  {
+    "script": "api-core",
+    "id": "api-detach-requires-review",
+    "status": "PASS",
+    "http": 409
+  },
+  {
+    "script": "api-core",
+    "id": "other-network-does-not-move-implicitly",
+    "status": "PASS",
+    "http": 400
+  },
+  {
+    "script": "api-core",
+    "id": "employee-no-workspace-before-grant",
+    "status": "PASS",
+    "http": 404
+  },
+  {
+    "script": "published-roundtrip",
+    "id": "published-explicit-candidate-roundtrip",
+    "status": "PASS"
+  },
+  {
+    "script": "published-roundtrip",
+    "id": "live-unchanged-before-review",
+    "status": "PASS"
+  },
+  {
+    "script": "published-roundtrip",
+    "id": "review-return-reason-visible",
+    "status": "PASS"
+  },
+  {
+    "script": "published-roundtrip",
+    "id": "return-correct-resubmit-roundtrip",
+    "status": "PASS"
+  },
+  {
+    "script": "published-roundtrip",
+    "id": "corrected-candidate-approved-live",
+    "status": "PASS"
+  },
+  {
+    "script": "team",
+    "id": "team-role-description-visible",
+    "status": "PASS"
+  },
+  {
+    "script": "team",
+    "id": 1,
+    "status": "PASS"
+  },
+  {
+    "script": "team",
+    "id": "reset-role-description-coherent",
+    "status": "PASS"
+  },
+  {
+    "script": "team",
+    "id": "pending-invite-does-not-grant-edit",
+    "status": "PASS",
+    "url": "http://127.0.0.1:47277/ru/account/places/"
+  },
+  {
+    "script": "team",
+    "id": "employee-accept-ui",
+    "status": "PASS"
+  },
+  {
+    "script": "team",
+    "id": "accepted-grant-edit-access",
+    "status": "PASS"
+  },
+  {
+    "script": "team-api",
+    "id": "reset-role-matches-initial-and-summary",
+    "status": "PASS",
+    "initial": "EDITOR",
+    "selected": "EDITOR",
+    "summary": "Просмотр и редактирование филиалов"
+  },
+  {
+    "script": "team-api",
+    "id": "invitation-rendered-role-editor",
+    "status": "PASS"
+  },
+  {
+    "script": "team-api",
+    "id": "employee-declines-real-api",
+    "status": "PASS",
+    "http": 200
+  },
+  {
+    "script": "team-api",
+    "id": "owner-revokes-pending-invitation",
+    "status": "PASS",
+    "http": 200
+  },
+  {
+    "script": "team-api",
+    "id": "revoked-invitation-cannot-accept",
+    "status": "PASS",
+    "http": 400
+  },
+  {
+    "script": "team-api",
+    "id": "direct-place-grant-accepted",
+    "status": "PASS",
+    "http": 200,
+    "grant": 1
+  },
+  {
+    "script": "team-api",
+    "id": "network-employee-cannot-invite-team",
+    "status": "PASS",
+    "http": 403
+  },
+  {
+    "script": "advanced-connections",
+    "id": "between-preview-confirm-real-transfer",
+    "status": "PASS"
+  },
+  {
+    "script": "advanced-connections",
+    "id": "mixed-batch-per-card-results",
+    "status": "FAIL",
+    "texts": [
+      "\n    \n    \n    QA02 BULK 01 RUQA02 fictional address 01#1 · Опубликовано\n    QA02 Сеть A\n      \n      \n    \n    \n    Уже подключено\n      \n      \n      \n      \n    ",
+      "\n    \n    \n    QA02 PLACE 12 RUQA02 fictional address 12#12 · Опубликовано\n    QA02 Network B\n      \n      \n    \n    \n    Другая организация: пропустим, перенос требует отвязки\n      \n      \n      \n      \n    ",
+      "\n    \n    \n    QA02 PLACE 13 RUQA02 fictional address 13#13 · Опубликовано\n    Самостоятельное место\n      \n      \n    \n    \n    Данные изменились: проверьте заново\n      \n      \n      \n      \n    ",
+      "\n    \n    \n    QA02 PLACE 16 RUQA02 fictional address 16#16 · Опубликовано\n    QA02 Сеть A\n      \n      \n    \n    \n    Подключено этой операцией\n      \n      Запрос #17\n      Запрос подтверждён\n      \n    ",
+      "\n    \n    \n    QA02 PLACE 23 RUQA02 fictional address 23#23 · Опубликовано\n    Самостоятельное место\n      \n      \n    \n    \n    Запрос создан этой операцией\n      \n      Запрос #18\n      \n      Ждём владельца места\n    "
+    ]
+  },
+  {
+    "script": "advanced-connections",
+    "id": "same-receipt-retry-after-result",
+    "status": "PASS",
+    "http": 200
+  },
+  {
+    "script": "recovery-lost",
+    "id": "stale-owner-request-cancel-ui",
+    "status": "PASS"
+  },
+  {
+    "script": "recovery-lost",
+    "id": "new-request-after-cancel",
+    "status": "PASS"
+  },
+  {
+    "script": "recovery-lost",
+    "id": "new-owner-fresh-consent",
+    "status": "PASS"
+  },
+  {
+    "script": "recovery-lost",
+    "id": "other-party-declines-by-cancel-ui",
+    "status": "PASS"
+  },
+  {
+    "script": "recovery-lost",
+    "id": "lost-response-receipt-shows-actual-result",
+    "status": "PASS",
+    "notice": []
+  },
+  {
+    "script": "recovery-lost",
+    "id": "lost-response-same-key-retry",
+    "status": "PASS",
+    "http": 200
+  },
+  {
+    "script": "detach-transfer",
+    "id": "detach-impact-program-network-direct-shown",
+    "status": "PASS",
+    "impact": "К организациям\n\nKidsMap · Организация и филиалы\n\nОтсоединить место\n\nОрганизация объединяет сеть и общие программы. Филиал — конкретное место с адресом, занятиями и ценами.\n\nQA02 Сеть A\nВыбор мест\nОрганизация\nПроверка и подтверждение\nРезультат\nПроверьте каждую карточку\n\nТип связи: Бизнес-связь: согласие владельцев\n\nПодтверждение обработает только доступные строки. Конфликты будут пропущены; успешные строки сохранятся при частичном отказе.\n\nБудет обработано: 1 / 1 · Просмотр действует 10 минут\n\nСразу: 1 · Запросы: 0 · Без изменений: 0 · Пропустим: 0\n\nКарточки и состояние связи\nМесто и адрес\tТекущая организация\tСостояние\nQA02 PLACE 11 RU\nQA02 fictional address 11\n#11 · Опубликовано\n\tQA02 Сеть A\tОтсоединится после подтверждения\nПоследствия отвязки\n\nФото, занятия, группы, тарифы, часы работы, владелец и статус публикации сохраняются.\n\nЗанятия общих программ станут локальными снимками; обновления сети прекратятся. 1\n\nСотрудников с сетевым доступом: 1. Прямых разрешений, которые сохранятся: 1.\n\nОбщие контакты перестанут наследоваться. Проверьте телефон и сайт места.\n\nСетевые разрешения остаются в сети и могут снова действовать после повторного подключения.\n\nПодтверждаю отвязку и её последствия. Новое подключение будет отдельным действием.\nПодтвердить\n\nОперация: 35b602cd-e34b-4402-aaa1-c19102135674\n\nПроверить состояние операции"
+  },
+  {
+    "script": "detach-transfer",
+    "id": "detach-through-explicit-consent",
+    "status": "PASS"
+  },
+  {
+    "script": "detach-transfer",
+    "id": "detached-network-employee-denied",
+    "status": "PASS",
+    "url": "http://127.0.0.1:47277/ru/account/places/"
+  },
+  {
+    "script": "detach-transfer",
+    "id": "other-linked-place-employee-still-allowed",
+    "status": "PASS"
+  },
+  {
+    "script": "detach-transfer",
+    "id": "direct-grant-survives-detach",
+    "status": "PASS"
+  },
+  {
+    "script": "detach-transfer",
+    "id": "transfer-explicit-detach-select-preview-confirm",
+    "status": "PASS"
+  },
+  {
+    "script": "detach-transfer",
+    "id": "new-branch-separate-id",
+    "status": "PASS",
+    "branchId": 33
+  },
+  {
+    "script": "admin-flow",
+    "id": "admin-create-draft-round-trip",
+    "status": "PASS",
+    "organizationId": 4
+  },
+  {
+    "script": "admin-flow",
+    "id": "admin-draft-reload",
+    "status": "PASS"
+  },
+  {
+    "script": "admin-flow",
+    "id": "admin-submit-pending",
+    "status": "PASS"
+  },
+  {
+    "script": "admin-flow",
+    "id": "admin-approve-live",
+    "status": "FAIL"
+  },
+  {
+    "script": "admin-flow",
+    "id": "admin-published-candidate-reload",
+    "status": "PASS"
+  },
+  {
+    "script": "admin-flow",
+    "id": "admin-supported-selection-target",
+    "status": "PASS"
+  },
+  {
+    "script": "admin-flow",
+    "id": "admin-business-needs-owner-consent",
+    "status": "PASS"
+  },
+  {
+    "script": "admin-flow",
+    "id": "admin-informational-review-explicit",
+    "status": "PASS"
+  },
+  {
+    "script": "admin-flow",
+    "id": "admin-informational-real-confirm",
+    "status": "PASS"
+  },
+  {
+    "script": "nojs-security",
+    "id": "nojs-team-honest-disabled-post-form",
+    "status": "PASS"
+  },
+  {
+    "script": "nojs-security",
+    "id": "missing-csrf-invite-rejected",
+    "status": "PASS",
+    "http": 403
+  },
+  {
+    "script": "nojs-security",
+    "id": "get-invite-does-not-mutate",
+    "status": "PASS",
+    "http": 405
+  },
+  {
+    "script": "nojs-security",
+    "id": "other-actor-receipt-hidden",
+    "status": "PASS",
+    "http": 404
+  },
+  {
+    "script": "expiry",
+    "id": "expired-invitation-denied",
+    "status": "PASS",
+    "http": 403
+  },
+  {
+    "script": "team-management",
+    "id": "native-role-change",
+    "status": "PASS"
+  },
+  {
+    "script": "team-management",
+    "id": "two-tab-stale-role-conflict",
+    "status": "PASS"
+  },
+  {
+    "script": "team-management",
+    "id": "native-network-revoke",
+    "status": "PASS"
+  },
+  {
+    "script": "team-management",
+    "id": "revoke-reload-inactive",
+    "status": "PASS"
+  },
+  {
+    "script": "team-management",
+    "id": "revoked-editor-denied",
+    "status": "PASS"
+  },
+  {
+    "script": "team-management",
+    "id": "direct-grant-retained",
+    "status": "PASS"
+  },
+  {
+    "script": "team-management",
+    "id": "native-selected-scope-invite",
+    "status": "PASS"
+  },
+  {
+    "script": "team-management",
+    "id": "selected-invitation-native-accept",
+    "status": "PASS"
+  },
+  {
+    "script": "team-management",
+    "id": "selected-place-allowed",
+    "status": "PASS"
+  },
+  {
+    "script": "team-management",
+    "id": "unselected-place-denied",
+    "status": "PASS"
+  },
+  {
+    "script": "team-management",
+    "id": "native-owner-pending-cancel",
+    "status": "PASS"
+  },
+  {
+    "script": "team-management",
+    "id": "pending-cancel-reload",
+    "status": "PASS",
+    "screenshot": "screenshots/team-management-390.png"
+  }
+]

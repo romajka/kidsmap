@@ -1,0 +1,43 @@
+{
+  "branch": "codex/module08-release-2026-10-16",
+  "base": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+  "selected_count": 16229,
+  "excluded": [
+    {
+      "path": "docs/qa/mod-qa09-11-fix-2026-10-16-r1/targeted-red-final.txt",
+      "reasons": [
+        "raw historical QA CSRF token"
+      ]
+    },
+    {
+      "path": "docs/qa/mod-qa09-11-fix-2026-10-16-r1/targeted-red.txt",
+      "reasons": [
+        "raw historical QA CSRF token"
+      ]
+    },
+    {
+      "path": "docs/qa/module03-spec-fix-2026-10-13-r1/red-tests.txt",
+      "reasons": [
+        "raw historical QA CSRF token"
+      ]
+    },
+    {
+      "path": "docs/qa/module06-full-2026-10-14-r1/discovery-supplement-tests.txt",
+      "reasons": [
+        "raw historical QA CSRF token"
+      ]
+    },
+    {
+      "path": "docs/qa/offer-qa08-fix-2026-10-14-r1/tests-red.txt",
+      "reasons": [
+        "raw historical QA CSRF token"
+      ]
+    }
+  ],
+  "known_QA_secrets_checked": 123,
+  "original_files_preserved": true,
+  "private_index": true,
+  "binary_chunk_limit_bytes": 471859200,
+  "deploy_scope": "all current application changes modules01\u201308; no module09 work",
+  "application_ref": "first code/text commit; later commits QA binaries only"
+}

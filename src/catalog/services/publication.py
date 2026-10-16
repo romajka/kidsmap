@@ -285,7 +285,7 @@ def _apply(target,kind,patch):
         replace_place_pricing_plans(target,patch['pricing_plans'])
     if 'nested_pricing' in patch:
         from catalog.services.pricing_plans import replace_nested_pricing
-        replace_nested_pricing(target,patch['nested_pricing'])
+        replace_nested_pricing(target,patch['nested_pricing'],complete_tree=True)
     if 'structured_schedule' in patch:
         from catalog.services.place_schedule import sync_place_schedule
         sync_place_schedule(target,patch['structured_schedule'])

@@ -1,0 +1,122 @@
+Creating test database for alias 'default'...
+FFFFFFFFEFF
+======================================================================
+ERROR: test_stale_ownership_does_not_present_current_management_controls (catalog.testcases.test_network_grant_ui.NetworkGrantUITests.test_stale_ownership_does_not_present_current_management_controls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 172, in test_stale_ownership_does_not_present_current_management_controls
+    self.assertFalse(response.context['team_grants'][0].is_current)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'OrganizationGrant' object has no attribute 'is_current'
+
+======================================================================
+FAIL: test_mutation_still_requires_csrf_json_post (catalog.testcases.test_network_grant_ui.NetworkGrantUITests.test_mutation_still_requires_csrf_json_post)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 175, in test_mutation_still_requires_csrf_json_post
+    form = self.form('revoke')
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 60, in form
+    self.assertEqual(len(matches), 1, f'Expected one native owner {operation} form')
+AssertionError: 0 != 1 : Expected one native owner revoke form
+
+======================================================================
+FAIL: test_owner_cancel_removes_pending_fragment_and_prevents_recipient_replay (catalog.testcases.test_network_grant_ui.NetworkGrantUITests.test_owner_cancel_removes_pending_fragment_and_prevents_recipient_replay)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 139, in test_owner_cancel_removes_pending_fragment_and_prevents_recipient_replay
+    self.assertEqual(self.post_form(self.form('cancel')).status_code, 200)
+                                    ^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 60, in form
+    self.assertEqual(len(matches), 1, f'Expected one native owner {operation} form')
+AssertionError: 0 != 1 : Expected one native owner cancel form
+
+======================================================================
+FAIL: test_owner_controls_use_scoped_post_and_current_version_and_fail_closed_without_js (catalog.testcases.test_network_grant_ui.NetworkGrantUITests.test_owner_controls_use_scoped_post_and_current_version_and_fail_closed_without_js) (lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 76, in test_owner_controls_use_scoped_post_and_current_version_and_fail_closed_without_js
+    self.assertEqual(parser.fragments, {'data-team-grants', 'data-team-invitations'})
+AssertionError: Items in the second set but not the first:
+'data-team-grants'
+
+======================================================================
+FAIL: test_owner_controls_use_scoped_post_and_current_version_and_fail_closed_without_js (catalog.testcases.test_network_grant_ui.NetworkGrantUITests.test_owner_controls_use_scoped_post_and_current_version_and_fail_closed_without_js) (lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 76, in test_owner_controls_use_scoped_post_and_current_version_and_fail_closed_without_js
+    self.assertEqual(parser.fragments, {'data-team-grants', 'data-team-invitations'})
+AssertionError: Items in the second set but not the first:
+'data-team-grants'
+
+======================================================================
+FAIL: test_owner_controls_use_scoped_post_and_current_version_and_fail_closed_without_js (catalog.testcases.test_network_grant_ui.NetworkGrantUITests.test_owner_controls_use_scoped_post_and_current_version_and_fail_closed_without_js) (lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 76, in test_owner_controls_use_scoped_post_and_current_version_and_fail_closed_without_js
+    self.assertEqual(parser.fragments, {'data-team-grants', 'data-team-invitations'})
+AssertionError: Items in the second set but not the first:
+'data-team-grants'
+
+======================================================================
+FAIL: test_pending_cancel_race_preserves_accepted_grant (catalog.testcases.test_network_grant_ui.NetworkGrantUITests.test_pending_cancel_race_preserves_accepted_grant)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 128, in test_pending_cancel_race_preserves_accepted_grant
+    stale = self.form('cancel')
+            ^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 60, in form
+    self.assertEqual(len(matches), 1, f'Expected one native owner {operation} form')
+AssertionError: 0 != 1 : Expected one native owner cancel form
+
+======================================================================
+FAIL: test_rendered_role_transport_preserves_selected_scope_ownership_and_live (catalog.testcases.test_network_grant_ui.NetworkGrantUITests.test_rendered_role_transport_preserves_selected_scope_ownership_and_live)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 97, in test_rendered_role_transport_preserves_selected_scope_ownership_and_live
+    response = self.post_form(self.form('role'), role='MANAGER')
+                              ^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 60, in form
+    self.assertEqual(len(matches), 1, f'Expected one native owner {operation} form')
+AssertionError: 0 != 1 : Expected one native owner role form
+
+======================================================================
+FAIL: test_revoke_preserves_direct_access_and_hides_active_controls_after_reload (catalog.testcases.test_network_grant_ui.NetworkGrantUITests.test_revoke_preserves_direct_access_and_hides_active_controls_after_reload)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 109, in test_revoke_preserves_direct_access_and_hides_active_controls_after_reload
+    self.assertEqual(self.post_form(self.form('revoke'), active=False).status_code, 200)
+                                    ^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 60, in form
+    self.assertEqual(len(matches), 1, f'Expected one native owner {operation} form')
+AssertionError: 0 != 1 : Expected one native owner revoke form
+
+======================================================================
+FAIL: test_stale_rendered_version_conflicts_and_cannot_overwrite_winner (catalog.testcases.test_network_grant_ui.NetworkGrantUITests.test_stale_rendered_version_conflicts_and_cannot_overwrite_winner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 119, in test_stale_rendered_version_conflicts_and_cannot_overwrite_winner
+    stale = self.form('revoke')
+            ^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 60, in form
+    self.assertEqual(len(matches), 1, f'Expected one native owner {operation} form')
+AssertionError: 0 != 1 : Expected one native owner revoke form
+
+======================================================================
+FAIL: test_viewer_and_foreign_nested_target_cannot_manage_grants (catalog.testcases.test_network_grant_ui.NetworkGrantUITests.test_viewer_and_foreign_nested_target_cannot_manage_grants)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 152, in test_viewer_and_foreign_nested_target_cannot_manage_grants
+    form = self.form('revoke')
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_network_grant_ui.py", line 60, in form
+    self.assertEqual(len(matches), 1, f'Expected one native owner {operation} form')
+AssertionError: 0 != 1 : Expected one native owner revoke form
+
+----------------------------------------------------------------------
+Ran 9 tests in 8.145s
+
+FAILED (failures=10, errors=1)
+Destroying test database for alias 'default'...
+Found 9 test(s).
+System check identified no issues (0 silenced).

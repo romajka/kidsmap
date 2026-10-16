@@ -1,0 +1,1 @@
+async original=>{const out=[];for(const c of original.context().browser().contexts())for(const p of c.pages())out.push({url:p.url(),state:await p.evaluate(()=>({ready:document.readyState,lang:document.documentElement.lang,width:innerWidth,open:[...document.querySelectorAll('details[open]')].map(e=>e.id||e.className)})).catch(()=>null)});return{out,read_only:true};}

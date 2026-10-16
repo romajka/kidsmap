@@ -1,0 +1,36 @@
+{
+  "interpreter": {
+    "raw_command": [
+      "python3",
+      "docs/qa/mod-qa03-fix-2026-10-15-r1/runtime.py",
+      "runtime-info"
+    ],
+    "exit": 1,
+    "observed_error": "ModuleNotFoundError: No module named django",
+    "corrected_command": [
+      ".tmp/mod-qa03-fix-2026-10-15-r1/venv/bin/python",
+      "docs/qa/mod-qa03-fix-2026-10-15-r1/runtime.py",
+      "runtime-info"
+    ],
+    "corrected_exit": 0
+  },
+  "functional_fixture_query": {
+    "raw_retained": "native-flows-r2.js.result.json",
+    "corrected_only": "native-place-query-corrected.js.result.json",
+    "old_query": "QA Queue 2",
+    "new_query": "\"QA Queue 2\"",
+    "reason": "Unquoted multiword query also searches shared fictional phone/address fields, so one-row fixture oracle was invalid for Place. Exact phrase uniquely identifies fictional title; same one-row/search/sort/reload assertions retained.",
+    "replaced_observations": 78,
+    "original_Place_failures": 18,
+    "corrected_Place_observations": 79,
+    "corrected_global_data_check_not_double_counted": true
+  },
+  "prototype_attempts": {
+    "v1": "11PASS/1FAIL; panel locator raced the native toggle/portal",
+    "v1_r2": "18PASS/2FAIL; fullPage screenshot before Escape altered state",
+    "v2": "18PASS/2FAIL with fullPage screenshot",
+    "v2_r3": "20PASS/0FAIL, same proposed v2 source hash and same assertions; viewport-only PNG avoids changing tested viewport before Escape"
+  },
+  "no_application_JS_changes": true,
+  "no_source_assertions_weakened": true
+}

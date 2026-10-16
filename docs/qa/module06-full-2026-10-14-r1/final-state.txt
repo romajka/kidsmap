@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/docs/qa/module06-full-2026-10-14-r1/runtime.py", line 33, in <module>
+    runpy.run_path(str(HERE/sys.argv[2]),run_name='__main__')
+  File "<frozen runpy>", line 286, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/ramin/kidsmap/docs/qa/module06-full-2026-10-14-r1/final-state.py", line 16, in <module>
+    e=Event.objects.get(pk=F['events']['Scheduled']);check('native-event-reschedule-cancel-readback',e.occurrence_state=='cancelled' and e.cancellation_reason=='Fictional module06 cancellation' and e.start_datetime.year==2030)
+                                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Event' object has no attribute 'cancellation_reason'

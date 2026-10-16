@@ -1,0 +1,21 @@
+Creating test database for alias 'default'...
+Got an error creating the test database: database "test_qa14_20261012_r1" already exists
+Destroying old test database for alias 'default'...
+../home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /home/ramin/kidsmap/.tmp/place-qa14-fix-2026-10-12-r1/staticfiles/
+  mw_instance = middleware(adapted_handler)
+..............Image upload rejected: {'name': 'oversize.png', 'size': 103, 'mime': 'image/png'}; reason=«oversize.png» şəkli: maksimum 50 MP və tərəfi üzrə 12000 piksel.
+Image upload rejected: {'name': 'oversize.png', 'size': 103, 'mime': 'image/png'}; reason=«oversize.png» şəkli: maksimum 50 MP və tərəfi üzrə 12000 piksel.
+.Image upload rejected: {'name': 'empty.png', 'size': 0, 'mime': 'image/png'}; reason=«empty.png» faylı boşdur.
+Image upload rejected: {'name': 'corrupt.png', 'size': 12, 'mime': 'image/png'}; reason=«corrupt.png» oxumaq mümkün olmadı: fayl zədələnib və ya dəstəklənməyən şəkildir.
+Image upload rejected: {'name': 'oversize.png', 'size': 15728641, 'mime': 'image/png'}; reason=«oversize.png» faylı çox böyükdür. Şəklin maksimum ölçüsü — 15 MB.
+Image upload rejected: {'name': 'mismatch.png', 'size': 103, 'mime': 'image/jpeg'}; reason=«mismatch.png» faylı image/jpeg kimi bildirilib, lakin daxilən PNG formatındadır.
+Image upload rejected: {'name': 'unsupported.gif', 'size': 106, 'mime': 'image/gif'}; reason=«unsupported.gif» fayl formatı dəstəklənmir. JPG, PNG, WEBP, HEIC və ya HEIF istifadə edin.
+............................
+----------------------------------------------------------------------
+Ran 45 tests in 31.980s
+
+OK
+Destroying test database for alias 'default'...
+Found 45 test(s).
+System check identified no issues (0 silenced).
+Seeded taxonomy valid pairs: 105 categories: 17

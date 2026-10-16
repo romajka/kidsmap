@@ -289,6 +289,13 @@
       if (!pending.has(id)) {
         const token = config.querySelector('[name=csrfmiddlewaretoken]').value;
         pending.set(id, (async () => {
+          if (document.body.hasAttribute('data-site-preview')) {
+            const node = document.getElementById('site-preview-phones');
+            const data = node && JSON.parse(node.textContent);
+            if (!data || String(data.place_id) !== String(id)) throw new Error(copy.error);
+            loaded.set(id, data);
+            return data;
+          }
           const response = await fetch(config.dataset.phoneEndpoint.replace('/0/', '/' + encodeURIComponent(id) + '/'), {
             method: 'POST',
             credentials: 'same-origin',

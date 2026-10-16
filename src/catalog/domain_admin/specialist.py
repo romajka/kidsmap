@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from django.urls import reverse
+from .queue_sorting import QueueSortingAdminMixin, QueueSortParameter
 from .moderation_actor import ModerationActorAdminMixin
 from catalog.forms_specialist_locations import BasePracticeLocationFormSet
 
@@ -440,7 +441,7 @@ class SpecialistDocumentInline(admin.TabularInline):
 
 
 @admin.register(Specialist)
-class SpecialistAdmin(admin.ModelAdmin):
+class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     class Media:
         css = {"all": ("admin/css/pages/specialist_form.css",)}
         js = ()
@@ -451,7 +452,7 @@ class SpecialistAdmin(admin.ModelAdmin):
     km_primary_filters = ("status", "is_active", "consultation_format")
     
     list_display = ("profile_column", "directions_column", "owner", "format_badge", "status_badge", "documents_count", "rating_column", "updated_at")
-    list_filter = ("status", "is_active", "consultation_format", "specializations")
+    list_filter = (QueueSortParameter, "status", "is_active", "consultation_format", "specializations")
     search_fields = ("name", "name_alt", "bio_ru", "bio_az", "bio_en")
     readonly_fields = ("owner", "verified_person_user", "identity_verification_date", "created_by",
                        "rating_avg", "rating_count", "created_at", "updated_at")

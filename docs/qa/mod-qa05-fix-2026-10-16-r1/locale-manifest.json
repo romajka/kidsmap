@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "status": "complete",
+  "source_root": "/home/ramin/kidsmap/locale",
+  "locale_root": "/home/ramin/kidsmap/.tmp/mod-qa05-fix-2026-10-16-r1/locales/locale",
+  "locales": [
+    "ru",
+    "az",
+    "en"
+  ],
+  "entries": [
+    {
+      "source": "ru/LC_MESSAGES/django.po",
+      "po_sha256": "6cf9a518fecbf0f3f992881259ab8c23b3288080c810195b778997af4df5121c",
+      "snapshot": "source/ru/LC_MESSAGES/django.po",
+      "mo": "locale/ru/LC_MESSAGES/django.mo",
+      "mo_sha256": "6a08ff4734d1e2b5fc053032fce504a556b0572a24f5b8e82f27488e438ac968",
+      "command": [
+        "/usr/bin/msgfmt",
+        "--check-format",
+        "--statistics",
+        "--endianness=little",
+        "-o",
+        "/home/ramin/kidsmap/.tmp/mod-qa05-fix-2026-10-16-r1/locales/locale/ru/LC_MESSAGES/django.mo.tmp",
+        "/home/ramin/kidsmap/.tmp/mod-qa05-fix-2026-10-16-r1/locales/source/ru/LC_MESSAGES/django.po"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "4360 translated messages, 10 untranslated messages."
+    },
+    {
+      "source": "az/LC_MESSAGES/django.po",
+      "po_sha256": "e8d841df1a61627e3419f67832cb8cd4a3cf4e3bad4568e50f3b843a52a7c448",
+      "snapshot": "source/az/LC_MESSAGES/django.po",
+      "mo": "locale/az/LC_MESSAGES/django.mo",
+      "mo_sha256": "f741efd1c81ebf279bce90f16e79d45153d8a2a906ff55afd2495881c9bd01c0",
+      "command": [
+        "/usr/bin/msgfmt",
+        "--check-format",
+        "--statistics",
+        "--endianness=little",
+        "-o",
+        "/home/ramin/kidsmap/.tmp/mod-qa05-fix-2026-10-16-r1/locales/locale/az/LC_MESSAGES/django.mo.tmp",
+        "/home/ramin/kidsmap/.tmp/mod-qa05-fix-2026-10-16-r1/locales/source/az/LC_MESSAGES/django.po"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "2827 translated messages, 1045 fuzzy translations, 18 untranslated messages."
+    },
+    {
+      "source": "en/LC_MESSAGES/django.po",
+      "po_sha256": "fe833e468ff0b5b01ffd3e522d55f629337c76c2666e0b928a8022ce768d2820",
+      "snapshot": "source/en/LC_MESSAGES/django.po",
+      "mo": "locale/en/LC_MESSAGES/django.mo",
+      "mo_sha256": "05d9fa70b3a9973870400681f90d63bbbee878b02c091fb863ba458e753bda62",
+      "command": [
+        "/usr/bin/msgfmt",
+        "--check-format",
+        "--statistics",
+        "--endianness=little",
+        "-o",
+        "/home/ramin/kidsmap/.tmp/mod-qa05-fix-2026-10-16-r1/locales/locale/en/LC_MESSAGES/django.mo.tmp",
+        "/home/ramin/kidsmap/.tmp/mod-qa05-fix-2026-10-16-r1/locales/source/en/LC_MESSAGES/django.po"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "2827 translated messages, 1040 fuzzy translations, 24 untranslated messages."
+    }
+  ],
+  "compiler": {
+    "mode": "native",
+    "argv": [
+      "/usr/bin/msgfmt"
+    ],
+    "version": "msgfmt (GNU gettext-tools) 0.21",
+    "options": [
+      "--check-format",
+      "--statistics",
+      "--endianness=little"
+    ]
+  }
+}

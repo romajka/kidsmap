@@ -1,0 +1,17 @@
+{"name": "docker-start", "argv": ["docker", "run", "-d", "--name", "access-qa01-recheck-2026-10-14-r1-pg", "--env-file", "/home/ramin/kidsmap/.tmp/access-qa01-recheck-2026-10-14-r1/postgres.env", "-p", "127.0.0.1:34811:5432", "-v", "access-qa01-recheck-2026-10-14-r1-pg:/var/lib/postgresql/data", "--label", "kidsmap.qa.owner=access-qa01-recheck-2026-10-14-r1", "postgres:17-alpine"], "exit": 0, "seconds": 24.354}
+{"name": "locales-verify", "argv": [".venv/bin/python", "scripts/build_isolated_locales.py", "verify", "--manifest", "/home/ramin/kidsmap/.tmp/access-qa01-recheck-2026-10-14-r1/locales/manifest.json"], "exit": 0, "seconds": 0.116}
+{"name": "prepare", "argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/access-qa01-recheck-2026-10-14-r1/runtime.py", "prepare"], "exit": 0, "seconds": 35.536}
+{"name": "bootstrap.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01r1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-recheck-2026-10-14-r1/bootstrap.js>"], "exit": 0, "seconds": 2.665}
+{"name": "focus-matrix.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01r1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-recheck-2026-10-14-r1/focus-matrix.js>"], "exit": 0, "seconds": 56.089}
+{"name": "reset-tests", "argv": [".venv/bin/python", "docs/qa/access-qa01-recheck-2026-10-14-r1/runtime.py", "test", "catalog.testcases.test_password_reset"], "exit": 0, "seconds": 83.127}
+{"name": "reset-flow.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01r1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-recheck-2026-10-14-r1/reset-flow.js>"], "exit": 0, "seconds": 12.204}
+{"name": "reset-flow-resume.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01r1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-recheck-2026-10-14-r1/reset-flow-resume.js>"], "exit": 0, "seconds": 29.315}
+{"name": "verification-attempt1", "argv": [".venv/bin/python", "docs/qa/access-qa01-recheck-2026-10-14-r1/verify.py"], "exit": 1, "reason": "Own QA PNG count assumed51; scripts capture48. Changed to exact required scene name set, no application/assertion patch."}
+{"name": "verification-final", "argv": [".venv/bin/python", "docs/qa/access-qa01-recheck-2026-10-14-r1/verify.py"], "exit": 1, "seconds": 19.96}
+{"name": "verification-attempt2", "exit": 1, "argv": [".venv/bin/python", "docs/qa/access-qa01-recheck-2026-10-14-r1/verify.py"], "reason": "Own entry collector included own snapshot shell as foreign process; identified exact command, raw retained, real5old QA processes preserved."}
+{"name": "syntax/diff-check", "argv": ["node", "--check", "docs/qa/access-qa01-recheck-2026-10-14-r1/bootstrap.js"], "exit": 0}
+{"name": "syntax/diff-check", "argv": ["node", "--check", "docs/qa/access-qa01-recheck-2026-10-14-r1/focus-matrix.js"], "exit": 0}
+{"name": "syntax/diff-check", "argv": ["node", "--check", "docs/qa/access-qa01-recheck-2026-10-14-r1/reset-flow.js"], "exit": 0}
+{"name": "syntax/diff-check", "argv": ["node", "--check", "docs/qa/access-qa01-recheck-2026-10-14-r1/reset-flow-resume.js"], "exit": 0}
+{"name": "syntax/diff-check", "argv": ["git", "diff", "--check", "--", "src/catalog/templates/auth/login.html", "docs/qa/continuation-and-repair-prompts-2026-10-11.md"], "exit": 0}
+{"name": "verification-final-r3", "argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/access-qa01-recheck-2026-10-14-r1/verify.py"], "exit": 0, "seconds": 29.288}

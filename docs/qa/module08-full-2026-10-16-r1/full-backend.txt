@@ -1,0 +1,12 @@
+Found 261 test(s).
+System check identified no issues (0 silenced).
+Creating test database for alias 'default'...
+..........................................................................................Image upload rejected: {'name': 'bad.jpg', 'size': 12, 'mime': 'image/jpeg'}; reason=Не удалось прочитать «bad.jpg»: файл повреждён или это не поддерживаемое изображение.
+..............................................Responsive image generation skipped (UnidentifiedImageError)
+......................................................Not Found: /media/protected_docs/specialists/direct.txt
+.......................................................................
+----------------------------------------------------------------------
+Ran 261 tests in 183.790s
+
+OK
+Destroying test database for alias 'default'...

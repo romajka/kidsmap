@@ -1,0 +1,458 @@
+{
+  "rows": [
+    {
+      "id": "native author login opens own editor",
+      "status": "PASS",
+      "role": "owner",
+      "stage": "login",
+      "detail": {}
+    },
+    {
+      "id": "author flow completion",
+      "status": "NOT RUN",
+      "role": "owner",
+      "stage": "upload",
+      "error": "TimeoutError: locator.selectOption: Timeout 30000ms exceeded.",
+      "page": "/ru/account/places/18/edit/",
+      "visible_errors": [
+        ""
+      ]
+    },
+    {
+      "id": "native author login opens own editor",
+      "status": "PASS",
+      "role": "volunteer",
+      "stage": "login",
+      "detail": {}
+    },
+    {
+      "id": "author interface supported media fields recorded",
+      "status": "PASS",
+      "role": "volunteer",
+      "stage": "upload",
+      "detail": {
+        "gallery_input": 0,
+        "cover_input": 1,
+        "boundary": "owner supports main+gallery; volunteer supports main+cover, no gallery upload control. Existing field contract, not changed in MOD02."
+      }
+    },
+    {
+      "id": "native volunteer main and cover selection previews decode",
+      "status": "PASS",
+      "role": "volunteer",
+      "stage": "upload",
+      "detail": {}
+    },
+    {
+      "id": "native draft saves photos as candidate without touching approved media",
+      "status": "PASS",
+      "role": "volunteer",
+      "stage": "draft",
+      "detail": {
+        "revision_status": "draft",
+        "changed_fields": [
+          "cover_photo",
+          "photo"
+        ],
+        "candidate_gallery": 2
+      }
+    },
+    {
+      "id": "volunteer cover saved while untouched gallery is retained",
+      "status": "PASS",
+      "role": "volunteer",
+      "stage": "draft",
+      "detail": {}
+    },
+    {
+      "id": "reload retains exact persisted candidate",
+      "status": "PASS",
+      "role": "volunteer",
+      "stage": "reload",
+      "detail": {}
+    },
+    {
+      "id": "native submit creates pending with identical media and unchanged live",
+      "status": "PASS",
+      "role": "volunteer",
+      "stage": "submit",
+      "detail": {}
+    },
+    {
+      "id": "native reviewer sees exact author-uploaded candidate photos and order",
+      "status": "PASS",
+      "role": "volunteer",
+      "stage": "native-review",
+      "detail": {
+        "actual": 4,
+        "expected": 4
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "kind": "requestfailed",
+      "role": "owner",
+      "stage": "login",
+      "local": false,
+      "path": "unpkg.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "owner",
+      "stage": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "owner",
+      "stage": "login",
+      "local": false,
+      "path": "unpkg.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "owner",
+      "stage": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "volunteer",
+      "stage": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "volunteer",
+      "stage": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "volunteer",
+      "stage": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "volunteer",
+      "stage": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "volunteer",
+      "stage": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "volunteer",
+      "stage": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "volunteer",
+      "stage": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "volunteer",
+      "stage": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "volunteer",
+      "stage": "draft",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "volunteer",
+      "stage": "draft",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "volunteer",
+      "stage": "draft",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "volunteer",
+      "stage": "draft",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "volunteer",
+      "stage": "reload",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "volunteer",
+      "stage": "reload",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "volunteer",
+      "stage": "reload",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "volunteer",
+      "stage": "reload",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "volunteer",
+      "stage": "submit",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "volunteer",
+      "stage": "submit",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "volunteer",
+      "stage": "submit",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "volunteer",
+      "stage": "submit",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    }
+  ],
+  "outcomes": [
+    {
+      "role": "volunteer",
+      "fixture": {
+        "place_id": 19,
+        "editor_path": "/ru/admin/volunteer/19/edit/",
+        "name": "QA native-volunteer",
+        "public_path": "/place/19-qa-native-volunteer/"
+      },
+      "before": {
+        "read_only": true,
+        "synthetic_only": true,
+        "place_id": 19,
+        "live_photo": "places/mod02-live-main.webp",
+        "live_cover": "places/mod02-live-cover.webp",
+        "live_gallery": [
+          {
+            "id": 37,
+            "image": "places/mod02-live-gallery-1.webp",
+            "caption": "Current 1",
+            "order": 1
+          },
+          {
+            "id": 38,
+            "image": "places/mod02-live-gallery-2.webp",
+            "caption": "Current 2",
+            "order": 2
+          }
+        ],
+        "live_status": "published",
+        "public_path": "/place/19-qa-native-volunteer/",
+        "candidate_photo": null,
+        "candidate_cover": null,
+        "candidate_gallery": null,
+        "revision_id": null,
+        "revision_status": null,
+        "revision_version": null,
+        "changed_fields": [],
+        "domain_sha256": "27e262ebd37537819ab33830c5084891303e6c8ee2414b6bf744006ffc61553d"
+      },
+      "draft": {
+        "read_only": true,
+        "synthetic_only": true,
+        "place_id": 19,
+        "live_photo": "places/mod02-live-main.webp",
+        "live_cover": "places/mod02-live-cover.webp",
+        "live_gallery": [
+          {
+            "id": 37,
+            "image": "places/mod02-live-gallery-1.webp",
+            "caption": "Current 1",
+            "order": 1
+          },
+          {
+            "id": 38,
+            "image": "places/mod02-live-gallery-2.webp",
+            "caption": "Current 2",
+            "order": 2
+          }
+        ],
+        "live_status": "published",
+        "public_path": "/place/19-qa-native-volunteer/",
+        "candidate_photo": "places/mod02-candidate-main_oDIDe40.webp",
+        "candidate_cover": "places/covers/mod02-candidate-cover.webp",
+        "candidate_gallery": [
+          {
+            "id": 37,
+            "image": "places/mod02-live-gallery-1.webp",
+            "caption": "Current 1",
+            "order": 1
+          },
+          {
+            "id": 38,
+            "image": "places/mod02-live-gallery-2.webp",
+            "caption": "Current 2",
+            "order": 2
+          }
+        ],
+        "revision_id": 20,
+        "revision_status": "draft",
+        "revision_version": 1,
+        "changed_fields": [
+          "cover_photo",
+          "photo"
+        ],
+        "domain_sha256": "47be51e42af41e3c796989dad89a4ea2e899ff212449ff2efb3b4f7dcaa3d569"
+      },
+      "reloaded": {
+        "read_only": true,
+        "synthetic_only": true,
+        "place_id": 19,
+        "live_photo": "places/mod02-live-main.webp",
+        "live_cover": "places/mod02-live-cover.webp",
+        "live_gallery": [
+          {
+            "id": 37,
+            "image": "places/mod02-live-gallery-1.webp",
+            "caption": "Current 1",
+            "order": 1
+          },
+          {
+            "id": 38,
+            "image": "places/mod02-live-gallery-2.webp",
+            "caption": "Current 2",
+            "order": 2
+          }
+        ],
+        "live_status": "published",
+        "public_path": "/place/19-qa-native-volunteer/",
+        "candidate_photo": "places/mod02-candidate-main_oDIDe40.webp",
+        "candidate_cover": "places/covers/mod02-candidate-cover.webp",
+        "candidate_gallery": [
+          {
+            "id": 37,
+            "image": "places/mod02-live-gallery-1.webp",
+            "caption": "Current 1",
+            "order": 1
+          },
+          {
+            "id": 38,
+            "image": "places/mod02-live-gallery-2.webp",
+            "caption": "Current 2",
+            "order": 2
+          }
+        ],
+        "revision_id": 20,
+        "revision_status": "draft",
+        "revision_version": 1,
+        "changed_fields": [
+          "cover_photo",
+          "photo"
+        ],
+        "domain_sha256": "47be51e42af41e3c796989dad89a4ea2e899ff212449ff2efb3b4f7dcaa3d569"
+      },
+      "pending": {
+        "read_only": true,
+        "synthetic_only": true,
+        "place_id": 19,
+        "live_photo": "places/mod02-live-main.webp",
+        "live_cover": "places/mod02-live-cover.webp",
+        "live_gallery": [
+          {
+            "id": 37,
+            "image": "places/mod02-live-gallery-1.webp",
+            "caption": "Current 1",
+            "order": 1
+          },
+          {
+            "id": 38,
+            "image": "places/mod02-live-gallery-2.webp",
+            "caption": "Current 2",
+            "order": 2
+          }
+        ],
+        "live_status": "published",
+        "public_path": "/place/19-qa-native-volunteer/",
+        "candidate_photo": "places/mod02-candidate-main_oDIDe40.webp",
+        "candidate_cover": "places/covers/mod02-candidate-cover.webp",
+        "candidate_gallery": [
+          {
+            "id": 37,
+            "image": "places/mod02-live-gallery-1.webp",
+            "caption": "Current 1",
+            "order": 1
+          },
+          {
+            "id": 38,
+            "image": "places/mod02-live-gallery-2.webp",
+            "caption": "Current 2",
+            "order": 2
+          }
+        ],
+        "revision_id": 20,
+        "revision_status": "pending",
+        "revision_version": 2,
+        "changed_fields": [
+          "cover_photo",
+          "photo"
+        ],
+        "domain_sha256": "9e589544a3f300505edccb7a90a6d30150b65dcd1778463e7c1fcaf1c78720b4"
+      }
+    }
+  ],
+  "mode": "native supported author media controls only; owner main+2gallery, volunteer main+cover; unsupported other-role controls explicitly NOT RUN, no source extension"
+}

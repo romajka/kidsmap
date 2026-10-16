@@ -1,11 +1,13 @@
 import json
+from urllib.parse import urlencode
 from django.contrib import admin, messages
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, ngettext
 from django.urls import path, reverse
 from django.template.response import TemplateResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
+from django.views.decorators.http import require_GET
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.formats import date_format
@@ -560,6 +562,16 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
     def get_urls(self):
         custom_urls = [
             path(
+                "<int:request_id>/site-preview/",
+                self.admin_site.admin_view(require_GET(self.site_preview_request_view)),
+                name=f"{self.model._meta.app_label}_{self.model._meta.model_name}_site_preview",
+            ),
+            path(
+                "<int:request_id>/preview/",
+                self.admin_site.admin_view(require_GET(self.preview_request_view)),
+                name=f"{self.model._meta.app_label}_{self.model._meta.model_name}_preview",
+            ),
+            path(
                 "<int:request_id>/approve/",
                 self.admin_site.admin_view(self.approve_request_view),
                 name="catalog_placeownershiprequest_approve",
@@ -571,6 +583,90 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             ),
         ]
         return custom_urls + super().get_urls()
+
+    def _preview_url(self, obj):
+        url = reverse(f"admin:{self.model._meta.app_label}_{self.model._meta.model_name}_preview", args=[obj.pk], current_app=self.admin_site.name)
+        back = getattr(obj, "_km_preview_back", "")
+        return url + ("?" + urlencode({"next": back}) if back else "")
+
+    def _site_preview_url(self, obj):
+        url = reverse(f"admin:{self.model._meta.app_label}_{self.model._meta.model_name}_site_preview", args=[obj.pk], current_app=self.admin_site.name)
+        back = getattr(obj, "_km_preview_back", "")
+        return url + ("?" + urlencode({"next":back}) if back else "")
+
+    def site_preview_request_view(self, request, request_id):
+        return self.preview_request_view(request, request_id, website=True)
+
+    def preview_request_view(self, request, request_id, *, website=False):
+        item = get_object_or_404(self.get_queryset(request), pk=request_id)
+        # Proxies must check the same concrete permissions as the decision view.
+        permission_admin = self.admin_site._registry.get(self.model._meta.concrete_model, self)
+        place_admin = self.admin_site._registry[Place]
+        if not (permission_admin.has_view_or_change_permission(request, item)
+                and place_admin.has_view_or_change_permission(request, item.place)):
+            raise PermissionDenied
+        from catalog.services.admin_place_preview import build_request_preview
+        language = request.GET.get('lang', getattr(request, "LANGUAGE_CODE", "ru"))
+        language = language if language in ('az','ru','en') else 'ru'
+        preview = build_request_preview(item, language=language,
+            current=request.GET.get("version") == "current")
+        list_url = reverse("admin:catalog_placeownershiprequest_changelist", current_app=self.admin_site.name)
+        back = request.GET.get("next", "")
+        if not (back and back.startswith("/") and not back.startswith("//")
+                and url_has_allowed_host_and_scheme(back, allowed_hosts={request.get_host()})):
+            back = list_url
+        preview_url = self._preview_url(item)
+        return_params = {"next": back}
+        if request.GET.get("version") == "current":
+            return_params["version"] = "current"
+        inspection_return = preview_url + "?" + urlencode(return_params)
+        if website:
+            from copy import copy
+            from django.contrib.auth.models import AnonymousUser
+            from django.utils.translation import override
+            from catalog.services.admin_site_preview import build_site_preview_context
+            visitor = copy(request)
+            visitor.user = AnonymousUser()
+            visitor.LANGUAGE_CODE = language
+            visitor.site_preview = True
+            with override(language):
+                site_context = build_site_preview_context(visitor, preview)
+                site_context['site_preview_back'] = inspection_return
+                params = {'next':back}
+                if request.GET.get('version') == 'current': params['version'] = 'current'
+                site_context['language_urls'] = {lang:request.path+'?'+urlencode({**params,'lang':lang}) for lang in ('az','ru','en')}
+                site_context['language_switch_query'] = ''
+                site_context['site_preview_languages'] = site_context['language_urls'].items()
+                site_context['site_preview_version'] = request.GET.get('version','')
+                response = TemplateResponse(visitor, 'catalog/place_detail_preview.html', site_context)
+                response.render()
+            response['X-Robots-Tag'] = 'noindex, nofollow, noarchive'
+            response['Content-Language'] = language
+            return response
+        can_moderate = item.is_pending and permission_admin.has_change_permission(request, item)
+        from catalog.services.business_team import platform_has_action
+        can_publish = platform_has_action(user=request.user, action="place.publish") if preview['is_publication'] else True
+        can_approve = bool(can_moderate and not preview['stale']
+            and can_publish
+            and item.applicant and item.applicant.is_active
+            and not (preview['has_submission'] and not preview['show_submission'])
+            and (not preview['is_publication'] or preview['readiness'].is_ready))
+        context = {
+            **self.admin_site.each_context(request), "opts": self.model._meta,
+            "title": preview['title'], "preview": preview, "request_item": item,
+            "preview_back_url": back, "preview_can_moderate": can_moderate,
+            "preview_applicant_label": (item.applicant.get_full_name() or item.applicant.username) if item.applicant else _("Не указано"),
+            "preview_can_approve": can_approve,
+            "preview_site_url": reverse(f"admin:{self.model._meta.app_label}_{self.model._meta.model_name}_site_preview", args=[item.pk]) + '?' + urlencode({**return_params,'lang':language}),
+            "preview_edit_url": reverse("admin:catalog_place_change", args=[item.place_id])
+                if place_admin.has_change_permission(request, item.place) else "",
+            "preview_request_url": reverse("admin:catalog_placeownershiprequest_change", args=[item.pk]),
+            "preview_current_url": preview_url + "?" + urlencode({"version":"current", "next":back}),
+            "preview_submitted_url": preview_url + "?" + urlencode({"next":back}),
+            "preview_approve_url": reverse("admin:catalog_placeownershiprequest_approve", args=[item.pk]) + "?" + urlencode({"next":inspection_return}),
+            "preview_reject_url": reverse("admin:catalog_placeownershiprequest_reject", args=[item.pk]) + "?" + urlencode({"next":inspection_return}),
+        }
+        return TemplateResponse(request, "admin/catalog/placeownershiprequest/preview.html", context)
 
     @admin.display(description=_("Статус"))
     def status_badge(self, obj):
@@ -603,7 +699,7 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             "status_tone": status_tone,
             "place_name": obj.place.name_ru or obj.place.name,
             "place_url": reverse("admin:catalog_place_change", args=[obj.place_id], current_app=self.admin_site.name),
-            "applicant": obj.applicant.get_full_name() or obj.applicant.email or obj.applicant.username,
+            "applicant": (obj.applicant.get_full_name() or obj.applicant.email or obj.applicant.username) if obj.applicant else _("Не указано"),
         }
 
     def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
@@ -611,6 +707,8 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             context["km_request_form_summary"] = self._build_request_form_summary(obj)
             context["km_action_approve_url"] = reverse("admin:catalog_placeownershiprequest_approve", args=[obj.pk], current_app=self.admin_site.name)
             context["km_action_reject_url"] = reverse("admin:catalog_placeownershiprequest_reject", args=[obj.pk], current_app=self.admin_site.name)
+            context["km_request_preview_url"] = self._preview_url(obj)
+            context["km_request_site_preview_url"] = self._site_preview_url(obj)
         return super().render_change_form(request, context, add, change, form_url, obj)
 
     @admin.display(description=_("Дата решения"))
@@ -623,7 +721,7 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
 
     @staticmethod
     def _place_text_value(value):
-        return (value or "").strip()
+        return str(value or "").strip()
 
     @staticmethod
     def _format_place_number_pair(first_value, second_value, *, unit: str = "", separator: str = "–"):
@@ -643,6 +741,8 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
         )
 
     def _place_completion_rows(self, place: Place):
+        from catalog.services.locations import get_location_translation
+
         gallery_count = len(place.gallery.all())
         coordinates_value = (
             _("lat %(lat)s, lng %(lng)s") % {"lat": round(place.lat, 6), "lng": round(place.lng, 6)}
@@ -708,7 +808,7 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             _("Показывается текущее состояние связанной карточки."),
             format_html_join(
                 "",
-                '<div class="km-admin-stack" style="padding:10px 12px;border:1px solid #2f2f2f;border-radius:14px;background:#1a1a1a;">'
+                '<div class="km-admin-stack" style="padding:10px 12px;border:1px solid var(--km-admin-border);border-radius:14px;background:var(--km-admin-surface);overflow-wrap:anywhere;">'
                 '<div class="km-admin-badges">{} <span class="km-admin-title">{}</span></div>'
                 '<span class="km-admin-meta">{}</span>'
                 '</div>',
@@ -749,8 +849,6 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
         if not preview:
             preview = mark_safe('<span class="km-col-thumb km-col-thumb--pattern" aria-hidden="true"></span>')
 
-        change_url = reverse("admin:catalog_placeownershiprequest_change", args=[obj.pk])
-
         return format_html(
             '<div class="km-col-place">'
             '{}'
@@ -760,7 +858,7 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             '</div>'
             '</div>',
             preview,
-            change_url,
+            self._preview_url(obj),
             name,
             name,
             meta,
@@ -919,7 +1017,6 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
     def col_actions(self, obj):
         change_url = reverse("admin:catalog_placeownershiprequest_change", args=[obj.pk])
         place = obj.place
-        place_view_url = place.get_absolute_url() if hasattr(place, "get_absolute_url") else f"/places/{place.pk}/"
         changelist_url = reverse("admin:catalog_placeownershiprequest_changelist")
 
         actions = []
@@ -956,13 +1053,19 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
         )
         actions.append(
             format_html(
-                '<a href="{}" target="_blank" class="km-action-icon-btn" title="{}">'
-                '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-open_in_new"></use></svg>'
+                '<a href="{}" class="km-action-icon-btn" title="{}" aria-label="{}">'
+                '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-visibility"></use></svg>'
                 '</a>',
-                place_view_url,
-                _("Посмотреть кружок на сайте"),
+                self._preview_url(obj),
+                _("Проверить карточку"),
+                _("Проверить карточку"),
             )
         )
+        actions.append(format_html(
+            '<a href="{}" class="km-action-icon-btn" title="{}" aria-label="{}">'
+            '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-open_in_new"></use></svg></a>',
+            self._site_preview_url(obj), _("Превью на сайте"), _("Превью на сайте"),
+        ))
 
         return format_html(
             '<div class="km-col-actions">{}</div>',
@@ -1041,7 +1144,11 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             "request_bulk_actions": self._request_bulk_actions(),
             **(extra_context or {}),
         }
-        return super().changelist_view(request, extra_context=extra_context)
+        response = super().changelist_view(request, extra_context=extra_context)
+        if getattr(response, "context_data", None) and response.context_data.get("cl"):
+            for item in response.context_data["cl"].result_list:
+                item._km_preview_back = request.get_full_path()
+        return response
 
     def has_add_permission(self, request):
         return False
@@ -1064,13 +1171,19 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             raise PermissionDenied
 
         if request.method != "POST":
-            action_label = _("Принять") if new_status == PlaceOwnershipRequest.STATUS_APPROVED else _("Отклонить")
+            is_publication = item.request_kind == item.KIND_PUBLICATION
+            if new_status == PlaceOwnershipRequest.STATUS_APPROVED:
+                action_label = _("Одобрить и опубликовать") if is_publication else _("Подтвердить владение")
+            else:
+                action_label = _("Отклонить заявку")
             next_param = request.GET.get("next") or ""
             back_url = next_param if (next_param and url_has_allowed_host_and_scheme(next_param, allowed_hosts={request.get_host()})) else reverse("admin:catalog_placeownershiprequest_change", args=[item.pk])
             context = {
                 **self.admin_site.each_context(request),
                 "opts": self.model._meta,
-                "title": _("Подтверждение модерации"),
+                "title": action_label,
+                "is_publication": is_publication,
+                "is_approval": new_status == PlaceOwnershipRequest.STATUS_APPROVED,
                 "request_item": item,
                 "action_label": action_label,
                 "action_url": request.get_full_path(),

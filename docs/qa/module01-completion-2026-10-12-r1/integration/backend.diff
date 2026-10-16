@@ -1,0 +1,20 @@
+diff --git a/src/catalog/photo_views.py b/src/catalog/photo_views.py
+index 898a4d62..2679d37a 100644
+--- a/src/catalog/photo_views.py
++++ b/src/catalog/photo_views.py
+@@ -100,7 +100,14 @@ def save_owner_photos(request, pk=None):
+             result = controller.save_edit_form(request=request, place_id=pk, data=data, files=request.FILES, draft_save_only=action == 'save_draft', submit_for_moderation=action == 'save_and_publish')
+         if not result.ok:
+             errors = {name: [str(error) for error in values] for name, values in result.form.errors.items()} if result.form is not None else {'__all__': [str(result.message)]}
+-            return JsonResponse({'ok': False, 'errors': errors}, status=422 if result.form is not None else 403)
++            payload = {'ok': False, 'errors': errors}
++            if result.form is not None and any(
++                error.code == 'candidate_version_conflict'
++                for values in result.form.errors.as_data().values()
++                for error in values
++            ):
++                payload['conflict'] = 'candidate_version_conflict'
++            return JsonResponse(payload, status=422 if result.form is not None else 403)
+         from catalog.services.server_drafts import mark_explicit_save
+         mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=pk)
+         url = reverse('owner_place_edit', args=[result.place.pk]) + '#pc-section-4' if action == 'save_draft' else reverse('owner_places_dashboard')

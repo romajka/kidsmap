@@ -1,0 +1,195 @@
+--- a/locale/az/LC_MESSAGES/django.po
++++ b/locale/az/LC_MESSAGES/django.po
+@@ -23447,3 +23447,23 @@
+ #: catalog/placeownershiprequest/preview.html
+ msgid "Полный текст"
+ msgstr "Tam mətn"
++
++# MOD-QA-06: place row unpublish confirmation
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Снять с публикации?"
++msgstr "Nəşrdən çıxarılsın?"
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики."
++msgstr "«%(name)s» kartı saytda göstərilməyəcək və qaralamalara keçiriləcək."
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Да, снять"
++msgstr "Bəli, nəşrdən çıxar"
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "Снять карточку «%(name)s» с публикации?"
++msgstr "«%(name)s» kartı nəşrdən çıxarılsın?"
+--- a/locale/en/LC_MESSAGES/django.po
++++ b/locale/en/LC_MESSAGES/django.po
+@@ -23301,3 +23301,23 @@
+ #: catalog/placeownershiprequest/preview.html
+ msgid "Полный текст"
+ msgstr "Full text"
++
++# MOD-QA-06: place row unpublish confirmation
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Снять с публикации?"
++msgstr "Unpublish?"
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики."
++msgstr "The “%(name)s” listing will no longer appear on the site and will move to drafts."
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Да, снять"
++msgstr "Yes, unpublish"
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "Снять карточку «%(name)s» с публикации?"
++msgstr "Unpublish the “%(name)s” listing?"
+--- a/locale/ru/LC_MESSAGES/django.po
++++ b/locale/ru/LC_MESSAGES/django.po
+@@ -20883,3 +20883,23 @@
+ #: catalog/placeownershiprequest/preview.html
+ msgid "Полный текст"
+ msgstr "Полный текст"
++
++# MOD-QA-06: place row unpublish confirmation
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Снять с публикации?"
++msgstr "Снять с публикации?"
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики."
++msgstr "Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики."
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Да, снять"
++msgstr "Да, снять"
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "Снять карточку «%(name)s» с публикации?"
++msgstr "Снять карточку «%(name)s» с публикации?"
+--- a/src/catalog/templates/admin/catalog/place/change_list.html
++++ b/src/catalog/templates/admin/catalog/place/change_list.html
+@@ -262,6 +262,11 @@
+       <button type="button" class="km-toast__undo" id="km-toast-undo">{% translate "Отменить" %}</button>
+     </div>
+     <div id="km-changelist-i18n" hidden
++      data-unpublish-title="{% translate 'Снять с публикации?' %}"
++      data-unpublish-message="{% blocktranslate with name='%(name)s' %}Карточка «{{ name }}» перестанет отображаться на сайте и перейдёт в черновики.{% endblocktranslate %}"
++      data-unpublish-confirm="{% translate 'Да, снять' %}"
++      data-unpublish-cancel="{% translate 'Отмена' %}"
++      data-unpublish-fallback="{% blocktranslate with name='%(name)s' %}Снять карточку «{{ name }}» с публикации?{% endblocktranslate %}"
+       data-selected-label="{% translate 'Выбрано' %}"
+       data-readiness-label="{% translate 'Готовность' %}"
+       data-items-label="{% translate 'пунктов' %}"
+--- a/static/admin/js/kidsmap_place_changelist.js
++++ b/static/admin/js/kidsmap_place_changelist.js
+@@ -729,18 +729,18 @@
+             // Confirmation modal before unpublishing
+             if (window.kmModal) {
+               window.kmModal.confirm({
+-                title: 'Снять с публикации?',
+-                message: 'Карточка «' + placeName + '» перестанет отображаться на сайте и перейдёт в черновики.',
++                title: labels.unpublishTitle || 'Снять с публикации?',
++                message: (labels.unpublishMessage || 'Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики.').replace('%(name)s', function () { return placeName; }),
+                 iconTone: 'warning',
+-                confirmText: 'Да, снять',
+-                cancelText: 'Отмена',
++                confirmText: labels.unpublishConfirm || 'Да, снять',
++                cancelText: labels.unpublishCancel || 'Отмена',
+                 isAlertDialog: true
+               }).then(function (confirmed) {
+                 if (confirmed) {
+                   executeTogglePublication(true);
+                 }
+               });
+-            } else if (window.confirm('Снять карточку «' + placeName + '» с публикации?')) {
++            } else if (window.confirm((labels.unpublishFallback || 'Снять карточку «%(name)s» с публикации?').replace('%(name)s', function () { return placeName; }))) {
+               executeTogglePublication(true);
+             }
+           } else {
+--- /dev/null
++++ b/src/catalog/testcases/test_mod06_unpublish_localization.py
+@@ -0,0 +1,74 @@
++"""The changelist must supply localized unpublish copy to the row dialog.
++
++Regression: missing labels, untranslated catalogs or ignoring the selected
++admin locale would send Russian confirmation copy to AZ/EN users.
++"""
++from html.parser import HTMLParser
++
++from django.conf import settings
++from django.contrib.auth import get_user_model
++from django.test import TestCase
++
++
++class _UnpublishLabels(HTMLParser):
++    def __init__(self):
++        super().__init__()
++        self.labels = {}
++
++    def handle_starttag(self, tag, attrs):
++        values = dict(attrs)
++        if values.get("id") == "km-changelist-i18n":
++            self.labels = {
++                key.removeprefix("data-unpublish-"): value
++                for key, value in attrs
++                if key.startswith("data-unpublish-")
++            }
++
++
++class UnpublishConfirmationLocalizationTests(TestCase):
++    @classmethod
++    def setUpTestData(cls):
++        cls.admin = get_user_model().objects.create_superuser(
++            username="mod06_localization_admin",
++            email="mod06@example.invalid",
++            password=None,
++        )
++
++    def setUp(self):
++        self.client.force_login(self.admin)
++
++    def assert_labels(self, path, cookie, language, expected):
++        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = cookie
++        response = self.client.get(path)
++        self.assertEqual(response.status_code, 200)
++        self.assertEqual(response.wsgi_request.LANGUAGE_CODE, language)
++        parser = _UnpublishLabels()
++        parser.feed(response.content.decode("utf-8"))
++        self.assertEqual(parser.labels, expected)
++
++    def test_ru_prefix_supplies_russian_confirmation_despite_en_cookie(self):
++        self.assert_labels("/ru/admin/catalog/place/", "en", "ru", {
++            "title": "Снять с публикации?",
++            "message": "Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики.",
++            "confirm": "Да, снять",
++            "cancel": "Отмена",
++            "fallback": "Снять карточку «%(name)s» с публикации?",
++        })
++
++    def test_en_prefix_supplies_english_confirmation_despite_ru_cookie(self):
++        self.assert_labels("/en/admin/catalog/place/", "ru", "en", {
++            "title": "Unpublish?",
++            "message": "The “%(name)s” listing will no longer appear on the site and will move to drafts.",
++            "confirm": "Yes, unpublish",
++            "cancel": "Cancel",
++            "fallback": "Unpublish the “%(name)s” listing?",
++        })
++
++    def test_unprefixed_admin_uses_cookie_selected_azerbaijani_confirmation(self):
++        self.assert_labels("/admin/catalog/place/", "az", "az", {
++            "title": "Nəşrdən çıxarılsın?",
++            "message": "«%(name)s» kartı saytda göstərilməyəcək və qaralamalara keçiriləcək.",
++            "confirm": "Bəli, nəşrdən çıxar",
++            "cancel": "Ləğv et",
++            "fallback": "«%(name)s» kartı nəşrdən çıxarılsın?",
++        })

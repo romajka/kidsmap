@@ -1,0 +1,47 @@
+{
+  "locale_build": {
+    "argv": [
+      ".venv/bin/python",
+      "scripts/build_isolated_locales.py",
+      "build",
+      "--output",
+      ".tmp/access-qa01-recheck-2026-10-14-r1/locales",
+      "--locales",
+      "ru",
+      "az",
+      "en",
+      "--compiler",
+      "native"
+    ],
+    "exit": 0
+  },
+  "browser_open_attempts": [
+    {
+      "session": "accessqa01r1",
+      "url": "about:blank",
+      "config": ".tmp/access-qa01-recheck-2026-10-14-r1/browser.json",
+      "exit": 1,
+      "reason": "missing expected chromium1247 executable; no browser launched"
+    },
+    {
+      "session": "accessqa01r1",
+      "url": "about:blank",
+      "config": ".tmp/access-qa01-recheck-2026-10-14-r1/browser.json",
+      "exit": 0,
+      "executable": "/home/ramin/.cache/ms-playwright/chromium-1228/chrome-linux64/chrome",
+      "pid": 626779
+    }
+  ],
+  "login_snapshot_exit": 0,
+  "server_start": {
+    "pid": 625007,
+    "argv": [
+      "/home/ramin/kidsmap/.venv/bin/python",
+      "/home/ramin/kidsmap/docs/qa/access-qa01-recheck-2026-10-14-r1/runtime.py",
+      "serve"
+    ],
+    "url": "http://127.0.0.1:57059",
+    "container": "access-qa01-recheck-2026-10-14-r1-pg",
+    "pg_port": 34811
+  }
+}

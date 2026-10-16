@@ -1,0 +1,73 @@
+TAP version 13
+# Subtest: fourth toast completes synchronously and retains the newest three
+not ok 1 - fourth toast completes synchronously and retains the newest three
+  ---
+  duration_ms: 253.470197
+  location: '/home/ramin/kidsmap/docs/qa/mod-qa09-11-fix-2026-10-16-r1/findings/toast-capacity-candidate.test.cjs:11:1'
+  failureType: 'testCodeFailure'
+  error: 'Script execution timed out after 250ms'
+  code: 'ERR_SCRIPT_EXECUTION_TIMEOUT'
+  stack: |-
+    Script.runInContext (node:vm:149:12)
+    Object.runInContext (node:vm:301:6)
+    TestContext.<anonymous> (/home/ramin/kidsmap/docs/qa/mod-qa09-11-fix-2026-10-16-r1/findings/toast-capacity-candidate.test.cjs:11:106)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    node:internal/test_runner/harness:255:12
+    node:internal/process/task_queues:140:7
+    AsyncResource.runInAsyncScope (node:async_hooks:206:9)
+    AsyncResource.runMicrotask (node:internal/process/task_queues:137:8)
+  ...
+# Subtest: first three notices exercise the DOM fixture without a deadline failure
+ok 2 - first three notices exercise the DOM fixture without a deadline failure
+  ---
+  duration_ms: 1.055128
+  ...
+# Subtest: capacity while oldest is leaving keeps new notices after its delayed removal
+not ok 3 - capacity while oldest is leaving keeps new notices after its delayed removal
+  ---
+  duration_ms: 251.410685
+  location: '/home/ramin/kidsmap/docs/qa/mod-qa09-11-fix-2026-10-16-r1/findings/toast-capacity-candidate.test.cjs:14:1'
+  failureType: 'testCodeFailure'
+  error: 'Script execution timed out after 250ms'
+  code: 'ERR_SCRIPT_EXECUTION_TIMEOUT'
+  stack: |-
+    Script.runInContext (node:vm:149:12)
+    Object.runInContext (node:vm:301:6)
+    TestContext.<anonymous> (/home/ramin/kidsmap/docs/qa/mod-qa09-11-fix-2026-10-16-r1/findings/toast-capacity-candidate.test.cjs:14:124)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: rapid overflow remains bounded and normal clearAll still removes active notices
+not ok 4 - rapid overflow remains bounded and normal clearAll still removes active notices
+  ---
+  duration_ms: 251.299389
+  location: '/home/ramin/kidsmap/docs/qa/mod-qa09-11-fix-2026-10-16-r1/findings/toast-capacity-candidate.test.cjs:15:1'
+  failureType: 'testCodeFailure'
+  error: 'Script execution timed out after 250ms'
+  code: 'ERR_SCRIPT_EXECUTION_TIMEOUT'
+  stack: |-
+    Script.runInContext (node:vm:149:12)
+    Object.runInContext (node:vm:301:6)
+    TestContext.<anonymous> (/home/ramin/kidsmap/docs/qa/mod-qa09-11-fix-2026-10-16-r1/findings/toast-capacity-candidate.test.cjs:15:127)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 1
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 810.626487

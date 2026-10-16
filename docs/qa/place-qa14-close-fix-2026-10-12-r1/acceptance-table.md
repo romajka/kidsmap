@@ -1,0 +1,34 @@
+| Scenario | PASS assertions | FAIL | Actual result |
+|---|---:|---:|---|
+| keyboard-fresh-ru | 30 | 0 | `keyboard-fresh-ru.result.json` |
+| keyboard-fresh-az | 30 | 0 | `keyboard-fresh-az.result.json` |
+| keyboard-fresh-en | 30 | 0 | `keyboard-fresh-en.result.json` |
+| rapid-reopen | 12 | 0 | `rapid-reopen.result.json` |
+| shared-consumers-matrix | 72 | 0 | `shared-consumers-matrix.result.json` |
+| errors-files | 9 | 0 | `errors-files.result.json` |
+| lifecycle | 8 | 0 | `lifecycle.result.attempt1791804648.json` |
+| review | 39 | 0 | `review.result.json` |
+| branch-final | 6 | 0 | `branch-final.result.attempt1791804971.json` |
+| taxonomy-native | 17 | 0 | `taxonomy-native.result.json` |
+| file-formats-final | 14 | 0 | `file-formats-final.result.json` |
+| gallery-payment-schedule | 11 | 0 | `gallery-payment-schedule.result.json` |
+| price-switch-fast | 6 | 0 | `price-switch-fast.result.json` |
+| price-stable-final | 4 | 0 | `price-stable-final.result.json` |
+| gallery-corpus | 6 | 0 | `gallery-corpus.result.json` |
+| lessons | 2 | 0 | `lessons.result.json` |
+| matrix | 126 | 0 | `matrix.result.json` |
+| admin-matrix | 72 | 0 | `admin-matrix.result.json` |
+| states-final | 108 | 0 | `states-final.result.json` |
+| admin-loading | 36 | 0 | `admin-loading.result.json` |
+| focus-corpus-visual | 72 | 0 | `focus-corpus-visual.result.json` |
+| expanded-keyboard-frames | 18 | 0 | `expanded-keyboard-frames.result.json` |
+| admin-keyboard-frames | 18 | 0 | `admin-keyboard-frames.result.json` |
+| conflict-final | 90 | 0 | `conflict-final.result.json` |
+| conflict-photos-final | 6 | 0 | `conflict-photos-final.result.json` |
+| lost-after-commit-final | 2 | 0 | `lost-after-commit-final.result.json` |
+| acl-native | 24 | 0 | `acl-native.result.json` |
+| mixed-price | 6 | 0 | `mixed-price.result.json` |
+| public-final | 9 | 0 | `public-final.result.json` |
+| public-keyboard-fragments | 54 | 0 | `public-keyboard-fragments.result.json` |
+| coordinates-final | 3 | 0 | `coordinates-final.result.json` |
+| geo-denied-final | 3 | 0 | `geo-denied-final.result.json` |

@@ -1,5 +1,6 @@
 from django import template
-from django.contrib.admin.views.main import PAGE_VAR
+from django.contrib.admin.views.main import ERROR_FLAG, PAGE_VAR, SEARCH_VAR
+from django.contrib.admin.utils import label_for_field
 from django.contrib.auth import get_user_model
 from catalog.models.place import Place, Event
 from catalog.models.specialist import Specialist
@@ -10,6 +11,7 @@ from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
 from catalog.models.seo import SEOIssue
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.utils.text import capfirst
 
 register = template.Library()
 User = get_user_model()
@@ -18,6 +20,30 @@ User = get_user_model()
 @register.simple_tag
 def admin_filter_choices(cl, spec):
     return list(spec.choices(cl))
+
+
+@register.simple_tag
+def km_drawer_filters(cl):
+    """Render only filters already exposed by the current admin changelist."""
+    entity_specific = cl.opts.model_name in {'event', 'specialist'}
+    legacy_fields = {'created_by', 'created_date', 'category', 'district', 'is_verified'}
+    navigation_fields = {'sort', 'deleted_at__isnull'}
+    available = []
+    for spec in getattr(cl, 'filter_specs', []):
+        field = getattr(spec, 'field_path', None) or getattr(spec, 'parameter_name', None)
+        if not field or field in navigation_fields:
+            continue
+        if not entity_specific and getattr(spec, 'field_path', None) not in legacy_fields:
+            continue
+        choices = list(spec.choices(cl))
+        if choices:
+            available.append({'field': field, 'title': spec.title, 'choices': choices})
+    if entity_specific:
+        primary = tuple(getattr(cl.model_admin, 'km_primary_filters', ()))
+        positions = {field: index for index, field in enumerate(primary)}
+        available.sort(key=lambda item: positions.get(item['field'], len(primary)))
+    return {'groups': available, 'entity_specific': entity_specific,
+            'show_quality': not entity_specific}
 
 
 @register.simple_tag
@@ -171,6 +197,36 @@ def paginator_page_url(cl, page_number):
 
 
 @register.simple_tag
+def km_column_options(cl):
+    """Use the authorized display order, including the action-checkbox offset."""
+    excluded = {'action_checkbox', 'col_actions', 'row_actions'}
+    options = []
+    for index, name in enumerate(cl.list_display):
+        if not isinstance(name, str) or name in excluded:
+            continue
+        options.append({
+            'target': 'column-' + name,
+            'index': index,
+            'label': capfirst(label_for_field(name, cl.model, cl.model_admin)),
+            'required': not options,
+        })
+    key = ('km_hidden_columns' if cl.model._meta.label_lower == 'catalog.place'
+           else 'km_hidden_columns:' + cl.model._meta.label_lower)
+    return {'storage_key': key, 'options': options}
+
+
+@register.simple_tag
+def km_search_hidden_params(cl):
+    """Keep accepted filters in the independently submitted search form."""
+    return [
+        (key, value)
+        for key, values in cl.filter_params.items()
+        if key not in {SEARCH_VAR, PAGE_VAR, ERROR_FLAG}
+        for value in values
+    ]
+
+
+@register.simple_tag
 def cl_sort_url(cl, sort_key):
     return cl.get_query_string({'sort': sort_key}, [PAGE_VAR, 'o', 'ot'])
 
@@ -194,6 +250,8 @@ def get_active_filter_chips(cl):
         'deleted_at', 'deleted_at__isnull',
         'p', 'o', 'q', 'sort'
     }
+    if cl.opts.model_name in {'event', 'specialist'}:
+        ignored_params -= {'status', 'status__exact'}
     for spec in getattr(cl, 'filter_specs', []):
         field_name = getattr(spec, 'parameter_name', getattr(spec, 'field_path', ''))
         if not field_name:

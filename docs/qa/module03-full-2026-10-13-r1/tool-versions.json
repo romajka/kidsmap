@@ -1,0 +1,51 @@
+{
+  "python": {
+    "argv": [
+      ".tmp/module03-spec-fix-2026-10-13-r1/venv/bin/python",
+      "--version"
+    ],
+    "exit": 0,
+    "version": "Python 3.12.3"
+  },
+  "node": {
+    "argv": [
+      "node",
+      "--version"
+    ],
+    "exit": 0,
+    "version": "v20.20.2"
+  },
+  "docker": {
+    "argv": [
+      "docker",
+      "--version"
+    ],
+    "exit": 0,
+    "version": "Docker version 29.8.0, build 88096ef"
+  },
+  "msgfmt": {
+    "argv": [
+      "msgfmt",
+      "--version"
+    ],
+    "exit": 0,
+    "version": "msgfmt (GNU gettext-tools) 0.21"
+  },
+  "browser_cli": {
+    "argv": [
+      "playwright-cli",
+      "--version"
+    ],
+    "exit": 0,
+    "version": "0.1.17"
+  },
+  "packages": {
+    "argv": [
+      ".tmp/module03-spec-fix-2026-10-13-r1/venv/bin/python",
+      "-c",
+      "import django,PIL,pypdf,psycopg; print(django.get_version(),PIL.__version__,pypdf.__version__,psycopg.__version__)"
+    ],
+    "exit": 0,
+    "version": "6.0.2 11.3.0 6.20.1 3.2.10"
+  }
+}

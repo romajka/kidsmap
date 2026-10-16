@@ -1,0 +1,367 @@
+{
+  "decision": "PLAN ACCESS-QA-04 COMPLETE; defect OPEN awaiting separate approval; implementation NOT RUN",
+  "ids": [
+    "ACCESS-QA-04"
+  ],
+  "closed_ids": [],
+  "approved_implementation": false,
+  "plan": "/home/ramin/kidsmap/docs/qa/access-qa04-recheck-2026-10-15-r1/IMPLEMENTATION_PLAN.md",
+  "plan_sha256": "aca3bef1a3bd328b1e831e3773873d2baecd1aa1c1ea242e944e14e1b4a49d7a",
+  "application_changes": [],
+  "planned_application_files": [
+    "static/css/site.css"
+  ],
+  "root": "/home/ramin/kidsmap",
+  "head": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+  "branch": "task33-progress",
+  "active_run": [
+    "active_run: NONE"
+  ],
+  "baseline_files": 28354,
+  "unchanged_files": 28353,
+  "guide_change": "one current04addition; inverse hash matches entry",
+  "unexpected_changes": [],
+  "missing_files": [],
+  "unexpected_new_paths": [],
+  "source_paths": 14,
+  "own_pid": 88442,
+  "foreign_containers": [
+    {
+      "id": "3574853f824e",
+      "name": "access-qa02-fix-2026-10-15-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "0d422e8d41ab",
+      "name": "access-qa02-recheck-2026-10-15-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "d3a4884a6557",
+      "name": "access-qa01-fix-2026-10-14-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "40930946e32a",
+      "name": "access-qa01-recheck-2026-10-14-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "2e66a83e3159",
+      "name": "module06-full-2026-10-14-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "0b8d99e3c9ea",
+      "name": "ownership-preview-fix-2026-10-14-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "57f4c6338b81",
+      "name": "module05-full-2026-10-14-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "ad089e0fa613",
+      "name": "offer-qa09-fix-2026-10-14-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "e998eb05f82b",
+      "name": "offer-qa09-recheck-2026-10-14-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "a12eb8c173d5",
+      "name": "offer-qa08-fix-2026-10-14-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "f447f2f73055",
+      "name": "offer-qa08-recheck-2026-10-14-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "cec802807918",
+      "name": "offer-qa07-fix-2026-10-14-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "feaa3b672489",
+      "name": "offer-qa06-fix-2026-10-14-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "6cd2e9234aef",
+      "name": "offer-qa05-fix-2026-10-14-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "821b79c0e2eb",
+      "name": "offer-qa04-fix-2026-10-13-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "548fdec9c9d9",
+      "name": "offer-qa03-fix-2026-10-13-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "9cd62de3020a",
+      "name": "offer-qa02-fix-2026-10-13-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "0b6ec45d6296",
+      "name": "offer-qa01-fix-2026-10-13-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "2687ac100b54",
+      "name": "offer-qa01-recheck-2026-10-13-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "493cd16a4867",
+      "name": "module04-recheck-2026-10-13-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "e351f28d7991",
+      "name": "module03-spec-fix-2026-10-13-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "a1ab258aaf19",
+      "name": "module02-remaining-recheck-2026-10-13-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "edf6e57cd3a6",
+      "name": "start-local-2026-10-12-r1-pg",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "eea7fb089fb5",
+      "name": "kidsmap-place-acceptance-20261009-8792",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "41f1612f2c35",
+      "name": "kidsmap-reacceptance-20261009",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "85b53a67be4b",
+      "name": "kidsmap-content-final-tests-20261007",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "976273d15800",
+      "name": "kidsmap-content-entry-final-20261007",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "e84ff32c55aa",
+      "name": "kidsmap-owner-event-implementation-20261007",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "667901847f71",
+      "name": "kidsmap-specialist-implementation-20261007",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "6439e763d78f",
+      "name": "kidsmap-organization-implementation-20261007",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "15f61ecb1508",
+      "name": "kidsmap-place-form-implementation-20261007",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "c3cb09e7e9ab",
+      "name": "kidsmap-content-acceptance-20261007",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "d7049efda33e",
+      "name": "kidsmap-local-20261006",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "d46f455fcb0c",
+      "name": "kidsmap-manual-portable",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "438c991d8711",
+      "name": "kidsmap-task33-qa04-8fcda7d9daf6",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "1648eb19327c",
+      "name": "kidsmap-task33-qa04-d4f1a67d2819",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "f13362967bc4",
+      "name": "kidsmap-task33-qa04-f890615f5675",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "439f196eaee7",
+      "name": "kidsmap-task33-qa04-878728676e88",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "3ba34aa5edcf",
+      "name": "kidsmap-task33-qa04-ac8c0b16610f",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "ba8f1a5a652a",
+      "name": "kidsmap-task33-qa04-75cec7ded7c2",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "3c304d208bad",
+      "name": "kidsmap-task33-qa04-54cde58a792c",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "89ad7d75a0fc",
+      "name": "kidsmap-task33-qa04-6edd1165da69",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "7cad197c5bc0",
+      "name": "kidsmap-task33-qa04-222a7dc38aa9",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "f136207b2b60",
+      "name": "oxu_nginx",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "b8d7a0748ae6",
+      "name": "hyperf",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "77d5263b7c3c",
+      "name": "oxu_phpmyadmin",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "f651ef05d3f1",
+      "name": "oxu_hyperf_static",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "e18bddf4c771",
+      "name": "elasticsearch",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "939fe9664b7a",
+      "name": "database",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "e4674b068e2d",
+      "name": "oxu_php_fpm",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "2fc9335d020b",
+      "name": "redis",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "183def94fa66",
+      "name": "kidsmap-latest-browser-db",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "cb98dff9a35c",
+      "name": "kidsmap-url-test-db",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "64cf42d23d04",
+      "name": "kidsmap-pg-cutover-test-20260722",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "c33b658dec40",
+      "name": "kidsmap-postgres",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "f3ba5b3806ce",
+      "name": "kidsmap-redis",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "445ba4442f31",
+      "name": "kidsmap-web",
+      "identity_ports_state_match": true
+    },
+    {
+      "id": "f1dfb92cfbdf",
+      "name": "kidsmap-db",
+      "identity_ports_state_match": true
+    }
+  ],
+  "known_foreign_QA_processes": [
+    {
+      "pid": 22140,
+      "identity_match": true,
+      "preservation": "MATCH"
+    }
+  ],
+  "observations": {
+    "PASS": 111,
+    "FAIL": 87
+  },
+  "phase_cells": {
+    "filled": 18,
+    "error": 3,
+    "empty": 3,
+    "shared reviews": 6,
+    "historical-solo": 6
+  },
+  "native_PNG": 39,
+  "secret_leaks": [],
+  "JS_syntax_files": 7,
+  "artifact_links": 31,
+  "diff_check_exit": 0,
+  "checks": {
+    "baseline_files_preserved": true,
+    "no_unexpected_new_paths": true,
+    "HEAD_branch_active_unchanged": true,
+    "current_running_source_and_served_CSS_match": true,
+    "sole_verified_fresh_locales": true,
+    "shared_MO_unchanged": true,
+    "foreign_container_identity_ports_state": true,
+    "known_foreign_QA_HTTP_process": true,
+    "no_generated_secret_values": true,
+    "native_recheck_finished_with_explicit_partial_RU_provenance": true,
+    "application_patch_absent": true
+  },
+  "NOT_RUN": [
+    "application patch/GREEN",
+    "full18cells each empty/error",
+    "role change/remove/deep select",
+    "backend suites",
+    "full ACCEPT07/global",
+    "real screen reader/cross-browser",
+    "SMTP/external OAuth/Google",
+    "production/deployment/commit/push/module08"
+  ],
+  "preservation_limit": "File/known HTTP/container checks are local entry comparisons, not availability proof for all arbitrary host processes or production."
+}

@@ -1,0 +1,10 @@
+--- static/admin/js/kidsmap_place_changelist.js
++++ static/admin/js/kidsmap_place_changelist.js
+@@ -610,6 +610,7 @@
+         var quickActionUrl = trigger.dataset.quickActionUrl || ('/admin/catalog/place/' + placeId + '/quick-action/');
+         var isPublished = trigger.dataset.status === 'published' && trigger.dataset.isActive === '1';
+         closeRowActions();
++        trigger.focus({preventScroll: true});
+ 
+         function escapeHtml(str) {
+           if (!str) return '';

@@ -15,7 +15,7 @@
 
     if (!mainEl) return;
 
-    function syncThumbs(activeIndex) {
+    function syncThumbs(activeIndex, scroll = true) {
       thumbButtons.forEach(function (thumb, idx) {
         const isActive = idx === activeIndex;
         thumb.classList.toggle("is-active", isActive);
@@ -23,7 +23,7 @@
       });
 
       const activeThumb = thumbButtons[activeIndex];
-      if (activeThumb) {
+      if (activeThumb && (scroll || !document.body.hasAttribute('data-site-preview'))) {
         activeThumb.scrollIntoView({
           behavior: "smooth",
           inline: "center",
@@ -52,7 +52,7 @@
       on: {
         init: function (swiper) {
           updateCounter(swiper, currentEl);
-          syncThumbs(swiper.realIndex);
+          syncThumbs(swiper.realIndex, false);
         },
         slideChange: function (swiper) {
           updateCounter(swiper, currentEl);

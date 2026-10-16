@@ -1,0 +1,21 @@
+{% extends "admin/volunteer/base.html" %}
+{% load i18n %}
+{% block workspace %}
+<h1>{{ title }}</h1>
+{% if error %}<div class="alert alert-danger" role="alert" id="hub-filter-error" tabindex="-1">{{ error }}</div>{% endif %}
+<p>{% translate "Ожидают проверки" %}: <strong>{{ counts.pending|default:0 }}</strong></p>
+<form method="get" class="km-volunteer-hub-filters" aria-label="{% translate 'Фильтры модерации' %}">
+  <label for="hub-entity">{% translate "Сущность" %}</label><select id="hub-entity" name="entity"><option value=""{% if not filters.entity %} selected{% endif %}>{% translate "Все" %}</option>{% for key, label in entity_choices %}<option value="{{ key }}"{% if filters.entity == key %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+  <label for="hub-mode">{% translate "Новое или правка" %}</label><select id="hub-mode" name="new_or_edit"><option value=""{% if not filters.new_or_edit %} selected{% endif %}>{% translate "Все" %}</option><option value="new"{% if filters.new_or_edit == "new" %} selected{% endif %}>{% translate "Новое" %}</option><option value="edit"{% if filters.new_or_edit == "edit" %} selected{% endif %}>{% translate "Правка" %}</option></select>
+  <label for="hub-status">{% translate "Статус" %}</label><select id="hub-status" name="status"><option value="all"{% if filters.status == "all" %} selected{% endif %}>{% translate "Все" %}</option>{% for key, label in status_choices %}<option value="{{ key }}"{% if filters.status == key or not filters.status and key == "pending" %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+  <label for="hub-author">{% translate "Автор ID" %}</label><input id="hub-author" name="author" type="number" min="1" value="{{ filters.author }}">
+  <label for="hub-org">{% translate "Организация ID" %}</label><input id="hub-org" name="org" type="number" min="1" value="{{ filters.org }}">
+  <label for="hub-place">{% translate "Место ID" %}</label><input id="hub-place" name="place" type="number" min="1" value="{{ filters.place }}">
+  <label for="hub-from">{% translate "С даты" %}</label><input id="hub-from" name="from" type="date" value="{{ filters.from }}">
+  <label for="hub-to">{% translate "По дату" %}</label><input id="hub-to" name="to" type="date" value="{{ filters.to }}">
+  <button class="btn btn-primary" type="submit">{% translate "Применить" %}</button>
+</form>
+{% if page %}<div class="km-volunteer-comparison km-volunteer-hub-table"><table><thead><tr><th scope="col">{% translate "Сущность" %}</th><th scope="col">{% translate "Предложение" %}</th><th scope="col">{% translate "Тип" %}</th><th scope="col">{% translate "Статус" %}</th><th scope="col">SLA</th><th scope="col">{% translate "Автор" %}</th><th scope="col">{% translate "Дата" %}</th></tr></thead><tbody>
+{% for row in page %}<tr><td>{{ row.kind_label }}</td><td><a href="{% url 'admin:volunteer_moderation_detail' row.source row.id %}">{{ row.name }}</a></td><td>{{ row.mode_label }}</td><td>{{ row.status_label }}</td><td>{{ row.sla_label }}</td><td>{{ row.author }}</td><td>{{ row.submitted_at }}</td></tr>{% empty %}<tr><td colspan="7">{% translate "Предложений нет." %}</td></tr>{% endfor %}
+</tbody></table></div>{% endif %}
+{% endblock %}

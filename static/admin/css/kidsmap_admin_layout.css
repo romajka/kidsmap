@@ -218,7 +218,7 @@ h3.card-title,
 .main-sidebar {
   background: var(--km-admin-sidebar-bg);
   border-right: 1px solid var(--km-admin-sidebar-border);
-  width: var(--km-admin-sidebar-width);
+  width: var(--km-admin-sidebar-width) !important;
   overflow-x: hidden !important;
   transition: width 0.2s ease;
 }
@@ -226,18 +226,50 @@ h3.card-title,
 /* AdminLTE uses a separate pseudo-element as the sidebar backdrop. Keep it
    in sync with the real sidebar so long navigation labels are not clipped. */
 .main-sidebar::before {
-  width: var(--km-admin-sidebar-width);
+  width: var(--km-admin-sidebar-width) !important;
+}
+
+/* AdminLTE also expands the brand link on hover. Keep it inside the panel. */
+.main-sidebar .brand-link {
+  width: 100% !important;
+}
+
+/* Let legacy navigation links and labels fit the actual sidebar width. */
+.main-sidebar:not(.km-admin-sidebar) .nav-sidebar .nav-link {
+  display: flex;
+  align-items: flex-start;
+  width: auto !important;
+}
+
+.main-sidebar:not(.km-admin-sidebar) .nav-sidebar .nav-link > .nav-icon {
+  flex-shrink: 0;
+}
+
+.main-sidebar:not(.km-admin-sidebar) .nav-sidebar .nav-link > p {
+  flex: 1;
+  min-width: 0;
 }
 
 /* Tablet layouts also use the persistent sidebar, so reserve its width there
    as well instead of letting it overlap the page. */
 @media (min-width: 768px) {
+  /* AdminLTE hides the drawer below 992px. KidsMap keeps a persistent
+     sidebar from 768px, matching the space reserved by the page below. */
+  .sidebar-mini .main-sidebar,
+  .sidebar-mini .main-sidebar::before {
+    margin-left: 0 !important;
+  }
+
+  .sidebar-mini #sidebar-overlay {
+    display: none !important;
+  }
+
   .sidebar-mini:not(.sidebar-collapse) .content-wrapper,
   .sidebar-mini:not(.sidebar-collapse) .main-footer,
   .sidebar-mini:not(.sidebar-collapse) .main-header {
     /* Keep a visible gutter after the sidebar shadow, so page controls never
        touch or appear below the navigation. */
-    margin-left: calc(var(--km-admin-sidebar-width) + var(--km-admin-sidebar-content-gap));
+    margin-left: calc(var(--km-admin-sidebar-width) + var(--km-admin-sidebar-content-gap)) !important;
     transition: margin-left 0.2s ease;
   }
 
@@ -255,6 +287,34 @@ h3.card-title,
   .sidebar-mini.sidebar-collapse .main-header {
     margin-left: calc(var(--km-admin-sidebar-collapsed-width) + 8px) !important;
     transition: margin-left 0.2s ease;
+  }
+
+  /* Hover/focus must not reveal labels while the panel remains icon-only. */
+  .sidebar-mini.sidebar-collapse .main-sidebar:not(.km-admin-sidebar) .brand-text,
+  .sidebar-mini.sidebar-collapse .main-sidebar:not(.km-admin-sidebar) .user-panel > .info,
+  .sidebar-mini.sidebar-collapse .main-sidebar:not(.km-admin-sidebar) .nav-sidebar .nav-link p,
+  .sidebar-mini.sidebar-collapse .main-sidebar:not(.km-admin-sidebar) .nav-sidebar .nav-header {
+    display: none !important;
+  }
+
+  .sidebar-mini.sidebar-collapse .main-sidebar:not(.km-admin-sidebar) .nav-sidebar .nav-link {
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    margin-inline: 0;
+    padding-inline: 8px;
+  }
+
+  .sidebar-mini.sidebar-collapse .main-sidebar:not(.km-admin-sidebar) .nav-sidebar .nav-icon {
+    margin: 0;
+  }
+
+  .sidebar-mini.sidebar-collapse .main-sidebar:not(.km-admin-sidebar) .user-panel {
+    justify-content: center;
+  }
+
+  .sidebar-mini.sidebar-collapse .main-sidebar:not(.km-admin-sidebar) .user-panel .image {
+    padding-left: 0;
   }
 }
 

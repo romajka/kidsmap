@@ -1,0 +1,773 @@
+{
+  "rows": [
+    {
+      "id": "reviewer surface respects actual account role",
+      "status": "PASS",
+      "role": "anonymous",
+      "surface": "hub-detail",
+      "detail": {
+        "status": 200,
+        "path": "/admin/login/",
+        "images": 0
+      }
+    },
+    {
+      "id": "native login leaves login form",
+      "status": "PASS",
+      "role": "bare",
+      "surface": "login",
+      "detail": {}
+    },
+    {
+      "id": "reviewer surface respects actual account role",
+      "status": "PASS",
+      "role": "bare",
+      "surface": "hub-detail",
+      "detail": {
+        "status": 403,
+        "path": "/ru/admin/volunteer/moderation/content/1/",
+        "images": 0
+      }
+    },
+    {
+      "id": "native login leaves login form",
+      "status": "PASS",
+      "role": "volunteer",
+      "surface": "login",
+      "detail": {}
+    },
+    {
+      "id": "reviewer surface respects actual account role",
+      "status": "PASS",
+      "role": "volunteer",
+      "surface": "hub-detail",
+      "detail": {
+        "status": 403,
+        "path": "/ru/admin/volunteer/moderation/content/1/",
+        "images": 0
+      }
+    },
+    {
+      "id": "native login leaves login form",
+      "status": "PASS",
+      "role": "owner",
+      "surface": "login",
+      "detail": {}
+    },
+    {
+      "id": "reviewer surface respects actual account role",
+      "status": "PASS",
+      "role": "owner",
+      "surface": "hub-detail",
+      "detail": {
+        "status": 200,
+        "path": "/admin/login/",
+        "images": 0
+      }
+    },
+    {
+      "id": "native login leaves login form",
+      "status": "PASS",
+      "role": "reviewer",
+      "surface": "login",
+      "detail": {}
+    },
+    {
+      "id": "reviewer surface respects actual account role",
+      "status": "PASS",
+      "role": "reviewer",
+      "surface": "hub-detail",
+      "detail": {
+        "status": 200,
+        "path": "/ru/admin/volunteer/moderation/content/1/",
+        "images": 8
+      }
+    },
+    {
+      "id": "content reviewer without document permission cannot download private document",
+      "status": "PASS",
+      "role": "reviewer",
+      "surface": "private-document",
+      "detail": {
+        "status": 404
+      }
+    },
+    {
+      "id": "native author candidate review with console network monitoring",
+      "status": "PASS",
+      "role": "reviewer",
+      "surface": "actual-author-owner",
+      "detail": {}
+    },
+    {
+      "id": "native author candidate review with console network monitoring",
+      "status": "PASS",
+      "role": "reviewer",
+      "surface": "actual-author-volunteer",
+      "detail": {}
+    },
+    {
+      "id": "native login leaves login form",
+      "status": "PASS",
+      "role": "admin",
+      "surface": "login",
+      "detail": {}
+    },
+    {
+      "id": "reviewer surface respects actual account role",
+      "status": "PASS",
+      "role": "admin",
+      "surface": "hub-detail",
+      "detail": {
+        "status": 200,
+        "path": "/ru/admin/volunteer/moderation/content/1/",
+        "images": 8
+      }
+    },
+    {
+      "id": "shared non-media comparison retains escaped text and no thumbnails",
+      "status": "PASS",
+      "role": "admin",
+      "surface": "shared-content-18",
+      "detail": {}
+    },
+    {
+      "id": "shared non-media comparison retains escaped text and no thumbnails",
+      "status": "PASS",
+      "role": "admin",
+      "surface": "shared-content-19",
+      "detail": {}
+    },
+    {
+      "id": "shared non-media comparison retains escaped text and no thumbnails",
+      "status": "PASS",
+      "role": "admin",
+      "surface": "shared-affiliation-1",
+      "detail": {}
+    }
+  ],
+  "diagnostics": [
+    {
+      "kind": "requestfailed",
+      "role": "anonymous",
+      "surface": "hub-detail",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "anonymous",
+      "surface": "hub-detail",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "anonymous",
+      "surface": "hub-detail",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "anonymous",
+      "surface": "hub-detail",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "bare",
+      "surface": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "bare",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "bare",
+      "surface": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "bare",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "bare",
+      "surface": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "bare",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "bare",
+      "surface": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "bare",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "bare",
+      "surface": "hub-detail",
+      "local": true,
+      "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "volunteer",
+      "surface": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "volunteer",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "volunteer",
+      "surface": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "volunteer",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "volunteer",
+      "surface": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "volunteer",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "volunteer",
+      "surface": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "volunteer",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "volunteer",
+      "surface": "hub-detail",
+      "local": true,
+      "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "owner",
+      "surface": "login",
+      "local": false,
+      "path": "unpkg.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "owner",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "owner",
+      "surface": "login",
+      "local": false,
+      "path": "unpkg.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "owner",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "owner",
+      "surface": "hub-detail",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "owner",
+      "surface": "hub-detail",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "owner",
+      "surface": "hub-detail",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "owner",
+      "surface": "hub-detail",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "reviewer",
+      "surface": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "reviewer",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "reviewer",
+      "surface": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "reviewer",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "reviewer",
+      "surface": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "reviewer",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "reviewer",
+      "surface": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "reviewer",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "reviewer",
+      "surface": "hub-detail",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "reviewer",
+      "surface": "hub-detail",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "reviewer",
+      "surface": "hub-detail",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "reviewer",
+      "surface": "hub-detail",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "reviewer",
+      "surface": "private-document",
+      "local": true,
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "reviewer",
+      "surface": "actual-author-owner",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "reviewer",
+      "surface": "actual-author-owner",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "reviewer",
+      "surface": "actual-author-owner",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "reviewer",
+      "surface": "actual-author-owner",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "reviewer",
+      "surface": "actual-author-owner",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "reviewer",
+      "surface": "actual-author-owner",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "reviewer",
+      "surface": "actual-author-owner",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "reviewer",
+      "surface": "actual-author-owner",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "reviewer",
+      "surface": "actual-author-volunteer",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "reviewer",
+      "surface": "actual-author-volunteer",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "reviewer",
+      "surface": "actual-author-volunteer",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "reviewer",
+      "surface": "actual-author-volunteer",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "reviewer",
+      "surface": "actual-author-volunteer",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "reviewer",
+      "surface": "actual-author-volunteer",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "reviewer",
+      "surface": "actual-author-volunteer",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "reviewer",
+      "surface": "actual-author-volunteer",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "admin",
+      "surface": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "admin",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "admin",
+      "surface": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "admin",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "admin",
+      "surface": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "admin",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "admin",
+      "surface": "login",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "admin",
+      "surface": "login",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "admin",
+      "surface": "hub-detail",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "admin",
+      "surface": "hub-detail",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "admin",
+      "surface": "hub-detail",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "admin",
+      "surface": "hub-detail",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "admin",
+      "surface": "shared-content-18",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "admin",
+      "surface": "shared-content-18",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "admin",
+      "surface": "shared-content-18",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "admin",
+      "surface": "shared-content-18",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "admin",
+      "surface": "shared-content-19",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "admin",
+      "surface": "shared-content-19",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "admin",
+      "surface": "shared-content-19",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "admin",
+      "surface": "shared-content-19",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "admin",
+      "surface": "shared-affiliation-1",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "admin",
+      "surface": "shared-affiliation-1",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "role": "admin",
+      "surface": "shared-affiliation-1",
+      "local": false,
+      "path": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "role": "admin",
+      "surface": "shared-affiliation-1",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    }
+  ],
+  "mode": "native login and rendered HTTP denials; only own private document; expected403/404 separated from console issues"
+}

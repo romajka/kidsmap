@@ -1,0 +1,141 @@
+Found 6 test(s).
+System check identified no issues (0 silenced).
+Creating test database for alias 'default'...
+FFFFFFF..FFF
+======================================================================
+FAIL: test_applicable_controls_order_labels_and_options_all_locales (catalog.testcases.test_mod08_filter_drawer.FilterDrawerTests.test_applicable_controls_order_labels_and_options_all_locales) (model='Event', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod08_filter_drawer.py", line 102, in test_applicable_controls_order_labels_and_options_all_locales
+    self.assertEqual(list(parsed.selects), expected)
+AssertionError: Lists differ: ['category'] != ['category', 'status', 'start_datetime']
+
+Second list contains 2 additional elements.
+First extra element 1:
+'status'
+
+- ['category']
++ ['category', 'status', 'start_datetime']
+
+======================================================================
+FAIL: test_applicable_controls_order_labels_and_options_all_locales (catalog.testcases.test_mod08_filter_drawer.FilterDrawerTests.test_applicable_controls_order_labels_and_options_all_locales) (model='Event', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod08_filter_drawer.py", line 102, in test_applicable_controls_order_labels_and_options_all_locales
+    self.assertEqual(list(parsed.selects), expected)
+AssertionError: Lists differ: ['category'] != ['category', 'status', 'start_datetime']
+
+Second list contains 2 additional elements.
+First extra element 1:
+'status'
+
+- ['category']
++ ['category', 'status', 'start_datetime']
+
+======================================================================
+FAIL: test_applicable_controls_order_labels_and_options_all_locales (catalog.testcases.test_mod08_filter_drawer.FilterDrawerTests.test_applicable_controls_order_labels_and_options_all_locales) (model='Event', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod08_filter_drawer.py", line 102, in test_applicable_controls_order_labels_and_options_all_locales
+    else ['status', 'is_active', 'consultation_format', 'specializations'])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['category'] != ['category', 'status', 'start_datetime']
+
+Second list contains 2 additional elements.
+First extra element 1:
+'status'
+
+- ['category']
++ ['category', 'status', 'start_datetime']
+
+======================================================================
+FAIL: test_applicable_controls_order_labels_and_options_all_locales (catalog.testcases.test_mod08_filter_drawer.FilterDrawerTests.test_applicable_controls_order_labels_and_options_all_locales) (model='Specialist', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod08_filter_drawer.py", line 102, in test_applicable_controls_order_labels_and_options_all_locales
+    else ['status', 'is_active', 'consultation_format', 'specializations'])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['status', 'is_active', 'consultation_format']
+
+Second list contains 3 additional elements.
+First extra element 0:
+'status'
+
+- []
++ ['status', 'is_active', 'consultation_format']
+
+======================================================================
+FAIL: test_applicable_controls_order_labels_and_options_all_locales (catalog.testcases.test_mod08_filter_drawer.FilterDrawerTests.test_applicable_controls_order_labels_and_options_all_locales) (model='Specialist', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod08_filter_drawer.py", line 102, in test_applicable_controls_order_labels_and_options_all_locales
+    else ['status', 'is_active', 'consultation_format', 'specializations'])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['status', 'is_active', 'consultation_format']
+
+Second list contains 3 additional elements.
+First extra element 0:
+'status'
+
+- []
++ ['status', 'is_active', 'consultation_format']
+
+======================================================================
+FAIL: test_applicable_controls_order_labels_and_options_all_locales (catalog.testcases.test_mod08_filter_drawer.FilterDrawerTests.test_applicable_controls_order_labels_and_options_all_locales) (model='Specialist', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod08_filter_drawer.py", line 102, in test_applicable_controls_order_labels_and_options_all_locales
+    else ['status', 'is_active', 'consultation_format', 'specializations'])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['status', 'is_active', 'consultation_format']
+
+Second list contains 3 additional elements.
+First extra element 0:
+'status'
+
+- []
++ ['status', 'is_active', 'consultation_format']
+
+======================================================================
+FAIL: test_event_multiple_rendered_choices_preserve_search_sort_and_zero_results (catalog.testcases.test_mod08_filter_drawer.FilterDrawerTests.test_event_multiple_rendered_choices_preserve_search_sort_and_zero_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod08_filter_drawer.py", line 119, in test_event_multiple_rendered_choices_preserve_search_sort_and_zero_results
+    self.assert_ids(response, [self.events[0], self.events[2]])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod08_filter_drawer.py", line 86, in choose
+    self.assertIn(field, controls, 'Applicable filter missing from rendered drawer')
+AssertionError: 'status' not found in {'category': {'id': None, 'options': [{'url': '?q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Все'}, {'url': '?category__code__exact=DRAW0&q=DRAWERQA&sort=name_asc', 'selected': True, 'text': 'Категория 0'}, {'url': '?category__code__exact=DRAW1&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Категория 1'}, {'url': '?category__code__exact=SPRT&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Спорт'}, {'url': '?category__code__exact=water-leisure&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Водный отдых'}, {'url': '?category__code__exact=parks-playgrounds&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Парки и детские площадки'}, {'url': '?category__code__exact=FUN&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Развлечения и досуг'}, {'url': '?category__code__exact=ZOO&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Зоопарки'}, {'url': '?category__code__exact=museums-culture&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Музеи и культура'}, {'url': '?category__code__exact=dance&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Танцы'}, {'url': '?category__code__exact=EDU&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Образование'}, {'url': '?category__code__exact=early-development&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Дошкольное развитие'}, {'url': '?category__code__exact=ART&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Творчество'}, {'url': '?category__code__exact=theater-stage&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Театр и сцена'}, {'url': '?category__code__exact=MUS&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Музыка'}, {'url': '?category__code__exact=intellect-skills&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Интеллект и навыки'}, {'url': '?category__code__exact=TECH&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Наука и технологии'}, {'url': '?category__code__exact=development-support&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Развитие и поддержка'}, {'url': '?category__code__exact=CAMP&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Лагеря'}, {'url': '?category__code__exact=excursions-tours&q=DRAWERQA&sort=name_asc', 'selected': False, 'text': 'Экскурсии и туры'}]}} : Applicable filter missing from rendered drawer
+
+======================================================================
+FAIL: test_specialist_choices_selected_state_and_zero_results (catalog.testcases.test_mod08_filter_drawer.FilterDrawerTests.test_specialist_choices_selected_state_and_zero_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod08_filter_drawer.py", line 135, in test_specialist_choices_selected_state_and_zero_results
+    def test_specialist_choices_selected_state_and_zero_results(self):
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod08_filter_drawer.py", line 86, in choose
+    self.assertIn(field, controls, 'Applicable filter missing from rendered drawer')
+AssertionError: 'consultation_format' not found in {} : Applicable filter missing from rendered drawer
+
+======================================================================
+FAIL: test_status_chip_removes_only_status_and_reset_clears_query (catalog.testcases.test_mod08_filter_drawer.FilterDrawerTests.test_status_chip_removes_only_status_and_reset_clears_query) (model='Event')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod08_filter_drawer.py", line 153, in test_status_chip_removes_only_status_and_reset_clears_query
+    status = next((c for c in chips if c['param'] == 'status'), None)
+AssertionError: unexpectedly None : Selected status must have an independently removable chip
+
+======================================================================
+FAIL: test_status_chip_removes_only_status_and_reset_clears_query (catalog.testcases.test_mod08_filter_drawer.FilterDrawerTests.test_status_chip_removes_only_status_and_reset_clears_query) (model='Specialist')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod08_filter_drawer.py", line 153, in test_status_chip_removes_only_status_and_reset_clears_query
+    status = next((c for c in chips if c['param'] == 'status'), None)
+AssertionError: unexpectedly None : Selected status must have an independently removable chip
+
+----------------------------------------------------------------------
+Ran 6 tests in 3.241s
+
+FAILED (failures=10)
+Destroying test database for alias 'default'...

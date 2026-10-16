@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/docs/qa/offer-qa11-fix-2026-10-14-r1/verify.py", line 17, in <module>
+    phase=json.loads((R/'docs/qa/offer-qa09-fix-2026-10-14-r1/entry-final.json').read_text())['source_files'];critical=['src/catalog/services/'+f+'.py' for f in ['publication','volunteer_places','pricing_plans','place_readiness','server_drafts']]+['src/catalog/forms.py','src/catalog/photo_views.py','src/catalog/controllers/program_workspace.py','src/catalog/models/catalog_structure.py','src/catalog/models/pricing_plan.py'];assert all(sha(R/k)==phase[k] for k in critical)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

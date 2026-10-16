@@ -1,0 +1,10 @@
+{
+  "scope": "same approved keyboard/scroll lifecycle, same sole JS file",
+  "before_evidence": [
+    "native-edge.js.result.json",
+    "native-edge-green.js.result.json"
+  ],
+  "cause": "scroll event queued by focusing an off-screen row trigger can arrive after opening the menu; physical anchor already has its final position, so dismissing on that stale notification closes menu before Tab",
+  "change": "ignore scroll notification while anchor rectangle is unchanged; actual new scroll movement and all resize/outside/Escape close paths retained",
+  "final_sha256": "671f7b6a772e7f459eb90a322875cb285892586e8321ceaf9be2a4c9d491da85"
+}

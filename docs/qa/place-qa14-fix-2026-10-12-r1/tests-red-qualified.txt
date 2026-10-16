@@ -1,0 +1,104 @@
+TAP version 13
+# Subtest: forward wrap excludes a visible SVG use and focuses the first real button
+not ok 1 - forward wrap excludes a visible SVG use and focuses the first real button
+  ---
+  duration_ms: 76.185221
+  location: '/home/ramin/kidsmap/scripts/test_admin_modal_keyboard.cjs:23:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Values have same structure but are not reference-equal:
+    
+    HTMLButtonElement {
+      [Symbol(SameObject caches)]: [Object: null prototype] {
+        style: CSSStyleDeclaration {}
+      }
+    }
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_admin_modal_keyboard.cjs:29:12)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    node:internal/test_runner/harness:255:12
+    node:internal/process/task_queues:140:7
+    AsyncResource.runInAsyncScope (node:async_hooks:206:9)
+    AsyncResource.runMicrotask (node:internal/process/task_queues:137:8)
+  ...
+# Subtest: Tab from outside the dialog enters a real action rather than the SVG icon
+not ok 2 - Tab from outside the dialog enters a real action rather than the SVG icon
+  ---
+  duration_ms: 13.196174
+  location: '/home/ramin/kidsmap/scripts/test_admin_modal_keyboard.cjs:34:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected "actual" to be reference-equal to "expected":
+    + actual - expected
+    
+    + HTMLButtonElement {}
+    - HTMLButtonElement {
+    -   [Symbol(SameObject caches)]: [Object: null prototype] {
+    -     style: CSSStyleDeclaration {}
+    -   }
+    - }
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_admin_modal_keyboard.cjs:37:12)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: disabled, hidden and negative-tabindex controls do not become wrap targets
+not ok 3 - disabled, hidden and negative-tabindex controls do not become wrap targets
+  ---
+  duration_ms: 12.197078
+  location: '/home/ramin/kidsmap/scripts/test_admin_modal_keyboard.cjs:41:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Values have same structure but are not reference-equal:
+    
+    HTMLButtonElement {
+      [Symbol(SameObject caches)]: [Object: null prototype] {
+        style: CSSStyleDeclaration {}
+      }
+    }
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_admin_modal_keyboard.cjs:46:12)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: opening and Escape/Stay restore focus while preserving callback behavior
+ok 4 - opening and Escape/Stay restore focus while preserving callback behavior
+  ---
+  duration_ms: 13.591838
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 1
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 479.902396

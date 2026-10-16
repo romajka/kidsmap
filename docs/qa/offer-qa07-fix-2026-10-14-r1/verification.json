@@ -1,0 +1,53 @@
+{
+  "id": "OFFER-QA-07",
+  "status": "CLOSED LOCAL",
+  "changed_source": [
+    "src/catalog/views.py",
+    "src/catalog/photo_views.py",
+    "src/catalog/services/permanent_place_wizard.py",
+    "src/catalog/services/server_drafts.py",
+    "static/js/owner_place_continuous.js"
+  ],
+  "new_test_file": "src/catalog/testcases/test_offer_qa07_stale_draft_restore.py",
+  "targeted_test_methods": 27,
+  "native_checks": 103,
+  "browser_artifacts": [
+    {
+      "file": "lifecycle.result.json",
+      "checks": 12
+    },
+    {
+      "file": "ui.result.attempt1791960456.json",
+      "checks": 72
+    },
+    {
+      "file": "extra.result.json",
+      "checks": 5
+    },
+    {
+      "file": "acl.result.json",
+      "checks": 2
+    },
+    {
+      "file": "candidate-only.result.json",
+      "checks": 5
+    },
+    {
+      "file": "final-edges.result.json",
+      "checks": 7
+    }
+  ],
+  "PNG": 47,
+  "runtime_source_match": true,
+  "live_B_preserved": "PASS",
+  "old_input_retained": "PASS",
+  "UI_phase_note": "72 matrix checks retained after JS-only preservation/identity guards; final7 edge checks bind final source. Final consumed-photo guard verified by3photo tests (1new+2shared); unique corpus27. Final7browser edges bind UI source; final readback/runtime receipt bind final backend.",
+  "simulation": [
+    "wrong-target DTO",
+    "quota error"
+  ],
+  "full_ACCEPT05": "NOT RUN",
+  "global": "NOT RUN",
+  "external": "NOT RUN",
+  "production": "NOT RUN"
+}

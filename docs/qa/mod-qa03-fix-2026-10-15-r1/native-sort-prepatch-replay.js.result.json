@@ -1,0 +1,27 @@
+{
+  "rows": [
+    {
+      "id": "native shared sort preserves valid search",
+      "status": "FAIL",
+      "model": "event",
+      "matching_before": 1,
+      "sort_href": "?q=QA+Queue+2&sort=created_desc",
+      "query_after": "?e=1"
+    },
+    {
+      "id": "native shared sort preserves valid search",
+      "status": "FAIL",
+      "model": "specialist",
+      "matching_before": 1,
+      "sort_href": "?q=QA+Queue+2&sort=created_desc",
+      "query_after": "?e=1"
+    }
+  ],
+  "observations": [
+    {
+      "domain_unchanged": true
+    }
+  ],
+  "replayed_css_sha256": "990a376f7944aa801af6b5c306540fd724c7836c85cb500e9741ee20aae2a171",
+  "mode": "SIMULATED exact prepatch CSS replay; native existing Event/Specialist shared sort, no application or domain writes"
+}

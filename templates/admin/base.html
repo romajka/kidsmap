@@ -31,7 +31,7 @@
     <link rel="stylesheet" href="{% static 'jazzmin/css/main.css' %}">
 
     {% if jazzmin_settings.custom_css %}
-    <link rel="stylesheet" href="{% static jazzmin_settings.custom_css %}?v=20261004_admin_tables">
+    <link rel="stylesheet" href="{% static jazzmin_settings.custom_css %}?v=20261014_menu_icons">
     {% endif %}
 
     <link rel="shortcut icon" href="{% static jazzmin_settings.site_icon %}" type="image/png">
@@ -43,38 +43,6 @@
 
     {% block extrastyle %}{% endblock %}
     {% block extrahead %}{% endblock %}
-    <style>
-        /* Keep the page outside the custom sidebar even if an older AdminLTE
-         rule is cached. This is intentionally inline: it must win over the
-         vendor stylesheet on the currently rendered admin page. */
-        @media (min-width: 768px) {
-
-            body.sidebar-mini:not(.sidebar-collapse) .content-wrapper,
-            body.sidebar-mini:not(.sidebar-collapse) .main-header,
-            body.sidebar-mini:not(.sidebar-collapse) .main-footer {
-                margin-left: 300px !important;
-            }
-
-            body.sidebar-mini.sidebar-collapse .content-wrapper,
-            body.sidebar-mini.sidebar-collapse .main-header,
-            body.sidebar-mini.sidebar-collapse .main-footer {
-                margin-left: 80px !important;
-            }
-        }
-
-        @media (max-width: 767.98px) {
-            body:not(.sidebar-open) .main-sidebar,
-            body:not(.sidebar-open) .main-sidebar::before {
-                margin-left: -300px !important;
-            }
-
-            body:not(.sidebar-open) .content-wrapper,
-            body:not(.sidebar-open) .main-header,
-            body:not(.sidebar-open) .main-footer {
-                margin-left: 0 !important;
-            }
-        }
-    </style>
 </head>
 
 <body
@@ -242,117 +210,8 @@
 
         {% block sidebar %}
         {% if jazzmin_settings.show_sidebar %}
-        <aside class="main-sidebar elevation-4 {{ jazzmin_ui.sidebar_classes }} km-admin-sidebar" id="jazzy-sidebar">
-            <a href="{% url 'admin:index' %}" class="brand-link {{ jazzmin_ui.brand_classes }}" id="jazzy-logo"
-                title="{{ jazzmin_settings.site_header }}">
-                <img src="{% static jazzmin_settings.site_logo %}" alt="{{ jazzmin_settings.site_header }} Logo"
-                    class="{{ jazzmin_settings.site_logo_classes }} brand-image elevation-3" style="opacity: .92">
-                <span class="brand-text font-weight-light">{{ jazzmin_settings.site_brand }}</span>
-            </a>
-
-            <div class="sidebar">
-                <div class="km-admin-sidebar__shell">
-                    <div class="km-admin-sidebar__user-card">
-                        <div class="km-admin-sidebar__avatar">
-                            {% if request.user.profile.avatar %}
-                            <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user }}"
-                                class="img-circle elevation-2">
-                            {% elif jazzmin_settings|has_jazzmin_setting:'user_avatar' %}
-                            <img src="{% get_user_avatar request.user %}" alt="{{ request.user }}"
-                                class="img-circle elevation-2">
-                            {% else %}
-                            <i class="fas fa-user-circle" aria-hidden="true"></i>
-                            {% endif %}
-                        </div>
-                        <div class="km-admin-sidebar__user-copy">
-                            {% if not kidsmap_is_volunteer and perms|can_view_self %}
-                            <a href="{% jazzy_admin_url request.user request.current_app|default:'admin' %}"
-                                class="km-admin-sidebar__user-name">{{ request.user }}</a>
-                            {% else %}
-                            <span class="km-admin-sidebar__user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
-                            {% endif %}
-                            <span class="km-admin-sidebar__user-role">{{ kidsmap_admin_role_label }}</span>
-                        </div>
-                    </div>
-
-                    <div class="km-admin-sidebar__scroller">
-                        <nav class="km-admin-sidebar__nav" aria-label="{% trans 'Sidebar' %}">
-                            <ul class="km-admin-sidebar__list" role="list">
-                                <li class="km-admin-sidebar__entry km-admin-sidebar__entry--dashboard">
-                                    <a href="{{ admin_index_url }}"
-                                        class="km-admin-sidebar__link{% if request.path == admin_index_url %} is-active{% endif %}"
-                                        title="{% trans 'Панель управления' %}">
-                                        <span class="km-admin-sidebar__icon-wrap">
-                                            <i class="nav-icon fas fa-th-large" aria-hidden="true"></i>
-                                        </span>
-                                        <span class="km-admin-sidebar__text">
-                                            <span class="km-admin-sidebar__label">{% trans 'Панель управления' %}</span>
-                                        </span>
-                                    </a>
-                                </li>
-                            </ul>
-
-                            <div class="km-admin-sidebar__sections">
-                                {% for section in kidsmap_sidebar_sections %}
-                                <section class="km-admin-sidebar__group{% if section.active %} is-active{% endif %}"
-                                    data-km-sidebar-group data-km-sidebar-key="{{ section.key }}"
-                                    data-default-open="{% if section.active %}true{% else %}false{% endif %}">
-                                    <button type="button" class="km-admin-sidebar__group-toggle" data-km-sidebar-toggle
-                                        title="{{ section.label }}"
-                                        aria-expanded="{% if section.active %}true{% else %}false{% endif %}"
-                                        aria-controls="km-admin-sidebar-panel-{{ section.key }}">
-                                        <span class="km-admin-sidebar__group-title">
-                                            <span class="km-admin-sidebar__icon-wrap">
-                                                <i class="{{ section.icon }}" aria-hidden="true"></i>
-                                            </span>
-                                            <span class="km-admin-sidebar__text">
-                                                <span class="km-admin-sidebar__label">{{ section.label }}</span>
-                                            </span>
-                                        </span>
-                                        <span class="km-admin-sidebar__chevron" aria-hidden="true">
-                                            <i class="fas fa-angle-down"></i>
-                                        </span>
-                                    </button>
-
-                                    <div id="km-admin-sidebar-panel-{{ section.key }}" class="km-admin-sidebar__panel"
-                                        data-km-sidebar-panel {% if not section.active %}hidden{% endif %}>
-                                        <ul class="km-admin-sidebar__sublist" role="list">
-                                            {% for item in section.items %}
-                                            <li class="km-admin-sidebar__entry">
-                                                <a href="{{ item.url }}" class="km-admin-sidebar__link{% if item.active %} is-active{% endif %}" title="{{ item.label }}">
-                                                    <span class="km-admin-sidebar__icon-wrap">
-                                                        <i class="nav-icon {{ item.icon }}" aria-hidden="true"></i>
-                                                    </span>
-                                                    <span class="km-admin-sidebar__text">
-                                                        <span class="km-admin-sidebar__label">{{ item.label }}</span>
-                                                    </span>
-                                                    {% if item.badge_label %}
-                                                    <span
-                                                        class="km-admin-sidebar__badge km-admin-sidebar__badge--metric"
-                                                        aria-label="{{ item.badge_label }}">{{ item.badge_label }}</span>
-                                                    {% elif item.show_badge or item.badge_count %}
-                                                    <span class="km-admin-sidebar__badge" aria-label="{{ item.badge_count }}">{{ item.badge_count }}</span>
-                                                    {% endif %}
-                                                    {% if item.status_label %}
-                                                    <span class="km-admin-sidebar__visibility-status"
-                                                        title="{{ item.status_label }}"
-                                                        aria-label="{{ item.status_label }}">
-                                                        <i class="fas fa-eye-slash" aria-hidden="true"></i>
-                                                    </span>
-                                                    {% endif %}
-                                                </a>
-                                            </li>
-                                            {% endfor %}
-                                        </ul>
-                                    </div>
-                                </section>
-                                {% endfor %}
-                            </div>
-                        </nav>
-                    </div>
-                </div>
-            </div>
-        </aside>
+        {% url "admin:index" as admin_index_url %}
+        {% include "admin/catalog/includes/sidebar_navigation.html" %}
         {% endif %}
         {% endblock %}
 

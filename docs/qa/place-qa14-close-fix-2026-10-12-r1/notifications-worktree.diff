@@ -1,0 +1,136 @@
+diff --git a/static/admin/js/kidsmap_notifications.js b/static/admin/js/kidsmap_notifications.js
+index 0f0cced6..5c6da1d4 100644
+--- a/static/admin/js/kidsmap_notifications.js
++++ b/static/admin/js/kidsmap_notifications.js
+@@ -85,13 +85,13 @@
+      ========================================================================== */
+   var kmModal = (function () {
+     var activeModal = null;
+-    var lastFocusedElement = null;
++    var modalGeneration = 0;
+ 
+     function getFocusableElements(container) {
+       if (!container) return [];
+       var selectors = [
+         'button:not([disabled])',
+-        '[href]:not([disabled])',
++        'a[href]:not([disabled])',
+         'input:not([disabled]):not([type="hidden"])',
+         'select:not([disabled])',
+         'textarea:not([disabled])',
+@@ -99,10 +99,34 @@
+       ];
+       return Array.prototype.slice.call(container.querySelectorAll(selectors.join(', ')))
+         .filter(function (el) {
++          var style = window.getComputedStyle(el);
++          if (el.tabIndex < 0 || el.matches(':disabled') || style.visibility === 'hidden' || style.display === 'none') return false;
+           return el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0;
+         });
+     }
+ 
++    function focusWhenVisible(current, preferred) {
++      window.requestAnimationFrame(function () {
++        if (activeModal !== current) return;
++        current.backdrop.classList.add("is-visible");
++        var attempts = 0;
++        function focusReadyControl() {
++          if (activeModal !== current) return;
++          if (current.dialog.contains(document.activeElement)) return;
++          var focusables = getFocusableElements(current.dialog);
++          var target = focusables.indexOf(preferred) !== -1 ? preferred : focusables[0];
++          if (target) target.focus();
++          else if (window.getComputedStyle(current.dialog).visibility !== "hidden") current.dialog.focus();
++          // A newly inserted dialog can still inherit the backdrop's hidden
++          // transition state. Retry only this opening, never a replaced modal.
++          if (!current.dialog.contains(document.activeElement) && ++attempts < 60) {
++            window.setTimeout(focusReadyControl, 16);
++          }
++        }
++        window.setTimeout(focusReadyControl, 0);
++      });
++    }
++
+     function handleKeydown(e) {
+       if (!activeModal) return;
+ 
+@@ -154,9 +178,11 @@
+         if (backdrop.parentNode) {
+           backdrop.parentNode.removeChild(backdrop);
+         }
+-        if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
++        if (!activeModal && modalGeneration === current.generation && current.returnFocus &&
++            current.returnFocus.isConnected && !current.returnFocus.matches(":disabled") &&
++            typeof current.returnFocus.focus === "function") {
+           try {
+-            lastFocusedElement.focus();
++            current.returnFocus.focus();
+           } catch (err) {
+             // Element might no longer exist or be disabled
+           }
+@@ -174,7 +200,7 @@
+         close();
+       }
+ 
+-      lastFocusedElement = document.activeElement;
++      var returnFocus = document.activeElement;
+ 
+       var backdrop = document.createElement("div");
+       backdrop.className = "km-modal-backdrop";
+@@ -309,24 +335,15 @@
+       activeModal = {
+         backdrop: backdrop,
+         dialog: dialog,
++        returnFocus: returnFocus,
++        generation: ++modalGeneration,
+         closeOnEscape: options.closeOnEscape !== false,
+         onClose: options.onClose
+       };
+ 
+       document.addEventListener("keydown", handleKeydown, true);
+ 
+-      // Trigger animations and focus
+-      window.requestAnimationFrame(function () {
+-        backdrop.classList.add("is-visible");
+-        var focusables = getFocusableElements(dialog);
+-        // Default focus: primary button or first focusable
+-        var primaryBtn = dialog.querySelector(".km-btn-modal--primary, .km-btn-modal--danger") || focusables[0];
+-        if (primaryBtn && typeof primaryBtn.focus === "function") {
+-          primaryBtn.focus();
+-        } else {
+-          dialog.focus();
+-        }
+-      });
++      focusWhenVisible(activeModal, dialog.querySelector(".km-btn-modal--primary, .km-btn-modal--danger"));
+ 
+       return { close: close };
+     }
+@@ -426,7 +443,7 @@
+         close();
+       }
+ 
+-      lastFocusedElement = document.activeElement;
++      var returnFocus = document.activeElement;
+ 
+       var backdrop = document.createElement("div");
+       backdrop.className = "km-modal-backdrop";
+@@ -533,17 +550,15 @@
+       activeModal = {
+         backdrop: backdrop,
+         dialog: dialog,
++        returnFocus: returnFocus,
++        generation: ++modalGeneration,
+         closeOnEscape: true,
+         onClose: options.onStay
+       };
+ 
+       document.addEventListener("keydown", handleKeydown, true);
+ 
+-      window.requestAnimationFrame(function () {
+-        backdrop.classList.add("is-visible");
+-        // Focus Save & Exit as primary safe action
+-        saveBtn.focus();
+-      });
++      focusWhenVisible(activeModal, saveBtn);
+ 
+       return { close: close };
+     }

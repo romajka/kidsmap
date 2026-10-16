@@ -1,0 +1,34 @@
+[14/Oct/2026 13:35:54] "GET /static/js/permanent_place_pricing.js?v=20260915 HTTP/1.1" 200 37727
+[14/Oct/2026 13:35:54] "GET /static/js/owner_place_map_picker.js?v=20261010_place_qa HTTP/1.1" 200 21287
+[14/Oct/2026 13:35:54] "GET /static/js/header.js?v=20260915 HTTP/1.1" 200 9494
+[14/Oct/2026 13:35:54] "GET /static/img/flags/ru.png HTTP/1.1" 200 15316
+[14/Oct/2026 13:35:54] "GET /static/img/logo-mark.svg HTTP/1.1" 200 16691
+[14/Oct/2026 13:35:54] "GET /static/img/flags/az.png HTTP/1.1" 200 21636
+[14/Oct/2026 13:35:54] "GET /static/img/flags/en.png HTTP/1.1" 200 19575
+[14/Oct/2026 13:35:54] "GET /static/js/location_resolution.js?v=20261010_place_qa HTTP/1.1" 200 7540
+[14/Oct/2026 13:35:54] "GET /static/js/review_submission.js HTTP/1.1" 200 7568
+[14/Oct/2026 13:35:54] "GET /static/fonts/chiron/ChironGoRoundTC-PublicSubset.woff2 HTTP/1.1" 200 133240
+[14/Oct/2026 13:35:54] "GET /static/fonts/MaterialSymbolsRounded.woff2 HTTP/1.1" 200 3084048
+[14/Oct/2026 13:35:54] "GET /static/img/logo-mark.svg HTTP/1.1" 200 16691
+[14/Oct/2026 13:35:55] "GET /ru/api/location/resolve/?language=ru&lat=40.4093&lng=49.8671 HTTP/1.1" 200 583
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/docs/qa/module05-full-2026-10-14-r1/runtime.py", line 22, in <module>
+    manifest=builder.verify(SCRATCH/config.get('locale_dir','locales')/'manifest.json',ROOT/'locale')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/scripts/build_isolated_locales.py", line 123, in verify
+    manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1029, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/ramin/kidsmap/.tmp/module05-full-2026-10-14-r1/locales-v3/manifest.json'
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/docs/qa/module05-full-2026-10-14-r1/runtime.py", line 22, in <module>
+    manifest=builder.verify(SCRATCH/config.get('locale_dir','locales')/'manifest.json',ROOT/'locale')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/scripts/build_isolated_locales.py", line 137, in verify
+    raise ValueError('Catalogue is stale or modified')
+ValueError: Catalogue is stale or modified

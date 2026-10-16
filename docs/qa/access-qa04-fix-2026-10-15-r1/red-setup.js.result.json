@@ -1,0 +1,1011 @@
+{
+  "rows": [
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "initial own invitation count zero",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "member has one actual accept form",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "member native accept",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "owner native cancel retained in list",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "own local mail tick",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 2
+        },
+        "scheduler": "SIMULATED manual tick, actual own filebased email"
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "native setup states",
+      "status": "PASS",
+      "detail": {
+        "invitations": 3,
+        "statuses": [
+          "ACCEPTED",
+          "CANCELED",
+          "PENDING"
+        ],
+        "memberships": [
+          {
+            "id": 1,
+            "member_id": 4,
+            "place_id": 1,
+            "role": "EDITOR",
+            "version": 1,
+            "active": true
+          }
+        ]
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native isolated short fixture",
+      "name": "owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native isolated short fixture",
+      "name": "solo native cancel",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native isolated short fixture",
+      "name": "solo local mail tick",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "RED historical",
+      "name": "RED historical: expected card count",
+      "status": "PASS",
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "RED historical",
+      "name": "RED historical: root scroll fits",
+      "status": "PASS",
+      "detail": {
+        "root": 360,
+        "body": 360,
+        "width": 360
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "RED historical",
+      "name": "RED historical: cards fit panel and viewport",
+      "status": "FAIL",
+      "detail": {
+        "width": 360,
+        "rootScroll": 360,
+        "bodyScroll": 360,
+        "panel": {
+          "x": 6,
+          "y": 96,
+          "right": 354,
+          "bottom": 1034.671875,
+          "width": 348,
+          "height": 938.671875
+        },
+        "ancestorClipping": [
+          {
+            "tag": "DIV",
+            "class": "site-shell",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 360,
+              "bottom": 1681.046875,
+              "width": 360,
+              "height": 1681.046875
+            },
+            "overflowX": "hidden"
+          },
+          {
+            "tag": "BODY",
+            "class": "page-owner_team_dashboard",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 360,
+              "bottom": 1681.046875,
+              "width": 360,
+              "height": 1681.046875
+            },
+            "overflowX": "hidden"
+          },
+          {
+            "tag": "HTML",
+            "class": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 360,
+              "bottom": 1681.046875,
+              "width": 360,
+              "height": 1681.046875
+            },
+            "overflowX": "hidden"
+          }
+        ],
+        "lists": [
+          {
+            "rect": {
+              "x": 21,
+              "y": 905.875,
+              "right": 339,
+              "bottom": 1019.671875,
+              "width": 318,
+              "height": 113.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "378.375px",
+              "minWidth": "0px",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            }
+          }
+        ],
+        "cards": [
+          {
+            "heading": "cancelled07@example.invalid",
+            "rect": {
+              "x": 21,
+              "y": 905.875,
+              "right": 399.375,
+              "bottom": 1019.671875,
+              "width": 378.375,
+              "height": 113.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "352.375px",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "headingRect": {
+              "x": 34,
+              "y": 918.875,
+              "right": 386.375,
+              "bottom": 947.671875,
+              "width": 352.375,
+              "height": 28.796875
+            },
+            "headingCSS": {
+              "display": "block",
+              "gridTemplateColumns": "none",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "textRects": [
+              {
+                "x": 34,
+                "right": 386.375,
+                "y": 915.875,
+                "bottom": 948.875
+              }
+            ],
+            "meta": [
+              {
+                "rect": {
+                  "x": 34,
+                  "y": 962.671875,
+                  "right": 386.375,
+                  "bottom": 1006.671875,
+                  "width": 352.375,
+                  "height": 44
+                },
+                "css": {
+                  "display": "block",
+                  "gridTemplateColumns": "none",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "overflowX": "visible",
+                  "overflowWrap": "normal",
+                  "wordBreak": "normal",
+                  "whiteSpace": "normal"
+                },
+                "scroll": 352,
+                "client": 352
+              }
+            ],
+            "controls": []
+          }
+        ]
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "RED historical",
+      "name": "RED historical: full heading text fits",
+      "status": "FAIL",
+      "detail": {
+        "headings": [
+          {
+            "text": "cancelled07@example.invalid",
+            "rects": [
+              {
+                "x": 34,
+                "right": 386.375,
+                "y": 915.875,
+                "bottom": 948.875
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "RED historical",
+      "name": "RED historical: controls fit viewport",
+      "status": "PASS",
+      "detail": {
+        "controls": []
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "RED filled",
+      "name": "RED filled: expected card count",
+      "status": "PASS",
+      "detail": {
+        "count": 4
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "RED filled",
+      "name": "RED filled: root scroll fits",
+      "status": "PASS",
+      "detail": {
+        "root": 360,
+        "body": 360,
+        "width": 360
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "RED filled",
+      "name": "RED filled: cards fit panel and viewport",
+      "status": "FAIL",
+      "detail": {
+        "width": 360,
+        "rootScroll": 360,
+        "bodyScroll": 360,
+        "panel": {
+          "x": 6,
+          "y": 96,
+          "right": 354,
+          "bottom": 1515.0625,
+          "width": 348,
+          "height": 1419.0625
+        },
+        "ancestorClipping": [
+          {
+            "tag": "DIV",
+            "class": "site-shell",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 360,
+              "bottom": 2161.4375,
+              "width": 360,
+              "height": 2161.4375
+            },
+            "overflowX": "hidden"
+          },
+          {
+            "tag": "BODY",
+            "class": "page-owner_team_dashboard",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 360,
+              "bottom": 2161.4375,
+              "width": 360,
+              "height": 2161.4375
+            },
+            "overflowX": "hidden"
+          },
+          {
+            "tag": "HTML",
+            "class": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 360,
+              "bottom": 2161.4375,
+              "width": 360,
+              "height": 2161.4375
+            },
+            "overflowX": "hidden"
+          }
+        ],
+        "lists": [
+          {
+            "rect": {
+              "x": 21,
+              "y": 826.875,
+              "right": 339,
+              "bottom": 1103.671875,
+              "width": 318,
+              "height": 276.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "2101.81px",
+              "minWidth": "0px",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            }
+          },
+          {
+            "rect": {
+              "x": 21,
+              "y": 1160.671875,
+              "right": 339,
+              "bottom": 1500.0625,
+              "width": 318,
+              "height": 339.390625
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "1024.94px",
+              "minWidth": "0px",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            }
+          }
+        ],
+        "cards": [
+          {
+            "heading": "qa04_LongFictionalMemberNameLongFictionalMemberNameLongFictionalMemberNameLongFictionalMemberNameLongFictionalMemberNameLongFictionalMemberName",
+            "rect": {
+              "x": 21,
+              "y": 826.875,
+              "right": 2122.8125,
+              "bottom": 1103.671875,
+              "width": 2101.8125,
+              "height": 276.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "2075.81px",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "headingRect": {
+              "x": 34,
+              "y": 839.875,
+              "right": 2109.8125,
+              "bottom": 868.671875,
+              "width": 2075.8125,
+              "height": 28.796875
+            },
+            "headingCSS": {
+              "display": "block",
+              "gridTemplateColumns": "none",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "textRects": [
+              {
+                "x": 34,
+                "right": 2109.8125,
+                "y": 836.875,
+                "bottom": 869.875
+              }
+            ],
+            "meta": [
+              {
+                "rect": {
+                  "x": 34,
+                  "y": 883.671875,
+                  "right": 2109.8125,
+                  "bottom": 905.671875,
+                  "width": 2075.8125,
+                  "height": 22
+                },
+                "css": {
+                  "display": "block",
+                  "gridTemplateColumns": "none",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "overflowX": "visible",
+                  "overflowWrap": "normal",
+                  "wordBreak": "normal",
+                  "whiteSpace": "normal"
+                },
+                "scroll": 2076,
+                "client": 2076
+              },
+              {
+                "rect": {
+                  "x": 34,
+                  "y": 920.671875,
+                  "right": 2109.8125,
+                  "bottom": 942.671875,
+                  "width": 2075.8125,
+                  "height": 22
+                },
+                "css": {
+                  "display": "block",
+                  "gridTemplateColumns": "none",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "overflowX": "visible",
+                  "overflowWrap": "normal",
+                  "wordBreak": "normal",
+                  "whiteSpace": "normal"
+                },
+                "scroll": 2076,
+                "client": 2076
+              }
+            ],
+            "controls": [
+              {
+                "tag": "SELECT",
+                "text": "Редактор",
+                "rect": {
+                  "x": 34,
+                  "y": 950.671875,
+                  "right": 2109.8125,
+                  "bottom": 1002.671875,
+                  "width": 2075.8125,
+                  "height": 52
+                }
+              },
+              {
+                "tag": "BUTTON",
+                "text": "Сменить роль",
+                "rect": {
+                  "x": 34,
+                  "y": 1010.671875,
+                  "right": 2109.8125,
+                  "bottom": 1046.671875,
+                  "width": 2075.8125,
+                  "height": 36
+                }
+              },
+              {
+                "tag": "BUTTON",
+                "text": "Удалить из команды",
+                "rect": {
+                  "x": 34,
+                  "y": 1054.671875,
+                  "right": 211.15625,
+                  "bottom": 1090.671875,
+                  "width": 177.15625,
+                  "height": 36
+                }
+              }
+            ]
+          },
+          {
+            "heading": "qa04_longemaillongemaillongemaillongemaillongemaillongemail@example.invalid",
+            "rect": {
+              "x": 21,
+              "y": 1160.671875,
+              "right": 1045.9375,
+              "bottom": 1296.46875,
+              "width": 1024.9375,
+              "height": 135.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "998.938px",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "headingRect": {
+              "x": 34,
+              "y": 1173.671875,
+              "right": 1032.9375,
+              "bottom": 1202.46875,
+              "width": 998.9375,
+              "height": 28.796875
+            },
+            "headingCSS": {
+              "display": "block",
+              "gridTemplateColumns": "none",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "textRects": [
+              {
+                "x": 34,
+                "right": 1032.9375,
+                "y": 1170.671875,
+                "bottom": 1203.671875
+              }
+            ],
+            "meta": [
+              {
+                "rect": {
+                  "x": 34,
+                  "y": 1217.46875,
+                  "right": 1032.9375,
+                  "bottom": 1239.46875,
+                  "width": 998.9375,
+                  "height": 22
+                },
+                "css": {
+                  "display": "block",
+                  "gridTemplateColumns": "none",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "overflowX": "visible",
+                  "overflowWrap": "normal",
+                  "wordBreak": "normal",
+                  "whiteSpace": "normal"
+                },
+                "scroll": 999,
+                "client": 999
+              }
+            ],
+            "controls": [
+              {
+                "tag": "BUTTON",
+                "text": "Отменить",
+                "rect": {
+                  "x": 34,
+                  "y": 1247.46875,
+                  "right": 135.09375,
+                  "bottom": 1283.46875,
+                  "width": 101.09375,
+                  "height": 36
+                }
+              }
+            ]
+          },
+          {
+            "heading": "cancelled07@example.invalid",
+            "rect": {
+              "x": 21,
+              "y": 1306.46875,
+              "right": 1045.9375,
+              "bottom": 1398.265625,
+              "width": 1024.9375,
+              "height": 91.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "998.938px",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "headingRect": {
+              "x": 34,
+              "y": 1319.46875,
+              "right": 1032.9375,
+              "bottom": 1348.265625,
+              "width": 998.9375,
+              "height": 28.796875
+            },
+            "headingCSS": {
+              "display": "block",
+              "gridTemplateColumns": "none",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "textRects": [
+              {
+                "x": 34,
+                "right": 386.375,
+                "y": 1316.46875,
+                "bottom": 1349.46875
+              }
+            ],
+            "meta": [
+              {
+                "rect": {
+                  "x": 34,
+                  "y": 1363.265625,
+                  "right": 1032.9375,
+                  "bottom": 1385.265625,
+                  "width": 998.9375,
+                  "height": 22
+                },
+                "css": {
+                  "display": "block",
+                  "gridTemplateColumns": "none",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "overflowX": "visible",
+                  "overflowWrap": "normal",
+                  "wordBreak": "normal",
+                  "whiteSpace": "normal"
+                },
+                "scroll": 999,
+                "client": 999
+              }
+            ],
+            "controls": []
+          },
+          {
+            "heading": "member04_longmemberlongmemberlongmemberlongmember@example.invalid",
+            "rect": {
+              "x": 21,
+              "y": 1408.265625,
+              "right": 1045.9375,
+              "bottom": 1500.0625,
+              "width": 1024.9375,
+              "height": 91.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "998.938px",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "headingRect": {
+              "x": 34,
+              "y": 1421.265625,
+              "right": 1032.9375,
+              "bottom": 1450.0625,
+              "width": 998.9375,
+              "height": 28.796875
+            },
+            "headingCSS": {
+              "display": "block",
+              "gridTemplateColumns": "none",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "textRects": [
+              {
+                "x": 34,
+                "right": 1003.609375,
+                "y": 1418.265625,
+                "bottom": 1451.265625
+              }
+            ],
+            "meta": [
+              {
+                "rect": {
+                  "x": 34,
+                  "y": 1465.0625,
+                  "right": 1032.9375,
+                  "bottom": 1487.0625,
+                  "width": 998.9375,
+                  "height": 22
+                },
+                "css": {
+                  "display": "block",
+                  "gridTemplateColumns": "none",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "overflowX": "visible",
+                  "overflowWrap": "normal",
+                  "wordBreak": "normal",
+                  "whiteSpace": "normal"
+                },
+                "scroll": 999,
+                "client": 999
+              }
+            ],
+            "controls": []
+          }
+        ]
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "RED filled",
+      "name": "RED filled: full heading text fits",
+      "status": "FAIL",
+      "detail": {
+        "headings": [
+          {
+            "text": "qa04_LongFictionalMemberNameLongFictionalMemberNameLongFictionalMemberNameLongFictionalMemberNameLongFictionalMemberNameLongFictionalMemberName",
+            "rects": [
+              {
+                "x": 34,
+                "right": 2109.8125,
+                "y": 836.875,
+                "bottom": 869.875
+              }
+            ]
+          },
+          {
+            "text": "qa04_longemaillongemaillongemaillongemaillongemaillongemail@example.invalid",
+            "rects": [
+              {
+                "x": 34,
+                "right": 1032.9375,
+                "y": 1170.671875,
+                "bottom": 1203.671875
+              }
+            ]
+          },
+          {
+            "text": "cancelled07@example.invalid",
+            "rects": [
+              {
+                "x": 34,
+                "right": 386.375,
+                "y": 1316.46875,
+                "bottom": 1349.46875
+              }
+            ]
+          },
+          {
+            "text": "member04_longmemberlongmemberlongmemberlongmember@example.invalid",
+            "rects": [
+              {
+                "x": 34,
+                "right": 1003.609375,
+                "y": 1418.265625,
+                "bottom": 1451.265625
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "RED filled",
+      "name": "RED filled: controls fit viewport",
+      "status": "FAIL",
+      "detail": {
+        "controls": [
+          {
+            "tag": "SELECT",
+            "text": "Редактор",
+            "rect": {
+              "x": 34,
+              "y": 950.671875,
+              "right": 2109.8125,
+              "bottom": 1002.671875,
+              "width": 2075.8125,
+              "height": 52
+            }
+          },
+          {
+            "tag": "BUTTON",
+            "text": "Сменить роль",
+            "rect": {
+              "x": 34,
+              "y": 1010.671875,
+              "right": 2109.8125,
+              "bottom": 1046.671875,
+              "width": 2075.8125,
+              "height": 36
+            }
+          },
+          {
+            "tag": "BUTTON",
+            "text": "Удалить из команды",
+            "rect": {
+              "x": 34,
+              "y": 1054.671875,
+              "right": 211.15625,
+              "bottom": 1090.671875,
+              "width": 177.15625,
+              "height": 36
+            }
+          },
+          {
+            "tag": "BUTTON",
+            "text": "Отменить",
+            "rect": {
+              "x": 34,
+              "y": 1247.46875,
+              "right": 135.09375,
+              "bottom": 1283.46875,
+              "width": 101.09375,
+              "height": 36
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "completedCells": [
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "RED historical"
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "RED filled"
+    }
+  ],
+  "diagnostics": {
+    "console": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "pageerrors": [],
+    "requestFailures": [
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "badResponses": []
+  },
+  "error": null,
+  "browser": "149.0.7827.55",
+  "mode": "Approved ACCESS04; real source CSS RED/GREEN, no style/DOM injection"
+}

@@ -1,0 +1,467 @@
+Found 6 test(s).
+System check identified no issues (0 silenced).
+Creating test database for alias 'default'...
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Event', lang='ru', key='created_asc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Event', lang='ru', key='name_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Event', lang='ru', key='updated_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Event', lang='az', key='created_asc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Event', lang='az', key='name_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Event', lang='az', key='updated_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Event', lang='en', key='created_asc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /en/admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Event', lang='en', key='name_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /en/admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Event', lang='en', key='updated_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /en/admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Specialist', lang='ru', key='created_asc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Specialist', lang='ru', key='name_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Specialist', lang='ru', key='updated_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Specialist', lang='az', key='created_asc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Specialist', lang='az', key='name_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Specialist', lang='az', key='updated_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Specialist', lang='en', key='created_asc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /en/admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Specialist', lang='en', key='name_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /en/admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_current_label_and_active_option_in_all_locales (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_current_label_and_active_option_in_all_locales) (model='Specialist', lang='en', key='updated_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 71, in test_current_label_and_active_option_in_all_locales
+    response = self.page(model, {'sort': key}, lang)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /en/admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_default_and_invalid_sort_fall_back_to_updated_desc (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_default_and_invalid_sort_fall_back_to_updated_desc) (model='Event', params={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 82, in test_default_and_invalid_sort_fall_back_to_updated_desc
+    self.assertEqual([o.pk for o in response.context['cl'].result_list], self.expected(model, 'updated_desc'))
+AssertionError: Lists differ: [4, 1, 3, 2] != [3, 2, 4, 1]
+
+First differing element 0:
+4
+3
+
+- [4, 1, 3, 2]
++ [3, 2, 4, 1]
+
+======================================================================
+FAIL: test_default_and_invalid_sort_fall_back_to_updated_desc (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_default_and_invalid_sort_fall_back_to_updated_desc) (model='Event', params={'sort': 'not_a_field'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 81, in test_default_and_invalid_sort_fall_back_to_updated_desc
+    response = self.page(model, params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_default_and_invalid_sort_fall_back_to_updated_desc (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_default_and_invalid_sort_fall_back_to_updated_desc) (model='Event', params={'sort': '-owner__password'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 81, in test_default_and_invalid_sort_fall_back_to_updated_desc
+    response = self.page(model, params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_default_and_invalid_sort_fall_back_to_updated_desc (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_default_and_invalid_sort_fall_back_to_updated_desc) (model='Specialist', params={})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 82, in test_default_and_invalid_sort_fall_back_to_updated_desc
+    self.assertEqual([o.pk for o in response.context['cl'].result_list], self.expected(model, 'updated_desc'))
+AssertionError: Lists differ: [4, 1, 3, 2] != [3, 2, 4, 1]
+
+First differing element 0:
+4
+3
+
+- [4, 1, 3, 2]
++ [3, 2, 4, 1]
+
+======================================================================
+FAIL: test_default_and_invalid_sort_fall_back_to_updated_desc (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_default_and_invalid_sort_fall_back_to_updated_desc) (model='Specialist', params={'sort': 'not_a_field'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 81, in test_default_and_invalid_sort_fall_back_to_updated_desc
+    response = self.page(model, params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_default_and_invalid_sort_fall_back_to_updated_desc (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_default_and_invalid_sort_fall_back_to_updated_desc) (model='Specialist', params={'sort': '-owner__password'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 81, in test_default_and_invalid_sort_fall_back_to_updated_desc
+    response = self.page(model, params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_pagination_preserves_sort_search_filter_and_new_sort_resets_page (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_pagination_preserves_sort_search_filter_and_new_sort_resets_page) (model='Event')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 93, in test_pagination_preserves_sort_search_filter_and_new_sort_resets_page
+    first = self.page(model, params)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_pagination_preserves_sort_search_filter_and_new_sort_resets_page (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_pagination_preserves_sort_search_filter_and_new_sort_resets_page) (model='Specialist')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 93, in test_pagination_preserves_sort_search_filter_and_new_sort_resets_page
+    first = self.page(model, params)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_search_and_status_survive_sorting (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_search_and_status_survive_sorting) (model='Event')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 59, in test_search_and_status_survive_sorting
+    response = self.page(model, {'sort': 'name_asc', 'q': 'SORTQA', 'status__exact': 'published'})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_search_and_status_survive_sorting (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_search_and_status_survive_sorting) (model='Specialist')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 59, in test_search_and_status_survive_sorting
+    response = self.page(model, {'sort': 'name_asc', 'q': 'SORTQA', 'status__exact': 'published'})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_six_orders_use_independent_dates_names_and_stable_ties (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_six_orders_use_independent_dates_names_and_stable_ties) (model='Event', key='created_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 53, in test_six_orders_use_independent_dates_names_and_stable_ties
+    response = self.page(model, {'sort': key})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_six_orders_use_independent_dates_names_and_stable_ties (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_six_orders_use_independent_dates_names_and_stable_ties) (model='Event', key='created_asc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 53, in test_six_orders_use_independent_dates_names_and_stable_ties
+    response = self.page(model, {'sort': key})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_six_orders_use_independent_dates_names_and_stable_ties (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_six_orders_use_independent_dates_names_and_stable_ties) (model='Event', key='updated_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 53, in test_six_orders_use_independent_dates_names_and_stable_ties
+    response = self.page(model, {'sort': key})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_six_orders_use_independent_dates_names_and_stable_ties (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_six_orders_use_independent_dates_names_and_stable_ties) (model='Event', key='updated_asc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 53, in test_six_orders_use_independent_dates_names_and_stable_ties
+    response = self.page(model, {'sort': key})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_six_orders_use_independent_dates_names_and_stable_ties (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_six_orders_use_independent_dates_names_and_stable_ties) (model='Event', key='name_asc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 53, in test_six_orders_use_independent_dates_names_and_stable_ties
+    response = self.page(model, {'sort': key})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_six_orders_use_independent_dates_names_and_stable_ties (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_six_orders_use_independent_dates_names_and_stable_ties) (model='Event', key='name_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 53, in test_six_orders_use_independent_dates_names_and_stable_ties
+    response = self.page(model, {'sort': key})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/event/?e=1
+
+======================================================================
+FAIL: test_six_orders_use_independent_dates_names_and_stable_ties (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_six_orders_use_independent_dates_names_and_stable_ties) (model='Specialist', key='created_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 53, in test_six_orders_use_independent_dates_names_and_stable_ties
+    response = self.page(model, {'sort': key})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_six_orders_use_independent_dates_names_and_stable_ties (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_six_orders_use_independent_dates_names_and_stable_ties) (model='Specialist', key='created_asc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 53, in test_six_orders_use_independent_dates_names_and_stable_ties
+    response = self.page(model, {'sort': key})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_six_orders_use_independent_dates_names_and_stable_ties (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_six_orders_use_independent_dates_names_and_stable_ties) (model='Specialist', key='updated_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 53, in test_six_orders_use_independent_dates_names_and_stable_ties
+    response = self.page(model, {'sort': key})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_six_orders_use_independent_dates_names_and_stable_ties (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_six_orders_use_independent_dates_names_and_stable_ties) (model='Specialist', key='updated_asc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 53, in test_six_orders_use_independent_dates_names_and_stable_ties
+    response = self.page(model, {'sort': key})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_six_orders_use_independent_dates_names_and_stable_ties (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_six_orders_use_independent_dates_names_and_stable_ties) (model='Specialist', key='name_asc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 53, in test_six_orders_use_independent_dates_names_and_stable_ties
+    response = self.page(model, {'sort': key})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_six_orders_use_independent_dates_names_and_stable_ties (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_six_orders_use_independent_dates_names_and_stable_ties) (model='Specialist', key='name_desc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 53, in test_six_orders_use_independent_dates_names_and_stable_ties
+    response = self.page(model, {'sort': key})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/specialist/?e=1
+
+======================================================================
+FAIL: test_view_permissions_private_columns_and_domain_data_unchanged (catalog.testcases.test_mod_qa03_queue_sorting.QueueSortingTests.test_view_permissions_private_columns_and_domain_data_unchanged)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 111, in test_view_permissions_private_columns_and_domain_data_unchanged
+    self.page(Event, {'sort': 'created_asc'})
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa03_queue_sorting.py", line 42, in page
+    self.assertEqual(response.status_code, 200, getattr(response, 'url', ''))
+AssertionError: 302 != 200 : /ru/admin/catalog/event/?e=1
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.258s
+
+FAILED (failures=41)
+Destroying test database for alias 'default'...

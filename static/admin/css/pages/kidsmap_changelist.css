@@ -462,11 +462,11 @@ details[open] .km-accordion-arrow {
   min-width: 0;
 }
 
-/* The admin theme styles #changelist-search as a wrapped card.  This screen
-   owns that form, so neutralise the theme rule and keep the toolbar one row. */
+/* The screen owns this search form. Neutralise the theme card styling and
+   let controls wrap according to the content width, including the sidebar. */
 .km-toolbar #changelist-search.km-search-form {
   display: flex !important;
-  flex-wrap: nowrap !important;
+  flex-wrap: wrap !important;
   align-items: center;
   gap: 8px;
   width: 100%;
@@ -731,6 +731,8 @@ details[open] .km-accordion-arrow {
 .km-toolbar-right {
   margin-left: auto;
   display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
   align-items: center;
   gap: 14px;
   flex-shrink: 0;
@@ -2670,7 +2672,7 @@ details[open] .km-accordion-arrow {
 }
 
 /* 11. Toast (2d) */
-.km-toast {
+#km-toast {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
@@ -2687,7 +2689,7 @@ details[open] .km-accordion-arrow {
   animation: kmToastIn .28s ease-out both;
 }
 
-.km-toast__icon {
+#km-toast .km-toast__icon {
   font-size: 18px !important;
   color: var(--km-success);
 }
@@ -2711,6 +2713,11 @@ details[open] .km-accordion-arrow {
 }
 .km-toast__undo:hover {
   color: #fff;
+}
+
+/* Unified notifications must wrap long listing names on this page. */
+.km-toast-container .km-toast__title {
+  overflow-wrap: anywhere;
 }
 
 /* 12. Columns Toggler (1a) */
@@ -2742,6 +2749,7 @@ details[open] .km-accordion-arrow {
 }
 
 .km-columns-details {
+  margin-left: auto;
   position: relative;
 }
 
@@ -3793,4 +3801,31 @@ a.km-admin-action--muted:hover,
     min-width: 0;
     width: min(320px, calc(100vw - 64px));
   }
+}
+
+/* MOD-QA-03: keep wide queue tables accessible inside their own viewport. */
+.app-catalog.model-place .card-body.table-responsive,
+.km-event-changelist .card-body.table-responsive,
+.km-specialist-changelist .card-body.table-responsive {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+}
+
+/* Preserve the updated/created column beside the expanded admin sidebar. */
+.app-catalog.model-place .km-table-container #result_list {
+    min-width: 1000px !important;
+}
+
+.app-catalog.model-place .km-table-container th.column-col_updated {
+    width: 140px !important;
+}
+
+/* Narrow sort summaries must not anchor their wider panels off-screen. */
+@media (max-width: 580px) {
+    .app-catalog.model-place .km-sort-dropdown,
+    .km-event-changelist .km-sort-dropdown,
+    .km-specialist-changelist .km-sort-dropdown {
+        left: 0;
+        right: auto;
+    }
 }

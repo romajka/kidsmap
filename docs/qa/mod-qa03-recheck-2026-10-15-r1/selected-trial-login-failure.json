@@ -1,0 +1,8 @@
+{
+  "script": "native-selected-trial.js",
+  "CLI_exit": 1,
+  "semantic_result": "NONE",
+  "classification": "QA session reuse: first simulation left primary trial context logged in; /admin/login redirects and username field is absent",
+  "fix": "fresh new browser context for every subsequent trial; preserve first script/raw sanitized failure in ignored scratch",
+  "source_changes": []
+}

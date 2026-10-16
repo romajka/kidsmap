@@ -1,0 +1,586 @@
+Found 334 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: allauth, google, jazzmin, messages, sitemaps, staticfiles
+  Apply all migrations: account, admin, auth, catalog, catalog_moderation, contenttypes, sessions, socialaccount
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying account.0001_initial... OK
+  Applying account.0002_email_max_length... OK
+  Applying account.0003_alter_emailaddress_create_unique_verified_email... OK
+  Applying account.0004_alter_emailaddress_drop_unique_email... OK
+  Applying account.0005_emailaddress_idx_upper_email... OK
+  Applying account.0006_emailaddress_lower... OK
+  Applying account.0007_emailaddress_idx_email... OK
+  Applying account.0008_emailaddress_unique_primary_email_fixup... OK
+  Applying account.0009_emailaddress_unique_primary_email... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying catalog.0001_initial... OK
+  Applying catalog.0002_place_i18n_fields... OK
+  Applying catalog.0003_place_catalog_improvements... OK
+  Applying catalog.0004_place_photo... OK
+  Applying catalog.0005_place_cover_and_gallery... OK
+  Applying catalog.0006_place_slug... OK
+  Applying catalog.0007_place_likes_count... OK
+  Applying catalog.0008_alter_place_options_placelike... OK
+  Applying catalog.0009_sitesettings... OK
+  Applying catalog.0010_sitesettings_footer_contacts... OK
+  Applying catalog.0011_siteaboutsettings_sitebrandingsettings_and_more... OK
+  Applying catalog.0012_alter_sitesettings_empty_results_image_and_more... OK
+  Applying catalog.0013_place_rating_avg_place_rating_count_placereview... OK
+  Applying catalog.0014_remove_placelike_unique_place_like_per_session_and_more... OK
+  Applying catalog.0015_catalogcontentsettings... OK
+  Applying catalog.0016_placereviewsbyclub... OK
+  Applying catalog.0017_alter_placereview_options_and_more... OK
+  Applying catalog.0018_siteanalytics... OK
+  Applying catalog.0019_sitevisit... OK
+  Applying catalog.0020_place_is_temporary_place_temporary_end_and_more... OK
+  Applying catalog.0021_sitesettings_home_cta_text_az_and_more... OK
+  Applying catalog.0022_funnelevent... OK
+  Applying catalog.0023_userprofile... OK
+  Applying catalog.0024_place_owner_placeownershiprequest_and_more... OK
+  Applying catalog.0025_userprofile_owner_permissions_override_and_more... OK
+  Applying catalog.0026_placechangeaudit_ownerteaminvitation_and_more... OK
+  Applying catalog.0027_userprofile_phone... OK
+  Applying catalog.0028_useremailverification... OK
+  Applying catalog.0029_userprofile_gender... OK
+  Applying catalog.0030_update_public_contacts_defaults... OK
+  Applying catalog.0031_siteregistereduser_staffaccessuser... OK
+  Applying catalog.0032_place_additional_info_place_extra_conditions_and_more... OK
+  Applying catalog.0033_update_footer_phone_default... OK
+  Applying catalog.0034_place_soft_delete_fields... OK
+  Applying catalog.0035_sitesettings_add_social_links... OK
+  Applying catalog.0036_sitegalleryimage... OK
+  Applying catalog.0037_seed_home_hero_site_gallery_images... OK
+  Applying catalog.0038_alter_funnelevent_event_type... OK
+  Applying catalog.0039_expand_catalog_to_azerbaijan... OK
+  Applying catalog.0040_content_moderation_statuses... OK
+  Applying catalog.0041_quarantine_low_quality_public_content... OK
+  Applying catalog.0042_event... OK
+  Applying catalog.0043_alter_place_options_alter_placereviewsbyclub_options... OK
+  Applying catalog.0044_category_alter_event_category_alter_place_category_and_more... OK
+  Applying catalog.0045_category_is_active_subcategory_code_and_more... OK
+  Applying catalog.0046_alter_category_options_alter_subcategory_options... OK
+  Applying catalog.0047_sitesettings_about_hero_image_and_more... OK
+  Applying catalog.0048_alter_category_icon... OK
+  Applying catalog.0049_mariadb_compatible_unique_constraints... OK
+  Applying catalog.0050_migrate_to_hierarchical_districts... OK
+  Applying catalog.0051_placescheduleday_placescheduleinterval... OK
+  Applying catalog.0052_category_color_bg_category_color_text... OK
+  Applying catalog.0053_userprofile_avatar... OK
+  Applying catalog.0054_metrostation_region_specialistspecialization_and_more... OK
+  Applying catalog.0055_seed_specialist_locations_and_specializations... OK
+  Applying catalog.0056_specialist_duration_minutes_specialist_education_az_and_more... OK
+  Applying catalog.0057_specialist_phone_specialist_whatsapp... OK
+  Applying catalog.0058_alter_place_options... OK
+  Applying catalog.0059_seed_educator_specializations... OK
+  Applying catalog.0060_sitesettings_specialists_section_enabled... OK
+  Applying catalog.0061_sitevisibilitysettings... OK
+  Applying catalog.0062_place_lesson_details_and_pricing_plans... OK
+  Applying catalog.0063_event_location_contacts... OK
+  Applying catalog.0064_event_location_filters... OK
+  Applying catalog.0065_eventphoto... OK
+  Applying catalog.0066_sitesettings_events_section_enabled... OK
+  Applying catalog.0067_place_offers_adult_classes... OK
+  Applying catalog.0068_place_phone2_place_phone3... OK
+  Applying catalog.0069_place_multilingual_extra_fields... OK
+  Applying catalog.0070_fix_regional_demo_place_coordinates... OK
+  Applying catalog.0071_category_subcategory_audit_softdelete... OK
+  Applying catalog.0072_subcategory_icon... OK
+  Applying catalog.0073_postgresql_native_constraints... OK
+  Applying catalog.0074_ensure_absheron_region... OK
+  Applying catalog.0075_normalize_public_slugs... OK
+  Applying catalog.0076_place_home_recommendations... OK
+  Applying catalog.0077_place_age_open_ended... OK
+  Applying catalog.0078_place_created_by... OK
+  Applying catalog.0079_sync_public_taxonomy... OK
+  Applying catalog.0080_clean_public_taxonomy... OK
+  Applying catalog.0081_add_ai_referral_event... OK
+  Applying catalog.0082_alter_sitegalleryimage_category... OK
+  Applying catalog.0083_alter_sitegalleryimage_category... OK
+  Applying catalog.0084_pricingplan_relational... OK
+  Applying catalog.0085_pricingplan_integrity_constraints... OK
+  Applying catalog.0086_sitesettings_home_categories_image_and_more... OK
+  Applying catalog.0087_sitesettings_footer_background_image_and_more... OK
+  Applying catalog.0088_sitesettings_about_hero_mobile_image_and_more... OK
+  Applying catalog.0089_seoauditrun_seoissue_seochange... OK
+  Applying catalog.0090_seoissue_cascade_delete... OK
+  Applying catalog.0091_place_custom_price_badge_az_and_more... OK
+  Applying catalog.0092_place_scoped_team_access... OK
+  Applying catalog.0093_backfill_place_scoped_team_access... OK
+  Applying catalog.0094_funnelevent_add_place_signup_events... OK
+  Applying catalog.0095_stage4_neutral_labels... OK
+  Applying catalog.0096_place_schedule_modes... OK
+  Applying catalog.0097_drop_legacy_userprofile_roles... OK
+  Applying catalog.0098_replace_legacy_gmail_contact... OK
+  Applying catalog.0099_alter_place_schedule_mode... OK
+  Applying catalog.0100_place_price_mode... OK
+  Applying catalog.0101_unique_user_email... OK
+  Applying catalog.0102_volunteer_place_revision... OK
+  Applying catalog.0103_place_review_cooldown... OK
+  Applying catalog.0104_sitesettings_home_recommendations_limit... OK
+  Applying catalog.0105_placechangeaudit_volunteer_source... OK
+  Applying catalog.0106_staff_role_audit_and_superadmin_promotion... OK
+  Applying catalog.0107_account_deletion_retention... OK
+  Applying catalog.0108_analytics_measurement... OK
+  Applying catalog.0109_alter_analytics_choices_and_threshold... OK
+  Applying catalog.0110_public_favorites_activation_constraint... OK
+  Applying catalog.0111_analytics_ingress_daily... OK
+  Applying catalog.0112_ratingrankingcalibration... OK
+  Applying catalog.0113_place_localized_slugs... OK
+  Applying catalog.0114_coordinate_location... OK
+  Applying catalog.0115_moderation_sla_timestamps... OK
+  Applying catalog.0116_moderation_sla_lifecycle... OK
+  Applying catalog.0117_task33_catalog_structure... OK
+  Applying catalog.0118_task33_ownership... OK
+  Applying catalog.0119_task33_business_permissions... OK
+  Applying catalog.0120_task33_publication... OK
+  Applying catalog.0121_task33_publication... OK
+  Applying catalog.0122_task33_server_draft... OK
+  Applying catalog.0123_task33_group_pricing... OK
+  Applying catalog.0124_task33_conversion... OK
+  Applying catalog.0125_task33_group_conditions_verified... OK
+  Applying catalog.0126_task33_volunteer_review_status... OK
+  Applying catalog.0127_task33_workflow_notifications... OK
+  Applying catalog.0128_task33_review_versions... OK
+  Applying catalog.0129_task33_review_versions... OK
+  Applying catalog.0130_task33_review_versions... OK
+  Applying catalog.0131_task33_specialist_foundation... OK
+  Applying catalog.0132_task33_specialist_foundation... OK
+  Applying catalog.0133_task33_event_foundation... OK
+  Applying catalog.0134_completion_taxonomy... OK
+  Applying catalog.0135_sitesettings_organizations_section_enabled... OK
+  Applying catalog.0136_retire_optional_listing_verification... OK
+  Applying catalog.0137_organization_connection_operation... OK
+  Applying catalog.0138_business_role_labels... OK
+  Applying catalog.0139_connection_receipt_actor_retention... OK
+  Applying catalog.0140_specialist_proposal_draft... OK
+  Applying catalog.0141_catalog_admin_names... OK
+  Applying catalog_moderation.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying socialaccount.0001_initial... OK
+  Applying socialaccount.0002_token_max_lengths... OK
+  Applying socialaccount.0003_extra_data_default_dict... OK
+  Applying socialaccount.0004_app_provider_id_settings... OK
+  Applying socialaccount.0005_socialtoken_nullable_app... OK
+  Applying socialaccount.0006_alter_socialaccount_extra_data... OK
+System check identified no issues (0 silenced).
+{
+  "processed": 1,
+  "created": 1,
+  "skipped": 0,
+  "conflicts": 0,
+  "ambiguous": []
+}
+{
+  "processed": 1,
+  "created": 0,
+  "skipped": 1,
+  "conflicts": 0,
+  "ambiguous": []
+}
+Using existing test database for alias 'default' ('test_module05full_20261014_r1')...
+test_create_and_edit_program_has_separate_right_and_pending_impact (catalog.testcases.test_task33_program_workspace.ProgramWorkspaceTests.test_create_and_edit_program_has_separate_right_and_pending_impact) ... /home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /home/ramin/kidsmap/.tmp/module05-full-2026-10-14-r1/staticfiles/
+  mw_instance = middleware(adapted_handler)
+ok
+test_group_conditions_date_changes_only_on_explicit_current_owner_action (catalog.testcases.test_task33_program_workspace.ProgramWorkspaceTests.test_group_conditions_date_changes_only_on_explicit_current_owner_action) ... ok
+test_linked_activity_uses_approved_program_and_keeps_local_group (catalog.testcases.test_task33_program_workspace.ProgramWorkspaceTests.test_linked_activity_uses_approved_program_and_keeps_local_group) ... ok
+test_archive_and_publication_apply_clear_group_projection (catalog.testcases.test_task33_pricing.GroupPricingTests.test_archive_and_publication_apply_clear_group_projection) ... ok
+test_csv_normalization_never_infers_or_removes_group_plans (catalog.testcases.test_task33_pricing.GroupPricingTests.test_csv_normalization_never_infers_or_removes_group_plans) ... ok
+test_group_age_conflict_and_currency_are_not_silently_coerced (catalog.testcases.test_task33_pricing.GroupPricingTests.test_group_age_conflict_and_currency_are_not_silently_coerced) ... ok
+test_group_age_edit_cannot_invalidate_existing_plan (catalog.testcases.test_task33_pricing.GroupPricingTests.test_group_age_edit_cannot_invalidate_existing_plan) ... ok
+test_group_save_delete_signals_update_scalar_projection (catalog.testcases.test_task33_pricing.GroupPricingTests.test_group_save_delete_signals_update_scalar_projection) ... ok
+test_json_ui_validator_distinguishes_v1_from_nested_v2 (catalog.testcases.test_task33_pricing.GroupPricingTests.test_json_ui_validator_distinguishes_v1_from_nested_v2) ... ok
+test_legacy_scalar_only_fallback (catalog.testcases.test_task33_pricing.GroupPricingTests.test_legacy_scalar_only_fallback) ... ok
+test_nested_import_waits_for_publication_approval (catalog.testcases.test_task33_pricing.GroupPricingTests.test_nested_import_waits_for_publication_approval) ... ok
+test_pending_nested_tariff_survives_reopening_and_other_draft_save (catalog.testcases.test_task33_pricing.GroupPricingTests.test_pending_nested_tariff_survives_reopening_and_other_draft_save) ... ok
+test_price_modes_and_publication_signal_keep_projection_consistent (catalog.testcases.test_task33_pricing.GroupPricingTests.test_price_modes_and_publication_signal_keep_projection_consistent) ... ok
+test_target_scoped_roundtrip_and_foreign_ids (catalog.testcases.test_task33_pricing.GroupPricingTests.test_target_scoped_roundtrip_and_foreign_ids) ... ok
+test_trial_fee_and_membership_preserve_regular_headline (catalog.testcases.test_task33_pricing.GroupPricingTests.test_trial_fee_and_membership_preserve_regular_headline) ... ok
+test_versioned_json_export_keeps_v1_direct_only (catalog.testcases.test_task33_pricing.GroupPricingTests.test_versioned_json_export_keeps_v1_direct_only) ... ok
+test_xor_is_enforced_by_postgresql_and_group_resolves_place (catalog.testcases.test_task33_pricing.GroupPricingTests.test_xor_is_enforced_by_postgresql_and_group_resolves_place) ... ok
+test_active_contacts_fallback_and_detach_remove_live_org_sources (catalog.testcases.test_task33_public_details.PublicDetailsTests.test_active_contacts_fallback_and_detach_remove_live_org_sources) ... ok
+test_activity_detail_has_local_group_parent_and_no_pending_revision (catalog.testcases.test_task33_public_details.PublicDetailsTests.test_activity_detail_has_local_group_parent_and_no_pending_revision) ... ok
+test_az_fallback_is_explicit_and_group_price_schedule_remain_local (catalog.testcases.test_task33_public_details.PublicDetailsTests.test_az_fallback_is_explicit_and_group_price_schedule_remain_local) ... ok
+test_card_map_and_seo_share_price_and_translation (catalog.testcases.test_task33_public_details.PublicDetailsTests.test_card_map_and_seo_share_price_and_translation) ... ok
+test_detail_routes_empty_org_and_standalone_place (catalog.testcases.test_task33_public_details.PublicDetailsTests.test_detail_routes_empty_org_and_standalone_place) ... ok
+test_draft_organization_contacts_are_not_inherited (catalog.testcases.test_task33_public_details.PublicDetailsTests.test_draft_organization_contacts_are_not_inherited) ... ok
+test_hidden_parent_or_activity_returns_404_without_public_payload (catalog.testcases.test_task33_public_details.PublicDetailsTests.test_hidden_parent_or_activity_returns_404_without_public_payload) ... ok
+test_invalid_legacy_contact_does_not_crash_and_uses_valid_active_fallback (catalog.testcases.test_task33_public_details.PublicDetailsTests.test_invalid_legacy_contact_does_not_crash_and_uses_valid_active_fallback) ... ok
+test_local_phone_keeps_whatsapp_local (catalog.testcases.test_task33_public_details.PublicDetailsTests.test_local_phone_keeps_whatsapp_local) ... ok
+test_localized_urls_and_hidden_subject_have_no_events (catalog.testcases.test_task33_public_details.PublicDetailsTests.test_localized_urls_and_hidden_subject_have_no_events) ... ok
+test_org_review_feed_links_original_target_and_excludes_pending (catalog.testcases.test_task33_public_details.PublicDetailsTests.test_org_review_feed_links_original_target_and_excludes_pending) ... ok
+test_phone_endpoint_rechecks_contact_inheritance_after_detach (catalog.testcases.test_task33_public_details.PublicDetailsTests.test_phone_endpoint_rechecks_contact_inheritance_after_detach) ... ok
+test_repeated_tracking_on_one_request_does_not_duplicate_subject (catalog.testcases.test_task33_public_details.PublicDetailsTests.test_repeated_tracking_on_one_request_does_not_duplicate_subject) ... ok
+test_required_trial_terms_and_category_placeholder_are_visible (catalog.testcases.test_task33_public_details.PublicDetailsTests.test_required_trial_terms_and_category_placeholder_are_visible) ... ok
+test_subject_views_do_not_create_place_events_or_invent_history (catalog.testcases.test_task33_public_details.PublicDetailsTests.test_subject_views_do_not_create_place_events_or_invent_history) ... ok
+test_actual_csrf_required_on_all_transports (catalog.testcases.test_organization_detach_transport.DetachTransportTests.test_actual_csrf_required_on_all_transports) ... ok
+test_archived_network_lawful_private_detach_is_redacted (catalog.testcases.test_organization_detach_transport.DetachTransportTests.test_archived_network_lawful_private_detach_is_redacted) ... ok
+test_consent_receipt_required_and_valid_repeat_is_idempotent (catalog.testcases.test_organization_detach_transport.DetachTransportTests.test_consent_receipt_required_and_valid_repeat_is_idempotent) ... ok
+test_content_conflict_preserves_link (catalog.testcases.test_organization_detach_transport.DetachTransportTests.test_content_conflict_preserves_link) ... ok
+test_detach_dependency_conflicts_require_new_review (catalog.testcases.test_organization_detach_transport.DetachTransportTests.test_detach_dependency_conflicts_require_new_review) ... ok
+test_expired_and_other_actor_receipts_do_not_detach (catalog.testcases.test_organization_detach_transport.DetachTransportTests.test_expired_and_other_actor_receipts_do_not_detach) ... ok
+test_failed_canonical_transition_rolls_back_and_replay_does_not_retry (catalog.testcases.test_organization_detach_transport.DetachTransportTests.test_failed_canonical_transition_rolls_back_and_replay_does_not_retry) ... Organization connection row failed
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/services/organization_connections.py", line 234, in _execute_row
+    ownership.detach(actor=fresh_actor,place_id=place.pk,organization_id=org.pk,expected_ownership_version=place.ownership_version)
+  File "/usr/lib/python3.12/unittest/mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1193, in _execute_mock_call
+    raise effect
+RuntimeError: synthetic transition failure
+ok
+test_foreign_and_staff_get_no_receipt_or_metadata (catalog.testcases.test_organization_detach_transport.DetachTransportTests.test_foreign_and_staff_get_no_receipt_or_metadata) ... ok
+test_legacy_html_redirects_without_mutation_or_receipt (catalog.testcases.test_organization_detach_transport.DetachTransportTests.test_legacy_html_redirects_without_mutation_or_receipt) ... ok
+test_legacy_json_requires_confirmation_without_mutation (catalog.testcases.test_organization_detach_transport.DetachTransportTests.test_legacy_json_requires_confirmation_without_mutation) ... ok
+test_lost_authority_preserves_link_and_does_not_reveal_private (catalog.testcases.test_organization_detach_transport.DetachTransportTests.test_lost_authority_preserves_link_and_does_not_reveal_private) ... ok
+test_old_receipt_after_rejoin_does_not_detach_again (catalog.testcases.test_organization_detach_transport.DetachTransportTests.test_old_receipt_after_rejoin_does_not_detach_again) ... ok
+test_org_owner_cannot_review_unattached_private_without_history (catalog.testcases.test_organization_detach_transport.DetachTransportTests.test_org_owner_cannot_review_unattached_private_without_history) ... ok
+test_place_org_action_binding (catalog.testcases.test_organization_detach_transport.DetachTransportTests.test_place_org_action_binding) ... ok
+test_reviewed_detach_preserves_program_media_group_price_and_hours (catalog.testcases.test_organization_detach_transport.DetachTransportTests.test_reviewed_detach_preserves_program_media_group_price_and_hours) ... ok
+test_stale_version_and_extra_api_consent_fields_rejected (catalog.testcases.test_organization_detach_transport.DetachTransportTests.test_stale_version_and_extra_api_consent_fields_rejected) ... ok
+test_place_admin_form_cleans_price_mode (catalog.testcases.test_place_json_and_pricing_modes.AdminTaxonomyAndFormTests.test_place_admin_form_cleans_price_mode) ... ok
+test_taxonomy_picker_config_contains_all_structures (catalog.testcases.test_place_json_and_pricing_modes.AdminTaxonomyAndFormTests.test_taxonomy_picker_config_contains_all_structures) ... ok
+test_default_price_mode_is_tariffs (catalog.testcases.test_place_json_and_pricing_modes.PlacePricingModesReadinessAndVisibilityTests.test_default_price_mode_is_tariffs) ... ok
+test_events_mode_passes_readiness_without_tariffs_and_is_visible (catalog.testcases.test_place_json_and_pricing_modes.PlacePricingModesReadinessAndVisibilityTests.test_events_mode_passes_readiness_without_tariffs_and_is_visible) ... ok
+test_free_entry_mode_passes_readiness_without_tariffs_and_is_visible (catalog.testcases.test_place_json_and_pricing_modes.PlacePricingModesReadinessAndVisibilityTests.test_free_entry_mode_passes_readiness_without_tariffs_and_is_visible) ... ok
+test_free_mode_passes_readiness_without_tariffs_and_is_visible (catalog.testcases.test_place_json_and_pricing_modes.PlacePricingModesReadinessAndVisibilityTests.test_free_mode_passes_readiness_without_tariffs_and_is_visible) ... ok
+test_tariffs_mode_with_plan_passes_readiness_and_is_visible (catalog.testcases.test_place_json_and_pricing_modes.PlacePricingModesReadinessAndVisibilityTests.test_tariffs_mode_with_plan_passes_readiness_and_is_visible) ... ok
+test_tariffs_mode_without_pricing_plan_fails_readiness (catalog.testcases.test_place_json_and_pricing_modes.PlacePricingModesReadinessAndVisibilityTests.test_tariffs_mode_without_pricing_plan_fails_readiness) ... ok
+test_always_open_schedule_schema (catalog.testcases.test_place_json_and_pricing_modes.PlaceSchemaOrgSeoTests.test_always_open_schedule_schema) ... ok
+test_free_mode_includes_schema_offer (catalog.testcases.test_place_json_and_pricing_modes.PlaceSchemaOrgSeoTests.test_free_mode_includes_schema_offer) ... ok
+test_non_regular_schedule_omits_opening_hours_schema (catalog.testcases.test_place_json_and_pricing_modes.PlaceSchemaOrgSeoTests.test_non_regular_schedule_omits_opening_hours_schema) ... ok
+test_phone_omitted_from_schema_when_empty (catalog.testcases.test_place_json_and_pricing_modes.PlaceSchemaOrgSeoTests.test_phone_omitted_from_schema_when_empty) ... ok
+test_price_kind_from_includes_min_price_specification (catalog.testcases.test_place_json_and_pricing_modes.PlaceSchemaOrgSeoTests.test_price_kind_from_includes_min_price_specification) ... ok
+test_temporary_place_is_not_event_schema (catalog.testcases.test_place_json_and_pricing_modes.PlaceSchemaOrgSeoTests.test_temporary_place_is_not_event_schema) ... ok
+test_build_public_price_summary_for_structured_modes (catalog.testcases.test_place_json_and_pricing_modes.PricingPlansServiceTests.test_build_public_price_summary_for_structured_modes) ... ok
+test_get_starting_price_for_structured_modes (catalog.testcases.test_place_json_and_pricing_modes.PricingPlansServiceTests.test_get_starting_price_for_structured_modes) ... ok
+test_non_regular_schedule_modes_are_visible_in_catalog (catalog.testcases.test_place_json_and_pricing_modes.ScheduleModesCatalogVisibilityTests.test_non_regular_schedule_modes_are_visible_in_catalog) ... ok
+test_admin_import_accepts_tariffs_alias_with_multilingual_titles (catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_admin_import_accepts_tariffs_alias_with_multilingual_titles) ... ok
+test_admin_import_validation_and_export (catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_admin_import_validation_and_export) ... ok
+test_direct_delete_clears_derived_fields (catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_direct_delete_clears_derived_fields) ... ok
+test_empty_tariff_reports_item_number_and_required_field (catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_empty_tariff_reports_item_number_and_required_field) ... ok
+test_foreign_currency_primary_plan_disables_legacy_fallback (catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_foreign_currency_primary_plan_disables_legacy_fallback) ... ok
+test_free_and_paid_tariffs_show_actual_zero_to_maximum_range (catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_free_and_paid_tariffs_show_actual_zero_to_maximum_range) ... ok
+test_free_event_with_on_request_main_tuition_does_not_show_free (catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_free_event_with_on_request_main_tuition_does_not_show_free) ... ok
+test_full_ui_ranges_are_treated_as_unfiltered (catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_full_ui_ranges_are_treated_as_unfiltered) ... ok
+test_legacy_budget_parameters_do_not_filter_incomparable_tariffs (catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_legacy_budget_parameters_do_not_filter_incomparable_tariffs) ... ok
+test_migration_command_is_idempotent (catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_migration_command_is_idempotent) ... ok
+test_on_request_disables_legacy_fallback (catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_on_request_disables_legacy_fallback) ... ok
+test_owner_payload_cannot_clear_staff_verification (catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_owner_payload_cannot_clear_staff_verification) ... ok
+test_price_kinds_validate_and_clean_irrelevant_values (catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_price_kinds_validate_and_clean_irrelevant_values) ... ok
+test_pricing_plan_limit_is_twelve_and_reports_the_limit (catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_pricing_plan_limit_is_twelve_and_reports_the_limit) ... ok
+test_public_api_returns_canonical_plans (catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_public_api_returns_canonical_plans) ... ok
+test_replacement_keeps_ids_and_syncs_all_legacy_fields (catalog.testcases.pricing_plans_relational.RelationalPricingPlanTests.test_replacement_keeps_ids_and_syncs_all_legacy_fields) ... ok
+test_accepts_open_visit_tariffs (catalog.testcases.pricing_plans.PricingPlansTests.test_accepts_open_visit_tariffs) ... ok
+test_accepts_twelve_tariffs_and_rejects_thirteen (catalog.testcases.pricing_plans.PricingPlansTests.test_accepts_twelve_tariffs_and_rejects_thirteen) ... ok
+test_admin_form_reopens_and_resaves_tariffs_without_data_loss (catalog.testcases.pricing_plans.PricingPlansTests.test_admin_form_reopens_and_resaves_tariffs_without_data_loss) ... ok
+test_admin_form_saves_multiple_normalized_plans (catalog.testcases.pricing_plans.PricingPlansTests.test_admin_form_saves_multiple_normalized_plans) ... ok
+test_auto_defaults_quantity_unit_when_quantity_is_provided (catalog.testcases.pricing_plans.PricingPlansTests.test_auto_defaults_quantity_unit_when_quantity_is_provided) ... ok
+test_empty_plans_have_no_public_block_data (catalog.testcases.pricing_plans.PricingPlansTests.test_empty_plans_have_no_public_block_data) ... ok
+test_event_schedule_mode_does_not_validate_unused_weekday_intervals (catalog.testcases.pricing_plans.PricingPlansTests.test_event_schedule_mode_does_not_validate_unused_weekday_intervals) ... ok
+test_normalizes_legacy_format_only_when_requested_for_save (catalog.testcases.pricing_plans.PricingPlansTests.test_normalizes_legacy_format_only_when_requested_for_save) ... ok
+test_owner_form_saves_multiple_normalized_plans (catalog.testcases.pricing_plans.PricingPlansTests.test_owner_form_saves_multiple_normalized_plans) ... ok
+test_public_detail_hides_extra_pricing_plans_behind_toggle (catalog.testcases.pricing_plans.PricingPlansTests.test_public_detail_hides_extra_pricing_plans_behind_toggle) ... ok
+test_public_detail_shows_only_active_sorted_plans (catalog.testcases.pricing_plans.PricingPlansTests.test_public_detail_shows_only_active_sorted_plans) ... ok
+test_public_detail_uses_saved_currency_and_payment_unit (catalog.testcases.pricing_plans.PricingPlansTests.test_public_detail_uses_saved_currency_and_payment_unit) ... ok
+test_public_plan_without_title_gets_readable_fallback (catalog.testcases.pricing_plans.PricingPlansTests.test_public_plan_without_title_gets_readable_fallback) ... ok
+test_public_plans_filter_sort_and_localize (catalog.testcases.pricing_plans.PricingPlansTests.test_public_plans_filter_sort_and_localize) ... ok
+test_rejects_invalid_tariff_values (catalog.testcases.pricing_plans.PricingPlansTests.test_rejects_invalid_tariff_values) ... ok
+test_validation_error_identifies_broken_tariff (catalog.testcases.pricing_plans.PricingPlansTests.test_validation_error_identifies_broken_tariff) ... ok
+test_active_tariffs_replace_stale_legacy_price_with_full_range (catalog.testcases.pricing_plans.PublicPricingSummaryTests.test_active_tariffs_replace_stale_legacy_price_with_full_range) ... ok
+test_complete_manual_range_is_not_narrowed_by_tariffs (catalog.testcases.pricing_plans.PublicPricingSummaryTests.test_complete_manual_range_is_not_narrowed_by_tariffs) ... ok
+test_disabling_all_tariffs_clears_the_automatic_range (catalog.testcases.pricing_plans.PublicPricingSummaryTests.test_disabling_all_tariffs_clears_the_automatic_range) ... ok
+test_event_schedule_uses_only_upcoming_published_related_events (catalog.testcases.pricing_plans.PublicPricingSummaryTests.test_event_schedule_uses_only_upcoming_published_related_events) ... ok
+test_inactive_prices_are_ignored_and_active_free_tariff_is_included (catalog.testcases.pricing_plans.PublicPricingSummaryTests.test_inactive_prices_are_ignored_and_active_free_tariff_is_included) ... ok
+test_legacy_fields_fallbacks (catalog.testcases.pricing_plans.PublicPricingSummaryTests.test_legacy_fields_fallbacks) ... ok
+test_localizations (catalog.testcases.pricing_plans.PublicPricingSummaryTests.test_localizations) ... ok
+test_no_price_placeholder (catalog.testcases.pricing_plans.PublicPricingSummaryTests.test_no_price_placeholder) ... ok
+test_non_regular_schedule_modes_do_not_require_weekday_intervals (catalog.testcases.pricing_plans.PublicPricingSummaryTests.test_non_regular_schedule_modes_do_not_require_weekday_intervals) ... ok
+test_pricing_plans_list_toggles_and_matching_prices (catalog.testcases.pricing_plans.PublicPricingSummaryTests.test_pricing_plans_list_toggles_and_matching_prices) ... ok
+test_schedule_rows_formatting (catalog.testcases.pricing_plans.PublicPricingSummaryTests.test_schedule_rows_formatting) ... ok
+test_starting_price_package_tertiary (catalog.testcases.pricing_plans.PublicPricingSummaryTests.test_starting_price_package_tertiary) ... ok
+test_starting_price_per_lesson_priority (catalog.testcases.pricing_plans.PublicPricingSummaryTests.test_starting_price_per_lesson_priority) ... ok
+test_starting_price_per_month_secondary (catalog.testcases.pricing_plans.PublicPricingSummaryTests.test_starting_price_per_month_secondary) ... ok
+test_summary_format_and_frequency_match_starting_tariff (catalog.testcases.pricing_plans.PublicPricingSummaryTests.test_summary_format_and_frequency_match_starting_tariff) ... ok
+test_group_invalid_age_refused_before_candidate_write (catalog.testcases.test_task33_publication.PublicationIngressTests.test_group_invalid_age_refused_before_candidate_write) ... ok
+test_legacy_publication_approval_cannot_ignore_candidate (catalog.testcases.test_task33_publication.PublicationIngressTests.test_legacy_publication_approval_cannot_ignore_candidate) ... ok
+test_owner_create_readiness_without_photos_coordinates_phone (catalog.testcases.test_task33_publication.PublicationIngressTests.test_owner_create_readiness_without_photos_coordinates_phone) ... ok
+test_owner_form_can_revert_existing_pending_field (catalog.testcases.test_task33_publication.PublicationIngressTests.test_owner_form_can_revert_existing_pending_field) ... ok
+test_admin_draft_preserves_live_and_metadata (catalog.testcases.test_task33_publication.PublicationTests.test_admin_draft_preserves_live_and_metadata) ... ok
+test_admin_wrong_import_schema_refused (catalog.testcases.test_task33_publication.PublicationTests.test_admin_wrong_import_schema_refused) ... ok
+test_amount_only_plan_explicit_save_keeps_id_and_live (catalog.testcases.test_task33_publication.PublicationTests.test_amount_only_plan_explicit_save_keeps_id_and_live) ... ok
+test_approval_changes_only_patch_and_uses_new_version (catalog.testcases.test_task33_publication.PublicationTests.test_approval_changes_only_patch_and_uses_new_version) ... ok
+test_confirmed_closure_keeps_detail_and_excludes_catalog (catalog.testcases.test_task33_publication.PublicationTests.test_confirmed_closure_keeps_detail_and_excludes_catalog) ... ok
+test_csv_stale_source_cannot_modify_live (catalog.testcases.test_task33_publication.PublicationTests.test_csv_stale_source_cannot_modify_live) ... ok
+test_dependent_price_conditions_bundle_wholly_gated (catalog.testcases.test_task33_publication.PublicationTests.test_dependent_price_conditions_bundle_wholly_gated) ... ok
+test_foreign_actor_and_owner_publish_denied (catalog.testcases.test_task33_publication.PublicationTests.test_foreign_actor_and_owner_publish_denied) ... ok
+test_foreign_tariff_id_rejected_before_candidate_write (catalog.testcases.test_task33_publication.PublicationTests.test_foreign_tariff_id_rejected_before_candidate_write) ... ok
+test_gallery_delete_is_pending_until_approval (catalog.testcases.test_task33_publication.PublicationTests.test_gallery_delete_is_pending_until_approval) ... ok
+test_handover_refuses_approval (catalog.testcases.test_task33_publication.PublicationTests.test_handover_refuses_approval) ... ok
+test_inactive_author_refuses_approval (catalog.testcases.test_task33_publication.PublicationTests.test_inactive_author_refuses_approval) ... ok
+test_nonexplicit_save_never_applies_price_or_nature (catalog.testcases.test_task33_publication.PublicationTests.test_nonexplicit_save_never_applies_price_or_nature) ... ok
+test_old_inactive_is_not_exposed_by_closure (catalog.testcases.test_task33_publication.PublicationTests.test_old_inactive_is_not_exposed_by_closure) ... ok
+test_optional_photos_coordinates_and_business_website (catalog.testcases.test_task33_publication.PublicationTests.test_optional_photos_coordinates_and_business_website) ... ok
+test_overlapping_live_change_refuses_stale_approval (catalog.testcases.test_task33_publication.PublicationTests.test_overlapping_live_change_refuses_stale_approval) ... ok
+test_owner_form_posts_candidate_and_refuses_stale_token (catalog.testcases.test_task33_publication.PublicationTests.test_owner_form_posts_candidate_and_refuses_stale_token) ... ok
+test_pending_and_rejected_keep_approved_live (catalog.testcases.test_task33_publication.PublicationTests.test_pending_and_rejected_keep_approved_live) ... ok
+test_pending_schema_mutation_refuses_approval (catalog.testcases.test_task33_publication.PublicationTests.test_pending_schema_mutation_refuses_approval) ... ok
+test_plan_conditions_candidate_keeps_amount_gated (catalog.testcases.test_task33_publication.PublicationTests.test_plan_conditions_candidate_keeps_amount_gated) ... ok
+test_price_change_does_not_conflict_with_description_approval (catalog.testcases.test_task33_publication.PublicationTests.test_price_change_does_not_conflict_with_description_approval) ... ok
+test_program_archived_activity_snapshot_is_preserved (catalog.testcases.test_task33_publication.PublicationTests.test_program_archived_activity_snapshot_is_preserved) ... ok
+test_program_propagates_only_common_active_links (catalog.testcases.test_task33_publication.PublicationTests.test_program_propagates_only_common_active_links) ... ok
+test_public_space_without_contacts_is_ready (catalog.testcases.test_task33_publication.PublicationTests.test_public_space_without_contacts_is_ready) ... ok
+test_replay_approval_rejected (catalog.testcases.test_task33_publication.PublicationTests.test_replay_approval_rejected) ... ok
+test_revert_candidate_field_to_live_removes_pending_change (catalog.testcases.test_task33_publication.PublicationTests.test_revert_candidate_field_to_live_removes_pending_change) ... ok
+test_revoked_candidate_author_cannot_be_approved (catalog.testcases.test_task33_publication.PublicationTests.test_revoked_candidate_author_cannot_be_approved) ... ok
+test_schedule_explicit_save_is_immediate (catalog.testcases.test_task33_publication.PublicationTests.test_schedule_explicit_save_is_immediate) ... ok
+test_schema_and_source_conflicts_do_not_write (catalog.testcases.test_task33_publication.PublicationTests.test_schema_and_source_conflicts_do_not_write) ... ok
+test_nested_group_cannot_bypass_archived_activity (catalog.testcases.test_task33_permissions.AdministrativeBoundaryTests.test_nested_group_cannot_bypass_archived_activity) ... ok
+test_platform_publish_helper_does_not_grant_ordinary_account_permission (catalog.testcases.test_task33_permissions.AdministrativeBoundaryTests.test_platform_publish_helper_does_not_grant_ordinary_account_permission) ... ok
+test_team_admin_cannot_assign_or_reactivate_business_employees (catalog.testcases.test_task33_permissions.AdministrativeBoundaryTests.test_team_admin_cannot_assign_or_reactivate_business_employees) ... ok
+test_team_invitation_admin_cannot_bypass_owner_services (catalog.testcases.test_task33_permissions.AdministrativeBoundaryTests.test_team_invitation_admin_cannot_bypass_owner_services) ... ok
+test_all_network_includes_future_branch_but_not_org_or_program_actions (catalog.testcases.test_task33_permissions.GrantTests.test_all_network_includes_future_branch_but_not_org_or_program_actions) ... ok
+test_api_rechecks_nested_parent_after_precheck (catalog.testcases.test_task33_permissions.GrantTests.test_api_rechecks_nested_parent_after_precheck) ... ok
+test_branch_creation_refuses_network_edit_without_separate_action (catalog.testcases.test_task33_permissions.GrantTests.test_branch_creation_refuses_network_edit_without_separate_action) ... ok
+test_delegated_branch_owner_is_org_owner_and_selected_scope_stays_fixed (catalog.testcases.test_task33_permissions.GrantTests.test_delegated_branch_owner_is_org_owner_and_selected_scope_stays_fixed) ... ok
+test_direct_grant_survives_detach_and_network_grant_stops (catalog.testcases.test_task33_permissions.GrantTests.test_direct_grant_survives_detach_and_network_grant_stops) ... ok
+test_direct_place_individual_actions_and_stale_role_writer (catalog.testcases.test_task33_permissions.GrantTests.test_direct_place_individual_actions_and_stale_role_writer) ... ok
+test_empty_selected_and_all_network_with_ids_rejected (catalog.testcases.test_task33_permissions.GrantTests.test_empty_selected_and_all_network_with_ids_rejected) ... ok
+test_endpoint_denies_foreign_nested_ids_and_manager_team_post (catalog.testcases.test_task33_permissions.GrantTests.test_endpoint_denies_foreign_nested_ids_and_manager_team_post) ... ok
+test_endpoint_transport_csrf_config_and_conflict (catalog.testcases.test_task33_permissions.GrantTests.test_endpoint_transport_csrf_config_and_conflict) ... ok
+test_expired_canceled_replayed_and_stale_selected_invitation (catalog.testcases.test_task33_permissions.GrantTests.test_expired_canceled_replayed_and_stale_selected_invitation) ... ok
+test_forbidden_actions_are_not_grantable (catalog.testcases.test_task33_permissions.GrantTests.test_forbidden_actions_are_not_grantable) ... ok
+test_foreign_nested_place_and_informational_place_rejected (catalog.testcases.test_task33_permissions.GrantTests.test_foreign_nested_place_and_informational_place_rejected) ... ok
+test_invitation_grant_version_and_replay_are_checked (catalog.testcases.test_task33_permissions.GrantTests.test_invitation_grant_version_and_replay_are_checked) ... ok
+test_legacy_null_place_grant_has_no_network_rights (catalog.testcases.test_task33_permissions.GrantTests.test_legacy_null_place_grant_has_no_network_rights) ... ok
+test_model_partial_org_owner_transfer_also_revokes (catalog.testcases.test_task33_permissions.GrantTests.test_model_partial_org_owner_transfer_also_revokes) ... ok
+test_no_delegation_even_with_manager_role_or_grant (catalog.testcases.test_task33_permissions.GrantTests.test_no_delegation_even_with_manager_role_or_grant) ... ok
+test_program_permission_is_explicit_and_target_scoped (catalog.testcases.test_task33_permissions.GrantTests.test_program_permission_is_explicit_and_target_scoped) ... ok
+test_revocation_and_leave_immediately_remove_cached_account_access (catalog.testcases.test_task33_permissions.GrantTests.test_revocation_and_leave_immediately_remove_cached_account_access) ... ok
+test_revoked_business_actor_cannot_use_cached_profile (catalog.testcases.test_task33_permissions.GrantTests.test_revoked_business_actor_cannot_use_cached_profile) ... ok
+test_scope_list_and_managed_reader_follow_resolver (catalog.testcases.test_task33_permissions.GrantTests.test_scope_list_and_managed_reader_follow_resolver) ... ok
+test_selected_all_current_does_not_include_future_branch (catalog.testcases.test_task33_permissions.GrantTests.test_selected_all_current_does_not_include_future_branch) ... ok
+test_transfer_suspends_team_and_cancels_pending_invites_requires_explicit_confirmation (catalog.testcases.test_task33_permissions.GrantTests.test_transfer_suspends_team_and_cancels_pending_invites_requires_explicit_confirmation) ... ok
+test_wrong_account_and_inactive_actor_refused (catalog.testcases.test_task33_permissions.GrantTests.test_wrong_account_and_inactive_actor_refused) ... ok
+test_manager_cannot_delegate_through_real_post (catalog.testcases.test_task33_permissions.LegacyBoundaryTests.test_manager_cannot_delegate_through_real_post) ... ok
+test_owner_and_manager_cannot_approve_review_through_post (catalog.testcases.test_task33_permissions.LegacyBoundaryTests.test_owner_and_manager_cannot_approve_review_through_post) ... ok
+test_permission_service_exists (catalog.testcases.test_task33_permissions.LegacyBoundaryTests.test_permission_service_exists) ... ok
+test_repository_rejects_stale_invitation_object_after_transfer (catalog.testcases.test_task33_permissions.LegacyBoundaryTests.test_repository_rejects_stale_invitation_object_after_transfer) ... ok
+test_scope_reloads_live_owner_before_listing_team_places (catalog.testcases.test_task33_permissions.LegacyBoundaryTests.test_scope_reloads_live_owner_before_listing_team_places) ... ok
+test_compatibility_does_not_apply_to_a_new_card (catalog.testcases.place_readiness.PlaceAdminFormReadinessTests.test_compatibility_does_not_apply_to_a_new_card) ... ok
+test_draft_save_is_not_blocked_by_publication_requirements (catalog.testcases.place_readiness.PlaceAdminFormReadinessTests.test_draft_save_is_not_blocked_by_publication_requirements) ... ok
+test_form_readiness_matches_the_saved_card (catalog.testcases.place_readiness.PlaceAdminFormReadinessTests.test_form_readiness_matches_the_saved_card) ... ok
+test_location_section_names_the_missing_district (catalog.testcases.place_readiness.PlaceAdminFormReadinessTests.test_location_section_names_the_missing_district) ... ok
+test_publish_is_refused_with_the_concrete_missing_items (catalog.testcases.place_readiness.PlaceAdminFormReadinessTests.test_publish_is_refused_with_the_concrete_missing_items) ... ok
+test_published_legacy_card_can_still_be_saved (catalog.testcases.place_readiness.PlaceAdminFormReadinessTests.test_published_legacy_card_can_still_be_saved)
+Migration must not freeze cards that are already on the site. ... ok
+test_unpublished_legacy_card_needs_a_full_readiness_again (catalog.testcases.place_readiness.PlaceAdminFormReadinessTests.test_unpublished_legacy_card_needs_a_full_readiness_again) ... ok
+test_a_ready_card_is_also_visible_in_the_public_catalog (catalog.testcases.place_readiness.PlaceReadinessConsistencyTests.test_a_ready_card_is_also_visible_in_the_public_catalog) ... ok
+test_hundred_percent_means_the_card_may_be_published (catalog.testcases.place_readiness.PlaceReadinessConsistencyTests.test_hundred_percent_means_the_card_may_be_published) ... ok
+test_progress_never_reaches_hundred_while_an_issue_blocks_publication (catalog.testcases.place_readiness.PlaceReadinessConsistencyTests.test_progress_never_reaches_hundred_while_an_issue_blocks_publication) ... ok
+test_quality_check_reports_exactly_the_readiness_codes (catalog.testcases.place_readiness.PlaceReadinessConsistencyTests.test_quality_check_reports_exactly_the_readiness_codes) ... ok
+test_requirement_codes_are_unique_and_documented (catalog.testcases.place_readiness.PlaceReadinessConsistencyTests.test_requirement_codes_are_unique_and_documented) ... ok
+test_short_description_is_published_and_reachable_in_the_catalog (catalog.testcases.place_readiness.PlaceReadinessConsistencyTests.test_short_description_is_published_and_reachable_in_the_catalog)
+10/10 and published means the card is on the site, however short. ... ok
+test_a_week_closed_on_every_day_is_not_a_schedule (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_a_week_closed_on_every_day_is_not_a_schedule) ... ok
+test_adult_classes_flag_does_not_replace_the_age_range (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_adult_classes_flag_does_not_replace_the_age_range) ... ok
+test_age_needs_upper_bound_or_the_open_ended_flag (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_age_needs_upper_bound_or_the_open_ended_flag) ... ok
+test_complete_card_is_ready_with_full_progress (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_complete_card_is_ready_with_full_progress) ... ok
+test_cover_photo_is_a_temporary_bridge_and_is_reported (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_cover_photo_is_a_temporary_bridge_and_is_reported) ... ok
+test_custom_price_badge_does_not_satisfy_price_requirement_in_tariffs_mode (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_custom_price_badge_does_not_satisfy_price_requirement_in_tariffs_mode) ... ok
+test_empty_description_still_blocks (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_empty_description_still_blocks) ... ok
+test_every_issue_points_at_a_field_and_carries_an_instruction (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_issue_points_at_a_field_and_carries_an_instruction) ... ok
+test_every_requirement_blocks_publication_on_its_own (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_every_requirement_blocks_publication_on_its_own) ... ok
+test_free_tariff_counts_as_a_price (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_free_tariff_counts_as_a_price) ... ok
+test_gallery_photo_does_not_replace_the_main_photo (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_gallery_photo_does_not_replace_the_main_photo) ... ok
+test_instagram_and_website_do_not_replace_the_phone (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_instagram_and_website_do_not_replace_the_phone) ... ok
+test_legacy_scalar_price_does_not_satisfy_the_price_item (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_legacy_scalar_price_does_not_satisfy_the_price_item)
+Old ``price_*`` values still show on the site but must be migrated. ... ok
+test_legacy_text_schedule_does_not_satisfy_the_weekly_mode (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_legacy_text_schedule_does_not_satisfy_the_weekly_mode) ... ok
+test_location_reports_the_persisted_district_as_the_missing_fifth_item (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_location_reports_the_persisted_district_as_the_missing_fifth_item) ... ok
+test_non_tariff_price_modes_satisfy_price_requirement_without_tariffs (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_non_tariff_price_modes_satisfy_price_requirement_without_tariffs) ... ok
+test_non_weekly_schedule_modes_are_satisfied_by_the_mode_itself (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_non_weekly_schedule_modes_are_satisfied_by_the_mode_itself) ... ok
+test_schedule_requires_at_least_one_open_day_in_weekly_mode (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_schedule_requires_at_least_one_open_day_in_weekly_mode) ... ok
+test_short_description_is_advice_and_never_blocks (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_short_description_is_advice_and_never_blocks) ... ok
+test_subcategory_of_another_category_is_rejected (catalog.testcases.place_readiness.PlaceReadinessRulesTests.test_subcategory_of_another_category_is_rejected) ... ok
+test_age_range_excludes_unknown_but_accepts_open_bounds (catalog.testcases.test_public_filter_consistency.CatalogAgeFilterTests.test_age_range_excludes_unknown_but_accepts_open_bounds) ... ok
+test_exact_age_excludes_unknown_and_higher_minimum (catalog.testcases.test_public_filter_consistency.CatalogAgeFilterTests.test_exact_age_excludes_unknown_and_higher_minimum) ... ok
+test_filters_are_combined (catalog.testcases.test_public_filter_consistency.CatalogAgeFilterTests.test_filters_are_combined) ... ok
+test_no_age_filter_keeps_unknown (catalog.testcases.test_public_filter_consistency.CatalogAgeFilterTests.test_no_age_filter_keeps_unknown) ... ok
+test_selected_age_keeps_exact_bounds (catalog.testcases.test_public_filter_consistency.CatalogAgeFilterTests.test_selected_age_keeps_exact_bounds) ... ok
+test_zero_is_a_real_age_and_one_sided_range_excludes_unknown (catalog.testcases.test_public_filter_consistency.CatalogAgeFilterTests.test_zero_is_a_real_age_and_one_sided_range_excludes_unknown) ... ok
+test_age_filter_excludes_events_with_unknown_age (catalog.testcases.test_public_filter_consistency.CatalogEventAgeFilterTests.test_age_filter_excludes_events_with_unknown_age) ... ok
+test_baku_count_does_not_guess_missing_district_from_coordinates (catalog.testcases.test_public_filter_consistency.DistrictOptionCountsTests.test_baku_count_does_not_guess_missing_district_from_coordinates) ... ok
+test_activity_approval_and_unpublish_are_distinct (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_activity_approval_and_unpublish_are_distinct) ... ok
+test_group_badges_follow_activity_and_condition_confirmation (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_group_badges_follow_activity_and_condition_confirmation) ... ok
+test_new_hierarchy_admin_is_registered (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_new_hierarchy_admin_is_registered) ... ok
+test_organization_admin_draft_and_submit_use_candidate (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_organization_admin_draft_and_submit_use_candidate) ... ok
+test_organization_admin_unpublish_uses_review_service (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_organization_admin_unpublish_uses_review_service) ... ok
+test_organization_change_renders_related_staff_link (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_organization_change_renders_related_staff_link) ... ok
+test_organization_staff_invite_uses_owner_service (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_organization_staff_invite_uses_owner_service) ... ok
+test_other_staff_cannot_edit_organization_content (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_other_staff_cannot_edit_organization_content) ... ok
+test_pending_editor_shows_current_and_candidate_separately (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_pending_editor_shows_current_and_candidate_separately) ... ok
+test_place_admin_unpublish_skips_form_save (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_place_admin_unpublish_skips_form_save) ... ok
+test_place_carryover_is_not_submitted_as_hidden_mutable_input (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_place_carryover_is_not_submitted_as_hidden_mutable_input) ... ok
+test_program_activity_group_forms_render_without_direct_status_field (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_program_activity_group_forms_render_without_direct_status_field) ... ok
+test_staff_invite_error_does_not_create_record (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_staff_invite_error_does_not_create_record) ... ok
+test_stale_concealed_place_value_cannot_overwrite_fresh_live_value (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_stale_concealed_place_value_cannot_overwrite_fresh_live_value) ... ok
+test_unpublish_refuses_pending_candidate (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_unpublish_refuses_pending_candidate) ... ok
+test_unpublish_service_uses_existing_reviewer_acl_and_version (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_unpublish_service_uses_existing_reviewer_acl_and_version) ... ok
+test_default_partial_writer_preserves_omitted_rows (catalog.testcases.test_offer_qa01_group_removal.ApprovedGroupRemovalTests.test_default_partial_writer_preserves_omitted_rows) ... ok
+test_empty_complete_tree_preserves_direct_tariff_and_history (catalog.testcases.test_offer_qa01_group_removal.ApprovedGroupRemovalTests.test_empty_complete_tree_preserves_direct_tariff_and_history) ... ok
+test_explicit_complete_writer_archives_omitted_rows (catalog.testcases.test_offer_qa01_group_removal.ApprovedGroupRemovalTests.test_explicit_complete_writer_archives_omitted_rows) ... ok
+test_failure_after_real_archive_rolls_back_tree_and_projections (catalog.testcases.test_offer_qa01_group_removal.ApprovedGroupRemovalTests.test_failure_after_real_archive_rolls_back_tree_and_projections) ... ok
+test_foreign_ids_fail_before_any_complete_mutation (catalog.testcases.test_offer_qa01_group_removal.ApprovedGroupRemovalTests.test_foreign_ids_fail_before_any_complete_mutation) ... ok
+test_group_removal_waits_for_approval_and_retains_history (catalog.testcases.test_offer_qa01_group_removal.ApprovedGroupRemovalTests.test_group_removal_waits_for_approval_and_retains_history) ... ok
+test_omitted_activity_archives_its_groups_and_keeps_history (catalog.testcases.test_offer_qa01_group_removal.ApprovedGroupRemovalTests.test_omitted_activity_archives_its_groups_and_keeps_history) ... ok
+test_rejection_does_not_archive_live_group (catalog.testcases.test_offer_qa01_group_removal.ApprovedGroupRemovalTests.test_rejection_does_not_archive_live_group) ... ok
+test_removed_tariff_of_retained_group_uses_existing_replacement (catalog.testcases.test_offer_qa01_group_removal.ApprovedGroupRemovalTests.test_removed_tariff_of_retained_group_uses_existing_replacement) ... ok
+test_repeat_and_stale_requests_do_not_mutate_approved_tree (catalog.testcases.test_offer_qa01_group_removal.ApprovedGroupRemovalTests.test_repeat_and_stale_requests_do_not_mutate_approved_tree) ... ok
+test_direct_normalization_keeps_localized_tariff_message (catalog.testcases.test_offer_qa03_error_targets.OfferingErrorTargetTests.test_direct_normalization_keeps_localized_tariff_message) ... ok
+test_disjoint_plan_age_targets_the_bound_outside_group (catalog.testcases.test_offer_qa03_error_targets.OfferingErrorTargetTests.test_disjoint_plan_age_targets_the_bound_outside_group) ... ok
+test_foreign_group_id_stays_rejected_and_targets_local_block (catalog.testcases.test_offer_qa03_error_targets.OfferingErrorTargetTests.test_foreign_group_id_stays_rejected_and_targets_local_block) ... ok
+test_form_preserves_target_params_alongside_legacy_error_text (catalog.testcases.test_offer_qa03_error_targets.OfferingErrorTargetTests.test_form_preserves_target_params_alongside_legacy_error_text) ... ok
+test_group_age_bounds_and_field_validator_have_group_targets (catalog.testcases.test_offer_qa03_error_targets.OfferingErrorTargetTests.test_group_age_bounds_and_field_validator_have_group_targets) ... ok
+test_http_rejection_keeps_messages_adds_targets_and_never_writes_candidate (catalog.testcases.test_offer_qa03_error_targets.OfferingErrorTargetTests.test_http_rejection_keeps_messages_adds_targets_and_never_writes_candidate) ... ok
+test_machine_address_does_not_depend_on_translated_message (catalog.testcases.test_offer_qa03_error_targets.OfferingErrorTargetTests.test_machine_address_does_not_depend_on_translated_message) ... ok
+test_price_range_billing_age_and_number_format_target_actual_second_plan (catalog.testcases.test_offer_qa03_error_targets.OfferingErrorTargetTests.test_price_range_billing_age_and_number_format_target_actual_second_plan) ... ok
+test_valid_http_save_stays_candidate_and_preserves_live_price (catalog.testcases.test_offer_qa03_error_targets.OfferingErrorTargetTests.test_valid_http_save_stays_candidate_and_preserves_live_price) ... ok
+test_consumed_copy_photo_write_conflicts_without_touching_history (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_consumed_copy_photo_write_conflicts_without_touching_history) ... ok
+test_consumed_copy_write_conflicts_and_completion_is_idempotent (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_consumed_copy_write_conflicts_and_completion_is_idempotent) ... ok
+test_creation_keeps_unrelated_null_target_drafts (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_creation_keeps_unrelated_null_target_drafts) ... ok
+test_invalid_explicit_ajax_save_leaves_draft_resumable (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_invalid_explicit_ajax_save_leaves_draft_resumable) ... ok
+test_mismatched_id_does_not_authorize_retirement (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_mismatched_id_does_not_authorize_retirement) ... ok
+test_missing_id_retires_older_same_actor_target_and_preserves_payload (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_missing_id_retires_older_same_actor_target_and_preserves_payload) ... ok
+test_newer_copy_is_not_retired_even_if_its_id_is_supplied (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_newer_copy_is_not_retired_even_if_its_id_is_supplied) ... ok
+test_other_actor_and_other_target_are_preserved (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_other_actor_and_other_target_are_preserved) ... ok
+test_unauthorized_actor_cannot_retire_owners_copy (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_unauthorized_actor_cannot_retire_owners_copy) ... ok
+test_active_draft_and_pending_keep_editable_overlay (catalog.testcases.test_offer_qa08_program_declined.ProgramDeclinedTests.test_active_draft_and_pending_keep_editable_overlay) ... ok
+test_approved_hides_terminal_preview_and_uses_live_text (catalog.testcases.test_offer_qa08_program_declined.ProgramDeclinedTests.test_approved_hides_terminal_preview_and_uses_live_text) ... ok
+test_correction_resubmit_gates_live_and_preserves_local_branch_fields (catalog.testcases.test_offer_qa08_program_declined.ProgramDeclinedTests.test_correction_resubmit_gates_live_and_preserves_local_branch_fields) ... ok
+test_declined_labels_are_localized_and_state_specific (catalog.testcases.test_offer_qa08_program_declined.ProgramDeclinedTests.test_declined_labels_are_localized_and_state_specific) ... ok
+test_declined_owner_sees_reason_and_readonly_proposal_without_live_overlay (catalog.testcases.test_offer_qa08_program_declined.ProgramDeclinedTests.test_declined_owner_sees_reason_and_readonly_proposal_without_live_overlay) ... ok
+test_empty_declined_draft_does_not_claim_published_content (catalog.testcases.test_offer_qa08_program_declined.ProgramDeclinedTests.test_empty_declined_draft_does_not_claim_published_content) ... ok
+test_invalid_and_stale_posts_keep_decision_and_bound_input (catalog.testcases.test_offer_qa08_program_declined.ProgramDeclinedTests.test_invalid_and_stale_posts_keep_decision_and_bound_input) ... ok
+test_null_taxonomy_blank_text_and_unknown_payload_are_safe (catalog.testcases.test_offer_qa08_program_declined.ProgramDeclinedTests.test_null_taxonomy_blank_text_and_unknown_payload_are_safe) ... ok
+test_outsider_cannot_read_decision_or_submit (catalog.testcases.test_offer_qa08_program_declined.ProgramDeclinedTests.test_outsider_cannot_read_decision_or_submit) ... ok
+test_reason_and_proposal_are_escaped_and_keep_line_breaks (catalog.testcases.test_offer_qa08_program_declined.ProgramDeclinedTests.test_reason_and_proposal_are_escaped_and_keep_line_breaks) ... ok
+test_return_keeps_proposed_input_and_review_reason (catalog.testcases.test_offer_qa08_program_declined.ProgramDeclinedTests.test_return_keeps_proposed_input_and_review_reason) ... ok
+test_taxonomy_preview_uses_localized_names_instead_of_ids (catalog.testcases.test_offer_qa08_program_declined.ProgramDeclinedTests.test_taxonomy_preview_uses_localized_names_instead_of_ids) ... ok
+test_archived_activity_and_group_do_not_satisfy_price (catalog.testcases.test_offer_qa09_partial_review_pricing.PartialReviewPricingTests.test_archived_activity_and_group_do_not_satisfy_price) ... ok
+test_direct_tariff_and_free_mode_still_pass (catalog.testcases.test_offer_qa09_partial_review_pricing.PartialReviewPricingTests.test_direct_tariff_and_free_mode_still_pass) ... ok
+test_explicit_candidate_tree_wins_over_live_prices (catalog.testcases.test_offer_qa09_partial_review_pricing.PartialReviewPricingTests.test_explicit_candidate_tree_wins_over_live_prices) ... ok
+test_explicit_empty_candidate_tree_does_not_restore_live_price (catalog.testcases.test_offer_qa09_partial_review_pricing.PartialReviewPricingTests.test_explicit_empty_candidate_tree_does_not_restore_live_price) ... ok
+test_inactive_or_addon_only_tariff_does_not_satisfy_price (catalog.testcases.test_offer_qa09_partial_review_pricing.PartialReviewPricingTests.test_inactive_or_addon_only_tariff_does_not_satisfy_price) ... ok
+test_name_only_candidate_counts_current_group_tariff (catalog.testcases.test_offer_qa09_partial_review_pricing.PartialReviewPricingTests.test_name_only_candidate_counts_current_group_tariff) ... ok
+test_partial_review_is_read_only_and_post_cannot_replace_trusted_tree (catalog.testcases.test_offer_qa09_partial_review_pricing.PartialReviewPricingTests.test_partial_review_is_read_only_and_post_cannot_replace_trusted_tree) ... ok
+test_stale_and_foreign_review_preserve_candidate_and_live (catalog.testcases.test_offer_qa09_partial_review_pricing.PartialReviewPricingTests.test_stale_and_foreign_review_preserve_candidate_and_live) ... ok
+test_500_response_keeps_submitted_text (catalog.testcases.test_task33_drafts.DraftApiTests.test_500_response_keeps_submitted_text) ... Draft save unavailable
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/controllers/server_draft_api.py", line 39, in draft_collection
+    draft=service.save(user=request.user,data=data)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1193, in _execute_mock_call
+    raise effect
+OSError: synthetic storage unavailable
+ok
+test_account_switch_cannot_access_create_draft (catalog.testcases.test_task33_drafts.DraftApiTests.test_account_switch_cannot_access_create_draft) ... ok
+test_changed_source_requires_reconciliation_before_update (catalog.testcases.test_task33_drafts.DraftApiTests.test_changed_source_requires_reconciliation_before_update) ... ok
+test_client_draft_id_makes_first_post_idempotent (catalog.testcases.test_task33_drafts.DraftApiTests.test_client_draft_id_makes_first_post_idempotent) ... ok
+test_create_materialize_missing_name_then_idempotent (catalog.testcases.test_task33_drafts.DraftApiTests.test_create_materialize_missing_name_then_idempotent) ... ok
+test_csrf_and_transport_reject_mutation_without_token (catalog.testcases.test_task33_drafts.DraftApiTests.test_csrf_and_transport_reject_mutation_without_token) ... ok
+test_edit_draft_never_writes_live_and_stale_version_preserves_input (catalog.testcases.test_task33_drafts.DraftApiTests.test_edit_draft_never_writes_live_and_stale_version_preserves_input) ... ok
+test_foreign_actor_cannot_read_or_update (catalog.testcases.test_task33_drafts.DraftApiTests.test_foreign_actor_cannot_read_or_update) ... ok
+test_incomplete_create_resume_and_retry_do_not_make_place (catalog.testcases.test_task33_drafts.DraftApiTests.test_incomplete_create_resume_and_retry_do_not_make_place) ... ok
+test_invalid_relation_and_numeric_type_leave_submitted_text (catalog.testcases.test_task33_drafts.DraftApiTests.test_invalid_relation_and_numeric_type_leave_submitted_text) ... ok
+test_materialize_keeps_uploaded_photo_outside_public_media (catalog.testcases.test_task33_drafts.DraftApiTests.test_materialize_keeps_uploaded_photo_outside_public_media) ... ok
+test_materialize_retry_returns_same_place (catalog.testcases.test_task33_drafts.DraftApiTests.test_materialize_retry_returns_same_place) ... ok
+test_photo_requires_successful_upload_and_is_private (catalog.testcases.test_task33_drafts.DraftApiTests.test_photo_requires_successful_upload_and_is_private) ... Image upload rejected: {'name': 'bad.jpg', 'size': 7, 'mime': 'image/jpeg'}; reason=Не удалось прочитать «bad.jpg»: файл повреждён или это не поддерживаемое изображение.
+ok
+test_private_responses_forbid_shared_cache (catalog.testcases.test_task33_drafts.DraftApiTests.test_private_responses_forbid_shared_cache) ... ok
+test_revocation_stops_update_and_list_hides_draft (catalog.testcases.test_task33_drafts.DraftApiTests.test_revocation_stops_update_and_list_hides_draft) ... ok
+test_admin_displayed_readiness_counts_saved_group_prices (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_admin_displayed_readiness_counts_saved_group_prices) ... ok
+test_business_needs_one_allowed_contact_and_does_not_need_translation (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_business_needs_one_allowed_contact_and_does_not_need_translation) ... ok
+test_create_uses_four_visible_sections_and_server_draft_transport (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_create_uses_four_visible_sections_and_server_draft_transport) ... ok
+test_edit_displays_candidate_nature_and_saved_gallery_without_changing_live (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_edit_displays_candidate_nature_and_saved_gallery_without_changing_live) ... ok
+test_edit_shows_live_and_candidate_separately (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_edit_shows_live_and_candidate_separately) ... ok
+test_explicit_place_save_consumes_matching_server_draft (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_explicit_place_save_consumes_matching_server_draft) ... ok
+test_group_age_conflict_and_foreign_group_id_are_rejected (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_group_age_conflict_and_foreign_group_id_are_rejected) ... ok
+test_incomplete_group_data_roundtrips_in_private_server_draft (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_incomplete_group_data_roundtrips_in_private_server_draft) ... ok
+test_new_group_with_three_tariffs_stays_candidate_until_place_approval (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_new_group_with_three_tariffs_stays_candidate_until_place_approval) ... ok
+test_photo_prepare_failure_returns_retryable_error (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_photo_prepare_failure_returns_retryable_error) ... Photo preparation failed for user 439
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/photo_views.py", line 62, in prepare_owner_photo
+    normalized = normalize_uploaded_image(uploads[0])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1193, in _execute_mock_call
+    raise effect
+OSError: synthetic storage failure
+ok
+test_public_live_place_is_not_hidden_by_incomplete_server_draft (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_public_live_place_is_not_hidden_by_incomplete_server_draft) ... ok
+test_public_space_can_submit_without_organization_photo_coordinates_or_contact (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_public_space_can_submit_without_organization_photo_coordinates_or_contact) ... ok
+test_published_group_price_edit_is_candidate_until_approval (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_published_group_price_edit_is_candidate_until_approval) ... ok
+test_server_draft_roundtrip_keeps_region_and_editor_note (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_server_draft_roundtrip_keeps_region_and_editor_note) ... ok
+test_submission_contact_marker_is_a_choice_and_public_space_is_exempt (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_submission_contact_marker_is_a_choice_and_public_space_is_exempt) ... ok
+test_submission_summary_counts_group_tariff_without_general_ticket (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_submission_summary_counts_group_tariff_without_general_ticket) ... ok
+test_submission_summary_does_not_make_map_and_photos_mandatory (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_submission_summary_does_not_make_map_and_photos_mandatory) ... ok
+test_three_direct_plans_keep_distinct_price_rows_without_activity (catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_three_direct_plans_keep_distinct_price_rows_without_activity) ... ok
+test_admin_and_volunteer_use_identical_revision_readiness (catalog.testcases.test_volunteer_admin.VolunteerAccessTests.test_admin_and_volunteer_use_identical_revision_readiness) ... ok
+test_empty_target_replacements_serialize (catalog.testcases.test_task33_pricing.ConcurrentPricingReplacementTests.test_empty_target_replacements_serialize) ... ok
+test_admin_exposes_legacy_fields (catalog.testcases.test_legacy_pricing_notes.LegacyPricingNotesTests.test_admin_exposes_legacy_fields) ... ok
+test_legacy_fallback_is_ru_only (catalog.testcases.test_legacy_pricing_notes.LegacyPricingNotesTests.test_legacy_fallback_is_ru_only) ... ok
+test_legacy_notes_round_trip_and_clear_in_shared_snapshot (catalog.testcases.test_legacy_pricing_notes.LegacyPricingNotesTests.test_legacy_notes_round_trip_and_clear_in_shared_snapshot) ... ok
+test_no_disclaimer_without_pricing (catalog.testcases.test_legacy_pricing_notes.LegacyPricingNotesTests.test_no_disclaimer_without_pricing) ... ok
+test_place_editor_honors_azerbaijani_language_picker (catalog.testcases.test_legacy_pricing_notes.LegacyPricingNotesTests.test_place_editor_honors_azerbaijani_language_picker) ... ok
+test_public_notes_and_disclaimer (catalog.testcases.test_legacy_pricing_notes.LegacyPricingNotesTests.test_public_notes_and_disclaimer) ... ok
+test_group_proposal_rejects_relocated_ancestor_after_wait (catalog.testcases.test_task33_publication.PublicationConcurrencyTests.test_group_proposal_rejects_relocated_ancestor_after_wait) ... ok
+test_price_description_race_conflict_retry_preserves_both (catalog.testcases.test_task33_publication.PublicationConcurrencyTests.test_price_description_race_conflict_retry_preserves_both) ... ok
+test_program_approval_and_new_activity_serialize_common_pointer (catalog.testcases.test_task33_publication.PublicationConcurrencyTests.test_program_approval_and_new_activity_serialize_common_pointer) ... ok
+test_two_approvals_apply_candidate_once (catalog.testcases.test_task33_publication.PublicationConcurrencyTests.test_two_approvals_apply_candidate_once) ... ok
+test_duplicate_accept_creates_one_membership (catalog.testcases.test_task33_permissions.TeamConcurrencyTests.test_duplicate_accept_creates_one_membership) ... ok
+test_revocation_blocks_legacy_place_write_and_preserves_live_description (catalog.testcases.test_task33_permissions.TeamConcurrencyTests.test_revocation_blocks_legacy_place_write_and_preserves_live_description) ... ok
+test_transfer_blocks_accept_then_stale_invite_cannot_resurrect (catalog.testcases.test_task33_permissions.TeamConcurrencyTests.test_transfer_blocks_accept_then_stale_invite_cannot_resurrect) ... ok
+test_known_city_takes_priority_over_coordinates_and_address (catalog.testcases.test_public_filter_consistency.HomeDistrictFilterTests.test_known_city_takes_priority_over_coordinates_and_address) ... ok
+test_missing_district_is_not_guessed_from_a_bounding_rectangle_or_address (catalog.testcases.test_public_filter_consistency.HomeDistrictFilterTests.test_missing_district_is_not_guessed_from_a_bounding_rectangle_or_address) ... ok
+test_simultaneous_first_retry_one_draft (catalog.testcases.test_task33_drafts.DraftConcurrencyTests.test_simultaneous_first_retry_one_draft) ... ok
+test_two_devices_with_same_version_only_one_writes (catalog.testcases.test_task33_drafts.DraftConcurrencyTests.test_two_devices_with_same_version_only_one_writes) ... ok
+
+----------------------------------------------------------------------
+Ran 334 tests in 183.018s
+
+OK
+Preserving test database for alias 'default' ('test_module05full_20261014_r1')...

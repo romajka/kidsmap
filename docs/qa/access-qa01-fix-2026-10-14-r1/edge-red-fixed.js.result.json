@@ -1,0 +1,38 @@
+{
+  "rows": [
+    {
+      "lang": "ru",
+      "width": 390,
+      "name": "Rapid close never refocuses hidden dialog",
+      "status": "FAIL",
+      "detail": {
+        "id": "top",
+        "inModal": false,
+        "opener": false
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "name": "New background control cannot take focus",
+      "status": "FAIL",
+      "detail": {
+        "id": "qaDynamicBackground",
+        "inModal": false,
+        "opener": false
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "name": "Late success after close keeps opener",
+      "status": "FAIL",
+      "detail": {
+        "id": "top",
+        "inModal": false,
+        "opener": false
+      }
+    }
+  ],
+  "simulation": "late transport delay and dynamic background fixture SIMULATED; real app focus and real reset endpoint"
+}

@@ -1,0 +1,17 @@
+{
+  "classification": "QA plan assumption corrected by actual rendered controls; no application defect attributed or extra repair",
+  "owner_native": "main + two gallery uploads ready, native reorder, draft/reload/submit, actual reviewer preview; owner cover input does not exist",
+  "volunteer_native": "main + cover uploads, draft/reload/submit, actual reviewer preview; gallery input does not exist, existing live gallery retained",
+  "NOT_RUN": [
+    "owner cover upload control (not present)",
+    "volunteer gallery upload control (not present)"
+  ],
+  "source": [
+    "src/catalog/templates/pages/includes/permanent_place_photos.html",
+    "src/catalog/templates/admin/volunteer/place_form.html",
+    "src/catalog/volunteer_forms.py: wizard_steps/sections"
+  ],
+  "source_scope_extended": false,
+  "backend_assertions_weakened": false,
+  "full_photo_contract": "Both different native entrypoints feed the same hub; main/cover/gallery decoding/order separately covered in36maincells and native owner gallery upload. No claim of unsupported UI actions."
+}

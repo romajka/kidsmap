@@ -394,6 +394,10 @@
       emptyMessage: panel.dataset.emptyMessage || "",
       fallbackMessage: panel.dataset.fallbackMessage || "",
       loadingMessage: panel.dataset.loadingMessage || "",
+      errorMessage: panel.dataset.errorMessage || "",
+      retryLabel: panel.dataset.retryLabel || "",
+      sdkFailed: false,
+      sdkWaitTimer: null,
       mapId: (panel.dataset.googleMapId || "").trim(),
       initialized: false,
       bound: false,
@@ -501,6 +505,7 @@
     if (!point) return;
 
     const mapRect = state.mapEl.getBoundingClientRect();
+    state.desktopCardEl.style.setProperty("--catalog-popup-max-height", Math.max(0, mapRect.height - 24) + "px");
     const cardRect = state.desktopCardEl.getBoundingClientRect();
     const left = Math.max(12, Math.min(point.x + 18, mapRect.width - cardRect.width - 12));
     let top = point.y - cardRect.height - 20;
@@ -510,6 +515,7 @@
       top = Math.min(point.y + 20, mapRect.height - cardRect.height - 12);
       placeBelow = true;
     }
+    top = Math.max(12, Math.min(top, mapRect.height - cardRect.height - 12));
 
     state.desktopCardEl.style.left = left + "px";
     state.desktopCardEl.style.top = top + "px";
@@ -611,20 +617,60 @@
       return marker;
   }
 
+  function renderCatalogSdkError(state) {
+    if (!state || state.initialized || (window.google && window.google.maps)) return;
+    clearTimeout(state.sdkWaitTimer);
+    state.sdkWaitTimer = null;
+    state.sdkFailed = true;
+    if (state.panel.hidden) return;
+    renderCatalogMapState(state.mapEl, state.errorMessage, "catalog-map-empty catalog-map-error");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "btn";
+    button.textContent = state.retryLabel;
+    button.setAttribute("data-map-sdk-retry", "");
+    button.addEventListener("click", function () {
+      const previous = document.querySelector("script[data-catalog-google-sdk]");
+      if (!previous) return;
+      const script = document.createElement("script");
+      script.src = previous.src;
+      script.async = true;
+      script.setAttribute("data-catalog-google-sdk", "");
+      script.addEventListener("error", function () { window.kidsMapCatalogSdkError(script); });
+      state.sdkFailed = false;
+      previous.replaceWith(script);
+      state.closeBtn.focus({ preventScroll: true });
+      initCatalogGoogleMap();
+    });
+    state.mapEl.querySelector(".catalog-map-error").appendChild(button);
+  }
+
   function initCatalogGoogleMap() {
     const state = ensureCatalogMapState();
     if (!state || state.initialized) return;
 
     if (!state.places.length) {
+      clearTimeout(state.sdkWaitTimer);
+      state.sdkWaitTimer = null;
       renderCatalogMapState(state.mapEl, state.emptyMessage, "catalog-map-empty");
       state.initialized = true;
       return;
     }
 
     if (!window.google || !window.google.maps) {
+      if (state.sdkFailed) {
+        renderCatalogSdkError(state);
+        return;
+      }
       renderCatalogMapState(state.mapEl, state.loadingMessage, "catalog-map-loading");
+      if (!state.sdkWaitTimer) {
+        state.sdkWaitTimer = setTimeout(function () { renderCatalogSdkError(state); }, 12000);
+      }
       return;
     }
+    clearTimeout(state.sdkWaitTimer);
+    state.sdkWaitTimer = null;
+    state.sdkFailed = false;
 
     if (!window.markerClusterer) {
       renderCatalogMapState(state.mapEl, state.loadingMessage, "catalog-map-loading");
@@ -1002,6 +1048,10 @@
     const state = ensureCatalogMapState();
     if (!state || state.bound) return;
     state.bound = true;
+    if (window.ResizeObserver) {
+      state.resizeObserver = new ResizeObserver(function () { positionDesktopCard(state); });
+      state.resizeObserver.observe(state.mapEl);
+    }
 
     state.openBtn.addEventListener("click", function () {
       setCatalogMapOpen(state.panel.hidden);
@@ -1012,8 +1062,21 @@
       state.openBtn.focus();
     });
 
+    // Marker keyboard handlers consume Escape before it reaches the document.
+    state.mapEl.addEventListener("keydown", function (event) {
+      if (event.key !== "Escape" || !event.target.closest(".kidsmap-marker-button")) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (state.activePlace) closeActiveCard(state, true);
+      else {
+        setCatalogMapOpen(false);
+        state.openBtn.focus();
+      }
+    }, true);
+
     if (!catalogMapDocumentListenersBound) {
       catalogMapDocumentListenersBound = true;
+      window.addEventListener("resize", function () { positionDesktopCard(catalogMapState); });
       ['mouseover', 'mouseout'].forEach((name, index) => document.addEventListener(name, event => {
         const card = event.target.closest('.card');
         if (!card || card.contains(event.relatedTarget)) return;
@@ -1054,6 +1117,12 @@
     ensureCatalogMapInitialized();
   };
 
+  window.kidsMapCatalogSdkError = function (script) {
+    if (script !== document.querySelector("script[data-catalog-google-sdk]")) return;
+    const state = ensureCatalogMapState();
+    if (state && state.provider === "google") renderCatalogSdkError(state);
+  };
+
   window.kidsMapCancelCatalogMapTransition = function () {
     if (catalogMapState?.motion) catalogMapState.motion.cancel();
     if (catalogMapState?.choice) catalogMapState.choice.close(false);
@@ -1078,6 +1147,8 @@
       }
       return;
     }
+    clearTimeout(catalogMapState?.sdkWaitTimer);
+    catalogMapState?.resizeObserver?.disconnect();
     catalogMapState = null;
     initCatalogMapUi();
     const nextState = ensureCatalogMapState();

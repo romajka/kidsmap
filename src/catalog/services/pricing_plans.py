@@ -181,7 +181,21 @@ def pricing_audit_summary(place):
     return f"{len(plans)} tariffs: " + "; ".join(parts) + suffix
 
 
-def normalize_pricing_plans(value, *, strict=True, allow_verified=False):
+def _error_with_path(error, field_path):
+    """Retain translated validation errors and add a separate UI address."""
+    if getattr(error, 'error_dict', None):
+        return ValidationError([
+            _error_with_path(item, [*field_path, key])
+            for key, errors in error.error_dict.items() for item in errors
+        ])
+    if len(error.error_list) != 1 or error.error_list[0] is not error:
+        return ValidationError([_error_with_path(item, field_path) for item in error.error_list])
+    params = dict(error.params or {})
+    params['field_path'] = list(field_path)
+    return ValidationError(error.message, code=error.code, params=params)
+
+
+def normalize_pricing_plans(value, *, strict=True, allow_verified=False, error_path=()):
     """Return storage-ready plans without mutating the supplied value.
 
     Legacy {name, price, frequency} entries are accepted and converted only in
@@ -201,6 +215,8 @@ def normalize_pricing_plans(value, *, strict=True, allow_verified=False):
 
     normalized = []
     for index, raw in enumerate(value):
+        plan_path = [*error_path, "pricing_plans", index]
+        conversion_field = None
         try:
             if not isinstance(raw, dict):
                 if strict:
@@ -238,11 +254,13 @@ def normalize_pricing_plans(value, *, strict=True, allow_verified=False):
             if not allow_verified:
                 values.pop("verified_at", None)
             for price_field in ("price", "price_min", "price_max"):
+                conversion_field = price_field
                 if values.get(price_field) not in (None, ""):
                     values[price_field] = Decimal(str(values[price_field]).replace(",", "."))
                 else:
                     values[price_field] = None
             for int_field in ("billing_interval_count", "billing_cycles", "quantity", "sessions_per_week", "sessions_per_month", "validity_interval_count", "age_from", "age_to", "min_people", "max_people", "sort_order"):
+                conversion_field = int_field
                 if values.get(int_field) not in (None, ""):
                     values[int_field] = int(values[int_field])
                 elif int_field in values:
@@ -271,6 +289,7 @@ def normalize_pricing_plans(value, *, strict=True, allow_verified=False):
             normalized.append(clean)
         except ValidationError as exc:
             if strict:
+                field_name = None
                 if getattr(exc, "error_dict", None):
                     field_name = next(iter(exc.error_dict))
                     field_errors = exc.error_dict[field_name]
@@ -280,14 +299,14 @@ def normalize_pricing_plans(value, *, strict=True, allow_verified=False):
                     message = exc.messages[0] if getattr(exc, "messages", None) else str(exc)
                 raise ValidationError(
                     _("Тариф %(number)s: %(error)s"),
-                    params={"number": index + 1, "error": message},
+                    params={"number": index + 1, "error": message, "field_path": plan_path + ([field_name] if field_name else [])},
                 )
             continue
         except (InvalidOperation, TypeError, ValueError) as exc:
             if strict:
                 raise ValidationError(
                     _("Тариф %(number)s: неверный тип или формат значения (%(error)s)."),
-                    params={"number": index + 1, "error": str(exc)},
+                    params={"number": index + 1, "error": str(exc), "field_path": plan_path + ([conversion_field] if conversion_field else [])},
                 )
             continue
     return normalized
@@ -371,6 +390,7 @@ def offering_editor_choices(place):
         'charge_roles':[(value,str(label)) for value,label in PricingPlan.CHARGE_ROLE_CHOICES],
         'billing_modes':[(value,str(label)) for value,label in PricingPlan.BILLING_MODE_CHOICES],
         'billing_intervals':[(value,str(label)) for value,label in PricingPlan.INTERVAL_CHOICES],
+        'quantity_units':[(value,str(label)) for value,label in PricingPlan.QUANTITY_UNIT_CHOICES],
         'lesson_formats':[(value,str(label)) for value,label in OfferingGroup._meta.get_field('lesson_format').choices],
         'categories':[{'id':row.pk,'label':row.name_i18n()} for row in Category.objects.all()],
         'subcategories':[{'id':row.pk,'category_id':row.category_id,'label':row.name_i18n()} for row in Subcategory.objects.select_related('category').all()],
@@ -426,7 +446,7 @@ def validate_target_plan_ids(target, plans):
         seen.add(plan_id)
 
 
-def _editor_values(model, data, names, *, existing=None):
+def _editor_values(model, data, names, *, existing=None, error_path=None):
     result = {}
     for name in names:
         if name not in data:
@@ -437,9 +457,14 @@ def _editor_values(model, data, names, *, existing=None):
         value = data[name]
         if name in {'age_from', 'age_to'} and value == '':
             value = None
-        value = field.to_python(value)
-        field.validate(value, existing)
-        field.run_validators(value)
+        try:
+            value = field.to_python(value)
+            field.validate(value, existing)
+            field.run_validators(value)
+        except ValidationError as exc:
+            if error_path is None:
+                raise
+            raise _error_with_path(exc, [*error_path, name]) from exc
         result[name] = value.strip() if isinstance(value, str) else value
     return result
 
@@ -452,16 +477,17 @@ def validate_nested_pricing(place, payload, *, allow_verified=False):
         raise ValidationError(_('Неверная версия или размер списка занятий.'))
     normalized = []
     seen_activities, seen_groups = set(), set()
-    for activity_data in payload['activities']:
+    for activity_index, activity_data in enumerate(payload['activities']):
+        activity_path = ['activities', activity_index]
         if (not isinstance(activity_data, dict) or not set(activity_data) <= {'id', 'program_id', 'category_id', 'subcategory_id', 'groups', *ACTIVITY_EDITOR_FIELDS}
                 or not isinstance(activity_data.get('groups'), list) or len(activity_data['groups']) > 12):
-            raise ValidationError(_('Неверная структура занятия.'))
+            raise ValidationError(_('Неверная структура занятия.'), params={'field_path': activity_path})
         activity_id = activity_data.get('id')
         if activity_id is not None and (type(activity_id) is not int or activity_id < 1 or activity_id in seen_activities):
-            raise ValidationError(_('Занятие не принадлежит карточке или повторяется.'))
+            raise ValidationError(_('Занятие не принадлежит карточке или повторяется.'), params={'field_path': activity_path})
         activity = Activity.objects.filter(pk=activity_id, place=place, archived_at__isnull=True).first() if activity_id else None
         if activity_id and activity is None:
-            raise ValidationError(_('Занятие не принадлежит карточке.'))
+            raise ValidationError(_('Занятие не принадлежит карточке.'), params={'field_path': activity_path})
         if activity_id:
             seen_activities.add(activity_id)
         program_id = activity_data.get('program_id', activity.program_id if activity else None)
@@ -470,12 +496,15 @@ def validate_nested_pricing(place, payload, *, allow_verified=False):
             if type(program_id) is not int or not place.organization_id or not Program.objects.filter(
                 pk=program_id, organization_id=place.organization_id, status='published',
                 approved_at__isnull=False, archived_at__isnull=True).exists():
-                raise ValidationError(_('Общая программа недоступна этому филиалу.'))
-        values = _editor_values(Activity, activity_data, ACTIVITY_EDITOR_FIELDS, existing=activity)
+                raise ValidationError(_('Общая программа недоступна этому филиалу.'), params={'field_path': [*activity_path, 'program_id']})
+        values = _editor_values(Activity, activity_data, ACTIVITY_EDITOR_FIELDS, existing=activity, error_path=activity_path)
         from catalog.services.catalog_structure import validate_taxonomy
         category_id = activity_data.get('category_id', activity.category_id if activity else None)
         subcategory_id = activity_data.get('subcategory_id', activity.subcategory_id if activity else None)
-        validate_taxonomy(category_id,subcategory_id)
+        try:
+            validate_taxonomy(category_id,subcategory_id)
+        except ValidationError as exc:
+            raise _error_with_path(exc, activity_path) from exc
         if program_id:
             program = Program.objects.get(pk=program_id)
             category_id,subcategory_id=program.category_id,program.subcategory_id
@@ -483,7 +512,7 @@ def validate_nested_pricing(place, payload, *, allow_verified=False):
             # Unlinking materializes approved common data, never a pending Program.
             common=activity.program_snapshot
             if not common:
-                raise ValidationError(_('Одобренная программа недоступна. Обновите страницу.'))
+                raise ValidationError(_('Одобренная программа недоступна. Обновите страницу.'), params={'field_path': [*activity_path, 'program_id']})
             if 'category_id' not in activity_data:category_id=common.get('category_id')
             if 'subcategory_id' not in activity_data:subcategory_id=common.get('subcategory_id')
             for name in ACTIVITY_EDITOR_FIELDS:
@@ -491,47 +520,56 @@ def validate_nested_pricing(place, payload, *, allow_verified=False):
                     values[name]=common.get(name,'')
         values.update(category_id=category_id,subcategory_id=subcategory_id)
         if not program_id and not (values.get('name_az') or (activity.name_az if activity else '')):
-            raise ValidationError(_('Укажите название занятия на AZ.'))
+            raise ValidationError(_('Укажите название занятия на AZ.'), params={'field_path': [*activity_path, 'name_az']})
         groups = []
-        for group_data in activity_data['groups']:
+        for group_index, group_data in enumerate(activity_data['groups']):
+            group_path = [*activity_path, 'groups', group_index]
             if (not isinstance(group_data, dict) or not set(group_data) <= {'id', 'pricing_plans', *GROUP_EDITOR_FIELDS}
                     or not isinstance(group_data.get('pricing_plans'), list)):
-                raise ValidationError(_('Неверная структура группы тарифов.'))
+                raise ValidationError(_('Неверная структура группы тарифов.'), params={'field_path': group_path})
             group_id = group_data.get('id')
             if group_id is not None and (type(group_id) is not int or group_id < 1 or group_id in seen_groups or not activity_id):
-                raise ValidationError(_('Группа тарифов не принадлежит карточке или повторяется.'))
+                raise ValidationError(_('Группа тарифов не принадлежит карточке или повторяется.'), params={'field_path': group_path})
             group = OfferingGroup.objects.filter(pk=group_id, activity=activity, archived_at__isnull=True).first() if group_id else None
             if group_id and group is None:
-                raise ValidationError(_('Группа тарифов не принадлежит карточке.'))
+                raise ValidationError(_('Группа тарифов не принадлежит карточке.'), params={'field_path': group_path})
             if group_id:
                 seen_groups.add(group_id)
-            group_values = _editor_values(OfferingGroup, group_data, GROUP_EDITOR_FIELDS, existing=group)
+            group_values = _editor_values(OfferingGroup, group_data, GROUP_EDITOR_FIELDS, existing=group, error_path=group_path)
             if not (group_values.get('name_az') or (group.name_az if group else '')):
-                raise ValidationError(_('Укажите название группы на AZ.'))
+                raise ValidationError(_('Укажите название группы на AZ.'), params={'field_path': [*group_path, 'name_az']})
             age_from = group_values.get('age_from', group.age_from if group else None)
             age_to = group_values.get('age_to', group.age_to if group else None)
             if age_from is not None and age_to is not None and age_from > age_to:
-                raise ValidationError(_('Возраст группы указан неверно.'))
-            plans = normalize_pricing_plans(group_data['pricing_plans'], allow_verified=allow_verified)
+                raise ValidationError(_('Возраст группы указан неверно.'), params={'field_path': [*group_path, 'age_to']})
+            plans = normalize_pricing_plans(group_data['pricing_plans'], allow_verified=allow_verified, error_path=group_path)
             if group is not None:
-                validate_target_plan_ids(group, plans)
+                try:
+                    validate_target_plan_ids(group, plans)
+                except ValidationError as exc:
+                    raise _error_with_path(exc, group_path) from exc
             elif any(plan.get('id') for plan in plans):
-                raise ValidationError(_('Новый тариф не может ссылаться на чужой ID.'))
-            for plan in plans:
+                raise ValidationError(_('Новый тариф не может ссылаться на чужой ID.'), params={'field_path': group_path})
+            for plan_index, plan in enumerate(plans):
+                plan_path = [*group_path, "pricing_plans", plan_index]
                 if ((age_to is not None and plan.get('age_from') is not None and plan['age_from'] > age_to)
                         or (age_from is not None and plan.get('age_to') is not None and plan['age_to'] < age_from)):
-                    raise ValidationError(_('Возраст тарифа не пересекается с возрастом группы.'))
+                    raise ValidationError(_('Возраст тарифа не пересекается с возрастом группы.'), params={'field_path': [*plan_path, 'age_from' if age_to is not None and plan.get('age_from') is not None and plan['age_from'] > age_to else 'age_to']})
                 row = PricingPlan(offering_group=group, **{field: plan[field] for field in PRICING_STORAGE_FIELDS if field in plan}) if group else PricingPlan(place_id=place.pk or 1, **{field: plan[field] for field in PRICING_STORAGE_FIELDS if field in plan})
-                row.full_clean(exclude=('offering_group', 'place'))
+                try:
+                    row.full_clean(exclude=('offering_group', 'place'))
+                except ValidationError as exc:
+                    raise _error_with_path(exc, plan_path) from exc
             groups.append({'id': group_id, **group_values, 'pricing_plans': plans})
         normalized.append({'id': activity_id, 'program_id': program_id, **values, 'groups': groups})
     return {'pricing_schema_version': 2, 'activities': normalized}
 
 
 @transaction.atomic
-def replace_nested_pricing(place, payload, *, allow_verified=False):
+def replace_nested_pricing(place, payload, *, allow_verified=False, complete_tree=False):
     from catalog.models import Activity, OfferingGroup
     normalized = validate_nested_pricing(place, payload, allow_verified=allow_verified)
+    kept_activity_ids = set()
     for activity_data in normalized['activities']:
         activity = Activity.objects.get(pk=activity_data['id'], place=place) if activity_data['id'] else Activity(place=place, status='published')
         if activity.program_id != activity_data['program_id']:
@@ -548,13 +586,25 @@ def replace_nested_pricing(place, payload, *, allow_verified=False):
         activity.category_id=activity_data['category_id']
         activity.subcategory_id=activity_data['subcategory_id']
         activity.save()
+        kept_activity_ids.add(activity.pk)
+        kept_group_ids = set()
         for group_data in activity_data['groups']:
             group = OfferingGroup.objects.get(pk=group_data['id'], activity=activity) if group_data['id'] else OfferingGroup(activity=activity)
             for name in GROUP_EDITOR_FIELDS:
                 if name in group_data:
                     setattr(group, name, group_data[name])
             group.save()
+            kept_group_ids.add(group.pk)
             replace_group_pricing_plans(group, group_data['pricing_plans'], allow_verified=allow_verified)
+        if complete_tree:
+            for omitted in activity.offering_groups.filter(archived_at__isnull=True).exclude(pk__in=kept_group_ids).order_by('pk'):
+                omitted.archive()
+    if complete_tree:
+        for omitted_activity in Activity.objects.filter(place=place, archived_at__isnull=True).exclude(pk__in=kept_activity_ids).order_by('pk'):
+            for group in omitted_activity.offering_groups.filter(archived_at__isnull=True).order_by('pk'):
+                group.archive()
+            omitted_activity.archive()
+        sync_legacy_price_fields(place.pk)
     return normalized
 
 
@@ -600,12 +650,9 @@ def _plan_bounds(plan):
     return None
 
 
-def sync_legacy_price_fields(place_id):
-    from catalog.models import Place, PricingPlan
-    place = Place.objects.filter(pk=place_id).first()
-    if place is None:
-        return
-    plans = [plan for plan in place_pricing_records(place) if plan.is_active and plan.charge_role == "primary" and not plan.is_trial and plan.currency == "AZN"]
+def legacy_price_values(records):
+    """Pure projection shared by persisted tariffs and unsaved staff previews."""
+    plans = [plan for plan in records if plan.is_active and plan.charge_role == "primary" and not plan.is_trial and plan.currency == "AZN"]
     bounds = [_plan_bounds(plan) for plan in plans]
     bounds = [item for item in bounds if item]
     values = {
@@ -624,7 +671,15 @@ def sync_legacy_price_fields(place_id):
             values["price_per_month"] = min(filter(lambda x: x is not None, (values["price_per_month"], amount)), default=amount)
         if plan.product_type == "lesson" and plan.billing_mode == "one_time" and plan.quantity == 8 and plan.quantity_unit == "lesson":
             values["price_per_8_lessons"] = min(filter(lambda x: x is not None, (values["price_per_8_lessons"], amount)), default=amount)
-    Place.objects.filter(pk=place_id).update(**values)
+    return values
+
+
+def sync_legacy_price_fields(place_id):
+    from catalog.models import Place
+    place = Place.objects.filter(pk=place_id).first()
+    if place is None:
+        return
+    Place.objects.filter(pk=place_id).update(**legacy_price_values(place_pricing_records(place)))
 
 
 def public_pricing_plans(value, language=None):

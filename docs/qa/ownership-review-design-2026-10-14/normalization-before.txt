@@ -1,0 +1,15 @@
+..F.
+======================================================================
+FAIL: test_equivalent_price_serializations_are_not_changes (catalog.testcases.test_ownership_review_summary.OwnershipReviewSummaryTests.test_equivalent_price_serializations_are_not_changes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_review_summary.py", line 43, in test_equivalent_price_serializations_are_not_changes
+    self.assertEqual(result['change_count'],0)
+AssertionError: 2 != 0
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+FAILED (failures=1)
+Found 4 test(s).
+System check identified no issues (0 silenced).

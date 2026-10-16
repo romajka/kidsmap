@@ -1,0 +1,183 @@
+{
+  "rows": [
+    {
+      "id": "place-native-invite-normalized",
+      "status": "PASS",
+      "role": "owner",
+      "lang": "ru",
+      "width": 390,
+      "screenshot": "place-invite-ru-390.png"
+    },
+    {
+      "id": "place-duplicate-invite-no-new-row",
+      "status": "PASS",
+      "role": "owner",
+      "lang": "ru",
+      "width": 390,
+      "screenshot": "place-duplicate-conflict-ru-390.png"
+    },
+    {
+      "id": "recipient-native-accept-offered",
+      "status": "PASS",
+      "role": "invitee",
+      "lang": "ru",
+      "width": 390,
+      "screenshot": "place-invite-inbox-ru-390.png"
+    },
+    {
+      "id": "place-native-accept",
+      "status": "PASS",
+      "role": "invitee",
+      "lang": "ru",
+      "width": 390
+    },
+    {
+      "id": "accepted-editor-can-open-form",
+      "status": "PASS",
+      "role": "invitee",
+      "lang": "ru",
+      "width": 390,
+      "screenshot": "employee-edit-before-ru-390.png"
+    },
+    {
+      "id": "place-native-role-observer",
+      "status": "PASS",
+      "role": "owner",
+      "lang": "ru",
+      "width": 390,
+      "screenshot": "place-role-observer-ru-390.png"
+    },
+    {
+      "id": "observer-edit-HTTP-denied",
+      "status": "PASS",
+      "role": "invitee",
+      "lang": "ru",
+      "width": "N/A HTTP",
+      "http": 302
+    },
+    {
+      "id": "place-native-remove-employee",
+      "status": "PASS",
+      "role": "owner",
+      "lang": "ru",
+      "width": 390,
+      "screenshot": "place-member-removed-ru-390.png"
+    },
+    {
+      "id": "removed-stale-tab-native-save-denied-no-side-effects",
+      "status": "PASS",
+      "role": "invitee",
+      "lang": "ru",
+      "width": 390,
+      "http": 403,
+      "buttons": [
+        {
+          "name": "form_action",
+          "value": "save_draft",
+          "text": "Применить изменения"
+        },
+        {
+          "name": "form_action",
+          "value": "save_and_publish",
+          "text": "Отправить на модерацию"
+        }
+      ],
+      "screenshot": "employee-stale-denied-ru-390.png"
+    },
+    {
+      "id": "recipient-native-reject-offered",
+      "status": "PASS",
+      "role": "rejectee",
+      "lang": "ru",
+      "width": 390,
+      "screenshot": "reject-inbox-native-ru-390.png"
+    },
+    {
+      "id": "recipient-native-reject-status",
+      "status": "PASS",
+      "role": "rejectee",
+      "lang": "ru",
+      "width": 390
+    },
+    {
+      "id": "owner-native-cancel-invite",
+      "status": "PASS",
+      "role": "owner",
+      "lang": "ru",
+      "width": 390,
+      "screenshot": "place-invite-canceled-ru-390.png"
+    },
+    {
+      "id": "canceled-invite-accept-denied-no-side-effects",
+      "status": "PASS",
+      "role": "cancelled",
+      "lang": "ru",
+      "width": "N/A HTTP",
+      "http": 400
+    },
+    {
+      "id": "organization-native-invite",
+      "status": "PASS",
+      "role": "network",
+      "lang": "en",
+      "width": 1440,
+      "screenshot": "org-invite-en-1440.png"
+    },
+    {
+      "id": "organization-native-inbox-accept",
+      "status": "PASS",
+      "role": "invitee",
+      "lang": "ru",
+      "width": 390
+    },
+    {
+      "id": "organization-selected-branch-editor-form",
+      "status": "PASS",
+      "role": "invitee",
+      "lang": "ru",
+      "width": 390,
+      "screenshot": "org-employee-edit-ru-390.png"
+    },
+    {
+      "id": "organization-role-change-native",
+      "status": "PASS",
+      "role": "network",
+      "lang": "en",
+      "width": "N/A HTTP",
+      "http": 200
+    },
+    {
+      "id": "organization-stale-version-409-no-side-effects",
+      "status": "PASS",
+      "role": "network",
+      "lang": "en",
+      "width": "N/A HTTP",
+      "http": 409
+    },
+    {
+      "id": "organization-remove-native",
+      "status": "PASS",
+      "role": "network",
+      "lang": "en",
+      "width": "N/A HTTP",
+      "http": 200
+    },
+    {
+      "id": "organization-removed-stale-tab-denied",
+      "status": "PASS",
+      "role": "invitee",
+      "lang": "ru",
+      "width": 390,
+      "http": 403,
+      "screenshot": "org-employee-stale-denied-ru-390.png"
+    },
+    {
+      "id": "organization-role-remove-native-UI",
+      "status": "PASS",
+      "role": "network",
+      "lang": "en",
+      "width": 1440,
+      "screenshot": "organization-native-role-remove-en-1440.png"
+    }
+  ]
+}

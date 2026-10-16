@@ -67,7 +67,43 @@
     var root = qs(".km-pf");
     var form = qs("[data-km-admin-form]") || document.getElementById("place_form");
     if (!root || !form) return;
-
+    // Native Tab scrolling cannot see the sticky Save panel or section navigation.
+    var focusFrame = null;
+    function keepAdminFocusVisible() {
+      var input = document.activeElement;
+      if (!form || !form.contains(input)) return;
+      var target = input, rect = input.getBoundingClientRect();
+      if (rect.width <= 2 || rect.height <= 2) {
+        target = input.closest('label') || (input.labels && input.labels[0]) || input;
+        rect = target.getBoundingClientRect();
+      }
+      if (!rect.width || !rect.height) return;
+      // Popups have their own viewport placement; document scrolling cannot move them.
+      if (input.closest('.km-pf-picker-dropdown, .km-modal-backdrop')) return;
+      var top = 8, bottom = window.innerHeight - 8;
+      qsa('[data-pf-stickybar], .km-pf__nav, .km-pf__mobile-nav, #km-site-header, #header').forEach(function (surface) {
+        if (surface.contains(input)) return;
+        var box = surface.getBoundingClientRect(), css = getComputedStyle(surface);
+        if (!box.height || box.bottom <= 0 || box.top >= innerHeight || box.right <= rect.left || box.left >= rect.right) return;
+        if (css.position !== 'sticky' && css.position !== 'fixed') return;
+        if (surface.matches('[data-pf-stickybar]')) bottom = Math.min(bottom, box.top - 8);
+        else if (box.top <= Math.max(parseFloat(css.top) || 0, 0) + 1) top = Math.max(top, box.bottom + 8);
+      });
+      root.style.setProperty('--pf-focus-bottom', (innerHeight - bottom) + 'px');
+      root.style.setProperty('--pf-focus-top', top + 'px');
+      var delta = rect.height > bottom - top ? rect.top - top : rect.top < top ? rect.top - top : rect.bottom > bottom ? rect.bottom - bottom : 0;
+      if (Math.abs(delta) > 1) window.scrollBy({top: delta, behavior: 'instant'});
+    }
+    function scheduleAdminFocusVisibility() {
+      if (focusFrame !== null) cancelAnimationFrame(focusFrame);
+      focusFrame = requestAnimationFrame(function () { focusFrame = null; keepAdminFocusVisible(); });
+    }
+    on(form, 'focusin', scheduleAdminFocusVisibility);
+    on(window, 'resize', scheduleAdminFocusVisibility);
+    if (form && 'ResizeObserver' in window) {
+      var focusSurfaces = new ResizeObserver(scheduleAdminFocusVisibility);
+      qsa('[data-pf-stickybar], .km-pf__nav, .km-pf__mobile-nav', root).forEach(function (surface) { focusSurfaces.observe(surface); });
+    }
     var labels = form.dataset;
     var placeEntry = form.id === "place_form";
     var entryCopy = placeEntry ? JSON.parse(qs('#km-place-entry-copy').textContent) : {};
@@ -1535,8 +1571,23 @@
        ---------------------------------------------------------------------- */
 
     var saveStates = qsa("[data-pf-savestate]", root);
+    var candidateConflict = Boolean(qs("[data-place-candidate-conflict]", root));
+
+    function pauseCandidateSave(banner) {
+      candidateConflict = true;
+      isDirty = true;
+      submitting = false;
+      if (banner && !qs("[data-place-candidate-conflict]", root)) {
+        qs(".km-pf__shell", root).prepend(banner);
+      }
+      qsa("button[name='_save_draft'], button[name='_save'], button[name='_continue'], button[name='_addanother'], button[name='_publish_place'], [data-pf-publish]", form).forEach(function (button) {
+        button.disabled = true;
+      });
+      setSaveState("error", entryCopy.server_conflict);
+    }
 
     function setSaveState(state, text) {
+      if (candidateConflict) { state = "error"; text = labels.labelError; }
       var icons = { idle: "check_circle", dirty: "edit_note", saving: "progress_activity", saved: "check_circle", error: "error" };
       saveStates.forEach(function (node) {
         node.dataset.state = state;
@@ -1592,7 +1643,7 @@
       if (submitting) return;
       var currentSnapshot = serializeFormState();
       var wasDirty = isDirty;
-      isDirty = Boolean(initialSnapshot && currentSnapshot !== initialSnapshot);
+      isDirty = candidateConflict || Boolean(initialSnapshot && currentSnapshot !== initialSnapshot);
 
       if (isDirty) {
         setSaveState("dirty", "● " + (labels.labelDirty || "Есть несохранённые изменения"));
@@ -1605,7 +1656,7 @@
       isDirty: function () { return isDirty; },
       setInitial: function () {
         initialSnapshot = serializeFormState();
-        isDirty = false;
+        isDirty = candidateConflict;
         if (placeEntry) setSaveState(errorSummary ? "error" : form.dataset.placeId ? "saved" : "idle", errorSummary ? labels.labelError : form.dataset.placeId ? labels.labelSaved : labels.labelIdle); else setSaveState("saved", "✓ " + (labels.labelSaved || "Все изменения сохранены"));
       },
       markDirty: function () {
@@ -1625,10 +1676,18 @@
       syncDirty();
     });
 
-    form.addEventListener("submit", function () {
+    form.addEventListener("submit", function (event) {
+      if (candidateConflict) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        pauseCandidateSave();
+        return;
+      }
       submitting = true;
       setSaveState("saving", labels.labelSaving || "Сохранение…");
-    });
+    }, true);
+
+    if (candidateConflict) pauseCandidateSave();
 
     window.addEventListener("beforeunload", function (event) {
       if (!isDirty || submitting || bypassNavigationPrompt) return;
@@ -1663,16 +1722,17 @@
       e.stopPropagation();
 
       kmModal.unsavedChanges({
-        title: "Есть несохранённые изменения",
-        message: "Вы изменили карточку, но ещё не сохранили изменения.",
-        stayText: "Остаться",
-        saveText: "Сохранить и выйти",
-        discardText: "Выйти без сохранения",
+        title: entryCopy.unsaved_title,
+        message: entryCopy.unsaved_body,
+        stayText: entryCopy.unsaved_stay,
+        saveText: entryCopy.unsaved_save_exit,
+        discardText: entryCopy.unsaved_discard,
         onStay: function () {},
         onSaveAndExit: function () {
+          if (candidateConflict) { pauseCandidateSave(); return; }
           submitting = true;
           setSaveState("saving", labels.labelSaving || "Сохранение…");
-          kmToast.info("Сохранение…");
+          kmToast.info(labels.labelSaving);
 
           var formData = new FormData(form);
           if (!formData.has("_continue")) {
@@ -1689,6 +1749,8 @@
               window.location.href = targetUrl;
             } else if (res.ok) {
               return res.text().then(function (html) {
+                var conflictBanner = new DOMParser().parseFromString(html, "text/html").querySelector("[data-place-candidate-conflict]");
+                if (conflictBanner) { pauseCandidateSave(conflictBanner); return; }
                 if (html.indexOf("km-pf-field is-error") !== -1 || html.indexOf("km-pf-alert--danger") !== -1 || html.indexOf("errorlist") !== -1) {
                   submitting = false;
                   isDirty = true;

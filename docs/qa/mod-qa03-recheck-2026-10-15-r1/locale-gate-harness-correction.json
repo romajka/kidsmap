@@ -1,0 +1,7 @@
+{
+  "type": "QA oracle correction; no application or PO changes",
+  "retained_failure": "verification-gate-r1.json:19PASS/1FAIL",
+  "reason": "Original gate expected total3 opened MO, but Django/allauth/jazzmin legitimately opened22 package catalogs besides3 own project catalogs. Single LOCALE_PATHS and own fresh3MO were already correct.",
+  "new_check": "Require exact full set3 own+22 explicitly named read-only installed-package MO, no other project catalog allowed. All other gates unchanged.",
+  "no_source_assertion_weakened": true
+}

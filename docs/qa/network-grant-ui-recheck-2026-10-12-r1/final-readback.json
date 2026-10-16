@@ -1,0 +1,46 @@
+{
+  "organization_id": 3,
+  "owner_id": 2,
+  "ownership_version": 1,
+  "content_version": 1,
+  "status": "draft",
+  "grants": [
+    {
+      "id": 1,
+      "member_id": 5,
+      "is_active": true,
+      "version": 1,
+      "role": "EDITOR",
+      "scope": "all_network",
+      "actions": [
+        "place.edit",
+        "place.view"
+      ],
+      "base_ownership_version": 1
+    }
+  ],
+  "invitations": [
+    {
+      "id": 1,
+      "status": "ACCEPTED",
+      "role": "EDITOR",
+      "scope": "all_network"
+    },
+    {
+      "id": 2,
+      "status": "PENDING",
+      "role": "EDITOR",
+      "scope": "all_network"
+    }
+  ],
+  "branches": [
+    {
+      "id": 7,
+      "owner_id": 2,
+      "relationship": "business",
+      "member_edit": true
+    }
+  ],
+  "member_team_manage": false,
+  "read_only": true
+}

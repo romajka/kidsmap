@@ -1,0 +1,33 @@
+{"argv": ["/home/ramin/kidsmap/.venv/bin/python", "-m", "venv", "/home/ramin/kidsmap/.tmp/offer-qa07-fix-2026-10-14-r1/venv"], "exit": 0}
+{"argv": ["docker", "run", "-d", "--name", "offer-qa07-fix-2026-10-14-r1-pg", "-p", "127.0.0.1:58559:5432", "--env-file", "/home/ramin/kidsmap/.tmp/offer-qa07-fix-2026-10-14-r1/pg.env", "-v", "offer-qa07-fix-2026-10-14-r1-pg-data:/var/lib/postgresql/data", "postgres:17-alpine"], "exit": 0}
+{"argv": ["/home/ramin/kidsmap/.tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "/home/ramin/kidsmap/scripts/build_isolated_locales.py", "build", "--output", "/home/ramin/kidsmap/.tmp/offer-qa07-fix-2026-10-14-r1/locales", "--locales", "ru", "az", "en", "--compiler", "native"], "exit": 0}
+{"argv": ["/home/ramin/kidsmap/.tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "/home/ramin/kidsmap/scripts/build_isolated_locales.py", "verify", "--manifest", "/home/ramin/kidsmap/.tmp/offer-qa07-fix-2026-10-14-r1/locales/manifest.json"], "exit": 0}
+{"argv": ["/home/ramin/kidsmap/.tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa07-fix-2026-10-14-r1/runtime.py", "prepare"], "exit": 0}
+{"argv": ["/home/ramin/kidsmap/.tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa07-fix-2026-10-14-r1/runtime.py", "check"], "exit": 0}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/runtime.py", "test", "catalog.testcases.test_offer_qa07_stale_draft_restore", "--keepdb"], "exit": 1, "seconds": 39.811}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/runtime.py", "test", "catalog.testcases.test_offer_qa07_stale_draft_restore", "catalog.testcases.test_task33_drafts", "catalog.testcases.test_task33_place_continuous.ContinuousPlaceFormTests.test_explicit_place_save_consumes_matching_server_draft", "--keepdb"], "exit": 0, "seconds": 29.625}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/start-server.py"], "exit": 0, "seconds": 3.735}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa07-fix-2026-10-14-r1/drive.py", "lifecycle.js"], "native_cli_exit": 0, "result": "lifecycle.result.json"}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/runtime.py", "test", "catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_unauthorized_actor_cannot_retire_owners_copy", "catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_invalid_explicit_ajax_save_leaves_draft_resumable", "--keepdb"], "exit": 1, "seconds": 6.333}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/runtime.py", "test", "catalog.testcases.test_task33_drafts", "--keepdb"], "exit": 1, "seconds": 28.394}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/runtime.py", "script", "test-corpus.py"], "exit": 0, "seconds": 40.822}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/start-server.py"], "exit": 0, "seconds": 2.591}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa07-fix-2026-10-14-r1/drive.py", "ui.js"], "native_cli_exit": 0, "result": "ui.result.json"}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/start-server.py"], "exit": 0, "seconds": 9.97}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa07-fix-2026-10-14-r1/drive.py", "ui.js"], "native_cli_exit": 0, "result": "ui.result.attempt1791960456.json"}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa07-fix-2026-10-14-r1/drive.py", "extra.js"], "native_cli_exit": 0, "result": "extra.result.json"}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/runtime.py", "script", "acl-seed.py"], "exit": 0, "seconds": 1.556}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa07-fix-2026-10-14-r1/drive.py", "acl.js"], "native_cli_exit": 0, "result": "acl.result.json"}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/runtime.py", "script", "readback.py"], "exit": 0, "seconds": 0.688}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/runtime.py", "script", "candidate-seed.py"], "exit": 0, "seconds": 4.765}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa07-fix-2026-10-14-r1/drive.py", "candidate-only.js"], "native_cli_exit": 0, "result": "candidate-only.result.json"}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/start-server.py"], "exit": 0, "seconds": 2.554}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa07-fix-2026-10-14-r1/drive.py", "final-edges.js"], "native_cli_exit": 0, "result": "final-edges.result.json"}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/runtime.py", "script", "readback.py"], "exit": 0, "seconds": 0.896}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/verify.py"], "exit": 0, "seconds": 1.391}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/runtime.py", "test", "catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_consumed_copy_photo_write_conflicts_without_touching_history", "--keepdb"], "exit": 1, "seconds": 2.175}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/runtime.py", "script", "photo-guards.py"], "exit": 0, "seconds": 6.464}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/start-server.py"], "exit": 0, "seconds": 6.944}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/runtime.py", "script", "readback.py"], "exit": 0, "seconds": 0.843}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/verify.py"], "exit": 0, "seconds": 0.88}
+{"argv": [".tmp/offer-qa07-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa07-fix-2026-10-14-r1/verify.py"], "exit": 0, "seconds": 0.813}

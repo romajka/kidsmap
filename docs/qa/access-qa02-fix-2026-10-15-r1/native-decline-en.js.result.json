@@ -1,0 +1,1489 @@
+{
+  "rows": [
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 66,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "place: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 170.46875,
+        "width": 360
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 170.46875,
+        "width": 360
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "place: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Invitation declined."
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "place: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 19,
+        "target_id": 1,
+        "notification_id": 73,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "organization: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 170.46875,
+        "width": 360
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 170.46875,
+        "width": 360
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "organization: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Invitation declined."
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "organization: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 19,
+        "target_id": 1,
+        "notification_id": 74,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "Inbox no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 360,
+        "scroll": 360
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 68,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 70,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "place: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 170.46875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 170.46875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "place: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Invitation declined."
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "place: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 20,
+        "target_id": 1,
+        "notification_id": 77,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "organization: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 170.46875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 170.46875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "organization: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Invitation declined."
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "organization: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 20,
+        "target_id": 1,
+        "notification_id": 78,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "Inbox no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 72,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 74,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "place: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 178.46875,
+        "width": 768
+      }
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 178.46875,
+        "width": 768
+      }
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "place: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Invitation declined."
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "place: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 21,
+        "target_id": 1,
+        "notification_id": 81,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "organization: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 178.46875,
+        "width": 768
+      }
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 178.46875,
+        "width": 768
+      }
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "organization: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Invitation declined."
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "organization: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 21,
+        "target_id": 1,
+        "notification_id": 82,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "Inbox no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 768,
+        "scroll": 768
+      }
+    },
+    {
+      "lang": "en",
+      "width": 768,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 76,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 78,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "place: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 178.46875,
+        "width": 1024
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 178.46875,
+        "width": 1024
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "place: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Invitation declined."
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "place: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 22,
+        "target_id": 1,
+        "notification_id": 85,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "organization: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 178.46875,
+        "width": 1024
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 178.46875,
+        "width": 1024
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "organization: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Invitation declined."
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "organization: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 22,
+        "target_id": 1,
+        "notification_id": 86,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "Inbox no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 1024,
+        "scroll": 1024
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 80,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 82,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "place: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 178.46875,
+        "width": 1280
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 178.46875,
+        "width": 1280
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "place: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Invitation declined."
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "place: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 23,
+        "target_id": 1,
+        "notification_id": 89,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "organization: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 178.46875,
+        "width": 1280
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 178.46875,
+        "width": 1280
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "organization: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Invitation declined."
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "organization: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 23,
+        "target_id": 1,
+        "notification_id": 90,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "Inbox no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 1280,
+        "scroll": 1280
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 84,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 86,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "place: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 110,
+        "right": 234.46875,
+        "width": 1440
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 110,
+        "right": 234.46875,
+        "width": 1440
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "place: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Invitation declined."
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "place: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 24,
+        "target_id": 1,
+        "notification_id": 93,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "organization: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 110,
+        "right": 234.46875,
+        "width": 1440
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 110,
+        "right": 234.46875,
+        "width": 1440
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "organization: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Invitation declined."
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "organization: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 24,
+        "target_id": 1,
+        "notification_id": 94,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "Inbox no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 1440,
+        "scroll": 1440
+      }
+    },
+    {
+      "lang": "en",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 88,
+        "scheduler": "SIMULATED manual tick"
+      }
+    }
+  ],
+  "completedCells": [
+    {
+      "lang": "en",
+      "width": 360
+    },
+    {
+      "lang": "en",
+      "width": 390
+    },
+    {
+      "lang": "en",
+      "width": 768
+    },
+    {
+      "lang": "en",
+      "width": 1024
+    },
+    {
+      "lang": "en",
+      "width": 1280
+    },
+    {
+      "lang": "en",
+      "width": 1440
+    }
+  ],
+  "error": null,
+  "diagnostics": {
+    "console": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "pageerrors": [],
+    "requestFailures": [
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "badResponses": []
+  },
+  "browser": "149.0.7827.55",
+  "simulation": "Owner invitations, native recipient decisions/cancel and readback real. External transport blocked; manual local mail scheduler tick explicitly SIMULATED; any stale-fixture/network simulation is labeled per scenario."
+}

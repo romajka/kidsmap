@@ -1,0 +1,61 @@
+{
+  "server": {
+    "pid": 529845,
+    "url": "http://127.0.0.1:58839",
+    "database": "qa11_20261012_r1",
+    "script": "/home/ramin/kidsmap/docs/qa/place-qa11-fix-2026-10-12-r1/runtime.py"
+  },
+  "cwd": "/home/ramin/kidsmap",
+  "process": "    PID COMMAND\n 389642 /home/ramin/kidsmap/.venv/bin/python /home/ramin/kidsmap/docs/qa/place-qa11-fix-2026-10-12-r1/runtime.py serve\n",
+  "static_source_checks": [
+    {
+      "path": "static/js/permanent_place_photos.js",
+      "http_sha": "b3815703de0d55632a43ad13f9cfd79520fdc7d58c4575accc6cd5e51627cfac",
+      "disk_sha": "b3815703de0d55632a43ad13f9cfd79520fdc7d58c4575accc6cd5e51627cfac",
+      "match": true
+    },
+    {
+      "path": "static/js/owner_place_continuous.js",
+      "http_sha": "61f93f4681826a267be6d2e5ac417e9006ccc23f9064be3726e8a8caef635e0c",
+      "disk_sha": "61f93f4681826a267be6d2e5ac417e9006ccc23f9064be3726e8a8caef635e0c",
+      "match": true
+    },
+    {
+      "path": "static/css/pages/owner_place_continuous.css",
+      "http_sha": "d6fb9ce76979737fe5db03f131a135544dce0adc2c1cd41f3f97afffe22ab786",
+      "disk_sha": "d6fb9ce76979737fe5db03f131a135544dce0adc2c1cd41f3f97afffe22ab786",
+      "match": true
+    },
+    {
+      "path": "static/admin/js/kidsmap_place_form.js",
+      "http_sha": "4c9d5db3c73d8352d79f5bcecf64822354012da02ac7b484bcde9d09e813db9c",
+      "disk_sha": "4c9d5db3c73d8352d79f5bcecf64822354012da02ac7b484bcde9d09e813db9c",
+      "match": true
+    },
+    {
+      "path": "static/admin/css/pages/kidsmap_place_form.css",
+      "http_sha": "707bbba327aad0eb78341c2cc72db1bac2361adc392175d2d79fc90c516e4465",
+      "disk_sha": "707bbba327aad0eb78341c2cc72db1bac2361adc392175d2d79fc90c516e4465",
+      "match": true
+    }
+  ],
+  "locale_manifest": "docs/qa/place-qa11-fix-2026-10-12-r1/locale-manifest.json",
+  "python_backend_unchanged_since_final_import": true,
+  "source_gate": {
+    "typed_candidate_conflict_loaded": true,
+    "testing": true,
+    "pid": 529845,
+    "entry_matches_startup": true,
+    "startup_matches_disk": true,
+    "source_files": 2793,
+    "source_digest": "e099962aee08ece2d00766856071926c80ccd60d1287f6d629f08feb3c9d8cd8",
+    "postgres": "17.10",
+    "database_host": "127.0.0.1",
+    "database_port": "52523",
+    "sole_locale_root": "/home/ramin/kidsmap/.tmp/place-qa11-fix-2026-10-12-r1/locales/locale",
+    "cache": "django.core.cache.backends.locmem.LocMemCache",
+    "email": "django.core.mail.backends.locmem.EmailBackend",
+    "external_egress": "only owned PostgreSQL connect/connect_ex allowed",
+    "env_file_loaded": false
+  }
+}

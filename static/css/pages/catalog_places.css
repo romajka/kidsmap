@@ -3013,6 +3013,28 @@
 /* Shared venues retain independently navigable business cards. */
 .catalog-map-venue { background: var(--surface, #fff); border-radius: 18px; position: relative; padding-top: 32px; max-height: min(65vh, 560px); overflow-y: auto; overscroll-behavior: contain; }
 .catalog-map-members { list-style: none; margin: 0; padding: 0; }
+.catalog-map-desktop-card .catalog-map-venue {
+  max-height: var(--catalog-popup-max-height, 376px);
+  overflow: hidden;
+}
+.catalog-map-desktop-card .catalog-map-members {
+  max-height: calc(var(--catalog-popup-max-height, 376px) - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.catalog-map-desktop-card .catalog-map-card-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.catalog-map-desktop-card .catalog-map-card-actions > [data-phone-reveal],
+.catalog-map-desktop-card .catalog-map-card-actions > .km-phone-group {
+  grid-column: 1 / -1;
+}
+@media (max-width: 820px) {
+  body.page-place_list.filters-drawer-open .catalog-layout {
+    z-index: auto !important;
+    isolation: auto;
+  }
+}
 .catalog-map-members > li + li { border-top: 1px solid var(--border-color, #e5e7eb); }
 .catalog-map-card-price { margin: 8px 16px; font-weight: 600; }
 .catalog-map-offers { margin: 8px 16px; padding-left: 16px; }

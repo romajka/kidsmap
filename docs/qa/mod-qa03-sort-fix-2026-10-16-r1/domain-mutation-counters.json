@@ -1,0 +1,24 @@
+{
+  "read_only": true,
+  "database": "mod03_sort_fix_r1",
+  "counters": [
+    {
+      "table": "catalog_event",
+      "insert": 110,
+      "update": 107,
+      "delete": 0
+    },
+    {
+      "table": "catalog_specialist",
+      "insert": 110,
+      "update": 107,
+      "delete": 0
+    }
+  ],
+  "expected_own_seed_per_table": {
+    "insert": 110,
+    "update": 107,
+    "delete": 0
+  },
+  "basis": "new own PostgreSQL cluster; 3 initial inserts +107 sorting inserts and107 explicit timestamp updates; test runner uses separate test database"
+}

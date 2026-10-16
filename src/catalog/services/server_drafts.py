@@ -85,10 +85,10 @@ def save(*, user, data):
     from uuid import UUID
     try: draft_id = UUID(str(draft_id))
     except (ValueError, TypeError): raise ValidationError('Invalid draft ID.')
+    target = _target(user, kind, target_id)
     draft = ServerDraft.objects.select_for_update().filter(pk=draft_id).first()
     if draft is None:
         if expected != 0: raise ServerDraft.DoesNotExist
-        target = _target(user, kind, target_id)
         source = _number(data.get('source_version', 0))
         if source != (target.content_version if target else 0): raise DraftConflict()
         draft, created = ServerDraft.objects.get_or_create(pk=draft_id, defaults={
@@ -103,7 +103,6 @@ def save(*, user, data):
     if draft.actor_id != user.pk: raise PermissionDenied
     if draft.target_type != kind or draft.target_id != target_id: raise PermissionDenied
     if draft.materialized_place_id: raise DraftConflict(draft)
-    target = _target(user, kind, target_id)
     if draft.schema_version != schema or draft.source_version != (target.content_version if target else 0): raise DraftConflict(draft)
     if 'source_version' in data and _number(data['source_version']) != draft.source_version: raise DraftConflict(draft)
     if expected == 0 and draft.version == 1 and draft.fields == fields: return draft
@@ -136,10 +135,16 @@ def upload_photo(*, user, draft_id, expected_version, file):
     from uuid import uuid4
     from catalog.services.image_uploads import normalize_uploaded_image
     user = _actor(user)
+    probe = ServerDraft.objects.filter(pk=draft_id, actor=user).first()
+    if probe is None:
+        if ServerDraft.objects.filter(pk=draft_id).exists(): raise PermissionDenied
+        raise ServerDraft.DoesNotExist
+    _target(user, probe.target_type, probe.target_id)
     draft = ServerDraft.objects.select_for_update().filter(pk=draft_id).first()
     if draft is None: raise ServerDraft.DoesNotExist
     if draft.actor_id != user.pk: raise PermissionDenied
-    _target(user, draft.target_type, draft.target_id)
+    if draft.materialized_place_id: raise DraftConflict(draft)
+    if (draft.target_type, draft.target_id) != (probe.target_type, probe.target_id): raise DraftConflict(draft)
     if draft.target_type != 'place': raise ValidationError('Photo target unsupported.')
     if _number(expected_version) != draft.version: raise DraftConflict(draft)
     if not file: raise ValidationError('Photo required.')
@@ -195,20 +200,36 @@ def json_value(value):
 
 
 @transaction.atomic
-def mark_explicit_save(*, user, draft_id, place, target_id):
-    """Keep a saved working copy out of future resume choices after explicit save."""
-    if not draft_id:
-        return False
+def mark_explicit_save(*, user, draft_id, place, target_id, cutoff=None):
+    """Retain data, but stop older same-actor working copies resuming after save."""
     from uuid import UUID
-    try:
-        identifier = UUID(str(draft_id))
-    except (ValueError, TypeError):
+    from django.utils import timezone
+    user = _actor(user)
+    if target_id is not None and target_id != place.pk:
         return False
-    draft = ServerDraft.objects.select_for_update().filter(pk=identifier, actor=user,
-        target_type='place', target_id=target_id).first()
-    if draft is None or (draft.materialized_place_id and draft.materialized_place_id != place.pk):
-        return False
-    _target(user, 'place', place.pk)
-    draft.materialized_place = place
-    draft.save(update_fields=['materialized_place', 'saved_at'])
-    return True
+    target = _target(user, 'place', place.pk)  # Target lock precedes draft locks.
+    cutoff = cutoff or timezone.now()
+    copies = ServerDraft.objects.select_for_update().filter(actor=user,
+        target_type='place', target_id=target_id).order_by('pk')
+    matched = None
+    if draft_id:
+        try: identifier = UUID(str(draft_id))
+        except (ValueError, TypeError): return False
+        matched = next((row for row in copies if row.pk == identifier), None)
+        if matched is None or (matched.materialized_place_id and matched.materialized_place_id != place.pk):
+            return False
+    if target_id is None:
+        if matched is None: return False
+        matched.materialized_place = target
+        matched.save(update_fields=['materialized_place', 'saved_at'])
+        return True
+    retired = False
+    for draft in copies:
+        if draft.materialized_place_id or draft.saved_at > cutoff or draft.source_version > target.content_version:
+            continue
+        if draft.schema_version != publication.SCHEMA_VERSION:
+            continue
+        draft.materialized_place = target
+        draft.save(update_fields=['materialized_place', 'saved_at'])
+        retired = True
+    return retired

@@ -1,0 +1,23 @@
+{
+  "source": "both changed services loaded from exact pre-patch HEAD matching entry hashes",
+  "hashes": {
+    "src/catalog/services/pricing_plans.py": "738429cbe99c31cd2171b1cfdec289cf6c6c4dfe3d9ea6d55a8f20fb63f716d8",
+    "src/catalog/services/publication.py": "e0514d3f5cd490da54e00601aa5c41eb0118953019ac67b32f23ba24d47a76ce"
+  },
+  "partial_payload_fields": [
+    "name_en"
+  ],
+  "form_valid": true,
+  "price_missing": true,
+  "issues": [
+    {
+      "code": "price",
+      "field": "pricing_plans",
+      "message": "M\u00f6vcud qiym\u0259ti tarifl\u0259r\u0259 k\u00f6\u00e7\u00fcr\u00fcn v\u0259 ya m\u0259kan\u0131n pulsuz oldu\u011funu g\u00f6st\u0259rin."
+    }
+  ],
+  "is_ready": false,
+  "group_active": true,
+  "actual_price": "20",
+  "ui_baseline_finding": "OFFER-QA-09, independent of group-removal repair"
+}

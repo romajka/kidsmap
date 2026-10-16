@@ -1,0 +1,167 @@
+{
+  "rows": [
+    {
+      "id": "existing category selection auto-submits and preserves search sort",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 390,
+      "model": "event",
+      "detail": {
+        "count": 2,
+        "query": "?category__code__exact=QA081&q=QA+Filter&sort=name_asc",
+        "effective_backend_query": "category__code__exact=QA081&q=QA+Filter&sort=name_asc"
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    }
+  ],
+  "before": {
+    "read_only": true,
+    "synthetic_only": true,
+    "counts": {
+      "places": 2,
+      "events": 3,
+      "specialists": 3,
+      "specializations": 3,
+      "locations": 0,
+      "documents": 0
+    },
+    "domain_sha256": "68d0204339134db957f1b669c1141259bf6815a31313fbad2a8f0d093982630a"
+  },
+  "after": {
+    "read_only": true,
+    "synthetic_only": true,
+    "counts": {
+      "places": 2,
+      "events": 3,
+      "specialists": 3,
+      "specializations": 3,
+      "locations": 0,
+      "documents": 0
+    },
+    "domain_sha256": "68d0204339134db957f1b669c1141259bf6815a31313fbad2a8f0d093982630a"
+  },
+  "complete": true,
+  "scope": "Only failed QA count control repeated after moving disposable API route; app unchanged"
+}

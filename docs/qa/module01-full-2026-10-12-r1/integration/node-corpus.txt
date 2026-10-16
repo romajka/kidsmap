@@ -1,0 +1,606 @@
+TAP version 13
+# Subtest: standalone taxonomy stays own; Place is copied only by explicit action
+ok 1 - standalone taxonomy stays own; Place is copied only by explicit action
+  ---
+  duration_ms: 127.40348
+  ...
+# Subtest: changing category clears incompatible child, announces it and preserves focus
+ok 2 - changing category clears incompatible child, announces it and preserves focus
+  ---
+  duration_ms: 28.950291
+  ...
+# Subtest: linked activity offers no local taxonomy override
+ok 3 - linked activity offers no local taxonomy override
+  ---
+  duration_ms: 18.998357
+  ...
+# Subtest: moving clears stale district and ignores response for previous coordinates
+ok 4 - moving clears stale district and ignores response for previous coordinates
+  ---
+  duration_ms: 1149.647182
+  ...
+# Subtest: clearing coordinates cancels a pending result
+ok 5 - clearing coordinates cancels a pending result
+  ---
+  duration_ms: 518.925453
+  ...
+# Subtest: uncovered result leaves old district empty and announces the reason
+ok 6 - uncovered result leaves old district empty and announces the reason
+  ---
+  duration_ms: 514.174462
+  ...
+# Subtest: current override is preserved but an obsolete dataset triggers a new assignment
+ok 7 - current override is preserved but an obsolete dataset triggers a new assignment
+  ---
+  duration_ms: 1046.84717
+  ...
+# Subtest: visual result clears while moving and network errors can be retried
+ok 8 - visual result clears while moving and network errors can be retried
+  ---
+  duration_ms: 1514.605056
+  ...
+# Subtest: invalid numeric coordinates never announce a selected map point
+ok 9 - invalid numeric coordinates never announce a selected map point
+  ---
+  duration_ms: 17.382546
+  ...
+# Subtest: valid zero coordinates still announce a selected map point
+ok 10 - valid zero coordinates still announce a selected map point
+  ---
+  duration_ms: 15.426418
+  ...
+# Subtest: restoring manual district cancels an already pending coordinate lookup
+ok 11 - restoring manual district cancels an already pending coordinate lookup
+  ---
+  duration_ms: 441.832178
+  ...
+# Subtest: non-continuous empty-point behavior is preserved
+ok 12 - non-continuous empty-point behavior is preserved
+  ---
+  duration_ms: 13.479042
+  ...
+# Subtest: manual point -> clear -> Baku enables district and includes it in submitted data
+ok 13 - manual point -> clear -> Baku enables district and includes it in submitted data
+  ---
+  duration_ms: 16.18159
+  ...
+# Subtest: manual point -> clear -> another region -> Baku enables district
+ok 14 - manual point -> clear -> another region -> Baku enables district
+  ---
+  duration_ms: 21.253377
+  ...
+# Subtest: manual region change away from Baku disables and clears stale Baku district
+ok 15 - manual region change away from Baku disables and clears stale Baku district
+  ---
+  duration_ms: 11.399917
+  ...
+# Subtest: saved manual Baku district without coordinates survives initial boot
+ok 16 - saved manual Baku district without coordinates survives initial boot
+  ---
+  duration_ms: 11.131654
+  ...
+# Subtest: restored invalid/partial point does not grant manual district: 40.4|
+ok 17 - restored invalid/partial point does not grant manual district: 40.4|
+  ---
+  duration_ms: 12.116054
+  ...
+# Subtest: restored invalid/partial point does not grant manual district: |49.8
+ok 18 - restored invalid/partial point does not grant manual district: |49.8
+  ---
+  duration_ms: 9.624344
+  ...
+# Subtest: restored invalid/partial point does not grant manual district: bad|49.8
+ok 19 - restored invalid/partial point does not grant manual district: bad|49.8
+  ---
+  duration_ms: 11.176871
+  ...
+# Subtest: restored invalid/partial point does not grant manual district: 91|49.8
+ok 20 - restored invalid/partial point does not grant manual district: 91|49.8
+  ---
+  duration_ms: 8.913383
+  ...
+# Subtest: partial point is not equivalent to manual mode
+ok 21 - partial point is not equivalent to manual mode
+  ---
+  duration_ms: 14.850918
+  ...
+# Subtest: resolved point in Baku still enables its district
+ok 22 - resolved point in Baku still enables its district
+  ---
+  duration_ms: 433.921645
+  ...
+# Subtest: stale lookup cannot overwrite manual region/district after clear
+ok 23 - stale lookup cannot overwrite manual region/district after clear
+  ---
+  duration_ms: 435.245123
+  ...
+# Subtest: draft field/change replay restores manual district (coordinates first: false)
+ok 24 - draft field/change replay restores manual district (coordinates first: false)
+  ---
+  duration_ms: 10.132427
+  ...
+# Subtest: draft field/change replay restores manual district (coordinates first: true)
+ok 25 - draft field/change replay restores manual district (coordinates first: true)
+  ---
+  duration_ms: 9.062499
+  ...
+# Subtest: pageswap: aborted transition cleans cover without unhandled rejection
+ok 26 - pageswap: aborted transition cleans cover without unhandled rejection
+  ---
+  duration_ms: 796.298808
+  ...
+# Subtest: pageswap: completed transition cleans cover without unhandled rejection
+ok 27 - pageswap: completed transition cleans cover without unhandled rejection
+  ---
+  duration_ms: 628.942072
+  ...
+# Subtest: pagereveal: aborted transition cleans cover without unhandled rejection
+ok 28 - pagereveal: aborted transition cleans cover without unhandled rejection
+  ---
+  duration_ms: 434.876323
+  ...
+# Subtest: pagereveal: completed transition cleans cover without unhandled rejection
+ok 29 - pagereveal: completed transition cleans cover without unhandled rejection
+  ---
+  duration_ms: 439.582315
+  ...
+# Subtest: pageswap: opt-out navigation handles rejected ready outside public place routes
+ok 30 - pageswap: opt-out navigation handles rejected ready outside public place routes
+  ---
+  duration_ms: 487.238008
+  ...
+# Subtest: pagereveal: opt-out navigation handles rejected ready outside public place routes
+ok 31 - pagereveal: opt-out navigation handles rejected ready outside public place routes
+  ---
+  duration_ms: 426.3367
+  ...
+# Subtest: outgoing account navigation skips transition; public place navigation remains enabled
+ok 32 - outgoing account navigation skips transition; public place navigation remains enabled
+  ---
+  duration_ms: 403.963175
+  ...
+# Subtest: Delayed acknowledgement of A cannot clear B or claim B is saved
+ok 33 - Delayed acknowledgement of A cannot clear B or claim B is saved
+  ---
+  duration_ms: 134.532303
+  ...
+# Subtest: Queued edits coalesce to C while the previous request is pending
+ok 34 - Queued edits coalesce to C while the previous request is pending
+  ---
+  duration_ms: 27.647591
+  ...
+# Subtest: Another tab wins CAS:409 preserves the latest input and stops automatic overwrite
+ok 35 - Another tab wins CAS:409 preserves the latest input and stops automatic overwrite
+  ---
+  duration_ms: 21.489128
+  ...
+# Subtest: 403 or network failure retains input; an old failed response never clears newer edits
+ok 36 - 403 or network failure retains input; an old failed response never clears newer edits
+  ---
+  duration_ms: 43.738839
+  ...
+# Subtest: Server confirmation of unchanged input clears the matching local draft
+ok 37 - Server confirmation of unchanged input clears the matching local draft
+  ---
+  duration_ms: 18.047062
+  ...
+# Subtest: Unavailable browser storage does not turn an old response into confirmation of B
+ok 38 - Unavailable browser storage does not turn an old response into confirmation of B
+  ---
+  duration_ms: 29.61199
+  ...
+# Subtest: Native submit keeps input for reopening after a failed network POST
+ok 39 - Native submit keeps input for reopening after a failed network POST
+  ---
+  duration_ms: 152.349797
+  ...
+# Subtest: Submit captures autofilled values even without an input event
+ok 40 - Submit captures autofilled values even without an input event
+  ---
+  duration_ms: 16.833552
+  ...
+# Subtest: Only confirmed creation of the matching input clears its local copy
+ok 41 - Only confirmed creation of the matching input clears its local copy
+  ---
+  duration_ms: 19.170496
+  ...
+# Subtest: Confirmation of older input cannot erase a newer local draft
+ok 42 - Confirmation of older input cannot erase a newer local draft
+  ---
+  duration_ms: 26.76258
+  ...
+# Subtest: A normal workspace visit without creation confirmation keeps the draft
+ok 43 - A normal workspace visit without creation confirmation keeps the draft
+  ---
+  duration_ms: 13.508515
+  ...
+# Subtest: 400/409 bound forms preserve local recovery without replacing server values
+ok 44 - 400/409 bound forms preserve local recovery without replacing server values
+  ---
+  duration_ms: 15.77224
+  ...
+# Subtest: Confirmation never clears another user draft
+ok 45 - Confirmation never clears another user draft
+  ---
+  duration_ms: 13.369083
+  ...
+# Subtest: Unavailable storage leaves native submission available
+ok 46 - Unavailable storage leaves native submission available
+  ---
+  duration_ms: 25.074395
+  ...
+# Subtest: current comparison shows server winner and retains the original browser copy
+ok 47 - current comparison shows server winner and retains the original browser copy
+  ---
+  duration_ms: 131.655282
+  ...
+# Subtest: ordinary GET still restores the existing local recovery
+ok 48 - ordinary GET still restores the existing local recovery
+  ---
+  duration_ms: 30.097154
+  ...
+# Subtest: bound invalid POST remains authoritative over older recovery values
+ok 49 - bound invalid POST remains authoritative over older recovery values
+  ---
+  duration_ms: 127.147577
+  ...
+# Subtest: fresh bound errors retain the posted input for reload without creating a server draft
+ok 50 - fresh bound errors retain the posted input for reload without creating a server draft
+  ---
+  duration_ms: 32.637143
+  ...
+# Subtest: error summary receives focus and its link focuses the rejected field
+ok 51 - error summary receives focus and its link focuses the rejected field
+  ---
+  duration_ms: 24.36538
+  ...
+# Subtest: a clean GET continues restoring the existing local recovery without focus theft
+ok 52 - a clean GET continues restoring the existing local recovery without focus theft
+  ---
+  duration_ms: 20.073789
+  ...
+# Subtest: success synchronizes default role and server list without replacing editor input
+ok 53 - success synchronizes default role and server list without replacing editor input
+  ---
+  duration_ms: 168.778034
+  ...
+# Subtest: in-flight keyboard or programmatic repeat makes one POST and announces loading
+ok 54 - in-flight keyboard or programmatic repeat makes one POST and announces loading
+  ---
+  duration_ms: 54.743317
+  ...
+# Subtest: 400 and403 preserve the complete submitted scope and release controls
+ok 55 - 400 and403 preserve the complete submitted scope and release controls
+  ---
+  duration_ms: 79.465706
+  ...
+# Subtest: duplicate409 preserves input and displays authoritative existing invitation
+ok 56 - duplicate409 preserves input and displays authoritative existing invitation
+  ---
+  duration_ms: 38.926402
+  ...
+# Subtest: confirmed POST with failed list read is distinguished and GET retry never sends again
+ok 57 - confirmed POST with failed list read is distinguished and GET retry never sends again
+  ---
+  duration_ms: 34.726746
+  ...
+# Subtest: lost POST response retains input and offers read-only verification without claiming refusal
+ok 58 - lost POST response retains input and offers read-only verification without claiming refusal
+  ---
+  duration_ms: 23.839527
+  ...
+# Subtest: initial disabled invitation becomes keyboard operable only with installed POST handler
+ok 59 - initial disabled invitation becomes keyboard operable only with installed POST handler
+  ---
+  duration_ms: 147.313003
+  ...
+# Subtest: failed invitation retains input and handler prevents native navigation
+ok 60 - failed invitation retains input and handler prevents native navigation
+  ---
+  duration_ms: 42.971398
+  ...
+# Subtest: paging retains the selected control and identifies current page
+ok 61 - paging retains the selected control and identifies current page
+  ---
+  duration_ms: 157.214303
+  ...
+# Subtest: next and previous keep focus until disabled, then focus current page
+ok 62 - next and previous keep focus until disabled, then focus current page
+  ---
+  duration_ms: 47.050585
+  ...
+# Subtest: filtering and initial render do not steal focus
+ok 63 - filtering and initial render do not steal focus
+  ---
+  duration_ms: 24.122662
+  ...
+# Subtest: clear manual point with unavailable provider and no SDK
+ok 64 - clear manual point with unavailable provider and no SDK
+  ---
+  duration_ms: 115.207118
+  ...
+# Subtest: clear manual point with google provider and no SDK
+ok 65 - clear manual point with google provider and no SDK
+  ---
+  duration_ms: 33.138327
+  ...
+# Subtest: no navigator.geolocation gives visible feedback without map SDK
+ok 66 - no navigator.geolocation gives visible feedback without map SDK
+  ---
+  duration_ms: 19.4736
+  ...
+# Subtest: denied geolocation is requested once and explained without map SDK
+ok 67 - denied geolocation is requested once and explained without map SDK
+  ---
+  duration_ms: 19.036604
+  ...
+# Subtest: late Leaflet initialization is not blocked by unavailable placeholder
+ok 68 - late Leaflet initialization is not blocked by unavailable placeholder
+  ---
+  duration_ms: 23.083909
+  ...
+# Subtest: success without SDK updates one point; clearing cancels delayed geolocation
+ok 69 - success without SDK updates one point; clearing cancels delayed geolocation
+  ---
+  duration_ms: 26.076402
+  ...
+# Subtest: manual edits and malformed geolocation cannot overwrite entered values
+ok 70 - manual edits and malformed geolocation cannot overwrite entered values
+  ---
+  duration_ms: 27.946982
+  ...
+# Subtest: repeated boot never duplicates independent control listeners
+ok 71 - repeated boot never duplicates independent control listeners
+  ---
+  duration_ms: 20.076877
+  ...
+# Subtest: timeout geolocation preserves fields and resets busy state
+ok 72 - timeout geolocation preserves fields and resets busy state
+  ---
+  duration_ms: 33.128217
+  ...
+# Subtest: throw geolocation preserves fields and resets busy state
+ok 73 - throw geolocation preserves fields and resets busy state
+  ---
+  duration_ms: 37.250231
+  ...
+# Subtest: late Google callback initializes once and independent controls emit once
+ok 74 - late Google callback initializes once and independent controls emit once
+  ---
+  duration_ms: 22.657189
+  ...
+# Subtest: failed renderer construction leaves controls and safe placeholder available
+ok 75 - failed renderer construction leaves controls and safe placeholder available
+  ---
+  duration_ms: 35.105249
+  ...
+# PASS 9 wizard save-and-leave scenarios: durable save, blocked storage, volunteer action, no dialog, validation failure, network failure, offline, missing draft control, native submit
+# Subtest: /home/ramin/kidsmap/scripts/test_permanent_wizard_leave.cjs
+ok 12 - /home/ramin/kidsmap/scripts/test_permanent_wizard_leave.cjs
+  ---
+  duration_ms: 82.28957
+  ...
+# Error: Not implemented: navigation (except hash changes)
+#     at module.exports (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/node/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+#     at navigateFetch (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/node/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+#     at exports.navigate (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/node/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+#     at LocationImpl._locationObjectNavigate (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/node/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:30:5)
+#     at LocationImpl._locationObjectSetterNavigate (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/node/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:24:17)
+#     at set href [as href] (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/node/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:46:10)
+#     at set href [as href] (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/node/node_modules/jsdom/lib/jsdom/living/generated/Location.js:125:37)
+#     at Document.eval (eval at setup (/home/ramin/kidsmap/scripts/test_phone_reveal.cjs:18:14), <anonymous>:311:32) undefined
+# Subtest: no prefetch; click loads contacts, preserves focus and creates mobile call/WhatsApp links
+ok 77 - no prefetch; click loads contacts, preserves focus and creates mobile call/WhatsApp links
+  ---
+  duration_ms: 145.204996
+  ...
+# Subtest: compact catalog control uses a direct call link without generic number/copy layout
+ok 78 - compact catalog control uses a direct call link without generic number/copy layout
+  ---
+  duration_ms: 26.353572
+  ...
+# Subtest: failed request keeps a retry button and announces error; retry works
+ok 79 - failed request keeps a retry button and announces error; retry works
+  ---
+  duration_ms: 17.148039
+  ...
+# Subtest: simultaneous controls share one request
+ok 80 - simultaneous controls share one request
+  ---
+  duration_ms: 17.23743
+  ...
+# Subtest: gallery accumulates selections and rejects content duplicates with different names
+ok 81 - gallery accumulates selections and rejects content duplicates with different names
+  ---
+  duration_ms: 122.18377
+  ...
+# Subtest: invalid format, size and count are rejected before uploading
+ok 82 - invalid format, size and count are rejected before uploading
+  ---
+  duration_ms: 154.65373
+  ...
+# Subtest: file drop adds photos, arrows reorder them and make-main moves the selected photo
+ok 83 - file drop adds photos, arrows reorder them and make-main moves the selected photo
+  ---
+  duration_ms: 27.41486
+  ...
+# Subtest: saved gallery promotion swaps the old main and marks only the promoted stored row for deletion
+ok 84 - saved gallery promotion swaps the old main and marks only the promoted stored row for deletion
+  ---
+  duration_ms: 21.885485
+  ...
+# Subtest: failed save retains selected files, retry uses the same request ID and success is marked saved
+ok 85 - failed save retains selected files, retry uses the same request ID and success is marked saved
+  ---
+  duration_ms: 25.130117
+  ...
+# Subtest: preview falls back to Image when createImageBitmap is unavailable
+ok 86 - preview falls back to Image when createImageBitmap is unavailable
+  ---
+  duration_ms: 13.696377
+  ...
+# Subtest: oversized resolution is rejected before network and a failed replacement can be removed without losing the saved main
+ok 87 - oversized resolution is rejected before network and a failed replacement can be removed without losing the saved main
+  ---
+  duration_ms: 18.909652
+  ...
+# Subtest: photo editor boots inside the actual Django wizard HTML
+ok 88 - photo editor boots inside the actual Django wizard HTML # SKIP
+  ---
+  duration_ms: 0.176984
+  ...
+# Subtest: Program category reset announces incompatible child without losing keyboard focus
+ok 89 - Program category reset announces incompatible child without losing keyboard focus
+  ---
+  duration_ms: 110.732776
+  ...
+# Subtest: Baku excludes explicit Sumgait despite coordinates/address: Sumgait
+ok 90 - Baku excludes explicit Sumgait despite coordinates/address: Sumgait
+  ---
+  duration_ms: 4.298899
+  ...
+# Subtest: Baku excludes explicit Sumgait despite coordinates/address: Сумгаит
+ok 91 - Baku excludes explicit Sumgait despite coordinates/address: Сумгаит
+  ---
+  duration_ms: 1.145934
+  ...
+# Subtest: Baku excludes explicit Sumgait despite coordinates/address: Sumqayıt
+ok 92 - Baku excludes explicit Sumgait despite coordinates/address: Sumqayıt
+  ---
+  duration_ms: 3.161116
+  ...
+# Subtest: district classification uses canonical keys and never guesses from address or coordinates
+ok 93 - district classification uses canonical keys and never guesses from address or coordinates
+  ---
+  duration_ms: 1.317237
+  ...
+# Subtest: category, subcategory, district, age and query go together to canonical server search
+ok 94 - category, subcategory, district, age and query go together to canonical server search
+  ---
+  duration_ms: 3.667696
+  ...
+# Subtest: failed server filter request is reported, not replaced by guessed client results
+ok 95 - failed server filter request is reported, not replaced by guessed client results
+  ---
+  duration_ms: 1.776278
+  ...
+# Subtest: latest filter response wins, aborted and stale results cannot overwrite the map
+ok 96 - latest filter response wins, aborted and stale results cannot overwrite the map
+  ---
+  duration_ms: 1.66268
+  ...
+# Subtest: Leaflet fallback reads asset URLs and integrity from its script tag
+ok 97 - Leaflet fallback reads asset URLs and integrity from its script tag
+  ---
+  duration_ms: 1.725923
+  ...
+# Subtest: successful tile is displayed only after checked response, with origin-only referrer and normal caching
+ok 98 - successful tile is displayed only after checked response, with origin-only referrer and normal caching
+  ---
+  duration_ms: 11.25746
+  ...
+# Subtest: HTTP 403 with a decodable image body never becomes a visible tile
+ok 99 - HTTP 403 with a decodable image body never becomes a visible tile
+  ---
+  duration_ms: 2.786532
+  ...
+# Subtest: network failure reports unavailable instead of rendering a broken tile
+ok 100 - network failure reports unavailable instead of rendering a broken tile
+  ---
+  duration_ms: 3.122855
+  ...
+# Subtest: unloaded tile cancels pending transport and ignores late response without allocating a blob
+ok 101 - unloaded tile cancels pending transport and ignores late response without allocating a blob
+  ---
+  duration_ms: 2.577091
+  ...
+# AI referral tracking tests passed
+# Subtest: /home/ramin/kidsmap/static/js/tests/ai_referral_tracking.test.js
+ok 18 - /home/ramin/kidsmap/static/js/tests/ai_referral_tracking.test.js
+  ---
+  duration_ms: 64.833278
+  ...
+# Subtest: new camera target cancels old work; manual input leaves no scheduled frames
+ok 103 - new camera target cancels old work; manual input leaves no scheduled frames
+  ---
+  duration_ms: 4.587844
+  ...
+# Subtest: vector camera finishes at target without zooming out or leaving a loop
+ok 104 - vector camera finishes at target without zooming out or leaving a loop
+  ---
+  duration_ms: 1.454344
+  ...
+# Subtest: reduced motion uses one instant camera update
+ok 105 - reduced motion uses one instant camera update
+  ---
+  duration_ms: 0.803573
+  ...
+# Subtest: coincident cluster offers places instead of moving their real coordinates or zooming
+ok 106 - coincident cluster offers places instead of moving their real coordinates or zooming
+  ---
+  duration_ms: 2.39811
+  ...
+# Subtest: membership delta preserves unchanged markers and renders once per change
+ok 107 - membership delta preserves unchanged markers and renders once per change
+  ---
+  duration_ms: 1.734358
+  ...
+# Subtest: nearly coincident native fit uses expanded camera bounds, capped at useful zoom
+ok 108 - nearly coincident native fit uses expanded camera bounds, capped at useful zoom
+  ---
+  duration_ms: 1.48739
+  ...
+# Subtest: scene connects visible destinations outside protected content
+ok 109 - scene connects visible destinations outside protected content
+  ---
+  duration_ms: 7.241785
+  ...
+# Subtest: route visibly grows, reaches its destination, and fades before repeating
+ok 110 - route visibly grows, reaches its destination, and fades before repeating
+  ---
+  duration_ms: 0.445931
+  ...
+# Subtest: reduced motion shows a complete, stable journey
+ok 111 - reduced motion shows a complete, stable journey
+  ---
+  duration_ms: 4.929881
+  ...
+# Subtest: the traveling light interpolates between route samples instead of jumping
+ok 112 - the traveling light interpolates between route samples instead of jumping
+  ---
+  duration_ms: 0.298036
+  ...
+# Subtest: mobile destinations fit even when only narrow vertical gaps remain
+ok 113 - mobile destinations fit even when only narrow vertical gaps remain
+  ---
+  duration_ms: 0.859699
+  ...
+# Subtest: vertical journeys span a long page and enter the footer, with safe landmarks
+ok 114 - vertical journeys span a long page and enter the footer, with safe landmarks
+  ---
+  duration_ms: 4.406056
+  ...
+# Subtest: narrow screens keep continuous side trails without squeezing icons into content
+ok 115 - narrow screens keep continuous side trails without squeezing icons into content
+  ---
+  duration_ms: 0.955768
+  ...
+# Subtest: footer turns have a continuous tangent and finish horizontally even in wide gutters
+ok 116 - footer turns have a continuous tangent and finish horizontally even in wide gutters
+  ---
+  duration_ms: 14.045479
+  ...
+# Subtest: traveling light uses distance along the curved footer route
+ok 117 - traveling light uses distance along the curved footer route
+  ---
+  duration_ms: 1.829205
+  ...
+1..117
+# tests 117
+# suites 0
+# pass 116
+# fail 0
+# cancelled 0
+# skipped 1
+# todo 0
+# duration_ms 6941.303288

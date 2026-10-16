@@ -1,0 +1,4413 @@
+[
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v2-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v2-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v2-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v2-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v2-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v2-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v2-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v2-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "text": "Снятие с публикации...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v2-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» переведена в черновики.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v2-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "text": "Публикация карточки...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v2-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» опубликована и видна на сайте.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v2-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v2-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 0",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "place",
+    "detail": {
+      "actual": "Найдено 0 карточек",
+      "q": "QA Copy No Match",
+      "expected": "Найдено 0 карточек",
+      "selectedLanguage": "ru"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 1",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "place",
+    "detail": {
+      "actual": "Найдено 1 карточек",
+      "q": "QA Copy Pair 1",
+      "expected": "Найдено 1 карточек",
+      "selectedLanguage": "ru"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 2",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "place",
+    "detail": {
+      "actual": "Найдено 2 карточек",
+      "q": "QA Copy Pair",
+      "expected": "Найдено 2 карточек",
+      "selectedLanguage": "ru"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 created metadata localized",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "place",
+    "detail": {
+      "metadata": [
+        "16.10 13:34Fictional QA0911 admin · созданоСоздано: 16.10.2026",
+        "16.10 13:34Fictional QA0911 admin · созданоСоздано: 16.10.2026"
+      ]
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native reset removes search",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 0",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "event",
+    "detail": {
+      "actual": "Найдено 0 карточек",
+      "q": "QA Copy No Match",
+      "expected": "Найдено 0 карточек",
+      "selectedLanguage": "ru"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 1",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "event",
+    "detail": {
+      "actual": "Найдено 1 карточек",
+      "q": "QA Copy Pair 1",
+      "expected": "Найдено 1 карточек",
+      "selectedLanguage": "ru"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 2",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "event",
+    "detail": {
+      "actual": "Найдено 2 карточек",
+      "q": "QA Copy Pair",
+      "expected": "Найдено 2 карточек",
+      "selectedLanguage": "ru"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 filter preserves search",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native reset removes search",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 0",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "specialist",
+    "detail": {
+      "actual": "Найдено 0 карточек",
+      "q": "QA Copy No Match",
+      "expected": "Найдено 0 карточек",
+      "selectedLanguage": "ru"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 1",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "specialist",
+    "detail": {
+      "actual": "Найдено 1 карточек",
+      "q": "QA Copy Pair 1",
+      "expected": "Найдено 1 карточек",
+      "selectedLanguage": "ru"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 2",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "specialist",
+    "detail": {
+      "actual": "Найдено 2 карточек",
+      "q": "QA Copy Pair",
+      "expected": "Найдено 2 карточек",
+      "selectedLanguage": "ru"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 filter preserves search",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native reset removes search",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "place",
+    "detail": {
+      "text": "Снятие с публикации...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» переведена в черновики.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "place",
+    "detail": {
+      "text": "Публикация карточки...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» опубликована и видна на сайте.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "model": "place",
+    "detail": {
+      "text": "Снятие с публикации...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» переведена в черновики.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "model": "place",
+    "detail": {
+      "text": "Публикация карточки...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» опубликована и видна на сайте.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "model": "place",
+    "detail": {
+      "text": "Снятие с публикации...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» переведена в черновики.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "model": "place",
+    "detail": {
+      "text": "Публикация карточки...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» опубликована и видна на сайте.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "model": "place",
+    "detail": {
+      "text": "Снятие с публикации...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» переведена в черновики.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "model": "place",
+    "detail": {
+      "text": "Публикация карточки...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» опубликована и видна на сайте.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "text": "Снятие с публикации...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» переведена в черновики.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "text": "Публикация карточки...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» опубликована и видна на сайте.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 all note/domain rows unchanged by GET",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-ru.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 0",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "actual": "0 kart tapıldı",
+      "q": "QA Copy No Match",
+      "expected": "0 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 1",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "actual": "1 kart tapıldı",
+      "q": "QA Copy Pair 1",
+      "expected": "1 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 2",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "actual": "2 kart tapıldı",
+      "q": "QA Copy Pair",
+      "expected": "2 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 created metadata localized",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "metadata": [
+        "16.10 13:34Fictional QA0911 admin · YaradılıbYaradılıb: 16.10.2026",
+        "16.10 13:34Fictional QA0911 admin · YaradılıbYaradılıb: 16.10.2026"
+      ]
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native reset removes search",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 0",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "event",
+    "detail": {
+      "actual": "0 kart tapıldı",
+      "q": "QA Copy No Match",
+      "expected": "0 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 1",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "event",
+    "detail": {
+      "actual": "1 kart tapıldı",
+      "q": "QA Copy Pair 1",
+      "expected": "1 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 2",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "event",
+    "detail": {
+      "actual": "2 kart tapıldı",
+      "q": "QA Copy Pair",
+      "expected": "2 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 filter preserves search",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native reset removes search",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 0",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "specialist",
+    "detail": {
+      "actual": "0 kart tapıldı",
+      "q": "QA Copy No Match",
+      "expected": "0 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 1",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "specialist",
+    "detail": {
+      "actual": "1 kart tapıldı",
+      "q": "QA Copy Pair 1",
+      "expected": "1 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 2",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "specialist",
+    "detail": {
+      "actual": "2 kart tapıldı",
+      "q": "QA Copy Pair",
+      "expected": "2 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 filter preserves search",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native reset removes search",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "text": "Nəşrdən çıxarılır...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» qaralamalara keçirildi.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "text": "Kart dərc olunur...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» dərc olundu və saytda görünür.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "place",
+    "detail": {
+      "text": "Nəşrdən çıxarılır...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» qaralamalara keçirildi.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "place",
+    "detail": {
+      "text": "Kart dərc olunur...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» dərc olundu və saytda görünür.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "model": "place",
+    "detail": {
+      "text": "Nəşrdən çıxarılır...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» qaralamalara keçirildi.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "model": "place",
+    "detail": {
+      "text": "Kart dərc olunur...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» dərc olundu və saytda görünür.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "model": "place",
+    "detail": {
+      "text": "Nəşrdən çıxarılır...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» qaralamalara keçirildi.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "model": "place",
+    "detail": {
+      "text": "Kart dərc olunur...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» dərc olundu və saytda görünür.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "model": "place",
+    "detail": {
+      "text": "Nəşrdən çıxarılır...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» qaralamalara keçirildi.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "model": "place",
+    "detail": {
+      "text": "Kart dərc olunur...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» dərc olundu və saytda görünür.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 0",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "actual": "0 kart tapıldı",
+      "q": "QA Copy No Match",
+      "expected": "0 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 1",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "actual": "1 kart tapıldı",
+      "q": "QA Copy Pair 1",
+      "expected": "1 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 2",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "actual": "2 kart tapıldı",
+      "q": "QA Copy Pair",
+      "expected": "2 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 created metadata localized",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "metadata": [
+        "16.10 13:34Fictional QA0911 admin · YaradılıbYaradılıb: 16.10.2026",
+        "16.10 13:34Fictional QA0911 admin · YaradılıbYaradılıb: 16.10.2026"
+      ]
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native reset removes search",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 0",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "event",
+    "detail": {
+      "actual": "0 kart tapıldı",
+      "q": "QA Copy No Match",
+      "expected": "0 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 1",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "event",
+    "detail": {
+      "actual": "1 kart tapıldı",
+      "q": "QA Copy Pair 1",
+      "expected": "1 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 2",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "event",
+    "detail": {
+      "actual": "2 kart tapıldı",
+      "q": "QA Copy Pair",
+      "expected": "2 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 filter preserves search",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native reset removes search",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 0",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "specialist",
+    "detail": {
+      "actual": "0 kart tapıldı",
+      "q": "QA Copy No Match",
+      "expected": "0 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 1",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "specialist",
+    "detail": {
+      "actual": "1 kart tapıldı",
+      "q": "QA Copy Pair 1",
+      "expected": "1 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 2",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "specialist",
+    "detail": {
+      "actual": "2 kart tapıldı",
+      "q": "QA Copy Pair",
+      "expected": "2 kart tapıldı",
+      "selectedLanguage": "az"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 filter preserves search",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native reset removes search",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "text": "Nəşrdən çıxarılır...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» qaralamalara keçirildi.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "text": "Kart dərc olunur...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "text": "«QA <img src=x onerror=alert(1)> \"$&\" listing» dərc olundu və saytda görünür.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-az.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 0",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "actual": "Listings found: 0",
+      "q": "QA Copy No Match",
+      "expected": "Listings found: 0",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 1",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "actual": "Listings found: 1",
+      "q": "QA Copy Pair 1",
+      "expected": "Listings found: 1",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 2",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "actual": "Listings found: 2",
+      "q": "QA Copy Pair",
+      "expected": "Listings found: 2",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 created metadata localized",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "metadata": [
+        "16.10 13:34Fictional QA0911 admin · CreatedCreated: 16.10.2026",
+        "16.10 13:34Fictional QA0911 admin · CreatedCreated: 16.10.2026"
+      ]
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native reset removes search",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 0",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "event",
+    "detail": {
+      "actual": "Listings found: 0",
+      "q": "QA Copy No Match",
+      "expected": "Listings found: 0",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 1",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "event",
+    "detail": {
+      "actual": "Listings found: 1",
+      "q": "QA Copy Pair 1",
+      "expected": "Listings found: 1",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 2",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "event",
+    "detail": {
+      "actual": "Listings found: 2",
+      "q": "QA Copy Pair",
+      "expected": "Listings found: 2",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 filter preserves search",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native reset removes search",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 0",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "specialist",
+    "detail": {
+      "actual": "Listings found: 0",
+      "q": "QA Copy No Match",
+      "expected": "Listings found: 0",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 1",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "specialist",
+    "detail": {
+      "actual": "Listings found: 1",
+      "q": "QA Copy Pair 1",
+      "expected": "Listings found: 1",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 2",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "specialist",
+    "detail": {
+      "actual": "Listings found: 2",
+      "q": "QA Copy Pair",
+      "expected": "Listings found: 2",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 filter preserves search",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native reset removes search",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "text": "Unpublishing...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "text": "“QA <img src=x onerror=alert(1)> \"$&\" listing” moved to drafts.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "text": "Publishing listing...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "place",
+    "detail": {
+      "text": "“QA <img src=x onerror=alert(1)> \"$&\" listing” is published and visible on the site.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "place",
+    "detail": {
+      "text": "Unpublishing...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "place",
+    "detail": {
+      "text": "“QA <img src=x onerror=alert(1)> \"$&\" listing” moved to drafts.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "place",
+    "detail": {
+      "text": "Publishing listing...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "place",
+    "detail": {
+      "text": "“QA <img src=x onerror=alert(1)> \"$&\" listing” is published and visible on the site.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "model": "place",
+    "detail": {
+      "text": "Unpublishing...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "model": "place",
+    "detail": {
+      "text": "“QA <img src=x onerror=alert(1)> \"$&\" listing” moved to drafts.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "model": "place",
+    "detail": {
+      "text": "Publishing listing...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "model": "place",
+    "detail": {
+      "text": "“QA <img src=x onerror=alert(1)> \"$&\" listing” is published and visible on the site.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "model": "place",
+    "detail": {
+      "text": "Unpublishing...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "model": "place",
+    "detail": {
+      "text": "“QA <img src=x onerror=alert(1)> \"$&\" listing” moved to drafts.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "model": "place",
+    "detail": {
+      "text": "Publishing listing...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "model": "place",
+    "detail": {
+      "text": "“QA <img src=x onerror=alert(1)> \"$&\" listing” is published and visible on the site.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "model": "place",
+    "detail": {
+      "text": "Unpublishing...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "model": "place",
+    "detail": {
+      "text": "“QA <img src=x onerror=alert(1)> \"$&\" listing” moved to drafts.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "model": "place",
+    "detail": {
+      "text": "Publishing listing...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "model": "place",
+    "detail": {
+      "text": "“QA <img src=x onerror=alert(1)> \"$&\" listing” is published and visible on the site.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 0",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "actual": "Listings found: 0",
+      "q": "QA Copy No Match",
+      "expected": "Listings found: 0",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 1",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "actual": "Listings found: 1",
+      "q": "QA Copy Pair 1",
+      "expected": "Listings found: 1",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 2",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "actual": "Listings found: 2",
+      "q": "QA Copy Pair",
+      "expected": "Listings found: 2",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 created metadata localized",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "metadata": [
+        "16.10 13:34Fictional QA0911 admin · CreatedCreated: 16.10.2026",
+        "16.10 13:34Fictional QA0911 admin · CreatedCreated: 16.10.2026"
+      ]
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native reset removes search",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 0",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "event",
+    "detail": {
+      "actual": "Listings found: 0",
+      "q": "QA Copy No Match",
+      "expected": "Listings found: 0",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 1",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "event",
+    "detail": {
+      "actual": "Listings found: 1",
+      "q": "QA Copy Pair 1",
+      "expected": "Listings found: 1",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 2",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "event",
+    "detail": {
+      "actual": "Listings found: 2",
+      "q": "QA Copy Pair",
+      "expected": "Listings found: 2",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 filter preserves search",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native reset removes search",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "event",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 0",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "specialist",
+    "detail": {
+      "actual": "Listings found: 0",
+      "q": "QA Copy No Match",
+      "expected": "Listings found: 0",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 1",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "specialist",
+    "detail": {
+      "actual": "Listings found: 1",
+      "q": "QA Copy Pair 1",
+      "expected": "Listings found: 1",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native count 2",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "specialist",
+    "detail": {
+      "actual": "Listings found: 2",
+      "q": "QA Copy Pair",
+      "expected": "Listings found: 2",
+      "selectedLanguage": "en"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 keyboard reaches disclosed fields",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 filter preserves search",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-09 native reset removes search",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "specialist",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 approve no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 return no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject exact escaped reason",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reject no repeat actions and no overflow",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "hub",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 active language correct",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 confirmation traps keyboard",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 draft loading localized and busy",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "text": "Unpublishing...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real draft success and literal name",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "text": "“QA <img src=x onerror=alert(1)> \"$&\" listing” moved to drafts.",
+      "status": 200,
+      "actualState": "draft"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 published loading localized and busy",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "text": "Publishing listing...",
+      "transport": "SIMULATED delay only; real POST released afterward"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 real published success and literal name",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "place",
+    "detail": {
+      "text": "“QA <img src=x onerror=alert(1)> \"$&\" listing” is published and visible on the site.",
+      "status": 200,
+      "actualState": "published"
+    },
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 reload preserves published state",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 all note/domain rows unchanged by GET",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "place",
+    "detail": {},
+    "evidence": "green-v4-en.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 360,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 768,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1024,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1280,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 1440,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 360,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 768,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1024,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1280,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "az",
+    "width": 1440,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 360,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 768,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1024,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1280,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer approve readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer return readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer reject readable escaped read-only",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 volunteer denied or redirected",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 staff denied or redirected",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 anonymous denied or redirected",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-11 reviewer and denied GETs preserve domain",
+    "status": "PASS",
+    "lang": "en",
+    "width": 1440,
+    "model": "reviewer-note",
+    "detail": {},
+    "evidence": "green-roles-v2.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 Escape cancels with focus and no POST",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {},
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 Cancel preserves state without POST",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {},
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 SIMULATED network error releases busy state",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {
+      "transport": "SIMULATED route.abort; no backend mutation"
+    },
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 actual retry draft succeeds",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {},
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 actual retry published succeeds",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {},
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 incomplete listing blocked without POST",
+    "status": "PASS",
+    "lang": "ru",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {
+      "guard": "actual native disabled control; no fabricated backend response"
+    },
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 Escape cancels with focus and no POST",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {},
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 Cancel preserves state without POST",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {},
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 SIMULATED network error releases busy state",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {
+      "transport": "SIMULATED route.abort; no backend mutation"
+    },
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 actual retry draft succeeds",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {},
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 actual retry published succeeds",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {},
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 incomplete listing blocked without POST",
+    "status": "PASS",
+    "lang": "az",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {
+      "guard": "actual native disabled control; no fabricated backend response"
+    },
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 Escape cancels with focus and no POST",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {},
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 Cancel preserves state without POST",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {},
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 SIMULATED network error releases busy state",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {
+      "transport": "SIMULATED route.abort; no backend mutation"
+    },
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 actual retry draft succeeds",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {},
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 actual retry published succeeds",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {},
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 incomplete listing blocked without POST",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {
+      "guard": "actual native disabled control; no fabricated backend response"
+    },
+    "evidence": "green-guards-v4.js.result.json"
+  },
+  {
+    "id": "MOD-QA-10 guards preserve non-target domain",
+    "status": "PASS",
+    "lang": "en",
+    "width": 390,
+    "model": "publication-guards",
+    "detail": {},
+    "evidence": "green-guards-v4.js.result.json"
+  }
+]

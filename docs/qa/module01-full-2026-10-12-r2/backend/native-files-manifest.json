@@ -1,0 +1,47 @@
+[
+  {
+    "path": ".tmp/module01-full-2026-10-12-r2/backend/native-files/fixture.jpg",
+    "mime": "image/jpeg",
+    "intent": "accepted normalize"
+  },
+  {
+    "path": ".tmp/module01-full-2026-10-12-r2/backend/native-files/fixture.png",
+    "mime": "image/png",
+    "intent": "accepted normalize"
+  },
+  {
+    "path": ".tmp/module01-full-2026-10-12-r2/backend/native-files/fixture.webp",
+    "mime": "image/webp",
+    "intent": "accepted normalize"
+  },
+  {
+    "path": ".tmp/module01-full-2026-10-12-r2/backend/native-files/fixture.heif",
+    "mime": "image/heif",
+    "intent": "accepted normalize"
+  },
+  {
+    "path": ".tmp/module01-full-2026-10-12-r2/backend/native-files/fixture.gif",
+    "mime": "image/gif",
+    "intent": "unsupported rejection"
+  },
+  {
+    "path": ".tmp/module01-full-2026-10-12-r2/backend/native-files/empty.png",
+    "intent": "empty rejection"
+  },
+  {
+    "path": ".tmp/module01-full-2026-10-12-r2/backend/native-files/corrupt.png",
+    "intent": "corrupt rejection"
+  },
+  {
+    "path": ".tmp/module01-full-2026-10-12-r2/backend/native-files/over15MiB.png",
+    "intent": "source15MiB gate"
+  },
+  {
+    "path": ".tmp/module01-full-2026-10-12-r2/backend/native-files/over-side.png",
+    "intent": "overlimit header, reject before decode"
+  },
+  {
+    "path": ".tmp/module01-full-2026-10-12-r2/backend/native-files/over-pixels.png",
+    "intent": "overlimit header, reject before decode"
+  }
+]

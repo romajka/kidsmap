@@ -1,0 +1,28 @@
+{
+  "actors": {
+    "admin": "qa_mod02_admin",
+    "reviewer": "qa_mod02_reviewer",
+    "volunteer": "qa_mod02_volunteer",
+    "bare": "qa_mod02_bare"
+  },
+  "place_id": 1,
+  "revision_id": 1,
+  "candidate_version": 2,
+  "draft_version": 1,
+  "changed_fields": [
+    "cover_photo",
+    "gallery",
+    "photo"
+  ],
+  "media": {
+    "live-main": "places/mod02-live-main.webp",
+    "live-cover": "places/mod02-live-cover.webp",
+    "live-gallery-1": "places/mod02-live-gallery-1.webp",
+    "live-gallery-2": "places/mod02-live-gallery-2.webp",
+    "candidate-main": "places/mod02-candidate-main.webp",
+    "candidate-cover": "places/mod02-candidate-cover.webp",
+    "candidate-gallery-1": "places/mod02-candidate-gallery-1.webp",
+    "candidate-gallery-2": "places/mod02-candidate-gallery-2.webp"
+  },
+  "setup": "initial synthetic files/live place, canonical service draft then submit. Native author upload flow NOT RUN in PLAN; required after approved patch."
+}

@@ -359,7 +359,6 @@ def _build_sidebar_sections(request, *, metrics: dict[str, int]) -> list[dict]:
             "icon": "far fa-folder-open",
             "items": [
                 _build_sidebar_item(request, model=Organization, label=_("Организации"), icon="fas fa-building", status_label=_("Скрыто на сайте") if not is_organizations_section_enabled() else ""),
-                _build_sidebar_item(request, model=Place, label=_("Филиалы и места"), icon="fas fa-map-marker-alt", query_params="is_temporary__exact=0"),
                 _build_sidebar_item(request, model=Program, label=_("Общие программы"), icon="fas fa-book-open"),
                 _build_sidebar_item(request, model=Activity, label=_("Занятия"), icon="fas fa-chalkboard-teacher"),
                 _build_sidebar_item(request, model=OfferingGroup, label=_("Группы и тарифы"), icon="fas fa-users"),
@@ -555,6 +554,21 @@ def _build_sidebar_sections(request, *, metrics: dict[str, int]) -> list[dict]:
         },
     ]
 
+    from django.apps import apps
+    account_items=[]
+    for app_label, model_name, icon in (
+        ('account','EmailAddress','fas fa-envelope'),
+        ('socialaccount','SocialAccount','fas fa-id-badge'),
+        ('socialaccount','SocialApp','fas fa-th'),
+        ('socialaccount','SocialToken','fas fa-fingerprint'),
+    ):
+        try: model=apps.get_model(app_label,model_name)
+        except LookupError: continue
+        account_items.append(_build_sidebar_item(request,model=model,label=model._meta.verbose_name_plural,icon=icon))
+    try: account_label=apps.get_app_config('account').verbose_name
+    except LookupError: account_label=_('Аккаунты')
+    raw_sections.append({'key':'accounts','label':account_label,'icon':'fas fa-key','items':account_items})
+
     sections: list[dict] = []
     for section in raw_sections:
         items = [item for item in section["items"] if item]
@@ -611,6 +625,8 @@ def _kidsmap_each_context(self, request):
             'items': [{'label': t('Сроки модерации', 'Moderasiya müddətləri', 'Moderation deadlines'), 'url': reverse('admin:moderation_sla'),
                        'icon': 'fas fa-clock', 'active': getattr(request.resolver_match, 'url_name', '') == 'moderation_sla'}],
         })
+    for section in context['kidsmap_sidebar_sections']:
+        section['active']=any(item.get('active',False) for item in section['items'])
     return context
 
 

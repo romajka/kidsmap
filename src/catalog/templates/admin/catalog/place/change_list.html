@@ -262,6 +262,15 @@
       <button type="button" class="km-toast__undo" id="km-toast-undo">{% translate "Отменить" %}</button>
     </div>
     <div id="km-changelist-i18n" hidden
+      data-unpublish-title="{% translate 'Снять с публикации?' %}"
+      data-unpublish-message="{% blocktranslate with name='%(name)s' %}Карточка «{{ name }}» перестанет отображаться на сайте и перейдёт в черновики.{% endblocktranslate %}"
+      data-unpublish-confirm="{% translate 'Да, снять' %}"
+      data-unpublish-cancel="{% translate 'Отмена' %}"
+      data-unpublish-fallback="{% blocktranslate with name='%(name)s' %}Снять карточку «{{ name }}» с публикации?{% endblocktranslate %}"
+      data-publication-unpublish-loading="{% translate 'Снятие с публикации...' %}"
+      data-publication-publish-loading="{% translate 'Публикация карточки...' %}"
+      data-publication-unpublish-success="{% blocktranslate with name='%(name)s' %}«{{ name }}» переведена в черновики.{% endblocktranslate %}"
+      data-publication-publish-success="{% blocktranslate with name='%(name)s' %}«{{ name }}» опубликована и видна на сайте.{% endblocktranslate %}"
       data-selected-label="{% translate 'Выбрано' %}"
       data-readiness-label="{% translate 'Готовность' %}"
       data-items-label="{% translate 'пунктов' %}"

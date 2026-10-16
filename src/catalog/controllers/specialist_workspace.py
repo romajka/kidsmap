@@ -479,6 +479,8 @@ def specialist_workspace_certificates(request, pk):
             else:
                 raise ValidationError(_("Неизвестное действие."))
         except ValidationError as exc:
+            if action == 'upload' and getattr(exc, 'code', '') == 'invalid_document':
+                form.add_error('file', exc)
             error = _error_context(exc); status = _error_status(exc)
     return render(request, 'pages/specialist_workspace.html', _context(request, mode='certificates',
         specialist=person, upload_form=form, documents=_document_cards(person.documents.all(), actor, True),

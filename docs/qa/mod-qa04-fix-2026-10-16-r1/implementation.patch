@@ -1,0 +1,185 @@
+--- a/static/admin/js/kidsmap_admin_sidebar.js
++++ b/static/admin/js/kidsmap_admin_sidebar.js
+@@ -74,6 +74,51 @@
+     });
+   }
+ 
++  function initSidebarDismissal() {
++    var sidebar = document.querySelector('.main-sidebar');
++    var opener = document.querySelector('.km-admin-header__toggle[data-widget="pushmenu"]');
++    if (!sidebar || !opener) return;
++    var close = sidebar.querySelector('[data-km-sidebar-close]');
++
++    function expanded() {
++      return window.innerWidth < 768
++        ? document.body.classList.contains('sidebar-open')
++        : !document.body.classList.contains('sidebar-collapse');
++    }
++
++    function sync() {
++      opener.setAttribute('aria-expanded', expanded() ? 'true' : 'false');
++    }
++
++    function restoreFocus() {
++      window.requestAnimationFrame(function () {
++        opener.focus({preventScroll: true});
++      });
++    }
++
++    function dismiss() {
++      if (!expanded()) return;
++      opener.click();
++      restoreFocus();
++    }
++
++    opener.setAttribute('aria-controls', sidebar.id);
++    if (close) close.addEventListener('click', dismiss);
++    document.addEventListener('keydown', function (event) {
++      if (event.key !== 'Escape' || event.defaultPrevented || !expanded()) return;
++      if (window.innerWidth >= 768 && !sidebar.contains(document.activeElement)
++          && document.activeElement !== opener) return;
++      event.preventDefault();
++      dismiss();
++    });
++    document.addEventListener('click', function (event) {
++      if (event.target.id === 'sidebar-overlay') restoreFocus();
++    });
++    new MutationObserver(sync).observe(document.body, {attributes: true, attributeFilter: ['class']});
++    window.addEventListener('resize', sync);
++    sync();
++  }
++
+   function syncSearchClearButton(input) {
+     var button = input.parentElement.querySelector("[data-km-admin-search-clear]");
+     if (button) {
+@@ -121,6 +166,12 @@
+   }
+ 
+   if (document.readyState === "loading") {
++    document.addEventListener("DOMContentLoaded", initSidebarDismissal);
++  } else {
++    initSidebarDismissal();
++  }
++
++  if (document.readyState === "loading") {
+     document.addEventListener("DOMContentLoaded", initSidebarGroups);
+   } else {
+     initSidebarGroups();
+--- a/src/catalog/templates/admin/catalog/includes/sidebar_navigation.html
++++ b/src/catalog/templates/admin/catalog/includes/sidebar_navigation.html
+@@ -6,6 +6,11 @@
+                     class="{{ jazzmin_settings.site_logo_classes }} brand-image elevation-3" style="opacity: .92">
+                 <span class="brand-text font-weight-light">{{ jazzmin_settings.site_brand }}</span>
+             </a>
++
++            <button type="button" class="km-admin-sidebar__close km-admin-header__toggle"
++                data-km-sidebar-close aria-controls="jazzy-sidebar" aria-label="{% translate 'Закрыть' %}">
++                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg>
++            </button>
+ 
+             <div class="sidebar">
+                 <div class="km-admin-sidebar__shell">
+--- a/static/admin/css/pages/kidsmap_admin_sidebar.css
++++ b/static/admin/css/pages/kidsmap_admin_sidebar.css
+@@ -6,6 +6,28 @@
+   background: linear-gradient(180deg, #101923 0%, #0f1720 100%);
+   border-right: 1px solid rgba(148, 163, 184, 0.18);
+   overflow: hidden;
++}
++
++.km-admin-sidebar .km-admin-sidebar__close {
++  display: none !important;
++}
++
++.km-admin-header__toggle:focus-visible,
++.km-admin-sidebar__close:focus-visible {
++  outline: 2px solid var(--km-admin-primary) !important;
++  outline-offset: 3px;
++}
++
++@media (max-width: 767px) {
++  .km-admin-sidebar .km-admin-sidebar__close {
++    display: inline-flex !important;
++    position: absolute;
++    top: 12px;
++    right: 12px;
++    z-index: 2;
++    background: var(--km-admin-surface) !important;
++    color: var(--km-admin-text) !important;
++  }
+ }
+ 
+ .km-admin-sidebar .brand-link {
+--- /dev/null
++++ b/src/catalog/testcases/test_admin_sidebar_escape.py
+@@ -0,0 +1,70 @@
++"""A rendered, named close control must coexist with permission-filtered links."""
++from html.parser import HTMLParser
++
++from django.contrib.auth import get_user_model
++from django.contrib.auth.models import Permission
++from django.conf import settings
++from django.test import TestCase
++
++
++class SidebarControls(HTMLParser):
++    def __init__(self, html):
++        super().__init__(convert_charrefs=True)
++        self.inside = False
++        self.close = []
++        self.links = []
++        self.feed(html)
++
++    def handle_starttag(self, tag, attrs):
++        attrs = dict(attrs)
++        if tag == 'aside' and attrs.get('id') == 'jazzy-sidebar':
++            self.inside = True
++        if self.inside and tag == 'button' and 'data-km-sidebar-close' in attrs:
++            self.close.append(attrs)
++        if self.inside and tag == 'a':
++            self.links.append(attrs.get('href', ''))
++
++    def handle_endtag(self, tag):
++        if tag == 'aside':
++            self.inside = False
++
++
++class AdminSidebarEscapeTests(TestCase):
++    @classmethod
++    def setUpTestData(cls):
++        cls.admin = get_user_model().objects.create_superuser('escape-admin', 'escape@example.invalid', 'synthetic')
++        cls.reader = get_user_model().objects.create_user('escape-reader', is_staff=True)
++        cls.reader.user_permissions.add(Permission.objects.get(codename='view_specialist', content_type__app_label='catalog'))
++
++    def page(self, lang, surface=''):
++        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = lang
++        prefix = '' if lang == 'az' else '/' + lang
++        response = self.client.get(prefix + '/admin/' + surface)
++        self.assertEqual(response.status_code, 200)
++        self.assertEqual(response.wsgi_request.LANGUAGE_CODE, lang)
++        return SidebarControls(response.content.decode())
++
++    def assert_named_close(self, controls, lang):
++        self.assertEqual(len(controls.close), 1)
++        close = controls.close[0]
++        self.assertEqual(close['type'], 'button')
++        self.assertEqual(close['aria-controls'], 'jazzy-sidebar')
++        self.assertEqual(close['aria-label'], {'ru': 'Закрыть', 'az': 'Bağla', 'en': 'Close'}[lang])
++        self.assertNotIn('data-widget', close)  # One local click path, no duplicate vendor toggle.
++
++    def test_dashboard_and_place_render_one_localized_close_control(self):
++        self.client.force_login(self.admin)
++        for lang in ('ru', 'az', 'en'):
++            for surface in ('', 'catalog/place/'):
++                with self.subTest(lang=lang, surface=surface):
++                    self.assert_named_close(self.page(lang, surface), lang)
++
++    def test_limited_staff_keeps_only_authorized_model_links_and_named_close(self):
++        self.client.force_login(self.reader)
++        for lang in ('ru', 'az', 'en'):
++            with self.subTest(lang=lang):
++                controls = self.page(lang)
++                self.assertTrue(any(url.endswith('/admin/catalog/specialist/') for url in controls.links))
++                self.assertFalse(any(url.endswith('/admin/auth/user/') for url in controls.links))
++                self.assertFalse(any(url.endswith('/admin/catalog/place/') for url in controls.links))
++                self.assert_named_close(controls, lang)

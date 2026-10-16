@@ -1,0 +1,143 @@
+{
+  "rows": [
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "initial own invitation count zero",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "member has one actual accept form",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "member native accept",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "owner native cancel retained in list",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "own local mail tick",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 2
+        },
+        "scheduler": "SIMULATED manual tick, actual own filebased email"
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup",
+      "name": "native setup states",
+      "status": "PASS",
+      "detail": {
+        "invitations": 3,
+        "statuses": [
+          "ACCEPTED",
+          "CANCELED",
+          "PENDING"
+        ],
+        "memberships": [
+          {
+            "id": 1,
+            "role": "EDITOR",
+            "version": 1,
+            "active": true
+          }
+        ]
+      }
+    }
+  ],
+  "completedCells": [
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "native synthetic fixture setup"
+    }
+  ],
+  "diagnostics": {
+    "console": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "pageerrors": [],
+    "requestFailures": [
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "badResponses": []
+  },
+  "error": null,
+  "browser": "149.0.7827.55",
+  "mode": "PLAN recheck only, expected geometry FAIL retained; no CSS/DOM fix injected"
+}

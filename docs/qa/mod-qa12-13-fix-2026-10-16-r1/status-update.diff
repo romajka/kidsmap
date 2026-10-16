@@ -1,0 +1,20 @@
+--- a/docs/qa/continuation-and-repair-prompts-2026-10-11.md
++++ b/docs/qa/continuation-and-repair-prompts-2026-10-11.md
+@@ -83,6 +83,8 @@
+ 
+ - Module08 MOD-QA-09–11 **CLOSED LOCAL / модуль остаётся LOCAL FAIL**, 2026-10-16: [новый REPORT](mod-qa09-11-fix-2026-10-16-r1/REPORT.md), [verification](mod-qa09-11-fix-2026-10-16-r1/verification.json). Одобренные9app/testfiles; meaningfulRED→13targeted/sharedbackendPASS,433acceptedbrowserPASS,18primary+18reviewer cells RU/AZ/EN×6widths,294PNG включая RED/candidate/history. Полный261backendcorpus не повторён. Новые [MOD12/13 OPEN и точные планы](mod-qa09-11-fix-2026-10-16-r1/FINDINGS.md): конфликт legacyCSS и блокировка очереди уведомлений; candidates не применены, требуется отдельное одобрение3unique files. Пользователь разрешил push/сервер **после готовности модуля**; условие ещё не выполнено, production/commit/push/deploy NOT RUN. Не начинать09; active_runNONE/foreignwork сохранены.
+ 
++- Module08 **LOCAL PASS — итог ACCEPT-08**, 2026-10-16: [финальный REPORT](module08-accept-2026-10-16-r2/REPORT.md), [verification](module08-accept-2026-10-16-r2/verification.json), [последние MOD12/13](mod-qa12-13-fix-2026-10-16-r1/REPORT.md). MOD01–13 CLOSED LOCAL в записанном scope. Полный261backendPASS выполнен один раз; после новых причин сохранён и дополнен13targetedDjangoPASS,4NodeGREEN,433nativePASS для09–11 и341nativePASS для12/13 (18cells,74actualPOST,безручногоочищенияочереди). Source965,956unchanged common source+5covered changes+4newtests;3PO отдельно проверены. ЧужиеWORKTREE/4QAHTTP/74containers/active_runNONE сохранены. Global/physical/cross-browser/production не приняты этимLOCALPASS. Пользователь разрешилGitpush/сервер после готовности модуля: теперь отдельная release phase, безавтоматическогоmodule09.
++
+ ## Сколько задач осталось и как идти
+ 
+ Историческая сверка: 81 ID /77 групп причин. Module13 добавил 3 новых CROSS ID: всего 84 уникальных ID. PLACE-QA-08 — alias CROSS-QA-03, не 85-й дефект. Из очереди исключены PLACE-QA-01–07 и CROSS-QA-03: **76 оставшихся ID /73 группы**. Это очередь для свежего recheck, а не подтверждение 76 текущих неисправностей или полного покрытия продукта.
+@@ -100,7 +102,7 @@
+ | 05 Программы, занятия, группы, тарифы и расписание | 8 | 8 | [Задачи](#m05) · [ACCEPT-05](#accept05) |
+ | 06 Публичный каталог, поиск, фильтры и карта | 4 | 3 | [Задачи](#m06) · [ACCEPT-06](#accept06) |
+ | 07 Аккаунты, команда, права и приватность | 5 | 4 | [Задачи](#m07) · [ACCEPT-07](#accept07) · [LOCAL PASS:01–06](module07-accept-2026-10-15-r2/REPORT.md) · [исторический full-r1](module07-full-2026-10-15-r1/REPORT.md) |
+-| 08 Админка, модерация и волонтёрский кабинет | 0 исторических;MOD12/13 OPEN | 2новых PLAN | [текущий LOCAL FAIL](mod-qa09-11-fix-2026-10-16-r1/REPORT.md) · [планы12/13](mod-qa09-11-fix-2026-10-16-r1/FINDINGS.md) · MOD01–11 CLOSED LOCAL scoped; full261PASS сохранён |
++| 08 Админка, модерация и волонтёрский кабинет | 0 OPEN в проверенном scope;MOD01–13 CLOSED LOCAL | 0 | [ACCEPT-08 LOCAL PASS](module08-accept-2026-10-16-r2/REPORT.md) · [verification](module08-accept-2026-10-16-r2/verification.json) · full261 once +targeted supplements |
+ | 09 Отзывы, избранное и уведомления | 9 | 9 | [Задачи](#m09) · [ACCEPT-09](#accept09) |
+ | 10 Настройки, разделы и общие страницы | 15 | 14 | [Задачи](#m10) · [ACCEPT-10](#accept10) |
+ | 11 SEO, языковые URL и redirects | 7 | 7 | [Задачи](#m11) · [ACCEPT-11](#accept11) |

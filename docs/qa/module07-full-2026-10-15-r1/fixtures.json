@@ -1,0 +1,142 @@
+{
+  "actors": {
+    "author": {
+      "id": 1,
+      "username": "qa07_author",
+      "email": "author07@example.invalid"
+    },
+    "person": {
+      "id": 2,
+      "username": "qa07_person",
+      "email": "person07@example.invalid"
+    },
+    "owner": {
+      "id": 3,
+      "username": "qa07_owner",
+      "email": "owner07@example.invalid"
+    },
+    "network": {
+      "id": 4,
+      "username": "qa07_network",
+      "email": "network07@example.invalid"
+    },
+    "employee": {
+      "id": 5,
+      "username": "qa07_employee",
+      "email": "employee07@example.invalid"
+    },
+    "outsider": {
+      "id": 6,
+      "username": "qa07_outsider",
+      "email": "outsider07@example.invalid"
+    },
+    "invitee": {
+      "id": 7,
+      "username": "qa07_invitee",
+      "email": "invitee07@example.invalid"
+    },
+    "rejectee": {
+      "id": 8,
+      "username": "qa07_rejectee",
+      "email": "rejectee07@example.invalid"
+    },
+    "cancelled": {
+      "id": 9,
+      "username": "qa07_cancelled",
+      "email": "cancelled07@example.invalid"
+    },
+    "volunteer": {
+      "id": 10,
+      "username": "qa07_volunteer",
+      "email": "volunteer07@example.invalid"
+    },
+    "volunteer_b": {
+      "id": 11,
+      "username": "qa07_volunteer_b",
+      "email": "volunteer_b07@example.invalid"
+    },
+    "moderator": {
+      "id": 12,
+      "username": "qa07_moderator",
+      "email": "moderator07@example.invalid"
+    },
+    "reviewer": {
+      "id": 13,
+      "username": "qa07_reviewer",
+      "email": "reviewer07@example.invalid"
+    },
+    "staff": {
+      "id": 14,
+      "username": "qa07_staff",
+      "email": "staff07@example.invalid"
+    },
+    "admin": {
+      "id": 15,
+      "username": "qa07_admin",
+      "email": "admin07@example.invalid"
+    },
+    "delete_cancel": {
+      "id": 16,
+      "username": "qa07_delete_cancel",
+      "email": "delete_cancel07@example.invalid"
+    },
+    "delete_final": {
+      "id": 17,
+      "username": "qa07_delete_final",
+      "email": "delete_final07@example.invalid"
+    },
+    "expired": {
+      "id": 18,
+      "username": "qa07_expired",
+      "email": "expired07@example.invalid"
+    }
+  },
+  "places": {
+    "owner": 1,
+    "other": 2,
+    "author": 3,
+    "volunteer": 4,
+    "volunteer_b": 5,
+    "delete_cancel": 6,
+    "delete_final": 7,
+    "branch": 8
+  },
+  "organization": 1,
+  "membership": 1,
+  "organization_grant": 1,
+  "specialist": 1,
+  "other_specialist": 2,
+  "documents": {
+    "identity": {
+      "id": 1,
+      "path": "specialist-documents/d9be52f92d1c46adaf29ced05a679197.bin",
+      "public_eligibility": false
+    },
+    "private_certificate": {
+      "id": 2,
+      "path": "specialist-documents/be1847ea172e48e7b15d5966b31c0043.bin",
+      "public_eligibility": false
+    },
+    "public_certificate": {
+      "id": 3,
+      "path": "specialist-documents/9779a233cdf4401c8dee3d06e714ad12.bin",
+      "public_eligibility": true
+    },
+    "no_consent": {
+      "id": 4,
+      "path": "specialist-documents/558d40456c4b4903a3b8e53fe7336014.bin",
+      "public_eligibility": false
+    },
+    "pending_certificate": {
+      "id": 5,
+      "path": "specialist-documents/2bdbc2e5cd984c41ad91219a724924ca.bin",
+      "public_eligibility": false
+    },
+    "other_identity": {
+      "id": 6,
+      "path": "specialist-documents/3ffef79da68743d6bee1b9547058260d.bin",
+      "public_eligibility": false
+    }
+  },
+  "synthetic_only": true
+}

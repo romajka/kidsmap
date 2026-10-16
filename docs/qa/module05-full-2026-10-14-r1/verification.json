@@ -1,0 +1,34 @@
+{
+  "module": "05",
+  "decision": "FAIL \u2014 OFFER-QA-10 OPEN",
+  "functional_backend": "PASS in executed334-method phase",
+  "accepted_native_assertions": 1006,
+  "final_native_enum_diagnostic": "1PASS/2FAIL; nine labels in each ofAZ/EN",
+  "open_findings": [
+    "OFFER-QA-10"
+  ],
+  "closed_scoped_ids": [
+    "OFFER-QA-01",
+    "OFFER-QA-02",
+    "OFFER-QA-03",
+    "OFFER-QA-04",
+    "OFFER-QA-05",
+    "OFFER-QA-06",
+    "OFFER-QA-07",
+    "OFFER-QA-08",
+    "OFFER-QA-09"
+  ],
+  "full_current_checkout_runtime": "BLOCKED current PO drift: v3 duplicate compile failed, v4 compiled but became stale before setup; prior MATCH is phased evidence",
+  "current_source_hashes": {
+    "src/catalog/services/volunteer_places.py": "3b814e2803d7feef9bdf23e6e29918b06fc18a2280a7f3605561cd8bd5fdccad",
+    "static/js/owner_place_continuous.js": "8a9704aa86fc476d6b80eb3b52435c5392e71256e9a69c32b96aad89c82e076f"
+  },
+  "shared_MO_preserved": true,
+  "active_run": "NONE preserved",
+  "foreign_changes": "preserved; hashes/paths in drift reports, no revert",
+  "owned_runtime": "latest v4 startup rejected stale locale manifest; process exited; own PostgreSQL retained",
+  "PNG": 239,
+  "native_Program_archive": "NOT RUN/not exposed in supported UI; nativeActivity/Group archives accepted",
+  "production": "NOT RUN",
+  "next_plan": "docs/superpowers/plans/2026-10-14-offer-qa10-tariff-enum-localization.md"
+}

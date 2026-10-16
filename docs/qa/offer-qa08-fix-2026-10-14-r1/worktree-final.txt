@@ -1,0 +1,121 @@
+ M docs/qa/continuation-and-repair-prompts-2026-10-11.md
+ M docs/qa/module-acceptance-prompts.md
+ M locale/az/LC_MESSAGES/django.po
+ M locale/en/LC_MESSAGES/django.po
+ M locale/ru/LC_MESSAGES/django.po
+ M requirements.txt
+ M src/catalog/controllers/organization_workspace.py
+ M src/catalog/controllers/program_workspace.py
+ M src/catalog/controllers/specialist_workspace.py
+ M src/catalog/domain_admin/place.py
+ M src/catalog/forms.py
+ M src/catalog/photo_views.py
+ M src/catalog/services/permanent_place_wizard.py
+ M src/catalog/services/pricing_plans.py
+ M src/catalog/services/publication.py
+ M src/catalog/services/server_drafts.py
+ M src/catalog/services/specialist_documents.py
+ M src/catalog/templates/admin/catalog/place/change_form.html
+ M src/catalog/templates/pages/organization_workspace.html
+ M src/catalog/templates/pages/program_editor.html
+ M src/catalog/testcases/specialists.py
+ M src/catalog/testcases/test_task33_specialist_db_review.py
+ M src/catalog/testcases/test_task33_specialist_screens_security.py
+ M src/catalog/testcases/test_task33_specialist_workspace.py
+ M src/catalog/views.py
+ M static/admin/css/kidsmap_admin_components.css
+ M static/admin/css/pages/kidsmap_changelist.css
+ M static/admin/css/pages/kidsmap_place_form.css
+ M static/admin/js/kidsmap_admin_form_shell.js
+ M static/admin/js/kidsmap_event_readiness.js
+ M static/admin/js/kidsmap_notifications.js
+ M static/admin/js/kidsmap_place_form.js
+ M static/css/components/kidsmap_schedule_editor.css
+ M static/css/pages/organization_workspace.css
+ M static/css/pages/owner_place_continuous.css
+ M static/css/pages/specialists.css
+ M static/js/organization_workspace.js
+ M static/js/owner_place_continuous.js
+ M static/js/owner_place_offerings.js
+ M static/js/permanent_place_photos.js
+?? docs/qa/history-status-2026-10-13-r1/
+?? docs/qa/module01-completion-2026-10-12-r1/
+?? docs/qa/module01-full-2026-10-12-r1/
+?? docs/qa/module01-full-2026-10-12-r2/
+?? docs/qa/module01-full-2026-10-12-r3/
+?? docs/qa/module01-full-2026-10-12-r4/
+?? docs/qa/module01-full-2026-10-12-r5/
+?? docs/qa/module01-full-2026-10-12-r6/
+?? docs/qa/module02-full-2026-10-13-r1/
+?? docs/qa/module02-full-2026-10-13-r2/
+?? docs/qa/module02-remaining-recheck-2026-10-13-r1/
+?? docs/qa/module03-full-2026-10-13-r1/
+?? docs/qa/module03-plan-2026-10-13-r1/
+?? docs/qa/module03-spec-fix-2026-10-13-r1/
+?? docs/qa/module04-full-2026-10-13-r1/
+?? docs/qa/module04-recheck-2026-10-13-r1/
+?? docs/qa/network-grant-ui-fix-2026-10-12-r1/
+?? docs/qa/network-grant-ui-recheck-2026-10-12-r1/
+?? docs/qa/offer-qa01-fix-2026-10-13-r1/
+?? docs/qa/offer-qa01-recheck-2026-10-13-r1/
+?? docs/qa/offer-qa02-fix-2026-10-13-r1/
+?? docs/qa/offer-qa02-recheck-2026-10-13-r1/
+?? docs/qa/offer-qa03-fix-2026-10-13-r1/
+?? docs/qa/offer-qa03-recheck-2026-10-13-r1/
+?? docs/qa/offer-qa04-fix-2026-10-13-r1/
+?? docs/qa/offer-qa04-recheck-2026-10-13-r1/
+?? docs/qa/offer-qa05-fix-2026-10-14-r1/
+?? docs/qa/offer-qa05-recheck-2026-10-14-r1/
+?? docs/qa/offer-qa06-fix-2026-10-14-r1/
+?? docs/qa/offer-qa06-recheck-2026-10-14-r1/
+?? docs/qa/offer-qa07-fix-2026-10-14-r1/
+?? docs/qa/offer-qa07-recheck-2026-10-14-r1/
+?? docs/qa/offer-qa08-fix-2026-10-14-r1/
+?? docs/qa/offer-qa08-recheck-2026-10-14-r1/
+?? docs/qa/org-qa01-fix-2026-10-12-r1/
+?? docs/qa/org-qa01-recheck-2026-10-12-r1/
+?? docs/qa/org-qa03-fix-2026-10-13-r1/
+?? docs/qa/org-qa04-fix-2026-10-13-r1/
+?? docs/qa/org-qa04-fix-2026-10-13-r2/
+?? docs/qa/org-qa05-fix-2026-10-13-r1/
+?? docs/qa/place-qa11-fix-2026-10-12-r1/
+?? docs/qa/place-qa12-fix-2026-10-12-r1/
+?? docs/qa/place-qa13-fix-2026-10-12-r1/
+?? docs/qa/place-qa14-close-fix-2026-10-12-r1/
+?? docs/qa/place-qa14-fix-2026-10-12-r1/
+?? docs/qa/start-local-2026-10-12-r1/
+?? docs/superpowers/plans/2026-10-12-module01-completion.md
+?? docs/superpowers/plans/2026-10-12-place-qa11-admin-focus.md
+?? docs/superpowers/plans/2026-10-12-place-qa12-admin-cas-retention.md
+?? docs/superpowers/plans/2026-10-12-place-qa13-unsaved-modal-localization.md
+?? docs/superpowers/plans/2026-10-12-place-qa14-close-race.md
+?? docs/superpowers/plans/2026-10-12-place-qa14-modal-keyboard.md
+?? docs/superpowers/plans/2026-10-13-event-qa04-published-photo-gate.md
+?? docs/superpowers/plans/2026-10-13-event-qa05-admin-publication-message.md
+?? docs/superpowers/plans/2026-10-13-event-qa06-russian-fallback.md
+?? docs/superpowers/plans/2026-10-13-module03-acceptance-test-portability.md
+?? docs/superpowers/plans/2026-10-13-module03-spec-qa01-03.md
+?? docs/superpowers/plans/2026-10-13-module04-event-photo-localization.md
+?? docs/superpowers/plans/2026-10-13-offer-qa01-approved-group-removal.md
+?? docs/superpowers/plans/2026-10-13-offer-qa02-owner-billing-fields.md
+?? docs/superpowers/plans/2026-10-13-offer-qa03-structured-error-focus.md
+?? docs/superpowers/plans/2026-10-13-offer-qa04-schedule-container-layout.md
+?? docs/superpowers/plans/2026-10-13-spec-qa04-mobile-arrow-glyphs.md
+?? docs/superpowers/plans/2026-10-14-offer-qa05-admin-status-wrap.md
+?? docs/superpowers/plans/2026-10-14-offer-qa06-status-billing-localization.md
+?? docs/superpowers/plans/2026-10-14-offer-qa07-stale-draft-restore.md
+?? scripts/test_admin_modal_keyboard.cjs
+?? src/catalog/services/specialist_document_probe.py
+?? src/catalog/services/specialist_document_validation.py
+?? src/catalog/testcases/specialist_document_fixtures.py
+?? src/catalog/testcases/test_event_admin_photo_clear.py
+?? src/catalog/testcases/test_network_grant_ui.py
+?? src/catalog/testcases/test_offer_qa01_group_removal.py
+?? src/catalog/testcases/test_offer_qa03_error_targets.py
+?? src/catalog/testcases/test_offer_qa07_stale_draft_restore.py
+?? src/catalog/testcases/test_offer_qa08_program_declined.py
+?? src/catalog/testcases/test_org_qa01_autosave_base.py
+?? src/catalog/testcases/test_place_admin_conflict_retention.py
+?? src/catalog/testcases/test_place_candidate_conflict_recovery.py
+?? src/catalog/testcases/test_spec_qa01_document_validation.py
+?? src/catalog/testcases/test_spec_qa02_photo_conflict.py

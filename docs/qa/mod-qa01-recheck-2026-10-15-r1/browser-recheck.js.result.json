@@ -1,0 +1,110 @@
+{
+  "rows": [
+    {
+      "id": "recheck harness",
+      "status": "NOT RUN",
+      "role": "admin",
+      "lang": "ru",
+      "width": 1440,
+      "error": "TimeoutError: locator.fill: Timeout 30000ms exceeded."
+    },
+    {
+      "id": "recheck harness",
+      "status": "NOT RUN",
+      "role": "reviewer",
+      "lang": "ru",
+      "width": 1440,
+      "error": "TimeoutError: locator.fill: Timeout 30000ms exceeded."
+    },
+    {
+      "id": "read-only browser audit preserves candidate and live data",
+      "status": "PASS",
+      "detail": {
+        "before": {
+          "read_only": true,
+          "synthetic_only": true,
+          "domain_sha256": "6a842f7df0026941a14e7d56b72eb3e6a3c363e8aaa49c1271ecc2e79117dcad",
+          "organizations": 35,
+          "revisions": 35,
+          "pending": 32
+        },
+        "after": {
+          "read_only": true,
+          "synthetic_only": true,
+          "domain_sha256": "6a842f7df0026941a14e7d56b72eb3e6a3c363e8aaa49c1271ecc2e79117dcad",
+          "organizations": 35,
+          "revisions": 35,
+          "pending": 32
+        }
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "role": "admin",
+      "lang": "ru",
+      "width": 1440,
+      "kind": "requestfailed",
+      "local": false,
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "role": "admin",
+      "lang": "ru",
+      "width": 1440,
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "role": "admin",
+      "lang": "ru",
+      "width": 1440,
+      "kind": "requestfailed",
+      "local": false,
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "role": "admin",
+      "lang": "ru",
+      "width": 1440,
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "role": "reviewer",
+      "lang": "ru",
+      "width": 1440,
+      "kind": "requestfailed",
+      "local": false,
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "role": "reviewer",
+      "lang": "ru",
+      "width": 1440,
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "role": "reviewer",
+      "lang": "ru",
+      "width": 1440,
+      "kind": "requestfailed",
+      "local": false,
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "role": "reviewer",
+      "lang": "ru",
+      "width": 1440,
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    }
+  ],
+  "mode": "PLAN only, source not changed",
+  "native_pagination_transition": "NOT RUN: controls absent; manual URL is not a substitute for keyboard transition"
+}

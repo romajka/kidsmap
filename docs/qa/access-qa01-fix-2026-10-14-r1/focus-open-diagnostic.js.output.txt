@@ -1,0 +1,16 @@
+### Result
+{"calls":[{"id":"resetPasswordModal","tag":"DIV","visibility":"hidden","inert":null,"activeAfter":"","activeTag":"A"}],"active":"BODY#top","inputVisibility":"visible"}
+### Ran Playwright code
+```js
+await (async (page) => {
+ await page.keyboard.press('Escape');await page.waitForTimeout(300);
+ await page.evaluate(()=>{
+  window.qaFocusCalls=[];window.qaOriginalFocus=HTMLElement.prototype.focus;
+  HTMLElement.prototype.focus=function(...args){const before={id:this.id,tag:this.tagName,visibility:getComputedStyle(this).visibility,inert:this.closest('[inert]')?.id||null};const result=window.qaOriginalFocus.apply(this,args);window.qaFocusCalls.push({...before,activeAfter:document.activeElement.id,activeTag:document.activeElement.tagName});return result};
+ });
+ await page.locator('[data-open-reset-modal]').click();await page.waitForTimeout(150);
+ const result=await page.evaluate(()=>{HTMLElement.prototype.focus=window.qaOriginalFocus;return {calls:window.qaFocusCalls,active:document.activeElement.tagName+'#'+document.activeElement.id,inputVisibility:getComputedStyle(document.getElementById('resetModalEmailInput')).visibility}});
+ await page.keyboard.press('Escape');return result;
+}
+)(page);
+```

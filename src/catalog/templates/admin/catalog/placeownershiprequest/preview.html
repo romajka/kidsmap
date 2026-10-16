@@ -1,0 +1,154 @@
+{% extends 'admin/base_site.html' %}
+{% load i18n static %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_ownership_preview.css' %}?v=20261014_review2">{% endblock %}
+{% block extrahead %}{{ block.super }}<script defer src="{% static 'admin/js/kidsmap_ownership_preview.js' %}?v=20261014_review2"></script>{% endblock %}
+{% block breadcrumbs %}<ol class="breadcrumb km-admin-crumbs">
+  <li class="breadcrumb-item"><a href="{{ preview_back_url }}">{% translate 'Заявки на владение' %}</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{% translate 'Проверить карточку' %}</li>
+</ol>{% endblock %}
+{% block content %}
+<main class="km-inspection" id="km-inspection">
+  <a href="{{ preview_back_url }}" class="km-inspection-back km-inspection-back--top">← {% translate 'К списку заявок' %}</a>
+  <header class="km-inspection-header">
+    <div class="km-inspection-identity">
+      {% if preview.photos.0.url %}<img class="km-inspection-cover" src="{{ preview.photos.0.url }}" alt="" width="88" height="88">{% else %}<span class="km-inspection-cover km-inspection-cover--empty"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-location_on"></use></svg></span>{% endif %}
+    <div class="km-inspection-heading">
+      <p class="km-inspection-eyebrow">{% if preview.is_publication %}{% translate 'Проверка перед публикацией' %}{% else %}{% translate 'Проверка заявки на владение' %}{% endif %}</p>
+      <h1>{{ preview.title }}</h1>
+      <div class="km-inspection-meta"><span>ID {{ preview.place.pk }}</span><span>{{ preview.place.get_status_display }}</span>
+        <span>{% if preview.place.is_public %}{% translate 'Видна на сайте' %}{% else %}{% translate 'Ещё не опубликована' %}{% endif %}</span></div>
+    </div></div>
+    <div class="km-inspection-actions"><a class="km-inspection-button km-inspection-button--primary" href="{{ preview_site_url }}"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-open_in_new"></use></svg>{% translate 'Превью на сайте' %}</a>
+    {% if preview_edit_url %}<a class="km-inspection-button" href="{{ preview_edit_url }}">{% translate 'Редактировать карточку' %}</a>{% endif %}</div>
+  </header>
+  {% if preview.stale %}<div class="km-inspection-notice km-inspection-notice--warning" role="alert"><strong>{% translate 'Заявка устарела' %}</strong><p>{% translate 'Карточка или отправленные изменения уже изменились. Перед одобрением нужна новая заявка.' %}</p></div>{% endif %}
+  {% if preview.place.is_deleted %}<div class="km-inspection-notice km-inspection-notice--warning">{% translate 'Карточка удалена' %}</div>{% endif %}
+  {% if preview.has_submission %}<nav class="km-inspection-versions" aria-label="{% translate 'Версия карточки' %}">
+    <a href="{{ preview_submitted_url }}"{% if preview.show_submission %} aria-current="page"{% endif %}>{% translate 'Отправлено на проверку' %}</a>
+    <a href="{{ preview_current_url }}"{% if not preview.show_submission %} aria-current="page"{% endif %}>{% translate 'Текущее состояние' %}</a>
+  </nav>{% endif %}
+  <p class="km-inspection-source">{% if preview.show_submission %}{% translate 'Показана полная карточка с изменениями, отправленными на проверку.' %}{% else %}{% translate 'Показана полная сохранённая карточка. Просмотр не меняет её статус.' %}{% endif %}</p>
+  <div class="km-inspection-stats" aria-label="{% translate 'Сводка карточки' %}">
+    <a href="#preview-request" class="km-inspection-stat">
+      <span class="km-inspection-stat-label"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check_circle"></use></svg>{% translate 'Обязательные данные' %}</span>
+      <strong>{{ preview.readiness.completed_count }}<small> / {{ preview.readiness.required_count }}</small></strong>
+      <progress value="{{ preview.readiness.completed_count }}" max="{{ preview.readiness.required_count|default:1 }}" aria-label="{% translate 'Обязательные данные' %}"></progress>
+      <span class="km-inspection-stat-note">{% translate 'Заполненность, а не результат проверки' %}</span>
+    </a>
+    <a href="#preview-photos" class="km-inspection-stat">
+      <span class="km-inspection-stat-label"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-photo_library"></use></svg>{% translate 'Фотографии' %}</span>
+      <strong>{{ preview.photo_count }}</strong>
+      <span class="km-inspection-stat-note">{% translate 'Доступно' %}: {{ preview.review.available_photos }}{% if preview.review.missing_photos %} · {% translate 'Фото недоступно' %}: {{ preview.review.missing_photos }}{% endif %}</span>
+    </a>
+    <a href="#preview-about" class="km-inspection-stat">
+      <span class="km-inspection-stat-label"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-public"></use></svg>{% translate 'Языки карточки' %}</span>
+      <strong>{{ preview.review.languages_complete }}<small> / 3</small></strong>
+      <span class="km-inspection-stat-note">{% translate 'Название и описание заполнены' %}</span>
+      <span class="km-inspection-language-status">{% for language in preview.review.languages %}<span{% if language.complete %} class="is-complete"{% endif %}>{{ language.language|upper }} <span class="sr-only">{% if language.complete %}{% translate 'Заполнено' %}{% else %}{% translate 'Не заполнено' %}{% endif %}</span>{% if language.complete %}✓{% else %}—{% endif %}</span>{% endfor %}</span>
+    </a>
+    <a href="#preview-offers" class="km-inspection-stat">
+      <span class="km-inspection-stat-label"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-groups"></use></svg>{% translate 'Направления и группы' %}</span>
+      <strong>{{ preview.review.offer_count }}<small> / {{ preview.review.group_count }}</small></strong>
+      <span class="km-inspection-stat-note">{% translate 'Направления / группы' %}</span>
+    </a>
+  </div>
+  {% if preview.show_submission %}
+  <details class="km-inspection-changes" id="preview-changes">
+    <summary><span>{% translate 'Что изменилось' %} <span class="km-inspection-change-count">{{ preview.review.change_count }}</span></span><span class="km-inspection-stat-note">{% translate 'По сравнению с текущей карточкой' %}</span></summary>
+    {% if preview.review.changes %}<div class="km-inspection-diff-head"><span>{% translate 'Поле' %}</span><span>{% translate 'Сейчас' %}</span><span>{% translate 'Отправлено' %}</span></div>
+    <div class="km-inspection-diff-list">{% for change in preview.review.changes %}<div class="km-inspection-diff-row">
+      <a href="#{{ change.target }}">{{ change.label }}</a>
+      {% if change.structured %}<p class="km-inspection-diff-block">{% translate 'Изменён блок данных — откройте раздел для проверки' %}</p>{% else %}
+      <div class="km-inspection-diff-before"><span class="km-inspection-diff-mobile">{% translate 'Сейчас' %}</span>{% if change.before|length > 260 %}<details class="km-inspection-diff-text"><summary>{{ change.before|truncatechars:220 }}<span>{% translate 'Полный текст' %}</span></summary><p>{{ change.before }}</p></details>{% else %}<p>{{ change.before }}</p>{% endif %}</div>
+      <div class="km-inspection-diff-after"><span class="km-inspection-diff-mobile">{% translate 'Отправлено' %}</span>{% if change.after|length > 260 %}<details class="km-inspection-diff-text"><summary>{{ change.after|truncatechars:220 }}<span>{% translate 'Полный текст' %}</span></summary><p>{{ change.after }}</p></details>{% else %}<p>{{ change.after }}</p>{% endif %}{% if change.removed %}<span class="km-inspection-removed">{% translate 'Значение удалено' %}</span>{% endif %}</div>{% endif %}
+    </div>{% endfor %}</div>{% else %}<p class="km-inspection-empty">{% translate 'Отличий от текущей карточки нет' %}</p>{% endif %}
+  </details>{% endif %}
+  <div class="km-inspection-toolbar">
+    <div class="km-inspection-language-controls" data-preview-controls hidden role="group" aria-label="{% translate 'Язык содержимого' %}">
+      <button type="button" data-preview-filter="all" aria-pressed="true">{% translate 'Все языки' %}</button>
+      <button type="button" data-preview-filter="az" aria-pressed="false">AZ</button>
+      <button type="button" data-preview-filter="ru" aria-pressed="false">RU</button>
+      <button type="button" data-preview-filter="en" aria-pressed="false">EN</button>
+    </div>
+    <button type="button" data-preview-expand data-preview-controls hidden data-expand-label="{% translate 'Развернуть все условия' %}" data-collapse-label="{% translate 'Свернуть все условия' %}"><span data-expand-label>{% translate 'Развернуть все условия' %}</span></button>
+  </div>
+  <nav class="km-inspection-sections" aria-label="{% translate 'Разделы карточки' %}">
+    <a href="#preview-about">{% translate 'Описание' %}</a><a href="#preview-photos">{% translate 'Фото' %} <span>{{ preview.photo_count }}</span></a>
+    <a href="#preview-location">{% translate 'Адрес и контакты' %}</a><a href="#preview-schedule">{% translate 'Расписание' %}</a>
+    <a href="#preview-prices">{% translate 'Цены' %}</a><a href="#preview-offers">{% translate 'Направления и группы' %}</a>
+    <a href="#preview-conditions">{% translate 'Условия' %}</a><a href="#preview-request">{% translate 'Заявка' %}</a>
+  </nav>
+  <div class="km-inspection-layout">
+    <div class="km-inspection-content">
+      <section id="preview-about" class="km-inspection-section"><h2>{% translate 'О карточке' %}</h2>
+        {% include 'admin/catalog/placeownershiprequest/preview_fields.html' with rows=preview.basic translations=preview.texts only %}
+      </section>
+      <section id="preview-photos" class="km-inspection-section"><h2>{% translate 'Фотографии' %} <span class="km-inspection-count">{{ preview.photo_count }}</span></h2>
+        <div class="km-inspection-gallery">{% for photo in preview.photos %}<figure>
+          {% if photo.url %}<a href="{{ photo.url }}" data-preview-photo data-preview-caption="{{ photo.caption|default:photo.role }}" aria-label="{% translate 'Увеличить фото' %}: {{ photo.role }}">
+            <img src="{{ photo.url }}" alt="{{ photo.caption|default:photo.role }}" loading="lazy"></a>
+          {% else %}<div class="km-inspection-photo-empty">{% translate 'Фото недоступно' %}</div>{% endif %}
+          <figcaption><strong>{{ photo.role }}</strong>{% if photo.caption %}<span>{{ photo.caption }}</span>{% endif %}</figcaption>
+        </figure>{% empty %}<p class="km-inspection-empty">{% translate 'Фотографии не добавлены' %}</p>{% endfor %}</div>
+      </section>
+      <section id="preview-location" class="km-inspection-section"><h2>{% translate 'Адрес и контакты' %}</h2>
+        {% include 'admin/catalog/placeownershiprequest/preview_fields.html' with rows=preview.location only %}
+        <h3>{% translate 'Контакты' %}</h3>{% include 'admin/catalog/placeownershiprequest/preview_fields.html' with rows=preview.contacts only %}
+      </section>
+      <section id="preview-schedule" class="km-inspection-section"><h2>{% translate 'Расписание' %}</h2><p class="km-inspection-mode">{{ preview.schedule_mode }}</p>
+        <dl class="km-inspection-hours">{% for row in preview.schedule_rows %}<div><dt>{{ row.days }}</dt><dd>{% for line in row.lines %}<span>{{ line }}</span>{% endfor %}</dd></div>{% empty %}<p class="km-inspection-empty">{% translate 'Расписание по дням не добавлено' %}</p>{% endfor %}</dl>
+        {% if preview.schedule_text %}<h3>{% translate 'Текст расписания' %}</h3><p class="km-inspection-prose">{{ preview.schedule_text }}</p>{% endif %}
+        {% include 'admin/catalog/placeownershiprequest/preview_fields.html' with translations=preview.schedule_notes only %}
+      </section>
+      <section id="preview-prices" class="km-inspection-section"><h2>{% translate 'Цены и тарифы' %}</h2><p class="km-inspection-mode">{{ preview.price_mode }}</p>
+        {% include 'admin/catalog/placeownershiprequest/preview_tariffs.html' with plans=preview.plans only %}
+        {% include 'admin/catalog/placeownershiprequest/preview_fields.html' with translations=preview.price_badges only %}
+        <details data-preview-details><summary>{% translate 'Ранее сохранённые цены' %}</summary>{% include 'admin/catalog/placeownershiprequest/preview_fields.html' with rows=preview.legacy_prices only %}</details>
+      </section>
+      <section id="preview-offers" class="km-inspection-section"><h2>{% translate 'Направления и группы' %}</h2>
+        {% for offer in preview.offers %}<article class="km-inspection-offer"><h3>{{ offer.title }}</h3>
+          {% include 'admin/catalog/placeownershiprequest/preview_fields.html' with rows=offer.rows translations=offer.translations only %}
+          {% for group in offer.groups %}<article class="km-inspection-group"><h3>{{ group.title }}</h3>
+            {% include 'admin/catalog/placeownershiprequest/preview_fields.html' with rows=group.rows translations=group.translations only %}
+            {% include 'admin/catalog/placeownershiprequest/preview_tariffs.html' with plans=group.plans only %}
+          </article>{% empty %}<p class="km-inspection-empty">{% translate 'Группы не добавлены' %}</p>{% endfor %}
+        </article>{% empty %}<p class="km-inspection-empty">{% translate 'Направления не добавлены' %}</p>{% endfor %}
+      </section>
+      <section id="preview-conditions" class="km-inspection-section"><h2>{% translate 'Условия и дополнительная информация' %}</h2>
+        {% include 'admin/catalog/placeownershiprequest/preview_fields.html' with translations=preview.conditions only %}
+        <details data-preview-details><summary>{% translate 'Общие ранее сохранённые условия' %}</summary>{% include 'admin/catalog/placeownershiprequest/preview_fields.html' with rows=preview.legacy_conditions only %}</details>
+      </section>
+    </div>
+    <aside class="km-inspection-review" id="preview-request" aria-labelledby="preview-request-title">
+      <div class="km-inspection-review-inner"><p class="km-inspection-review-kicker">{% translate 'Решение модератора' %}</p><h2 id="preview-request-title">{% translate 'Заявка' %} #{{ request_item.pk }}</h2>
+        <span class="km-inspection-status">{{ request_item.get_status_display }}</span>
+        <dl class="km-inspection-request-fields">
+          <div><dt>{% translate 'Тип заявки' %}</dt><dd>{{ request_item.get_request_kind_display }}</dd></div>
+          <div><dt>{% translate 'Заявитель' %}</dt><dd>{{ preview_applicant_label }}</dd></div>
+          {% if request_item.applicant.email %}<div><dt>Email</dt><dd>{{ request_item.applicant.email }}</dd></div>{% endif %}
+          <div><dt>{% translate 'Подана' %}</dt><dd>{{ request_item.created_at|date:'d.m.Y H:i' }}</dd></div>
+          <div><dt>{% translate 'Владелец карточки' %}</dt><dd>{{ preview.owner_label }}</dd></div>
+        </dl>
+        <h3>{% translate 'Комментарий заявителя' %}</h3><p class="km-inspection-prose">{{ request_item.note|default:_('Нет комментария') }}</p>
+        {% if request_item.moderation_note %}<h3>{% translate 'Комментарий модератора' %}</h3><p class="km-inspection-prose">{{ request_item.moderation_note }}</p>{% endif %}
+        <div class="km-inspection-readiness"><strong>{% translate 'Готовность к публикации' %}</strong><span>{{ preview.readiness.completed_count }} / {{ preview.readiness.required_count }}</span></div>
+        {% if preview.readiness.issues %}<ul class="km-inspection-issues">{% for issue in preview.readiness.issues %}<li>{{ issue.message }}</li>{% endfor %}</ul>{% else %}<p class="km-inspection-ready">{% translate 'Обязательные данные заполнены' %}</p>{% endif %}
+        <p class="km-inspection-decision-note">{% if preview.is_publication %}{% translate 'Одобрение публикует карточку с отправленными изменениями.' %}{% else %}{% translate 'Подтверждение владения передаёт управление карточкой. Оно не публикует её.' %}{% endif %}</p>
+        <div class="km-inspection-actions">
+          {% if preview_can_approve %}<a href="{{ preview_approve_url }}" class="km-inspection-button km-inspection-button--primary">{% if preview.is_publication %}{% translate 'Одобрить и опубликовать' %}{% else %}{% translate 'Подтвердить владение' %}{% endif %}</a>{% endif %}
+          {% if preview.has_submission and not preview.show_submission %}<a href="{{ preview_submitted_url }}" class="km-inspection-button">{% translate 'Перейти к проверке' %}</a>{% endif %}
+          {% if preview_can_moderate %}<a href="{{ preview_reject_url }}" class="km-inspection-button km-inspection-button--danger">{% translate 'Отклонить заявку' %}</a>{% endif %}
+          <a href="{{ preview_request_url }}" class="km-inspection-button">{% translate 'Открыть заявку' %}</a>
+          <a href="{{ preview_back_url }}" class="km-inspection-back">{% translate 'К списку заявок' %}</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+  <dialog class="km-inspection-dialog" data-preview-dialog aria-labelledby="preview-photo-caption" data-loading-label="{% translate 'Фото загружается' %}" data-error-label="{% translate 'Не удалось загрузить фото' %}">
+    <div class="km-inspection-dialog-bar"><p id="preview-photo-caption" data-preview-dialog-caption aria-live="polite"></p><button type="button" data-preview-close aria-label="{% translate 'Закрыть' %}">×</button></div>
+    <img data-preview-dialog-image alt="">
+    <p class="km-inspection-photo-status" data-preview-photo-status role="status" hidden></p>
+    <div class="km-inspection-dialog-nav"><button type="button" data-preview-previous>{% translate 'Предыдущее фото' %}</button><span data-preview-dialog-count></span><button type="button" data-preview-next>{% translate 'Следующее фото' %}</button></div>
+  </dialog>
+</main>
+{% endblock %}

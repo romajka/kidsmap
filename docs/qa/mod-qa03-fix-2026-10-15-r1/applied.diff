@@ -1,0 +1,33 @@
+--- a/static/admin/css/pages/kidsmap_changelist.css
++++ b/static/admin/css/pages/kidsmap_changelist.css
+@@ -3797,3 +3797,30 @@
+     width: min(320px, calc(100vw - 64px));
+   }
+ }
++
++/* MOD-QA-03: keep wide queue tables accessible inside their own viewport. */
++.app-catalog.model-place .card-body.table-responsive,
++.km-event-changelist .card-body.table-responsive,
++.km-specialist-changelist .card-body.table-responsive {
++    overflow-x: auto !important;
++    overflow-y: hidden !important;
++}
++
++/* Preserve the updated/created column beside the expanded admin sidebar. */
++.app-catalog.model-place .km-table-container #result_list {
++    min-width: 1000px !important;
++}
++
++.app-catalog.model-place .km-table-container th.column-col_updated {
++    width: 140px !important;
++}
++
++/* Narrow sort summaries must not anchor their wider panels off-screen. */
++@media (max-width: 580px) {
++    .app-catalog.model-place .km-sort-dropdown,
++    .km-event-changelist .km-sort-dropdown,
++    .km-specialist-changelist .km-sort-dropdown {
++        left: 0;
++        right: auto;
++    }
++}

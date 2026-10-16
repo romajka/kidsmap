@@ -1,0 +1,159 @@
+--- a/src/catalog/templates/admin/catalog/specialist/change_form.html
++++ b/src/catalog/templates/admin/catalog/specialist/change_form.html
+@@ -10,7 +10,7 @@
+ {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+ <div class="km-specialist-header"><div class="km-specialist-header__title"><h1>{% if add %}{% translate 'Добавить профиль специалиста' %}{% else %}{{ original.name }}{% endif %}</h1><p>{% translate 'Автор предложения, подтверждённый специалист и организация — разные стороны. Место приёма указывается отдельно от сотрудничества.' %}</p></div></div>
+ {% if errors %}<div class="km-error-banner" role="alert" tabindex="-1" data-specialist-errors><h2>{% translate 'Проверьте поля формы.' %}</h2>{{ adminform.form.non_field_errors }}<ul>
+-{% for section in specialist_sections %}{% if section.fieldset %}{% for line in section.fieldset %}{% for field in line %}{% for error in field.errors %}<li><a href="#{{ field.field.id_for_label }}">{{ section.title }} · {{ field.field.label }}: {{ error }}</a></li>{% endfor %}{% endfor %}{% endfor %}{% endif %}{% endfor %}
++{% for section in specialist_sections %}{% if section.fieldset %}{% for line in section.fieldset %}{% for field in line %}{% for error in field.field.errors %}<li><a href="#{{ field.field.id_for_label|default:field.field.auto_id }}">{{ section.title }} · {{ field.field.label }}: {{ error }}</a></li>{% endfor %}{% endfor %}{% endfor %}{% endif %}{% endfor %}
+ {% for inline in inline_admin_formsets %}{% for row in inline %}{% for field in row.form.visible_fields %}{% for error in field.errors %}<li><a href="#{{ field.id_for_label }}">{{ inline.opts.verbose_name }} {{ forloop.parentloop.parentloop.counter }} · {{ field.label }}: {{ error }}</a></li>{% endfor %}{% endfor %}{{ row.form.non_field_errors }}{% endfor %}{{ inline.formset.non_form_errors }}{% endfor %}
+ </ul></div>{% endif %}
+ <div class="km-specialist-layout"><nav class="km-specialist-nav" aria-label="{% translate 'Разделы формы' %}"><div class="km-specialist-nav__inner"><ul class="km-nav-list">{% for section in specialist_sections %}<li><a href="#{{ section.id }}" class="km-nav-item" data-section="{{ section.id }}">{{ section.title }}</a></li>{% endfor %}</ul></div></nav>
+--- a/static/admin/js/specialist_admin.js
++++ b/static/admin/js/specialist_admin.js
+@@ -6,7 +6,7 @@
+ page.querySelectorAll('.km-nav-item').forEach(function(link){link.addEventListener('click',function(e){e.preventDefault();go(document.getElementById(link.dataset.section));});});
+ if(jump)jump.addEventListener('change',function(){go(document.getElementById(jump.value));});
+ if('IntersectionObserver' in window){var observer=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(!entry.isIntersecting)return;page.querySelectorAll('.km-nav-item').forEach(function(a){var active=a.dataset.section===entry.target.id;a.classList.toggle('is-active',active);if(active)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');});if(jump)jump.value=entry.target.id;});},{rootMargin:'-10% 0px -65% 0px'});page.querySelectorAll('.km-specialist-section').forEach(function(s){observer.observe(s);});}
+-page.querySelectorAll('[data-specialist-errors] a').forEach(function(link){link.addEventListener('click',function(e){var target=document.getElementById(link.hash.slice(1));if(target){e.preventDefault();var details=target.closest('details');if(details)details.open=true;go(target);}});});
++page.querySelectorAll('[data-specialist-errors] a').forEach(function(link){link.addEventListener('click',function(e){var target=document.getElementById(link.hash.slice(1));if(target){e.preventDefault();var details=target.closest('details');if(details)details.open=true;if(!target.matches('input,select,textarea,button,a[href]')){var control=Array.from(target.querySelectorAll('input:not([type=hidden]),select,textarea,button')).find(function(el){return !el.disabled&&el.getClientRects().length;});if(control)target=control;else target.setAttribute('tabindex','-1');}go(target);}});});
+ page.querySelectorAll('.errorlist').forEach(function(errors,i){var wrapper=errors.closest('.km-field,.fieldBox,.form-row');if(!wrapper)return;errors.id=errors.id||'specialist-errors-'+i;wrapper.querySelectorAll('input:not([type=hidden]),select,textarea').forEach(function(field){field.setAttribute('aria-invalid','true');field.setAttribute('aria-describedby',errors.id);});});
+ var search=page.querySelector('[data-specialist-direction-search]'),count=page.querySelector('[data-specialist-direction-count]'),options=Array.from(page.querySelectorAll('#id_specializations > div'));
+ function filter(){var term=search.value.toLocaleLowerCase().trim(),visible=0,selected=0;options.forEach(function(row){var cb=row.querySelector('input[type=checkbox]');if(!cb)return;row.hidden=!row.textContent.toLocaleLowerCase().includes(term);if(!row.hidden)visible++;if(cb.checked)selected++;});if(count)count.textContent=count.dataset.found+' '+visible+' · '+count.dataset.selected+' '+selected;}
+--- /dev/null
++++ b/src/catalog/testcases/test_mod07_specialist_error_summary.py
+@@ -0,0 +1,134 @@
++"""Regressions for whole messages and field targets after invalid specialist Save.
++
++Iterating AdminField's rendered error HTML or losing checkbox group IDs breaks
++these actual admin response contracts. Server validation must still reject POST.
++"""
++from html.parser import HTMLParser
++
++from django.conf import settings
++from django.contrib.auth import get_user_model
++from django.test import TestCase
++
++from catalog.models import (
++    Specialist, SpecialistSpecialization, SpecialistPracticeLocation,
++    SpecialistDocument,
++)
++
++
++class _SummaryLinks(HTMLParser):
++    def __init__(self):
++        super().__init__()
++        self.depth = 0
++        self.links = []
++        self.link = None
++
++    def handle_starttag(self, tag, attrs):
++        attrs = dict(attrs)
++        if tag == 'div':
++            if 'data-specialist-errors' in attrs:
++                self.depth = 1
++            elif self.depth:
++                self.depth += 1
++        if self.depth and tag == 'a':
++            self.link = {'href': attrs.get('href'), 'text': ''}
++
++    def handle_data(self, data):
++        if self.link is not None:
++            self.link['text'] += data
++
++    def handle_endtag(self, tag):
++        if tag == 'a' and self.link is not None:
++            self.links.append(self.link)
++            self.link = None
++        if tag == 'div' and self.depth:
++            self.depth -= 1
++
++
++class SpecialistErrorSummaryTests(TestCase):
++    required = {'ru': 'Обязательное поле.', 'az': 'Bu sahə vacibdir.',
++                'en': 'This field is required.'}
++
++    def setUp(self):
++        self.actor = get_user_model().objects.create_superuser(
++            'mod07_error_admin', 'mod07@example.invalid', password=None)
++        self.client.force_login(self.actor)
++        self.specialization = SpecialistSpecialization.objects.create(
++            code='mod07-test', name='QA direction', name_ru='QA направление',
++            name_az='QA ixtisas', name_en='QA direction')
++        self.profile = Specialist.objects.create(
++            name='QA Specialist', status='published', consultation_format='online')
++        self.profile.specializations.add(self.specialization)
++        self.before = Specialist.objects.values().get(pk=self.profile.pk)
++
++    def post_invalid(self, lang, **changes):
++        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = lang
++        reason = 'QA <img src=x> & " quoted reason ' + 'long reason ' * 20
++        data = {
++            'name': self.profile.name, 'status': 'rejected', 'is_active': 'on',
++            'consultation_format': 'online', 'rejection_reason': reason,
++            'specializations': [str(self.specialization.pk)],
++            'expected_updated_at': self.profile.updated_at.isoformat(), '_save': '1',
++            'practice_locations-TOTAL_FORMS': '0',
++            'practice_locations-INITIAL_FORMS': '0',
++            'practice_locations-MIN_NUM_FORMS': '0',
++            'practice_locations-MAX_NUM_FORMS': '1000',
++            'documents-TOTAL_FORMS': '0', 'documents-INITIAL_FORMS': '0',
++            'documents-MIN_NUM_FORMS': '0', 'documents-MAX_NUM_FORMS': '1000',
++        }
++        data.update(changes)
++        prefix = '' if lang == 'az' else '/' + lang
++        response = self.client.post(
++            f'{prefix}/admin/catalog/specialist/{self.profile.pk}/change/', data)
++        self.assertEqual(response.status_code, 200)
++        self.assertEqual(response.wsgi_request.LANGUAGE_CODE, lang)
++        self.assertTrue(response.context['errors'])
++        self.assertEqual(Specialist.objects.values().get(pk=self.profile.pk), self.before)
++        self.assertEqual(list(self.profile.specializations.values_list('pk', flat=True)),
++                         [self.specialization.pk])
++        self.assertEqual(SpecialistPracticeLocation.objects.count(), 0)
++        self.assertEqual(SpecialistDocument.objects.count(), 0)
++        bound = response.context['adminform'].form
++        self.assertEqual(bound['rejection_reason'].value(), reason)
++        self.assertEqual(bound['status'].value(), 'rejected')
++        self.assertNotContains(response, '<img src=x>')
++        parser = _SummaryLinks()
++        parser.feed(response.content.decode())
++        return response, parser.links
++
++    def test_one_required_error_is_one_whole_localized_link_to_checkbox_group(self):
++        for lang in ('ru', 'az', 'en'):
++            with self.subTest(lang=lang):
++                response, links = self.post_invalid(lang, specializations=[])
++                self.assertEqual(set(response.context['adminform'].form.errors),
++                                 {'specializations'})
++                self.assertEqual(len(links), 1)
++                self.assertEqual(links[0]['href'], '#id_specializations')
++                self.assertIn(self.required[lang], links[0]['text'])
++
++    def test_multiple_required_errors_keep_distinct_messages_and_targets(self):
++        for lang in ('ru', 'az', 'en'):
++            with self.subTest(lang=lang):
++                response, links = self.post_invalid(lang, specializations=[], name='')
++                self.assertEqual(set(response.context['adminform'].form.errors),
++                                 {'specializations', 'name'})
++                self.assertEqual(len(links), 2)
++                self.assertEqual({link['href'] for link in links},
++                                 {'#id_name', '#id_specializations'})
++                for link in links:
++                    self.assertIn(self.required[lang], link['text'])
++
++    def test_invalid_inline_is_whole_message_without_partial_parent_or_child_save(self):
++        for lang in ('ru', 'az', 'en'):
++            with self.subTest(lang=lang):
++                response, links = self.post_invalid(lang, **{
++                    'practice_locations-TOTAL_FORMS': '1',
++                    'practice_locations-0-address': 'QA office',
++                    'practice_locations-0-is_active': 'on',
++                    'practice_locations-0-price_per_session': '-1',
++                })
++                self.assertFalse(response.context['adminform'].form.errors)
++                self.assertEqual(len(links), 1)
++                self.assertEqual(links[0]['href'],
++                                 '#id_practice_locations-0-price_per_session')
++                self.assertGreater(len(links[0]['text']), 12)
++                self.assertNotIn('<ul', links[0]['text'])

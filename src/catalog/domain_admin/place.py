@@ -61,6 +61,7 @@ from catalog.services.place_readiness import (
 from catalog.services.pricing_plans import normalize_pricing_plans, pricing_audit_summary
 from catalog.services.place_schedule import FULL_DAY_LABELS, build_schedule_summary, serialize_place_schedule
 from catalog.services.place_card_validation import validate_place_card
+from .queue_sorting import QueueSortingAdminMixin, QueueSortParameter
 from .review import PlaceReviewInline
 from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container
 
@@ -659,6 +660,9 @@ class EventAdminForm(forms.ModelForm):
                 if field_name == "address" and cleaned.get("event_format") == Event.FORMAT_ONLINE:
                     continue
                 val = cleaned.get(field_name)
+                if field_name == "photo" and val is False:
+                    missing.append(str(label))
+                    continue
                 if not val and val != 0:
                     if self.instance and self.instance.pk:
                         val = getattr(self.instance, field_name, None)
@@ -921,7 +925,7 @@ class EventDeletedFilter(admin.SimpleListFilter):
 
 
 @admin.register(Event)
-class EventAdmin(admin.ModelAdmin):
+class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     form = EventAdminForm
     inlines = [EventPhotoInline]
     actions = ("mark_published", "mark_draft", "mark_pending", "mark_rejected")
@@ -935,7 +939,7 @@ class EventAdmin(admin.ModelAdmin):
         "updated_at",
         "row_actions",
     )
-    list_filter = (EventDeletedFilter, "status", "category", "start_datetime", "owner")
+    list_filter = (QueueSortParameter, EventDeletedFilter, "status", "category", "start_datetime", "owner")
     search_fields = ("name", "name_az", "name_ru", "name_en", "address", "phone", "owner__username", "owner__email")
     readonly_fields = ("slug", "created_at", "updated_at")
     list_select_related = ("owner", "related_place")
@@ -1750,6 +1754,13 @@ class PlaceAdmin(admin.ModelAdmin):
                 from catalog.services.location_assignment import can_override_location
                 if not can_override_location(request.user):
                     self.fields.pop('location_override_reason', None)
+
+            def clean(self):
+                cleaned = super().clean()
+                conflict = getattr(request, '_km_candidate_conflict', None)
+                if conflict is not None:
+                    self.add_error(None, conflict)
+                return cleaned
         return LocationActorForm
 
     AUDIT_TRACKED_FIELDS = (
@@ -2101,7 +2112,12 @@ class PlaceAdmin(admin.ModelAdmin):
             with transaction.atomic():
                 return super().changeform_view(request, object_id=object_id, form_url=form_url, extra_context=extra_context)
         except ValidationError as exc:
-            # A source may change after form.clean; rollback and reload safely.
+            if any(error.code == 'candidate_version_conflict' for error in getattr(exc, 'error_list', ())):
+                # The first write has rolled back. Redisplay the submitted POST
+                # as invalid; never replay a save or replace its stale token.
+                request._km_candidate_conflict = exc
+                with transaction.atomic():
+                    return super().changeform_view(request, object_id=object_id, form_url=form_url, extra_context=extra_context)
             self.message_user(request, "; ".join(exc.messages), level=messages.ERROR)
             return HttpResponseRedirect(request.path)
 
@@ -2166,6 +2182,8 @@ class PlaceAdmin(admin.ModelAdmin):
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
         from catalog.services.permanent_place_wizard import ui_copy
         context["km_place_entry_copy"] = ui_copy()
+        context["km_place_candidate_conflict"] = getattr(request, '_km_candidate_conflict', None) is not None
+        context["km_place_current_version_url"] = request.path
         context["google_maps_api_key"] = getattr(settings, "GOOGLE_MAPS_API_KEY", "")
         context["km_place_draft_save_failed"] = "_save_draft" in request.POST and bool(context.get("errors"))
         fallback_url = reverse(

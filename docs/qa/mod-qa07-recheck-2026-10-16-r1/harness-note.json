@@ -1,0 +1,9 @@
+{
+  "command": "python3 -m py_compile docs/qa/mod-qa07-recheck-2026-10-16-r1/{qa_evidence.py,qa_urls.py,seed.py}",
+  "initial_exit": 1,
+  "error": "IndentationError: unexpected indent (qa_evidence.py, line13)",
+  "classification": "own QA helper indentation; corrected before runtime serves evidence",
+  "repeat_compile_exit": 0,
+  "application_changes": 0,
+  "semantic_source_failures_from_this": 0
+}

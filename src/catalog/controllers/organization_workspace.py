@@ -311,13 +311,18 @@ def _detail_context(request, org, *, candidate_form=None, action_error=None):
         'branch.create':_('Создание филиалов')}
     for grant in grants:
         grant.action_labels=[action_labels.get(action,_('Специальное разрешение')) for action in (grant.actions or [])]
+        grant.is_current = business_team._grant_current(grant, org)
     revision = getattr(org, 'content_revision', None)
-    draft = ServerDraft.objects.filter(actor=request.user, target_type='organization', target_id=org.pk).order_by('-saved_at').first()
+    draft = ServerDraft.objects.filter(
+        actor=request.user, target_type='organization', target_id=org.pk,
+        source_version=org.content_version, schema_version=publication.SCHEMA_VERSION,
+    ).order_by('-saved_at').first()
     data = {k: getattr(org, k) for k in ('name_az','name_ru','name_en','description_az','phone','whatsapp','website')}
-    if revision and revision.status in ('draft','pending','rejected'):
+    has_candidate = revision and revision.status in ('draft','pending','rejected')
+    if has_candidate:
         data.update({k:v for k,v in revision.payload.items() if k in data})
     show_current_data = request.method == 'GET' and request.GET.get('current') == '1'
-    if draft and draft.source_version == org.content_version and not show_current_data:
+    if draft and not show_current_data and (not has_candidate or draft.saved_at >= revision.updated_at):
         data.update({k:v for k,v in draft.fields.items() if k in data})
     has_details = bool(data.get('description_az') or data.get('phone') or data.get('whatsapp') or data.get('website'))
     has_branches = len(branches) > 0
@@ -328,6 +333,7 @@ def _detail_context(request, org, *, candidate_form=None, action_error=None):
         'programs':list((Program.objects.filter(organization=org, archived_at__isnull=True) if org.owner_id == request.user.pk or business_team.has_action(user=request.user,target=org,action='program.manage') else Program.objects.filter(organization=org, archived_at__isnull=True, activities__place__in=branches)).distinct().order_by('pk')),
         'pending_requests':pending, 'join_recovery_requests':recovery_requests, 'owned_places':owned_places,
         'team_grants':grants, 'team_invitations':invitations,
+        'team_role_choices':grants[0]._meta.get_field('role').choices if grants else (),
         'can_manage_programs':business_team.has_action(user=request.user,target=org,action='program.manage'),
         'can_edit':business_team.has_action(user=request.user,target=org,action='organization.edit'),
         'can_create_branch':business_team.has_action(user=request.user,target=org,action='branch.create'),

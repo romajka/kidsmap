@@ -9750,6 +9750,17 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   text-decoration: none;
 }
 
+.owner-team .owner-team-list,
+.owner-team .owner-team-item {
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.owner-team .owner-team-item h3,
+.owner-team .owner-team-item .meta {
+  overflow-wrap: anywhere;
+}
+
 .owner-team-role-form {
   display: flex;
   gap: 8px;
@@ -23641,6 +23652,11 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 
 .km-modal-submit-btn {
   margin-top: 6px;
+}
+
+#resetPasswordModal .km-modal-submit-btn:focus-visible {
+  outline: 3px solid var(--brand-turf);
+  outline-offset: 3px;
 }
 
 .km-modal-success-state {

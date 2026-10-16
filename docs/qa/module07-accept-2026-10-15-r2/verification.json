@@ -1,0 +1,43 @@
+{
+  "checked_at_utc": "2026-10-15T10:54:19.731692+00:00",
+  "decision": "Module07 LOCAL PASS",
+  "module_pass": true,
+  "closed_local_ids": [
+    "ACCESS-QA-01",
+    "ACCESS-QA-02",
+    "ACCESS-QA-03 = ORG-QA-02",
+    "ACCESS-QA-04",
+    "ACCESS-QA-05",
+    "ACCESS-QA-06"
+  ],
+  "open_ids": [],
+  "fix_verification": "/home/ramin/kidsmap/docs/qa/access-qa06-fix-2026-10-15-r1/verification.json",
+  "retained_full_report": "/home/ramin/kidsmap/docs/qa/module07-full-2026-10-15-r1/REPORT.md",
+  "retained_existing_methods": 338,
+  "fresh_target_methods": 11,
+  "new_unique_methods": 4,
+  "combined_unique_method_ids": 342,
+  "retained_native_PASS": 2232,
+  "fresh_accepted_native_PASS": 684,
+  "PNG": 758,
+  "full_unchanged_corpus_rerun": false,
+  "snapshot": {
+    "root": "/home/ramin/kidsmap",
+    "head": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+    "branch": "task33-progress",
+    "dirty_worktree": true,
+    "active_run": [
+      "active_run: NONE"
+    ]
+  },
+  "production_verified": false,
+  "module08_started": false,
+  "all_checks_pass": true,
+  "limits": [
+    "production/commit/push/deploy",
+    "module08/global",
+    "338unchanged corpus rerun",
+    "real retention/backup/OAuth/SMTP",
+    "cross-browser/screen-reader"
+  ]
+}

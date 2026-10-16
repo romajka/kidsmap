@@ -1,0 +1,38 @@
+{
+  "renderer": 135057,
+  "ownership_chain": [
+    {
+      "pid": 135057,
+      "comm": "chrome",
+      "is_owned_session": false
+    },
+    {
+      "pid": 103797,
+      "comm": "chrome",
+      "is_owned_session": false
+    },
+    {
+      "pid": 103794,
+      "comm": "chrome",
+      "is_owned_session": false
+    },
+    {
+      "pid": 103782,
+      "comm": "chrome",
+      "is_owned_session": false
+    },
+    {
+      "pid": 103771,
+      "comm": "node",
+      "is_owned_session": true
+    },
+    {
+      "pid": 7679,
+      "comm": "systemd",
+      "is_owned_session": false
+    }
+  ],
+  "signal": "SIGTERM",
+  "reason": "owned renderer95percent CPU and no DOM response after real AZ publish; stop only own current QA renderer to release partial evidence; source root cause not yet established",
+  "foreign_processes_touched": false
+}

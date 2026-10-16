@@ -1,0 +1,1 @@
+User «да», 2026-10-16. Approved ../mod-qa07-fix-2026-10-16-r1/CSS_SUPPLEMENT_PLAN.md: only static/admin/css/pages/specialist_form.css,2scopedrules. Retain previously completed5backend/184browserchecks after source verification, no rerun unchanged corpus.

@@ -1,0 +1,26 @@
+Found 24 test(s).
+System check identified no issues (0 silenced).
+Using existing test database for alias 'default'...
+....../home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /home/ramin/kidsmap/.tmp/offer-qa07-fix-2026-10-14-r1/staticfiles/
+  mw_instance = middleware(adapted_handler)
+Draft save unavailable
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/controllers/server_draft_api.py", line 39, in draft_collection
+    draft=service.save(user=request.user,data=data)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1193, in _execute_mock_call
+    raise effect
+OSError: synthetic storage unavailable
+............Image upload rejected: {'name': 'bad.jpg', 'size': 7, 'mime': 'image/jpeg'}; reason=«bad.jpg» oxumaq mümkün olmadı: fayl zədələnib və ya dəstəklənməyən şəkildir.
+......
+----------------------------------------------------------------------
+Ran 24 tests in 27.688s
+
+OK
+Preserving test database for alias 'default'...

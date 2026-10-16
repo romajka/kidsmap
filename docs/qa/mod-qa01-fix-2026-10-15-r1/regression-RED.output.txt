@@ -1,0 +1,57 @@
+Found 4 test(s).
+System check identified no issues (0 silenced).
+Creating test database for alias 'default'...
+..FFFFFF
+======================================================================
+FAIL: test_first_page_offers_next_with_all_filters_and_no_duplicate_page (catalog.testcases.test_mod_qa01_hub_pagination.ModerationHubPaginationTests.test_first_page_offers_next_with_all_filters_and_no_duplicate_page) (lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa01_hub_pagination.py", line 43, in test_first_page_offers_next_with_all_filters_and_no_duplicate_page
+    self.assertEqual(len(next_links),1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_first_page_offers_next_with_all_filters_and_no_duplicate_page (catalog.testcases.test_mod_qa01_hub_pagination.ModerationHubPaginationTests.test_first_page_offers_next_with_all_filters_and_no_duplicate_page) (lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa01_hub_pagination.py", line 43, in test_first_page_offers_next_with_all_filters_and_no_duplicate_page
+    self.assertEqual(len(next_links),1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_first_page_offers_next_with_all_filters_and_no_duplicate_page (catalog.testcases.test_mod_qa01_hub_pagination.ModerationHubPaginationTests.test_first_page_offers_next_with_all_filters_and_no_duplicate_page) (lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa01_hub_pagination.py", line 43, in test_first_page_offers_next_with_all_filters_and_no_duplicate_page
+    self.assertEqual(len(next_links),1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_last_page_offers_previous_and_has_distinct_candidate_rows (catalog.testcases.test_mod_qa01_hub_pagination.ModerationHubPaginationTests.test_last_page_offers_previous_and_has_distinct_candidate_rows) (lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa01_hub_pagination.py", line 56, in test_last_page_offers_previous_and_has_distinct_candidate_rows
+    self.assertEqual(len(previous),1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_last_page_offers_previous_and_has_distinct_candidate_rows (catalog.testcases.test_mod_qa01_hub_pagination.ModerationHubPaginationTests.test_last_page_offers_previous_and_has_distinct_candidate_rows) (lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa01_hub_pagination.py", line 56, in test_last_page_offers_previous_and_has_distinct_candidate_rows
+    self.assertEqual(len(previous),1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_last_page_offers_previous_and_has_distinct_candidate_rows (catalog.testcases.test_mod_qa01_hub_pagination.ModerationHubPaginationTests.test_last_page_offers_previous_and_has_distinct_candidate_rows) (lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod_qa01_hub_pagination.py", line 56, in test_last_page_offers_previous_and_has_distinct_candidate_rows
+    self.assertEqual(len(previous),1)
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.878s
+
+FAILED (failures=6)
+Destroying test database for alias 'default'...

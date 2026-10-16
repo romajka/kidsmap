@@ -1,0 +1,13 @@
+--- a/static/admin/js/kidsmap_notifications.js
++++ b/static/admin/js/kidsmap_notifications.js
+@@ -621,7 +621,9 @@
+       var cont = getContainer();
+ 
+       while (cont.children.length >= MAX_TOASTS) {
+-        dismiss(cont.children[0]);
++        var oldest = cont.children[0];
++        if (oldest._timer) window.clearTimeout(oldest._timer);
++        cont.removeChild(oldest);
+       }
+ 
+       var type = options.type || "info";

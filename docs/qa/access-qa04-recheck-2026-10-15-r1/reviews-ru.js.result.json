@@ -1,0 +1,23 @@
+{
+  "rows": [],
+  "completedCells": [],
+  "diagnostics": {
+    "console": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "pageerrors": [],
+    "requestFailures": [
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "badResponses": []
+  },
+  "error": "TimeoutError: locator.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#id_username')\u001b[22m\n",
+  "browser": "149.0.7827.55",
+  "mode": "PLAN recheck only, expected geometry FAIL retained; no CSS/DOM fix injected"
+}

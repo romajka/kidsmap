@@ -1,0 +1,24 @@
+{
+  "transaction": "READ ONLY",
+  "candidate_status": "pending",
+  "payload_fields": [
+    "name_en"
+  ],
+  "live_name_en": "Fictional OFFER09",
+  "candidate_name_en": "Fictional partial name OFFER09",
+  "active_group_price": "20.00",
+  "direct_place_tariffs": 0,
+  "form_valid": true,
+  "cleaned_nested_pricing": null,
+  "is_ready": false,
+  "issues": [
+    {
+      "code": "price",
+      "field": "pricing_plans"
+    }
+  ],
+  "diagnostic_simulation": "In-memory form data receives current trusted serialized live tree; no source/DB write, not app PASS",
+  "simulated_form_valid": true,
+  "simulated_is_ready": true,
+  "simulated_issues": []
+}

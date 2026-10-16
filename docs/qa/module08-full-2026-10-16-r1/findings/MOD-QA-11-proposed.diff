@@ -1,0 +1,16 @@
+--- a/src/catalog/templates/admin/volunteer/hub_detail.html
++++ b/src/catalog/templates/admin/volunteer/hub_detail.html
+@@ -16,5 +16,13 @@
+ {% empty %}<tr><td colspan="3">{% translate "Новых полей нет." %}</td></tr>{% endfor %}
+ </tbody></table></div>
+ {% if row.affected_branches %}<h2>{% translate "Затронутые филиалы" %}</h2><ul>{% for place_id in row.affected_branches %}<li>{% translate "Место" %} #{{ place_id }}</li>{% endfor %}</ul>{% endif %}
++{% if row.source == 'content' and row.revision.review_note %}
++{% if row.status == 'approved' or row.status == 'declined' or row.status == 'rejected' %}
++<section class="km-volunteer-field" aria-labelledby="km-hub-decision-note-title">
++<h2 id="km-hub-decision-note-title">{% translate "Причина решения" %}</h2>
++<p>{{ row.revision.review_note|linebreaksbr }}</p>
++</section>
++{% endif %}
++{% endif %}
+ {% if row.status == 'pending' %}<form method="post">{% csrf_token %}<input type="hidden" name="version" value="{{ row.version }}"><label for="hub-reason">{% translate "Причина решения" %}</label><textarea id="hub-reason" name="reason" rows="3" required aria-describedby="hub-reason-help"></textarea><p id="hub-reason-help">{% translate "Причина обязательна для любого решения." %}</p><div class="km-volunteer-actions"><button class="btn btn-success" name="action" value="approve" type="submit"{% if row.conflict %} disabled aria-describedby="hub-conflict-help"{% endif %}>{% translate "Одобрить" %}</button><button class="btn btn-outline-secondary" name="action" value="return" type="submit">{% translate "Вернуть на доработку" %}</button><button class="btn btn-danger" name="action" value="reject" type="submit">{% translate "Отклонить" %}</button></div>{% if row.conflict %}<p id="hub-conflict-help">{% translate "Одобрение недоступно из-за конфликта версии." %}</p>{% endif %}</form>{% endif %}
+ {% endblock %}

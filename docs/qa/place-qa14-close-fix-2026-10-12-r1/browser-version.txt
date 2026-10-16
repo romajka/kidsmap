@@ -1,0 +1,6 @@
+### Result
+{"version":"153.0.8010.36"}
+### Ran Playwright code
+```js
+await (async page => ({version: await page.context().browser().version()}))(page);
+```

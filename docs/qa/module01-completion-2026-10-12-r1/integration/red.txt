@@ -1,0 +1,20 @@
+Creating test database for alias 'default'...
+/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /home/ramin/kidsmap/.tmp/module01-completion-2026-10-12-r1/integration/staticfiles/
+  mw_instance = middleware(adapted_handler)
+...F.
+======================================================================
+FAIL: test_stale_candidate_has_typed_conflict_and_cannot_overwrite_candidate_or_live (catalog.testcases.test_place_candidate_conflict_recovery.CandidateConflictRecoveryTests.test_stale_candidate_has_typed_conflict_and_cannot_overwrite_candidate_or_live)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_place_candidate_conflict_recovery.py", line 50, in test_stale_candidate_has_typed_conflict_and_cannot_overwrite_candidate_or_live
+    self.assertEqual(response.json().get('conflict'), 'candidate_version_conflict', response.json())
+AssertionError: None != 'candidate_version_conflict' : {'ok': False, 'errors': {'__all__': ['Candidate version conflict.']}}
+
+----------------------------------------------------------------------
+Ran 5 tests in 4.481s
+
+FAILED (failures=1)
+Destroying test database for alias 'default'...
+Found 5 test(s).
+System check identified no issues (0 silenced).
+{"mode": "target", "exit": 1, "discovered": 5, "duration_s": 45.27643864200036, "labels": ["catalog.testcases.test_place_candidate_conflict_recovery"]}

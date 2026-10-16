@@ -1,0 +1,81 @@
+--- incoming-WORKTREE/locale/az/LC_MESSAGES/django.po
++++ approved-WORKTREE/locale/az/LC_MESSAGES/django.po
+@@ -9149,10 +9149,10 @@
+ msgstr "Əlavə şərtlər"
+ 
+ #: src/catalog/models/pricing_plan.py:19 src/catalog/models/pricing_plan.py:56
+-#, fuzzy
++
+ #| msgid "Регистрация"
+ msgid "Регистрационный взнос"
+-msgstr "Qeydiyyat"
++msgstr "Qeydiyyat haqqı"
+ 
+ #: src/catalog/models/pricing_plan.py:20 src/catalog/models/pricing_plan.py:56
+ msgid "Депозит"
+@@ -9175,22 +9175,22 @@
+ msgstr "Son addım"
+ 
+ #: src/catalog/models/pricing_plan.py:27
+-#, fuzzy
++
+ #| msgid "Форматы оплаты"
+ msgid "Разовая оплата"
+-msgstr "Ödəniş formatları"
++msgstr "Birdəfəlik ödəniş"
+ 
+ #: src/catalog/models/pricing_plan.py:27
+-#, fuzzy
++
+ #| msgid "Электронная почта"
+ msgid "Регулярная оплата"
+-msgstr "E-poçt ünvanı"
++msgstr "Müntəzəm ödəniş"
+ 
+ #: src/catalog/models/pricing_plan.py:28
+-#, fuzzy
++
+ #| msgid "Пригласить участника"
+ msgid "Оплата частями"
+-msgstr "İştirakçı dəvət et"
++msgstr "Hissə-hissə ödəniş"
+ 
+ #: src/catalog/models/pricing_plan.py:31 src/catalog/models/pricing_plan.py:41
+ #: src/catalog/models/site.py:575 src/catalog/models/site.py:676
+@@ -9302,13 +9302,13 @@
+ msgstr "Ümumi kart sayı"
+ 
+ #: src/catalog/models/pricing_plan.py:55
+-#, fuzzy
++
+ #| msgid "Основное"
+ msgid "Основной"
+ msgstr "Əsas"
+ 
+ #: src/catalog/models/pricing_plan.py:55
+-#, fuzzy
++
+ #| msgid "Дополнительно"
+ msgid "Дополнительный"
+ msgstr "Əlavə"
+@@ -23025,3 +23025,20 @@
+ #: src/catalog/templates/pages/owner_event_form.html
+ msgid "Тип организатора"
+ msgstr "Təşkilatçı növü"
++
++
++#, python-format
++msgid "Публикация занятия: %(status)s"
++msgstr "Məşğələnin dərc statusu: %(status)s"
++
++msgid "Условия подтверждены"
++msgstr "Şərtlər təsdiqlənib"
++
++msgid "Условия не подтверждены"
++msgstr "Şərtlər təsdiqlənməyib"
++
++msgid "Отдельный статус проверки не установлен"
++msgstr "Ayrıca yoxlama statusu təyin edilməyib"
++
++msgid "На проверке"
++msgstr "Yoxlamadadır"

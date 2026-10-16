@@ -1,0 +1,67 @@
+{"name": "edge-red.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01r1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/edge-red.js>"], "exit": 1, "seconds": 45.1}
+{"name": "edge-red-fixed.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01r1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/edge-red-fixed.js>"], "exit": 0, "seconds": 12.19}
+{"name": "docker-start", "argv": ["docker", "run", "-d", "--name", "access-qa01-fix-2026-10-14-r1-pg", "--env-file", "/home/ramin/kidsmap/.tmp/access-qa01-fix-2026-10-14-r1/postgres.env", "-p", "127.0.0.1:37319:5432", "-v", "access-qa01-fix-2026-10-14-r1-pg:/var/lib/postgresql/data", "--label", "kidsmap.qa.owner=access-qa01-fix-2026-10-14-r1", "postgres:17-alpine"], "exit": 0, "seconds": 14.666}
+{"name": "locales-verify", "argv": [".venv/bin/python", "scripts/build_isolated_locales.py", "verify", "--manifest", "/home/ramin/kidsmap/.tmp/access-qa01-fix-2026-10-14-r1/locales/manifest.json"], "exit": 0, "seconds": 0.225}
+{"name": "prepare", "argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/runtime.py", "prepare"], "exit": 0, "seconds": 40.113}
+{"name": "bootstrap.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/bootstrap.js>"], "exit": 0, "seconds": 12.381}
+{"name": "reset-tests", "argv": [".venv/bin/python", "docs/qa/access-qa01-fix-2026-10-14-r1/runtime.py", "test", "catalog.testcases.test_password_reset"], "exit": 0, "seconds": 53.095}
+{"name": "focus-matrix.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/focus-matrix.js>"], "exit": 1, "seconds": 35.354}
+{"name": "focus-open-diagnostic.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/focus-open-diagnostic.js>"], "exit": 0, "seconds": 11.444}
+{"name": "own-server-restart-after-focus-timing-fix", "old_pid": "670969", "new_pid": 683228, "argv": ["/home/ramin/kidsmap/.venv/bin/python", "/home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/runtime.py", "serve"], "exit": 0}
+{"name": "focus-matrix-r2.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/focus-matrix-r2.js>"], "exit": 0, "seconds": 64.943}
+{"name": "states-matrix.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/states-matrix.js>"], "exit": 0, "seconds": 89.003}
+{"name": "reopen-focus-diagnostic.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/reopen-focus-diagnostic.js>"], "exit": 0, "seconds": 3.36}
+{"name": "own-server-restart-after-CSS-readiness-guard", "old_pid": 683228, "new_pid": 703303, "argv": ["/home/ramin/kidsmap/.venv/bin/python", "/home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/runtime.py", "serve"], "exit": 0}
+{"name": "focus-matrix-r3.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/focus-matrix-r3.js>"], "exit": 0, "seconds": 60.79}
+{"name": "states-matrix-resume.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/states-matrix-resume.js>"], "exit": 0, "seconds": 26.577}
+{"name": "edge-green.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/edge-green.js>"], "exit": 0, "seconds": 6.811}
+{"name": "boundaries.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/boundaries.js>"], "exit": 0, "seconds": 36.278}
+{"name": "reset-flow.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/reset-flow.js>"], "exit": 0, "seconds": 67.695}
+{"name": "readonly-reset-readback", "argv": [".venv/bin/python", "docs/qa/access-qa01-fix-2026-10-14-r1/runtime.py", "readback"], "exit": 0, "seconds": 28.163}
+{"name": "visible-focus.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/visible-focus.js>"], "exit": 0, "seconds": 53.27}
+{"name": "integrity-verification-before-CSS-approval", "argv": [".venv/bin/python", "docs/qa/access-qa01-fix-2026-10-14-r1/verify.py"], "exit": 1, "seconds": 17.18}
+{"name": "integrity-verification-r2-before-CSS-approval", "argv": [".venv/bin/python", "docs/qa/access-qa01-fix-2026-10-14-r1/verify.py"], "exit": 0, "seconds": 44.843}
+{"name": "syntax/diff-gate", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/bootstrap.js"], "exit": 0}
+{"name": "syntax/diff-gate", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/boundaries.js"], "exit": 0}
+{"name": "syntax/diff-gate", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/edge-green.js"], "exit": 0}
+{"name": "syntax/diff-gate", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/edge-red-fixed.js"], "exit": 0}
+{"name": "syntax/diff-gate", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/edge-red.js"], "exit": 0}
+{"name": "syntax/diff-gate", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/focus-matrix-r2.js"], "exit": 0}
+{"name": "syntax/diff-gate", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/focus-matrix-r3.js"], "exit": 0}
+{"name": "syntax/diff-gate", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/focus-matrix.js"], "exit": 0}
+{"name": "syntax/diff-gate", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/focus-open-diagnostic.js"], "exit": 0}
+{"name": "syntax/diff-gate", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/reopen-focus-diagnostic.js"], "exit": 0}
+{"name": "syntax/diff-gate", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/reset-flow.js"], "exit": 0}
+{"name": "syntax/diff-gate", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/states-matrix-resume.js"], "exit": 0}
+{"name": "syntax/diff-gate", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/states-matrix.js"], "exit": 0}
+{"name": "syntax/diff-gate", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/visible-focus.js"], "exit": 0}
+{"name": "syntax/diff-gate", "argv": ["git", "diff", "--check", "--", "src/catalog/templates/auth/login.html", "docs/qa/continuation-and-repair-prompts-2026-10-11.md"], "exit": 0}
+{"name": "css-consumers-before.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/css-consumers-before.js>"], "exit": 0, "seconds": 7.225}
+{"name": "restart-owned-server-css", "argv": ["/home/ramin/kidsmap/.venv/bin/python", "/home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/runtime.py", "serve"], "exit": 0, "old_pid": 703303, "new_pid": 757882, "identity_validated_before_stop": true, "only_source_delta": "static/css/site.css"}
+{"name": "css-consumers-after.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/css-consumers-after.js>"], "exit": 0, "seconds": 5.359}
+{"name": "submit-focus-css-green.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/submit-focus-css-green.js>"], "exit": 1, "seconds": 78.403}
+{"name": "submit-focus-css-green-r2.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/submit-focus-css-green-r2.js>"], "exit": 0, "seconds": 44.418}
+{"name": "css-consumers-after-r2.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/css-consumers-after-r2.js>"], "exit": 0, "seconds": 4.016}
+{"name": "css-native-diagnostics.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=accessqa01fixr1", "run-code", "</home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/css-native-diagnostics.js>"], "exit": 0, "seconds": 5.054}
+{"name": "node-check:bootstrap.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/bootstrap.js"], "exit": 0}
+{"name": "node-check:boundaries.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/boundaries.js"], "exit": 0}
+{"name": "node-check:css-consumers-after-r2.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/css-consumers-after-r2.js"], "exit": 0}
+{"name": "node-check:css-consumers-after.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/css-consumers-after.js"], "exit": 0}
+{"name": "node-check:css-consumers-before.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/css-consumers-before.js"], "exit": 0}
+{"name": "node-check:css-native-diagnostics.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/css-native-diagnostics.js"], "exit": 0}
+{"name": "node-check:edge-green.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/edge-green.js"], "exit": 0}
+{"name": "node-check:edge-red-fixed.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/edge-red-fixed.js"], "exit": 0}
+{"name": "node-check:edge-red.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/edge-red.js"], "exit": 0}
+{"name": "node-check:focus-matrix-r2.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/focus-matrix-r2.js"], "exit": 0}
+{"name": "node-check:focus-matrix-r3.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/focus-matrix-r3.js"], "exit": 0}
+{"name": "node-check:focus-matrix.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/focus-matrix.js"], "exit": 0}
+{"name": "node-check:focus-open-diagnostic.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/focus-open-diagnostic.js"], "exit": 0}
+{"name": "node-check:reopen-focus-diagnostic.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/reopen-focus-diagnostic.js"], "exit": 0}
+{"name": "node-check:reset-flow.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/reset-flow.js"], "exit": 0}
+{"name": "node-check:states-matrix-resume.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/states-matrix-resume.js"], "exit": 0}
+{"name": "node-check:states-matrix.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/states-matrix.js"], "exit": 0}
+{"name": "node-check:submit-focus-css-green-r2.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/submit-focus-css-green-r2.js"], "exit": 0}
+{"name": "node-check:submit-focus-css-green.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/submit-focus-css-green.js"], "exit": 0}
+{"name": "node-check:visible-focus.js", "argv": ["node", "--check", "docs/qa/access-qa01-fix-2026-10-14-r1/visible-focus.js"], "exit": 0}
+{"name": "git-diff-check-final", "argv": ["git", "diff", "--check"], "exit": 0}
+{"name": "final-scope-verification", "argv": ["/home/ramin/kidsmap/.venv/bin/python", "/home/ramin/kidsmap/docs/qa/access-qa01-fix-2026-10-14-r1/verify.py"], "stdout": "verification-output-final.txt", "exit": 0, "closed_ids": ["ACCESS-QA-01"]}

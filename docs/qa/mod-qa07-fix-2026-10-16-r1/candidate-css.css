@@ -1,0 +1,882 @@
+/* ============================================================
+   KidsMap Specialist Admin Form — Scoped Styles
+   Root class: .km-specialist-form-page
+   ============================================================ */
+
+/* ── Layout ────────────────────────────────────────────── */
+.km-specialist-form-page {
+  padding: 0 0 3rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.km-specialist-layout {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr) 220px;
+  gap: 24px;
+  align-items: start;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 16px;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.km-specialist-layout > * {
+  min-width: 0;
+}
+
+/* ── Page header ───────────────────────────────────────── */
+.km-specialist-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 16px 0;
+  max-width: 1440px;
+  margin: 0 auto 16px;
+}
+
+.km-specialist-header__title {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.km-specialist-header__icon {
+  font-size: 2rem;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.km-specialist-header__title h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 6px;
+  line-height: 1.2;
+}
+
+.km-specialist-header__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.km-specialist-header__hint {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  white-space: nowrap;
+  padding-top: 4px;
+}
+
+/* Status badges */
+.km-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+}
+.km-status-draft     { background: #f3f4f6; color: #6b7280; }
+.km-status-pending   { background: #fef9c3; color: #92400e; }
+.km-status-published { background: #dcfce7; color: #166534; }
+.km-status-rejected  { background: #fee2e2; color: #991b1b; }
+.km-status-hidden    { background: #e5e7eb; color: #374151; }
+.km-status-verified  { background: #d1fae5; color: #065f46; }
+
+.km-header-meta-item {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* Error banner */
+.km-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.875rem;
+  color: #991b1b;
+  max-width: 1440px;
+  margin: 0 auto 12px;
+}
+
+/* ── Left Navigation ───────────────────────────────────── */
+.km-specialist-nav {
+  position: sticky;
+  top: 70px;
+}
+
+.km-specialist-nav__inner {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 8px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.km-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.km-nav-list li {
+  margin: 0;
+}
+
+.km-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  color: #374151;
+  text-decoration: none;
+  border-radius: 0;
+  border-left: 3px solid transparent;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.km-nav-item:hover {
+  background: #f9fafb;
+  color: #111827;
+}
+
+.km-nav-item.km-nav-active {
+  background: #f0fdf4;
+  color: #166534;
+  border-left-color: #22c55e;
+  font-weight: 600;
+}
+
+.km-nav-icon {
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  width: 18px;
+  text-align: center;
+}
+
+/* Error/done indicators on nav items */
+.km-nav-item .km-nav-badge {
+  margin-left: auto;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 10px;
+  line-height: 1.4;
+}
+
+.km-nav-item.km-nav-has-error .km-nav-badge {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.km-nav-item.km-nav-done .km-nav-badge {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+/* ── Center Content ────────────────────────────────────── */
+.km-specialist-content {
+  min-width: 0;
+}
+
+.km-specialist-section {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  scroll-margin-top: 80px;
+}
+
+.km-section-header {
+  padding: 14px 20px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #fafafa;
+}
+
+.km-section-header h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 2px;
+}
+
+.km-section-desc {
+  font-size: 0.78rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.km-section-body {
+  padding: 16px 20px;
+}
+
+.km-specialist-section--moderation {
+  border-color: #fde68a;
+}
+
+.km-specialist-section--moderation .km-section-header {
+  background: #fffbeb;
+  border-bottom-color: #fde68a;
+}
+
+/* ── Form rows & fields ────────────────────────────────── */
+.km-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.km-form-row--multi { gap: 16px; }
+.km-form-row--compact { gap: 12px; flex-wrap: nowrap; }
+.km-form-row--2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.km-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 200px;
+}
+
+.km-field--full  { flex: 1 1 100%; }
+.km-field--narrow { flex: 0 0 120px; }
+.km-field--numeric { flex: 0 0 140px; }
+.km-field--muted label { color: #9ca3af; font-size: 0.78rem; }
+
+.km-field--readonly {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #374151;
+}
+
+.km-field--readonly label {
+  font-weight: 600;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.km-meta-row {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.km-field label,
+.km-specialist-form-page .km-field > label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0;
+}
+
+/* Inputs scoped inside km-field */
+.km-field input[type="text"],
+.km-field input[type="number"],
+.km-field input[type="url"],
+.km-field input[type="email"],
+.km-field input[type="tel"],
+.km-field select,
+.km-field textarea {
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  padding: 7px 10px;
+  font-size: 0.875rem;
+  color: #111827;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.km-field input:focus,
+.km-field select:focus,
+.km-field textarea:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.12);
+  outline: none;
+}
+
+.km-input-unit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.km-input-unit input,
+.km-input-unit select {
+  flex: 1;
+}
+
+.km-unit {
+  font-size: 0.78rem;
+  color: #6b7280;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.km-help {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.km-field-error {
+  font-size: 0.75rem;
+  color: #dc2626;
+  margin: 0;
+}
+
+/* ── Photo section ─────────────────────────────────────── */
+.km-photo-row {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.km-photo-preview {
+  flex-shrink: 0;
+  width: 140px;
+}
+
+.km-photo-preview img {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  display: block;
+}
+
+.km-photo-empty {
+  width: 140px;
+  height: 140px;
+  border-radius: 10px;
+  border: 2px dashed #d1d5db;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #9ca3af;
+  font-size: 2.5rem;
+}
+
+.km-photo-empty small {
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.km-photo-hint {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin: 6px 0 0;
+  text-align: center;
+}
+
+.km-photo-fields {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Specializations ───────────────────────────────────── */
+.km-field--specializations .selector {
+  width: 100% !important;
+}
+
+.km-field--specializations .selector-available,
+.km-field--specializations .selector-chosen {
+  min-height: 160px;
+  max-height: 200px;
+}
+
+/* ── Language toggles ──────────────────────────────────── */
+.km-lang-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.km-lang-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
+}
+
+.km-lang-toggle:has(input:checked) {
+  border-color: #22c55e;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.km-lang-toggle input[type="checkbox"] {
+  accent-color: #22c55e;
+}
+
+/* ── Format hint ───────────────────────────────────────── */
+.km-format-hint {
+  margin-top: 12px;
+  font-size: 0.82rem;
+  color: #2563eb;
+  background: #eff6ff;
+  border-radius: 7px;
+  padding: 8px 12px;
+}
+
+/* ── Notices ───────────────────────────────────────────── */
+.km-notice {
+  font-size: 0.82rem;
+  padding: 10px 14px;
+  border-radius: 7px;
+  margin-bottom: 14px;
+}
+
+.km-notice--info {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.km-notice--warn {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+/* ── Inline sections ───────────────────────────────────── */
+#documents-group-wrapper {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+#documents-group-wrapper .inline-group {
+  overflow: visible;
+}
+
+#documents-group-wrapper:focus-visible {
+  outline: 2px solid #22c55e;
+  outline-offset: 2px;
+}
+
+.km-inline-body .inline-group {
+  border: none !important;
+  box-shadow: none !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.km-inline-body .inline-group h2 {
+  display: none !important;
+}
+
+.km-inline-body .inline-group table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.km-inline-body .inline-group th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.km-inline-body .inline-group td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.km-inline-body .inline-group tr:hover td {
+  background: #fafafa;
+}
+
+.km-inline-body .add-row a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 7px 14px;
+  border: 1.5px dashed #22c55e;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #166534;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.km-inline-body .add-row a:hover {
+  background: #f0fdf4;
+}
+
+/* ── Right Actions Panel ───────────────────────────────── */
+.km-specialist-actions {
+  position: sticky;
+  top: 70px;
+}
+
+.km-actions-inner {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.km-actions-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.km-btn {
+  display: block;
+  width: 100%;
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  border: none;
+  text-decoration: none;
+  transition: background 0.15s, opacity 0.15s;
+  box-sizing: border-box;
+}
+
+.km-btn--primary {
+  background: #22c55e;
+  color: #fff;
+}
+.km-btn--primary:hover { background: #16a34a; }
+
+.km-btn--secondary {
+  background: #f3f4f6;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+}
+.km-btn--secondary:hover { background: #e5e7eb; }
+
+.km-btn--ghost {
+  background: transparent;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  font-size: 0.8rem;
+}
+.km-btn--ghost:hover { background: #f9fafb; }
+
+.km-btn--link {
+  background: transparent;
+  color: #2563eb;
+  font-size: 0.8rem;
+  border: 1px solid #bfdbfe;
+}
+.km-btn--link:hover { background: #eff6ff; }
+
+.km-btn--danger {
+  background: transparent;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  font-size: 0.8rem;
+}
+.km-btn--danger:hover { background: #fee2e2; }
+
+.km-actions-separator {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 4px 0;
+}
+
+/* ── Related widget cleanup ────────────────────────────── */
+.km-specialist-form-page .related-widget-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+}
+
+.km-specialist-form-page .related-widget-wrapper-link {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.km-specialist-form-page .related-widget-wrapper-link:hover {
+  opacity: 1;
+}
+
+/* Hide ugly default submit row — we have our own */
+.km-specialist-form-page .submit-row {
+  display: none !important;
+}
+
+/* ── Specialist admin change list refresh ───────────────── */
+.model-specialist.change-list .results {
+  overflow-x: auto;
+}
+
+.model-specialist.change-list #result_list {
+  min-width: 980px;
+}
+
+.km-admin-spec-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 220px;
+}
+
+.km-admin-spec-profile strong,
+.km-admin-spec-profile small {
+  display: block;
+}
+
+.km-admin-spec-profile strong {
+  color: #111827;
+  font-weight: 750;
+}
+
+.km-admin-spec-profile small,
+.km-admin-muted {
+  color: #6b7280;
+  font-size: 0.78rem;
+}
+
+.km-admin-spec-photo {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex: 0 0 42px;
+  border: 1px solid #e5e7eb;
+  background: #f0fdf4;
+}
+
+.km-admin-spec-photo--empty {
+  display: inline-grid;
+  place-items: center;
+  color: #009a4e;
+}
+
+.km-admin-spec-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 240px;
+}
+
+.km-admin-spec-tags span,
+.km-admin-spec-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 24px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 0.76rem;
+  font-weight: 650;
+}
+
+.km-admin-spec-badge i {
+  color: #009a4e;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .km-specialist-layout {
+    grid-template-columns: 200px minmax(0, 1fr) 190px;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .km-specialist-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .km-specialist-nav {
+    position: static;
+  }
+
+  .km-specialist-nav__inner {
+    display: flex;
+    overflow-x: auto;
+    padding: 0;
+    border-radius: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .km-nav-list {
+    display: flex;
+    flex-direction: row;
+    padding: 0;
+  }
+
+  .km-nav-item {
+    padding: 10px 14px;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .km-nav-item.km-nav-active {
+    border-left-color: transparent;
+    border-bottom-color: #22c55e;
+    background: #f0fdf4;
+  }
+
+  .km-nav-icon { display: none; }
+
+  .km-specialist-actions {
+    position: sticky;
+    bottom: 0;
+    top: auto;
+    z-index: 50;
+    order: 99;
+    margin-top: 16px;
+  }
+
+  .km-actions-inner {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(8px);
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+
+  .km-actions-title { display: none; }
+  .km-btn {
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 120px;
+    padding: 8px 12px;
+  }
+}
+
+@media (max-height: 500px) {
+  .km-specialist-actions {
+    position: static !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .km-specialist-layout { padding: 0 8px; }
+  .km-specialist-header { padding: 8px 8px 0; flex-wrap: wrap; }
+  .km-section-body { padding: 12px; }
+  .km-photo-row { flex-direction: column; }
+  .km-photo-preview { width: 100%; }
+  .km-photo-preview img { width: 100%; height: auto; max-height: 240px; }
+  .km-form-row--2col { grid-template-columns: 1fr; }
+  .km-form-row--compact { flex-wrap: wrap; }
+  .km-field--numeric { flex: 1 1 100%; }
+  .km-lang-row { gap: 8px; }
+}
+
+@media (max-width: 430px) {
+  .km-specialist-header__title h1 { font-size: 1.1rem; }
+  .km-lang-toggle { padding: 7px 12px; font-size: 0.8rem; }
+  .km-btn { padding: 10px; }
+}
+/* Entry editor: two columns, native checkboxes, stacked practice cards. */
+.km-specialist-form-page .km-specialist-layout{grid-template-columns:220px minmax(0,1fr)}
+.km-specialist-form-page{padding-bottom:130px;overflow-wrap:anywhere}
+.km-specialist-form-page .km-specialist-content{min-width:0}
+.km-specialist-form-page .km-specialist-jump{display:none}
+.km-specialist-form-page .km-section-body input:not([type=checkbox]):not([type=radio]),.km-specialist-form-page .km-section-body select,.km-specialist-form-page .km-section-body textarea{max-width:100%;box-sizing:border-box}
+.km-specialist-form-page #id_specializations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.km-specialist-form-page #id_specializations label{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid #dfe5ed;border-radius:10px;cursor:pointer;font-size:14px;min-height:44px}
+.km-specialist-form-page #id_specializations input{flex:none}
+.km-specialist-form-page [hidden]{display:none!important}
+.km-specialist-form-page .inline-related{margin-block:16px;padding:14px;border:1px solid #dfe5ed;border-radius:12px}
+.km-specialist-form-page .inline-related .form-row{display:flex;flex-wrap:wrap;gap:10px}
+.km-specialist-form-page .km-specialist-sticky-footer{z-index:30;display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px max(16px,env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:white;border-top:1px solid #dfe5ed;max-height:125px;overflow:auto}
+.km-specialist-form-page .km-specialist-sticky-footer .submit-row{margin:0;border:0;background:transparent;display:flex;flex-wrap:wrap;gap:8px}
+.km-specialist-form-page :focus-visible{outline:3px solid #1568d4;outline-offset:3px}
+.km-specialist-form-page input,.km-specialist-form-page select,.km-specialist-form-page textarea,.km-specialist-form-page h2{scroll-margin-block:100px 150px}
+.km-specialist-form-page .spec-admin-photo{display:block;width:100px;height:100px;object-fit:cover;margin-top:12px;border-radius:12px}
+@media(max-width:900px){.km-specialist-form-page .km-specialist-layout{grid-template-columns:minmax(0,1fr)}.km-specialist-form-page .km-specialist-nav{display:none}.km-specialist-form-page .km-specialist-jump{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}.km-specialist-form-page .km-form-row--multi{grid-template-columns:1fr}.km-specialist-form-page #id_specializations{grid-template-columns:1fr}.km-specialist-form-page .km-inline-body .form-row>div{width:100%;min-width:0}.km-specialist-form-page .km-section-body{padding:16px}.km-specialist-form-page .related-widget-wrapper{max-width:100%}}
+.km-specialist-form-page .km-specialist-header__title{display:block}
+@media(min-width:901px){
+  .km-specialist-form-page .km-specialist-nav__inner,
+  .km-specialist-form-page .km-nav-list{display:block;overflow:visible}
+  .km-specialist-form-page .km-nav-item{white-space:normal;overflow-wrap:anywhere}
+}
+.km-specialist-form-page .km-specialist-sticky-footer{position:fixed;left:0;right:0;bottom:0}
+.km-specialist-form-page .km-specialist-sticky-footer .submit-row{display:flex!important}
+.km-specialist-form-page .km-inline-body .form-row>div,.km-specialist-form-page .km-inline-body .flex-container{min-width:0;max-width:100%;box-sizing:border-box}
+.km-specialist-form-page .km-inline-body .form-row input:not([type=checkbox]),.km-specialist-form-page .km-inline-body textarea{width:100%}
+/* submit_row uses the project's sidebar actions; fit them into this footer. */
+.km-specialist-form-page .km-specialist-sticky-footer{box-sizing:border-box;max-height:190px;gap:8px}
+.km-specialist-form-page .km-specialist-sticky-footer [data-specialist-save-status]{flex:0 0 100%;font-size:14px;line-height:1.4}
+.km-specialist-form-page .km-specialist-sticky-footer .km-admin-sidebar-actions{display:flex;flex-direction:row;flex-wrap:wrap;gap:8px;width:100%;margin:0}
+.km-specialist-form-page .km-specialist-sticky-footer .km-btn--sidebar{width:auto;min-width:0;justify-content:center;white-space:normal;text-align:center;line-height:1.25;padding:8px 12px;box-sizing:border-box}
+.km-specialist-form-page .km-specialist-sticky-footer .km-btn--success{background:var(--km-admin-primary,#009a4e);color:white!important}
+.km-specialist-form-page .km-specialist-sticky-footer .km-btn--danger{background:#fff1f0;color:#b42318!important;border:1px solid #fecdca}
+.km-specialist-form-page .km-specialist-sticky-footer .km-btn--info{background:#f8fafc;color:#344054!important;border:1px solid #d0d5dd}
+.km-specialist-form-page{padding-bottom:220px}
+.km-specialist-form-page input,.km-specialist-form-page select,.km-specialist-form-page textarea,.km-specialist-form-page h2{scroll-margin-bottom:220px}
+@media(min-width:768px){body.sidebar-mini:not(.sidebar-collapse) .km-specialist-form-page .km-specialist-sticky-footer{left:var(--km-admin-sidebar-width,300px)}body.sidebar-mini.sidebar-collapse .km-specialist-form-page .km-specialist-sticky-footer{left:var(--km-admin-sidebar-collapsed-width,72px)}}
+@media(max-width:767px){.km-specialist-form-page .km-specialist-sticky-footer .km-btn--sidebar{flex:1 1 calc(50% - 8px);height:auto;min-height:44px}}
+
+/* Specialist server error summary contains a heading and a message list. */
+.km-specialist-form-page [data-specialist-errors] {
+  display: block;
+}
+.km-specialist-form-page [data-specialist-errors] > h2 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  line-height: 1.4;
+}

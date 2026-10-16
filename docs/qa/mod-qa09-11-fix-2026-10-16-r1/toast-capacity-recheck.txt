@@ -1,0 +1,30 @@
+TAP version 13
+# Subtest: fourth toast completes synchronously and retains the newest three
+not ok 1 - fourth toast completes synchronously and retains the newest three
+  ---
+  duration_ms: 253.653557
+  location: '/home/ramin/kidsmap/docs/qa/mod-qa09-11-fix-2026-10-16-r1/findings/toast-capacity-candidate.test.cjs:11:1'
+  failureType: 'testCodeFailure'
+  error: 'Script execution timed out after 250ms'
+  code: 'ERR_SCRIPT_EXECUTION_TIMEOUT'
+  stack: |-
+    Script.runInContext (node:vm:149:12)
+    Object.runInContext (node:vm:301:6)
+    TestContext.<anonymous> (/home/ramin/kidsmap/docs/qa/mod-qa09-11-fix-2026-10-16-r1/findings/toast-capacity-candidate.test.cjs:11:106)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    node:internal/test_runner/harness:255:12
+    node:internal/process/task_queues:140:7
+    AsyncResource.runInAsyncScope (node:async_hooks:206:9)
+    AsyncResource.runMicrotask (node:internal/process/task_queues:137:8)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 307.811983

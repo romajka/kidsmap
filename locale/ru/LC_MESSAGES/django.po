@@ -1352,7 +1352,7 @@ msgstr "Да"
 #: src/catalog/admin.py:2513
 #| msgid "Метро"
 msgid "Нет"
-msgstr "Метро"
+msgstr "Нет"
 
 #: src/catalog/admin.py:2536
 #| msgid "Кто выполнил"
@@ -14087,14 +14087,11 @@ msgid "ключевых пунктов"
 msgstr "ключевых пунктов"
 
 #: src/catalog/templates/admin/catalog/event/change_form.html:89
-msgid ""
-"\n"
-"                Исправьте проблему ниже и сохраните мероприятие ещё раз.\n"
-"              "
-msgstr ""
-"\n"
-"                Исправьте проблему ниже и сохраните мероприятие ещё раз.\n"
-"              "
+msgid "\n                Исправьте проблему ниже и сохраните мероприятие ещё раз.\n              "
+msgid_plural "\n                Исправьте проблемы ниже и сохраните мероприятие ещё раз.\n              "
+msgstr[0] "\n                Исправьте проблему ниже и сохраните мероприятие ещё раз.\n              "
+msgstr[1] "\n                Исправьте проблемы ниже и сохраните мероприятие ещё раз.\n              "
+msgstr[2] "\n                Исправьте проблемы ниже и сохраните мероприятие ещё раз.\n              "
 
 #: src/catalog/templates/admin/catalog/event/change_form.html:128
 msgid ""
@@ -18247,8 +18244,8 @@ msgstr "Редактировать профиль"
 #~ msgid "Открыть карточку"
 #~ msgstr "Открыть карточку"
 
-#~ msgid "Редактировать карточку"
-#~ msgstr "Редактировать карточку"
+msgid "Редактировать карточку"
+msgstr "Редактировать карточку"
 
 #~ msgid "Заявок на рассмотрении нет."
 #~ msgstr "Заявок на рассмотрении нет."
@@ -18510,8 +18507,8 @@ msgstr "Выберите район"
 #~ msgid "С координатами"
 #~ msgstr "С координатами"
 
-#~ msgid "На проверке"
-#~ msgstr "На проверке"
+msgid "На проверке"
+msgstr "На проверке"
 
 #~ msgid "Черновиков нет."
 #~ msgstr "Черновиков нет."
@@ -20380,3 +20377,547 @@ msgstr "Скрывает каталог специалистов, ссылки �
 
 msgid "Галочка включена — раздел виден посетителям. Снимите галочку и нажмите «Сохранить», чтобы скрыть раздел до готовности. Данные не удаляются: редактирование в админке остаётся доступным. Чтобы вернуть раздел, поставьте галочку и сохраните снова."
 msgstr "Галочка включена — раздел виден посетителям. Снимите галочку и нажмите «Сохранить», чтобы скрыть раздел до готовности. Данные не удаляются: редактирование в админке остаётся доступным. Чтобы вернуть раздел, поставьте галочку и сохраните снова."
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Названия"
+msgstr "Названия"
+
+#: src/catalog/models/catalog_structure.py
+msgid "Организации"
+msgstr "Организации"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Владение"
+msgstr "Владение"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Проверка данных"
+msgstr "Проверка данных"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Владелец не назначен"
+msgstr "Владелец не назначен"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Владение проверено"
+msgstr "Владение проверено"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Владение не проверено"
+msgstr "Владение не проверено"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Связанные разделы"
+msgstr "Связанные разделы"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Текущие и предложенные данные"
+msgstr "Текущие и предложенные данные"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Программы"
+msgstr "Программы"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Черновик и проверка не меняют публичные данные до одобрения."
+msgstr "Черновик и проверка не меняют публичные данные до одобрения."
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Приглашённый редактор сможет менять организацию и общие программы после принятия приглашения."
+msgstr "Приглашённый редактор сможет менять организацию и общие программы после принятия приглашения."
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Email сотрудника"
+msgstr "Email сотрудника"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Пригласить сотрудника"
+msgstr "Пригласить сотрудника"
+
+#: src/catalog/services/specialist_document_validation.py
+msgid "Документ повреждён или его содержимое не соответствует формату. Выберите исправный PDF, PNG или JPEG."
+msgstr "Документ повреждён или его содержимое не соответствует формату. Выберите исправный PDF, PNG или JPEG."
+
+#: src/catalog/services/specialist_document_validation.py
+msgid "PDF защищён паролем. Загрузите документ без пароля."
+msgstr "PDF защищён паролем. Загрузите документ без пароля."
+
+#: src/catalog/services/specialist_document_validation.py
+msgid "Не удалось безопасно проверить документ. Выберите файл меньшего размера или разрешения."
+msgstr "Не удалось безопасно проверить документ. Выберите файл меньшего размера или разрешения."
+
+
+#: src/catalog/templates/pages/owner_event_form.html
+msgid "Шаги формы мероприятия"
+msgstr "Шаги формы мероприятия"
+
+#: src/catalog/templates/pages/owner_event_form.html
+msgid "Вперёд"
+msgstr "Вперёд"
+
+#: src/catalog/templates/pages/owner_event_form.html
+msgid "Тип организатора"
+msgstr "Тип организатора"
+
+#, python-format
+msgid "Публикация занятия: %(status)s"
+msgstr "Публикация занятия: %(status)s"
+
+msgid "Условия подтверждены"
+msgstr "Условия подтверждены"
+
+msgid "Условия не подтверждены"
+msgstr "Условия не подтверждены"
+
+msgid "Отдельный статус проверки не установлен"
+msgstr "Отдельный статус проверки не установлен"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Безлимит"
+msgstr "Безлимит"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Валюта"
+msgstr "Валюта"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Видна на сайте"
+msgstr "Видна на сайте"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Все условия тарифа"
+msgstr "Все условия тарифа"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Все языки"
+msgstr "Все языки"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Готовность к публикации"
+msgstr "Готовность к публикации"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Группы не добавлены"
+msgstr "Группы не добавлены"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Действует до"
+msgstr "Действует до"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Действует с"
+msgstr "Действует с"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Для кого"
+msgstr "Для кого"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Дни посещения"
+msgstr "Дни посещения"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Дополнение к программе"
+msgstr "Дополнение к программе"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Единица количества"
+msgstr "Единица количества"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Ещё не опубликована"
+msgstr "Ещё не опубликована"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Заявка устарела"
+msgstr "Заявка устарела"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Источник цены"
+msgstr "Источник цены"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "К списку заявок"
+msgstr "К списку заявок"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Карточка или отправленные изменения уже изменились. Перед одобрением нужна новая заявка."
+msgstr "Карточка или отправленные изменения уже изменились. Перед одобрением нужна новая заявка."
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Карточка удалена"
+msgstr "Карточка удалена"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Количество занятий"
+msgstr "Количество занятий"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Количество периодов"
+msgstr "Количество периодов"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Количество периодов действия"
+msgstr "Количество периодов действия"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Количество платежей"
+msgstr "Количество платежей"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Максимум участников"
+msgstr "Максимум участников"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Минимум участников"
+msgstr "Минимум участников"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Модель оплаты"
+msgstr "Модель оплаты"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Надпись цены на карточке"
+msgstr "Надпись цены на карточке"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Название группы"
+msgstr "Название группы"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Название направления"
+msgstr "Название направления"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Название тарифа"
+msgstr "Название тарифа"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Назначение платежа"
+msgstr "Назначение платежа"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Направление"
+msgstr "Направление"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Направления и группы"
+msgstr "Направления и группы"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Направления не добавлены"
+msgstr "Направления не добавлены"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Нет комментария"
+msgstr "Нет комментария"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "О карточке"
+msgstr "О карточке"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Общие ранее сохранённые условия"
+msgstr "Общие ранее сохранённые условия"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Обязательные данные заполнены"
+msgstr "Обязательные данные заполнены"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Обязательный платёж"
+msgstr "Обязательный платёж"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Одобрение публикует карточку с отправленными изменениями."
+msgstr "Одобрение публикует карточку с отправленными изменениями."
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Описание направления"
+msgstr "Описание направления"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Отклонить заявку"
+msgstr "Отклонить заявку"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Отправлено на проверку"
+msgstr "Отправлено на проверку"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Перейти к проверке"
+msgstr "Перейти к проверке"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Период действия"
+msgstr "Период действия"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Период оплаты"
+msgstr "Период оплаты"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Подтвердить владение"
+msgstr "Подтвердить владение"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Подтверждение владения передаёт управление карточкой. Оно не публикует её."
+msgstr "Подтверждение владения передаёт управление карточкой. Оно не публикует её."
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Показана полная карточка с изменениями, отправленными на проверку."
+msgstr "Показана полная карточка с изменениями, отправленными на проверку."
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Показана полная сохранённая карточка. Просмотр не меняет её статус."
+msgstr "Показана полная сохранённая карточка. Просмотр не меняет её статус."
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Примечание к расписанию"
+msgstr "Примечание к расписанию"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Пробное занятие"
+msgstr "Пробное занятие"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Проверить карточку"
+msgstr "Проверить карточку"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Проверка заявки на владение"
+msgstr "Проверка заявки на владение"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Проверка перед публикацией"
+msgstr "Проверка перед публикацией"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Развернуть все условия"
+msgstr "Развернуть все условия"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Ранее сохранённые цены"
+msgstr "Ранее сохранённые цены"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Расписание по дням не добавлено"
+msgstr "Расписание по дням не добавлено"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тариф"
+msgstr "Тариф"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тариф активен"
+msgstr "Тариф активен"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Текст расписания"
+msgstr "Текст расписания"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Текущее состояние"
+msgstr "Текущее состояние"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Телефон организации"
+msgstr "Телефон организации"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тип заявки"
+msgstr "Тип заявки"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тип тарифа"
+msgstr "Тип тарифа"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тип цены"
+msgstr "Тип цены"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Увеличить фото"
+msgstr "Увеличить фото"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Условия"
+msgstr "Условия"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Условия группы"
+msgstr "Условия группы"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Условия и дополнительная информация"
+msgstr "Условия и дополнительная информация"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Условия тарифа"
+msgstr "Условия тарифа"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Фото недоступно"
+msgstr "Фото недоступно"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Фотографии не добавлены"
+msgstr "Фотографии не добавлены"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Цена проверена"
+msgstr "Цена проверена"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Цены и тарифы"
+msgstr "Цены и тарифы"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Язык содержимого"
+msgstr "Язык содержимого"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Город"
+msgstr "Город"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тип карточки"
+msgstr "Тип карточки"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Состояние работы"
+msgstr "Состояние работы"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Язык занятий"
+msgstr "Язык занятий"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Расписание группы"
+msgstr "Расписание группы"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Преподаватели"
+msgstr "Преподаватели"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Программа"
+msgstr "Программа"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Фото загружается"
+msgstr "Фото загружается"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Не удалось загрузить фото"
+msgstr "Не удалось загрузить фото"
+
+#: catalog/place_detail_preview.html
+msgid "Превью на сайте"
+msgstr "Превью на сайте"
+
+#: catalog/place_detail_preview.html
+msgid "Вернуться к проверке"
+msgstr "Вернуться к проверке"
+
+#: catalog/place_detail_preview.html
+msgid "Так карточку увидит посетитель. Действия в превью не сохраняются."
+msgstr "Так карточку увидит посетитель. Действия в превью не сохраняются."
+
+#: catalog/place_detail_preview.html
+msgid "Действие доступно на опубликованной странице. В превью изменения не сохраняются."
+msgstr "Действие доступно на опубликованной странице. В превью изменения не сохраняются."
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Обязательные данные"
+msgstr "Обязательные данные"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Заполненность, а не результат проверки"
+msgstr "Заполненность, а не результат проверки"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Доступно"
+msgstr "Доступно"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Название и описание заполнены"
+msgstr "Название и описание заполнены"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Направления / группы"
+msgstr "Направления / группы"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "По сравнению с текущей карточкой"
+msgstr "По сравнению с текущей карточкой"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Отправлено"
+msgstr "Отправлено"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Изменён блок данных — откройте раздел для проверки"
+msgstr "Изменён блок данных — откройте раздел для проверки"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Значение удалено"
+msgstr "Значение удалено"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Отличий от текущей карточки нет"
+msgstr "Отличий от текущей карточки нет"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Свернуть все условия"
+msgstr "Свернуть все условия"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Решение модератора"
+msgstr "Решение модератора"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Расписание по дням"
+msgstr "Расписание по дням"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Полный текст"
+msgstr "Полный текст"
+
+# MOD-QA-06: place row unpublish confirmation
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+msgid "Снять с публикации?"
+msgstr "Снять с публикации?"
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+#, python-format
+msgid "Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики."
+msgstr "Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики."
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+msgid "Да, снять"
+msgstr "Да, снять"
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+#, python-format
+msgid "Снять карточку «%(name)s» с публикации?"
+msgstr "Снять карточку «%(name)s» с публикации?"
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+msgid "Снятие с публикации..."
+msgstr "Снятие с публикации..."
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+msgid "Публикация карточки..."
+msgstr "Публикация карточки..."
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+#, python-format
+msgid "«%(name)s» переведена в черновики."
+msgstr "«%(name)s» переведена в черновики."
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+#, python-format
+msgid "«%(name)s» опубликована и видна на сайте."
+msgstr "«%(name)s» опубликована и видна на сайте."

@@ -27,6 +27,7 @@ FONT = ROOT / "static" / "fonts" / "MaterialSymbolsRounded.woff2"
 TARGET = ROOT / "src" / "catalog" / "templates" / "admin" / "catalog" / "includes" / "km_icon_sprite.html"
 
 ICONS = [
+    "mail", "domain", "school", "train", "apps", "token", "login", "link",
     "account_circle", "add", "add_photo_alternate", "admin_panel_settings", "analytics", "arrow_back", "arrow_downward", "arrow_forward",
     "assessment", "assignment", "auto_awesome", "block", "calendar_today", "call", "campaign", "category", "chat_bubble", "check",
     "check_circle", "chevron_left", "chevron_right", "close", "cloud_done", "content_copy",

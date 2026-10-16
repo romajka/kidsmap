@@ -904,6 +904,7 @@ class AccountDeletionConfirmForm(forms.Form):
     typed_confirmation = forms.CharField(
         label=_("Фраза подтверждения"),
         max_length=80,
+        strip=False,
         widget=forms.TextInput(
             attrs={
                 "class": "field",
@@ -2362,6 +2363,7 @@ class OwnerSpecialistForm(forms.ModelForm):
                 field.required = field_name in required
 
     def clean(self):
+        from django.db.models.fields.files import FieldFile
         cleaned = super().clean()
         if self.locations is not None:
             self.locations.instance.consultation_format=cleaned.get('consultation_format') or Specialist.FORMAT_ONLINE
@@ -2369,7 +2371,7 @@ class OwnerSpecialistForm(forms.ModelForm):
             if not self.locations.is_valid():self.add_error(None,_('Проверьте места приёма.'))
         if self.draft_save_only:
             photo = cleaned.get("photo")
-            if photo:
+            if photo and not (isinstance(photo, FieldFile) and photo._committed):
                 try:
                     cleaned["photo"] = _validate_uploaded_image(photo)
                 except ValidationError as exc:
@@ -2428,7 +2430,7 @@ class OwnerSpecialistForm(forms.ModelForm):
 
         # Validate photo size
         photo = cleaned.get("photo")
-        if photo:
+        if photo and not (isinstance(photo, FieldFile) and photo._committed):
             try:
                 cleaned["photo"] = _validate_uploaded_image(photo)
             except ValidationError as exc:

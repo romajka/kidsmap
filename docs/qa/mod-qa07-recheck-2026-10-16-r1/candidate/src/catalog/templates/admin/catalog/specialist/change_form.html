@@ -1,0 +1,32 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/specialist_form.css' %}?v=20261007spec5">{% endblock %}
+{% block extrahead %}{{ block.super }}<script src="{% url 'admin:jsi18n' %}"></script>{{ media }}<script src="{% static 'admin/js/specialist_admin.js' %}?v=20261007spec5" defer></script>{% endblock %}
+{% block content %}
+<div class="km-specialist-form-page km-specialist-admin-page">
+<form data-has-errors="{{ errors|yesno:'true,false' }}" action="{{ form_url }}" method="post" enctype="multipart/form-data" id="{{ opts.model_name }}_form" novalidate>{% csrf_token %}
+{% if original %}<input type="hidden" name="expected_updated_at" value="{{ specialist_expected_updated_at }}">{% endif %}
+{% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+{% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+<div class="km-specialist-header"><div class="km-specialist-header__title"><h1>{% if add %}{% translate 'Добавить профиль специалиста' %}{% else %}{{ original.name }}{% endif %}</h1><p>{% translate 'Автор предложения, подтверждённый специалист и организация — разные стороны. Место приёма указывается отдельно от сотрудничества.' %}</p></div></div>
+{% if errors %}<div class="km-error-banner" role="alert" tabindex="-1" data-specialist-errors><h2>{% translate 'Проверьте поля формы.' %}</h2>{{ adminform.form.non_field_errors }}<ul>
+{% for section in specialist_sections %}{% if section.fieldset %}{% for line in section.fieldset %}{% for field in line %}{% for error in field.field.errors %}<li><a href="#{{ field.field.id_for_label|default:field.field.auto_id }}">{{ section.title }} · {{ field.field.label }}: {{ error }}</a></li>{% endfor %}{% endfor %}{% endfor %}{% endif %}{% endfor %}
+{% for inline in inline_admin_formsets %}{% for row in inline %}{% for field in row.form.visible_fields %}{% for error in field.errors %}<li><a href="#{{ field.id_for_label }}">{{ inline.opts.verbose_name }} {{ forloop.parentloop.parentloop.counter }} · {{ field.label }}: {{ error }}</a></li>{% endfor %}{% endfor %}{{ row.form.non_field_errors }}{% endfor %}{{ inline.formset.non_form_errors }}{% endfor %}
+</ul></div>{% endif %}
+<div class="km-specialist-layout"><nav class="km-specialist-nav" aria-label="{% translate 'Разделы формы' %}"><div class="km-specialist-nav__inner"><ul class="km-nav-list">{% for section in specialist_sections %}<li><a href="#{{ section.id }}" class="km-nav-item" data-section="{{ section.id }}">{{ section.title }}</a></li>{% endfor %}</ul></div></nav>
+<div class="km-specialist-content" id="km-content">
+<div class="km-specialist-jump"><label for="specialist-section-jump">{% translate 'Раздел формы' %}</label><select id="specialist-section-jump">{% for section in specialist_sections %}<option value="{{ section.id }}">{{ section.title }}</option>{% endfor %}</select></div>
+{% for section in specialist_sections %}<section class="km-specialist-section" id="{{ section.id }}"><div class="km-section-header"><h2 tabindex="-1">{{ section.title }}</h2></div><div class="km-section-body">
+{% if section.number == 3 %}<label for="specialist-direction-search">{% translate 'Поиск направлений' %}</label><input type="search" id="specialist-direction-search" data-specialist-direction-search><p role="status" aria-live="polite" data-specialist-direction-count data-found="{% translate 'Найдено' %}" data-selected="{% translate 'Выбрано' %}"></p>{% endif %}
+{% if section.fieldset %}{% for line in section.fieldset %}<div class="km-form-row {% if line.fields|length > 1 %}km-form-row--multi{% endif %}">{% for field in line %}<div class="km-field {% if field.field.name == 'specializations' %}km-field--specializations{% endif %}">{% if field.is_readonly and field.field.name == 'owner' %}<label>{% translate 'Прежний владелец (не подтверждает личность)' %}</label>{% elif field.is_readonly and field.field.name == 'created_by' %}<label>{% translate 'Автор предложения' %}</label>{% elif field.is_readonly and field.field.name == 'verified_person_user' %}<label>{% translate 'Подтверждённый специалист (аккаунт человека)' %}</label>{% else %}{{ field.label_tag }}{% endif %}{% if field.is_readonly %}<div class="readonly">{{ field.contents }}</div>{% else %}{{ field.field }}{% endif %}{{ field.errors }}{% if field.field.help_text %}<p class="help" id="{{ field.field.id_for_label }}_helptext">{{ field.field.help_text }}</p>{% endif %}</div>{% endfor %}</div>{% endfor %}
+{% elif section.inline %}<div class="km-inline-body" id="{% if section.number == 10 %}documents-group-wrapper{% else %}practice_locations-group-wrapper{% endif %}">{% with inline_admin_formset=section.inline %}{% include inline_admin_formset.opts.template %}{% endwith %}</div>
+{% elif section.unavailable %}<p>{% translate 'Изменение мест приёма недоступно вашей роли.' %}</p>
+{% elif section.private %}<p>{% translate 'Документы личности приватны. Их проверка доступна только специально уполномоченному проверяющему.' %}</p>{% endif %}
+</div></section>{% endfor %}
+</div></div>
+<div class="km-specialist-sticky-footer"><span role="status" aria-live="polite" data-specialist-save-status data-error="{% translate 'Изменения не сохранены. Проверьте ошибки.' %}" data-dirty="{% translate 'Есть несохранённые изменения' %}" data-saving="{% translate 'Сохранение… Дождитесь ответа сервера.' %}">{% if original %}{% translate 'Сохранено на сервере' %}: {{ original.updated_at }}{% else %}{% translate 'Новый профиль ещё не сохранён' %}{% endif %}</span>{% submit_row %}</div>
+</form>
+<script id="django-admin-form-add-constants" src="{% static 'admin/js/change_form.js' %}" {% if adminform and add %}data-model-name="{{ opts.model_name }}"{% endif %} async></script>
+<script id="django-admin-prepopulated-fields-constants" src="{% static 'admin/js/prepopulate_init.js' %}" data-prepopulated-fields="[]"></script>
+</div>
+{% endblock %}

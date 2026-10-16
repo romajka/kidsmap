@@ -1,0 +1,30 @@
+TAP version 13
+# Subtest: forward wrap excludes a visible SVG use and focuses the first real button
+ok 1 - forward wrap excludes a visible SVG use and focuses the first real button
+  ---
+  duration_ms: 110.156513
+  ...
+# Subtest: Tab from outside the dialog enters a real action rather than the SVG icon
+ok 2 - Tab from outside the dialog enters a real action rather than the SVG icon
+  ---
+  duration_ms: 26.521387
+  ...
+# Subtest: disabled, hidden and negative-tabindex controls do not become wrap targets
+ok 3 - disabled, hidden and negative-tabindex controls do not become wrap targets
+  ---
+  duration_ms: 21.122529
+  ...
+# Subtest: opening and Escape/Stay restore focus while preserving callback behavior
+ok 4 - opening and Escape/Stay restore focus while preserving callback behavior
+  ---
+  duration_ms: 11.431829
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 527.406358

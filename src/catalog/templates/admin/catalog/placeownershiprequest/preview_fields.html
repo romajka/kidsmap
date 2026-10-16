@@ -1,0 +1,15 @@
+{% load i18n %}
+{% if rows %}<dl class="km-inspection-fields">{% for row in rows %}
+  <div><dt>{{ row.label }}</dt><dd>{% if row.url %}<a href="{{ row.url }}" target="_blank" rel="noopener noreferrer">{{ row.value }}</a>{% else %}{{ row.value|linebreaksbr }}{% endif %}</dd></div>
+{% endfor %}</dl>{% endif %}
+{% for text in translations %}
+  <div class="km-inspection-translations">
+    <h3>{{ text.label }}</h3>
+    <div class="km-inspection-language-grid">{% for value in text.values %}
+      <article data-preview-language="{{ value.language }}" lang="{{ value.language }}">
+        <h4>{{ value.language|upper }}</h4>
+        {% if value.value %}<p class="km-inspection-prose">{{ value.value }}</p>{% else %}<p class="km-inspection-empty">{% translate 'Не заполнено' %}</p>{% endif %}
+      </article>
+    {% endfor %}</div>
+  </div>
+{% endfor %}

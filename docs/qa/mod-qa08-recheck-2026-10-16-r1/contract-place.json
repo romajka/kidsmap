@@ -1,0 +1,581 @@
+{
+  "model": "place",
+  "database": "mod08_plan_r1",
+  "read_only": true,
+  "fields": [
+    {
+      "field": "deleted_state",
+      "title": "Silinmə",
+      "parameters": [
+        "deleted_state"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "Не удалено",
+          "url": "?deleted_state=active",
+          "selected": false
+        },
+        {
+          "display": "В удаленных",
+          "url": "?deleted_state=deleted",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "publication_state",
+      "title": "Dərc",
+      "parameters": [
+        "publication_state"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "Dərc olunub",
+          "url": "?publication_state=published",
+          "selected": false
+        },
+        {
+          "display": "Dərc olunmayıb",
+          "url": "?publication_state=unpublished",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "coordinates_status",
+      "title": "Koordinatlar",
+      "parameters": [
+        "coordinates_status"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "Koordinatlar var",
+          "url": "?coordinates_status=yes",
+          "selected": false
+        },
+        {
+          "display": "Koordinatlar tələb olunur",
+          "url": "?coordinates_status=no",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "map_ready_status",
+      "title": "Xəritədə",
+      "parameters": [
+        "map_ready_status"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "Xəritə üçün hazırdır",
+          "url": "?map_ready_status=yes",
+          "selected": false
+        },
+        {
+          "display": "Xəritə üçün hazır deyil",
+          "url": "?map_ready_status=no",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "created_by",
+      "title": "Əlavə etdi",
+      "parameters": [
+        "created_by"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "qa_mod08_admin",
+          "url": "?created_by=1",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "created_date",
+      "title": "Yaradılma dövrü",
+      "parameters": [
+        "created_date"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "Bu gün",
+          "url": "?created_date=today",
+          "selected": false
+        },
+        {
+          "display": "Yeni (7 gün ərzində)",
+          "url": "?created_date=7d",
+          "selected": false
+        },
+        {
+          "display": "Yeni (30 gün ərzində)",
+          "url": "?created_date=30d",
+          "selected": false
+        },
+        {
+          "display": "90 gün ərzində",
+          "url": "?created_date=90d",
+          "selected": false
+        },
+        {
+          "display": "Köhnə (90 gündən çox)",
+          "url": "?created_date=older_90d",
+          "selected": false
+        },
+        {
+          "display": "Köhnə (1 ildən çox)",
+          "url": "?created_date=older_1y",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "sort",
+      "title": "Sıralama",
+      "parameters": [
+        "sort"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "Создано: сначала новые",
+          "url": "?sort=created_desc",
+          "selected": false
+        },
+        {
+          "display": "Создано: сначала старые",
+          "url": "?sort=created_asc",
+          "selected": false
+        },
+        {
+          "display": "Обновлено: сначала новые",
+          "url": "?sort=updated_desc",
+          "selected": false
+        },
+        {
+          "display": "Обновлено: сначала старые",
+          "url": "?sort=updated_asc",
+          "selected": false
+        },
+        {
+          "display": "Ada görə (A → Z)",
+          "url": "?sort=name_asc",
+          "selected": false
+        },
+        {
+          "display": "Ada görə (Z → A)",
+          "url": "?sort=name_desc",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "category",
+      "title": "Kateqoriya",
+      "parameters": [
+        "category__code__exact",
+        "category__isnull"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "QA kateqoriya 1",
+          "url": "?category__code__exact=QA081",
+          "selected": false
+        },
+        {
+          "display": "QA kateqoriya 2",
+          "url": "?category__code__exact=QA082",
+          "selected": false
+        },
+        {
+          "display": "İdman",
+          "url": "?category__code__exact=SPRT",
+          "selected": false
+        },
+        {
+          "display": "Su istirahəti",
+          "url": "?category__code__exact=water-leisure",
+          "selected": false
+        },
+        {
+          "display": "Parklar və uşaq meydançaları",
+          "url": "?category__code__exact=parks-playgrounds",
+          "selected": false
+        },
+        {
+          "display": "Əyləncə və asudə vaxt",
+          "url": "?category__code__exact=FUN",
+          "selected": false
+        },
+        {
+          "display": "Zooparklar",
+          "url": "?category__code__exact=ZOO",
+          "selected": false
+        },
+        {
+          "display": "Muzeylər və mədəniyyət",
+          "url": "?category__code__exact=museums-culture",
+          "selected": false
+        },
+        {
+          "display": "Rəqslər",
+          "url": "?category__code__exact=dance",
+          "selected": false
+        },
+        {
+          "display": "Təhsil",
+          "url": "?category__code__exact=EDU",
+          "selected": false
+        },
+        {
+          "display": "Məktəbəqədər inkişaf",
+          "url": "?category__code__exact=early-development",
+          "selected": false
+        },
+        {
+          "display": "Yaradıcılıq",
+          "url": "?category__code__exact=ART",
+          "selected": false
+        },
+        {
+          "display": "Teatr və səhnə",
+          "url": "?category__code__exact=theater-stage",
+          "selected": false
+        },
+        {
+          "display": "Musiqi",
+          "url": "?category__code__exact=MUS",
+          "selected": false
+        },
+        {
+          "display": "İntellekt və bacarıqlar",
+          "url": "?category__code__exact=intellect-skills",
+          "selected": false
+        },
+        {
+          "display": "Elm və texnologiyalar",
+          "url": "?category__code__exact=TECH",
+          "selected": false
+        },
+        {
+          "display": "İnkişaf və dəstək",
+          "url": "?category__code__exact=development-support",
+          "selected": false
+        },
+        {
+          "display": "Düşərgələr",
+          "url": "?category__code__exact=CAMP",
+          "selected": false
+        },
+        {
+          "display": "Ekskursiyalar və turlar",
+          "url": "?category__code__exact=excursions-tours",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "is_temporary",
+      "title": "Müvəqqəti tədbir",
+      "parameters": [
+        "is_temporary__exact",
+        "is_temporary__isnull"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "Hə",
+          "url": "?is_temporary__exact=1",
+          "selected": false
+        },
+        {
+          "display": "Yox",
+          "url": "?is_temporary__exact=0",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "district",
+      "title": "Region / rayon",
+      "parameters": [
+        "district",
+        "district__isnull"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "baku_narimanov",
+          "url": "?district=baku_narimanov",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "metro",
+      "title": "Metro",
+      "parameters": [
+        "metro",
+        "metro__isnull"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "",
+          "url": "?metro=",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "owner",
+      "title": "Kartın sahibi",
+      "parameters": [
+        "owner__id__exact",
+        "owner__isnull"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "qa_mod08_admin",
+          "url": "?owner__id__exact=1",
+          "selected": false
+        },
+        {
+          "display": "qa_mod08_owner",
+          "url": "?owner__id__exact=2",
+          "selected": false
+        },
+        {
+          "display": "-",
+          "url": "?owner__isnull=True",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "is_active",
+      "title": "Aktivdir",
+      "parameters": [
+        "is_active__exact",
+        "is_active__isnull"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "Hə",
+          "url": "?is_active__exact=1",
+          "selected": false
+        },
+        {
+          "display": "Yox",
+          "url": "?is_active__exact=0",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "is_home_recommended",
+      "title": "Ana səhifədə tövsiyələrdə göstər",
+      "parameters": [
+        "is_home_recommended__exact",
+        "is_home_recommended__isnull"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "Hə",
+          "url": "?is_home_recommended__exact=1",
+          "selected": false
+        },
+        {
+          "display": "Yox",
+          "url": "?is_home_recommended__exact=0",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "status",
+      "title": "Moderasiya statusu",
+      "parameters": [
+        "status__exact",
+        "status__isnull"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "Qaralama",
+          "url": "?status__exact=draft",
+          "selected": false
+        },
+        {
+          "display": "Moderasiya gözləyir",
+          "url": "?status__exact=pending",
+          "selected": false
+        },
+        {
+          "display": "Dərc olunub",
+          "url": "?status__exact=published",
+          "selected": false
+        },
+        {
+          "display": "İmtina edilib",
+          "url": "?status__exact=rejected",
+          "selected": false
+        },
+        {
+          "display": "Təkmilləşdirmə lazımdır",
+          "url": "?status__exact=needs_changes",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "age_from",
+      "title": "Yaşdan",
+      "parameters": [
+        "age_from",
+        "age_from__isnull"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "6",
+          "url": "?age_from=6",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "age_to",
+      "title": "Yaşa qədər",
+      "parameters": [
+        "age_to",
+        "age_to__isnull"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "12",
+          "url": "?age_to=12",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "offers_adult_classes",
+      "title": "Böyüklər üçün də məşğələlər var",
+      "parameters": [
+        "offers_adult_classes__exact",
+        "offers_adult_classes__isnull"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "Hə",
+          "url": "?offers_adult_classes__exact=1",
+          "selected": false
+        },
+        {
+          "display": "Yox",
+          "url": "?offers_adult_classes__exact=0",
+          "selected": false
+        }
+      ]
+    }
+  ],
+  "primary_config": [
+    "category",
+    "district",
+    "status",
+    "created_by"
+  ],
+  "result_count": 2,
+  "result_ids": [
+    2,
+    1
+  ]
+}

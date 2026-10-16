@@ -1,0 +1,14 @@
+{
+  "path": "docs/qa/continuation-and-repair-prompts-2026-10-11.md",
+  "before_sha256": "d997330cfee540301ce0d0da086ad2793bd491e47893083425169e3af6d6862d",
+  "edits": [
+    {
+      "before": "- Module07 текущая сводная ACCEPT-07 — **LOCAL PASS / ACCESS-QA-01–06 CLOSED LOCAL**, 2026-10-15: [итоговый отчёт](module07-accept-2026-10-15-r2/REPORT.md), [verification](module07-accept-2026-10-15-r2/verification.json). ACCESS06 исправлен по отдельному одобрению: одна строка strip=False в forms.py +новые4regression methods; свежие4RED(24subfailures)→GREEN,7existing target methods PASS,684native observations PASS/18cells,134PNG с RED evidence. Существующий полный корпус338methods/2232nativePASS retained по hashes, повторно целиком не запускался. Исторический full-r1 LOCAL FAIL сохранён: его06закрыт свежим fix-run.03=ORG02 без повторного patch. Сохранность/процессы/изоляция подтверждаются gate; прежняя continuity четырёх старых HTTP остаётся NOT VERIFIED. Production/module08 NOT RUN.\n",
+      "after": "- Module07 текущая сводная ACCEPT-07 — **LOCAL PASS / ACCESS-QA-01–06 CLOSED LOCAL**, 2026-10-15: [итоговый отчёт](module07-accept-2026-10-15-r2/REPORT.md), [verification](module07-accept-2026-10-15-r2/verification.json). ACCESS06 исправлен по отдельному одобрению: одна строка strip=False в forms.py +новые4regression methods; свежие4RED(24subfailures)→GREEN,7existing target methods PASS,684native observations PASS/18cells,134PNG с RED evidence. Существующий полный корпус338methods/2232nativePASS retained по hashes, повторно целиком не запускался. Исторический full-r1 LOCAL FAIL сохранён: его06закрыт свежим fix-run.03=ORG02 без повторного patch. Сохранность/процессы/изоляция подтверждаются gate; прежняя continuity четырёх старых HTTP остаётся NOT VERIFIED. Production/module08 NOT RUN.\n- Module08 PLAN MOD-QA-01 — **CONFIRMED OPEN / implementation approval pending**, 2026-10-15: [fresh recheck/report](mod-qa01-recheck-2026-10-15-r1/REPORT.md), [конкретный план](mod-qa01-recheck-2026-10-15-r1/IMPLEMENTATION_PLAN.md), [verification](mod-qa01-recheck-2026-10-15-r1/verification.json). Admin/reviewer ×RU/AZ/EN×6widths:32pending=25+7, pager отсутствует;75controlPASS/72sourceFAIL observations,36PNG;4proposed methods/6expected locale subtestFAIL,0ERROR. App0changes, готовый diff только hub template+new4method test, не применён. Другие MOD IDs/full08/production NOT RUN; historical counts сохранены.\n"
+    },
+    {
+      "before": "| 08 Админка, модерация и волонтёрский кабинет | 8 | 8 | [Задачи](#m08) · [ACCEPT-08](#accept08) |",
+      "after": "| 08 Админка, модерация и волонтёрский кабинет | 8 | 8 | [Задачи](#m08) · [ACCEPT-08](#accept08) · [PLAN MOD01:OPEN](mod-qa01-recheck-2026-10-15-r1/IMPLEMENTATION_PLAN.md) |"
+    }
+  ]
+}

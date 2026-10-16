@@ -1,0 +1,1 @@
+Four toast attributes use data-publication-* names (same approved files/behavior). This preserves the existing exact five data-unpublish-* confirmation attributes checked by unchanged MOD06 regression tests. No business/ACL/fetch/error/CSS changes.

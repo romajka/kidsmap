@@ -1,0 +1,154 @@
+{
+  "decision": "PLAN VERIFICATION FAIL",
+  "scope_ids": [
+    "MOD-QA-03"
+  ],
+  "closed_ids": [],
+  "application_changes": [],
+  "approval": "PENDING",
+  "checks": [
+    {
+      "name": "same_root_head_branch",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "active_run_unchanged_NONE",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "all_existing_file_bytes_preserved_except_explicit_status_guide",
+      "status": "PASS",
+      "detail": {
+        "baseline_files": 30517,
+        "unchanged": 30516,
+        "changed": [
+          "docs/qa/continuation-and-repair-prompts-2026-10-11.md"
+        ],
+        "missing": []
+      }
+    },
+    {
+      "name": "guide_previous_bytes_recover_exactly_by_removing_own_note_and_link",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "all_prior_dirty_entries_retained",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "foreign68_container_id_state_ports_preserved",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "foreign7_HTTP_processes_preserved",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "own_HTTP_process_identity",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "own_runtime_source_953_matches_disk",
+      "status": "PASS",
+      "detail": {
+        "paths": 953,
+        "pid": 655705
+      }
+    },
+    {
+      "name": "testing_no_env_sole_own_locale",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "three_own_MO_opened",
+      "status": "FAIL",
+      "detail": null
+    },
+    {
+      "name": "application_CSS_unmodified_proposal_append_only",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "baseline_semantic_RED_retained",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "native-baseline-r2.js.result.json no local console/network/page errors",
+      "status": "PASS",
+      "detail": {
+        "diagnostics": 352,
+        "external_blocked_fonts": true
+      }
+    },
+    {
+      "name": "native-stable-subset.js.result.json no local console/network/page errors",
+      "status": "PASS",
+      "detail": {
+        "diagnostics": 22,
+        "external_blocked_fonts": true
+      }
+    },
+    {
+      "name": "synthetic_domain_unchanged",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "PNG_414_hashes_and_dimensions",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "own_Python_evidence_scripts_parse",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "name": "git_diff_check_exit0",
+      "status": "PASS",
+      "detail": {
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "name": "no_own_secret_values_in_repo_artifacts",
+      "status": "PASS",
+      "detail": []
+    }
+  ],
+  "counts": {
+    "PASS": 19,
+    "FAIL": 1
+  },
+  "baseline_counts": {
+    "PASS": 1037,
+    "FAIL": 84
+  },
+  "not_run": [
+    "application patch",
+    "postpatch GREEN",
+    "expanded functional interactions and popover clipping",
+    "ACCEPT08",
+    "MOD04-08",
+    "production",
+    "commit/push/deploy"
+  ],
+  "command": {
+    "argv": [
+      "python3",
+      "/home/ramin/kidsmap/docs/qa/mod-qa03-recheck-2026-10-15-r1/verify_plan.py"
+    ],
+    "exit": 1
+  }
+}

@@ -1,0 +1,553 @@
+Found 5 test(s).
+System check identified no issues (0 silenced).
+Creating test database for alias 'default'...
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+======================================================================
+FAIL: test_empty_results_keep_permitted_options_and_anonymous_stays_out (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_empty_results_keep_permitted_options_and_anonymous_stays_out) (model='Place')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 147, in test_empty_results_keep_permitted_options_and_anonymous_stays_out
+    self.assertTrue(all(c['index'] >= 0 for c in markup.controls))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_empty_results_keep_permitted_options_and_anonymous_stays_out (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_empty_results_keep_permitted_options_and_anonymous_stays_out) (model='Event')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 147, in test_empty_results_keep_permitted_options_and_anonymous_stays_out
+    self.assertTrue(all(c['index'] >= 0 for c in markup.controls))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_empty_results_keep_permitted_options_and_anonymous_stays_out (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_empty_results_keep_permitted_options_and_anonymous_stays_out) (model='Specialist')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 147, in test_empty_results_keep_permitted_options_and_anonymous_stays_out
+    self.assertTrue(all(c['index'] >= 0 for c in markup.controls))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_place', model='Place', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_location', model='Place', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_state', model='Place', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_marks', model='Place', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_updated', model='Place', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_place', model='Place', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_location', model='Place', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_state', model='Place', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_marks', model='Place', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_updated', model='Place', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_place', model='Place', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_location', model='Place', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_state', model='Place', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_marks', model='Place', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_updated', model='Place', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_place', model='Event', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_location', model='Event', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_state', model='Event', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_marks', model='Event', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_updated', model='Event', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_place', model='Event', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_location', model='Event', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_state', model='Event', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_marks', model='Event', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_updated', model='Event', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_place', model='Event', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_location', model='Event', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_state', model='Event', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_marks', model='Event', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_updated', model='Event', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_place', model='Specialist', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_location', model='Specialist', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_state', model='Specialist', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_marks', model='Specialist', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_updated', model='Specialist', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_place', model='Specialist', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_location', model='Specialist', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_state', model='Specialist', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_marks', model='Specialist', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_updated', model='Specialist', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_place', model='Specialist', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_location', model='Specialist', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_state', model='Specialist', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_marks', model='Specialist', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_every_control_addresses_actual_header_and_cells_in_all_locales (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_every_control_addresses_actual_header_and_cells_in_all_locales) (target='column-col_updated', model='Specialist', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_ordinary_specialist_reader_never_gets_private_column_control (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_ordinary_specialist_reader_never_gets_private_column_control)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 128, in test_ordinary_specialist_reader_never_gets_private_column_control
+    self.assertIn('column-documents_count', [c['target'] for c in self.page(Specialist).controls])
+AssertionError: 'column-documents_count' not found in ['column-col_place', 'column-col_location', 'column-col_state', 'column-col_marks', 'column-col_updated']
+
+======================================================================
+FAIL: test_storage_does_not_transfer_choices_between_queues_and_retains_place_key (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_storage_does_not_transfer_choices_between_queues_and_retains_place_key)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 137, in test_storage_does_not_transfer_choices_between_queues_and_retains_place_key
+    self.assertEqual(self.page(Place).storage_key, 'km_hidden_columns')
+AssertionError: None != 'km_hidden_columns'
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (target='column-col_place', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (target='column-col_location', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (target='column-col_state', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (target='column-col_marks', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (target='column-col_updated', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 124, in test_trash_controls_address_deleted_date_instead_of_missing_updated_column
+    self.assertIn('column-deleted_at_display', targets)
+AssertionError: 'column-deleted_at_display' not found in ['column-col_place', 'column-col_location', 'column-col_state', 'column-col_marks', 'column-col_updated']
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (target='column-col_place', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (target='column-col_location', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (target='column-col_state', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (target='column-col_marks', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (target='column-col_updated', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 124, in test_trash_controls_address_deleted_date_instead_of_missing_updated_column
+    self.assertIn('column-deleted_at_display', targets)
+AssertionError: 'column-deleted_at_display' not found in ['column-col_place', 'column-col_location', 'column-col_state', 'column-col_marks', 'column-col_updated']
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (target='column-col_place', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (target='column-col_location', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (target='column-col_state', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (target='column-col_marks', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (target='column-col_updated', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 103, in assert_controls_match_real_cells
+    self.assertGreaterEqual(index, 0)
+AssertionError: -1 not greater than or equal to 0
+
+======================================================================
+FAIL: test_trash_controls_address_deleted_date_instead_of_missing_updated_column (catalog.testcases.test_admin_queue_columns.AdminQueueColumnTests.test_trash_controls_address_deleted_date_instead_of_missing_updated_column) (lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_columns.py", line 124, in test_trash_controls_address_deleted_date_instead_of_missing_updated_column
+    self.assertIn('column-deleted_at_display', targets)
+AssertionError: 'column-deleted_at_display' not found in ['column-col_place', 'column-col_location', 'column-col_state', 'column-col_marks', 'column-col_updated']
+
+----------------------------------------------------------------------
+Ran 5 tests in 6.734s
+
+FAILED (failures=68)
+Destroying test database for alias 'default'...

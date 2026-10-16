@@ -1,0 +1,20 @@
+--- a/static/css/site.css
++++ b/static/css/site.css
+@@ -9750,6 +9750,17 @@
+   text-decoration: none;
+ }
+ 
++.owner-team .owner-team-list,
++.owner-team .owner-team-item {
++  min-width: 0;
++  grid-template-columns: minmax(0, 1fr);
++}
++
++.owner-team .owner-team-item h3,
++.owner-team .owner-team-item .meta {
++  overflow-wrap: anywhere;
++}
++
+ .owner-team-role-form {
+   display: flex;
+   gap: 8px;

@@ -4,7 +4,7 @@ from .controllers.public_map_api import public_map
 from .controllers.public_details import organization_detail as public_organization_detail, activity_detail
 from .controllers.server_draft_api import draft_collection, draft_detail, draft_photo, draft_materialize
 from .controllers.business_team_api import business_team_action, business_permission_config
-from .controllers.workflow_notifications import inbox, mark_read, accept_invitation
+from .controllers.workflow_notifications import inbox, mark_read, accept_invitation, reject_invitation
 from .controllers.location_resolution import location_resolve
 from .controllers.typed_reviews import target_reviews, review_action
 from .controllers.specialist_workspace import (specialist_workspace_index, specialist_workspace_profile,
@@ -106,6 +106,7 @@ urlpatterns = [
     path('account/notifications/', inbox, name='account_notifications'),
     path('account/notifications/<int:notification_id>/read/', mark_read, name='account_notification_read'),
     path('account/notifications/<int:notification_id>/accept/', accept_invitation, name='account_notification_accept'),
+    path('account/notifications/<int:notification_id>/reject/', reject_invitation, name='account_notification_reject'),
     path('account/organizations/', organization_index, name='organization_workspace_index'),
     path('account/organizations/create/', organization_create, name='organization_workspace_create'),
     path('account/organizations/connect/', organization_connection_target, name='organization_connection_target'),

@@ -1,0 +1,6 @@
+### Result
+{"closed_owned_pending_loading_contexts":1}
+### Ran Playwright code
+```js
+await (async original=>{const cs=original.context().browser().contexts().filter(c=>c!==original.context()&&c.pages().some(p=>p.url().includes('/account/specialists/proposals/new/')));for(const c of cs)await c.close();return{closed_owned_pending_loading_contexts:cs.length};})(page);
+```

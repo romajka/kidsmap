@@ -724,6 +724,8 @@
         data-empty-message="{% if language == 'az' %}Cari filtrlərə uyğun koordinatlı məkan tapılmadı.{% elif language == 'en' %}No places with coordinates match the current filters yet.{% else %}По текущим фильтрам пока нет карточек с координатами.{% endif %}"
         data-fallback-message="{% if language == 'az' %}Google Maps qoşulduqdan sonra interaktiv xəritə açılacaq.{% elif language == 'en' %}The interactive map will be available after Google Maps is configured.{% else %}Интерактивная карта станет доступна после настройки Google Maps.{% endif %}"
         data-loading-message="{% if language == 'az' %}Xəritə yüklənir…{% elif language == 'en' %}Loading map…{% else %}Загружаем карту…{% endif %}"
+        data-error-message="{% if language == 'az' %}Xəritəni yükləmək mümkün olmadı. Məkanların siyahısından istifadə edə bilərsiniz.{% elif language == 'en' %}Could not load the map. You can still use the list of places.{% else %}Не удалось загрузить карту. Список мест остаётся доступен.{% endif %}"
+        data-retry-label="{% if language == 'az' %}Yenidən cəhd et{% elif language == 'en' %}Try again{% else %}Попробовать снова{% endif %}"
         hidden
       >
         <div class="catalog-map-head">
@@ -1208,6 +1210,8 @@
     <script src="{% static 'js/catalog_map.js' %}?v=20260910_motion1"></script>
     {% if google_maps_api_key %}
       <script
+        data-catalog-google-sdk
+        onerror="window.kidsMapCatalogSdkError(this)"
         src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&loading=async&libraries=marker&callback=kidsMapInitCatalogResultsMap"
         async
       ></script>

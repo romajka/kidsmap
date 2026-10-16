@@ -1,0 +1,26 @@
+{
+  "alias": "ACCESS-QA-03 = ORG-QA-02",
+  "acceptance": "docs/qa/module02-full-2026-10-13-r2/REPORT.md",
+  "rows": [
+    {
+      "path": "src/catalog/templates/pages/organization_workspace.html",
+      "accepted_source_match": true
+    },
+    {
+      "path": "static/js/organization_workspace.js",
+      "accepted_source_match": true
+    },
+    {
+      "path": "static/css/pages/organization_workspace.css",
+      "accepted_source_match": false
+    },
+    {
+      "path": "src/catalog/controllers/business_team_api.py",
+      "accepted_source_match": true
+    },
+    {
+      "path": "src/catalog/services/business_team.py",
+      "accepted_source_match": true
+    }
+  ]
+}

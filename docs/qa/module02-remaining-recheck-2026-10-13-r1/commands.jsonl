@@ -1,0 +1,13 @@
+{"argv": ["docker", "run", "-d", "--name", "module02-remaining-recheck-2026-10-13-r1-pg", "--env-file", "/home/ramin/kidsmap/.tmp/module02-remaining-recheck-2026-10-13-r1/postgres.env", "-p", "127.0.0.1:35715:5432", "postgres:17-alpine"], "exit": 0, "result": "docker-start.txt"}
+{"argv": ["/home/ramin/kidsmap/.venv/bin/python", "/home/ramin/kidsmap/scripts/build_isolated_locales.py", "build", "--output", "/home/ramin/kidsmap/.tmp/module02-remaining-recheck-2026-10-13-r1/locales", "--locales", "ru", "az", "en", "--compiler", "native"], "exit": 0, "result": "locales-build.txt"}
+{"argv": ["/home/ramin/kidsmap/.venv/bin/python", "/home/ramin/kidsmap/scripts/build_isolated_locales.py", "verify", "--manifest", "/home/ramin/kidsmap/.tmp/module02-remaining-recheck-2026-10-13-r1/locales/manifest.json"], "exit": 0, "result": "locales-verify.txt"}
+{"argv": ["/home/ramin/kidsmap/.venv/bin/python", "/home/ramin/kidsmap/docs/qa/module02-remaining-recheck-2026-10-13-r1/runtime.py", "prepare"], "exit": 0, "result": "prepare.txt"}
+{"argv": ["/home/ramin/kidsmap/.venv/bin/python", "/home/ramin/kidsmap/docs/qa/module02-remaining-recheck-2026-10-13-r1/runtime.py", "check"], "exit": 0, "result": "check.txt"}
+{"argv": ["/home/ramin/kidsmap/.venv/bin/python", "/home/ramin/kidsmap/docs/qa/module02-remaining-recheck-2026-10-13-r1/start-server.py"], "exit": 0, "result": "start-server.txt"}
+{"command": ".venv/bin/python docs/qa/module02-remaining-recheck-2026-10-13-r1/drive.py recheck.js", "cli_exit": 0}
+{"command": ".venv/bin/python docs/qa/module02-remaining-recheck-2026-10-13-r1/drive.py layout-probe.js", "cli_exit": 0}
+{"command": ".venv/bin/python docs/qa/module02-remaining-recheck-2026-10-13-r1/drive.py layout-probe-refined.js", "cli_exit": 0}
+{"command": ".venv/bin/python docs/qa/module02-remaining-recheck-2026-10-13-r1/runtime.py script seed.py", "exit": 0}
+{"command": ".venv/bin/python docs/qa/module02-remaining-recheck-2026-10-13-r1/runtime.py script copy-proof.py", "exit": 0}
+{"command": ".venv/bin/python docs/qa/module02-remaining-recheck-2026-10-13-r1/runtime.py test catalog.testcases.test_organization_admin_labels catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_organization_admin_draft_and_submit_use_candidate catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_pending_editor_shows_current_and_candidate_separately", "exit": 0, "tests": 4, "result": "targeted-baseline.txt"}
+{"command": ".venv/bin/python docs/qa/module02-remaining-recheck-2026-10-13-r1/verify.py", "exit": 0, "result": "verification.json"}

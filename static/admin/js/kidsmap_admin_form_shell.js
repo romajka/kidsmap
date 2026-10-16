@@ -1141,7 +1141,9 @@
     var mainClearButton = mediaSection.querySelector("[data-main-photo-clear]");
     var mainFileName = mediaSection.querySelector("[data-main-photo-file-name]");
     var mainFileSize = mediaSection.querySelector("[data-main-photo-file-size]");
-    var mainClearCheckbox = mainInput && mainInput.id ? document.getElementById(mainInput.id + "-clear") : null;
+    var mainClearCheckbox = mainInput && mainInput.form
+      ? mainInput.form.querySelector('input[name="' + mainInput.name + '-clear"]')
+      : null;
     var mainDropzone = mediaSection.querySelector("[data-main-photo-preview-wrap]");
     var mainRoot = mediaSection.querySelector("[data-main-photo-root]");
 
@@ -1246,6 +1248,8 @@
         mainClearCheckbox.checked = true;
       }
       syncMainPhotoState();
+      var changedInput = mainClearCheckbox || mainInput;
+      if (changedInput) changedInput.dispatchEvent(new Event("change", { bubbles: true }));
     }
 
     if (mainInput) {
@@ -2055,7 +2059,9 @@
     function hasMainPhoto() {
       var mainInput = document.getElementById("id_photo");
       var mainPreview = document.querySelector("[data-main-photo-preview]");
-      var mainClearCheckbox = document.getElementById("id_photo-clear");
+      var mainClearCheckbox = mainInput && mainInput.form
+      ? mainInput.form.querySelector('input[name="' + mainInput.name + '-clear"]')
+      : null;
       return !!(
         (mainInput && mainInput.files && mainInput.files.length) ||
         (mainPreview && mainPreview.getAttribute("data-main-photo-initial-url") && !(mainClearCheckbox && mainClearCheckbox.checked))
@@ -2332,7 +2338,9 @@
 
       var mainInput = document.getElementById("id_photo");
       var mainPreview = document.querySelector("[data-main-photo-preview]");
-      var mainClearCheckbox = document.getElementById("id_photo-clear");
+      var mainClearCheckbox = mainInput && mainInput.form
+      ? mainInput.form.querySelector('input[name="' + mainInput.name + '-clear"]')
+      : null;
       var hasPhoto = !!(
         (mainInput && mainInput.files && mainInput.files.length) ||
         (mainPreview && mainPreview.getAttribute("data-main-photo-initial-url") && !(mainClearCheckbox && mainClearCheckbox.checked))

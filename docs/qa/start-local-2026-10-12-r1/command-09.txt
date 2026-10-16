@@ -1,0 +1,76 @@
+FF.F.FFsF
+======================================================================
+FAIL: test_changed_source_even_with_same_mtime_is_rejected (test_build_isolated_locales.IsolatedLocaleBuildTests.test_changed_source_even_with_same_mtime_is_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/scripts/tests/test_build_isolated_locales.py", line 73, in test_changed_source_even_with_same_mtime_is_rejected
+    self.build(); times = self.po.stat().st_atime_ns,self.po.stat().st_mtime_ns
+    ^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/scripts/tests/test_build_isolated_locales.py", line 51, in build
+    self.assertEqual(result.returncode,0,result.stderr)
+AssertionError: 1 != 0 : [Errno 2] No such file or directory: 'wsl.exe'
+
+
+======================================================================
+FAIL: test_existing_output_and_source_are_refused_without_changes (test_build_isolated_locales.IsolatedLocaleBuildTests.test_existing_output_and_source_are_refused_without_changes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/scripts/tests/test_build_isolated_locales.py", line 85, in test_existing_output_and_source_are_refused_without_changes
+    self.build(); before = (self.output/'manifest.json').read_bytes()
+    ^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/scripts/tests/test_build_isolated_locales.py", line 51, in build
+    self.assertEqual(result.returncode,0,result.stderr)
+AssertionError: 1 != 0 : [Errno 2] No such file or directory: 'wsl.exe'
+
+
+======================================================================
+FAIL: test_incomplete_and_escaping_manifests_are_rejected (test_build_isolated_locales.IsolatedLocaleBuildTests.test_incomplete_and_escaping_manifests_are_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/scripts/tests/test_build_isolated_locales.py", line 103, in test_incomplete_and_escaping_manifests_are_rejected
+    manifest=self.build(); path=self.output/'manifest.json'
+             ^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/scripts/tests/test_build_isolated_locales.py", line 51, in build
+    self.assertEqual(result.returncode,0,result.stderr)
+AssertionError: 1 != 0 : [Errno 2] No such file or directory: 'wsl.exe'
+
+
+======================================================================
+FAIL: test_real_singular_context_plural_and_fuzzy_omission (test_build_isolated_locales.IsolatedLocaleBuildTests.test_real_singular_context_plural_and_fuzzy_omission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/scripts/tests/test_build_isolated_locales.py", line 58, in test_real_singular_context_plural_and_fuzzy_omission
+    self.build()
+  File "/home/ramin/kidsmap/scripts/tests/test_build_isolated_locales.py", line 51, in build
+    self.assertEqual(result.returncode,0,result.stderr)
+AssertionError: 1 != 0 : [Errno 2] No such file or directory: 'wsl.exe'
+
+
+======================================================================
+FAIL: test_same_inputs_have_deterministic_mo_hashes (test_build_isolated_locales.IsolatedLocaleBuildTests.test_same_inputs_have_deterministic_mo_hashes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/scripts/tests/test_build_isolated_locales.py", line 68, in test_same_inputs_have_deterministic_mo_hashes
+    first = self.build()
+            ^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/scripts/tests/test_build_isolated_locales.py", line 51, in build
+    self.assertEqual(result.returncode,0,result.stderr)
+AssertionError: 1 != 0 : [Errno 2] No such file or directory: 'wsl.exe'
+
+
+======================================================================
+FAIL: test_tampered_missing_asset_and_manifest_are_rejected (test_build_isolated_locales.IsolatedLocaleBuildTests.test_tampered_missing_asset_and_manifest_are_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/scripts/tests/test_build_isolated_locales.py", line 78, in test_tampered_missing_asset_and_manifest_are_rejected
+    self.build(); mo = self.output/'locale/az/LC_MESSAGES/django.mo'
+    ^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/scripts/tests/test_build_isolated_locales.py", line 51, in build
+    self.assertEqual(result.returncode,0,result.stderr)
+AssertionError: 1 != 0 : [Errno 2] No such file or directory: 'wsl.exe'
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.400s
+
+FAILED (failures=6, skipped=1)

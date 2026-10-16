@@ -263,6 +263,16 @@ select:focus-visible {
   white-space: nowrap;
 }
 
+.change-form :is(.field-publication_badge, .field-ownership_badge, .field-verified_badge) .km-status-badge {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.change-form :is(.field-publication_badge, .field-ownership_badge, .field-verified_badge) .km-status-badge::before {
+  flex-shrink: 0;
+}
+
 .km-status-badge.km-status-published,
 .km-status-published {
   background: var(--km-admin-success-bg, #D1FAE5);
@@ -335,4 +345,3 @@ select:focus-visible {
   color: var(--km-admin-badge-muted-fg, #475569);
   border: 1px solid var(--km-admin-badge-muted-border, #E2E8F0);
 }
-
