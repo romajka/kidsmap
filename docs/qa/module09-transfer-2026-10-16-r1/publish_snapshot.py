@@ -1,7 +1,7 @@
 """Push immutable WIP transfer in bounded packs; shared checkout/index untouched."""
 import hashlib,json,os,subprocess,time
 from pathlib import Path
-H=Path(__file__).resolve().parent;R=H.parents[2];S=R/'.tmp'/H.name;entry=json.loads((H/'entry.json').read_text());frozen=json.loads((S/'full-tree.json').read_text());ref='refs/heads/'+entry['target_branch'];env=dict(os.environ,GIT_INDEX_FILE=str(S/'publish.index'),GIT_SSH_COMMAND='ssh -o BatchMode=yes -o ConnectTimeout=10 -o ServerAliveInterval=15 -o ServerAliveCountMax=3')
+H=Path(__file__).resolve().parent;R=H.parents[2];S=R/'.tmp'/H.name;entry=json.loads((H/'entry.json').read_text());frozen=json.loads((S/'full-tree.json').read_text());ref='refs/heads/'+entry['target_branch'];env=dict(os.environ,GIT_INDEX_FILE=str(S/'publish.index'),GIT_SSH_COMMAND='ssh -o BatchMode=yes -o ConnectTimeout=10 -o ServerAliveInterval=60 -o ServerAliveCountMax=10')
 def git(*a,input=None):return subprocess.run(['git','-c','gc.auto=0',*a],cwd=R,env=env,input=input,stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=True).stdout
 statefile=S/'publication-state.json'
 if statefile.exists():state=json.loads(statefile.read_text())
@@ -40,7 +40,7 @@ for c in state['commits']:
   assert remote_sha is None or remote_sha in allowed,remote_sha
   print(json.dumps({'pushing':c['index']+1,'of':len(state['commits']),'commit':c['commit'],'paths':c['paths']}),flush=True)
   log=S/f'push-{c["index"]}.log'
-  with log.open('ab')as f:result=subprocess.run(['git','-c','gc.auto=0','-c','pack.threads=2','-c','pack.windowMemory=32m','-c','pack.window=3','push','origin',c['commit']+':'+ref],cwd=R,env=env,stdout=f,stderr=subprocess.STDOUT)
+  with log.open('ab')as f:result=subprocess.run(['git','-c','gc.auto=0','-c','pack.threads=2','-c','pack.windowMemory=32m','-c','pack.window=3','push','--progress','origin',c['commit']+':'+ref],cwd=R,env=env,stdout=f,stderr=subprocess.STDOUT)
   assert result.returncode==0,{'push_exit':result.returncode,'log':str(log)}
   remote=git('ls-remote','origin',ref).decode().split();assert remote and remote[0]==c['commit']
  current=subprocess.run(['git','rev-parse','--verify',ref],cwd=R,capture_output=True,text=True);old=current.stdout.strip()if current.returncode==0 else'0'*40;git('update-ref',ref,c['commit'],old)

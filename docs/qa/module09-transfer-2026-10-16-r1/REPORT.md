@@ -1,13 +1,11 @@
-# Module09 — перенос на другой ПК
+# Быстрый перенос для продолжения на другом ПК
 
-2026-10-16. Разрешён пользователем Git-transfer всей накопленной работы; продолжение реализации SOCIAL03 не одобрено.
+2026-10-16. **Код, планы, отчёты и безопасные QA logs опубликованы. По просьбе спешащего пользователя оставшаяся загрузка PNG остановлена.** Изображения не требуются для продолжения разработки; архив native PNG в Git частичный, остаток сохранён локально на исходномПК. Не объявлять missing PNG переданными. Исторические manifests остаются историей; новые UI проверки создадут новые evidence.
 
-Целевая ветка: `codex/module09-transfer-2026-10-16-r1`. Основной checkout `task33-progress` и общий index сохраняются. Используется отдельный index и frozen Git tree; main/deploy не затрагиваются. Snapshot содержит также накопленные изменения модулей01–08 и параллельной админской задачи, без переноса на них нового acceptance.
+Ветка: `codex/module09-transfer-2026-10-16-r1`. [Полный единый промт](RESUME_PROMPT.txt), [фактическая граница](fast-handoff.json), [verification](verification.json). Этот commit содержит финальный промт; его SHA сообщается пользователю отдельно.
 
-Точка продолжения: [один полный промт](RESUME_PROMPT.txt). SOCIAL01–02 — scoped LOCAL в своих зафиксированных снимках. SOCIAL03 — OPEN, план требует current source/MO recheck и отдельного одобрения до patch. Full ACCEPT09 NOT RUN. Исторические runtime/PID/порты не переносим как рабочие.
+Все app/code изменения зафиксированы первым payload commit17eb1171a249171a41298524e69ddeaff8cfa9e6; последующие commits добавляли только QA изображения. Параллельные admin/service/PO изменения включены в source snapshot. SOCIAL01–02 сохраняют scopedLOCAL acceptance своих исторических snapshots; SOCIAL03 OPEN, current-source/MO refresh и approvalscope обязательны до patch. Новые6candidate tests NOTRUN, полныйACCEPT09NOTRUN. Это перенос WIP, не релиз.
 
-[Entry/authorization](entry.json), [проверки упаковки](verification.json). Исходники и QA evidence публикуются WIP-снимком; push не означает release/deployment. Последний записанный параллельный релиз админки описан в ../admin-moderation-release-2026-10-16-r2/REPORT.md, production здесь не проверяется.
+Проверка переноса: secret/forbidden matches0;76application PythonAST и19JSsyntax PASS; source manifest1017files. Full tests/production/deploy не выполнялись. Safe72ignoredQAlogs включены явно. .env/credentials/local DB/new ignored.tmp/venv/private media не переносились. Старые tracked.tmpHTML — наследие исходногоHEAD.
 
-Новые ignored .tmp/credentials/env/local DB/cache/private-media/venv и pyc не включаются. Безопасные локальные QA logs после проверки будут включены явно, чтобы ссылки в отчётах работали. Старые уже tracked `.tmp/*.html` являются наследием исходного HEAD; новых runtime данных в .tmp не добавляется.
-
-Full tests не запускались ради переноса. Выполняются file/source inventory, syntax для переносимого application code, контроль секретов/forbidden paths, SHA/PNG integrity и проверка удалённых refs. Снимки старых acceptance остаются привязаны к собственным source manifests.
+Исходный checkout task33-progress/HEAD e4e05cc213b34e2d771ecb854901bfd016d1db51 и sharedindex сохранены, WORKTREE остаётся dirty. Main не меняли. Остановлен только собственный uploader с его Git/SSH children, чужих процессов0. Частично опубликованные image commits сохранены, force-push не применялся.
