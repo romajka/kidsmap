@@ -74,6 +74,91 @@
     var i18nNode = document.getElementById('km-changelist-i18n');
     var labels = (i18nNode && i18nNode.dataset) || {};
 
+    // Row menus must escape table clipping and remain inside the viewport.
+    var rowMenuAnchors = new WeakMap();
+    function positionRowMenu(panel, trigger) {
+      var margin = 12;
+      var rect = trigger.getBoundingClientRect();
+      rowMenuAnchors.set(panel, {trigger: trigger, left: rect.left, top: rect.top});
+      panel.hidden = false;
+      panel.style.setProperty('position', 'fixed', 'important');
+      panel.style.setProperty('right', 'auto', 'important');
+      panel.style.setProperty('max-width', (window.innerWidth - margin * 2) + 'px', 'important');
+      panel.style.setProperty('max-height', (window.innerHeight - margin * 2) + 'px', 'important');
+      panel.style.setProperty('overflow-y', 'auto');
+      var size = panel.getBoundingClientRect();
+      var top = rect.bottom + 6;
+      if (top + size.height > window.innerHeight - margin) top = rect.top - size.height - 6;
+      top = Math.max(margin, Math.min(top, window.innerHeight - size.height - margin));
+      var left = Math.max(margin, Math.min(rect.right - size.width, window.innerWidth - size.width - margin));
+      panel.style.setProperty('top', top + 'px', 'important');
+      panel.style.setProperty('left', left + 'px', 'important');
+    }
+
+    var portaledActionMenu = null;
+    function closePortaledActionMenu(restoreFocus) {
+      if (!portaledActionMenu) return;
+      var current = portaledActionMenu;
+      portaledActionMenu = null;
+      current.details.open = false;
+      current.details.appendChild(current.panel);
+      if (current.style === null) current.panel.removeAttribute('style');
+      else current.panel.setAttribute('style', current.style);
+      if (restoreFocus) current.trigger.focus({preventScroll: true});
+    }
+
+    document.addEventListener('toggle', function (event) {
+      var details = event.target;
+      if (!details.matches || !details.matches('details.km-admin-action-menu') || !details.closest('.km-event-changelist')) return;
+      if (!details.open) {
+        if (portaledActionMenu && portaledActionMenu.details === details) closePortaledActionMenu(false);
+        return;
+      }
+      if (portaledActionMenu && portaledActionMenu.details === details) return;
+      closePortaledActionMenu(false);
+      var panel = details.querySelector('.km-admin-action-menu__panel');
+      var trigger = details.querySelector('summary');
+      if (!panel || !trigger) return;
+      portaledActionMenu = { details: details, panel: panel, trigger: trigger, style: panel.getAttribute('style') };
+      document.body.appendChild(panel);
+      positionRowMenu(panel, trigger);
+      var firstLink = panel.querySelector('a[href], button:not([disabled])');
+      if (firstLink) firstLink.focus({preventScroll: true});
+    }, true);
+
+    document.addEventListener('click', function (event) {
+      if (portaledActionMenu && !portaledActionMenu.panel.contains(event.target) && !portaledActionMenu.trigger.contains(event.target)) closePortaledActionMenu(false);
+    });
+    document.addEventListener('focusin', function (event) {
+      if (portaledActionMenu && !portaledActionMenu.panel.contains(event.target) && !portaledActionMenu.trigger.contains(event.target)) closePortaledActionMenu(false);
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape') return;
+      if (portaledActionMenu) {
+        event.preventDefault();
+        closePortaledActionMenu(true);
+      }
+      if (activeMoreBtn && rowActionsDropdown && !rowActionsDropdown.hidden) {
+        event.preventDefault();
+        var trigger = activeMoreBtn;
+        closeRowActions();
+        trigger.focus({preventScroll: true});
+      }
+    });
+    function unchangedAnchorScroll(panel, event) {
+      if (!event || event.type !== 'scroll') return false;
+      var anchor = rowMenuAnchors.get(panel);
+      if (!anchor) return false;
+      var rect = anchor.trigger.getBoundingClientRect();
+      return Math.abs(rect.left - anchor.left) < 0.5 && Math.abs(rect.top - anchor.top) < 0.5;
+    }
+    function dismissRowMenus(event) {
+      if (portaledActionMenu && !unchangedAnchorScroll(portaledActionMenu.panel, event) && (!event || !(event.target instanceof Node) || !portaledActionMenu.panel.contains(event.target))) closePortaledActionMenu(false);
+      if (rowActionsDropdown && !rowActionsDropdown.hidden && !unchangedAnchorScroll(rowActionsDropdown, event) && (!event || !(event.target instanceof Node) || !rowActionsDropdown.contains(event.target))) closeRowActions();
+    }
+    window.addEventListener('resize', dismissRowMenus);
+    window.addEventListener('scroll', dismissRowMenus, true);
+
     var csrftoken = getCookie('csrftoken') || (document.querySelector('input[name="csrfmiddlewaretoken"]') || {}).value;
 
     function showTableSkeleton() {
@@ -491,11 +576,9 @@
           divider.hidden = isDeleted;
         }
 
-        var rect = moreBtn.getBoundingClientRect();
-        rowActionsDropdown.style.position = 'fixed';
-        rowActionsDropdown.style.top = (rect.bottom + 6) + 'px';
-        rowActionsDropdown.style.left = Math.max(16, rect.right - 232) + 'px';
-        rowActionsDropdown.hidden = false;
+        positionRowMenu(rowActionsDropdown, moreBtn);
+        var firstAction = rowActionsDropdown.querySelector('button:not([hidden]):not([disabled]), a[href]:not([hidden])');
+        if (firstAction) firstAction.focus({preventScroll: true});
         return;
       }
 
@@ -527,6 +610,7 @@
         var quickActionUrl = trigger.dataset.quickActionUrl || ('/admin/catalog/place/' + placeId + '/quick-action/');
         var isPublished = trigger.dataset.status === 'published' && trigger.dataset.isActive === '1';
         closeRowActions();
+        trigger.focus({preventScroll: true});
 
         function escapeHtml(str) {
           if (!str) return '';
@@ -550,7 +634,7 @@
           if (triggerIcon) setIcon(triggerIcon, "progress_activity");
 
           var _loadingToast = window.kmToast
-            ? window.kmToast.info(unpublish ? 'Снятие с публикации...' : 'Публикация карточки...', { duration: 0 })
+            ? window.kmToast.info(unpublish ? (labels.publicationUnpublishLoading || 'Снятие с публикации...') : (labels.publicationPublishLoading || 'Публикация карточки...'), { duration: 0 })
             : null;
 
           fetch(togglePubUrl, {
@@ -568,9 +652,9 @@
                 updatePublicationRow(trigger, data);
                 if (window.kmToast) {
                   if (unpublish) {
-                    window.kmToast.warning('«' + placeName + '» переведена в черновики.');
+                    window.kmToast.warning((labels.publicationUnpublishSuccess || '«%(name)s» переведена в черновики.').replace('%(name)s', function () { return placeName; }));
                   } else {
-                    window.kmToast.success('«' + placeName + '» опубликована и видна на сайте.');
+                    window.kmToast.success((labels.publicationPublishSuccess || '«%(name)s» опубликована и видна на сайте.').replace('%(name)s', function () { return placeName; }));
                   }
                 } else {
                   showToast(data.message);
@@ -645,18 +729,18 @@
             // Confirmation modal before unpublishing
             if (window.kmModal) {
               window.kmModal.confirm({
-                title: 'Снять с публикации?',
-                message: 'Карточка «' + placeName + '» перестанет отображаться на сайте и перейдёт в черновики.',
+                title: labels.unpublishTitle || 'Снять с публикации?',
+                message: (labels.unpublishMessage || 'Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики.').replace('%(name)s', function () { return placeName; }),
                 iconTone: 'warning',
-                confirmText: 'Да, снять',
-                cancelText: 'Отмена',
+                confirmText: labels.unpublishConfirm || 'Да, снять',
+                cancelText: labels.unpublishCancel || 'Отмена',
                 isAlertDialog: true
               }).then(function (confirmed) {
                 if (confirmed) {
                   executeTogglePublication(true);
                 }
               });
-            } else if (window.confirm('Снять карточку «' + placeName + '» с публикации?')) {
+            } else if (window.confirm((labels.unpublishFallback || 'Снять карточку «%(name)s» с публикации?').replace('%(name)s', function () { return placeName; }))) {
               executeTogglePublication(true);
             }
           } else {
@@ -762,47 +846,49 @@
        8. Column Visibility Toggler (1a)
        -------------------------------------------------------------------------- */
     var columnCheckboxes = Array.prototype.slice.call(document.querySelectorAll('[data-toggle-col]'));
-    if (columnCheckboxes.length) {
-      var savedHidden = [];
+    var columnsMenu = document.getElementById('km-columns-menu');
+    var columnsTable = document.getElementById('result_list');
+    if (columnCheckboxes.length && columnsMenu && columnsTable && columnsTable.tHead) {
+      var storageKey = columnsMenu.getAttribute('data-storage-key') || 'km_hidden_columns';
+      var savedHidden;
       try {
-        savedHidden = JSON.parse(localStorage.getItem('km_hidden_columns') || '[]');
+        savedHidden = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        if (!Array.isArray(savedHidden)) savedHidden = [];
       } catch (err) {
         savedHidden = [];
       }
 
-      function applyColumnVisibility(colName, isVisible) {
-        var th = document.querySelector('th.' + colName);
-        var fieldName = colName.replace('column-', 'field-');
-        var tds = Array.prototype.slice.call(document.querySelectorAll('td.' + fieldName));
+      var validColumns = columnCheckboxes.filter(function (cb) {
+        var index = Number(cb.getAttribute('data-column-index'));
+        return Number.isInteger(index) && index >= 0 &&
+          columnsTable.tHead.rows[0].cells[index];
+      });
 
-        if (th) {
-          th.classList.toggle('is-hidden-column', !isVisible);
-        }
-        tds.forEach(function (td) {
-          td.classList.toggle('is-hidden-column', !isVisible);
+      function applyColumnVisibility(cb) {
+        var index = Number(cb.getAttribute('data-column-index'));
+        Array.prototype.forEach.call(columnsTable.rows, function (row) {
+          if (row.cells[index]) {
+            row.cells[index].classList.toggle('is-hidden-column', !cb.checked);
+          }
         });
       }
 
       // Restore saved preferences
-      columnCheckboxes.forEach(function (cb) {
-        var colName = cb.getAttribute('data-toggle-col');
-        if (savedHidden.indexOf(colName) !== -1) {
-          cb.checked = false;
-          applyColumnVisibility(colName, false);
-        }
+      validColumns.forEach(function (cb) {
+        cb.checked = cb.disabled || savedHidden.indexOf(cb.getAttribute('data-toggle-col')) === -1;
+        applyColumnVisibility(cb);
 
         cb.addEventListener('change', function () {
-          var isChecked = cb.checked;
-          applyColumnVisibility(colName, isChecked);
+          if (cb.disabled) cb.checked = true;
+          applyColumnVisibility(cb);
 
-          var currentHidden = [];
-          columnCheckboxes.forEach(function (c) {
-            if (!c.checked) {
-              currentHidden.push(c.getAttribute('data-toggle-col'));
-            }
+          var currentHidden = validColumns.filter(function (c) {
+            return !c.disabled && !c.checked;
+          }).map(function (c) {
+            return c.getAttribute('data-toggle-col');
           });
           try {
-            localStorage.setItem('km_hidden_columns', JSON.stringify(currentHidden));
+            localStorage.setItem(storageKey, JSON.stringify(currentHidden));
           } catch (e) {}
         });
       });

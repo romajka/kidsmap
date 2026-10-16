@@ -1,0 +1,1390 @@
+{
+  "complete": true,
+  "rows": [
+    {
+      "id": "stale native POST returns real409",
+      "language": "az",
+      "width": 360,
+      "status": "PASS",
+      "old_token": "37",
+      "current_token": 38
+    },
+    {
+      "id": "conflict leaves latest A and public contribution unchanged",
+      "language": "az",
+      "width": 360,
+      "status": "PASS"
+    },
+    {
+      "id": "conflict retains editor and unsaved B for explicit recovery",
+      "language": "az",
+      "width": 360,
+      "status": "FAIL",
+      "editor_count": 0,
+      "draft_visible": false,
+      "body": "Rəy dəyişib. Səhifəni yeniləyin."
+    },
+    {
+      "id": "conflict retains site navigation",
+      "language": "az",
+      "width": 360,
+      "status": "FAIL"
+    },
+    {
+      "id": "stale native POST returns real409",
+      "language": "az",
+      "width": 390,
+      "status": "PASS",
+      "old_token": "38",
+      "current_token": 39
+    },
+    {
+      "id": "conflict leaves latest A and public contribution unchanged",
+      "language": "az",
+      "width": 390,
+      "status": "PASS"
+    },
+    {
+      "id": "conflict retains editor and unsaved B for explicit recovery",
+      "language": "az",
+      "width": 390,
+      "status": "FAIL",
+      "editor_count": 0,
+      "draft_visible": false,
+      "body": "Rəy dəyişib. Səhifəni yeniləyin."
+    },
+    {
+      "id": "conflict retains site navigation",
+      "language": "az",
+      "width": 390,
+      "status": "FAIL"
+    },
+    {
+      "id": "stale native POST returns real409",
+      "language": "az",
+      "width": 768,
+      "status": "PASS",
+      "old_token": "39",
+      "current_token": 40
+    },
+    {
+      "id": "conflict leaves latest A and public contribution unchanged",
+      "language": "az",
+      "width": 768,
+      "status": "PASS"
+    },
+    {
+      "id": "conflict retains editor and unsaved B for explicit recovery",
+      "language": "az",
+      "width": 768,
+      "status": "FAIL",
+      "editor_count": 0,
+      "draft_visible": false,
+      "body": "Rəy dəyişib. Səhifəni yeniləyin."
+    },
+    {
+      "id": "conflict retains site navigation",
+      "language": "az",
+      "width": 768,
+      "status": "FAIL"
+    },
+    {
+      "id": "stale native POST returns real409",
+      "language": "az",
+      "width": 1024,
+      "status": "PASS",
+      "old_token": "40",
+      "current_token": 41
+    },
+    {
+      "id": "conflict leaves latest A and public contribution unchanged",
+      "language": "az",
+      "width": 1024,
+      "status": "PASS"
+    },
+    {
+      "id": "conflict retains editor and unsaved B for explicit recovery",
+      "language": "az",
+      "width": 1024,
+      "status": "FAIL",
+      "editor_count": 0,
+      "draft_visible": false,
+      "body": "Rəy dəyişib. Səhifəni yeniləyin."
+    },
+    {
+      "id": "conflict retains site navigation",
+      "language": "az",
+      "width": 1024,
+      "status": "FAIL"
+    },
+    {
+      "id": "stale native POST returns real409",
+      "language": "az",
+      "width": 1280,
+      "status": "PASS",
+      "old_token": "41",
+      "current_token": 42
+    },
+    {
+      "id": "conflict leaves latest A and public contribution unchanged",
+      "language": "az",
+      "width": 1280,
+      "status": "PASS"
+    },
+    {
+      "id": "conflict retains editor and unsaved B for explicit recovery",
+      "language": "az",
+      "width": 1280,
+      "status": "FAIL",
+      "editor_count": 0,
+      "draft_visible": false,
+      "body": "Rəy dəyişib. Səhifəni yeniləyin."
+    },
+    {
+      "id": "conflict retains site navigation",
+      "language": "az",
+      "width": 1280,
+      "status": "FAIL"
+    },
+    {
+      "id": "stale native POST returns real409",
+      "language": "az",
+      "width": 1440,
+      "status": "PASS",
+      "old_token": "42",
+      "current_token": 43
+    },
+    {
+      "id": "conflict leaves latest A and public contribution unchanged",
+      "language": "az",
+      "width": 1440,
+      "status": "PASS"
+    },
+    {
+      "id": "conflict retains editor and unsaved B for explicit recovery",
+      "language": "az",
+      "width": 1440,
+      "status": "FAIL",
+      "editor_count": 0,
+      "draft_visible": false,
+      "body": "Rəy dəyişib. Səhifəni yeniləyin."
+    },
+    {
+      "id": "conflict retains site navigation",
+      "language": "az",
+      "width": 1440,
+      "status": "FAIL"
+    }
+  ],
+  "states": [
+    {
+      "language": "az",
+      "width": 360,
+      "before": {
+        "id": 13,
+        "author_id": 4,
+        "rating": 5,
+        "text_sha256": "140307140857e6fc21f82fb960a4e80763ba3ad3a37e8d281c02fb40d6523dde",
+        "status": "pending",
+        "is_approved": false,
+        "is_current": true,
+        "current_id": null,
+        "candidate_id": 38,
+        "candidate_rating": 5,
+        "candidate_text_sha256": "140307140857e6fc21f82fb960a4e80763ba3ad3a37e8d281c02fb40d6523dde",
+        "revisions": [
+          {
+            "id": 31,
+            "rating": 4,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:09.035Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 32,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:11.770Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 33,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:13.600Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 34,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:15.754Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 35,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:18.027Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 36,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:20.341Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 37,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:22.192Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 38,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:23:59.281Z",
+            "rejection_reason": ""
+          }
+        ]
+      },
+      "after": {
+        "id": 13,
+        "author_id": 4,
+        "rating": 5,
+        "text_sha256": "140307140857e6fc21f82fb960a4e80763ba3ad3a37e8d281c02fb40d6523dde",
+        "status": "pending",
+        "is_approved": false,
+        "is_current": true,
+        "current_id": null,
+        "candidate_id": 38,
+        "candidate_rating": 5,
+        "candidate_text_sha256": "140307140857e6fc21f82fb960a4e80763ba3ad3a37e8d281c02fb40d6523dde",
+        "revisions": [
+          {
+            "id": 31,
+            "rating": 4,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:09.035Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 32,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:11.770Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 33,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:13.600Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 34,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:15.754Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 35,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:18.027Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 36,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:20.341Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 37,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:22.192Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 38,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:23:59.281Z",
+            "rejection_reason": ""
+          }
+        ]
+      },
+      "public": {
+        "average": 2,
+        "count": 1
+      }
+    },
+    {
+      "language": "az",
+      "width": 390,
+      "before": {
+        "id": 13,
+        "author_id": 4,
+        "rating": 5,
+        "text_sha256": "38377c13037160fca53cef9931860c23e6cd31b356b644fd08a8af44f9e08666",
+        "status": "pending",
+        "is_approved": false,
+        "is_current": true,
+        "current_id": null,
+        "candidate_id": 39,
+        "candidate_rating": 5,
+        "candidate_text_sha256": "38377c13037160fca53cef9931860c23e6cd31b356b644fd08a8af44f9e08666",
+        "revisions": [
+          {
+            "id": 31,
+            "rating": 4,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:09.035Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 32,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:11.770Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 33,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:13.600Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 34,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:15.754Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 35,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:18.027Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 36,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:20.341Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 37,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:22.192Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 38,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:23:59.281Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 39,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:02.329Z",
+            "rejection_reason": ""
+          }
+        ]
+      },
+      "after": {
+        "id": 13,
+        "author_id": 4,
+        "rating": 5,
+        "text_sha256": "38377c13037160fca53cef9931860c23e6cd31b356b644fd08a8af44f9e08666",
+        "status": "pending",
+        "is_approved": false,
+        "is_current": true,
+        "current_id": null,
+        "candidate_id": 39,
+        "candidate_rating": 5,
+        "candidate_text_sha256": "38377c13037160fca53cef9931860c23e6cd31b356b644fd08a8af44f9e08666",
+        "revisions": [
+          {
+            "id": 31,
+            "rating": 4,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:09.035Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 32,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:11.770Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 33,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:13.600Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 34,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:15.754Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 35,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:18.027Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 36,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:20.341Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 37,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:22.192Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 38,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:23:59.281Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 39,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:02.329Z",
+            "rejection_reason": ""
+          }
+        ]
+      },
+      "public": {
+        "average": 2,
+        "count": 1
+      }
+    },
+    {
+      "language": "az",
+      "width": 768,
+      "before": {
+        "id": 13,
+        "author_id": 4,
+        "rating": 5,
+        "text_sha256": "2046333376ecfc0e6b3dc1fbc22945eb08bff4494465dcc383bf02170b04ef6a",
+        "status": "pending",
+        "is_approved": false,
+        "is_current": true,
+        "current_id": null,
+        "candidate_id": 40,
+        "candidate_rating": 5,
+        "candidate_text_sha256": "2046333376ecfc0e6b3dc1fbc22945eb08bff4494465dcc383bf02170b04ef6a",
+        "revisions": [
+          {
+            "id": 31,
+            "rating": 4,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:09.035Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 32,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:11.770Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 33,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:13.600Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 34,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:15.754Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 35,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:18.027Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 36,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:20.341Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 37,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:22.192Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 38,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:23:59.281Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 39,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:02.329Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 40,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:04.696Z",
+            "rejection_reason": ""
+          }
+        ]
+      },
+      "after": {
+        "id": 13,
+        "author_id": 4,
+        "rating": 5,
+        "text_sha256": "2046333376ecfc0e6b3dc1fbc22945eb08bff4494465dcc383bf02170b04ef6a",
+        "status": "pending",
+        "is_approved": false,
+        "is_current": true,
+        "current_id": null,
+        "candidate_id": 40,
+        "candidate_rating": 5,
+        "candidate_text_sha256": "2046333376ecfc0e6b3dc1fbc22945eb08bff4494465dcc383bf02170b04ef6a",
+        "revisions": [
+          {
+            "id": 31,
+            "rating": 4,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:09.035Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 32,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:11.770Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 33,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:13.600Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 34,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:15.754Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 35,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:18.027Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 36,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:20.341Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 37,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:22.192Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 38,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:23:59.281Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 39,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:02.329Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 40,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:04.696Z",
+            "rejection_reason": ""
+          }
+        ]
+      },
+      "public": {
+        "average": 2,
+        "count": 1
+      }
+    },
+    {
+      "language": "az",
+      "width": 1024,
+      "before": {
+        "id": 13,
+        "author_id": 4,
+        "rating": 5,
+        "text_sha256": "633a43ba18938f652f32caac45479c15bec7b5ac9ac6a28e63d2b3e952cbda74",
+        "status": "pending",
+        "is_approved": false,
+        "is_current": true,
+        "current_id": null,
+        "candidate_id": 41,
+        "candidate_rating": 5,
+        "candidate_text_sha256": "633a43ba18938f652f32caac45479c15bec7b5ac9ac6a28e63d2b3e952cbda74",
+        "revisions": [
+          {
+            "id": 31,
+            "rating": 4,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:09.035Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 32,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:11.770Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 33,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:13.600Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 34,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:15.754Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 35,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:18.027Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 36,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:20.341Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 37,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:22.192Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 38,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:23:59.281Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 39,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:02.329Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 40,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:04.696Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 41,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:06.415Z",
+            "rejection_reason": ""
+          }
+        ]
+      },
+      "after": {
+        "id": 13,
+        "author_id": 4,
+        "rating": 5,
+        "text_sha256": "633a43ba18938f652f32caac45479c15bec7b5ac9ac6a28e63d2b3e952cbda74",
+        "status": "pending",
+        "is_approved": false,
+        "is_current": true,
+        "current_id": null,
+        "candidate_id": 41,
+        "candidate_rating": 5,
+        "candidate_text_sha256": "633a43ba18938f652f32caac45479c15bec7b5ac9ac6a28e63d2b3e952cbda74",
+        "revisions": [
+          {
+            "id": 31,
+            "rating": 4,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:09.035Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 32,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:11.770Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 33,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:13.600Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 34,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:15.754Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 35,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:18.027Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 36,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:20.341Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 37,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:22.192Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 38,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:23:59.281Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 39,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:02.329Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 40,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:04.696Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 41,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:06.415Z",
+            "rejection_reason": ""
+          }
+        ]
+      },
+      "public": {
+        "average": 2,
+        "count": 1
+      }
+    },
+    {
+      "language": "az",
+      "width": 1280,
+      "before": {
+        "id": 13,
+        "author_id": 4,
+        "rating": 5,
+        "text_sha256": "efa772e01bc3b2a7081b91e381fc812bb0f2f8e1c586a9fb036c464c3fd8b9e4",
+        "status": "pending",
+        "is_approved": false,
+        "is_current": true,
+        "current_id": null,
+        "candidate_id": 42,
+        "candidate_rating": 5,
+        "candidate_text_sha256": "efa772e01bc3b2a7081b91e381fc812bb0f2f8e1c586a9fb036c464c3fd8b9e4",
+        "revisions": [
+          {
+            "id": 31,
+            "rating": 4,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:09.035Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 32,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:11.770Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 33,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:13.600Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 34,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:15.754Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 35,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:18.027Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 36,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:20.341Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 37,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:22.192Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 38,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:23:59.281Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 39,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:02.329Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 40,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:04.696Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 41,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:06.415Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 42,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:08.281Z",
+            "rejection_reason": ""
+          }
+        ]
+      },
+      "after": {
+        "id": 13,
+        "author_id": 4,
+        "rating": 5,
+        "text_sha256": "efa772e01bc3b2a7081b91e381fc812bb0f2f8e1c586a9fb036c464c3fd8b9e4",
+        "status": "pending",
+        "is_approved": false,
+        "is_current": true,
+        "current_id": null,
+        "candidate_id": 42,
+        "candidate_rating": 5,
+        "candidate_text_sha256": "efa772e01bc3b2a7081b91e381fc812bb0f2f8e1c586a9fb036c464c3fd8b9e4",
+        "revisions": [
+          {
+            "id": 31,
+            "rating": 4,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:09.035Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 32,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:11.770Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 33,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:13.600Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 34,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:15.754Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 35,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:18.027Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 36,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:20.341Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 37,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:22.192Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 38,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:23:59.281Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 39,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:02.329Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 40,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:04.696Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 41,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:06.415Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 42,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:08.281Z",
+            "rejection_reason": ""
+          }
+        ]
+      },
+      "public": {
+        "average": 2,
+        "count": 1
+      }
+    },
+    {
+      "language": "az",
+      "width": 1440,
+      "before": {
+        "id": 13,
+        "author_id": 4,
+        "rating": 5,
+        "text_sha256": "b1e90a238ef7721575a6449a97c895af98c04dba1d08854bd3fd49dffdb0bf15",
+        "status": "pending",
+        "is_approved": false,
+        "is_current": true,
+        "current_id": null,
+        "candidate_id": 43,
+        "candidate_rating": 5,
+        "candidate_text_sha256": "b1e90a238ef7721575a6449a97c895af98c04dba1d08854bd3fd49dffdb0bf15",
+        "revisions": [
+          {
+            "id": 31,
+            "rating": 4,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:09.035Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 32,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:11.770Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 33,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:13.600Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 34,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:15.754Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 35,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:18.027Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 36,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:20.341Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 37,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:22.192Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 38,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:23:59.281Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 39,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:02.329Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 40,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:04.696Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 41,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:06.415Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 42,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:08.281Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 43,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:10.481Z",
+            "rejection_reason": ""
+          }
+        ]
+      },
+      "after": {
+        "id": 13,
+        "author_id": 4,
+        "rating": 5,
+        "text_sha256": "b1e90a238ef7721575a6449a97c895af98c04dba1d08854bd3fd49dffdb0bf15",
+        "status": "pending",
+        "is_approved": false,
+        "is_current": true,
+        "current_id": null,
+        "candidate_id": 43,
+        "candidate_rating": 5,
+        "candidate_text_sha256": "b1e90a238ef7721575a6449a97c895af98c04dba1d08854bd3fd49dffdb0bf15",
+        "revisions": [
+          {
+            "id": 31,
+            "rating": 4,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:09.035Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 32,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:11.770Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 33,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:13.600Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 34,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:15.754Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 35,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:18.027Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 36,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:20.341Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 37,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:22:22.192Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 38,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:23:59.281Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 39,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:02.329Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 40,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:04.696Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 41,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:06.415Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 42,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:08.281Z",
+            "rejection_reason": ""
+          },
+          {
+            "id": 43,
+            "rating": 5,
+            "status": "pending",
+            "created_at": "2026-10-16T12:24:10.481Z",
+            "rejection_reason": ""
+          }
+        ]
+      },
+      "public": {
+        "average": 2,
+        "count": 1
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "type": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "type": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "type": "http",
+      "status": 409,
+      "width": 360
+    },
+    {
+      "type": "console",
+      "local": true,
+      "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+    },
+    {
+      "type": "pageerror",
+      "text": "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+    },
+    {
+      "type": "http",
+      "status": 409,
+      "width": 390
+    },
+    {
+      "type": "console",
+      "local": true,
+      "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+    },
+    {
+      "type": "pageerror",
+      "text": "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+    },
+    {
+      "type": "http",
+      "status": 409,
+      "width": 768
+    },
+    {
+      "type": "console",
+      "local": true,
+      "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+    },
+    {
+      "type": "pageerror",
+      "text": "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+    },
+    {
+      "type": "http",
+      "status": 409,
+      "width": 1024
+    },
+    {
+      "type": "console",
+      "local": true,
+      "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+    },
+    {
+      "type": "pageerror",
+      "text": "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+    },
+    {
+      "type": "http",
+      "status": 409,
+      "width": 1280
+    },
+    {
+      "type": "console",
+      "local": true,
+      "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+    },
+    {
+      "type": "pageerror",
+      "text": "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+    },
+    {
+      "type": "http",
+      "status": 409,
+      "width": 1440
+    },
+    {
+      "type": "console",
+      "local": true,
+      "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+    },
+    {
+      "type": "pageerror",
+      "text": "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+    }
+  ],
+  "browser_version": "153.0.8010.36",
+  "scope": "PLAN SOCIAL03 native Specialist only; no application patch"
+}

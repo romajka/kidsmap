@@ -1,0 +1,39 @@
+{
+  "status": "MOD-QA-08 CLOSED LOCAL; full ACCEPT-08 pending",
+  "snapshot": {
+    "head": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+    "branch": "task33-progress",
+    "active_run": [
+      "active_run: NONE"
+    ]
+  },
+  "approved_scope": [
+    "src/catalog/templates/admin/catalog/includes/km_changelist_search_panel.html",
+    "src/catalog/templatetags/admin_dashboard_tags.py",
+    "src/catalog/testcases/test_mod08_filter_drawer.py"
+  ],
+  "backend_unique_accepted_methods": 8,
+  "backend_repeat": "only one Reset method after correcting new fixture ordering expectation",
+  "native_accepted": 470,
+  "native_fail": 0,
+  "native_cells": 36,
+  "acl_observations": 9,
+  "png": 76,
+  "source_files": 961,
+  "domain_unchanged": true,
+  "shared_mo_unchanged": true,
+  "entry_files_preserved_except_approved": true,
+  "container_count": 74,
+  "foreign_http_preserved": true,
+  "additional_observation": "Existing AZ/EN footer count remains Russian; unchanged fuzzy PO translation, outside this approval. Carry to full acceptance; not silently fixed.",
+  "not_run": [
+    "full ACCEPT-08",
+    "global corpus",
+    "production",
+    "cross-browser",
+    "OS select popup pixels",
+    "screen reader",
+    "external services",
+    "module09"
+  ]
+}

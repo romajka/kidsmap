@@ -1,0 +1,16 @@
+async original=>{
+const B='http://127.0.0.1:47071',H='/home/ramin/kidsmap/docs/qa/mod-qa03-fix-2026-10-15-r1',F=await(await original.request.get(B+'/qa/fixtures/')).json(),c=await original.context().browser().newContext(),p=await c.newPage(),rows=[],observations=[];
+await c.route('**/*',r=>r.request().url().startsWith(B+'/')?r.continue():r.abort());await p.setViewportSize({width:1024,height:950});await p.goto(B+'/ru/admin/login/?next=/ru/admin/catalog/place/');await p.locator('[name=username]').fill(F.actors.admin);await p.locator('[name=password]').fill(F.password);await Promise.all([p.waitForURL(u=>u.pathname.endsWith('/admin/catalog/place/')),p.locator('form button[type=submit]').click()]);
+const g=async sel=>await p.locator(sel).evaluate(e=>{const r=e.getBoundingClientRect(),x=Math.max(0,Math.min(innerWidth-1,r.x+r.width/2)),y=Math.max(0,Math.min(innerHeight-1,r.y+r.height/2));return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height,viewport:{w:innerWidth,h:innerHeight},hit:e.contains(document.elementFromPoint(x,y)),ancestors:[...function*(x){while(x){yield x;x=x.parentElement;}}(e.parentElement)].slice(0,5).map(x=>({tag:x.tagName,cls:x.className,overflow:getComputedStyle(x).overflow,position:getComputedStyle(x).position}))};});
+for(const model of ['place','event'])for(const width of [390,1024]){
+ await p.setViewportSize({width,height:950});await p.goto(B+'/ru/admin/catalog/'+model+'/');await p.waitForLoadState('networkidle');
+ if(width<768&&await p.locator('#sidebar-overlay').isVisible())await p.locator('#sidebar-overlay').click({position:{x:width-20,y:100}});
+ const surface=p.locator('.card-body.table-responsive');await surface.scrollIntoViewIfNeeded();const box=await surface.boundingBox();await p.mouse.move(box.x+box.width/2,box.y+60);await p.mouse.wheel(10000,0);await p.waitForTimeout(350);
+ for(const index of [0,2]){
+ const row=p.locator('#result_list tbody tr').nth(index);
+ for(const [trigger,panel,kind]of model==='place'?[['[data-readiness-trigger]','#km-readiness-popover','readiness'],['[data-more-actions-btn]','#km-row-actions-dropdown','actions']]:[['summary.km-admin-action-menu__toggle','.km-admin-action-menu__panel','actions']]){
+ try{const t=row.locator(trigger);await t.click();const el=model==='event'?row.locator(panel):p.locator(panel);await el.waitFor({state:'visible'});const obs=await el.evaluate(e=>{const r=e.getBoundingClientRect(),cx=r.x+r.width/2,cy=r.y+r.height/2;return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height,viewport:{w:innerWidth,h:innerHeight},hit:e.contains(document.elementFromPoint(cx,cy)),tableAncestor:!!e.closest('.card-body.table-responsive')};});observations.push({model,width,index,kind,obs});rows.push({id:'row panel fully reachable after local scroll',status:obs.left>=0&&obs.right<=width+1&&obs.top>=0&&obs.bottom<=950&&obs.hit?'PASS':'FAIL',model,width,index,kind,detail:obs});await p.screenshot({path:H+'/screenshots/safety-'+model+'-'+width+'-'+index+'-'+kind+'.png',fullPage:true,animations:'disabled'});await t.click();}catch(e){rows.push({id:'row panel safety completion',status:'NOT RUN',model,width,index,kind,error:String(e).split('\n')[0]});}
+ }
+ }
+}
+await c.close();return{rows,observations,mode:'actual patched CSS; native row panels, no write action selected'};}

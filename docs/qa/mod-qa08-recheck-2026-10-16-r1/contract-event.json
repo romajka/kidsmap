@@ -1,0 +1,263 @@
+{
+  "model": "event",
+  "database": "mod08_plan_r1",
+  "read_only": true,
+  "fields": [
+    {
+      "field": "deleted_at__isnull",
+      "title": "Silinmə",
+      "parameters": [
+        "deleted_at__isnull"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "Не удалено",
+          "url": "?deleted_at__isnull=True",
+          "selected": false
+        },
+        {
+          "display": "В удаленных",
+          "url": "?deleted_at__isnull=False",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "status",
+      "title": "Moderasiya statusu",
+      "parameters": [
+        "status__exact",
+        "status__isnull"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "Qaralama",
+          "url": "?status__exact=draft",
+          "selected": false
+        },
+        {
+          "display": "Moderasiya gözləyir",
+          "url": "?status__exact=pending",
+          "selected": false
+        },
+        {
+          "display": "Dərc olunub",
+          "url": "?status__exact=published",
+          "selected": false
+        },
+        {
+          "display": "İmtina edilib",
+          "url": "?status__exact=rejected",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "category",
+      "title": "Kateqoriya",
+      "parameters": [
+        "category__code__exact",
+        "category__isnull"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "QA kateqoriya 1",
+          "url": "?category__code__exact=QA081",
+          "selected": false
+        },
+        {
+          "display": "QA kateqoriya 2",
+          "url": "?category__code__exact=QA082",
+          "selected": false
+        },
+        {
+          "display": "İdman",
+          "url": "?category__code__exact=SPRT",
+          "selected": false
+        },
+        {
+          "display": "Su istirahəti",
+          "url": "?category__code__exact=water-leisure",
+          "selected": false
+        },
+        {
+          "display": "Parklar və uşaq meydançaları",
+          "url": "?category__code__exact=parks-playgrounds",
+          "selected": false
+        },
+        {
+          "display": "Əyləncə və asudə vaxt",
+          "url": "?category__code__exact=FUN",
+          "selected": false
+        },
+        {
+          "display": "Zooparklar",
+          "url": "?category__code__exact=ZOO",
+          "selected": false
+        },
+        {
+          "display": "Muzeylər və mədəniyyət",
+          "url": "?category__code__exact=museums-culture",
+          "selected": false
+        },
+        {
+          "display": "Rəqslər",
+          "url": "?category__code__exact=dance",
+          "selected": false
+        },
+        {
+          "display": "Təhsil",
+          "url": "?category__code__exact=EDU",
+          "selected": false
+        },
+        {
+          "display": "Məktəbəqədər inkişaf",
+          "url": "?category__code__exact=early-development",
+          "selected": false
+        },
+        {
+          "display": "Yaradıcılıq",
+          "url": "?category__code__exact=ART",
+          "selected": false
+        },
+        {
+          "display": "Teatr və səhnə",
+          "url": "?category__code__exact=theater-stage",
+          "selected": false
+        },
+        {
+          "display": "Musiqi",
+          "url": "?category__code__exact=MUS",
+          "selected": false
+        },
+        {
+          "display": "İntellekt və bacarıqlar",
+          "url": "?category__code__exact=intellect-skills",
+          "selected": false
+        },
+        {
+          "display": "Elm və texnologiyalar",
+          "url": "?category__code__exact=TECH",
+          "selected": false
+        },
+        {
+          "display": "İnkişaf və dəstək",
+          "url": "?category__code__exact=development-support",
+          "selected": false
+        },
+        {
+          "display": "Düşərgələr",
+          "url": "?category__code__exact=CAMP",
+          "selected": false
+        },
+        {
+          "display": "Ekskursiyalar və turlar",
+          "url": "?category__code__exact=excursions-tours",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "start_datetime",
+      "title": "Tədbirin başlanğıcı",
+      "parameters": [
+        "start_datetime__gte",
+        "start_datetime__lt",
+        "start_datetime__isnull"
+      ],
+      "choices": [
+        {
+          "display": "İstənilən tarix",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "Bu gün",
+          "url": "?start_datetime__gte=2026-10-16+00%3A00%3A00%2B04%3A00&start_datetime__lt=2026-10-17+00%3A00%3A00%2B04%3A00",
+          "selected": false
+        },
+        {
+          "display": "Son 7 gündə",
+          "url": "?start_datetime__gte=2026-10-09+00%3A00%3A00%2B04%3A00&start_datetime__lt=2026-10-17+00%3A00%3A00%2B04%3A00",
+          "selected": false
+        },
+        {
+          "display": "Bu ay",
+          "url": "?start_datetime__gte=2026-10-01+00%3A00%3A00%2B04%3A00&start_datetime__lt=2026-11-01+00%3A00%3A00%2B04%3A00",
+          "selected": false
+        },
+        {
+          "display": "Bu il",
+          "url": "?start_datetime__gte=2026-01-01+00%3A00%3A00%2B04%3A00&start_datetime__lt=2027-01-01+00%3A00%3A00%2B04%3A00",
+          "selected": false
+        },
+        {
+          "display": "Tarixi yoxdur",
+          "url": "?start_datetime__isnull=True",
+          "selected": false
+        },
+        {
+          "display": "Tarixi mövcuddur",
+          "url": "?start_datetime__isnull=False",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "field": "owner",
+      "title": "Tədbirin sahibi",
+      "parameters": [
+        "owner__id__exact",
+        "owner__isnull"
+      ],
+      "choices": [
+        {
+          "display": "Hamısı",
+          "url": "?",
+          "selected": true
+        },
+        {
+          "display": "qa_mod08_admin",
+          "url": "?owner__id__exact=1",
+          "selected": false
+        },
+        {
+          "display": "qa_mod08_owner",
+          "url": "?owner__id__exact=2",
+          "selected": false
+        },
+        {
+          "display": "-",
+          "url": "?owner__isnull=True",
+          "selected": false
+        }
+      ]
+    }
+  ],
+  "primary_config": [
+    "category",
+    "status",
+    "start_datetime"
+  ],
+  "result_count": 3,
+  "result_ids": [
+    3,
+    2,
+    1
+  ]
+}

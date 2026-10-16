@@ -148,8 +148,13 @@ class ModerationReviewAdmin(PendingModerationAdminMixin, PlaceReviewAdmin):
     moderation_empty_description = _("Новые отзывы, требующие решения, появятся здесь.")
     moderation_actions = ("approve_selected", "reject_selected")
 
+    def get_actions(self, request):
+        from catalog.domain_admin.review_versions import VersionedReviewAdminMixin
+        actions = VersionedReviewAdminMixin.get_actions(self, request)
+        return {name: action for name, action in actions.items() if name in self.moderation_actions}
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.filter(status=PlaceReview.STATUS_PENDING)
+        return qs.filter(is_current=True, candidate_revision__status="pending")
 
 admin.site.register(ModerationPlaceOwnershipRequest, PlaceOwnershipRequestAdmin)

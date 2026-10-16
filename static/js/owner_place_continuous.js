@@ -9,7 +9,8 @@
   const allowed = new Set(JSON.parse(document.getElementById('pc-draft-fields').textContent));
   const status = form.querySelector('[data-pc-save-status]');
   const currentDraftView = new URL(location.href).searchParams.get('draft_current') === '1';
-  const localKey = `kidsmap:place:continuous:${form.dataset.accountId}:${form.dataset.draftKey}${currentDraftView ? ':current' : ''}`;
+  const currentCandidateView = Boolean(form.dataset.targetId) && new URL(location.href).searchParams.get('candidate_current') === '1';
+  const localKey = `kidsmap:place:continuous:${form.dataset.accountId}:${form.dataset.draftKey}${currentCandidateView ? ':candidate-current' : currentDraftView ? ':current' : ''}`;
   const targetId = form.dataset.targetId ? Number(form.dataset.targetId) : null;
   const currentPhoto = form.querySelector('[data-pc-photo-current]')?.dataset.pcPhotoCurrent;
   const mainPhoto = form.querySelector('[data-photo-saved=main]');
@@ -18,6 +19,7 @@
   let draftId = form.dataset.fresh === '1' ? null : new URL(location.href).searchParams.get('draft_id'), draftVersion = 0, sourceVersion = Number(form.dataset.sourceVersion);
   let timer = null, saving = false, dirty = false, halted = false, submitting = false, restoring = false, userInteracted = false;
   let inFlight = null, photoDirty = false, editedAt = Date.now();
+  let candidateConflict = false;
   if (targetId === null) {
     const url = new URL(location.href);
     url.searchParams.delete('fresh');
@@ -37,18 +39,45 @@
     }
     return result;
   };
+  const schemaVersion = Number(form.dataset.schemaVersion);
+  const candidateVersion = (() => {
+    // Some owner forms carry the candidate only in their signed source token.
+    // This is a recovery hint; the server still validates its signature and CAS.
+    const direct = form.elements.namedItem('candidate_version');
+    if (direct && direct.value !== '') {
+      const value = Number(direct.value);
+      return Number.isSafeInteger(value) && value >= 0 ? value : null;
+    }
+    try {
+      const encoded = (form.elements.namedItem('publication_token')?.value || '').split(':')[0]
+        .replace(/-/g, '+').replace(/_/g, '/');
+      const value = JSON.parse(atob(encoded + '='.repeat((4 - encoded.length % 4) % 4))).candidate;
+      return Number.isSafeInteger(value) && value >= 0 ? value : null;
+    } catch { return null; }
+  })();
+  const canonicalFields = fields();
+  let recovery = null;
+  let recoveryPreserved = true;
   const setStatus = (message, state) => {
     if (halted && state !== 'conflict') { message = ui.server_conflict; state = 'conflict'; }
     status.textContent = message; status.dataset.state = state;
     const actions = form.querySelector('[data-pc-conflict-actions]');
     actions.hidden = state !== 'conflict';
     const url = new URL(location.href);
-    url.searchParams.set('draft_current', '1');
-    if (draftId) url.searchParams.set('draft_id', draftId);
+    if (candidateConflict) {
+      for (const key of ['draft_id', 'draft_current', 'draft_session']) url.searchParams.delete(key);
+      url.searchParams.set('candidate_current', '1');
+      url.hash = '';
+    } else {
+      url.searchParams.delete('candidate_current');
+      url.searchParams.set('draft_current', '1');
+      if (draftId) url.searchParams.set('draft_id', draftId);
+    }
     actions.querySelector('a').href = url.href;
   };
   const localStore = () => {
-    try { localStorage.setItem(localKey, JSON.stringify({fields: fields(), at: editedAt, draftId, draftVersion, sourceVersion, serverSaved: !dirty, photoPending: photoDirty, conflict: halted})); }
+    if (recovery && !recoveryPreserved) return;
+    try { localStorage.setItem(localKey, JSON.stringify({fields: fields(), at: editedAt, draftId, draftVersion, sourceVersion, schemaVersion, candidateVersion, targetType:'place', targetId, serverSaved: !dirty, photoPending: photoDirty, conflict: halted, candidateConflict})); }
     catch { setStatus(ui.storage_error, 'error'); }
   };
   const csrf = form.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -74,47 +103,114 @@
     }
     updatePreview();
   }
+  function offerRecovery(saved, canRestore = true) {
+    recoveryPreserved = false;
+    try {
+      const identifier = saved.draft_id || saved.draftId || saved.at || saved.saved_at || 'legacy';
+      localStorage.setItem(`${localKey}:recovery:${identifier}`, JSON.stringify(saved));
+      recoveryPreserved = true;
+    } catch { /* Keep the original slot intact until preservation succeeds. */ }
+    halted = true; candidateConflict = targetId !== null;
+    clearTimeout(timer);
+    setStatus(ui.working_copy_conflict, 'conflict');
+    if (recovery) recovery.remove();
+    recovery = document.createElement('div');
+    recovery.dataset.pcRecovery = '';
+    recovery.style.display = 'flex'; recovery.style.flexWrap = 'wrap'; recovery.style.gap = '8px';
+    const current = document.createElement('a');
+    current.className = 'pw-secondary'; current.textContent = ui.use_current_card;
+    current.style.display = 'inline-flex'; current.style.alignItems = 'center';
+    current.style.minHeight = '44px'; current.style.maxWidth = '100%'; current.style.padding = '6px 12px';
+    current.style.boxSizing = 'border-box'; current.style.whiteSpace = 'normal';
+    const url = new URL(location.href);
+    for (const key of ['draft_id', 'draft_current', 'draft_session', 'fresh']) url.searchParams.delete(key);
+    if (targetId !== null) url.searchParams.set('candidate_current', '1');
+    else if (saved.materialized_place_id) {
+      url.pathname = `/${document.documentElement.lang}/account/places/${saved.materialized_place_id}/edit/`;
+      url.searchParams.set('candidate_current', '1');
+    } else url.searchParams.set('fresh', '1');
+    current.href = url.href; current.target = '_blank'; current.rel = 'noopener';
+    const restoreButton = document.createElement('button');
+    restoreButton.type = 'button'; restoreButton.className = 'pw-secondary';
+    restoreButton.textContent = ui.restore_working_copy; restoreButton.dataset.pcRecoveryRestore = '';
+    restoreButton.disabled = !canRestore;
+    restoreButton.style.minHeight = '44px'; restoreButton.style.maxWidth = '100%'; restoreButton.style.whiteSpace = 'normal';
+    restoreButton.addEventListener('click', () => {
+      // Preserve the previous input before replacing its normal recovery slot.
+      try {
+        const identifier = saved.draft_id || saved.draftId || saved.at || saved.saved_at || 'legacy';
+        localStorage.setItem(`${localKey}:recovery:${identifier}`, JSON.stringify(saved));
+        recoveryPreserved = true;
+      } catch { status.textContent = ui.storage_error; return; }
+      halted = false; candidateConflict = false; draftId = null; draftVersion = 0;
+      form.elements.namedItem('server_draft_id').value = '';
+      apply(saved); userInteracted = true; dirty = true; editedAt = Date.now();
+      recovery.remove(); recovery = null; localStore(); schedule();
+      setStatus(ui.unsaved, 'dirty');
+    });
+    recovery.append(current, restoreButton); status.parentElement.append(recovery);
+  }
+  function validServerCopy(saved) {
+    return saved.target_type === 'place' && saved.target_id === targetId &&
+      saved.schema_version === schemaVersion && saved.source_version === sourceVersion && !saved.materialized_place_id;
+  }
   async function restore() {
-    if (form.dataset.pwBound === '1') return;
+    if (form.dataset.pwBound === '1' || currentCandidateView) return;
     let local = null;
     try { local = JSON.parse(localStorage.getItem(localKey) || 'null'); } catch {}
     if (form.dataset.fresh === '1' && !local) return;
     if (local) {
+      if (local.sourceVersion !== sourceVersion || local.schemaVersion !== schemaVersion ||
+          candidateVersion === null || local.candidateVersion !== candidateVersion || local.targetType !== 'place' || local.targetId !== targetId || local.conflict) {
+        const compatible = (local.targetType == null || local.targetType === 'place') &&
+          (local.targetId === undefined || local.targetId === targetId) &&
+          (local.schemaVersion == null || local.schemaVersion === schemaVersion);
+        offerRecovery(local, compatible); return;
+      }
+      candidateConflict = local.candidateConflict === true;
       draftId = local.draftId || null; draftVersion = Number(local.draftVersion) || 0;
       editedAt = local.at || Date.now();
-      form.elements.namedItem('server_draft_id').value = draftId || ''; apply(local);
-      setStatus(local.photoPending ? ui.restored : ui.browser_saved, 'browser');
-      if (local.sourceVersion != null && local.sourceVersion !== sourceVersion) { halted = true; setStatus(ui.structure_conflict, 'conflict'); return; }
-      if (local.conflict) { halted = true; setStatus(ui.server_conflict, 'conflict'); return; }
+      // A cached server copy may have been consumed by another explicit-save session.
     }
     try {
       const response = await fetch(form.dataset.draftUrl, {credentials:'same-origin'});
       if (!response.ok) throw new Error('read');
       const rows = (await response.json()).drafts || [];
-      if (local?.draftId && rows.some(item => item.draft_id === local.draftId && item.materialized_place_id)) {
-        localStorage.removeItem(localKey);
-        const url = new URL(location.href); url.searchParams.delete('draft_session'); url.searchParams.set('fresh', '1'); location.replace(url.href);
-        return;
+      const selected = rows.find(item => item.target_type === 'place' && item.target_id === targetId &&
+        (draftId ? item.draft_id === draftId : targetId !== null && !item.materialized_place_id));
+      if (selected) {
+        const detailResponse = await fetch(`${form.dataset.draftUrl}${selected.draft_id}/`, {credentials:'same-origin'});
+        if (!detailResponse.ok) throw new Error('detail');
+        const detail = await detailResponse.json();
+        if (detail.target_type !== 'place' || detail.target_id !== targetId || detail.schema_version !== schemaVersion) {
+          offerRecovery(local || {fields:{}}, false); return;
+        }
+        if (!validServerCopy(detail)) { offerRecovery(local || detail); return; }
+        if (local && !local.serverSaved && local.draftId === detail.draft_id && local.draftVersion !== detail.version) {
+          offerRecovery(local); return;
+        }
+        if (userInteracted) return; // Late reads must never overwrite newer typing or attach an old draft ID.
+        if (local && local.at > Date.parse(detail.saved_at)) {
+          form.elements.namedItem('server_draft_id').value = draftId || ''; apply(local);
+          dirty = true; localStore(); schedule(); setStatus(ui.browser_saved, 'browser'); return;
+        }
+        // Server copies have no persisted candidate-base token. Divergent data requires a choice.
+        if (targetId !== null && !local && JSON.stringify(detail.fields) !== JSON.stringify(canonicalFields)) {
+          offerRecovery(local || detail); return;
+        }
+        draftId = detail.draft_id; draftVersion = detail.version;
+        form.elements.namedItem('server_draft_id').value = draftId;
+        apply(detail); setStatus(`${ui.server_saved} · ${new Date(detail.saved_at).toLocaleString()}`, 'saved'); localStore();
+      } else if (local && !userInteracted) {
+        draftId = null; draftVersion = 0; form.elements.namedItem('server_draft_id').value = '';
+        apply(local); dirty = true; localStore(); schedule(); setStatus(ui.browser_saved, 'browser');
       }
-      const list = rows.filter(item => !item.materialized_place_id);
-      const selected = list.find(item => item.target_type === 'place' && item.target_id === targetId &&
-        (draftId ? item.draft_id === draftId : targetId !== null));
-      if (!selected || selected.materialized_place_id) return;
-      const detailResponse = await fetch(`${form.dataset.draftUrl}${selected.draft_id}/`, {credentials:'same-origin'});
-      if (!detailResponse.ok) throw new Error('detail');
-      const detail = await detailResponse.json();
-      if (local && !local.serverSaved && local.draftId === detail.draft_id && local.draftVersion !== detail.version) {
-        halted = true; localStore(); setStatus(ui.server_conflict, 'conflict'); return;
-      }
-      draftId = detail.draft_id; draftVersion = detail.version; form.elements.namedItem('server_draft_id').value = draftId;
-      if (targetId === null) root.querySelector('[data-pc-lifecycle]').textContent = ui.state_draft;
-      if (userInteracted) { dirty = true; localStore(); schedule(); return; }
-      if (!local || Date.parse(detail.saved_at) >= local.at) {
-        apply(detail);
-        setStatus(`${ui.server_saved} · ${new Date(detail.saved_at).toLocaleString()}${local?.photoPending ? ' · ' + ui.restored : ''}`, 'saved');
-        localStore();
-      } else { dirty = true; schedule(); setStatus(ui.browser_saved, 'browser'); }
-    } catch { if (!local) setStatus(ui.save_failed, 'error'); }
+    } catch {
+      if (local && !userInteracted) {
+        form.elements.namedItem('server_draft_id').value = draftId || ''; apply(local);
+        setStatus(ui.browser_saved, 'browser');
+      } else if (!local) setStatus(ui.save_failed, 'error');
+    }
   }
   async function save(force = false) {
     if (saving) return inFlight;
@@ -142,6 +238,45 @@
   }
   function schedule() { clearTimeout(timer); timer = setTimeout(() => save(), 900); }
 
+  // Native focus scrolling does not account for the sticky editor surfaces.
+  function visibleFocusTarget(input) {
+    const rect = input.getBoundingClientRect();
+    if (rect.width > 2 && rect.height > 2) return input;
+    return input.closest('label') || input.labels?.[0] || input;
+  }
+  function keepFocusVisible() {
+    const input = document.activeElement;
+    if (!form.contains(input)) return;
+    const target = visibleFocusTarget(input), rect = target.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    let top = 8, bottom = window.innerHeight - 8;
+    for (const surface of document.querySelectorAll('#km-site-header, .pc-nav, .pc-savebar, .pc-actions')) {
+      if (surface.contains(input)) continue;
+      const box = surface.getBoundingClientRect();
+      if (!box.height || box.bottom <= 0 || box.top >= innerHeight || box.right <= rect.left || box.left >= rect.right) continue;
+      const css = getComputedStyle(surface);
+      if (css.position !== 'sticky' && css.position !== 'fixed') continue;
+      if (surface.matches('.pc-actions')) bottom = Math.min(bottom, box.top - 8);
+      else if (box.top <= Math.max(parseFloat(css.top) || 0, 0) + 1) top = Math.max(top, box.bottom + 8);
+    }
+    root.style.setProperty('--pc-focus-top', `${top}px`);
+    root.style.setProperty('--pc-focus-bottom', `${innerHeight - bottom}px`);
+    // Oversized controls align their leading area without an alternating scroll loop.
+    const delta = rect.height > bottom - top ? rect.top - top : rect.top < top ? rect.top - top : rect.bottom > bottom ? rect.bottom - bottom : 0;
+    if (Math.abs(delta) > 1) window.scrollBy({top:delta, behavior:'instant'});
+  }
+  let focusFrame = null;
+  function scheduleFocusVisibility() {
+    if (focusFrame !== null) cancelAnimationFrame(focusFrame);
+    focusFrame = requestAnimationFrame(() => { focusFrame = null; keepFocusVisible(); });
+  }
+  form.addEventListener('focusin', scheduleFocusVisibility);
+  window.addEventListener('resize', scheduleFocusVisibility);
+  if ('ResizeObserver' in window) {
+    const focusSurfaces = new ResizeObserver(scheduleFocusVisibility);
+    form.querySelectorAll('.pc-nav, .pc-savebar, .pc-actions').forEach(surface => focusSurfaces.observe(surface));
+  }
+
   function updatePreview() {
     const language = form.querySelector('[data-pc-preview-language]')?.value || 'az';
     const translated = prefix => form.elements.namedItem(`${prefix}_${language}`)?.value || form.elements.namedItem(`${prefix}_az`)?.value || (prefix === 'name' ? form.elements.namedItem('name')?.value : '') || '';
@@ -164,17 +299,27 @@
     const count = directCount + groupPlans;
     root.querySelector('[data-pc-preview-price]').textContent = count ? counted(count, 'plan_count') : ui.empty;
   }
-  function fieldTarget(name, messages = '') {
+  function fieldTarget(name, path = null) {
     if (name === 'nested_pricing') {
-      const path = String(messages);
-      const ai = path.match(/activities[.\[]([0-9]+)/)?.[1];
-      const gi = path.match(/groups[.\[]([0-9]+)/)?.[1];
-      const pi = path.match(/pricing_plans[.\[]([0-9]+)/)?.[1];
-      let scope = ai == null ? form.querySelector('[data-pc-offerings]') : form.querySelector(`[data-activity-index="${ai}"]`);
-      if (gi != null) scope = scope?.querySelector(`[data-group-index="${gi}"]`);
-      if (pi != null) scope = scope?.querySelector(`[data-plan-index="${pi}"]`);
-      const key = path.match(/\.(age_from|age_to|price_min|price_max|price|name_az|category_id|subcategory_id)\b/)?.[1];
-      return (key && scope?.querySelector(`[data-offering-key="${key}"]`)) || scope?.querySelector('input,select,textarea') || form.querySelector('[data-pc-add-activity]');
+      const root = form.querySelector('[data-pc-offerings]');
+      const fallback = () => root?.querySelector('input,select,textarea') || form.querySelector('[data-pc-add-activity]');
+      if (!Array.isArray(path)) return fallback();
+      const keys = new Set(['program_id', 'category_id', 'subcategory_id', 'name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en', 'supplement_az', 'age_from', 'age_to', 'language', 'schedule_text', 'lesson_format', 'teachers_text', 'conditions_az', 'title_az', 'title_ru', 'title_en', 'product_type', 'price_kind', 'price', 'price_min', 'price_max', 'currency', 'charge_role', 'billing_mode', 'billing_interval', 'billing_interval_count', 'billing_cycles', 'quantity', 'quantity_unit', 'is_trial', 'is_required']);
+      let scope = root, offset = 0;
+      for (const [segment, attribute] of [['activities', 'activity'], ['groups', 'group'], ['pricing_plans', 'plan']]) {
+        if (path[offset] !== segment) break;
+        const index = path[offset + 1];
+        if (!Number.isSafeInteger(index) || index < 0) return fallback();
+        scope = scope?.querySelector(`[data-${attribute}-index="${index}"]`);
+        if (!scope) return fallback();
+        offset += 2;
+      }
+      if (offset === 0 || (path.length !== offset && path.length !== offset + 1)) return fallback();
+      const key = path[offset];
+      if (key !== undefined && !keys.has(key)) return scope.querySelector(':scope > summary') || fallback();
+      const input = key === undefined ? scope.querySelector(':scope > summary') : scope.querySelector(`[data-offering-key="${key}"]`);
+      // A billing input can intentionally be hidden after changing billing mode.
+      return (input?.closest('[hidden]') ? scope.querySelector('[data-offering-key="billing_mode"]') : input) || scope.querySelector(':scope > summary') || fallback();
     }
     const input = [...form.querySelectorAll('[name]')].find(node => node.name === name);
     if (input?.type === 'hidden') return input.closest('[data-pw-field]')?.parentElement?.querySelector('input:not([type=hidden]),select,textarea,button') || input;
@@ -186,25 +331,35 @@
     input.scrollIntoView({block:'center', behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
     input.focus({preventScroll:true});
   }
-  function showErrors(errors) {
+  const summaryAttributes = new Map();
+  function showErrors(errors, targets = {}) {
+    for (const [input, attributes] of summaryAttributes) {
+      for (const [name, value] of Object.entries(attributes)) {
+        if (value === null) input.removeAttribute(name); else input.setAttribute(name, value);
+      }
+    }
+    summaryAttributes.clear();
     const box = form.querySelector('[data-pc-errors]'); box.replaceChildren();
     if (!Object.keys(errors).length) { box.hidden = true; return; }
     box.hidden = false; const heading = document.createElement('strong'); heading.textContent = ui.errors_title; box.append(heading);
     const list = document.createElement('ul');
     Object.entries(errors).forEach(([name, messages]) => {
-      const input = fieldTarget(name, messages), wrapper = input?.closest('[data-pw-field]');
-      const item = document.createElement('li'), button = document.createElement('button');
-      let message = Array.isArray(messages) ? messages.join(' ') : String(messages);
-      if (message.includes('Candidate version conflict')) message = ui.server_conflict;
-      const label = name === 'nested_pricing' ? ui.section_offer : wrapper?.querySelector('label')?.textContent?.trim() || input?.getAttribute('aria-label') || ui.errors_title;
-      button.type = 'button'; button.textContent = `${label}: ${message}`;
-      button.addEventListener('click', () => goTo(input));
-      item.append(button); list.append(item);
-      if (input) {
-        input.setAttribute('aria-invalid','true');
-        item.id = `pc-error-${list.children.length}`;
-        input.setAttribute('aria-describedby', `${input.getAttribute('aria-describedby') || ''} ${item.id}`.trim());
-      }
+      (Array.isArray(messages) ? messages : [messages]).forEach((text, index) => {
+        const input = fieldTarget(name, targets?.[name]?.[index]), wrapper = input?.closest('[data-pw-field]');
+        const item = document.createElement('li'), button = document.createElement('button');
+        let message = String(text);
+        if (message.includes('Candidate version conflict')) message = ui.server_conflict;
+        const label = name === 'nested_pricing' ? ui.section_offer : wrapper?.querySelector('label')?.textContent?.trim() || input?.getAttribute('aria-label') || ui.errors_title;
+        button.type = 'button'; button.textContent = `${label}: ${message}`;
+        button.addEventListener('click', () => goTo(input));
+        item.append(button); list.append(item);
+        if (input) {
+          if (!summaryAttributes.has(input)) summaryAttributes.set(input, {'aria-invalid': input.getAttribute('aria-invalid'), 'aria-describedby': input.getAttribute('aria-describedby')});
+          input.setAttribute('aria-invalid','true');
+          item.id = `pc-error-${list.children.length}`;
+          input.setAttribute('aria-describedby', `${input.getAttribute('aria-describedby') || ''} ${item.id}`.trim());
+        }
+      });
     });
     box.append(list); box.focus({preventScroll:true}); box.scrollIntoView({block:'center'});
   }
@@ -281,10 +436,24 @@
       if (saving) await inFlight;
       try {
         const result = await photoEditor.save(submitter);
-        if (!result.ok) { showErrors(result.errors || {}); setStatus(ui.save_failed, 'error'); return; }
+        if (!result.ok) {
+          if (result.conflict === 'candidate_version_conflict') {
+            showErrors({__all__: [ui.server_conflict]});
+            candidateConflict = true; halted = true; clearTimeout(timer); localStore();
+            setStatus(ui.server_conflict, 'conflict');
+          } else {
+            showErrors(result.errors || {}, result.error_targets || {});
+            setStatus(ui.save_failed, 'error');
+          }
+          return;
+        }
         dirty = false; photoDirty = false;
         try { localStorage.removeItem(localKey); } catch {}
-        location.assign(result.redirect);
+        if (currentCandidateView) {
+          const redirect = new URL(result.redirect, location.href);
+          redirect.searchParams.set('candidate_current', '1');
+          location.assign(redirect.href);
+        } else location.assign(result.redirect);
       } catch { setStatus(ui.save_failed, 'error'); }
       finally { submitting = false; }
     } else { submitting = true; clearTimeout(timer); }

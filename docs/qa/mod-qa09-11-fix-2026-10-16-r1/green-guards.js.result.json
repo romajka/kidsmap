@@ -1,0 +1,171 @@
+{
+  "rows": [
+    {
+      "id": "MOD-QA-10 Escape cancels with focus and no POST",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 390,
+      "model": "publication-guards",
+      "detail": {}
+    },
+    {
+      "id": "MOD-QA-10 Cancel preserves state without POST",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 390,
+      "model": "publication-guards",
+      "detail": {}
+    },
+    {
+      "id": "MOD-QA-10 SIMULATED network error releases busy state",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 390,
+      "model": "publication-guards",
+      "detail": {
+        "transport": "SIMULATED route.abort; no backend mutation"
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": true,
+      "host": "127.0.0.1:57737",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": true,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    }
+  ],
+  "complete": false,
+  "error": "TimeoutError: locator.click: Timeout 8000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.km-toast:visible .km-toast__close').nth(1)\u001b[22m\n",
+  "boundary": {
+    "lang": "ru",
+    "width": 390,
+    "model": "publication-guards"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "transaction": "READ ONLY",
+  "plans": [
+    {
+      "pk": 46,
+      "product_type": "lesson",
+      "billing_mode": "one_time",
+      "billing_interval": "",
+      "billing_interval_count": null,
+      "quantity": null,
+      "quantity_unit": "",
+      "price": "20.00"
+    },
+    {
+      "pk": 47,
+      "product_type": "membership",
+      "billing_mode": "recurring",
+      "billing_interval": "month",
+      "billing_interval_count": 1,
+      "quantity": 8,
+      "quantity_unit": "lesson",
+      "price": "90.00"
+    }
+  ],
+  "original_id": 46,
+  "revision_status": "approved",
+  "source_version": 2,
+  "price_from": "20.00",
+  "price_to": "90.00"
+}

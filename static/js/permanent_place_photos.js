@@ -132,7 +132,7 @@
           if (xhr.status >= 200 && xhr.status < 300) { resolve(xhr.response); return; }
           try {
             const body = JSON.parse(responseType === 'blob' ? await xhr.response.text() : xhr.responseText);
-            reject(Object.assign(new Error(body.error || copy.saveFailed), {errors:body.errors}));
+            reject(Object.assign(new Error(body.error || copy.saveFailed), {errors:body.errors, error_targets:body.error_targets, conflict:body.conflict}));
           } catch (error) { reject(new Error(copy.failed)); }
         };
         xhr.onerror = xhr.ontimeout = () => reject(new Error(copy.failed));
@@ -236,14 +236,17 @@
       controls.forEach(node => { node.disabled = true; });
       try {
         const result = JSON.parse(await send(root.dataset.saveUrl,data,'text',percent => { status.textContent = `${copy.saving} ${percent}%`; }));
-        if (!result.ok) throw Object.assign(new Error(copy.saveFailed), {errors:result.errors});
+        if (!result.ok) throw Object.assign(new Error(copy.saveFailed), {errors:result.errors, error_targets:result.error_targets, conflict:result.conflict});
         items().forEach(item => { item.state = 'saved'; }); changedPhotos = false; render(); status.textContent = copy.saved;
         return result;
       } catch (error) {
-        items().forEach(item => { item.state = item.file ? 'save-error' : oldStates.get(item); item.error = item.file ? copy.saveFailed : ''; });
-        render(); status.dataset.savedError = '1'; status.textContent = copy.saveFailed;
-        const retry = document.createElement('button'); retry.type = 'button'; retry.textContent = copy.retry; retry.addEventListener('click', () => form.requestSubmit(submitter)); status.append(' ', retry);
-        return {ok:false, errors:error.errors || {gallery_images:[copy.saveFailed]}};
+        const candidateConflict = error.conflict === 'candidate_version_conflict';
+        items().forEach(item => { item.state = candidateConflict ? oldStates.get(item) : item.file ? 'save-error' : oldStates.get(item); item.error = !candidateConflict && item.file ? copy.saveFailed : ''; });
+        render(); status.dataset.savedError = '1'; status.textContent = candidateConflict ? copy.unsaved : copy.saveFailed;
+        if (!candidateConflict) {
+          const retry = document.createElement('button'); retry.type = 'button'; retry.textContent = copy.retry; retry.addEventListener('click', () => form.requestSubmit(submitter)); status.append(' ', retry);
+        }
+        return {ok:false, errors:error.errors || {gallery_images:[copy.saveFailed]}, error_targets:error.error_targets, conflict:error.conflict};
       } finally { saving = false; controls.forEach(node => { node.disabled = false; }); render(); }
     }
     root.querySelector('[data-photo-fallback-clear]').hidden = true;

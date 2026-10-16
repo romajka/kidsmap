@@ -1,0 +1,1 @@
+Первый reproduce.js: CLI exit0, complete=false, observations0. QA locator form.auth-form захватил также кнопку reset-modal. Проверяемые переходы ещё не выполнялись. В reproduce-corrected.js ограничен существующим form.register-form--login. Application и assertions не менялись.

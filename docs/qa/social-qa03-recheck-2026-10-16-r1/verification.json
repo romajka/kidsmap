@@ -1,0 +1,216 @@
+{
+  "decision": "SOCIAL-QA-03 OPEN; REVIEWABLE PLAN READY; CURRENT SOURCE RECHECK REQUIRED BEFORE PATCH",
+  "gate": "NOT PASS FOR CURRENT WORKTREE: concurrent application/PO drift; captured reproduction remains bounded valid evidence",
+  "snapshot": {
+    "root": "/home/ramin/kidsmap",
+    "head": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+    "branch": "task33-progress",
+    "dirty_worktree": true,
+    "active_run": [
+      "active_run: NONE"
+    ]
+  },
+  "captured_source": {
+    "files": 969,
+    "startup_manifest_match": true,
+    "template_match_at_start": true,
+    "pid": 565463,
+    "sole_locale_paths": [
+      "/home/ramin/kidsmap/.tmp/social-qa03-recheck-2026-10-16-r1/locales/locale"
+    ],
+    "current_worktree_match": false,
+    "current_locale_manifest": "STALE after foreign PO changes; rebuild required"
+  },
+  "reproduction": {
+    "scope": "Specialist on recorded969snapshot only",
+    "rendered_cells": 18,
+    "observations": 72,
+    "control_pass": 36,
+    "source_fail": 36,
+    "png": 18,
+    "real_409": 18,
+    "candidate_current_public_preserved_at_each_conflict": true,
+    "known_transition_pageerrors": 18,
+    "introduction": "UNKNOWN; same signature previously seen in SOCIAL01",
+    "permanent_data_loss": "NOT CLAIMED"
+  },
+  "candidate": {
+    "application_files": [
+      "src/catalog/controllers/typed_reviews.py",
+      "src/catalog/templates/catalog/typed_reviews.html",
+      "src/catalog/testcases/test_social_qa03_conflict_recovery.py"
+    ],
+    "existing_two_files_still_match_proposal_baseline": true,
+    "new_methods": 6,
+    "tests": "NOT RUN",
+    "applied": false,
+    "approval": "PENDING; fresh source/MO +targeted RED required before approved patch"
+  },
+  "source_drift": {
+    "status": "RECHECK REQUIRED; current source differs from completed native reproduction",
+    "changed_existing_source": [
+      {
+        "path": "locale/az/LC_MESSAGES/django.po",
+        "baseline_sha256": "c5829523bc027fc619e785fd2097b8e75415b40951fb9a92f423d811c26e847e",
+        "current_sha256": "87298fb2d4d42bcae9ea5523ccf83f93d5f5e74a576973e7ce21b66d169985fe"
+      },
+      {
+        "path": "locale/en/LC_MESSAGES/django.po",
+        "baseline_sha256": "18de3e940daf91954955b1c4ac7cd7ea9788860fc1e62e046153513deeee9934",
+        "current_sha256": "6aef963c33b30f56fd74d2ff6d8bdc2e0801d14415494c5fc6d76cc91ecb772a"
+      },
+      {
+        "path": "locale/ru/LC_MESSAGES/django.po",
+        "baseline_sha256": "6d80ad12974a868f8b11eca4ff51e5e188fb8fb48ab05e74f95434527ddd640f",
+        "current_sha256": "b4ee004851cba20897602ff923e239f2585f9d3a0528db98e7f3fbb80ba4b3cf"
+      },
+      {
+        "path": "src/catalog/domain_admin/owner.py",
+        "baseline_sha256": "e5ab5aa389e934ffa65ad5722ecce12677e58ea788e1c9e3d5942f3b0c368c3a",
+        "current_sha256": "ef16e5dfec3a38d7b00fa7257acdd24ca8f542a88e597cce4707c7d79e116efb"
+      },
+      {
+        "path": "src/catalog/domain_admin/place.py",
+        "baseline_sha256": "68ba78d4f83b364c644834f9593688dbf3682ff568be07349f2f3af6f7b2ce99",
+        "current_sha256": "7913fa0a326174e67e9f7761dc69b3d265f42c5c6190b3023541d68c2d7f599e"
+      },
+      {
+        "path": "src/catalog/domain_admin/review.py",
+        "baseline_sha256": "7d8ad3cdc1802611d2743f92e1ec7d6eceed1674ca2e17e0346c8c50b445d2db",
+        "current_sha256": "3a825f6c612a26269e7a12813407a4adfc9899d2c32ad07ea39bab1b26ea5e2c"
+      },
+      {
+        "path": "src/catalog/domain_admin/review_versions.py",
+        "baseline_sha256": "cd5f043cf42b0d11e2569a97970a14932acb87fdf90fdc77aab0761c70471aa6",
+        "current_sha256": "51632635dd5d7cf5e98e11cbbfec816195fe551cbb77f4c40b31f4c86bfb103b"
+      },
+      {
+        "path": "src/catalog/proxy_apps/catalog_moderation/admin.py",
+        "baseline_sha256": "2b24635f5e41c6c3e27ff6680540dc43f8467c0d6731414f4e607aba0c2dee29",
+        "current_sha256": "f95a201d3f44509bffa1858da5a8e6051fa03dd65f9aefc8b7eab1f834d9584d"
+      },
+      {
+        "path": "src/catalog/services/admin_place_preview.py",
+        "baseline_sha256": "4310f29ba72d2c27c183ac92a9acf76d3e3c8227b3fec19841d24d27e7d12fc0",
+        "current_sha256": "a0181ef4376f5ec3a95e18b669917fb18063e27cd242ecd689794ba06f4a594f"
+      },
+      {
+        "path": "src/catalog/services/admin_site_preview.py",
+        "baseline_sha256": "b31dd041e4623a562ec3bd9d9290e247d258a34ccbbd4e037c68e8e6a1012e2e",
+        "current_sha256": "ccc5f483c27cfb671b60c2133eb6f2f404a6c60bf145f03836a0bd36cb74c3d3"
+      },
+      {
+        "path": "src/catalog/services/review_versions.py",
+        "baseline_sha256": "eb6f1cd2df7f8bcd0ffdd40f0fb6f3381258f6c84f3ba7437510268f25b1e19e",
+        "current_sha256": "695adec43a24e05d5f028a0ab0730c2b676f31f7f17c53413eb3b1d584a37b26"
+      },
+      {
+        "path": "src/catalog/templates/admin/catalog/place/form/section_media.html",
+        "baseline_sha256": "da003d3e7521dd9cbe4737ca19bc721df07914f2ce84f16462c5557d9eeb954e",
+        "current_sha256": "2f277220410313a39890ed8db73a66574cca65b2e980592291cdea8a29618c24"
+      },
+      {
+        "path": "src/catalog/templates/admin/catalog/placeownershiprequest/change_form.html",
+        "baseline_sha256": "2279350f59f9ef8b8e564a38aec4cf4069df023e485251c0a3007f5f2a037ab1",
+        "current_sha256": "6d2960b5063bc5f43711cc2b631f806eb87f756ef8852d6e7d5ec5ee5b4bdcbb"
+      },
+      {
+        "path": "src/catalog/templates/admin/catalog/placereview/change_form.html",
+        "baseline_sha256": "28541aadb3650b2924fa379979fc7811fe7373e8f9598df7dc2f602ae1a32c92",
+        "current_sha256": "0f419c00dc7b31fd3353fbf279445685004152b26d48ade38d492099174d8bab"
+      },
+      {
+        "path": "src/catalog/templates/admin/catalog/placereview/change_list.html",
+        "baseline_sha256": "8a4e147b64293b13e1e2a2f3e3cc9dfc9e0af7b533b0fe3ab6babe176cb1df5f",
+        "current_sha256": "9217adcbea3fc052e792f927097626e4ecd9fe89981630c1e41b72374d9d1c3e"
+      },
+      {
+        "path": "src/catalog/templatetags/admin_dashboard_tags.py",
+        "baseline_sha256": "e4e244d7494328969c0ac7a482edae31e9ab3d4bd26438edb8537aeb6b742c0b",
+        "current_sha256": "0220601e896ff03f0b42f3de1409848a75218395604227cdd9b1a1169fb6252a"
+      },
+      {
+        "path": "src/templates/admin/catalog/moderation/change_list.html",
+        "baseline_sha256": "589537423f8ac919906965b9e8403ba98978eb5cab1ec6c0c1b5944206ac93fc",
+        "current_sha256": "6a5aa3c2b9bc5fd80fea890749302351efc6d3cfd20671562e494c505ffd70a0"
+      },
+      {
+        "path": "templates/admin/catalog/place_ownership_request_moderate_confirm.html",
+        "baseline_sha256": "6f5e5ec60e12b697ddefd0496b427803ad279185a0d6b3cafcb2e11da03c1863",
+        "current_sha256": "1d5cfcb3e4087416fe4d4c631f4a6bb1ae16918c13b1c9b73c5d63bac6fa2e34"
+      }
+    ],
+    "new_source": [
+      {
+        "path": "src/catalog/templates/admin/catalog/reviews/change_list.html",
+        "sha256": "f00f6993fa7994685fe1c18ce6485d6c2d417426937bff305b60415c7963329b"
+      },
+      {
+        "path": "src/catalog/templates/admin/catalog/reviews/workflow.html",
+        "sha256": "a612e7f6198950085326c9b1e142aa188deb2a69a9e9faf5cda943663519117e"
+      },
+      {
+        "path": "src/catalog/testcases/test_admin_place_moderation_fix.py",
+        "sha256": "b72892ff7e77562d84fb1caf1ee35c9e4e16526a2be92b78e5ed11ad1c930223"
+      },
+      {
+        "path": "src/catalog/testcases/test_admin_review_workflow_fix.py",
+        "sha256": "b919363b1c045d5fc8bde881be213a72cfeca7e43151fe801e6adbc8ee1afaae"
+      },
+      {
+        "path": "static/admin/css/pages/kidsmap_review_workflow.css",
+        "sha256": "eec61ff4c50dd0a17afea4bb406fe03c2919368ec9a5955948123f8c03e9fd46"
+      }
+    ],
+    "proposal_files_unchanged": true,
+    "application_changes_by_this_PLAN": 0,
+    "foreign_changes_reverted": false,
+    "source_of_changes": "outside this task writes; attribution not verified"
+  },
+  "preservation": {
+    "entry_files": 35980,
+    "whole_worktree_unchanged": "NOT VERIFIED; gate detected concurrent outside-scope changes",
+    "index_head_branch_active_run_match": true,
+    "shared_MO": [
+      {
+        "path": "locale/en/LC_MESSAGES/django.mo",
+        "match": true
+      },
+      {
+        "path": "locale/az/LC_MESSAGES/django.mo",
+        "match": true
+      },
+      {
+        "path": "locale/ru/LC_MESSAGES/django.mo",
+        "match": true
+      }
+    ],
+    "entry_containers": 78,
+    "container_drift": [],
+    "entry_http_now": [
+      {
+        "pid": 516441,
+        "same_argv": false
+      }
+    ],
+    "foreign_restart_commands": 0,
+    "historical_limits": "Earlier and latest explicit interruptions may stop HTTP; no continuity claim, no foreign restart",
+    "guide_update": "Only new03source-drift/plan status note added by this task",
+    "guide_sha256": "a0190cb26ee739663f089b02d6ea02cbddbf7e8db31280d287f617512b16fa3a"
+  },
+  "not_run": [
+    "current changed-source recheck",
+    "new6candidate tests",
+    "SOCIAL03 implementation/acceptance",
+    "other3types rendered409 before patch",
+    "SOCIAL04-09",
+    "full ACCEPT09/global corpus",
+    "production/commit/push/deploy",
+    "physical devices/cross-browser/screenreader/external integrations"
+  ],
+  "simulated": [
+    "external font transport blocked"
+  ],
+  "commands": "commands.jsonl; failed gates retained",
+  "exact_own_secret_leaks": 0
+}

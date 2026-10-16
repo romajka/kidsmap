@@ -1,0 +1,169 @@
+--- incoming-WORKTREE/static/js/owner_place_continuous.js
++++ approved-WORKTREE/static/js/owner_place_continuous.js
+@@ -39,6 +39,11 @@
+     }
+     return result;
+   };
++  const schemaVersion = Number(form.dataset.schemaVersion);
++  const candidateVersion = Number(form.elements.namedItem('candidate_version')?.value || 0);
++  const canonicalFields = fields();
++  let recovery = null;
++  let recoveryPreserved = true;
+   const setStatus = (message, state) => {
+     if (halted && state !== 'conflict') { message = ui.server_conflict; state = 'conflict'; }
+     status.textContent = message; status.dataset.state = state;
+@@ -57,7 +62,8 @@
+     actions.querySelector('a').href = url.href;
+   };
+   const localStore = () => {
+-    try { localStorage.setItem(localKey, JSON.stringify({fields: fields(), at: editedAt, draftId, draftVersion, sourceVersion, serverSaved: !dirty, photoPending: photoDirty, conflict: halted, candidateConflict})); }
++    if (recovery && !recoveryPreserved) return;
++    try { localStorage.setItem(localKey, JSON.stringify({fields: fields(), at: editedAt, draftId, draftVersion, sourceVersion, schemaVersion, candidateVersion, targetType:'place', targetId, serverSaved: !dirty, photoPending: photoDirty, conflict: halted, candidateConflict})); }
+     catch { setStatus(ui.storage_error, 'error'); }
+   };
+   const csrf = form.querySelector('[name=csrfmiddlewaretoken]').value;
+@@ -83,50 +89,114 @@
+     }
+     updatePreview();
+   }
++  function offerRecovery(saved, canRestore = true) {
++    recoveryPreserved = false;
++    try {
++      const identifier = saved.draft_id || saved.draftId || saved.at || saved.saved_at || 'legacy';
++      localStorage.setItem(`${localKey}:recovery:${identifier}`, JSON.stringify(saved));
++      recoveryPreserved = true;
++    } catch { /* Keep the original slot intact until preservation succeeds. */ }
++    halted = true; candidateConflict = targetId !== null;
++    clearTimeout(timer);
++    setStatus(ui.working_copy_conflict, 'conflict');
++    if (recovery) recovery.remove();
++    recovery = document.createElement('div');
++    recovery.dataset.pcRecovery = '';
++    recovery.style.display = 'flex'; recovery.style.flexWrap = 'wrap'; recovery.style.gap = '8px';
++    const current = document.createElement('a');
++    current.className = 'pw-secondary'; current.textContent = ui.use_current_card;
++    current.style.display = 'inline-flex'; current.style.alignItems = 'center';
++    current.style.minHeight = '44px'; current.style.maxWidth = '100%'; current.style.padding = '6px 12px';
++    current.style.boxSizing = 'border-box'; current.style.whiteSpace = 'normal';
++    const url = new URL(location.href);
++    for (const key of ['draft_id', 'draft_current', 'draft_session', 'fresh']) url.searchParams.delete(key);
++    if (targetId !== null) url.searchParams.set('candidate_current', '1');
++    else if (saved.materialized_place_id) {
++      url.pathname = `/${document.documentElement.lang}/account/places/${saved.materialized_place_id}/edit/`;
++      url.searchParams.set('candidate_current', '1');
++    } else url.searchParams.set('fresh', '1');
++    current.href = url.href; current.target = '_blank'; current.rel = 'noopener';
++    const restoreButton = document.createElement('button');
++    restoreButton.type = 'button'; restoreButton.className = 'pw-secondary';
++    restoreButton.textContent = ui.restore_working_copy; restoreButton.dataset.pcRecoveryRestore = '';
++    restoreButton.disabled = !canRestore;
++    restoreButton.style.minHeight = '44px'; restoreButton.style.maxWidth = '100%'; restoreButton.style.whiteSpace = 'normal';
++    restoreButton.addEventListener('click', () => {
++      // Preserve the previous input before replacing its normal recovery slot.
++      try {
++        const identifier = saved.draft_id || saved.draftId || saved.at || saved.saved_at || 'legacy';
++        localStorage.setItem(`${localKey}:recovery:${identifier}`, JSON.stringify(saved));
++        recoveryPreserved = true;
++      } catch { status.textContent = ui.storage_error; return; }
++      halted = false; candidateConflict = false; draftId = null; draftVersion = 0;
++      form.elements.namedItem('server_draft_id').value = '';
++      apply(saved); userInteracted = true; dirty = true; editedAt = Date.now();
++      recovery.remove(); recovery = null; localStore(); schedule();
++      setStatus(ui.unsaved, 'dirty');
++    });
++    recovery.append(current, restoreButton); status.parentElement.append(recovery);
++  }
++  function validServerCopy(saved) {
++    return saved.target_type === 'place' && saved.target_id === targetId &&
++      saved.schema_version === schemaVersion && saved.source_version === sourceVersion && !saved.materialized_place_id;
++  }
+   async function restore() {
+-    if (form.dataset.pwBound === '1') return;
+-    // Compare the GET-built canonical candidate, never a browser/private draft overlay.
+-    if (currentCandidateView) return;
++    if (form.dataset.pwBound === '1' || currentCandidateView) return;
+     let local = null;
+     try { local = JSON.parse(localStorage.getItem(localKey) || 'null'); } catch {}
+     if (form.dataset.fresh === '1' && !local) return;
+     if (local) {
++      if (local.sourceVersion !== sourceVersion || local.schemaVersion !== schemaVersion ||
++          local.candidateVersion !== candidateVersion || local.targetType !== 'place' || local.targetId !== targetId || local.conflict) {
++        const compatible = (local.targetType == null || local.targetType === 'place') &&
++          (local.targetId === undefined || local.targetId === targetId) &&
++          (local.schemaVersion == null || local.schemaVersion === schemaVersion);
++        offerRecovery(local, compatible); return;
++      }
+       candidateConflict = local.candidateConflict === true;
+       draftId = local.draftId || null; draftVersion = Number(local.draftVersion) || 0;
+       editedAt = local.at || Date.now();
+-      form.elements.namedItem('server_draft_id').value = draftId || ''; apply(local);
+-      setStatus(local.photoPending ? ui.restored : ui.browser_saved, 'browser');
+-      if (local.sourceVersion != null && local.sourceVersion !== sourceVersion) { halted = true; setStatus(ui.structure_conflict, 'conflict'); return; }
+-      if (local.conflict) { halted = true; setStatus(ui.server_conflict, 'conflict'); return; }
++      // A cached server copy may have been consumed by another explicit-save session.
+     }
+     try {
+       const response = await fetch(form.dataset.draftUrl, {credentials:'same-origin'});
+       if (!response.ok) throw new Error('read');
+       const rows = (await response.json()).drafts || [];
+-      if (local?.draftId && rows.some(item => item.draft_id === local.draftId && item.materialized_place_id)) {
+-        localStorage.removeItem(localKey);
+-        const url = new URL(location.href); url.searchParams.delete('draft_session'); url.searchParams.set('fresh', '1'); location.replace(url.href);
+-        return;
++      const selected = rows.find(item => item.target_type === 'place' && item.target_id === targetId &&
++        (draftId ? item.draft_id === draftId : targetId !== null && !item.materialized_place_id));
++      if (selected) {
++        const detailResponse = await fetch(`${form.dataset.draftUrl}${selected.draft_id}/`, {credentials:'same-origin'});
++        if (!detailResponse.ok) throw new Error('detail');
++        const detail = await detailResponse.json();
++        if (detail.target_type !== 'place' || detail.target_id !== targetId || detail.schema_version !== schemaVersion) {
++          offerRecovery(local || {fields:{}}, false); return;
++        }
++        if (!validServerCopy(detail)) { offerRecovery(local || detail); return; }
++        if (local && !local.serverSaved && local.draftId === detail.draft_id && local.draftVersion !== detail.version) {
++          offerRecovery(local); return;
++        }
++        if (userInteracted) return; // Late reads must never overwrite newer typing or attach an old draft ID.
++        if (local && local.at > Date.parse(detail.saved_at)) {
++          form.elements.namedItem('server_draft_id').value = draftId || ''; apply(local);
++          dirty = true; localStore(); schedule(); setStatus(ui.browser_saved, 'browser'); return;
++        }
++        // Server copies have no persisted candidate-base token. Divergent data requires a choice.
++        if (targetId !== null && !local && JSON.stringify(detail.fields) !== JSON.stringify(canonicalFields)) {
++          offerRecovery(local || detail); return;
++        }
++        draftId = detail.draft_id; draftVersion = detail.version;
++        form.elements.namedItem('server_draft_id').value = draftId;
++        apply(detail); setStatus(`${ui.server_saved} · ${new Date(detail.saved_at).toLocaleString()}`, 'saved'); localStore();
++      } else if (local && !userInteracted) {
++        draftId = null; draftVersion = 0; form.elements.namedItem('server_draft_id').value = '';
++        apply(local); dirty = true; localStore(); schedule(); setStatus(ui.browser_saved, 'browser');
+       }
+-      const list = rows.filter(item => !item.materialized_place_id);
+-      const selected = list.find(item => item.target_type === 'place' && item.target_id === targetId &&
+-        (draftId ? item.draft_id === draftId : targetId !== null));
+-      if (!selected || selected.materialized_place_id) return;
+-      const detailResponse = await fetch(`${form.dataset.draftUrl}${selected.draft_id}/`, {credentials:'same-origin'});
+-      if (!detailResponse.ok) throw new Error('detail');
+-      const detail = await detailResponse.json();
+-      if (local && !local.serverSaved && local.draftId === detail.draft_id && local.draftVersion !== detail.version) {
+-        halted = true; localStore(); setStatus(ui.server_conflict, 'conflict'); return;
+-      }
+-      draftId = detail.draft_id; draftVersion = detail.version; form.elements.namedItem('server_draft_id').value = draftId;
+-      if (targetId === null) root.querySelector('[data-pc-lifecycle]').textContent = ui.state_draft;
+-      if (userInteracted) { dirty = true; localStore(); schedule(); return; }
+-      if (!local || Date.parse(detail.saved_at) >= local.at) {
+-        apply(detail);
+-        setStatus(`${ui.server_saved} · ${new Date(detail.saved_at).toLocaleString()}${local?.photoPending ? ' · ' + ui.restored : ''}`, 'saved');
+-        localStore();
+-      } else { dirty = true; schedule(); setStatus(ui.browser_saved, 'browser'); }
+-    } catch { if (!local) setStatus(ui.save_failed, 'error'); }
++    } catch {
++      if (local && !userInteracted) {
++        form.elements.namedItem('server_draft_id').value = draftId || ''; apply(local);
++        setStatus(ui.browser_saved, 'browser');
++      } else if (!local) setStatus(ui.save_failed, 'error');
++    }
+   }
+   async function save(force = false) {
+     if (saving) return inFlight;

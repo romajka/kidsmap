@@ -1,0 +1,19 @@
+Продолжаем KidsMap: module07 полная ACCEPT выполнена, LOCAL FAIL / ACCESS-QA-06 OPEN.
+
+Фактический checkout /home/ramin/kidsmap, HEAD e4e05cc213b34e2d771ecb854901bfd016d1db51, branch task33-progress, dirty WORKTREE, active_run NONE — перепроверь актуальность. Сохрани чужие файлы/processes/stands/artifacts. Без reset/clean/stash/commit/push/deploy/production/active_run assignment. Module08 не начинать.
+
+Прочитай AGENTS.md, .agents README/registry/реальный orchestrator и применимые роли, architecture/source-of-truth/audit-contract; текущий статус и PLAN/IMPLEMENT-APPROVAL/ACCEPT правила docs/qa/continuation-and-repair-prompts-2026-10-11.md. Не загружай всю библиотеку заданий.
+
+Исторические ACCESS01/02/04/05 CLOSED LOCAL;03=ORG02 принята module02. ACCESS05 в этом запуске исправлен только четырьмя одобренными AZ/EN PO entries: docs/qa/access-qa05-fix-2026-10-15-r1/REPORT.md и verification.json. Не повторять старые fixes.
+
+Полная свежая приёмка: docs/qa/module07-full-2026-10-15-r1/REPORT.md, verification.json, FINDINGS.md. 338 существующих уникальных backend methods PASS. 2232 accepted native PASS/6 source FAIL.624 PNG включают сохранённые попытки, не все вручную просмотрены. Есть подробно раскрытые QA harness/env failures; не считать их отдельными app failures и не скрывать. Полный неизменившийся корпус уже выполнен один раз, не повторять его автоматически.
+
+Новый ACCESS-QA-06 P3: AccountDeletionConfirmForm.typed_confirmation strip=True молча удаляет крайние пробелы до строгой проверки сервиса. Собственный валидный email-code + padded phrase даёт302/SCHEDULED/account inactive вместо400/active. Реальный browser RU/AZ/EN ×390/1440:6FAIL,30controlsPASS. QA-прототип4метода с24ожидаемыми source subtestFAIL и0ERROR. Рабочие коды/письма/пароли/токены — только ignored private scratch.
+
+Сначала покажи и дождись отдельного одобрения PLAN-ACCESS-QA-06.md и proposed-ACCESS-QA-06.diff в этом full-run. На момент отчёта реализация06 НЕ ОДОБРЕНА И НЕ ПРИМЕНЕНА. Точный scope: только одна строка strip=False в src/catalog/forms.py и новый src/catalog/testcases/test_access_qa06_deletion_phrase.py. По уже полученному впоследствии одобрению scope повторно не согласовывать. Новую причину/файлы согласовать отдельно.
+
+После одобрения — собственный fresh fix-run/services/current RU/AZ/EN isolated MO/manifest/sole LOCALE_PATHS до setup и source proof. В shared .venv отсутствовал pinned pypdf6.20.1: full-run имеет свой venv/python-deps с exact dependency, bounded child limits не ослаблялись. Не загружай .env или production credentials. Проверять fresh реальный PID/argv/cwd/container/source, а не старые порты. Full-run последний known server был426689 / HTTP34133,PG42603 own container module07-full-2026-10-15-r1-pg; live identity перепроверить, чужое не перезапускать.
+
+Только целевые tests4GREEN+7existing deletion tests и затронутые сценарии,18nativecells RU/AZ/EN×360/390/768/1024/1280/1440: leading/trailing/both/NBSP, правильный/неверный код, активность/account state/session/typed values/keyboard/errors/console/network/PNG. Не ослаблять expected/validators. Затем новая сводная source-provenance acceptance со ссылкой на retained338методов/общие сценарии; не гонять unchanged full corpus снова. Закрыть06 только по факту. Production/real retention waiting/backup policy/cross-browser/OS-popup pixels остаются NOT RUN.
+
+Сохранность full entry:28813files,62foreigncontainers,1knownHTTP проверяются gate. Четыре более старых HTTP исчезли после прежнего chat interruption до full entry; их continuity NOT VERIFIED, чужие не перезапускались. Не объявлять их сохранёнными ретроспективно.

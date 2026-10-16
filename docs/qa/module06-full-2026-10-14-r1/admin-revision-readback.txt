@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/docs/qa/module06-full-2026-10-14-r1/runtime.py", line 33, in <module>
+    runpy.run_path(str(HERE/sys.argv[2]),run_name='__main__')
+  File "<frozen runpy>", line 286, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/ramin/kidsmap/docs/qa/module06-full-2026-10-14-r1/admin-readback.py", line 10, in <module>
+    p=Place.objects.get(pk=F['places'][k]);rev=VolunteerPlaceRevision.objects.filter(place=p).order_by('-pk').first();rows.append({'fixture':k,'status':p.status,'name_az':p.name_az,'live_content_version':p.content_version,'revision':{'status':rev.status,'version':rev.version,'data':rev.data} if rev else None})
+                                                                                                                                                                                                                                                                                           ^^^^^^^^
+AttributeError: 'VolunteerPlaceRevision' object has no attribute 'data'

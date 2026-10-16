@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/docs/qa/access-qa01-recheck-2026-10-14-r1/verify.py", line 28, in <module>
+    (HERE/'png-manifest.json').write_text(json.dumps(png,indent=2));assert len(png)==51
+                                                                           ^^^^^^^^^^^^
+AssertionError

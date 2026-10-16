@@ -1,0 +1,1966 @@
+{
+  "rows": [
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "ru",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "ru",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "ru",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "ru",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "ru",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "ru",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "az",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "az",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "az",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "az",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "az",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "az",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "en",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "en",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "en",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "en",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "en",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "anonymous",
+      "lang": "en",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "ru",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "ru",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "ru",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "ru",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "ru",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "ru",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "az",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "az",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "az",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "az",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "az",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "az",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "en",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "en",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "en",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "en",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "en",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "owner",
+      "lang": "en",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "ru",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "ru",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "ru",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "ru",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "ru",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "ru",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "az",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "az",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "az",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "az",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "az",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "az",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "en",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "en",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "en",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "en",
+      "method": "GET",
+      "http": 302,
+      "expected": 302,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "en",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "outsider",
+      "lang": "en",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "ru",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "unauthorized-review-POST",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "ru",
+      "http": 403
+    },
+    {
+      "id": "foreign-id-POST",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "ru",
+      "http": 404
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "ru",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "az",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "unauthorized-review-POST",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "az",
+      "http": 403
+    },
+    {
+      "id": "foreign-id-POST",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "az",
+      "http": 404
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "az",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "en",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "unauthorized-review-POST",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "en",
+      "http": 403
+    },
+    {
+      "id": "foreign-id-POST",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "en",
+      "http": 404
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer",
+      "lang": "en",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "ru",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "unauthorized-review-POST",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "ru",
+      "http": 403
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "ru",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "az",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "unauthorized-review-POST",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "az",
+      "http": 403
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "az",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "en",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "unauthorized-review-POST",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "en",
+      "http": 403
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "volunteer_b",
+      "lang": "en",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "ru",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "ru",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "ru",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "unauthorized-review-POST",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "ru",
+      "http": 404
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "ru",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "az",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "az",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "az",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "unauthorized-review-POST",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "az",
+      "http": 404
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "az",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "en",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "en",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "en",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "unauthorized-review-POST",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "en",
+      "http": 404
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "moderator",
+      "lang": "en",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "ru",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "ru",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "ru",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "ru",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "az",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "az",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "az",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "az",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "en",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "en",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "en",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "reviewer",
+      "lang": "en",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "ru",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "unauthorized-review-POST",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "ru",
+      "http": 403
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "ru",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "az",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "unauthorized-review-POST",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "az",
+      "http": 403
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "az",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "en",
+      "method": "GET",
+      "http": 404,
+      "expected": 404,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "unauthorized-review-POST",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "en",
+      "http": 403
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "staff",
+      "lang": "en",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "ru",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "ru",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "ru",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "ru",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "ru",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "ru",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "az",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "az",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "az",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "az",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "az",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "az",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "hub-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "en",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/moderation/"
+    },
+    {
+      "id": "hub-content-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "en",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/moderation/content/7/"
+    },
+    {
+      "id": "legacy-review-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "en",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "admin/volunteer/review/1/"
+    },
+    {
+      "id": "foreign-volunteer-object-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "en",
+      "method": "GET",
+      "http": 403,
+      "expected": 403,
+      "path": "admin/volunteer/4/edit/"
+    },
+    {
+      "id": "private-doc-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "en",
+      "method": "GET",
+      "http": 200,
+      "expected": 200,
+      "path": "specialists/documents/1/download/"
+    },
+    {
+      "id": "denied-requests-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "en",
+      "scope": "allowlisted content/revisions/photos/counts only; GET tracking/session not compared"
+    },
+    {
+      "id": "missing-reason-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "ru",
+      "http": 409
+    },
+    {
+      "id": "stale-version-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "ru",
+      "http": 409
+    },
+    {
+      "id": "invalid-action-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "ru",
+      "http": 409
+    },
+    {
+      "id": "processed-item-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "ru",
+      "http": 409
+    },
+    {
+      "id": "CSRF-rejected",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "ru",
+      "http": 403
+    },
+    {
+      "id": "negative-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "ru"
+    },
+    {
+      "id": "missing-reason-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "az",
+      "http": 409
+    },
+    {
+      "id": "stale-version-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "az",
+      "http": 409
+    },
+    {
+      "id": "invalid-action-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "az",
+      "http": 409
+    },
+    {
+      "id": "processed-item-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "az",
+      "http": 409
+    },
+    {
+      "id": "CSRF-rejected",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "az",
+      "http": 403
+    },
+    {
+      "id": "negative-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "az"
+    },
+    {
+      "id": "missing-reason-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "en",
+      "http": 409
+    },
+    {
+      "id": "stale-version-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "en",
+      "http": 409
+    },
+    {
+      "id": "invalid-action-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "en",
+      "http": 409
+    },
+    {
+      "id": "processed-item-HTTP",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "en",
+      "http": 409
+    },
+    {
+      "id": "CSRF-rejected",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "en",
+      "http": 403
+    },
+    {
+      "id": "negative-state-unchanged",
+      "status": "PASS",
+      "width": null,
+      "role": "admin",
+      "lang": "en"
+    }
+  ]
+}

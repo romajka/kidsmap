@@ -43,10 +43,22 @@ def _localized_admin_url(path: str) -> str:
 class PlaceReviewInline(admin.TabularInline):
     model = PlaceReview
     extra = 0
-    fields = ("review_author_display", "rating", "text", "is_approved", "created_at_display")
-    readonly_fields = ("review_author_display", "created_at_display")
+    fields = ("review_author_display", "rating", "text", "is_approved", "created_at_display", "review_workflow_link")
+    readonly_fields = fields
     ordering = ("-created_at",)
     show_change_link = True
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    @admin.display(description=_("Модерация"))
+    def review_workflow_link(self, obj):
+        if not obj or not obj.pk:
+            return ""
+        return format_html('<a href="{}">{}</a>', reverse('admin:catalog_placereview_workflow', args=[obj.pk]), _("Проверка KidsMap"))
     formfield_overrides = {
         models.TextField: {"widget": forms.Textarea(attrs={"rows": 4, "cols": 52})},
     }
@@ -97,11 +109,11 @@ class ReviewModerationStatusFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value == "published":
-            return queryset.filter(is_approved=True, contains_profanity=False)
+            return queryset.filter(is_current=True, is_approved=True, status="approved", contains_profanity=False)
         if value == "hidden":
             return queryset.filter(is_approved=False)
         if value == "suspicious":
-            return queryset.filter(Q(contains_profanity=True) | Q(is_approved=False, dislikes_count__gt=0))
+            return queryset.filter(Q(candidate_revision__status="pending") | Q(contains_profanity=True) | Q(is_approved=False, dislikes_count__gt=0))
         if value == "only_rating":
             return queryset.filter(Q(text__isnull=True) | Q(text__exact=""))
         return queryset
@@ -225,10 +237,15 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
     )
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related("place", "user")
+        return super().get_queryset(request).select_related("place", "user", "candidate_revision", "current_revision")
+
+    def _review_content(self, obj):
+        if obj.candidate_revision_id and obj.candidate_revision.status == 'pending':
+            return obj.candidate_revision
+        return obj
 
     def _review_has_text(self, obj) -> bool:
-        return bool((obj.text or "").strip())
+        return bool((self._review_content(obj).text or "").strip())
 
     def _render_review_badge(self, *, label: str, tone: str = "muted"):
         return format_html(
@@ -268,7 +285,7 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
         )
 
     def _review_preview_text(self, obj) -> str:
-        text = (obj.text or "").strip()
+        text = (self._review_content(obj).text or "").strip()
         if not text:
             return str(_("Только оценка без комментария"))
         if len(text) <= 180:
@@ -284,6 +301,8 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
             return ""
 
     def _review_status(self, obj) -> tuple[str, str]:
+        if obj.candidate_revision_id and obj.candidate_revision.status == 'pending':
+            return str(_("На модерации")), "warn"
         if obj.status == obj.STATUS_REJECTED:
             return str(_("Отклонен")), "danger"
         if obj.status == obj.STATUS_PENDING:
@@ -320,7 +339,7 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
 
     @admin.display(description=_("Автор"))
     def display_author(self, obj):
-        return obj.author_name or _("Без имени")
+        return self._review_content(obj).author_name or _("Без имени")
 
     @admin.display(description=_("Автор"))
     def author_summary(self, obj):
@@ -348,12 +367,13 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
 
     @admin.display(description=_("Рейтинг"))
     def rating_summary(self, obj):
-        tone = "warn" if obj.rating <= 2 else "info" if obj.rating == 3 else "good"
-        stars = "★" * int(obj.rating or 0) + "☆" * max(0, 5 - int(obj.rating or 0))
+        content = self._review_content(obj)
+        tone = "warn" if content.rating <= 2 else "info" if content.rating == 3 else "good"
+        stars = "★" * int(content.rating or 0) + "☆" * max(0, 5 - int(content.rating or 0))
         return format_html(
             '<div class="km-admin-stack"><span class="km-review-rating km-review-rating--{}" title="{}">{}</span>{}</div>',
             tone,
-            _("Оценка: %(rating)s из 5") % {"rating": obj.rating},
+            _("Оценка: %(rating)s из 5") % {"rating": content.rating},
             stars,
             format_html(
                 '<span class="km-admin-meta">{}</span>',
@@ -364,7 +384,7 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
     @admin.display(description=_("Статус"))
     def moderation_status_summary(self, obj):
         label, tone = self._review_status(obj)
-        if obj.status == obj.STATUS_PENDING:
+        if obj.candidate_revision_id and obj.candidate_revision.status == 'pending':
             help_text = _("Ждёт решения администратора")
         elif obj.status == obj.STATUS_REJECTED:
             help_text = _("Отклонён и скрыт")
@@ -380,14 +400,15 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
     @admin.display(description=_("Риски"))
     def risk_flags_summary(self, obj):
         flags = []
-        quality = review_quality_check(obj)
-        if obj.contains_profanity:
+        content = self._review_content(obj)
+        quality = review_quality_check(content)
+        if content.contains_profanity:
             flags.append(self._render_review_badge(label=_("Есть скрытая лексика"), tone="warn"))
         if not quality.is_ready:
             flags.append(self._render_review_badge(label=_("Низкое качество"), tone="warn"))
         if not self._review_has_text(obj):
             flags.append(self._render_review_badge(label=_("Только оценка"), tone="info"))
-        if obj.rating <= 2:
+        if content.rating <= 2:
             flags.append(self._render_review_badge(label=_("Низкая оценка"), tone="warn"))
         if obj.dislikes_count > obj.likes_count:
             flags.append(self._render_review_badge(label=_("Много дизлайков"), tone="warn"))
@@ -444,6 +465,7 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
 
     def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
         if obj:
+            context["km_review_workflow_url"] = self._review_url(obj)
             context["km_review_form_summary"] = self._build_review_form_summary(obj)
             context["km_action_approve_url"] = self._review_action_url(obj, "approve")
             context["km_action_hide_url"] = self._review_action_url(obj, "hide")
@@ -464,11 +486,12 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
         return f"?{encoded}" if encoded else ""
 
     def _review_counts(self):
-        counts = PlaceReview.objects.aggregate(
+        counts = PlaceReview.objects.filter(is_current=True).aggregate(
             total=Count("pk"),
-            published=Count("pk", filter=Q(is_approved=True, contains_profanity=False)),
+            pending=Count("pk", filter=Q(candidate_revision__status="pending")),
+            published=Count("pk", filter=Q(is_approved=True, status="approved", contains_profanity=False)),
             hidden=Count("pk", filter=Q(is_approved=False)),
-            suspicious=Count("pk", filter=Q(contains_profanity=True) | Q(is_approved=False, dislikes_count__gt=0)),
+            suspicious=Count("pk", filter=Q(candidate_revision__status="pending") | Q(contains_profanity=True) | Q(is_approved=False, dislikes_count__gt=0)),
             only_rating=Count("pk", filter=Q(text__isnull=True) | Q(text__exact="")),
             low_rating=Count("pk", filter=Q(rating__lte=2)),
         )
@@ -533,15 +556,6 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
             {"name": "delete_selected", "label": _("Удалить"), "tone": "danger", "icon": "fas fa-trash-alt", "confirm": _("Вы собираетесь удалить {count} выбранных отзывов.\n\nЭто действие удалит отзывы из базы после стандартного экрана подтверждения Django admin.\n\nПродолжить?"), "description": _("Полное удаление отзывов из базы.")},
         )
 
-    def get_urls(self):
-        url_prefix = f"{self.opts.app_label}_{self.opts.model_name}"
-        custom_urls = [
-            path("<path:object_id>/approve/", self.admin_site.admin_view(self.approve_view), name=f"{url_prefix}_approve"),
-            path("<path:object_id>/hide/", self.admin_site.admin_view(self.hide_view), name=f"{url_prefix}_hide"),
-            path("<path:object_id>/reject/", self.admin_site.admin_view(self.reject_view), name=f"{url_prefix}_reject"),
-        ]
-        return custom_urls + super().get_urls()
-
     def _review_changelist_url(self) -> str:
         return reverse(
             f"admin:{self.opts.app_label}_{self.opts.model_name}_changelist",
@@ -564,147 +578,19 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
         }
         return super().changelist_view(request, extra_context=extra_context)
 
-    def _message_for_single_review_action(self, *, request, obj, action_key: str):
-        messages_map = {
-            "approve": _("Отзыв опубликован и виден на сайте."),
-            "hide": _("Отзыв скрыт. Его можно снова опубликовать позже."),
-            "reject": _("Отзыв отклонён и скрыт. При необходимости его можно снова опубликовать."),
-        }
-        self.message_user(request, messages_map[action_key], level=messages.SUCCESS)
-
-    def _toggle_review_visibility(self, *, obj, is_approved: bool, rejected: bool = False, moderator=None):
-        target_status = obj.STATUS_APPROVED if is_approved else (obj.STATUS_REJECTED if rejected else obj.STATUS_PENDING)
-        if obj.is_approved == is_approved and obj.status == target_status:
-            return False
-        obj.status = target_status
-        obj.is_approved = is_approved
-        obj.moderated_by = moderator if target_status != 'pending' else None
-        obj.save(update_fields=["status", "is_approved", "updated_at", "moderated_by"])
-        return True
-
-    def approve_view(self, request, object_id):
-        from django.core.exceptions import PermissionDenied
-        obj = self.get_object(request, object_id)
-        if not self.has_change_permission(request, obj):
-            raise PermissionDenied
-        if obj is None:
-            return HttpResponseRedirect(self._review_changelist_url())
-        if request.method == "POST":
-            self._toggle_review_visibility(obj=obj, is_approved=True, moderator=request.user)
-            self._message_for_single_review_action(request=request, obj=obj, action_key="approve")
-            return HttpResponseRedirect(self._review_changelist_url())
-        return TemplateResponse(request, "admin/catalog/placereview/moderation_confirm.html", {
-            **self.admin_site.each_context(request),
-            "title": _("Опубликовать отзыв"),
-            "action_label": _("Опубликовать"),
-            "action_key": "approve",
-            "description": _("Отзыв станет снова виден на сайте."),
-            "object": obj,
-            "opts": self.opts,
-        })
-
-    def hide_view(self, request, object_id):
-        from django.core.exceptions import PermissionDenied
-        obj = self.get_object(request, object_id)
-        if not self.has_change_permission(request, obj):
-            raise PermissionDenied
-        if obj is None:
-            return HttpResponseRedirect(self._review_changelist_url())
-        if request.method == "POST":
-            self._toggle_review_visibility(obj=obj, is_approved=False, moderator=request.user)
-            self._message_for_single_review_action(request=request, obj=obj, action_key="hide")
-            return HttpResponseRedirect(self._review_changelist_url())
-        return TemplateResponse(request, "admin/catalog/placereview/moderation_confirm.html", {
-            **self.admin_site.each_context(request),
-            "title": _("Скрыть отзыв"),
-            "action_label": _("Скрыть"),
-            "action_key": "hide",
-            "description": _("Отзыв исчезнет с сайта, но останется в базе и его можно будет снова опубликовать."),
-            "object": obj,
-            "opts": self.opts,
-        })
-
-    def reject_view(self, request, object_id):
-        from django.core.exceptions import PermissionDenied
-        obj = self.get_object(request, object_id)
-        if not self.has_change_permission(request, obj):
-            raise PermissionDenied
-        if obj is None:
-            return HttpResponseRedirect(self._review_changelist_url())
-        if request.method == "POST":
-            self._toggle_review_visibility(obj=obj, is_approved=False, rejected=True, moderator=request.user)
-            self._message_for_single_review_action(request=request, obj=obj, action_key="reject")
-            return HttpResponseRedirect(self._review_changelist_url())
-        return TemplateResponse(request, "admin/catalog/placereview/moderation_confirm.html", {
-            **self.admin_site.each_context(request),
-            "title": _("Отклонить отзыв"),
-            "action_label": _("Отклонить"),
-            "action_key": "reject",
-            "description": _("Отзыв останется в базе как скрытый. Это решение можно будет изменить позже."),
-            "object": obj,
-            "opts": self.opts,
-        })
-
-    @admin.action(description=_("Опубликовать выбранные отзывы"))
-    def approve_selected(self, request, queryset):
-        place_ids = list(queryset.values_list("place_id", flat=True).distinct())
-        updated_count = queryset.exclude(is_approved=True, status=PlaceReview.STATUS_APPROVED).update(is_approved=True, status=PlaceReview.STATUS_APPROVED, moderated_at=timezone.now(), moderated_by=request.user, updated_at=timezone.now())
-        from catalog.models.review import sync_place_rating_stats
-        sync_place_rating_stats(place_ids)
-        self.message_user(
-            request,
-            ngettext("Опубликован %(count)d отзыв.", "Опубликовано %(count)d отзыва.", updated_count) % {"count": updated_count},
-            level=messages.SUCCESS if updated_count else messages.WARNING,
-        )
-
-    @admin.action(description=_("Скрыть выбранные отзывы"))
-    def hide_selected(self, request, queryset):
-        place_ids = list(queryset.values_list("place_id", flat=True).distinct())
-        updated_count = queryset.exclude(is_approved=False, status=PlaceReview.STATUS_PENDING).update(is_approved=False, status=PlaceReview.STATUS_PENDING, submitted_at=timezone.now(), moderated_at=None, moderated_by=None, updated_at=timezone.now())
-        from catalog.models.review import sync_place_rating_stats
-        sync_place_rating_stats(place_ids)
-        self.message_user(
-            request,
-            ngettext("Скрыт %(count)d отзыв.", "Скрыто %(count)d отзыва.", updated_count) % {"count": updated_count},
-            level=messages.SUCCESS if updated_count else messages.WARNING,
-        )
-
-    @admin.action(description=_("Отклонить выбранные отзывы"))
-    def reject_selected(self, request, queryset):
-        place_ids = list(queryset.values_list("place_id", flat=True).distinct())
-        updated_count = queryset.exclude(is_approved=False, status=PlaceReview.STATUS_REJECTED).update(is_approved=False, status=PlaceReview.STATUS_REJECTED, moderated_at=timezone.now(), moderated_by=request.user, updated_at=timezone.now())
-        from catalog.models.review import sync_place_rating_stats
-        sync_place_rating_stats(place_ids)
-        self.message_user(
-            request,
-            ngettext("Отклонён %(count)d отзыв.", "Отклонено %(count)d отзыва.", updated_count) % {"count": updated_count},
-            level=messages.SUCCESS if updated_count else messages.WARNING,
-        )
-
     @admin.display(description="")
     def row_actions(self, obj):
-        primary_action = render_primary_action(self._review_change_url(obj), _("Открыть"))
-        visible_actions = [primary_action]
-        if obj.status == obj.STATUS_PENDING or not obj.is_approved:
-            visible_actions.append(render_inline_action(self._review_action_url(obj, "approve"), _("Одобрить"), "good", "fas fa-check"))
-            visible_actions.append(render_inline_action(self._review_action_url(obj, "reject"), _("Отклонить"), "warn", "fas fa-ban"))
-        elif obj.is_approved:
-            visible_actions.append(render_inline_action(self._review_action_url(obj, "hide"), _("Скрыть"), "secondary", "fas fa-eye-slash"))
-        
-        menu_actions = [
-            (self._place_admin_change_url(obj), _("К кружку"), "")
-        ]
-        
-        if obj.is_approved:
-            menu_actions.append((self._review_action_url(obj, "hide"), _("Скрыть"), "km-admin-action-menu__link--warn"))
-        else:
-            menu_actions.append((self._review_action_url(obj, "approve"), _("Опубликовать"), "km-admin-action-menu__link--good"))
-            menu_actions.append((self._review_action_url(obj, "reject"), _("Отклонить"), "km-admin-action-menu__link--warn"))
-            
-        menu_actions.append((self._review_delete_url(obj), _("Удалить"), "km-admin-action-menu__link--danger"))
-        
-        menu_html = render_action_menu(menu_actions)
-        return render_row_actions_container(format_html_join(" ", "{}", ((item,) for item in visible_actions)), menu_html)
+        primary = render_primary_action(self._review_url(obj), _("Открыть"))
+        actions = [(self._place_admin_change_url(obj), _("К кружку"), "")]
+        if obj.candidate_revision_id and obj.candidate_revision.status == 'pending':
+            actions.extend([(self._review_url(obj, "approve"), _("Одобрить"), ""),
+                            (self._review_url(obj, "reject"), _("Отклонить"), "")])
+        if obj.current_revision_id:
+            action, label = ("hide", _("Скрыть")) if obj.is_approved else ("restore", _("Опубликовать"))
+            actions.append((self._review_url(obj, action), label, ""))
+        actions.append((self._review_delete_url(obj), _("Удалить"), "km-admin-action-menu__link--danger"))
+        return render_row_actions_container(primary, render_action_menu(actions))
+
 
 
 @admin.register(SiteReview)

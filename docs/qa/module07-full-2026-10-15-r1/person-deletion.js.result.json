@@ -1,0 +1,119 @@
+{
+  "rows": [
+    {
+      "id": "recipient-inbox-reject-controls-present",
+      "status": "PASS",
+      "role": "own-deletion-fixture",
+      "lang": "ru",
+      "width": 390,
+      "classification": "ACTUAL current native reject controls, two synthetic invitations",
+      "actions": [
+        {
+          "action": "/ru/account/notifications/17/accept/",
+          "buttons": [
+            "Принять приглашение"
+          ]
+        },
+        {
+          "action": "/ru/account/notifications/17/reject/",
+          "buttons": [
+            "Отклонить приглашение"
+          ]
+        },
+        {
+          "action": "/ru/account/notifications/17/read/",
+          "buttons": [
+            "Прочитано"
+          ]
+        },
+        {
+          "action": "/ru/account/notifications/16/accept/",
+          "buttons": [
+            "Принять приглашение"
+          ]
+        },
+        {
+          "action": "/ru/account/notifications/16/reject/",
+          "buttons": [
+            "Отклонить приглашение"
+          ]
+        },
+        {
+          "action": "/ru/account/notifications/16/read/",
+          "buttons": [
+            "Прочитано"
+          ]
+        }
+      ],
+      "screenshot": "recipient-pending-place-and-org-ru-390-person.png"
+    },
+    {
+      "id": "native-deletion-request",
+      "status": "PASS",
+      "role": "own-deletion-fixture",
+      "lang": "ru",
+      "width": 390,
+      "classification": "SIMULATED retention policy ADRP-TEST-01; actual UI/HTTP",
+      "screenshot": "deletion-confirm-empty-ru-390-person.png"
+    },
+    {
+      "id": "deletion-wrong-code-denied",
+      "status": "PASS",
+      "role": "own-deletion-fixture",
+      "lang": "ru",
+      "width": 390,
+      "classification": "SIMULATED retention policy ADRP-TEST-01; actual UI/HTTP",
+      "screenshot": "deletion-code-error-ru-390-person.png"
+    },
+    {
+      "id": "deletion-wrong-phrase-denied",
+      "status": "PASS",
+      "role": "own-deletion-fixture",
+      "lang": "ru",
+      "width": 390,
+      "classification": "SIMULATED retention policy ADRP-TEST-01; actual UI/HTTP",
+      "screenshot": "deletion-phrase-error-ru-390-person.png"
+    },
+    {
+      "id": "native-confirm-scheduled-account-inactive",
+      "status": "PASS",
+      "role": "own-deletion-fixture",
+      "lang": "ru",
+      "width": 390,
+      "classification": "SIMULATED retention policy ADRP-TEST-01; actual UI/HTTP",
+      "screenshot": "deletion-scheduled-ru-390-person.png"
+    },
+    {
+      "id": "deletion-invalidates-second-session",
+      "status": "PASS",
+      "role": "own-deletion-fixture",
+      "lang": "ru",
+      "width": "N/A HTTP",
+      "classification": "SIMULATED retention policy ADRP-TEST-01; actual UI/HTTP"
+    },
+    {
+      "id": "scheduled-owner-data-retained-until-processing",
+      "status": "PASS",
+      "role": "own-deletion-fixture",
+      "lang": "ru",
+      "width": "N/A HTTP",
+      "classification": "SIMULATED retention policy ADRP-TEST-01; actual UI/HTTP"
+    },
+    {
+      "id": "deletion-status-without-token-denied",
+      "status": "PASS",
+      "role": "own-deletion-fixture",
+      "lang": "ru",
+      "width": "N/A HTTP",
+      "classification": "SIMULATED retention policy ADRP-TEST-01; actual UI/HTTP"
+    },
+    {
+      "id": "consumed-confirm-after-session-ended-denied",
+      "status": "PASS",
+      "role": "own-deletion-fixture",
+      "lang": "ru",
+      "width": "N/A HTTP",
+      "classification": "SIMULATED retention policy ADRP-TEST-01; actual UI/HTTP"
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "rows": [
+    {
+      "lang": "ru",
+      "width": 390,
+      "name": "Empty error localized",
+      "status": "PASS",
+      "detail": "Укажите email или логин."
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "name": "Network error localized",
+      "status": "PASS",
+      "detail": "Ошибка сети. Проверьте соединение с интернетом."
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "name": "Failure preserves identifier / loading reset",
+      "status": "PASS"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "name": "AJAX400 stays in form / identifier retained",
+      "status": "PASS"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "name": "Loading disabled / spinner",
+      "status": "PASS"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "name": "Loading focus inside / skip disabled",
+      "status": "FAIL",
+      "detail": [
+        {
+          "tag": "A",
+          "id": "",
+          "inModal": false,
+          "visible": true
+        },
+        {
+          "tag": "BUTTON",
+          "id": "km-burger-open",
+          "inModal": false,
+          "visible": true
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "inModal": false,
+          "visible": true
+        }
+      ]
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "name": "Actual reset POST200",
+      "status": "PASS"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "name": "Success focus is on available control",
+      "status": "FAIL",
+      "detail": {
+        "tag": "BUTTON",
+        "id": "",
+        "inModal": false,
+        "visible": true
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "name": "Success close restores opener",
+      "status": "FAIL"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "name": "Reopen preserves email / shows form",
+      "status": "PASS"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "name": "Own local email contains reset link",
+      "status": "PASS"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "name": "Native new password accepted",
+      "status": "PASS"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "name": "Consumed reset link refused",
+      "status": "PASS"
+    }
+  ],
+  "diagnostics": {
+    "pageerrors": [],
+    "localFailures": [
+      {
+        "path": "password-reset",
+        "error": "net::ERR_FAILED"
+      }
+    ],
+    "badResponses": [
+      {
+        "path": "password-reset",
+        "status": 400
+      }
+    ]
+  },
+  "error": "locator.isVisible: Error: strict mode violation: locator('.auth-errors') resolved to 2 elements:\n    1) <div role=\"alert\" class=\"auth-errors register-alert\">…</div> aka getByRole('alert')\n    2) <div role=\"alert\" id=\"resetModalAlert\" class=\"auth-errors km-modal-alert\"></div> aka locator('#resetModalAlert')\n\nCall log:\n\u001b[2m    - checking visibility of locator('.auth-errors')\u001b[22m\n"
+}

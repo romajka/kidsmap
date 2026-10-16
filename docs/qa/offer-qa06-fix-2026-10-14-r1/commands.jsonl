@@ -1,0 +1,31 @@
+{"argv": ["/home/ramin/kidsmap/.venv/bin/python", "-m", "venv", "/home/ramin/kidsmap/.tmp/offer-qa06-fix-2026-10-14-r1/venv"], "exit": 0}
+{"argv": ["docker", "run", "-d", "--name", "offer-qa06-fix-2026-10-14-r1-pg", "-p", "127.0.0.1:50331:5432", "--env-file", "/home/ramin/kidsmap/.tmp/offer-qa06-fix-2026-10-14-r1/pg.env", "-v", "offer-qa06-fix-2026-10-14-r1-pg-data:/var/lib/postgresql/data", "postgres:17-alpine"], "exit": 0}
+{"argv": ["/home/ramin/kidsmap/.tmp/offer-qa06-fix-2026-10-14-r1/venv/bin/python", "/home/ramin/kidsmap/scripts/build_isolated_locales.py", "build", "--output", "/home/ramin/kidsmap/.tmp/offer-qa06-fix-2026-10-14-r1/locales", "--locales", "ru", "az", "en", "--compiler", "native"], "exit": 0}
+{"argv": ["/home/ramin/kidsmap/.tmp/offer-qa06-fix-2026-10-14-r1/venv/bin/python", "/home/ramin/kidsmap/scripts/build_isolated_locales.py", "verify", "--manifest", "/home/ramin/kidsmap/.tmp/offer-qa06-fix-2026-10-14-r1/locales/manifest.json"], "exit": 0}
+{"argv": ["/home/ramin/kidsmap/.tmp/offer-qa06-fix-2026-10-14-r1/venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/runtime.py", "prepare"], "exit": 0}
+{"argv": ["/home/ramin/kidsmap/.tmp/offer-qa06-fix-2026-10-14-r1/venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/runtime.py", "check"], "exit": 0}
+{"argv": [".tmp/offer-qa06-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa06-fix-2026-10-14-r1/runtime.py", "script", "gettext-check.py"], "exit": 0, "seconds": 0.8}
+{"argv": [".tmp/offer-qa06-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa06-fix-2026-10-14-r1/start-server.py"], "exit": 0, "seconds": 1.886}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/drive.py", "matrix.js"], "native_cli_exit": 0, "result": "matrix.result.json"}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/drive.py", "variants.js"], "native_cli_exit": 0, "result": "variants.result.json"}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/drive.py", "owner.js"], "native_cli_exit": 0, "result": "owner.result.json"}
+{"argv": [".tmp/offer-qa06-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa06-fix-2026-10-14-r1/runtime.py", "script", "diagnostic.py"], "exit": 0, "seconds": 4.653}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/drive.py", "owner-diagnostic.js"], "native_cli_exit": 0, "result": "owner-diagnostic.result.json"}
+{"argv": [".tmp/offer-qa06-fix-2026-10-14-r1/venv/bin/python", "scripts/build_isolated_locales.py", "build", "--output", ".tmp/offer-qa06-fix-2026-10-14-r1/locales-r2", "--locales", "ru", "az", "en", "--compiler", "native"], "exit": 1, "seconds": 0.128}
+{"argv": [".tmp/offer-qa06-fix-2026-10-14-r1/venv/bin/python", "scripts/build_isolated_locales.py", "build", "--output", ".tmp/offer-qa06-fix-2026-10-14-r1/locales-r3", "--locales", "ru", "az", "en", "--compiler", "native"], "exit": 0, "seconds": 0.6}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/drive.py", "owner-diagnostic2.js"], "native_cli_exit": 0, "result": "owner-diagnostic2.result.json"}
+{"argv": [".tmp/offer-qa06-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa06-fix-2026-10-14-r1/start-server.py"], "exit": 0, "seconds": 1.944}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/drive.py", "owner-diagnostic2.js"], "native_cli_exit": 0, "result": "owner-diagnostic2.result.attempt1791957114.json"}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/drive.py", "pending-r3.js"], "native_cli_exit": 0, "result": "pending-r3.result.json"}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/drive.py", "owner-resume.js"], "native_cli_exit": 0, "result": "owner-resume.result.json"}
+{"argv": [".tmp/offer-qa06-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa06-fix-2026-10-14-r1/runtime.py", "script", "pending-check.py"], "exit": 0, "seconds": 0.835}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/drive.py", "owner-valid.js"], "native_cli_exit": 0, "result": "owner-valid.result.json"}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/drive.py", "keyboard.js"], "native_cli_exit": 0, "result": "keyboard.result.json"}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/drive.py", "owner-en-save.js"], "native_cli_exit": 0, "result": "owner-en-save.result.json"}
+{"argv": [".tmp/offer-qa06-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa06-fix-2026-10-14-r1/runtime.py", "script", "readback.py"], "exit": 0, "seconds": 0.797}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/drive.py", "owner-en-canonical.js"], "native_cli_exit": 0, "result": "owner-en-canonical.result.json"}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/drive.py", "owner-en-settled.js"], "native_cli_exit": 0, "result": "owner-en-settled.result.json"}
+{"argv": [".tmp/offer-qa06-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa06-fix-2026-10-14-r1/verify.py"], "exit": 1, "seconds": 0.066}
+{"argv": [".tmp/offer-qa06-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa06-fix-2026-10-14-r1/verify.py"], "exit": 0, "seconds": 7.648}
+{"argv": [".venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/drive.py", "console-final.js"], "native_cli_exit": 0, "result": "console-final.result.json"}
+{"argv": [".tmp/offer-qa06-fix-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa06-fix-2026-10-14-r1/verify.py"], "exit": 0, "seconds": 3.058}

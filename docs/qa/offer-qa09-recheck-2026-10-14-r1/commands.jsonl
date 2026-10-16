@@ -1,0 +1,11 @@
+{"argv": ["/home/ramin/kidsmap/.venv/bin/python", "-m", "venv", "/home/ramin/kidsmap/.tmp/offer-qa09-recheck-2026-10-14-r1/venv"], "exit": 0}
+{"argv": ["docker", "run", "-d", "--name", "offer-qa09-recheck-2026-10-14-r1-pg", "-p", "127.0.0.1:38995:5432", "--env-file", "/home/ramin/kidsmap/.tmp/offer-qa09-recheck-2026-10-14-r1/pg.env", "-v", "offer-qa09-recheck-2026-10-14-r1-pg-data:/var/lib/postgresql/data", "postgres:17-alpine"], "exit": 0}
+{"argv": ["/home/ramin/kidsmap/.tmp/offer-qa09-recheck-2026-10-14-r1/venv/bin/python", "/home/ramin/kidsmap/scripts/build_isolated_locales.py", "build", "--output", "/home/ramin/kidsmap/.tmp/offer-qa09-recheck-2026-10-14-r1/locales", "--locales", "ru", "az", "en", "--compiler", "native"], "exit": 0}
+{"argv": ["/home/ramin/kidsmap/.tmp/offer-qa09-recheck-2026-10-14-r1/venv/bin/python", "/home/ramin/kidsmap/scripts/build_isolated_locales.py", "verify", "--manifest", "/home/ramin/kidsmap/.tmp/offer-qa09-recheck-2026-10-14-r1/locales/manifest.json"], "exit": 0}
+{"argv": ["/home/ramin/kidsmap/.tmp/offer-qa09-recheck-2026-10-14-r1/venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa09-recheck-2026-10-14-r1/runtime.py", "prepare"], "exit": 0}
+{"argv": ["/home/ramin/kidsmap/.tmp/offer-qa09-recheck-2026-10-14-r1/venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa09-recheck-2026-10-14-r1/runtime.py", "check"], "exit": 0}
+{"argv": [".tmp/offer-qa09-recheck-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa09-recheck-2026-10-14-r1/start-server.py"], "exit": 0, "seconds": 12.156}
+{"argv": ["/home/ramin/kidsmap/.tmp/offer-qa09-recheck-2026-10-14-r1/venv/bin/python", "/home/ramin/kidsmap/docs/qa/offer-qa09-recheck-2026-10-14-r1/drive.py", "recheck.js"], "native_cli_exit": 0, "result": "recheck.result.json"}
+{"argv": [".tmp/offer-qa09-recheck-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa09-recheck-2026-10-14-r1/runtime.py", "script", "probe.py"], "exit": 0, "seconds": 1.616}
+{"argv": [".tmp/offer-qa09-recheck-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa09-recheck-2026-10-14-r1/verify.py"], "exit": 0, "seconds": 2.555}
+{"argv": [".tmp/offer-qa09-recheck-2026-10-14-r1/venv/bin/python", "docs/qa/offer-qa09-recheck-2026-10-14-r1/verify.py"], "exit": 0, "seconds": 5.761}

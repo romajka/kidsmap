@@ -1,0 +1,1718 @@
+{
+  "rows": [
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 101,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "place: retained old form before owner cancellation",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "place: owner native cancellation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 360
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 360
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "place: localized honest stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "Dəvət artıq əlçatan deyil. Siyahını yeniləyin."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "place: canceled state and grants unchanged",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 31,
+        "target_id": 1,
+        "notification_id": 109,
+        "status": "CANCELED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 0
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "place: refreshed list removes stale control",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "organization: retained old form before owner cancellation",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "organization: owner native cancellation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "CANCELED"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 360
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 360
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "organization: localized honest stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "Dəvət artıq əlçatan deyil. Siyahını yeniləyin."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "organization: canceled state and grants unchanged",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 31,
+        "target_id": 1,
+        "notification_id": 110,
+        "status": "CANCELED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 0
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "organization: refreshed list removes stale control",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "cancel-stale",
+      "name": "Error/list no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 360,
+        "scroll": 360
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 102,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "place: retained old form before owner cancellation",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "place: owner native cancellation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "place: localized honest stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "Dəvət artıq əlçatan deyil. Siyahını yeniləyin."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "place: canceled state and grants unchanged",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 32,
+        "target_id": 1,
+        "notification_id": 111,
+        "status": "CANCELED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 0
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "place: refreshed list removes stale control",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "organization: retained old form before owner cancellation",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "organization: owner native cancellation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "CANCELED"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "organization: localized honest stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "Dəvət artıq əlçatan deyil. Siyahını yeniləyin."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "organization: canceled state and grants unchanged",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 32,
+        "target_id": 1,
+        "notification_id": 112,
+        "status": "CANCELED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 0
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "organization: refreshed list removes stale control",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "cancel-stale",
+      "name": "Error/list no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 104,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "place: retained old form before owner cancellation",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "place: owner native cancellation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 768
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 768
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "place: localized honest stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "Dəvət artıq əlçatan deyil. Siyahını yeniləyin."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "place: canceled state and grants unchanged",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 33,
+        "target_id": 1,
+        "notification_id": 113,
+        "status": "CANCELED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 0
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "place: refreshed list removes stale control",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "organization: retained old form before owner cancellation",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "organization: owner native cancellation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "CANCELED"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 768
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 768
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "organization: localized honest stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "Dəvət artıq əlçatan deyil. Siyahını yeniləyin."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "organization: canceled state and grants unchanged",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 33,
+        "target_id": 1,
+        "notification_id": 114,
+        "status": "CANCELED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 0
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "organization: refreshed list removes stale control",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "cancel-stale",
+      "name": "Error/list no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 768,
+        "scroll": 768
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 105,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "place: retained old form before owner cancellation",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "place: owner native cancellation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 1024
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 1024
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "place: localized honest stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "Dəvət artıq əlçatan deyil. Siyahını yeniləyin."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "place: canceled state and grants unchanged",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 34,
+        "target_id": 1,
+        "notification_id": 115,
+        "status": "CANCELED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 0
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "place: refreshed list removes stale control",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "organization: retained old form before owner cancellation",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "organization: owner native cancellation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "CANCELED"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 1024
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 1024
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "organization: localized honest stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "Dəvət artıq əlçatan deyil. Siyahını yeniləyin."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "organization: canceled state and grants unchanged",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 34,
+        "target_id": 1,
+        "notification_id": 116,
+        "status": "CANCELED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 0
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "organization: refreshed list removes stale control",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "cancel-stale",
+      "name": "Error/list no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 1024,
+        "scroll": 1024
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 107,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "place: retained old form before owner cancellation",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "place: owner native cancellation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 1280
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 1280
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "place: localized honest stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "Dəvət artıq əlçatan deyil. Siyahını yeniləyin."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "place: canceled state and grants unchanged",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 35,
+        "target_id": 1,
+        "notification_id": 117,
+        "status": "CANCELED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 0
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "place: refreshed list removes stale control",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "organization: retained old form before owner cancellation",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "organization: owner native cancellation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "CANCELED"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 1280
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 1280
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "organization: localized honest stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "Dəvət artıq əlçatan deyil. Siyahını yeniləyin."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "organization: canceled state and grants unchanged",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 35,
+        "target_id": 1,
+        "notification_id": 118,
+        "status": "CANCELED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 0
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "organization: refreshed list removes stale control",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "cancel-stale",
+      "name": "Error/list no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 1280,
+        "scroll": 1280
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 109,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "place: retained old form before owner cancellation",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "place: owner native cancellation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 110,
+        "right": 245.421875,
+        "width": 1440
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 110,
+        "right": 245.421875,
+        "width": 1440
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "place: localized honest stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "Dəvət artıq əlçatan deyil. Siyahını yeniləyin."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "place: canceled state and grants unchanged",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 36,
+        "target_id": 1,
+        "notification_id": 119,
+        "status": "CANCELED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 0
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "place: refreshed list removes stale control",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "organization: retained old form before owner cancellation",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "organization: owner native cancellation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "CANCELED"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 110,
+        "right": 245.421875,
+        "width": 1440
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 110,
+        "right": 245.421875,
+        "width": 1440
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "organization: localized honest stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "Dəvət artıq əlçatan deyil. Siyahını yeniləyin."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "organization: canceled state and grants unchanged",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 36,
+        "target_id": 1,
+        "notification_id": 120,
+        "status": "CANCELED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 0
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "organization: refreshed list removes stale control",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "cancel-stale",
+      "name": "Error/list no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 1440,
+        "scroll": 1440
+      }
+    }
+  ],
+  "completedCells": [
+    {
+      "lang": "az",
+      "width": 360
+    },
+    {
+      "lang": "az",
+      "width": 390
+    },
+    {
+      "lang": "az",
+      "width": 768
+    },
+    {
+      "lang": "az",
+      "width": 1024
+    },
+    {
+      "lang": "az",
+      "width": 1280
+    },
+    {
+      "lang": "az",
+      "width": 1440
+    }
+  ],
+  "error": null,
+  "diagnostics": {
+    "console": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      }
+    ],
+    "pageerrors": [],
+    "requestFailures": [
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "badResponses": [
+      {
+        "path": "/account/notifications/109/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/account/notifications/110/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/account/notifications/111/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/account/notifications/112/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/account/notifications/113/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/account/notifications/114/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/account/notifications/115/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/account/notifications/116/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/account/notifications/117/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/account/notifications/118/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/account/notifications/119/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/account/notifications/120/reject/",
+        "status": 409,
+        "expected": true
+      }
+    ]
+  },
+  "browser": "149.0.7827.55",
+  "simulation": "Owner invitations, native recipient decisions/cancel and readback real. External transport blocked; manual local mail scheduler tick explicitly SIMULATED; any stale-fixture/network simulation is labeled per scenario."
+}

@@ -1,0 +1,32 @@
+--- a/static/admin/css/pages/kidsmap_changelist.css
++++ b/static/admin/css/pages/kidsmap_changelist.css
+@@ -2672,7 +2672,7 @@
+ }
+ 
+ /* 11. Toast (2d) */
+-.km-toast {
++#km-toast {
+   position: fixed;
+   left: 50%;
+   transform: translateX(-50%);
+@@ -2689,7 +2689,7 @@
+   animation: kmToastIn .28s ease-out both;
+ }
+ 
+-.km-toast__icon {
++#km-toast .km-toast__icon {
+   font-size: 18px !important;
+   color: var(--km-success);
+ }
+@@ -2713,6 +2713,11 @@
+ }
+ .km-toast__undo:hover {
+   color: #fff;
++}
++
++/* Unified notifications must wrap long listing names on this page. */
++.km-toast-container .km-toast__title {
++  overflow-wrap: anywhere;
+ }
+ 
+ /* 12. Columns Toggler (1a) */

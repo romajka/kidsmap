@@ -1,0 +1,41 @@
+TAP version 13
+# Subtest: initial disabled invitation becomes keyboard operable only with installed POST handler
+not ok 1 - initial disabled invitation becomes keyboard operable only with installed POST handler
+  ---
+  duration_ms: 115.737526
+  location: '/home/ramin/kidsmap/.tmp/org07-fix-20261008/test-before.cjs:9:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    true !== false
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/.tmp/org07-fix-20261008/test-before.cjs:11:9)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    node:internal/test_runner/harness:255:12
+    node:internal/process/task_queues:140:7
+    AsyncResource.runInAsyncScope (node:async_hooks:206:9)
+    AsyncResource.runMicrotask (node:internal/process/task_queues:137:8)
+  ...
+# Subtest: failed invitation retains input and handler prevents native navigation
+ok 2 - failed invitation retains input and handler prevents native navigation
+  ---
+  duration_ms: 35.796744
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 1
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 635.916913

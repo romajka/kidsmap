@@ -1,0 +1,1133 @@
+{
+  "complete": true,
+  "rows": [
+    {
+      "id": "native rejected edit restores current4 text and token",
+      "phase": "reject-edit",
+      "case": 1,
+      "kind": "place",
+      "language": "ru",
+      "width": 1440,
+      "status": "PASS"
+    },
+    {
+      "id": "rejected2 remains history while public rating4 count1 remains",
+      "phase": "reject-edit",
+      "case": 1,
+      "kind": "place",
+      "language": "ru",
+      "width": 1440,
+      "status": "PASS"
+    },
+    {
+      "id": "native rejected edit restores current4 text and token",
+      "phase": "reject-edit",
+      "case": 1,
+      "kind": "specialist",
+      "language": "ru",
+      "width": 1440,
+      "status": "PASS"
+    },
+    {
+      "id": "rejected2 remains history while public rating4 count1 remains",
+      "phase": "reject-edit",
+      "case": 1,
+      "kind": "specialist",
+      "language": "ru",
+      "width": 1440,
+      "status": "PASS"
+    },
+    {
+      "id": "native rejected edit restores current4 text and token",
+      "phase": "reject-edit",
+      "case": 1,
+      "kind": "activity",
+      "language": "ru",
+      "width": 1440,
+      "status": "PASS"
+    },
+    {
+      "id": "rejected2 remains history while public rating4 count1 remains",
+      "phase": "reject-edit",
+      "case": 1,
+      "kind": "activity",
+      "language": "ru",
+      "width": 1440,
+      "status": "PASS"
+    },
+    {
+      "id": "native rejected edit restores current4 text and token",
+      "phase": "reject-edit",
+      "case": 1,
+      "kind": "event",
+      "language": "ru",
+      "width": 1440,
+      "status": "PASS"
+    },
+    {
+      "id": "rejected2 remains history while public rating4 count1 remains",
+      "phase": "reject-edit",
+      "case": 1,
+      "kind": "event",
+      "language": "ru",
+      "width": 1440,
+      "status": "PASS"
+    }
+  ],
+  "states": [
+    {
+      "stage": "rejected-edit",
+      "kind": "place",
+      "state": {
+        "read_only": true,
+        "reviews": {
+          "place": {
+            "heads": [
+              {
+                "id": 4,
+                "author_id": 7,
+                "rating": 4,
+                "text_sha256": "7d3c4f6194eb2ecfd8fc181ba2442825c34f84417dd28391f6c30915a42a2453",
+                "status": "pending",
+                "is_approved": false,
+                "is_current": true,
+                "current_id": null,
+                "candidate_id": 16,
+                "candidate_rating": 4,
+                "candidate_text_sha256": "7d3c4f6194eb2ecfd8fc181ba2442825c34f84417dd28391f6c30915a42a2453",
+                "revisions": [
+                  {
+                    "id": 4,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:25:48.358Z"
+                  },
+                  {
+                    "id": 16,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:04.762Z"
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "author_id": 6,
+                "rating": 4,
+                "text_sha256": "4ddcc040c3442a49da9e56f7e57c945a8874da3ddc95611f300be9ff7087f1e1",
+                "status": "approved",
+                "is_approved": true,
+                "is_current": true,
+                "current_id": 3,
+                "candidate_id": null,
+                "candidate_rating": null,
+                "candidate_text_sha256": null,
+                "revisions": [
+                  {
+                    "id": 3,
+                    "rating": 4,
+                    "status": "approved",
+                    "created_at": "2026-10-16T11:24:33.162Z"
+                  },
+                  {
+                    "id": 15,
+                    "rating": 2,
+                    "status": "rejected",
+                    "created_at": "2026-10-16T11:32:03.175Z"
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "average": 4,
+              "count": 1
+            }
+          },
+          "specialist": {
+            "heads": [
+              {
+                "id": 3,
+                "author_id": 6,
+                "rating": 4,
+                "text_sha256": "18d6d5de67bac56cf835bc9a7cf87b0ea13cb6b3f5fe9f3ccacc25f2f867d5d0",
+                "status": "approved",
+                "is_approved": true,
+                "is_current": true,
+                "current_id": 3,
+                "candidate_id": 15,
+                "candidate_rating": 2,
+                "candidate_text_sha256": "bb35bdfd1565ff4d5f3d8453cff86c582fbd9494b839f2235bff2ac519d93654",
+                "revisions": [
+                  {
+                    "id": 3,
+                    "rating": 4,
+                    "status": "approved",
+                    "created_at": "2026-10-16T11:25:37.057Z"
+                  },
+                  {
+                    "id": 15,
+                    "rating": 2,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:06.406Z"
+                  }
+                ]
+              },
+              {
+                "id": 4,
+                "author_id": 7,
+                "rating": 4,
+                "text_sha256": "2baa34b49c152cf09425cfe214878dc0a23798063b9bc569736030520083dcb8",
+                "status": "pending",
+                "is_approved": false,
+                "is_current": true,
+                "current_id": null,
+                "candidate_id": 16,
+                "candidate_rating": 4,
+                "candidate_text_sha256": "2baa34b49c152cf09425cfe214878dc0a23798063b9bc569736030520083dcb8",
+                "revisions": [
+                  {
+                    "id": 4,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:25:49.876Z"
+                  },
+                  {
+                    "id": 16,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:07.958Z"
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "average": 4,
+              "count": 1
+            }
+          },
+          "activity": {
+            "heads": [
+              {
+                "id": 4,
+                "author_id": 7,
+                "rating": 4,
+                "text_sha256": "8d0a6bb495efcf1c73e20daeca28dcdee7c473dcddab7be030be4282fc039879",
+                "status": "pending",
+                "is_approved": false,
+                "is_current": true,
+                "current_id": null,
+                "candidate_id": 16,
+                "candidate_rating": 4,
+                "candidate_text_sha256": "8d0a6bb495efcf1c73e20daeca28dcdee7c473dcddab7be030be4282fc039879",
+                "revisions": [
+                  {
+                    "id": 4,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:25:51.238Z"
+                  },
+                  {
+                    "id": 16,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:11.231Z"
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "author_id": 6,
+                "rating": 4,
+                "text_sha256": "e0555e78833a1cfc09a8226d877b8546fd20cb7ea0e18095c6c7b2f0870f1907",
+                "status": "approved",
+                "is_approved": true,
+                "is_current": true,
+                "current_id": 3,
+                "candidate_id": 15,
+                "candidate_rating": 2,
+                "candidate_text_sha256": "5510c7b5693b9c59ab258b7a87d6e10c8a70f4bd9fc74c32d3dea1ec0a088234",
+                "revisions": [
+                  {
+                    "id": 3,
+                    "rating": 4,
+                    "status": "approved",
+                    "created_at": "2026-10-16T11:25:39.960Z"
+                  },
+                  {
+                    "id": 15,
+                    "rating": 2,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:09.700Z"
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "average": 4,
+              "count": 1
+            }
+          },
+          "event": {
+            "heads": [
+              {
+                "id": 4,
+                "author_id": 7,
+                "rating": 4,
+                "text_sha256": "6df151aa69e534b640820f70b3b2c3026b5ccd66ed540c8f00ed3b8593190b8b",
+                "status": "pending",
+                "is_approved": false,
+                "is_current": true,
+                "current_id": null,
+                "candidate_id": 16,
+                "candidate_rating": 4,
+                "candidate_text_sha256": "6df151aa69e534b640820f70b3b2c3026b5ccd66ed540c8f00ed3b8593190b8b",
+                "revisions": [
+                  {
+                    "id": 4,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:25:52.547Z"
+                  },
+                  {
+                    "id": 16,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:14.221Z"
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "author_id": 6,
+                "rating": 4,
+                "text_sha256": "8c5e9d6b8112f048be68e9800cebcc44f4c2823d15b04507654a24ce552c80dc",
+                "status": "approved",
+                "is_approved": true,
+                "is_current": true,
+                "current_id": 3,
+                "candidate_id": 15,
+                "candidate_rating": 2,
+                "candidate_text_sha256": "a268c6e3f0d1db17ead6805b8c7e867dae941f79ad103462e38d56fdab478d42",
+                "revisions": [
+                  {
+                    "id": 3,
+                    "rating": 4,
+                    "status": "approved",
+                    "created_at": "2026-10-16T11:25:42.970Z"
+                  },
+                  {
+                    "id": 15,
+                    "rating": 2,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:12.722Z"
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "average": 4,
+              "count": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "stage": "rejected-edit",
+      "kind": "specialist",
+      "state": {
+        "read_only": true,
+        "reviews": {
+          "place": {
+            "heads": [
+              {
+                "id": 4,
+                "author_id": 7,
+                "rating": 4,
+                "text_sha256": "7d3c4f6194eb2ecfd8fc181ba2442825c34f84417dd28391f6c30915a42a2453",
+                "status": "pending",
+                "is_approved": false,
+                "is_current": true,
+                "current_id": null,
+                "candidate_id": 16,
+                "candidate_rating": 4,
+                "candidate_text_sha256": "7d3c4f6194eb2ecfd8fc181ba2442825c34f84417dd28391f6c30915a42a2453",
+                "revisions": [
+                  {
+                    "id": 4,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:25:48.358Z"
+                  },
+                  {
+                    "id": 16,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:04.762Z"
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "author_id": 6,
+                "rating": 4,
+                "text_sha256": "4ddcc040c3442a49da9e56f7e57c945a8874da3ddc95611f300be9ff7087f1e1",
+                "status": "approved",
+                "is_approved": true,
+                "is_current": true,
+                "current_id": 3,
+                "candidate_id": null,
+                "candidate_rating": null,
+                "candidate_text_sha256": null,
+                "revisions": [
+                  {
+                    "id": 3,
+                    "rating": 4,
+                    "status": "approved",
+                    "created_at": "2026-10-16T11:24:33.162Z"
+                  },
+                  {
+                    "id": 15,
+                    "rating": 2,
+                    "status": "rejected",
+                    "created_at": "2026-10-16T11:32:03.175Z"
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "average": 4,
+              "count": 1
+            }
+          },
+          "specialist": {
+            "heads": [
+              {
+                "id": 4,
+                "author_id": 7,
+                "rating": 4,
+                "text_sha256": "2baa34b49c152cf09425cfe214878dc0a23798063b9bc569736030520083dcb8",
+                "status": "pending",
+                "is_approved": false,
+                "is_current": true,
+                "current_id": null,
+                "candidate_id": 16,
+                "candidate_rating": 4,
+                "candidate_text_sha256": "2baa34b49c152cf09425cfe214878dc0a23798063b9bc569736030520083dcb8",
+                "revisions": [
+                  {
+                    "id": 4,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:25:49.876Z"
+                  },
+                  {
+                    "id": 16,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:07.958Z"
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "author_id": 6,
+                "rating": 4,
+                "text_sha256": "18d6d5de67bac56cf835bc9a7cf87b0ea13cb6b3f5fe9f3ccacc25f2f867d5d0",
+                "status": "approved",
+                "is_approved": true,
+                "is_current": true,
+                "current_id": 3,
+                "candidate_id": null,
+                "candidate_rating": null,
+                "candidate_text_sha256": null,
+                "revisions": [
+                  {
+                    "id": 3,
+                    "rating": 4,
+                    "status": "approved",
+                    "created_at": "2026-10-16T11:25:37.057Z"
+                  },
+                  {
+                    "id": 15,
+                    "rating": 2,
+                    "status": "rejected",
+                    "created_at": "2026-10-16T11:32:06.406Z"
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "average": 4,
+              "count": 1
+            }
+          },
+          "activity": {
+            "heads": [
+              {
+                "id": 4,
+                "author_id": 7,
+                "rating": 4,
+                "text_sha256": "8d0a6bb495efcf1c73e20daeca28dcdee7c473dcddab7be030be4282fc039879",
+                "status": "pending",
+                "is_approved": false,
+                "is_current": true,
+                "current_id": null,
+                "candidate_id": 16,
+                "candidate_rating": 4,
+                "candidate_text_sha256": "8d0a6bb495efcf1c73e20daeca28dcdee7c473dcddab7be030be4282fc039879",
+                "revisions": [
+                  {
+                    "id": 4,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:25:51.238Z"
+                  },
+                  {
+                    "id": 16,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:11.231Z"
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "author_id": 6,
+                "rating": 4,
+                "text_sha256": "e0555e78833a1cfc09a8226d877b8546fd20cb7ea0e18095c6c7b2f0870f1907",
+                "status": "approved",
+                "is_approved": true,
+                "is_current": true,
+                "current_id": 3,
+                "candidate_id": 15,
+                "candidate_rating": 2,
+                "candidate_text_sha256": "5510c7b5693b9c59ab258b7a87d6e10c8a70f4bd9fc74c32d3dea1ec0a088234",
+                "revisions": [
+                  {
+                    "id": 3,
+                    "rating": 4,
+                    "status": "approved",
+                    "created_at": "2026-10-16T11:25:39.960Z"
+                  },
+                  {
+                    "id": 15,
+                    "rating": 2,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:09.700Z"
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "average": 4,
+              "count": 1
+            }
+          },
+          "event": {
+            "heads": [
+              {
+                "id": 4,
+                "author_id": 7,
+                "rating": 4,
+                "text_sha256": "6df151aa69e534b640820f70b3b2c3026b5ccd66ed540c8f00ed3b8593190b8b",
+                "status": "pending",
+                "is_approved": false,
+                "is_current": true,
+                "current_id": null,
+                "candidate_id": 16,
+                "candidate_rating": 4,
+                "candidate_text_sha256": "6df151aa69e534b640820f70b3b2c3026b5ccd66ed540c8f00ed3b8593190b8b",
+                "revisions": [
+                  {
+                    "id": 4,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:25:52.547Z"
+                  },
+                  {
+                    "id": 16,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:14.221Z"
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "author_id": 6,
+                "rating": 4,
+                "text_sha256": "8c5e9d6b8112f048be68e9800cebcc44f4c2823d15b04507654a24ce552c80dc",
+                "status": "approved",
+                "is_approved": true,
+                "is_current": true,
+                "current_id": 3,
+                "candidate_id": 15,
+                "candidate_rating": 2,
+                "candidate_text_sha256": "a268c6e3f0d1db17ead6805b8c7e867dae941f79ad103462e38d56fdab478d42",
+                "revisions": [
+                  {
+                    "id": 3,
+                    "rating": 4,
+                    "status": "approved",
+                    "created_at": "2026-10-16T11:25:42.970Z"
+                  },
+                  {
+                    "id": 15,
+                    "rating": 2,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:12.722Z"
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "average": 4,
+              "count": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "stage": "rejected-edit",
+      "kind": "activity",
+      "state": {
+        "read_only": true,
+        "reviews": {
+          "place": {
+            "heads": [
+              {
+                "id": 4,
+                "author_id": 7,
+                "rating": 4,
+                "text_sha256": "7d3c4f6194eb2ecfd8fc181ba2442825c34f84417dd28391f6c30915a42a2453",
+                "status": "pending",
+                "is_approved": false,
+                "is_current": true,
+                "current_id": null,
+                "candidate_id": 16,
+                "candidate_rating": 4,
+                "candidate_text_sha256": "7d3c4f6194eb2ecfd8fc181ba2442825c34f84417dd28391f6c30915a42a2453",
+                "revisions": [
+                  {
+                    "id": 4,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:25:48.358Z"
+                  },
+                  {
+                    "id": 16,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:04.762Z"
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "author_id": 6,
+                "rating": 4,
+                "text_sha256": "4ddcc040c3442a49da9e56f7e57c945a8874da3ddc95611f300be9ff7087f1e1",
+                "status": "approved",
+                "is_approved": true,
+                "is_current": true,
+                "current_id": 3,
+                "candidate_id": null,
+                "candidate_rating": null,
+                "candidate_text_sha256": null,
+                "revisions": [
+                  {
+                    "id": 3,
+                    "rating": 4,
+                    "status": "approved",
+                    "created_at": "2026-10-16T11:24:33.162Z"
+                  },
+                  {
+                    "id": 15,
+                    "rating": 2,
+                    "status": "rejected",
+                    "created_at": "2026-10-16T11:32:03.175Z"
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "average": 4,
+              "count": 1
+            }
+          },
+          "specialist": {
+            "heads": [
+              {
+                "id": 4,
+                "author_id": 7,
+                "rating": 4,
+                "text_sha256": "2baa34b49c152cf09425cfe214878dc0a23798063b9bc569736030520083dcb8",
+                "status": "pending",
+                "is_approved": false,
+                "is_current": true,
+                "current_id": null,
+                "candidate_id": 16,
+                "candidate_rating": 4,
+                "candidate_text_sha256": "2baa34b49c152cf09425cfe214878dc0a23798063b9bc569736030520083dcb8",
+                "revisions": [
+                  {
+                    "id": 4,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:25:49.876Z"
+                  },
+                  {
+                    "id": 16,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:07.958Z"
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "author_id": 6,
+                "rating": 4,
+                "text_sha256": "18d6d5de67bac56cf835bc9a7cf87b0ea13cb6b3f5fe9f3ccacc25f2f867d5d0",
+                "status": "approved",
+                "is_approved": true,
+                "is_current": true,
+                "current_id": 3,
+                "candidate_id": null,
+                "candidate_rating": null,
+                "candidate_text_sha256": null,
+                "revisions": [
+                  {
+                    "id": 3,
+                    "rating": 4,
+                    "status": "approved",
+                    "created_at": "2026-10-16T11:25:37.057Z"
+                  },
+                  {
+                    "id": 15,
+                    "rating": 2,
+                    "status": "rejected",
+                    "created_at": "2026-10-16T11:32:06.406Z"
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "average": 4,
+              "count": 1
+            }
+          },
+          "activity": {
+            "heads": [
+              {
+                "id": 4,
+                "author_id": 7,
+                "rating": 4,
+                "text_sha256": "8d0a6bb495efcf1c73e20daeca28dcdee7c473dcddab7be030be4282fc039879",
+                "status": "pending",
+                "is_approved": false,
+                "is_current": true,
+                "current_id": null,
+                "candidate_id": 16,
+                "candidate_rating": 4,
+                "candidate_text_sha256": "8d0a6bb495efcf1c73e20daeca28dcdee7c473dcddab7be030be4282fc039879",
+                "revisions": [
+                  {
+                    "id": 4,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:25:51.238Z"
+                  },
+                  {
+                    "id": 16,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:11.231Z"
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "author_id": 6,
+                "rating": 4,
+                "text_sha256": "e0555e78833a1cfc09a8226d877b8546fd20cb7ea0e18095c6c7b2f0870f1907",
+                "status": "approved",
+                "is_approved": true,
+                "is_current": true,
+                "current_id": 3,
+                "candidate_id": null,
+                "candidate_rating": null,
+                "candidate_text_sha256": null,
+                "revisions": [
+                  {
+                    "id": 3,
+                    "rating": 4,
+                    "status": "approved",
+                    "created_at": "2026-10-16T11:25:39.960Z"
+                  },
+                  {
+                    "id": 15,
+                    "rating": 2,
+                    "status": "rejected",
+                    "created_at": "2026-10-16T11:32:09.700Z"
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "average": 4,
+              "count": 1
+            }
+          },
+          "event": {
+            "heads": [
+              {
+                "id": 4,
+                "author_id": 7,
+                "rating": 4,
+                "text_sha256": "6df151aa69e534b640820f70b3b2c3026b5ccd66ed540c8f00ed3b8593190b8b",
+                "status": "pending",
+                "is_approved": false,
+                "is_current": true,
+                "current_id": null,
+                "candidate_id": 16,
+                "candidate_rating": 4,
+                "candidate_text_sha256": "6df151aa69e534b640820f70b3b2c3026b5ccd66ed540c8f00ed3b8593190b8b",
+                "revisions": [
+                  {
+                    "id": 4,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:25:52.547Z"
+                  },
+                  {
+                    "id": 16,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:14.221Z"
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "author_id": 6,
+                "rating": 4,
+                "text_sha256": "8c5e9d6b8112f048be68e9800cebcc44f4c2823d15b04507654a24ce552c80dc",
+                "status": "approved",
+                "is_approved": true,
+                "is_current": true,
+                "current_id": 3,
+                "candidate_id": 15,
+                "candidate_rating": 2,
+                "candidate_text_sha256": "a268c6e3f0d1db17ead6805b8c7e867dae941f79ad103462e38d56fdab478d42",
+                "revisions": [
+                  {
+                    "id": 3,
+                    "rating": 4,
+                    "status": "approved",
+                    "created_at": "2026-10-16T11:25:42.970Z"
+                  },
+                  {
+                    "id": 15,
+                    "rating": 2,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:12.722Z"
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "average": 4,
+              "count": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "stage": "rejected-edit",
+      "kind": "event",
+      "state": {
+        "read_only": true,
+        "reviews": {
+          "place": {
+            "heads": [
+              {
+                "id": 4,
+                "author_id": 7,
+                "rating": 4,
+                "text_sha256": "7d3c4f6194eb2ecfd8fc181ba2442825c34f84417dd28391f6c30915a42a2453",
+                "status": "pending",
+                "is_approved": false,
+                "is_current": true,
+                "current_id": null,
+                "candidate_id": 16,
+                "candidate_rating": 4,
+                "candidate_text_sha256": "7d3c4f6194eb2ecfd8fc181ba2442825c34f84417dd28391f6c30915a42a2453",
+                "revisions": [
+                  {
+                    "id": 4,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:25:48.358Z"
+                  },
+                  {
+                    "id": 16,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:04.762Z"
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "author_id": 6,
+                "rating": 4,
+                "text_sha256": "4ddcc040c3442a49da9e56f7e57c945a8874da3ddc95611f300be9ff7087f1e1",
+                "status": "approved",
+                "is_approved": true,
+                "is_current": true,
+                "current_id": 3,
+                "candidate_id": null,
+                "candidate_rating": null,
+                "candidate_text_sha256": null,
+                "revisions": [
+                  {
+                    "id": 3,
+                    "rating": 4,
+                    "status": "approved",
+                    "created_at": "2026-10-16T11:24:33.162Z"
+                  },
+                  {
+                    "id": 15,
+                    "rating": 2,
+                    "status": "rejected",
+                    "created_at": "2026-10-16T11:32:03.175Z"
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "average": 4,
+              "count": 1
+            }
+          },
+          "specialist": {
+            "heads": [
+              {
+                "id": 4,
+                "author_id": 7,
+                "rating": 4,
+                "text_sha256": "2baa34b49c152cf09425cfe214878dc0a23798063b9bc569736030520083dcb8",
+                "status": "pending",
+                "is_approved": false,
+                "is_current": true,
+                "current_id": null,
+                "candidate_id": 16,
+                "candidate_rating": 4,
+                "candidate_text_sha256": "2baa34b49c152cf09425cfe214878dc0a23798063b9bc569736030520083dcb8",
+                "revisions": [
+                  {
+                    "id": 4,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:25:49.876Z"
+                  },
+                  {
+                    "id": 16,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:07.958Z"
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "author_id": 6,
+                "rating": 4,
+                "text_sha256": "18d6d5de67bac56cf835bc9a7cf87b0ea13cb6b3f5fe9f3ccacc25f2f867d5d0",
+                "status": "approved",
+                "is_approved": true,
+                "is_current": true,
+                "current_id": 3,
+                "candidate_id": null,
+                "candidate_rating": null,
+                "candidate_text_sha256": null,
+                "revisions": [
+                  {
+                    "id": 3,
+                    "rating": 4,
+                    "status": "approved",
+                    "created_at": "2026-10-16T11:25:37.057Z"
+                  },
+                  {
+                    "id": 15,
+                    "rating": 2,
+                    "status": "rejected",
+                    "created_at": "2026-10-16T11:32:06.406Z"
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "average": 4,
+              "count": 1
+            }
+          },
+          "activity": {
+            "heads": [
+              {
+                "id": 4,
+                "author_id": 7,
+                "rating": 4,
+                "text_sha256": "8d0a6bb495efcf1c73e20daeca28dcdee7c473dcddab7be030be4282fc039879",
+                "status": "pending",
+                "is_approved": false,
+                "is_current": true,
+                "current_id": null,
+                "candidate_id": 16,
+                "candidate_rating": 4,
+                "candidate_text_sha256": "8d0a6bb495efcf1c73e20daeca28dcdee7c473dcddab7be030be4282fc039879",
+                "revisions": [
+                  {
+                    "id": 4,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:25:51.238Z"
+                  },
+                  {
+                    "id": 16,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:11.231Z"
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "author_id": 6,
+                "rating": 4,
+                "text_sha256": "e0555e78833a1cfc09a8226d877b8546fd20cb7ea0e18095c6c7b2f0870f1907",
+                "status": "approved",
+                "is_approved": true,
+                "is_current": true,
+                "current_id": 3,
+                "candidate_id": null,
+                "candidate_rating": null,
+                "candidate_text_sha256": null,
+                "revisions": [
+                  {
+                    "id": 3,
+                    "rating": 4,
+                    "status": "approved",
+                    "created_at": "2026-10-16T11:25:39.960Z"
+                  },
+                  {
+                    "id": 15,
+                    "rating": 2,
+                    "status": "rejected",
+                    "created_at": "2026-10-16T11:32:09.700Z"
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "average": 4,
+              "count": 1
+            }
+          },
+          "event": {
+            "heads": [
+              {
+                "id": 4,
+                "author_id": 7,
+                "rating": 4,
+                "text_sha256": "6df151aa69e534b640820f70b3b2c3026b5ccd66ed540c8f00ed3b8593190b8b",
+                "status": "pending",
+                "is_approved": false,
+                "is_current": true,
+                "current_id": null,
+                "candidate_id": 16,
+                "candidate_rating": 4,
+                "candidate_text_sha256": "6df151aa69e534b640820f70b3b2c3026b5ccd66ed540c8f00ed3b8593190b8b",
+                "revisions": [
+                  {
+                    "id": 4,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:25:52.547Z"
+                  },
+                  {
+                    "id": 16,
+                    "rating": 4,
+                    "status": "pending",
+                    "created_at": "2026-10-16T11:32:14.221Z"
+                  }
+                ]
+              },
+              {
+                "id": 3,
+                "author_id": 6,
+                "rating": 4,
+                "text_sha256": "8c5e9d6b8112f048be68e9800cebcc44f4c2823d15b04507654a24ce552c80dc",
+                "status": "approved",
+                "is_approved": true,
+                "is_current": true,
+                "current_id": 3,
+                "candidate_id": null,
+                "candidate_rating": null,
+                "candidate_text_sha256": null,
+                "revisions": [
+                  {
+                    "id": 3,
+                    "rating": 4,
+                    "status": "approved",
+                    "created_at": "2026-10-16T11:25:42.970Z"
+                  },
+                  {
+                    "id": 15,
+                    "rating": 2,
+                    "status": "rejected",
+                    "created_at": "2026-10-16T11:32:12.722Z"
+                  }
+                ]
+              }
+            ],
+            "summary": {
+              "average": 4,
+              "count": 1
+            }
+          }
+        }
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "type": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "type": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "type": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "type": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    }
+  ],
+  "scope": "Approved SOCIAL-QA-01",
+  "browser_version": "153.0.8010.36"
+}

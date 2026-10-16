@@ -1,0 +1,53 @@
+{
+  "id": "OFFER-QA-09",
+  "status": "CLOSED LOCAL scoped review pricing",
+  "source_file": "src/catalog/services/volunteer_places.py",
+  "source_sha256": "3b814e2803d7feef9bdf23e6e29918b06fc18a2280a7f3605561cd8bd5fdccad",
+  "new_test_file": "src/catalog/testcases/test_offer_qa09_partial_review_pricing.py",
+  "test_sha256": "17543c146d943e2842e5784a014d8f9c5a50f12c41dc7d1a6d4bbc16a5a8bccc",
+  "test_methods": [
+    "test_name_only_candidate_counts_current_group_tariff",
+    "test_explicit_candidate_tree_wins_over_live_prices",
+    "test_explicit_empty_candidate_tree_does_not_restore_live_price",
+    "test_archived_activity_and_group_do_not_satisfy_price",
+    "test_inactive_or_addon_only_tariff_does_not_satisfy_price",
+    "test_direct_tariff_and_free_mode_still_pass",
+    "test_partial_review_is_read_only_and_post_cannot_replace_trusted_tree",
+    "test_stale_and_foreign_review_preserve_candidate_and_live"
+  ],
+  "target_tests": 12,
+  "native_assertions": 10,
+  "PNG": 3,
+  "additional_module_negative_and_ready_review_cells": 36,
+  "executed_phase_runtime_match": true,
+  "original_strict_verification": "exit1 due concurrent foreign source drift; retained",
+  "other_approved_change": "OFFER-QA-07 offline JS supplement, separate plan/evidence",
+  "preserved_incoming_files_count": 2914,
+  "foreign_changed_paths": [
+    "locale/az/LC_MESSAGES/django.po",
+    "locale/en/LC_MESSAGES/django.po",
+    "locale/ru/LC_MESSAGES/django.po",
+    "src/catalog/domain_admin/owner.py",
+    "src/catalog/templates/admin/catalog/placeownershiprequest/change_form.html",
+    "src/templates/admin/base.html",
+    "static/admin/css/kidsmap_admin.css",
+    "static/admin/css/kidsmap_admin_layout.css",
+    "static/admin/css/pages/kidsmap_admin_sidebar.css",
+    "templates/admin/base.html",
+    "templates/admin/base_site.html",
+    "templates/admin/catalog/place_ownership_request_moderate_confirm.html"
+  ],
+  "current_full_checkout_runtime": "blocked after v3 duplicate then v4 stale due concurrent PO drift; phase receipt is historical",
+  "full_module05": "FAIL: OFFER-QA-10 OPEN plus current concurrent PO/runtime blocker",
+  "owner_only_name_native_supplement": "NOT RUN: hidden language input in QA harness; original admin partial-name route accepted",
+  "production": "NOT RUN",
+  "scope_diff_check_command": [
+    "git",
+    "diff",
+    "--check",
+    "--",
+    "src/catalog/services/volunteer_places.py",
+    "src/catalog/testcases/test_offer_qa09_partial_review_pricing.py"
+  ],
+  "scope_diff_check_exit": 0
+}

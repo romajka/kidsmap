@@ -1,0 +1,12 @@
+{% load i18n %}
+{% if images %}
+<ol class="km-hub-media-list">
+{% for image in images %}
+  <li><figure>
+    {% if image.url %}<a href="{{ image.url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ side }} · {{ forloop.counter }}{% if image.caption %} · {{ image.caption }}{% endif %}"><img data-km-hub-image src="{{ image.url }}" alt="{{ side }} · {{ forloop.counter }}" decoding="async"></a>{% endif %}
+    <p data-km-hub-image-fallback{% if image.url %} hidden{% endif %}>{% translate "Фото недоступно" %}</p>
+    {% if image.caption %}<figcaption>{{ image.caption }}</figcaption>{% endif %}
+  </figure></li>
+{% endfor %}
+</ol>
+{% else %}<p>{% translate "Фотографии не добавлены" %}</p>{% endif %}

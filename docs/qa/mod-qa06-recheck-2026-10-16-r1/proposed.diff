@@ -1,0 +1,118 @@
+--- a/static/admin/js/kidsmap_place_changelist.js
++++ b/static/admin/js/kidsmap_place_changelist.js
+@@ -729,18 +729,18 @@
+             // Confirmation modal before unpublishing
+             if (window.kmModal) {
+               window.kmModal.confirm({
+-                title: 'Снять с публикации?',
+-                message: 'Карточка «' + placeName + '» перестанет отображаться на сайте и перейдёт в черновики.',
++                title: labels.unpublishTitle || 'Снять с публикации?',
++                message: (labels.unpublishMessage || 'Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики.').replace('%(name)s', function () { return placeName; }),
+                 iconTone: 'warning',
+-                confirmText: 'Да, снять',
+-                cancelText: 'Отмена',
++                confirmText: labels.unpublishConfirm || 'Да, снять',
++                cancelText: labels.unpublishCancel || 'Отмена',
+                 isAlertDialog: true
+               }).then(function (confirmed) {
+                 if (confirmed) {
+                   executeTogglePublication(true);
+                 }
+               });
+-            } else if (window.confirm('Снять карточку «' + placeName + '» с публикации?')) {
++            } else if (window.confirm((labels.unpublishFallback || 'Снять карточку «%(name)s» с публикации?').replace('%(name)s', function () { return placeName; }))) {
+               executeTogglePublication(true);
+             }
+           } else {
+--- a/src/catalog/templates/admin/catalog/place/change_list.html
++++ b/src/catalog/templates/admin/catalog/place/change_list.html
+@@ -262,6 +262,11 @@
+       <button type="button" class="km-toast__undo" id="km-toast-undo">{% translate "Отменить" %}</button>
+     </div>
+     <div id="km-changelist-i18n" hidden
++      data-unpublish-title="{% translate 'Снять с публикации?' %}"
++      data-unpublish-message="{% translate 'Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики.' %}"
++      data-unpublish-confirm="{% translate 'Да, снять' %}"
++      data-unpublish-cancel="{% translate 'Отмена' %}"
++      data-unpublish-fallback="{% translate 'Снять карточку «%(name)s» с публикации?' %}"
+       data-selected-label="{% translate 'Выбрано' %}"
+       data-readiness-label="{% translate 'Готовность' %}"
+       data-items-label="{% translate 'пунктов' %}"
+--- a/locale/ru/LC_MESSAGES/django.po
++++ b/locale/ru/LC_MESSAGES/django.po
+@@ -20883,3 +20883,23 @@
+ #: catalog/placeownershiprequest/preview.html
+ msgid "Полный текст"
+ msgstr "Полный текст"
++
++# MOD-QA-06: place row unpublish confirmation
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Снять с публикации?"
++msgstr "Снять с публикации?"
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики."
++msgstr "Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики."
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Да, снять"
++msgstr "Да, снять"
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "Снять карточку «%(name)s» с публикации?"
++msgstr "Снять карточку «%(name)s» с публикации?"
+--- a/locale/az/LC_MESSAGES/django.po
++++ b/locale/az/LC_MESSAGES/django.po
+@@ -23447,3 +23447,23 @@
+ #: catalog/placeownershiprequest/preview.html
+ msgid "Полный текст"
+ msgstr "Tam mətn"
++
++# MOD-QA-06: place row unpublish confirmation
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Снять с публикации?"
++msgstr "Nəşrdən çıxarılsın?"
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики."
++msgstr "«%(name)s» kartı saytda göstərilməyəcək və qaralamalara keçiriləcək."
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Да, снять"
++msgstr "Bəli, nəşrdən çıxar"
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "Снять карточку «%(name)s» с публикации?"
++msgstr "«%(name)s» kartı nəşrdən çıxarılsın?"
+--- a/locale/en/LC_MESSAGES/django.po
++++ b/locale/en/LC_MESSAGES/django.po
+@@ -23301,3 +23301,23 @@
+ #: catalog/placeownershiprequest/preview.html
+ msgid "Полный текст"
+ msgstr "Full text"
++
++# MOD-QA-06: place row unpublish confirmation
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Снять с публикации?"
++msgstr "Unpublish?"
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики."
++msgstr "The “%(name)s” listing will no longer appear on the site and will move to drafts."
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Да, снять"
++msgstr "Yes, unpublish"
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "Снять карточку «%(name)s» с публикации?"
++msgstr "Unpublish the “%(name)s” listing?"

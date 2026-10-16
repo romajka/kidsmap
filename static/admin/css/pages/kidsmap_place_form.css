@@ -4821,3 +4821,9 @@
 }
 
 .km-pf .km-pf-mappanel__hint[hidden] { display: none; }
+
+/* Native keyboard focus must clear the actual sticky editor surfaces. */
+.km-pf :is(input,select,textarea,button,summary,a,[tabindex]) {
+  scroll-margin-top: var(--pf-focus-top,96px);
+  scroll-margin-bottom: var(--pf-focus-bottom,120px);
+}

@@ -1,0 +1,515 @@
+{
+  "rows": [
+    {
+      "id": "actual row draft updates persisted status and current row",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1440,
+      "model": "place",
+      "detail": {
+        "http": 200,
+        "status": "draft",
+        "is_active": false
+      }
+    },
+    {
+      "id": "success toast uses selected language",
+      "status": "FAIL",
+      "lang": "az",
+      "width": 1440,
+      "model": "place",
+      "detail": {
+        "expected_status": "draft",
+        "texts": [
+          "\n      \n      Hazırdır\n      Ləğv et\n    ",
+          "«Uydurma QA08 candidate live» переведена в черновики."
+        ]
+      }
+    },
+    {
+      "id": "actual row published updates persisted status and current row",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1440,
+      "model": "place",
+      "detail": {
+        "http": 200,
+        "status": "published",
+        "is_active": true
+      }
+    },
+    {
+      "id": "success toast uses selected language",
+      "status": "FAIL",
+      "lang": "az",
+      "width": 1440,
+      "model": "place",
+      "detail": {
+        "expected_status": "published",
+        "texts": [
+          "\n      \n      Hazırdır\n      Ləğv et\n    ",
+          "«Uydurma QA08 candidate live» переведена в черновики.",
+          "Публикация карточки...",
+          "«Uydurma QA08 candidate live» опубликована и видна на сайте."
+        ]
+      }
+    },
+    {
+      "id": "native publication pair reload remains published",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1440,
+      "model": "place",
+      "detail": {}
+    },
+    {
+      "id": "actual row draft updates persisted status and current row",
+      "status": "PASS",
+      "lang": "en",
+      "width": 390,
+      "model": "place",
+      "detail": {
+        "http": 200,
+        "status": "draft",
+        "is_active": false
+      }
+    },
+    {
+      "id": "success toast uses selected language",
+      "status": "FAIL",
+      "lang": "en",
+      "width": 390,
+      "model": "place",
+      "detail": {
+        "expected_status": "draft",
+        "texts": [
+          "\n      \n      Done\n      Cancel\n    ",
+          "Снятие с публикации...",
+          "«Fictional QA08 live» переведена в черновики."
+        ]
+      }
+    },
+    {
+      "id": "actual row published updates persisted status and current row",
+      "status": "PASS",
+      "lang": "en",
+      "width": 390,
+      "model": "place",
+      "detail": {
+        "http": 200,
+        "status": "published",
+        "is_active": true
+      }
+    },
+    {
+      "id": "success toast uses selected language",
+      "status": "FAIL",
+      "lang": "en",
+      "width": 390,
+      "model": "place",
+      "detail": {
+        "expected_status": "published",
+        "texts": [
+          "\n      \n      Done\n      Cancel\n    ",
+          "«Fictional QA08 live» переведена в черновики.",
+          "Публикация карточки...",
+          "«Fictional QA08 live» опубликована и видна на сайте."
+        ]
+      }
+    },
+    {
+      "id": "native publication pair reload remains published",
+      "status": "PASS",
+      "lang": "en",
+      "width": 390,
+      "model": "place",
+      "detail": {}
+    },
+    {
+      "id": "actual row draft updates persisted status and current row",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1440,
+      "model": "place",
+      "detail": {
+        "http": 200,
+        "status": "draft",
+        "is_active": false
+      }
+    },
+    {
+      "id": "success toast uses selected language",
+      "status": "FAIL",
+      "lang": "en",
+      "width": 1440,
+      "model": "place",
+      "detail": {
+        "expected_status": "draft",
+        "texts": [
+          "\n      \n      Done\n      Cancel\n    ",
+          "Снятие с публикации...",
+          "«Fictional QA08 live» переведена в черновики."
+        ]
+      }
+    },
+    {
+      "id": "actual row published updates persisted status and current row",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1440,
+      "model": "place",
+      "detail": {
+        "http": 200,
+        "status": "published",
+        "is_active": true
+      }
+    },
+    {
+      "id": "success toast uses selected language",
+      "status": "FAIL",
+      "lang": "en",
+      "width": 1440,
+      "model": "place",
+      "detail": {
+        "expected_status": "published",
+        "texts": [
+          "\n      \n      Done\n      Cancel\n    ",
+          "«Fictional QA08 live» переведена в черновики.",
+          "Публикация карточки...",
+          "«Fictional QA08 live» опубликована и видна на сайте."
+        ]
+      }
+    },
+    {
+      "id": "native publication pair reload remains published",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1440,
+      "model": "place",
+      "detail": {}
+    }
+  ],
+  "diagnostics": [
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    }
+  ],
+  "complete": true,
+  "scope": "12 real own-place AJAX actions,6unpublish/publish pairs; no fake success responses"
+}

@@ -22,7 +22,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (item.input_ids) return item.input_ids.filter(function (id) { return !!value(id); }).length === 1;
     if (item.field_name === 'photo') {
       var file = document.getElementById(item.input_id);
-      var clear = document.getElementById('id_photo-clear');
+      var clear = file && file.form
+        ? file.form.querySelector('input[name="' + file.name + '-clear"]')
+        : null;
       return !!(file && file.files.length) || (!!item.stored_photo && !(clear && clear.checked));
     }
     return !!value(item.input_id);

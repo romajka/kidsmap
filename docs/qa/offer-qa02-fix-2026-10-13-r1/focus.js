@@ -1,0 +1,17 @@
+async original=>{
+ const B='__BASE__',F=__FIXTURES__,D='__HERE__/screenshots/',browser=original.context().browser(),rows=[],shots=[],errors=[],network=[],blocked=[],contexts=[];
+ let phase='start',lastPost=null;
+ const check=(id,ok,extra={})=>{rows.push({id,status:ok?'PASS':'FAIL',...extra});if(!ok)throw Error(id);};
+ async function context(role){const c=await browser.newContext();contexts.push(c);await c.route('**/*',r=>{if(r.request().url().startsWith(B+'/'))return r.continue();blocked.push(r.request().url().split('?')[0]);return r.abort();});const p=await c.newPage();p.setDefaultTimeout(12000);p.on('pageerror',e=>errors.push(String(e)));p.on('response',r=>{if(r.url().startsWith(B+'/')&&r.status()>=400)network.push({url:r.url().replace(B,''),status:r.status()});});if(role){await p.goto(B+(role==='admin'?'/admin/login/?next=/admin/':'/ru/auth/login/'));await p.locator('[name=username]').fill(role==='admin'?F.users.admin.username:F.users[role].email);await p.locator('[name=password]').fill('__PASSWORD__');await Promise.all([p.waitForURL(u=>!u.pathname.includes('login')),p.locator(role==='admin'?'[type=submit]':'button[data-loading-button]').click()]);}return p;}
+ async function snap(p,id){const file=id+'.png';await p.screenshot({path:D+file,fullPage:true});shots.push({file});}
+ async function open(l){if(await l.getAttribute('open')===null)await l.locator(':scope > summary').click();}
+
+ async function editor(p,cell){await p.goto(B+'/'+cell.lang+'/account/places/'+cell.place+'/edit/?fresh=1');const a=p.locator('[data-pc-offerings] .pc-activity-card').first();await open(a);const g=a.locator('.pc-group-card').first();await open(g);const plan=g.locator('.pc-plan-card').first();await open(plan);await open(plan.locator('details').first());return plan;}
+ const control=(plan,key)=>plan.locator('[data-offering-key='+key+']');
+ async function post(p,action='save_draft'){const wait=p.waitForResponse(r=>r.url().includes('/save-photos/')&&r.request().method()==='POST');const nav=p.waitForNavigation({waitUntil:'domcontentloaded'}).catch(()=>null);await p.locator('button[name=form_action][value='+action+']').click();const r=await wait;lastPost={status:r.status(),body:await r.json().catch(()=>null)};if(r.status()===200)await nav;return r.status();}
+ try{
+ const p=await context('owner');
+ for(const cell of F.cells.filter(x=>x.width===390||(x.lang==='ru'&&x.width===360)||(x.lang==='en'&&x.width===1024))){const key=cell.lang+'-'+cell.width;phase=key;await p.setViewportSize({width:cell.width,height:950});const plan=await editor(p,cell);await control(plan,'billing_mode').selectOption('recurring');await control(plan,'billing_interval').selectOption('month');await control(plan,'billing_interval_count').fill('1');await control(plan,'billing_interval_count').focus();await p.keyboard.press('Tab');const geometry=await control(plan,'quantity').evaluate(e=>{const r=e.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,hit=document.elementFromPoint(x,y);return{focused:e===document.activeElement,x,y,viewport:innerHeight,hit:hit?.tagName,hitClass:hit?.className,uncovered:hit===e||e.contains(hit)}});await p.screenshot({path:D+'keyboard-quantity-'+key+'.png'});shots.push({file:'keyboard-quantity-'+key+'.png'});check('quantity-keyboard-uncovered-'+key,geometry.focused&&geometry.uncovered,{geometry});}
+ return{rows,shots,errors,network};
+ }catch(e){return{rows,shots,error:String(e),phase,errors,network};}finally{for(const c of contexts)await c.close();}
+}

@@ -1,0 +1,9 @@
+async(page)=>{
+ const base='http://127.0.0.1:44245/',errors=[],requests=[],rows=[];let phase='setup';
+ const f=await(await page.request.get(base+'qa/fixtures/')).json();const ctx=await page.context().browser().newContext({javaScriptEnabled:false,viewport:{width:390,height:900}});
+ await ctx.route('**/*',r=>r.request().url().startsWith(base)||r.request().url()==='about:blank'?r.continue():r.abort('blockedbyclient'));const p=await ctx.newPage();
+ p.on('pageerror',e=>errors.push({text:String(e),stack:e.stack||'',phase,url:p.url()}));
+ phase='existing no-JS login';await p.goto(base+'ru/auth/login/');await p.locator('#id_username').fill(f.users.owner.username);await p.locator('#id_password').fill(f.password);await p.locator('form.register-form button[type=submit]').click();await p.waitForURL(u=>!u.pathname.endsWith('/auth/login/'));await p.waitForLoadState('networkidle');await p.goto(base+'ru/account/notifications/');await p.waitForLoadState('networkidle');
+ for(let i=0;i<2;i++){phase='existing no-JS mark-read '+i;const form=p.locator('form[action$="/read/"]').first();const url=await form.getAttribute('action');const nav=p.waitForEvent('domcontentloaded'),response=p.waitForResponse(r=>r.url().endsWith(url)&&r.request().method()==='POST');await form.locator('button').press('Enter');const r=await response;await nav;await p.waitForLoadState('networkidle');requests.push({path:url,http:r.status()});}
+ await ctx.close();return{rows:[{name:'unchanged no-JS login and mark-read native POST',status:requests.length===2&&requests.every(r=>r.http===302)?'PASS':'FAIL',detail:requests}],error:null,diagnostics:{pageerrors:errors},browser:page.context().browser().version(),note:'Only own fictional login/read_at; no invitation/decline/accept/transfer mutation. JS disabled; existing shared routes.'};
+}

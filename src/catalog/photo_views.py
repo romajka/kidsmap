@@ -5,6 +5,7 @@ from io import BytesIO
 from uuid import UUID
 
 from django.core.cache import cache
+from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
@@ -72,6 +73,7 @@ def prepare_owner_photo(request):
 @never_cache
 @require_POST
 def save_owner_photos(request, pk=None):
+    explicit_save_cutoff = timezone.now()
     if not request.user.is_authenticated:
         return JsonResponse({'ok': False, 'errors': {'__all__': [t('Войдите в аккаунт.', 'Hesaba daxil olun.', 'Please sign in.')]}}, status=403)
     try:
@@ -100,9 +102,21 @@ def save_owner_photos(request, pk=None):
             result = controller.save_edit_form(request=request, place_id=pk, data=data, files=request.FILES, draft_save_only=action == 'save_draft', submit_for_moderation=action == 'save_and_publish')
         if not result.ok:
             errors = {name: [str(error) for error in values] for name, values in result.form.errors.items()} if result.form is not None else {'__all__': [str(result.message)]}
-            return JsonResponse({'ok': False, 'errors': errors}, status=422 if result.form is not None else 403)
+            payload = {'ok': False, 'errors': errors}
+            if result.form is not None:
+                payload['error_targets'] = {
+                    name: [(error.params or {}).get('field_path') for error in values]
+                    for name, values in result.form.errors.as_data().items()
+                }
+            if result.form is not None and any(
+                error.code == 'candidate_version_conflict'
+                for values in result.form.errors.as_data().values()
+                for error in values
+            ):
+                payload['conflict'] = 'candidate_version_conflict'
+            return JsonResponse(payload, status=422 if result.form is not None else 403)
         from catalog.services.server_drafts import mark_explicit_save
-        mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=pk)
+        mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=pk, cutoff=explicit_save_cutoff)
         url = reverse('owner_place_edit', args=[result.place.pk]) + '#pc-section-4' if action == 'save_draft' else reverse('owner_places_dashboard')
         payload = {'ok': True, 'redirect': url}
         cache.set(key, payload, timeout=86400)

@@ -23,3 +23,9 @@ body:has([data-place-mode=continuous]),body:has([data-place-mode=continuous]) .s
 .pc-review-note { margin-block: 1rem; padding: 1rem; border: 1px solid var(--pw-border, #d6ddd6); border-radius: 12px; }
 .pc-review-note h2 { margin: 0 0 .5rem; font-size: 1rem; }
 .pc-review-note p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Measured by the continuous editor; fallbacks also cover non-enhanced rendering. */
+.pc .pc-section,.pc :is(h2,input,select,textarea,button,summary,a){
+  scroll-margin-top:var(--pc-focus-top,230px);
+  scroll-margin-bottom:var(--pc-focus-bottom,110px);
+}

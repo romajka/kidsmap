@@ -1,0 +1,34 @@
+{
+  "status": "RELEASED / VERIFIED within recorded scope",
+  "module08": "LOCAL PASS",
+  "code_commit": "cfef63e3dbc93e971ac0e2ae963a17a3821ae27c",
+  "QA_evidence_commit": "5c98e965278f556e38b72f1b7f699c7f9a3b3929",
+  "branch": "codex/module08-release-2026-10-16",
+  "image_id": "sha256:1f2d56ca252808d941c7f0514c268cdcc8d68d0ecacbe3ad5a151132302ede73",
+  "source_PO_match": 968,
+  "MO_match": 3,
+  "production_browser": {
+    "pass": 30,
+    "fail": 0,
+    "mutations": 0,
+    "pages_390_1440_RU_AZ_EN": true,
+    "PNG": 12
+  },
+  "origin_HTTP_200": 10,
+  "pending_migrations": 0,
+  "schema_data_tasks_run": false,
+  "env_mounts_preserved": true,
+  "backup": "server-backup.json",
+  "rollback": "prepared; not exercised",
+  "global_full_tests_repeated": false,
+  "local_original_HEAD_index_preserved": true,
+  "raw_CSRF_QA_logs_excluded": 5,
+  "NOT_RUN": [
+    "authenticated production admin mutation",
+    "production password reset email",
+    "OAuth/Maps/GA API",
+    "cross-browser/physical/screenreader",
+    "all-module acceptance"
+  ],
+  "pre_existing_external_issue": "configured Google ADC file unreadable; no secret values exported"
+}

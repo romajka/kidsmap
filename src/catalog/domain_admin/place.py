@@ -11,6 +11,7 @@ from django.db.models import Avg, Count, Exists, Max, OuterRef, Prefetch, Q
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, QueryDict
 from django.urls import path, reverse
+from django.views.decorators.http import require_GET
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -61,6 +62,7 @@ from catalog.services.place_readiness import (
 from catalog.services.pricing_plans import normalize_pricing_plans, pricing_audit_summary
 from catalog.services.place_schedule import FULL_DAY_LABELS, build_schedule_summary, serialize_place_schedule
 from catalog.services.place_card_validation import validate_place_card
+from .queue_sorting import QueueSortingAdminMixin, QueueSortParameter
 from .review import PlaceReviewInline
 from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container
 
@@ -659,6 +661,9 @@ class EventAdminForm(forms.ModelForm):
                 if field_name == "address" and cleaned.get("event_format") == Event.FORMAT_ONLINE:
                     continue
                 val = cleaned.get(field_name)
+                if field_name == "photo" and val is False:
+                    missing.append(str(label))
+                    continue
                 if not val and val != 0:
                     if self.instance and self.instance.pk:
                         val = getattr(self.instance, field_name, None)
@@ -921,7 +926,7 @@ class EventDeletedFilter(admin.SimpleListFilter):
 
 
 @admin.register(Event)
-class EventAdmin(admin.ModelAdmin):
+class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     form = EventAdminForm
     inlines = [EventPhotoInline]
     actions = ("mark_published", "mark_draft", "mark_pending", "mark_rejected")
@@ -935,7 +940,7 @@ class EventAdmin(admin.ModelAdmin):
         "updated_at",
         "row_actions",
     )
-    list_filter = (EventDeletedFilter, "status", "category", "start_datetime", "owner")
+    list_filter = (QueueSortParameter, EventDeletedFilter, "status", "category", "start_datetime", "owner")
     search_fields = ("name", "name_az", "name_ru", "name_en", "address", "phone", "owner__username", "owner__email")
     readonly_fields = ("slug", "created_at", "updated_at")
     list_select_related = ("owner", "related_place")
@@ -1750,6 +1755,13 @@ class PlaceAdmin(admin.ModelAdmin):
                 from catalog.services.location_assignment import can_override_location
                 if not can_override_location(request.user):
                     self.fields.pop('location_override_reason', None)
+
+            def clean(self):
+                cleaned = super().clean()
+                conflict = getattr(request, '_km_candidate_conflict', None)
+                if conflict is not None:
+                    self.add_error(None, conflict)
+                return cleaned
         return LocationActorForm
 
     AUDIT_TRACKED_FIELDS = (
@@ -2101,7 +2113,12 @@ class PlaceAdmin(admin.ModelAdmin):
             with transaction.atomic():
                 return super().changeform_view(request, object_id=object_id, form_url=form_url, extra_context=extra_context)
         except ValidationError as exc:
-            # A source may change after form.clean; rollback and reload safely.
+            if any(error.code == 'candidate_version_conflict' for error in getattr(exc, 'error_list', ())):
+                # The first write has rolled back. Redisplay the submitted POST
+                # as invalid; never replay a save or replace its stale token.
+                request._km_candidate_conflict = exc
+                with transaction.atomic():
+                    return super().changeform_view(request, object_id=object_id, form_url=form_url, extra_context=extra_context)
             self.message_user(request, "; ".join(exc.messages), level=messages.ERROR)
             return HttpResponseRedirect(request.path)
 
@@ -2166,6 +2183,12 @@ class PlaceAdmin(admin.ModelAdmin):
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
         from catalog.services.permanent_place_wizard import ui_copy
         context["km_place_entry_copy"] = ui_copy()
+        if obj and obj.pk:
+            context["km_place_site_preview_url"] = reverse(
+                "admin:catalog_place_site_preview", args=[obj.pk], current_app=self.admin_site.name)
+
+        context["km_place_candidate_conflict"] = getattr(request, '_km_candidate_conflict', None) is not None
+        context["km_place_current_version_url"] = request.path
         context["google_maps_api_key"] = getattr(settings, "GOOGLE_MAPS_API_KEY", "")
         context["km_place_draft_save_failed"] = "_save_draft" in request.POST and bool(context.get("errors"))
         fallback_url = reverse(
@@ -3362,10 +3385,15 @@ class PlaceAdmin(admin.ModelAdmin):
         )
 
 
+    def _place_view_url(self, obj):
+        if obj.is_public:
+            return obj.get_absolute_url()
+        return reverse("admin:catalog_place_site_preview", args=[obj.pk], current_app=self.admin_site.name)
+
     @admin.display(description=_("Действия"))
     def col_actions(self, obj):
         edit_url = self._place_change_url(obj)
-        view_url = obj.get_absolute_url() if hasattr(obj, "get_absolute_url") else f"/places/{obj.pk}/"
+        view_url = self._place_view_url(obj)
         action_base_url = edit_url.rsplit("change/", 1)[0]
         name = (obj.name_i18n() if callable(getattr(obj, "name_i18n", None)) else getattr(obj, "name_i18n", "")) or obj.name_az or obj.name_ru or obj.name_en or obj.name or f"Place #{obj.pk}"
 
@@ -3383,7 +3411,7 @@ class PlaceAdmin(admin.ModelAdmin):
             edit_url,
             _("Редактировать"),
             view_url,
-            _("Просмотр на сайте"),
+            _("Просмотр на сайте") if obj.is_public else _("Предпросмотр"),
             obj.pk,
             name,
             obj.status,
@@ -4200,7 +4228,9 @@ class PlaceAdmin(admin.ModelAdmin):
             publish(actor=request.user,place_id=obj.pk,expected_version=obj.content_version)
         except ValidationError as exc:
             self.message_user(request,"; ".join(exc.messages),level=messages.WARNING)
-        return HttpResponseRedirect(self._place_change_url(obj))
+            return HttpResponseRedirect(self._place_change_url(obj))
+        self.message_user(request, _("Карточка опубликована — уже видна на сайте"), level=messages.SUCCESS)
+        return HttpResponseRedirect(reverse("admin:catalog_place_change", args=[obj.pk], current_app=self.admin_site.name))
 
     def _handle_unpublish_submit(self, request, obj: Place):
         from catalog.services.publication import unpublish
@@ -4212,6 +4242,20 @@ class PlaceAdmin(admin.ModelAdmin):
         else:
             self.message_user(request, _("Карточка снята с публикации и скрыта с сайта."), level=messages.SUCCESS)
         return HttpResponseRedirect(self._place_change_url(obj))
+
+    def site_preview_view(self, request, object_id):
+        from django.shortcuts import get_object_or_404
+        from catalog.services.admin_place_preview import build_place_preview
+        from catalog.services.admin_site_preview import render_site_preview
+        obj = get_object_or_404(self.get_queryset(request), pk=object_id)
+        concrete_admin = self.admin_site._registry[Place]
+        if not concrete_admin.has_view_or_change_permission(request, obj):
+            raise PermissionDenied
+        language = request.GET.get("lang", getattr(request, "LANGUAGE_CODE", "ru"))
+        language = language if language in ("az", "ru", "en") else "ru"
+        back = reverse("admin:catalog_place_change", args=[obj.pk], current_app=self.admin_site.name)
+        preview = build_place_preview(obj, language=language)
+        return render_site_preview(request, preview, language=language, back_url=back)
 
     def localized_url_preview_view(self, request):
         from django.shortcuts import get_object_or_404
@@ -4256,6 +4300,8 @@ class PlaceAdmin(admin.ModelAdmin):
     def get_urls(self):
         from catalog.controllers.location_resolution import location_resolve
         custom_urls = [
+            path("<int:object_id>/site-preview/", self.admin_site.admin_view(require_GET(self.site_preview_view)),
+                 name=f"{self.opts.app_label}_{self.opts.model_name}_site_preview"),
             path('organization-connections/',self.admin_site.admin_view(self.organization_connections_view),name=f'{self.opts.app_label}_{self.opts.model_name}_organization_connections'),
             path("location/resolve/", self.admin_site.admin_view(location_resolve), name=f"{self.opts.app_label}_{self.opts.model_name}_location_resolve"),
             path("url-preview/", self.admin_site.admin_view(self.localized_url_preview_view), name=f"{self.opts.app_label}_{self.opts.model_name}_url_preview"),
@@ -5474,9 +5520,9 @@ class PlaceAdmin(admin.ModelAdmin):
                     ),
                     format_html(
                         '<a class="km-admin-icon-action km-admin-icon-action--open" href="{}" title="{}" aria-label="{}" target="_blank" rel="noopener"><i class="fas fa-eye"></i></a>',
-                        obj.get_absolute_url(),
-                        _("Открыть"),
-                        _("Открыть"),
+                        self._place_view_url(obj),
+                        _("Открыть") if obj.is_public else _("Предпросмотр"),
+                        _("Открыть") if obj.is_public else _("Предпросмотр"),
                     ),
                     format_html(
                         '<a class="km-admin-icon-action km-admin-icon-action--delete km-admin-action-menu__link--danger" href="{}" title="{}" aria-label="{}"><i class="far fa-trash-alt"></i></a>',

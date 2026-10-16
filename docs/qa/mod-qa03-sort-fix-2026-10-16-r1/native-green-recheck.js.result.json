@@ -1,0 +1,26 @@
+{
+  "rows": [
+    {
+      "id": "native shared sort preserves valid search GREEN",
+      "status": "PASS",
+      "model": "event",
+      "matching_before": 1,
+      "sort_href": "?q=QA+Queue+2&sort=created_desc",
+      "query_after": "?q=QA+Queue+2&sort=created_desc"
+    },
+    {
+      "id": "native shared sort preserves valid search GREEN",
+      "status": "PASS",
+      "model": "specialist",
+      "matching_before": 1,
+      "sort_href": "?q=QA+Queue+2&sort=created_desc",
+      "query_after": "?q=QA+Queue+2&sort=created_desc"
+    }
+  ],
+  "observations": [
+    {
+      "domain_unchanged": true
+    }
+  ],
+  "mode": "Fresh actual current source after menu JS fix; existing Event/Specialist sort issue recheck only, no response/style injection or domain writes"
+}

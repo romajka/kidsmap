@@ -224,6 +224,35 @@ def moderate_candidate(*, head, revision_id, actor, approve, reason=''):
         return candidate
 
 
+def set_review_visibility(*, head, revision_id, actor, visible, expected_visible):
+    """Hide/restore the approved projection without deciding or replacing a candidate."""
+    kind, (targets, heads, _, _) = type_for_head(head)
+    permission = 'catalog.change_' + heads._meta.model_name
+    if not actor.is_active or not actor.is_staff or not actor.has_perm(permission):
+        raise PermissionError('KidsMap reviewer permission required')
+    with transaction.atomic():
+        targets.objects.select_for_update().get(pk=getattr(head, kind + '_id'))
+        fresh_actor = get_user_model().objects.get(pk=actor.pk)
+        if not fresh_actor.is_active or not fresh_actor.is_staff or not fresh_actor.has_perm(permission):
+            raise PermissionError('KidsMap reviewer permission required')
+        locked = heads.objects.select_for_update().get(pk=head.pk)
+        if (not locked.is_current or locked.current_revision_id != int(revision_id)
+                or locked.is_approved != expected_visible or visible == expected_visible):
+            raise ReviewConflict('Visible review changed; reload before deciding')
+        if locked.current_revision.status != 'approved':
+            raise ReviewConflict('Only an approved revision may be restored')
+        # Model.save() is the compatibility writer and can create a new revision;
+        # changing visibility is deliberately independent from immutable history.
+        heads.objects.filter(pk=locked.pk).update(
+            status='approved', is_approved=visible, moderated_by=fresh_actor,
+            moderated_at=timezone.now(), updated_at=timezone.now())
+        locked.refresh_from_db()
+        target = getattr(locked, kind)
+        if hasattr(target, 'refresh_rating_stats'):
+            target.refresh_rating_stats()
+        return locked
+
+
 def refresh_reactions(head):
     stats = head.reactions.filter(revision_id=head.current_revision_id).aggregate(likes=Count('pk', filter=Q(value=1)), dislikes=Count('pk', filter=Q(value=-1)))
     type(head).objects.filter(pk=head.pk).update(likes_count=stats['likes'] or 0, dislikes_count=stats['dislikes'] or 0)

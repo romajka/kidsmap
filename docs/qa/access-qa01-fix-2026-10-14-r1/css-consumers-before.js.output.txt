@@ -1,0 +1,16 @@
+### Result
+{"rows":[{"lang":"ru","width":390,"kind":"login","styles":{"outline":"rgb(252, 252, 252) none 3px","outlineOffset":"0px","boxShadow":"rgba(0, 133, 82, 0.18) 0px 10px 20px 0px","background":"rgba(0, 0, 0, 0) linear-gradient(rgb(0, 154, 78), rgb(0, 137, 67)) repeat scroll 0% 0% / auto padding-box border-box","fontSize":"15.2px","padding":"10px 18px","border":"0px none rgb(19, 111, 56)","focusVisible":true,"box":{"width":344,"height":44}}},{"lang":"ru","width":390,"kind":"standalone-reset","styles":{"outline":"rgb(252, 252, 252) none 3px","outlineOffset":"0px","boxShadow":"rgba(0, 133, 82, 0.18) 0px 10px 20px 0px","background":"rgba(0, 0, 0, 0) linear-gradient(rgb(0, 154, 78), rgb(0, 137, 67)) repeat scroll 0% 0% / auto padding-box border-box","fontSize":"15.2px","padding":"10px 18px","border":"0px none rgb(19, 111, 56)","focusVisible":true,"box":{"width":344,"height":44}}},{"lang":"en","width":1440,"kind":"login","styles":{"outline":"rgb(252, 252, 252) none 3px","outlineOffset":"0px","boxShadow":"rgba(0, 133, 82, 0.18) 0px 10px 20px 0px","background":"rgba(0, 0, 0, 0) linear-gradient(rgb(0, 154, 78), rgb(0, 137, 67)) repeat scroll 0% 0% / auto padding-box border-box","fontSize":"15.2px","padding":"10px 18px","border":"0px none rgb(19, 111, 56)","focusVisible":true,"box":{"width":560.125,"height":44}}},{"lang":"en","width":1440,"kind":"standalone-reset","styles":{"outline":"rgb(252, 252, 252) none 3px","outlineOffset":"0px","boxShadow":"rgba(0, 133, 82, 0.18) 0px 10px 20px 0px","background":"rgba(0, 0, 0, 0) linear-gradient(rgb(0, 154, 78), rgb(0, 137, 67)) repeat scroll 0% 0% / auto padding-box border-box","fontSize":"15.2px","padding":"10px 18px","border":"0px none rgb(19, 111, 56)","focusVisible":true,"box":{"width":560.123779296875,"height":43.999908447265625}}}]}
+### Ran Playwright code
+```js
+await (async (page) => {
+ const base='http://127.0.0.1:57061/',rows=[];
+ for(const cell of [{lang:'ru',width:390},{lang:'en',width:1440}])for(const kind of ['login','standalone-reset']){
+  await page.setViewportSize({width:cell.width,height:900});const path=kind==='login'?'auth/login/':'auth/password-reset/';await page.goto(base+cell.lang+'/'+path);await page.mouse.move(0,0);
+  const control=page.locator('form.register-form button[type=submit]');await control.focus();await page.keyboard.press('Shift+Tab');await page.keyboard.press('Tab');await page.waitForTimeout(220);
+  const styles=await control.evaluate(e=>{const c=getComputedStyle(e),b=e.getBoundingClientRect();return {outline:c.outline,outlineOffset:c.outlineOffset,boxShadow:c.boxShadow,background:c.background,fontSize:c.fontSize,padding:c.padding,border:c.border,focusVisible:e.matches(':focus-visible'),box:{width:b.width,height:b.height}}});
+  rows.push({...cell,kind,styles});
+ }
+ await page.goto(base+'ru/auth/login/');return {rows};
+}
+)(page);
+```

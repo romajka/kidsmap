@@ -1,0 +1,57 @@
+Found 3 test(s).
+System check identified no issues (0 silenced).
+Creating test database for alias 'default'...
+.FFFFFF
+======================================================================
+FAIL: test_multiple_required_errors_keep_distinct_messages_and_targets (catalog.testcases.test_mod07_specialist_error_summary.SpecialistErrorSummaryTests.test_multiple_required_errors_keep_distinct_messages_and_targets) (lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod07_specialist_error_summary.py", line 114, in test_multiple_required_errors_keep_distinct_messages_and_targets
+    self.assertEqual(len(links), 2)
+AssertionError: 157 != 2
+
+======================================================================
+FAIL: test_multiple_required_errors_keep_distinct_messages_and_targets (catalog.testcases.test_mod07_specialist_error_summary.SpecialistErrorSummaryTests.test_multiple_required_errors_keep_distinct_messages_and_targets) (lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod07_specialist_error_summary.py", line 114, in test_multiple_required_errors_keep_distinct_messages_and_targets
+    self.assertEqual(len(links), 2)
+AssertionError: 155 != 2
+
+======================================================================
+FAIL: test_multiple_required_errors_keep_distinct_messages_and_targets (catalog.testcases.test_mod07_specialist_error_summary.SpecialistErrorSummaryTests.test_multiple_required_errors_keep_distinct_messages_and_targets) (lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod07_specialist_error_summary.py", line 114, in test_multiple_required_errors_keep_distinct_messages_and_targets
+    self.assertEqual(len(links), 2)
+AssertionError: 167 != 2
+
+======================================================================
+FAIL: test_one_required_error_is_one_whole_localized_link_to_checkbox_group (catalog.testcases.test_mod07_specialist_error_summary.SpecialistErrorSummaryTests.test_one_required_error_is_one_whole_localized_link_to_checkbox_group) (lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod07_specialist_error_summary.py", line 104, in test_one_required_error_is_one_whole_localized_link_to_checkbox_group
+    self.assertEqual(len(links), 1)
+AssertionError: 84 != 1
+
+======================================================================
+FAIL: test_one_required_error_is_one_whole_localized_link_to_checkbox_group (catalog.testcases.test_mod07_specialist_error_summary.SpecialistErrorSummaryTests.test_one_required_error_is_one_whole_localized_link_to_checkbox_group) (lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod07_specialist_error_summary.py", line 104, in test_one_required_error_is_one_whole_localized_link_to_checkbox_group
+    self.assertEqual(len(links), 1)
+AssertionError: 83 != 1
+
+======================================================================
+FAIL: test_one_required_error_is_one_whole_localized_link_to_checkbox_group (catalog.testcases.test_mod07_specialist_error_summary.SpecialistErrorSummaryTests.test_one_required_error_is_one_whole_localized_link_to_checkbox_group) (lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_mod07_specialist_error_summary.py", line 104, in test_one_required_error_is_one_whole_localized_link_to_checkbox_group
+    self.assertEqual(len(links), 1)
+AssertionError: 89 != 1
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.380s
+
+FAILED (failures=6)
+Destroying test database for alias 'default'...

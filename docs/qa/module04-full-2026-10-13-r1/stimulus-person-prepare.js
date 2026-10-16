@@ -1,0 +1,1 @@
+async original=>{__COMMON__const E=__ENTITIES__;const p=await actor('person');await p.goto(B+'/ru/account/places/events/'+E.person+'/manage/'+'?qa_stimulus=person');return {rows:[{scenario:'fixture-stimulus-person-prepared',status:'PASS'}]};}

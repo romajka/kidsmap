@@ -1,0 +1,17 @@
+async original=>{
+ const B='__BASE__',F=__FIXTURES__,D='__HERE__/screenshots/',browser=original.context().browser(),rows=[],shots=[],errors=[],network=[],blocked=[],contexts=[];
+ let phase='start',lastPost=null;
+ const check=(id,ok,extra={})=>{rows.push({id,status:ok?'PASS':'FAIL',...extra});if(!ok)throw Error(id);};
+ async function context(role){const c=await browser.newContext();contexts.push(c);await c.route('**/*',r=>{if(r.request().url().startsWith(B+'/'))return r.continue();blocked.push(r.request().url().split('?')[0]);return r.abort();});const p=await c.newPage();p.setDefaultTimeout(12000);p.on('pageerror',e=>errors.push(String(e)));p.on('response',r=>{if(r.url().startsWith(B+'/')&&r.status()>=400)network.push({url:r.url().replace(B,''),status:r.status()});});if(role){await p.goto(B+(role==='admin'?'/admin/login/?next=/admin/':'/ru/auth/login/'));await p.locator('[name=username]').fill(role==='admin'?F.users.admin.username:F.users[role].email);await p.locator('[name=password]').fill('__PASSWORD__');await Promise.all([p.waitForURL(u=>!u.pathname.includes('login')),p.locator(role==='admin'?'[type=submit]':'button[data-loading-button]').click()]);}return p;}
+ async function snap(p,id){const file=id+'.png';await p.screenshot({path:D+file,fullPage:true});shots.push({file});}
+ async function open(l){if(await l.getAttribute('open')===null)await l.locator(':scope > summary').click();}
+
+ async function editor(p,cell){await p.goto(B+'/'+cell.lang+'/account/places/'+cell.place+'/edit/?fresh=1');const a=p.locator('[data-pc-offerings] .pc-activity-card').first();await open(a);const g=a.locator('.pc-group-card').first();await open(g);const plan=g.locator('.pc-plan-card').first();await open(plan);await open(plan.locator('details').first());return plan;}
+ const control=(plan,key)=>plan.locator('[data-offering-key='+key+']');
+ async function post(p,action='save_draft'){const wait=p.waitForResponse(r=>r.url().includes('/save-photos/')&&r.request().method()==='POST');const nav=p.waitForNavigation({waitUntil:'domcontentloaded'}).catch(()=>null);await p.locator('button[name=form_action][value='+action+']').click();const r=await wait;lastPost={status:r.status(),body:await r.json().catch(()=>null)};if(r.status()===200)await nav;return r.status();}
+ try{
+ const owner=await context('owner'),admin=await context('admin');
+ for(const cell of F.optional_cells){const key='optional-'+cell.lang;phase=key;await owner.setViewportSize({width:390,height:950});let plan=await editor(owner,cell);await control(plan,'quantity').fill('');await control(plan,'quantity_unit').selectOption('');check(key+'-blank-pair-save',await post(owner)===200);plan=await editor(owner,cell);check(key+'-blank-pair-reload',await control(plan,'quantity').inputValue()===''&&await control(plan,'quantity_unit').inputValue()===''&&await control(plan,'billing_interval_count').inputValue()==='1');await snap(owner,key+'-blank-pair');check(key+'-submit',await post(owner,'save_and_publish')===200);await admin.goto(B+'/admin/volunteer/review/'+cell.place+'/');await Promise.all([admin.waitForNavigation(),admin.locator('button[value=approve]').click()]);plan=await editor(owner,cell);check(key+'-approved-reload',await control(plan,'quantity').inputValue()===''&&await control(plan,'quantity_unit').inputValue()==='');}
+ check('no-optional-pageerrors',errors.length===0);return{rows,shots,errors,network,blocked:[...new Set(blocked)]};
+ }catch(e){return{rows,shots,error:String(e),phase,lastPost,errors,network};}finally{for(const c of contexts)await c.close();}
+}

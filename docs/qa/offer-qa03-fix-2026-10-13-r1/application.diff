@@ -1,0 +1,492 @@
+--- incoming/src/catalog/services/pricing_plans.py
++++ worktree/src/catalog/services/pricing_plans.py
+@@ -181,7 +181,21 @@
+     return f"{len(plans)} tariffs: " + "; ".join(parts) + suffix
+ 
+ 
+-def normalize_pricing_plans(value, *, strict=True, allow_verified=False):
++def _error_with_path(error, field_path):
++    """Retain translated validation errors and add a separate UI address."""
++    if getattr(error, 'error_dict', None):
++        return ValidationError([
++            _error_with_path(item, [*field_path, key])
++            for key, errors in error.error_dict.items() for item in errors
++        ])
++    if len(error.error_list) != 1 or error.error_list[0] is not error:
++        return ValidationError([_error_with_path(item, field_path) for item in error.error_list])
++    params = dict(error.params or {})
++    params['field_path'] = list(field_path)
++    return ValidationError(error.message, code=error.code, params=params)
++
++
++def normalize_pricing_plans(value, *, strict=True, allow_verified=False, error_path=()):
+     """Return storage-ready plans without mutating the supplied value.
+ 
+     Legacy {name, price, frequency} entries are accepted and converted only in
+@@ -201,6 +215,8 @@
+ 
+     normalized = []
+     for index, raw in enumerate(value):
++        plan_path = [*error_path, "pricing_plans", index]
++        conversion_field = None
+         try:
+             if not isinstance(raw, dict):
+                 if strict:
+@@ -238,11 +254,13 @@
+             if not allow_verified:
+                 values.pop("verified_at", None)
+             for price_field in ("price", "price_min", "price_max"):
++                conversion_field = price_field
+                 if values.get(price_field) not in (None, ""):
+                     values[price_field] = Decimal(str(values[price_field]).replace(",", "."))
+                 else:
+                     values[price_field] = None
+             for int_field in ("billing_interval_count", "billing_cycles", "quantity", "sessions_per_week", "sessions_per_month", "validity_interval_count", "age_from", "age_to", "min_people", "max_people", "sort_order"):
++                conversion_field = int_field
+                 if values.get(int_field) not in (None, ""):
+                     values[int_field] = int(values[int_field])
+                 elif int_field in values:
+@@ -271,6 +289,7 @@
+             normalized.append(clean)
+         except ValidationError as exc:
+             if strict:
++                field_name = None
+                 if getattr(exc, "error_dict", None):
+                     field_name = next(iter(exc.error_dict))
+                     field_errors = exc.error_dict[field_name]
+@@ -280,14 +299,14 @@
+                     message = exc.messages[0] if getattr(exc, "messages", None) else str(exc)
+                 raise ValidationError(
+                     _("Тариф %(number)s: %(error)s"),
+-                    params={"number": index + 1, "error": message},
++                    params={"number": index + 1, "error": message, "field_path": plan_path + ([field_name] if field_name else [])},
+                 )
+             continue
+         except (InvalidOperation, TypeError, ValueError) as exc:
+             if strict:
+                 raise ValidationError(
+                     _("Тариф %(number)s: неверный тип или формат значения (%(error)s)."),
+-                    params={"number": index + 1, "error": str(exc)},
++                    params={"number": index + 1, "error": str(exc), "field_path": plan_path + ([conversion_field] if conversion_field else [])},
+                 )
+             continue
+     return normalized
+@@ -427,7 +446,7 @@
+         seen.add(plan_id)
+ 
+ 
+-def _editor_values(model, data, names, *, existing=None):
++def _editor_values(model, data, names, *, existing=None, error_path=None):
+     result = {}
+     for name in names:
+         if name not in data:
+@@ -438,9 +457,14 @@
+         value = data[name]
+         if name in {'age_from', 'age_to'} and value == '':
+             value = None
+-        value = field.to_python(value)
+-        field.validate(value, existing)
+-        field.run_validators(value)
++        try:
++            value = field.to_python(value)
++            field.validate(value, existing)
++            field.run_validators(value)
++        except ValidationError as exc:
++            if error_path is None:
++                raise
++            raise _error_with_path(exc, [*error_path, name]) from exc
+         result[name] = value.strip() if isinstance(value, str) else value
+     return result
+ 
+@@ -453,16 +477,17 @@
+         raise ValidationError(_('Неверная версия или размер списка занятий.'))
+     normalized = []
+     seen_activities, seen_groups = set(), set()
+-    for activity_data in payload['activities']:
++    for activity_index, activity_data in enumerate(payload['activities']):
++        activity_path = ['activities', activity_index]
+         if (not isinstance(activity_data, dict) or not set(activity_data) <= {'id', 'program_id', 'category_id', 'subcategory_id', 'groups', *ACTIVITY_EDITOR_FIELDS}
+                 or not isinstance(activity_data.get('groups'), list) or len(activity_data['groups']) > 12):
+-            raise ValidationError(_('Неверная структура занятия.'))
++            raise ValidationError(_('Неверная структура занятия.'), params={'field_path': activity_path})
+         activity_id = activity_data.get('id')
+         if activity_id is not None and (type(activity_id) is not int or activity_id < 1 or activity_id in seen_activities):
+-            raise ValidationError(_('Занятие не принадлежит карточке или повторяется.'))
++            raise ValidationError(_('Занятие не принадлежит карточке или повторяется.'), params={'field_path': activity_path})
+         activity = Activity.objects.filter(pk=activity_id, place=place, archived_at__isnull=True).first() if activity_id else None
+         if activity_id and activity is None:
+-            raise ValidationError(_('Занятие не принадлежит карточке.'))
++            raise ValidationError(_('Занятие не принадлежит карточке.'), params={'field_path': activity_path})
+         if activity_id:
+             seen_activities.add(activity_id)
+         program_id = activity_data.get('program_id', activity.program_id if activity else None)
+@@ -471,12 +496,15 @@
+             if type(program_id) is not int or not place.organization_id or not Program.objects.filter(
+                 pk=program_id, organization_id=place.organization_id, status='published',
+                 approved_at__isnull=False, archived_at__isnull=True).exists():
+-                raise ValidationError(_('Общая программа недоступна этому филиалу.'))
+-        values = _editor_values(Activity, activity_data, ACTIVITY_EDITOR_FIELDS, existing=activity)
++                raise ValidationError(_('Общая программа недоступна этому филиалу.'), params={'field_path': [*activity_path, 'program_id']})
++        values = _editor_values(Activity, activity_data, ACTIVITY_EDITOR_FIELDS, existing=activity, error_path=activity_path)
+         from catalog.services.catalog_structure import validate_taxonomy
+         category_id = activity_data.get('category_id', activity.category_id if activity else None)
+         subcategory_id = activity_data.get('subcategory_id', activity.subcategory_id if activity else None)
+-        validate_taxonomy(category_id,subcategory_id)
++        try:
++            validate_taxonomy(category_id,subcategory_id)
++        except ValidationError as exc:
++            raise _error_with_path(exc, activity_path) from exc
+         if program_id:
+             program = Program.objects.get(pk=program_id)
+             category_id,subcategory_id=program.category_id,program.subcategory_id
+@@ -484,7 +512,7 @@
+             # Unlinking materializes approved common data, never a pending Program.
+             common=activity.program_snapshot
+             if not common:
+-                raise ValidationError(_('Одобренная программа недоступна. Обновите страницу.'))
++                raise ValidationError(_('Одобренная программа недоступна. Обновите страницу.'), params={'field_path': [*activity_path, 'program_id']})
+             if 'category_id' not in activity_data:category_id=common.get('category_id')
+             if 'subcategory_id' not in activity_data:subcategory_id=common.get('subcategory_id')
+             for name in ACTIVITY_EDITOR_FIELDS:
+@@ -492,38 +520,46 @@
+                     values[name]=common.get(name,'')
+         values.update(category_id=category_id,subcategory_id=subcategory_id)
+         if not program_id and not (values.get('name_az') or (activity.name_az if activity else '')):
+-            raise ValidationError(_('Укажите название занятия на AZ.'))
++            raise ValidationError(_('Укажите название занятия на AZ.'), params={'field_path': [*activity_path, 'name_az']})
+         groups = []
+-        for group_data in activity_data['groups']:
++        for group_index, group_data in enumerate(activity_data['groups']):
++            group_path = [*activity_path, 'groups', group_index]
+             if (not isinstance(group_data, dict) or not set(group_data) <= {'id', 'pricing_plans', *GROUP_EDITOR_FIELDS}
+                     or not isinstance(group_data.get('pricing_plans'), list)):
+-                raise ValidationError(_('Неверная структура группы тарифов.'))
++                raise ValidationError(_('Неверная структура группы тарифов.'), params={'field_path': group_path})
+             group_id = group_data.get('id')
+             if group_id is not None and (type(group_id) is not int or group_id < 1 or group_id in seen_groups or not activity_id):
+-                raise ValidationError(_('Группа тарифов не принадлежит карточке или повторяется.'))
++                raise ValidationError(_('Группа тарифов не принадлежит карточке или повторяется.'), params={'field_path': group_path})
+             group = OfferingGroup.objects.filter(pk=group_id, activity=activity, archived_at__isnull=True).first() if group_id else None
+             if group_id and group is None:
+-                raise ValidationError(_('Группа тарифов не принадлежит карточке.'))
++                raise ValidationError(_('Группа тарифов не принадлежит карточке.'), params={'field_path': group_path})
+             if group_id:
+                 seen_groups.add(group_id)
+-            group_values = _editor_values(OfferingGroup, group_data, GROUP_EDITOR_FIELDS, existing=group)
++            group_values = _editor_values(OfferingGroup, group_data, GROUP_EDITOR_FIELDS, existing=group, error_path=group_path)
+             if not (group_values.get('name_az') or (group.name_az if group else '')):
+-                raise ValidationError(_('Укажите название группы на AZ.'))
++                raise ValidationError(_('Укажите название группы на AZ.'), params={'field_path': [*group_path, 'name_az']})
+             age_from = group_values.get('age_from', group.age_from if group else None)
+             age_to = group_values.get('age_to', group.age_to if group else None)
+             if age_from is not None and age_to is not None and age_from > age_to:
+-                raise ValidationError(_('Возраст группы указан неверно.'))
+-            plans = normalize_pricing_plans(group_data['pricing_plans'], allow_verified=allow_verified)
++                raise ValidationError(_('Возраст группы указан неверно.'), params={'field_path': [*group_path, 'age_to']})
++            plans = normalize_pricing_plans(group_data['pricing_plans'], allow_verified=allow_verified, error_path=group_path)
+             if group is not None:
+-                validate_target_plan_ids(group, plans)
++                try:
++                    validate_target_plan_ids(group, plans)
++                except ValidationError as exc:
++                    raise _error_with_path(exc, group_path) from exc
+             elif any(plan.get('id') for plan in plans):
+-                raise ValidationError(_('Новый тариф не может ссылаться на чужой ID.'))
+-            for plan in plans:
++                raise ValidationError(_('Новый тариф не может ссылаться на чужой ID.'), params={'field_path': group_path})
++            for plan_index, plan in enumerate(plans):
++                plan_path = [*group_path, "pricing_plans", plan_index]
+                 if ((age_to is not None and plan.get('age_from') is not None and plan['age_from'] > age_to)
+                         or (age_from is not None and plan.get('age_to') is not None and plan['age_to'] < age_from)):
+-                    raise ValidationError(_('Возраст тарифа не пересекается с возрастом группы.'))
++                    raise ValidationError(_('Возраст тарифа не пересекается с возрастом группы.'), params={'field_path': [*plan_path, 'age_from' if age_to is not None and plan.get('age_from') is not None and plan['age_from'] > age_to else 'age_to']})
+                 row = PricingPlan(offering_group=group, **{field: plan[field] for field in PRICING_STORAGE_FIELDS if field in plan}) if group else PricingPlan(place_id=place.pk or 1, **{field: plan[field] for field in PRICING_STORAGE_FIELDS if field in plan})
+-                row.full_clean(exclude=('offering_group', 'place'))
++                try:
++                    row.full_clean(exclude=('offering_group', 'place'))
++                except ValidationError as exc:
++                    raise _error_with_path(exc, plan_path) from exc
+             groups.append({'id': group_id, **group_values, 'pricing_plans': plans})
+         normalized.append({'id': activity_id, 'program_id': program_id, **values, 'groups': groups})
+     return {'pricing_schema_version': 2, 'activities': normalized}
+--- incoming/src/catalog/photo_views.py
++++ worktree/src/catalog/photo_views.py
+@@ -101,6 +101,11 @@
+         if not result.ok:
+             errors = {name: [str(error) for error in values] for name, values in result.form.errors.items()} if result.form is not None else {'__all__': [str(result.message)]}
+             payload = {'ok': False, 'errors': errors}
++            if result.form is not None:
++                payload['error_targets'] = {
++                    name: [(error.params or {}).get('field_path') for error in values]
++                    for name, values in result.form.errors.as_data().items()
++                }
+             if result.form is not None and any(
+                 error.code == 'candidate_version_conflict'
+                 for values in result.form.errors.as_data().values()
+--- incoming/static/js/permanent_place_photos.js
++++ worktree/static/js/permanent_place_photos.js
+@@ -132,7 +132,7 @@
+           if (xhr.status >= 200 && xhr.status < 300) { resolve(xhr.response); return; }
+           try {
+             const body = JSON.parse(responseType === 'blob' ? await xhr.response.text() : xhr.responseText);
+-            reject(Object.assign(new Error(body.error || copy.saveFailed), {errors:body.errors, conflict:body.conflict}));
++            reject(Object.assign(new Error(body.error || copy.saveFailed), {errors:body.errors, error_targets:body.error_targets, conflict:body.conflict}));
+           } catch (error) { reject(new Error(copy.failed)); }
+         };
+         xhr.onerror = xhr.ontimeout = () => reject(new Error(copy.failed));
+@@ -236,7 +236,7 @@
+       controls.forEach(node => { node.disabled = true; });
+       try {
+         const result = JSON.parse(await send(root.dataset.saveUrl,data,'text',percent => { status.textContent = `${copy.saving} ${percent}%`; }));
+-        if (!result.ok) throw Object.assign(new Error(copy.saveFailed), {errors:result.errors, conflict:result.conflict});
++        if (!result.ok) throw Object.assign(new Error(copy.saveFailed), {errors:result.errors, error_targets:result.error_targets, conflict:result.conflict});
+         items().forEach(item => { item.state = 'saved'; }); changedPhotos = false; render(); status.textContent = copy.saved;
+         return result;
+       } catch (error) {
+@@ -246,7 +246,7 @@
+         if (!candidateConflict) {
+           const retry = document.createElement('button'); retry.type = 'button'; retry.textContent = copy.retry; retry.addEventListener('click', () => form.requestSubmit(submitter)); status.append(' ', retry);
+         }
+-        return {ok:false, errors:error.errors || {gallery_images:[copy.saveFailed]}, conflict:error.conflict};
++        return {ok:false, errors:error.errors || {gallery_images:[copy.saveFailed]}, error_targets:error.error_targets, conflict:error.conflict};
+       } finally { saving = false; controls.forEach(node => { node.disabled = false; }); render(); }
+     }
+     root.querySelector('[data-photo-fallback-clear]').hidden = true;
+--- incoming/static/js/owner_place_continuous.js
++++ worktree/static/js/owner_place_continuous.js
+@@ -215,17 +215,27 @@
+     const count = directCount + groupPlans;
+     root.querySelector('[data-pc-preview-price]').textContent = count ? counted(count, 'plan_count') : ui.empty;
+   }
+-  function fieldTarget(name, messages = '') {
++  function fieldTarget(name, path = null) {
+     if (name === 'nested_pricing') {
+-      const path = String(messages);
+-      const ai = path.match(/activities[.\[]([0-9]+)/)?.[1];
+-      const gi = path.match(/groups[.\[]([0-9]+)/)?.[1];
+-      const pi = path.match(/pricing_plans[.\[]([0-9]+)/)?.[1];
+-      let scope = ai == null ? form.querySelector('[data-pc-offerings]') : form.querySelector(`[data-activity-index="${ai}"]`);
+-      if (gi != null) scope = scope?.querySelector(`[data-group-index="${gi}"]`);
+-      if (pi != null) scope = scope?.querySelector(`[data-plan-index="${pi}"]`);
+-      const key = path.match(/\.(age_from|age_to|price_min|price_max|price|name_az|category_id|subcategory_id)\b/)?.[1];
+-      return (key && scope?.querySelector(`[data-offering-key="${key}"]`)) || scope?.querySelector('input,select,textarea') || form.querySelector('[data-pc-add-activity]');
++      const root = form.querySelector('[data-pc-offerings]');
++      const fallback = () => root?.querySelector('input,select,textarea') || form.querySelector('[data-pc-add-activity]');
++      if (!Array.isArray(path)) return fallback();
++      const keys = new Set(['program_id', 'category_id', 'subcategory_id', 'name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en', 'supplement_az', 'age_from', 'age_to', 'language', 'schedule_text', 'lesson_format', 'teachers_text', 'conditions_az', 'title_az', 'title_ru', 'title_en', 'product_type', 'price_kind', 'price', 'price_min', 'price_max', 'currency', 'charge_role', 'billing_mode', 'billing_interval', 'billing_interval_count', 'billing_cycles', 'quantity', 'quantity_unit', 'is_trial', 'is_required']);
++      let scope = root, offset = 0;
++      for (const [segment, attribute] of [['activities', 'activity'], ['groups', 'group'], ['pricing_plans', 'plan']]) {
++        if (path[offset] !== segment) break;
++        const index = path[offset + 1];
++        if (!Number.isSafeInteger(index) || index < 0) return fallback();
++        scope = scope?.querySelector(`[data-${attribute}-index="${index}"]`);
++        if (!scope) return fallback();
++        offset += 2;
++      }
++      if (offset === 0 || (path.length !== offset && path.length !== offset + 1)) return fallback();
++      const key = path[offset];
++      if (key !== undefined && !keys.has(key)) return scope.querySelector(':scope > summary') || fallback();
++      const input = key === undefined ? scope.querySelector(':scope > summary') : scope.querySelector(`[data-offering-key="${key}"]`);
++      // A billing input can intentionally be hidden after changing billing mode.
++      return (input?.closest('[hidden]') ? scope.querySelector('[data-offering-key="billing_mode"]') : input) || scope.querySelector(':scope > summary') || fallback();
+     }
+     const input = [...form.querySelectorAll('[name]')].find(node => node.name === name);
+     if (input?.type === 'hidden') return input.closest('[data-pw-field]')?.parentElement?.querySelector('input:not([type=hidden]),select,textarea,button') || input;
+@@ -237,25 +247,35 @@
+     input.scrollIntoView({block:'center', behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+     input.focus({preventScroll:true});
+   }
+-  function showErrors(errors) {
++  const summaryAttributes = new Map();
++  function showErrors(errors, targets = {}) {
++    for (const [input, attributes] of summaryAttributes) {
++      for (const [name, value] of Object.entries(attributes)) {
++        if (value === null) input.removeAttribute(name); else input.setAttribute(name, value);
++      }
++    }
++    summaryAttributes.clear();
+     const box = form.querySelector('[data-pc-errors]'); box.replaceChildren();
+     if (!Object.keys(errors).length) { box.hidden = true; return; }
+     box.hidden = false; const heading = document.createElement('strong'); heading.textContent = ui.errors_title; box.append(heading);
+     const list = document.createElement('ul');
+     Object.entries(errors).forEach(([name, messages]) => {
+-      const input = fieldTarget(name, messages), wrapper = input?.closest('[data-pw-field]');
+-      const item = document.createElement('li'), button = document.createElement('button');
+-      let message = Array.isArray(messages) ? messages.join(' ') : String(messages);
+-      if (message.includes('Candidate version conflict')) message = ui.server_conflict;
+-      const label = name === 'nested_pricing' ? ui.section_offer : wrapper?.querySelector('label')?.textContent?.trim() || input?.getAttribute('aria-label') || ui.errors_title;
+-      button.type = 'button'; button.textContent = `${label}: ${message}`;
+-      button.addEventListener('click', () => goTo(input));
+-      item.append(button); list.append(item);
+-      if (input) {
+-        input.setAttribute('aria-invalid','true');
+-        item.id = `pc-error-${list.children.length}`;
+-        input.setAttribute('aria-describedby', `${input.getAttribute('aria-describedby') || ''} ${item.id}`.trim());
+-      }
++      (Array.isArray(messages) ? messages : [messages]).forEach((text, index) => {
++        const input = fieldTarget(name, targets?.[name]?.[index]), wrapper = input?.closest('[data-pw-field]');
++        const item = document.createElement('li'), button = document.createElement('button');
++        let message = String(text);
++        if (message.includes('Candidate version conflict')) message = ui.server_conflict;
++        const label = name === 'nested_pricing' ? ui.section_offer : wrapper?.querySelector('label')?.textContent?.trim() || input?.getAttribute('aria-label') || ui.errors_title;
++        button.type = 'button'; button.textContent = `${label}: ${message}`;
++        button.addEventListener('click', () => goTo(input));
++        item.append(button); list.append(item);
++        if (input) {
++          if (!summaryAttributes.has(input)) summaryAttributes.set(input, {'aria-invalid': input.getAttribute('aria-invalid'), 'aria-describedby': input.getAttribute('aria-describedby')});
++          input.setAttribute('aria-invalid','true');
++          item.id = `pc-error-${list.children.length}`;
++          input.setAttribute('aria-describedby', `${input.getAttribute('aria-describedby') || ''} ${item.id}`.trim());
++        }
++      });
+     });
+     box.append(list); box.focus({preventScroll:true}); box.scrollIntoView({block:'center'});
+   }
+@@ -333,7 +353,7 @@
+       try {
+         const result = await photoEditor.save(submitter);
+         if (!result.ok) {
+-          showErrors(result.errors || {});
++          showErrors(result.errors || {}, result.error_targets || {});
+           if (result.conflict === 'candidate_version_conflict') {
+             candidateConflict = true; halted = true; clearTimeout(timer); localStore();
+             setStatus(ui.server_conflict, 'conflict');
+--- /dev/null
++++ worktree/src/catalog/testcases/test_offer_qa03_error_targets.py
+@@ -0,0 +1,136 @@
++"""Structured validation targets reach the owner without changing pricing rules."""
++import json
++from decimal import Decimal
++from uuid import uuid4
++
++from django.contrib.auth import get_user_model
++from django.core.exceptions import ValidationError
++from django.test import TestCase
++from django.urls import reverse
++from django.utils.translation import override
++
++from catalog.forms import OwnerPlaceEditForm
++from catalog.models import Activity, OfferingGroup, PricingPlan, VolunteerPlaceRevision
++from catalog.services.pricing_plans import normalize_pricing_plans, serialize_nested_pricing, validate_nested_pricing
++from catalog.testcases.utils import create_ready_place
++
++
++class OfferingErrorTargetTests(TestCase):
++    def setUp(self):
++        self.owner = get_user_model().objects.create_user(username='offer03_error_owner')
++        self.place = create_ready_place(owner=self.owner, created_by=self.owner, price_mode='tariffs')
++        PricingPlan.objects.filter(place=self.place).delete()
++        for ai in range(2):
++            activity = Activity.objects.create(place=self.place, name_az=f'Activity {ai}', status='published')
++            for gi in range(2):
++                group = OfferingGroup.objects.create(activity=activity, name_az=f'Group {gi}', age_from=6, age_to=12)
++                for pi in range(2):
++                    self.target = PricingPlan.objects.create(offering_group=group, product_type='lesson', price='20')
++        self.client.force_login(self.owner)
++
++    def payload(self):
++        return serialize_nested_pricing(self.place)
++
++    def assert_target(self, payload, expected):
++        with self.assertRaises(ValidationError) as raised:
++            validate_nested_pricing(self.place, payload)
++        error = raised.exception.error_list[0]
++        self.assertEqual((error.params or {}).get('field_path'), expected)
++        self.target.refresh_from_db()
++        self.assertEqual(self.target.price, Decimal('20'))
++        self.assertFalse(VolunteerPlaceRevision.objects.filter(place=self.place).exists())
++        return raised.exception.messages
++
++    def data(self, payload):
++        page = self.client.get(reverse('owner_place_edit', args=[self.place.pk]))
++        return {
++            'form_action': 'save_draft', 'photo_request_id': str(uuid4()),
++            'publication_token': page.context['form']['publication_token'].value(),
++            'name_az': self.place.name_az, 'description_az': self.place.description_az,
++            'category': self.place.category_id, 'subcategory': self.place.subcategory_id,
++            'nature': 'business', 'schedule_mode': 'by_appointment', 'price_mode': 'tariffs',
++            'pricing_plans': '[]', 'nested_pricing': json.dumps(payload),
++        }
++
++    def test_price_range_billing_age_and_number_format_target_actual_second_plan(self):
++        cases = [
++            ({'price': '0'}, 'price'),
++            ({'price_kind': 'range', 'price_min': '', 'price_max': '30'}, 'price_min'),
++            ({'price_kind': 'range', 'price_min': '10', 'price_max': ''}, 'price_max'),
++            ({'billing_mode': 'recurring', 'billing_interval': 'month', 'billing_interval_count': 0}, 'billing_interval_count'),
++            ({'billing_mode': 'installment', 'billing_cycles': 0}, 'billing_cycles'),
++            ({'age_from': 10, 'age_to': 9}, 'age_to'),
++            ({'price': 'invalid'}, 'price'),
++            ({'billing_mode': 'recurring', 'billing_interval': 'month', 'billing_interval_count': 'invalid'}, 'billing_interval_count'),
++        ]
++        for changes, key in cases:
++            with self.subTest(changes=changes):
++                payload = self.payload()
++                payload['activities'][1]['groups'][1]['pricing_plans'][1].update(changes)
++                self.assert_target(payload, ['activities', 1, 'groups', 1, 'pricing_plans', 1, key])
++
++    def test_group_age_bounds_and_field_validator_have_group_targets(self):
++        for changes, key in [({'age_from': 13, 'age_to': 12}, 'age_to'), ({'age_from': -1}, 'age_from')]:
++            with self.subTest(changes=changes):
++                payload = self.payload()
++                payload['activities'][1]['groups'][1].update(changes)
++                self.assert_target(payload, ['activities', 1, 'groups', 1, key])
++
++    def test_disjoint_plan_age_targets_the_bound_outside_group(self):
++        for changes, key in [({'age_from': 13, 'age_to': 14}, 'age_from'), ({'age_from': 3, 'age_to': 5}, 'age_to')]:
++            with self.subTest(changes=changes):
++                payload = self.payload()
++                payload['activities'][1]['groups'][1]['pricing_plans'][1].update(changes)
++                self.assert_target(payload, ['activities', 1, 'groups', 1, 'pricing_plans', 1, key])
++
++    def test_foreign_group_id_stays_rejected_and_targets_local_block(self):
++        payload = self.payload()
++        payload['activities'][1]['groups'][1]['id'] = 999999
++        self.assert_target(payload, ['activities', 1, 'groups', 1])
++
++    def test_machine_address_does_not_depend_on_translated_message(self):
++        messages = []
++        for lang in ('ru', 'az', 'en'):
++            with override(lang):
++                payload = self.payload()
++                payload['activities'][1]['groups'][1]['pricing_plans'][1]['price'] = '0'
++                messages.append(self.assert_target(payload, ['activities', 1, 'groups', 1, 'pricing_plans', 1, 'price'])[0])
++        self.assertEqual(len(set(messages)), 3)
++
++    def test_form_preserves_target_params_alongside_legacy_error_text(self):
++        payload = self.payload()
++        payload['activities'][1]['groups'][1]['pricing_plans'][1]['price'] = '0'
++        form = OwnerPlaceEditForm(data=self.data(payload), instance=self.place, draft_save_only=True)
++        self.assertFalse(form.is_valid())
++        error = form.errors.as_data()['nested_pricing'][0]
++        self.assertEqual((error.params or {}).get('field_path'), ['activities', 1, 'groups', 1, 'pricing_plans', 1, 'price'])
++        self.assertTrue(form.errors['nested_pricing'][0])
++
++    def test_http_rejection_keeps_messages_adds_targets_and_never_writes_candidate(self):
++        payload = self.payload()
++        payload['activities'][1]['groups'][1]['pricing_plans'][1]['price'] = '0'
++        response = self.client.post(reverse('owner_photo_edit_save', args=[self.place.pk]), self.data(payload))
++        self.assertEqual(response.status_code, 422)
++        body = response.json()
++        self.assertFalse(body['ok'])
++        self.assertIsInstance(body['errors']['nested_pricing'][0], str)
++        self.assertEqual(body.get('error_targets', {}).get('nested_pricing'), [['activities', 1, 'groups', 1, 'pricing_plans', 1, 'price']])
++        self.assertFalse(VolunteerPlaceRevision.objects.filter(place=self.place).exists())
++        self.target.refresh_from_db()
++        self.assertEqual(self.target.price, Decimal('20'))
++
++    def test_valid_http_save_stays_candidate_and_preserves_live_price(self):
++        payload = self.payload()
++        payload['activities'][1]['groups'][1]['pricing_plans'][1]['price'] = '30'
++        response = self.client.post(reverse('owner_photo_edit_save', args=[self.place.pk]), self.data(payload))
++        self.assertEqual(response.status_code, 200, response.content)
++        self.assertTrue(response.json()['ok'])
++        self.target.refresh_from_db()
++        self.assertEqual(self.target.price, Decimal('20'))
++        revision = VolunteerPlaceRevision.objects.get(place=self.place)
++        self.assertEqual(revision.payload['nested_pricing']['activities'][1]['groups'][1]['pricing_plans'][1]['price'], '30.00')
++
++    def test_direct_normalization_keeps_localized_tariff_message(self):
++        with override('ru'), self.assertRaises(ValidationError) as raised:
++            normalize_pricing_plans([{'product_type': 'lesson', 'price_kind': 'exact', 'price': '0'}])
++        self.assertEqual(raised.exception.messages, ['Тариф 1: поле price: Для точной цены укажите сумму больше нуля.'])

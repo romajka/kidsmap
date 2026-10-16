@@ -1,0 +1,314 @@
+{
+  "decision": "MOD-QA-02 SCOPED LOCAL PASS",
+  "all_checks_pass": true,
+  "closed_ids": [
+    "MOD-QA-02"
+  ],
+  "module08_full_accepted": false,
+  "other_MOD_IDs_closed": [],
+  "snapshot": {
+    "root": "/home/ramin/kidsmap",
+    "head": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+    "branch": "task33-progress",
+    "active_run": [
+      "active_run: NONE"
+    ]
+  },
+  "dirty_WORKTREE": true,
+  "target_methods": 13,
+  "accepted_native_observations": 797,
+  "main_cells": 36,
+  "PNG": 131,
+  "checks": [
+    {
+      "name": "root HEAD branch active_run unchanged",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "user approved exact plan and diff hashes unchanged",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "30310entry files preserved except two approved sources and currentguide",
+      "pass": true,
+      "detail": {
+        "changed": [
+          "docs/qa/continuation-and-repair-prompts-2026-10-11.md",
+          "src/catalog/services/moderation_hub.py",
+          "src/catalog/templates/admin/volunteer/hub_detail.html"
+        ],
+        "missing": []
+      }
+    },
+    {
+      "name": "exact inverse two currentguide edits preserves history",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "only five approved new application files outside ownQA",
+      "pass": true,
+      "detail": [
+        "src/catalog/services/moderation_media.py",
+        "src/catalog/templates/admin/volunteer/hub_media.html",
+        "src/catalog/testcases/test_mod_qa02_hub_media.py",
+        "static/admin/css/pages/moderation_media.css",
+        "static/admin/js/moderation_media.js"
+      ]
+    },
+    {
+      "name": "all seven application files byte-identical to approved proposal",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "all foreign dirty entries retained only approved app additions",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "shared MO unchanged",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "67foreign containers identity ports state retained only own addition",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "six known foreign HTTP identities retained without restarts",
+      "pass": true,
+      "detail": [
+        {
+          "pid": 242780,
+          "identity_unchanged": true
+        },
+        {
+          "pid": 426689,
+          "identity_unchanged": true
+        },
+        {
+          "pid": 497284,
+          "identity_unchanged": true
+        },
+        {
+          "pid": 515174,
+          "identity_unchanged": true
+        },
+        {
+          "pid": 546730,
+          "identity_unchanged": true
+        },
+        {
+          "pid": 586404,
+          "identity_unchanged": true
+        }
+      ]
+    },
+    {
+      "name": "actual own process argv cwd",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "953current sources actual startup equal pinned disk",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "actual cached patched hub template and app origins",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "own isolated testing DB cache media private email interpreter",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "sole own current three locales actually opened",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "current source PO to own MO manifest still verifies",
+      "pass": true,
+      "detail": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "exact own dependency bytes and interpreter origins",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "fresh permanent seven-method12assertion RED before apply",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "13target methods GREEN with unchanged assertions",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "797accepted observations all PASS",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "36role actual locale width cells with decoding and geometry",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "native Tab reaches visible thumbnail focus",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "native Enter opens exact full image in new tab",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "closing image keeps original thumbnail focus",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "native ShiftTab returns to moderation back link",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "reload preserves all eight decoded comparisons",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "gallery follows saved order on both sides",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "main readonly domain unchanged",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "24edge cells six HTTP200corrupt decode failures with hidden broken link",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "24edge keyboard paths no GET mutation",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "12native decisions six approve six reject all locales widths",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "native decision readback follows existing live media contract",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "12anonymous public card gallery native decoded readbacks",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "native invalid reason409 retains8photos data and error focus",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "two native author uploads draft reload submit real pending readback",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "native owner ready reorder and actual reviewer gallery order",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "retained owner QA NOTRUN superseded by owner-only selector correction",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "unsupported editor control boundaries explicit without source extension",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "six native role denials two monitored author reviews three shared text consumers",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "existing private fixture not downloadable to content reviewer",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "diagnostics all explained only expected denials409external blocks",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "expected own final state21revisions9pending19places38gallery",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "131native PNG hashes dimensions and phase counts",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "honest four-frame manual visual review",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "no own credentials in public artifacts",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "ownQA and approved source Python JS syntax",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "git diff whitespace check",
+      "pass": true,
+      "detail": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "report plan next prompt links present",
+      "pass": true,
+      "detail": null
+    }
+  ],
+  "NOT_RUN": [
+    "full08/global/module09",
+    "unsupported owner cover and volunteer gallery controls",
+    "remote storage/real external integrations",
+    "cross-browser/screen reader/full WCAG",
+    "production/commit/push/deploy"
+  ],
+  "continuity_limit": "Current67entry containers/6knownHTTP verified; older disappeared HTTP continuity remains NOT VERIFIED, foreign processes not restarted or used as current-source proof"
+}

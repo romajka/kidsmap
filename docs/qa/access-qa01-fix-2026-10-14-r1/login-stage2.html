@@ -1,0 +1,545 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+
+{% block title %}{% if CURRENT_LANGUAGE == "az" %}Daxil ol{% elif CURRENT_LANGUAGE == "en" %}Sign in{% else %}Вход{% endif %}{% endblock %}
+{% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Daxil ol | KidsMap{% elif CURRENT_LANGUAGE == "en" %}Sign in | KidsMap{% else %}Вход | KidsMap{% endif %}{% endblock %}
+{% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Daxil ol | KidsMap{% elif CURRENT_LANGUAGE == "en" %}Sign in | KidsMap{% else %}Вход | KidsMap{% endif %}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/components/google_auth.css' %}" />{% endblock %}
+
+{% block content %}
+  <section class="register-shell">
+    <div class="register-frame register-frame--login panel">
+      <div class="register-aside">
+        <div class="register-aside-copy">
+          <span class="register-kicker">KidsMap.az</span>
+          <h1>{% if CURRENT_LANGUAGE == "az" %}Daxil ol{% elif CURRENT_LANGUAGE == "en" %}Sign in{% else %}Вход{% endif %}</h1>
+          <p class="register-lead">
+            {% if CURRENT_LANGUAGE == "az" %}
+              KidsMap hesabınıza daxil olaraq sevimlilərinizi idarə edin və elanlarınızı asanlıqla izləyin.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Sign in to your KidsMap account to manage favorites and keep track of your listings.
+            {% else %}
+              Войдите в аккаунт KidsMap, чтобы управлять избранным и следить за своими объявлениями.
+            {% endif %}
+          </p>
+
+          {% if auth_intent == "add_place" %}
+            <div class="register-add-place-note">
+              <strong>
+                {% if CURRENT_LANGUAGE == "az" %}
+                  Məkanınızı idarə etmək üçün hesabınıza daxil olun və ya qeydiyyatdan keçin.
+                {% elif CURRENT_LANGUAGE == "en" %}
+                  Sign in or create an account to manage your place.
+                {% else %}
+                  Войдите или зарегистрируйтесь, чтобы управлять своим местом.
+                {% endif %}
+              </strong>
+              <p>
+                {% if CURRENT_LANGUAGE == "az" %}
+                  Daxil olduqdan sonra elanlarınızı redaktə edib şəxsi kabinetdən izləyə biləcəksiniz.
+                {% elif CURRENT_LANGUAGE == "en" %}
+                  After signing in you can edit listings and manage everything from your dashboard.
+                {% else %}
+                  После входа вы сможете редактировать объявления и управлять ими из кабинета.
+                {% endif %}
+              </p>
+            </div>
+          {% endif %}
+
+          <div class="register-benefits">
+            <article class="register-benefit">
+              <span class="register-benefit-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M7 4.75h10A2.25 2.25 0 0 1 19.25 7v12.25a.75.75 0 0 1-1.154.636L12 16.142l-6.096 3.744A.75.75 0 0 1 4.75 19.25V7A2.25 2.25 0 0 1 7 4.75Zm0 1.5A.75.75 0 0 0 6.25 7v10.914l5.358-3.289a.75.75 0 0 1 .784 0l5.358 3.289V7A.75.75 0 0 0 17 6.25H7Z"/></svg>
+              </span>
+              <div>
+                <h2>{% if CURRENT_LANGUAGE == "az" %}Seçilmişləri görün{% elif CURRENT_LANGUAGE == "en" %}See your saved picks{% else %}Смотрите избранное{% endif %}</h2>
+                <p>{% if CURRENT_LANGUAGE == "az" %}Favori məkanlarınızı və qeyd etdiyiniz elanları asanlıqla izləyin.{% elif CURRENT_LANGUAGE == "en" %}Quickly access your saved places and the listings you follow.{% else %}Быстро открывайте избранные места и объявления, за которыми следите.{% endif %}</p>
+              </div>
+            </article>
+
+            <article class="register-benefit">
+              <span class="register-benefit-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2.75a6.75 6.75 0 0 1 6.75 6.75c0 4.638-5.032 9.71-6.108 10.75a.94.94 0 0 1-1.284 0C10.282 19.21 5.25 14.138 5.25 9.5A6.75 6.75 0 0 1 12 2.75Zm0 1.5A5.25 5.25 0 0 0 6.75 9.5c0 3.268 3.33 7.249 5.25 9.196 1.92-1.947 5.25-5.928 5.25-9.196A5.25 5.25 0 0 0 12 4.25Zm0 2.5a2.75 2.75 0 1 1 0 5.5 2.75 2.75 0 0 1 0-5.5Zm0 1.5a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5Z"/></svg>
+              </span>
+              <div>
+                <h2>{% if CURRENT_LANGUAGE == "az" %}Elanlarınızı idarə edin{% elif CURRENT_LANGUAGE == "en" %}Manage your listings{% else %}Управляйте объявлениями{% endif %}</h2>
+                <p>{% if CURRENT_LANGUAGE == "az" %}Elanlarınızı redaktə edin və şəxsi kabinetdən idarə edin.{% elif CURRENT_LANGUAGE == "en" %}Edit your listings and manage them from your personal dashboard.{% else %}Редактируйте объявления и управляйте ими из личного кабинета.{% endif %}</p>
+              </div>
+            </article>
+
+            <article class="register-benefit">
+              <span class="register-benefit-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2.75A4.25 4.25 0 0 0 7.75 7v2H7.5A2.75 2.75 0 0 0 4.75 11.75v6.5A2.75 2.75 0 0 0 7.5 21h9a2.75 2.75 0 0 0 2.75-2.75v-6.5A2.75 2.75 0 0 0 16.5 9h-.25V7A4.25 4.25 0 0 0 12 2.75Zm-2.75 6.5V7a2.75 2.75 0 0 1 5.5 0v2.25h-5.5Zm-1.75 1.25h9c.69 0 1.25.56 1.25 1.25v6.5c0 .69-.56 1.25-1.25 1.25h-9c-.69 0-1.25-.56-1.25-1.25v-6.5c0-.69.56-1.25 1.25-1.25Z"/></svg>
+              </span>
+              <div>
+                <h2>{% if CURRENT_LANGUAGE == "az" %}Təhlükəsiz giriş{% elif CURRENT_LANGUAGE == "en" %}Secure access{% else %}Безопасный вход{% endif %}</h2>
+                <p>{% if CURRENT_LANGUAGE == "az" %}Məlumatlarınız qorunur və təhlükəsiz saxlanılır.{% elif CURRENT_LANGUAGE == "en" %}Your account data stays protected and secure.{% else %}Ваши данные защищены и надёжно хранятся.{% endif %}</p>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="register-city-illustration" aria-hidden="true">
+          <div class="register-city-glow"></div>
+          <div class="register-city-grid"></div>
+          <div class="register-city-building register-city-building--tall"></div>
+          <div class="register-city-building register-city-building--mid"></div>
+          <div class="register-city-building register-city-building--small"></div>
+          <div class="register-city-road register-city-road--one"></div>
+          <div class="register-city-road register-city-road--two"></div>
+          <span class="register-city-pin register-city-pin--one"></span>
+          <span class="register-city-pin register-city-pin--two"></span>
+          <span class="register-city-pin register-city-pin--three"></span>
+          <span class="register-city-tree register-city-tree--one"></span>
+          <span class="register-city-tree register-city-tree--two"></span>
+          <span class="register-city-tree register-city-tree--three"></span>
+        </div>
+      </div>
+
+      <div class="register-form-card register-form-card--login">
+        <div class="register-form-head">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Hesabınıza daxil olun{% elif CURRENT_LANGUAGE == "en" %}Sign in to your account{% else %}Войдите в аккаунт{% endif %}</h2>
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              E-poçt ünvanınızı və şifrənizi daxil edin.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Enter your email and password to continue.
+            {% else %}
+              Введите email и пароль, чтобы продолжить.
+            {% endif %}
+          </p>
+        </div>
+
+        {% include "auth/includes/google_button.html" %}
+        <form method="post" class="auth-form register-form register-form--login" data-loading-form novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ next_url }}" />
+          <input type="hidden" name="intent" value="{{ auth_intent }}" />
+
+          {% if form.non_field_errors %}
+            <div class="auth-errors register-alert" role="alert">
+              {% for error in form.non_field_errors %}
+                <p class="auth-error">{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="register-grid register-grid--login">
+            <label class="register-field register-field-full {% if form.username.errors %}has-error{% endif %}">
+              <span class="register-label">{{ form.username.label }}</span>
+              <span class="register-input-wrap">
+                <span class="register-input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="M4.75 6.5A2.75 2.75 0 0 1 7.5 3.75h9A2.75 2.75 0 0 1 19.25 6.5v11A2.75 2.75 0 0 1 16.5 20.25h-9A2.75 2.75 0 0 1 4.75 17.5v-11Zm2.75-1.25c-.69 0-1.25.56-1.25 1.25v.461l5.55 4.131a.35.35 0 0 0 .42 0l5.53-4.13V6.5c0-.69-.56-1.25-1.25-1.25h-9Zm10.25 3.579-4.634 3.46a1.85 1.85 0 0 1-2.222-.002L6.25 8.827V17.5c0 .69.56 1.25 1.25 1.25h9c.69 0 1.25-.56 1.25-1.25V8.829Z"/></svg>
+                </span>
+                {{ form.username }}
+              </span>
+              {% if form.username.errors %}<span class="auth-field-error">{{ form.username.errors|join:", " }}</span>{% endif %}
+            </label>
+
+            <label class="register-field register-field-full {% if form.password.errors %}has-error{% endif %}">
+              <span class="register-label">{{ form.password.label }}</span>
+              <span class="register-input-wrap register-input-wrap-password">
+                <span class="register-input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2.75A4.25 4.25 0 0 0 7.75 7v2H7.5A2.75 2.75 0 0 0 4.75 11.75v6.5A2.75 2.75 0 0 0 7.5 21h9a2.75 2.75 0 0 0 2.75-2.75v-6.5A2.75 2.75 0 0 0 16.5 9h-.25V7A4.25 4.25 0 0 0 12 2.75Zm-2.75 6.5V7a2.75 2.75 0 0 1 5.5 0v2.25h-5.5Zm-1.75 1.25h9c.69 0 1.25.56 1.25 1.25v6.5c0 .69-.56 1.25-1.25 1.25h-9c-.69 0-1.25-.56-1.25-1.25v-6.5c0-.69.56-1.25 1.25-1.25Zm4.5 2.25a1.75 1.75 0 0 0-.75 3.332V17.5a.75.75 0 0 0 1.5 0v-1.418A1.75 1.75 0 0 0 12 12.75Zm0 1.5a.25.25 0 1 1 0 .5.25.25 0 0 1 0-.5Z"/></svg>
+                </span>
+                {{ form.password }}
+                <button type="button" class="register-password-toggle" data-password-toggle data-target-input-id="{{ form.password.id_for_label }}" aria-label="{% if CURRENT_LANGUAGE == "az" %}Şifrəni göstər və ya gizlət{% elif CURRENT_LANGUAGE == "en" %}Show or hide password{% else %}Показать или скрыть пароль{% endif %}">
+                  <svg class="eye-open" viewBox="0 0 24 24" focusable="false"><path d="M12 5.25c4.61 0 8.431 3.047 9.587 6.513a1 1 0 0 1 0 .474C20.431 15.703 16.61 18.75 12 18.75c-4.61 0-8.431-3.047-9.587-6.513a1 1 0 0 1 0-.474C3.569 8.297 7.39 5.25 12 5.25Zm0 1.5c-3.85 0-7.07 2.452-8.086 5.25 1.015 2.798 4.236 5.25 8.086 5.25 3.85 0 7.07-2.452 8.086-5.25-1.015-2.798-4.236-5.25-8.086-5.25Zm0 2.25a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 1.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/></svg>
+                  <svg class="eye-closed" viewBox="0 0 24 24" focusable="false"><path d="m4.28 3.22 16.5 16.5-1.06 1.06-2.37-2.37A11.46 11.46 0 0 1 12 19.25c-4.6 0-8.42-3.05-9.59-6.51a.99.99 0 0 1 0-.48 11.44 11.44 0 0 1 4.07-5.49L3.22 4.28l1.06-1.06Zm3.31 4.37a9.92 9.92 0 0 0-3.68 4.41c1.02 2.79 4.24 5.25 8.09 5.25a9.9 9.9 0 0 0 4.23-.92l-2.02-2.02A3.97 3.97 0 0 1 9.7 9.8L7.59 7.59Zm4.18 4.18a1.5 1.5 0 0 0 2.12 2.12l-2.12-2.12ZM12 4.75c4.6 0 8.42 3.05 9.59 6.51.06.16.09.32.09.48 0 .16-.03.32-.09.48a11.44 11.44 0 0 1-3.22 4.66l-1.07-1.07a9.95 9.95 0 0 0 2.79-3.81c-1.02-2.79-4.24-5.25-8.09-5.25-.95 0-1.87.15-2.73.42L8.05 6.1A11.4 11.4 0 0 1 12 4.75Z"/></svg>
+                </button>
+              </span>
+              {% if form.password.errors %}<span class="auth-field-error">{{ form.password.errors|join:", " }}</span>{% endif %}
+            </label>
+
+            <div class="login-actions">
+              <label class="login-remember" for="{{ form.remember_me.id_for_label }}">
+                {{ form.remember_me }}
+                <span>{{ form.remember_me.label }}</span>
+              </label>
+              <a class="login-forgot-link" href="{% url 'password_reset' %}" data-open-reset-modal>
+                {% if CURRENT_LANGUAGE == "az" %}Şifrəni unutmusunuz?{% elif CURRENT_LANGUAGE == "en" %}Forgot password?{% else %}Забыли пароль?{% endif %}
+              </a>
+            </div>
+            {% if form.remember_me.errors %}<span class="auth-field-error">{{ form.remember_me.errors|join:", " }}</span>{% endif %}
+          </div>
+
+          <button type="submit" class="btn register-submit-btn" data-loading-button>
+            {% if CURRENT_LANGUAGE == "az" %}Daxil ol{% elif CURRENT_LANGUAGE == "en" %}Sign in{% else %}Войти{% endif %}
+          </button>
+        </form>
+
+        <p class="register-login-note">
+          {% if CURRENT_LANGUAGE == "az" %}
+            Hesabınız yoxdur?
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Don't have an account?
+          {% else %}
+            Нет аккаунта?
+          {% endif %}
+          <a href="{% url 'account_register' %}?intent={{ auth_intent|urlencode }}&next={{ next_url|urlencode }}">
+            {% if CURRENT_LANGUAGE == "az" %}Qeydiyyatdan keçin{% elif CURRENT_LANGUAGE == "en" %}Register{% else %}Зарегистрируйтесь{% endif %}
+          </a>
+        </p>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block extra_body %}
+  <!-- Password Reset Modal (Root-level for full backdrop overlay) -->
+  <div class="km-modal-overlay" id="resetPasswordModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="resetModalTitle" tabindex="-1" inert>
+    <div class="km-modal-backdrop" data-modal-close tabindex="-1"></div>
+    <div class="km-modal-dialog">
+      <button type="button" class="km-modal-close" data-modal-close aria-label="{% if CURRENT_LANGUAGE == 'az' %}Bağla{% elif CURRENT_LANGUAGE == 'en' %}Close{% else %}Закрыть{% endif %}">
+        <svg viewBox="0 0 24 24" focusable="false"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L10.94 12l-5.72 5.72a.75.75 0 1 0 1.06 1.06L12 13.06l5.72 5.72a.75.75 0 1 0 1.06-1.06L13.06 12l5.72-5.72a.75.75 0 0 0-1.06-1.06L12 10.94 6.28 5.22Z"/></svg>
+      </button>
+
+      <!-- Form State -->
+      <div class="km-modal-content" id="resetModalFormState">
+        <div class="km-modal-header">
+          <div class="km-modal-icon-badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2.75A4.25 4.25 0 0 0 7.75 7v2H7.5A2.75 2.75 0 0 0 4.75 11.75v6.5A2.75 2.75 0 0 0 7.5 21h9a2.75 2.75 0 0 0 2.75-2.75v-6.5A2.75 2.75 0 0 0 16.5 9h-.25V7A4.25 4.25 0 0 0 12 2.75Zm-2.75 6.5V7a2.75 2.75 0 0 1 5.5 0v2.25h-5.5Zm-1.75 1.25h9c.69 0 1.25.56 1.25 1.25v6.5c0 .69-.56 1.25-1.25 1.25h-9c-.69 0-1.25-.56-1.25-1.25v-6.5c0-.69.56-1.25 1.25-1.25Z"/></svg>
+          </div>
+          <h3 id="resetModalTitle" class="km-modal-title">
+            {% if CURRENT_LANGUAGE == "az" %}Şifrənin bərpası{% elif CURRENT_LANGUAGE == "en" %}Password reset{% else %}Восстановление пароля{% endif %}
+          </h3>
+          <p class="km-modal-desc">
+            {% if CURRENT_LANGUAGE == "az" %}
+              Hesabınızın email və ya istifadəçi adını daxil edin. Şifrəni yeniləmək üçün keçid göndərəcəyik.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Enter your account email or username. We'll send you a link to reset your password.
+            {% else %}
+              Введите email или логин от аккаунта. Мы отправим письмо со ссылкой для смены пароля.
+            {% endif %}
+          </p>
+        </div>
+
+        <form id="resetPasswordAjaxForm" method="post" action="{% url 'password_reset' %}" class="auth-form km-modal-form" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="is_ajax" value="1" />
+
+          <div id="resetModalAlert" class="auth-errors km-modal-alert" style="display: none;" role="alert"></div>
+
+          <label class="register-field register-field-full" id="resetModalEmailField">
+            <span class="register-label">{% if CURRENT_LANGUAGE == "az" %}Email və ya istifadəçi adı{% elif CURRENT_LANGUAGE == "en" %}Email or username{% else %}Email или логин{% endif %}</span>
+            <span class="register-input-wrap">
+              <span class="register-input-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M4.75 6.5A2.75 2.75 0 0 1 7.5 3.75h9A2.75 2.75 0 0 1 19.25 6.5v11A2.75 2.75 0 0 1 16.5 20.25h-9A2.75 2.75 0 0 1 4.75 17.5v-11Zm2.75-1.25c-.69 0-1.25.56-1.25 1.25v.461l5.55 4.131a.35.35 0 0 0 .42 0l5.53-4.13V6.5c0-.69-.56-1.25-1.25-1.25h-9Zm10.25 3.579-4.634 3.46a1.85 1.85 0 0 1-2.222-.002L6.25 8.827V17.5c0 .69.56 1.25 1.25 1.25h9c.69 0 1.25-.56 1.25-1.25V8.829Z"/></svg>
+              </span>
+              <input type="text" name="email" id="resetModalEmailInput" class="register-field-input" placeholder="{% if CURRENT_LANGUAGE == 'az' %}name@domain.com və ya login{% elif CURRENT_LANGUAGE == 'en' %}name@domain.com or username{% else %}name@domain.com или логин{% endif %}" required autocomplete="username" inputmode="email" />
+            </span>
+            <span class="auth-field-error" id="resetModalFieldError" style="display: none;"></span>
+          </label>
+
+          <button type="submit" class="btn register-submit-btn km-modal-submit-btn" id="resetModalSubmitBtn">
+            <span class="km-btn-text">{% if CURRENT_LANGUAGE == "az" %}Keçid göndər{% elif CURRENT_LANGUAGE == "en" %}Send reset link{% else %}Отправить ссылку{% endif %}</span>
+            <span class="km-btn-spinner" style="display: none;" aria-hidden="true"></span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Success State -->
+      <div class="km-modal-content km-modal-success-state" id="resetModalSuccessState" style="display: none;">
+        <div class="km-modal-success-badge" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2Zm-1.25 14.5-4.25-4.25 1.41-1.41 2.84 2.83 6.84-6.84 1.41 1.41-8.25 8.26Z"/></svg>
+        </div>
+        <h3 class="km-modal-title" id="resetModalSuccessTitle">
+          {% if CURRENT_LANGUAGE == "az" %}Məktub göndərildi!{% elif CURRENT_LANGUAGE == "en" %}Email sent!{% else %}Письмо отправлено!{% endif %}
+        </h3>
+        <p class="km-modal-desc km-modal-desc--success" id="resetModalSuccessMsg">
+          {% if CURRENT_LANGUAGE == "az" %}
+            Şifrəni yeniləmək üçün keçid qeyd olunan e-poçt ünvanına göndərildi. Zəhmət olmasa poçtunuzu yoxlayın.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            We have sent a password reset link to your email. Please check your inbox.
+          {% else %}
+            Мы выслали ссылку для смены пароля на указанный email. Проверьте почту и перейдите по ссылке.
+          {% endif %}
+        </p>
+        <div class="km-modal-success-note">
+          {% if CURRENT_LANGUAGE == "az" %}
+            Məktub bir neçə dəqiqə ərzində gəlməzsə, «Spam» qovluğunu yoxlayın. Telefon nömrəsinə kod və ya SMS göndərilmir.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            If you don't receive the email within a few minutes, please check your Spam folder. Codes are not sent via SMS.
+          {% else %}
+            Если письмо не пришло в течение пары минут, проверьте папку «Спам». Код или SMS на телефон не отправляются.
+          {% endif %}
+        </div>
+        <button type="button" class="btn register-submit-btn km-modal-success-btn" data-modal-close>
+          {% if CURRENT_LANGUAGE == "az" %}Aydındır{% elif CURRENT_LANGUAGE == "en" %}Got it{% else %}Понятно{% endif %}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // Password show/hide toggle
+      document.querySelectorAll("[data-password-toggle]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          var targetId = button.getAttribute("data-target-input-id");
+          if (!targetId) return;
+          var input = document.getElementById(targetId);
+          if (!input) return;
+          var nextType = input.type === "password" ? "text" : "password";
+          input.type = nextType;
+          button.classList.toggle("is-active", nextType === "text");
+          button.setAttribute("aria-pressed", nextType === "text" ? "true" : "false");
+        });
+      });
+
+      // Reset Password Modal Controller
+      var modal = document.getElementById("resetPasswordModal");
+      if (modal && modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+      }
+
+      var openButtons = document.querySelectorAll("[data-open-reset-modal]");
+      var closeButtons = modal ? modal.querySelectorAll("[data-modal-close]") : [];
+      var formState = document.getElementById("resetModalFormState");
+      var successState = document.getElementById("resetModalSuccessState");
+      var ajaxForm = document.getElementById("resetPasswordAjaxForm");
+      var emailInput = document.getElementById("resetModalEmailInput");
+      var submitBtn = document.getElementById("resetModalSubmitBtn");
+      var btnText = submitBtn ? submitBtn.querySelector(".km-btn-text") : null;
+      var btnSpinner = submitBtn ? submitBtn.querySelector(".km-btn-spinner") : null;
+      var alertBox = document.getElementById("resetModalAlert");
+      var emailField = document.getElementById("resetModalEmailField");
+      var fieldError = document.getElementById("resetModalFieldError");
+      var loginUserInput = document.getElementById("id_username");
+      var modalOpener = null;
+      var backgroundState = [];
+      var initialFocusFrame = null;
+
+      function isModalOpen() {
+        return modal && modal.classList.contains("is-active");
+      }
+
+      function availableControls() {
+        return Array.from(modal.querySelectorAll("a[href],button,input,select,textarea,[tabindex]"))
+          .filter(function (node) {
+            return !node.disabled && node.tabIndex >= 0 && !node.closest("[inert]") &&
+              node.getClientRects().length && getComputedStyle(node).visibility !== "hidden";
+          });
+      }
+
+      function focusAvailable(preferred) {
+        if (!isModalOpen()) return;
+        var controls = availableControls();
+        var target = controls.includes(preferred) ? preferred : (controls[0] || modal);
+        target.focus({ preventScroll: true });
+      }
+
+      function cancelInitialFocus() {
+        if (initialFocusFrame !== null) cancelAnimationFrame(initialFocusFrame);
+        initialFocusFrame = null;
+      }
+
+      function scheduleInitialFocus() {
+        initialFocusFrame = requestAnimationFrame(function () {
+          initialFocusFrame = requestAnimationFrame(function () {
+            initialFocusFrame = null;
+            if (!isModalOpen() || modal.contains(document.activeElement)) return;
+            focusAvailable(emailInput);
+            if (document.activeElement === emailInput && emailInput.value) emailInput.select();
+          });
+        });
+      }
+
+      function disableBackground() {
+        backgroundState = [];
+        Array.from(document.body.children).forEach(function (node) {
+          if (node === modal || ["SCRIPT", "STYLE", "LINK"].includes(node.tagName)) return;
+          backgroundState.push({ node: node, inertAttribute: node.getAttribute("inert") });
+          node.inert = true;
+        });
+      }
+
+      function restoreBackground() {
+        backgroundState.forEach(function (state) {
+          if (state.inertAttribute === null) state.node.removeAttribute("inert");
+          else state.node.setAttribute("inert", state.inertAttribute);
+        });
+        backgroundState = [];
+      }
+
+      function openModal(e) {
+        if (e) e.preventDefault();
+        if (!modal || isModalOpen()) return;
+        cancelInitialFocus();
+        modalOpener = e && e.currentTarget ? e.currentTarget : document.activeElement;
+
+        // Pre-fill from login username field if populated
+        if (loginUserInput && loginUserInput.value.trim() && !emailInput.value.trim()) {
+          emailInput.value = loginUserInput.value.trim();
+        }
+
+        // Reset to form state
+        if (formState) formState.style.display = "block";
+        if (successState) successState.style.display = "none";
+        clearErrors();
+
+        modal.inert = false;
+        modal.classList.add("is-active");
+        modal.setAttribute("aria-hidden", "false");
+        modal.setAttribute("aria-labelledby", "resetModalTitle");
+        document.body.classList.add("modal-open");
+
+        focusAvailable(emailInput);
+        if (document.activeElement === emailInput) {
+          if (emailInput.value) emailInput.select();
+        } else {
+          // The visibility transition may still be hidden in this frame.
+          scheduleInitialFocus();
+        }
+        disableBackground();
+      }
+
+      function closeModal() {
+        if (!isModalOpen()) return;
+        cancelInitialFocus();
+        modal.classList.remove("is-active");
+        document.body.classList.remove("modal-open");
+        restoreBackground();
+        if (modalOpener && modalOpener.isConnected && !modalOpener.closest("[inert]")) {
+          modalOpener.focus({ preventScroll: true });
+        }
+        modal.inert = true;
+        modal.setAttribute("aria-hidden", "true");
+      }
+
+      function clearErrors() {
+        if (alertBox) {
+          alertBox.style.display = "none";
+          alertBox.innerHTML = "";
+        }
+        if (emailField) emailField.classList.remove("has-error");
+        if (fieldError) {
+          fieldError.style.display = "none";
+          fieldError.textContent = "";
+        }
+      }
+
+      function showError(msg) {
+        if (alertBox) {
+          alertBox.innerHTML = "<p>" + (msg || "{% if CURRENT_LANGUAGE == 'az' %}Xəta baş verdi. Yenidən cəhd edin.{% elif CURRENT_LANGUAGE == 'en' %}An error occurred. Please try again.{% else %}Произошла ошибка. Попробуйте снова.{% endif %}") + "</p>";
+          alertBox.style.display = "block";
+        }
+        if (emailField) emailField.classList.add("has-error");
+      }
+
+      function setLoading(isLoading) {
+        if (!submitBtn) return;
+        var submitHadFocus = document.activeElement === submitBtn;
+        submitBtn.disabled = isLoading;
+        if (btnText) btnText.style.display = isLoading ? "none" : "";
+        if (btnSpinner) btnSpinner.style.display = isLoading ? "inline-block" : "none";
+        if (isLoading && submitHadFocus) focusAvailable(emailInput);
+      }
+
+      openButtons.forEach(function (btn) {
+        btn.addEventListener("click", openModal);
+        btn.addEventListener("keydown", function (e) {
+          if (e.key === " " || e.key === "Spacebar") openModal(e);
+        });
+      });
+
+      closeButtons.forEach(function (btn) {
+        btn.addEventListener("click", closeModal);
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (!isModalOpen()) return;
+        if (e.key === "Escape") {
+          e.preventDefault();
+          closeModal();
+        } else if (e.key === "Tab") {
+          var controls = availableControls();
+          var first = controls[0];
+          var last = controls[controls.length - 1];
+          var current = document.activeElement;
+          if (!controls.length) {
+            e.preventDefault();
+            modal.focus({ preventScroll: true });
+          } else if (!controls.includes(current) || (e.shiftKey && current === first) || (!e.shiftKey && current === last)) {
+            e.preventDefault();
+            (e.shiftKey ? last : first).focus({ preventScroll: true });
+          }
+        }
+      });
+
+      document.addEventListener("focusin", function (e) {
+        if (isModalOpen() && !modal.contains(e.target)) focusAvailable(emailInput);
+      });
+
+      if (ajaxForm) {
+        ajaxForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          var val = emailInput ? emailInput.value.trim() : "";
+          if (!val) {
+            if (emailField) emailField.classList.add("has-error");
+            if (fieldError) {
+              fieldError.textContent = "{% if CURRENT_LANGUAGE == 'az' %}Email və ya istifadəçi adını daxil edin.{% elif CURRENT_LANGUAGE == 'en' %}Enter your email or username.{% else %}Укажите email или логин.{% endif %}";
+              fieldError.style.display = "block";
+            }
+            if (emailInput) emailInput.focus();
+            return;
+          }
+
+          clearErrors();
+          setLoading(true);
+
+          var formData = new FormData(ajaxForm);
+          var csrfToken = (ajaxForm.querySelector("input[name=csrfmiddlewaretoken]") || {}).value || "";
+
+          fetch(ajaxForm.action, {
+            method: "POST",
+            body: formData,
+            headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "Accept": "application/json",
+              "X-CSRFToken": csrfToken
+            }
+          })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              return { status: res.status, ok: res.ok, data: data };
+            }).catch(function () {
+              return { status: res.status, ok: res.ok, data: null };
+            });
+          })
+          .then(function (result) {
+            setLoading(false);
+            if (result.ok && result.data && result.data.ok) {
+              if (result.data.message) {
+                var msgEl = document.getElementById("resetModalSuccessMsg");
+                if (msgEl) msgEl.textContent = result.data.message;
+              }
+              if (formState) formState.style.display = "none";
+              if (successState) successState.style.display = "flex";
+              if (isModalOpen()) {
+                modal.setAttribute("aria-labelledby", "resetModalSuccessTitle");
+                focusAvailable(successState ? successState.querySelector("[data-modal-close]") : null);
+              }
+            } else {
+              var errorMsg = "";
+              if (result.data && result.data.message) {
+                errorMsg = result.data.message;
+              } else if (result.data && result.data.error_list && result.data.error_list.length) {
+                errorMsg = result.data.error_list.join(", ");
+              } else {
+                errorMsg = "{% if CURRENT_LANGUAGE == 'az' %}Xəta baş verdi. Zəhmət olmasa daxil etdiyiniz məlumatı yoxlayın.{% elif CURRENT_LANGUAGE == 'en' %}An error occurred. Please check your entered details.{% else %}Произошла ошибка. Проверьте введенные данные и попробуйте снова.{% endif %}";
+              }
+              showError(errorMsg);
+            }
+          })
+          .catch(function (err) {
+            setLoading(false);
+            showError("{% if CURRENT_LANGUAGE == 'az' %}Şəbəkə xətası. İnternet bağlantısını yoxlayın.{% elif CURRENT_LANGUAGE == 'en' %}Network error. Please check your connection.{% else %}Ошибка сети. Проверьте соединение с интернетом.{% endif %}");
+          });
+        });
+      }
+    })();
+  </script>
+{% endblock %}

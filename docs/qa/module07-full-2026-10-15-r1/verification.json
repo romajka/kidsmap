@@ -1,0 +1,271 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-10-15T10:35:18.452842+00:00",
+  "audit_completed": true,
+  "module_decision": "LOCAL FAIL / ACCESS-QA-06 OPEN",
+  "module_pass": false,
+  "closed_local_ids": [
+    "ACCESS-QA-01",
+    "ACCESS-QA-02",
+    "ACCESS-QA-03 = ORG-QA-02",
+    "ACCESS-QA-04",
+    "ACCESS-QA-05"
+  ],
+  "open_ids": [
+    "ACCESS-QA-06"
+  ],
+  "approved_scope_completed": "ACCESS-QA-05 four PO entries; report/verification in sibling fix run",
+  "application_changes_during_ACCEPT": [],
+  "snapshot": {
+    "root": "/home/ramin/kidsmap",
+    "head": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+    "branch": "task33-progress",
+    "dirty_worktree": true,
+    "active_run": [
+      "active_run: NONE"
+    ]
+  },
+  "evidence_gate_pass": true,
+  "checks": [
+    {
+      "name": "real checkout HEAD branch active_run",
+      "pass": true,
+      "details": {
+        "root": "/home/ramin/kidsmap",
+        "head": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+        "branch": "task33-progress",
+        "active_run": [
+          "active_run: NONE"
+        ]
+      }
+    },
+    {
+      "name": "entry project files retained; only current07 guide status edit",
+      "pass": true,
+      "details": {
+        "baseline": 28813,
+        "changed": [
+          "docs/qa/continuation-and-repair-prompts-2026-10-11.md"
+        ],
+        "missing": []
+      }
+    },
+    {
+      "name": "exact inverse of two guide edits preserves all earlier status/history",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "no unexpected project file additions outside current QA run",
+      "pass": true,
+      "details": {
+        "new": [],
+        "removed": []
+      }
+    },
+    {
+      "name": "shared MO untouched",
+      "pass": true,
+      "details": {
+        "count": 3
+      }
+    },
+    {
+      "name": "dirty WORKTREE status entries retained",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "known foreign HTTP identity unchanged since full entry",
+      "pass": true,
+      "details": [
+        {
+          "pid": 242780,
+          "identity_unchanged": true
+        }
+      ]
+    },
+    {
+      "name": "foreign container ID/name/ports/state preserved",
+      "pass": true,
+      "details": {
+        "baseline": 62,
+        "changes": [],
+        "new_owned_only": [
+          "module07-full-2026-10-15-r1-pg"
+        ]
+      }
+    },
+    {
+      "name": "actual owned process interpreter argv cwd",
+      "pass": true,
+      "details": {
+        "pid": 426689,
+        "argv": [
+          "/home/ramin/kidsmap/.tmp/module07-full-2026-10-15-r1/venv/bin/python",
+          "/home/ramin/kidsmap/docs/qa/module07-full-2026-10-15-r1/runtime.py",
+          "serve"
+        ],
+        "cwd": "/home/ramin/kidsmap"
+      }
+    },
+    {
+      "name": "942 current sources equal running startup and full-entry snapshot",
+      "pass": true,
+      "details": {
+        "paths": 942,
+        "source_fingerprint": "02a42d11b63ebb311b225c9b7a119010e2e6960ffb304ed3735b61d212b9e68d"
+      }
+    },
+    {
+      "name": "loaded application module origins and cached template match disk",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "fresh isolated MO manifest and sole LOCALE_PATHS actually opened",
+      "pass": true,
+      "details": {
+        "own_opened_mo": [
+          "/home/ramin/kidsmap/.tmp/module07-full-2026-10-15-r1/locales/locale/ru/LC_MESSAGES/django.mo",
+          "/home/ramin/kidsmap/.tmp/module07-full-2026-10-15-r1/locales/locale/az/LC_MESSAGES/django.mo",
+          "/home/ramin/kidsmap/.tmp/module07-full-2026-10-15-r1/locales/locale/en/LC_MESSAGES/django.mo"
+        ],
+        "other_package_mo_count": 19
+      }
+    },
+    {
+      "name": "owned testing DB/cache/media/email; default policy not activated",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "exact pypdf in own bounded-child-capable interpreter",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "served shared CSS and organization JS match current source",
+      "pass": true,
+      "details": [
+        {
+          "path": "static/css/site.css",
+          "served_bytes_match_source": true
+        },
+        {
+          "path": "static/js/organization_workspace.js",
+          "served_bytes_match_source": true
+        }
+      ]
+    },
+    {
+      "name": "semantic browser outcomes retain all six source failures",
+      "pass": true,
+      "details": {
+        "PASS": 2232,
+        "FAIL": 6
+      }
+    },
+    {
+      "name": "34 native script receipts and templates linked; no CLI-only verdict",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "original QA-oracle failures retained separately",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "338 unique existing backend methods PASS with only affected eight retried",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "proposed four-method RED is source regression, not environment error or GREEN",
+      "pass": true,
+      "details": {
+        "methods": 4,
+        "expected_subtest_failures": 24,
+        "errors": 0
+      }
+    },
+    {
+      "name": "ACCESS06 plan remains unapplied and diff applicable",
+      "pass": true,
+      "details": {
+        "forms_sha256": "52ada722540b023ec8f6ac72c25d391ea247f78128325576a9147e8680a06d90",
+        "plan_sha256": "86829e07feac2638999c1956c61bf25b940719359af5371d82ad9d5f5e06d7e8",
+        "diff_sha256": "2c9139af9537a7cf8ba6bb580f1cf6b4835324895b5a7d4cb8b0b659c8b08b02",
+        "git_apply_check_exit": 0,
+        "application_patch_applied": false
+      }
+    },
+    {
+      "name": "624 PNG SHA/size/dimensions and complete manifest",
+      "pass": true,
+      "details": {
+        "count": 624,
+        "errors": [],
+        "manual_review_scope": "selected frames only; attempts/overwrites disclosed"
+      }
+    },
+    {
+      "name": "fresh readonly state equals sanitized final readback",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "native-confirmed finalization and retained bug fixtures explicitly separated",
+      "pass": true,
+      "details": {
+        "deletions": {
+          "COMPLETED": 5,
+          "CANCELED": 4,
+          "SCHEDULED": 6
+        },
+        "future_clock": "SIMULATED only",
+        "retained_private_docs": 6
+      }
+    },
+    {
+      "name": "no issued code/password/mail reset or status URL copied into public text artifacts",
+      "pass": true,
+      "details": {
+        "scanned_text_files": 245,
+        "hits_paths_only": [],
+        "secret_values_printed": false,
+        "png_limit": "code fields cleared before screenshot; no OCR attestation claimed"
+      }
+    },
+    {
+      "name": "own QA/proposal Python and JS syntax",
+      "pass": true,
+      "details": {
+        "errors": []
+      }
+    },
+    {
+      "name": "git diff whitespace check",
+      "pass": true,
+      "details": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "concrete report/finding/plan/handoff links exist",
+      "pass": true,
+      "details": []
+    }
+  ],
+  "not_run": [
+    "ACCESS06 patch/GREEN/module PASS",
+    "production/deploy/commit/push",
+    "module08/all-module corpus",
+    "real external services",
+    "natural retention/backup expiry",
+    "cross-browser/real screen reader/native OS-popup pixels"
+  ],
+  "continuity_limit": "Four older HTTP absent before full entry remain NOT VERIFIED; not retroactively preserved. Known full-entry HTTP checked above; no foreign restart.",
+  "gate_exit_meaning": "0=consistent completed AUDIT with expected source finding retained, never module PASS"
+}

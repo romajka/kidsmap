@@ -1,0 +1,1373 @@
+{
+  "rows": [
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "historical isolated setup",
+      "name": "isolated empty list before native invite",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "historical isolated setup",
+      "name": "owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "historical isolated setup",
+      "name": "exactly one isolated cancel",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "historical isolated setup",
+      "name": "isolated native cancellation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 1440,
+      "phase": "historical isolated setup",
+      "name": "isolated local mail tick",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "historical-solo",
+      "name": "historical solo: expected card count",
+      "status": "PASS",
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "historical-solo",
+      "name": "historical solo: root scroll fits",
+      "status": "PASS",
+      "detail": {
+        "root": 360,
+        "body": 360,
+        "width": 360
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "historical-solo",
+      "name": "historical solo: cards fit panel and viewport",
+      "status": "FAIL",
+      "detail": {
+        "width": 360,
+        "rootScroll": 360,
+        "bodyScroll": 360,
+        "panel": {
+          "x": 6,
+          "y": 96,
+          "right": 354,
+          "bottom": 1034.671875,
+          "width": 348,
+          "height": 938.671875
+        },
+        "ancestorClipping": [
+          {
+            "tag": "DIV",
+            "class": "site-shell",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 360,
+              "bottom": 1681.046875,
+              "width": 360,
+              "height": 1681.046875
+            },
+            "overflowX": "hidden"
+          },
+          {
+            "tag": "BODY",
+            "class": "page-owner_team_dashboard",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 360,
+              "bottom": 1681.046875,
+              "width": 360,
+              "height": 1681.046875
+            },
+            "overflowX": "hidden"
+          },
+          {
+            "tag": "HTML",
+            "class": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 360,
+              "bottom": 1681.046875,
+              "width": 360,
+              "height": 1681.046875
+            },
+            "overflowX": "hidden"
+          }
+        ],
+        "lists": [
+          {
+            "rect": {
+              "x": 21,
+              "y": 905.875,
+              "right": 339,
+              "bottom": 1019.671875,
+              "width": 318,
+              "height": 113.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "378.375px",
+              "minWidth": "0px",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            }
+          }
+        ],
+        "cards": [
+          {
+            "heading": "cancelled07@example.invalid",
+            "rect": {
+              "x": 21,
+              "y": 905.875,
+              "right": 399.375,
+              "bottom": 1019.671875,
+              "width": 378.375,
+              "height": 113.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "352.375px",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "headingRect": {
+              "x": 34,
+              "y": 918.875,
+              "right": 386.375,
+              "bottom": 947.671875,
+              "width": 352.375,
+              "height": 28.796875
+            },
+            "headingCSS": {
+              "display": "block",
+              "gridTemplateColumns": "none",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "textRects": [
+              {
+                "x": 34,
+                "right": 386.375,
+                "y": 915.875,
+                "bottom": 948.875
+              }
+            ],
+            "meta": [
+              {
+                "rect": {
+                  "x": 34,
+                  "y": 962.671875,
+                  "right": 386.375,
+                  "bottom": 1006.671875,
+                  "width": 352.375,
+                  "height": 44
+                },
+                "css": {
+                  "display": "block",
+                  "gridTemplateColumns": "none",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "overflowX": "visible",
+                  "overflowWrap": "normal",
+                  "wordBreak": "normal",
+                  "whiteSpace": "normal"
+                },
+                "scroll": 352,
+                "client": 352
+              }
+            ],
+            "controls": []
+          }
+        ]
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "historical-solo",
+      "name": "historical solo: full heading text fits",
+      "status": "FAIL",
+      "detail": {
+        "headings": [
+          {
+            "text": "cancelled07@example.invalid",
+            "rects": [
+              {
+                "x": 34,
+                "right": 386.375,
+                "y": 915.875,
+                "bottom": 948.875
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "historical-solo",
+      "name": "historical solo: controls fit viewport",
+      "status": "PASS",
+      "detail": {
+        "controls": []
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "phase": "historical-solo",
+      "name": "historical solo: expected card count",
+      "status": "PASS",
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "phase": "historical-solo",
+      "name": "historical solo: root scroll fits",
+      "status": "PASS",
+      "detail": {
+        "root": 390,
+        "body": 390,
+        "width": 390
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "phase": "historical-solo",
+      "name": "historical solo: cards fit panel and viewport",
+      "status": "FAIL",
+      "detail": {
+        "width": 390,
+        "rootScroll": 390,
+        "bodyScroll": 390,
+        "panel": {
+          "x": 6,
+          "y": 96,
+          "right": 384,
+          "bottom": 1012.671875,
+          "width": 378,
+          "height": 916.671875
+        },
+        "ancestorClipping": [
+          {
+            "tag": "DIV",
+            "class": "site-shell",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 390,
+              "bottom": 1641.046875,
+              "width": 390,
+              "height": 1641.046875
+            },
+            "overflowX": "hidden"
+          },
+          {
+            "tag": "BODY",
+            "class": "page-owner_team_dashboard",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 390,
+              "bottom": 1641.046875,
+              "width": 390,
+              "height": 1641.046875
+            },
+            "overflowX": "hidden"
+          },
+          {
+            "tag": "HTML",
+            "class": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 390,
+              "bottom": 1641.046875,
+              "width": 390,
+              "height": 1641.046875
+            },
+            "overflowX": "hidden"
+          }
+        ],
+        "lists": [
+          {
+            "rect": {
+              "x": 21,
+              "y": 883.875,
+              "right": 369,
+              "bottom": 997.671875,
+              "width": 348,
+              "height": 113.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "378.375px",
+              "minWidth": "0px",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            }
+          }
+        ],
+        "cards": [
+          {
+            "heading": "cancelled07@example.invalid",
+            "rect": {
+              "x": 21,
+              "y": 883.875,
+              "right": 399.375,
+              "bottom": 997.671875,
+              "width": 378.375,
+              "height": 113.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "352.375px",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "headingRect": {
+              "x": 34,
+              "y": 896.875,
+              "right": 386.375,
+              "bottom": 925.671875,
+              "width": 352.375,
+              "height": 28.796875
+            },
+            "headingCSS": {
+              "display": "block",
+              "gridTemplateColumns": "none",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "textRects": [
+              {
+                "x": 34,
+                "right": 386.375,
+                "y": 893.875,
+                "bottom": 926.875
+              }
+            ],
+            "meta": [
+              {
+                "rect": {
+                  "x": 34,
+                  "y": 940.671875,
+                  "right": 386.375,
+                  "bottom": 984.671875,
+                  "width": 352.375,
+                  "height": 44
+                },
+                "css": {
+                  "display": "block",
+                  "gridTemplateColumns": "none",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "overflowX": "visible",
+                  "overflowWrap": "normal",
+                  "wordBreak": "normal",
+                  "whiteSpace": "normal"
+                },
+                "scroll": 352,
+                "client": 352
+              }
+            ],
+            "controls": []
+          }
+        ]
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "phase": "historical-solo",
+      "name": "historical solo: full heading text fits",
+      "status": "FAIL",
+      "detail": {
+        "headings": [
+          {
+            "text": "cancelled07@example.invalid",
+            "rects": [
+              {
+                "x": 34,
+                "right": 386.375,
+                "y": 893.875,
+                "bottom": 926.875
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "phase": "historical-solo",
+      "name": "historical solo: controls fit viewport",
+      "status": "PASS",
+      "detail": {
+        "controls": []
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "phase": "historical-solo",
+      "name": "historical solo: expected card count",
+      "status": "PASS",
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "phase": "historical-solo",
+      "name": "historical solo: root scroll fits",
+      "status": "PASS",
+      "detail": {
+        "root": 360,
+        "body": 360,
+        "width": 360
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "phase": "historical-solo",
+      "name": "historical solo: cards fit panel and viewport",
+      "status": "FAIL",
+      "detail": {
+        "width": 360,
+        "rootScroll": 360,
+        "bodyScroll": 360,
+        "panel": {
+          "x": 6,
+          "y": 96,
+          "right": 354,
+          "bottom": 1034.671875,
+          "width": 348,
+          "height": 938.671875
+        },
+        "ancestorClipping": [
+          {
+            "tag": "DIV",
+            "class": "site-shell",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 360,
+              "bottom": 1657.046875,
+              "width": 360,
+              "height": 1657.046875
+            },
+            "overflowX": "hidden"
+          },
+          {
+            "tag": "BODY",
+            "class": "page-owner_team_dashboard",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 360,
+              "bottom": 1657.046875,
+              "width": 360,
+              "height": 1657.046875
+            },
+            "overflowX": "hidden"
+          },
+          {
+            "tag": "HTML",
+            "class": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 360,
+              "bottom": 1657.046875,
+              "width": 360,
+              "height": 1657.046875
+            },
+            "overflowX": "hidden"
+          }
+        ],
+        "lists": [
+          {
+            "rect": {
+              "x": 21,
+              "y": 905.875,
+              "right": 339,
+              "bottom": 1019.671875,
+              "width": 318,
+              "height": 113.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "378.375px",
+              "minWidth": "0px",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            }
+          }
+        ],
+        "cards": [
+          {
+            "heading": "cancelled07@example.invalid",
+            "rect": {
+              "x": 21,
+              "y": 905.875,
+              "right": 399.375,
+              "bottom": 1019.671875,
+              "width": 378.375,
+              "height": 113.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "352.375px",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "headingRect": {
+              "x": 34,
+              "y": 918.875,
+              "right": 386.375,
+              "bottom": 947.671875,
+              "width": 352.375,
+              "height": 28.796875
+            },
+            "headingCSS": {
+              "display": "block",
+              "gridTemplateColumns": "none",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "textRects": [
+              {
+                "x": 34,
+                "right": 386.375,
+                "y": 915.875,
+                "bottom": 948.875
+              }
+            ],
+            "meta": [
+              {
+                "rect": {
+                  "x": 34,
+                  "y": 962.671875,
+                  "right": 386.375,
+                  "bottom": 1006.671875,
+                  "width": 352.375,
+                  "height": 44
+                },
+                "css": {
+                  "display": "block",
+                  "gridTemplateColumns": "none",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "overflowX": "visible",
+                  "overflowWrap": "normal",
+                  "wordBreak": "normal",
+                  "whiteSpace": "normal"
+                },
+                "scroll": 352,
+                "client": 352
+              }
+            ],
+            "controls": []
+          }
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "phase": "historical-solo",
+      "name": "historical solo: full heading text fits",
+      "status": "FAIL",
+      "detail": {
+        "headings": [
+          {
+            "text": "cancelled07@example.invalid",
+            "rects": [
+              {
+                "x": 34,
+                "right": 386.375,
+                "y": 915.875,
+                "bottom": 948.875
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "phase": "historical-solo",
+      "name": "historical solo: controls fit viewport",
+      "status": "PASS",
+      "detail": {
+        "controls": []
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "phase": "historical-solo",
+      "name": "historical solo: expected card count",
+      "status": "PASS",
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "phase": "historical-solo",
+      "name": "historical solo: root scroll fits",
+      "status": "PASS",
+      "detail": {
+        "root": 390,
+        "body": 390,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "phase": "historical-solo",
+      "name": "historical solo: cards fit panel and viewport",
+      "status": "FAIL",
+      "detail": {
+        "width": 390,
+        "rootScroll": 390,
+        "bodyScroll": 390,
+        "panel": {
+          "x": 6,
+          "y": 96,
+          "right": 384,
+          "bottom": 1034.671875,
+          "width": 378,
+          "height": 938.671875
+        },
+        "ancestorClipping": [
+          {
+            "tag": "DIV",
+            "class": "site-shell",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 390,
+              "bottom": 1639.046875,
+              "width": 390,
+              "height": 1639.046875
+            },
+            "overflowX": "hidden"
+          },
+          {
+            "tag": "BODY",
+            "class": "page-owner_team_dashboard",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 390,
+              "bottom": 1639.046875,
+              "width": 390,
+              "height": 1639.046875
+            },
+            "overflowX": "hidden"
+          },
+          {
+            "tag": "HTML",
+            "class": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 390,
+              "bottom": 1639.046875,
+              "width": 390,
+              "height": 1639.046875
+            },
+            "overflowX": "hidden"
+          }
+        ],
+        "lists": [
+          {
+            "rect": {
+              "x": 21,
+              "y": 905.875,
+              "right": 369,
+              "bottom": 1019.671875,
+              "width": 348,
+              "height": 113.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "378.375px",
+              "minWidth": "0px",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            }
+          }
+        ],
+        "cards": [
+          {
+            "heading": "cancelled07@example.invalid",
+            "rect": {
+              "x": 21,
+              "y": 905.875,
+              "right": 399.375,
+              "bottom": 1019.671875,
+              "width": 378.375,
+              "height": 113.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "352.375px",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "headingRect": {
+              "x": 34,
+              "y": 918.875,
+              "right": 386.375,
+              "bottom": 947.671875,
+              "width": 352.375,
+              "height": 28.796875
+            },
+            "headingCSS": {
+              "display": "block",
+              "gridTemplateColumns": "none",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "textRects": [
+              {
+                "x": 34,
+                "right": 386.375,
+                "y": 915.875,
+                "bottom": 948.875
+              }
+            ],
+            "meta": [
+              {
+                "rect": {
+                  "x": 34,
+                  "y": 962.671875,
+                  "right": 386.375,
+                  "bottom": 1006.671875,
+                  "width": 352.375,
+                  "height": 44
+                },
+                "css": {
+                  "display": "block",
+                  "gridTemplateColumns": "none",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "overflowX": "visible",
+                  "overflowWrap": "normal",
+                  "wordBreak": "normal",
+                  "whiteSpace": "normal"
+                },
+                "scroll": 352,
+                "client": 352
+              }
+            ],
+            "controls": []
+          }
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "phase": "historical-solo",
+      "name": "historical solo: full heading text fits",
+      "status": "FAIL",
+      "detail": {
+        "headings": [
+          {
+            "text": "cancelled07@example.invalid",
+            "rects": [
+              {
+                "x": 34,
+                "right": 386.375,
+                "y": 915.875,
+                "bottom": 948.875
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "phase": "historical-solo",
+      "name": "historical solo: controls fit viewport",
+      "status": "PASS",
+      "detail": {
+        "controls": []
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "phase": "historical-solo",
+      "name": "historical solo: expected card count",
+      "status": "PASS",
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "phase": "historical-solo",
+      "name": "historical solo: root scroll fits",
+      "status": "PASS",
+      "detail": {
+        "root": 360,
+        "body": 360,
+        "width": 360
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "phase": "historical-solo",
+      "name": "historical solo: cards fit panel and viewport",
+      "status": "FAIL",
+      "detail": {
+        "width": 360,
+        "rootScroll": 360,
+        "bodyScroll": 360,
+        "panel": {
+          "x": 6,
+          "y": 96,
+          "right": 354,
+          "bottom": 1012.671875,
+          "width": 348,
+          "height": 916.671875
+        },
+        "ancestorClipping": [
+          {
+            "tag": "DIV",
+            "class": "site-shell",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 360,
+              "bottom": 1617.046875,
+              "width": 360,
+              "height": 1617.046875
+            },
+            "overflowX": "hidden"
+          },
+          {
+            "tag": "BODY",
+            "class": "page-owner_team_dashboard",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 360,
+              "bottom": 1617.046875,
+              "width": 360,
+              "height": 1617.046875
+            },
+            "overflowX": "hidden"
+          },
+          {
+            "tag": "HTML",
+            "class": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 360,
+              "bottom": 1617.046875,
+              "width": 360,
+              "height": 1617.046875
+            },
+            "overflowX": "hidden"
+          }
+        ],
+        "lists": [
+          {
+            "rect": {
+              "x": 21,
+              "y": 883.875,
+              "right": 339,
+              "bottom": 997.671875,
+              "width": 318,
+              "height": 113.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "378.375px",
+              "minWidth": "0px",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            }
+          }
+        ],
+        "cards": [
+          {
+            "heading": "cancelled07@example.invalid",
+            "rect": {
+              "x": 21,
+              "y": 883.875,
+              "right": 399.375,
+              "bottom": 997.671875,
+              "width": 378.375,
+              "height": 113.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "352.375px",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "headingRect": {
+              "x": 34,
+              "y": 896.875,
+              "right": 386.375,
+              "bottom": 925.671875,
+              "width": 352.375,
+              "height": 28.796875
+            },
+            "headingCSS": {
+              "display": "block",
+              "gridTemplateColumns": "none",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "textRects": [
+              {
+                "x": 34,
+                "right": 386.375,
+                "y": 893.875,
+                "bottom": 926.875
+              }
+            ],
+            "meta": [
+              {
+                "rect": {
+                  "x": 34,
+                  "y": 940.671875,
+                  "right": 386.375,
+                  "bottom": 984.671875,
+                  "width": 352.375,
+                  "height": 44
+                },
+                "css": {
+                  "display": "block",
+                  "gridTemplateColumns": "none",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "overflowX": "visible",
+                  "overflowWrap": "normal",
+                  "wordBreak": "normal",
+                  "whiteSpace": "normal"
+                },
+                "scroll": 352,
+                "client": 352
+              }
+            ],
+            "controls": []
+          }
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "phase": "historical-solo",
+      "name": "historical solo: full heading text fits",
+      "status": "FAIL",
+      "detail": {
+        "headings": [
+          {
+            "text": "cancelled07@example.invalid",
+            "rects": [
+              {
+                "x": 34,
+                "right": 386.375,
+                "y": 893.875,
+                "bottom": 926.875
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "phase": "historical-solo",
+      "name": "historical solo: controls fit viewport",
+      "status": "PASS",
+      "detail": {
+        "controls": []
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "phase": "historical-solo",
+      "name": "historical solo: expected card count",
+      "status": "PASS",
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "phase": "historical-solo",
+      "name": "historical solo: root scroll fits",
+      "status": "PASS",
+      "detail": {
+        "root": 390,
+        "body": 390,
+        "width": 390
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "phase": "historical-solo",
+      "name": "historical solo: cards fit panel and viewport",
+      "status": "FAIL",
+      "detail": {
+        "width": 390,
+        "rootScroll": 390,
+        "bodyScroll": 390,
+        "panel": {
+          "x": 6,
+          "y": 96,
+          "right": 384,
+          "bottom": 1012.671875,
+          "width": 378,
+          "height": 916.671875
+        },
+        "ancestorClipping": [
+          {
+            "tag": "DIV",
+            "class": "site-shell",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 390,
+              "bottom": 1617.046875,
+              "width": 390,
+              "height": 1617.046875
+            },
+            "overflowX": "hidden"
+          },
+          {
+            "tag": "BODY",
+            "class": "page-owner_team_dashboard",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 390,
+              "bottom": 1617.046875,
+              "width": 390,
+              "height": 1617.046875
+            },
+            "overflowX": "hidden"
+          },
+          {
+            "tag": "HTML",
+            "class": "",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "right": 390,
+              "bottom": 1617.046875,
+              "width": 390,
+              "height": 1617.046875
+            },
+            "overflowX": "hidden"
+          }
+        ],
+        "lists": [
+          {
+            "rect": {
+              "x": 21,
+              "y": 883.875,
+              "right": 369,
+              "bottom": 997.671875,
+              "width": 348,
+              "height": 113.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "378.375px",
+              "minWidth": "0px",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            }
+          }
+        ],
+        "cards": [
+          {
+            "heading": "cancelled07@example.invalid",
+            "rect": {
+              "x": 21,
+              "y": 883.875,
+              "right": 399.375,
+              "bottom": 997.671875,
+              "width": 378.375,
+              "height": 113.796875
+            },
+            "css": {
+              "display": "grid",
+              "gridTemplateColumns": "352.375px",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "headingRect": {
+              "x": 34,
+              "y": 896.875,
+              "right": 386.375,
+              "bottom": 925.671875,
+              "width": 352.375,
+              "height": 28.796875
+            },
+            "headingCSS": {
+              "display": "block",
+              "gridTemplateColumns": "none",
+              "minWidth": "auto",
+              "maxWidth": "none",
+              "overflowX": "visible",
+              "overflowWrap": "normal",
+              "wordBreak": "normal",
+              "whiteSpace": "normal"
+            },
+            "textRects": [
+              {
+                "x": 34,
+                "right": 386.375,
+                "y": 893.875,
+                "bottom": 926.875
+              }
+            ],
+            "meta": [
+              {
+                "rect": {
+                  "x": 34,
+                  "y": 940.671875,
+                  "right": 386.375,
+                  "bottom": 984.671875,
+                  "width": 352.375,
+                  "height": 44
+                },
+                "css": {
+                  "display": "block",
+                  "gridTemplateColumns": "none",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "overflowX": "visible",
+                  "overflowWrap": "normal",
+                  "wordBreak": "normal",
+                  "whiteSpace": "normal"
+                },
+                "scroll": 352,
+                "client": 352
+              }
+            ],
+            "controls": []
+          }
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "phase": "historical-solo",
+      "name": "historical solo: full heading text fits",
+      "status": "FAIL",
+      "detail": {
+        "headings": [
+          {
+            "text": "cancelled07@example.invalid",
+            "rects": [
+              {
+                "x": 34,
+                "right": 386.375,
+                "y": 893.875,
+                "bottom": 926.875
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "phase": "historical-solo",
+      "name": "historical solo: controls fit viewport",
+      "status": "PASS",
+      "detail": {
+        "controls": []
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "phase": "historical-solo",
+      "name": "isolated setup current state",
+      "status": "PASS",
+      "detail": {}
+    }
+  ],
+  "completedCells": [
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "historical-solo"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "phase": "historical-solo"
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "phase": "historical-solo"
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "phase": "historical-solo"
+    },
+    {
+      "lang": "en",
+      "width": 360,
+      "phase": "historical-solo"
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "phase": "historical-solo"
+    }
+  ],
+  "diagnostics": {
+    "console": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "pageerrors": [],
+    "requestFailures": [
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "badResponses": []
+  },
+  "error": null,
+  "browser": "149.0.7827.55",
+  "mode": "PLAN recheck only, expected geometry FAIL retained; no CSS/DOM fix injected"
+}

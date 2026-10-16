@@ -1,0 +1,15 @@
+{
+  "project": "home-ramin-kidsmap",
+  "historical_alias": "C-kidsmap is not an indexed project on this host; available root verified",
+  "root": "/home/ramin/kidsmap",
+  "status": "ready",
+  "metadata_generation": "2026-10-14T14:14:39Z",
+  "coverage": "6 critical paths metadata_match/no_recorded_issue; best_effort only; metadata ignored-file records truncated",
+  "verified_direct_source": true,
+  "trace_decide_invitation_inbound": [
+    "business_team_api.business_team_action",
+    "DjangoOwnerTeamRepository.cancel_invitation",
+    "DjangoOwnerTeamRepository.reject_invitation"
+  ],
+  "cache_saved": false
+}

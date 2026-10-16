@@ -1,0 +1,146 @@
+{
+  "transaction": "READ ONLY",
+  "statement_timeout": "10s",
+  "lock_timeout": "2s",
+  "checks": [
+    {
+      "id": "approved-local-active-group20",
+      "status": "PASS"
+    },
+    {
+      "id": "removed-group-history80-preserved",
+      "status": "PASS"
+    },
+    {
+      "id": "activity-archive-history15-preserved",
+      "status": "PASS"
+    },
+    {
+      "id": "conditions-reset-after-approved-change",
+      "status": "PASS"
+    },
+    {
+      "id": "native-final-program-published",
+      "status": "PASS"
+    },
+    {
+      "id": "detached-branch-keeps-local-price30",
+      "status": "PASS"
+    },
+    {
+      "id": "detached-branch-frozen-common-snapshot",
+      "status": "PASS"
+    },
+    {
+      "id": "detached-organization-pointer-cleared",
+      "status": "PASS"
+    },
+    {
+      "id": "employee-detached-grant-no-edit",
+      "status": "PASS"
+    },
+    {
+      "id": "legacy-scalars-and-text-preserved",
+      "status": "PASS"
+    },
+    {
+      "id": "saved-place-hours-two-intervals",
+      "status": "PASS"
+    },
+    {
+      "id": "lesson-schedule-independent",
+      "status": "PASS"
+    },
+    {
+      "id": "private-restore-keeps-approved-live",
+      "status": "PASS"
+    },
+    {
+      "id": "local-no-pending-invalid-candidate",
+      "status": "PASS"
+    }
+  ],
+  "local_group_plan_ids": [
+    5
+  ],
+  "removed_group_plan_ids": [
+    6
+  ],
+  "program_status": "published",
+  "local_live_version": 20,
+  "detached_source_program_version": 3,
+  "place_hours": [
+    {
+      "weekday": "mon",
+      "is_closed": false,
+      "is_24_hours": false,
+      "intervals": [
+        {
+          "start": "09:00",
+          "end": "12:00"
+        },
+        {
+          "start": "13:00",
+          "end": "18:00"
+        }
+      ]
+    },
+    {
+      "weekday": "tue",
+      "is_closed": false,
+      "is_24_hours": false,
+      "intervals": [
+        {
+          "start": "09:00",
+          "end": "18:00"
+        }
+      ]
+    },
+    {
+      "weekday": "wed",
+      "is_closed": false,
+      "is_24_hours": false,
+      "intervals": [
+        {
+          "start": "09:00",
+          "end": "18:00"
+        }
+      ]
+    },
+    {
+      "weekday": "thu",
+      "is_closed": false,
+      "is_24_hours": false,
+      "intervals": [
+        {
+          "start": "09:00",
+          "end": "18:00"
+        }
+      ]
+    },
+    {
+      "weekday": "fri",
+      "is_closed": false,
+      "is_24_hours": false,
+      "intervals": [
+        {
+          "start": "09:00",
+          "end": "18:00"
+        }
+      ]
+    },
+    {
+      "weekday": "sat",
+      "is_closed": true,
+      "is_24_hours": false,
+      "intervals": []
+    },
+    {
+      "weekday": "sun",
+      "is_closed": true,
+      "is_24_hours": false,
+      "intervals": []
+    }
+  ],
+  "fictional_only": true
+}

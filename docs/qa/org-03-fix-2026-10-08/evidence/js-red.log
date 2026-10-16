@@ -1,0 +1,147 @@
+TAP version 13
+# Subtest: Native submit keeps input for reopening after a failed network POST
+not ok 1 - Native submit keeps input for reopening after a failed network POST
+  ---
+  duration_ms: 72.65621
+  location: '/home/ramin/kidsmap/scripts/test_organization_creation_draft.cjs:23:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'Latest unsent input'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Latest unsent input'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_organization_creation_draft.cjs:25:10)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    node:internal/test_runner/harness:255:12
+    node:internal/process/task_queues:140:7
+    AsyncResource.runInAsyncScope (node:async_hooks:206:9)
+    AsyncResource.runMicrotask (node:internal/process/task_queues:137:8)
+  ...
+# Subtest: Submit captures autofilled values even without an input event
+not ok 2 - Submit captures autofilled values even without an input event
+  ---
+  duration_ms: 13.165842
+  location: '/home/ramin/kidsmap/scripts/test_organization_creation_draft.cjs:29:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'Autofilled before failed submit'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Autofilled before failed submit'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_organization_creation_draft.cjs:30:103)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: Only confirmed creation of the matching input clears its local copy
+not ok 3 - Only confirmed creation of the matching input clears its local copy
+  ---
+  duration_ms: 10.960626
+  location: '/home/ramin/kidsmap/scripts/test_organization_creation_draft.cjs:32:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + {
+    +   description_az: '',
+    +   name_az: 'Fictional organization',
+    +   name_en: '',
+    +   name_ru: '',
+    +   phone: '',
+    +   website: '',
+    +   whatsapp: ''
+    + }
+    - null
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ~
+  actual:
+    name_az: 'Fictional organization'
+    name_ru: ''
+    name_en: ''
+    description_az: ''
+    phone: ''
+    whatsapp: ''
+    website: ''
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_organization_creation_draft.cjs:33:75)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: Confirmation of older input cannot erase a newer local draft
+ok 4 - Confirmation of older input cannot erase a newer local draft
+  ---
+  duration_ms: 7.438181
+  ...
+# Subtest: A normal workspace visit without creation confirmation keeps the draft
+ok 5 - A normal workspace visit without creation confirmation keeps the draft
+  ---
+  duration_ms: 7.482718
+  ...
+# Subtest: 400/409 bound forms preserve local recovery without replacing server values
+not ok 6 - 400/409 bound forms preserve local recovery without replacing server values
+  ---
+  duration_ms: 8.294853
+  location: '/home/ramin/kidsmap/scripts/test_organization_creation_draft.cjs:41:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'Server bound value'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Server bound value'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_organization_creation_draft.cjs:44:74)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: Confirmation never clears another user draft
+ok 7 - Confirmation never clears another user draft
+  ---
+  duration_ms: 9.442268
+  ...
+# Subtest: Unavailable storage leaves native submission available
+ok 8 - Unavailable storage leaves native submission available
+  ---
+  duration_ms: 7.247102
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 4
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 509.32835

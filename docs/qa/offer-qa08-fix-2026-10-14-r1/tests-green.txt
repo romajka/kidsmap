@@ -1,0 +1,19 @@
+Found 16 test(s).
+System check identified no issues (0 silenced).
+Using existing test database for alias 'default'...
+/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /home/ramin/kidsmap/.tmp/offer-qa08-fix-2026-10-14-r1/staticfiles/
+  mw_instance = middleware(adapted_handler)
+...F............
+======================================================================
+FAIL: test_declined_labels_are_localized_and_state_specific (catalog.testcases.test_offer_qa08_program_declined.ProgramDeclinedTests.test_declined_labels_are_localized_and_state_specific)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_offer_qa08_program_declined.py", line 165, in test_declined_labels_are_localized_and_state_specific
+    self.assertContains(response, heading)
+AssertionError: 301 != 200 : Couldn't retrieve content: Response code was 301 (expected 200)
+
+----------------------------------------------------------------------
+Ran 16 tests in 22.158s
+
+FAILED (failures=1)
+Preserving test database for alias 'default'...

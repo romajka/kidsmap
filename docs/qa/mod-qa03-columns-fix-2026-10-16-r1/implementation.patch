@@ -1,0 +1,320 @@
+--- a/src/catalog/templatetags/admin_dashboard_tags.py
++++ b/src/catalog/templatetags/admin_dashboard_tags.py
+@@ -1,5 +1,6 @@
+ from django import template
+ from django.contrib.admin.views.main import ERROR_FLAG, PAGE_VAR, SEARCH_VAR
++from django.contrib.admin.utils import label_for_field
+ from django.contrib.auth import get_user_model
+ from catalog.models.place import Place, Event
+ from catalog.models.specialist import Specialist
+@@ -10,6 +11,7 @@
+ from catalog.models.seo import SEOIssue
+ from django.utils.translation import gettext_lazy as _
+ from django.utils import timezone
++from django.utils.text import capfirst
+ 
+ register = template.Library()
+ User = get_user_model()
+@@ -168,6 +170,25 @@
+ @register.simple_tag
+ def paginator_page_url(cl, page_number):
+     return cl.get_query_string({PAGE_VAR: page_number})
++
++
++@register.simple_tag
++def km_column_options(cl):
++    """Use the authorized display order, including the action-checkbox offset."""
++    excluded = {'action_checkbox', 'col_actions', 'row_actions'}
++    options = []
++    for index, name in enumerate(cl.list_display):
++        if not isinstance(name, str) or name in excluded:
++            continue
++        options.append({
++            'target': 'column-' + name,
++            'index': index,
++            'label': capfirst(label_for_field(name, cl.model, cl.model_admin)),
++            'required': not options,
++        })
++    key = ('km_hidden_columns' if cl.model._meta.label_lower == 'catalog.place'
++           else 'km_hidden_columns:' + cl.model._meta.label_lower)
++    return {'storage_key': key, 'options': options}
+ 
+ 
+ @register.simple_tag
+--- a/src/catalog/templates/admin/catalog/includes/km_changelist_search_panel.html
++++ b/src/catalog/templates/admin/catalog/includes/km_changelist_search_panel.html
+@@ -208,32 +208,19 @@
+             </div>
+           </div>
+         </details>
+-        <details class="km-columns-details" id="km-columns-menu">
++        {% km_column_options cl as column_menu %}
++        <details class="km-columns-details" id="km-columns-menu" data-storage-key="{{ column_menu.storage_key }}">
+           <summary class="km-btn-columns">
+             <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-view_column"></use></svg>
+             <span>{% translate "Колонки" %}</span>
+           </summary>
+           <div class="km-columns-dropdown">
+-            <label class="km-column-option">
+-              <input type="checkbox" data-toggle-col="column-col_place" checked disabled>
+-              <span>{% translate "Место" %}</span>
+-            </label>
+-            <label class="km-column-option">
+-              <input type="checkbox" data-toggle-col="column-col_location" checked>
+-              <span>{% translate "Локация" %}</span>
+-            </label>
+-            <label class="km-column-option">
+-              <input type="checkbox" data-toggle-col="column-col_state" checked>
+-              <span>{% translate "Состояние" %}</span>
+-            </label>
+-            <label class="km-column-option">
+-              <input type="checkbox" data-toggle-col="column-col_marks" checked>
+-              <span>{% translate "Метки" %}</span>
+-            </label>
+-            <label class="km-column-option">
+-              <input type="checkbox" data-toggle-col="column-col_updated" checked>
+-              <span>{% translate "Обновлено / Создано" %}</span>
+-            </label>
++            {% for column in column_menu.options %}
++              <label class="km-column-option">
++                <input type="checkbox" data-toggle-col="{{ column.target }}" data-column-index="{{ column.index }}" checked{% if column.required %} disabled{% endif %}>
++                <span>{{ column.label }}</span>
++              </label>
++            {% endfor %}
+           </div>
+         </details>
+       </div>
+--- a/static/admin/js/kidsmap_place_changelist.js
++++ b/static/admin/js/kidsmap_place_changelist.js
+@@ -845,47 +845,49 @@
+        8. Column Visibility Toggler (1a)
+        -------------------------------------------------------------------------- */
+     var columnCheckboxes = Array.prototype.slice.call(document.querySelectorAll('[data-toggle-col]'));
+-    if (columnCheckboxes.length) {
+-      var savedHidden = [];
++    var columnsMenu = document.getElementById('km-columns-menu');
++    var columnsTable = document.getElementById('result_list');
++    if (columnCheckboxes.length && columnsMenu && columnsTable && columnsTable.tHead) {
++      var storageKey = columnsMenu.getAttribute('data-storage-key') || 'km_hidden_columns';
++      var savedHidden;
+       try {
+-        savedHidden = JSON.parse(localStorage.getItem('km_hidden_columns') || '[]');
++        savedHidden = JSON.parse(localStorage.getItem(storageKey) || '[]');
++        if (!Array.isArray(savedHidden)) savedHidden = [];
+       } catch (err) {
+         savedHidden = [];
+       }
+ 
+-      function applyColumnVisibility(colName, isVisible) {
+-        var th = document.querySelector('th.' + colName);
+-        var fieldName = colName.replace('column-', 'field-');
+-        var tds = Array.prototype.slice.call(document.querySelectorAll('td.' + fieldName));
+-
+-        if (th) {
+-          th.classList.toggle('is-hidden-column', !isVisible);
+-        }
+-        tds.forEach(function (td) {
+-          td.classList.toggle('is-hidden-column', !isVisible);
++      var validColumns = columnCheckboxes.filter(function (cb) {
++        var index = Number(cb.getAttribute('data-column-index'));
++        return Number.isInteger(index) && index >= 0 &&
++          columnsTable.tHead.rows[0].cells[index];
++      });
++
++      function applyColumnVisibility(cb) {
++        var index = Number(cb.getAttribute('data-column-index'));
++        Array.prototype.forEach.call(columnsTable.rows, function (row) {
++          if (row.cells[index]) {
++            row.cells[index].classList.toggle('is-hidden-column', !cb.checked);
++          }
+         });
+       }
+ 
+       // Restore saved preferences
+-      columnCheckboxes.forEach(function (cb) {
+-        var colName = cb.getAttribute('data-toggle-col');
+-        if (savedHidden.indexOf(colName) !== -1) {
+-          cb.checked = false;
+-          applyColumnVisibility(colName, false);
+-        }
++      validColumns.forEach(function (cb) {
++        cb.checked = cb.disabled || savedHidden.indexOf(cb.getAttribute('data-toggle-col')) === -1;
++        applyColumnVisibility(cb);
+ 
+         cb.addEventListener('change', function () {
+-          var isChecked = cb.checked;
+-          applyColumnVisibility(colName, isChecked);
+-
+-          var currentHidden = [];
+-          columnCheckboxes.forEach(function (c) {
+-            if (!c.checked) {
+-              currentHidden.push(c.getAttribute('data-toggle-col'));
+-            }
++          if (cb.disabled) cb.checked = true;
++          applyColumnVisibility(cb);
++
++          var currentHidden = validColumns.filter(function (c) {
++            return !c.disabled && !c.checked;
++          }).map(function (c) {
++            return c.getAttribute('data-toggle-col');
+           });
+           try {
+-            localStorage.setItem('km_hidden_columns', JSON.stringify(currentHidden));
++            localStorage.setItem(storageKey, JSON.stringify(currentHidden));
+           } catch (e) {}
+         });
+       });
+--- /dev/null
++++ b/src/catalog/testcases/test_admin_queue_columns.py
+@@ -0,0 +1,151 @@
++"""The visible column controls must address the rendered, authorized cells."""
++from html.parser import HTMLParser
++
++from django.contrib.auth import get_user_model
++from django.contrib.auth.models import Permission
++from django.test import TestCase
++from django.utils import timezone
++
++from catalog.models import Event, Place, Specialist
++
++
++class ColumnMarkup(HTMLParser):
++    def __init__(self, html):
++        super().__init__(convert_charrefs=True)
++        self.menu = False
++        self.label = None
++        self.controls = []
++        self.storage_key = None
++        self.table = False
++        self.section = None
++        self.cell = None
++        self.row = None
++        self.headers = []
++        self.body = []
++        self.feed(html)
++
++    def handle_starttag(self, tag, attrs):
++        attrs = dict(attrs)
++        if tag == 'details' and attrs.get('id') == 'km-columns-menu':
++            self.menu = True
++            self.storage_key = attrs.get('data-storage-key')
++        if self.menu and tag == 'label':
++            self.label = None
++        if self.menu and tag == 'input' and 'data-toggle-col' in attrs:
++            self.label = {'target': attrs['data-toggle-col'],
++                          'index': int(attrs.get('data-column-index', '-1')),
++                          'disabled': 'disabled' in attrs, 'label': ''}
++            self.controls.append(self.label)
++        if tag == 'table' and attrs.get('id') == 'result_list':
++            self.table = True
++        if self.table and tag in ('thead', 'tbody'):
++            self.section = tag
++        if self.table and tag == 'tr':
++            self.row = []
++            if self.section == 'tbody':
++                self.body.append(self.row)
++        if self.table and tag in ('th', 'td'):
++            self.cell = {'classes': attrs.get('class', '').split(), 'text': ''}
++            if self.section == 'thead':
++                self.headers.append(self.cell)
++            elif self.row is not None:
++                self.row.append(self.cell)
++
++    def handle_data(self, data):
++        if self.label is not None:
++            self.label['label'] += data
++        if self.cell is not None:
++            self.cell['text'] += data
++
++    def handle_endtag(self, tag):
++        if tag == 'label':
++            self.label = None
++        if tag == 'details':
++            self.menu = False
++        if tag in ('th', 'td'):
++            self.cell = None
++        if tag == 'table':
++            self.table = False
++
++
++class AdminQueueColumnTests(TestCase):
++    @classmethod
++    def setUpTestData(cls):
++        cls.admin = get_user_model().objects.create_superuser('columns-admin', 'columns@example.invalid', 'synthetic')
++        cls.reader = get_user_model().objects.create_user('columns-reader', is_staff=True)
++        cls.reader.user_permissions.add(Permission.objects.get(codename='view_specialist', content_type__app_label='catalog'))
++        Place.objects.create(name='Columns Place', name_ru='Columns Place', name_az='Columns Place', name_en='Columns Place', category_id='EDU', status='draft')
++        Place.objects.create(name='Columns Deleted', category_id='EDU', status='draft', deleted_at=timezone.now(), deleted_by=cls.admin)
++        Event.objects.create(name='Columns Event', category_id='EDU', status='draft')
++        Specialist.objects.create(name='Columns Specialist', status='draft')
++
++    def setUp(self):
++        self.client.force_login(self.admin)
++
++    def page(self, model, lang='ru', params=None):
++        prefix = '' if lang == 'az' else '/' + lang
++        response = self.client.get(prefix + '/admin/catalog/' + model._meta.model_name + '/', params or {})
++        self.assertEqual(response.status_code, 200)
++        return ColumnMarkup(response.content.decode())
++
++    def assert_controls_match_real_cells(self, markup):
++        self.assertTrue(markup.controls)
++        self.assertTrue(markup.body)
++        self.assertTrue(markup.controls[0]['disabled'])
++        self.assertEqual(sum(c['disabled'] for c in markup.controls), 1)
++        targets = [c['target'] for c in markup.controls]
++        self.assertEqual(len(targets), len(set(targets)))
++        for excluded in ('column-action_checkbox', 'column-row_actions', 'column-col_actions'):
++            self.assertNotIn(excluded, targets)
++        for control in markup.controls:
++            with self.subTest(target=control['target']):
++                index = control['index']
++                self.assertGreaterEqual(index, 0)
++                self.assertLess(index, len(markup.headers))
++                label = ' '.join(control['label'].split()).casefold()
++                header = ' '.join(markup.headers[index]['text'].split()).casefold()
++                self.assertTrue(label)
++                self.assertIn(label, header)
++                for row in markup.body:
++                    self.assertIn(control['target'].replace('column-', 'field-', 1), row[index]['classes'])
++
++    def test_every_control_addresses_actual_header_and_cells_in_all_locales(self):
++        for model in (Place, Event, Specialist):
++            for lang in ('ru', 'az', 'en'):
++                with self.subTest(model=model.__name__, lang=lang):
++                    self.assert_controls_match_real_cells(self.page(model, lang))
++
++    def test_trash_controls_address_deleted_date_instead_of_missing_updated_column(self):
++        for lang in ('ru', 'az', 'en'):
++            with self.subTest(lang=lang):
++                markup = self.page(Place, lang, {'deleted_state': 'deleted'})
++                self.assert_controls_match_real_cells(markup)
++                targets = [c['target'] for c in markup.controls]
++                self.assertIn('column-deleted_at_display', targets)
++                self.assertNotIn('column-col_updated', targets)
++
++    def test_ordinary_specialist_reader_never_gets_private_column_control(self):
++        self.assertIn('column-documents_count', [c['target'] for c in self.page(Specialist).controls])
++        self.client.force_login(self.reader)
++        for lang in ('ru', 'az', 'en'):
++            with self.subTest(lang=lang):
++                markup = self.page(Specialist, lang)
++                self.assert_controls_match_real_cells(markup)
++                self.assertNotIn('column-documents_count', [c['target'] for c in markup.controls])
++
++    def test_storage_does_not_transfer_choices_between_queues_and_retains_place_key(self):
++        self.assertEqual(self.page(Place).storage_key, 'km_hidden_columns')
++        self.assertEqual(self.page(Event).storage_key, 'km_hidden_columns:catalog.event')
++        self.assertEqual(self.page(Specialist).storage_key, 'km_hidden_columns:catalog.specialist')
++
++    def test_empty_results_keep_permitted_options_and_anonymous_stays_out(self):
++        for model in (Place, Event, Specialist):
++            with self.subTest(model=model.__name__):
++                markup = self.page(model, params={'q': 'no-synthetic-match-7654321'})
++                self.assertFalse(markup.body)
++                self.assertTrue(markup.controls[0]['disabled'])
++                self.assertTrue(all(c['index'] >= 0 for c in markup.controls))
++        self.client.logout()
++        response = self.client.get('/ru/admin/catalog/specialist/')
++        self.assertEqual(response.status_code, 302)
++        self.assertIn('/login/', response.url)

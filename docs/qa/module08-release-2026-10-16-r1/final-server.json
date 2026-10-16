@@ -1,0 +1,30 @@
+{
+  "status": "PRODUCTION RELEASE VERIFIED within recorded read-only scope",
+  "image": "sha256:1f2d56ca252808d941c7f0514c268cdcc8d68d0ecacbe3ad5a151132302ede73",
+  "code_commit": "cfef63e3dbc93e971ac0e2ae963a17a3821ae27c",
+  "server_checkout_HEAD": "cfef63e3dbc93e971ac0e2ae963a17a3821ae27c",
+  "server_branch": "codex/module08-release-2026-10-16",
+  "server_worktree_clean": true,
+  "origin_HTTP_checks": {
+    "kidsmap.az/healthz": 200,
+    "kidsmap.az/ru/": 200,
+    "kidsmap.az/en/": 200,
+    "kidsmap.az/": 200,
+    "kidsmap.az/ru/catalog/": 200,
+    "kidsmap.az/en/catalog/": 200,
+    "kidsmap.az/catalog/": 200,
+    "admin.kidsmap.az/ru/admin/login/": 200,
+    "admin.kidsmap.az/en/admin/login/": 200,
+    "admin.kidsmap.az/admin/login/": 200
+  },
+  "protected_containers_unchanged": {
+    "/kidsmap-postgres": true,
+    "/kidsmap-redis": true
+  },
+  "old_image_still_available": true,
+  "rollback_override_backup_matches": true,
+  "production_records_exported": false,
+  "database_schema_changed": false,
+  "authenticated_admin_mutations": "NOT RUN",
+  "external_integrations": "NOT RUN; pre-existing missing Google ADC file recorded separately"
+}

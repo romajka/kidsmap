@@ -113,6 +113,15 @@
         <section class="km-pf-alert km-pf-alert--warn" data-place-duplicate-alert hidden aria-live="polite"></section>
         <section class="km-pf-alert km-pf-alert--warn" data-place-json-review hidden aria-live="polite"></section>
 
+        {% if km_place_candidate_conflict %}
+          <section class="km-pf-alert km-pf-alert--danger" data-place-candidate-conflict role="alert">
+            <div class="km-pf-alert__body">
+              <p>{{ km_place_entry_copy.server_conflict }}</p>
+              <a href="{{ km_place_current_version_url }}" target="_blank" rel="noopener">{{ km_place_entry_copy.open_current_draft }}</a>
+            </div>
+          </section>
+        {% endif %}
+
         {% include "admin/catalog/place/form/dialogs.html" %}
 
         {% if km_place_map_alert %}

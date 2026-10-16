@@ -1,0 +1,20 @@
+Creating test database for alias 'default'...
+/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /home/ramin/kidsmap/.tmp/place-qa12-fix-2026-10-12-r1/staticfiles/
+  mw_instance = middleware(adapted_handler)
+F
+======================================================================
+FAIL: test_real_other_connection_commit_after_validation_retains_input (catalog.testcases.test_place_admin_conflict_retention.AdminPostValidationRaceTests.test_real_other_connection_commit_after_validation_retains_input)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_place_admin_conflict_retention.py", line 159, in test_real_other_connection_commit_after_validation_retains_input
+    self.assertEqual(self.s.snapshot(self.place, 'place'), live)
+AssertionError: {'des[989 chars]om': '80.00', 'schedule_note_az': '', 'lesson_[2111 chars]: ''} != {'des[989 chars]om': 80, 'schedule_note_az': '', 'lesson_durat[2101 chars]: ''}
+Diff is 5073 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 1 test in 6.128s
+
+FAILED (failures=1)
+Destroying test database for alias 'default'...
+Found 1 test(s).
+System check identified no issues (0 silenced).

@@ -94,6 +94,14 @@ def create_reviewable_event(actor, *, name, published=False, **values):
     return event
 
 
+def decide_admin_review_bulk(client, heads, action):
+    """Bind a bulk decision to the candidate/visibility shown by its admin list."""
+    url = reverse('admin:catalog_' + heads[0]._meta.model_name + '_changelist')
+    snapshot = client.get(url).context_data['review_snapshot']
+    return client.post(url, {'action': action, '_selected_action': [head.pk for head in heads],
+                             'review_snapshot': snapshot})
+
+
 def decide_typed_review(client, head, *, kind, approve):
     """The current review workflow names an exact pending revision, not a bulk toggle."""
     head.refresh_from_db()
@@ -2135,15 +2143,17 @@ class TestAdminOwnershipModerationUX(TestCase):
         review = create_pending_review(self.place, 4, 'Helpful review')
         self.assertEqual(decide_typed_review(self.client, review, kind='place', approve=True).status_code, 302)
         review.refresh_from_db(); approved_id = review.current_revision_id
-        for action in ('hide_selected', 'approve_selected'):
-            response = self.client.post(reverse('admin:catalog_placereview_changelist'),
-                {'action':action, '_selected_action':[review.pk], 'index':0}, follow=True)
-            self.assertEqual(response.status_code, 200)
-            review.refresh_from_db()
-            self.assertTrue(review.is_approved); self.assertEqual(review.current_revision_id, approved_id)
-        review, candidate = submit_review(target=self.place, user=review.user, rating=3, text='New version')
-        self.assertEqual(decide_typed_review(self.client, review, kind='place', approve=True).status_code, 302)
+        self.assertEqual(decide_admin_review_bulk(self.client, [review], 'hide_selected').status_code, 302)
         review.refresh_from_db()
+        self.assertFalse(review.is_approved)
+        self.assertEqual(review.current_revision_id, approved_id)
+        self.assertIsNone(review.candidate_revision_id)
+        self.assertEqual(self.client.post(reverse('admin:catalog_placereview_restore', args=[review.pk]),
+            {'expected_current_revision_id': approved_id, 'expected_visibility': '0'}).status_code, 302)
+        review, candidate = submit_review(target=self.place, user=review.user, rating=3, text='New version')
+        self.assertEqual(decide_admin_review_bulk(self.client, [review], 'approve_selected').status_code, 302)
+        review.refresh_from_db()
+        self.assertTrue(review.is_approved)
         self.assertEqual(review.current_revision_id, candidate.pk); self.assertEqual(review.rating, 3)
 
 
@@ -2502,7 +2512,7 @@ class ReviewAdminModerationTests(TestCase):
 
     def test_approve_single_review_action(self):
         url = reverse("admin:catalog_placereview_approve", args=[self.review.pk])
-        response = self.client.post(url)
+        response = self.client.post(url, {'revision_id': self.review.candidate_revision_id})
         self.assertEqual(response.status_code, 302)
         self.review.refresh_from_db()
         self.assertTrue(self.review.is_approved)
@@ -2510,7 +2520,7 @@ class ReviewAdminModerationTests(TestCase):
 
     def test_reject_single_review_action(self):
         url = reverse("admin:catalog_placereview_reject", args=[self.review.pk])
-        response = self.client.post(url)
+        response = self.client.post(url, {'revision_id': self.review.candidate_revision_id})
         self.assertEqual(response.status_code, 302)
         self.review.refresh_from_db()
         self.assertFalse(self.review.is_approved)
@@ -2948,7 +2958,7 @@ class TestAdminBulkActions(TestCase):
         second = create_pending_review(place, 1, 'Needs review')
         response = self.client.post(reverse('admin:catalog_placereview_changelist'),
             {'action':'approve_selected', '_selected_action':[first.pk]})
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 400)
         first.refresh_from_db(); self.assertEqual(first.status, 'pending')
         self.assertEqual(decide_typed_review(self.client, first, kind='place', approve=True).status_code, 302)
         self.assertEqual(decide_typed_review(self.client, second, kind='place', approve=False).status_code, 302)
@@ -3603,10 +3613,9 @@ class TestReviewRatingSyncAndAdminBulkActions(TestCase):
         self.assertEqual(self.place.rating_count, 0); self.assertEqual(self.place.rating_avg, 0)
         legacy = self.client.post(reverse('admin:catalog_placereview_changelist'),
             {'action':'approve_selected', '_selected_action':[first.pk, second.pk]}, follow=True)
-        self.assertEqual(legacy.status_code, 200)
+        self.assertEqual(legacy.status_code, 400)
         self.place.refresh_from_db(); self.assertEqual(self.place.rating_count, 0)
-        for head in (first, second):
-            self.assertEqual(decide_typed_review(self.client, head, kind='place', approve=True).status_code, 302)
+        self.assertEqual(decide_admin_review_bulk(self.client, [first, second], 'approve_selected').status_code, 302)
         self.place.refresh_from_db()
         self.assertEqual(self.place.rating_count, 2); self.assertEqual(self.place.rating_avg, 4.5)
 
@@ -3616,9 +3625,9 @@ class TestReviewRatingSyncAndAdminBulkActions(TestCase):
         self.specialist.refresh_from_db(); self.assertEqual(self.specialist.rating_count, 0)
         legacy = self.client.post(reverse('admin:catalog_specialistreview_changelist'),
             {'action':'approve_selected', '_selected_action':[review.pk]}, follow=True)
-        self.assertEqual(legacy.status_code, 200)
+        self.assertEqual(legacy.status_code, 400)
         self.specialist.refresh_from_db(); self.assertEqual(self.specialist.rating_count, 0)
-        self.assertEqual(decide_typed_review(self.client, review, kind='specialist', approve=True).status_code, 302)
+        self.assertEqual(decide_admin_review_bulk(self.client, [review], 'approve_selected').status_code, 302)
         self.specialist.refresh_from_db()
         self.assertEqual(self.specialist.rating_count, 1); self.assertEqual(self.specialist.rating_avg, 5)
 

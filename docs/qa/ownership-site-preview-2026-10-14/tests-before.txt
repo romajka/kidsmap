@@ -1,0 +1,68 @@
+Using existing test database for alias 'default'...
+/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /home/ramin/kidsmap/.tmp/ownership-preview-fix-2026-10-14/staticfiles/
+  mw_instance = middleware(adapted_handler)
+....................FFFFFFF
+======================================================================
+FAIL: test_anonymous_owner_and_staff_without_place_permission_cannot_preview (catalog.testcases.test_ownership_site_preview.OwnershipSitePreviewTests.test_anonymous_owner_and_staff_without_place_permission_cannot_preview)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_site_preview.py", line 88, in test_anonymous_owner_and_staff_without_place_permission_cannot_preview
+    self.assertEqual(self.client.get(self.site_url).status_code, 403)
+AssertionError: 302 != 403
+
+======================================================================
+FAIL: test_inspection_has_a_website_preview_link_with_current_version_and_return (catalog.testcases.test_ownership_site_preview.OwnershipSitePreviewTests.test_inspection_has_a_website_preview_link_with_current_version_and_return)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_site_preview.py", line 92, in test_inspection_has_a_website_preview_link_with_current_version_and_return
+    self.assertContains(response, 'Превью на сайте')
+AssertionError: False is not true : Couldn't find 'Превью на сайте' in the following response
+b'\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang="ru" >\n\n<head>\n    <meta charset="utf-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1">\n    <meta http-equiv="x-ua-compatible" content="ie=edge">\n    <meta name="robots" con [oversized fictional response HTML omitted]
+
+======================================================================
+FAIL: test_languages_and_guest_appearance_preserve_staff_session (catalog.testcases.test_ownership_site_preview.OwnershipSitePreviewTests.test_languages_and_guest_appearance_preserve_staff_session)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_site_preview.py", line 74, in test_languages_and_guest_appearance_preserve_staff_session
+    self.assertEqual(response.status_code, 200)
+AssertionError: 302 != 200
+
+======================================================================
+FAIL: test_live_published_preview_matches_public_presentation (catalog.testcases.test_ownership_site_preview.OwnershipSitePreviewTests.test_live_published_preview_matches_public_presentation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_site_preview.py", line 106, in test_live_published_preview_matches_public_presentation
+    self.assertEqual(preview.status_code, 200)
+AssertionError: 302 != 200
+
+======================================================================
+FAIL: test_preview_uses_the_real_public_page_for_an_unpublished_place (catalog.testcases.test_ownership_site_preview.OwnershipSitePreviewTests.test_preview_uses_the_real_public_page_for_an_unpublished_place)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_site_preview.py", line 27, in test_preview_uses_the_real_public_page_for_an_unpublished_place
+    self.assertEqual(response.status_code, 200)
+AssertionError: 302 != 200
+
+======================================================================
+FAIL: test_site_preview_is_read_only_private_and_not_indexable (catalog.testcases.test_ownership_site_preview.OwnershipSitePreviewTests.test_site_preview_is_read_only_private_and_not_indexable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_site_preview.py", line 42, in test_site_preview_is_read_only_private_and_not_indexable
+    self.assertEqual(response.status_code, 200)
+AssertionError: 302 != 200
+
+======================================================================
+FAIL: test_submitted_price_and_schedule_are_used_without_changing_live (catalog.testcases.test_ownership_site_preview.OwnershipSitePreviewTests.test_submitted_price_and_schedule_are_used_without_changing_live)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_site_preview.py", line 61, in test_submitted_price_and_schedule_are_used_without_changing_live
+    self.assertEqual(response.status_code, 200)
+AssertionError: 302 != 200
+
+----------------------------------------------------------------------
+Ran 27 tests in 24.163s
+
+FAILED (failures=7)
+Preserving test database for alias 'default'...
+Found 27 test(s).
+System check identified no issues (0 silenced).

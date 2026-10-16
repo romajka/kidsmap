@@ -1,0 +1,18 @@
+{
+  "name": "additional-security-recheck",
+  "argv": [
+    "/home/ramin/kidsmap/.venv/bin/python",
+    "/home/ramin/kidsmap/docs/qa/module07-full-2026-10-15-r1/runtime.py",
+    "test",
+    "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_all_post_surfaces_require_csrf_and_get_actions_do_not_mutate",
+    "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_document_public_visibility_and_download_follow_consent_revocation",
+    "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_document_status_aba_cannot_restore_old_decision_token",
+    "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_foreign_document_ids_cannot_publish_or_review",
+    "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_rejection_reason_change_invalidates_old_document_token",
+    "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_revoked_reviewer_same_session_cannot_decide",
+    "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_staff_claim_only_and_document_only_permissions_are_separate",
+    "catalog.testcases.test_task33_specialist_screens_security.SpecialistScreensSecurityTests.test_stale_document_decision_does_not_override_new_moderation"
+  ],
+  "exit": 1,
+  "seconds": 45.127
+}

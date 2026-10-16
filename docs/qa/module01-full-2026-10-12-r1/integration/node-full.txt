@@ -1,0 +1,1067 @@
+TAP version 13
+# Subtest: standalone taxonomy stays own; Place is copied only by explicit action
+ok 1 - standalone taxonomy stays own; Place is copied only by explicit action
+  ---
+  duration_ms: 103.620878
+  ...
+# Subtest: changing category clears incompatible child, announces it and preserves focus
+ok 2 - changing category clears incompatible child, announces it and preserves focus
+  ---
+  duration_ms: 24.120564
+  ...
+# Subtest: linked activity offers no local taxonomy override
+ok 3 - linked activity offers no local taxonomy override
+  ---
+  duration_ms: 12.57442
+  ...
+# node:internal/modules/cjs/loader:1210
+#   throw err;
+#   ^
+# Error: Cannot find module 'playwright'
+# Require stack:
+# - /home/ramin/kidsmap/scripts/test_localized_place_urls.cjs
+#     at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+#     at Module._resolveFilename (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/resolve-jsdom.cjs:2:201)
+#     at Module._load (node:internal/modules/cjs/loader:1038:27)
+#     at Module.require (node:internal/modules/cjs/loader:1289:19)
+#     at require (node:internal/modules/helpers:182:18)
+#     at Object.<anonymous> (/home/ramin/kidsmap/scripts/test_localized_place_urls.cjs:2:20)
+#     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+#     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+#     at Module.load (node:internal/modules/cjs/loader:1266:32)
+#     at Module._load (node:internal/modules/cjs/loader:1091:12) {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: [ '/home/ramin/kidsmap/scripts/test_localized_place_urls.cjs' ]
+# }
+# Node.js v20.20.2
+# Subtest: /home/ramin/kidsmap/scripts/test_localized_place_urls.cjs
+not ok 2 - /home/ramin/kidsmap/scripts/test_localized_place_urls.cjs
+  ---
+  duration_ms: 75.85923
+  location: '/home/ramin/kidsmap/scripts/test_localized_place_urls.cjs:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: moving clears stale district and ignores response for previous coordinates
+ok 5 - moving clears stale district and ignores response for previous coordinates
+  ---
+  duration_ms: 1106.579352
+  ...
+# Subtest: clearing coordinates cancels a pending result
+ok 6 - clearing coordinates cancels a pending result
+  ---
+  duration_ms: 518.774735
+  ...
+# Subtest: uncovered result leaves old district empty and announces the reason
+ok 7 - uncovered result leaves old district empty and announces the reason
+  ---
+  duration_ms: 518.315758
+  ...
+# Subtest: current override is preserved but an obsolete dataset triggers a new assignment
+ok 8 - current override is preserved but an obsolete dataset triggers a new assignment
+  ---
+  duration_ms: 1024.597031
+  ...
+# Subtest: visual result clears while moving and network errors can be retried
+ok 9 - visual result clears while moving and network errors can be retried
+  ---
+  duration_ms: 1515.639431
+  ...
+# Subtest: invalid numeric coordinates never announce a selected map point
+ok 10 - invalid numeric coordinates never announce a selected map point
+  ---
+  duration_ms: 11.703907
+  ...
+# Subtest: valid zero coordinates still announce a selected map point
+ok 11 - valid zero coordinates still announce a selected map point
+  ---
+  duration_ms: 9.630091
+  ...
+# Subtest: restoring manual district cancels an already pending coordinate lookup
+ok 12 - restoring manual district cancels an already pending coordinate lookup
+  ---
+  duration_ms: 437.291566
+  ...
+# Subtest: non-continuous empty-point behavior is preserved
+ok 13 - non-continuous empty-point behavior is preserved
+  ---
+  duration_ms: 19.078437
+  ...
+# Subtest: manual point -> clear -> Baku enables district and includes it in submitted data
+ok 14 - manual point -> clear -> Baku enables district and includes it in submitted data
+  ---
+  duration_ms: 12.995616
+  ...
+# Subtest: manual point -> clear -> another region -> Baku enables district
+ok 15 - manual point -> clear -> another region -> Baku enables district
+  ---
+  duration_ms: 12.276338
+  ...
+# Subtest: manual region change away from Baku disables and clears stale Baku district
+ok 16 - manual region change away from Baku disables and clears stale Baku district
+  ---
+  duration_ms: 12.32316
+  ...
+# Subtest: saved manual Baku district without coordinates survives initial boot
+ok 17 - saved manual Baku district without coordinates survives initial boot
+  ---
+  duration_ms: 10.667683
+  ...
+# Subtest: restored invalid/partial point does not grant manual district: 40.4|
+ok 18 - restored invalid/partial point does not grant manual district: 40.4|
+  ---
+  duration_ms: 8.286792
+  ...
+# Subtest: restored invalid/partial point does not grant manual district: |49.8
+ok 19 - restored invalid/partial point does not grant manual district: |49.8
+  ---
+  duration_ms: 10.682596
+  ...
+# Subtest: restored invalid/partial point does not grant manual district: bad|49.8
+ok 20 - restored invalid/partial point does not grant manual district: bad|49.8
+  ---
+  duration_ms: 7.630931
+  ...
+# Subtest: restored invalid/partial point does not grant manual district: 91|49.8
+ok 21 - restored invalid/partial point does not grant manual district: 91|49.8
+  ---
+  duration_ms: 7.252494
+  ...
+# Subtest: partial point is not equivalent to manual mode
+ok 22 - partial point is not equivalent to manual mode
+  ---
+  duration_ms: 9.048637
+  ...
+# Subtest: resolved point in Baku still enables its district
+ok 23 - resolved point in Baku still enables its district
+  ---
+  duration_ms: 429.084062
+  ...
+# Subtest: stale lookup cannot overwrite manual region/district after clear
+ok 24 - stale lookup cannot overwrite manual region/district after clear
+  ---
+  duration_ms: 442.972857
+  ...
+# Subtest: draft field/change replay restores manual district (coordinates first: false)
+ok 25 - draft field/change replay restores manual district (coordinates first: false)
+  ---
+  duration_ms: 10.24353
+  ...
+# Subtest: draft field/change replay restores manual district (coordinates first: true)
+ok 26 - draft field/change replay restores manual district (coordinates first: true)
+  ---
+  duration_ms: 8.47581
+  ...
+# Subtest: pageswap: aborted transition cleans cover without unhandled rejection
+not ok 27 - pageswap: aborted transition cleans cover without unhandled rejection
+  ---
+  duration_ms: 70.031776
+  location: '/home/ramin/kidsmap/scripts/test_motion_transition_rejection.cjs:2:80'
+  failureType: 'testCodeFailure'
+  error: |-
+    node:internal/modules/cjs/loader:1210
+      throw err;
+      ^
+    
+    Error: Cannot find module 'jsdom'
+    Require stack:
+    - /home/ramin/kidsmap/[eval]
+        at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+        at Module._load (node:internal/modules/cjs/loader:1038:27)
+        at Module.require (node:internal/modules/cjs/loader:1289:19)
+        at require (node:internal/modules/helpers:182:18)
+        at [eval]:1:15
+        at runScriptInThisContext (node:internal/vm:209:10)
+        at node:internal/process/execution:118:14
+        at [eval]-wrapper:6:24
+        at runScript (node:internal/process/execution:101:62)
+        at evalScript (node:internal/process/execution:133:3) {
+      code: 'MODULE_NOT_FOUND',
+      requireStack: [ '/home/ramin/kidsmap/[eval]' ]
+    }
+    
+    Node.js v20.20.2
+    
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+    Module._load (node:internal/modules/cjs/loader:1038:27)
+    Module.require (node:internal/modules/cjs/loader:1289:19)
+    require (node:internal/modules/helpers:182:18)
+    [eval]:1:15
+    runScriptInThisContext (node:internal/vm:209:10)
+    node:internal/process/execution:118:14
+    [eval]-wrapper:6:24
+    runScript (node:internal/process/execution:101:62)
+    evalScript (node:internal/process/execution:133:3) {
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_motion_transition_rejection.cjs:4:91)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    node:internal/test_runner/harness:255:12
+    node:internal/process/task_queues:140:7
+    AsyncResource.runInAsyncScope (node:async_hooks:206:9)
+    AsyncResource.runMicrotask (node:internal/process/task_queues:137:8)
+  ...
+# Subtest: pageswap: completed transition cleans cover without unhandled rejection
+not ok 28 - pageswap: completed transition cleans cover without unhandled rejection
+  ---
+  duration_ms: 58.464793
+  location: '/home/ramin/kidsmap/scripts/test_motion_transition_rejection.cjs:2:80'
+  failureType: 'testCodeFailure'
+  error: |-
+    node:internal/modules/cjs/loader:1210
+      throw err;
+      ^
+    
+    Error: Cannot find module 'jsdom'
+    Require stack:
+    - /home/ramin/kidsmap/[eval]
+        at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+        at Module._load (node:internal/modules/cjs/loader:1038:27)
+        at Module.require (node:internal/modules/cjs/loader:1289:19)
+        at require (node:internal/modules/helpers:182:18)
+        at [eval]:1:15
+        at runScriptInThisContext (node:internal/vm:209:10)
+        at node:internal/process/execution:118:14
+        at [eval]-wrapper:6:24
+        at runScript (node:internal/process/execution:101:62)
+        at evalScript (node:internal/process/execution:133:3) {
+      code: 'MODULE_NOT_FOUND',
+      requireStack: [ '/home/ramin/kidsmap/[eval]' ]
+    }
+    
+    Node.js v20.20.2
+    
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+    Module._load (node:internal/modules/cjs/loader:1038:27)
+    Module.require (node:internal/modules/cjs/loader:1289:19)
+    require (node:internal/modules/helpers:182:18)
+    [eval]:1:15
+    runScriptInThisContext (node:internal/vm:209:10)
+    node:internal/process/execution:118:14
+    [eval]-wrapper:6:24
+    runScript (node:internal/process/execution:101:62)
+    evalScript (node:internal/process/execution:133:3) {
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_motion_transition_rejection.cjs:4:91)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: pagereveal: aborted transition cleans cover without unhandled rejection
+not ok 29 - pagereveal: aborted transition cleans cover without unhandled rejection
+  ---
+  duration_ms: 65.893676
+  location: '/home/ramin/kidsmap/scripts/test_motion_transition_rejection.cjs:2:80'
+  failureType: 'testCodeFailure'
+  error: |-
+    node:internal/modules/cjs/loader:1210
+      throw err;
+      ^
+    
+    Error: Cannot find module 'jsdom'
+    Require stack:
+    - /home/ramin/kidsmap/[eval]
+        at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+        at Module._load (node:internal/modules/cjs/loader:1038:27)
+        at Module.require (node:internal/modules/cjs/loader:1289:19)
+        at require (node:internal/modules/helpers:182:18)
+        at [eval]:1:15
+        at runScriptInThisContext (node:internal/vm:209:10)
+        at node:internal/process/execution:118:14
+        at [eval]-wrapper:6:24
+        at runScript (node:internal/process/execution:101:62)
+        at evalScript (node:internal/process/execution:133:3) {
+      code: 'MODULE_NOT_FOUND',
+      requireStack: [ '/home/ramin/kidsmap/[eval]' ]
+    }
+    
+    Node.js v20.20.2
+    
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+    Module._load (node:internal/modules/cjs/loader:1038:27)
+    Module.require (node:internal/modules/cjs/loader:1289:19)
+    require (node:internal/modules/helpers:182:18)
+    [eval]:1:15
+    runScriptInThisContext (node:internal/vm:209:10)
+    node:internal/process/execution:118:14
+    [eval]-wrapper:6:24
+    runScript (node:internal/process/execution:101:62)
+    evalScript (node:internal/process/execution:133:3) {
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_motion_transition_rejection.cjs:4:91)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: pagereveal: completed transition cleans cover without unhandled rejection
+not ok 30 - pagereveal: completed transition cleans cover without unhandled rejection
+  ---
+  duration_ms: 52.433995
+  location: '/home/ramin/kidsmap/scripts/test_motion_transition_rejection.cjs:2:80'
+  failureType: 'testCodeFailure'
+  error: |-
+    node:internal/modules/cjs/loader:1210
+      throw err;
+      ^
+    
+    Error: Cannot find module 'jsdom'
+    Require stack:
+    - /home/ramin/kidsmap/[eval]
+        at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+        at Module._load (node:internal/modules/cjs/loader:1038:27)
+        at Module.require (node:internal/modules/cjs/loader:1289:19)
+        at require (node:internal/modules/helpers:182:18)
+        at [eval]:1:15
+        at runScriptInThisContext (node:internal/vm:209:10)
+        at node:internal/process/execution:118:14
+        at [eval]-wrapper:6:24
+        at runScript (node:internal/process/execution:101:62)
+        at evalScript (node:internal/process/execution:133:3) {
+      code: 'MODULE_NOT_FOUND',
+      requireStack: [ '/home/ramin/kidsmap/[eval]' ]
+    }
+    
+    Node.js v20.20.2
+    
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+    Module._load (node:internal/modules/cjs/loader:1038:27)
+    Module.require (node:internal/modules/cjs/loader:1289:19)
+    require (node:internal/modules/helpers:182:18)
+    [eval]:1:15
+    runScriptInThisContext (node:internal/vm:209:10)
+    node:internal/process/execution:118:14
+    [eval]-wrapper:6:24
+    runScript (node:internal/process/execution:101:62)
+    evalScript (node:internal/process/execution:133:3) {
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_motion_transition_rejection.cjs:4:91)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: pageswap: opt-out navigation handles rejected ready outside public place routes
+not ok 31 - pageswap: opt-out navigation handles rejected ready outside public place routes
+  ---
+  duration_ms: 50.010865
+  location: '/home/ramin/kidsmap/scripts/test_motion_transition_rejection.cjs:6:45'
+  failureType: 'testCodeFailure'
+  error: |-
+    node:internal/modules/cjs/loader:1210
+      throw err;
+      ^
+    
+    Error: Cannot find module 'jsdom'
+    Require stack:
+    - /home/ramin/kidsmap/[eval]
+        at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+        at Module._load (node:internal/modules/cjs/loader:1038:27)
+        at Module.require (node:internal/modules/cjs/loader:1289:19)
+        at require (node:internal/modules/helpers:182:18)
+        at [eval]:1:15
+        at runScriptInThisContext (node:internal/vm:209:10)
+        at node:internal/process/execution:118:14
+        at [eval]-wrapper:6:24
+        at runScript (node:internal/process/execution:101:62)
+        at evalScript (node:internal/process/execution:133:3) {
+      code: 'MODULE_NOT_FOUND',
+      requireStack: [ '/home/ramin/kidsmap/[eval]' ]
+    }
+    
+    Node.js v20.20.2
+    
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+    Module._load (node:internal/modules/cjs/loader:1038:27)
+    Module.require (node:internal/modules/cjs/loader:1289:19)
+    require (node:internal/modules/helpers:182:18)
+    [eval]:1:15
+    runScriptInThisContext (node:internal/vm:209:10)
+    node:internal/process/execution:118:14
+    [eval]-wrapper:6:24
+    runScript (node:internal/process/execution:101:62)
+    evalScript (node:internal/process/execution:133:3) {
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_motion_transition_rejection.cjs:8:91)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: pagereveal: opt-out navigation handles rejected ready outside public place routes
+not ok 32 - pagereveal: opt-out navigation handles rejected ready outside public place routes
+  ---
+  duration_ms: 35.783068
+  location: '/home/ramin/kidsmap/scripts/test_motion_transition_rejection.cjs:6:45'
+  failureType: 'testCodeFailure'
+  error: |-
+    node:internal/modules/cjs/loader:1210
+      throw err;
+      ^
+    
+    Error: Cannot find module 'jsdom'
+    Require stack:
+    - /home/ramin/kidsmap/[eval]
+        at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+        at Module._load (node:internal/modules/cjs/loader:1038:27)
+        at Module.require (node:internal/modules/cjs/loader:1289:19)
+        at require (node:internal/modules/helpers:182:18)
+        at [eval]:1:15
+        at runScriptInThisContext (node:internal/vm:209:10)
+        at node:internal/process/execution:118:14
+        at [eval]-wrapper:6:24
+        at runScript (node:internal/process/execution:101:62)
+        at evalScript (node:internal/process/execution:133:3) {
+      code: 'MODULE_NOT_FOUND',
+      requireStack: [ '/home/ramin/kidsmap/[eval]' ]
+    }
+    
+    Node.js v20.20.2
+    
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+    Module._load (node:internal/modules/cjs/loader:1038:27)
+    Module.require (node:internal/modules/cjs/loader:1289:19)
+    require (node:internal/modules/helpers:182:18)
+    [eval]:1:15
+    runScriptInThisContext (node:internal/vm:209:10)
+    node:internal/process/execution:118:14
+    [eval]-wrapper:6:24
+    runScript (node:internal/process/execution:101:62)
+    evalScript (node:internal/process/execution:133:3) {
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_motion_transition_rejection.cjs:8:91)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: outgoing account navigation skips transition; public place navigation remains enabled
+not ok 33 - outgoing account navigation skips transition; public place navigation remains enabled
+  ---
+  duration_ms: 0.413014
+  location: '/home/ramin/kidsmap/scripts/test_motion_transition_rejection.cjs:10:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Cannot find module 'jsdom'
+    Require stack:
+    - /home/ramin/kidsmap/scripts/test_motion_transition_rejection.cjs
+  code: 'MODULE_NOT_FOUND'
+  stack: |-
+    Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+    Module._resolveFilename (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/resolve-jsdom.cjs:2:201)
+    Module._load (node:internal/modules/cjs/loader:1038:27)
+    Module.require (node:internal/modules/cjs/loader:1289:19)
+    require (node:internal/modules/helpers:182:18)
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_motion_transition_rejection.cjs:11:16)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+  ...
+# node:internal/modules/cjs/loader:1210
+#   throw err;
+#   ^
+# Error: Cannot find module 'jsdom'
+# Require stack:
+# - /home/ramin/kidsmap/scripts/test_organization_autosave.cjs
+#     at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+#     at Module._resolveFilename (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/resolve-jsdom.cjs:2:201)
+#     at Module._load (node:internal/modules/cjs/loader:1038:27)
+#     at Module.require (node:internal/modules/cjs/loader:1289:19)
+#     at require (node:internal/modules/helpers:182:18)
+#     at Object.<anonymous> (/home/ramin/kidsmap/scripts/test_organization_autosave.cjs:6:17)
+#     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+#     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+#     at Module.load (node:internal/modules/cjs/loader:1266:32)
+#     at Module._load (node:internal/modules/cjs/loader:1091:12) {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: [ '/home/ramin/kidsmap/scripts/test_organization_autosave.cjs' ]
+# }
+# Node.js v20.20.2
+# Subtest: /home/ramin/kidsmap/scripts/test_organization_autosave.cjs
+not ok 5 - /home/ramin/kidsmap/scripts/test_organization_autosave.cjs
+  ---
+  duration_ms: 58.026235
+  location: '/home/ramin/kidsmap/scripts/test_organization_autosave.cjs:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/cjs/loader:1210
+#   throw err;
+#   ^
+# Error: Cannot find module 'jsdom'
+# Require stack:
+# - /home/ramin/kidsmap/scripts/test_organization_creation_draft.cjs
+#     at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+#     at Module._resolveFilename (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/resolve-jsdom.cjs:2:201)
+#     at Module._load (node:internal/modules/cjs/loader:1038:27)
+#     at Module.require (node:internal/modules/cjs/loader:1289:19)
+#     at require (node:internal/modules/helpers:182:18)
+#     at Object.<anonymous> (/home/ramin/kidsmap/scripts/test_organization_creation_draft.cjs:6:17)
+#     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+#     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+#     at Module.load (node:internal/modules/cjs/loader:1266:32)
+#     at Module._load (node:internal/modules/cjs/loader:1091:12) {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: [
+#     '/home/ramin/kidsmap/scripts/test_organization_creation_draft.cjs'
+#   ]
+# }
+# Node.js v20.20.2
+# Subtest: /home/ramin/kidsmap/scripts/test_organization_creation_draft.cjs
+not ok 6 - /home/ramin/kidsmap/scripts/test_organization_creation_draft.cjs
+  ---
+  duration_ms: 72.052919
+  location: '/home/ramin/kidsmap/scripts/test_organization_creation_draft.cjs:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/cjs/loader:1210
+#   throw err;
+#   ^
+# Error: Cannot find module 'jsdom'
+# Require stack:
+# - /home/ramin/kidsmap/scripts/test_organization_current_data.cjs
+#     at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+#     at Module._resolveFilename (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/resolve-jsdom.cjs:2:201)
+#     at Module._load (node:internal/modules/cjs/loader:1038:27)
+#     at Module.require (node:internal/modules/cjs/loader:1289:19)
+#     at require (node:internal/modules/helpers:182:18)
+#     at Object.<anonymous> (/home/ramin/kidsmap/scripts/test_organization_current_data.cjs:3:15)
+#     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+#     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+#     at Module.load (node:internal/modules/cjs/loader:1266:32)
+#     at Module._load (node:internal/modules/cjs/loader:1091:12) {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: [ '/home/ramin/kidsmap/scripts/test_organization_current_data.cjs' ]
+# }
+# Node.js v20.20.2
+# Subtest: /home/ramin/kidsmap/scripts/test_organization_current_data.cjs
+not ok 7 - /home/ramin/kidsmap/scripts/test_organization_current_data.cjs
+  ---
+  duration_ms: 57.839249
+  location: '/home/ramin/kidsmap/scripts/test_organization_current_data.cjs:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/cjs/loader:1210
+#   throw err;
+#   ^
+# Error: Cannot find module 'jsdom'
+# Require stack:
+# - /home/ramin/kidsmap/scripts/test_organization_editor_errors.cjs
+#     at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+#     at Module._resolveFilename (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/resolve-jsdom.cjs:2:201)
+#     at Module._load (node:internal/modules/cjs/loader:1038:27)
+#     at Module.require (node:internal/modules/cjs/loader:1289:19)
+#     at require (node:internal/modules/helpers:182:18)
+#     at Object.<anonymous> (/home/ramin/kidsmap/scripts/test_organization_editor_errors.cjs:3:15)
+#     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+#     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+#     at Module.load (node:internal/modules/cjs/loader:1266:32)
+#     at Module._load (node:internal/modules/cjs/loader:1091:12) {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: [ '/home/ramin/kidsmap/scripts/test_organization_editor_errors.cjs' ]
+# }
+# Node.js v20.20.2
+# Subtest: /home/ramin/kidsmap/scripts/test_organization_editor_errors.cjs
+not ok 8 - /home/ramin/kidsmap/scripts/test_organization_editor_errors.cjs
+  ---
+  duration_ms: 72.56776
+  location: '/home/ramin/kidsmap/scripts/test_organization_editor_errors.cjs:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/cjs/loader:1210
+#   throw err;
+#   ^
+# Error: Cannot find module 'jsdom'
+# Require stack:
+# - /home/ramin/kidsmap/scripts/test_organization_invitation_result.cjs
+#     at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+#     at Module._resolveFilename (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/resolve-jsdom.cjs:2:201)
+#     at Module._load (node:internal/modules/cjs/loader:1038:27)
+#     at Module.require (node:internal/modules/cjs/loader:1289:19)
+#     at require (node:internal/modules/helpers:182:18)
+#     at Object.<anonymous> (/home/ramin/kidsmap/scripts/test_organization_invitation_result.cjs:3:15)
+#     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+#     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+#     at Module.load (node:internal/modules/cjs/loader:1266:32)
+#     at Module._load (node:internal/modules/cjs/loader:1091:12) {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: [
+#     '/home/ramin/kidsmap/scripts/test_organization_invitation_result.cjs'
+#   ]
+# }
+# Node.js v20.20.2
+# Subtest: /home/ramin/kidsmap/scripts/test_organization_invitation_result.cjs
+not ok 9 - /home/ramin/kidsmap/scripts/test_organization_invitation_result.cjs
+  ---
+  duration_ms: 83.676703
+  location: '/home/ramin/kidsmap/scripts/test_organization_invitation_result.cjs:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/cjs/loader:1210
+#   throw err;
+#   ^
+# Error: Cannot find module 'jsdom'
+# Require stack:
+# - /home/ramin/kidsmap/scripts/test_organization_invitation_transport.cjs
+#     at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+#     at Module._resolveFilename (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/resolve-jsdom.cjs:2:201)
+#     at Module._load (node:internal/modules/cjs/loader:1038:27)
+#     at Module.require (node:internal/modules/cjs/loader:1289:19)
+#     at require (node:internal/modules/helpers:182:18)
+#     at Object.<anonymous> (/home/ramin/kidsmap/scripts/test_organization_invitation_transport.cjs:3:15)
+#     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+#     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+#     at Module.load (node:internal/modules/cjs/loader:1266:32)
+#     at Module._load (node:internal/modules/cjs/loader:1091:12) {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: [
+#     '/home/ramin/kidsmap/scripts/test_organization_invitation_transport.cjs'
+#   ]
+# }
+# Node.js v20.20.2
+# Subtest: /home/ramin/kidsmap/scripts/test_organization_invitation_transport.cjs
+not ok 10 - /home/ramin/kidsmap/scripts/test_organization_invitation_transport.cjs
+  ---
+  duration_ms: 78.029088
+  location: '/home/ramin/kidsmap/scripts/test_organization_invitation_transport.cjs:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/cjs/loader:1210
+#   throw err;
+#   ^
+# Error: Cannot find module 'jsdom'
+# Require stack:
+# - /home/ramin/kidsmap/scripts/test_organization_pagination_focus.cjs
+#     at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+#     at Module._resolveFilename (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/resolve-jsdom.cjs:2:201)
+#     at Module._load (node:internal/modules/cjs/loader:1038:27)
+#     at Module.require (node:internal/modules/cjs/loader:1289:19)
+#     at require (node:internal/modules/helpers:182:18)
+#     at Object.<anonymous> (/home/ramin/kidsmap/scripts/test_organization_pagination_focus.cjs:2:15)
+#     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+#     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+#     at Module.load (node:internal/modules/cjs/loader:1266:32)
+#     at Module._load (node:internal/modules/cjs/loader:1091:12) {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: [
+#     '/home/ramin/kidsmap/scripts/test_organization_pagination_focus.cjs'
+#   ]
+# }
+# Node.js v20.20.2
+# Subtest: /home/ramin/kidsmap/scripts/test_organization_pagination_focus.cjs
+not ok 11 - /home/ramin/kidsmap/scripts/test_organization_pagination_focus.cjs
+  ---
+  duration_ms: 66.604103
+  location: '/home/ramin/kidsmap/scripts/test_organization_pagination_focus.cjs:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/errors:541
+#       throw error;
+#       ^
+# TypeError [ERR_INVALID_ARG_TYPE]: The "id" argument must be of type string. Received undefined
+#     at Module.require (node:internal/modules/cjs/loader:1282:3)
+#     at require (node:internal/modules/helpers:182:18)
+#     at Object.<anonymous> (/home/ramin/kidsmap/scripts/test_owner_place_map_picker.cjs:6:19)
+#     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+#     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+#     at Module.load (node:internal/modules/cjs/loader:1266:32)
+#     at Module._load (node:internal/modules/cjs/loader:1091:12)
+#     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
+#     at node:internal/main/run_main_module:28:49 {
+#   code: 'ERR_INVALID_ARG_TYPE'
+# }
+# Node.js v20.20.2
+# Subtest: /home/ramin/kidsmap/scripts/test_owner_place_map_picker.cjs
+not ok 12 - /home/ramin/kidsmap/scripts/test_owner_place_map_picker.cjs
+  ---
+  duration_ms: 60.297523
+  location: '/home/ramin/kidsmap/scripts/test_owner_place_map_picker.cjs:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# PASS 9 wizard save-and-leave scenarios: durable save, blocked storage, volunteer action, no dialog, validation failure, network failure, offline, missing draft control, native submit
+# Subtest: /home/ramin/kidsmap/scripts/test_permanent_wizard_leave.cjs
+ok 13 - /home/ramin/kidsmap/scripts/test_permanent_wizard_leave.cjs
+  ---
+  duration_ms: 81.330476
+  ...
+# Error: Not implemented: navigation (except hash changes)
+#     at module.exports (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/node/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+#     at navigateFetch (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/node/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+#     at exports.navigate (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/node/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+#     at LocationImpl._locationObjectNavigate (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/node/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:30:5)
+#     at LocationImpl._locationObjectSetterNavigate (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/node/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:24:17)
+#     at set href [as href] (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/node/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:46:10)
+#     at set href [as href] (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/node/node_modules/jsdom/lib/jsdom/living/generated/Location.js:125:37)
+#     at Document.eval (eval at setup (/home/ramin/kidsmap/scripts/test_phone_reveal.cjs:18:14), <anonymous>:311:32) undefined
+# Subtest: no prefetch; click loads contacts, preserves focus and creates mobile call/WhatsApp links
+ok 43 - no prefetch; click loads contacts, preserves focus and creates mobile call/WhatsApp links
+  ---
+  duration_ms: 151.803595
+  ...
+# Subtest: compact catalog control uses a direct call link without generic number/copy layout
+ok 44 - compact catalog control uses a direct call link without generic number/copy layout
+  ---
+  duration_ms: 34.833243
+  ...
+# Subtest: failed request keeps a retry button and announces error; retry works
+ok 45 - failed request keeps a retry button and announces error; retry works
+  ---
+  duration_ms: 15.433203
+  ...
+# Subtest: simultaneous controls share one request
+ok 46 - simultaneous controls share one request
+  ---
+  duration_ms: 12.433957
+  ...
+# Subtest: gallery accumulates selections and rejects content duplicates with different names
+ok 47 - gallery accumulates selections and rejects content duplicates with different names
+  ---
+  duration_ms: 154.697099
+  ...
+# Subtest: invalid format, size and count are rejected before uploading
+ok 48 - invalid format, size and count are rejected before uploading
+  ---
+  duration_ms: 147.340089
+  ...
+# Subtest: file drop adds photos, arrows reorder them and make-main moves the selected photo
+ok 49 - file drop adds photos, arrows reorder them and make-main moves the selected photo
+  ---
+  duration_ms: 32.304583
+  ...
+# Subtest: saved gallery promotion swaps the old main and marks only the promoted stored row for deletion
+ok 50 - saved gallery promotion swaps the old main and marks only the promoted stored row for deletion
+  ---
+  duration_ms: 23.964207
+  ...
+# Subtest: failed save retains selected files, retry uses the same request ID and success is marked saved
+ok 51 - failed save retains selected files, retry uses the same request ID and success is marked saved
+  ---
+  duration_ms: 27.450395
+  ...
+# Subtest: preview falls back to Image when createImageBitmap is unavailable
+ok 52 - preview falls back to Image when createImageBitmap is unavailable
+  ---
+  duration_ms: 16.592859
+  ...
+# Subtest: oversized resolution is rejected before network and a failed replacement can be removed without losing the saved main
+ok 53 - oversized resolution is rejected before network and a failed replacement can be removed without losing the saved main
+  ---
+  duration_ms: 22.324383
+  ...
+# Subtest: photo editor boots inside the actual Django wizard HTML
+ok 54 - photo editor boots inside the actual Django wizard HTML # SKIP
+  ---
+  duration_ms: 0.20225
+  ...
+# Subtest: Program category reset announces incompatible child without losing keyboard focus
+ok 55 - Program category reset announces incompatible child without losing keyboard focus
+  ---
+  duration_ms: 114.467152
+  ...
+# node:internal/modules/cjs/loader:1210
+#   throw err;
+#   ^
+# Error: Cannot find module 'playwright'
+# Require stack:
+# - /home/ramin/kidsmap/scripts/test_review_cooldown.cjs
+#     at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+#     at Module._resolveFilename (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/resolve-jsdom.cjs:2:201)
+#     at Module._load (node:internal/modules/cjs/loader:1038:27)
+#     at Module.require (node:internal/modules/cjs/loader:1289:19)
+#     at require (node:internal/modules/helpers:182:18)
+#     at Object.<anonymous> (/home/ramin/kidsmap/scripts/test_review_cooldown.cjs:2:18)
+#     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+#     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+#     at Module.load (node:internal/modules/cjs/loader:1266:32)
+#     at Module._load (node:internal/modules/cjs/loader:1091:12) {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: [ '/home/ramin/kidsmap/scripts/test_review_cooldown.cjs' ]
+# }
+# Node.js v20.20.2
+# Subtest: /home/ramin/kidsmap/scripts/test_review_cooldown.cjs
+not ok 17 - /home/ramin/kidsmap/scripts/test_review_cooldown.cjs
+  ---
+  duration_ms: 75.317565
+  location: '/home/ramin/kidsmap/scripts/test_review_cooldown.cjs:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/cjs/loader:1210
+#   throw err;
+#   ^
+# Error: Cannot find module 'playwright'
+# Require stack:
+# - /home/ramin/kidsmap/scripts/test_review_submission.cjs
+#     at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+#     at Module._resolveFilename (/home/ramin/kidsmap/.tmp/module01-full-2026-10-12-r1/integration/resolve-jsdom.cjs:2:201)
+#     at Module._load (node:internal/modules/cjs/loader:1038:27)
+#     at Module.require (node:internal/modules/cjs/loader:1289:19)
+#     at require (node:internal/modules/helpers:182:18)
+#     at Object.<anonymous> (/home/ramin/kidsmap/scripts/test_review_submission.cjs:2:20)
+#     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+#     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+#     at Module.load (node:internal/modules/cjs/loader:1266:32)
+#     at Module._load (node:internal/modules/cjs/loader:1091:12) {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: [ '/home/ramin/kidsmap/scripts/test_review_submission.cjs' ]
+# }
+# Node.js v20.20.2
+# Subtest: /home/ramin/kidsmap/scripts/test_review_submission.cjs
+not ok 18 - /home/ramin/kidsmap/scripts/test_review_submission.cjs
+  ---
+  duration_ms: 58.22903
+  location: '/home/ramin/kidsmap/scripts/test_review_submission.cjs:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Baku excludes explicit Sumgait despite coordinates/address: Sumgait
+ok 58 - Baku excludes explicit Sumgait despite coordinates/address: Sumgait
+  ---
+  duration_ms: 7.308305
+  ...
+# Subtest: Baku excludes explicit Sumgait despite coordinates/address: Сумгаит
+ok 59 - Baku excludes explicit Sumgait despite coordinates/address: Сумгаит
+  ---
+  duration_ms: 1.165023
+  ...
+# Subtest: Baku excludes explicit Sumgait despite coordinates/address: Sumqayıt
+ok 60 - Baku excludes explicit Sumgait despite coordinates/address: Sumqayıt
+  ---
+  duration_ms: 1.018646
+  ...
+# Subtest: district classification uses canonical keys and never guesses from address or coordinates
+ok 61 - district classification uses canonical keys and never guesses from address or coordinates
+  ---
+  duration_ms: 1.339022
+  ...
+# Subtest: category, subcategory, district, age and query go together to canonical server search
+ok 62 - category, subcategory, district, age and query go together to canonical server search
+  ---
+  duration_ms: 4.533326
+  ...
+# Subtest: failed server filter request is reported, not replaced by guessed client results
+ok 63 - failed server filter request is reported, not replaced by guessed client results
+  ---
+  duration_ms: 1.718739
+  ...
+# Subtest: latest filter response wins, aborted and stale results cannot overwrite the map
+ok 64 - latest filter response wins, aborted and stale results cannot overwrite the map
+  ---
+  duration_ms: 1.655429
+  ...
+# Subtest: Leaflet fallback reads asset URLs and integrity from its script tag
+ok 65 - Leaflet fallback reads asset URLs and integrity from its script tag
+  ---
+  duration_ms: 1.824759
+  ...
+# Subtest: successful tile is displayed only after checked response, with origin-only referrer and normal caching
+ok 66 - successful tile is displayed only after checked response, with origin-only referrer and normal caching
+  ---
+  duration_ms: 12.577414
+  ...
+# Subtest: HTTP 403 with a decodable image body never becomes a visible tile
+ok 67 - HTTP 403 with a decodable image body never becomes a visible tile
+  ---
+  duration_ms: 3.065951
+  ...
+# Subtest: network failure reports unavailable instead of rendering a broken tile
+ok 68 - network failure reports unavailable instead of rendering a broken tile
+  ---
+  duration_ms: 3.321852
+  ...
+# Subtest: unloaded tile cancels pending transport and ignores late response without allocating a blob
+ok 69 - unloaded tile cancels pending transport and ignores late response without allocating a blob
+  ---
+  duration_ms: 2.633206
+  ...
+# AI referral tracking tests passed
+# Subtest: /home/ramin/kidsmap/static/js/tests/ai_referral_tracking.test.js
+ok 21 - /home/ramin/kidsmap/static/js/tests/ai_referral_tracking.test.js
+  ---
+  duration_ms: 72.549836
+  ...
+# Subtest: new camera target cancels old work; manual input leaves no scheduled frames
+ok 71 - new camera target cancels old work; manual input leaves no scheduled frames
+  ---
+  duration_ms: 4.733715
+  ...
+# Subtest: vector camera finishes at target without zooming out or leaving a loop
+ok 72 - vector camera finishes at target without zooming out or leaving a loop
+  ---
+  duration_ms: 1.45085
+  ...
+# Subtest: reduced motion uses one instant camera update
+ok 73 - reduced motion uses one instant camera update
+  ---
+  duration_ms: 1.238499
+  ...
+# Subtest: coincident cluster offers places instead of moving their real coordinates or zooming
+ok 74 - coincident cluster offers places instead of moving their real coordinates or zooming
+  ---
+  duration_ms: 2.992153
+  ...
+# Subtest: membership delta preserves unchanged markers and renders once per change
+ok 75 - membership delta preserves unchanged markers and renders once per change
+  ---
+  duration_ms: 2.069043
+  ...
+# Subtest: nearly coincident native fit uses expanded camera bounds, capped at useful zoom
+ok 76 - nearly coincident native fit uses expanded camera bounds, capped at useful zoom
+  ---
+  duration_ms: 1.581868
+  ...
+# Subtest: scene connects visible destinations outside protected content
+ok 77 - scene connects visible destinations outside protected content
+  ---
+  duration_ms: 4.742119
+  ...
+# Subtest: route visibly grows, reaches its destination, and fades before repeating
+ok 78 - route visibly grows, reaches its destination, and fades before repeating
+  ---
+  duration_ms: 0.394946
+  ...
+# Subtest: reduced motion shows a complete, stable journey
+ok 79 - reduced motion shows a complete, stable journey
+  ---
+  duration_ms: 1.112913
+  ...
+# Subtest: the traveling light interpolates between route samples instead of jumping
+ok 80 - the traveling light interpolates between route samples instead of jumping
+  ---
+  duration_ms: 0.322023
+  ...
+# Subtest: mobile destinations fit even when only narrow vertical gaps remain
+ok 81 - mobile destinations fit even when only narrow vertical gaps remain
+  ---
+  duration_ms: 0.671214
+  ...
+# Subtest: vertical journeys span a long page and enter the footer, with safe landmarks
+ok 82 - vertical journeys span a long page and enter the footer, with safe landmarks
+  ---
+  duration_ms: 3.114593
+  ...
+# Subtest: narrow screens keep continuous side trails without squeezing icons into content
+ok 83 - narrow screens keep continuous side trails without squeezing icons into content
+  ---
+  duration_ms: 0.928703
+  ...
+# Subtest: footer turns have a continuous tangent and finish horizontally even in wide gutters
+ok 84 - footer turns have a continuous tangent and finish horizontally even in wide gutters
+  ---
+  duration_ms: 13.267574
+  ...
+# Subtest: traveling light uses distance along the curved footer route
+ok 85 - traveling light uses distance along the curved footer route
+  ---
+  duration_ms: 5.680728
+  ...
+1..85
+# tests 85
+# suites 0
+# pass 66
+# fail 18
+# cancelled 0
+# skipped 1
+# todo 0
+# duration_ms 6912.490076

@@ -1,0 +1,7 @@
+{
+  "classification": "QA invalid fixture surname (digits); registration correctly denied; deletion path NOT RUN in initial attempt",
+  "source": "src/catalog/forms.py:_validate_person_name / RegistrationForm.clean_last_name",
+  "replacement": "only fixture surname changed to same valid fictional Sınaq used in accepted auth flows",
+  "original_rows_retained": true,
+  "application_changes": []
+}

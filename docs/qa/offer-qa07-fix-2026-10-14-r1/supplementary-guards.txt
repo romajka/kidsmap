@@ -1,0 +1,143 @@
+Found 2 test(s).
+System check identified no issues (0 silenced).
+Using existing test database for alias 'default'...
+.E/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /home/ramin/kidsmap/.tmp/offer-qa07-fix-2026-10-14-r1/staticfiles/
+  mw_instance = middleware(adapted_handler)
+EE
+======================================================================
+ERROR: test_unauthorized_actor_cannot_retire_owners_copy (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_unauthorized_actor_cannot_retire_owners_copy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 103, in _execute
+    return self.cursor.execute(sql)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/psycopg/cursor.py", line 97, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.ForeignKeyViolation: insert or update on table "catalog_place" violates foreign key constraint "catalog_place_category_ec02031a_fk_catalog_category_code"
+DETAIL:  Key (category)=(EDU) is not present in table "catalog_category".
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/backends/postgresql/base.py", line 483, in check_constraints
+    cursor.execute("SET CONSTRAINTS ALL IMMEDIATE")
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 103, in _execute
+    return self.cursor.execute(sql)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/psycopg/cursor.py", line 97, in execute
+    raise ex.with_traceback(None)
+django.db.utils.IntegrityError: insert or update on table "catalog_place" violates foreign key constraint "catalog_place_category_ec02031a_fk_catalog_category_code"
+DETAIL:  Key (category)=(EDU) is not present in table "catalog_category".
+
+======================================================================
+ERROR: test_invalid_explicit_ajax_save_leaves_draft_resumable (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_invalid_explicit_ajax_save_leaves_draft_resumable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/models/fields/related_descriptors.py", line 241, in __get__
+    rel_obj = self.field.get_cached_value(instance)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/models/fields/mixins.py", line 21, in get_cached_value
+    return instance._state.fields_cache[self.cache_name]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+KeyError: 'category'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_offer_qa07_stale_draft_restore.py", line 57, in test_invalid_explicit_ajax_save_leaves_draft_resumable
+    response=self.client.post(reverse('owner_photo_edit_save',args=[self.place.pk]),{
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/test/client.py", line 1153, in post
+    response = super().post(
+               ^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/test/client.py", line 499, in post
+    return self.generic(
+           ^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/test/client.py", line 671, in generic
+    return self.request(**r)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/test/client.py", line 1087, in request
+    self.check_exception(response)
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/test/client.py", line 802, in check_exception
+    raise exc_value
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/views/decorators/cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/views/decorators/http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/photo_views.py", line 102, in save_owner_photos
+    result = controller.save_edit_form(request=request, place_id=pk, data=data, files=request.FILES, draft_save_only=action == 'save_draft', submit_for_moderation=action == 'save_and_publish')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/controllers/owner_places_controller.py", line 706, in save_edit_form
+    old_snapshot = {field: getattr(result.place, field) for field in tracked_fields}
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/models/fields/related_descriptors.py", line 257, in __get__
+    rel_obj = self.get_object(instance)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/models/fields/related_descriptors.py", line 222, in get_object
+    return qs.get(self.field.get_reverse_related_filter(instance))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 639, in get
+    raise self.model.DoesNotExist(
+catalog.models.category.Category.DoesNotExist: Category matching query does not exist.
+
+======================================================================
+ERROR: test_invalid_explicit_ajax_save_leaves_draft_resumable (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_invalid_explicit_ajax_save_leaves_draft_resumable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 103, in _execute
+    return self.cursor.execute(sql)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/psycopg/cursor.py", line 97, in execute
+    raise ex.with_traceback(None)
+psycopg.errors.ForeignKeyViolation: insert or update on table "catalog_place" violates foreign key constraint "catalog_place_category_ec02031a_fk_catalog_category_code"
+DETAIL:  Key (category)=(EDU) is not present in table "catalog_category".
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/backends/postgresql/base.py", line 483, in check_constraints
+    cursor.execute("SET CONSTRAINTS ALL IMMEDIATE")
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/utils.py", line 94, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 103, in _execute
+    return self.cursor.execute(sql)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/psycopg/cursor.py", line 97, in execute
+    raise ex.with_traceback(None)
+django.db.utils.IntegrityError: insert or update on table "catalog_place" violates foreign key constraint "catalog_place_category_ec02031a_fk_catalog_category_code"
+DETAIL:  Key (category)=(EDU) is not present in table "catalog_category".
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.139s
+
+FAILED (errors=3)
+Preserving test database for alias 'default'...

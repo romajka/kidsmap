@@ -36,7 +36,7 @@
     {% block twitter_image %}<meta name="twitter:image" content="{% firstof public_base_url request.scheme|add:'://'|add:request.get_host %}{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />{% endblock %}
     <link rel="icon" type="image/svg+xml" href="{% static 'img/logo-mark.svg' %}" />
     <link rel="apple-touch-icon" href="{% static 'img/logo-mark.svg' %}" />
-    {% if google_analytics_enabled %}
+    {% if google_analytics_enabled and not site_preview %}
       <script async src="https://www.googletagmanager.com/gtag/js?id={{ google_analytics_measurement_id|urlencode }}"></script>
       <script>
         window.dataLayer = window.dataLayer || [];
@@ -106,7 +106,8 @@
     <script src="{% static 'js/header.js' %}?v=20260915" defer></script>
     <script src="{% static 'js/motion.js' %}"></script>
   </head>
-  <body id="top" class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
+  <body id="top" class="{% if site_preview %}page-place_detail{% elif request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
+    {% if site_preview %}data-site-preview="true"{% endif %}
     data-analytics-page-type="{{ analytics_page_type }}"
     data-page-language="{{ current_lang_code }}">
     <div class="toast-stack" data-toast-stack aria-live="polite" aria-atomic="true"></div>
@@ -706,6 +707,7 @@
 
         (function () {
           function sendGoogleAnalyticsEvent(name, params) {
+            if (document.body.hasAttribute('data-site-preview')) return;
             if (!name || typeof window.gtag !== "function") return;
             window.gtag("event", name, params || {});
           }
@@ -713,6 +715,7 @@
           window.kidsMapTrackGoogleAnalyticsEvent = sendGoogleAnalyticsEvent;
 
           const trackUrl = "{% url 'track_event' %}";
+          if (document.body.hasAttribute('data-site-preview')) return;
 
           function emitAnalyticsEvent(eventItem) {
             if (!eventItem || !eventItem.name) return;
@@ -860,7 +863,7 @@
 
       })();
     </script>
-    <script src="{% static 'js/ai_referral_tracking.js' %}"></script>
+    {% if not site_preview %}<script src="{% static 'js/ai_referral_tracking.js' %}"></script>{% endif %}
     <script src="{% static 'js/review_submission.js' %}" defer></script>
     {% if analytics_events %}
       {{ analytics_events|json_script:"kidsmap-analytics-events" }}

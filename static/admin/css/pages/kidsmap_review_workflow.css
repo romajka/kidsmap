@@ -1,0 +1,12 @@
+.km-review-workflow { max-width: 960px; min-width: 0; margin: 0 auto; overflow-wrap: anywhere; }
+.km-review-workflow h1 { margin-top: 20px; }
+.km-review-workflow__card { margin: 20px 0; padding: 20px; background: var(--km-surface, #fff); border: 1px solid var(--km-border, #dce5de); border-radius: 12px; }
+.km-review-workflow__card h2 { font-size: 1.25rem; margin: 0 0 16px; }
+.km-review-workflow blockquote { margin: 16px 0; padding: 0 16px; border-left: 3px solid var(--km-border, #dce5de); }
+.km-review-workflow form { margin: 16px 0 0; }
+.km-review-workflow label { display: block; margin-bottom: 8px; }
+.km-review-workflow textarea { display: block; width: 100%; max-width: 100%; box-sizing: border-box; margin-bottom: 12px; }
+.km-review-workflow button { min-height: 44px; white-space: normal; max-width: 100%; }
+.km-review-workflow summary { cursor: pointer; min-height: 44px; }
+.km-review-workflow :is(a, button, textarea, summary):focus-visible { outline: 3px solid var(--km-primary, #136f38); outline-offset: 3px; }
+@media (max-width: 560px) { .km-review-workflow__card { padding: 16px; } .km-review-workflow button { width: 100%; } }

@@ -1,0 +1,1061 @@
+{
+  "rows": [
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 146,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 226.0625,
+        "width": 390
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 226.0625,
+        "width": 390
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: first tab honest success",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 226.0625,
+        "width": 390
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 226.0625,
+        "width": 390
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: second tab sees stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "Приглашение больше недоступно. Обновите список."
+        ]
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: exactly one decision after two tabs",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 49,
+        "target_id": 1,
+        "notification_id": 157,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 226.0625,
+        "width": 390
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 226.0625,
+        "width": 390
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: first tab honest success",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 226.0625,
+        "width": 390
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 226.0625,
+        "width": 390
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: second tab sees stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "Приглашение больше недоступно. Обновите список."
+        ]
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: exactly one decision after two tabs",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 49,
+        "target_id": 1,
+        "notification_id": 158,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 148,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 149,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: first tab honest success",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: second tab sees stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "Dəvət artıq əlçatan deyil. Siyahını yeniləyin."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: exactly one decision after two tabs",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 50,
+        "target_id": 1,
+        "notification_id": 161,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: first tab honest success",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: second tab sees stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "Dəvət artıq əlçatan deyil. Siyahını yeniləyin."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: exactly one decision after two tabs",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 50,
+        "target_id": 1,
+        "notification_id": 162,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 150,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 151,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 170.46875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 170.46875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: first tab honest success",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 170.46875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 170.46875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: second tab sees stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "The invitation is no longer available. Refresh the list."
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "place: exactly one decision after two tabs",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 51,
+        "target_id": 1,
+        "notification_id": 165,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 170.46875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 170.46875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: first tab honest success",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 170.46875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 170.46875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: second tab sees stale error",
+      "status": "PASS",
+      "detail": {
+        "alerts": [
+          "The invitation is no longer available. Refresh the list."
+        ]
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "organization: exactly one decision after two tabs",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 51,
+        "target_id": 1,
+        "notification_id": 166,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "en",
+      "width": 390,
+      "scenario": "two-tabs",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 153,
+        "scheduler": "SIMULATED manual tick"
+      }
+    }
+  ],
+  "completedCells": [
+    {
+      "lang": "ru",
+      "width": 390
+    },
+    {
+      "lang": "az",
+      "width": 390
+    },
+    {
+      "lang": "en",
+      "width": 390
+    }
+  ],
+  "error": null,
+  "diagnostics": {
+    "console": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      }
+    ],
+    "pageerrors": [],
+    "requestFailures": [
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "badResponses": [
+      {
+        "path": "/ru/account/notifications/157/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/ru/account/notifications/158/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/account/notifications/161/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/account/notifications/162/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/en/account/notifications/165/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/en/account/notifications/166/reject/",
+        "status": 409,
+        "expected": true
+      }
+    ]
+  },
+  "browser": "149.0.7827.55",
+  "simulation": "Owner invitations, native recipient decisions/cancel and readback real. External transport blocked; manual local mail scheduler tick explicitly SIMULATED; any stale-fixture/network simulation is labeled per scenario."
+}

@@ -1,0 +1,256 @@
+{
+  "evidence_verified": true,
+  "product_verdict": "FAIL: eight open findings",
+  "checks": 61,
+  "png": 29,
+  "rendered_states": 45,
+  "production_decision_submits": 0,
+  "application_source_changes": [],
+  "production_mutations_tested": false,
+  "checks_detail": [
+    {
+      "name": "45 local rendered GET cases, three languages and five widths",
+      "pass": true
+    },
+    {
+      "name": "bounded GET matrix: no page errors, first-party HTTP failure or document overflow",
+      "pass": true
+    },
+    {
+      "name": "AM03: four candidates but only two queue rows",
+      "pass": true
+    },
+    {
+      "name": "AM04: bulk published an undecided candidate",
+      "pass": true
+    },
+    {
+      "name": "AM05: hidden review still public, candidate replaced",
+      "pass": true
+    },
+    {
+      "name": "typed approval and repeat-decision control",
+      "pass": true
+    },
+    {
+      "name": "AM08: successful publication followed by false object-not-found message",
+      "pass": true
+    },
+    {
+      "name": "readback was isolated and read-only",
+      "pass": true
+    },
+    {
+      "name": "2837 application/source assets preserved",
+      "pass": true
+    },
+    {
+      "name": "HEAD unchanged",
+      "pass": true
+    },
+    {
+      "name": "PNG az-1440-place.png",
+      "pass": true
+    },
+    {
+      "name": "PNG az-1440-queue.png",
+      "pass": true
+    },
+    {
+      "name": "PNG az-1440-review.png",
+      "pass": true
+    },
+    {
+      "name": "PNG az-390-place.png",
+      "pass": true
+    },
+    {
+      "name": "PNG az-390-queue.png",
+      "pass": true
+    },
+    {
+      "name": "PNG az-390-review.png",
+      "pass": true
+    },
+    {
+      "name": "PNG bulk-after.png",
+      "pass": true
+    },
+    {
+      "name": "PNG bulk-before.png",
+      "pass": true
+    },
+    {
+      "name": "PNG en-1440-place.png",
+      "pass": true
+    },
+    {
+      "name": "PNG en-1440-queue.png",
+      "pass": true
+    },
+    {
+      "name": "PNG en-1440-review.png",
+      "pass": true
+    },
+    {
+      "name": "PNG en-390-place.png",
+      "pass": true
+    },
+    {
+      "name": "PNG en-390-queue.png",
+      "pass": true
+    },
+    {
+      "name": "PNG en-390-review.png",
+      "pass": true
+    },
+    {
+      "name": "PNG hide-confirm.png",
+      "pass": true
+    },
+    {
+      "name": "PNG place-after-publish.png",
+      "pass": true
+    },
+    {
+      "name": "PNG place-before-publish.png",
+      "pass": true
+    },
+    {
+      "name": "PNG place-public-final.png",
+      "pass": true
+    },
+    {
+      "name": "PNG place-public.png",
+      "pass": true
+    },
+    {
+      "name": "PNG public-after-bulk.png",
+      "pass": true
+    },
+    {
+      "name": "PNG public-after-hide.png",
+      "pass": true
+    },
+    {
+      "name": "PNG publish-confirmation.png",
+      "pass": true
+    },
+    {
+      "name": "PNG publish-result.png",
+      "pass": true
+    },
+    {
+      "name": "PNG ru-1440-place.png",
+      "pass": true
+    },
+    {
+      "name": "PNG ru-1440-queue.png",
+      "pass": true
+    },
+    {
+      "name": "PNG ru-1440-review.png",
+      "pass": true
+    },
+    {
+      "name": "PNG ru-390-place.png",
+      "pass": true
+    },
+    {
+      "name": "PNG ru-390-queue.png",
+      "pass": true
+    },
+    {
+      "name": "PNG ru-390-review.png",
+      "pass": true
+    },
+    {
+      "name": "link REPORT.md BUG_REPORT.md",
+      "pass": true
+    },
+    {
+      "name": "link REPORT.md live-observations.json",
+      "pass": true
+    },
+    {
+      "name": "link REPORT.md browser.json",
+      "pass": true
+    },
+    {
+      "name": "link REPORT.md controls.json",
+      "pass": true
+    },
+    {
+      "name": "link REPORT.md publish.json",
+      "pass": true
+    },
+    {
+      "name": "link REPORT.md probe.json",
+      "pass": true
+    },
+    {
+      "name": "link REPORT.md readback.json",
+      "pass": true
+    },
+    {
+      "name": "link REPORT.md png-manifest.json",
+      "pass": true
+    },
+    {
+      "name": "link REPORT.md source-manifest.json",
+      "pass": true
+    },
+    {
+      "name": "link REPORT.md source-final.json",
+      "pass": true
+    },
+    {
+      "name": "link BUG_REPORT.md REPORT.md",
+      "pass": true
+    },
+    {
+      "name": "link BUG_REPORT.md live-observations.json",
+      "pass": true
+    },
+    {
+      "name": "link BUG_REPORT.md browser.json",
+      "pass": true
+    },
+    {
+      "name": "link BUG_REPORT.md /home/ramin/kidsmap/output/playwright/admin-moderation-audit-2026-10-16-r1/ru-1440-queue.png",
+      "pass": true
+    },
+    {
+      "name": "link BUG_REPORT.md /home/ramin/kidsmap/output/playwright/admin-moderation-audit-2026-10-16-r1/bulk-after.png",
+      "pass": true
+    },
+    {
+      "name": "link BUG_REPORT.md /home/ramin/kidsmap/output/playwright/admin-moderation-audit-2026-10-16-r1/public-after-hide.png",
+      "pass": true
+    },
+    {
+      "name": "link BUG_REPORT.md publish.json",
+      "pass": true
+    },
+    {
+      "name": "link BUG_REPORT.md readback.json",
+      "pass": true
+    },
+    {
+      "name": "link BUG_REPORT.md /home/ramin/kidsmap/output/playwright/admin-moderation-audit-2026-10-16-r1/publish-result.png",
+      "pass": true
+    },
+    {
+      "name": "link BUG_REPORT.md /home/ramin/kidsmap/output/playwright/admin-moderation-audit-2026-10-16-r1/place-public-final.png",
+      "pass": true
+    },
+    {
+      "name": "own credential values absent from published text artifacts",
+      "pass": true
+    },
+    {
+      "name": "eight findings documented",
+      "pass": true
+    }
+  ]
+}

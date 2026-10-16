@@ -1,0 +1,24 @@
+{
+  "preflight": true,
+  "image_id": "sha256:05972f5feaf7eb9f509cb638215dc427e20cdcb39b1ffb8bd1a58aeeb037e022",
+  "image_tag": "kidsmap:admin-moderation-15cd43b75c1b",
+  "web_id": "504c50d7ef51f14f315afcdb8d191d4c70011f14777cfa805aad431f9f9b1316",
+  "base_source_files_match": 973,
+  "new_paths_absent": true,
+  "env_values_match_compose": true,
+  "env_file_in_image": false,
+  "mounts_match_compose": true,
+  "protected_container_ids": {
+    "kidsmap-postgres": "dfe059c1c6a372110227041624f79fd4706226ccea6e529688c3fcd9cbed810c",
+    "kidsmap-redis": "de13ebfcbbc0f1c58bb69d2671a646dae3277ba3a6e279fc234dfcc294bc59a4"
+  },
+  "checkout_HEAD": "cfef63e3dbc93e971ac0e2ae963a17a3821ae27c",
+  "checkout_clean": true,
+  "override_sha256": "1b656f6ddbda70247f26f915ab4eaefa803c697bf937410390cb5a4f3b50e7ab",
+  "disk_free_bytes": 61448699904,
+  "health": {
+    "kidsmap.az/healthz": 200,
+    "kidsmap.az/ru/": 200,
+    "admin.kidsmap.az/ru/admin/login/": 200
+  }
+}

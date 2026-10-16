@@ -1,0 +1,10 @@
+{"name": "locales-build", "argv": ["/home/ramin/kidsmap/.tmp/mod-qa07-css-fix-2026-10-16-r1/venv/bin/python", "scripts/build_isolated_locales.py", "build", "--output", "/home/ramin/kidsmap/.tmp/mod-qa07-css-fix-2026-10-16-r1/locales", "--locales", "ru", "az", "en", "--compiler", "native"], "exit": 0, "seconds": 0.372}
+{"name": "locales-verify", "argv": ["/home/ramin/kidsmap/.tmp/mod-qa07-css-fix-2026-10-16-r1/venv/bin/python", "scripts/build_isolated_locales.py", "verify", "--manifest", "/home/ramin/kidsmap/.tmp/mod-qa07-css-fix-2026-10-16-r1/locales/manifest.json"], "exit": 0, "seconds": 0.073}
+{"name": "runtime-info", "argv": ["/home/ramin/kidsmap/.tmp/mod-qa07-css-fix-2026-10-16-r1/venv/bin/python", "/home/ramin/kidsmap/docs/qa/mod-qa07-css-fix-2026-10-16-r1/runtime.py", "runtime-info"], "exit": 0, "seconds": 6.276}
+{"name": "native-red.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=mod07cssred", "run-code", "</home/ramin/kidsmap/docs/qa/mod-qa07-css-fix-2026-10-16-r1/native-red.js>"], "exit": 0, "seconds": 8.418}
+{"name": "native-ru.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=mod07cssru", "run-code", "</home/ramin/kidsmap/docs/qa/mod-qa07-css-fix-2026-10-16-r1/native-ru.js>"], "exit": 0, "seconds": 28.072}
+{"name": "native-az.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=mod07cssaz", "run-code", "</home/ramin/kidsmap/docs/qa/mod-qa07-css-fix-2026-10-16-r1/native-az.js>"], "exit": 0, "seconds": 28.345}
+{"name": "native-en.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=mod07cssen", "run-code", "</home/ramin/kidsmap/docs/qa/mod-qa07-css-fix-2026-10-16-r1/native-en.js>"], "exit": 0, "seconds": 28.801}
+{"name": "native-shared.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=mod07cssru", "run-code", "</home/ramin/kidsmap/docs/qa/mod-qa07-css-fix-2026-10-16-r1/native-shared.js>"], "exit": 0, "seconds": 21.551}
+{"name": "diff-check", "argv": ["git", "diff", "--check"], "exit": 0}
+{"name": "diff-check", "argv": ["git", "diff", "--check"], "exit": 0}

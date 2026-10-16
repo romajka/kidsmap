@@ -1,0 +1,17 @@
+Found 1 test(s).
+System check identified no issues (0 silenced).
+Using existing test database for alias 'default'...
+F
+======================================================================
+FAIL: test_name_only_candidate_counts_current_group_tariff (catalog.testcases.test_offer_qa09_partial_review_pricing.PartialReviewPricingTests.test_name_only_candidate_counts_current_group_tariff)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_offer_qa09_partial_review_pricing.py", line 46, in test_name_only_candidate_counts_current_group_tariff
+    self.assertTrue(readiness.is_ready, readiness.issues)
+AssertionError: False is not true : (ReadinessIssue(code='price', section='pricing', field='pricing_plans', anchor='[data-tariff-editor]', label='Qiymət', message='Mövcud qiyməti tariflərə köçürün və ya məkanın pulsuz olduğunu göstərin.', quality_code='legacy_price_not_migrated', blocking=True),)
+
+----------------------------------------------------------------------
+Ran 1 test in 1.616s
+
+FAILED (failures=1)
+Preserving test database for alias 'default'...

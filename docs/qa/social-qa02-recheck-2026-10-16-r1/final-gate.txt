@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/docs/qa/social-qa02-recheck-2026-10-16-r1/verify.py", line 43, in <module>
+    if '://'not in link and link.split('#')[0]!='verification.json':assert(H/link.split('#')[0]).exists(),(name,link)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('REPORT.md', 'verification.json')

@@ -1,0 +1,142 @@
+TAP version 13
+# Subtest: success synchronizes default role and server list without replacing editor input
+not ok 1 - success synchronizes default role and server list without replacing editor input
+  ---
+  duration_ms: 99.038626
+  location: '/home/ramin/kidsmap/.tmp/org08-fix-20261008/test-before.cjs:14:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'View, edit and stats'
+    - 'View and edit'
+           ^
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'View and edit'
+  actual: 'View, edit and stats'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/.tmp/org08-fix-20261008/test-before.cjs:15:127)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: in-flight keyboard or programmatic repeat makes one POST and announces loading
+not ok 2 - in-flight keyboard or programmatic repeat makes one POST and announces loading
+  ---
+  duration_ms: 22.77717
+  location: '/home/ramin/kidsmap/.tmp/org08-fix-20261008/test-before.cjs:18:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    2 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 2
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/.tmp/org08-fix-20261008/test-before.cjs:20:9)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: 400 and403 preserve the complete submitted scope and release controls
+not ok 3 - 400 and403 preserve the complete submitted scope and release controls
+  ---
+  duration_ms: 15.63894
+  location: '/home/ramin/kidsmap/.tmp/org08-fix-20261008/test-before.cjs:23:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    null !== 'false'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'false'
+  actual: ~
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/.tmp/org08-fix-20261008/test-before.cjs:24:389)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: duplicate409 preserves input and displays authoritative existing invitation
+not ok 4 - duplicate409 preserves input and displays authoritative existing invitation
+  ---
+  duration_ms: 17.830972
+  location: '/home/ramin/kidsmap/.tmp/org08-fix-20261008/test-before.cjs:26:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    
+    1 !== 2
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 2
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/.tmp/org08-fix-20261008/test-before.cjs:27:146)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: confirmed POST with failed list read is distinguished and GET retry never sends again
+not ok 5 - confirmed POST with failed list read is distinguished and GET retry never sends again
+  ---
+  duration_ms: 14.411501
+  location: '/home/ramin/kidsmap/.tmp/org08-fix-20261008/test-before.cjs:29:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /Invitation sent.*refresh/s. Input:
+    
+    'Invitation sent'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: 'Invitation sent'
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/.tmp/org08-fix-20261008/test-before.cjs:30:191)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: lost POST response retains input and offers read-only verification without claiming refusal
+not ok 6 - lost POST response retains input and offers read-only verification without claiming refusal
+  ---
+  duration_ms: 12.601006
+  location: '/home/ramin/kidsmap/.tmp/org08-fix-20261008/test-before.cjs:32:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /response.*server/. Input:
+    
+    'Invitation failed; check permissions and fields.'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: 'Invitation failed; check permissions and fields.'
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/.tmp/org08-fix-20261008/test-before.cjs:33:227)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 0
+# fail 6
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 548.253867

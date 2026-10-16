@@ -14,6 +14,7 @@ from catalog.models import (
 )
 
 User = get_user_model()
+from catalog.testcases.specialist_document_fixtures import pdf_document_bytes
 
 class TestSpecialistFlows(TestCase):
     def setUp(self):
@@ -309,7 +310,7 @@ class TestOwnerSpecialistManagement(TestCase):
             reverse("owner_specialist_create"),
             data={
                 **self._valid_payload(),
-                "documents": [SimpleUploadedFile("certificate.pdf", b"pdf", content_type="application/pdf")],
+                "documents": [SimpleUploadedFile("certificate.pdf", pdf_document_bytes(), content_type="application/pdf")],
             },
         )
 
@@ -329,7 +330,7 @@ class TestOwnerSpecialistManagement(TestCase):
         person.refresh_from_db()
         response = self.client.post(reverse('owner_specialist_edit', args=[person.pk]), data={
             **self._valid_payload(), 'expected_updated_at': person.updated_at.isoformat(),
-            'documents': [SimpleUploadedFile('certificate.pdf', b'pdf', content_type='application/pdf')],
+            'documents': [SimpleUploadedFile('certificate.pdf', pdf_document_bytes(), content_type='application/pdf')],
         })
         self.assertEqual(response.status_code, 302)
         document = SpecialistDocument.objects.get(specialist=person)
@@ -403,7 +404,9 @@ class TestSpecialistsFeatureFlag(TestCase):
 
         # Owner endpoints
         self.client.login(username="owner_flag", password="password")
-        response = self.client.get(reverse("owner_specialist_create"))
+        response = self.client.get(reverse("owner_specialist_create"), follow=True)
+        self.assertEqual(response.redirect_chain,
+                         [(reverse('specialist_workspace_proposal'), 302)])
         self.assertEqual(response.status_code, 200)
 
         response = self.client.post(reverse("owner_specialist_create"), data={"name": "test"})

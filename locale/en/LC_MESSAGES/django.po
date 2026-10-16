@@ -3238,10 +3238,9 @@ msgid "Дата окончания"
 msgstr "End date"
 
 #: src/catalog/domain_admin/place.py:572
-#, fuzzy
 #| msgid "Поля, отмеченные звездочкой, обязательны для заполнения."
 msgid "Нельзя опубликовать мероприятие. Обязательны для заполнения: {}"
-msgstr "Fields marked with an asterisk are required."
+msgstr "The event cannot be published. Complete the required fields: {}"
 
 #: src/catalog/domain_admin/place.py:594
 msgid "Основное изображение мероприятия для списка и детальной страницы."
@@ -4270,7 +4269,6 @@ msgid "админка"
 msgstr "Admin panel"
 
 #: src/catalog/domain_admin/place.py:3122
-#, fuzzy
 #| msgid "Создано"
 msgid "создано"
 msgstr "Created"
@@ -4506,10 +4504,9 @@ msgid "Удалил"
 msgstr "Deleted by"
 
 #: src/catalog/domain_admin/place.py:3571
-#, fuzzy
 #| msgid "Не указан"
 msgid "Не указано"
-msgstr "Unspecified"
+msgstr "Not specified"
 
 #: src/catalog/domain_admin/place.py:3582
 #, fuzzy
@@ -4840,10 +4837,9 @@ msgid ""
 msgstr "Fields marked with an asterisk are required."
 
 #: src/catalog/domain_admin/place.py:4538
-#, fuzzy
 #| msgid "Нет опубликованных карточек."
 msgid "Карточка опубликована — уже видна на сайте"
-msgstr "No published listings."
+msgstr "Listing published — now visible on the site"
 
 #: src/catalog/domain_admin/place.py:4577
 #, fuzzy
@@ -5330,10 +5326,9 @@ msgstr "Contains filtered profanity"
 #: src/catalog/domain_admin/review.py:427
 #: src/catalog/domain_admin/review.py:502
 #: src/catalog/domain_admin/review.py:523
-#, fuzzy
 #| msgid "Ваша оценка"
 msgid "Низкая оценка"
-msgstr "Your rating"
+msgstr "Low rating"
 
 #: src/catalog/domain_admin/review.py:135
 #: src/catalog/domain_admin/review.py:391
@@ -7950,10 +7945,9 @@ msgid "Примечание к расписанию (EN)"
 msgstr "Schedule"
 
 #: src/catalog/forms.py:1231 src/catalog/models/place.py:142
-#, fuzzy
 #| msgid "Найти занятие"
 msgid "Формат занятий"
-msgstr "Find activities"
+msgstr "Class format"
 
 #: src/catalog/forms.py:1232 src/catalog/models/place.py:143
 #: src/catalog/templates/admin/catalog/place/pricing_editor.html:17
@@ -8727,10 +8721,9 @@ msgid "Slug"
 msgstr "Slug"
 
 #: src/catalog/models/place.py:98
-#, fuzzy
 #| msgid "Кабинет владельца"
 msgid "Без верхней границы возраста"
-msgstr "Owner dashboard"
+msgstr "No upper age limit"
 
 #: src/catalog/models/place.py:100
 msgid "Например: 3+; для всех возрастов укажите возраст «от» 0."
@@ -9079,46 +9072,46 @@ msgid "Занятие"
 msgstr "Lesson"
 
 #: src/catalog/models/pricing_plan.py:14
-#, fuzzy
+
 #| msgid "Если есть абонемент."
 msgid "Абонемент"
-msgstr "If there is a subscription price."
+msgstr "Membership"
 
 #: src/catalog/models/pricing_plan.py:15 src/catalog/models/pricing_plan.py:42
 msgid "Курс"
 msgstr "Course"
 
 #: src/catalog/models/pricing_plan.py:15
-#, fuzzy
+
 #| msgid "Лагеря"
 msgid "Лагерь"
-msgstr "Camps"
+msgstr "Camp"
 
 #: src/catalog/models/pricing_plan.py:16
 msgid "Экскурсия"
 msgstr "Excursion"
 
 #: src/catalog/models/pricing_plan.py:17
-#, fuzzy
+
 #| msgid "Гусар"
 msgid "Тур"
-msgstr "Gusar"
+msgstr "Tour"
 
 #: src/catalog/models/pricing_plan.py:17
 msgid "Аренда"
 msgstr "Rent"
 
 #: src/catalog/models/pricing_plan.py:18
-#, fuzzy
+
 #| msgid "Дополнительные условия"
 msgid "Дополнительная услуга"
-msgstr "Additional conditions"
+msgstr "Additional service"
 
 #: src/catalog/models/pricing_plan.py:19 src/catalog/models/pricing_plan.py:56
-#, fuzzy
+
 #| msgid "Регистрация"
 msgid "Регистрационный взнос"
-msgstr "Register"
+msgstr "Registration fee"
 
 #: src/catalog/models/pricing_plan.py:20 src/catalog/models/pricing_plan.py:56
 msgid "Депозит"
@@ -9135,28 +9128,28 @@ msgid "Групповой"
 msgstr "Group"
 
 #: src/catalog/models/pricing_plan.py:24
-#, fuzzy
+
 #| msgid "Финальный шаг"
 msgid "Индивидуальный"
-msgstr "Final step"
+msgstr "Individual"
 
 #: src/catalog/models/pricing_plan.py:27
-#, fuzzy
+
 #| msgid "Форматы оплаты"
 msgid "Разовая оплата"
-msgstr "Payment formats"
+msgstr "One-time payment"
 
 #: src/catalog/models/pricing_plan.py:27
-#, fuzzy
+
 #| msgid "Электронная почта"
 msgid "Регулярная оплата"
-msgstr "Email address"
+msgstr "Recurring payment"
 
 #: src/catalog/models/pricing_plan.py:28
-#, fuzzy
+
 #| msgid "Пригласить участника"
 msgid "Оплата частями"
-msgstr "Invite member"
+msgstr "Payment in installments"
 
 #: src/catalog/models/pricing_plan.py:31 src/catalog/models/pricing_plan.py:41
 #: src/catalog/models/site.py:575 src/catalog/models/site.py:676
@@ -9168,34 +9161,32 @@ msgid "Неделя"
 msgstr "Week"
 
 #: src/catalog/models/pricing_plan.py:32 src/catalog/models/pricing_plan.py:42
-#, fuzzy
-#| msgid "1 месяц"
 msgid "Месяц"
-msgstr "1 month"
+msgstr "Month"
 
 #: src/catalog/models/pricing_plan.py:32
-#, fuzzy
+
 #| msgid "Вход"
 msgid "Год"
-msgstr "Sign in"
+msgstr "Year"
 
 #: src/catalog/models/pricing_plan.py:35
-#, fuzzy
+
 #| msgid "Возраст и цена"
 msgid "Точная цена"
-msgstr "Age and price"
+msgstr "Exact price"
 
 #: src/catalog/models/pricing_plan.py:36
-#, fuzzy
+
 #| msgid "Диапазон цены"
 msgid "Диапазон"
 msgstr "Price range"
 
 #: src/catalog/models/pricing_plan.py:37
-#, fuzzy
+
 #| msgid "Популярные запросы"
 msgid "По запросу"
-msgstr "Popular searches"
+msgstr "On request"
 
 #: src/catalog/models/pricing_plan.py:40
 msgid "Вход"
@@ -9206,16 +9197,12 @@ msgid "Минута"
 msgstr "Minute"
 
 #: src/catalog/models/pricing_plan.py:41
-#, fuzzy
-#| msgid "Гах"
 msgid "Час"
-msgstr "Gakh"
+msgstr "Hour"
 
 #: src/catalog/models/pricing_plan.py:43
-#, fuzzy
-#| msgid "Заполнено"
 msgid "Смена"
-msgstr "Completed"
+msgstr "Shift"
 
 #: src/catalog/models/pricing_plan.py:44
 msgid "Человек"
@@ -9274,16 +9261,16 @@ msgid "Праздники"
 msgstr "Total listings"
 
 #: src/catalog/models/pricing_plan.py:55
-#, fuzzy
+
 #| msgid "Основное"
 msgid "Основной"
-msgstr "Main"
+msgstr "Primary"
 
 #: src/catalog/models/pricing_plan.py:55
-#, fuzzy
+
 #| msgid "Дополнительно"
 msgid "Дополнительный"
-msgstr "Additional details"
+msgstr "Additional"
 
 #: src/catalog/models/pricing_plan.py:160
 msgid "Для точной цены укажите сумму больше нуля."
@@ -12625,10 +12612,9 @@ msgid "Новая карточка"
 msgstr "New card"
 
 #: src/catalog/templates/admin/catalog/event/change_form.html:48
-#, fuzzy
 #| msgid "Редактирование карточки"
 msgid "Редактирование мероприятия"
-msgstr "Edit listing"
+msgstr "Edit event"
 
 #: src/catalog/templates/admin/catalog/event/change_form.html:58
 msgid ""
@@ -12669,8 +12655,8 @@ msgid_plural ""
 "\n"
 "                Исправьте проблемы ниже и сохраните мероприятие ещё раз.\n"
 "              "
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "\n                Fix the issue below and save the event again.\n              "
+msgstr[1] "\n                Fix the issues below and save the event again.\n              "
 
 #: src/catalog/templates/admin/catalog/event/change_form.html:101
 msgid "Шаги формы"
@@ -13223,11 +13209,11 @@ msgid "Качество данных"
 msgstr "Data quality"
 
 #: src/catalog/templates/admin/catalog/includes/km_changelist_search_panel.html:321
-#, fuzzy, python-format
+#, python-format
 #| msgid "Найден %(total)s кружок"
 #| msgid_plural "Найдено %(total)s кружков"
 msgid "Найдено %(count)s карточек"
-msgstr "%(total)s club found"
+msgstr "Listings found: %(count)s"
 
 #: src/catalog/templates/admin/catalog/includes/km_changelist_search_panel.html:328
 #: src/catalog/templates/catalog/place_list.html:565
@@ -14618,10 +14604,9 @@ msgid "Быстрые действия"
 msgstr "Code valid until"
 
 #: src/catalog/templates/admin/catalog/placeownershiprequest/change_form.html:135
-#, fuzzy
 #| msgid "Одобрить"
 msgid "Одобрить заявку"
-msgstr "Approve"
+msgstr "Approve submission"
 
 #: src/catalog/templates/admin/catalog/placeownershiprequest/change_form.html:147
 #, fuzzy
@@ -16857,10 +16842,9 @@ msgid "Скопировать на другие дни"
 msgstr "Subscribe to updates"
 
 #: src/catalog/templates/includes/place_schedule_editor.html:213
-#, fuzzy
 #| msgid "История просмотров"
 msgid "Предпросмотр"
-msgstr "Browsing history"
+msgstr "Preview"
 
 #: src/catalog/templates/includes/place_schedule_editor.html:214
 #, fuzzy
@@ -17690,16 +17674,12 @@ msgid "Для служебного аккаунта обратитесь к уп
 msgstr "This account is temporarily disabled. Contact the administrator."
 
 #: src/catalog/views.py:1863
-#, fuzzy
-#| msgid "Код подтверждения отправлен на ваш email."
 msgid "Введите фразу подтверждения точно так, как она показана."
-msgstr "Verification code has been sent to your email."
+msgstr "Enter the confirmation phrase exactly as shown."
 
 #: src/catalog/views.py:1864
-#, fuzzy
-#| msgid "Ввести код подтверждения"
 msgid "Неверный код подтверждения."
-msgstr "Enter verification code"
+msgstr "Invalid confirmation code."
 
 #: src/catalog/views.py:1865
 #, fuzzy
@@ -22806,3 +22786,552 @@ msgstr "Business"
 #: src/catalog/models/catalog_structure.py
 msgid "Общественное место"
 msgstr "Public space"
+
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Названия"
+msgstr "Names"
+
+#: src/catalog/models/catalog_structure.py
+msgid "Организации"
+msgstr "Organizations"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Владение"
+msgstr "Ownership"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Проверка данных"
+msgstr "Data verification"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Владелец не назначен"
+msgstr "No owner assigned"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Владение проверено"
+msgstr "Ownership verified"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Владение не проверено"
+msgstr "Ownership not verified"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Связанные разделы"
+msgstr "Related sections"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Текущие и предложенные данные"
+msgstr "Current and proposed data"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Программы"
+msgstr "Programs"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Черновик и проверка не меняют публичные данные до одобрения."
+msgstr "Drafts and review do not change public data before approval."
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Приглашённый редактор сможет менять организацию и общие программы после принятия приглашения."
+msgstr "The invited editor can edit the organization and shared programs after accepting the invitation."
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Email сотрудника"
+msgstr "Employee email"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Пригласить сотрудника"
+msgstr "Invite employee"
+
+#: src/catalog/services/specialist_document_validation.py
+msgid "Документ повреждён или его содержимое не соответствует формату. Выберите исправный PDF, PNG или JPEG."
+msgstr "The document is damaged or its content does not match the format. Choose a valid PDF, PNG or JPEG."
+
+#: src/catalog/services/specialist_document_validation.py
+msgid "PDF защищён паролем. Загрузите документ без пароля."
+msgstr "The PDF is password protected. Upload a document without a password."
+
+#: src/catalog/services/specialist_document_validation.py
+msgid "Не удалось безопасно проверить документ. Выберите файл меньшего размера или разрешения."
+msgstr "The document could not be checked safely. Choose a smaller file or a lower resolution."
+
+
+#: src/catalog/templates/pages/owner_event_form.html
+msgid "Шаги формы мероприятия"
+msgstr "Event form steps"
+
+#: src/catalog/templates/pages/owner_event_form.html
+msgid "Вперёд"
+msgstr "Next"
+
+#: src/catalog/templates/pages/owner_event_form.html
+msgid "Тип организатора"
+msgstr "Organizer type"
+
+
+#, python-format
+msgid "Публикация занятия: %(status)s"
+msgstr "Activity publication: %(status)s"
+
+msgid "Условия подтверждены"
+msgstr "Conditions verified"
+
+msgid "Условия не подтверждены"
+msgstr "Conditions not verified"
+
+msgid "Отдельный статус проверки не установлен"
+msgstr "No separate verification status"
+
+msgid "На проверке"
+msgstr "Under review"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Безлимит"
+msgstr "Unlimited"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Валюта"
+msgstr "Currency"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Видна на сайте"
+msgstr "Visible on the website"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Все условия тарифа"
+msgstr "All tariff details"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Все языки"
+msgstr "All languages"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Готовность к публикации"
+msgstr "Publication readiness"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Группы не добавлены"
+msgstr "No groups added"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Действует до"
+msgstr "Valid until"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Действует с"
+msgstr "Valid from"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Для кого"
+msgstr "Audience"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Дни посещения"
+msgstr "Attendance days"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Дополнение к программе"
+msgstr "Program supplement"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Единица количества"
+msgstr "Quantity unit"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Ещё не опубликована"
+msgstr "Not yet published"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Заявка устарела"
+msgstr "This request is outdated"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Источник цены"
+msgstr "Price source"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "К списку заявок"
+msgstr "Back to requests"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Карточка или отправленные изменения уже изменились. Перед одобрением нужна новая заявка."
+msgstr "The card or submitted changes have been updated. A new request is needed before approval."
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Карточка удалена"
+msgstr "Card deleted"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Количество занятий"
+msgstr "Number of sessions"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Количество периодов"
+msgstr "Number of billing periods"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Количество периодов действия"
+msgstr "Number of validity periods"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Количество платежей"
+msgstr "Number of payments"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Максимум участников"
+msgstr "Maximum participants"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Минимум участников"
+msgstr "Minimum participants"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Модель оплаты"
+msgstr "Billing model"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Надпись цены на карточке"
+msgstr "Card price label"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Название группы"
+msgstr "Group name"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Название направления"
+msgstr "Activity name"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Название тарифа"
+msgstr "Tariff name"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Назначение платежа"
+msgstr "Payment purpose"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Направление"
+msgstr "Activity"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Направления и группы"
+msgstr "Activities and groups"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Направления не добавлены"
+msgstr "No activities added"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Нет комментария"
+msgstr "No comment"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "О карточке"
+msgstr "About the card"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Общие ранее сохранённые условия"
+msgstr "Previously saved general conditions"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Обязательные данные заполнены"
+msgstr "Required information is complete"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Обязательный платёж"
+msgstr "Required payment"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Одобрение публикует карточку с отправленными изменениями."
+msgstr "Approval publishes the card with the submitted changes."
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Описание направления"
+msgstr "Activity description"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Отклонить заявку"
+msgstr "Reject request"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Отправлено на проверку"
+msgstr "Submitted for review"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Перейти к проверке"
+msgstr "Review submitted changes"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Период действия"
+msgstr "Validity period"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Период оплаты"
+msgstr "Billing interval"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Подтвердить владение"
+msgstr "Confirm ownership"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Подтверждение владения передаёт управление карточкой. Оно не публикует её."
+msgstr "Confirming ownership transfers management of the card. It does not publish it."
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Показана полная карточка с изменениями, отправленными на проверку."
+msgstr "The full card is shown with the changes submitted for review."
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Показана полная сохранённая карточка. Просмотр не меняет её статус."
+msgstr "The complete saved card is shown. Viewing it does not change its status."
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Примечание к расписанию"
+msgstr "Schedule note"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Пробное занятие"
+msgstr "Trial session"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Проверить карточку"
+msgstr "Review card"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Проверка заявки на владение"
+msgstr "Ownership request review"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Проверка перед публикацией"
+msgstr "Review before publication"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Развернуть все условия"
+msgstr "Expand all details"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Ранее сохранённые цены"
+msgstr "Previously saved prices"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Расписание по дням не добавлено"
+msgstr "No weekly schedule added"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тариф"
+msgstr "Tariff"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тариф активен"
+msgstr "Tariff enabled"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Текст расписания"
+msgstr "Schedule text"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Текущее состояние"
+msgstr "Current saved card"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Телефон организации"
+msgstr "Organization phone"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тип заявки"
+msgstr "Request type"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тип тарифа"
+msgstr "Tariff type"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тип цены"
+msgstr "Price type"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Увеличить фото"
+msgstr "Enlarge photo"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Условия"
+msgstr "Conditions"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Условия группы"
+msgstr "Group conditions"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Условия и дополнительная информация"
+msgstr "Conditions and additional information"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Условия тарифа"
+msgstr "Tariff conditions"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Фото недоступно"
+msgstr "Photo unavailable"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Фотографии не добавлены"
+msgstr "No photos added"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Цена проверена"
+msgstr "Price verified"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Цены и тарифы"
+msgstr "Prices and tariffs"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Язык содержимого"
+msgstr "Content language"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Город"
+msgstr "City"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тип карточки"
+msgstr "Card type"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Состояние работы"
+msgstr "Operating status"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Язык занятий"
+msgstr "Class language"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Расписание группы"
+msgstr "Group schedule"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Преподаватели"
+msgstr "Teachers"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Программа"
+msgstr "Program"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Фото загружается"
+msgstr "Loading photo"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Не удалось загрузить фото"
+msgstr "Could not load the photo"
+
+#: catalog/place_detail_preview.html
+msgid "Превью на сайте"
+msgstr "Website preview"
+
+#: catalog/place_detail_preview.html
+msgid "Вернуться к проверке"
+msgstr "Back to review"
+
+#: catalog/place_detail_preview.html
+msgid "Так карточку увидит посетитель. Действия в превью не сохраняются."
+msgstr "This is how visitors will see the card. Preview actions are not saved."
+
+#: catalog/place_detail_preview.html
+msgid "Действие доступно на опубликованной странице. В превью изменения не сохраняются."
+msgstr "This action is available on the published page. Preview changes are not saved."
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Обязательные данные"
+msgstr "Required information"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Заполненность, а не результат проверки"
+msgstr "Completeness, not a review result"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Доступно"
+msgstr "Available"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Название и описание заполнены"
+msgstr "Name and description provided"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Направления / группы"
+msgstr "Activities / groups"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "По сравнению с текущей карточкой"
+msgstr "Compared with the current card"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Отправлено"
+msgstr "Submitted"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Изменён блок данных — откройте раздел для проверки"
+msgstr "Data block changed — open the section to review"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Значение удалено"
+msgstr "Value removed"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Отличий от текущей карточки нет"
+msgstr "No differences from the current card"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Свернуть все условия"
+msgstr "Collapse all conditions"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Решение модератора"
+msgstr "Moderator decision"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Расписание по дням"
+msgstr "Schedule by day"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Полный текст"
+msgstr "Full text"
+
+# MOD-QA-06: place row unpublish confirmation
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+msgid "Снять с публикации?"
+msgstr "Unpublish?"
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+#, python-format
+msgid "Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики."
+msgstr "The “%(name)s” listing will no longer appear on the site and will move to drafts."
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+msgid "Да, снять"
+msgstr "Yes, unpublish"
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+#, python-format
+msgid "Снять карточку «%(name)s» с публикации?"
+msgstr "Unpublish the “%(name)s” listing?"
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+msgid "Снятие с публикации..."
+msgstr "Unpublishing..."
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+msgid "Публикация карточки..."
+msgstr "Publishing listing..."
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+#, python-format
+msgid "«%(name)s» переведена в черновики."
+msgstr "“%(name)s” moved to drafts."
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+#, python-format
+msgid "«%(name)s» опубликована и видна на сайте."
+msgstr "“%(name)s” is published and visible on the site."

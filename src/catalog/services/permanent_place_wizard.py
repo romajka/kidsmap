@@ -59,6 +59,12 @@ def localize_fields(form):
 def ui_copy():
     return dict(
 
+        unsaved_title=t('Есть несохранённые изменения', 'Yadda saxlanılmamış dəyişikliklər var', 'You have unsaved changes'),
+        unsaved_body=t('Вы изменили карточку, но ещё не сохранили изменения.', 'Kartı dəyişmisiniz, lakin dəyişiklikləri hələ yadda saxlamamısınız.', 'You changed the place but have not saved your changes yet.'),
+        unsaved_stay=t('Остаться', 'Qalmaq', 'Stay'),
+        unsaved_save_exit=t('Сохранить и выйти', 'Yadda saxla və çıx', 'Save and leave'),
+        unsaved_discard=t('Выйти без сохранения', 'Yadda saxlamadan çıx', 'Leave without saving'),
+
         section_nav=t('Раздел формы', 'Formanın bölməsi', 'Form section'),
         not_saved=t('Ещё не сохранено', 'Hələ saxlanılmayıb', 'Not saved yet'),
         saved_card=t('Карточка сохранена', 'Kart saxlanılıb', 'Listing saved'),
@@ -110,6 +116,9 @@ def ui_copy():
         server_saving=t('Сохраняем на сервере…', 'Serverdə saxlanılır…', 'Saving to server…'),
         server_saved=t('Текст и тарифы сохранены на сервере', 'Mətn və tariflər serverdə saxlanılıb', 'Text and plans saved to server'),
         server_conflict=t('Другой редактор изменил черновик. Ваш ввод сохранён в этой вкладке; сохранение остановлено. Откройте актуальную версию отдельно и сравните изменения.', 'Başqa redaktor qaralamanı dəyişib. Daxil etdikləriniz bu səhifədə saxlanıb; saxlama dayandırılıb. Cari versiyanı ayrıca açıb dəyişiklikləri müqayisə edin.', 'Another editor changed the draft. Your input remains in this tab; saving is paused. Open the current version separately to compare changes.'),
+        working_copy_conflict=t('Есть отдельная рабочая копия. Актуальные данные не заменены. Выберите, с чем продолжить.', 'Ayrıca iş nüsxəsi var. Cari məlumatlar dəyişdirilməyib. Hansı ilə davam edəcəyinizi seçin.', 'A separate working copy exists. Current data has not been replaced. Choose how to continue.'),
+        restore_working_copy=t('Восстановить мой ввод как новый черновик', 'Daxil etdiklərimi yeni qaralama kimi bərpa et', 'Restore my input as a new draft'),
+        use_current_card=t('Открыть актуальные данные', 'Cari məlumatları aç', 'Open current data'),
         open_current_draft=t('Открыть актуальную версию в новой вкладке', 'Cari versiyanı yeni səhifədə açın', 'Open the current version in a new tab'),
         state_changes=t('Нужны исправления', 'Düzəlişlər lazımdır', 'Changes requested'),
         upload_pending=t('Фото ещё не загружено. Оно сохранится после явного действия.', 'Şəkil hələ yüklənməyib. Açıq əməliyyatdan sonra saxlanılacaq.', 'Photo is not uploaded yet. It will be saved after an explicit action.'),
@@ -163,6 +172,10 @@ def ui_copy():
         plan_price_min=t('Цена от', 'Başlanğıc qiymət', 'Price from'),
         plan_price_max=t('Цена до', 'Son qiymət', 'Price to'),
         plan_interval=t('Период оплаты', 'Ödəniş dövrü', 'Billing period'),
+        plan_interval_count=t('Количество периодов', 'Dövrlərin sayı', 'Number of periods'),
+        plan_billing_cycles=t('Количество платежей', 'Ödənişlərin sayı', 'Number of payments'),
+        plan_quantity=t('Количество', 'Miqdar', 'Quantity'),
+        plan_quantity_unit=t('Единица количества', 'Miqdar vahidi', 'Quantity unit'),
         plan_advanced=t('Условия тарифа', 'Tarif şərtləri', 'Plan terms'),
         group_format=t('Формат группы', 'Qrup formatı', 'Group format'),
         plan_count=t('тарифов', 'tarif', 'plans'),

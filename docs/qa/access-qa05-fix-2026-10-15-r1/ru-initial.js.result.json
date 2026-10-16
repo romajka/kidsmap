@@ -1,0 +1,213 @@
+{
+  "rows": [
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "request",
+      "name": "native login POST",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "request",
+      "name": "real request form available under SIMULATED TEST_POLICY",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "request",
+      "name": "native request POST redirects",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "request",
+      "name": "request reaches confirmation",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "request",
+      "name": "own local letter code matches recipient and request hash",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "wrong-code",
+      "name": "wrong code rejected HTTP400",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "wrong-code",
+      "name": "code error uses active language",
+      "status": "PASS",
+      "detail": {
+        "text": "Неверный код подтверждения."
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "wrong-code",
+      "name": "code error field accessible and values preserved",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "wrong-phrase",
+      "name": "wrong phrase rejected HTTP400",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "wrong-phrase",
+      "name": "phrase error uses active language",
+      "status": "PASS",
+      "detail": {
+        "text": "Введите фразу подтверждения точно так, как она показана."
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "wrong-phrase",
+      "name": "phrase error field accessible and values preserved",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "wrong-phrase",
+      "name": "invalid inputs preserve active account and pending deletion with four attempts",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "wrong-phrase",
+      "name": "keyboard can reach submit",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "wrong-phrase",
+      "name": "no horizontal page overflow",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "pre-confirm-cancel",
+      "name": "Cancel before confirm returns to settings",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "pre-confirm-cancel",
+      "name": "Cancel navigation keeps account active and pending",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "correction-confirm",
+      "name": "correct native confirmation redirects",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "correction-confirm",
+      "name": "only correct input schedules and disables with unusable password",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "cancel-request",
+      "name": "native cancellation sends separate local letter",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "ru",
+      "width": 360,
+      "phase": "cancel-request",
+      "name": "cancellation local letter matches current request hash",
+      "status": "FAIL",
+      "detail": {}
+    }
+  ],
+  "completedCells": [],
+  "diagnostics": {
+    "console": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "pageerrors": [],
+    "requestFailures": [
+      {
+        "local": false,
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "local": false,
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "responses": [
+      {
+        "path": "/ru/account/deletion/[OWN-ID]/confirm/",
+        "status": 400
+      },
+      {
+        "path": "/ru/account/deletion/[OWN-ID]/confirm/",
+        "status": 400
+      }
+    ]
+  },
+  "error": "Error: cancellation local letter matches current request hash",
+  "phase": "cancel-request",
+  "width": 360
+}

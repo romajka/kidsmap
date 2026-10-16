@@ -1,0 +1,39 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+{% block extrahead %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_review_workflow.css' %}">{% endblock %}
+{% block content %}
+{% get_current_language as language %}
+<main class="km-review-workflow" data-review-workflow data-review-id="{{ head.pk }}">
+  <a href="{{ review_return_url }}">{% if language == 'ru' %}К списку отзывов{% elif language == 'en' %}Back to reviews{% else %}Rəylərə qayıt{% endif %}</a>
+  <h1>{% if language == 'ru' %}Проверка KidsMap{% elif language == 'en' %}KidsMap review{% else %}KidsMap yoxlaması{% endif %}</h1>
+  <p>{{ target }}</p>
+  {% if current %}
+  <section class="km-review-workflow__card" aria-labelledby="current-title" data-current-revision="{{ current.pk }}">
+    <h2 id="current-title">{% if head.is_approved %}{% if language == 'ru' %}Сейчас на сайте{% elif language == 'en' %}Currently published{% else %}Hazırda saytda{% endif %}{% else %}{% if language == 'ru' %}Скрытая одобренная редакция{% elif language == 'en' %}Hidden approved version{% else %}Gizlədilmiş təsdiqlənmiş versiya{% endif %}{% endif %}</h2>
+    <p>{{ current.author_name }} · {{ current.rating }} / 5 · #{{ current.pk }}</p>
+    <blockquote>{{ current.text|linebreaks }}</blockquote>
+    <form method="post" action="{% if head.is_approved %}{{ hide_url }}{% else %}{{ restore_url }}{% endif %}">{% csrf_token %}
+      <input type="hidden" name="expected_current_revision_id" value="{{ current.pk }}"><input type="hidden" name="expected_visibility" value="{% if head.is_approved %}1{% else %}0{% endif %}">
+      <button type="submit" class="button">{% if head.is_approved %}{% if language == 'ru' %}Скрыть с сайта{% elif language == 'en' %}Hide from website{% else %}Saytdan gizlət{% endif %}{% else %}{% if language == 'ru' %}Вернуть одобренную редакцию на сайт{% elif language == 'en' %}Restore approved version{% else %}Təsdiqlənmiş versiyanı bərpa et{% endif %}{% endif %}</button>
+    </form>
+  </section>
+  {% endif %}
+  {% if candidate %}
+  <section class="km-review-workflow__card" aria-labelledby="candidate-title" data-candidate-id="{{ candidate.pk }}">
+    <h2 id="candidate-title">{% if language == 'ru' %}Редакция на проверке{% elif language == 'en' %}Version awaiting review{% else %}Yoxlanış gözləyən versiya{% endif %}</h2>
+    <p>{{ candidate.author_name }} · {{ candidate.rating }} / 5 · #{{ candidate.pk }}</p>
+    <blockquote>{{ candidate.text|linebreaks }}</blockquote>
+    <p>{% if language == 'ru' %}Одобрение заменит опубликованный текст. Отклонение сохранит предыдущую одобренную редакцию.{% elif language == 'en' %}Approval replaces the published text. Rejection preserves the previous approved version.{% else %}Təsdiq yayımlanmış mətni əvəz edəcək. Rədd əvvəlki təsdiqlənmiş versiyanı saxlayacaq.{% endif %}</p>
+    <form method="post" action="{{ approve_url }}">{% csrf_token %}<input type="hidden" name="revision_id" value="{{ candidate.pk }}"><button type="submit" class="button default">{% if language == 'ru' %}Одобрить редакцию{% elif language == 'en' %}Approve version{% else %}Versiyanı təsdiqlə{% endif %}</button></form>
+    <form method="post" action="{{ reject_url }}">{% csrf_token %}<input type="hidden" name="revision_id" value="{{ candidate.pk }}">
+      <label for="review-reason">{% if language == 'ru' %}Причина отклонения{% elif language == 'en' %}Rejection reason{% else %}Rədd səbəbi{% endif %}</label>
+      <textarea id="review-reason" name="reason" rows="3" maxlength="5000"></textarea>
+      <button type="submit" class="button">{% if language == 'ru' %}Отклонить редакцию{% elif language == 'en' %}Reject version{% else %}Versiyanı rədd et{% endif %}</button>
+    </form>
+  </section>
+  {% else %}<p data-no-candidate>{% if language == 'ru' %}Нет редакции, ожидающей решения.{% elif language == 'en' %}No version is awaiting a decision.{% else %}Qərar gözləyən versiya yoxdur.{% endif %}</p>{% endif %}
+  <details class="km-review-workflow__card"><summary>{% if language == 'ru' %}История редакций{% elif language == 'en' %}Version history{% else %}Versiya tarixçəsi{% endif %}</summary>
+    {% for revision in history %}<article><h3>#{{ revision.pk }} · {{ revision.get_status_display }} · {{ revision.rating }}/5</h3><p>{{ revision.author_name }} · {{ revision.created_at }}</p><blockquote>{{ revision.text|linebreaks }}</blockquote>{% if revision.rejection_reason %}<p>{{ revision.rejection_reason }}</p>{% endif %}</article>{% endfor %}
+  </details>
+</main>
+{% endblock %}

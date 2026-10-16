@@ -241,10 +241,11 @@ def _google_analytics_context(request) -> dict[str, object]:
 
 
 def site_settings(request):
-    queued_analytics_events = pop_queued_google_analytics_events(request)
+    is_preview = getattr(request, 'site_preview', False)
+    queued_analytics_events = [] if is_preview else pop_queued_google_analytics_events(request)
     google_analytics_context = _google_analytics_context(request)
     try:
-        cfg = SiteSettings.get_solo()
+        cfg = SiteSettings.objects.first() if is_preview else SiteSettings.get_solo()
     except (OperationalError, ProgrammingError):
         cfg = None
 

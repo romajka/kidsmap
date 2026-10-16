@@ -3254,10 +3254,9 @@ msgid "Дата окончания"
 msgstr "Bitmə tarixi"
 
 #: src/catalog/domain_admin/place.py:572
-#, fuzzy
 #| msgid "Поля, отмеченные звездочкой, обязательны для заполнения."
 msgid "Нельзя опубликовать мероприятие. Обязательны для заполнения: {}"
-msgstr "Ulduzla işarələnmiş sahələr mütləq doldurulmalıdır."
+msgstr "Tədbiri dərc etmək olmaz. Aşağıdakı sahələr mütləq doldurulmalıdır: {}"
 
 #: src/catalog/domain_admin/place.py:594
 msgid "Основное изображение мероприятия для списка и детальной страницы."
@@ -4292,7 +4291,6 @@ msgid "админка"
 msgstr "Admin panel"
 
 #: src/catalog/domain_admin/place.py:3122
-#, fuzzy
 #| msgid "Создано"
 msgid "создано"
 msgstr "Yaradılıb"
@@ -4528,10 +4526,9 @@ msgid "Удалил"
 msgstr "Sildi"
 
 #: src/catalog/domain_admin/place.py:3571
-#, fuzzy
 #| msgid "Не указан"
 msgid "Не указано"
-msgstr "Qeyd olunmayıb"
+msgstr "Qeyd edilməyib"
 
 #: src/catalog/domain_admin/place.py:3582
 #, fuzzy
@@ -4864,10 +4861,9 @@ msgid ""
 msgstr "Ulduzla işarələnmiş sahələr mütləq doldurulmalıdır."
 
 #: src/catalog/domain_admin/place.py:4538
-#, fuzzy
 #| msgid "Нет опубликованных карточек."
 msgid "Карточка опубликована — уже видна на сайте"
-msgstr "Dərc olunmuş kart yoxdur."
+msgstr "Kart dərc olunub — artıq saytda görünür"
 
 #: src/catalog/domain_admin/place.py:4577
 #, fuzzy
@@ -5358,10 +5354,9 @@ msgstr "Gizlədilmiş kobud leksika var"
 #: src/catalog/domain_admin/review.py:427
 #: src/catalog/domain_admin/review.py:502
 #: src/catalog/domain_admin/review.py:523
-#, fuzzy
 #| msgid "Ваша оценка"
 msgid "Низкая оценка"
-msgstr "Sizin qiymətiniz"
+msgstr "Aşağı qiymət"
 
 #: src/catalog/domain_admin/review.py:135
 #: src/catalog/domain_admin/review.py:391
@@ -7980,10 +7975,9 @@ msgid "Примечание к расписанию (EN)"
 msgstr "Cədvəl"
 
 #: src/catalog/forms.py:1231 src/catalog/models/place.py:142
-#, fuzzy
 #| msgid "Найти занятие"
 msgid "Формат занятий"
-msgstr "Məşğələ tap"
+msgstr "Dərs formatı"
 
 #: src/catalog/forms.py:1232 src/catalog/models/place.py:143
 #: src/catalog/templates/admin/catalog/place/pricing_editor.html:17
@@ -8761,10 +8755,9 @@ msgid "Slug"
 msgstr "Slug"
 
 #: src/catalog/models/place.py:98
-#, fuzzy
 #| msgid "Кабинет владельца"
 msgid "Без верхней границы возраста"
-msgstr "Sahib kabineti"
+msgstr "Yuxarı yaş həddi yoxdur"
 
 #: src/catalog/models/place.py:100
 msgid "Например: 3+; для всех возрастов укажите возраст «от» 0."
@@ -9114,46 +9107,46 @@ msgid "Занятие"
 msgstr "Məşğələ"
 
 #: src/catalog/models/pricing_plan.py:14
-#, fuzzy
+
 #| msgid "Если есть абонемент."
 msgid "Абонемент"
-msgstr "Abunəlik varsa."
+msgstr "Abunə"
 
 #: src/catalog/models/pricing_plan.py:15 src/catalog/models/pricing_plan.py:42
 msgid "Курс"
 msgstr "Kurs"
 
 #: src/catalog/models/pricing_plan.py:15
-#, fuzzy
+
 #| msgid "Лагеря"
 msgid "Лагерь"
-msgstr "Düşərgələr"
+msgstr "Düşərgə"
 
 #: src/catalog/models/pricing_plan.py:16
 msgid "Экскурсия"
 msgstr "Ekskursiya"
 
 #: src/catalog/models/pricing_plan.py:17
-#, fuzzy
+
 #| msgid "Гусар"
 msgid "Тур"
-msgstr "Qusar"
+msgstr "Tur"
 
 #: src/catalog/models/pricing_plan.py:17
 msgid "Аренда"
 msgstr "İcarə"
 
 #: src/catalog/models/pricing_plan.py:18
-#, fuzzy
+
 #| msgid "Дополнительные условия"
 msgid "Дополнительная услуга"
-msgstr "Əlavə şərtlər"
+msgstr "Əlavə xidmət"
 
 #: src/catalog/models/pricing_plan.py:19 src/catalog/models/pricing_plan.py:56
-#, fuzzy
+
 #| msgid "Регистрация"
 msgid "Регистрационный взнос"
-msgstr "Qeydiyyat"
+msgstr "Qeydiyyat haqqı"
 
 #: src/catalog/models/pricing_plan.py:20 src/catalog/models/pricing_plan.py:56
 msgid "Депозит"
@@ -9170,28 +9163,28 @@ msgid "Групповой"
 msgstr "Qrup"
 
 #: src/catalog/models/pricing_plan.py:24
-#, fuzzy
+
 #| msgid "Финальный шаг"
 msgid "Индивидуальный"
-msgstr "Son addım"
+msgstr "Fərdi"
 
 #: src/catalog/models/pricing_plan.py:27
-#, fuzzy
+
 #| msgid "Форматы оплаты"
 msgid "Разовая оплата"
-msgstr "Ödəniş formatları"
+msgstr "Birdəfəlik ödəniş"
 
 #: src/catalog/models/pricing_plan.py:27
-#, fuzzy
+
 #| msgid "Электронная почта"
 msgid "Регулярная оплата"
-msgstr "E-poçt ünvanı"
+msgstr "Müntəzəm ödəniş"
 
 #: src/catalog/models/pricing_plan.py:28
-#, fuzzy
+
 #| msgid "Пригласить участника"
 msgid "Оплата частями"
-msgstr "İştirakçı dəvət et"
+msgstr "Hissə-hissə ödəniş"
 
 #: src/catalog/models/pricing_plan.py:31 src/catalog/models/pricing_plan.py:41
 #: src/catalog/models/site.py:575 src/catalog/models/site.py:676
@@ -9203,34 +9196,32 @@ msgid "Неделя"
 msgstr "Həftə"
 
 #: src/catalog/models/pricing_plan.py:32 src/catalog/models/pricing_plan.py:42
-#, fuzzy
-#| msgid "1 месяц"
 msgid "Месяц"
-msgstr "1 ay"
+msgstr "Ay"
 
 #: src/catalog/models/pricing_plan.py:32
-#, fuzzy
+
 #| msgid "Вход"
 msgid "Год"
-msgstr "Daxil ol"
+msgstr "İl"
 
 #: src/catalog/models/pricing_plan.py:35
-#, fuzzy
+
 #| msgid "Возраст и цена"
 msgid "Точная цена"
-msgstr "Yaş və qiymət"
+msgstr "Dəqiq qiymət"
 
 #: src/catalog/models/pricing_plan.py:36
-#, fuzzy
+
 #| msgid "Диапазон цены"
 msgid "Диапазон"
 msgstr "Qiymət aralığı"
 
 #: src/catalog/models/pricing_plan.py:37
-#, fuzzy
+
 #| msgid "Популярные запросы"
 msgid "По запросу"
-msgstr "Populyar sorğular"
+msgstr "Sorğu əsasında"
 
 #: src/catalog/models/pricing_plan.py:40
 msgid "Вход"
@@ -9241,16 +9232,12 @@ msgid "Минута"
 msgstr "Dəqiqə"
 
 #: src/catalog/models/pricing_plan.py:41
-#, fuzzy
-#| msgid "Гах"
 msgid "Час"
-msgstr "Qax"
+msgstr "Saat"
 
 #: src/catalog/models/pricing_plan.py:43
-#, fuzzy
-#| msgid "Заполнено"
 msgid "Смена"
-msgstr "Doldurulub"
+msgstr "Növbə"
 
 #: src/catalog/models/pricing_plan.py:44
 msgid "Человек"
@@ -9309,13 +9296,13 @@ msgid "Праздники"
 msgstr "Ümumi kart sayı"
 
 #: src/catalog/models/pricing_plan.py:55
-#, fuzzy
+
 #| msgid "Основное"
 msgid "Основной"
 msgstr "Əsas"
 
 #: src/catalog/models/pricing_plan.py:55
-#, fuzzy
+
 #| msgid "Дополнительно"
 msgid "Дополнительный"
 msgstr "Əlavə"
@@ -12681,10 +12668,9 @@ msgid "Новая карточка"
 msgstr "Yeni kart"
 
 #: src/catalog/templates/admin/catalog/event/change_form.html:48
-#, fuzzy
 #| msgid "Редактирование карточки"
 msgid "Редактирование мероприятия"
-msgstr "Kartın redaktəsi"
+msgstr "Tədbirin redaktəsi"
 
 #: src/catalog/templates/admin/catalog/event/change_form.html:58
 msgid ""
@@ -12726,8 +12712,8 @@ msgid_plural ""
 "\n"
 "                Исправьте проблемы ниже и сохраните мероприятие ещё раз.\n"
 "              "
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "\n                Aşağıdakı xətanı düzəldin və tədbiri yenidən saxlayın.\n              "
+msgstr[1] "\n                Aşağıdakı xətaları düzəldin və tədbiri yenidən saxlayın.\n              "
 
 #: src/catalog/templates/admin/catalog/event/change_form.html:101
 msgid "Шаги формы"
@@ -13287,11 +13273,11 @@ msgid "Качество данных"
 msgstr "Məlumat keyfiyyəti"
 
 #: src/catalog/templates/admin/catalog/includes/km_changelist_search_panel.html:321
-#, fuzzy, python-format
+#, python-format
 #| msgid "Найден %(total)s кружок"
 #| msgid_plural "Найдено %(total)s кружков"
 msgid "Найдено %(count)s карточек"
-msgstr "%(total)s dərnək tapıldı"
+msgstr "%(count)s kart tapıldı"
 
 #: src/catalog/templates/admin/catalog/includes/km_changelist_search_panel.html:328
 #: src/catalog/templates/catalog/place_list.html:565
@@ -14697,10 +14683,9 @@ msgid "Быстрые действия"
 msgstr "Kodun etibarlılıq müddəti"
 
 #: src/catalog/templates/admin/catalog/placeownershiprequest/change_form.html:135
-#, fuzzy
 #| msgid "Одобрить"
 msgid "Одобрить заявку"
-msgstr "Təsdiqlə"
+msgstr "Müraciəti təsdiqlə"
 
 #: src/catalog/templates/admin/catalog/placeownershiprequest/change_form.html:147
 #, fuzzy
@@ -16957,10 +16942,9 @@ msgid "Скопировать на другие дни"
 msgstr "Yeniliklərə abunə ol"
 
 #: src/catalog/templates/includes/place_schedule_editor.html:213
-#, fuzzy
 #| msgid "История просмотров"
 msgid "Предпросмотр"
-msgstr "Baxış tarixçəsi"
+msgstr "Ön baxış"
 
 #: src/catalog/templates/includes/place_schedule_editor.html:214
 #, fuzzy
@@ -17798,16 +17782,12 @@ msgstr ""
 "Bu hesab müvəqqəti olaraq deaktiv edilib. Administratora müraciət edin."
 
 #: src/catalog/views.py:1863
-#, fuzzy
-#| msgid "Код подтверждения отправлен на ваш email."
 msgid "Введите фразу подтверждения точно так, как она показана."
-msgstr "Təsdiq kodu email ünvanınıza göndərildi."
+msgstr "Təsdiq ifadəsini göstərildiyi kimi dəqiq daxil edin."
 
 #: src/catalog/views.py:1864
-#, fuzzy
-#| msgid "Ввести код подтверждения"
 msgid "Неверный код подтверждения."
-msgstr "Təsdiq kodunu daxil et"
+msgstr "Yanlış təsdiq kodu."
 
 #: src/catalog/views.py:1865
 #, fuzzy
@@ -22952,3 +22932,552 @@ msgstr "Biznes"
 #: src/catalog/models/catalog_structure.py
 msgid "Общественное место"
 msgstr "İctimai məkan"
+
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Названия"
+msgstr "Adlar"
+
+#: src/catalog/models/catalog_structure.py
+msgid "Организации"
+msgstr "Təşkilatlar"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Владение"
+msgstr "Sahiblik"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Проверка данных"
+msgstr "Məlumatların yoxlanılması"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Владелец не назначен"
+msgstr "Sahib təyin edilməyib"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Владение проверено"
+msgstr "Sahiblik yoxlanılıb"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Владение не проверено"
+msgstr "Sahiblik yoxlanılmayıb"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Связанные разделы"
+msgstr "Əlaqəli bölmələr"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Текущие и предложенные данные"
+msgstr "Cari və təklif olunan məlumatlar"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Программы"
+msgstr "Proqramlar"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Черновик и проверка не меняют публичные данные до одобрения."
+msgstr "Qaralama və yoxlama təsdiqdən əvvəl açıq məlumatları dəyişmir."
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Приглашённый редактор сможет менять организацию и общие программы после принятия приглашения."
+msgstr "Dəvət olunan redaktor dəvəti qəbul etdikdən sonra təşkilatı və ümumi proqramları dəyişə biləcək."
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Email сотрудника"
+msgstr "Əməkdaşın email ünvanı"
+
+#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+msgid "Пригласить сотрудника"
+msgstr "Əməkdaş dəvət et"
+
+#: src/catalog/services/specialist_document_validation.py
+msgid "Документ повреждён или его содержимое не соответствует формату. Выберите исправный PDF, PNG или JPEG."
+msgstr "Sənəd zədələnib və ya məzmunu formatına uyğun deyil. Düzgün PDF, PNG və ya JPEG faylı seçin."
+
+#: src/catalog/services/specialist_document_validation.py
+msgid "PDF защищён паролем. Загрузите документ без пароля."
+msgstr "PDF parolla qorunur. Parolsuz sənəd yükləyin."
+
+#: src/catalog/services/specialist_document_validation.py
+msgid "Не удалось безопасно проверить документ. Выберите файл меньшего размера или разрешения."
+msgstr "Sənədi təhlükəsiz yoxlamaq mümkün olmadı. Daha kiçik ölçülü və ya daha aşağı təsvir ölçülü fayl seçin."
+
+
+#: src/catalog/templates/pages/owner_event_form.html
+msgid "Шаги формы мероприятия"
+msgstr "Tədbir formasının mərhələləri"
+
+#: src/catalog/templates/pages/owner_event_form.html
+msgid "Вперёд"
+msgstr "İrəli"
+
+#: src/catalog/templates/pages/owner_event_form.html
+msgid "Тип организатора"
+msgstr "Təşkilatçı növü"
+
+
+#, python-format
+msgid "Публикация занятия: %(status)s"
+msgstr "Məşğələnin dərc statusu: %(status)s"
+
+msgid "Условия подтверждены"
+msgstr "Şərtlər təsdiqlənib"
+
+msgid "Условия не подтверждены"
+msgstr "Şərtlər təsdiqlənməyib"
+
+msgid "Отдельный статус проверки не установлен"
+msgstr "Ayrıca yoxlama statusu təyin edilməyib"
+
+msgid "На проверке"
+msgstr "Yoxlamadadır"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Безлимит"
+msgstr "Limitsiz"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Валюта"
+msgstr "Valyuta"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Видна на сайте"
+msgstr "Saytda görünür"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Все условия тарифа"
+msgstr "Tarifin bütün şərtləri"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Все языки"
+msgstr "Bütün dillər"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Готовность к публикации"
+msgstr "Dərcə hazırlıq"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Группы не добавлены"
+msgstr "Qruplar əlavə edilməyib"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Действует до"
+msgstr "Etibarlılığın sonu"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Действует с"
+msgstr "Etibarlılığın başlanğıcı"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Для кого"
+msgstr "Kimlər üçün"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Дни посещения"
+msgstr "Ziyarət günləri"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Дополнение к программе"
+msgstr "Proqrama əlavə"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Единица количества"
+msgstr "Say vahidi"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Ещё не опубликована"
+msgstr "Hələ dərc edilməyib"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Заявка устарела"
+msgstr "Müraciət köhnəlib"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Источник цены"
+msgstr "Qiymət mənbəyi"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "К списку заявок"
+msgstr "Müraciətlər siyahısına"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Карточка или отправленные изменения уже изменились. Перед одобрением нужна новая заявка."
+msgstr "Kart və ya göndərilmiş dəyişikliklər yenilənib. Təsdiqdən əvvəl yeni müraciət lazımdır."
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Карточка удалена"
+msgstr "Kart silinib"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Количество занятий"
+msgstr "Dərslərin sayı"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Количество периодов"
+msgstr "Dövrlərin sayı"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Количество периодов действия"
+msgstr "Etibarlılıq dövrlərinin sayı"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Количество платежей"
+msgstr "Ödənişlərin sayı"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Максимум участников"
+msgstr "Maksimum iştirakçı sayı"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Минимум участников"
+msgstr "Minimum iştirakçı sayı"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Модель оплаты"
+msgstr "Ödəniş modeli"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Надпись цены на карточке"
+msgstr "Kartda qiymət yazısı"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Название группы"
+msgstr "Qrupun adı"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Название направления"
+msgstr "İstiqamətin adı"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Название тарифа"
+msgstr "Tarifin adı"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Назначение платежа"
+msgstr "Ödənişin təyinatı"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Направление"
+msgstr "İstiqamət"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Направления и группы"
+msgstr "İstiqamətlər və qruplar"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Направления не добавлены"
+msgstr "İstiqamətlər əlavə edilməyib"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Нет комментария"
+msgstr "Şərh yoxdur"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "О карточке"
+msgstr "Kart haqqında"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Общие ранее сохранённые условия"
+msgstr "Əvvəllər saxlanılmış ümumi şərtlər"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Обязательные данные заполнены"
+msgstr "Tələb olunan məlumatlar doldurulub"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Обязательный платёж"
+msgstr "Məcburi ödəniş"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Одобрение публикует карточку с отправленными изменениями."
+msgstr "Təsdiq kartı göndərilmiş dəyişikliklərlə birlikdə dərc edir."
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Описание направления"
+msgstr "İstiqamətin təsviri"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Отклонить заявку"
+msgstr "Müraciəti rədd et"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Отправлено на проверку"
+msgstr "Yoxlamaya göndərilib"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Перейти к проверке"
+msgstr "Yoxlamaya keç"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Период действия"
+msgstr "Etibarlılıq dövrü"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Период оплаты"
+msgstr "Ödəniş dövrü"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Подтвердить владение"
+msgstr "Sahibliyi təsdiqlə"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Подтверждение владения передаёт управление карточкой. Оно не публикует её."
+msgstr "Sahibliyin təsdiqi kartın idarəsini ötürür. Kartı dərc etmir."
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Показана полная карточка с изменениями, отправленными на проверку."
+msgstr "Yoxlamaya göndərilmiş dəyişikliklərlə birlikdə tam kart göstərilir."
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Показана полная сохранённая карточка. Просмотр не меняет её статус."
+msgstr "Tam saxlanılmış kart göstərilir. Baxış onun statusunu dəyişmir."
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Примечание к расписанию"
+msgstr "Cədvələ qeyd"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Пробное занятие"
+msgstr "Sınaq dərsi"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Проверить карточку"
+msgstr "Kartı yoxla"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Проверка заявки на владение"
+msgstr "Sahiblik müraciətinin yoxlanması"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Проверка перед публикацией"
+msgstr "Dərcdən əvvəl yoxlama"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Развернуть все условия"
+msgstr "Bütün şərtləri aç"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Ранее сохранённые цены"
+msgstr "Əvvəllər saxlanılmış qiymətlər"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Расписание по дням не добавлено"
+msgstr "Günlər üzrə cədvəl əlavə edilməyib"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тариф"
+msgstr "Tarif"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тариф активен"
+msgstr "Tarif aktivdir"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Текст расписания"
+msgstr "Cədvəl mətni"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Текущее состояние"
+msgstr "Cari vəziyyət"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Телефон организации"
+msgstr "Təşkilatın telefonu"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тип заявки"
+msgstr "Müraciətin növü"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тип тарифа"
+msgstr "Tarifin növü"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тип цены"
+msgstr "Qiymətin növü"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Увеличить фото"
+msgstr "Şəkli böyüt"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Условия"
+msgstr "Şərtlər"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Условия группы"
+msgstr "Qrupun şərtləri"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Условия и дополнительная информация"
+msgstr "Şərtlər və əlavə məlumat"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Условия тарифа"
+msgstr "Tarifin şərtləri"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Фото недоступно"
+msgstr "Şəkil əlçatan deyil"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Фотографии не добавлены"
+msgstr "Şəkillər əlavə edilməyib"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Цена проверена"
+msgstr "Qiymət yoxlanılıb"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Цены и тарифы"
+msgstr "Qiymətlər və tariflər"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Язык содержимого"
+msgstr "Məzmun dili"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Город"
+msgstr "Şəhər"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Тип карточки"
+msgstr "Kartın növü"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Состояние работы"
+msgstr "Fəaliyyət vəziyyəti"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Язык занятий"
+msgstr "Dərs dili"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Расписание группы"
+msgstr "Qrup cədvəli"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Преподаватели"
+msgstr "Müəllimlər"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Программа"
+msgstr "Proqram"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Фото загружается"
+msgstr "Şəkil yüklənir"
+
+#: catalog/services/admin_place_preview.py admin/catalog/placeownershiprequest/preview.html
+msgid "Не удалось загрузить фото"
+msgstr "Şəkli yükləmək mümkün olmadı"
+
+#: catalog/place_detail_preview.html
+msgid "Превью на сайте"
+msgstr "Saytda önizləmə"
+
+#: catalog/place_detail_preview.html
+msgid "Вернуться к проверке"
+msgstr "Yoxlamaya qayıt"
+
+#: catalog/place_detail_preview.html
+msgid "Так карточку увидит посетитель. Действия в превью не сохраняются."
+msgstr "Ziyarətçi kartı belə görəcək. Önizləmədəki əməliyyatlar yadda saxlanılmır."
+
+#: catalog/place_detail_preview.html
+msgid "Действие доступно на опубликованной странице. В превью изменения не сохраняются."
+msgstr "Bu əməliyyat dərc edilmiş səhifədə mümkündür. Önizləmədə dəyişikliklər yadda saxlanılmır."
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Обязательные данные"
+msgstr "Məcburi məlumatlar"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Заполненность, а не результат проверки"
+msgstr "Doldurulma, yoxlamanın nəticəsi deyil"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Доступно"
+msgstr "Əlçatandır"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Название и описание заполнены"
+msgstr "Ad və təsvir doldurulub"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Направления / группы"
+msgstr "İstiqamətlər / qruplar"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "По сравнению с текущей карточкой"
+msgstr "Cari kartla müqayisədə"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Отправлено"
+msgstr "Göndərilib"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Изменён блок данных — откройте раздел для проверки"
+msgstr "Məlumat bloku dəyişib — yoxlamaq üçün bölməni açın"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Значение удалено"
+msgstr "Dəyər silinib"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Отличий от текущей карточки нет"
+msgstr "Cari kartdan fərq yoxdur"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Свернуть все условия"
+msgstr "Bütün şərtləri yığ"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Решение модератора"
+msgstr "Moderatorun qərarı"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Расписание по дням"
+msgstr "Günlər üzrə cədvəl"
+
+#: catalog/placeownershiprequest/preview.html
+msgid "Полный текст"
+msgstr "Tam mətn"
+
+# MOD-QA-06: place row unpublish confirmation
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+msgid "Снять с публикации?"
+msgstr "Nəşrdən çıxarılsın?"
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+#, python-format
+msgid "Карточка «%(name)s» перестанет отображаться на сайте и перейдёт в черновики."
+msgstr "«%(name)s» kartı saytda göstərilməyəcək və qaralamalara keçiriləcək."
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+msgid "Да, снять"
+msgstr "Bəli, nəşrdən çıxar"
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+#, python-format
+msgid "Снять карточку «%(name)s» с публикации?"
+msgstr "«%(name)s» kartı nəşrdən çıxarılsın?"
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+msgid "Снятие с публикации..."
+msgstr "Nəşrdən çıxarılır..."
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+msgid "Публикация карточки..."
+msgstr "Kart dərc olunur..."
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+#, python-format
+msgid "«%(name)s» переведена в черновики."
+msgstr "«%(name)s» qaralamalara keçirildi."
+
+#: src/catalog/templates/admin/catalog/place/change_list.html
+#, python-format
+msgid "«%(name)s» опубликована и видна на сайте."
+msgstr "«%(name)s» dərc olundu və saytda görünür."

@@ -8,6 +8,28 @@
   overflow: hidden;
 }
 
+.km-admin-sidebar .km-admin-sidebar__close {
+  display: none !important;
+}
+
+.km-admin-header__toggle:focus-visible,
+.km-admin-sidebar__close:focus-visible {
+  outline: 2px solid var(--km-admin-primary) !important;
+  outline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+  .km-admin-sidebar .km-admin-sidebar__close {
+    display: inline-flex !important;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    background: var(--km-admin-surface) !important;
+    color: var(--km-admin-text) !important;
+  }
+}
+
 .km-admin-sidebar .brand-link {
   display: flex;
   align-items: center;
@@ -156,6 +178,7 @@
 
 .km-admin-sidebar .km-admin-sidebar__group-title {
   display: flex;
+  gap: 10px;
   align-items: center;
   min-width: 0;
   flex: 1;
@@ -214,12 +237,22 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 18px;
-  width: 18px;
+  flex: 0 0 22px;
+  width: 22px;
   color: currentColor;
   font-size: 14px;
   margin-top: 1px;
 }
+
+.km-admin-sidebar__icon-wrap .km-i {display:block;width:20px;height:20px;flex:none;fill:currentColor;}
+.km-admin-sidebar__chevron .km-i {width:18px;height:18px;fill:currentColor;}
+.km-admin-sidebar__avatar .km-i {width:30px;height:30px;fill:currentColor;}
+.km-admin-sidebar__visibility-status .km-i {width:14px;height:14px;fill:currentColor;}
+.km-admin-sidebar .km-admin-sidebar__group-toggle {min-height:44px;border-radius:9px;}
+.km-admin-sidebar .km-admin-sidebar__group.is-active>.km-admin-sidebar__group-toggle {background:rgba(17,213,110,.07);color:#e8fff2;}
+.km-admin-sidebar .km-admin-sidebar__group-toggle:focus-visible,
+.km-admin-sidebar .km-admin-sidebar__link:focus-visible {outline:2px solid #6df0ae;outline-offset:2px;}
+.km-admin-sidebar .km-admin-sidebar__link[aria-current="page"] {border-inline-start:3px solid #39d88c;}
 
 .km-admin-sidebar .km-admin-sidebar__text {
   display: flex;
@@ -313,6 +346,13 @@ body.sidebar-mini.sidebar-collapse .km-admin-sidebar .brand-link {
   padding-inline: 0;
 }
 
+body.sidebar-mini.sidebar-collapse .km-admin-sidebar .brand-link .brand-image {
+  width: 32px;
+  height: 32px;
+  max-height: 32px;
+  object-position: center;
+}
+
 body.sidebar-mini.sidebar-collapse .km-admin-sidebar .brand-link .brand-text,
 body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__user-copy,
 body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__text,
@@ -338,6 +378,7 @@ body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__link {
   justify-content: center;
   padding-inline: 0;
 }
+body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__group-title {flex:0 0 auto;justify-content:center;gap:0;}
 
 body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__icon-wrap {
   flex-basis: 20px;

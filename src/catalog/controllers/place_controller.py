@@ -735,17 +735,18 @@ class PlaceController:
             for star in range(5, 0, -1)
         ]
 
-    def build_detail_context(self, request: HttpRequest, *, place: Place) -> dict:
+    def build_detail_context(self, request: HttpRequest, *, place: Place, preview: bool = False) -> dict:
         liked_ids = liked_place_ids(request)
         place.is_liked = place.id in liked_ids
-        self.tracking_service.track_place_open_event(request=request, place=place)
+        if not preview:
+            self.tracking_service.track_place_open_event(request=request, place=place)
         seo_payload = build_place_seo_payload(place, request, request.LANGUAGE_CODE)
         from catalog.services.place_review_submission import get_place_review_cooldown
         review_cooldown = get_place_review_cooldown(user=request.user, place=place)
         review_sort = normalize_review_sort(request.GET.get("review_sort"))
         place_reviews_qs = apply_review_sorting(public_review_queryset(place.reviews.all()), review_sort)
         place_reviews = mark_place_review_reactions(place_reviews_qs, request)
-        if place.rating_count != len(place_reviews):
+        if not preview and place.rating_count != len(place_reviews):
             place.refresh_rating_stats()
 
         from catalog.services.public_presentation import present
@@ -755,7 +756,8 @@ class PlaceController:
             is_events_section_enabled,
         )
         presentation = present(place, request.LANGUAGE_CODE)
-        activities = [present(a, request.LANGUAGE_CODE) for a in place.activities.filter(status="published", archived_at__isnull=True).select_related("place__organization", "place__category", "program__organization")]
+        activity_objects = place._site_preview_activities if preview else place.activities.filter(status="published", archived_at__isnull=True).select_related("place__organization", "place__category", "program__organization")
+        activities = [present(a, request.LANGUAGE_CODE) for a in activity_objects]
 
         place_specialists = []
         if is_specialists_section_enabled():
@@ -837,7 +839,7 @@ class PlaceController:
             "review_sort": review_sort,
             "review_sort_choices": REVIEW_SORT_CHOICES,
             "catalog_return_url": reverse("place_list"),
-            "analytics_events": [
+            "analytics_events": [] if preview else [
                 {
                     "name": FunnelEvent.EVENT_PLACE_VIEW,
                     "params": {

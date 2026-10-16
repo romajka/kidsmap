@@ -1,0 +1,108 @@
+[
+  {
+    "argv": [
+      ".venv/bin/python",
+      "docs/qa/place-qa12-fix-2026-10-12-r1/runtime.py",
+      "test",
+      "catalog.testcases.test_place_admin_conflict_retention.AdminConflictRetentionTests"
+    ],
+    "phase": "RED",
+    "exit": 1,
+    "count": 6,
+    "pass": 3,
+    "fail": 3,
+    "error": 0,
+    "result": "tests-red.txt"
+  },
+  {
+    "argv": [
+      ".venv/bin/python",
+      "docs/qa/place-qa12-fix-2026-10-12-r1/runtime.py",
+      "test",
+      "catalog.testcases.test_place_admin_conflict_retention.AdminConflictRetentionTests"
+    ],
+    "phase": "GREEN initial6",
+    "exit": 0,
+    "count": 6,
+    "pass": 6,
+    "result": "tests-green.txt"
+  },
+  {
+    "argv": [
+      ".venv/bin/python",
+      "docs/qa/place-qa12-fix-2026-10-12-r1/runtime.py",
+      "test",
+      "catalog.testcases.test_place_admin_conflict_retention.AdminPostValidationRaceTests",
+      "catalog.testcases.test_task33_publication.PublicationTests",
+      "catalog.testcases.test_admin_candidate_cover.AdminCandidateCoverTests",
+      "catalog.testcases.test_admin_legacy_price_preservation.AdminLegacyPricePreservationTests",
+      "catalog.testcases.test_task33_place_continuous",
+      "catalog.testcases.test_admin_i18n"
+    ],
+    "phase": "affected + initial own race fixture",
+    "exit": 1,
+    "count": 66,
+    "pass": 65,
+    "fail": 0,
+    "error": 1,
+    "result": "affected-tests.txt",
+    "note": "Own new race fixture initially called setUp twice, duplicate fictional username. Existing assertions unchanged; corrected fixture repeated alone."
+  },
+  {
+    "argv": [
+      ".venv/bin/python",
+      "docs/qa/place-qa12-fix-2026-10-12-r1/runtime.py",
+      "test",
+      "catalog.testcases.test_place_admin_conflict_retention.AdminPostValidationRaceTests"
+    ],
+    "phase": "own race snapshot normalization attempt",
+    "exit": 1,
+    "count": 1,
+    "pass": 0,
+    "fail": 1,
+    "result": "race-green.txt",
+    "note": "Fresh fixture in-memory numeric values differ from reloaded Decimal serialization. Reloaded the fixture before both unchanged snapshot assertions."
+  },
+  {
+    "argv": [
+      ".venv/bin/python",
+      "docs/qa/place-qa12-fix-2026-10-12-r1/runtime.py",
+      "test",
+      "catalog.testcases.test_place_admin_conflict_retention.AdminPostValidationRaceTests"
+    ],
+    "phase": "GREEN real second connection race",
+    "exit": 0,
+    "count": 1,
+    "pass": 1,
+    "result": "race-green-final.txt"
+  },
+  {
+    "argv": [
+      ".venv/bin/python",
+      "docs/qa/place-qa12-fix-2026-10-12-r1/runtime.py",
+      "test",
+      "catalog.testcases.test_place_admin_conflict_retention.AdminConflictRetentionTests.test_conflict_retains_nonempty_nested_input_and_warns_to_reselect_files"
+    ],
+    "phase": "GREEN new nested/file negative",
+    "exit": 0,
+    "count": 1,
+    "pass": 1,
+    "result": "nested-file-green.txt"
+  },
+  {
+    "argv": [
+      ".venv/bin/python",
+      "docs/qa/place-qa12-fix-2026-10-12-r1/runtime.py",
+      "test",
+      "catalog.testcases.test_place_admin_conflict_retention"
+    ],
+    "phase": "FINAL targeted module discovery proof",
+    "exit": 0,
+    "count": 8,
+    "pass": 8,
+    "fail": 0,
+    "error": 0,
+    "result": "tests-final-module.txt",
+    "note": "Module helper import alias avoids imported TestCase rediscovery;8 actual tests."
+  }
+]

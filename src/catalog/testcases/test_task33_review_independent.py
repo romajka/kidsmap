@@ -159,7 +159,7 @@ class IndependentReviewContracts(ReviewFixtures,TestCase):
                 url=reverse('admin:catalog_'+head._meta.model_name+'_change',args=[head.pk])
                 response=self.client.get(url)
                 self.assertEqual(response.status_code,200)
-                self.assertContains(response,reverse('typed_reviews',args=[kind,target.pk]))
+                self.assertContains(response,reverse('admin:catalog_'+head._meta.model_name+'_workflow',args=[head.pk]))
                 self.assertContains(response,revision.text)
                 admin_form=response.context['adminform']
                 self.assertTrue({field.name for field in head._meta.fields}.issubset(set(admin_form.readonly_fields)))

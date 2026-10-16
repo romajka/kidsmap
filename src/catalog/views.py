@@ -1018,6 +1018,7 @@ def _build_owner_taxonomy_picker_config(form):
 
 
 def owner_place_create(request):
+    explicit_save_cutoff = timezone.now()
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
 
@@ -1073,7 +1074,7 @@ def owner_place_create(request):
             )
             if result.ok:
                 from catalog.services.server_drafts import mark_explicit_save
-                mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=None)
+                mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=None, cutoff=explicit_save_cutoff)
                 messages.success(request, result.message)
                 return redirect("owner_places_dashboard")
 
@@ -1097,7 +1098,7 @@ def owner_place_create(request):
         )
         if result.ok:
             from catalog.services.server_drafts import mark_explicit_save
-            mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=None)
+            mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=None, cutoff=explicit_save_cutoff)
             messages.success(request, result.message)
             return redirect("owner_places_dashboard")
 
@@ -1388,6 +1389,7 @@ def _place_revision_context(place):
 
 
 def owner_place_edit(request, pk):
+    explicit_save_cutoff = timezone.now()
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
 
@@ -1408,7 +1410,7 @@ def owner_place_edit(request, pk):
         )
         if result.ok:
             from catalog.services.server_drafts import mark_explicit_save
-            mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=pk)
+            mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=pk, cutoff=explicit_save_cutoff)
             messages.success(request, result.message)
             if form_action == "save_draft_exit":
                 return redirect("owner_places_dashboard")

@@ -19,9 +19,19 @@
   </section>
   {% if request.user.is_authenticated %}<section aria-labelledby="own-review"><h2 id="own-review">{% if language == 'ru' %}Мой отзыв{% elif language == 'en' %}My review{% else %}Mənim rəyim{% endif %}</h2>
     <p>{% if language == 'ru' %}Одобренный отзыв остаётся видимым, пока новая редакция проходит проверку.{% elif language == 'en' %}Your approved review stays visible while the new version is reviewed.{% else %}Yeni versiya yoxlanarkən təsdiqlənmiş rəyiniz görünən qalır.{% endif %}</p>
+    {% if own_review_decision %}
+    <aside class="review-item" aria-labelledby="review-rejection-title" data-review-rejection>
+      <h3 id="review-rejection-title">{% if language == 'ru' %}Редакция отклонена{% elif language == 'en' %}Version rejected{% else %}Versiya rədd edilib{% endif %}</h3>
+      {% if own_review_decision.rejection_reason %}<p><strong>{% if language == 'ru' %}Причина отказа{% elif language == 'en' %}Rejection reason{% else %}Rədd səbəbi{% endif %}</strong></p><blockquote>{{ own_review_decision.rejection_reason|linebreaks }}</blockquote>{% endif %}
+      <p>{% if language == 'ru' %}Отклонённая редакция{% elif language == 'en' %}Rejected version{% else %}Rədd edilmiş versiya{% endif %} · {{ own_review_decision.rating }} / 5</p>
+      <blockquote>{{ own_review_decision.text|linebreaks }}</blockquote>
+    </aside>
+    {% endif %}
     {% if own_review.candidate_revision %}<p data-candidate-status>{{ own_review.candidate_revision.get_status_display }}</p>{% endif %}
     <form method="post" data-review-edit>{% csrf_token %}<input type="hidden" name="expected_revision_id" value="{% firstof own_review.candidate_revision_id own_review.current_revision_id '' %}">
-      <label for="review-rating">{% if language == 'ru' %}Оценка{% elif language == 'en' %}Rating{% else %}Qiymət{% endif %}</label><select id="review-rating" name="rating" required><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+    {% with editor_review=own_review.candidate_revision|default:own_review %}
+      <label for="review-rating">{% if language == 'ru' %}Оценка{% elif language == 'en' %}Rating{% else %}Qiymət{% endif %}</label><select id="review-rating" name="rating" required><option value="">—</option><option value="1"{% if editor_review.rating == 1 %} selected{% endif %}>1</option><option value="2"{% if editor_review.rating == 2 %} selected{% endif %}>2</option><option value="3"{% if editor_review.rating == 3 %} selected{% endif %}>3</option><option value="4"{% if editor_review.rating == 4 %} selected{% endif %}>4</option><option value="5"{% if editor_review.rating == 5 %} selected{% endif %}>5</option></select>
+    {% endwith %}
       <label for="review-text">{% if language == 'ru' %}Текст отзыва{% elif language == 'en' %}Review text{% else %}Rəy mətni{% endif %}</label><textarea id="review-text" name="text" required maxlength="5000" rows="5" style="width:100%;box-sizing:border-box">{% firstof own_review.candidate_revision.text own_review.text '' %}</textarea><button>{% if language == 'ru' %}Отправить на проверку{% elif language == 'en' %}Submit for review{% else %}Yoxlanışa göndər{% endif %}</button>
     </form>
   </section>{% endif %}

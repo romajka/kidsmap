@@ -1,0 +1,1667 @@
+--- a/src/catalog/domain_admin/owner.py
++++ b/src/catalog/domain_admin/owner.py
+@@ -544,6 +544,7 @@
+                 "moderated_by",
+                 "place__category",
+                 "place__subcategory",
++                "place__volunteer_revision",
+             )
+             .prefetch_related("place__gallery")
+         )
+@@ -621,28 +622,12 @@
+             return_params["version"] = "current"
+         inspection_return = preview_url + "?" + urlencode(return_params)
+         if website:
+-            from copy import copy
+-            from django.contrib.auth.models import AnonymousUser
+-            from django.utils.translation import override
+-            from catalog.services.admin_site_preview import build_site_preview_context
+-            visitor = copy(request)
+-            visitor.user = AnonymousUser()
+-            visitor.LANGUAGE_CODE = language
+-            visitor.site_preview = True
+-            with override(language):
+-                site_context = build_site_preview_context(visitor, preview)
+-                site_context['site_preview_back'] = inspection_return
+-                params = {'next':back}
+-                if request.GET.get('version') == 'current': params['version'] = 'current'
+-                site_context['language_urls'] = {lang:request.path+'?'+urlencode({**params,'lang':lang}) for lang in ('az','ru','en')}
+-                site_context['language_switch_query'] = ''
+-                site_context['site_preview_languages'] = site_context['language_urls'].items()
+-                site_context['site_preview_version'] = request.GET.get('version','')
+-                response = TemplateResponse(visitor, 'catalog/place_detail_preview.html', site_context)
+-                response.render()
+-            response['X-Robots-Tag'] = 'noindex, nofollow, noarchive'
+-            response['Content-Language'] = language
+-            return response
++            from catalog.services.admin_site_preview import render_site_preview
++            params = {'next': back}
++            if request.GET.get('version') == 'current':
++                params['version'] = 'current'
++            return render_site_preview(request, preview, language=language,
++                back_url=inspection_return, return_params=params)
+         can_moderate = item.is_pending and permission_admin.has_change_permission(request, item)
+         from catalog.services.business_team import platform_has_action
+         can_publish = platform_has_action(user=request.user, action="place.publish") if preview['is_publication'] else True
+@@ -693,8 +678,10 @@
+         }
+         status_tone = palette.get(obj.status, "muted")
+ 
++        from catalog.services.admin_place_preview import request_is_stale
+         return {
+             "is_pending": obj.is_pending,
++            "stale": request_is_stale(obj),
+             "status_label": obj.get_status_display(),
+             "status_tone": status_tone,
+             "place_name": obj.place.name_ru or obj.place.name,
+@@ -1023,15 +1010,17 @@
+         if obj.is_pending:
+             approve_url = reverse("admin:catalog_placeownershiprequest_approve", args=[obj.pk]) + f"?next={changelist_url}"
+             reject_url = reverse("admin:catalog_placeownershiprequest_reject", args=[obj.pk]) + f"?next={changelist_url}"
+-            actions.append(
+-                format_html(
+-                    '<a href="{}" class="km-action-icon-btn km-action-icon-btn--approve" title="{}">'
+-                    '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check"></use></svg>'
+-                    '</a>',
+-                    approve_url,
+-                    _("Принять"),
++            from catalog.services.admin_place_preview import request_is_stale
++            if request_is_stale(obj):
++                actions.append(format_html('<span class="km-admin-meta">{}</span>', _("Заявка устарела")))
++            else:
++                actions.append(
++                    format_html(
++                        '<a href="{}" class="km-action-icon-btn km-action-icon-btn--approve" title="{}">'
++                        '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check"></use></svg>'
++                        '</a>', approve_url, _("Принять"),
++                    )
+                 )
+-            )
+             actions.append(
+                 format_html(
+                     '<a href="{}" class="km-action-icon-btn km-action-icon-btn--reject" title="{}">'
+@@ -1084,7 +1073,11 @@
+         if obj.is_pending:
+             approve_url = reverse("admin:catalog_placeownershiprequest_approve", args=[obj.pk])
+             reject_url = reverse("admin:catalog_placeownershiprequest_reject", args=[obj.pk])
+-            menu_actions.append((approve_url, _("Принять"), "km-admin-action-menu__link--good"))
++            from catalog.services.admin_place_preview import request_is_stale
++            if request_is_stale(obj):
++                menu_actions.append((None, _("Заявка устарела"), "km-admin-action-menu__hint"))
++            else:
++                menu_actions.append((approve_url, _("Принять"), "km-admin-action-menu__link--good"))
+             menu_actions.append((reject_url, _("Отклонить"), "km-admin-action-menu__link--danger"))
+         else:
+             menu_actions.append((None, _("Заявка уже обработана"), "km-admin-action-menu__hint"))
+@@ -1152,6 +1145,11 @@
+ 
+     def has_add_permission(self, request):
+         return False
++
++    @staticmethod
++    def _approval_blocked(item, new_status):
++        from catalog.services.admin_place_preview import request_is_stale
++        return new_status == PlaceOwnershipRequest.STATUS_APPROVED and request_is_stale(item)
+ 
+     def _moderate_single(self, *, request, request_id: int, new_status: str):
+         item = (
+@@ -1184,6 +1182,7 @@
+                 "title": action_label,
+                 "is_publication": is_publication,
+                 "is_approval": new_status == PlaceOwnershipRequest.STATUS_APPROVED,
++                "approval_blocked": self._approval_blocked(item, new_status),
+                 "request_item": item,
+                 "action_label": action_label,
+                 "action_url": request.get_full_path(),
+--- a/src/catalog/domain_admin/place.py
++++ b/src/catalog/domain_admin/place.py
+@@ -11,6 +11,7 @@
+ from django import forms
+ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, QueryDict
+ from django.urls import path, reverse
++from django.views.decorators.http import require_GET
+ from django.template.response import TemplateResponse
+ from django.utils import timezone
+ from django.utils.http import url_has_allowed_host_and_scheme
+@@ -2182,6 +2183,10 @@
+     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
+         from catalog.services.permanent_place_wizard import ui_copy
+         context["km_place_entry_copy"] = ui_copy()
++        if obj and obj.pk:
++            context["km_place_site_preview_url"] = reverse(
++                "admin:catalog_place_site_preview", args=[obj.pk], current_app=self.admin_site.name)
++
+         context["km_place_candidate_conflict"] = getattr(request, '_km_candidate_conflict', None) is not None
+         context["km_place_current_version_url"] = request.path
+         context["google_maps_api_key"] = getattr(settings, "GOOGLE_MAPS_API_KEY", "")
+@@ -4218,7 +4223,9 @@
+             publish(actor=request.user,place_id=obj.pk,expected_version=obj.content_version)
+         except ValidationError as exc:
+             self.message_user(request,"; ".join(exc.messages),level=messages.WARNING)
+-        return HttpResponseRedirect(self._place_change_url(obj))
++            return HttpResponseRedirect(self._place_change_url(obj))
++        self.message_user(request, _("Карточка опубликована — уже видна на сайте"), level=messages.SUCCESS)
++        return HttpResponseRedirect(reverse("admin:catalog_place_change", args=[obj.pk], current_app=self.admin_site.name))
+ 
+     def _handle_unpublish_submit(self, request, obj: Place):
+         from catalog.services.publication import unpublish
+@@ -4230,6 +4237,20 @@
+         else:
+             self.message_user(request, _("Карточка снята с публикации и скрыта с сайта."), level=messages.SUCCESS)
+         return HttpResponseRedirect(self._place_change_url(obj))
++
++    def site_preview_view(self, request, object_id):
++        from django.shortcuts import get_object_or_404
++        from catalog.services.admin_place_preview import build_place_preview
++        from catalog.services.admin_site_preview import render_site_preview
++        obj = get_object_or_404(self.get_queryset(request), pk=object_id)
++        concrete_admin = self.admin_site._registry[Place]
++        if not concrete_admin.has_view_or_change_permission(request, obj):
++            raise PermissionDenied
++        language = request.GET.get("lang", getattr(request, "LANGUAGE_CODE", "ru"))
++        language = language if language in ("az", "ru", "en") else "ru"
++        back = reverse("admin:catalog_place_change", args=[obj.pk], current_app=self.admin_site.name)
++        preview = build_place_preview(obj, language=language)
++        return render_site_preview(request, preview, language=language, back_url=back)
+ 
+     def localized_url_preview_view(self, request):
+         from django.shortcuts import get_object_or_404
+@@ -4274,6 +4295,8 @@
+     def get_urls(self):
+         from catalog.controllers.location_resolution import location_resolve
+         custom_urls = [
++            path("<int:object_id>/site-preview/", self.admin_site.admin_view(require_GET(self.site_preview_view)),
++                 name=f"{self.opts.app_label}_{self.opts.model_name}_site_preview"),
+             path('organization-connections/',self.admin_site.admin_view(self.organization_connections_view),name=f'{self.opts.app_label}_{self.opts.model_name}_organization_connections'),
+             path("location/resolve/", self.admin_site.admin_view(location_resolve), name=f"{self.opts.app_label}_{self.opts.model_name}_location_resolve"),
+             path("url-preview/", self.admin_site.admin_view(self.localized_url_preview_view), name=f"{self.opts.app_label}_{self.opts.model_name}_url_preview"),
+--- a/src/catalog/domain_admin/review.py
++++ b/src/catalog/domain_admin/review.py
+@@ -43,10 +43,22 @@
+ class PlaceReviewInline(admin.TabularInline):
+     model = PlaceReview
+     extra = 0
+-    fields = ("review_author_display", "rating", "text", "is_approved", "created_at_display")
+-    readonly_fields = ("review_author_display", "created_at_display")
++    fields = ("review_author_display", "rating", "text", "is_approved", "created_at_display", "review_workflow_link")
++    readonly_fields = fields
+     ordering = ("-created_at",)
+     show_change_link = True
++
++    def has_add_permission(self, request, obj=None):
++        return False
++
++    def has_delete_permission(self, request, obj=None):
++        return False
++
++    @admin.display(description=_("Модерация"))
++    def review_workflow_link(self, obj):
++        if not obj or not obj.pk:
++            return ""
++        return format_html('<a href="{}">{}</a>', reverse('admin:catalog_placereview_workflow', args=[obj.pk]), _("Проверка KidsMap"))
+     formfield_overrides = {
+         models.TextField: {"widget": forms.Textarea(attrs={"rows": 4, "cols": 52})},
+     }
+@@ -97,11 +109,11 @@
+     def queryset(self, request, queryset):
+         value = self.value()
+         if value == "published":
+-            return queryset.filter(is_approved=True, contains_profanity=False)
++            return queryset.filter(is_current=True, is_approved=True, status="approved", contains_profanity=False)
+         if value == "hidden":
+             return queryset.filter(is_approved=False)
+         if value == "suspicious":
+-            return queryset.filter(Q(contains_profanity=True) | Q(is_approved=False, dislikes_count__gt=0))
++            return queryset.filter(Q(candidate_revision__status="pending") | Q(contains_profanity=True) | Q(is_approved=False, dislikes_count__gt=0))
+         if value == "only_rating":
+             return queryset.filter(Q(text__isnull=True) | Q(text__exact=""))
+         return queryset
+@@ -225,10 +237,15 @@
+     )
+ 
+     def get_queryset(self, request):
+-        return super().get_queryset(request).select_related("place", "user")
++        return super().get_queryset(request).select_related("place", "user", "candidate_revision", "current_revision")
++
++    def _review_content(self, obj):
++        if obj.candidate_revision_id and obj.candidate_revision.status == 'pending':
++            return obj.candidate_revision
++        return obj
+ 
+     def _review_has_text(self, obj) -> bool:
+-        return bool((obj.text or "").strip())
++        return bool((self._review_content(obj).text or "").strip())
+ 
+     def _render_review_badge(self, *, label: str, tone: str = "muted"):
+         return format_html(
+@@ -268,7 +285,7 @@
+         )
+ 
+     def _review_preview_text(self, obj) -> str:
+-        text = (obj.text or "").strip()
++        text = (self._review_content(obj).text or "").strip()
+         if not text:
+             return str(_("Только оценка без комментария"))
+         if len(text) <= 180:
+@@ -284,6 +301,8 @@
+             return ""
+ 
+     def _review_status(self, obj) -> tuple[str, str]:
++        if obj.candidate_revision_id and obj.candidate_revision.status == 'pending':
++            return str(_("На модерации")), "warn"
+         if obj.status == obj.STATUS_REJECTED:
+             return str(_("Отклонен")), "danger"
+         if obj.status == obj.STATUS_PENDING:
+@@ -320,7 +339,7 @@
+ 
+     @admin.display(description=_("Автор"))
+     def display_author(self, obj):
+-        return obj.author_name or _("Без имени")
++        return self._review_content(obj).author_name or _("Без имени")
+ 
+     @admin.display(description=_("Автор"))
+     def author_summary(self, obj):
+@@ -348,12 +367,13 @@
+ 
+     @admin.display(description=_("Рейтинг"))
+     def rating_summary(self, obj):
+-        tone = "warn" if obj.rating <= 2 else "info" if obj.rating == 3 else "good"
+-        stars = "★" * int(obj.rating or 0) + "☆" * max(0, 5 - int(obj.rating or 0))
++        content = self._review_content(obj)
++        tone = "warn" if content.rating <= 2 else "info" if content.rating == 3 else "good"
++        stars = "★" * int(content.rating or 0) + "☆" * max(0, 5 - int(content.rating or 0))
+         return format_html(
+             '<div class="km-admin-stack"><span class="km-review-rating km-review-rating--{}" title="{}">{}</span>{}</div>',
+             tone,
+-            _("Оценка: %(rating)s из 5") % {"rating": obj.rating},
++            _("Оценка: %(rating)s из 5") % {"rating": content.rating},
+             stars,
+             format_html(
+                 '<span class="km-admin-meta">{}</span>',
+@@ -364,7 +384,7 @@
+     @admin.display(description=_("Статус"))
+     def moderation_status_summary(self, obj):
+         label, tone = self._review_status(obj)
+-        if obj.status == obj.STATUS_PENDING:
++        if obj.candidate_revision_id and obj.candidate_revision.status == 'pending':
+             help_text = _("Ждёт решения администратора")
+         elif obj.status == obj.STATUS_REJECTED:
+             help_text = _("Отклонён и скрыт")
+@@ -380,14 +400,15 @@
+     @admin.display(description=_("Риски"))
+     def risk_flags_summary(self, obj):
+         flags = []
+-        quality = review_quality_check(obj)
+-        if obj.contains_profanity:
++        content = self._review_content(obj)
++        quality = review_quality_check(content)
++        if content.contains_profanity:
+             flags.append(self._render_review_badge(label=_("Есть скрытая лексика"), tone="warn"))
+         if not quality.is_ready:
+             flags.append(self._render_review_badge(label=_("Низкое качество"), tone="warn"))
+         if not self._review_has_text(obj):
+             flags.append(self._render_review_badge(label=_("Только оценка"), tone="info"))
+-        if obj.rating <= 2:
++        if content.rating <= 2:
+             flags.append(self._render_review_badge(label=_("Низкая оценка"), tone="warn"))
+         if obj.dislikes_count > obj.likes_count:
+             flags.append(self._render_review_badge(label=_("Много дизлайков"), tone="warn"))
+@@ -444,6 +465,7 @@
+ 
+     def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
+         if obj:
++            context["km_review_workflow_url"] = self._review_url(obj)
+             context["km_review_form_summary"] = self._build_review_form_summary(obj)
+             context["km_action_approve_url"] = self._review_action_url(obj, "approve")
+             context["km_action_hide_url"] = self._review_action_url(obj, "hide")
+@@ -464,11 +486,12 @@
+         return f"?{encoded}" if encoded else ""
+ 
+     def _review_counts(self):
+-        counts = PlaceReview.objects.aggregate(
++        counts = PlaceReview.objects.filter(is_current=True).aggregate(
+             total=Count("pk"),
+-            published=Count("pk", filter=Q(is_approved=True, contains_profanity=False)),
++            pending=Count("pk", filter=Q(candidate_revision__status="pending")),
++            published=Count("pk", filter=Q(is_approved=True, status="approved", contains_profanity=False)),
+             hidden=Count("pk", filter=Q(is_approved=False)),
+-            suspicious=Count("pk", filter=Q(contains_profanity=True) | Q(is_approved=False, dislikes_count__gt=0)),
++            suspicious=Count("pk", filter=Q(candidate_revision__status="pending") | Q(contains_profanity=True) | Q(is_approved=False, dislikes_count__gt=0)),
+             only_rating=Count("pk", filter=Q(text__isnull=True) | Q(text__exact="")),
+             low_rating=Count("pk", filter=Q(rating__lte=2)),
+         )
+@@ -533,15 +556,6 @@
+             {"name": "delete_selected", "label": _("Удалить"), "tone": "danger", "icon": "fas fa-trash-alt", "confirm": _("Вы собираетесь удалить {count} выбранных отзывов.\n\nЭто действие удалит отзывы из базы после стандартного экрана подтверждения Django admin.\n\nПродолжить?"), "description": _("Полное удаление отзывов из базы.")},
+         )
+ 
+-    def get_urls(self):
+-        url_prefix = f"{self.opts.app_label}_{self.opts.model_name}"
+-        custom_urls = [
+-            path("<path:object_id>/approve/", self.admin_site.admin_view(self.approve_view), name=f"{url_prefix}_approve"),
+-            path("<path:object_id>/hide/", self.admin_site.admin_view(self.hide_view), name=f"{url_prefix}_hide"),
+-            path("<path:object_id>/reject/", self.admin_site.admin_view(self.reject_view), name=f"{url_prefix}_reject"),
+-        ]
+-        return custom_urls + super().get_urls()
+-
+     def _review_changelist_url(self) -> str:
+         return reverse(
+             f"admin:{self.opts.app_label}_{self.opts.model_name}_changelist",
+@@ -564,147 +578,19 @@
+         }
+         return super().changelist_view(request, extra_context=extra_context)
+ 
+-    def _message_for_single_review_action(self, *, request, obj, action_key: str):
+-        messages_map = {
+-            "approve": _("Отзыв опубликован и виден на сайте."),
+-            "hide": _("Отзыв скрыт. Его можно снова опубликовать позже."),
+-            "reject": _("Отзыв отклонён и скрыт. При необходимости его можно снова опубликовать."),
+-        }
+-        self.message_user(request, messages_map[action_key], level=messages.SUCCESS)
+-
+-    def _toggle_review_visibility(self, *, obj, is_approved: bool, rejected: bool = False, moderator=None):
+-        target_status = obj.STATUS_APPROVED if is_approved else (obj.STATUS_REJECTED if rejected else obj.STATUS_PENDING)
+-        if obj.is_approved == is_approved and obj.status == target_status:
+-            return False
+-        obj.status = target_status
+-        obj.is_approved = is_approved
+-        obj.moderated_by = moderator if target_status != 'pending' else None
+-        obj.save(update_fields=["status", "is_approved", "updated_at", "moderated_by"])
+-        return True
+-
+-    def approve_view(self, request, object_id):
+-        from django.core.exceptions import PermissionDenied
+-        obj = self.get_object(request, object_id)
+-        if not self.has_change_permission(request, obj):
+-            raise PermissionDenied
+-        if obj is None:
+-            return HttpResponseRedirect(self._review_changelist_url())
+-        if request.method == "POST":
+-            self._toggle_review_visibility(obj=obj, is_approved=True, moderator=request.user)
+-            self._message_for_single_review_action(request=request, obj=obj, action_key="approve")
+-            return HttpResponseRedirect(self._review_changelist_url())
+-        return TemplateResponse(request, "admin/catalog/placereview/moderation_confirm.html", {
+-            **self.admin_site.each_context(request),
+-            "title": _("Опубликовать отзыв"),
+-            "action_label": _("Опубликовать"),
+-            "action_key": "approve",
+-            "description": _("Отзыв станет снова виден на сайте."),
+-            "object": obj,
+-            "opts": self.opts,
+-        })
+-
+-    def hide_view(self, request, object_id):
+-        from django.core.exceptions import PermissionDenied
+-        obj = self.get_object(request, object_id)
+-        if not self.has_change_permission(request, obj):
+-            raise PermissionDenied
+-        if obj is None:
+-            return HttpResponseRedirect(self._review_changelist_url())
+-        if request.method == "POST":
+-            self._toggle_review_visibility(obj=obj, is_approved=False, moderator=request.user)
+-            self._message_for_single_review_action(request=request, obj=obj, action_key="hide")
+-            return HttpResponseRedirect(self._review_changelist_url())
+-        return TemplateResponse(request, "admin/catalog/placereview/moderation_confirm.html", {
+-            **self.admin_site.each_context(request),
+-            "title": _("Скрыть отзыв"),
+-            "action_label": _("Скрыть"),
+-            "action_key": "hide",
+-            "description": _("Отзыв исчезнет с сайта, но останется в базе и его можно будет снова опубликовать."),
+-            "object": obj,
+-            "opts": self.opts,
+-        })
+-
+-    def reject_view(self, request, object_id):
+-        from django.core.exceptions import PermissionDenied
+-        obj = self.get_object(request, object_id)
+-        if not self.has_change_permission(request, obj):
+-            raise PermissionDenied
+-        if obj is None:
+-            return HttpResponseRedirect(self._review_changelist_url())
+-        if request.method == "POST":
+-            self._toggle_review_visibility(obj=obj, is_approved=False, rejected=True, moderator=request.user)
+-            self._message_for_single_review_action(request=request, obj=obj, action_key="reject")
+-            return HttpResponseRedirect(self._review_changelist_url())
+-        return TemplateResponse(request, "admin/catalog/placereview/moderation_confirm.html", {
+-            **self.admin_site.each_context(request),
+-            "title": _("Отклонить отзыв"),
+-            "action_label": _("Отклонить"),
+-            "action_key": "reject",
+-            "description": _("Отзыв останется в базе как скрытый. Это решение можно будет изменить позже."),
+-            "object": obj,
+-            "opts": self.opts,
+-        })
+-
+-    @admin.action(description=_("Опубликовать выбранные отзывы"))
+-    def approve_selected(self, request, queryset):
+-        place_ids = list(queryset.values_list("place_id", flat=True).distinct())
+-        updated_count = queryset.exclude(is_approved=True, status=PlaceReview.STATUS_APPROVED).update(is_approved=True, status=PlaceReview.STATUS_APPROVED, moderated_at=timezone.now(), moderated_by=request.user, updated_at=timezone.now())
+-        from catalog.models.review import sync_place_rating_stats
+-        sync_place_rating_stats(place_ids)
+-        self.message_user(
+-            request,
+-            ngettext("Опубликован %(count)d отзыв.", "Опубликовано %(count)d отзыва.", updated_count) % {"count": updated_count},
+-            level=messages.SUCCESS if updated_count else messages.WARNING,
+-        )
+-
+-    @admin.action(description=_("Скрыть выбранные отзывы"))
+-    def hide_selected(self, request, queryset):
+-        place_ids = list(queryset.values_list("place_id", flat=True).distinct())
+-        updated_count = queryset.exclude(is_approved=False, status=PlaceReview.STATUS_PENDING).update(is_approved=False, status=PlaceReview.STATUS_PENDING, submitted_at=timezone.now(), moderated_at=None, moderated_by=None, updated_at=timezone.now())
+-        from catalog.models.review import sync_place_rating_stats
+-        sync_place_rating_stats(place_ids)
+-        self.message_user(
+-            request,
+-            ngettext("Скрыт %(count)d отзыв.", "Скрыто %(count)d отзыва.", updated_count) % {"count": updated_count},
+-            level=messages.SUCCESS if updated_count else messages.WARNING,
+-        )
+-
+-    @admin.action(description=_("Отклонить выбранные отзывы"))
+-    def reject_selected(self, request, queryset):
+-        place_ids = list(queryset.values_list("place_id", flat=True).distinct())
+-        updated_count = queryset.exclude(is_approved=False, status=PlaceReview.STATUS_REJECTED).update(is_approved=False, status=PlaceReview.STATUS_REJECTED, moderated_at=timezone.now(), moderated_by=request.user, updated_at=timezone.now())
+-        from catalog.models.review import sync_place_rating_stats
+-        sync_place_rating_stats(place_ids)
+-        self.message_user(
+-            request,
+-            ngettext("Отклонён %(count)d отзыв.", "Отклонено %(count)d отзыва.", updated_count) % {"count": updated_count},
+-            level=messages.SUCCESS if updated_count else messages.WARNING,
+-        )
+-
+     @admin.display(description="")
+     def row_actions(self, obj):
+-        primary_action = render_primary_action(self._review_change_url(obj), _("Открыть"))
+-        visible_actions = [primary_action]
+-        if obj.status == obj.STATUS_PENDING or not obj.is_approved:
+-            visible_actions.append(render_inline_action(self._review_action_url(obj, "approve"), _("Одобрить"), "good", "fas fa-check"))
+-            visible_actions.append(render_inline_action(self._review_action_url(obj, "reject"), _("Отклонить"), "warn", "fas fa-ban"))
+-        elif obj.is_approved:
+-            visible_actions.append(render_inline_action(self._review_action_url(obj, "hide"), _("Скрыть"), "secondary", "fas fa-eye-slash"))
+-        
+-        menu_actions = [
+-            (self._place_admin_change_url(obj), _("К кружку"), "")
+-        ]
+-        
+-        if obj.is_approved:
+-            menu_actions.append((self._review_action_url(obj, "hide"), _("Скрыть"), "km-admin-action-menu__link--warn"))
+-        else:
+-            menu_actions.append((self._review_action_url(obj, "approve"), _("Опубликовать"), "km-admin-action-menu__link--good"))
+-            menu_actions.append((self._review_action_url(obj, "reject"), _("Отклонить"), "km-admin-action-menu__link--warn"))
+-            
+-        menu_actions.append((self._review_delete_url(obj), _("Удалить"), "km-admin-action-menu__link--danger"))
+-        
+-        menu_html = render_action_menu(menu_actions)
+-        return render_row_actions_container(format_html_join(" ", "{}", ((item,) for item in visible_actions)), menu_html)
++        primary = render_primary_action(self._review_url(obj), _("Открыть"))
++        actions = [(self._place_admin_change_url(obj), _("К кружку"), "")]
++        if obj.candidate_revision_id and obj.candidate_revision.status == 'pending':
++            actions.extend([(self._review_url(obj, "approve"), _("Одобрить"), ""),
++                            (self._review_url(obj, "reject"), _("Отклонить"), "")])
++        if obj.current_revision_id:
++            action, label = ("hide", _("Скрыть")) if obj.is_approved else ("restore", _("Опубликовать"))
++            actions.append((self._review_url(obj, action), label, ""))
++        actions.append((self._review_delete_url(obj), _("Удалить"), "km-admin-action-menu__link--danger"))
++        return render_row_actions_container(primary, render_action_menu(actions))
++
+ 
+ 
+ @admin.register(SiteReview)
+--- a/src/catalog/domain_admin/review_versions.py
++++ b/src/catalog/domain_admin/review_versions.py
+@@ -1,14 +1,23 @@
+-"""Staff edits use versioned moderation; historical sources are read-only."""
+-from django.contrib import admin
+-from django.http import HttpResponseForbidden
+-from django.urls import reverse
++"""Admin-origin, revision-bound moderation; immutable source history stays read-only."""
++from django.contrib import admin, messages
++from django.core import signing
++from django.core.exceptions import PermissionDenied
++from django.db import transaction
++from django.http import Http404, HttpResponse
++from django.shortcuts import redirect
++from django.template.response import TemplateResponse
++from django.urls import path, reverse
+ from django.utils.html import format_html, format_html_join
+ from django.utils.translation import gettext_lazy as _
+ from catalog.models import ActivityReview, EventReview, PlaceReviewResponse, SpecialistReviewResponse, ActivityReviewResponse, EventReviewResponse
+-from catalog.services.review_versions import type_for_head
++from catalog.services.review_versions import type_for_head, moderate_candidate, set_review_visibility, ReviewConflict
+ 
+ 
+ class VersionedReviewAdminMixin:
++    change_list_template = 'admin/catalog/reviews/change_list.html'
++    actions = ('approve_selected', 'reject_selected', 'hide_selected')
++    snapshot_salt = 'catalog.admin.review-versions.v1'
++
+     def has_add_permission(self, request):
+         return False
+ 
+@@ -19,23 +28,156 @@
+         return (( _('Отзыв'), {'fields': ('review_workflow_link', 'version_history')}), ( _('Служебное и метрики'), {'fields': tuple(field.name for field in self.model._meta.fields)}))
+ 
+     def get_actions(self, request):
+-        actions = super().get_actions(request)
+-        return {key: value for key, value in actions.items() if key == 'delete_selected'}
+-
+-    def _toggle_review_visibility(self, **kwargs):
+-        raise PermissionError('Use the versioned reviewer workflow')
++        return admin.ModelAdmin.get_actions(self, request)
++
++    def _concrete_admin(self):
++        return self.admin_site._registry[self.model._meta.concrete_model]
++
++    def _review_url(self, obj, action='workflow'):
++        opts = self.model._meta.concrete_model._meta
++        return reverse(f'admin:{opts.app_label}_{opts.model_name}_{action}', args=[obj.pk], current_app=self.admin_site.name)
++
++    def _review_object(self, request, object_id):
++        source = self._concrete_admin()
++        obj = source.get_object(request, object_id)
++        if obj is None:
++            raise Http404
++        if not source.has_change_permission(request, obj):
++            raise PermissionDenied
++        return obj
++
++    def get_urls(self):
++        prefix = f'{self.opts.app_label}_{self.opts.model_name}'
++        urls = [path('<path:object_id>/workflow/', self.admin_site.admin_view(self.workflow_view), name=f'{prefix}_workflow')]
++        for action in ('approve', 'reject', 'hide', 'restore'):
++            urls.append(path(f'<path:object_id>/{action}/', self.admin_site.admin_view(getattr(self, action + '_view')), name=f'{prefix}_{action}'))
++        return urls + super().get_urls()
++
++    def _workflow_response(self, request, obj, *, action=None):
++        return TemplateResponse(request, 'admin/catalog/reviews/workflow.html', {
++            **self.admin_site.each_context(request),
++            'title': _('Проверка KidsMap'), 'opts': obj._meta, 'head': obj,
++            'target': getattr(obj, type_for_head(obj)[0]),
++            'candidate': obj.candidate_revision if obj.candidate_revision_id and obj.candidate_revision.status == 'pending' else None,
++            'current': obj.current_revision,
++            'history': obj.revisions.order_by('-created_at', '-pk'),
++            'review_return_url': reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_changelist'),
++            'review_workflow_url': self._review_url(obj),
++            'approve_url': self._review_url(obj, 'approve'), 'reject_url': self._review_url(obj, 'reject'),
++            'hide_url': self._review_url(obj, 'hide'), 'restore_url': self._review_url(obj, 'restore'),
++            'confirm_action': action,
++        })
++
++    def workflow_view(self, request, object_id):
++        if request.method != 'GET':
++            return HttpResponse(status=405, headers={'Allow': 'GET'})
++        return self._workflow_response(request, self._review_object(request, object_id))
++
++    def _decision_view(self, request, object_id, action):
++        obj = self._review_object(request, object_id)
++        if request.method == 'GET':
++            return self._workflow_response(request, obj, action=action)
++        if request.method != 'POST':
++            return HttpResponse(status=405, headers={'Allow': 'GET, POST'})
++        try:
++            self._apply_review_action(request, obj, action, {
++                'candidate': request.POST.get('revision_id'),
++                'current': request.POST.get('expected_current_revision_id'),
++                'visible': request.POST.get('expected_visibility'),
++            })
++        except (TypeError, ValueError):
++            return HttpResponse(_('Invalid review version'), status=400)
++        except ReviewConflict:
++            return HttpResponse(_('Отзыв изменился. Обновите страницу.'), status=409)
++        except PermissionError:
++            raise PermissionDenied
++        self.message_user(request, _('Решение сохранено.'), level=messages.SUCCESS)
++        return redirect(self._review_url(obj))
++
++    def _apply_review_action(self, request, obj, action, expected):
++        if action in {'approve', 'reject'}:
++            token = str(expected.get('candidate') or '')
++            if not token.isascii() or not token.isdecimal() or len(token) > 32 or int(token) <= 0:
++                raise ValueError('Candidate revision required')
++            return moderate_candidate(head=obj, revision_id=int(token), actor=request.user,
++                approve=action == 'approve', reason=request.POST.get('reason', '')[:5000])
++        token = str(expected.get('current') or '')
++        visible = str(expected.get('visible'))
++        if not token.isascii() or not token.isdecimal() or len(token) > 32 or int(token) <= 0 or visible not in {'0', '1'}:
++            raise ValueError('Visible revision and state required')
++        return set_review_visibility(head=obj, revision_id=int(token), actor=request.user,
++            visible=action == 'restore', expected_visible=visible == '1')
+ 
+     def approve_view(self, request, object_id):
+-        return HttpResponseForbidden()
+-
+-    hide_view = reject_view = approve_view
++        return self._decision_view(request, object_id, 'approve')
++
++    def reject_view(self, request, object_id):
++        return self._decision_view(request, object_id, 'reject')
++
++    def hide_view(self, request, object_id):
++        return self._decision_view(request, object_id, 'hide')
++
++    def restore_view(self, request, object_id):
++        return self._decision_view(request, object_id, 'restore')
++
++    def changelist_view(self, request, extra_context=None):
++        response = super().changelist_view(request, extra_context=extra_context)
++        if hasattr(response, 'context_data') and response.context_data and 'cl' in response.context_data:
++            rows = response.context_data['cl'].result_list
++            snapshot = {str(row.pk): {'candidate': row.candidate_revision_id,
++                'current': row.current_revision_id, 'visible': '1' if row.is_approved else '0'} for row in rows}
++            response.context_data['review_snapshot'] = signing.dumps({
++                'actor': request.user.pk, 'model': self.model._meta.concrete_model._meta.label_lower,
++                'rows': snapshot}, salt=self.snapshot_salt, compress=True)
++        return response
++
++    def _bulk_review_action(self, request, queryset, action):
++        try:
++            snapshot = signing.loads(request.POST.get('review_snapshot', ''), salt=self.snapshot_salt, max_age=3600)
++        except signing.BadSignature:
++            return HttpResponse(_('Invalid review version'), status=400)
++        if snapshot.get('actor') != request.user.pk or snapshot.get('model') != self.model._meta.concrete_model._meta.label_lower:
++            raise PermissionDenied
++        objects = list(queryset)
++        ids = {str(obj.pk) for obj in objects}
++        selected = set(request.POST.getlist('_selected_action'))
++        if not objects or (request.POST.get('select_across') != '1' and ids != selected) or not ids.issubset(snapshot['rows']):
++            return HttpResponse(_('Отзыв изменился. Обновите страницу.'), status=409)
++        source = self._concrete_admin()
++        # Deterministic target lock order matches submit/moderate/visibility services.
++        objects.sort(key=lambda obj: (getattr(obj, type_for_head(obj)[0] + '_id'), obj.pk))
++        try:
++            with transaction.atomic():
++                for obj in objects:
++                    if not source.has_change_permission(request, obj):
++                        raise PermissionDenied
++                    self._apply_review_action(request, obj, action, snapshot['rows'][str(obj.pk)])
++        except (TypeError, ValueError):
++            return HttpResponse(_('Invalid review version'), status=400)
++        except ReviewConflict:
++            return HttpResponse(_('Отзыв изменился. Обновите страницу.'), status=409)
++        except PermissionError:
++            raise PermissionDenied
++        self.message_user(request, _('Обработано отзывов: %(count)d') % {'count': len(objects)}, level=messages.SUCCESS)
++        return None
++
++    @admin.action(description=_('Одобрить'), permissions=['change'])
++    def approve_selected(self, request, queryset):
++        return self._bulk_review_action(request, queryset, 'approve')
++
++    @admin.action(description=_('Отклонить'), permissions=['change'])
++    def reject_selected(self, request, queryset):
++        return self._bulk_review_action(request, queryset, 'reject')
++
++    @admin.action(description=_('Скрыть'), permissions=['change'])
++    def hide_selected(self, request, queryset):
++        return self._bulk_review_action(request, queryset, 'hide')
+ 
+     @admin.display(description=_('Модерация'))
+     def review_workflow_link(self, obj):
+         if not obj:
+             return ''
+-        kind = type_for_head(obj)[0]
+-        return format_html('<a href="{}">{}</a>', reverse('typed_reviews', args=[kind, getattr(obj, kind + '_id')]), _('Проверка KidsMap'))
++        return format_html('<a href="{}">{}</a>', self._review_url(obj), _('Проверка KidsMap'))
+ 
+     @admin.display(description=_('История'))
+     def version_history(self, obj):
+--- a/src/catalog/domain_admin/specialist.py
++++ b/src/catalog/domain_admin/specialist.py
+@@ -904,44 +904,5 @@
+         ),
+     )
+ 
+-    @admin.action(description=_("Опубликовать выбранные отзывы"))
+-    def approve_selected(self, request, queryset):
+-        specialist_ids = list(queryset.values_list("specialist_id", flat=True).distinct())
+-        updated_count = queryset.exclude(is_approved=True, status=SpecialistReview.STATUS_APPROVED).update(
+-            is_approved=True, status=SpecialistReview.STATUS_APPROVED, moderated_at=timezone.now(), moderated_by=request.user
+-        )
+-        from catalog.models.specialist import sync_specialist_rating_stats
+-        sync_specialist_rating_stats(specialist_ids)
+-        self.message_user(
+-            request,
+-            ngettext("Опубликован %(count)d отзыв.", "Опубликовано %(count)d отзыва.", updated_count) % {"count": updated_count},
+-            level=messages.SUCCESS if updated_count else messages.WARNING,
+-        )
+-
+-    @admin.action(description=_("Скрыть выбранные отзывы"))
+-    def hide_selected(self, request, queryset):
+-        specialist_ids = list(queryset.values_list("specialist_id", flat=True).distinct())
+-        updated_count = queryset.exclude(is_approved=False, status=SpecialistReview.STATUS_PENDING).update(
+-            is_approved=False, status=SpecialistReview.STATUS_PENDING, submitted_at=timezone.now(), moderated_at=None, moderated_by=None
+-        )
+-        from catalog.models.specialist import sync_specialist_rating_stats
+-        sync_specialist_rating_stats(specialist_ids)
+-        self.message_user(
+-            request,
+-            ngettext("Скрыт %(count)d отзыв.", "Скрыто %(count)d отзыва.", updated_count) % {"count": updated_count},
+-            level=messages.SUCCESS if updated_count else messages.WARNING,
+-        )
+-
+-    @admin.action(description=_("Отклонить выбранные отзывы"))
+-    def reject_selected(self, request, queryset):
+-        specialist_ids = list(queryset.values_list("specialist_id", flat=True).distinct())
+-        updated_count = queryset.exclude(is_approved=False, status=SpecialistReview.STATUS_REJECTED).update(
+-            is_approved=False, status=SpecialistReview.STATUS_REJECTED, moderated_at=timezone.now(), moderated_by=request.user
+-        )
+-        from catalog.models.specialist import sync_specialist_rating_stats
+-        sync_specialist_rating_stats(specialist_ids)
+-        self.message_user(
+-            request,
+-            ngettext("Отклонён %(count)d отзыв.", "Отклонено %(count)d отзыва.", updated_count) % {"count": updated_count},
+-            level=messages.SUCCESS if updated_count else messages.WARNING,
+-        )
++    # VersionedReviewAdminMixin owns signed candidate decisions and visibility.
++    # Raw queryset updates leave revision history and pending candidates divergent.
+--- a/src/catalog/proxy_apps/catalog_moderation/admin.py
++++ b/src/catalog/proxy_apps/catalog_moderation/admin.py
+@@ -148,8 +148,13 @@
+     moderation_empty_description = _("Новые отзывы, требующие решения, появятся здесь.")
+     moderation_actions = ("approve_selected", "reject_selected")
+ 
++    def get_actions(self, request):
++        from catalog.domain_admin.review_versions import VersionedReviewAdminMixin
++        actions = VersionedReviewAdminMixin.get_actions(self, request)
++        return {name: action for name, action in actions.items() if name in self.moderation_actions}
++
+     def get_queryset(self, request):
+         qs = super().get_queryset(request)
+-        return qs.filter(status=PlaceReview.STATUS_PENDING)
++        return qs.filter(is_current=True, candidate_revision__status="pending")
+ 
+ admin.site.register(ModerationPlaceOwnershipRequest, PlaceOwnershipRequestAdmin)
+--- a/src/catalog/services/admin_place_preview.py
++++ b/src/catalog/services/admin_place_preview.py
+@@ -179,19 +179,13 @@
+         'offer_count':len(activities), 'group_count':sum(len(a.get('groups', [])) for a in activities)}
+ 
+ 
+-def build_request_preview(item, *, language='ru', current=False):
+-    language = language if language in LANGUAGES else 'ru'
++def request_is_stale(item, *, revision=None):
++    """Share the inspection freshness check with list and confirmation actions."""
+     place = item.place
+-    live = publication.snapshot(place, 'place')
+-    revision = VolunteerPlaceRevision.objects.filter(place=place).first()
+     is_publication = item.request_kind == item.KIND_PUBLICATION
++    if revision is None and is_publication:
++        revision = getattr(place, 'volunteer_revision', None)
+     submitted = bool(is_publication and item.is_pending and revision and revision.status == 'pending')
+-    data = copy.deepcopy(live)
+-    if submitted and not current:
+-        # A patch is not a full card. Preserve its complete captured base,
+-        # including unchanged group prices/photos and explicit empty values.
+-        data.update(copy.deepcopy(revision.base_snapshot or {}))
+-        data.update(copy.deepcopy(revision.payload))
+     stale = bool(item.is_pending and (
+         item.base_ownership_version != place.ownership_version or item.base_owner_id != place.owner_id
+         or (is_publication and (item.base_content_version != place.content_version
+@@ -200,6 +194,31 @@
+     if submitted:
+         from catalog.services.volunteer_places import revision_base_matches
+         stale = stale or not revision.dependencies or not revision_base_matches(revision, place)
++    return stale
++
++
++def build_place_preview(place, *, language='ru'):
++    """Inspect the saved card without requiring or creating an ownership request."""
++    return _build_preview(place, language=language)
++
++
++def build_request_preview(item, *, language='ru', current=False):
++    return _build_preview(item.place, item=item, language=language, current=current)
++
++
++def _build_preview(place, *, item=None, language='ru', current=False):
++    language = language if language in LANGUAGES else 'ru'
++    live = publication.snapshot(place, 'place')
++    revision = VolunteerPlaceRevision.objects.filter(place=place).first()
++    is_publication = bool(item and item.request_kind == item.KIND_PUBLICATION)
++    submitted = bool(is_publication and item.is_pending and revision and revision.status == 'pending')
++    data = copy.deepcopy(live)
++    if submitted and not current:
++        # A patch is not a full card. Preserve its complete captured base,
++        # including unchanged group prices/photos and explicit empty values.
++        data.update(copy.deepcopy(revision.base_snapshot or {}))
++        data.update(copy.deepcopy(revision.payload))
++    stale = request_is_stale(item, revision=revision) if item else False
+     candidate = copy.copy(place)
+     candidate._state = copy.copy(place._state)
+     candidate._state.fields_cache = {}
+--- a/src/catalog/services/admin_site_preview.py
++++ b/src/catalog/services/admin_site_preview.py
+@@ -129,3 +129,32 @@
+     for activity, presentation in zip(place._site_preview_activities,context['activities']):
+         if not preview['place'].is_public or activity.pk>=10**9: presentation['url']=''
+     return context
++
++
++def render_site_preview(request, preview, *, language, back_url, return_params=None):
++    """Render a guest-looking private page while retaining the real admin session."""
++    from django.contrib.auth.models import AnonymousUser
++    from django.template.response import TemplateResponse
++    from django.utils.translation import override
++    from urllib.parse import urlencode
++
++    visitor = copy.copy(request)
++    visitor.user = AnonymousUser()
++    visitor.LANGUAGE_CODE = language
++    visitor.site_preview = True
++    with override(language):
++        context = build_site_preview_context(visitor, preview)
++        context['site_preview_back'] = back_url
++        context['catalog_return_url'] = back_url
++        context['language_urls'] = {
++            lang: request.path + '?' + urlencode({**(return_params or {}), 'lang': lang})
++            for lang in ('az', 'ru', 'en')
++        }
++        context['language_switch_query'] = ''
++        context['site_preview_languages'] = context['language_urls'].items()
++        context['site_preview_version'] = request.GET.get('version', '')
++        response = TemplateResponse(visitor, 'catalog/place_detail_preview.html', context)
++        response.render()
++    response['X-Robots-Tag'] = 'noindex, nofollow, noarchive'
++    response['Content-Language'] = language
++    return response
+--- a/src/catalog/services/review_versions.py
++++ b/src/catalog/services/review_versions.py
+@@ -224,6 +224,35 @@
+         return candidate
+ 
+ 
++def set_review_visibility(*, head, revision_id, actor, visible, expected_visible):
++    """Hide/restore the approved projection without deciding or replacing a candidate."""
++    kind, (targets, heads, _, _) = type_for_head(head)
++    permission = 'catalog.change_' + heads._meta.model_name
++    if not actor.is_active or not actor.is_staff or not actor.has_perm(permission):
++        raise PermissionError('KidsMap reviewer permission required')
++    with transaction.atomic():
++        targets.objects.select_for_update().get(pk=getattr(head, kind + '_id'))
++        fresh_actor = get_user_model().objects.get(pk=actor.pk)
++        if not fresh_actor.is_active or not fresh_actor.is_staff or not fresh_actor.has_perm(permission):
++            raise PermissionError('KidsMap reviewer permission required')
++        locked = heads.objects.select_for_update().get(pk=head.pk)
++        if (not locked.is_current or locked.current_revision_id != int(revision_id)
++                or locked.is_approved != expected_visible or visible == expected_visible):
++            raise ReviewConflict('Visible review changed; reload before deciding')
++        if locked.current_revision.status != 'approved':
++            raise ReviewConflict('Only an approved revision may be restored')
++        # Model.save() is the compatibility writer and can create a new revision;
++        # changing visibility is deliberately independent from immutable history.
++        heads.objects.filter(pk=locked.pk).update(
++            status='approved', is_approved=visible, moderated_by=fresh_actor,
++            moderated_at=timezone.now(), updated_at=timezone.now())
++        locked.refresh_from_db()
++        target = getattr(locked, kind)
++        if hasattr(target, 'refresh_rating_stats'):
++            target.refresh_rating_stats()
++        return locked
++
++
+ def refresh_reactions(head):
+     stats = head.reactions.filter(revision_id=head.current_revision_id).aggregate(likes=Count('pk', filter=Q(value=1)), dislikes=Count('pk', filter=Q(value=-1)))
+     type(head).objects.filter(pk=head.pk).update(likes_count=stats['likes'] or 0, dislikes_count=stats['dislikes'] or 0)
+--- a/src/catalog/templates/admin/catalog/place/form/section_media.html
++++ b/src/catalog/templates/admin/catalog/place/form/section_media.html
+@@ -50,8 +50,12 @@
+             <button type="button" class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm km-pf-btn--danger" data-main-photo-clear>
+               <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-delete"></use></svg>{% translate "Удалить" %}
+             </button>
+-            {% if obj.pk and obj.get_absolute_url %}
+-              <a class="km-pf-linkbtn" href="{{ obj.get_absolute_url }}" target="_blank" rel="noopener">{% translate "Посмотреть на сайте" %}</a>
++            {% if obj.pk %}
++              {% if km_place_public_link.is_public %}
++                <a class="km-pf-linkbtn" href="{{ km_place_public_link.url }}" target="_blank" rel="noopener">{% translate "Посмотреть на сайте" %}</a>
++              {% elif km_place_site_preview_url %}
++                <a class="km-pf-linkbtn" href="{{ km_place_site_preview_url }}" target="_blank" rel="noopener">{% translate "Превью на сайте" %}</a>
++              {% endif %}
+             {% endif %}
+           </div>
+         </div>
+--- a/src/catalog/templates/admin/catalog/placeownershiprequest/change_form.html
++++ b/src/catalog/templates/admin/catalog/placeownershiprequest/change_form.html
+@@ -139,9 +139,13 @@
+                   {% if not add and km_request_form_summary.is_pending %}
+                     <div class="km-sidebar-action-group km-sidebar-action-group--service">
+                       <div class="km-sidebar-group-title">{% translate "Быстрые действия" %}</div>
+-                      <a href="{{ km_action_approve_url }}" class="km-btn--sidebar km-btn--success-alt">
+-                        <i class="fas fa-check-circle"></i> {% translate "Одобрить заявку" %}
+-                      </a>
++                      {% if km_request_form_summary.stale %}
++                        <p class="km-inspection-decision-note" role="status">{% translate "Заявка устарела" %}. {% translate "Карточка или отправленные изменения уже изменились. Перед одобрением нужна новая заявка." %}</p>
++                      {% else %}
++                        <a href="{{ km_action_approve_url }}" class="km-btn--sidebar km-btn--success-alt">
++                          <i class="fas fa-check-circle"></i> {% translate "Одобрить заявку" %}
++                        </a>
++                      {% endif %}
+                       <a href="{{ km_action_reject_url }}" class="km-btn--sidebar km-btn--danger-delete">
+                         <i class="fas fa-ban"></i> {% translate "Отклонить" %}
+                       </a>
+--- a/src/catalog/templates/admin/catalog/placereview/change_form.html
++++ b/src/catalog/templates/admin/catalog/placereview/change_form.html
+@@ -130,7 +130,7 @@
+ 
+               {% if not add %}
+                 <div class="km-place-sidebar-card km-place-sidebar-card--actions" style="margin-top: 12px;">
+-                  <a class="km-btn--sidebar km-btn--primary-save" href="{% url 'typed_reviews' 'place' original.place_id %}">
++                  <a class="km-btn--sidebar km-btn--primary-save" href="{{ km_review_workflow_url }}">
+                     {% if review_language == 'ru' %}Открыть проверку KidsMap{% elif review_language == 'en' %}Open KidsMap review{% else %}KidsMap yoxlamasını aç{% endif %}
+                   </a>
+                 </div>
+--- a/src/catalog/templates/admin/catalog/placereview/change_list.html
++++ b/src/catalog/templates/admin/catalog/placereview/change_list.html
+@@ -54,6 +54,7 @@
+ {% endblock %}
+ 
+ {% block result_list %}
++  {% if review_snapshot %}<input type="hidden" name="review_snapshot" value="{{ review_snapshot }}">{% endif %}
+   <div class="col-12 p-0">
+     <div class="place-admin-dashboard km-admin-root">
+       {% if action_form and actions_on_top and cl.show_admin_actions %}
+--- /dev/null
++++ b/src/catalog/templates/admin/catalog/reviews/change_list.html
+@@ -0,0 +1,5 @@
++{% extends "admin/change_list.html" %}
++{% block result_list %}
++  {% if review_snapshot %}<input type="hidden" name="review_snapshot" value="{{ review_snapshot }}">{% endif %}
++  {{ block.super }}
++{% endblock %}
+--- /dev/null
++++ b/src/catalog/templates/admin/catalog/reviews/workflow.html
+@@ -0,0 +1,39 @@
++{% extends "admin/base_site.html" %}
++{% load i18n static %}
++{% block extrahead %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_review_workflow.css' %}">{% endblock %}
++{% block content %}
++{% get_current_language as language %}
++<main class="km-review-workflow" data-review-workflow data-review-id="{{ head.pk }}">
++  <a href="{{ review_return_url }}">{% if language == 'ru' %}К списку отзывов{% elif language == 'en' %}Back to reviews{% else %}Rəylərə qayıt{% endif %}</a>
++  <h1>{% if language == 'ru' %}Проверка KidsMap{% elif language == 'en' %}KidsMap review{% else %}KidsMap yoxlaması{% endif %}</h1>
++  <p>{{ target }}</p>
++  {% if current %}
++  <section class="km-review-workflow__card" aria-labelledby="current-title" data-current-revision="{{ current.pk }}">
++    <h2 id="current-title">{% if head.is_approved %}{% if language == 'ru' %}Сейчас на сайте{% elif language == 'en' %}Currently published{% else %}Hazırda saytda{% endif %}{% else %}{% if language == 'ru' %}Скрытая одобренная редакция{% elif language == 'en' %}Hidden approved version{% else %}Gizlədilmiş təsdiqlənmiş versiya{% endif %}{% endif %}</h2>
++    <p>{{ current.author_name }} · {{ current.rating }} / 5 · #{{ current.pk }}</p>
++    <blockquote>{{ current.text|linebreaks }}</blockquote>
++    <form method="post" action="{% if head.is_approved %}{{ hide_url }}{% else %}{{ restore_url }}{% endif %}">{% csrf_token %}
++      <input type="hidden" name="expected_current_revision_id" value="{{ current.pk }}"><input type="hidden" name="expected_visibility" value="{% if head.is_approved %}1{% else %}0{% endif %}">
++      <button type="submit" class="button">{% if head.is_approved %}{% if language == 'ru' %}Скрыть с сайта{% elif language == 'en' %}Hide from website{% else %}Saytdan gizlət{% endif %}{% else %}{% if language == 'ru' %}Вернуть одобренную редакцию на сайт{% elif language == 'en' %}Restore approved version{% else %}Təsdiqlənmiş versiyanı bərpa et{% endif %}{% endif %}</button>
++    </form>
++  </section>
++  {% endif %}
++  {% if candidate %}
++  <section class="km-review-workflow__card" aria-labelledby="candidate-title" data-candidate-id="{{ candidate.pk }}">
++    <h2 id="candidate-title">{% if language == 'ru' %}Редакция на проверке{% elif language == 'en' %}Version awaiting review{% else %}Yoxlanış gözləyən versiya{% endif %}</h2>
++    <p>{{ candidate.author_name }} · {{ candidate.rating }} / 5 · #{{ candidate.pk }}</p>
++    <blockquote>{{ candidate.text|linebreaks }}</blockquote>
++    <p>{% if language == 'ru' %}Одобрение заменит опубликованный текст. Отклонение сохранит предыдущую одобренную редакцию.{% elif language == 'en' %}Approval replaces the published text. Rejection preserves the previous approved version.{% else %}Təsdiq yayımlanmış mətni əvəz edəcək. Rədd əvvəlki təsdiqlənmiş versiyanı saxlayacaq.{% endif %}</p>
++    <form method="post" action="{{ approve_url }}">{% csrf_token %}<input type="hidden" name="revision_id" value="{{ candidate.pk }}"><button type="submit" class="button default">{% if language == 'ru' %}Одобрить редакцию{% elif language == 'en' %}Approve version{% else %}Versiyanı təsdiqlə{% endif %}</button></form>
++    <form method="post" action="{{ reject_url }}">{% csrf_token %}<input type="hidden" name="revision_id" value="{{ candidate.pk }}">
++      <label for="review-reason">{% if language == 'ru' %}Причина отклонения{% elif language == 'en' %}Rejection reason{% else %}Rədd səbəbi{% endif %}</label>
++      <textarea id="review-reason" name="reason" rows="3" maxlength="5000"></textarea>
++      <button type="submit" class="button">{% if language == 'ru' %}Отклонить редакцию{% elif language == 'en' %}Reject version{% else %}Versiyanı rədd et{% endif %}</button>
++    </form>
++  </section>
++  {% else %}<p data-no-candidate>{% if language == 'ru' %}Нет редакции, ожидающей решения.{% elif language == 'en' %}No version is awaiting a decision.{% else %}Qərar gözləyən versiya yoxdur.{% endif %}</p>{% endif %}
++  <details class="km-review-workflow__card"><summary>{% if language == 'ru' %}История редакций{% elif language == 'en' %}Version history{% else %}Versiya tarixçəsi{% endif %}</summary>
++    {% for revision in history %}<article><h3>#{{ revision.pk }} · {{ revision.get_status_display }} · {{ revision.rating }}/5</h3><p>{{ revision.author_name }} · {{ revision.created_at }}</p><blockquote>{{ revision.text|linebreaks }}</blockquote>{% if revision.rejection_reason %}<p>{{ revision.rejection_reason }}</p>{% endif %}</article>{% endfor %}
++  </details>
++</main>
++{% endblock %}
+--- a/src/catalog/templatetags/admin_dashboard_tags.py
++++ b/src/catalog/templatetags/admin_dashboard_tags.py
+@@ -60,25 +60,26 @@
+     places_pending = permanent_places.filter(status=Place.STATUS_PENDING).count()
+     events_pending = Event.objects.filter(deleted_at__isnull=True, status=Event.STATUS_PENDING).count()
+     specialists_pending = Specialist.objects.filter(status=Specialist.STATUS_PENDING).count()
+-    reviews_pending = PlaceReview.objects.filter(status=PlaceReview.STATUS_PENDING).count()
++    reviews_pending = PlaceReview.objects.filter(is_current=True, candidate_revision__status="pending").count()
+     requests_pending = PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_PENDING).count()
+     pending_reviews = []
+     for review in (
+         PlaceReview.objects
+-        .filter(status=PlaceReview.STATUS_PENDING)
+-        .select_related("place", "user")
++        .filter(is_current=True, candidate_revision__status="pending")
++        .select_related("place", "user", "candidate_revision")
+         .order_by("-created_at")[:3]
+     ):
+-        author = (review.author_name or "").strip()
++        candidate = review.candidate_revision
++        author = (candidate.author_name or "").strip()
+         if not author and review.user_id:
+             author = review.user.get_full_name() or review.user.username or review.user.email
+         pending_reviews.append({
+             "id": review.pk,
+             "place": review.place.name_ru or review.place.name,
+             "author": author or "Без имени",
+-            "rating": review.rating,
+-            "text": (review.text or "").strip(),
+-            "created_at": review.created_at,
++            "rating": candidate.rating,
++            "text": (candidate.text or "").strip(),
++            "created_at": candidate.created_at,
+         })
+ 
+     total_pending = places_pending + events_pending + specialists_pending + reviews_pending + requests_pending
+--- a/src/catalog/testcases/admin.py
++++ b/src/catalog/testcases/admin.py
+@@ -94,6 +94,14 @@
+     return event
+ 
+ 
++def decide_admin_review_bulk(client, heads, action):
++    """Bind a bulk decision to the candidate/visibility shown by its admin list."""
++    url = reverse('admin:catalog_' + heads[0]._meta.model_name + '_changelist')
++    snapshot = client.get(url).context_data['review_snapshot']
++    return client.post(url, {'action': action, '_selected_action': [head.pk for head in heads],
++                             'review_snapshot': snapshot})
++
++
+ def decide_typed_review(client, head, *, kind, approve):
+     """The current review workflow names an exact pending revision, not a bulk toggle."""
+     head.refresh_from_db()
+@@ -2135,15 +2143,17 @@
+         review = create_pending_review(self.place, 4, 'Helpful review')
+         self.assertEqual(decide_typed_review(self.client, review, kind='place', approve=True).status_code, 302)
+         review.refresh_from_db(); approved_id = review.current_revision_id
+-        for action in ('hide_selected', 'approve_selected'):
+-            response = self.client.post(reverse('admin:catalog_placereview_changelist'),
+-                {'action':action, '_selected_action':[review.pk], 'index':0}, follow=True)
+-            self.assertEqual(response.status_code, 200)
+-            review.refresh_from_db()
+-            self.assertTrue(review.is_approved); self.assertEqual(review.current_revision_id, approved_id)
++        self.assertEqual(decide_admin_review_bulk(self.client, [review], 'hide_selected').status_code, 302)
++        review.refresh_from_db()
++        self.assertFalse(review.is_approved)
++        self.assertEqual(review.current_revision_id, approved_id)
++        self.assertIsNone(review.candidate_revision_id)
++        self.assertEqual(self.client.post(reverse('admin:catalog_placereview_restore', args=[review.pk]),
++            {'expected_current_revision_id': approved_id, 'expected_visibility': '0'}).status_code, 302)
+         review, candidate = submit_review(target=self.place, user=review.user, rating=3, text='New version')
+-        self.assertEqual(decide_typed_review(self.client, review, kind='place', approve=True).status_code, 302)
++        self.assertEqual(decide_admin_review_bulk(self.client, [review], 'approve_selected').status_code, 302)
+         review.refresh_from_db()
++        self.assertTrue(review.is_approved)
+         self.assertEqual(review.current_revision_id, candidate.pk); self.assertEqual(review.rating, 3)
+ 
+ 
+@@ -2502,7 +2512,7 @@
+ 
+     def test_approve_single_review_action(self):
+         url = reverse("admin:catalog_placereview_approve", args=[self.review.pk])
+-        response = self.client.post(url)
++        response = self.client.post(url, {'revision_id': self.review.candidate_revision_id})
+         self.assertEqual(response.status_code, 302)
+         self.review.refresh_from_db()
+         self.assertTrue(self.review.is_approved)
+@@ -2510,7 +2520,7 @@
+ 
+     def test_reject_single_review_action(self):
+         url = reverse("admin:catalog_placereview_reject", args=[self.review.pk])
+-        response = self.client.post(url)
++        response = self.client.post(url, {'revision_id': self.review.candidate_revision_id})
+         self.assertEqual(response.status_code, 302)
+         self.review.refresh_from_db()
+         self.assertFalse(self.review.is_approved)
+@@ -2948,7 +2958,7 @@
+         second = create_pending_review(place, 1, 'Needs review')
+         response = self.client.post(reverse('admin:catalog_placereview_changelist'),
+             {'action':'approve_selected', '_selected_action':[first.pk]})
+-        self.assertEqual(response.status_code, 302)
++        self.assertEqual(response.status_code, 400)
+         first.refresh_from_db(); self.assertEqual(first.status, 'pending')
+         self.assertEqual(decide_typed_review(self.client, first, kind='place', approve=True).status_code, 302)
+         self.assertEqual(decide_typed_review(self.client, second, kind='place', approve=False).status_code, 302)
+@@ -3603,10 +3613,9 @@
+         self.assertEqual(self.place.rating_count, 0); self.assertEqual(self.place.rating_avg, 0)
+         legacy = self.client.post(reverse('admin:catalog_placereview_changelist'),
+             {'action':'approve_selected', '_selected_action':[first.pk, second.pk]}, follow=True)
+-        self.assertEqual(legacy.status_code, 200)
++        self.assertEqual(legacy.status_code, 400)
+         self.place.refresh_from_db(); self.assertEqual(self.place.rating_count, 0)
+-        for head in (first, second):
+-            self.assertEqual(decide_typed_review(self.client, head, kind='place', approve=True).status_code, 302)
++        self.assertEqual(decide_admin_review_bulk(self.client, [first, second], 'approve_selected').status_code, 302)
+         self.place.refresh_from_db()
+         self.assertEqual(self.place.rating_count, 2); self.assertEqual(self.place.rating_avg, 4.5)
+ 
+@@ -3616,9 +3625,9 @@
+         self.specialist.refresh_from_db(); self.assertEqual(self.specialist.rating_count, 0)
+         legacy = self.client.post(reverse('admin:catalog_specialistreview_changelist'),
+             {'action':'approve_selected', '_selected_action':[review.pk]}, follow=True)
+-        self.assertEqual(legacy.status_code, 200)
++        self.assertEqual(legacy.status_code, 400)
+         self.specialist.refresh_from_db(); self.assertEqual(self.specialist.rating_count, 0)
+-        self.assertEqual(decide_typed_review(self.client, review, kind='specialist', approve=True).status_code, 302)
++        self.assertEqual(decide_admin_review_bulk(self.client, [review], 'approve_selected').status_code, 302)
+         self.specialist.refresh_from_db()
+         self.assertEqual(self.specialist.rating_count, 1); self.assertEqual(self.specialist.rating_avg, 5)
+ 
+--- /dev/null
++++ b/src/catalog/testcases/test_admin_place_moderation_fix.py
+@@ -0,0 +1,126 @@
++"""Regression boundaries for moderation preview, redirects and stale decisions."""
++from unittest.mock import patch
++from django.contrib import admin
++from django.contrib.auth import get_user_model
++from django.db import connection, transaction
++from django.test import RequestFactory, TestCase
++from django.urls import reverse
++from django.utils.translation import gettext, override
++from catalog.models import Place, PlaceOwnershipRequest
++from catalog.proxy_apps.catalog_moderation.models import ModerationPlace
++from catalog.testcases import test_ownership_admin_preview as fixtures
++
++
++class AdminPlaceModerationFixTests(TestCase):
++    def setUp(self):
++        fixtures.OwnershipAdminPreviewTests.setUp(self)
++        self.preview_url = f'/admin/catalog/place/{self.place.pk}/site-preview/'
++        self.owner_admin = admin.site._registry[PlaceOwnershipRequest]
++
++    def stale(self):
++        self.item.base_ownership_version = self.place.ownership_version + 1
++        PlaceOwnershipRequest.objects.filter(pk=self.item.pk).update(base_ownership_version=self.item.base_ownership_version)
++
++    def test_pending_place_has_a_private_read_only_preview_without_a_request(self):
++        self.item.delete()
++        before = (self.place.status, self.place.content_version, self.place.is_active)
++        with transaction.atomic():
++            if connection.vendor == 'postgresql':
++                with connection.cursor() as cursor:
++                    cursor.execute('SET TRANSACTION READ ONLY')
++            response = self.client.get(self.preview_url)
++            self.assertEqual(response.status_code, 200)
++        self.assertContains(response, 'Полная карточка RU')
++        self.assertContains(response, 'Превью на сайте')
++        self.assertIn('no-store', response['Cache-Control'])
++        self.assertIn('noindex', response['X-Robots-Tag'])
++        self.place.refresh_from_db()
++        self.assertEqual(before, (self.place.status, self.place.content_version, self.place.is_active))
++        self.assertEqual(self.client.get(self.place.get_absolute_url()).status_code, 404)
++        self.assertEqual(self.client.post(self.preview_url).status_code, 405)
++
++    def test_pending_place_media_link_is_private(self):
++        response = self.client.get(reverse('admin:catalog_place_change', args=[self.place.pk]))
++        self.assertEqual(response.status_code, 200)
++        self.assertContains(response, f'href="{self.preview_url}"')
++        # The old media action promised public content that could only return 404.
++        self.assertNotContains(response, f'href="{self.place.get_absolute_url()}" target="_blank" rel="noopener">Посмотреть на сайте')
++
++    def test_private_preview_checks_permission_and_never_leaks_staff_session(self):
++        staff = get_user_model().objects.create_user('preview_no_permissions', is_staff=True)
++        self.client.force_login(staff)
++        self.assertEqual(self.client.get(self.preview_url).status_code, 403)
++        self.client.logout()
++        self.assertEqual(self.client.get(self.preview_url).status_code, 302)
++        self.client.force_login(self.staff)
++        for lang in ('az', 'ru', 'en'):
++            response = self.client.get(self.preview_url, {'lang': lang, 'next': '//untrusted.invalid/'})
++            self.assertEqual(response.status_code, 200)
++            self.assertFalse(response.context['request'].user.is_authenticated)
++            self.assertEqual(response['Content-Language'], lang)
++            self.assertEqual(response.context['site_preview_back'], reverse('admin:catalog_place_change', args=[self.place.pk]))
++        self.assertEqual(self.client.get(reverse('admin:catalog_place_change', args=[self.place.pk])).status_code, 200)
++
++    def test_proxy_publish_redirects_to_concrete_place(self):
++        model_admin = admin.site._registry[ModerationPlace]
++        request = RequestFactory().post('/admin/catalog_moderation/moderationplace/')
++        request.user = self.staff
++        with patch.object(model_admin, 'message_user') as message:
++            response = model_admin._handle_publish_submit(request, self.place)
++        self.place.refresh_from_db()
++        self.assertEqual(self.place.status, 'published')
++        self.assertEqual(response.url, reverse('admin:catalog_place_change', args=[self.place.pk]))
++        message.assert_called()
++        self.assertEqual(self.client.get(response.url).status_code, 200)
++        self.assertEqual(self.client.get(self.place.get_absolute_url()).status_code, 200)
++
++    def test_stale_list_actions_explain_block_and_do_not_offer_accept(self):
++        self.stale()
++        for method in ('col_actions', 'row_actions'):
++            html = str(getattr(self.owner_admin, method)(self.item))
++            self.assertNotIn('/approve/', html)
++            self.assertIn('Заявка устарела', html)
++            self.assertIn('/reject/', html)
++
++    def test_stale_confirmation_has_reason_without_submit_and_post_remains_rejected(self):
++        self.stale()
++        url = reverse('admin:catalog_placeownershiprequest_approve', args=[self.item.pk])
++        response = self.client.get(url)
++        self.assertEqual(response.status_code, 200)
++        self.assertContains(response, 'Заявка устарела')
++        self.assertTrue(response.context['approval_blocked'])
++        self.assertNotContains(response, 'class="km-inspection-confirm-actions"')
++        self.client.post(url)
++        self.item.refresh_from_db()
++        self.place.refresh_from_db()
++        self.assertEqual(self.item.status, 'PENDING')
++        self.assertFalse(self.place.is_public)
++
++    def test_stale_request_change_form_does_not_offer_approval(self):
++        self.stale()
++        url = reverse('admin:catalog_placeownershiprequest_change', args=[self.item.pk])
++        response = self.client.get(url)
++        self.assertEqual(response.status_code, 200)
++        self.assertContains(response, 'Заявка устарела')
++        self.assertNotIn('km-btn--success-alt', response.content.decode())
++
++    def test_current_request_can_still_open_confirmation(self):
++        url = reverse('admin:catalog_placeownershiprequest_approve', args=[self.item.pk])
++        self.assertContains(self.client.get(url), 'class="km-inspection-confirm-actions"')
++
++    def test_ru_moderation_labels_mean_the_actions_they_name(self):
++        with override('ru'):
++            for label in ('Открыть', 'Низкая оценка', 'Риски'):
++                self.assertEqual(gettext(label), label)
++
++    def test_az_en_moderation_labels_are_not_unrelated_history_or_empty_states(self):
++        expected = {
++            'az': {'Низкая оценка': 'Aşağı qiymət', 'Предпросмотр': 'Ön baxış',
++                   'Карточка опубликована — уже видна на сайте': 'Kart dərc olunub — artıq saytda görünür'},
++            'en': {'Низкая оценка': 'Low rating', 'Предпросмотр': 'Preview',
++                   'Карточка опубликована — уже видна на сайте': 'Listing published — now visible on the site'},
++        }
++        for language, labels in expected.items():
++            with override(language):
++                for source, translated in labels.items():
++                    self.assertEqual(gettext(source), translated)
+--- /dev/null
++++ b/src/catalog/testcases/test_admin_review_workflow_fix.py
+@@ -0,0 +1,233 @@
++"""Admin decisions bind the displayed candidate and keep visible history separate."""
++from django.conf import settings
++from django.contrib.auth import get_user_model
++from django.contrib.auth.models import Permission
++from django.test import TestCase, override_settings
++from django.urls import reverse
++from django.utils.translation import override
++from catalog.models import Place, PlaceReview
++from catalog.proxy_apps.catalog_moderation.models import ModerationReview
++from catalog.services.review_versions import submit_review, moderate_candidate, rating_summary
++from catalog.testcases.utils import create_quality_place
++
++
++class AdminReviewWorkflowFixTests(TestCase):
++    def setUp(self):
++        User = get_user_model()
++        self.staff = User.objects.create_superuser('fix-reviewer', 'reviewer@example.invalid', 'synthetic-only')
++        self.author = User.objects.create_user('fix-author')
++        self.place = create_quality_place()
++        self.client.force_login(self.staff)
++
++    def pending(self, text='Candidate review text', rating=4):
++        return submit_review(target=self.place, user=self.author, rating=rating, text=text, author_name='Review author')
++
++    def approved(self):
++        head, revision = self.pending('Published original text', 2)
++        moderate_candidate(head=head, revision_id=revision.pk, actor=self.staff, approve=True)
++        head.refresh_from_db()
++        return head, revision
++
++    def action(self, head, action):
++        return reverse('admin:catalog_placereview_' + action, args=[head.pk])
++
++    def workflow(self, head):
++        return reverse('admin:catalog_placereview_workflow', args=[head.pk])
++
++    def bulk(self, action, heads, *, snapshot=None, proxy=True):
++        url = reverse('admin:catalog_moderation_moderationreview_changelist' if proxy else 'admin:catalog_placereview_changelist')
++        if snapshot is None:
++            response = self.client.get(url)
++            snapshot = response.context_data.get('review_snapshot', '')
++        return self.client.post(url, {'action': action, '_selected_action': [h.pk for h in heads], 'review_snapshot': snapshot})
++
++    @override_settings(ADMIN_HOST='admin.audit.invalid', PUBLIC_BASE_URL='https://public.audit.invalid')
++    def test_workflow_stays_on_admin_origin_and_guest_never_sees_candidate(self):
++        head, candidate = self.pending()
++        response = self.client.get(self.workflow(head), HTTP_HOST='admin.audit.invalid', secure=True)
++        self.assertEqual(response.status_code, 200)
++        self.assertContains(response, candidate.text)
++        self.assertContains(response, self.action(head, 'approve'))
++        self.assertNotContains(response, reverse('typed_review_action', args=['place', head.pk, 'approve']))
++        self.client.logout()
++        public = self.client.get(reverse('typed_reviews', args=['place', self.place.pk]), HTTP_HOST='public.audit.invalid', secure=True)
++        self.assertNotContains(public, candidate.text)
++        denied = self.client.get(self.workflow(head), HTTP_HOST='admin.audit.invalid', secure=True)
++        self.assertEqual(denied.status_code, 302)
++
++    def test_workflow_allows_permissioned_hidden_target_without_publicizing_it(self):
++        Place.objects.filter(pk=self.place.pk).update(status='pending')
++        head, candidate = self.pending()
++        self.assertContains(self.client.get(self.workflow(head)), candidate.text)
++        self.client.logout()
++        self.assertEqual(self.client.get(reverse('typed_reviews', args=['place', self.place.pk])).status_code, 404)
++
++    def test_staff_without_concrete_permission_cannot_read_or_act(self):
++        head, candidate = self.pending()
++        staff = get_user_model().objects.create_user('no-review-permission', is_staff=True)
++        self.client.force_login(staff)
++        self.assertEqual(self.client.get(self.workflow(head)).status_code, 403)
++        self.assertEqual(self.client.post(self.action(head, 'approve'), {'revision_id': candidate.pk}).status_code, 403)
++        head.refresh_from_db()
++        self.assertIsNone(head.current_revision_id)
++
++    def test_proxy_accepts_concrete_permission_and_queues_published_edit(self):
++        head, old = self.approved()
++        head, candidate = self.pending('Replacement awaiting moderation', 5)
++        staff = get_user_model().objects.create_user('concrete-review-permission', is_staff=True)
++        staff.user_permissions.add(Permission.objects.get(codename='change_placereview'))
++        self.client.force_login(staff)
++        url = reverse('admin:catalog_moderation_moderationreview_changelist')
++        response = self.client.get(url)
++        self.assertContains(response, candidate.text)
++        self.assertEqual(list(response.context_data['cl'].queryset.values_list('pk', flat=True)), [head.pk])
++        result = self.bulk('approve_selected', [head])
++        self.assertEqual(result.status_code, 302)
++        head.refresh_from_db()
++        self.assertEqual((head.current_revision_id, head.candidate_revision_id), (candidate.pk, None))
++
++    def test_dashboard_count_and_preview_include_pending_published_edit(self):
++        head, old = self.approved()
++        head, candidate = self.pending('Dashboard candidate text', 5)
++        from catalog.templatetags.admin_dashboard_tags import get_dashboard_stats
++        stats = get_dashboard_stats()
++        self.assertEqual(stats['pending']['reviews'], 1)
++        self.assertEqual(stats['pending_reviews'][0]['text'], candidate.text)
++        self.assertEqual(stats['pending_reviews'][0]['rating'], candidate.rating)
++
++    def test_single_approval_is_atomic_and_repeat_is_conflict(self):
++        head, candidate = self.pending()
++        url = self.action(head, 'approve')
++        self.assertEqual(self.client.post(url, {'revision_id': candidate.pk}).status_code, 302)
++        head.refresh_from_db(); candidate.refresh_from_db()
++        self.assertEqual((head.current_revision_id, head.candidate_revision_id, candidate.status), (candidate.pk, None, 'approved'))
++        self.assertEqual(candidate.moderated_by_id, self.staff.pk)
++        self.assertEqual(self.client.post(url, {'revision_id': candidate.pk}).status_code, 409)
++
++    def test_legacy_action_get_confirms_exact_candidate_missing_or_replaced_token_fails(self):
++        head, candidate = self.pending()
++        url = self.action(head, 'approve')
++        self.assertContains(self.client.get(url), f'name="revision_id" value="{candidate.pk}"')
++        self.assertEqual(self.client.post(url).status_code, 400)
++        head, newer = self.pending('Newer candidate text')
++        self.assertEqual(self.client.post(url, {'revision_id': candidate.pk}).status_code, 409)
++        head.refresh_from_db()
++        self.assertEqual(head.candidate_revision_id, newer.pk)
++        self.assertIsNone(head.current_revision_id)
++
++    def test_bulk_approval_finishes_candidate_and_updates_public_rating(self):
++        head, candidate = self.pending(rating=5)
++        self.assertEqual(self.bulk('approve_selected', [head]).status_code, 302)
++        head.refresh_from_db(); candidate.refresh_from_db()
++        self.assertEqual((head.current_revision_id, head.candidate_revision_id, candidate.status), (candidate.pk, None, 'approved'))
++        self.assertEqual(rating_summary(self.place), {'average': 5., 'count': 1})
++
++    def test_bulk_reject_preserves_published_text_and_reason(self):
++        head, old = self.approved()
++        head, candidate = self.pending('Rejected candidate text', 5)
++        self.assertEqual(self.bulk('reject_selected', [head]).status_code, 302)
++        head.refresh_from_db(); candidate.refresh_from_db()
++        self.assertEqual((head.current_revision_id, head.candidate_revision_id, head.text), (old.pk, None, old.text))
++        self.assertEqual(candidate.status, 'rejected')
++        self.assertTrue(head.is_approved)
++        self.assertEqual(rating_summary(self.place)['average'], 2.)
++
++    def test_bulk_snapshot_refuses_replacement_or_repeat_and_no_partial_decisions(self):
++        first, first_candidate = self.pending()
++        second_author = get_user_model().objects.create_user('second-queued-author')
++        head, candidate = submit_review(target=self.place, user=second_author, rating=3, text='Second queued review')
++        url = reverse('admin:catalog_moderation_moderationreview_changelist')
++        snapshot = self.client.get(url).context_data.get('review_snapshot', '')
++        head, newer = submit_review(target=self.place, user=second_author, rating=4, text='Replaced after list render')
++        response = self.bulk('approve_selected', [first, head], snapshot=snapshot)
++        self.assertEqual(response.status_code, 409)
++        first.refresh_from_db(); first_candidate.refresh_from_db()
++        self.assertIsNone(first.current_revision_id)
++        self.assertEqual(first.candidate_revision_id, first_candidate.pk)
++        self.assertEqual(first_candidate.status, 'pending')
++        head.refresh_from_db()
++        self.assertIsNone(head.current_revision_id)
++        self.assertEqual(head.candidate_revision_id, newer.pk)
++
++    def test_hide_preserves_pending_candidate_history_and_restore_keeps_it_pending(self):
++        head, old = self.approved()
++        head, candidate = self.pending('Private pending text', 5)
++        original_history = list(head.revisions.values_list('pk', 'status', 'text'))
++        params = {'expected_current_revision_id': old.pk, 'expected_visibility': '1'}
++        self.assertEqual(self.client.post(self.action(head, 'hide'), params).status_code, 302)
++        head.refresh_from_db()
++        self.assertFalse(head.is_approved)
++        self.assertEqual((head.current_revision_id, head.candidate_revision_id), (old.pk, candidate.pk))
++        self.assertEqual(list(head.revisions.values_list('pk', 'status', 'text')), original_history)
++        self.assertEqual(rating_summary(self.place)['count'], 0)
++        self.assertEqual(self.client.post(self.action(head, 'hide'), params).status_code, 409)
++        self.assertEqual(self.client.post(self.action(head, 'restore'), {'expected_current_revision_id': old.pk, 'expected_visibility': '0'}).status_code, 302)
++        head.refresh_from_db(); candidate.refresh_from_db()
++        self.assertTrue(head.is_approved)
++        self.assertEqual(head.candidate_revision_id, candidate.pk)
++        self.assertEqual(candidate.status, 'pending')
++        self.assertEqual(rating_summary(self.place)['average'], 2.)
++
++    def test_hide_without_candidate_creates_no_pending_candidate(self):
++        head, old = self.approved()
++        self.assertEqual(self.client.post(self.action(head, 'hide'), {'expected_current_revision_id': old.pk, 'expected_visibility': '1'}).status_code, 302)
++        head.refresh_from_db()
++        self.assertFalse(head.is_approved)
++        self.assertIsNone(head.candidate_revision_id)
++        self.assertEqual(head.revisions.count(), 1)
++
++    def test_stale_visibility_cannot_hide_newly_approved_revision(self):
++        head, old = self.approved()
++        head, candidate = self.pending('Next public version')
++        moderate_candidate(head=head, revision_id=candidate.pk, actor=self.staff, approve=True)
++        self.assertEqual(self.client.post(self.action(head, 'hide'), {'expected_current_revision_id': old.pk, 'expected_visibility': '1'}).status_code, 409)
++        head.refresh_from_db()
++        self.assertTrue(head.is_approved)
++        self.assertEqual(head.current_revision_id, candidate.pk)
++
++    def test_bulk_without_snapshot_cannot_approve_current_unseen_candidate(self):
++        head, candidate = self.pending()
++        self.assertEqual(self.bulk('approve_selected', [head], snapshot='').status_code, 400)
++        head.refresh_from_db()
++        self.assertIsNone(head.current_revision_id)
++
++    def test_place_inline_cannot_mutate_projection_outside_review_workflow(self):
++        from catalog.domain_admin.review import PlaceReviewInline
++        from django.contrib import admin
++        from django.test import RequestFactory
++        head, candidate = self.pending()
++        request = RequestFactory().get('/')
++        request.user = self.staff
++        inline = PlaceReviewInline(Place, admin.site)
++        self.assertFalse(inline.has_add_permission(request, self.place))
++        self.assertFalse(inline.has_delete_permission(request, self.place))
++        formset = inline.get_formset(request, self.place)
++        self.assertEqual(set(formset.form.base_fields), set())
++        self.assertIn(self.workflow(head), str(inline.review_workflow_link(head)))
++
++    def test_all_typed_admins_use_signed_bulk_and_preserve_candidate_when_hidden(self):
++        from catalog.models import Activity, Event, Specialist
++        from django.utils import timezone
++        from datetime import timedelta
++        targets = [
++            Specialist.objects.create(owner=self.author, name='Workflow specialist', status='published', is_active=True),
++            Activity.objects.create(place=self.place, status='published', name_az='Workflow activity'),
++            Event.objects.create(owner=self.author, name='Workflow event', category=self.place.category,
++                start_datetime=timezone.now()+timedelta(days=1), end_datetime=timezone.now()+timedelta(days=1,hours=1)),
++        ]
++        for target in targets:
++            with self.subTest(kind=target._meta.model_name):
++                head, revision = submit_review(target=target, user=self.author, rating=5, text='Typed candidate', author_name='Author')
++                prefix = 'admin:catalog_' + head._meta.model_name
++                url = reverse(prefix + '_changelist')
++                def bulk(action):
++                    snapshot = self.client.get(url).context_data['review_snapshot']
++                    return self.client.post(url, {'action': action, '_selected_action': [head.pk], 'review_snapshot': snapshot})
++                self.assertEqual(bulk('approve_selected').status_code, 302)
++                head.refresh_from_db(); revision.refresh_from_db()
++                self.assertEqual((head.current_revision_id, head.candidate_revision_id, revision.status), (revision.pk, None, 'approved'))
++                head, candidate = submit_review(target=target, user=self.author, rating=1, text='New private edit', author_name='Author')
++                self.assertEqual(bulk('hide_selected').status_code, 302)
++                head.refresh_from_db(); candidate.refresh_from_db()
++                self.assertEqual((head.is_approved, head.candidate_revision_id, candidate.status), (False, candidate.pk, 'pending'))
++                self.assertEqual(rating_summary(target)['count'], 0)
+--- a/src/catalog/testcases/test_task33_review_independent.py
++++ b/src/catalog/testcases/test_task33_review_independent.py
+@@ -159,7 +159,7 @@
+                 url=reverse('admin:catalog_'+head._meta.model_name+'_change',args=[head.pk])
+                 response=self.client.get(url)
+                 self.assertEqual(response.status_code,200)
+-                self.assertContains(response,reverse('typed_reviews',args=[kind,target.pk]))
++                self.assertContains(response,reverse('admin:catalog_'+head._meta.model_name+'_workflow',args=[head.pk]))
+                 self.assertContains(response,revision.text)
+                 admin_form=response.context['adminform']
+                 self.assertTrue({field.name for field in head._meta.fields}.issubset(set(admin_form.readonly_fields)))
+--- a/src/templates/admin/catalog/moderation/change_list.html
++++ b/src/templates/admin/catalog/moderation/change_list.html
+@@ -35,6 +35,7 @@
+ {% endblock %}
+ 
+ {% block result_list %}
++  {% if review_snapshot %}<input type="hidden" name="review_snapshot" value="{{ review_snapshot }}">{% endif %}
+   <div class="col-12 p-0">
+     <div class="place-admin-dashboard km-admin-root km-moderation-workspace">
+       {% if cl.result_count %}
+--- /dev/null
++++ b/static/admin/css/pages/kidsmap_review_workflow.css
+@@ -0,0 +1,12 @@
++.km-review-workflow { max-width: 960px; min-width: 0; margin: 0 auto; overflow-wrap: anywhere; }
++.km-review-workflow h1 { margin-top: 20px; }
++.km-review-workflow__card { margin: 20px 0; padding: 20px; background: var(--km-surface, #fff); border: 1px solid var(--km-border, #dce5de); border-radius: 12px; }
++.km-review-workflow__card h2 { font-size: 1.25rem; margin: 0 0 16px; }
++.km-review-workflow blockquote { margin: 16px 0; padding: 0 16px; border-left: 3px solid var(--km-border, #dce5de); }
++.km-review-workflow form { margin: 16px 0 0; }
++.km-review-workflow label { display: block; margin-bottom: 8px; }
++.km-review-workflow textarea { display: block; width: 100%; max-width: 100%; box-sizing: border-box; margin-bottom: 12px; }
++.km-review-workflow button { min-height: 44px; white-space: normal; max-width: 100%; }
++.km-review-workflow summary { cursor: pointer; min-height: 44px; }
++.km-review-workflow :is(a, button, textarea, summary):focus-visible { outline: 3px solid var(--km-primary, #136f38); outline-offset: 3px; }
++@media (max-width: 560px) { .km-review-workflow__card { padding: 16px; } .km-review-workflow button { width: 100%; } }
+--- a/templates/admin/catalog/place_ownership_request_moderate_confirm.html
++++ b/templates/admin/catalog/place_ownership_request_moderate_confirm.html
+@@ -16,11 +16,19 @@
+         <p><b>{% trans "Комментарий заявителя" %}:</b> {{ request_item.note }}</p>
+       {% endif %}
+       {% if is_approval %}<p class="km-inspection-decision-note">{% if is_publication %}{% translate 'Одобрение публикует карточку с отправленными изменениями.' %}{% else %}{% translate 'Подтверждение владения передаёт управление карточкой. Оно не публикует её.' %}{% endif %}</p>{% endif %}
++      {% if approval_blocked %}
++        <div class="km-inspection-notice km-inspection-notice--warning" role="alert">
++          <strong>{% translate 'Заявка устарела' %}</strong>
++          <p>{% translate 'Карточка или отправленные изменения уже изменились. Перед одобрением нужна новая заявка.' %}</p>
++        </div>
++        <a href="{{ back_url }}" class="km-inspection-button">{% trans "Отмена" %}</a>
++      {% else %}
+       <form method="post" action="{{ action_url }}" class="km-inspection-confirm-actions">
+         {% csrf_token %}
+         <button type="submit" class="km-inspection-button km-inspection-button--primary">{{ action_label }}</button>
+         <a href="{{ back_url }}" class="km-inspection-button">{% trans "Отмена" %}</a>
+       </form>
++      {% endif %}
+     </section>
+   </main>
+ {% endblock %}
+--- a/locale/az/LC_MESSAGES/django.po
++++ b/locale/az/LC_MESSAGES/django.po
+@@ -4861,10 +4861,9 @@
+ msgstr "Ulduzla işarələnmiş sahələr mütləq doldurulmalıdır."
+ 
+ #: src/catalog/domain_admin/place.py:4538
+-#, fuzzy
+ #| msgid "Нет опубликованных карточек."
+ msgid "Карточка опубликована — уже видна на сайте"
+-msgstr "Dərc olunmuş kart yoxdur."
++msgstr "Kart dərc olunub — artıq saytda görünür"
+ 
+ #: src/catalog/domain_admin/place.py:4577
+ #, fuzzy
+@@ -5355,10 +5354,9 @@
+ #: src/catalog/domain_admin/review.py:427
+ #: src/catalog/domain_admin/review.py:502
+ #: src/catalog/domain_admin/review.py:523
+-#, fuzzy
+ #| msgid "Ваша оценка"
+ msgid "Низкая оценка"
+-msgstr "Sizin qiymətiniz"
++msgstr "Aşağı qiymət"
+ 
+ #: src/catalog/domain_admin/review.py:135
+ #: src/catalog/domain_admin/review.py:391
+@@ -16944,10 +16942,9 @@
+ msgstr "Yeniliklərə abunə ol"
+ 
+ #: src/catalog/templates/includes/place_schedule_editor.html:213
+-#, fuzzy
+ #| msgid "История просмотров"
+ msgid "Предпросмотр"
+-msgstr "Baxış tarixçəsi"
++msgstr "Ön baxış"
+ 
+ #: src/catalog/templates/includes/place_schedule_editor.html:214
+ #, fuzzy
+--- a/locale/en/LC_MESSAGES/django.po
++++ b/locale/en/LC_MESSAGES/django.po
+@@ -4837,10 +4837,9 @@
+ msgstr "Fields marked with an asterisk are required."
+ 
+ #: src/catalog/domain_admin/place.py:4538
+-#, fuzzy
+ #| msgid "Нет опубликованных карточек."
+ msgid "Карточка опубликована — уже видна на сайте"
+-msgstr "No published listings."
++msgstr "Listing published — now visible on the site"
+ 
+ #: src/catalog/domain_admin/place.py:4577
+ #, fuzzy
+@@ -5327,10 +5326,9 @@
+ #: src/catalog/domain_admin/review.py:427
+ #: src/catalog/domain_admin/review.py:502
+ #: src/catalog/domain_admin/review.py:523
+-#, fuzzy
+ #| msgid "Ваша оценка"
+ msgid "Низкая оценка"
+-msgstr "Your rating"
++msgstr "Low rating"
+ 
+ #: src/catalog/domain_admin/review.py:135
+ #: src/catalog/domain_admin/review.py:391
+@@ -16844,10 +16842,9 @@
+ msgstr "Subscribe to updates"
+ 
+ #: src/catalog/templates/includes/place_schedule_editor.html:213
+-#, fuzzy
+ #| msgid "История просмотров"
+ msgid "Предпросмотр"
+-msgstr "Browsing history"
++msgstr "Preview"
+ 
+ #: src/catalog/templates/includes/place_schedule_editor.html:214
+ #, fuzzy
+--- a/locale/ru/LC_MESSAGES/django.po
++++ b/locale/ru/LC_MESSAGES/django.po
+@@ -268,7 +268,7 @@
+ #: src/catalog/admin.py:2121
+ #| msgid "Ваша оценка"
+ msgid "Низкая оценка"
+-msgstr "Ваша оценка"
++msgstr "Низкая оценка"
+ 
+ #: src/catalog/admin.py:462 src/catalog/admin.py:2073
+ #| msgid "По дизлайкам"
+@@ -860,7 +860,7 @@
+ #: src/catalog/admin.py:2751
+ #| msgid "Скрыть"
+ msgid "Открыть"
+-msgstr "Скрыть"
++msgstr "Открыть"
+ 
+ #: src/catalog/admin.py:1630
+ msgid "Текущее лого"
+@@ -1050,7 +1050,7 @@
+ #: src/catalog/admin.py:2058
+ #| msgid "Поиски"
+ msgid "Риски"
+-msgstr "Поиски"
++msgstr "Риски"
+ 
+ #: src/catalog/admin.py:2065
+ #| msgid "Количество"

@@ -1,0 +1,484 @@
+{
+  "explicit_labels": [
+    "catalog.testcases.test_task33_search",
+    "catalog.testcases.test_task33_map",
+    "catalog.testcases.test_task33_home_map",
+    "catalog.testcases.test_public_filter_consistency",
+    "catalog.testcases.test_place_sorting_and_filtering",
+    "catalog.testcases.test_search_engine_verification",
+    "catalog.testcases.test_home_public_metrics",
+    "catalog.testcases.test_public_section_switches",
+    "catalog.testcases.test_task33_public_details",
+    "catalog.testcases.test_task33_event_public",
+    "catalog.testcases.test_living_map"
+  ],
+  "direct_methods": 93,
+  "executed_runner_methods": 93,
+  "methods": [
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_category_age_must_match_one_group",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_groups_of_one_activity_cannot_cross_age_conditions",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_unknown_legacy_not_exact_but_general_and_detail_remain",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_double_reader_and_multiple_matching_groups_one_place",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_published_only_groups_and_unknown_age",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_obsolete_prices_are_ignored_and_removed_from_selected",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_subcategory_needs_approved_offer_mapping",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_org_name_only_current_published_affiliations",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_matched_card_groups_and_prices_only",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_batch_queries_do_not_grow_per_card",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_general_admission_without_fictitious_activity",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_shared_card_consumers_use_batch_presentation",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_search_text_and_age_cannot_match_different_activity",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_query_only_card_does_not_show_other_activity_prices",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_admission_result_does_not_show_unmatched_group_price",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_organization_discovery_and_removed_price_controls_html",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_filter_options_include_offer_taxonomy_once_per_place",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_suggestions_use_matched_offer_prices",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_suggestion_age_belongs_to_matched_group",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_new_timeline_shows_only_matched_groups",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_new_age_bounds_survive_redirect_pagination_and_locale",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_search.ExactSearchTests.test_catalog_metadata_does_not_promise_removed_price_filter",
+      "file": "src/catalog/testcases/test_task33_search.py",
+      "source_hash": "e82320179c528e9c7864a62d1fe3e49d0ab10743b34392d6247e3b65139940d5"
+    },
+    {
+      "id": "catalog.testcases.test_task33_map.MapContractsTests.test_verified_venue_one_point_two_independent_cards",
+      "file": "src/catalog/testcases/test_task33_map.py",
+      "source_hash": "85f27cf8f188e58cadbdf7461c7d08e38f5b4bf935f41d6a545a6458bedf4f68"
+    },
+    {
+      "id": "catalog.testcases.test_task33_map.MapContractsTests.test_nearby_or_identical_coordinates_do_not_assert_shared_identity",
+      "file": "src/catalog/testcases/test_task33_map.py",
+      "source_hash": "85f27cf8f188e58cadbdf7461c7d08e38f5b4bf935f41d6a545a6458bedf4f68"
+    },
+    {
+      "id": "catalog.testcases.test_task33_map.MapContractsTests.test_venue_only_coordinates_and_no_fake_missing_points",
+      "file": "src/catalog/testcases/test_task33_map.py",
+      "source_hash": "85f27cf8f188e58cadbdf7461c7d08e38f5b4bf935f41d6a545a6458bedf4f68"
+    },
+    {
+      "id": "catalog.testcases.test_task33_map.MapContractsTests.test_invalid_coordinates_rejected",
+      "file": "src/catalog/testcases/test_task33_map.py",
+      "source_hash": "85f27cf8f188e58cadbdf7461c7d08e38f5b4bf935f41d6a545a6458bedf4f68"
+    },
+    {
+      "id": "catalog.testcases.test_task33_map.MapContractsTests.test_filtered_members_and_matched_prices",
+      "file": "src/catalog/testcases/test_task33_map.py",
+      "source_hash": "85f27cf8f188e58cadbdf7461c7d08e38f5b4bf935f41d6a545a6458bedf4f68"
+    },
+    {
+      "id": "catalog.testcases.test_task33_map.MapContractsTests.test_archived_venue_not_used",
+      "file": "src/catalog/testcases/test_task33_map.py",
+      "source_hash": "85f27cf8f188e58cadbdf7461c7d08e38f5b4bf935f41d6a545a6458bedf4f68"
+    },
+    {
+      "id": "catalog.testcases.test_task33_map.MapContractsTests.test_address_edit_detaches_only_changed_place_and_preserves_event",
+      "file": "src/catalog/testcases/test_task33_map.py",
+      "source_hash": "85f27cf8f188e58cadbdf7461c7d08e38f5b4bf935f41d6a545a6458bedf4f68"
+    },
+    {
+      "id": "catalog.testcases.test_task33_map.MapContractsTests.test_map_missing_count_counts_members_not_venues",
+      "file": "src/catalog/testcases/test_task33_map.py",
+      "source_hash": "85f27cf8f188e58cadbdf7461c7d08e38f5b4bf935f41d6a545a6458bedf4f68"
+    },
+    {
+      "id": "catalog.testcases.test_task33_map.MapContractsTests.test_route_transport_contains_no_private_contact",
+      "file": "src/catalog/testcases/test_task33_map.py",
+      "source_hash": "85f27cf8f188e58cadbdf7461c7d08e38f5b4bf935f41d6a545a6458bedf4f68"
+    },
+    {
+      "id": "catalog.testcases.test_task33_map.MapContractsTests.test_address_only_confirmed_venue_does_not_borrow_business_coordinates",
+      "file": "src/catalog/testcases/test_task33_map.py",
+      "source_hash": "85f27cf8f188e58cadbdf7461c7d08e38f5b4bf935f41d6a545a6458bedf4f68"
+    },
+    {
+      "id": "catalog.testcases.test_task33_map.MapContractsTests.test_unchanged_address_partial_content_edit_keeps_shared_venue",
+      "file": "src/catalog/testcases/test_task33_map.py",
+      "source_hash": "85f27cf8f188e58cadbdf7461c7d08e38f5b4bf935f41d6a545a6458bedf4f68"
+    },
+    {
+      "id": "catalog.testcases.test_task33_map.MapContractsTests.test_coordinate_edit_detaches_only_edited_place",
+      "file": "src/catalog/testcases/test_task33_map.py",
+      "source_hash": "85f27cf8f188e58cadbdf7461c7d08e38f5b4bf935f41d6a545a6458bedf4f68"
+    },
+    {
+      "id": "catalog.testcases.test_task33_map.MapContractsTests.test_pending_address_keeps_venue_approved_address_detaches_only_target",
+      "file": "src/catalog/testcases/test_task33_map.py",
+      "source_hash": "85f27cf8f188e58cadbdf7461c7d08e38f5b4bf935f41d6a545a6458bedf4f68"
+    },
+    {
+      "id": "catalog.testcases.test_task33_map.MapContractsTests.test_no_coordinates_remains_visible_with_clear_card_marker",
+      "file": "src/catalog/testcases/test_task33_map.py",
+      "source_hash": "85f27cf8f188e58cadbdf7461c7d08e38f5b4bf935f41d6a545a6458bedf4f68"
+    },
+    {
+      "id": "catalog.testcases.test_task33_home_map.HomeMapEndpointTests.test_map_get_returns_only_public_businesses",
+      "file": "src/catalog/testcases/test_task33_home_map.py",
+      "source_hash": "aa449c1ae4476e8c986799c7fb678147f65452ff12a53d43991007d1c65a1438"
+    },
+    {
+      "id": "catalog.testcases.test_task33_home_map.HomeMapEndpointTests.test_mutations_rejected",
+      "file": "src/catalog/testcases/test_task33_home_map.py",
+      "source_hash": "aa449c1ae4476e8c986799c7fb678147f65452ff12a53d43991007d1c65a1438"
+    },
+    {
+      "id": "catalog.testcases.test_task33_home_map.HomeMapEndpointTests.test_query_is_shared_with_catalog",
+      "file": "src/catalog/testcases/test_task33_home_map.py",
+      "source_hash": "aa449c1ae4476e8c986799c7fb678147f65452ff12a53d43991007d1c65a1438"
+    },
+    {
+      "id": "catalog.testcases.test_task33_home_map.HomeMapEndpointTests.test_offering_filters_use_same_group_as_catalog",
+      "file": "src/catalog/testcases/test_task33_home_map.py",
+      "source_hash": "aa449c1ae4476e8c986799c7fb678147f65452ff12a53d43991007d1c65a1438"
+    },
+    {
+      "id": "catalog.testcases.test_public_filter_consistency.HomeDistrictFilterTests.test_missing_district_is_not_guessed_from_a_bounding_rectangle_or_address",
+      "file": "src/catalog/testcases/test_public_filter_consistency.py",
+      "source_hash": "61ca1f52e4c4d598941ee44583c1da77e32d188f2964adcbda03a68bcf957da7"
+    },
+    {
+      "id": "catalog.testcases.test_public_filter_consistency.HomeDistrictFilterTests.test_known_city_takes_priority_over_coordinates_and_address",
+      "file": "src/catalog/testcases/test_public_filter_consistency.py",
+      "source_hash": "61ca1f52e4c4d598941ee44583c1da77e32d188f2964adcbda03a68bcf957da7"
+    },
+    {
+      "id": "catalog.testcases.test_public_filter_consistency.CatalogAgeFilterTests.test_exact_age_excludes_unknown_and_higher_minimum",
+      "file": "src/catalog/testcases/test_public_filter_consistency.py",
+      "source_hash": "61ca1f52e4c4d598941ee44583c1da77e32d188f2964adcbda03a68bcf957da7"
+    },
+    {
+      "id": "catalog.testcases.test_public_filter_consistency.CatalogAgeFilterTests.test_age_range_excludes_unknown_but_accepts_open_bounds",
+      "file": "src/catalog/testcases/test_public_filter_consistency.py",
+      "source_hash": "61ca1f52e4c4d598941ee44583c1da77e32d188f2964adcbda03a68bcf957da7"
+    },
+    {
+      "id": "catalog.testcases.test_public_filter_consistency.CatalogAgeFilterTests.test_no_age_filter_keeps_unknown",
+      "file": "src/catalog/testcases/test_public_filter_consistency.py",
+      "source_hash": "61ca1f52e4c4d598941ee44583c1da77e32d188f2964adcbda03a68bcf957da7"
+    },
+    {
+      "id": "catalog.testcases.test_public_filter_consistency.CatalogAgeFilterTests.test_zero_is_a_real_age_and_one_sided_range_excludes_unknown",
+      "file": "src/catalog/testcases/test_public_filter_consistency.py",
+      "source_hash": "61ca1f52e4c4d598941ee44583c1da77e32d188f2964adcbda03a68bcf957da7"
+    },
+    {
+      "id": "catalog.testcases.test_public_filter_consistency.CatalogAgeFilterTests.test_filters_are_combined",
+      "file": "src/catalog/testcases/test_public_filter_consistency.py",
+      "source_hash": "61ca1f52e4c4d598941ee44583c1da77e32d188f2964adcbda03a68bcf957da7"
+    },
+    {
+      "id": "catalog.testcases.test_public_filter_consistency.CatalogAgeFilterTests.test_selected_age_keeps_exact_bounds",
+      "file": "src/catalog/testcases/test_public_filter_consistency.py",
+      "source_hash": "61ca1f52e4c4d598941ee44583c1da77e32d188f2964adcbda03a68bcf957da7"
+    },
+    {
+      "id": "catalog.testcases.test_public_filter_consistency.CatalogEventAgeFilterTests.test_age_filter_excludes_events_with_unknown_age",
+      "file": "src/catalog/testcases/test_public_filter_consistency.py",
+      "source_hash": "61ca1f52e4c4d598941ee44583c1da77e32d188f2964adcbda03a68bcf957da7"
+    },
+    {
+      "id": "catalog.testcases.test_public_filter_consistency.DistrictOptionCountsTests.test_baku_count_does_not_guess_missing_district_from_coordinates",
+      "file": "src/catalog/testcases/test_public_filter_consistency.py",
+      "source_hash": "61ca1f52e4c4d598941ee44583c1da77e32d188f2964adcbda03a68bcf957da7"
+    },
+    {
+      "id": "catalog.testcases.test_place_sorting_and_filtering.PlaceSortingAndFilteringTests.test_sorting_by_created_desc",
+      "file": "src/catalog/testcases/test_place_sorting_and_filtering.py",
+      "source_hash": "a6bd029d2095e1732593fb3a20f4b97150f6721fbd633613515f6f143837cf8f"
+    },
+    {
+      "id": "catalog.testcases.test_place_sorting_and_filtering.PlaceSortingAndFilteringTests.test_sorting_by_created_asc",
+      "file": "src/catalog/testcases/test_place_sorting_and_filtering.py",
+      "source_hash": "a6bd029d2095e1732593fb3a20f4b97150f6721fbd633613515f6f143837cf8f"
+    },
+    {
+      "id": "catalog.testcases.test_place_sorting_and_filtering.PlaceSortingAndFilteringTests.test_filtering_by_created_date_7d",
+      "file": "src/catalog/testcases/test_place_sorting_and_filtering.py",
+      "source_hash": "a6bd029d2095e1732593fb3a20f4b97150f6721fbd633613515f6f143837cf8f"
+    },
+    {
+      "id": "catalog.testcases.test_place_sorting_and_filtering.PlaceSortingAndFilteringTests.test_filtering_by_created_date_older_90d",
+      "file": "src/catalog/testcases/test_place_sorting_and_filtering.py",
+      "source_hash": "a6bd029d2095e1732593fb3a20f4b97150f6721fbd633613515f6f143837cf8f"
+    },
+    {
+      "id": "catalog.testcases.test_place_sorting_and_filtering.PlaceSortingAndFilteringTests.test_table_renders_created_date_and_category_link",
+      "file": "src/catalog/testcases/test_place_sorting_and_filtering.py",
+      "source_hash": "a6bd029d2095e1732593fb3a20f4b97150f6721fbd633613515f6f143837cf8f"
+    },
+    {
+      "id": "catalog.testcases.test_place_sorting_and_filtering.PlaceSortingAndFilteringTests.test_sorting_by_name_asc",
+      "file": "src/catalog/testcases/test_place_sorting_and_filtering.py",
+      "source_hash": "a6bd029d2095e1732593fb3a20f4b97150f6721fbd633613515f6f143837cf8f"
+    },
+    {
+      "id": "catalog.testcases.test_place_sorting_and_filtering.PlaceSortingAndFilteringTests.test_sorting_by_name_desc",
+      "file": "src/catalog/testcases/test_place_sorting_and_filtering.py",
+      "source_hash": "a6bd029d2095e1732593fb3a20f4b97150f6721fbd633613515f6f143837cf8f"
+    },
+    {
+      "id": "catalog.testcases.test_place_sorting_and_filtering.PlaceSortingAndFilteringTests.test_sorting_by_updated_asc_and_desc",
+      "file": "src/catalog/testcases/test_place_sorting_and_filtering.py",
+      "source_hash": "a6bd029d2095e1732593fb3a20f4b97150f6721fbd633613515f6f143837cf8f"
+    },
+    {
+      "id": "catalog.testcases.test_place_sorting_and_filtering.PlaceSortingAndFilteringTests.test_table_headers_render_clean_sort_links_without_broken_fa_icons",
+      "file": "src/catalog/testcases/test_place_sorting_and_filtering.py",
+      "source_hash": "a6bd029d2095e1732593fb3a20f4b97150f6721fbd633613515f6f143837cf8f"
+    },
+    {
+      "id": "catalog.testcases.test_search_engine_verification.SearchEngineVerificationTests.test_verification_tags_are_in_head_on_public_pages",
+      "file": "src/catalog/testcases/test_search_engine_verification.py",
+      "source_hash": "473a03690162100c8b283b1de0a1d84d34f5b68c603f73813ae5c4ef6d494afa"
+    },
+    {
+      "id": "catalog.testcases.test_search_engine_verification.SearchEngineVerificationTests.test_empty_verification_values_render_no_tags",
+      "file": "src/catalog/testcases/test_search_engine_verification.py",
+      "source_hash": "473a03690162100c8b283b1de0a1d84d34f5b68c603f73813ae5c4ef6d494afa"
+    },
+    {
+      "id": "catalog.testcases.test_search_engine_verification.SearchEngineVerificationTests.test_verification_values_are_html_escaped",
+      "file": "src/catalog/testcases/test_search_engine_verification.py",
+      "source_hash": "473a03690162100c8b283b1de0a1d84d34f5b68c603f73813ae5c4ef6d494afa"
+    },
+    {
+      "id": "catalog.testcases.test_home_public_metrics.HomePublicMetricsTests.test_empty_partner_metrics_do_not_invent_reviews_or_rating",
+      "file": "src/catalog/testcases/test_home_public_metrics.py",
+      "source_hash": "118623ff0b6e075312c9e6bfa3f74b29482e81a04048b5b0b89134295b5e47ca"
+    },
+    {
+      "id": "catalog.testcases.test_public_section_switches.PublicSectionSwitchTests.test_off_hides_public_routes_and_navigation_without_deleting_data",
+      "file": "src/catalog/testcases/test_public_section_switches.py",
+      "source_hash": "df4eaf9227bf56966e1c739e1a1f7ec17a898688934d249529ec0c71924ecc54"
+    },
+    {
+      "id": "catalog.testcases.test_public_section_switches.PublicSectionSwitchTests.test_off_hides_search_and_card_links_but_preserves_place_content",
+      "file": "src/catalog/testcases/test_public_section_switches.py",
+      "source_hash": "df4eaf9227bf56966e1c739e1a1f7ec17a898688934d249529ec0c71924ecc54"
+    },
+    {
+      "id": "catalog.testcases.test_public_section_switches.PublicSectionSwitchTests.test_sitemaps_follow_switch_and_flags_are_independent",
+      "file": "src/catalog/testcases/test_public_section_switches.py",
+      "source_hash": "df4eaf9227bf56966e1c739e1a1f7ec17a898688934d249529ec0c71924ecc54"
+    },
+    {
+      "id": "catalog.testcases.test_public_section_switches.PublicSectionSwitchTests.test_admin_form_has_three_controls_and_proxy_save_invalidates_cache",
+      "file": "src/catalog/testcases/test_public_section_switches.py",
+      "source_hash": "df4eaf9227bf56966e1c739e1a1f7ec17a898688934d249529ec0c71924ecc54"
+    },
+    {
+      "id": "catalog.testcases.test_public_section_switches.PublicSectionSwitchTests.test_admin_section_controls_follow_selected_language",
+      "file": "src/catalog/testcases/test_public_section_switches.py",
+      "source_hash": "df4eaf9227bf56966e1c739e1a1f7ec17a898688934d249529ec0c71924ecc54"
+    },
+    {
+      "id": "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_az_fallback_is_explicit_and_group_price_schedule_remain_local",
+      "file": "src/catalog/testcases/test_task33_public_details.py",
+      "source_hash": "db65bb412ef2df4701302fbe0a19d8219eff18fd4f08e0d863b68186b2ab20a3"
+    },
+    {
+      "id": "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_active_contacts_fallback_and_detach_remove_live_org_sources",
+      "file": "src/catalog/testcases/test_task33_public_details.py",
+      "source_hash": "db65bb412ef2df4701302fbe0a19d8219eff18fd4f08e0d863b68186b2ab20a3"
+    },
+    {
+      "id": "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_draft_organization_contacts_are_not_inherited",
+      "file": "src/catalog/testcases/test_task33_public_details.py",
+      "source_hash": "db65bb412ef2df4701302fbe0a19d8219eff18fd4f08e0d863b68186b2ab20a3"
+    },
+    {
+      "id": "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_detail_routes_empty_org_and_standalone_place",
+      "file": "src/catalog/testcases/test_task33_public_details.py",
+      "source_hash": "db65bb412ef2df4701302fbe0a19d8219eff18fd4f08e0d863b68186b2ab20a3"
+    },
+    {
+      "id": "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_hidden_parent_or_activity_returns_404_without_public_payload",
+      "file": "src/catalog/testcases/test_task33_public_details.py",
+      "source_hash": "db65bb412ef2df4701302fbe0a19d8219eff18fd4f08e0d863b68186b2ab20a3"
+    },
+    {
+      "id": "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_org_review_feed_links_original_target_and_excludes_pending",
+      "file": "src/catalog/testcases/test_task33_public_details.py",
+      "source_hash": "db65bb412ef2df4701302fbe0a19d8219eff18fd4f08e0d863b68186b2ab20a3"
+    },
+    {
+      "id": "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_activity_detail_has_local_group_parent_and_no_pending_revision",
+      "file": "src/catalog/testcases/test_task33_public_details.py",
+      "source_hash": "db65bb412ef2df4701302fbe0a19d8219eff18fd4f08e0d863b68186b2ab20a3"
+    },
+    {
+      "id": "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_card_map_and_seo_share_price_and_translation",
+      "file": "src/catalog/testcases/test_task33_public_details.py",
+      "source_hash": "db65bb412ef2df4701302fbe0a19d8219eff18fd4f08e0d863b68186b2ab20a3"
+    },
+    {
+      "id": "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_subject_views_do_not_create_place_events_or_invent_history",
+      "file": "src/catalog/testcases/test_task33_public_details.py",
+      "source_hash": "db65bb412ef2df4701302fbe0a19d8219eff18fd4f08e0d863b68186b2ab20a3"
+    },
+    {
+      "id": "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_invalid_legacy_contact_does_not_crash_and_uses_valid_active_fallback",
+      "file": "src/catalog/testcases/test_task33_public_details.py",
+      "source_hash": "db65bb412ef2df4701302fbe0a19d8219eff18fd4f08e0d863b68186b2ab20a3"
+    },
+    {
+      "id": "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_local_phone_keeps_whatsapp_local",
+      "file": "src/catalog/testcases/test_task33_public_details.py",
+      "source_hash": "db65bb412ef2df4701302fbe0a19d8219eff18fd4f08e0d863b68186b2ab20a3"
+    },
+    {
+      "id": "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_repeated_tracking_on_one_request_does_not_duplicate_subject",
+      "file": "src/catalog/testcases/test_task33_public_details.py",
+      "source_hash": "db65bb412ef2df4701302fbe0a19d8219eff18fd4f08e0d863b68186b2ab20a3"
+    },
+    {
+      "id": "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_required_trial_terms_and_category_placeholder_are_visible",
+      "file": "src/catalog/testcases/test_task33_public_details.py",
+      "source_hash": "db65bb412ef2df4701302fbe0a19d8219eff18fd4f08e0d863b68186b2ab20a3"
+    },
+    {
+      "id": "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_phone_endpoint_rechecks_contact_inheritance_after_detach",
+      "file": "src/catalog/testcases/test_task33_public_details.py",
+      "source_hash": "db65bb412ef2df4701302fbe0a19d8219eff18fd4f08e0d863b68186b2ab20a3"
+    },
+    {
+      "id": "catalog.testcases.test_task33_public_details.PublicDetailsTests.test_localized_urls_and_hidden_subject_have_no_events",
+      "file": "src/catalog/testcases/test_task33_public_details.py",
+      "source_hash": "db65bb412ef2df4701302fbe0a19d8219eff18fd4f08e0d863b68186b2ab20a3"
+    },
+    {
+      "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_approved_past_detail_remains_public",
+      "file": "src/catalog/testcases/test_task33_event_public.py",
+      "source_hash": "5cfe571218a84a6d79c36df3dd5e75fdd93a99b6a836f5940279f13517853155"
+    },
+    {
+      "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_cancelled_and_rescheduled_detail_are_truthful",
+      "file": "src/catalog/testcases/test_task33_event_public.py",
+      "source_hash": "5cfe571218a84a6d79c36df3dd5e75fdd93a99b6a836f5940279f13517853155"
+    },
+    {
+      "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_cancelled_landing_card_has_state_instead_of_countdown",
+      "file": "src/catalog/testcases/test_task33_event_public.py",
+      "source_hash": "5cfe571218a84a6d79c36df3dd5e75fdd93a99b6a836f5940279f13517853155"
+    },
+    {
+      "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_unpublished_and_deleted_are_closed",
+      "file": "src/catalog/testcases/test_task33_event_public.py",
+      "source_hash": "5cfe571218a84a6d79c36df3dd5e75fdd93a99b6a836f5940279f13517853155"
+    },
+    {
+      "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_online_schema_has_no_physical_location",
+      "file": "src/catalog/testcases/test_task33_event_public.py",
+      "source_hash": "5cfe571218a84a6d79c36df3dd5e75fdd93a99b6a836f5940279f13517853155"
+    },
+    {
+      "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_explicit_organizer_page_and_schema_match_without_venue_identity",
+      "file": "src/catalog/testcases/test_task33_event_public.py",
+      "source_hash": "5cfe571218a84a6d79c36df3dd5e75fdd93a99b6a836f5940279f13517853155"
+    },
+    {
+      "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_snapshot_and_jsonld_share_visible_facts_and_script_safety",
+      "file": "src/catalog/testcases/test_task33_event_public.py",
+      "source_hash": "5cfe571218a84a6d79c36df3dd5e75fdd93a99b6a836f5940279f13517853155"
+    },
+    {
+      "id": "catalog.testcases.test_task33_event_public.EventPublicContractTests.test_pending_other_target_and_pending_edit_never_change_public_rating",
+      "file": "src/catalog/testcases/test_task33_event_public.py",
+      "source_hash": "5cfe571218a84a6d79c36df3dd5e75fdd93a99b6a836f5940279f13517853155"
+    },
+    {
+      "id": "catalog.testcases.test_living_map.LivingMapScopeTests.test_public_pages_share_one_decoration",
+      "file": "src/catalog/testcases/test_living_map.py",
+      "source_hash": "8374b2001d939d70fa858eed6c14ac1d305dec99c6f5ea5708a685815b350452"
+    },
+    {
+      "id": "catalog.testcases.test_living_map.LivingMapScopeTests.test_account_auth_admin_and_unknown_pages_do_not_load_decoration",
+      "file": "src/catalog/testcases/test_living_map.py",
+      "source_hash": "8374b2001d939d70fa858eed6c14ac1d305dec99c6f5ea5708a685815b350452"
+    }
+  ]
+}

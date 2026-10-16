@@ -1,0 +1,199 @@
+Creating test database for alias 'default' ('test_qa_stage04')...
+Found 1 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: allauth, google, jazzmin, messages, sitemaps, staticfiles
+  Apply all migrations: account, admin, auth, catalog, catalog_moderation, contenttypes, sessions, socialaccount
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying account.0001_initial... OK
+  Applying account.0002_email_max_length... OK
+  Applying account.0003_alter_emailaddress_create_unique_verified_email... OK
+  Applying account.0004_alter_emailaddress_drop_unique_email... OK
+  Applying account.0005_emailaddress_idx_upper_email... OK
+  Applying account.0006_emailaddress_lower... OK
+  Applying account.0007_emailaddress_idx_email... OK
+  Applying account.0008_emailaddress_unique_primary_email_fixup... OK
+  Applying account.0009_emailaddress_unique_primary_email... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying catalog.0001_initial... OK
+  Applying catalog.0002_place_i18n_fields... OK
+  Applying catalog.0003_place_catalog_improvements... OK
+  Applying catalog.0004_place_photo... OK
+  Applying catalog.0005_place_cover_and_gallery... OK
+  Applying catalog.0006_place_slug... OK
+  Applying catalog.0007_place_likes_count... OK
+  Applying catalog.0008_alter_place_options_placelike... OK
+  Applying catalog.0009_sitesettings... OK
+  Applying catalog.0010_sitesettings_footer_contacts... OK
+  Applying catalog.0011_siteaboutsettings_sitebrandingsettings_and_more... OK
+  Applying catalog.0012_alter_sitesettings_empty_results_image_and_more... OK
+  Applying catalog.0013_place_rating_avg_place_rating_count_placereview... OK
+  Applying catalog.0014_remove_placelike_unique_place_like_per_session_and_more... OK
+  Applying catalog.0015_catalogcontentsettings... OK
+  Applying catalog.0016_placereviewsbyclub... OK
+  Applying catalog.0017_alter_placereview_options_and_more... OK
+  Applying catalog.0018_siteanalytics... OK
+  Applying catalog.0019_sitevisit... OK
+  Applying catalog.0020_place_is_temporary_place_temporary_end_and_more... OK
+  Applying catalog.0021_sitesettings_home_cta_text_az_and_more... OK
+  Applying catalog.0022_funnelevent... OK
+  Applying catalog.0023_userprofile... OK
+  Applying catalog.0024_place_owner_placeownershiprequest_and_more... OK
+  Applying catalog.0025_userprofile_owner_permissions_override_and_more... OK
+  Applying catalog.0026_placechangeaudit_ownerteaminvitation_and_more... OK
+  Applying catalog.0027_userprofile_phone... OK
+  Applying catalog.0028_useremailverification... OK
+  Applying catalog.0029_userprofile_gender... OK
+  Applying catalog.0030_update_public_contacts_defaults... OK
+  Applying catalog.0031_siteregistereduser_staffaccessuser... OK
+  Applying catalog.0032_place_additional_info_place_extra_conditions_and_more... OK
+  Applying catalog.0033_update_footer_phone_default... OK
+  Applying catalog.0034_place_soft_delete_fields... OK
+  Applying catalog.0035_sitesettings_add_social_links... OK
+  Applying catalog.0036_sitegalleryimage... OK
+  Applying catalog.0037_seed_home_hero_site_gallery_images... OK
+  Applying catalog.0038_alter_funnelevent_event_type... OK
+  Applying catalog.0039_expand_catalog_to_azerbaijan... OK
+  Applying catalog.0040_content_moderation_statuses... OK
+  Applying catalog.0041_quarantine_low_quality_public_content... OK
+  Applying catalog.0042_event... OK
+  Applying catalog.0043_alter_place_options_alter_placereviewsbyclub_options... OK
+  Applying catalog.0044_category_alter_event_category_alter_place_category_and_more... OK
+  Applying catalog.0045_category_is_active_subcategory_code_and_more... OK
+  Applying catalog.0046_alter_category_options_alter_subcategory_options... OK
+  Applying catalog.0047_sitesettings_about_hero_image_and_more... OK
+  Applying catalog.0048_alter_category_icon... OK
+  Applying catalog.0049_mariadb_compatible_unique_constraints... OK
+  Applying catalog.0050_migrate_to_hierarchical_districts... OK
+  Applying catalog.0051_placescheduleday_placescheduleinterval... OK
+  Applying catalog.0052_category_color_bg_category_color_text... OK
+  Applying catalog.0053_userprofile_avatar... OK
+  Applying catalog.0054_metrostation_region_specialistspecialization_and_more... OK
+  Applying catalog.0055_seed_specialist_locations_and_specializations... OK
+  Applying catalog.0056_specialist_duration_minutes_specialist_education_az_and_more... OK
+  Applying catalog.0057_specialist_phone_specialist_whatsapp... OK
+  Applying catalog.0058_alter_place_options... OK
+  Applying catalog.0059_seed_educator_specializations... OK
+  Applying catalog.0060_sitesettings_specialists_section_enabled... OK
+  Applying catalog.0061_sitevisibilitysettings... OK
+  Applying catalog.0062_place_lesson_details_and_pricing_plans... OK
+  Applying catalog.0063_event_location_contacts... OK
+  Applying catalog.0064_event_location_filters... OK
+  Applying catalog.0065_eventphoto... OK
+  Applying catalog.0066_sitesettings_events_section_enabled... OK
+  Applying catalog.0067_place_offers_adult_classes... OK
+  Applying catalog.0068_place_phone2_place_phone3... OK
+  Applying catalog.0069_place_multilingual_extra_fields... OK
+  Applying catalog.0070_fix_regional_demo_place_coordinates... OK
+  Applying catalog.0071_category_subcategory_audit_softdelete... OK
+  Applying catalog.0072_subcategory_icon... OK
+  Applying catalog.0073_postgresql_native_constraints... OK
+  Applying catalog.0074_ensure_absheron_region... OK
+  Applying catalog.0075_normalize_public_slugs... OK
+  Applying catalog.0076_place_home_recommendations... OK
+  Applying catalog.0077_place_age_open_ended... OK
+  Applying catalog.0078_place_created_by... OK
+  Applying catalog.0079_sync_public_taxonomy... OK
+  Applying catalog.0080_clean_public_taxonomy... OK
+  Applying catalog.0081_add_ai_referral_event... OK
+  Applying catalog.0082_alter_sitegalleryimage_category... OK
+  Applying catalog.0083_alter_sitegalleryimage_category... OK
+  Applying catalog.0084_pricingplan_relational... OK
+  Applying catalog.0085_pricingplan_integrity_constraints... OK
+  Applying catalog.0086_sitesettings_home_categories_image_and_more... OK
+  Applying catalog.0087_sitesettings_footer_background_image_and_more... OK
+  Applying catalog.0088_sitesettings_about_hero_mobile_image_and_more... OK
+  Applying catalog.0089_seoauditrun_seoissue_seochange... OK
+  Applying catalog.0090_seoissue_cascade_delete... OK
+  Applying catalog.0091_place_custom_price_badge_az_and_more... OK
+  Applying catalog.0092_place_scoped_team_access... OK
+  Applying catalog.0093_backfill_place_scoped_team_access... OK
+  Applying catalog.0094_funnelevent_add_place_signup_events... OK
+  Applying catalog.0095_stage4_neutral_labels... OK
+  Applying catalog.0096_place_schedule_modes... OK
+  Applying catalog.0097_drop_legacy_userprofile_roles... OK
+  Applying catalog.0098_replace_legacy_gmail_contact... OK
+  Applying catalog.0099_alter_place_schedule_mode... OK
+  Applying catalog.0100_place_price_mode... OK
+  Applying catalog.0101_unique_user_email... OK
+  Applying catalog.0102_volunteer_place_revision... OK
+  Applying catalog.0103_place_review_cooldown... OK
+  Applying catalog.0104_sitesettings_home_recommendations_limit... OK
+  Applying catalog.0105_placechangeaudit_volunteer_source... OK
+  Applying catalog.0106_staff_role_audit_and_superadmin_promotion... OK
+  Applying catalog.0107_account_deletion_retention... OK
+  Applying catalog.0108_analytics_measurement... OK
+  Applying catalog.0109_alter_analytics_choices_and_threshold... OK
+  Applying catalog.0110_public_favorites_activation_constraint... OK
+  Applying catalog.0111_analytics_ingress_daily... OK
+  Applying catalog.0112_ratingrankingcalibration... OK
+  Applying catalog.0113_place_localized_slugs... OK
+  Applying catalog.0114_coordinate_location... OK
+  Applying catalog.0115_moderation_sla_timestamps... OK
+  Applying catalog.0116_moderation_sla_lifecycle... OK
+  Applying catalog.0117_task33_catalog_structure... OK
+  Applying catalog.0118_task33_ownership... OK
+  Applying catalog.0119_task33_business_permissions... OK
+  Applying catalog.0120_task33_publication... OK
+  Applying catalog.0121_task33_publication... OK
+  Applying catalog.0122_task33_server_draft... OK
+  Applying catalog.0123_task33_group_pricing... OK
+  Applying catalog.0124_task33_conversion... OK
+  Applying catalog.0125_task33_group_conditions_verified... OK
+  Applying catalog.0126_task33_volunteer_review_status... OK
+  Applying catalog.0127_task33_workflow_notifications... OK
+  Applying catalog.0128_task33_review_versions... OK
+  Applying catalog.0129_task33_review_versions... OK
+  Applying catalog.0130_task33_review_versions... OK
+  Applying catalog.0131_task33_specialist_foundation... OK
+  Applying catalog.0132_task33_specialist_foundation... OK
+  Applying catalog.0133_task33_event_foundation... OK
+  Applying catalog.0134_completion_taxonomy... OK
+  Applying catalog.0135_sitesettings_organizations_section_enabled... OK
+  Applying catalog.0136_retire_optional_listing_verification... OK
+  Applying catalog.0137_organization_connection_operation... OK
+  Applying catalog.0138_business_role_labels... OK
+  Applying catalog.0139_connection_receipt_actor_retention... OK
+  Applying catalog.0140_specialist_proposal_draft... OK
+  Applying catalog_moderation.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying socialaccount.0001_initial... OK
+  Applying socialaccount.0002_token_max_lengths... OK
+  Applying socialaccount.0003_extra_data_default_dict... OK
+  Applying socialaccount.0004_app_provider_id_settings... OK
+  Applying socialaccount.0005_socialtoken_nullable_app... OK
+  Applying socialaccount.0006_alter_socialaccount_extra_data...test_browser_token_does_not_disclose_private_owner_or_versions (catalog.testcases.test_organization_join_recovery.JoinRecoveryTests.test_browser_token_does_not_disclose_private_owner_or_versions) ... FAIL
+
+======================================================================
+FAIL: test_browser_token_does_not_disclose_private_owner_or_versions (catalog.testcases.test_organization_join_recovery.JoinRecoveryTests.test_browser_token_does_not_disclose_private_owner_or_versions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_organization_join_recovery.py", line 192, in test_browser_token_does_not_disclose_private_owner_or_versions
+    self.assertIsInstance(payload['state'],str,'Private owner IDs and versions must not be shipped in a readable token')
+AssertionError: ['pending', 'business', 2, 1, 1, 1, 1, 'None', '2026-10-09 06:04:45.223771+00:00', 2, 1, 2, 'None', 1, 1, 1, 'None'] is not an instance of <class 'str'> : Private owner IDs and versions must not be shipped in a readable token
+
+----------------------------------------------------------------------
+Ran 1 test in 0.755s
+
+FAILED (failures=1)
+Destroying test database for alias 'default' ('test_qa_stage04')...
+ OK
+System check identified no issues (0 silenced).

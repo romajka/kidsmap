@@ -1,0 +1,282 @@
+--- a/static/admin/js/kidsmap_admin_form_shell.js
++++ b/static/admin/js/kidsmap_admin_form_shell.js
+@@ -1141,7 +1141,9 @@
+     var mainClearButton = mediaSection.querySelector("[data-main-photo-clear]");
+     var mainFileName = mediaSection.querySelector("[data-main-photo-file-name]");
+     var mainFileSize = mediaSection.querySelector("[data-main-photo-file-size]");
+-    var mainClearCheckbox = mainInput && mainInput.id ? document.getElementById(mainInput.id + "-clear") : null;
++    var mainClearCheckbox = mainInput && mainInput.form
++      ? mainInput.form.querySelector('input[name="' + mainInput.name + '-clear"]')
++      : null;
+     var mainDropzone = mediaSection.querySelector("[data-main-photo-preview-wrap]");
+     var mainRoot = mediaSection.querySelector("[data-main-photo-root]");
+ 
+@@ -1246,6 +1248,8 @@
+         mainClearCheckbox.checked = true;
+       }
+       syncMainPhotoState();
++      var changedInput = mainClearCheckbox || mainInput;
++      if (changedInput) changedInput.dispatchEvent(new Event("change", { bubbles: true }));
+     }
+ 
+     if (mainInput) {
+@@ -2055,7 +2059,9 @@
+     function hasMainPhoto() {
+       var mainInput = document.getElementById("id_photo");
+       var mainPreview = document.querySelector("[data-main-photo-preview]");
+-      var mainClearCheckbox = document.getElementById("id_photo-clear");
++      var mainClearCheckbox = mainInput && mainInput.form
++      ? mainInput.form.querySelector('input[name="' + mainInput.name + '-clear"]')
++      : null;
+       return !!(
+         (mainInput && mainInput.files && mainInput.files.length) ||
+         (mainPreview && mainPreview.getAttribute("data-main-photo-initial-url") && !(mainClearCheckbox && mainClearCheckbox.checked))
+@@ -2332,7 +2338,9 @@
+ 
+       var mainInput = document.getElementById("id_photo");
+       var mainPreview = document.querySelector("[data-main-photo-preview]");
+-      var mainClearCheckbox = document.getElementById("id_photo-clear");
++      var mainClearCheckbox = mainInput && mainInput.form
++      ? mainInput.form.querySelector('input[name="' + mainInput.name + '-clear"]')
++      : null;
+       var hasPhoto = !!(
+         (mainInput && mainInput.files && mainInput.files.length) ||
+         (mainPreview && mainPreview.getAttribute("data-main-photo-initial-url") && !(mainClearCheckbox && mainClearCheckbox.checked))
+--- a/static/admin/js/kidsmap_event_readiness.js
++++ b/static/admin/js/kidsmap_event_readiness.js
+@@ -22,7 +22,9 @@
+     if (item.input_ids) return item.input_ids.filter(function (id) { return !!value(id); }).length === 1;
+     if (item.field_name === 'photo') {
+       var file = document.getElementById(item.input_id);
+-      var clear = document.getElementById('id_photo-clear');
++      var clear = file && file.form
++        ? file.form.querySelector('input[name="' + file.name + '-clear"]')
++        : null;
+       return !!(file && file.files.length) || (!!item.stored_photo && !(clear && clear.checked));
+     }
+     return !!value(item.input_id);
+--- a/locale/az/LC_MESSAGES/django.po
++++ b/locale/az/LC_MESSAGES/django.po
+@@ -3254,10 +3254,9 @@
+ msgstr "Bitmə tarixi"
+ 
+ #: src/catalog/domain_admin/place.py:572
+-#, fuzzy
+ #| msgid "Поля, отмеченные звездочкой, обязательны для заполнения."
+ msgid "Нельзя опубликовать мероприятие. Обязательны для заполнения: {}"
+-msgstr "Ulduzla işarələnmiş sahələr mütləq doldurulmalıdır."
++msgstr "Tədbiri dərc etmək olmaz. Aşağıdakı sahələr mütləq doldurulmalıdır: {}"
+ 
+ #: src/catalog/domain_admin/place.py:594
+ msgid "Основное изображение мероприятия для списка и детальной страницы."
+@@ -12681,10 +12680,9 @@
+ msgstr "Yeni kart"
+ 
+ #: src/catalog/templates/admin/catalog/event/change_form.html:48
+-#, fuzzy
+ #| msgid "Редактирование карточки"
+ msgid "Редактирование мероприятия"
+-msgstr "Kartın redaktəsi"
++msgstr "Tədbirin redaktəsi"
+ 
+ #: src/catalog/templates/admin/catalog/event/change_form.html:58
+ msgid ""
+@@ -12726,8 +12724,8 @@
+ "\n"
+ "                Исправьте проблемы ниже и сохраните мероприятие ещё раз.\n"
+ "              "
+-msgstr[0] ""
+-msgstr[1] ""
++msgstr[0] "\n                Aşağıdakı xətanı düzəldin və tədbiri yenidən saxlayın.\n              "
++msgstr[1] "\n                Aşağıdakı xətaları düzəldin və tədbiri yenidən saxlayın.\n              "
+ 
+ #: src/catalog/templates/admin/catalog/event/change_form.html:101
+ msgid "Шаги формы"
+@@ -23020,3 +23018,16 @@
+ #: src/catalog/services/specialist_document_validation.py
+ msgid "Не удалось безопасно проверить документ. Выберите файл меньшего размера или разрешения."
+ msgstr "Sənədi təhlükəsiz yoxlamaq mümkün olmadı. Daha kiçik ölçülü və ya daha aşağı təsvir ölçülü fayl seçin."
++
++
++#: src/catalog/templates/pages/owner_event_form.html
++msgid "Шаги формы мероприятия"
++msgstr "Tədbir formasının mərhələləri"
++
++#: src/catalog/templates/pages/owner_event_form.html
++msgid "Вперёд"
++msgstr "İrəli"
++
++#: src/catalog/templates/pages/owner_event_form.html
++msgid "Тип организатора"
++msgstr "Təşkilatçı növü"
+--- a/locale/en/LC_MESSAGES/django.po
++++ b/locale/en/LC_MESSAGES/django.po
+@@ -3238,10 +3238,9 @@
+ msgstr "End date"
+ 
+ #: src/catalog/domain_admin/place.py:572
+-#, fuzzy
+ #| msgid "Поля, отмеченные звездочкой, обязательны для заполнения."
+ msgid "Нельзя опубликовать мероприятие. Обязательны для заполнения: {}"
+-msgstr "Fields marked with an asterisk are required."
++msgstr "The event cannot be published. Complete the required fields: {}"
+ 
+ #: src/catalog/domain_admin/place.py:594
+ msgid "Основное изображение мероприятия для списка и детальной страницы."
+@@ -12625,10 +12624,9 @@
+ msgstr "New card"
+ 
+ #: src/catalog/templates/admin/catalog/event/change_form.html:48
+-#, fuzzy
+ #| msgid "Редактирование карточки"
+ msgid "Редактирование мероприятия"
+-msgstr "Edit listing"
++msgstr "Edit event"
+ 
+ #: src/catalog/templates/admin/catalog/event/change_form.html:58
+ msgid ""
+@@ -12669,8 +12667,8 @@
+ "\n"
+ "                Исправьте проблемы ниже и сохраните мероприятие ещё раз.\n"
+ "              "
+-msgstr[0] ""
+-msgstr[1] ""
++msgstr[0] "\n                Fix the issue below and save the event again.\n              "
++msgstr[1] "\n                Fix the issues below and save the event again.\n              "
+ 
+ #: src/catalog/templates/admin/catalog/event/change_form.html:101
+ msgid "Шаги формы"
+@@ -22874,3 +22872,16 @@
+ #: src/catalog/services/specialist_document_validation.py
+ msgid "Не удалось безопасно проверить документ. Выберите файл меньшего размера или разрешения."
+ msgstr "The document could not be checked safely. Choose a smaller file or a lower resolution."
++
++
++#: src/catalog/templates/pages/owner_event_form.html
++msgid "Шаги формы мероприятия"
++msgstr "Event form steps"
++
++#: src/catalog/templates/pages/owner_event_form.html
++msgid "Вперёд"
++msgstr "Next"
++
++#: src/catalog/templates/pages/owner_event_form.html
++msgid "Тип организатора"
++msgstr "Organizer type"
+--- a/src/catalog/domain_admin/place.py
++++ b/src/catalog/domain_admin/place.py
+@@ -659,6 +659,9 @@
+                 if field_name == "address" and cleaned.get("event_format") == Event.FORMAT_ONLINE:
+                     continue
+                 val = cleaned.get(field_name)
++                if field_name == "photo" and val is False:
++                    missing.append(str(label))
++                    continue
+                 if not val and val != 0:
+                     if self.instance and self.instance.pk:
+                         val = getattr(self.instance, field_name, None)
+--- a/src/catalog/testcases/test_event_admin_photo_clear.py
++++ b/src/catalog/testcases/test_event_admin_photo_clear.py
+@@ -0,0 +1,63 @@
++"""Explicit primary-photo removal must respect Event publication and CAS gates."""
++from django.core.files.uploadedfile import SimpleUploadedFile
++from django.test import TestCase
++from catalog.testcases.test_event_admin_readiness import EventAdminReadinessTests
++from catalog.testcases import admin as legacy_admin
++from catalog.testcases.specialist_document_fixtures import image_document_bytes
++
++
++class EventAdminPhotoClearTests(TestCase):
++    setUp = EventAdminReadinessTests.setUp
++    event = EventAdminReadinessTests.event
++
++    def post_event(self, event, **changes):
++        self.client.force_login(self.actor)
++        data = legacy_admin.TestAdminOwnershipModerationUX._admin_event_change_payload(self, event)
++        data.update(expected_updated_at=event.updated_at.isoformat(), _continue='1')
++        data.update(changes)
++        return self.client.post('/admin/catalog/event/'+str(event.pk)+'/change/', data)
++
++    def test_published_clear_is_rejected_and_retains_photo_status_and_version(self):
++        event = self.event(status='published')
++        before = (event.photo.name, event.status, event.updated_at)
++        response = self.post_event(event, **{'photo-clear': 'on'})
++        self.assertEqual(response.status_code, 200)
++        self.assertTrue(response.context['adminform'].form.non_field_errors())
++        event.refresh_from_db()
++        self.assertEqual((event.photo.name, event.status, event.updated_at), before)
++
++    def test_draft_clear_persists_without_changing_status(self):
++        event = self.event(status='draft')
++        response = self.post_event(event, **{'photo-clear': 'on'})
++        self.assertEqual(response.status_code, 302)
++        event.refresh_from_db()
++        self.assertEqual(event.photo.name, '')
++        self.assertEqual(event.status, 'draft')
++
++    def test_published_valid_replacement_persists(self):
++        event = self.event(status='published')
++        before = event.photo.name
++        response = self.post_event(event, photo=SimpleUploadedFile('replacement.png', image_document_bytes(), content_type='image/png'))
++        self.assertEqual(response.status_code, 302)
++        event.refresh_from_db()
++        self.assertNotEqual(event.photo.name, before)
++        self.assertTrue(event.photo.name)
++        self.assertEqual(event.status, 'published')
++
++    def test_stale_clear_retains_live_photo_and_version(self):
++        event = self.event(status='published')
++        before = (event.photo.name, event.status, event.updated_at)
++        response = self.post_event(event, expected_updated_at='2000-01-01T00:00:00Z', **{'photo-clear': 'on'})
++        self.assertEqual(response.status_code, 200)
++        self.assertIn('stale_version', [e.code for e in response.context['adminform'].form.non_field_errors().as_data()])
++        event.refresh_from_db()
++        self.assertEqual((event.photo.name, event.status, event.updated_at), before)
++
++    def test_invalid_post_with_clear_retains_live_photo(self):
++        event = self.event(status='published')
++        before = (event.photo.name, event.status, event.updated_at)
++        response = self.post_event(event, website='invalid-url', **{'photo-clear': 'on'})
++        self.assertEqual(response.status_code, 200)
++        self.assertIn('website', response.context['adminform'].form.errors)
++        event.refresh_from_db()
++        self.assertEqual((event.photo.name, event.status, event.updated_at), before)
+--- a/locale/ru/LC_MESSAGES/django.po
++++ b/locale/ru/LC_MESSAGES/django.po
+@@ -14087,14 +14087,11 @@
+ msgstr "ключевых пунктов"
+ 
+ #: src/catalog/templates/admin/catalog/event/change_form.html:89
+-msgid ""
+-"\n"
+-"                Исправьте проблему ниже и сохраните мероприятие ещё раз.\n"
+-"              "
+-msgstr ""
+-"\n"
+-"                Исправьте проблему ниже и сохраните мероприятие ещё раз.\n"
+-"              "
++msgid "\n                Исправьте проблему ниже и сохраните мероприятие ещё раз.\n              "
++msgid_plural "\n                Исправьте проблемы ниже и сохраните мероприятие ещё раз.\n              "
++msgstr[0] "\n                Исправьте проблему ниже и сохраните мероприятие ещё раз.\n              "
++msgstr[1] "\n                Исправьте проблемы ниже и сохраните мероприятие ещё раз.\n              "
++msgstr[2] "\n                Исправьте проблемы ниже и сохраните мероприятие ещё раз.\n              "
+ 
+ #: src/catalog/templates/admin/catalog/event/change_form.html:128
+ msgid ""
+@@ -20448,3 +20445,16 @@
+ #: src/catalog/services/specialist_document_validation.py
+ msgid "Не удалось безопасно проверить документ. Выберите файл меньшего размера или разрешения."
+ msgstr "Не удалось безопасно проверить документ. Выберите файл меньшего размера или разрешения."
++
++
++#: src/catalog/templates/pages/owner_event_form.html
++msgid "Шаги формы мероприятия"
++msgstr "Шаги формы мероприятия"
++
++#: src/catalog/templates/pages/owner_event_form.html
++msgid "Вперёд"
++msgstr "Вперёд"
++
++#: src/catalog/templates/pages/owner_event_form.html
++msgid "Тип организатора"
++msgstr "Тип организатора"

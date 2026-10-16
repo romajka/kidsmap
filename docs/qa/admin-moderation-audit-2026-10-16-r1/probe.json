@@ -1,0 +1,106 @@
+{
+  "after_browser_bulk": {
+    "id": 1,
+    "status": "approved",
+    "approved": true,
+    "current": null,
+    "candidate": 1,
+    "candidate_status": "pending",
+    "text": "Fictional original review 0",
+    "public": true
+  },
+  "pending_candidates": [
+    4,
+    3,
+    2,
+    1
+  ],
+  "queue_after_bulk": {
+    "status": 200,
+    "ids": [
+      3
+    ]
+  },
+  "needs_check_filter": {
+    "status": 200,
+    "ids": []
+  },
+  "single_approve": {
+    "response": 302,
+    "state": {
+      "id": 3,
+      "status": "approved",
+      "approved": true,
+      "current": 4,
+      "candidate": null,
+      "candidate_status": null,
+      "text": "Fictional original review 2",
+      "public": true
+    }
+  },
+  "single_hide": {
+    "response": 302,
+    "before": {
+      "id": 2,
+      "status": "approved",
+      "approved": true,
+      "current": 2,
+      "candidate": 3,
+      "candidate_status": "pending",
+      "text": "Fictional original review 1",
+      "public": true
+    },
+    "after": {
+      "id": 2,
+      "status": "approved",
+      "approved": true,
+      "current": 2,
+      "candidate": 7,
+      "candidate_status": "pending",
+      "text": "Fictional original review 1",
+      "public": true
+    }
+  },
+  "typed_approval_control": {
+    "response": 302,
+    "before": {
+      "id": 4,
+      "status": "approved",
+      "approved": true,
+      "current": 5,
+      "candidate": 6,
+      "candidate_status": "pending",
+      "text": "Fictional original review 3",
+      "public": true
+    },
+    "after": {
+      "id": 4,
+      "status": "approved",
+      "approved": true,
+      "current": 6,
+      "candidate": null,
+      "candidate_status": null,
+      "text": "Fictional EDIT awaiting approval 3",
+      "public": true
+    }
+  },
+  "pending_place_public_preview": {
+    "editor_status": 200,
+    "public_status": 404,
+    "url": "/ru/place/2-uydurma-mekan/"
+  },
+  "repeat_decision_control": 409,
+  "host_routing": {
+    "admin_response": 301,
+    "location": "https://public.audit.invalid/ru/reviews/place/target/1/",
+    "public_response": 200,
+    "public_candidate_blocks": 0
+  },
+  "mro": {
+    "approve_owner": "PlaceReviewAdmin.approve_view",
+    "toggle_owner": "PlaceReviewAdmin._toggle_review_visibility",
+    "proxy_bulk_owner": "PlaceReviewAdmin.approve_selected"
+  },
+  "testing": true,
+  "synthetic_only": true
+}

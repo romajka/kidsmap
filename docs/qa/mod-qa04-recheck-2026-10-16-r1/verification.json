@@ -1,0 +1,21 @@
+{
+  "status": "PLAN COMPLETE / CONFIRMED OPEN / approval pending",
+  "id": "MOD-QA-04",
+  "native_control_pass": 38,
+  "native_source_fail": 18,
+  "cells": 18,
+  "png_count": 18,
+  "local_diagnostics": 0,
+  "domain_unchanged": true,
+  "application_changes": 0,
+  "source_files": 957,
+  "verified_profile_reused": "own current columns QA profile; source/isolation/locales reverified, no reseed",
+  "not_run": [
+    "MOD04 application patch/postpatch GREEN",
+    "full module08/global/production"
+  ],
+  "limitations": [
+    "Initial opened geometry at768 can be transitional; sourceFAIL uses settled escaped state after350ms.",
+    "Prior environment interruption/foreign services continuity limitations are recorded in the columns run; no foreign lifecycle operations here."
+  ]
+}

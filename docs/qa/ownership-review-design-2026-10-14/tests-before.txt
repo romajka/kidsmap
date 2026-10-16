@@ -1,0 +1,20 @@
+E
+======================================================================
+ERROR: test_ownership_review_summary (unittest.loader._FailedTest.test_ownership_review_summary)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_ownership_review_summary
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_review_summary.py", line 3, in <module>
+    from catalog.services.admin_place_preview import _review_summary
+ImportError: cannot import name '_review_summary' from 'catalog.services.admin_place_preview' (/home/ramin/kidsmap/src/catalog/services/admin_place_preview.py)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)
+Found 1 test(s).
+System check identified no issues (0 silenced).

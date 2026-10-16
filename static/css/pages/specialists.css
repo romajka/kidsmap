@@ -914,7 +914,7 @@ body.km-filter-lock {
   font-weight: 750;
 }
 
-.km-owner-mobile-progress div {
+.km-owner-mobile-progress > .km-progress-track {
   height: 8px;
   margin-top: 7px;
   border-radius: 999px;
@@ -3789,6 +3789,24 @@ body.km-filter-lock {
   font-size: 0.82rem;
   cursor: pointer;
   transition: all 0.15s ease;
+}
+
+.km-step-arrow > .fas {
+  display: none;
+}
+
+.km-step-arrow::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  background: currentColor;
+  -webkit-mask: url("../../img/icon/coolicons.iconjar/icons/chevron-left.svg") center / contain no-repeat;
+  mask: url("../../img/icon/coolicons.iconjar/icons/chevron-left.svg") center / contain no-repeat;
+}
+
+.km-step-arrow[data-owner-next]::before {
+  -webkit-mask-image: url("../../img/icon/coolicons.iconjar/icons/chevron-right.svg");
+  mask-image: url("../../img/icon/coolicons.iconjar/icons/chevron-right.svg");
 }
 
 .km-step-arrow:hover {

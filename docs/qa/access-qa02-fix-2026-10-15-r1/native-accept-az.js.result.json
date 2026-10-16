@@ -1,0 +1,295 @@
+{
+  "rows": [
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "accept",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "accept",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "accept",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 130,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "accept",
+      "name": "place: existing accept keyboard path retained",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "accept",
+      "name": "place: native acceptance HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "accept",
+      "name": "place: accepted grant survives reload",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 45,
+        "target_id": 1,
+        "notification_id": 141,
+        "status": "ACCEPTED",
+        "responded": true,
+        "active_grants": 1,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "accept",
+      "name": "organization: existing accept keyboard path retained",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "accept",
+      "name": "organization: native acceptance HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "accept",
+      "name": "organization: accepted grant survives reload",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 45,
+        "target_id": 1,
+        "notification_id": 142,
+        "status": "ACCEPTED",
+        "responded": true,
+        "active_grants": 1,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "accept",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 132,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "accept",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "accept",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "accept",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 134,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "accept",
+      "name": "place: existing accept keyboard path retained",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "accept",
+      "name": "place: native acceptance HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "accept",
+      "name": "place: accepted grant survives reload",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 46,
+        "target_id": 1,
+        "notification_id": 145,
+        "status": "ACCEPTED",
+        "responded": true,
+        "active_grants": 1,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "accept",
+      "name": "organization: existing accept keyboard path retained",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "accept",
+      "name": "organization: native acceptance HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "accept",
+      "name": "organization: accepted grant survives reload",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 46,
+        "target_id": 1,
+        "notification_id": 146,
+        "status": "ACCEPTED",
+        "responded": true,
+        "active_grants": 1,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "accept",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 136,
+        "scheduler": "SIMULATED manual tick"
+      }
+    }
+  ],
+  "completedCells": [
+    {
+      "lang": "az",
+      "width": 390
+    },
+    {
+      "lang": "az",
+      "width": 1440
+    }
+  ],
+  "error": null,
+  "diagnostics": {
+    "console": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "pageerrors": [],
+    "requestFailures": [
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "badResponses": []
+  },
+  "browser": "149.0.7827.55",
+  "simulation": "Owner invitations, native recipient decisions/cancel and readback real. External transport blocked; manual local mail scheduler tick explicitly SIMULATED; any stale-fixture/network simulation is labeled per scenario."
+}

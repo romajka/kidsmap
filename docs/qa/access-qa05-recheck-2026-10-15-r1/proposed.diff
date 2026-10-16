@@ -1,0 +1,42 @@
+--- a/locale/az/LC_MESSAGES/django.po
++++ b/locale/az/LC_MESSAGES/django.po
+@@ -17786,16 +17786,12 @@
+ "Bu hesab müvəqqəti olaraq deaktiv edilib. Administratora müraciət edin."
+ 
+ #: src/catalog/views.py:1863
+-#, fuzzy
+-#| msgid "Код подтверждения отправлен на ваш email."
+ msgid "Введите фразу подтверждения точно так, как она показана."
+-msgstr "Təsdiq kodu email ünvanınıza göndərildi."
++msgstr "Təsdiq ifadəsini göstərildiyi kimi dəqiq daxil edin."
+ 
+ #: src/catalog/views.py:1864
+-#, fuzzy
+-#| msgid "Ввести код подтверждения"
+ msgid "Неверный код подтверждения."
+-msgstr "Təsdiq kodunu daxil et"
++msgstr "Yanlış təsdiq kodu."
+ 
+ #: src/catalog/views.py:1865
+ #, fuzzy
+--- a/locale/en/LC_MESSAGES/django.po
++++ b/locale/en/LC_MESSAGES/django.po
+@@ -17678,16 +17678,12 @@
+ msgstr "This account is temporarily disabled. Contact the administrator."
+ 
+ #: src/catalog/views.py:1863
+-#, fuzzy
+-#| msgid "Код подтверждения отправлен на ваш email."
+ msgid "Введите фразу подтверждения точно так, как она показана."
+-msgstr "Verification code has been sent to your email."
++msgstr "Enter the confirmation phrase exactly as shown."
+ 
+ #: src/catalog/views.py:1864
+-#, fuzzy
+-#| msgid "Ввести код подтверждения"
+ msgid "Неверный код подтверждения."
+-msgstr "Enter verification code"
++msgstr "Invalid confirmation code."
+ 
+ #: src/catalog/views.py:1865
+ #, fuzzy

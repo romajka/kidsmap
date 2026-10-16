@@ -1,0 +1,19 @@
+Using existing test database for alias 'default'...
+/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /home/ramin/kidsmap/.tmp/ownership-preview-fix-2026-10-14/staticfiles/
+  mw_instance = middleware(adapted_handler)
+F
+======================================================================
+FAIL: test_changed_group_dependency_is_flagged_before_approval (catalog.testcases.test_ownership_admin_preview.OwnershipAdminPreviewTests.test_changed_group_dependency_is_flagged_before_approval)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_ownership_admin_preview.py", line 193, in test_changed_group_dependency_is_flagged_before_approval
+    self.assertTrue(response.context['preview']['stale'])
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 1 test in 1.123s
+
+FAILED (failures=1)
+Preserving test database for alias 'default'...
+Found 1 test(s).
+System check identified no issues (0 silenced).

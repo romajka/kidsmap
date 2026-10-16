@@ -24,6 +24,7 @@
   function resolveInitialState(group) {
     var key = group.getAttribute("data-km-sidebar-key");
     var defaultOpen = group.getAttribute("data-default-open") === "true";
+    if (defaultOpen) return true;
 
     if (!key) {
       return defaultOpen;
@@ -73,6 +74,51 @@
     });
   }
 
+  function initSidebarDismissal() {
+    var sidebar = document.querySelector('.main-sidebar');
+    var opener = document.querySelector('.km-admin-header__toggle[data-widget="pushmenu"]');
+    if (!sidebar || !opener) return;
+    var close = sidebar.querySelector('[data-km-sidebar-close]');
+
+    function expanded() {
+      return window.innerWidth < 768
+        ? document.body.classList.contains('sidebar-open')
+        : !document.body.classList.contains('sidebar-collapse');
+    }
+
+    function sync() {
+      opener.setAttribute('aria-expanded', expanded() ? 'true' : 'false');
+    }
+
+    function restoreFocus() {
+      window.requestAnimationFrame(function () {
+        opener.focus({preventScroll: true});
+      });
+    }
+
+    function dismiss() {
+      if (!expanded()) return;
+      opener.click();
+      restoreFocus();
+    }
+
+    opener.setAttribute('aria-controls', sidebar.id);
+    if (close) close.addEventListener('click', dismiss);
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape' || event.defaultPrevented || !expanded()) return;
+      if (window.innerWidth >= 768 && !sidebar.contains(document.activeElement)
+          && document.activeElement !== opener) return;
+      event.preventDefault();
+      dismiss();
+    });
+    document.addEventListener('click', function (event) {
+      if (event.target.id === 'sidebar-overlay') restoreFocus();
+    });
+    new MutationObserver(sync).observe(document.body, {attributes: true, attributeFilter: ['class']});
+    window.addEventListener('resize', sync);
+    sync();
+  }
+
   function syncSearchClearButton(input) {
     var button = input.parentElement.querySelector("[data-km-admin-search-clear]");
     if (button) {
@@ -117,6 +163,12 @@
         });
         syncSearchClearButton(input);
       });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSidebarDismissal);
+  } else {
+    initSidebarDismissal();
   }
 
   if (document.readyState === "loading") {

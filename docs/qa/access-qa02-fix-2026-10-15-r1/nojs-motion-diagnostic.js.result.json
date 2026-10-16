@@ -1,0 +1,36 @@
+{
+  "rows": [
+    {
+      "name": "JS-disabled read-only account navigation without decision",
+      "status": "PASS",
+      "detail": [
+        {
+          "path": "ru/account/notifications/",
+          "status": 200
+        },
+        {
+          "path": "ru/account/places/team/",
+          "status": 200
+        },
+        {
+          "path": "ru/account/notifications/",
+          "status": 200
+        },
+        {
+          "path": "ru/account/organizations/",
+          "status": 200
+        },
+        {
+          "path": "ru/account/notifications/",
+          "status": 200
+        }
+      ]
+    }
+  ],
+  "error": null,
+  "diagnostics": {
+    "pageerrors": []
+  },
+  "browser": "149.0.7827.55",
+  "note": "No reject/accept/invite/transfer POST. Browser JS disabled, own context only; source unchanged."
+}

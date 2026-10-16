@@ -1,0 +1,235 @@
+{
+  "checked_at_utc": "2026-10-15T11:11:42.634294+00:00",
+  "decision": "MOD-QA-01 CONFIRMED OPEN / PLAN READY",
+  "all_evidence_checks_pass": true,
+  "application_changes": [],
+  "implementation_approved": false,
+  "fixed": false,
+  "closed_ids": [],
+  "confirmed_open_ids": [
+    "MOD-QA-01"
+  ],
+  "snapshot": {
+    "root": "/home/ramin/kidsmap",
+    "head": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+    "branch": "task33-progress",
+    "dirty_worktree": true,
+    "active_run": [
+      "active_run: NONE"
+    ]
+  },
+  "source_classification": "existing baseline current source, no regression caused by this PLAN audit",
+  "browser_counts": {
+    "PASS": 75,
+    "FAIL": 72
+  },
+  "browser_cells": 36,
+  "PNG": 36,
+  "regression_prototype": {
+    "methods": 4,
+    "expected_subtest_FAIL": 6,
+    "ERROR": 0,
+    "exit": 1
+  },
+  "checks": [
+    {
+      "name": "actual root HEAD branch active_run retained",
+      "pass": true,
+      "detail": {
+        "root": "/home/ramin/kidsmap",
+        "head": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+        "branch": "task33-progress",
+        "active_run": [
+          "active_run: NONE"
+        ]
+      }
+    },
+    {
+      "name": "29902entry files unchanged except current module08 status",
+      "pass": true,
+      "detail": {
+        "changed": [
+          "docs/qa/continuation-and-repair-prompts-2026-10-11.md"
+        ],
+        "missing": []
+      }
+    },
+    {
+      "name": "two exact guide status edits preserve prior history",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "no new application or other project files outside own QA run",
+      "pass": true,
+      "detail": {
+        "unexpected_new": [],
+        "missing": []
+      }
+    },
+    {
+      "name": "shared MO preserved",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "dirty WORKTREE entries retained",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "three known foreign HTTP identities retained",
+      "pass": true,
+      "detail": [
+        {
+          "pid": 242780,
+          "identity_unchanged": true
+        },
+        {
+          "pid": 426689,
+          "identity_unchanged": true
+        },
+        {
+          "pid": 497284,
+          "identity_unchanged": true
+        }
+      ]
+    },
+    {
+      "name": "64foreign container identities and state preserved; sole own addition",
+      "pass": true,
+      "detail": {
+        "changes": [],
+        "new": [
+          "mod-qa01-recheck-2026-10-15-r1-pg"
+        ]
+      }
+    },
+    {
+      "name": "actual own interpreter argv cwd",
+      "pass": true,
+      "detail": {
+        "pid": 515174,
+        "argv": [
+          "/home/ramin/kidsmap/.tmp/mod-qa01-recheck-2026-10-15-r1/venv/bin/python",
+          "/home/ramin/kidsmap/docs/qa/mod-qa01-recheck-2026-10-15-r1/runtime.py",
+          "serve"
+        ],
+        "url": "http://127.0.0.1:34211",
+        "container": "mod-qa01-recheck-2026-10-15-r1-pg",
+        "pg_port": 51877
+      }
+    },
+    {
+      "name": "943sources equal current entry and running startup",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "active cached hub template and actual module origins",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "fresh RU AZ EN manifest sole path and actual opened own catalogs",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "own testing DB cache media email no env credentials/default retention inactive",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "own exact dependency package bytes",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "36rendered role/language/width cells retain72sourceFAIL and75controlPASS",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source failure exactly absent navigation; real page1/page2 controls",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "no unexplained local console page or network error",
+      "pass": true,
+      "detail": {
+        "unexpected": [],
+        "external_blocked_diagnostics": 304
+      }
+    },
+    {
+      "name": "own live/candidate fingerprint unchanged during UI audit",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "4proposed methods6expected subtestFAIL zeroERROR",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "initial login-selector NOTRUN retained separately",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "concrete diff applicable and no proposed app test or patch applied",
+      "pass": true,
+      "detail": {
+        "git_apply_check_exit": 0,
+        "plan_sha256": "21b128aae769f271e73f7a2b6a7354612ddbfd3dea13d0fa26a1aefcc6cf8b72",
+        "application_patch_applied": false
+      }
+    },
+    {
+      "name": "pager labels available in fresh RU AZ EN without PO changes",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "36native PNG hash size dimensions and manual view scope",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "no own generated credentials copied into public artifacts",
+      "pass": true,
+      "detail": {
+        "scanned_files": 59,
+        "hit_paths_only": []
+      }
+    },
+    {
+      "name": "own QA/proposal Python JS syntax",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "git diff --check",
+      "pass": true,
+      "detail": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "report plan diff evidence and next prompt links exist",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "gate_exit_meaning": "0means consistent PLAN evidence with actual source FAIL, never implementation GREEN",
+  "NOT_RUN": [
+    "implementation and GREEN",
+    "native keyboard pagination impossible before patch",
+    "full08/other MOD IDs/module09",
+    "rendered empty/out-of-range/error states",
+    "production/commit/push/deploy/external integration/cross-browser/screen-reader"
+  ],
+  "continuity_limit": "64full-entry containers/3knownHTTP checked; four older absent HTTP continuity remains NOT VERIFIED; no foreign restarts."
+}

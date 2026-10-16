@@ -37,6 +37,12 @@
     control.id = `pc-offer-${++sequence}`; control.dataset.offeringKey = key; control.setAttribute('aria-label', label);
     const update = () => { object[key] = kind === 'checkbox' ? control.checked : kind === 'number' || key === 'program_id' || key === 'subcategory_id' ? (control.value === '' ? null : Number(control.value)) : key === 'category_id' ? (control.value || null) : control.value; sync(); };
     control.addEventListener(kind === 'checkbox' || kind === 'select' ? 'change' : 'input', update);
+    const jq = window.jQuery || window.django?.jQuery;
+    if (kind === 'select' && jq) {
+      jq(control).on('select2:select select2:clear', () => {
+        control.dispatchEvent(new Event('change', {bubbles: true}));
+      });
+    }
     wrap.append(control); parent.append(wrap); return control;
   }
   function button(parent, title, action) { const item = node('button', 'pw-add', title); item.type = 'button'; item.addEventListener('click', action); parent.append(item); return item; }
@@ -130,8 +136,19 @@
           field(extra, plan, 'price_max', ui.plan_price_max, 'number');
           field(extra, plan, 'currency', ui.plan_currency);
           field(extra, plan, 'charge_role', ui.plan_role, 'select', {choices: choices.charge_roles});
-          field(extra, plan, 'billing_mode', ui.plan_billing, 'select', {choices: choices.billing_modes});
-          field(extra, plan, 'billing_interval', ui.plan_interval, 'select', {choices: [['', '—'], ...choices.billing_intervals]});
+          const billing = field(extra, plan, 'billing_mode', ui.plan_billing, 'select', {choices: choices.billing_modes});
+          const interval = field(extra, plan, 'billing_interval', ui.plan_interval, 'select', {choices: [['', '—'], ...choices.billing_intervals]});
+          const count = field(extra, plan, 'billing_interval_count', ui.plan_interval_count, 'number');
+          const cycles = field(extra, plan, 'billing_cycles', ui.plan_billing_cycles, 'number');
+          field(extra, plan, 'quantity', ui.plan_quantity, 'number');
+          field(extra, plan, 'quantity_unit', ui.plan_quantity_unit, 'select', {choices: [['', '—'], ...choices.quantity_units]});
+          function billingVisibility() {
+            interval.closest('label').hidden = billing.value !== 'recurring';
+            count.closest('label').hidden = billing.value !== 'recurring';
+            cycles.closest('label').hidden = billing.value !== 'installment';
+          }
+          billing.addEventListener('change', billingVisibility);
+          billingVisibility();
           field(extra, plan, 'age_from', ui.group_age_from, 'number');
           field(extra, plan, 'age_to', ui.group_age_to, 'number');
           field(extra, plan, 'is_trial', ui.plan_trial, 'checkbox');

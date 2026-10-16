@@ -1,0 +1,1489 @@
+{
+  "rows": [
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 42,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "place: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 360
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 360
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "place: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Dəvətdən imtina edildi."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "place: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 13,
+        "target_id": 1,
+        "notification_id": 49,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "organization: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 360
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 360
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "organization: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Dəvətdən imtina edildi."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "organization: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 13,
+        "target_id": 1,
+        "notification_id": 50,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "Inbox no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 360,
+        "scroll": 360
+      }
+    },
+    {
+      "lang": "az",
+      "width": 360,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 44,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 46,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "place: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "place: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Dəvətdən imtina edildi."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "place: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 14,
+        "target_id": 1,
+        "notification_id": 53,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "organization: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "organization: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Dəvətdən imtina edildi."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "organization: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 14,
+        "target_id": 1,
+        "notification_id": 54,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "Inbox no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 48,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 50,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "place: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 768
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 768
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "place: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Dəvətdən imtina edildi."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "place: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 15,
+        "target_id": 1,
+        "notification_id": 57,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "organization: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 768
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 768
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "organization: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Dəvətdən imtina edildi."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "organization: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 15,
+        "target_id": 1,
+        "notification_id": 58,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "Inbox no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 768,
+        "scroll": 768
+      }
+    },
+    {
+      "lang": "az",
+      "width": 768,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 52,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 54,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "place: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 1024
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 1024
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "place: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Dəvətdən imtina edildi."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "place: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 16,
+        "target_id": 1,
+        "notification_id": 61,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "organization: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 1024
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 1024
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "organization: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Dəvətdən imtina edildi."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "organization: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 16,
+        "target_id": 1,
+        "notification_id": 62,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "Inbox no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 1024,
+        "scroll": 1024
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1024,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 56,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 58,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "place: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 1280
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 1280
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "place: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Dəvətdən imtina edildi."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "place: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 17,
+        "target_id": 1,
+        "notification_id": 65,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "organization: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 1280
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 54,
+        "right": 189.421875,
+        "width": 1280
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "organization: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Dəvətdən imtina edildi."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "organization: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 17,
+        "target_id": 1,
+        "notification_id": 66,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "Inbox no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 1280,
+        "scroll": 1280
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1280,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 60,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 62,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "place: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 110,
+        "right": 245.421875,
+        "width": 1440
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 110,
+        "right": 245.421875,
+        "width": 1440
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "place: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Dəvətdən imtina edildi."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "place: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 18,
+        "target_id": 1,
+        "notification_id": 69,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "organization: current decline available",
+      "status": "PASS",
+      "detail": {}
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 110,
+        "right": 245.421875,
+        "width": 1440
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 110,
+        "right": 245.421875,
+        "width": 1440
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Space"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "organization: localized success after commit",
+      "status": "PASS",
+      "detail": {
+        "messages": [
+          "Dəvətdən imtina edildi."
+        ]
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "organization: reload confirms REJECTED without grant",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 18,
+        "target_id": 1,
+        "notification_id": 70,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "Inbox no horizontal overflow",
+      "status": "PASS",
+      "detail": {
+        "width": 1440,
+        "scroll": 1440
+      }
+    },
+    {
+      "lang": "az",
+      "width": 1440,
+      "scenario": "decline",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 64,
+        "scheduler": "SIMULATED manual tick"
+      }
+    }
+  ],
+  "completedCells": [
+    {
+      "lang": "az",
+      "width": 360
+    },
+    {
+      "lang": "az",
+      "width": 390
+    },
+    {
+      "lang": "az",
+      "width": 768
+    },
+    {
+      "lang": "az",
+      "width": 1024
+    },
+    {
+      "lang": "az",
+      "width": 1280
+    },
+    {
+      "lang": "az",
+      "width": 1440
+    }
+  ],
+  "error": null,
+  "diagnostics": {
+    "console": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "pageerrors": [],
+    "requestFailures": [
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "badResponses": []
+  },
+  "browser": "149.0.7827.55",
+  "simulation": "Owner invitations, native recipient decisions/cancel and readback real. External transport blocked; manual local mail scheduler tick explicitly SIMULATED; any stale-fixture/network simulation is labeled per scenario."
+}

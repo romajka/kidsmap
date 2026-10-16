@@ -59,6 +59,8 @@ def upload_document(*, actor, specialist_id, uploaded_file, document_type, name)
     suffix = Path(uploaded_file.name).suffix.lower()
     if suffix not in {'.pdf', '.png', '.jpg', '.jpeg'}:
         raise ValidationError('Use PDF, PNG or JPEG')
+    from catalog.services.specialist_document_validation import validate_document_upload
+    validate_document_upload(uploaded_file)
     with transaction.atomic():
         from django.contrib.auth import get_user_model
         actor = get_user_model().objects.select_for_update().get(pk=actor.pk)

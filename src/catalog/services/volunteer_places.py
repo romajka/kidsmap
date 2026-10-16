@@ -268,6 +268,9 @@ def review_form(revision):
     candidate = candidate_from_payload(revision.place, revision.payload)
     # Files are trusted server-stored names, never taken from a review POST.
     data = {k: v for k, v in {**content_snapshot(revision.place), **revision.payload}.items() if k not in {"photo", "cover_photo", "gallery", "nature", "operating_state"}}
+    from catalog.services.pricing_plans import serialize_nested_pricing
+    if 'nested_pricing' not in revision.payload:
+        data['nested_pricing'] = serialize_nested_pricing(revision.place)
     stored_district = str(data.get("district") or "").strip()
     if stored_district.startswith("baku_"):
         data["region"] = "baku"

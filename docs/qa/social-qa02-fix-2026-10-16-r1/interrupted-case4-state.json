@@ -1,0 +1,146 @@
+{
+  "read_only": true,
+  "reviews": {
+    "place": {
+      "heads": [
+        {
+          "id": 10,
+          "author_id": 17,
+          "rating": 3,
+          "text_sha256": "aeae0611866cc6b9a9bf694cccf4653a4f7b9a293c2f3d44ecbdc6c314693e8f",
+          "status": "rejected",
+          "is_approved": false,
+          "is_current": true,
+          "current_id": null,
+          "candidate_id": null,
+          "candidate_rating": null,
+          "candidate_text_sha256": null,
+          "revisions": [
+            {
+              "id": 10,
+              "rating": 3,
+              "status": "rejected",
+              "created_at": "2026-10-16T12:03:22.525Z",
+              "rejection_reason": "rejected Fictional private reason <b>literal</b> & details"
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "author_id": 15,
+          "rating": 4,
+          "text_sha256": "af0b8cd740c92534ed973ce04b00a72b903f0677262a4b6f5acd025a27d5fa1a",
+          "status": "approved",
+          "is_approved": true,
+          "is_current": true,
+          "current_id": 9,
+          "candidate_id": null,
+          "candidate_rating": null,
+          "candidate_text_sha256": null,
+          "revisions": [
+            {
+              "id": 9,
+              "rating": 4,
+              "status": "approved",
+              "created_at": "2026-10-16T12:03:19.903Z",
+              "rejection_reason": ""
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "average": 4.0,
+        "count": 1
+      }
+    },
+    "specialist": {
+      "heads": [
+        {
+          "id": 9,
+          "author_id": 15,
+          "rating": 4,
+          "text_sha256": "03231987c60b5f80da623f2ed52692861cebf2685e07255faff0a64871e10029",
+          "status": "approved",
+          "is_approved": true,
+          "is_current": true,
+          "current_id": 9,
+          "candidate_id": null,
+          "candidate_rating": null,
+          "candidate_text_sha256": null,
+          "revisions": [
+            {
+              "id": 9,
+              "rating": 4,
+              "status": "approved",
+              "created_at": "2026-10-16T12:03:25.424Z",
+              "rejection_reason": ""
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "author_id": 17,
+          "rating": 3,
+          "text_sha256": "538330f86a7544a4c0aebb33b4aad50bad092e07383cc6bcc6995dddc08a7047",
+          "status": "rejected",
+          "is_approved": false,
+          "is_current": true,
+          "current_id": null,
+          "candidate_id": null,
+          "candidate_rating": null,
+          "candidate_text_sha256": null,
+          "revisions": [
+            {
+              "id": 10,
+              "rating": 3,
+              "status": "rejected",
+              "created_at": "2026-10-16T12:03:27.846Z",
+              "rejection_reason": ""
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "average": 4.0,
+        "count": 1
+      }
+    },
+    "activity": {
+      "heads": [
+        {
+          "id": 9,
+          "author_id": 15,
+          "rating": 4,
+          "text_sha256": "17a483af01cab34c72240aabecb39452c6e4719a631f26cdf48b732544c499ca",
+          "status": "approved",
+          "is_approved": true,
+          "is_current": true,
+          "current_id": 9,
+          "candidate_id": null,
+          "candidate_rating": null,
+          "candidate_text_sha256": null,
+          "revisions": [
+            {
+              "id": 9,
+              "rating": 4,
+              "status": "approved",
+              "created_at": "2026-10-16T12:03:31.179Z",
+              "rejection_reason": ""
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "average": 4.0,
+        "count": 1
+      }
+    },
+    "event": {
+      "heads": [],
+      "summary": {
+        "average": 0.0,
+        "count": 0
+      }
+    }
+  }
+}

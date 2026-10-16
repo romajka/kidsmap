@@ -1,0 +1,201 @@
+{
+  "rows": [
+    {
+      "id": "nested-import-validation",
+      "status": "PASS"
+    },
+    {
+      "id": "nested-import-populates-tree",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-import-pending-keeps-live",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-import-ready-to-approve",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-import-approved-removal",
+      "status": "PASS"
+    },
+    {
+      "id": "partial-import-validates",
+      "status": "PASS"
+    },
+    {
+      "id": "partial-import-keeps-tree",
+      "status": "PASS"
+    },
+    {
+      "id": "partial-return-keeps-published-group",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-language-ru",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-ru-360",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-ru-390",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-ru-768",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-ru-1024",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-ru-1280",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-ru-1440",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-language-az",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-az-360",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-az-390",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-az-768",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-az-1024",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-az-1280",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-az-1440",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-language-en",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-en-360",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-en-390",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-en-768",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-en-1024",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-en-1280",
+      "status": "PASS"
+    },
+    {
+      "id": "admin-nested-readback-en-1440",
+      "status": "PASS"
+    },
+    {
+      "id": "no-admin-pageerrors",
+      "status": "PASS",
+      "errors": []
+    }
+  ],
+  "baseline_rows": [
+    {
+      "id": "partial-review-price-baseline",
+      "status": "PASS"
+    }
+  ],
+  "source_results": [
+    "admin-browser.result.attempt1791890498.json",
+    "admin-final.result.json"
+  ],
+  "raw_error_classification": "First native approval of removal passed; subsequent name-only candidate had no approve button: separate OPEN OFFER-QA-09. Raw TimeoutError retained. No claim that partial-name approval passed.",
+  "errors": [],
+  "network": [],
+  "shots": [
+    {
+      "file": "admin-import-approved-public.png"
+    },
+    {
+      "file": "partial-import-review-price-blocked.png"
+    },
+    {
+      "file": "admin-readback-ru-360.png"
+    },
+    {
+      "file": "admin-readback-ru-390.png"
+    },
+    {
+      "file": "admin-readback-ru-768.png"
+    },
+    {
+      "file": "admin-readback-ru-1024.png"
+    },
+    {
+      "file": "admin-readback-ru-1280.png"
+    },
+    {
+      "file": "admin-readback-ru-1440.png"
+    },
+    {
+      "file": "admin-readback-az-360.png"
+    },
+    {
+      "file": "admin-readback-az-390.png"
+    },
+    {
+      "file": "admin-readback-az-768.png"
+    },
+    {
+      "file": "admin-readback-az-1024.png"
+    },
+    {
+      "file": "admin-readback-az-1280.png"
+    },
+    {
+      "file": "admin-readback-az-1440.png"
+    },
+    {
+      "file": "admin-readback-en-360.png"
+    },
+    {
+      "file": "admin-readback-en-390.png"
+    },
+    {
+      "file": "admin-readback-en-768.png"
+    },
+    {
+      "file": "admin-readback-en-1024.png"
+    },
+    {
+      "file": "admin-readback-en-1280.png"
+    },
+    {
+      "file": "admin-readback-en-1440.png"
+    }
+  ],
+  "error": null
+}

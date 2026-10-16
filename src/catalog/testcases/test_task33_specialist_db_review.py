@@ -1,8 +1,11 @@
 """Independent stage-24 PostgreSQL schema and additive-migration checks."""
 import os
 import uuid
+import json
+from pathlib import Path
 from datetime import date
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, connection, transaction
 from django.db.migrations.executor import MigrationExecutor
@@ -15,6 +18,30 @@ from catalog.models import Organization, Specialist, SpecialistClaim, Specialist
 def require_disposable_postgres(test):
     test.assertEqual(connection.vendor, 'postgresql')
     test.assertEqual(os.environ.get('DJANGO_TESTING'), '1')
+    root = getattr(settings, 'QA_ROOT', None)
+    checkout_scratch = Path(__file__).resolve().parents[3] / '.tmp'
+    if root is not None and Path(root).resolve().is_relative_to(checkout_scratch.resolve()):
+        # A current own loopback profile is an alternative to the historical
+        # Unix-socket launcher, never a bypass based on TESTING alone.
+        root = Path(root).resolve()
+        test.assertNotEqual(root, checkout_scratch.resolve())
+        test.assertTrue(settings.TESTING)
+        config = json.loads((root / 'config.json').read_text())
+        test.assertEqual(config['container'], root.name + '-pg')
+        test.assertTrue(config['database'])
+        test.assertEqual(connection.settings_dict['NAME'], 'test_' + config['database'])
+        test.assertEqual(connection.settings_dict['HOST'], '127.0.0.1')
+        test.assertEqual(int(connection.settings_dict['PORT']), config['pg_port'])
+        test.assertEqual(connection.settings_dict['USER'], config['user'])
+        for storage in (settings.MEDIA_ROOT, settings.PRIVATE_MEDIA_ROOT):
+            test.assertTrue(Path(storage).resolve().is_relative_to(root))
+        test.assertEqual(settings.CACHES['default']['BACKEND'],
+                         'django.core.cache.backends.locmem.LocMemCache')
+        test.assertIn(root.name, settings.CACHES['default']['LOCATION'])
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT current_database()')
+            test.assertEqual(cursor.fetchone()[0], 'test_' + config['database'])
+        return
     test.assertTrue(os.environ.get('TASK33_QA_ROOT', '').startswith('/tmp/kidsmap-task33-qa04-'))
     test.assertEqual(connection.settings_dict['NAME'], 'test_qa_stage04')
     test.assertIn('kidsmap-task33-qa04-socket-', connection.settings_dict['HOST'])

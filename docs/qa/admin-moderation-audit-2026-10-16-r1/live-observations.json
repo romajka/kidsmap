@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-16",
+  "mode": "production browser read-only",
+  "browser": "Codex in-app browser, authenticated by human",
+  "production_revision": "NOT independently verified in this audit",
+  "production_moderation_submits": 0,
+  "records_exported": false,
+  "observations": [
+    {
+      "id": "LIVE-01",
+      "path": "/admin/",
+      "pending_places": 1,
+      "pending_ownership_requests": 1
+    },
+    {
+      "id": "LIVE-02",
+      "path": "/admin/catalog_moderation/moderationreview/",
+      "pending_reviews": 0,
+      "empty_state": true
+    },
+    {
+      "id": "LIVE-03",
+      "path": "/admin/catalog/placereview/",
+      "all_reviews": 4,
+      "published_reviews": 4,
+      "open_link_label": "Скрыть",
+      "expected_open_label": "Открыть"
+    },
+    {
+      "id": "LIVE-04",
+      "path": "/admin/catalog/placereview/8/change/",
+      "readonly_history": true,
+      "workflow_link": "/ru/reviews/place/target/44/",
+      "source_host": "admin.kidsmap.az",
+      "final_host": "kidsmap.az",
+      "public_menu": "Войти или зарегистрироваться",
+      "public_moderation_controls_visible": false,
+      "admin_session_retained_on_return": true
+    },
+    {
+      "id": "LIVE-05",
+      "path": "/admin/catalog_moderation/moderationplace/351/change/",
+      "readiness": "10/10",
+      "publish_button_visible": true,
+      "publish_submitted": false,
+      "public_preview_link": "/ru/place/351-huner-idman-klubu/",
+      "final_host": "kidsmap.az",
+      "preview_title": "Not Found",
+      "preview_message": "The requested resource was not found on this server."
+    },
+    {
+      "id": "LIVE-06",
+      "path": "/admin/catalog/placeownershiprequest/7/preview/",
+      "stale_notice": "Заявка устарела. Карточка или отправленные изменения уже изменились. Перед одобрением нужна новая заявка.",
+      "approval_link_count": 0,
+      "request_kind": "Владение",
+      "notice": "Подтверждение владения передаёт управление карточкой. Оно не публикует её.",
+      "list_still_has_accept_link": true
+    },
+    {
+      "id": "LIVE-07",
+      "path": "/admin/catalog/placeownershiprequest/7/site-preview/",
+      "rendered_place_detail": true,
+      "stayed_on_admin_host": true,
+      "notice": "В превью изменения не сохраняются."
+    },
+    {
+      "id": "LIVE-08",
+      "path": "/ru/admin/catalog/placereview/8/hide/",
+      "confirmation_visible": true,
+      "final_button_pressed": false,
+      "cancel_used": true
+    }
+  ]
+}

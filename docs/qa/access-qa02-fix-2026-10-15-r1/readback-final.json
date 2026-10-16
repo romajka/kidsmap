@@ -1,0 +1,566 @@
+{
+  "read_only": true,
+  "timeouts": "statement10s/lock2s",
+  "aggregate": {
+    "place_statuses": {
+      "CANCELED": 25,
+      "REJECTED": 31,
+      "PENDING": 6,
+      "ACCEPTED": 6
+    },
+    "organization_statuses": {
+      "REJECTED": 31,
+      "CANCELED": 24,
+      "ACCEPTED": 6,
+      "PENDING": 6
+    },
+    "place_grants": 6,
+    "organization_grants": 6,
+    "notification_count": 213,
+    "outbox_statuses": {
+      "sent": 213
+    },
+    "migrations": 175
+  },
+  "checked_latest_invitation_scenarios": 76,
+  "scenario_results": [
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "matrix",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "accept",
+      "type": "place",
+      "status": "ACCEPTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "accept",
+      "type": "organization",
+      "status": "ACCEPTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "accept",
+      "type": "place",
+      "status": "ACCEPTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "accept",
+      "type": "organization",
+      "status": "ACCEPTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "accept",
+      "type": "place",
+      "status": "ACCEPTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "accept",
+      "type": "organization",
+      "status": "ACCEPTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "accept",
+      "type": "place",
+      "status": "ACCEPTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "accept",
+      "type": "organization",
+      "status": "ACCEPTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "accept",
+      "type": "place",
+      "status": "ACCEPTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "accept",
+      "type": "organization",
+      "status": "ACCEPTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "accept",
+      "type": "place",
+      "status": "ACCEPTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "accept",
+      "type": "organization",
+      "status": "ACCEPTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "tabs",
+      "type": "place",
+      "status": "REJECTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "tabs",
+      "type": "organization",
+      "status": "REJECTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "tabs",
+      "type": "place",
+      "status": "REJECTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "tabs",
+      "type": "organization",
+      "status": "REJECTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "tabs",
+      "type": "place",
+      "status": "REJECTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "tabs",
+      "type": "organization",
+      "status": "REJECTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "network",
+      "type": "place",
+      "status": "REJECTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "network",
+      "type": "organization",
+      "status": "REJECTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "network",
+      "type": "place",
+      "status": "REJECTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "network",
+      "type": "organization",
+      "status": "REJECTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "network",
+      "type": "place",
+      "status": "REJECTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "network",
+      "type": "organization",
+      "status": "REJECTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "email",
+      "type": "place",
+      "status": "PENDING",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "email",
+      "type": "organization",
+      "status": "PENDING",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "email",
+      "type": "place",
+      "status": "PENDING",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "email",
+      "type": "organization",
+      "status": "PENDING",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "email",
+      "type": "place",
+      "status": "PENDING",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "email",
+      "type": "organization",
+      "status": "PENDING",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "expiry",
+      "type": "place",
+      "status": "PENDING",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "expiry",
+      "type": "organization",
+      "status": "PENDING",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "expiry",
+      "type": "place",
+      "status": "PENDING",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "expiry",
+      "type": "organization",
+      "status": "PENDING",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "expiry",
+      "type": "place",
+      "status": "PENDING",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "expiry",
+      "type": "organization",
+      "status": "PENDING",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "nojs",
+      "type": "place",
+      "status": "REJECTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "nojs",
+      "type": "organization",
+      "status": "REJECTED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "transfer",
+      "type": "place",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    },
+    {
+      "scenario": "transfer",
+      "type": "organization",
+      "status": "CANCELED",
+      "correct_grant_count": true,
+      "correct_decision_count": true
+    }
+  ],
+  "all_historical_terminal_decisions_unique": true,
+  "local_email_files": 194,
+  "local_email_message_count": 213,
+  "all_recipients_fictional": true,
+  "external_connect_denied": true,
+  "email_scheduler": "SIMULATED manual tick; real own filebased messages, not SMTP"
+}

@@ -1,0 +1,15 @@
+### Result
+{"title":"Вход","browser":"149.0.7827.55","url":"http://127.0.0.1:57239/ru/auth/login/"}
+### Ran Playwright code
+```js
+await (async (page) => {
+ await page.context().route('**/*',route=>{
+  const u=route.request().url();if(u.startsWith('http://127.0.0.1:57239/')||u.startsWith('data:')||u==='about:blank')return route.continue();return route.abort('blockedbyclient');
+ });
+ await page.goto('http://127.0.0.1:57239/ru/auth/login/');return {title:await page.title(),browser:page.context().browser().version(),url:page.url()};
+}
+)(page);
+```
+### Page
+- Page URL: http://127.0.0.1:57239/ru/auth/login/
+- Page Title: Вход

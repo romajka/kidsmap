@@ -198,6 +198,8 @@ def detail(actor, source, row_id):
     rows, _ = query(actor, {'status': 'all'}, now=timezone.now())
     for row in rows:
         if row['source'] == source and row['id'] == row_id:
+            from catalog.services.moderation_media import comparison_rows
+            row['display_changes'] = comparison_rows(row)
             return row
     from django.http import Http404
     raise Http404('Moderation item missing.')

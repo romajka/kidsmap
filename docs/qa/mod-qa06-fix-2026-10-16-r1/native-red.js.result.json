@@ -1,0 +1,178 @@
+{
+  "rows": [
+    {
+      "id": "unpublish confirmation uses selected language",
+      "status": "FAIL",
+      "lang": "az",
+      "width": 390,
+      "detail": {
+        "text": "Снять с публикации?\n\nКарточка «QA Queue 3 uşaqlar üçün uzun sınaq adı» перестанет отображаться на сайте и перейдёт в черновики.\n\nОтмена\nДа, снять",
+        "buttons": [
+          "Отмена",
+          "Да, снять"
+        ],
+        "htmlLang": "az",
+        "name": "QA Queue 3 uşaqlar üçün uzun sınaq adı"
+      }
+    },
+    {
+      "id": "cancel restores row focus and preserves fictional name",
+      "status": "PASS",
+      "lang": "az",
+      "width": 390,
+      "detail": {}
+    },
+    {
+      "id": "domain unchanged",
+      "status": "PASS",
+      "lang": "az",
+      "width": 390,
+      "detail": {}
+    }
+  ],
+  "diagnostics": [
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "kind": "requestfailed",
+      "local": false,
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "kind": "console",
+      "local": false,
+      "text": "Failed to load resource: net::ERR_FAILED"
+    }
+  ],
+  "before": {
+    "read_only": true,
+    "synthetic_only": true,
+    "counts": {
+      "places": 4,
+      "events": 3,
+      "specialists": 3
+    },
+    "domain_sha256": "4a3a290436ff9f5213025943272ab3ebcc57f5f10a1d34c3b4a30f1d194f01c1"
+  },
+  "after": {
+    "read_only": true,
+    "synthetic_only": true,
+    "counts": {
+      "places": 4,
+      "events": 3,
+      "specialists": 3
+    },
+    "domain_sha256": "4a3a290436ff9f5213025943272ab3ebcc57f5f10a1d34c3b4a30f1d194f01c1"
+  },
+  "complete": true,
+  "scope": "MOD06 PLAN ONLY; actual warning dialogs cancelled, no application changes"
+}

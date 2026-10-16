@@ -85,9 +85,14 @@ def target_reviews(request, kind, pk):
         head.can_report = request.user.is_authenticated and business_can_respond(user=request.user, head=head, action='report')
         head.public_replies = head.current_revision.responses.filter(kind='reply') if head.current_revision_id else []
     own = heads.objects.filter(**{kind: target, 'user': request.user, 'is_current': True}).select_related('candidate_revision', 'current_revision').first() if request.user.is_authenticated else None
+    own_decision = None
+    if own is not None and own.candidate_revision_id is None:
+        latest = own.revisions.order_by('-created_at', '-pk').first()
+        if latest is not None and latest.status == 'rejected':
+            own_decision = latest
     can_review = request.user.is_active and request.user.is_staff and request.user.has_perm('catalog.change_' + heads._meta.model_name)
     candidates = list(heads.objects.filter(**{kind: target, 'is_current': True, 'candidate_revision__status': 'pending'}).select_related('candidate_revision')) if can_review else []
-    return render(request, 'catalog/typed_reviews.html', {'kind': kind, 'target': target, 'target_name': getattr(target, 'name_i18n', None) or str(target), 'language': getattr(request, 'LANGUAGE_CODE', get_language()), 'reviews': reviews, 'own_review': own, 'candidates': candidates, 'review_rating': rating_summary(target)})
+    return render(request, 'catalog/typed_reviews.html', {'kind': kind, 'target': target, 'target_name': getattr(target, 'name_i18n', None) or str(target), 'language': getattr(request, 'LANGUAGE_CODE', get_language()), 'reviews': reviews, 'own_review': own, 'own_review_decision': own_decision, 'candidates': candidates, 'review_rating': rating_summary(target)})
 
 
 @require_POST

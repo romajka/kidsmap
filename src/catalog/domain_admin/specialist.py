@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 from django.urls import reverse
+from .queue_sorting import QueueSortingAdminMixin, QueueSortParameter
 from .moderation_actor import ModerationActorAdminMixin
 from catalog.forms_specialist_locations import BasePracticeLocationFormSet
 
@@ -440,7 +441,7 @@ class SpecialistDocumentInline(admin.TabularInline):
 
 
 @admin.register(Specialist)
-class SpecialistAdmin(admin.ModelAdmin):
+class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     class Media:
         css = {"all": ("admin/css/pages/specialist_form.css",)}
         js = ()
@@ -451,7 +452,7 @@ class SpecialistAdmin(admin.ModelAdmin):
     km_primary_filters = ("status", "is_active", "consultation_format")
     
     list_display = ("profile_column", "directions_column", "owner", "format_badge", "status_badge", "documents_count", "rating_column", "updated_at")
-    list_filter = ("status", "is_active", "consultation_format", "specializations")
+    list_filter = (QueueSortParameter, "status", "is_active", "consultation_format", "specializations")
     search_fields = ("name", "name_alt", "bio_ru", "bio_az", "bio_en")
     readonly_fields = ("owner", "verified_person_user", "identity_verification_date", "created_by",
                        "rating_avg", "rating_count", "created_at", "updated_at")
@@ -903,44 +904,5 @@ class SpecialistReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin
         ),
     )
 
-    @admin.action(description=_("Опубликовать выбранные отзывы"))
-    def approve_selected(self, request, queryset):
-        specialist_ids = list(queryset.values_list("specialist_id", flat=True).distinct())
-        updated_count = queryset.exclude(is_approved=True, status=SpecialistReview.STATUS_APPROVED).update(
-            is_approved=True, status=SpecialistReview.STATUS_APPROVED, moderated_at=timezone.now(), moderated_by=request.user
-        )
-        from catalog.models.specialist import sync_specialist_rating_stats
-        sync_specialist_rating_stats(specialist_ids)
-        self.message_user(
-            request,
-            ngettext("Опубликован %(count)d отзыв.", "Опубликовано %(count)d отзыва.", updated_count) % {"count": updated_count},
-            level=messages.SUCCESS if updated_count else messages.WARNING,
-        )
-
-    @admin.action(description=_("Скрыть выбранные отзывы"))
-    def hide_selected(self, request, queryset):
-        specialist_ids = list(queryset.values_list("specialist_id", flat=True).distinct())
-        updated_count = queryset.exclude(is_approved=False, status=SpecialistReview.STATUS_PENDING).update(
-            is_approved=False, status=SpecialistReview.STATUS_PENDING, submitted_at=timezone.now(), moderated_at=None, moderated_by=None
-        )
-        from catalog.models.specialist import sync_specialist_rating_stats
-        sync_specialist_rating_stats(specialist_ids)
-        self.message_user(
-            request,
-            ngettext("Скрыт %(count)d отзыв.", "Скрыто %(count)d отзыва.", updated_count) % {"count": updated_count},
-            level=messages.SUCCESS if updated_count else messages.WARNING,
-        )
-
-    @admin.action(description=_("Отклонить выбранные отзывы"))
-    def reject_selected(self, request, queryset):
-        specialist_ids = list(queryset.values_list("specialist_id", flat=True).distinct())
-        updated_count = queryset.exclude(is_approved=False, status=SpecialistReview.STATUS_REJECTED).update(
-            is_approved=False, status=SpecialistReview.STATUS_REJECTED, moderated_at=timezone.now(), moderated_by=request.user
-        )
-        from catalog.models.specialist import sync_specialist_rating_stats
-        sync_specialist_rating_stats(specialist_ids)
-        self.message_user(
-            request,
-            ngettext("Отклонён %(count)d отзыв.", "Отклонено %(count)d отзыва.", updated_count) % {"count": updated_count},
-            level=messages.SUCCESS if updated_count else messages.WARNING,
-        )
+    # VersionedReviewAdminMixin owns signed candidate decisions and visibility.
+    # Raw queryset updates leave revision history and pending candidates divergent.

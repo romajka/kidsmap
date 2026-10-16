@@ -1,0 +1,308 @@
+Found 6 test(s).
+System check identified no issues (0 silenced).
+Creating test database for alias 'default'...
+FFFFFFFFFFFFFFFFFF.F
+======================================================================
+FAIL: test_hidden_values_escape_markup_and_preserve_repeated_nonvisible_filter (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_hidden_values_escape_markup_and_preserve_repeated_nonvisible_filter) (model='Place')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 125, in test_hidden_values_escape_markup_and_preserve_repeated_nonvisible_filter
+    self.assertEqual(submitted.getlist('name__icontains'), [unsafe, 'SEARCHQA'])
+AssertionError: Lists differ: ['SEARCHQA'] != ['"><svg data-qa-search-injection=1 onload=alert(1)>', 'SEARCHQA']
+
+First differing element 0:
+'SEARCHQA'
+'"><svg data-qa-search-injection=1 onload=alert(1)>'
+
+Second list contains 1 additional elements.
+First extra element 1:
+'SEARCHQA'
+
+- ['SEARCHQA']
++ ['"><svg data-qa-search-injection=1 onload=alert(1)>', 'SEARCHQA']
+
+======================================================================
+FAIL: test_hidden_values_escape_markup_and_preserve_repeated_nonvisible_filter (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_hidden_values_escape_markup_and_preserve_repeated_nonvisible_filter) (model='Event')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 125, in test_hidden_values_escape_markup_and_preserve_repeated_nonvisible_filter
+    self.assertEqual(submitted.getlist('name__icontains'), [unsafe, 'SEARCHQA'])
+AssertionError: Lists differ: ['SEARCHQA'] != ['"><svg data-qa-search-injection=1 onload=alert(1)>', 'SEARCHQA']
+
+First differing element 0:
+'SEARCHQA'
+'"><svg data-qa-search-injection=1 onload=alert(1)>'
+
+Second list contains 1 additional elements.
+First extra element 1:
+'SEARCHQA'
+
+- ['SEARCHQA']
++ ['"><svg data-qa-search-injection=1 onload=alert(1)>', 'SEARCHQA']
+
+======================================================================
+FAIL: test_hidden_values_escape_markup_and_preserve_repeated_nonvisible_filter (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_hidden_values_escape_markup_and_preserve_repeated_nonvisible_filter) (model='Specialist')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 125, in test_hidden_values_escape_markup_and_preserve_repeated_nonvisible_filter
+    self.assertEqual(submitted.getlist('name__icontains'), [unsafe, 'SEARCHQA'])
+AssertionError: Lists differ: ['SEARCHQA'] != ['"><svg data-qa-search-injection=1 onload=alert(1)>', 'SEARCHQA']
+
+First differing element 0:
+'SEARCHQA'
+'"><svg data-qa-search-injection=1 onload=alert(1)>'
+
+Second list contains 1 additional elements.
+First extra element 1:
+'SEARCHQA'
+
+- ['SEARCHQA']
++ ['"><svg data-qa-search-injection=1 onload=alert(1)>', 'SEARCHQA']
+
+======================================================================
+FAIL: test_native_form_parameters_keep_status_sort_and_matching_records_all_locales (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_native_form_parameters_keep_status_sort_and_matching_records_all_locales) (model='Place', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 83, in test_native_form_parameters_keep_status_sort_and_matching_records_all_locales
+    self.assertEqual(params.getlist('status__exact'), ['published'])
+AssertionError: Lists differ: [] != ['published']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'published'
+
+- []
++ ['published']
+
+======================================================================
+FAIL: test_native_form_parameters_keep_status_sort_and_matching_records_all_locales (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_native_form_parameters_keep_status_sort_and_matching_records_all_locales) (model='Place', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 83, in test_native_form_parameters_keep_status_sort_and_matching_records_all_locales
+    self.assertEqual(params.getlist('status__exact'), ['published'])
+AssertionError: Lists differ: [] != ['published']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'published'
+
+- []
++ ['published']
+
+======================================================================
+FAIL: test_native_form_parameters_keep_status_sort_and_matching_records_all_locales (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_native_form_parameters_keep_status_sort_and_matching_records_all_locales) (model='Place', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 83, in test_native_form_parameters_keep_status_sort_and_matching_records_all_locales
+    self.assertEqual(params.getlist('status__exact'), ['published'])
+AssertionError: Lists differ: [] != ['published']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'published'
+
+- []
++ ['published']
+
+======================================================================
+FAIL: test_native_form_parameters_keep_status_sort_and_matching_records_all_locales (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_native_form_parameters_keep_status_sort_and_matching_records_all_locales) (model='Event', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 83, in test_native_form_parameters_keep_status_sort_and_matching_records_all_locales
+    self.assertEqual(params.getlist('status__exact'), ['published'])
+AssertionError: Lists differ: [] != ['published']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'published'
+
+- []
++ ['published']
+
+======================================================================
+FAIL: test_native_form_parameters_keep_status_sort_and_matching_records_all_locales (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_native_form_parameters_keep_status_sort_and_matching_records_all_locales) (model='Event', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 83, in test_native_form_parameters_keep_status_sort_and_matching_records_all_locales
+    self.assertEqual(params.getlist('status__exact'), ['published'])
+AssertionError: Lists differ: [] != ['published']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'published'
+
+- []
++ ['published']
+
+======================================================================
+FAIL: test_native_form_parameters_keep_status_sort_and_matching_records_all_locales (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_native_form_parameters_keep_status_sort_and_matching_records_all_locales) (model='Event', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 83, in test_native_form_parameters_keep_status_sort_and_matching_records_all_locales
+    self.assertEqual(params.getlist('status__exact'), ['published'])
+AssertionError: Lists differ: [] != ['published']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'published'
+
+- []
++ ['published']
+
+======================================================================
+FAIL: test_native_form_parameters_keep_status_sort_and_matching_records_all_locales (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_native_form_parameters_keep_status_sort_and_matching_records_all_locales) (model='Specialist', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 83, in test_native_form_parameters_keep_status_sort_and_matching_records_all_locales
+    self.assertEqual(params.getlist('status__exact'), ['published'])
+AssertionError: Lists differ: [] != ['published']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'published'
+
+- []
++ ['published']
+
+======================================================================
+FAIL: test_native_form_parameters_keep_status_sort_and_matching_records_all_locales (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_native_form_parameters_keep_status_sort_and_matching_records_all_locales) (model='Specialist', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 83, in test_native_form_parameters_keep_status_sort_and_matching_records_all_locales
+    self.assertEqual(params.getlist('status__exact'), ['published'])
+AssertionError: Lists differ: [] != ['published']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'published'
+
+- []
++ ['published']
+
+======================================================================
+FAIL: test_native_form_parameters_keep_status_sort_and_matching_records_all_locales (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_native_form_parameters_keep_status_sort_and_matching_records_all_locales) (model='Specialist', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 83, in test_native_form_parameters_keep_status_sort_and_matching_records_all_locales
+    self.assertEqual(params.getlist('status__exact'), ['published'])
+AssertionError: Lists differ: [] != ['published']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'published'
+
+- []
++ ['published']
+
+======================================================================
+FAIL: test_new_search_resets_pagination_without_losing_other_controls (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_new_search_resets_pagination_without_losing_other_controls) (model='Place')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 112, in test_new_search_resets_pagination_without_losing_other_controls
+    self.assertEqual(params.getlist('status__exact'), ['published'])
+AssertionError: Lists differ: [] != ['published']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'published'
+
+- []
++ ['published']
+
+======================================================================
+FAIL: test_new_search_resets_pagination_without_losing_other_controls (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_new_search_resets_pagination_without_losing_other_controls) (model='Event')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 112, in test_new_search_resets_pagination_without_losing_other_controls
+    self.assertEqual(params.getlist('status__exact'), ['published'])
+AssertionError: Lists differ: [] != ['published']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'published'
+
+- []
++ ['published']
+
+======================================================================
+FAIL: test_new_search_resets_pagination_without_losing_other_controls (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_new_search_resets_pagination_without_losing_other_controls) (model='Specialist')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 112, in test_new_search_resets_pagination_without_losing_other_controls
+    self.assertEqual(params.getlist('status__exact'), ['published'])
+AssertionError: Lists differ: [] != ['published']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'published'
+
+- []
++ ['published']
+
+======================================================================
+FAIL: test_repeated_supported_status_filter_values_survive_the_form (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_repeated_supported_status_filter_values_survive_the_form) (model='Place')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 96, in test_repeated_supported_status_filter_values_survive_the_form
+    self.assertEqual(params.getlist('status__exact'), ['published', 'draft'])
+AssertionError: Lists differ: [] != ['published', 'draft']
+
+Second list contains 2 additional elements.
+First extra element 0:
+'published'
+
+- []
++ ['published', 'draft']
+
+======================================================================
+FAIL: test_repeated_supported_status_filter_values_survive_the_form (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_repeated_supported_status_filter_values_survive_the_form) (model='Event')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 96, in test_repeated_supported_status_filter_values_survive_the_form
+    self.assertEqual(params.getlist('status__exact'), ['published', 'draft'])
+AssertionError: Lists differ: [] != ['published', 'draft']
+
+Second list contains 2 additional elements.
+First extra element 0:
+'published'
+
+- []
++ ['published', 'draft']
+
+======================================================================
+FAIL: test_repeated_supported_status_filter_values_survive_the_form (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_repeated_supported_status_filter_values_survive_the_form) (model='Specialist')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 96, in test_repeated_supported_status_filter_values_survive_the_form
+    self.assertEqual(params.getlist('status__exact'), ['published', 'draft'])
+AssertionError: Lists differ: [] != ['published', 'draft']
+
+Second list contains 2 additional elements.
+First extra element 0:
+'published'
+
+- []
++ ['published', 'draft']
+
+======================================================================
+FAIL: test_search_does_not_expand_permissions_or_mutate_domain_records (catalog.testcases.test_admin_queue_search_state.AdminQueueSearchStateTests.test_search_does_not_expand_permissions_or_mutate_domain_records)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_admin_queue_search_state.py", line 136, in test_search_does_not_expand_permissions_or_mutate_domain_records
+    self.assertEqual(self.ids(self.page(Event, params)), self.rows[Event][:2])
+AssertionError: Lists differ: [1, 2, 3] != [1, 2]
+
+First list contains 1 additional elements.
+First extra element 2:
+3
+
+- [1, 2, 3]
+?      ---
+
++ [1, 2]
+
+----------------------------------------------------------------------
+Ran 6 tests in 7.343s
+
+FAILED (failures=19)
+Destroying test database for alias 'default'...

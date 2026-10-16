@@ -1,0 +1,102 @@
+TAP version 13
+# Subtest: Delayed acknowledgement of A cannot clear B or claim B is saved
+not ok 1 - Delayed acknowledgement of A cannot clear B or claim B is saved
+  ---
+  duration_ms: 84.229625
+  location: '/home/ramin/kidsmap/scripts/test_organization_autosave.cjs:30:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Old success must not erase the latest local copy
+    
+    undefined !== 'B'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'B'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_organization_autosave.cjs:37:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: Queued edits coalesce to C while the previous request is pending
+not ok 2 - Queued edits coalesce to C while the previous request is pending
+  ---
+  duration_ms: 16.527549
+  location: '/home/ramin/kidsmap/scripts/test_organization_autosave.cjs:46:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Only A and the latest C should be submitted
+    
+    3 !== 2
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 2
+  actual: 3
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_organization_autosave.cjs:50:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: Another tab wins CAS:409 preserves the latest input and stops automatic overwrite
+not ok 3 - Another tab wins CAS:409 preserves the latest input and stops automatic overwrite
+  ---
+  duration_ms: 11.332551
+  location: '/home/ramin/kidsmap/scripts/test_organization_autosave.cjs:56:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Conflict must require a reload, not blind retry
+    
+    3 !== 1
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 3
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_organization_autosave.cjs:60:10)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: 403 or network failure retains input; an old failed response never clears newer edits
+ok 4 - 403 or network failure retains input; an old failed response never clears newer edits
+  ---
+  duration_ms: 19.883236
+  ...
+# Subtest: Server confirmation of unchanged input clears the matching local draft
+ok 5 - Server confirmation of unchanged input clears the matching local draft
+  ---
+  duration_ms: 11.9541
+  ...
+# Subtest: Unavailable browser storage does not turn an old response into confirmation of B
+not ok 6 - Unavailable browser storage does not turn an old response into confirmation of B
+  ---
+  duration_ms: 9.124462
+  location: '/home/ramin/kidsmap/scripts/test_organization_autosave.cjs:81:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected "actual" to be strictly unequal to:
+    
+    'Saved on server'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Saved on server'
+  actual: 'Saved on server'
+  operator: 'notStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/ramin/kidsmap/scripts/test_organization_autosave.cjs:84:58)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 2
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 638.908639

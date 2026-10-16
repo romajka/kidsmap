@@ -1,0 +1,150 @@
+TAP version 13
+# Subtest: Delayed acknowledgement of A cannot clear B or claim B is saved
+ok 1 - Delayed acknowledgement of A cannot clear B or claim B is saved
+  ---
+  duration_ms: 92.683535
+  ...
+# Subtest: Queued edits coalesce to C while the previous request is pending
+ok 2 - Queued edits coalesce to C while the previous request is pending
+  ---
+  duration_ms: 24.71387
+  ...
+# Subtest: Another tab wins CAS:409 preserves the latest input and stops automatic overwrite
+ok 3 - Another tab wins CAS:409 preserves the latest input and stops automatic overwrite
+  ---
+  duration_ms: 15.019032
+  ...
+# Subtest: 403 or network failure retains input; an old failed response never clears newer edits
+ok 4 - 403 or network failure retains input; an old failed response never clears newer edits
+  ---
+  duration_ms: 27.558396
+  ...
+# Subtest: Server confirmation of unchanged input clears the matching local draft
+ok 5 - Server confirmation of unchanged input clears the matching local draft
+  ---
+  duration_ms: 22.134813
+  ...
+# Subtest: Unavailable browser storage does not turn an old response into confirmation of B
+ok 6 - Unavailable browser storage does not turn an old response into confirmation of B
+  ---
+  duration_ms: 14.550075
+  ...
+# Subtest: Native submit keeps input for reopening after a failed network POST
+ok 7 - Native submit keeps input for reopening after a failed network POST
+  ---
+  duration_ms: 109.40894
+  ...
+# Subtest: Submit captures autofilled values even without an input event
+ok 8 - Submit captures autofilled values even without an input event
+  ---
+  duration_ms: 11.782579
+  ...
+# Subtest: Only confirmed creation of the matching input clears its local copy
+ok 9 - Only confirmed creation of the matching input clears its local copy
+  ---
+  duration_ms: 12.207881
+  ...
+# Subtest: Confirmation of older input cannot erase a newer local draft
+ok 10 - Confirmation of older input cannot erase a newer local draft
+  ---
+  duration_ms: 11.495135
+  ...
+# Subtest: A normal workspace visit without creation confirmation keeps the draft
+ok 11 - A normal workspace visit without creation confirmation keeps the draft
+  ---
+  duration_ms: 14.429534
+  ...
+# Subtest: 400/409 bound forms preserve local recovery without replacing server values
+ok 12 - 400/409 bound forms preserve local recovery without replacing server values
+  ---
+  duration_ms: 15.919491
+  ...
+# Subtest: Confirmation never clears another user draft
+ok 13 - Confirmation never clears another user draft
+  ---
+  duration_ms: 9.076597
+  ...
+# Subtest: Unavailable storage leaves native submission available
+ok 14 - Unavailable storage leaves native submission available
+  ---
+  duration_ms: 16.389585
+  ...
+# Subtest: current comparison shows server winner and retains the original browser copy
+ok 15 - current comparison shows server winner and retains the original browser copy
+  ---
+  duration_ms: 97.638198
+  ...
+# Subtest: ordinary GET still restores the existing local recovery
+ok 16 - ordinary GET still restores the existing local recovery
+  ---
+  duration_ms: 23.791728
+  ...
+# Subtest: bound invalid POST remains authoritative over older recovery values
+ok 17 - bound invalid POST remains authoritative over older recovery values
+  ---
+  duration_ms: 105.860427
+  ...
+# Subtest: fresh bound errors retain the posted input for reload without creating a server draft
+ok 18 - fresh bound errors retain the posted input for reload without creating a server draft
+  ---
+  duration_ms: 19.138457
+  ...
+# Subtest: error summary receives focus and its link focuses the rejected field
+ok 19 - error summary receives focus and its link focuses the rejected field
+  ---
+  duration_ms: 18.365868
+  ...
+# Subtest: a clean GET continues restoring the existing local recovery without focus theft
+ok 20 - a clean GET continues restoring the existing local recovery without focus theft
+  ---
+  duration_ms: 17.319799
+  ...
+# Subtest: success synchronizes default role and server list without replacing editor input
+ok 21 - success synchronizes default role and server list without replacing editor input
+  ---
+  duration_ms: 128.240051
+  ...
+# Subtest: in-flight keyboard or programmatic repeat makes one POST and announces loading
+ok 22 - in-flight keyboard or programmatic repeat makes one POST and announces loading
+  ---
+  duration_ms: 35.806945
+  ...
+# Subtest: 400 and403 preserve the complete submitted scope and release controls
+ok 23 - 400 and403 preserve the complete submitted scope and release controls
+  ---
+  duration_ms: 46.819911
+  ...
+# Subtest: duplicate409 preserves input and displays authoritative existing invitation
+ok 24 - duplicate409 preserves input and displays authoritative existing invitation
+  ---
+  duration_ms: 18.718048
+  ...
+# Subtest: confirmed POST with failed list read is distinguished and GET retry never sends again
+ok 25 - confirmed POST with failed list read is distinguished and GET retry never sends again
+  ---
+  duration_ms: 19.430216
+  ...
+# Subtest: lost POST response retains input and offers read-only verification without claiming refusal
+ok 26 - lost POST response retains input and offers read-only verification without claiming refusal
+  ---
+  duration_ms: 19.125553
+  ...
+# Subtest: initial disabled invitation becomes keyboard operable only with installed POST handler
+ok 27 - initial disabled invitation becomes keyboard operable only with installed POST handler
+  ---
+  duration_ms: 114.323351
+  ...
+# Subtest: failed invitation retains input and handler prevents native navigation
+ok 28 - failed invitation retains input and handler prevents native navigation
+  ---
+  duration_ms: 27.554374
+  ...
+1..28
+# tests 28
+# suites 0
+# pass 28
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 817.027472

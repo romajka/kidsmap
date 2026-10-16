@@ -1,0 +1,24 @@
+{
+  "rows": [
+    {
+      "id": "native resize closes row menu without JS error",
+      "model": "place",
+      "status": "PASS",
+      "closed": true,
+      "diagnostics": []
+    },
+    {
+      "id": "native resize closes row menu without JS error",
+      "model": "event",
+      "status": "FAIL",
+      "closed": true,
+      "diagnostics": [
+        "TypeError: Failed to execute 'contains' on 'Node': parameter 1 is not of type 'Node'."
+      ]
+    }
+  ],
+  "diagnostics": [
+    "TypeError: Failed to execute 'contains' on 'Node': parameter 1 is not of type 'Node'."
+  ],
+  "mode": "actual exact-approved JS, resize contract regression before refinement"
+}

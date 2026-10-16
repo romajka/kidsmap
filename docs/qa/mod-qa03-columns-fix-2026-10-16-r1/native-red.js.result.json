@@ -1,0 +1,157 @@
+{
+  "scope": "Fresh columns reproduction before approved patch",
+  "rows": [
+    {
+      "id": "native column toggle controls actual updated header",
+      "model": "place",
+      "lang": "ru",
+      "width": 1024,
+      "status": "PASS",
+      "targetCount": 1,
+      "headers": [
+        {
+          "classes": "djn-checkbox-select-all",
+          "text": ""
+        },
+        {
+          "classes": "sorting column-col_place km-th-sortable",
+          "text": "МЕСТО"
+        },
+        {
+          "classes": "column-col_location",
+          "text": "ЛОКАЦИЯ"
+        },
+        {
+          "classes": "column-col_state",
+          "text": "СОСТОЯНИЕ"
+        },
+        {
+          "classes": "column-col_marks",
+          "text": "\n                \n                  Метки\n                \n              "
+        },
+        {
+          "classes": "sorting column-col_updated km-th-sortable",
+          "text": "ОБНОВЛЕНО / СОЗДАНО\nОбновлено: новые"
+        },
+        {
+          "classes": "column-col_actions",
+          "text": "ДЕЙСТВИЯ"
+        }
+      ]
+    },
+    {
+      "id": "native column toggle controls actual updated header",
+      "model": "event",
+      "lang": "ru",
+      "width": 1024,
+      "status": "FAIL",
+      "targetCount": 0,
+      "headers": [
+        {
+          "classes": "djn-checkbox-select-all",
+          "text": ""
+        },
+        {
+          "classes": "",
+          "text": "НАЗВАНИЕ"
+        },
+        {
+          "classes": "sorting",
+          "text": "КАТЕГОРИЯ"
+        },
+        {
+          "classes": "sorting_asc",
+          "text": "НАЧАЛО МЕРОПРИЯТИЯ "
+        },
+        {
+          "classes": "sorting",
+          "text": "\n                            \n                                \n                                    Окончание мероприятия\n                                \n                                \n                            \n                        "
+        },
+        {
+          "classes": "sorting",
+          "text": "ВЛАДЕЛЕЦ МЕРОПРИЯТИЯ"
+        },
+        {
+          "classes": "",
+          "text": "СТАТУС"
+        },
+        {
+          "classes": "sorting",
+          "text": "ОБНОВЛЕНО"
+        },
+        {
+          "classes": "",
+          "text": ""
+        }
+      ]
+    },
+    {
+      "id": "native column toggle controls actual updated header",
+      "model": "specialist",
+      "lang": "ru",
+      "width": 1024,
+      "status": "FAIL",
+      "targetCount": 0,
+      "headers": [
+        {
+          "classes": "djn-checkbox-select-all",
+          "text": ""
+        },
+        {
+          "classes": "sorting",
+          "text": "ПРОФИЛЬ"
+        },
+        {
+          "classes": "",
+          "text": "НАПРАВЛЕНИЯ"
+        },
+        {
+          "classes": "sorting",
+          "text": "ВЛАДЕЛЕЦ ПРОФИЛЯ"
+        },
+        {
+          "classes": "sorting",
+          "text": "\n                            \n                                \n                                    Формат\n                                \n                                \n                            \n                        "
+        },
+        {
+          "classes": "sorting",
+          "text": "СТАТУС"
+        },
+        {
+          "classes": "",
+          "text": "ДОКУМЕНТЫ"
+        },
+        {
+          "classes": "sorting",
+          "text": "РЕЙТИНГ КРУЖКА"
+        },
+        {
+          "classes": "sorting",
+          "text": "UPDATED AT"
+        }
+      ]
+    }
+  ],
+  "before": {
+    "read_only": true,
+    "synthetic_only": true,
+    "counts": {
+      "places": 4,
+      "events": 3,
+      "specialists": 3
+    },
+    "domain_sha256": "4a3a290436ff9f5213025943272ab3ebcc57f5f10a1d34c3b4a30f1d194f01c1"
+  },
+  "after": {
+    "read_only": true,
+    "synthetic_only": true,
+    "counts": {
+      "places": 4,
+      "events": 3,
+      "specialists": 3
+    },
+    "domain_sha256": "4a3a290436ff9f5213025943272ab3ebcc57f5f10a1d34c3b4a30f1d194f01c1"
+  },
+  "domain_unchanged": true,
+  "complete": true
+}

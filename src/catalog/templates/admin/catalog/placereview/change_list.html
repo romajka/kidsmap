@@ -54,6 +54,7 @@
 {% endblock %}
 
 {% block result_list %}
+  {% if review_snapshot %}<input type="hidden" name="review_snapshot" value="{{ review_snapshot }}">{% endif %}
   <div class="col-12 p-0">
     <div class="place-admin-dashboard km-admin-root">
       {% if action_form and actions_on_top and cl.show_admin_actions %}

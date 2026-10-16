@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/docs/qa/access-qa01-recheck-2026-10-14-r1/verify.py", line 40, in <module>
+    assert not changed and not missing and head==entry['head'] and branch==entry['branch'] and active==entry['active_run'] and runtime_match and all(r['identity_unchanged']for r in processes) and all(r['preserved']for r in container_rows)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

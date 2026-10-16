@@ -1,0 +1,493 @@
+{
+  "decision": "MENU SUPPLEMENT scoped LOCAL PASS / MOD-QA-03 OPEN; sort scope approval pending",
+  "finalization_date": "2026-10-16",
+  "evidence_date": "2026-10-15",
+  "closed_ids": [],
+  "approved_app_changes": [
+    "static/admin/js/kidsmap_place_changelist.js"
+  ],
+  "checks": [
+    {
+      "name": "same_root_HEAD_branch_active_NONE",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "fresh_full_snapshot_only_approved_JS_and_own_status_guide_changed",
+      "status": "PASS",
+      "detail": {
+        "baseline": 31777,
+        "unchanged": 31775,
+        "changed": [
+          "docs/qa/continuation-and-repair-prompts-2026-10-11.md",
+          "static/admin/js/kidsmap_place_changelist.js"
+        ],
+        "missing": []
+      }
+    },
+    {
+      "name": "prior_CSS_preserved",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "current_JS_matches_final_native_tested_source",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "prior_JS_regions_preserved_only_expected5lines_replaced",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "guide_original_bytes_recover_by_removing_only_own_note_link",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "previous_dirty_entries_retained",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "70entry_containers_identity_state_ports",
+      "status": "NOT VERIFIED",
+      "detail": [
+        {
+          "name": "mod-qa03-fix-2026-10-15-r1-pg",
+          "same": false
+        },
+        {
+          "name": "mod-qa03-recheck-2026-10-15-r1-pg",
+          "same": false
+        },
+        {
+          "name": "mod-qa02-fix-2026-10-15-r1-pg",
+          "same": false
+        },
+        {
+          "name": "mod-qa02-recheck-2026-10-15-r1-pg",
+          "same": false
+        },
+        {
+          "name": "mod-qa01-fix-2026-10-15-r1-pg",
+          "same": false
+        },
+        {
+          "name": "mod-qa01-recheck-2026-10-15-r1-pg",
+          "same": false
+        },
+        {
+          "name": "access-qa06-fix-2026-10-15-r1-pg",
+          "same": false
+        },
+        {
+          "name": "module07-full-2026-10-15-r1-pg",
+          "same": false
+        },
+        {
+          "name": "access-qa05-fix-2026-10-15-r1-pg",
+          "same": false
+        },
+        {
+          "name": "access-qa05-recheck-2026-10-15-r1-pg",
+          "same": false
+        },
+        {
+          "name": "access-qa04-fix-2026-10-15-r1-pg",
+          "same": false
+        },
+        {
+          "name": "access-qa04-recheck-2026-10-15-r1-pg",
+          "same": false
+        },
+        {
+          "name": "access-qa02-fix-2026-10-15-r1-pg",
+          "same": false
+        },
+        {
+          "name": "access-qa02-recheck-2026-10-15-r1-pg",
+          "same": true
+        },
+        {
+          "name": "access-qa01-fix-2026-10-14-r1-pg",
+          "same": true
+        },
+        {
+          "name": "access-qa01-recheck-2026-10-14-r1-pg",
+          "same": true
+        },
+        {
+          "name": "module06-full-2026-10-14-r1-pg",
+          "same": true
+        },
+        {
+          "name": "ownership-preview-fix-2026-10-14-pg",
+          "same": true
+        },
+        {
+          "name": "module05-full-2026-10-14-r1-pg",
+          "same": true
+        },
+        {
+          "name": "offer-qa09-fix-2026-10-14-r1-pg",
+          "same": true
+        },
+        {
+          "name": "offer-qa09-recheck-2026-10-14-r1-pg",
+          "same": true
+        },
+        {
+          "name": "offer-qa08-fix-2026-10-14-r1-pg",
+          "same": true
+        },
+        {
+          "name": "offer-qa08-recheck-2026-10-14-r1-pg",
+          "same": true
+        },
+        {
+          "name": "offer-qa07-fix-2026-10-14-r1-pg",
+          "same": true
+        },
+        {
+          "name": "offer-qa06-fix-2026-10-14-r1-pg",
+          "same": true
+        },
+        {
+          "name": "offer-qa05-fix-2026-10-14-r1-pg",
+          "same": true
+        },
+        {
+          "name": "offer-qa04-fix-2026-10-13-r1-pg",
+          "same": true
+        },
+        {
+          "name": "offer-qa03-fix-2026-10-13-r1-pg",
+          "same": true
+        },
+        {
+          "name": "offer-qa02-fix-2026-10-13-r1-pg",
+          "same": true
+        },
+        {
+          "name": "offer-qa01-fix-2026-10-13-r1-pg",
+          "same": true
+        },
+        {
+          "name": "offer-qa01-recheck-2026-10-13-r1-pg",
+          "same": true
+        },
+        {
+          "name": "module04-recheck-2026-10-13-r1-pg",
+          "same": true
+        },
+        {
+          "name": "module03-spec-fix-2026-10-13-r1-pg",
+          "same": true
+        },
+        {
+          "name": "module02-remaining-recheck-2026-10-13-r1-pg",
+          "same": true
+        },
+        {
+          "name": "start-local-2026-10-12-r1-pg",
+          "same": true
+        },
+        {
+          "name": "kidsmap-place-acceptance-20261009-8792",
+          "same": true
+        },
+        {
+          "name": "kidsmap-reacceptance-20261009",
+          "same": true
+        },
+        {
+          "name": "kidsmap-content-final-tests-20261007",
+          "same": true
+        },
+        {
+          "name": "kidsmap-content-entry-final-20261007",
+          "same": true
+        },
+        {
+          "name": "kidsmap-owner-event-implementation-20261007",
+          "same": true
+        },
+        {
+          "name": "kidsmap-specialist-implementation-20261007",
+          "same": true
+        },
+        {
+          "name": "kidsmap-organization-implementation-20261007",
+          "same": true
+        },
+        {
+          "name": "kidsmap-place-form-implementation-20261007",
+          "same": true
+        },
+        {
+          "name": "kidsmap-content-acceptance-20261007",
+          "same": true
+        },
+        {
+          "name": "kidsmap-local-20261006",
+          "same": true
+        },
+        {
+          "name": "kidsmap-manual-portable",
+          "same": true
+        },
+        {
+          "name": "kidsmap-task33-qa04-8fcda7d9daf6",
+          "same": true
+        },
+        {
+          "name": "kidsmap-task33-qa04-d4f1a67d2819",
+          "same": true
+        },
+        {
+          "name": "kidsmap-task33-qa04-f890615f5675",
+          "same": true
+        },
+        {
+          "name": "kidsmap-task33-qa04-878728676e88",
+          "same": true
+        },
+        {
+          "name": "kidsmap-task33-qa04-ac8c0b16610f",
+          "same": true
+        },
+        {
+          "name": "kidsmap-task33-qa04-75cec7ded7c2",
+          "same": true
+        },
+        {
+          "name": "kidsmap-task33-qa04-54cde58a792c",
+          "same": true
+        },
+        {
+          "name": "kidsmap-task33-qa04-6edd1165da69",
+          "same": true
+        },
+        {
+          "name": "kidsmap-task33-qa04-222a7dc38aa9",
+          "same": true
+        },
+        {
+          "name": "oxu_nginx",
+          "same": true
+        },
+        {
+          "name": "hyperf",
+          "same": true
+        },
+        {
+          "name": "oxu_phpmyadmin",
+          "same": true
+        },
+        {
+          "name": "oxu_hyperf_static",
+          "same": true
+        },
+        {
+          "name": "elasticsearch",
+          "same": true
+        },
+        {
+          "name": "database",
+          "same": true
+        },
+        {
+          "name": "oxu_php_fpm",
+          "same": true
+        },
+        {
+          "name": "redis",
+          "same": true
+        },
+        {
+          "name": "kidsmap-latest-browser-db",
+          "same": true
+        },
+        {
+          "name": "kidsmap-url-test-db",
+          "same": true
+        },
+        {
+          "name": "kidsmap-pg-cutover-test-20260722",
+          "same": true
+        },
+        {
+          "name": "kidsmap-postgres",
+          "same": true
+        },
+        {
+          "name": "kidsmap-redis",
+          "same": true
+        },
+        {
+          "name": "kidsmap-web",
+          "same": true
+        },
+        {
+          "name": "kidsmap-db",
+          "same": true
+        }
+      ]
+    },
+    {
+      "name": "entry_HTTP_continuity",
+      "status": "NOT VERIFIED",
+      "detail": [
+        {
+          "pid": 711181,
+          "status": "NOT VERIFIED",
+          "reason": "PID absent after turn interruption; no foreign restart issued, preservation not claimed"
+        }
+      ]
+    },
+    {
+      "name": "own_HTTP_live_after_last_interruption",
+      "status": "NOT VERIFIED",
+      "detail": {
+        "pid": 774118,
+        "exists": false,
+        "restarted_after_final_interruption": false
+      }
+    },
+    {
+      "name": "953source_bytes_still_match_recorded_verified_runtime",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "testing_no_env_and_sole_own_LOCALE_PATHS",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "actual3own_project_MO_opened",
+      "status": "PASS",
+      "detail": {
+        "own_count": 3,
+        "all_opened_count": 22
+      }
+    },
+    {
+      "name": "fresh_meaningful_RED5retained",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "final_keyboard_edge21PASS",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "three_actual_locales_1191PASS_complete_checkpoints",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "140shared_controlsPASS",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "no_local_network_console_or_page_errors_in_final_acceptance",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "all_synthetic_domain_fingerprints_unchanged",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "sorting_source_FAILs_retained_OPEN_no_backend_patch",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "PNG_evidence_valid_and_actual_matrix192frames",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "name": "own_Python_evidence_scripts_parse",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "name": "current_JS_syntax",
+      "status": "PASS",
+      "detail": {
+        "argv": [
+          "node",
+          "--check",
+          "/home/ramin/kidsmap/static/admin/js/kidsmap_place_changelist.js"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "name": "git_diff_check",
+      "status": "PASS",
+      "detail": {
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "name": "no_own_secret_values_in_repo_artifacts",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "name": "report_plan_links_exist",
+      "status": "PASS",
+      "detail": []
+    }
+  ],
+  "check_counts": {
+    "PASS": 23,
+    "NOT VERIFIED": 3
+  },
+  "native_counts": {
+    "RED": {
+      "PASS": 7,
+      "FAIL": 5
+    },
+    "matrix": {
+      "PASS": 1191
+    },
+    "edge": {
+      "PASS": 21
+    },
+    "shared_place": {
+      "PASS": 79
+    },
+    "shared_specialist": {
+      "PASS": 61
+    },
+    "accepted_total_PASS": 1352,
+    "OPEN_sorting": {
+      "FAIL": 2
+    }
+  },
+  "boundary_counts": {
+    "matrix": 21,
+    "shared_specialist": 12
+  },
+  "PNG_count": 266,
+  "runtime_live_now": false,
+  "no_commit_push_deploy_production": true,
+  "exit": 0
+}

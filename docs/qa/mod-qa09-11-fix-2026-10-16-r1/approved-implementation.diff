@@ -1,0 +1,172 @@
+--- a/locale/az/LC_MESSAGES/django.po
++++ b/locale/az/LC_MESSAGES/django.po
+@@ -4291,7 +4291,6 @@
+ msgstr "Admin panel"
+ 
+ #: src/catalog/domain_admin/place.py:3122
+-#, fuzzy
+ #| msgid "Создано"
+ msgid "создано"
+ msgstr "Yaradılıb"
+@@ -13276,11 +13275,11 @@
+ msgstr "Məlumat keyfiyyəti"
+ 
+ #: src/catalog/templates/admin/catalog/includes/km_changelist_search_panel.html:321
+-#, fuzzy, python-format
++#, python-format
+ #| msgid "Найден %(total)s кружок"
+ #| msgid_plural "Найдено %(total)s кружков"
+ msgid "Найдено %(count)s карточек"
+-msgstr "%(total)s dərnək tapıldı"
++msgstr "%(count)s kart tapıldı"
+ 
+ #: src/catalog/templates/admin/catalog/includes/km_changelist_search_panel.html:328
+ #: src/catalog/templates/catalog/place_list.html:565
+--- a/locale/en/LC_MESSAGES/django.po
++++ b/locale/en/LC_MESSAGES/django.po
+@@ -4269,7 +4269,6 @@
+ msgstr "Admin panel"
+ 
+ #: src/catalog/domain_admin/place.py:3122
+-#, fuzzy
+ #| msgid "Создано"
+ msgid "создано"
+ msgstr "Created"
+@@ -13212,11 +13211,11 @@
+ msgstr "Data quality"
+ 
+ #: src/catalog/templates/admin/catalog/includes/km_changelist_search_panel.html:321
+-#, fuzzy, python-format
++#, python-format
+ #| msgid "Найден %(total)s кружок"
+ #| msgid_plural "Найдено %(total)s кружков"
+ msgid "Найдено %(count)s карточек"
+-msgstr "%(total)s club found"
++msgstr "Listings found: %(count)s"
+ 
+ #: src/catalog/templates/admin/catalog/includes/km_changelist_search_panel.html:328
+ #: src/catalog/templates/catalog/place_list.html:565
+--- a/static/admin/js/kidsmap_place_changelist.js
++++ b/static/admin/js/kidsmap_place_changelist.js
+@@ -634,7 +634,7 @@
+           if (triggerIcon) setIcon(triggerIcon, "progress_activity");
+ 
+           var _loadingToast = window.kmToast
+-            ? window.kmToast.info(unpublish ? 'Снятие с публикации...' : 'Публикация карточки...', { duration: 0 })
++            ? window.kmToast.info(unpublish ? (labels.publicationUnpublishLoading || 'Снятие с публикации...') : (labels.publicationPublishLoading || 'Публикация карточки...'), { duration: 0 })
+             : null;
+ 
+           fetch(togglePubUrl, {
+@@ -652,9 +652,9 @@
+                 updatePublicationRow(trigger, data);
+                 if (window.kmToast) {
+                   if (unpublish) {
+-                    window.kmToast.warning('«' + placeName + '» переведена в черновики.');
++                    window.kmToast.warning((labels.publicationUnpublishSuccess || '«%(name)s» переведена в черновики.').replace('%(name)s', function () { return placeName; }));
+                   } else {
+-                    window.kmToast.success('«' + placeName + '» опубликована и видна на сайте.');
++                    window.kmToast.success((labels.publicationPublishSuccess || '«%(name)s» опубликована и видна на сайте.').replace('%(name)s', function () { return placeName; }));
+                   }
+                 } else {
+                   showToast(data.message);
+--- a/src/catalog/templates/admin/catalog/place/change_list.html
++++ b/src/catalog/templates/admin/catalog/place/change_list.html
+@@ -267,6 +267,10 @@
+       data-unpublish-confirm="{% translate 'Да, снять' %}"
+       data-unpublish-cancel="{% translate 'Отмена' %}"
+       data-unpublish-fallback="{% blocktranslate with name='%(name)s' %}Снять карточку «{{ name }}» с публикации?{% endblocktranslate %}"
++      data-publication-unpublish-loading="{% translate 'Снятие с публикации...' %}"
++      data-publication-publish-loading="{% translate 'Публикация карточки...' %}"
++      data-publication-unpublish-success="{% blocktranslate with name='%(name)s' %}«{{ name }}» переведена в черновики.{% endblocktranslate %}"
++      data-publication-publish-success="{% blocktranslate with name='%(name)s' %}«{{ name }}» опубликована и видна на сайте.{% endblocktranslate %}"
+       data-selected-label="{% translate 'Выбрано' %}"
+       data-readiness-label="{% translate 'Готовность' %}"
+       data-items-label="{% translate 'пунктов' %}"
+--- a/locale/ru/LC_MESSAGES/django.po
++++ b/locale/ru/LC_MESSAGES/django.po
+@@ -20903,3 +20903,21 @@
+ #, python-format
+ msgid "Снять карточку «%(name)s» с публикации?"
+ msgstr "Снять карточку «%(name)s» с публикации?"
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Снятие с публикации..."
++msgstr "Снятие с публикации..."
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Публикация карточки..."
++msgstr "Публикация карточки..."
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "«%(name)s» переведена в черновики."
++msgstr "«%(name)s» переведена в черновики."
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "«%(name)s» опубликована и видна на сайте."
++msgstr "«%(name)s» опубликована и видна на сайте."
+--- a/locale/az/LC_MESSAGES/django.po
++++ b/locale/az/LC_MESSAGES/django.po
+@@ -23467,3 +23467,21 @@
+ #, python-format
+ msgid "Снять карточку «%(name)s» с публикации?"
+ msgstr "«%(name)s» kartı nəşrdən çıxarılsın?"
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Снятие с публикации..."
++msgstr "Nəşrdən çıxarılır..."
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Публикация карточки..."
++msgstr "Kart dərc olunur..."
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "«%(name)s» переведена в черновики."
++msgstr "«%(name)s» qaralamalara keçirildi."
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "«%(name)s» опубликована и видна на сайте."
++msgstr "«%(name)s» dərc olundu və saytda görünür."
+--- a/locale/en/LC_MESSAGES/django.po
++++ b/locale/en/LC_MESSAGES/django.po
+@@ -23321,3 +23321,21 @@
+ #, python-format
+ msgid "Снять карточку «%(name)s» с публикации?"
+ msgstr "Unpublish the “%(name)s” listing?"
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Снятие с публикации..."
++msgstr "Unpublishing..."
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++msgid "Публикация карточки..."
++msgstr "Publishing listing..."
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "«%(name)s» переведена в черновики."
++msgstr "“%(name)s” moved to drafts."
++
++#: src/catalog/templates/admin/catalog/place/change_list.html
++#, python-format
++msgid "«%(name)s» опубликована и видна на сайте."
++msgstr "“%(name)s” is published and visible on the site."
+--- a/src/catalog/templates/admin/volunteer/hub_detail.html
++++ b/src/catalog/templates/admin/volunteer/hub_detail.html
+@@ -16,5 +16,13 @@
+ {% empty %}<tr><td colspan="3">{% translate "Новых полей нет." %}</td></tr>{% endfor %}
+ </tbody></table></div>
+ {% if row.affected_branches %}<h2>{% translate "Затронутые филиалы" %}</h2><ul>{% for place_id in row.affected_branches %}<li>{% translate "Место" %} #{{ place_id }}</li>{% endfor %}</ul>{% endif %}
++{% if row.source == 'content' and row.revision.review_note %}
++{% if row.status == 'approved' or row.status == 'declined' or row.status == 'rejected' %}
++<section class="km-volunteer-field" aria-labelledby="km-hub-decision-note-title">
++<h2 id="km-hub-decision-note-title">{% translate "Причина решения" %}</h2>
++<p>{{ row.revision.review_note|linebreaksbr }}</p>
++</section>
++{% endif %}
++{% endif %}
+ {% if row.status == 'pending' %}<form method="post">{% csrf_token %}<input type="hidden" name="version" value="{{ row.version }}"><label for="hub-reason">{% translate "Причина решения" %}</label><textarea id="hub-reason" name="reason" rows="3" required aria-describedby="hub-reason-help"></textarea><p id="hub-reason-help">{% translate "Причина обязательна для любого решения." %}</p><div class="km-volunteer-actions"><button class="btn btn-success" name="action" value="approve" type="submit"{% if row.conflict %} disabled aria-describedby="hub-conflict-help"{% endif %}>{% translate "Одобрить" %}</button><button class="btn btn-outline-secondary" name="action" value="return" type="submit">{% translate "Вернуть на доработку" %}</button><button class="btn btn-danger" name="action" value="reject" type="submit">{% translate "Отклонить" %}</button></div>{% if row.conflict %}<p id="hub-conflict-help">{% translate "Одобрение недоступно из-за конфликта версии." %}</p>{% endif %}</form>{% endif %}
+ {% endblock %}

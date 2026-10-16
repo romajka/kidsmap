@@ -1,0 +1,77 @@
+{
+  "pid": 214822,
+  "root": "/home/ramin/kidsmap",
+  "testing": true,
+  "startup_matches_disk": true,
+  "source": {
+    "src/catalog/views.py": "c6240b7cffb29d9908e7f45400ab276833b9a8f963b470b9b848df0fcb9b495c",
+    "src/catalog/forms.py": "52ada722540b023ec8f6ac72c25d391ea247f78128325576a9147e8680a06d90",
+    "src/catalog/services/account_deletion.py": "2034fb64e7ca5a7d489b0424dda7b3a6ed6ea590042c3c83522cfd85fa94421a",
+    "src/catalog/controllers/auth_controller.py": "14a861842905ec8ad10a52d9efe31954f4aca5be86e699bcef4fed11ee643428",
+    "src/catalog/templates/pages/account_deletion_request.html": "3c4d1d4e489439dfb04d202259a9fdd3189e6a23c9c81208da7caccd03d3230e",
+    "src/catalog/templates/pages/account_deletion_confirm.html": "30cfdefb3f97082fea4eadd5e61b977296a5a0994db61d8eee821d3c0d12baa0",
+    "src/catalog/templates/pages/account_deletion_cancel.html": "7866532b64a8bc70931c580bd87d668362ae2342b1facd60f2107e287a31f1cb",
+    "src/catalog/templates/pages/account_deletion_status.html": "a3e89dab2341346c4aef4a5d31d09d0fae878c87077e913aac00cc6ebcacf420",
+    "src/catalog/templates/base.html": "f73419084a89f92ac4173be65bdb33ce4fefda8e451a6aa87aab6133e6fbc820",
+    "src/catalog/urls.py": "985acb641fbdf95c95445397da741938b6fbd3dbfa685330267893d6c0a54620",
+    "src/config/settings.py": "229f2d0bb63d35e8b1323ad67fd3603462726b42ac731e7452aa9d1f3ee4ef2e",
+    "src/catalog/testcases/test_account_deletion.py": "b0edfc172519d09c23cf5b73fac400ba2679df8c737ef2ed22a7ca7f1e657cf4",
+    "static/css/site.css": "ded551a9444ce50acfa4408a8c4a60072515353ed12d3158412d2f5576d38158",
+    "static/css/pages/account_profile.css": "7a13d5e28a878c4925b9b21998ed34e2128ae47b2ae1ab2f11182b740cb183ea",
+    "locale/az/LC_MESSAGES/django.po": "e8d841df1a61627e3419f67832cb8cd4a3cf4e3bad4568e50f3b843a52a7c448",
+    "locale/en/LC_MESSAGES/django.po": "fe833e468ff0b5b01ffd3e522d55f629337c76c2666e0b928a8022ce768d2820",
+    "locale/ru/LC_MESSAGES/django.po": "6cf9a518fecbf0f3f992881259ab8c23b3288080c810195b778997af4df5121c"
+  },
+  "loaded_module_paths": {
+    "views": "/home/ramin/kidsmap/src/catalog/views.py",
+    "service": "/home/ramin/kidsmap/src/catalog/services/account_deletion.py"
+  },
+  "template_origin": "/home/ramin/kidsmap/src/catalog/templates/pages/account_deletion_confirm.html",
+  "loaded_template_sha256": "30cfdefb3f97082fea4eadd5e61b977296a5a0994db61d8eee821d3c0d12baa0",
+  "sole_locale_paths": [
+    "/home/ramin/kidsmap/.tmp/access-qa05-fix-2026-10-15-r1/locales/locale"
+  ],
+  "cache": "django.core.cache.backends.locmem.LocMemCache",
+  "email_backend": "django.core.mail.backends.filebased.EmailBackend",
+  "env_loaded": false,
+  "egress": "only own PostgreSQL",
+  "policy": "SIMULATED TEST_POLICY",
+  "translations": {
+    "ru": {
+      "\u041d\u0435\u0432\u0435\u0440\u043d\u044b\u0439 \u043a\u043e\u0434 \u043f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u0438\u044f.": "\u041d\u0435\u0432\u0435\u0440\u043d\u044b\u0439 \u043a\u043e\u0434 \u043f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u0438\u044f.",
+      "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0444\u0440\u0430\u0437\u0443 \u043f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u0438\u044f \u0442\u043e\u0447\u043d\u043e \u0442\u0430\u043a, \u043a\u0430\u043a \u043e\u043d\u0430 \u043f\u043e\u043a\u0430\u0437\u0430\u043d\u0430.": "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0444\u0440\u0430\u0437\u0443 \u043f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u0438\u044f \u0442\u043e\u0447\u043d\u043e \u0442\u0430\u043a, \u043a\u0430\u043a \u043e\u043d\u0430 \u043f\u043e\u043a\u0430\u0437\u0430\u043d\u0430."
+    },
+    "az": {
+      "\u041d\u0435\u0432\u0435\u0440\u043d\u044b\u0439 \u043a\u043e\u0434 \u043f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u0438\u044f.": "Yanl\u0131\u015f t\u0259sdiq kodu.",
+      "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0444\u0440\u0430\u0437\u0443 \u043f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u0438\u044f \u0442\u043e\u0447\u043d\u043e \u0442\u0430\u043a, \u043a\u0430\u043a \u043e\u043d\u0430 \u043f\u043e\u043a\u0430\u0437\u0430\u043d\u0430.": "T\u0259sdiq ifad\u0259sini g\u00f6st\u0259rildiyi kimi d\u0259qiq daxil edin."
+    },
+    "en": {
+      "\u041d\u0435\u0432\u0435\u0440\u043d\u044b\u0439 \u043a\u043e\u0434 \u043f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u0438\u044f.": "Invalid confirmation code.",
+      "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0444\u0440\u0430\u0437\u0443 \u043f\u043e\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043d\u0438\u044f \u0442\u043e\u0447\u043d\u043e \u0442\u0430\u043a, \u043a\u0430\u043a \u043e\u043d\u0430 \u043f\u043e\u043a\u0430\u0437\u0430\u043d\u0430.": "Enter the confirmation phrase exactly as shown."
+    }
+  },
+  "actual_opened_MO": [
+    "/home/ramin/kidsmap/.tmp/access-qa05-fix-2026-10-15-r1/locales/locale/az/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.tmp/access-qa05-fix-2026-10-15-r1/locales/locale/en/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.tmp/access-qa05-fix-2026-10-15-r1/locales/locale/ru/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/allauth/locale/az/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/allauth/locale/en/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/allauth/locale/ru/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/conf/locale/az/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/conf/locale/en/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/conf/locale/ru/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/contrib/admin/locale/az/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/contrib/admin/locale/en/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/contrib/admin/locale/ru/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/contrib/auth/locale/az/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/contrib/auth/locale/en/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/contrib/auth/locale/ru/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/contrib/contenttypes/locale/az/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/contrib/contenttypes/locale/en/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/contrib/contenttypes/locale/ru/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/contrib/sessions/locale/az/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/contrib/sessions/locale/en/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/contrib/sessions/locale/ru/LC_MESSAGES/django.mo",
+    "/home/ramin/kidsmap/.venv/lib/python3.12/site-packages/jazzmin/locale/ru/LC_MESSAGES/django.mo"
+  ]
+}

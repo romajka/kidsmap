@@ -1,0 +1,17 @@
+Found 1 test(s).
+System check identified no issues (0 silenced).
+Creating test database for alias 'default'...
+F
+======================================================================
+FAIL: test_group_removal_waits_for_approval_and_retains_history (catalog.testcases.test_offer_qa01_group_removal.ApprovedGroupRemovalTests.test_group_removal_waits_for_approval_and_retains_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_offer_qa01_group_removal.py", line 73, in test_group_removal_waits_for_approval_and_retains_history
+    self.assertIsNotNone(self.other.archived_at)
+AssertionError: unexpectedly None
+
+----------------------------------------------------------------------
+Ran 1 test in 0.501s
+
+FAILED (failures=1)
+Destroying test database for alias 'default'...

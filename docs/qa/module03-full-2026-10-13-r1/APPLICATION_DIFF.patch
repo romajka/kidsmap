@@ -1,0 +1,659 @@
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -4,6 +4,7 @@
+ django-allauth[socialaccount]==65.19.2
+ django-jazzmin==3.0.1
+ Pillow==11.3.0
++pypdf==6.20.1
+ pillow-heif==1.5.0
+ google-analytics-data==0.21.0
+ gunicorn==23.0.0
+--- a/src/catalog/services/specialist_documents.py
++++ b/src/catalog/services/specialist_documents.py
+@@ -59,6 +59,8 @@
+     suffix = Path(uploaded_file.name).suffix.lower()
+     if suffix not in {'.pdf', '.png', '.jpg', '.jpeg'}:
+         raise ValidationError('Use PDF, PNG or JPEG')
++    from catalog.services.specialist_document_validation import validate_document_upload
++    validate_document_upload(uploaded_file)
+     with transaction.atomic():
+         from django.contrib.auth import get_user_model
+         actor = get_user_model().objects.select_for_update().get(pk=actor.pk)
+--- /dev/null
++++ b/src/catalog/services/specialist_document_validation.py
+@@ -0,0 +1,36 @@
++"""Bounded structural validation of documents before private storage writes."""
++import os
++from pathlib import Path
++import subprocess
++import sys
++
++from django.core.exceptions import ValidationError
++from django.utils.translation import gettext_lazy as _
++
++
++def validate_document_upload(uploaded_file):
++    """Preserve original bytes and rewind the stream for subsequent storage."""
++    invalid = _("Документ повреждён или его содержимое не соответствует формату. Выберите исправный PDF, PNG или JPEG.")
++    unavailable = _("Не удалось безопасно проверить документ. Выберите файл меньшего размера или разрешения.")
++    try:
++        uploaded_file.seek(0)
++        data = uploaded_file.read(10 * 1024 * 1024 + 1)
++        if not data or len(data) > 10 * 1024 * 1024:
++            raise ValidationError(invalid, code='invalid_document')
++        suffix = Path(uploaded_file.name).suffix.lower()
++        try:
++            result = subprocess.run(
++                [sys.executable, str(Path(__file__).with_name('specialist_document_probe.py')), suffix],
++                input=data, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
++                timeout=5, check=False,
++                env={'PATH': os.defpath, 'PYTHONNOUSERSITE': '1', 'PYTHONDONTWRITEBYTECODE': '1'},
++            )
++        except (OSError, subprocess.TimeoutExpired):
++            raise ValidationError(unavailable, code='invalid_document') from None
++        if result.returncode != 0 or result.stdout != b'valid\n':
++            message = (_("PDF защищён паролем. Загрузите документ без пароля.")
++                       if result.stdout == b'encrypted\n' else
++                       unavailable if result.stdout == b'unavailable\n' or result.returncode != 0 else invalid)
++            raise ValidationError(message, code='invalid_document')
++    finally:
++        uploaded_file.seek(0)
+--- /dev/null
++++ b/src/catalog/services/specialist_document_probe.py
+@@ -0,0 +1,66 @@
++"""Standalone parser worker: no Django, DB, file writes or content diagnostics."""
++import sys
++
++
++def probe(data, suffix):
++    from io import BytesIO
++    import math
++    import warnings
++
++    if suffix in {'.png', '.jpg', '.jpeg'}:
++        from PIL import Image
++        expected = 'PNG' if suffix == '.png' else 'JPEG'
++        with warnings.catch_warnings():
++            warnings.simplefilter('error', Image.DecompressionBombWarning)
++            with Image.open(BytesIO(data)) as image:
++                if (image.format != expected or image.width * image.height > 50_000_000
++                        or max(image.size) > 12000):
++                    return 'invalid'
++                image.verify()
++            with Image.open(BytesIO(data)) as image:
++                image.load()
++        return 'valid'
++    if suffix == '.pdf':
++        from pypdf import PdfReader
++        from pypdf.generic import ContentStream
++        reader = PdfReader(BytesIO(data), strict=True)
++        if reader.is_encrypted:
++            return 'encrypted'
++        if not reader.pages:
++            return 'invalid'
++        for page in reader.pages:
++            box = page.mediabox
++            if (not all(math.isfinite(float(value)) for value in box)
++                    or float(box.width) <= 0 or float(box.height) <= 0):
++                return 'invalid'
++            contents = page.get('/Contents')
++            if contents is not None:
++                # Parsing operators is structural validation, never execution/rendering.
++                ContentStream(contents.get_object(), reader).operations
++        return 'valid'
++    return 'invalid'
++
++
++def main():
++    # Apply limits in this fresh child, never preexec_fn in threaded Django.
++    try:
++        import resource
++        resource.setrlimit(resource.RLIMIT_AS, (512 * 1024 * 1024, 512 * 1024 * 1024))
++        resource.setrlimit(resource.RLIMIT_CPU, (3, 3))
++    except (ImportError, AttributeError, OSError, ValueError):
++        print('unavailable')
++        return
++    try:
++        data = sys.stdin.buffer.read(10 * 1024 * 1024 + 1)
++        result = probe(data, sys.argv[1]) if 0 < len(data) <= 10 * 1024 * 1024 else 'invalid'
++    except ImportError:
++        result = 'unavailable'
++    except MemoryError:
++        result = 'unavailable'
++    except Exception:
++        result = 'invalid'
++    print(result)
++
++
++if __name__ == '__main__':
++    main()
+--- a/src/catalog/controllers/specialist_workspace.py
++++ b/src/catalog/controllers/specialist_workspace.py
+@@ -479,6 +479,8 @@
+             else:
+                 raise ValidationError(_("Неизвестное действие."))
+         except ValidationError as exc:
++            if action == 'upload' and getattr(exc, 'code', '') == 'invalid_document':
++                form.add_error('file', exc)
+             error = _error_context(exc); status = _error_status(exc)
+     return render(request, 'pages/specialist_workspace.html', _context(request, mode='certificates',
+         specialist=person, upload_form=form, documents=_document_cards(person.documents.all(), actor, True),
+--- a/src/catalog/forms.py
++++ b/src/catalog/forms.py
+@@ -2362,6 +2362,7 @@
+                 field.required = field_name in required
+ 
+     def clean(self):
++        from django.db.models.fields.files import FieldFile
+         cleaned = super().clean()
+         if self.locations is not None:
+             self.locations.instance.consultation_format=cleaned.get('consultation_format') or Specialist.FORMAT_ONLINE
+@@ -2369,7 +2370,7 @@
+             if not self.locations.is_valid():self.add_error(None,_('Проверьте места приёма.'))
+         if self.draft_save_only:
+             photo = cleaned.get("photo")
+-            if photo:
++            if photo and not (isinstance(photo, FieldFile) and photo._committed):
+                 try:
+                     cleaned["photo"] = _validate_uploaded_image(photo)
+                 except ValidationError as exc:
+@@ -2428,7 +2429,7 @@
+ 
+         # Validate photo size
+         photo = cleaned.get("photo")
+-        if photo:
++        if photo and not (isinstance(photo, FieldFile) and photo._committed):
+             try:
+                 cleaned["photo"] = _validate_uploaded_image(photo)
+             except ValidationError as exc:
+--- /dev/null
++++ b/src/catalog/testcases/specialist_document_fixtures.py
+@@ -0,0 +1,20 @@
++"""Genuine fictional documents for upload/ACL regression fixtures."""
++from io import BytesIO
++from PIL import Image
++
++
++def image_document_bytes(format='PNG'):
++    stream = BytesIO()
++    Image.new('RGB', (32, 24), '#26754b').save(stream, format=format)
++    return stream.getvalue()
++
++
++def pdf_document_bytes(*, encrypted=False):
++    from pypdf import PdfWriter
++    stream = BytesIO()
++    writer = PdfWriter()
++    writer.add_blank_page(width=210, height=297)
++    if encrypted:
++        writer.encrypt('fictional-password')
++    writer.write(stream)
++    return stream.getvalue()
+--- /dev/null
++++ b/src/catalog/testcases/test_spec_qa01_document_validation.py
+@@ -0,0 +1,128 @@
++"""Invalid uploads cannot create evidence or consume a person's epoch."""
++from pathlib import Path
++from unittest.mock import patch
++
++from django.conf import settings
++from django.contrib.auth import get_user_model
++from django.core.exceptions import ValidationError
++from django.core.files.uploadedfile import SimpleUploadedFile
++from django.test import TestCase
++from django.utils import timezone
++from catalog.models import Specialist
++from catalog.services.specialist_documents import upload_document
++from catalog.testcases.specialist_document_fixtures import image_document_bytes, pdf_document_bytes
++
++
++class SpecialistDocumentValidationTests(TestCase):
++    def setUp(self):
++        self.person = get_user_model().objects.create_user('spec01-person')
++        self.other = get_user_model().objects.create_user('spec01-other')
++        self.profile = Specialist.objects.create(name='Synthetic file validator',
++            verified_person_user=self.person, person_verified_at=timezone.now(),
++            consultation_format='online')
++        self.flag = patch('catalog.services.features.is_specialists_section_enabled', return_value=True)
++        self.flag.start()
++        self.addCleanup(self.flag.stop)
++        self.client.force_login(self.person)
++        self.url = f'/ru/account/specialists/{self.profile.pk}/certificates/'
++
++    def files(self):
++        root = Path(settings.PRIVATE_MEDIA_ROOT)
++        return {str(p): p.read_bytes() for p in root.rglob('*') if p.is_file()}
++
++    def upload(self, name, data, actor=None):
++        return upload_document(actor=actor or self.person, specialist_id=self.profile.pk,
++            document_type='certificate', name='Synthetic document',
++            uploaded_file=SimpleUploadedFile(name, data))
++
++    def assert_rejected_without_writes(self, name, data):
++        before = self.files()
++        epoch = self.profile.updated_at
++        count = self.profile.documents.count()
++        with self.assertRaises(ValidationError):
++            self.upload(name, data)
++        self.profile.refresh_from_db()
++        self.assertEqual(self.profile.updated_at, epoch)
++        self.assertEqual(self.profile.documents.count(), count)
++        self.assertEqual(self.files(), before)
++
++    def test_fake_image_and_pdf_contents_are_rejected(self):
++        for name in ('corrupt.png', 'corrupt.jpg', 'corrupt.pdf'):
++            with self.subTest(name=name):
++                self.assert_rejected_without_writes(name, b'not a PNG')
++
++    def test_pdf_prefix_is_not_a_pdf(self):
++        self.assert_rejected_without_writes('corrupt.pdf', b'%PDF synthetic')
++
++    def test_truncated_real_images_are_rejected(self):
++        for name, format in [('partial.png', 'PNG'), ('partial.jpeg', 'JPEG')]:
++            with self.subTest(format=format):
++                self.assert_rejected_without_writes(name, image_document_bytes(format)[:40])
++
++    def test_truncated_real_pdf_is_rejected(self):
++        self.assert_rejected_without_writes('partial.pdf', pdf_document_bytes()[:80])
++
++    def test_extension_mismatch_is_rejected(self):
++        for name, data in [('image.pdf', image_document_bytes()),
++                           ('image.jpg', image_document_bytes()),
++                           ('document.png', pdf_document_bytes())]:
++            with self.subTest(name=name):
++                self.assert_rejected_without_writes(name, data)
++
++    def test_encrypted_document_cannot_be_reviewed_without_password(self):
++        self.assert_rejected_without_writes('locked.pdf', pdf_document_bytes(encrypted=True))
++
++    def test_empty_oversized_and_unsupported_documents_are_rejected(self):
++        for name, data in [('empty.pdf', b''), ('huge.pdf', b'x' * (10 * 1024 * 1024 + 1)),
++                           ('script.html', b'<script>fictional</script>')]:
++            with self.subTest(name=name):
++                self.assert_rejected_without_writes(name, data)
++
++    def test_real_images_and_pdf_keep_the_original_bytes(self):
++        for name, data in [('VALID.PNG', image_document_bytes()),
++                           ('valid.jpeg', image_document_bytes('JPEG')),
++                           ('valid.pdf', pdf_document_bytes())]:
++            with self.subTest(name=name):
++                file = SimpleUploadedFile(name, data, content_type='application/octet-stream')
++                file.seek(len(data))
++                doc = upload_document(actor=self.person, specialist_id=self.profile.pk,
++                    document_type='certificate', name='Synthetic valid', uploaded_file=file)
++                doc.refresh_from_db()
++                with doc.file.open('rb') as stored:
++                    self.assertEqual(stored.read(), data)
++                self.assertEqual(doc.status, 'pending')
++                self.assertFalse(doc.is_published)
++                self.addCleanup(doc.file.storage.delete, doc.file.name)
++
++    def test_valid_file_does_not_grant_foreign_actor_upload_permission(self):
++        before = self.files()
++        with self.assertRaises(PermissionError):
++            self.upload('valid.pdf', pdf_document_bytes(), actor=self.other)
++        self.assertFalse(self.profile.documents.exists())
++        self.assertEqual(self.files(), before)
++
++    def test_http_invalid_file_keeps_metadata_and_returns_file_error(self):
++        response = self.client.post(self.url, {'action': 'upload',
++            'document_type': 'certificate', 'name': 'Synthetic keep this title',
++            'file': SimpleUploadedFile('corrupt.png', b'not a PNG')})
++        self.assertEqual(response.status_code, 400)
++        self.assertIn('file', response.context['upload_form'].errors)
++        self.assertEqual(response.context['upload_form']['name'].value(), 'Synthetic keep this title')
++        self.assertEqual(response.context['upload_form']['document_type'].value(), 'certificate')
++        self.assertFalse(self.profile.documents.exists())
++
++    def test_native_http_valid_upload_reload_and_private_download(self):
++        data = pdf_document_bytes()
++        response = self.client.post(self.url, {'action': 'upload', 'document_type': 'identity',
++            'name': 'Synthetic identity', 'file': SimpleUploadedFile('valid.pdf', data)})
++        self.assertEqual(response.status_code, 302)
++        doc = self.profile.documents.get()
++        self.addCleanup(doc.file.storage.delete, doc.file.name)
++        self.assertContains(self.client.get(self.url), 'Synthetic identity')
++        download = self.client.get(f'/ru/specialists/documents/{doc.pk}/download/')
++        self.assertEqual(download.status_code, 200)
++        self.assertEqual(b''.join(download.streaming_content), data)
++        self.assertIn('attachment', download['Content-Disposition'])
++        self.assertEqual(download['X-Content-Type-Options'], 'nosniff')
++        self.client.force_login(self.other)
++        self.assertEqual(self.client.get(f'/ru/specialists/documents/{doc.pk}/download/').status_code, 404)
+--- /dev/null
++++ b/src/catalog/testcases/test_spec_qa02_photo_conflict.py
+@@ -0,0 +1,95 @@
++"""A rejected profile write cannot rename/copy a persisted photo."""
++from io import BytesIO
++from pathlib import Path
++from unittest.mock import patch
++from PIL import Image
++from django.conf import settings
++from django.contrib.auth import get_user_model
++from django.core.files.uploadedfile import SimpleUploadedFile
++from django.test import TestCase
++from django.utils import timezone
++from catalog.models import Specialist
++from catalog.testcases.specialist_document_fixtures import image_document_bytes
++
++
++class SpecialistPhotoConflictTests(TestCase):
++    def setUp(self):
++        self.person = get_user_model().objects.create_user('spec02-person')
++        self.profile = Specialist.objects.create(name='Synthetic photo person',
++            verified_person_user=self.person, person_verified_at=timezone.now(),
++            consultation_format='online', photo=SimpleUploadedFile('saved.png', image_document_bytes()))
++        self.name = self.profile.photo.name
++        self.url = self.profile.photo.url
++        self.client.force_login(self.person)
++        self.flag = patch('catalog.services.features.is_specialists_section_enabled', return_value=True)
++        self.flag.start(); self.addCleanup(self.flag.stop)
++        self.addCleanup(self.profile.photo.storage.delete, self.name)
++        self.endpoint = f'/ru/account/specialists/{self.profile.pk}/'
++
++    def payload(self, **changes):
++        data = {'name': 'Synthetic photo person', 'name_alt': 'STALE INPUT',
++                'consultation_format': 'online', 'form_action': 'save_draft',
++                'expected_updated_at': self.profile.updated_at.isoformat()}
++        data.update(changes)
++        return data
++
++    def files(self):
++        return {str(p): p.read_bytes() for p in Path(settings.MEDIA_ROOT).rglob('*') if p.is_file()}
++
++    def assert_existing_photo_in_error(self, response, status, before):
++        self.assertEqual(response.status_code, status)
++        self.assertContains(response, f'src="{self.url}"', status_code=status)
++        self.profile.refresh_from_db()
++        self.assertEqual(self.profile.photo.name, self.name)
++        self.assertEqual(self.files(), before)
++        with self.profile.photo.open('rb') as stream:
++            image = Image.open(BytesIO(stream.read())); image.load()
++            self.assertEqual(image.size, (32, 24))
++
++    def test_stale_draft_preserves_real_photo_url_input_and_newer_data(self):
++        token = self.profile.updated_at.isoformat()
++        response = self.client.post(self.endpoint, self.payload(name_alt='NEWER INPUT'))
++        self.assertEqual(response.status_code, 302)
++        self.profile.refresh_from_db()
++        before = self.files()
++        response = self.client.post(self.endpoint, self.payload(expected_updated_at=token))
++        self.assert_existing_photo_in_error(response, 409, before)
++        self.assertEqual(self.profile.name_alt, 'NEWER INPUT')
++        self.assertEqual(response.context['form']['name_alt'].value(), 'STALE INPUT')
++
++    def test_stale_submit_preserves_real_photo_url(self):
++        before = self.files()
++        response = self.client.post(self.endpoint, self.payload(expected_updated_at='stale', form_action='submit'))
++        self.assert_existing_photo_in_error(response, 409, before)
++
++    def test_invalid_draft_preserves_real_photo_url(self):
++        before = self.files()
++        response = self.client.post(self.endpoint, self.payload(experience_years='-2'))
++        self.assert_existing_photo_in_error(response, 400, before)
++
++    def test_invalid_submit_preserves_real_photo_url(self):
++        before = self.files()
++        response = self.client.post(self.endpoint, self.payload(form_action='submit', experience_years='-2'))
++        self.assert_existing_photo_in_error(response, 400, before)
++
++    def test_draft_without_new_photo_does_not_copy_existing_photo(self):
++        before = self.files()
++        self.assertEqual(self.client.post(self.endpoint, self.payload()).status_code, 302)
++        self.profile.refresh_from_db()
++        self.assertEqual(self.profile.photo.name, self.name)
++        self.assertEqual(self.files(), before)
++
++    def test_new_upload_is_still_normalized(self):
++        data = self.payload(photo=SimpleUploadedFile('replacement.png', image_document_bytes()))
++        self.assertEqual(self.client.post(self.endpoint, data).status_code, 302)
++        self.profile.refresh_from_db()
++        self.addCleanup(self.profile.photo.storage.delete, self.profile.photo.name)
++        self.assertNotEqual(self.profile.photo.name, self.name)
++        self.assertTrue(self.profile.photo.name.endswith('.webp'))
++        with self.profile.photo.open('rb') as stream:
++            image = Image.open(stream); image.load(); self.assertEqual(image.format, 'WEBP')
++
++    def test_explicit_clear_remains_supported(self):
++        self.assertEqual(self.client.post(self.endpoint, self.payload(**{'photo-clear': 'on'})).status_code, 302)
++        self.profile.refresh_from_db()
++        self.assertFalse(self.profile.photo)
+--- a/src/catalog/testcases/test_task33_specialist_screens_security.py
++++ b/src/catalog/testcases/test_task33_specialist_screens_security.py
+@@ -9,6 +9,7 @@
+ from django.utils import timezone
+ 
+ from catalog.models import Organization, OrganizationGrant, SiteSettings, Specialist
++from catalog.testcases.specialist_document_fixtures import pdf_document_bytes
+ from catalog.services import specialist_documents, specialist_domain
+ 
+ 
+@@ -49,7 +50,7 @@
+         return specialist_documents.upload_document(actor=person or self.person,
+             specialist_id=(profile or self.profile).pk, document_type=kind,
+             name='SYNTHETIC PRIVATE DOCUMENT',
+-            uploaded_file=SimpleUploadedFile('synthetic.pdf', b'%PDF synthetic security25'))
++            uploaded_file=SimpleUploadedFile('synthetic.pdf', pdf_document_bytes()))
+ 
+     def link(self, profile=None, organization=None, actor=None):
+         return specialist_domain.propose_employment(actor=actor or self.owner,
+--- a/src/catalog/testcases/test_task33_specialist_workspace.py
++++ b/src/catalog/testcases/test_task33_specialist_workspace.py
+@@ -9,6 +9,7 @@
+ from django.utils import timezone
+ 
+ from catalog.models import Organization, Specialist, SpecialistDocument
++from catalog.testcases.specialist_document_fixtures import pdf_document_bytes
+ from catalog.services import specialist_domain
+ 
+ 
+@@ -86,7 +87,7 @@
+         self.client.force_login(self.person)
+         response = self.client.post(self.url('certificates/'), {'action': 'upload',
+             'document_type': 'identity', 'name': 'Synthetic evidence',
+-            'file': SimpleUploadedFile('synthetic.pdf', b'%PDF synthetic')})
++            'file': SimpleUploadedFile('synthetic.pdf', pdf_document_bytes())})
+         self.assertEqual(response.status_code, 302)
+         doc = self.profile.documents.get()
+         document_token = self.client.get(self.url('certificates/')).context['documents'][0].version_token
+@@ -152,7 +153,7 @@
+         from catalog.services.specialist_documents import upload_document
+         claim = specialist_domain.request_claim(actor=self.other, specialist_id=self.second.pk)
+         doc = upload_document(actor=self.person, specialist_id=self.profile.pk, document_type='certificate',
+-            name='Synthetic certificate', uploaded_file=SimpleUploadedFile('synthetic.pdf', b'%PDF synthetic'))
++            name='Synthetic certificate', uploaded_file=SimpleUploadedFile('synthetic.pdf', pdf_document_bytes()))
+         self.client.force_login(self.reviewer)
+         response = self.client.post(self.url('review/', self.second.pk), {'action': 'claim_reject',
+             'claim_id': claim.pk, 'expected_version': claim.version, 'reason': '   '})
+@@ -172,7 +173,7 @@
+         self.client.force_login(self.person)
+         response = self.client.post(self.url('certificates/'), {'action': 'upload',
+             'document_type': 'certificate', 'name': 'Synthetic visible certificate', 'publish': 'on',
+-            'file': SimpleUploadedFile('synthetic.pdf', b'%PDF synthetic')})
++            'file': SimpleUploadedFile('synthetic.pdf', pdf_document_bytes())})
+         self.assertEqual(response.status_code, 302)
+         doc = self.profile.documents.get()
+         self.assertTrue(doc.is_published)
+@@ -202,7 +203,7 @@
+         from catalog.controllers.specialist_workspace import document_version
+         from catalog.services.specialist_documents import upload_document, review_document
+         doc = upload_document(actor=self.person, specialist_id=self.profile.pk, document_type='certificate',
+-            name='Synthetic certificate', uploaded_file=SimpleUploadedFile('synthetic.pdf', b'%PDF synthetic'))
++            name='Synthetic certificate', uploaded_file=SimpleUploadedFile('synthetic.pdf', pdf_document_bytes()))
+         doc = review_document(actor=self.reviewer, document_id=doc.pk, approve=True)
+         first_approved_token = document_version(doc)
+         review_document(actor=self.reviewer, document_id=doc.pk, approve=False, reason='Synthetic first rejection')
+--- a/src/catalog/testcases/specialists.py
++++ b/src/catalog/testcases/specialists.py
+@@ -14,6 +14,7 @@
+ )
+ 
+ User = get_user_model()
++from catalog.testcases.specialist_document_fixtures import pdf_document_bytes
+ 
+ class TestSpecialistFlows(TestCase):
+     def setUp(self):
+@@ -309,7 +310,7 @@
+             reverse("owner_specialist_create"),
+             data={
+                 **self._valid_payload(),
+-                "documents": [SimpleUploadedFile("certificate.pdf", b"pdf", content_type="application/pdf")],
++                "documents": [SimpleUploadedFile("certificate.pdf", pdf_document_bytes(), content_type="application/pdf")],
+             },
+         )
+ 
+@@ -329,7 +330,7 @@
+         person.refresh_from_db()
+         response = self.client.post(reverse('owner_specialist_edit', args=[person.pk]), data={
+             **self._valid_payload(), 'expected_updated_at': person.updated_at.isoformat(),
+-            'documents': [SimpleUploadedFile('certificate.pdf', b'pdf', content_type='application/pdf')],
++            'documents': [SimpleUploadedFile('certificate.pdf', pdf_document_bytes(), content_type='application/pdf')],
+         })
+         self.assertEqual(response.status_code, 302)
+         document = SpecialistDocument.objects.get(specialist=person)
+@@ -403,7 +404,9 @@
+ 
+         # Owner endpoints
+         self.client.login(username="owner_flag", password="password")
+-        response = self.client.get(reverse("owner_specialist_create"))
++        response = self.client.get(reverse("owner_specialist_create"), follow=True)
++        self.assertEqual(response.redirect_chain,
++                         [(reverse('specialist_workspace_proposal'), 302)])
+         self.assertEqual(response.status_code, 200)
+ 
+         response = self.client.post(reverse("owner_specialist_create"), data={"name": "test"})
+--- a/src/catalog/testcases/test_task33_specialist_db_review.py
++++ b/src/catalog/testcases/test_task33_specialist_db_review.py
+@@ -1,8 +1,11 @@
+ """Independent stage-24 PostgreSQL schema and additive-migration checks."""
+ import os
+ import uuid
++import json
++from pathlib import Path
+ from datetime import date
+ 
++from django.conf import settings
+ from django.contrib.auth import get_user_model
+ from django.db import IntegrityError, connection, transaction
+ from django.db.migrations.executor import MigrationExecutor
+@@ -15,6 +18,30 @@
+ def require_disposable_postgres(test):
+     test.assertEqual(connection.vendor, 'postgresql')
+     test.assertEqual(os.environ.get('DJANGO_TESTING'), '1')
++    root = getattr(settings, 'QA_ROOT', None)
++    checkout_scratch = Path(__file__).resolve().parents[3] / '.tmp'
++    if root is not None and Path(root).resolve().is_relative_to(checkout_scratch.resolve()):
++        # A current own loopback profile is an alternative to the historical
++        # Unix-socket launcher, never a bypass based on TESTING alone.
++        root = Path(root).resolve()
++        test.assertNotEqual(root, checkout_scratch.resolve())
++        test.assertTrue(settings.TESTING)
++        config = json.loads((root / 'config.json').read_text())
++        test.assertEqual(config['container'], root.name + '-pg')
++        test.assertTrue(config['database'])
++        test.assertEqual(connection.settings_dict['NAME'], 'test_' + config['database'])
++        test.assertEqual(connection.settings_dict['HOST'], '127.0.0.1')
++        test.assertEqual(int(connection.settings_dict['PORT']), config['pg_port'])
++        test.assertEqual(connection.settings_dict['USER'], config['user'])
++        for storage in (settings.MEDIA_ROOT, settings.PRIVATE_MEDIA_ROOT):
++            test.assertTrue(Path(storage).resolve().is_relative_to(root))
++        test.assertEqual(settings.CACHES['default']['BACKEND'],
++                         'django.core.cache.backends.locmem.LocMemCache')
++        test.assertIn(root.name, settings.CACHES['default']['LOCATION'])
++        with connection.cursor() as cursor:
++            cursor.execute('SELECT current_database()')
++            test.assertEqual(cursor.fetchone()[0], 'test_' + config['database'])
++        return
+     test.assertTrue(os.environ.get('TASK33_QA_ROOT', '').startswith('/tmp/kidsmap-task33-qa04-'))
+     test.assertEqual(connection.settings_dict['NAME'], 'test_qa_stage04')
+     test.assertIn('kidsmap-task33-qa04-socket-', connection.settings_dict['HOST'])
+--- a/static/css/pages/specialists.css
++++ b/static/css/pages/specialists.css
+@@ -914,7 +914,7 @@
+   font-weight: 750;
+ }
+ 
+-.km-owner-mobile-progress div {
++.km-owner-mobile-progress > .km-progress-track {
+   height: 8px;
+   margin-top: 7px;
+   border-radius: 999px;
+@@ -3789,6 +3789,24 @@
+   font-size: 0.82rem;
+   cursor: pointer;
+   transition: all 0.15s ease;
++}
++
++.km-step-arrow > .fas {
++  display: none;
++}
++
++.km-step-arrow::before {
++  content: "";
++  width: 16px;
++  height: 16px;
++  background: currentColor;
++  -webkit-mask: url("../../img/icon/coolicons.iconjar/icons/chevron-left.svg") center / contain no-repeat;
++  mask: url("../../img/icon/coolicons.iconjar/icons/chevron-left.svg") center / contain no-repeat;
++}
++
++.km-step-arrow[data-owner-next]::before {
++  -webkit-mask-image: url("../../img/icon/coolicons.iconjar/icons/chevron-right.svg");
++  mask-image: url("../../img/icon/coolicons.iconjar/icons/chevron-right.svg");
+ }
+ 
+ .km-step-arrow:hover {
+--- a/locale/ru/LC_MESSAGES/django.po
++++ b/locale/ru/LC_MESSAGES/django.po
+@@ -20436,3 +20436,15 @@
+ #: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+ msgid "Пригласить сотрудника"
+ msgstr "Пригласить сотрудника"
++
++#: src/catalog/services/specialist_document_validation.py
++msgid "Документ повреждён или его содержимое не соответствует формату. Выберите исправный PDF, PNG или JPEG."
++msgstr "Документ повреждён или его содержимое не соответствует формату. Выберите исправный PDF, PNG или JPEG."
++
++#: src/catalog/services/specialist_document_validation.py
++msgid "PDF защищён паролем. Загрузите документ без пароля."
++msgstr "PDF защищён паролем. Загрузите документ без пароля."
++
++#: src/catalog/services/specialist_document_validation.py
++msgid "Не удалось безопасно проверить документ. Выберите файл меньшего размера или разрешения."
++msgstr "Не удалось безопасно проверить документ. Выберите файл меньшего размера или разрешения."
+--- a/locale/az/LC_MESSAGES/django.po
++++ b/locale/az/LC_MESSAGES/django.po
+@@ -23008,3 +23008,15 @@
+ #: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+ msgid "Пригласить сотрудника"
+ msgstr "Əməkdaş dəvət et"
++
++#: src/catalog/services/specialist_document_validation.py
++msgid "Документ повреждён или его содержимое не соответствует формату. Выберите исправный PDF, PNG или JPEG."
++msgstr "Sənəd zədələnib və ya məzmunu formatına uyğun deyil. Düzgün PDF, PNG və ya JPEG faylı seçin."
++
++#: src/catalog/services/specialist_document_validation.py
++msgid "PDF защищён паролем. Загрузите документ без пароля."
++msgstr "PDF parolla qorunur. Parolsuz sənəd yükləyin."
++
++#: src/catalog/services/specialist_document_validation.py
++msgid "Не удалось безопасно проверить документ. Выберите файл меньшего размера или разрешения."
++msgstr "Sənədi təhlükəsiz yoxlamaq mümkün olmadı. Daha kiçik ölçülü və ya daha aşağı təsvir ölçülü fayl seçin."
+--- a/locale/en/LC_MESSAGES/django.po
++++ b/locale/en/LC_MESSAGES/django.po
+@@ -22862,3 +22862,15 @@
+ #: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
+ msgid "Пригласить сотрудника"
+ msgstr "Invite employee"
++
++#: src/catalog/services/specialist_document_validation.py
++msgid "Документ повреждён или его содержимое не соответствует формату. Выберите исправный PDF, PNG или JPEG."
++msgstr "The document is damaged or its content does not match the format. Choose a valid PDF, PNG or JPEG."
++
++#: src/catalog/services/specialist_document_validation.py
++msgid "PDF защищён паролем. Загрузите документ без пароля."
++msgstr "The PDF is password protected. Upload a document without a password."
++
++#: src/catalog/services/specialist_document_validation.py
++msgid "Не удалось безопасно проверить документ. Выберите файл меньшего размера или разрешения."
++msgstr "The document could not be checked safely. Choose a smaller file or a lower resolution."

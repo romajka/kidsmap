@@ -1,0 +1,1919 @@
+{
+  "complete": true,
+  "rows": [
+    {
+      "id": "QA readback initial",
+      "status": "PASS"
+    },
+    {
+      "id": "four initial pending candidates",
+      "status": "PASS"
+    },
+    {
+      "id": "AM03 queue includes first reviews and edits",
+      "status": "PASS"
+    },
+    {
+      "id": "AM01 workflow stays admin",
+      "status": "PASS"
+    },
+    {
+      "id": "candidate and published versions both readable",
+      "status": "PASS"
+    },
+    {
+      "id": "guest cannot read pending candidates",
+      "status": "PASS"
+    },
+    {
+      "id": "native approve HTTP",
+      "status": "PASS",
+      "http": 302
+    },
+    {
+      "id": "native approve stays on admin host",
+      "status": "PASS"
+    },
+    {
+      "id": "QA readback single-approved",
+      "status": "PASS"
+    },
+    {
+      "id": "single approval binds exact candidate",
+      "status": "PASS"
+    },
+    {
+      "id": "native reject HTTP",
+      "status": "PASS",
+      "http": 302
+    },
+    {
+      "id": "native reject stays on admin host",
+      "status": "PASS"
+    },
+    {
+      "id": "QA readback edit-rejected",
+      "status": "PASS"
+    },
+    {
+      "id": "rejection preserves old public version",
+      "status": "PASS"
+    },
+    {
+      "id": "native bulk approval HTTP",
+      "status": "PASS",
+      "http": 302
+    },
+    {
+      "id": "QA readback bulk-approved",
+      "status": "PASS"
+    },
+    {
+      "id": "AM04 bulk fully approves revision",
+      "status": "PASS"
+    },
+    {
+      "id": "QA readback candidate-replaced",
+      "status": "PASS"
+    },
+    {
+      "id": "author native edit replaced candidate",
+      "status": "PASS"
+    },
+    {
+      "id": "stale admin tab refuses replacement",
+      "status": "PASS"
+    },
+    {
+      "id": "QA readback stale-refused",
+      "status": "PASS"
+    },
+    {
+      "id": "stale decision made no change",
+      "status": "PASS"
+    },
+    {
+      "id": "native approve HTTP",
+      "status": "PASS",
+      "http": 302
+    },
+    {
+      "id": "native approve stays on admin host",
+      "status": "PASS"
+    },
+    {
+      "id": "QA readback replacement-approved",
+      "status": "PASS"
+    },
+    {
+      "id": "fresh review selects replacement",
+      "status": "PASS"
+    },
+    {
+      "id": "QA readback correction-pending",
+      "status": "PASS"
+    },
+    {
+      "id": "native hide HTTP",
+      "status": "PASS",
+      "http": 302
+    },
+    {
+      "id": "native hide stays on admin host",
+      "status": "PASS"
+    },
+    {
+      "id": "QA readback hidden",
+      "status": "PASS"
+    },
+    {
+      "id": "AM05 hidden review leaves public query",
+      "status": "PASS"
+    },
+    {
+      "id": "AM05 hide preserves current and candidate",
+      "status": "PASS"
+    },
+    {
+      "id": "hidden text absent from guest website",
+      "status": "PASS"
+    },
+    {
+      "id": "native restore HTTP",
+      "status": "PASS",
+      "http": 302
+    },
+    {
+      "id": "native restore stays on admin host",
+      "status": "PASS"
+    },
+    {
+      "id": "QA readback restored",
+      "status": "PASS"
+    },
+    {
+      "id": "restore retains undecided edit",
+      "status": "PASS"
+    },
+    {
+      "id": "restored text visible; pending text private",
+      "status": "PASS"
+    },
+    {
+      "id": "literal review HTML is not executable",
+      "status": "PASS"
+    },
+    {
+      "id": "native approve HTTP",
+      "status": "PASS",
+      "http": 302
+    },
+    {
+      "id": "native approve stays on admin host",
+      "status": "PASS"
+    },
+    {
+      "id": "QA readback correction-approved",
+      "status": "PASS"
+    },
+    {
+      "id": "final edit approved completely",
+      "status": "PASS"
+    },
+    {
+      "id": "AM02 private full preview renders",
+      "status": "PASS"
+    },
+    {
+      "id": "private preview noindex and no-store",
+      "status": "PASS"
+    },
+    {
+      "id": "QA readback after-preview",
+      "status": "PASS"
+    },
+    {
+      "id": "preview changed no place fields",
+      "status": "PASS"
+    },
+    {
+      "id": "pending public place remains hidden",
+      "status": "PASS"
+    },
+    {
+      "id": "AM07 stale list states block",
+      "status": "PASS"
+    },
+    {
+      "id": "publish POST succeeded",
+      "status": "PASS"
+    },
+    {
+      "id": "AM08 concrete editor after publish",
+      "status": "PASS"
+    },
+    {
+      "id": "published place visible to guest",
+      "status": "PASS"
+    },
+    {
+      "id": "QA readback final",
+      "status": "PASS"
+    },
+    {
+      "id": "final state: published place and no pending reviews",
+      "status": "PASS"
+    }
+  ],
+  "states": [
+    {
+      "stage": "initial",
+      "pid": 608888,
+      "read_only": true,
+      "synthetic_only": true,
+      "reviews": [
+        {
+          "id": 1,
+          "user": 2,
+          "status": "pending",
+          "approved": false,
+          "current": null,
+          "candidate": 1,
+          "text": "Fictional original review 0",
+          "rating": 5,
+          "public": false,
+          "revisions": [
+            {
+              "id": 1,
+              "status": "pending",
+              "rating": 5,
+              "text": "Fictional original review 0"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "user": 3,
+          "status": "approved",
+          "approved": true,
+          "current": 2,
+          "candidate": 3,
+          "text": "Fictional original review 1",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 2,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 1"
+            },
+            {
+              "id": 3,
+              "status": "pending",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 1"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "user": 4,
+          "status": "pending",
+          "approved": false,
+          "current": null,
+          "candidate": 4,
+          "text": "Fictional original review 2",
+          "rating": 5,
+          "public": false,
+          "revisions": [
+            {
+              "id": 4,
+              "status": "pending",
+              "rating": 5,
+              "text": "Fictional original review 2"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "user": 5,
+          "status": "approved",
+          "approved": true,
+          "current": 5,
+          "candidate": 6,
+          "text": "Fictional original review 3",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 5,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 3"
+            },
+            {
+              "id": 6,
+              "status": "pending",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 3"
+            }
+          ]
+        }
+      ],
+      "places": [
+        {
+          "id": 1,
+          "status": "published",
+          "is_active": true,
+          "rating_avg": 5,
+          "rating_count": 2
+        },
+        {
+          "id": 2,
+          "status": "pending",
+          "is_active": false,
+          "rating_avg": 0,
+          "rating_count": 0
+        }
+      ],
+      "public_places": [
+        1
+      ],
+      "requests": [
+        {
+          "id": 1,
+          "status": "PENDING",
+          "base_ownership_version": 2
+        }
+      ]
+    },
+    {
+      "stage": "single-approved",
+      "pid": 608888,
+      "read_only": true,
+      "synthetic_only": true,
+      "reviews": [
+        {
+          "id": 1,
+          "user": 2,
+          "status": "approved",
+          "approved": true,
+          "current": 1,
+          "candidate": null,
+          "text": "Fictional original review 0",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 1,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 0"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "user": 3,
+          "status": "approved",
+          "approved": true,
+          "current": 2,
+          "candidate": 3,
+          "text": "Fictional original review 1",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 2,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 1"
+            },
+            {
+              "id": 3,
+              "status": "pending",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 1"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "user": 4,
+          "status": "pending",
+          "approved": false,
+          "current": null,
+          "candidate": 4,
+          "text": "Fictional original review 2",
+          "rating": 5,
+          "public": false,
+          "revisions": [
+            {
+              "id": 4,
+              "status": "pending",
+              "rating": 5,
+              "text": "Fictional original review 2"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "user": 5,
+          "status": "approved",
+          "approved": true,
+          "current": 5,
+          "candidate": 6,
+          "text": "Fictional original review 3",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 5,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 3"
+            },
+            {
+              "id": 6,
+              "status": "pending",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 3"
+            }
+          ]
+        }
+      ],
+      "places": [
+        {
+          "id": 1,
+          "status": "published",
+          "is_active": true,
+          "rating_avg": 5,
+          "rating_count": 3
+        },
+        {
+          "id": 2,
+          "status": "pending",
+          "is_active": false,
+          "rating_avg": 0,
+          "rating_count": 0
+        }
+      ],
+      "public_places": [
+        1
+      ],
+      "requests": [
+        {
+          "id": 1,
+          "status": "PENDING",
+          "base_ownership_version": 2
+        }
+      ]
+    },
+    {
+      "stage": "edit-rejected",
+      "pid": 608888,
+      "read_only": true,
+      "synthetic_only": true,
+      "reviews": [
+        {
+          "id": 1,
+          "user": 2,
+          "status": "approved",
+          "approved": true,
+          "current": 1,
+          "candidate": null,
+          "text": "Fictional original review 0",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 1,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 0"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "user": 3,
+          "status": "approved",
+          "approved": true,
+          "current": 2,
+          "candidate": null,
+          "text": "Fictional original review 1",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 2,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 1"
+            },
+            {
+              "id": 3,
+              "status": "rejected",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 1"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "user": 4,
+          "status": "pending",
+          "approved": false,
+          "current": null,
+          "candidate": 4,
+          "text": "Fictional original review 2",
+          "rating": 5,
+          "public": false,
+          "revisions": [
+            {
+              "id": 4,
+              "status": "pending",
+              "rating": 5,
+              "text": "Fictional original review 2"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "user": 5,
+          "status": "approved",
+          "approved": true,
+          "current": 5,
+          "candidate": 6,
+          "text": "Fictional original review 3",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 5,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 3"
+            },
+            {
+              "id": 6,
+              "status": "pending",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 3"
+            }
+          ]
+        }
+      ],
+      "places": [
+        {
+          "id": 1,
+          "status": "published",
+          "is_active": true,
+          "rating_avg": 5,
+          "rating_count": 3
+        },
+        {
+          "id": 2,
+          "status": "pending",
+          "is_active": false,
+          "rating_avg": 0,
+          "rating_count": 0
+        }
+      ],
+      "public_places": [
+        1
+      ],
+      "requests": [
+        {
+          "id": 1,
+          "status": "PENDING",
+          "base_ownership_version": 2
+        }
+      ]
+    },
+    {
+      "stage": "bulk-approved",
+      "pid": 608888,
+      "read_only": true,
+      "synthetic_only": true,
+      "reviews": [
+        {
+          "id": 1,
+          "user": 2,
+          "status": "approved",
+          "approved": true,
+          "current": 1,
+          "candidate": null,
+          "text": "Fictional original review 0",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 1,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 0"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "user": 3,
+          "status": "approved",
+          "approved": true,
+          "current": 2,
+          "candidate": null,
+          "text": "Fictional original review 1",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 2,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 1"
+            },
+            {
+              "id": 3,
+              "status": "rejected",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 1"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "user": 4,
+          "status": "approved",
+          "approved": true,
+          "current": 4,
+          "candidate": null,
+          "text": "Fictional original review 2",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 4,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 2"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "user": 5,
+          "status": "approved",
+          "approved": true,
+          "current": 5,
+          "candidate": 6,
+          "text": "Fictional original review 3",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 5,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 3"
+            },
+            {
+              "id": 6,
+              "status": "pending",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 3"
+            }
+          ]
+        }
+      ],
+      "places": [
+        {
+          "id": 1,
+          "status": "published",
+          "is_active": true,
+          "rating_avg": 5,
+          "rating_count": 4
+        },
+        {
+          "id": 2,
+          "status": "pending",
+          "is_active": false,
+          "rating_avg": 0,
+          "rating_count": 0
+        }
+      ],
+      "public_places": [
+        1
+      ],
+      "requests": [
+        {
+          "id": 1,
+          "status": "PENDING",
+          "base_ownership_version": 2
+        }
+      ]
+    },
+    {
+      "stage": "candidate-replaced",
+      "pid": 608888,
+      "read_only": true,
+      "synthetic_only": true,
+      "reviews": [
+        {
+          "id": 1,
+          "user": 2,
+          "status": "approved",
+          "approved": true,
+          "current": 1,
+          "candidate": null,
+          "text": "Fictional original review 0",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 1,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 0"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "user": 3,
+          "status": "approved",
+          "approved": true,
+          "current": 2,
+          "candidate": null,
+          "text": "Fictional original review 1",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 2,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 1"
+            },
+            {
+              "id": 3,
+              "status": "rejected",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 1"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "user": 4,
+          "status": "approved",
+          "approved": true,
+          "current": 4,
+          "candidate": null,
+          "text": "Fictional original review 2",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 4,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 2"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "user": 5,
+          "status": "approved",
+          "approved": true,
+          "current": 5,
+          "candidate": 7,
+          "text": "Fictional original review 3",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 5,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 3"
+            },
+            {
+              "id": 6,
+              "status": "pending",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 3"
+            },
+            {
+              "id": 7,
+              "status": "pending",
+              "rating": 3,
+              "text": "Fictional replacement from author <script>window.REVIEW_XSS=1</script>"
+            }
+          ]
+        }
+      ],
+      "places": [
+        {
+          "id": 1,
+          "status": "published",
+          "is_active": true,
+          "rating_avg": 5,
+          "rating_count": 4
+        },
+        {
+          "id": 2,
+          "status": "pending",
+          "is_active": false,
+          "rating_avg": 0,
+          "rating_count": 0
+        }
+      ],
+      "public_places": [
+        1
+      ],
+      "requests": [
+        {
+          "id": 1,
+          "status": "PENDING",
+          "base_ownership_version": 2
+        }
+      ]
+    },
+    {
+      "stage": "stale-refused",
+      "pid": 608888,
+      "read_only": true,
+      "synthetic_only": true,
+      "reviews": [
+        {
+          "id": 1,
+          "user": 2,
+          "status": "approved",
+          "approved": true,
+          "current": 1,
+          "candidate": null,
+          "text": "Fictional original review 0",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 1,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 0"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "user": 3,
+          "status": "approved",
+          "approved": true,
+          "current": 2,
+          "candidate": null,
+          "text": "Fictional original review 1",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 2,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 1"
+            },
+            {
+              "id": 3,
+              "status": "rejected",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 1"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "user": 4,
+          "status": "approved",
+          "approved": true,
+          "current": 4,
+          "candidate": null,
+          "text": "Fictional original review 2",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 4,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 2"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "user": 5,
+          "status": "approved",
+          "approved": true,
+          "current": 5,
+          "candidate": 7,
+          "text": "Fictional original review 3",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 5,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 3"
+            },
+            {
+              "id": 6,
+              "status": "pending",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 3"
+            },
+            {
+              "id": 7,
+              "status": "pending",
+              "rating": 3,
+              "text": "Fictional replacement from author <script>window.REVIEW_XSS=1</script>"
+            }
+          ]
+        }
+      ],
+      "places": [
+        {
+          "id": 1,
+          "status": "published",
+          "is_active": true,
+          "rating_avg": 5,
+          "rating_count": 4
+        },
+        {
+          "id": 2,
+          "status": "pending",
+          "is_active": false,
+          "rating_avg": 0,
+          "rating_count": 0
+        }
+      ],
+      "public_places": [
+        1
+      ],
+      "requests": [
+        {
+          "id": 1,
+          "status": "PENDING",
+          "base_ownership_version": 2
+        }
+      ]
+    },
+    {
+      "stage": "replacement-approved",
+      "pid": 608888,
+      "read_only": true,
+      "synthetic_only": true,
+      "reviews": [
+        {
+          "id": 1,
+          "user": 2,
+          "status": "approved",
+          "approved": true,
+          "current": 1,
+          "candidate": null,
+          "text": "Fictional original review 0",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 1,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 0"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "user": 3,
+          "status": "approved",
+          "approved": true,
+          "current": 2,
+          "candidate": null,
+          "text": "Fictional original review 1",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 2,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 1"
+            },
+            {
+              "id": 3,
+              "status": "rejected",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 1"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "user": 4,
+          "status": "approved",
+          "approved": true,
+          "current": 4,
+          "candidate": null,
+          "text": "Fictional original review 2",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 4,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 2"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "user": 5,
+          "status": "approved",
+          "approved": true,
+          "current": 7,
+          "candidate": null,
+          "text": "Fictional replacement from author <script>window.REVIEW_XSS=1</script>",
+          "rating": 3,
+          "public": true,
+          "revisions": [
+            {
+              "id": 5,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 3"
+            },
+            {
+              "id": 6,
+              "status": "pending",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 3"
+            },
+            {
+              "id": 7,
+              "status": "approved",
+              "rating": 3,
+              "text": "Fictional replacement from author <script>window.REVIEW_XSS=1</script>"
+            }
+          ]
+        }
+      ],
+      "places": [
+        {
+          "id": 1,
+          "status": "published",
+          "is_active": true,
+          "rating_avg": 4.5,
+          "rating_count": 4
+        },
+        {
+          "id": 2,
+          "status": "pending",
+          "is_active": false,
+          "rating_avg": 0,
+          "rating_count": 0
+        }
+      ],
+      "public_places": [
+        1
+      ],
+      "requests": [
+        {
+          "id": 1,
+          "status": "PENDING",
+          "base_ownership_version": 2
+        }
+      ]
+    },
+    {
+      "stage": "correction-pending",
+      "pid": 608888,
+      "read_only": true,
+      "synthetic_only": true,
+      "reviews": [
+        {
+          "id": 1,
+          "user": 2,
+          "status": "approved",
+          "approved": true,
+          "current": 1,
+          "candidate": null,
+          "text": "Fictional original review 0",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 1,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 0"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "user": 3,
+          "status": "approved",
+          "approved": true,
+          "current": 2,
+          "candidate": null,
+          "text": "Fictional original review 1",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 2,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 1"
+            },
+            {
+              "id": 3,
+              "status": "rejected",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 1"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "user": 4,
+          "status": "approved",
+          "approved": true,
+          "current": 4,
+          "candidate": null,
+          "text": "Fictional original review 2",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 4,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 2"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "user": 5,
+          "status": "approved",
+          "approved": true,
+          "current": 7,
+          "candidate": 8,
+          "text": "Fictional replacement from author <script>window.REVIEW_XSS=1</script>",
+          "rating": 3,
+          "public": true,
+          "revisions": [
+            {
+              "id": 5,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 3"
+            },
+            {
+              "id": 6,
+              "status": "pending",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 3"
+            },
+            {
+              "id": 7,
+              "status": "approved",
+              "rating": 3,
+              "text": "Fictional replacement from author <script>window.REVIEW_XSS=1</script>"
+            },
+            {
+              "id": 8,
+              "status": "pending",
+              "rating": 4,
+              "text": "Fictional pending correction retained during hide"
+            }
+          ]
+        }
+      ],
+      "places": [
+        {
+          "id": 1,
+          "status": "published",
+          "is_active": true,
+          "rating_avg": 4.5,
+          "rating_count": 4
+        },
+        {
+          "id": 2,
+          "status": "pending",
+          "is_active": false,
+          "rating_avg": 0,
+          "rating_count": 0
+        }
+      ],
+      "public_places": [
+        1
+      ],
+      "requests": [
+        {
+          "id": 1,
+          "status": "PENDING",
+          "base_ownership_version": 2
+        }
+      ]
+    },
+    {
+      "stage": "hidden",
+      "pid": 608888,
+      "read_only": true,
+      "synthetic_only": true,
+      "reviews": [
+        {
+          "id": 1,
+          "user": 2,
+          "status": "approved",
+          "approved": true,
+          "current": 1,
+          "candidate": null,
+          "text": "Fictional original review 0",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 1,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 0"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "user": 3,
+          "status": "approved",
+          "approved": true,
+          "current": 2,
+          "candidate": null,
+          "text": "Fictional original review 1",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 2,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 1"
+            },
+            {
+              "id": 3,
+              "status": "rejected",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 1"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "user": 4,
+          "status": "approved",
+          "approved": true,
+          "current": 4,
+          "candidate": null,
+          "text": "Fictional original review 2",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 4,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 2"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "user": 5,
+          "status": "approved",
+          "approved": false,
+          "current": 7,
+          "candidate": 8,
+          "text": "Fictional replacement from author <script>window.REVIEW_XSS=1</script>",
+          "rating": 3,
+          "public": false,
+          "revisions": [
+            {
+              "id": 5,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 3"
+            },
+            {
+              "id": 6,
+              "status": "pending",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 3"
+            },
+            {
+              "id": 7,
+              "status": "approved",
+              "rating": 3,
+              "text": "Fictional replacement from author <script>window.REVIEW_XSS=1</script>"
+            },
+            {
+              "id": 8,
+              "status": "pending",
+              "rating": 4,
+              "text": "Fictional pending correction retained during hide"
+            }
+          ]
+        }
+      ],
+      "places": [
+        {
+          "id": 1,
+          "status": "published",
+          "is_active": true,
+          "rating_avg": 5,
+          "rating_count": 3
+        },
+        {
+          "id": 2,
+          "status": "pending",
+          "is_active": false,
+          "rating_avg": 0,
+          "rating_count": 0
+        }
+      ],
+      "public_places": [
+        1
+      ],
+      "requests": [
+        {
+          "id": 1,
+          "status": "PENDING",
+          "base_ownership_version": 2
+        }
+      ]
+    },
+    {
+      "stage": "restored",
+      "pid": 608888,
+      "read_only": true,
+      "synthetic_only": true,
+      "reviews": [
+        {
+          "id": 1,
+          "user": 2,
+          "status": "approved",
+          "approved": true,
+          "current": 1,
+          "candidate": null,
+          "text": "Fictional original review 0",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 1,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 0"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "user": 3,
+          "status": "approved",
+          "approved": true,
+          "current": 2,
+          "candidate": null,
+          "text": "Fictional original review 1",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 2,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 1"
+            },
+            {
+              "id": 3,
+              "status": "rejected",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 1"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "user": 4,
+          "status": "approved",
+          "approved": true,
+          "current": 4,
+          "candidate": null,
+          "text": "Fictional original review 2",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 4,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 2"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "user": 5,
+          "status": "approved",
+          "approved": true,
+          "current": 7,
+          "candidate": 8,
+          "text": "Fictional replacement from author <script>window.REVIEW_XSS=1</script>",
+          "rating": 3,
+          "public": true,
+          "revisions": [
+            {
+              "id": 5,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 3"
+            },
+            {
+              "id": 6,
+              "status": "pending",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 3"
+            },
+            {
+              "id": 7,
+              "status": "approved",
+              "rating": 3,
+              "text": "Fictional replacement from author <script>window.REVIEW_XSS=1</script>"
+            },
+            {
+              "id": 8,
+              "status": "pending",
+              "rating": 4,
+              "text": "Fictional pending correction retained during hide"
+            }
+          ]
+        }
+      ],
+      "places": [
+        {
+          "id": 1,
+          "status": "published",
+          "is_active": true,
+          "rating_avg": 4.5,
+          "rating_count": 4
+        },
+        {
+          "id": 2,
+          "status": "pending",
+          "is_active": false,
+          "rating_avg": 0,
+          "rating_count": 0
+        }
+      ],
+      "public_places": [
+        1
+      ],
+      "requests": [
+        {
+          "id": 1,
+          "status": "PENDING",
+          "base_ownership_version": 2
+        }
+      ]
+    },
+    {
+      "stage": "correction-approved",
+      "pid": 608888,
+      "read_only": true,
+      "synthetic_only": true,
+      "reviews": [
+        {
+          "id": 1,
+          "user": 2,
+          "status": "approved",
+          "approved": true,
+          "current": 1,
+          "candidate": null,
+          "text": "Fictional original review 0",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 1,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 0"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "user": 3,
+          "status": "approved",
+          "approved": true,
+          "current": 2,
+          "candidate": null,
+          "text": "Fictional original review 1",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 2,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 1"
+            },
+            {
+              "id": 3,
+              "status": "rejected",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 1"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "user": 4,
+          "status": "approved",
+          "approved": true,
+          "current": 4,
+          "candidate": null,
+          "text": "Fictional original review 2",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 4,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 2"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "user": 5,
+          "status": "approved",
+          "approved": true,
+          "current": 8,
+          "candidate": null,
+          "text": "Fictional pending correction retained during hide",
+          "rating": 4,
+          "public": true,
+          "revisions": [
+            {
+              "id": 5,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 3"
+            },
+            {
+              "id": 6,
+              "status": "pending",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 3"
+            },
+            {
+              "id": 7,
+              "status": "approved",
+              "rating": 3,
+              "text": "Fictional replacement from author <script>window.REVIEW_XSS=1</script>"
+            },
+            {
+              "id": 8,
+              "status": "approved",
+              "rating": 4,
+              "text": "Fictional pending correction retained during hide"
+            }
+          ]
+        }
+      ],
+      "places": [
+        {
+          "id": 1,
+          "status": "published",
+          "is_active": true,
+          "rating_avg": 4.75,
+          "rating_count": 4
+        },
+        {
+          "id": 2,
+          "status": "pending",
+          "is_active": false,
+          "rating_avg": 0,
+          "rating_count": 0
+        }
+      ],
+      "public_places": [
+        1
+      ],
+      "requests": [
+        {
+          "id": 1,
+          "status": "PENDING",
+          "base_ownership_version": 2
+        }
+      ]
+    },
+    {
+      "stage": "after-preview",
+      "pid": 608888,
+      "read_only": true,
+      "synthetic_only": true,
+      "reviews": [
+        {
+          "id": 1,
+          "user": 2,
+          "status": "approved",
+          "approved": true,
+          "current": 1,
+          "candidate": null,
+          "text": "Fictional original review 0",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 1,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 0"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "user": 3,
+          "status": "approved",
+          "approved": true,
+          "current": 2,
+          "candidate": null,
+          "text": "Fictional original review 1",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 2,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 1"
+            },
+            {
+              "id": 3,
+              "status": "rejected",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 1"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "user": 4,
+          "status": "approved",
+          "approved": true,
+          "current": 4,
+          "candidate": null,
+          "text": "Fictional original review 2",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 4,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 2"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "user": 5,
+          "status": "approved",
+          "approved": true,
+          "current": 8,
+          "candidate": null,
+          "text": "Fictional pending correction retained during hide",
+          "rating": 4,
+          "public": true,
+          "revisions": [
+            {
+              "id": 5,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 3"
+            },
+            {
+              "id": 6,
+              "status": "pending",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 3"
+            },
+            {
+              "id": 7,
+              "status": "approved",
+              "rating": 3,
+              "text": "Fictional replacement from author <script>window.REVIEW_XSS=1</script>"
+            },
+            {
+              "id": 8,
+              "status": "approved",
+              "rating": 4,
+              "text": "Fictional pending correction retained during hide"
+            }
+          ]
+        }
+      ],
+      "places": [
+        {
+          "id": 1,
+          "status": "published",
+          "is_active": true,
+          "rating_avg": 4.75,
+          "rating_count": 4
+        },
+        {
+          "id": 2,
+          "status": "pending",
+          "is_active": false,
+          "rating_avg": 0,
+          "rating_count": 0
+        }
+      ],
+      "public_places": [
+        1
+      ],
+      "requests": [
+        {
+          "id": 1,
+          "status": "PENDING",
+          "base_ownership_version": 2
+        }
+      ]
+    },
+    {
+      "stage": "final",
+      "pid": 608888,
+      "read_only": true,
+      "synthetic_only": true,
+      "reviews": [
+        {
+          "id": 1,
+          "user": 2,
+          "status": "approved",
+          "approved": true,
+          "current": 1,
+          "candidate": null,
+          "text": "Fictional original review 0",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 1,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 0"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "user": 3,
+          "status": "approved",
+          "approved": true,
+          "current": 2,
+          "candidate": null,
+          "text": "Fictional original review 1",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 2,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 1"
+            },
+            {
+              "id": 3,
+              "status": "rejected",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 1"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "user": 4,
+          "status": "approved",
+          "approved": true,
+          "current": 4,
+          "candidate": null,
+          "text": "Fictional original review 2",
+          "rating": 5,
+          "public": true,
+          "revisions": [
+            {
+              "id": 4,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 2"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "user": 5,
+          "status": "approved",
+          "approved": true,
+          "current": 8,
+          "candidate": null,
+          "text": "Fictional pending correction retained during hide",
+          "rating": 4,
+          "public": true,
+          "revisions": [
+            {
+              "id": 5,
+              "status": "approved",
+              "rating": 5,
+              "text": "Fictional original review 3"
+            },
+            {
+              "id": 6,
+              "status": "pending",
+              "rating": 2,
+              "text": "Fictional EDIT awaiting approval 3"
+            },
+            {
+              "id": 7,
+              "status": "approved",
+              "rating": 3,
+              "text": "Fictional replacement from author <script>window.REVIEW_XSS=1</script>"
+            },
+            {
+              "id": 8,
+              "status": "approved",
+              "rating": 4,
+              "text": "Fictional pending correction retained during hide"
+            }
+          ]
+        }
+      ],
+      "places": [
+        {
+          "id": 1,
+          "status": "published",
+          "is_active": true,
+          "rating_avg": 4.75,
+          "rating_count": 4
+        },
+        {
+          "id": 2,
+          "status": "published",
+          "is_active": true,
+          "rating_avg": 0,
+          "rating_count": 0
+        }
+      ],
+      "public_places": [
+        2,
+        1
+      ],
+      "requests": [
+        {
+          "id": 1,
+          "status": "PENDING",
+          "base_ownership_version": 2
+        }
+      ]
+    }
+  ],
+  "diagnostics": [
+    {
+      "type": "http",
+      "status": 409,
+      "path": "/admin/catalog/placereview/4/approve/"
+    }
+  ],
+  "browser": "153.0.8010.36",
+  "hosts": {
+    "admin": "http://127.0.0.1:40257",
+    "public": "http://localhost:40257"
+  }
+}

@@ -50,8 +50,12 @@
             <button type="button" class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm km-pf-btn--danger" data-main-photo-clear>
               <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-delete"></use></svg>{% translate "Удалить" %}
             </button>
-            {% if obj.pk and obj.get_absolute_url %}
-              <a class="km-pf-linkbtn" href="{{ obj.get_absolute_url }}" target="_blank" rel="noopener">{% translate "Посмотреть на сайте" %}</a>
+            {% if obj.pk %}
+              {% if km_place_public_link.is_public %}
+                <a class="km-pf-linkbtn" href="{{ km_place_public_link.url }}" target="_blank" rel="noopener">{% translate "Посмотреть на сайте" %}</a>
+              {% elif km_place_site_preview_url %}
+                <a class="km-pf-linkbtn" href="{{ km_place_site_preview_url }}" target="_blank" rel="noopener">{% translate "Превью на сайте" %}</a>
+              {% endif %}
             {% endif %}
           </div>
         </div>

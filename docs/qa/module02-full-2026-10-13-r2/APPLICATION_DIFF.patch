@@ -1,0 +1,254 @@
+diff --git a/locale/az/LC_MESSAGES/django.po b/locale/az/LC_MESSAGES/django.po
+index e4a93ebc..52b9d97d 100644
+--- a/locale/az/LC_MESSAGES/django.po
++++ b/locale/az/LC_MESSAGES/django.po
+@@ -14697,10 +14697,9 @@ msgid "Быстрые действия"
+ msgstr "Kodun etibarlılıq müddəti"
+ 
+ #: src/catalog/templates/admin/catalog/placeownershiprequest/change_form.html:135
+-#, fuzzy
+ #| msgid "Одобрить"
+ msgid "Одобрить заявку"
+-msgstr "Təsdiqlə"
++msgstr "Müraciəti təsdiqlə"
+ 
+ #: src/catalog/templates/admin/catalog/placeownershiprequest/change_form.html:147
+ #, fuzzy
+@@ -22952,3 +22951,60 @@ msgstr "Biznes"
+ #: src/catalog/models/catalog_structure.py
+ msgid "Общественное место"
+ msgstr "İctimai məkan"
++
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Названия"
++msgstr "Adlar"
++
++#: src/catalog/models/catalog_structure.py
++msgid "Организации"
++msgstr "Təşkilatlar"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Владение"
++msgstr "Sahiblik"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Проверка данных"
++msgstr "Məlumatların yoxlanılması"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Владелец не назначен"
++msgstr "Sahib təyin edilməyib"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Владение проверено"
++msgstr "Sahiblik yoxlanılıb"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Владение не проверено"
++msgstr "Sahiblik yoxlanılmayıb"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Связанные разделы"
++msgstr "Əlaqəli bölmələr"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Текущие и предложенные данные"
++msgstr "Cari və təklif olunan məlumatlar"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Программы"
++msgstr "Proqramlar"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Черновик и проверка не меняют публичные данные до одобрения."
++msgstr "Qaralama və yoxlama təsdiqdən əvvəl açıq məlumatları dəyişmir."
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Приглашённый редактор сможет менять организацию и общие программы после принятия приглашения."
++msgstr "Dəvət olunan redaktor dəvəti qəbul etdikdən sonra təşkilatı və ümumi proqramları dəyişə biləcək."
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Email сотрудника"
++msgstr "Əməkdaşın email ünvanı"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Пригласить сотрудника"
++msgstr "Əməkdaş dəvət et"
+diff --git a/locale/en/LC_MESSAGES/django.po b/locale/en/LC_MESSAGES/django.po
+index d5fcb4ce..7a37d007 100644
+--- a/locale/en/LC_MESSAGES/django.po
++++ b/locale/en/LC_MESSAGES/django.po
+@@ -14618,10 +14618,9 @@ msgid "Быстрые действия"
+ msgstr "Code valid until"
+ 
+ #: src/catalog/templates/admin/catalog/placeownershiprequest/change_form.html:135
+-#, fuzzy
+ #| msgid "Одобрить"
+ msgid "Одобрить заявку"
+-msgstr "Approve"
++msgstr "Approve submission"
+ 
+ #: src/catalog/templates/admin/catalog/placeownershiprequest/change_form.html:147
+ #, fuzzy
+@@ -22806,3 +22805,60 @@ msgstr "Business"
+ #: src/catalog/models/catalog_structure.py
+ msgid "Общественное место"
+ msgstr "Public space"
++
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Названия"
++msgstr "Names"
++
++#: src/catalog/models/catalog_structure.py
++msgid "Организации"
++msgstr "Organizations"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Владение"
++msgstr "Ownership"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Проверка данных"
++msgstr "Data verification"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Владелец не назначен"
++msgstr "No owner assigned"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Владение проверено"
++msgstr "Ownership verified"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Владение не проверено"
++msgstr "Ownership not verified"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Связанные разделы"
++msgstr "Related sections"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Текущие и предложенные данные"
++msgstr "Current and proposed data"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Программы"
++msgstr "Programs"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Черновик и проверка не меняют публичные данные до одобрения."
++msgstr "Drafts and review do not change public data before approval."
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Приглашённый редактор сможет менять организацию и общие программы после принятия приглашения."
++msgstr "The invited editor can edit the organization and shared programs after accepting the invitation."
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Email сотрудника"
++msgstr "Employee email"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Пригласить сотрудника"
++msgstr "Invite employee"
+diff --git a/locale/ru/LC_MESSAGES/django.po b/locale/ru/LC_MESSAGES/django.po
+index 4df90a74..11f0e0e1 100644
+--- a/locale/ru/LC_MESSAGES/django.po
++++ b/locale/ru/LC_MESSAGES/django.po
+@@ -20380,3 +20380,59 @@ msgstr "Скрывает каталог специалистов, ссылки 
+ 
+ msgid "Галочка включена — раздел виден посетителям. Снимите галочку и нажмите «Сохранить», чтобы скрыть раздел до готовности. Данные не удаляются: редактирование в админке остаётся доступным. Чтобы вернуть раздел, поставьте галочку и сохраните снова."
+ msgstr "Галочка включена — раздел виден посетителям. Снимите галочку и нажмите «Сохранить», чтобы скрыть раздел до готовности. Данные не удаляются: редактирование в админке остаётся доступным. Чтобы вернуть раздел, поставьте галочку и сохраните снова."
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Названия"
++msgstr "Названия"
++
++#: src/catalog/models/catalog_structure.py
++msgid "Организации"
++msgstr "Организации"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Владение"
++msgstr "Владение"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Проверка данных"
++msgstr "Проверка данных"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Владелец не назначен"
++msgstr "Владелец не назначен"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Владение проверено"
++msgstr "Владение проверено"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Владение не проверено"
++msgstr "Владение не проверено"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Связанные разделы"
++msgstr "Связанные разделы"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Текущие и предложенные данные"
++msgstr "Текущие и предложенные данные"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Программы"
++msgstr "Программы"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Черновик и проверка не меняют публичные данные до одобрения."
++msgstr "Черновик и проверка не меняют публичные данные до одобрения."
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Приглашённый редактор сможет менять организацию и общие программы после принятия приглашения."
++msgstr "Приглашённый редактор сможет менять организацию и общие программы после принятия приглашения."
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Email сотрудника"
++msgstr "Email сотрудника"
++
++#: src/catalog/domain_admin/business.py src/catalog/templates/admin/catalog/business/change_form.html
++msgid "Пригласить сотрудника"
++msgstr "Пригласить сотрудника"
+diff --git a/static/admin/css/pages/kidsmap_changelist.css b/static/admin/css/pages/kidsmap_changelist.css
+index 45b38028..691e1784 100644
+--- a/static/admin/css/pages/kidsmap_changelist.css
++++ b/static/admin/css/pages/kidsmap_changelist.css
+@@ -462,11 +462,11 @@ details[open] .km-accordion-arrow {
+   min-width: 0;
+ }
+ 
+-/* The admin theme styles #changelist-search as a wrapped card.  This screen
+-   owns that form, so neutralise the theme rule and keep the toolbar one row. */
++/* The screen owns this search form. Neutralise the theme card styling and
++   let controls wrap according to the content width, including the sidebar. */
+ .km-toolbar #changelist-search.km-search-form {
+   display: flex !important;
+-  flex-wrap: nowrap !important;
++  flex-wrap: wrap !important;
+   align-items: center;
+   gap: 8px;
+   width: 100%;
+@@ -731,6 +731,8 @@ details[open] .km-accordion-arrow {
+ .km-toolbar-right {
+   margin-left: auto;
+   display: flex;
++  flex-wrap: wrap;
++  max-width: 100%;
+   align-items: center;
+   gap: 14px;
+   flex-shrink: 0;
+@@ -2742,6 +2744,7 @@ details[open] .km-accordion-arrow {
+ }
+ 
+ .km-columns-details {
++  margin-left: auto;
+   position: relative;
+ }
+ 

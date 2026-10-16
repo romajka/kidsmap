@@ -1,0 +1,2 @@
+async original=>{__COMMON__
+const x=await context();try{await visit(x.p,'/ru/account/places/2/edit/');return{fields:await x.p.locator('select,input').evaluateAll(es=>es.map(e=>({name:e.name,type:e.type,key:e.dataset.tariffKey,options:e.tagName==='SELECT'?[...e.options].map(o=>({value:o.value,text:o.text})):[]}))),buttons:await x.p.locator('[data-photo-action]').evaluateAll(es=>es.map(e=>({action:e.dataset.photoAction,text:e.textContent})))}}finally{await x.c.close();}}

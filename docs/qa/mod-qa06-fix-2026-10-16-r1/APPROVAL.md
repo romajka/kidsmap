@@ -1,0 +1,1 @@
+User approval: «одобряю», 2026-10-16. Exact scope: ../mod-qa06-recheck-2026-10-16-r1/IMPLEMENTATION_PLAN.md, five application files and one NEW targeted regression test. No full module suite until tasks completed.

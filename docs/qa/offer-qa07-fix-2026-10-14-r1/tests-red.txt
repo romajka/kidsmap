@@ -1,0 +1,94 @@
+Found 6 test(s).
+System check identified no issues (0 silenced).
+Using existing test database for alias 'default'...
+EEEEEE
+======================================================================
+ERROR: test_consumed_copy_write_conflicts_and_completion_is_idempotent (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_consumed_copy_write_conflicts_and_completion_is_idempotent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_offer_qa07_stale_draft_restore.py", line 43, in test_consumed_copy_write_conflicts_and_completion_is_idempotent
+    d=self.draft();self.finish(str(d.pk));self.finish(str(d.pk));d.refresh_from_db()
+                   ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_offer_qa07_stale_draft_restore.py", line 23, in finish
+    return server_drafts.mark_explicit_save(user=self.owner,draft_id=draft_id,place=self.place,target_id=self.place.pk,cutoff=self.cutoff)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+TypeError: mark_explicit_save() got an unexpected keyword argument 'cutoff'
+
+======================================================================
+ERROR: test_creation_keeps_unrelated_null_target_drafts (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_creation_keeps_unrelated_null_target_drafts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_offer_qa07_stale_draft_restore.py", line 40, in test_creation_keeps_unrelated_null_target_drafts
+    server_drafts.mark_explicit_save(user=self.owner,draft_id=str(used.pk),place=self.place,target_id=None,cutoff=self.cutoff)
+  File "/usr/lib/python3.12/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+TypeError: mark_explicit_save() got an unexpected keyword argument 'cutoff'
+
+======================================================================
+ERROR: test_mismatched_id_does_not_authorize_retirement (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_mismatched_id_does_not_authorize_retirement)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_offer_qa07_stale_draft_restore.py", line 36, in test_mismatched_id_does_not_authorize_retirement
+    mine=self.draft();foreign=self.draft(actor=self.other);self.finish(str(foreign.pk));mine.refresh_from_db();self.assertIsNone(mine.materialized_place_id)
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_offer_qa07_stale_draft_restore.py", line 23, in finish
+    return server_drafts.mark_explicit_save(user=self.owner,draft_id=draft_id,place=self.place,target_id=self.place.pk,cutoff=self.cutoff)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+TypeError: mark_explicit_save() got an unexpected keyword argument 'cutoff'
+
+======================================================================
+ERROR: test_missing_id_retires_older_same_actor_target_and_preserves_payload (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_missing_id_retires_older_same_actor_target_and_preserves_payload)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_offer_qa07_stale_draft_restore.py", line 25, in test_missing_id_retires_older_same_actor_target_and_preserves_payload
+    a=self.draft();self.finish();a.refresh_from_db()
+                   ^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_offer_qa07_stale_draft_restore.py", line 23, in finish
+    return server_drafts.mark_explicit_save(user=self.owner,draft_id=draft_id,place=self.place,target_id=self.place.pk,cutoff=self.cutoff)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+TypeError: mark_explicit_save() got an unexpected keyword argument 'cutoff'
+
+======================================================================
+ERROR: test_newer_copy_is_not_retired_even_if_its_id_is_supplied (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_newer_copy_is_not_retired_even_if_its_id_is_supplied)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_offer_qa07_stale_draft_restore.py", line 30, in test_newer_copy_is_not_retired_even_if_its_id_is_supplied
+    a=self.draft(newer=True);self.finish(str(a.pk));a.refresh_from_db();self.assertIsNone(a.materialized_place_id)
+                             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_offer_qa07_stale_draft_restore.py", line 23, in finish
+    return server_drafts.mark_explicit_save(user=self.owner,draft_id=draft_id,place=self.place,target_id=self.place.pk,cutoff=self.cutoff)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+TypeError: mark_explicit_save() got an unexpected keyword argument 'cutoff'
+
+======================================================================
+ERROR: test_other_actor_and_other_target_are_preserved (catalog.testcases.test_offer_qa07_stale_draft_restore.StaleDraftRetirementTests.test_other_actor_and_other_target_are_preserved)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_offer_qa07_stale_draft_restore.py", line 33, in test_other_actor_and_other_target_are_preserved
+    self.finish(str(mine.pk))
+  File "/home/ramin/kidsmap/src/catalog/testcases/test_offer_qa07_stale_draft_restore.py", line 23, in finish
+    return server_drafts.mark_explicit_save(user=self.owner,draft_id=draft_id,place=self.place,target_id=self.place.pk,cutoff=self.cutoff)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+TypeError: mark_explicit_save() got an unexpected keyword argument 'cutoff'
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.996s
+
+FAILED (errors=6)
+Preserving test database for alias 'default'...

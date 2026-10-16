@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "docker",
+    "run",
+    "-d",
+    "--name",
+    "social-qa01-fix-2026-10-16-r1-pg",
+    "--label",
+    "kidsmap.qa.run=social-qa01-fix-2026-10-16-r1",
+    "-p",
+    "127.0.0.1:44905:5432",
+    "-e",
+    "POSTGRES_DB=social01_fix_r1",
+    "-e",
+    "POSTGRES_USER=social01_fix_r1",
+    "-e",
+    "POSTGRES_PASSWORD",
+    "postgres:17-alpine"
+  ],
+  "exit": 0,
+  "container_id": "d91c2648213947bf09905bfe6c3f4350b0a0d29bf770ea4b58949e1f77567f71",
+  "stderr": ""
+}

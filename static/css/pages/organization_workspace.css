@@ -926,6 +926,21 @@
   text-decoration: underline;
 }
 
+.org-team-row { flex-wrap: wrap; }
+.org-team-row strong, .org-team-row small { overflow-wrap: anywhere; }
+.org-team-actions { flex: 0 1 360px; min-width: 0; }
+.org-team-actions form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.org-team-actions form[hidden] { display: none; }
+.org-team-actions form p, .org-team-actions form small { flex-basis: 100%; margin: 4px 0; overflow-wrap: anywhere; }
+.org-team-actions select { max-width: 100%; padding: 8px; border: 1px solid #dce8e0; border-radius: 8px; }
+.org-team-actions button { min-height: 40px; text-align: start; }
+.org-team-actions button:disabled { opacity: .55; cursor: wait; }
+[data-team-management-status] { overflow-wrap: anywhere; }
+@media (max-width: 768px) {
+  .org-team-actions { flex-basis: 100%; }
+  .org-team-row > span:nth-child(2) { flex-basis: calc(100% - 54px); }
+}
+
 /* ── Tabs ── */
 .org-tabs {
   display: flex;
@@ -1283,3 +1298,20 @@
 @media (max-width: 600px) { .org-recovery { padding: 18px; margin: 16px 0; } .org-pending-row[data-join-request] { flex-wrap: wrap; } }
 
 .org-pending-row[data-join-request] .org-text-action { min-height: 44px; display: inline-flex; align-items: center; padding: 10px 12px; }
+
+/* Program decisions: terminal proposals stay separate from editable content. */
+.org-program-decision,
+.org-program-proposal {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
+.org-program-decision { display: block; }
+.org-program-decision-note,
+.org-program-proposal dd {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.org-program-proposal dt { font-weight: 600; }
+.org-program-proposal dd { margin: 4px 0 16px; }

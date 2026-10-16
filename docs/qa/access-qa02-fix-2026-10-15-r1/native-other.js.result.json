@@ -1,0 +1,460 @@
+{
+  "rows": [
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "nojs",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "nojs",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "nojs",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 178,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "nojs",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "nojs",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "nojs",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "nojs",
+      "name": "place: JS-disabled native decline persists",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 61,
+        "target_id": 1,
+        "notification_id": 193,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "nojs",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "nojs",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 181.421875,
+        "width": 390
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "nojs",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 302,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "nojs",
+      "name": "organization: JS-disabled native decline persists",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 61,
+        "target_id": 1,
+        "notification_id": 194,
+        "status": "REJECTED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 1
+      }
+    },
+    {
+      "lang": "az",
+      "width": 390,
+      "scenario": "nojs",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 179,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "owner-transfer",
+      "name": "place: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 302
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "owner-transfer",
+      "name": "organization: owner native invitation",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "status": "PENDING"
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "owner-transfer",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 2,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 180,
+        "scheduler": "SIMULATED manual tick"
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "owner-transfer",
+      "name": "place: real canonical ownership transfer",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "version": 2,
+        "transport": "Existing HTTP API; not an owner-transfer UI claim"
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "owner-transfer",
+      "name": "place: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 226.0625,
+        "width": 390
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "owner-transfer",
+      "name": "place: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 226.0625,
+        "width": 390
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "owner-transfer",
+      "name": "place: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "owner-transfer",
+      "name": "place: owner change invalidates old decision",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 62,
+        "target_id": 2,
+        "notification_id": 197,
+        "status": "CANCELED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 0
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "owner-transfer",
+      "name": "organization: real canonical ownership transfer",
+      "status": "PASS",
+      "detail": {
+        "http": 200,
+        "version": 2,
+        "transport": "Existing HTTP API; not an owner-transfer UI claim"
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "owner-transfer",
+      "name": "organization: native keyboard visible focus",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 226.0625,
+        "width": 390
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "owner-transfer",
+      "name": "organization: decline control fits viewport",
+      "status": "PASS",
+      "detail": {
+        "active": true,
+        "focusVisible": true,
+        "outline": "rgb(16, 16, 16) auto 1px",
+        "outlineStyle": "auto",
+        "outlineWidth": "1px",
+        "shadow": "none",
+        "x": 46,
+        "right": 226.0625,
+        "width": 390
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "owner-transfer",
+      "name": "organization: native decline HTTP",
+      "status": "PASS",
+      "detail": {
+        "http": 409,
+        "key": "Enter"
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "owner-transfer",
+      "name": "organization: owner change invalidates old decision",
+      "status": "PASS",
+      "detail": {
+        "invitation_id": 62,
+        "target_id": 2,
+        "notification_id": 198,
+        "status": "CANCELED",
+        "responded": true,
+        "active_grants": 0,
+        "decision_count": 0
+      }
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "scenario": "owner-transfer",
+      "name": "Own filebased mail delivered",
+      "status": "PASS",
+      "detail": {
+        "delivery": {
+          "sent": 4,
+          "retry": 0,
+          "failed": 0,
+          "suppressed": 0
+        },
+        "file_count": 184,
+        "scheduler": "SIMULATED manual tick"
+      }
+    }
+  ],
+  "completedCells": [
+    {
+      "lang": "az",
+      "width": 390,
+      "case": "nojs"
+    },
+    {
+      "lang": "ru",
+      "width": 390,
+      "case": "transfer"
+    }
+  ],
+  "error": null,
+  "diagnostics": {
+    "console": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      }
+    ],
+    "pageerrors": [
+      "AbortError: Transition was skipped",
+      "AbortError: Transition was skipped",
+      "AbortError: Transition was skipped"
+    ],
+    "requestFailures": [
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      },
+      {
+        "kind": "external-blocked",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector"
+      }
+    ],
+    "badResponses": [
+      {
+        "path": "/ru/account/notifications/197/reject/",
+        "status": 409,
+        "expected": true
+      },
+      {
+        "path": "/ru/account/notifications/198/reject/",
+        "status": 409,
+        "expected": true
+      }
+    ]
+  },
+  "browser": "149.0.7827.55",
+  "simulation": "Owner invitations, native recipient decisions/cancel and readback real. External transport blocked; manual local mail scheduler tick explicitly SIMULATED; any stale-fixture/network simulation is labeled per scenario."
+}

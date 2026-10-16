@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from catalog.models import Organization, OrganizationGrant, SiteSettings, Specialist
+from catalog.testcases.specialist_document_fixtures import pdf_document_bytes
 from catalog.services import specialist_documents, specialist_domain
 
 
@@ -49,7 +50,7 @@ class SpecialistScreensSecurityTests(TestCase):
         return specialist_documents.upload_document(actor=person or self.person,
             specialist_id=(profile or self.profile).pk, document_type=kind,
             name='SYNTHETIC PRIVATE DOCUMENT',
-            uploaded_file=SimpleUploadedFile('synthetic.pdf', b'%PDF synthetic security25'))
+            uploaded_file=SimpleUploadedFile('synthetic.pdf', pdf_document_bytes()))
 
     def link(self, profile=None, organization=None, actor=None):
         return specialist_domain.propose_employment(actor=actor or self.owner,

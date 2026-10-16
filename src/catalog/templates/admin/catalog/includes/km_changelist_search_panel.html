@@ -1,4 +1,5 @@
 {% load i18n static admin_list admin_urls jazzmin admin_dashboard_tags %}
+{% km_drawer_filters cl as drawer_filters %}
 {# Icons on this panel are SVG references, so the sprite has to be present. #}
 {% include "admin/catalog/includes/km_icon_sprite.html" %}
 
@@ -37,7 +38,7 @@
           </details>
         {% endif %}
       </div>
-      <span class="km-status-tabs__hint">{% translate "Вкладки — единственный фильтр по статусу" %}</span>
+      {% if not drawer_filters.entity_specific %}<span class="km-status-tabs__hint">{% translate "Вкладки — единственный фильтр по статусу" %}</span>{% endif %}
     </div>
   {% endif %}
 
@@ -208,42 +209,27 @@
             </div>
           </div>
         </details>
-        <details class="km-columns-details" id="km-columns-menu">
+        {% km_column_options cl as column_menu %}
+        <details class="km-columns-details" id="km-columns-menu" data-storage-key="{{ column_menu.storage_key }}">
           <summary class="km-btn-columns">
             <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-view_column"></use></svg>
             <span>{% translate "Колонки" %}</span>
           </summary>
           <div class="km-columns-dropdown">
-            <label class="km-column-option">
-              <input type="checkbox" data-toggle-col="column-col_place" checked disabled>
-              <span>{% translate "Место" %}</span>
-            </label>
-            <label class="km-column-option">
-              <input type="checkbox" data-toggle-col="column-col_location" checked>
-              <span>{% translate "Локация" %}</span>
-            </label>
-            <label class="km-column-option">
-              <input type="checkbox" data-toggle-col="column-col_state" checked>
-              <span>{% translate "Состояние" %}</span>
-            </label>
-            <label class="km-column-option">
-              <input type="checkbox" data-toggle-col="column-col_marks" checked>
-              <span>{% translate "Метки" %}</span>
-            </label>
-            <label class="km-column-option">
-              <input type="checkbox" data-toggle-col="column-col_updated" checked>
-              <span>{% translate "Обновлено / Создано" %}</span>
-            </label>
+            {% for column in column_menu.options %}
+              <label class="km-column-option">
+                <input type="checkbox" data-toggle-col="{{ column.target }}" data-column-index="{{ column.index }}" checked{% if column.required %} disabled{% endif %}>
+                <span>{{ column.label }}</span>
+              </label>
+            {% endfor %}
           </div>
         </details>
       </div>
 
       <!-- Сохранение прочих GET-параметров -->
-      {% admin_extra_filters cl as extra_filters %}
-      {% for pair in extra_filters.items %}
-        {% if pair.0 != 'q' %}
-          <input type="hidden" name="{{ pair.0 }}" value="{{ pair.1 }}">
-        {% endif %}
+      {% km_search_hidden_params cl as search_hidden_params %}
+      {% for key, value in search_hidden_params %}
+        <input type="hidden" name="{{ key }}" value="{{ value }}">
       {% endfor %}
     </form>
   </div>
@@ -279,24 +265,22 @@
   <!-- Выпадающая панель фильтров (1f) -->
   <div class="km-filters-drawer place-admin-dashboard__extra-filters" id="km-filters-drawer" hidden>
     <div class="km-filters-drawer__grid">
-      {% for spec in cl.filter_specs %}
-        {% if spec.field_path == 'created_by' or spec.field_path == 'created_date' or spec.field_path == 'category' or spec.field_path == 'district' or spec.field_path == 'is_verified' %}
-          <div class="km-filter-group">
-            <label class="km-filter-label">{{ spec.title }}</label>
-            {% admin_filter_choices cl spec as spec_choices %}
-            <div class="km-select-wrap">
-              <select class="km-filter-select" data-filter-select data-field="{{ spec.field_path }}">
-                {% for choice in spec_choices %}
-                  <option value="{{ choice.query_string }}"{% if choice.selected %} selected{% endif %}>{{ choice.display }}</option>
-                {% endfor %}
-              </select>
-              <svg class="km-i km-select-arrow" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
-            </div>
+      {% for group in drawer_filters.groups %}
+        <div class="km-filter-group">
+          <label class="km-filter-label" for="km-drawer-select-{{ forloop.counter }}">{{ group.title }}</label>
+          <div class="km-select-wrap">
+            <select id="km-drawer-select-{{ forloop.counter }}" class="km-filter-select" data-filter-select data-field="{{ group.field }}">
+              {% for choice in group.choices %}
+                <option value="{{ choice.query_string }}"{% if choice.selected %} selected{% endif %}>{{ choice.display }}</option>
+              {% endfor %}
+            </select>
+            <svg class="km-i km-select-arrow" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
           </div>
-        {% endif %}
+        </div>
       {% endfor %}
     </div>
 
+    {% if drawer_filters.show_quality %}
     <div class="km-filter-chips-section">
       <span class="km-filter-label">{% translate "Качество данных" %}</span>
       <div class="km-filter-chips">
@@ -316,6 +300,7 @@
       </div>
     </div>
 
+    {% endif %}
     <div class="km-filters-drawer__footer">
       <span class="km-filters-count-info">
         {% blocktranslate with count=cl.result_count %}Найдено {{ count }} карточек{% endblocktranslate %}

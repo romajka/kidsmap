@@ -1309,3 +1309,42 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* Owner forms size this editor by available table width, including sidebar layouts. */
+.km-schedule-editor--owner .km-schedule-editor__table {
+  container-type: inline-size;
+  container-name: km-owner-schedule;
+}
+@container km-owner-schedule (max-width: 940px) {
+  .km-schedule-editor--owner .km-schedule-editor__header { display: none; }
+  .km-schedule-editor--owner .km-schedule-editor__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 14px 12px;
+    min-height: 0;
+  }
+  .km-schedule-editor--owner .km-schedule-editor__row > div { padding: 0; min-width: 0; }
+  .km-schedule-editor--owner .km-schedule-editor__status { flex-direction: row; align-items: center; gap: 12px; }
+  .km-schedule-editor--owner .km-schedule-editor__work,
+  .km-schedule-editor--owner .km-schedule-editor__intervals { width: 100%; }
+  .km-schedule-editor--owner .km-schedule-editor__copy {
+    justify-content: flex-start;
+    margin-left: 0;
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+}
+
+/* Keep the owner's copy picker within the viewport, outside table containment. */
+.km-schedule-editor--owner .km-schedule-editor__copy-popover {
+  max-height: calc(100dvh - 160px);
+  overflow-y: auto;
+}
+@media (min-width: 768px) {
+  .km-schedule-editor--owner .km-schedule-editor__copy-popover {
+    position: fixed;
+    top: 50% !important;
+    transform: translateY(-50%);
+    animation: none; /* The generic translate animation would override centering. */
+  }
+}

@@ -272,6 +272,22 @@
     const status = team.querySelector('[data-team-status]');
     const refresh = team.querySelector('[data-team-refresh]');
     const invitations = document.querySelector('[data-team-invitations]');
+    const management = document.querySelector('[data-team-management]');
+    const managementStatus = management?.querySelector('[data-team-management-status]');
+    const managementRefresh = management?.querySelector('[data-team-management-refresh]');
+    const managementCopy = {
+      ru: { busy: 'Сохраняем…', role: 'Роль сохранена.', revoke: 'Доступ отозван.', cancel: 'Приглашение отменено.', conflict: 'Запись изменилась. Список обновлён; проверьте данные перед повторным действием.', forbidden: 'Нет права выполнить действие.', invalid: 'Действие не выполнено. Проверьте данные.', uncertain: 'Не удалось подтвердить результат. Обновите список перед повторным действием.', listFailed: 'Не удалось обновить список. Обновите его перед повторным действием.', refreshed: 'Список обновлён.' },
+      az: { busy: 'Saxlanır…', role: 'Rol saxlanıldı.', revoke: 'Giriş ləğv edildi.', cancel: 'Dəvət ləğv edildi.', conflict: 'Məlumat dəyişib. Siyahı yeniləndi; təkrar əməliyyatdan əvvəl məlumatı yoxlayın.', forbidden: 'Bu əməliyyat üçün icazə yoxdur.', invalid: 'Əməliyyat yerinə yetirilmədi. Məlumatı yoxlayın.', uncertain: 'Nəticəni təsdiqləmək mümkün olmadı. Təkrar əməliyyatdan əvvəl siyahını yeniləyin.', listFailed: 'Siyahını yeniləmək mümkün olmadı. Təkrar əməliyyatdan əvvəl onu yeniləyin.', refreshed: 'Siyahı yeniləndi.' },
+      en: { busy: 'Saving…', role: 'Role saved.', revoke: 'Access revoked.', cancel: 'Invitation canceled.', conflict: 'The record changed. The list was refreshed; check it before trying again.', forbidden: 'You do not have permission for this action.', invalid: 'The action was not completed. Check the details.', uncertain: 'Could not confirm the result. Refresh the list before trying again.', listFailed: 'Could not refresh the list. Refresh it before trying again.', refreshed: 'List refreshed.' }
+    }[lang] || { busy: 'Saving…', role: 'Role saved.', revoke: 'Access revoked.', cancel: 'Invitation canceled.', conflict: 'The record changed.', forbidden: 'Permission denied.', invalid: 'Action failed.', uncertain: 'Could not confirm the result. Refresh the list.', listFailed: 'Could not refresh the list.', refreshed: 'List refreshed.' };
+    let managing = false;
+    const enableManagement = () => management?.querySelectorAll('[data-team-management-control]').forEach(control => { control.disabled = managing; });
+    const restoreManagementFocus = (bookmark) => {
+      if (!management || !bookmark) return;
+      const row = bookmark.kind === 'grant' ? management.querySelector(`[data-grant-row="${bookmark.id}"]`) : management.querySelector(`[data-team-invitation="${bookmark.id}"]`);
+      const target = row?.querySelector(bookmark.control === 'role' ? '[name="role"]' : '[data-team-confirm-open]');
+      (target || managementRefresh)?.focus();
+    };
     let sending = false;
     const setBusy = (busy, inviting = true) => {
       sending = busy;
@@ -288,9 +304,13 @@
         if (!response.ok) throw new Error('list');
         const html = new DOMParser().parseFromString(await response.text(), 'text/html');
         const current = html.querySelector('[data-team-invitations]');
-        if (!current) throw new Error('list');
-        // Replace only owner-visible, server-rendered invitations; preserve editor input.
+        const grants = management?.querySelector('[data-team-grants]');
+        const currentGrants = html.querySelector('[data-team-grants]');
+        if (!current || (grants && !currentGrants)) throw new Error('list');
+        // Replace only team fragments; do not reset either editor or invitation inputs.
         invitations.replaceChildren(...current.childNodes);
+        if (grants) grants.replaceChildren(...currentGrants.childNodes);
+        enableManagement();
         if (refresh) refresh.hidden = true;
         return true;
       } catch (_) {
@@ -298,9 +318,69 @@
         return false;
       }
     };
+    management?.addEventListener('click', event => {
+      const open = event.target.closest('[data-team-confirm-open]');
+      const close = event.target.closest('[data-team-confirm-close]');
+      if (managing) return;
+      if (open) {
+        const panel = document.getElementById(open.dataset.teamConfirmOpen);
+        if (!panel || !management.contains(panel)) return;
+        panel.hidden = false; open.setAttribute('aria-expanded', 'true');
+        panel.querySelector('[data-team-confirm-close]')?.focus();
+      } else if (close) {
+        const panel = close.closest('[data-team-operation]');
+        panel.hidden = true;
+        const trigger = management.querySelector(`[data-team-confirm-open="${panel.id}"]`);
+        trigger?.setAttribute('aria-expanded', 'false'); trigger?.focus();
+      }
+    });
+    management?.addEventListener('keydown', event => {
+      if (event.key !== 'Escape' || managing) return;
+      const panel = event.target.closest('[data-team-operation]');
+      if (panel && panel.dataset.teamOperation !== 'role') {
+        event.preventDefault(); panel.querySelector('[data-team-confirm-close]')?.click();
+      }
+    });
+    management?.addEventListener('submit', async event => {
+      const form = event.target.closest('[data-team-operation]');
+      if (!form) return;
+      event.preventDefault();
+      if (managing || sending) return;
+      const operation = form.dataset.teamOperation;
+      const payload = operation === 'cancel' ? { invitation_id: Number(form.dataset.invitationId) } : {
+        grant_id: Number(form.dataset.grantId), expected_version: Number(form.dataset.version),
+        ...(operation === 'revoke' ? { active: false } : { role: form.elements.role.value })
+      };
+      const bookmark = { kind: operation === 'cancel' ? 'invite' : 'grant', id: operation === 'cancel' ? payload.invitation_id : payload.grant_id, control: operation };
+      managing = true; management.setAttribute('aria-busy', 'true'); enableManagement();
+      managementStatus.textContent = managementCopy.busy;
+      let refreshed = false;
+      try {
+        const response = await fetch(form.action, { method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf }, body: JSON.stringify(payload) });
+        if (response.ok || response.status === 409) refreshed = await refreshInvitations();
+        if (response.ok) managementStatus.textContent = managementCopy[operation] + (refreshed ? '' : ' ' + managementCopy.listFailed);
+        else if (response.status === 409) managementStatus.textContent = refreshed ? managementCopy.conflict : managementCopy.listFailed;
+        else managementStatus.textContent = [403, 404].includes(response.status) ? managementCopy.forbidden : managementCopy.invalid;
+      } catch (_) {
+        // The POST may have committed: never retry blindly after a lost response.
+        managementStatus.textContent = managementCopy.uncertain;
+      } finally {
+        managing = false; management.setAttribute('aria-busy', 'false'); enableManagement();
+        if (refreshed) restoreManagementFocus(bookmark);
+        else if (form.isConnected) form.querySelector('[type="submit"]')?.focus();
+      }
+    });
+    managementRefresh?.addEventListener('click', async () => {
+      if (managing || sending) return;
+      managing = true; management.setAttribute('aria-busy', 'true'); enableManagement();
+      managementStatus.textContent = managementCopy.busy;
+      try { managementStatus.textContent = await refreshInvitations() ? managementCopy.refreshed : managementCopy.listFailed; }
+      finally { managing = false; management.setAttribute('aria-busy', 'false'); enableManagement(); managementRefresh.focus(); }
+    });
     team.addEventListener('submit', async event => {
       event.preventDefault();
-      if (sending) return;
+      if (sending || managing) return;
       const payload = {
         email: team.elements.email.value,
         role: team.elements.role.value,
@@ -338,7 +418,7 @@
       }
     });
     refresh?.addEventListener('click', async () => {
-      if (sending) return;
+      if (sending || managing) return;
       setBusy(true, false);
       if (status) status.textContent = copy.listRefreshing;
       try {
@@ -349,6 +429,10 @@
       }
     });
     // Release native controls only after safe JSON POST interception is installed.
+    enableManagement();
+    const managementUnavailable = management?.querySelector('[data-team-management-unavailable]');
+    if (managementUnavailable) managementUnavailable.hidden = true;
+    managementRefresh?.removeAttribute('aria-describedby');
     team.querySelectorAll('[data-team-control]').forEach(control => { control.disabled = false; });
     const unavailable = team.querySelector('[data-team-unavailable]');
     if (unavailable) unavailable.hidden = true;

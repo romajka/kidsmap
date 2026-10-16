@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from catalog.models import Organization, Specialist, SpecialistDocument
+from catalog.testcases.specialist_document_fixtures import pdf_document_bytes
 from catalog.services import specialist_domain
 
 
@@ -86,7 +87,7 @@ class SpecialistWorkspaceTests(TestCase):
         self.client.force_login(self.person)
         response = self.client.post(self.url('certificates/'), {'action': 'upload',
             'document_type': 'identity', 'name': 'Synthetic evidence',
-            'file': SimpleUploadedFile('synthetic.pdf', b'%PDF synthetic')})
+            'file': SimpleUploadedFile('synthetic.pdf', pdf_document_bytes())})
         self.assertEqual(response.status_code, 302)
         doc = self.profile.documents.get()
         document_token = self.client.get(self.url('certificates/')).context['documents'][0].version_token
@@ -152,7 +153,7 @@ class SpecialistWorkspaceTests(TestCase):
         from catalog.services.specialist_documents import upload_document
         claim = specialist_domain.request_claim(actor=self.other, specialist_id=self.second.pk)
         doc = upload_document(actor=self.person, specialist_id=self.profile.pk, document_type='certificate',
-            name='Synthetic certificate', uploaded_file=SimpleUploadedFile('synthetic.pdf', b'%PDF synthetic'))
+            name='Synthetic certificate', uploaded_file=SimpleUploadedFile('synthetic.pdf', pdf_document_bytes()))
         self.client.force_login(self.reviewer)
         response = self.client.post(self.url('review/', self.second.pk), {'action': 'claim_reject',
             'claim_id': claim.pk, 'expected_version': claim.version, 'reason': '   '})
@@ -172,7 +173,7 @@ class SpecialistWorkspaceTests(TestCase):
         self.client.force_login(self.person)
         response = self.client.post(self.url('certificates/'), {'action': 'upload',
             'document_type': 'certificate', 'name': 'Synthetic visible certificate', 'publish': 'on',
-            'file': SimpleUploadedFile('synthetic.pdf', b'%PDF synthetic')})
+            'file': SimpleUploadedFile('synthetic.pdf', pdf_document_bytes())})
         self.assertEqual(response.status_code, 302)
         doc = self.profile.documents.get()
         self.assertTrue(doc.is_published)
@@ -202,7 +203,7 @@ class SpecialistWorkspaceTests(TestCase):
         from catalog.controllers.specialist_workspace import document_version
         from catalog.services.specialist_documents import upload_document, review_document
         doc = upload_document(actor=self.person, specialist_id=self.profile.pk, document_type='certificate',
-            name='Synthetic certificate', uploaded_file=SimpleUploadedFile('synthetic.pdf', b'%PDF synthetic'))
+            name='Synthetic certificate', uploaded_file=SimpleUploadedFile('synthetic.pdf', pdf_document_bytes()))
         doc = review_document(actor=self.reviewer, document_id=doc.pk, approve=True)
         first_approved_token = document_version(doc)
         review_document(actor=self.reviewer, document_id=doc.pk, approve=False, reason='Synthetic first rejection')

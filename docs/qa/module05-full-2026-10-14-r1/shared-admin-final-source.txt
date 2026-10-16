@@ -1,0 +1,35 @@
+Found 16 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: allauth, google, jazzmin, messages, sitemaps, staticfiles
+  Apply all migrations: account, admin, auth, catalog, catalog_moderation, contenttypes, sessions, socialaccount
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  No migrations to apply.
+System check identified no issues (0 silenced).
+Using existing test database for alias 'default' ('test_module05full_20261014_r1')...
+test_activity_approval_and_unpublish_are_distinct (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_activity_approval_and_unpublish_are_distinct) ... ok
+test_group_badges_follow_activity_and_condition_confirmation (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_group_badges_follow_activity_and_condition_confirmation) ... ok
+test_new_hierarchy_admin_is_registered (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_new_hierarchy_admin_is_registered) ... ok
+test_organization_admin_draft_and_submit_use_candidate (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_organization_admin_draft_and_submit_use_candidate) ... ok
+test_organization_admin_unpublish_uses_review_service (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_organization_admin_unpublish_uses_review_service) ... /home/ramin/kidsmap/.venv/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /home/ramin/kidsmap/.tmp/module05-full-2026-10-14-r1/staticfiles/
+  mw_instance = middleware(adapted_handler)
+ok
+test_organization_change_renders_related_staff_link (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_organization_change_renders_related_staff_link) ... ok
+test_organization_staff_invite_uses_owner_service (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_organization_staff_invite_uses_owner_service) ... ok
+test_other_staff_cannot_edit_organization_content (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_other_staff_cannot_edit_organization_content) ... ok
+test_pending_editor_shows_current_and_candidate_separately (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_pending_editor_shows_current_and_candidate_separately) ... ok
+test_place_admin_unpublish_skips_form_save (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_place_admin_unpublish_skips_form_save) ... ok
+test_place_carryover_is_not_submitted_as_hidden_mutable_input (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_place_carryover_is_not_submitted_as_hidden_mutable_input) ... ok
+test_program_activity_group_forms_render_without_direct_status_field (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_program_activity_group_forms_render_without_direct_status_field) ... ok
+test_staff_invite_error_does_not_create_record (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_staff_invite_error_does_not_create_record) ... ok
+test_stale_concealed_place_value_cannot_overwrite_fresh_live_value (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_stale_concealed_place_value_cannot_overwrite_fresh_live_value) ... ok
+test_unpublish_refuses_pending_candidate (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_unpublish_refuses_pending_candidate) ... ok
+test_unpublish_service_uses_existing_reviewer_acl_and_version (catalog.testcases.test_task33_admin_editors.AdminEditorTests.test_unpublish_service_uses_existing_reviewer_acl_and_version) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 15.310s
+
+OK
+Preserving test database for alias 'default' ('test_module05full_20261014_r1')...

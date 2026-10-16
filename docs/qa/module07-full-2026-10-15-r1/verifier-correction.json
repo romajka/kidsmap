@@ -1,0 +1,11 @@
+{
+  "original_gate_exit": 1,
+  "all_other_26_checks_pass": true,
+  "status_oracle_bug": "helper run().strip() removed first meaningful leading space from git status --short",
+  "raw_exact_git_status_equals_entry": true,
+  "state_oracle_bug": "QA endpoint includes secret subject_reference UUID plus ordinary integer id. Sanitized stored state omits subject_reference only; initial gate incorrectly omitted integer id.",
+  "actual_state_with_only_subject_reference_omitted_equals_saved": true,
+  "application_changes": [],
+  "existing_test_oracles_changed": false,
+  "first_attempt": "verification-initial.json"
+}

@@ -1,0 +1,35 @@
+{
+  "status": "ACTIVATED",
+  "web_id": "4e72a9b94b7730da4806def22c52db0cf4c268145971630b42b4002953ee7a25",
+  "image_id": "sha256:3d29a0bc1086b145dad00ff4a6cf5995de6b775ebde43804e0e93bda2308e4c0",
+  "base_commit": "cfef63e3dbc93e971ac0e2ae963a17a3821ae27c",
+  "patch_sha256": "55917b04a91794c15d557d7b9411a7d76c0a948f820a2b2ce1f3542fcb6ad8e3",
+  "healthz": 200,
+  "readiness_seconds": 15.911,
+  "environment_unchanged": true,
+  "env_file_unchanged": true,
+  "mounts_unchanged": true,
+  "DB_Redis_other_container_IDs_preserved": {
+    "/kidsmap-postgres": "dfe059c1c6a372110227041624f79fd4706226ccea6e529688c3fcd9cbed810c",
+    "/kidsmap-redis": "de13ebfcbbc0f1c58bb69d2671a646dae3277ba3a6e279fc234dfcc294bc59a4"
+  },
+  "schema_data_tasks": "SKIPPED: no model/migration changes, zero pending; no sync_site_defaults",
+  "running_source_MO_schema_check": true,
+  "rollback_needed": false,
+  "persistent_compose_files": [
+    "/opt/kidsmap/docker-compose.yml",
+    "/opt/kidsmap/.tmp/production-release.override.yml"
+  ],
+  "steps": [
+    {
+      "name": "collectstatic",
+      "exit": 0,
+      "seconds": 37.398
+    },
+    {
+      "name": "activate-web",
+      "exit": 0,
+      "seconds": 3.815
+    }
+  ]
+}

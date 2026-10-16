@@ -1,0 +1,30 @@
+Creating test database for alias 'default'...
+.........................................................................................Image upload rejected: {'name': 'photo.png', 'size': 86, 'mime': 'image/png'}; reason=«photo.png» şəkli: maksimum 50 MP və tərəfi üzrə 12000 piksel.
+..Image upload rejected: {'name': 'broken.jpg', 'size': 3, 'mime': 'image/jpeg'}; reason=«broken.jpg» oxumaq mümkün olmadı: fayl zədələnib və ya dəstəklənməyən şəkildir.
+.Image upload rejected: {'name': 'bad.jpg', 'size': 3, 'mime': 'image/jpeg'}; reason=«bad.jpg» oxumaq mümkün olmadı: fayl zədələnib və ya dəstəklənməyən şəkildir.
+...Image upload rejected: {'name': 'broken.jpg', 'size': 12, 'mime': 'image/jpeg'}; reason=Не удалось прочитать «broken.jpg»: файл повреждён или это не поддерживаемое изображение.
+......Image upload rejected: {'name': 'huge.png', 'size': 15728641, 'mime': 'image/png'}; reason=Файл «huge.png» слишком большой. Максимальный размер фотографии — 15 МБ.
+...Image upload rejected: {'name': 'broken.png', 'size': 6, 'mime': 'image/png'}; reason=«broken.png» oxumaq mümkün olmadı: fayl zədələnib və ya dəstəklənməyən şəkildir.
+.......................Draft save unavailable
+Traceback (most recent call last):
+  File "/home/ramin/kidsmap/src/catalog/controllers/server_draft_api.py", line 39, in draft_collection
+    draft=service.save(user=request.user,data=data)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1193, in _execute_mock_call
+    raise effect
+OSError: synthetic storage unavailable
+............Image upload rejected: {'name': 'bad.jpg', 'size': 7, 'mime': 'image/jpeg'}; reason=«bad.jpg» oxumaq mümkün olmadı: fayl zədələnib və ya dəstəklənməyən şəkildir.
+..........
+----------------------------------------------------------------------
+Ran 149 tests in 35.244s
+
+OK
+Destroying test database for alias 'default'...
+Found 149 test(s).
+System check identified no issues (0 silenced).

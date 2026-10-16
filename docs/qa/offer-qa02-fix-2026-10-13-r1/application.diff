@@ -1,0 +1,113 @@
+--- a/static/js/owner_place_offerings.js
++++ b/static/js/owner_place_offerings.js
+@@ -130,8 +130,19 @@
+           field(extra, plan, 'price_max', ui.plan_price_max, 'number');
+           field(extra, plan, 'currency', ui.plan_currency);
+           field(extra, plan, 'charge_role', ui.plan_role, 'select', {choices: choices.charge_roles});
+-          field(extra, plan, 'billing_mode', ui.plan_billing, 'select', {choices: choices.billing_modes});
+-          field(extra, plan, 'billing_interval', ui.plan_interval, 'select', {choices: [['', '—'], ...choices.billing_intervals]});
++          const billing = field(extra, plan, 'billing_mode', ui.plan_billing, 'select', {choices: choices.billing_modes});
++          const interval = field(extra, plan, 'billing_interval', ui.plan_interval, 'select', {choices: [['', '—'], ...choices.billing_intervals]});
++          const count = field(extra, plan, 'billing_interval_count', ui.plan_interval_count, 'number');
++          const cycles = field(extra, plan, 'billing_cycles', ui.plan_billing_cycles, 'number');
++          field(extra, plan, 'quantity', ui.plan_quantity, 'number');
++          field(extra, plan, 'quantity_unit', ui.plan_quantity_unit, 'select', {choices: [['', '—'], ...choices.quantity_units]});
++          function billingVisibility() {
++            interval.closest('label').hidden = billing.value !== 'recurring';
++            count.closest('label').hidden = billing.value !== 'recurring';
++            cycles.closest('label').hidden = billing.value !== 'installment';
++          }
++          billing.addEventListener('change', billingVisibility);
++          billingVisibility();
+           field(extra, plan, 'age_from', ui.group_age_from, 'number');
+           field(extra, plan, 'age_to', ui.group_age_to, 'number');
+           field(extra, plan, 'is_trial', ui.plan_trial, 'checkbox');
+--- a/src/catalog/services/pricing_plans.py
++++ b/src/catalog/services/pricing_plans.py
+@@ -371,6 +371,7 @@
+         'charge_roles':[(value,str(label)) for value,label in PricingPlan.CHARGE_ROLE_CHOICES],
+         'billing_modes':[(value,str(label)) for value,label in PricingPlan.BILLING_MODE_CHOICES],
+         'billing_intervals':[(value,str(label)) for value,label in PricingPlan.INTERVAL_CHOICES],
++        'quantity_units':[(value,str(label)) for value,label in PricingPlan.QUANTITY_UNIT_CHOICES],
+         'lesson_formats':[(value,str(label)) for value,label in OfferingGroup._meta.get_field('lesson_format').choices],
+         'categories':[{'id':row.pk,'label':row.name_i18n()} for row in Category.objects.all()],
+         'subcategories':[{'id':row.pk,'category_id':row.category_id,'label':row.name_i18n()} for row in Subcategory.objects.select_related('category').all()],
+--- a/src/catalog/services/permanent_place_wizard.py
++++ b/src/catalog/services/permanent_place_wizard.py
+@@ -169,6 +169,10 @@
+         plan_price_min=t('Цена от', 'Başlanğıc qiymət', 'Price from'),
+         plan_price_max=t('Цена до', 'Son qiymət', 'Price to'),
+         plan_interval=t('Период оплаты', 'Ödəniş dövrü', 'Billing period'),
++        plan_interval_count=t('Количество периодов', 'Dövrlərin sayı', 'Number of periods'),
++        plan_billing_cycles=t('Количество платежей', 'Ödənişlərin sayı', 'Number of payments'),
++        plan_quantity=t('Количество', 'Miqdar', 'Quantity'),
++        plan_quantity_unit=t('Единица количества', 'Miqdar vahidi', 'Quantity unit'),
+         plan_advanced=t('Условия тарифа', 'Tarif şərtləri', 'Plan terms'),
+         group_format=t('Формат группы', 'Qrup formatı', 'Group format'),
+         plan_count=t('тарифов', 'tarif', 'plans'),
+--- a/locale/az/LC_MESSAGES/django.po
++++ b/locale/az/LC_MESSAGES/django.po
+@@ -9202,10 +9202,8 @@
+ msgstr "Həftə"
+ 
+ #: src/catalog/models/pricing_plan.py:32 src/catalog/models/pricing_plan.py:42
+-#, fuzzy
+-#| msgid "1 месяц"
+ msgid "Месяц"
+-msgstr "1 ay"
++msgstr "Ay"
+ 
+ #: src/catalog/models/pricing_plan.py:32
+ #, fuzzy
+@@ -9240,16 +9238,12 @@
+ msgstr "Dəqiqə"
+ 
+ #: src/catalog/models/pricing_plan.py:41
+-#, fuzzy
+-#| msgid "Гах"
+ msgid "Час"
+-msgstr "Qax"
++msgstr "Saat"
+ 
+ #: src/catalog/models/pricing_plan.py:43
+-#, fuzzy
+-#| msgid "Заполнено"
+ msgid "Смена"
+-msgstr "Doldurulub"
++msgstr "Növbə"
+ 
+ #: src/catalog/models/pricing_plan.py:44
+ msgid "Человек"
+--- a/locale/en/LC_MESSAGES/django.po
++++ b/locale/en/LC_MESSAGES/django.po
+@@ -9167,10 +9167,8 @@
+ msgstr "Week"
+ 
+ #: src/catalog/models/pricing_plan.py:32 src/catalog/models/pricing_plan.py:42
+-#, fuzzy
+-#| msgid "1 месяц"
+ msgid "Месяц"
+-msgstr "1 month"
++msgstr "Month"
+ 
+ #: src/catalog/models/pricing_plan.py:32
+ #, fuzzy
+@@ -9205,16 +9203,12 @@
+ msgstr "Minute"
+ 
+ #: src/catalog/models/pricing_plan.py:41
+-#, fuzzy
+-#| msgid "Гах"
+ msgid "Час"
+-msgstr "Gakh"
++msgstr "Hour"
+ 
+ #: src/catalog/models/pricing_plan.py:43
+-#, fuzzy
+-#| msgid "Заполнено"
+ msgid "Смена"
+-msgstr "Completed"
++msgstr "Shift"
+ 
+ #: src/catalog/models/pricing_plan.py:44
+ msgid "Человек"
