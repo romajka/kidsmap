@@ -1,1 +1,0 @@
-CROSS-QA-02 followup: real DiscoverRunner stores an omitted pattern as None. Initial GREEN preserved 2 failing discovery assertions: legacy modules omitted. Normalize the default None alongside test*.py; retain explicit custom patterns. RED evidence cross/green-r1.json; same 41-method regression must pass, then full no-label inventory agreement.

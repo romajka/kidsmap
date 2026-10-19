@@ -96,3 +96,19 @@ def public_presentation(context, obj):
     request = context.get('request')
     cached = getattr(obj, '_card_presentation', None)
     return cached if cached is not None else present(obj, getattr(request, 'LANGUAGE_CODE', None) or get_language())
+
+
+@register.filter
+def parent_review_label(value) -> str:
+    """Label paired with the separate homepage review count."""
+    try:
+        count = int(value or 0)
+    except (TypeError, ValueError):
+        count = 0
+    language = (get_language() or 'az').split('-', 1)[0]
+    if language == 'az':
+        return 'valideyn rəyi'
+    if language == 'en':
+        return 'parent review' if count == 1 else 'parent reviews'
+    form = _plural_form(count, 'ru')
+    return {'one': 'отзыв родителей', 'few': 'отзыва родителей', 'many': 'отзывов родителей'}[form]

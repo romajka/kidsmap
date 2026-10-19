@@ -765,6 +765,8 @@
           data-catalog-map
         ></div>
         {{ catalog_map_places|json_script:"catalog-map-data" }}
+        {{ catalog_map_page|json_script:"catalog-map-page" }}
+        {% include "catalog/includes/map_pagination.html" with map_kind="catalog" map_page=catalog_map_page %}
       </section>
   {% endif %}
 
@@ -1207,7 +1209,8 @@
     <link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20260910" />
     <script src="{% static 'js/google_maps_motion.js' %}?v=20260910"></script>
     <script src="{% static 'js/google_maps_markers.js' %}?v=20260910"></script>
-    <script src="{% static 'js/catalog_map.js' %}?v=20260910_motion1"></script>
+    <script src="{% static 'js/map_paging.js' %}?v=20261019_r15"></script>
+    <script src="{% static 'js/catalog_map.js' %}?v=20261019_r15"></script>
     {% if google_maps_api_key %}
       <script
         data-catalog-google-sdk
@@ -1926,7 +1929,7 @@
         const currentMapPanel = currentMainColumn.querySelector('[data-catalog-map-panel]');
         const nextMapPanel = nextMainColumn.querySelector('[data-catalog-map-panel]');
         if (currentMapPanel && nextMapPanel) {
-          ['.catalog-map-meta', '#catalog-map-data'].forEach(selector => {
+          ['.catalog-map-meta', '#catalog-map-data', '#catalog-map-page', '[data-map-pagination]'].forEach(selector => {
             const current = currentMapPanel.querySelector(selector);
             const next = nextMapPanel.querySelector(selector);
             if (current && next) current.replaceWith(next);

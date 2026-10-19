@@ -1,2 +1,0 @@
-async original=>{__COMMON__
-const x=await context('admin','en',1440),p=x.p;try{await visit(p,'/en/admin/catalog/place/2/change/');await p.locator('#id_name_az').fill('QA fictional unsaved navigation title');await p.locator('a[href$="/admin/catalog/place/"]').first().click({noWaitAfter:true});const modal=p.locator('.km-modal-backdrop.is-visible');await modal.waitFor({state:'visible'});const text=await modal.innerText();return{text,shot:await shot(p,'unsaved-modal-en')};}finally{await x.c.close();}}

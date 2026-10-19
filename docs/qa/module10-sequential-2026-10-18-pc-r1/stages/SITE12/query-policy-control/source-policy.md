@@ -1,1 +1,0 @@
-Existing CleanPublicQueryMiddleware strips unowned query parameters with301 before missing-path404 (verified earlier SITE04). Privacy control must follow existing canonical redirect, then assert final404/no query token echo/settings unchanged. Feature expectations heading/noindex remain unchanged; initial control301 failure retained, no app change.

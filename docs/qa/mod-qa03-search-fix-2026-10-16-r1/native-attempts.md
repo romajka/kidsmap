@@ -1,1 +1,0 @@
-Initial native-red invocation ran before its own browser open completed: no semantic result, CLI exit1; raw retained in ignored scratch. This is a harness failure, not a source result. Test RED:6 methods,19 assertion failures,0 errors,1 control method PASS.

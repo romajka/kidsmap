@@ -1,3 +1,0 @@
-Fresh RED: 6 methods, 41 assertion failures; actual e=1 redirects in Event/Specialist. Native RED 2 FAIL. First earlier run was infrastructure connection refused, retained separately. Pagination fixture corrected to installed Django one-based p=2 before GREEN; no weakened assertions.
-
-Evidence limitation: native-green-recheck reused the two screenshot paths from native-red, so these own-run PNGs now show GREEN. Fresh RED semantic JSON (2 actual source FAIL) and unit RED log are intact. Fresh own RED PNGs are unavailable; historical/foreign artifacts were not overwritten. Final PNG manifest will label these images GREEN.

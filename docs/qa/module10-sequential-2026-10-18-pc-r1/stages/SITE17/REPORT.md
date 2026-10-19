@@ -1,3 +1,0 @@
-# SITE17 CLOSED LOCAL
-
-Long legal hero headings now wrap with overflow-wrap:anywhere and min-width0. Existing text/type size/decorative clipping unchanged; legal stylesheet cache key bumped. Fresh native privacy/terms3languages6widths: RUprivacy360/390 clipping reproduced→36actual pagesPASS with exact heading preservation. Six explicitly SIMULATED doubled-heading-font cells alsoPASS, not native browser zoom.42rows186/186checksPASS, no page/localHTTP errors. Actual RU360 screenshot inspected. Two application files only; no unnecessary backend test mirroring CSS. No production/full-module claim.

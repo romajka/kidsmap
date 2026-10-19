@@ -296,7 +296,7 @@
   margin-top: 4px;
   font-size: 12px;
   font-weight: 600;
-  color: #64748b;
+  color: #526078;
   line-height: 1.25;
 }
 
@@ -419,7 +419,7 @@
 
 .km-dash-review-item__meta {
   font-size: 12px;
-  color: #64748b;
+  color: #526078;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -450,8 +450,8 @@
 }
 
 .km-dash-review-item:hover .km-dash-review-item__btn {
-  background: #009a4e;
-  border-color: #009a4e;
+  background: var(--km-admin-accent, #136f38);
+  border-color: var(--km-admin-accent, #136f38);
   color: #ffffff;
 }
 
@@ -584,7 +584,7 @@
   display: block;
   margin-top: 2px;
   font-size: 11px;
-  color: #64748b;
+  color: #526078;
 }
 
 .km-dash-kpi-card__icon {
@@ -661,8 +661,8 @@
 .km-dash-action-btn--primary,
 .km-dash-action-btn--primary:visited,
 .km-dash-action-btn--primary span {
-  background: #009a4e;
-  border-color: #009a4e;
+  background: var(--km-admin-accent, #136f38);
+  border-color: var(--km-admin-accent, #136f38);
   color: #ffffff !important;
 }
 
@@ -754,7 +754,7 @@
   gap: 6px;
   padding: 6px 12px;
   border-radius: 6px;
-  background: #009a4e;
+  background: var(--km-admin-accent, #136f38);
   color: #ffffff !important;
   font-size: 12px;
   font-weight: 700;
@@ -849,7 +849,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: #009a4e;
+  color: var(--km-admin-accent, #136f38);
 }
 
 .km-dash-hub-card__icon svg {
@@ -950,7 +950,7 @@
 }
 
 .km-dash-hub-item:hover .km-dash-hub-item__icon {
-  color: #009a4e;
+  color: var(--km-admin-accent, #136f38);
 }
 
 .km-dash-hub-item__name {
@@ -964,7 +964,7 @@
 }
 
 .km-dash-hub-item__name:hover {
-  color: #009a4e;
+  color: var(--km-admin-accent, #136f38);
   text-decoration: underline;
 }
 
@@ -979,7 +979,7 @@
   padding: 1px 7px;
   border-radius: 9999px;
   background: #f1f5f9;
-  color: #64748b;
+  color: #526078;
   font-size: 11px;
   font-weight: 700;
   flex-shrink: 0;
@@ -1027,8 +1027,8 @@
 .km-dash-item-btn--add:hover,
 .km-dash-item-btn--add:focus-visible,
 .km-dash-item-btn--add:hover span {
-  background: #009a4e;
-  border-color: #009a4e;
+  background: var(--km-admin-accent, #136f38);
+  border-color: var(--km-admin-accent, #136f38);
   color: #ffffff !important;
   text-decoration: none;
 }
@@ -1139,14 +1139,14 @@
 }
 
 .km-dash-timeline-item__target:hover {
-  color: #009a4e;
+  color: var(--km-admin-accent, #136f38);
   text-decoration: underline;
 }
 
 .km-dash-timeline-item__model {
   font-size: 11px;
   font-weight: 600;
-  color: #64748b;
+  color: #526078;
   padding: 1px 6px;
   border-radius: 4px;
   background: #f1f5f9;
@@ -1180,7 +1180,7 @@
 }
 
 .km-dash-timeline-item__time {
-  color: #64748b;
+  color: #526078;
 }
 
 .km-dash-timeline-item__tag {
@@ -1226,7 +1226,7 @@
 .km-dash-empty-history__text {
   margin: 0;
   font-size: 13px;
-  color: #64748b;
+  color: #526078;
 }
 
 /* --------------------------------------------------------------------------
@@ -1238,7 +1238,7 @@
 .km-dash-pill:focus-visible,
 .km-dash-action-btn:focus-visible,
 .km-dash-item-btn:focus-visible {
-  outline: 2px solid #009a4e !important;
+  outline: 2px solid var(--km-admin-accent, #136f38) !important;
   outline-offset: 2px !important;
 }
 

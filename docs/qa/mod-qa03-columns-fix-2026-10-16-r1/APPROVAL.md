@@ -1,1 +1,0 @@
-User latest «…точечное и примерочное тестирование…потом проверим весь модуль целиком продолжай» authorizes previously shown COLUMNS_IMPLEMENTATION_PLAN.md exact four-file scope. Keep checks targeted with representative shared scenarios; full module once at end. No approval for additional causes.

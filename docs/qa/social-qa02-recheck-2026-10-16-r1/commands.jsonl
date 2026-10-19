@@ -1,6 +1,0 @@
-{"name": "readback", "argv": [".venv/bin/python", "docs/qa/social-qa02-recheck-2026-10-16-r1/readback.py"], "exit": 0, "seconds": 19.021}
-{"name": "browser-open", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=social02planr1", "open", "about:blank"], "exit": 0, "seconds": 4.528}
-{"name": "reproduce.js", "argv": ["/home/ramin/.codex/skills/playwright/scripts/playwright_cli.sh", "-s=social02planr1", "run-code", "</home/ramin/kidsmap/docs/qa/social-qa02-recheck-2026-10-16-r1/reproduce.js>"], "exit": 0, "seconds": 46.638}
-{"name": "candidate-diff-check", "argv": ["git", "apply", "--check", "docs/qa/social-qa02-recheck-2026-10-16-r1/proposed.diff"], "exit": 0, "seconds": 0.112}
-{"name": "final-gate", "argv": [".venv/bin/python", "docs/qa/social-qa02-recheck-2026-10-16-r1/verify.py"], "exit": 1, "seconds": 81.37}
-{"name": "final-gate-corrected", "argv": [".venv/bin/python", "docs/qa/social-qa02-recheck-2026-10-16-r1/verify.py"], "exit": 0, "seconds": 27.532}

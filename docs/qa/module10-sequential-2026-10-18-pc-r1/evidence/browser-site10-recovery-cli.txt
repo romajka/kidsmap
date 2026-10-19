@@ -1,9 +1,0 @@
-### Result
-{"rows":[{"id":"az-0","checks":{"retired410":true,"recovery200":true,"exact_path":true}},{"id":"az-1","checks":{"retired410":true,"recovery200":true,"exact_path":true,"SITE05_cache_key":true}},{"id":"ru-0","checks":{"retired410":true,"recovery200":true,"exact_path":true}},{"id":"ru-1","checks":{"retired410":true,"recovery200":true,"exact_path":true,"SITE05_cache_key":true}},{"id":"en-0","checks":{"retired410":true,"recovery200":true,"exact_path":true}},{"id":"en-1","checks":{"retired410":true,"recovery200":true,"exact_path":true,"SITE05_cache_key":true}}],"scope":"Independent recovery destination status/path and SITE05 stylesheet cache key; no constant placeholders."}
-### Ran Playwright code
-```js
-await (async original=>{
-const base='http://127.0.0.1:33640',rows=[],c=await original.context().browser().newContext({viewport:{width:390,height:1000},serviceWorkers:'block'});await c.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());const p=await c.newPage();for(const lang of ['az','ru','en']){const prefix=lang==='az'?'/':'/'+lang+'/';for(const [i,path] of [[0,prefix+'catalog/'],[1,prefix]]){const retired=await p.goto(base+prefix+'events/');const [response]=await Promise.all([p.waitForNavigation(),p.locator('.public-unavailable-actions a').nth(i).click()]);const checks={retired410:retired.status()===410,recovery200:response.status()===200,exact_path:new URL(p.url()).pathname===path};if(i===1)checks.SITE05_cache_key=await p.locator('link[href*="home_redesign.css?v=20261018_site05_r1"]').count()===1;rows.push({id:lang+'-'+i,checks});}}await c.close();return{rows,scope:'Independent recovery destination status/path and SITE05 stylesheet cache key; no constant placeholders.'};
-}
-)(page);
-```

@@ -1,8 +1,0 @@
-from pathlib import Path
-R=Path('/mnt/c/kidsmap');Q=R/'.tmp/m13-full-r1';O=R/'docs/qa/module13-repair-2026-10-19-pc-r1'
-t=(O/'browser-feature-toggles.js').read_text().replace("retired:r.status()===410","disabled_status:r.status()===(key==='event'?410:404)");(O/'browser-feature-toggles-r2.js').write_text(t)
-p=Q/'qa_urls.py';t=p.read_text();needle="'physical':Event.objects.order_by('-pk').first().get_absolute_url()";assert needle in t;t=t.replace(needle,needle+",'specialist_proposal':__import__('catalog.models',fromlist=['Specialist']).Specialist.objects.get(pk=3).get_absolute_url()")
-t=t.replace('Activity.objects.get(program=program,archived_at__isnull=True).pk','Activity.objects.get(place=p,archived_at__isnull=True).pk');p.write_text(t)
-t=(O/'browser-native-claim.js').read_text();needle="const publicPath=await m.locator('[data-main-photo-root] a.km-media-main__view').getAttribute('href');";assert needle in t;t=t.replace(needle,"const publicPath=(await(await m.context().request.get(B+'/qa/m13/cross/')).json()).urls.ru.specialist_proposal;")
-t=t.replace('/png/','/png/claim-r2-');(O/'browser-native-claim-r2.js').write_text(t)
-(O/'evidence/remaining-native-observers.md').write_text('Feature OFF contract verified in features.py: Organization/Specialist disabled routes are404; Event intentionally410. First mixed suite used410 for all, while every privacy/noindex/menu/preservation check passed and original flags restored. r2 corrects expected HTTP contract. Claim workflow first attempt published the synthetic profile but stopped before requesting a claim because Specialist admin has no Event media-root selector; own read-only model URL is used in r2. No production or permission changes.\n')

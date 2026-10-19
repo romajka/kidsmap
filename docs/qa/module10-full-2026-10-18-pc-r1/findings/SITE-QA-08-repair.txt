@@ -1,5 +1,0 @@
-SITE-QA-08 (P2) — Общие настройки переполняют мобильный viewport.
-Прочитать текущие AGENTS/canonical orchestrator и свежий docs/qa/module10-full-2026-10-18-pc-r1/findings/SITE-QA-08.md/evidence; проверить текущий dirty WORKTREE/source drift. Status: OPEN.
-Source hints: src/catalog/templates/admin/catalog/shared_settings_change_form.html:16; static/admin/css/pages/kidsmap_admin_form_shell.css. Root: Rendered form controls/layout exceed available width; a single universal CSS root is not yet proven.
-Следующая задача: Исследовать offending elements/cascade; ограничить ширины и сохранить desktop/sidebar controls, native save on mobile.
-Сначала свежая bounded проверка, impact map и конкретный PLAN с файлами/тестами/рисками. Не применять app fix до одобрения scope. Approval предыдущих SOCIAL01–12 не переносится на SITE. Не повторять security writes вне собственной isolated testDB/media. DJANGO_TESTING=1, isolated cache/media/email/current3MO, no production credentials. Сохранить старые evidence/местные изменения/ref/index/active_runNONE; no reset/clean/stash/commit/push/deploy. Новый уникальный package, red/green if approved, native evidence and honest NOTRUN.

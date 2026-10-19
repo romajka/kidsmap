@@ -1,9 +1,0 @@
-async original=>{
- __QA10_COMMON__
- const{c,p}=await context('admin');const id=2;
- await saveSettings(p,'sitevisibilitysettings',{organizations_section_enabled:false},'lawful-admin-org-off');
- await visit(p,'/admin/catalog/organization/'+id+'/change/');await p.getByText('Названия',{exact:true}).click();await p.waitForTimeout(450);const field=p.locator('[name=name_az]'),button=p.locator('[name=_save_draft]');const editable=await field.count()>0&&await field.isVisible()&&await field.isEnabled()&&await button.count()>0;
- add('lawful-admin-org-hidden-edit-available',editable,{id,tabs:await p.locator('[data-toggle=tab], [data-bs-toggle=tab]').evaluateAll(es=>es.map(e=>({text:e.textContent.trim(),href:e.getAttribute('href'),class:e.className}))),parents:await field.evaluate(e=>{const a=[];while(e){a.push({tag:e.tagName,cls:e.className,display:getComputedStyle(e).display});e=e.parentElement}return a;})},'admin','ru',1440,p.url(),await shot(p,'lawful-admin-org-hidden-before'));
- if(editable){await field.fill('Uydurma QA10 admin: OFF candidate');await button.click();await p.waitForTimeout(300);const errors=await p.locator('.errorlist').allTextContents();await p.reload();await p.getByText('Названия',{exact:true}).click();add('lawful-admin-org-hidden-save-reload',await field.inputValue()==='Uydurma QA10 admin: OFF candidate',{errors,id},'admin','ru',1440,p.url(),await shot(p,'lawful-admin-org-hidden-after'));}
- await saveSettings(p,'sitevisibilitysettings',{organizations_section_enabled:true},'lawful-admin-org-on');await visit(p,'/admin/catalog/organization/'+id+'/change/');await p.getByText('Названия',{exact:true}).click();add('lawful-admin-org-on-candidate-preserved',await field.count()>0&&await field.inputValue()==='Uydurma QA10 admin: OFF candidate',{id},'admin','ru',1440,p.url(),await shot(p,'lawful-admin-org-on-candidate'));await c.close();return{rows,changes};
-}

@@ -1,9 +1,0 @@
-Работай в C:/kidsmap (на другом ПК сначала найди checkout). Прочитай AGENTS.md, канонические .agents, docs/qa/module13-2026-10-11-r1/REPORT.md и findings/ANALYTICS-QA-03.md в том же run. Задача: ANALYTICS-QA-03, ANALYTICS-QA-03 — Легитимный Origin с портом отклонён, P2. Сохрани чужие изменения, active_run и стенды. Без commit/push/deploy/production.
-
-Подтверждённый trigger: Open fictional ready Place1 on localhost:8831, reveal phone and invoke native tracked phone action.
-Ожидание: Accepted legitimate same-origin event;200 with documented delta.
-Факт: Native request returns403. No Origin proxy/adapter applied; rejected delta cannot establish a recorded click.
-Свежие доказательства: docs/qa/module13-2026-10-11-r1/redirect-counters.result.txt; matrix.json; screenshots-manifest.json. Source refs: src/catalog/views.py.
-Группа причины: ANALYTICS-ORIGIN-PORT. 
-
-Сначала проверь текущий source и составь конкретный план исправления с файлами, зависимостями и meaningful regression проверками. Согласно audit scope реализацию выполняй только после согласования этого плана. Не меняй существующие assertions ради green. Применимые проверки: DJANGO_TESTING=1, собственные DB/cache/media/private-media/email, вымышленные данные, внешние интеграции выключены. После согласованного исправления повтори реальный UI trigger, сохранение/reload и PC/mobile RU/AZ/EN; сохраняй candidate/live и ACL. Отдельно классифицируй source translation, generated assets, baseline и environment failures. Сохрани свежий отчёт, точные команды/counts/exit codes/screenshots и NOT RUN ограничения.

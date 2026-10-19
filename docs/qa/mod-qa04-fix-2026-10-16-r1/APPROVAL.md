@@ -1,1 +1,0 @@
-User «обобряю» explicitly approves docs/qa/mod-qa04-recheck-2026-10-16-r1/IMPLEMENTATION_PLAN.md four-file scope. Existing rule: only targeted checks plus representative shared scenarios; full module08 once at end. No new-cause approval inferred.

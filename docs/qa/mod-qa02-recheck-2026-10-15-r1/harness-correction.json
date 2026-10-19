@@ -1,9 +1,0 @@
-{
-  "first_attempt": "proposed-RED.output.txt",
-  "classification": "QA fixture normalization, not application mutation",
-  "cause": "create_ready_place leaves numeric price values as int in memory; fresh DB returns Decimal serialized as decimal string. Initial mutation assertion compared different object representations.",
-  "change": "refresh_from_db once after service fixture setup; before and after both database-normalized snapshots",
-  "assertions_removed_or_weakened": false,
-  "other_failures": "12 expected missing-media presentation failures retained",
-  "retained_test_before": "proposed-test-first-attempt.py"
-}

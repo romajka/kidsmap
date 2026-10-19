@@ -1,7 +1,0 @@
-### Result
-{"rows":[{"url":"http://127.0.0.1:33520/","title":"Azərbaycanda uşaqlar üçün dərnəklər və məşğələlər | KidsMap","loginUserInputs":0,"loginPasswordInputs":0,"footerInputs":0},{"url":"http://127.0.0.1:33520/admin/login/?next=/admin/catalog/sitefootersettings/1/change/","title":"Войти | Панель управления KidsMap","loginUserInputs":1,"loginPasswordInputs":1,"footerInputs":0}]}
-### Ran Playwright code
-```js
-await (async original=>{const rows=[];for(const c of original.context().browser().contexts())for(const p of c.pages()){rows.push({url:p.url(),title:await p.title(),loginUserInputs:await p.locator('input[name=username]').count(),loginPasswordInputs:await p.locator('input[name=password]').count(),footerInputs:await p.locator('[name=footer_phone]').count()});}return{rows};}
-)(page);
-```

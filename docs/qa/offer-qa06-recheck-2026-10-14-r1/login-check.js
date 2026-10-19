@@ -1,3 +1,0 @@
-async(page)=>{
-const base='__BASE__',f=__FIXTURES__,network=[];await page.context().clearCookies();page.on('response',r=>{if(r.status()>=400&&r.url().startsWith(base))network.push({url:r.url().split('?')[0],status:r.status()});});await page.goto(base+'/admin/login/?next=/admin/');await page.locator('[name=username]').fill(f.username);await page.locator('[name=password]').fill('__PASSWORD__');await Promise.all([page.waitForNavigation(),page.locator('[type=submit]').click()]);return{url:page.url(),network,status:page.url()===base+'/admin/'&&!network.length?'PASS':'FAIL',note:'Explicit native admin next parameter, own browser cookie jar only'};
-}

@@ -215,7 +215,7 @@
         {% endif %}
         {% endblock %}
 
-        <div class="content-wrapper" {% if is_popup %}style="margin-left:0px; padding-top: 20px;" {% endif %}>
+        <main class="content-wrapper" {% if is_popup %}style="margin-left:0px; padding-top: 20px;" {% endif %}>
             {% block page_content %}
             {% if not is_popup %}
             {% block page_content_header %}
@@ -261,7 +261,7 @@
                 </div>
             </div>
             {% endblock %}
-        </div>
+        </main>
 
         {% block footer %}
         {% if not is_popup %}

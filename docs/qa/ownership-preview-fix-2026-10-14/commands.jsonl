@@ -1,6 +1,0 @@
-{"argv": ["/home/ramin/kidsmap/.venv/bin/python", "-m", "venv", "/home/ramin/kidsmap/.tmp/ownership-preview-fix-2026-10-14/venv"], "exit": 0}
-{"argv": ["docker", "run", "-d", "--name", "ownership-preview-fix-2026-10-14-pg", "-p", "127.0.0.1:38313:5432", "--env-file", "/home/ramin/kidsmap/.tmp/ownership-preview-fix-2026-10-14/pg.env", "-v", "ownership-preview-fix-2026-10-14-pg-data:/var/lib/postgresql/data", "postgres:17-alpine"], "exit": 0}
-{"argv": ["/home/ramin/kidsmap/.tmp/ownership-preview-fix-2026-10-14/venv/bin/python", "/home/ramin/kidsmap/scripts/build_isolated_locales.py", "build", "--output", "/home/ramin/kidsmap/.tmp/ownership-preview-fix-2026-10-14/locales", "--locales", "ru", "az", "en", "--compiler", "native"], "exit": 0}
-{"argv": ["/home/ramin/kidsmap/.tmp/ownership-preview-fix-2026-10-14/venv/bin/python", "/home/ramin/kidsmap/scripts/build_isolated_locales.py", "verify", "--manifest", "/home/ramin/kidsmap/.tmp/ownership-preview-fix-2026-10-14/locales/manifest.json"], "exit": 0}
-{"argv": ["/home/ramin/kidsmap/.tmp/ownership-preview-fix-2026-10-14/venv/bin/python", "/home/ramin/kidsmap/docs/qa/ownership-preview-fix-2026-10-14/runtime.py", "prepare"], "exit": 0}
-{"argv": ["/home/ramin/kidsmap/.tmp/ownership-preview-fix-2026-10-14/venv/bin/python", "/home/ramin/kidsmap/docs/qa/ownership-preview-fix-2026-10-14/runtime.py", "check"], "exit": 0}

@@ -4,6 +4,8 @@ from xml.etree import ElementTree
 
 from django.conf import settings
 from django.contrib import admin
+from django.core.exceptions import PermissionDenied
+from django.core.files.base import ContentFile
 from django.core.files.storage import FileSystemStorage
 from django.db.models import Count, Prefetch, Q
 from django import forms
@@ -15,6 +17,7 @@ from django.utils.text import slugify
 from PIL import Image, UnidentifiedImageError
 
 from catalog.models import Category, Subcategory
+from catalog.services.category_icons import sanitize_svg_icon
 
 
 ICON_EXTENSIONS = {".svg", ".png", ".webp"}
@@ -67,16 +70,8 @@ def validate_icon_upload(uploaded_file):
 
     try:
         if extension == ".svg":
-            source = uploaded_file.read()
-            root = ElementTree.fromstring(source)
-            if root.tag.rsplit("}", 1)[-1] != "svg":
-                raise ValueError
-            view_box = root.attrib.get("viewBox", "").replace(",", " ").split()
-            if len(view_box) != 4 or float(view_box[2]) != float(view_box[3]) or float(view_box[2]) <= 0:
-                raise forms.ValidationError(_("У SVG должен быть квадратный viewBox, например 0 0 24 24."))
-            source_lower = source.lower()
-            if b"<script" in source_lower or b"onload=" in source_lower or b"onerror=" in source_lower:
-                raise forms.ValidationError(_("SVG не должен содержать скрипты."))
+            normalized = sanitize_svg_icon(uploaded_file.read())
+            return ContentFile(normalized, name=uploaded_file.name)
         else:
             image = Image.open(uploaded_file)
             image.verify()
@@ -98,7 +93,7 @@ def validate_icon_upload(uploaded_file):
 
 def save_uploaded_category_icon(uploaded_file, category_code="category-icon", folder="cat_icons"):
     ext = (uploaded_file.name.rsplit(".", 1)[-1] if "." in uploaded_file.name else "").lower()
-    validate_icon_upload(uploaded_file)
+    uploaded_file = validate_icon_upload(uploaded_file)
 
     storage = FileSystemStorage(location=settings.MEDIA_ROOT, base_url=settings.MEDIA_URL)
     safe_code = "".join(ch if ch.isalnum() or ch in {"-", "_"} else "-" for ch in (category_code or "category-icon")).strip("-")
@@ -401,6 +396,9 @@ class CategoryAdmin(admin.ModelAdmin):
     def upload_icon_view(self, request):
         if request.method != "POST":
             return JsonResponse({"error": "Method not allowed"}, status=405)
+
+        if not self.has_change_permission(request):
+            raise PermissionDenied
 
         uploaded_file = request.FILES.get("file")
         if not uploaded_file:

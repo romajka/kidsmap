@@ -46,7 +46,6 @@
 
 {% block content %}
   <div id="content-main" class="km-pf">
-    {% include "admin/catalog/includes/km_icon_sprite.html" %}
     {{ km_place_form_summary.checklist_items|json_script:"km-place-progress-config" }}
     {{ km_place_entry_copy|json_script:"km-place-entry-copy" }}
     {{ km_place_taxonomy_picker|json_script:"km-place-taxonomy-config" }}
@@ -168,7 +167,7 @@
         {% endif %}
 
         <div class="km-pf__layout">
-          <main class="km-pf__main">
+          <div class="km-pf__main">
             <div class="km-pf__accordion-actions">
               <span class="km-pf__accordion-title">{% translate "Разделы карточки" %}</span>
               <button type="button" class="km-pf-btn km-pf-btn--quiet km-pf-btn--sm" data-place-accordion-collapse-all>{% translate "Свернуть всё" %}</button>
@@ -234,7 +233,7 @@
                       async></script>
             {% endblock %}
             {% prepopulated_fields_js %}
-          </main>
+          </div>
 
           <aside class="km-pf__side" data-pf-sidebar>
             {% include "admin/catalog/place/form/sidebar.html" %}

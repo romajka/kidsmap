@@ -1,6 +1,0 @@
-### Result
-[{"id":"","inputs":[{"tag":"INPUT","id":"","name":"csrfmiddlewaretoken","type":"hidden"},{"tag":"INPUT","id":"","name":"username","type":"text"},{"tag":"INPUT","id":"","name":"password","type":"password"},{"tag":"BUTTON","id":"","name":"","type":"submit"}]}]
-### Ran Playwright code
-```js
-await (async page => await page.locator("form").evaluateAll(forms => forms.map(f => ({id:f.id, inputs:[...f.querySelectorAll("input,button")].map(e=>({tag:e.tagName,id:e.id,name:e.name,type:e.type}))}))))(page);
-```

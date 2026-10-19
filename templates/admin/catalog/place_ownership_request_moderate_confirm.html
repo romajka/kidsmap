@@ -3,7 +3,7 @@
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_ownership_preview.css' %}?v=1">{% endblock %}
 
 {% block content %}
-  <main id="content-main" class="km-inspection">
+  <div id="content-main" class="km-inspection">
     <section class="km-inspection-section">
       <h1>{{ action_label }}</h1>
       <h2>{{ request_item.place }}</h2>
@@ -30,5 +30,5 @@
       </form>
       {% endif %}
     </section>
-  </main>
+  </div>
 {% endblock %}

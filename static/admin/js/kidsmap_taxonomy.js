@@ -4,6 +4,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const expandAllBtn = document.getElementById("km-tax-expand-all");
   const listContainer = document.querySelector(".km-tax-list");
   
+  function syncExpandAll() {
+    if (!expandAllBtn) return;
+    const expanded = expanders.length > 0 && Array.from(expanders).every(btn => btn.getAttribute("aria-expanded") === "true");
+    expandAllBtn.setAttribute("aria-expanded", String(expanded));
+    expandAllBtn.querySelector("span").textContent = expanded ? expandAllBtn.dataset.collapseLabel : expandAllBtn.dataset.expandLabel;
+  }
+
   // Toggle individual category
   expanders.forEach(function (btn) {
     btn.addEventListener("click", function (e) {
@@ -19,6 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
         btn.setAttribute("aria-expanded", "true");
         children.style.display = "block";
       }
+      syncExpandAll();
     });
   });
 
@@ -40,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Expand all / Collapse all
   if (expandAllBtn) {
     expandAllBtn.addEventListener("click", function () {
-      const isExpanding = expandAllBtn.querySelector("span").textContent.trim() === "Развернуть все";
+      const isExpanding = expandAllBtn.getAttribute("aria-expanded") !== "true";
       
       expanders.forEach(function (btn) {
         const group = btn.closest(".km-tax-group");
@@ -55,13 +63,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
-      if (isExpanding) {
-        expandAllBtn.querySelector("span").textContent = "Свернуть все";
-      } else {
-        expandAllBtn.querySelector("span").textContent = "Развернуть все";
-      }
+      syncExpandAll();
     });
   }
+
+  syncExpandAll();
 
   // Auto-expand if search is active
   if (listContainer && listContainer.getAttribute("data-search-active") === "true") {
@@ -83,6 +89,19 @@ document.addEventListener("DOMContentLoaded", function () {
       
       if (!isOpen) {
         container.classList.add("open");
+        // A fixed menu stays usable inside the horizontally scrolling table.
+        const menu = container.querySelector(".km-tax-dropdown-menu");
+        const anchor = btn.getBoundingClientRect();
+        menu.style.position = "fixed";
+        menu.style.right = "auto";
+        menu.style.marginTop = "0";
+        menu.style.maxWidth = "calc(100vw - 16px)";
+        menu.style.maxHeight = "calc(100vh - 16px)";
+        menu.style.overflowY = "auto";
+        menu.style.zIndex = "1100";
+        const size = menu.getBoundingClientRect();
+        menu.style.left = Math.max(8, Math.min(anchor.right - size.width, innerWidth - size.width - 8)) + "px";
+        menu.style.top = Math.max(8, Math.min(anchor.bottom + 4, innerHeight - size.height - 8)) + "px";
       }
     });
   });
@@ -92,6 +111,20 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".km-tax-dropdown-container").forEach(function (c) {
       c.classList.remove("open");
     });
+  });
+
+  function closeMenus() {
+    document.querySelectorAll(".km-tax-dropdown-container.open").forEach(c => c.classList.remove("open"));
+  }
+  window.addEventListener("resize", closeMenus);
+  document.addEventListener("scroll", function (event) {
+    if (!event.target.closest || !event.target.closest(".km-tax-dropdown-menu")) closeMenus();
+  }, true);
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      const open = document.querySelector(".km-tax-dropdown-container.open");
+      if (open) { closeMenus(); open.querySelector(".km-tax-menu-btn").focus(); }
+    }
   });
 
   // Delete Confirmation Popup

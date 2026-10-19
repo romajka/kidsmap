@@ -1,2 +1,0 @@
-async original=>{__QA01R_COMMON__
-const out=[];for(const lang of ['ru','az','en']){const x=await context('admin',lang);try{await visit(x.p,prefix(lang)+'/admin/catalog/place/2/change/');out.push({lang,labels:await x.p.locator('label[for*=description]').evaluateAll(es=>es.map(e=>({for:e.htmlFor,text:e.textContent,visible:!!e.getClientRects().length}))),fields:await x.p.locator('[id*=description]').evaluateAll(es=>es.map(e=>({id:e.id,aria:e.getAttribute('aria-label')})))});}finally{await x.c.close();}}return{out};}

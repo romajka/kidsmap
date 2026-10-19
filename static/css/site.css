@@ -2666,6 +2666,18 @@ main,
   letter-spacing: -0.01em;
 }
 
+button.footer-accordion-trigger {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+button.footer-accordion-trigger:focus-visible {
+  outline: 3px solid #136f38;
+  outline-offset: 3px;
+}
+
 .footer-nav-list {
   display: flex;
   flex-direction: column;
@@ -2766,7 +2778,7 @@ main,
 .footer-social-heading {
   font-size: 12px;
   font-weight: 800;
-  color: #7d8b88;
+  color: #596b63;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -2914,7 +2926,7 @@ main,
 
 .footer-disclaimer-icon {
   font-size: 16px;
-  color: #7d8b88;
+  color: #596b63;
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -2924,7 +2936,7 @@ main,
   font-size: 12px;
   font-weight: 600;
   line-height: 1.5;
-  color: #7d8b88;
+  color: #596b63;
 }
 
 /* ── Floating Sticky Back-to-Top with Progress Ring ── */
@@ -22874,7 +22886,7 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   --register-surface-strong: #ffffff;
   --register-border: #cfe8d8;
   --register-border-strong: #b8dcc6;
-  --register-emerald: #008f46;
+  --register-emerald: #136f38;
   --register-emerald-strong: #00783c;
   --register-text: #1f2a37;
   --register-muted: #6b7280;
@@ -32474,3 +32486,25 @@ form[data-review-submission][hidden],
 :is(.place-card, .new-timeline-grid) .card-organization a { color: var(--brand-turf, #136f38); overflow-wrap: anywhere; }
 :is(.place-card, .new-timeline-grid) .card-matched-offers a:focus-visible,
 :is(.place-card, .new-timeline-grid) .card-organization a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
+/* Bounded map loading controls use the public button and note styles. */
+.home-map-pagination { display:flex; flex-wrap:wrap; align-items:center; gap:.75rem; margin-top:.75rem; }
+.home-map-pagination .home-map-note { margin:0; }
+.home-map-pagination .btn { white-space:normal; }
+
+[data-map-pagination] [data-map-more][hidden] { display: none; }
+
+/* The tablet sidebar uses a 48px icon button; retain its accessible name. */
+@media (min-width: 761px) and (max-width: 1024px) {
+  .page-place_list .mobile-catalog-controls .mobile-search-filter__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+}

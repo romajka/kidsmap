@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "/home/ramin/kidsmap/docs/qa/social-qa03-recheck-2026-10-16-r1/verify.py", line 14, in <module>
-    assert all(n.startswith('docs/qa/admin-moderation-audit-2026-10-16-r1/')for n in foreign_drift),foreign_drift
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: ['docs/qa/admin-moderation-audit-2026-10-16-r1/controls-command.json', 'docs/qa/admin-moderation-audit-2026-10-16-r1/drive.py', 'docs/qa/admin-moderation-audit-2026-10-16-r1/publish-command.json', 'locale/az/LC_MESSAGES/django.po', 'locale/en/LC_MESSAGES/django.po', 'locale/ru/LC_MESSAGES/django.po', 'src/catalog/domain_admin/owner.py', 'src/catalog/domain_admin/place.py', 'src/catalog/domain_admin/review_versions.py', 'src/catalog/services/admin_place_preview.py', 'src/catalog/services/admin_site_preview.py', 'src/catalog/services/review_versions.py', 'src/catalog/templates/admin/catalog/place/form/section_media.html', 'src/catalog/templates/admin/catalog/placeownershiprequest/change_form.html', 'templates/admin/catalog/place_ownership_request_moderate_confirm.html']

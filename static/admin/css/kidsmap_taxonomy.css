@@ -1,6 +1,6 @@
 /* static/admin/css/kidsmap_taxonomy.css */
 .km-taxonomy-page {
-  --km-primary: #009A4E;
+  --km-primary: #136F38;
   --km-primary-hover: #008F46;
   --km-surface: #ffffff;
   --km-border: #E5E7EB;
@@ -9,10 +9,13 @@
   --km-text-muted: #6B7280;
   --km-bg-main: #F9FAFB;
   --km-bg-hover: #F3F4F6;
+  --km-tax-table-min-width: 984px;
   
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--km-text-main);
   max-width: 1200px;
+  min-width: 0;
+  width: 100%;
 }
 
 /* Header */
@@ -143,8 +146,13 @@
   border: 1px solid var(--km-border);
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  overflow: hidden;
+  max-width: 100%;
+  overflow: auto;
 }
+
+.km-tax-table:focus-visible { outline: 2px solid var(--km-primary); outline-offset: 3px; }
+.km-tax-table-header, .km-tax-row { min-width: var(--km-tax-table-min-width); }
+.km-tax-table-header > div { min-width: 0; overflow-wrap: anywhere; }
 
 .km-tax-table-header {
   display: grid;
@@ -399,6 +407,7 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
+  .km-taxonomy-page { --km-tax-table-min-width: 768px; }
   .km-tax-table-header {
     grid-template-columns: minmax(180px, 2fr) 80px 80px 80px 80px 140px;
   }
@@ -411,6 +420,7 @@
 }
 
 @media (max-width: 768px) {
+  .km-taxonomy-page { --km-tax-table-min-width: 0px; }
   h1.h4:has(> .km-tax-header) {
     width: 100%;
     margin-right: 0 !important;

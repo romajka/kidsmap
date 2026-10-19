@@ -1,7 +1,0 @@
-Продолжаем KidsMap. Работай в фактическом checkout; на этом ПК он C:\kidsmap. Прочитай AGENTS.md, канонические .agents и docs/qa/module-acceptance-prompts.md целиком. По журналу 01 и 02 завершены с FAIL; первый незавершённый модуль — 03 «Специалисты и приватные документы». Выполни только его полный промпт до нового отчёта. Модуль 13 после 01–12.
-
-Проверь заново HEAD/branch/dirty WORKTREE/active_run. Последний module01 r2: HEAD 8d188b316f800fbedf0b1e376905dfd4924cb1b6, task33-progress, active_run NONE. Это исторический snapshot, не новое доказательство. Отчёт docs/qa/module01-2026-10-09-r2/REPORT.md: 6 findings приложения + отдельный stale compiled locale finding, без исправлений.
-
-AUDIT ONLY: сохрани чужие изменения, отчёты и стенды. Существующие 8811/8812 и module01 r2 8813/DB 55433 не присваивай и не останавливай. Создай новый изолированный DJANGO_TESTING=1 стенд с отдельными DB/cache/media/private-media/email, вымышленными данными и без внешних credentials/transport. Проверяй running source/compiled asset hashes против WORKTREE; stale .mo на этом ПК учитывать отдельно. Не считать прежние PASS свежим evidence.
-
-Приложение, правила, миграции и existing assertions не исправляй. Сохрани уникальный module03/date/run report, evidence, PC/mobile screenshots, отдельные findings и копируемые repair prompts. Недоступное оставь NOT RUN. Обнови только строку 03 журнала и дай следующий handoff. Без commit/push/deploy/production.

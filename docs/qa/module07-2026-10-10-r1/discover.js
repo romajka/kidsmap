@@ -1,7 +1,0 @@
-async original=>{
- const B='http://localhost:8820',F=__FIXTURES_JSON__,c=await original.context().browser().newContext({viewport:{width:390,height:950}}),p=await c.newPage(),rows=[];await c.route('**/*',r=>r.request().url().startsWith(B+'/')?r.continue():r.abort());
- for(const path of ['/ru/auth/login/','/ru/auth/register/','/ru/auth/verify-email/','/ru/auth/password-reset/']){await p.goto(B+path);rows.push({path,forms:await p.locator('form').evaluateAll(es=>es.map(f=>({action:f.getAttribute('action'),controls:[...f.querySelectorAll('input:not([type=hidden]),button,select')].map(e=>({tag:e.tagName,name:e.name,type:e.type,text:e.tagName==='BUTTON'?e.textContent.trim():undefined}))})))});}
- await p.goto(B+'/ru/auth/login/');await p.locator('[name=username]').fill(F.actors.owner.email);await p.locator('[name=password]').fill('__LOCAL_PASSWORD__');await Promise.all([p.waitForURL(u=>u.pathname.includes('/account/')),p.locator('.auth-form button[type=submit]:visible').click()]);
- for(const path of ['/ru/account/profile/','/ru/account/places/team/','/ru/account/deletion/','/ru/account/organizations/'+F.organization+'/']){const r=await p.goto(B+path);rows.push({path,http:r.status(),forms:await p.locator('main form').evaluateAll(es=>es.map(f=>({action:f.getAttribute('action'),controls:[...f.querySelectorAll('input:not([type=hidden]),button,select')].map(e=>({tag:e.tagName,name:e.name,type:e.type,text:e.tagName==='BUTTON'?e.textContent.trim():undefined}))}))),headings:await p.locator('h1,h2').allTextContents()});}
- await c.close();return{rows};
-}

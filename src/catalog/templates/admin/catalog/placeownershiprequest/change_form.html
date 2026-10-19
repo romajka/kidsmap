@@ -67,7 +67,7 @@
         {% endif %}
 
         <div class="km-place-form-layout">
-          <main class="km-place-form-main">
+          <div class="km-place-form-main">
             {% block field_sets %}
               {% for fieldset in adminform %}
                 <section class="km-place-section{% if 'collapse' in fieldset.classes %} collapse{% endif %}" id="fieldset-{{ forloop.counter0 }}">
@@ -93,7 +93,7 @@
                 {% include inline_admin_formset.opts.template %}
               {% endfor %}
             {% endblock %}
-          </main>
+          </div>
 
           <aside class="km-place-form-sidebar">
             <div class="km-place-sidebar-sticky">

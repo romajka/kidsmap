@@ -1,1 +1,0 @@
-async original=>{__COMMON__const E=__ENTITIES__;const p=await actor('owner');await p.goto(E.venueEdit+'?qa_stimulus=org');await p.locator('[name=name_az]').fill('Forbidden synthetic org change');return {rows:[{scenario:'fixture-stimulus-org-prepared',status:'PASS'}]};}

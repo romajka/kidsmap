@@ -100,9 +100,7 @@
             <strong>{% if total_place_reviews_count %}{{ total_place_reviews_count }}{% else %}—{% endif %}</strong>
             <span>
               {% if total_place_reviews_count %}
-              {% if request.LANGUAGE_CODE == 'az' %}valideyn rəyi
-              {% elif request.LANGUAGE_CODE == 'en' %}parent reviews
-              {% else %}отзывов родителей{% endif %}
+              {{ total_place_reviews_count|parent_review_label }}
               {% else %}
               {% trans "Пока нет отзывов" %}
               {% endif %}
@@ -147,7 +145,7 @@
           ›
         </button>
 
-        <div class="home-hero-slider-dots" role="tablist" aria-label="{% trans 'Переключение фото' %}">
+        <div class="home-hero-slider-dots" role="group" aria-label="{% trans 'Переключение фото' %}">
           {% for slide in hero_gallery_slides %}
           <button type="button" class="home-hero-slider-dot{% if forloop.first %} is-active{% endif %}"
             data-home-hero-slider-dot data-slide-index="{{ forloop.counter0 }}"
@@ -482,6 +480,8 @@
       title="{% trans 'Карта детских мест по Азербайджану' %}"></iframe>
   </noscript>
   {{ map_places|json_script:"home-map-data" }}
+  {{ home_map_page|json_script:"home-map-page" }}
+  {% include "catalog/includes/map_pagination.html" with map_kind="home" map_page=home_map_page %}
 </section>
 {% endif %}
 
@@ -692,9 +692,7 @@
           <div class="km-metric-cell km-metric-cell--accent">
             <strong class="km-metric-val">{% if total_place_reviews_count %}{{ total_place_reviews_count }}{% else %}—{% endif %}</strong>
             <span class="km-metric-lbl">
-              {% if request.LANGUAGE_CODE == 'az' %}valideyn rəyi
-              {% elif request.LANGUAGE_CODE == 'en' %}parent reviews
-              {% else %}отзывов родителей{% endif %}
+              {{ total_place_reviews_count|parent_review_label }}
             </span>
           </div>
           <div class="km-metric-cell">
@@ -718,7 +716,7 @@
               </svg>
             </div>
             <div class="km-benefit-text">
-              <h4>{% if request.LANGUAGE_CODE == 'az' %}Xəritədə görünüş{% elif request.LANGUAGE_CODE == 'en' %}Map visibility{% else %}На карте{% endif %}</h4>
+              <h3>{% if request.LANGUAGE_CODE == 'az' %}Xəritədə görünüş{% elif request.LANGUAGE_CODE == 'en' %}Map visibility{% else %}На карте{% endif %}</h3>
               <p>{% if request.LANGUAGE_CODE == 'az' %}Axtarışda ilk sıralarda{% elif request.LANGUAGE_CODE == 'en' %}Top in search{% else %}Первые в поиске{% endif %}</p>
             </div>
           </div>
@@ -731,7 +729,7 @@
               </svg>
             </div>
             <div class="km-benefit-text">
-              <h4>{% if request.LANGUAGE_CODE == 'az' %}Foto və cədvəl{% elif request.LANGUAGE_CODE == 'en' %}Photos & info{% else %}Фото и цены{% endif %}</h4>
+              <h3>{% if request.LANGUAGE_CODE == 'az' %}Foto və cədvəl{% elif request.LANGUAGE_CODE == 'en' %}Photos & info{% else %}Фото и цены{% endif %}</h3>
               <p>{% if request.LANGUAGE_CODE == 'az' %}Məkanınızı cəlbedici edin{% elif request.LANGUAGE_CODE == 'en' %}Highlight features{% else %}Полное описание{% endif %}</p>
             </div>
           </div>
@@ -743,7 +741,7 @@
               </svg>
             </div>
             <div class="km-benefit-text">
-              <h4>{% if request.LANGUAGE_CODE == 'az' %}Etibar və rəylər{% elif request.LANGUAGE_CODE == 'en' %}Reviews & trust{% else %}Отзывы{% endif %}</h4>
+              <h3>{% if request.LANGUAGE_CODE == 'az' %}Etibar və rəylər{% elif request.LANGUAGE_CODE == 'en' %}Reviews & trust{% else %}Отзывы{% endif %}</h3>
               <p>{% if request.LANGUAGE_CODE == 'az' %}Valideyn tövsiyələri{% elif request.LANGUAGE_CODE == 'en' %}Parents trust{% else %}Доверие родителей{% endif %}</p>
             </div>
           </div>
@@ -756,7 +754,7 @@
               </svg>
             </div>
             <div class="km-benefit-text">
-              <h4>{% if request.LANGUAGE_CODE == 'az' %}Şəxsi kabinet{% elif request.LANGUAGE_CODE == 'en' %}Dashboard{% else %}Кабинет{% endif %}</h4>
+              <h3>{% if request.LANGUAGE_CODE == 'az' %}Şəxsi kabinet{% elif request.LANGUAGE_CODE == 'en' %}Dashboard{% else %}Кабинет{% endif %}</h3>
               <p>{% if request.LANGUAGE_CODE == 'az' %}Sadə və rahat idarəetmə{% elif request.LANGUAGE_CODE == 'en' %}Easy management{% else %}Простое управление{% endif %}</p>
             </div>
           </div>
@@ -1152,7 +1150,7 @@
   .km-b-amber   { background: #fffbeb; color: #f59e0b; }
   .km-b-blue    { background: #eff6ff; color: #3b82f6; }
 
-  .km-benefit-text h4 {
+  .km-benefit-text h3 {
     margin: 0 0 1px;
     font-size: 12.5px;
     font-weight: 750;
@@ -1279,7 +1277,7 @@
       height: 14px;
     }
 
-    .km-benefit-text h4 {
+    .km-benefit-text h3 {
       font-size: 11.5px;
     }
 
@@ -1659,7 +1657,7 @@
     align-items: center;
     gap: 8px;
     font-size: 13.5px;
-    color: #7d8b88;
+    color: #596b63;
     font-weight: 600;
   }
 
@@ -2718,14 +2716,15 @@
 {% endblock %}
 
 {% block extra_body %}
-{% if home_rail_places %}<script src="{% static 'js/home_places_rail.js' %}?v=20260909_autoresume1" defer></script>{% endif %}
+{% if home_rail_places %}<script src="{% static 'js/home_places_rail.js' %}?v=20261019_r13_r14" defer></script>{% endif %}
 {% if hero_gallery_slides|length > 1 %}
 <script src="{% static 'js/home_hero_slider.js' %}?v=20260909_playful1"></script>
 {% endif %}
 <link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20260910" />
 <script src="{% static 'js/google_maps_motion.js' %}?v=20260910"></script>
 <script src="{% static 'js/google_maps_markers.js' %}?v=20260910"></script>
-<script src="{% static 'js/home_map.js' %}?v=20261004_tile_status" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
+<script src="{% static 'js/map_paging.js' %}?v=20261019_r15"></script>
+<script src="{% static 'js/home_map.js' %}?v=20261019_r15" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
   data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
   data-home-map-route-label="{% trans 'Маршрут' %}"
   data-home-map-language="{{ request.LANGUAGE_CODE|escape }}"

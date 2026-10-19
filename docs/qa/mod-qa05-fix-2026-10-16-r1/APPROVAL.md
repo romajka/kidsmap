@@ -1,1 +1,0 @@
-User approval: «дальше», 2026-10-16. Scope: MOD-QA-05 IMPLEMENTATION_PLAN.md in mod-qa05-recheck-2026-10-16-r1; exactly one added focus line in static/admin/js/kidsmap_place_changelist.js. Targeted checks only.

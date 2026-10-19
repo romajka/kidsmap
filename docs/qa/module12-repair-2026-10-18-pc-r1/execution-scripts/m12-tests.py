@@ -1,8 +1,0 @@
-import json,re,subprocess,sys
-from pathlib import Path
-R=Path('/mnt/c/kidsmap');O=R/'docs/qa/module12-repair-2026-10-18-pc-r1';Q=R/'.tmp/m12-full-r1';stage,phase,revision,*labels=sys.argv[1:];assert re.fullmatch('[a-z0-9]+',stage) and phase in ['red','green','baseline'] and re.fullmatch('r[0-9]+',revision)
-S=O/'stages'/stage;(S/'evidence').mkdir(parents=True,exist_ok=True);name='test_m12full_'+stage+'_'+phase+'_'+revision
-assert subprocess.check_output(['docker','exec','m12-full-r1-pg','psql','-p','55493','-U','m12_guard','-d','postgres','-Atc',"SELECT count(*) FROM pg_database WHERE datname='"+name+"'"],text=True).strip()=='0'
-subprocess.run(['docker','exec','m12-full-r1-pg','createdb','-p','55493','-U','m12_guard',name],check=True);config=json.loads((Q/'stage.json').read_text());config['test_db']=name;(Q/'stage.json').write_text(json.dumps(config));cmd=['docker','exec','m12full-r1-app','python',str(Q/'runtime.py'),'test',*labels]
-p=subprocess.run(cmd,capture_output=True,text=True);raw=p.stdout+p.stderr;(Q/(stage+'-'+phase+'-'+revision+'.log')).write_text(raw)
-d={'command':cmd,'exit':p.returncode,'fresh_own_test_db':name,'test_ids':re.findall(r'^test_\S+ \(([^)]+)\)',raw,re.M),'failures':re.findall(r'^FAIL: (.*)$',raw,re.M),'errors':re.findall(r'^ERROR: (.*)$',raw,re.M),'summary':[s for s in raw.splitlines() if s.startswith(('Found ','Ran ','FAILED','OK'))]};(S/'evidence'/(phase+'-'+revision+'.json')).write_text(json.dumps(d,indent=2));print(json.dumps({k:v for k,v in d.items() if k!='test_ids'},indent=2));assert not d['errors'] and ((p.returncode==1 and d['failures']) if phase=='red' else (p.returncode==0 and not d['failures']))

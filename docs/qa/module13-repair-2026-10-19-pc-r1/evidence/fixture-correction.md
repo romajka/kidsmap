@@ -1,1 +1,0 @@
-Own new regression r1 used invalid format offline instead of actual physical enum; one fixture ERROR. Corrected the new fixture before accepted RED. Retain r1 failure evidence; no existing assertion or application source changed.

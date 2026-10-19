@@ -1,1 +1,0 @@
-CSS consumers BEFORE: native CLI exit 0; all four style snapshots saved before the CSS change. The reporting wrapper then raised KeyError(status) for snapshot rows, which contain no assertion status. Only the wrapper summary now uses get(status); no browser assertion or baseline data was changed. Baseline was not rerun after the CSS patch.

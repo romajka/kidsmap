@@ -1,2 +1,0 @@
-async original=>{__QA13_COMMON__
-const{c,p}=await context();try{await visit(p,'/ru/catalog/?q=QA13');return{url:p.url(),forms:await p.locator('form').evaluateAll(fs=>fs.map(f=>({action:f.action,method:f.method,html:f.outerHTML.slice(0,2000)}))),links:await p.locator('a[href*="/place/"]').evaluateAll(xs=>xs.map(x=>({href:x.href,parent:x.parentElement.className,grandparent:x.parentElement.parentElement.className}))),main:(await p.locator('main').innerText()).slice(0,1800)};}finally{await c.close();}}

@@ -1,7 +1,0 @@
-# MOD-QA-11 — обработанная заявка не показывает причину
-
-OPEN P2, LOCAL current WORKTREE,2026-10-16. Admin RU1440 и reviewer RU390. Native pending organization → final reject с «SYNTHETIC final refusal with reason» → открыть обработанную заявку в центре модерации. Ожидание: сохранённая причина видна, decision form отсутствует. Факт: form правильно отсутствует, причины на странице нет.2nativeFAIL audit-history.js.result.json; PNG full-terminal-reason-admin/reviewer. flows-native.js.result.json доказывает persisted review_note exact и сохранность live. Аудит-таблица администратору доступна, лишним ролям403; это не утверждение отсутствия записи во всех хранилищах.
-
-Причина: hub_detail.html показывает только pending textarea, terminal note не выводит; row.revision уже содержит review_note. Нужен минимальный read-only presenter, без ORM/ACL/schema/новой истории всех версий. P2: невозможно понять принятое решение на основном экране повторного просмотра. Владелец frontend-admin, Django/integration guards. [2file PLAN](MOD-QA-11-PLAN.md), [unapplied candidate](MOD-QA-11-proposed.diff). Новое application изменение требует approval.
-
-Самостоятельный запрос: «KidsMap: PLAN/IMPLEMENT MOD-QA-11 внутри08, по этому finding/PLAN. После отдельного явного approval только template+NEWtest, RED→GREEN, terminal notes/escaping/roles/RU-AZ-EN×6widths browser, собственные locales/DB/media. Полный ACCEPT-08 сохранить, повторять только зависимые проверки. Без09модуля/production/commit/push/deploy».

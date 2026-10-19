@@ -252,7 +252,7 @@
         {% endif %}
 
         <div class="km-user-layout">
-          <main class="km-user-main">
+          <div class="km-user-main">
             {% block field_sets %}
               {% for fieldset in adminform %}
                 <section class="km-user-section{% if 'collapse' in fieldset.classes %} collapse{% endif %}" id="fieldset-{{ forloop.counter0 }}">
@@ -289,7 +289,7 @@
                 {% include inline_admin_formset.opts.template %}
               {% endfor %}
             {% endblock %}
-          </main>
+          </div>
 
           <aside class="km-user-sidebar">
             <div class="km-user-sidebar__sticky">

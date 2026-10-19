@@ -1,5 +1,0 @@
-SITE-QA-02 (P2) — AZ about/empty игнорируют сохранённые тексты.
-Прочитать текущие AGENTS/canonical orchestrator и свежий docs/qa/module10-full-2026-10-18-pc-r1/findings/SITE-QA-02.md/evidence; проверить текущий dirty WORKTREE/source drift. Status: OPEN.
-Source hints: src/catalog/templates/pages/about.html:76; src/catalog/templates/catalog/place_list.html:970. Root: AZ hardcoded branch precedes configured content.
-Следующая задача: Применить настройки AZ с согласованным fallback; проверить save/reload/public RU/AZ/EN и пустое значение.
-Сначала свежая bounded проверка, impact map и конкретный PLAN с файлами/тестами/рисками. Не применять app fix до одобрения scope. Approval предыдущих SOCIAL01–12 не переносится на SITE. Не повторять security writes вне собственной isolated testDB/media. DJANGO_TESTING=1, isolated cache/media/email/current3MO, no production credentials. Сохранить старые evidence/местные изменения/ref/index/active_runNONE; no reset/clean/stash/commit/push/deploy. Новый уникальный package, red/green if approved, native evidence and honest NOTRUN.

@@ -1,1 +1,0 @@
-async original=>{const rows=[];for(const c of original.context().browser().contexts())for(const p of c.pages()){rows.push({url:p.url(),title:await p.title(),loginUserInputs:await p.locator('input[name=username]').count(),loginPasswordInputs:await p.locator('input[name=password]').count(),footerInputs:await p.locator('[name=footer_phone]').count()});}return{rows};}

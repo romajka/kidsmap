@@ -6,21 +6,34 @@ from tempfile import TemporaryDirectory
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group,Permission
 from django.core.files.base import ContentFile
-from django.test import TestCase,override_settings
+from django.test import SimpleTestCase,TestCase,override_settings
 from PIL import Image
 from catalog.models import Place,PlacePhoto,VolunteerPlaceRevision
 from catalog.services import volunteer_proposals,publication
 from catalog.testcases.utils import create_ready_place
 
 class WorkspaceImages(HTMLParser):
+    void_tags={'area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'}
     def __init__(self,html):
-        super().__init__();self.inside=False;self.sources=[];self.feed(html)
+        super().__init__();self.depth=0;self.sources=[];self.feed(html)
     def handle_starttag(self,tag,attrs):
         attrs=dict(attrs)
-        if tag=='main' and 'km-volunteer' in attrs.get('class','').split():self.inside=True
-        if self.inside and tag=='img':self.sources.append(attrs.get('src',''))
+        if self.depth:
+            if tag=='img':self.sources.append(attrs.get('src',''))
+            if tag not in self.void_tags:self.depth+=1
+        elif 'km-volunteer' in attrs.get('class','').split():self.depth=1
     def handle_endtag(self,tag):
-        if tag=='main':self.inside=False
+        if self.depth and tag not in self.void_tags:self.depth-=1
+
+class WorkspaceImagesParserTests(SimpleTestCase):
+    def test_workspace_class_preserves_images_for_both_semantic_tags(self):
+        for tag in ('main','div'):
+            with self.subTest(tag=tag):
+                html=f'<{tag} class="km-volunteer"><div><img src="/one.png"><br></div><img src="/two.png"/></{tag}>'
+                self.assertEqual(WorkspaceImages(html).sources,['/one.png','/two.png'])
+    def test_images_outside_the_workspace_are_not_collected(self):
+        html='<main><img src="/outside.png"><div class="km-volunteer"><div><input><img src="/inside.png"></div></div><img src="/after.png"></main>'
+        self.assertEqual(WorkspaceImages(html).sources,['/inside.png'])
 
 class HubMediaPreviewTests(TestCase):
     def setUp(self):

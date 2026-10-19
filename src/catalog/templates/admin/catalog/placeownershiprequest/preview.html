@@ -7,7 +7,7 @@
   <li class="breadcrumb-item active" aria-current="page">{% translate 'Проверить карточку' %}</li>
 </ol>{% endblock %}
 {% block content %}
-<main class="km-inspection" id="km-inspection">
+<div class="km-inspection" id="km-inspection">
   <a href="{{ preview_back_url }}" class="km-inspection-back km-inspection-back--top">← {% translate 'К списку заявок' %}</a>
   <header class="km-inspection-header">
     <div class="km-inspection-identity">
@@ -150,5 +150,5 @@
     <p class="km-inspection-photo-status" data-preview-photo-status role="status" hidden></p>
     <div class="km-inspection-dialog-nav"><button type="button" data-preview-previous>{% translate 'Предыдущее фото' %}</button><span data-preview-dialog-count></span><button type="button" data-preview-next>{% translate 'Следующее фото' %}</button></div>
   </dialog>
-</main>
+</div>
 {% endblock %}

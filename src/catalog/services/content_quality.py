@@ -1,11 +1,12 @@
 from __future__ import annotations
+import re
 from django.db.models import F
 
 from dataclasses import dataclass
 
 from django.db.models import Exists, OuterRef, Q, QuerySet, TextField, Value
 from django.db.models.functions import Concat, Length, Lower, Replace
-from django.db.models.lookups import Contains
+from django.db.models.lookups import Contains, Regex
 from django.utils.translation import gettext_lazy as _
 
 
@@ -107,10 +108,9 @@ def _normalized_junk_expression(field_name: str):
 def normalized_junk_q(field_path: str) -> Q:
     """Junk-token predicate for a field that cannot carry an annotation.
 
-    ``place_junk_q`` reuses ``km_junk_*`` annotations, but an aggregate filter
-    such as ``Count("reviews", filter=...)`` has no queryset to annotate. Wrap
-    the same normalized expression in a lookup so both call sites apply one
-    rule.
+    Aggregate review filters keep the normalized single-field equivalent.
+    Public place checks join padded fields once; both apply the same finite
+    literal-separator rule.
     """
 
     expression = _normalized_junk_expression(field_path)
@@ -121,14 +121,25 @@ def normalized_junk_q(field_path: str) -> Q:
 
 
 def place_junk_q() -> Q:
-    """Build the predicate for normalized junk-text annotations."""
+    """Match the existing literal token boundaries without repeated transforms."""
 
-    predicate = Q()
-    for token in TEST_CONTENT_TOKENS:
-        for field in PLACE_JUNK_FIELDS:
-            predicate |= Q(**{f"km_junk_{field}__contains": f" {token} "})
-    return predicate
-
+    # Every field has an ASCII-space boundary, exactly as contains_test_content.
+    # Join independently lowered fields with spaces so fragments from different
+    # fields cannot form a token. A balanced tree keeps SQLite parsing shallow.
+    parts = [Value(" ")]
+    for field in PLACE_JUNK_FIELDS:
+        parts.extend((Lower(field), Value(" ")))
+    while len(parts) > 1:
+        parts = [
+            Concat(*parts[index:index + 2], output_field=TextField())
+            if len(parts[index:index + 2]) == 2 else parts[index]
+            for index in range(0, len(parts), 2)
+        ]
+    boundary = "[" + re.escape(" " + TEST_TOKEN_SEPARATORS) + "]"
+    tokens = "|".join(re.escape(token) for token in TEST_CONTENT_TOKENS)
+    # Explicit separators, not backend-specific word boundaries or $ anchors:
+    # tabs/newlines/NBSP remain non-separators, including a trailing newline.
+    return Q(Regex(parts[0], Value(boundary + "(" + tokens + ")" + boundary)))
 
 def _pricing_plan_price_q(*, prefix: str = "") -> Q:
     """A tariff that represents a public, primary price rather than an add-on."""
@@ -241,13 +252,12 @@ def _has_pricing_plan_q() -> Exists:
 def public_place_queryset(queryset: QuerySet) -> QuerySet:
     """Return only places safe enough for public catalog/detail/sitemap usage."""
 
-    from catalog.models import Place
+    from catalog.models import Place, PlaceScheduleDay
 
-    qs = queryset.annotate(
+    qs = queryset.alias(
         description_ru_len=Length("description_ru"),
         description_az_len=Length("description_az"),
         description_en_len=Length("description_en"),
-        **{f"km_junk_{field}": _normalized_junk_expression(field) for field in PLACE_JUNK_FIELDS},
     )
     qs = qs.filter(
         is_active=True,
@@ -257,7 +267,7 @@ def public_place_queryset(queryset: QuerySet) -> QuerySet:
     qs = qs.exclude(category="").exclude(address="")
     qs = qs.filter(
         Q(schedule__gt="")
-        | Q(schedule_days__isnull=False)
+        | Exists(PlaceScheduleDay.objects.filter(place_id=OuterRef('pk')))
         | Q(
             schedule_mode__in=[
                 Place.SCHEDULE_MODE_ALWAYS_OPEN,

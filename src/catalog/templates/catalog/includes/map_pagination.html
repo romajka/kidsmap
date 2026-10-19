@@ -1,0 +1,10 @@
+{% load i18n %}
+<div class="home-map-pagination" data-map-pagination="{{ map_kind }}" data-map-endpoint="{% url 'public_map' %}"
+  data-shown-label="{% if request.LANGUAGE_CODE == 'az' %}Göstərilir: {shown} / {total}{% elif request.LANGUAGE_CODE == 'en' %}Shown: {shown} / {total}{% else %}Показано: {shown} / {total}{% endif %}"
+  data-more-label="{% if request.LANGUAGE_CODE == 'az' %}Daha çox məkan göstər{% elif request.LANGUAGE_CODE == 'en' %}Show more places{% else %}Загрузить места{% endif %}"
+  data-loading-label="{% if request.LANGUAGE_CODE == 'az' %}Yüklənir…{% elif request.LANGUAGE_CODE == 'en' %}Loading…{% else %}Загрузка…{% endif %}"
+  data-retry-label="{% if request.LANGUAGE_CODE == 'az' %}Yenidən cəhd et{% elif request.LANGUAGE_CODE == 'en' %}Retry{% else %}Повторить{% endif %}"
+  data-error-label="{% if request.LANGUAGE_CODE == 'az' %}Məkanlar yüklənmədi. Yenidən cəhd edin.{% elif request.LANGUAGE_CODE == 'en' %}Places could not be loaded. Please retry.{% else %}Не удалось загрузить места. Повторите попытку.{% endif %}">
+  <p class="home-map-note" data-map-status role="status" aria-live="polite"></p>
+  <button class="btn btn-outline" type="button" data-map-more{% if not map_page.has_more %} hidden{% endif %}>{% if request.LANGUAGE_CODE == 'az' %}Daha çox məkan göstər{% elif request.LANGUAGE_CODE == 'en' %}Show more places{% else %}Загрузить места{% endif %}</button>
+</div>

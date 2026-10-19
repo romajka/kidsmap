@@ -414,7 +414,37 @@
       mobileMedia: window.matchMedia(MOBILE_MEDIA_QUERY),
     };
 
+    resetCatalogPaging(catalogMapState);
     return catalogMapState;
+  }
+
+  function resetCatalogPaging(state) {
+    state.paging?.destroy();
+    const control=state.panel.querySelector('[data-map-pagination="catalog"]');
+    const metadata=document.getElementById("catalog-map-page");
+    if (!control || !metadata || !window.KidsMapPaging) return;
+    const initial=JSON.parse(metadata.textContent);
+    if (initial.has_more) state.panel.querySelector(".catalog-map-meta .chip")?.remove();
+    state.paging=window.KidsMapPaging.create({
+      control, initial:{...initial,points:state.places},
+      getParams:()=>new URLSearchParams(window.location.search),
+      onChange:points=>{
+        state.panel.querySelector(".catalog-map-meta .chip")?.remove();
+        closeActiveCard(state);state.motion?.cancel();state.choice?.close(false);state.places=points;
+        if (state.googleMap) state.syncGooglePlaces();
+        if (state.leafletMap) state.syncLeafletPlaces();
+      },
+    });
+  }
+
+  function requestCatalogViewport(state) {
+    if (!state.paging || state.panel.hidden) return;
+    const map=state.googleMap || state.leafletMap,b=map?.getBounds();
+    if (!b) return;
+    const sw=b.getSouthWest(),ne=b.getNorthEast();
+    state.paging.viewport(state.googleMap
+      ? {south:sw.lat(),west:sw.lng(),north:ne.lat(),east:ne.lng()}
+      : {south:sw.lat,west:sw.lng,north:ne.lat,east:ne.lng});
   }
 
   function fitCatalogMapBounds(state) {
@@ -803,9 +833,13 @@
         state.choice.close(false);
       })
     );
+    state.googleMap.addListener("dragstart", () => { state.viewportGesture=true; });
+    state.mapEl.addEventListener("wheel",()=>{state.viewportGesture=true;},{passive:true});
+    state.mapEl.addEventListener("keydown",()=>{state.viewportGesture=true;});
     state.activeListeners.push(
       state.googleMap.addListener("idle", function () {
         positionDesktopCard(state);
+        if (state.viewportGesture) { state.viewportGesture=false; requestCatalogViewport(state); }
       })
     );
 
@@ -859,6 +893,7 @@
     state.mapEl.innerHTML = "";
     ensureMapChrome(state);
     state.leafletMap = L.map(state.mapEl, {
+      maxZoom: 19,
       scrollWheelZoom: false,
       zoomControl: true,
     });
@@ -942,6 +977,9 @@
 
     state.markerClusterGroup.on("clusterclick", handleCatalogClusterClick);
 
+    state.syncLeafletPlaces = function () {
+      state.markerClusterGroup.clearLayers();
+      state.markersByUrl = {};
     const layersToAdd = [];
     state.places.forEach(function (place) {
       const htmlContent = buildLeafletMarkerHtml(place);
@@ -979,6 +1017,9 @@
       state.markerClusterGroup.addLayers(layersToAdd);
       state.markerClusterGroup.refreshClusters();
     }
+    };
+    state.syncLeafletPlaces();
+    state.leafletMap.on('moveend zoomend',()=>requestCatalogViewport(state));
 
     state.leafletMap.on("click", function () {
       closeActiveCard(state);
@@ -1132,7 +1173,9 @@
     const state = catalogMapState;
     if (state && state.panel === document.querySelector('[data-catalog-map-panel]')) {
       window.kidsMapCancelCatalogMapTransition();
+      closeActiveCard(state);
       state.places = parsePlaces().filter(hasValidCoordinates);
+      resetCatalogPaging(state);
       const openBtn = document.querySelector('[data-catalog-map-open]');
       if (openBtn && state.openBtn !== openBtn) {
         state.openBtn = openBtn;
@@ -1141,12 +1184,15 @@
       if (state.googleMap) {
         state.syncGooglePlaces();
         google.maps.event.trigger(state.googleMap, 'resize');
+      } else if (state.leafletMap) {
+        state.syncLeafletPlaces();
       } else if (!state.panel.hidden) {
         state.initialized = false;
         ensureCatalogMapInitialized();
       }
       return;
     }
+    catalogMapState?.paging?.destroy();
     clearTimeout(catalogMapState?.sdkWaitTimer);
     catalogMapState?.resizeObserver?.disconnect();
     catalogMapState = null;

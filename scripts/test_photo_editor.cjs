@@ -4,10 +4,10 @@ const {test} = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const {JSDOM} = require('../.tmp/phone-dom/node_modules/jsdom');
+const {JSDOM} = require(process.env.KIDSMAP_JSDOM || '../.tmp/phone-dom/node_modules/jsdom');
 const source = fs.readFileSync(path.join(__dirname,'../static/js/permanent_place_photos.js'),'utf8');
 const tick = () => new Promise(resolve => setImmediate(resolve));
-function setup({saved=false, failSave=false, rendered=''}={}) {
+function setup({saved=false, failSave=false, rendered='', holdSaves=false}={}) {
   const savedNode = id => `<div data-photo-saved="${id}" data-photo-name="${id}.webp" data-photo-url="/media/${id}.webp" data-photo-preview="/thumb/${id}"></div>`;
   const dom = new JSDOM(rendered || `<html lang="ru"><script id="pw-photo-config" type="application/json">${JSON.stringify({sourceBytes:15*1024*1024,outputBytes:2*1024*1024,batchBytes:22*1024*1024,maxPixels:50000000,maxDimension:12000,maxGallery:10,heif:true})}</script>
     <form><input name="csrfmiddlewaretoken" value="csrf">
@@ -20,8 +20,13 @@ function setup({saved=false, failSave=false, rendered=''}={}) {
     <div data-photo-items="gallery">${saved?savedNode('11')+savedNode('12'):''}</div>
     <div data-photo-fallback-delete>${saved?'<input name="delete_gallery_ids" type="checkbox" value="11"><input name="delete_gallery_ids" type="checkbox" value="12">':''}</div>
     <input name="gallery_order"><p data-photo-save-status></p></section>
-    <button name="form_action" value="save_draft" type="submit">Save</button></form></html>`, {url:'https://kidsmap.example/',runScripts:'outside-only'});
-  const w = dom.window, calls=[], revoked=[];
+    <button name="form_action" value="save_draft" type="submit">Save</button></form></html>`, {url:'https://kidsmap.example/',runScripts:'outside-only',pretendToBeVisual:true});
+  const w = dom.window, calls=[], revoked=[], releases=[];
+  const actualForm=w.document.querySelector('[data-permanent-place-form]') || w.document.querySelector('form');
+  const photoRoot=actualForm.querySelector('[data-photo-editor]');
+  const prepareUrl=photoRoot.dataset.prepareUrl,saveUrl=photoRoot.dataset.saveUrl;
+  // CSRF and transport are synthetic boundaries; the rendered controls are real.
+  if(rendered)actualForm.querySelector('[name=csrfmiddlewaretoken]').value='csrf';
   // jsdom lacks native file transfer, canvas and image decoding. Only those
   // platform boundaries and network are substituted; editor logic is real.
   w.DataTransfer = class {constructor(){this.files=[];this.items={add:file=>this.files.push(file)};}};
@@ -39,20 +44,21 @@ function setup({saved=false, failSave=false, rendered=''}={}) {
     setRequestHeader(name,value){assert.equal(name,'X-CSRFToken');assert.equal(value,'csrf');}
     async send(data){
       calls.push({url:this.url,data});
-      if(this.url==='/prepare/') {
+      if(this.url===prepareUrl) {
         this.status=200;this.response=new w.Blob([await data.get('photo').arrayBuffer()],{type:'image/webp'});
       } else {
+        if(holdSaves)await new Promise(resolve=>releases.push(resolve));
         saveCount++;this.status=failSave && saveCount===1 ? 422 : 200;
-        this.response=this.responseText=JSON.stringify(this.status===200?{ok:true,redirect:'/edit/#photos'}:{errors:{photo:['storage unavailable']}});
+        this.response=this.responseText=JSON.stringify(this.status===200?{ok:true,redirect:rendered?'#photo-integration-saved':'/edit/#photos'}:{errors:{photo:['storage unavailable']}});
       }
       this.onload();
     }
   };
-  w.fetch=async()=>({ok:true,blob:async()=>new w.Blob(['saved-image'],{type:'image/webp'})});
+  w.fetch=async()=>({ok:true,json:async()=>({drafts:[]}),blob:async()=>new w.Blob(['saved-image'],{type:'image/webp'})});
   w.eval(source);
   const form=w.document.querySelector('[data-permanent-place-form]') || w.document.querySelector('form'), editor=rendered ? null : w.KidsMapPhotoEditor.mount(form);
   function file(name,tag=1){const bytes=new Uint8Array(32);bytes.set([137,80,78,71,13,10,26,10]);new DataView(bytes.buffer).setUint32(16,64);new DataView(bytes.buffer).setUint32(20,48);bytes[31]=tag;return new w.File([bytes],name,{type:'image/png'});}
-  return {dom,w,form,editor,file,calls,revoked};
+  return {dom,w,form,editor,file,calls,revoked,releases,saveUrl,prepareUrl};
 }
 test('gallery accumulates selections and rejects content duplicates with different names',async()=>{
   const t=setup();
@@ -113,19 +119,49 @@ test('oversized resolution is rejected before network and a failed replacement c
   t.w.document.querySelector('[data-photo-items=main] [data-photo-action=remove]').click();
   assert.equal(t.editor.hasMain(),true);assert.equal(t.form.elements['photo-clear'].checked,false);t.dom.window.close();
 });
-const renderedFile=path.join(__dirname,'../.tmp/photo-form.html');
-test('photo editor boots inside the actual Django wizard HTML', {skip:!fs.existsSync(renderedFile)},async()=>{
-  const t=setup({rendered:fs.readFileSync(renderedFile,'utf8')});
-  t.w.HTMLElement.prototype.scrollIntoView=function(){};
-  t.w.matchMedia=()=>({matches:false});
-  t.w.localStorage.setItem('kidsmap:permanent:v1:'+t.form.dataset.draftKey,JSON.stringify({at:Date.now(),step:6,ageMode:'range',data:{gallery_order:'["new:0"]','photo-clear':true}}));
-  t.w.eval(fs.readFileSync(path.join(__dirname,'../static/js/permanent_place_wizard.js'),'utf8'));
-  assert.ok(t.form.photoEditor);
-  assert.equal(t.form.elements.gallery_order.value,'[]');
-  assert.equal(t.form.elements['photo-clear'].checked,false);
-  t.form.querySelector('[data-pw-go="6"]').click();
-  assert.equal(t.form.querySelector('[data-pw-step="6"]').hidden,false);
-  assert.equal(t.form.querySelectorAll('input[name=photo]').length,1);
-  assert.equal(t.form.querySelectorAll('input[name=gallery_images]').length,1);
-  t.dom.window.close();
+// Standalone unit mode is optional; CI/final QA explicitly require fresh HTML.
+const renderedFile=process.env.KIDSMAP_PHOTO_FORM_HTML;
+const renderedRequired=process.env.KIDSMAP_REQUIRE_RENDERED_PHOTO_FORM==='1';
+const hasRendered=Boolean(renderedFile&&fs.existsSync(renderedFile));
+if(renderedRequired&&!hasRendered)throw new Error('Required current Django form fixture missing: set KIDSMAP_PHOTO_FORM_HTML');
+test('photo editor integrates with the actual current Django continuous form', {skip:!hasRendered},async()=>{
+  const t=setup({rendered:fs.readFileSync(renderedFile,'utf8'),failSave:true,holdSaves:true});
+  try {
+    t.w.HTMLElement.prototype.scrollIntoView=function(){};
+    t.w.matchMedia=()=>({matches:false,addEventListener(){},removeEventListener(){}});
+    t.w.localStorage.setItem('kidsmap:permanent:v1:'+t.form.dataset.draftKey,JSON.stringify({at:Date.now(),step:6,ageMode:'range',data:{gallery_order:'["new:0"]','photo-clear':true}}));
+    assert.equal(t.w.document.querySelector('[data-place-mode]').dataset.placeMode,'continuous');
+    t.w.eval(fs.readFileSync(path.join(__dirname,'../static/js/owner_place_continuous.js'),'utf8'));
+    await tick();
+    assert.ok(t.form.photoEditor);
+    assert.equal(t.form.elements.gallery_order.value,'[]');
+    assert.equal(t.form.elements['photo-clear'].checked,false);
+    assert.equal(t.form.querySelectorAll('[data-place-section]').length,4);
+    assert.ok([...t.form.querySelectorAll('[data-place-section]')].every(section=>!section.hidden));
+    assert.equal(t.form.querySelectorAll('input[name=photo]').length,1);
+    assert.equal(t.form.querySelectorAll('input[name=gallery_images]').length,1);
+    const editor=t.form.photoEditor;
+    editor.addFiles([t.file('integration.png')],'main');await editor.ready();
+    assert.equal(t.form.elements.photo.files.length,1);
+    const button=t.form.querySelector('[name=form_action][value=save_draft]');
+    const submit=()=>t.form.dispatchEvent(new t.w.SubmitEvent('submit',{bubbles:true,cancelable:true,submitter:button}));
+    submit();submit();await tick();
+    let saves=t.calls.filter(call=>call.url===t.saveUrl);
+    assert.equal(saves.length,1,'continuous handler prevents duplicate in-flight submits');
+    assert.equal(button.disabled,true);
+    t.releases.shift()();await tick();await tick();
+    assert.equal(button.disabled,false);
+    assert.equal(t.form.elements.photo.files.length,1,'failed save retains the selected image');
+    assert.equal(t.form.querySelector('[data-pc-save-status]').dataset.state,'error');
+    assert.match(t.form.querySelector('[data-pc-errors]').textContent,/storage unavailable/);
+    const retry=t.form.querySelector('[data-photo-save-status] button');assert.ok(retry);
+    retry.click();await tick();
+    saves=t.calls.filter(call=>call.url===t.saveUrl);assert.equal(saves.length,2);
+    assert.equal(saves[0].data.get('photo_request_id'),saves[1].data.get('photo_request_id'));
+    assert.equal(saves[1].data.get('photo').name,'integration.webp');
+    t.releases.shift()();await tick();await tick();
+    assert.equal(t.w.location.hash,'#photo-integration-saved');
+    assert.equal(button.disabled,false);
+    assert.equal(t.form.querySelector('[data-photo-save-status]').textContent,'Сохранено');
+  } finally {t.dom.window.close();}
 });

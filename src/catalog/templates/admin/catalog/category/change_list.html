@@ -3,18 +3,18 @@
 
 {% block extrastyle %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'admin/css/kidsmap_taxonomy.css' %}?v=3">
+  <link rel="stylesheet" href="{% static 'admin/css/kidsmap_taxonomy.css' %}?v=4">
 {% endblock %}
 
 {% block extrahead %}
   {{ block.super }}
-  <script src="{% static 'admin/js/kidsmap_taxonomy.js' %}" defer></script>
+  <script src="{% static 'admin/js/kidsmap_taxonomy.js' %}?v=2" defer></script>
 {% endblock %}
 
 {% block content_title %}
 <div class="km-tax-header">
   <div class="km-tax-header-left">
-    <h1>{{ title }}</h1>
+    <h1 id="km-tax-page-title">{{ title }}</h1>
     <p class="km-tax-subtitle">{% trans "Управление основными категориями и их подкатегориями" %}</p>
   </div>
   {% if has_add_permission %}
@@ -71,7 +71,7 @@
           </button>
         </div>
       </div>
-      <button class="km-tax-btn km-tax-btn-outline" id="km-tax-expand-all">
+      <button class="km-tax-btn km-tax-btn-outline" id="km-tax-expand-all" type="button" aria-expanded="false" data-expand-label="{% trans 'Развернуть все' %}" data-collapse-label="{% trans 'Свернуть все' %}">
         <i class="fas fa-expand-alt"></i> <span>{% trans "Развернуть все" %}</span>
       </button>
       <button class="km-tax-btn km-tax-btn-icon" title="{% trans 'Настройки' %}">
@@ -80,7 +80,7 @@
     </div>
   </div>
 
-  <div class="km-tax-table">
+  <div class="km-tax-table" role="region" aria-labelledby="km-tax-page-title" tabindex="0">
     <div class="km-tax-table-header">
       <div class="km-th km-th-name">{% trans "Название" %}</div>
       <div class="km-th km-th-code">{% trans "Код" %}</div>

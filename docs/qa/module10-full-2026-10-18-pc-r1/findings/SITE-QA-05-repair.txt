@@ -1,5 +1,0 @@
-SITE-QA-05 (P2) — Загруженные hero PC/mobile не используются.
-Прочитать текущие AGENTS/canonical orchestrator и свежий docs/qa/module10-full-2026-10-18-pc-r1/findings/SITE-QA-05.md/evidence; проверить текущий dirty WORKTREE/source drift. Status: OPEN.
-Source hints: src/catalog/templates/pages/home.html; src/catalog/controllers/home_controller.py; src/catalog/domain_admin/site.py:653. Root: Editable media field contract and new hero/gallery rendering diverged; exact desired placement requires plan.
-Следующая задача: Согласовать PC/mobile placement и fallback, затем подключить файлы; не менять галерею молча.
-Сначала свежая bounded проверка, impact map и конкретный PLAN с файлами/тестами/рисками. Не применять app fix до одобрения scope. Approval предыдущих SOCIAL01–12 не переносится на SITE. Не повторять security writes вне собственной isolated testDB/media. DJANGO_TESTING=1, isolated cache/media/email/current3MO, no production credentials. Сохранить старые evidence/местные изменения/ref/index/active_runNONE; no reset/clean/stash/commit/push/deploy. Новый уникальный package, red/green if approved, native evidence and honest NOTRUN.

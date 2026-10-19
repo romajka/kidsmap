@@ -5,7 +5,8 @@ from django.views.decorators.cache import never_cache
 
 from catalog.repositories.django_repositories import DjangoPlaceRepository
 from catalog.services.filtering import PlaceListFilters
-from catalog.services.map_payload import serialize_map_places
+from catalog.services.public_map_page import build_map_page, request_window
+from django.core.exceptions import ValidationError
 
 
 @require_GET
@@ -14,5 +15,8 @@ def public_map(request):
     repository = DjangoPlaceRepository()
     filters = PlaceListFilters.from_request(request)
     queryset = filters.apply(repository.active_queryset())
-    points = serialize_map_places(repository.map_ready_queryset(queryset), request.LANGUAGE_CODE, filters)
-    return JsonResponse({'points': points, 'count': sum(len(point['members']) for point in points)})
+    try:
+        after,bounds=request_window(request.GET)
+    except ValidationError:
+        return JsonResponse({'error':'Invalid map window.'},status=400)
+    return JsonResponse(build_map_page(queryset,request.LANGUAGE_CODE,filters,after=after,bounds=bounds))

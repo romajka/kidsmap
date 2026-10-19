@@ -1,7 +1,0 @@
-{
-  "scope": "Approved backend and new regression file only",
-  "reason": "ModelForm._post_clean constructed the rejected file on the in-memory instance; readonly preview referenced an unsaved URL despite no storage write. Skip instance construction/model validation on already rejected conflict; bound text/checkbox widgets and notice still render submitted values. Fresh/other-invalid forms retain normal _post_clean.",
-  "regression_red": "evidence/preview-red.json",
-  "before_backend_sha256": "c219782e166bb23f13796ba545de6c15d3b76ea1a613f28618853a25e39619fd",
-  "after_backend_sha256": "b3b2c15ec1fd9236a50f03d88fa2098a2a0e736a7829cdbd7bbcd94f12508f63"
-}

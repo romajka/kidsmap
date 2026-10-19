@@ -1,9 +1,0 @@
-Работай в C:/kidsmap (на другом ПК сначала найди checkout). Прочитай AGENTS.md, канонические .agents, docs/qa/module13-2026-10-11-r1/REPORT.md и findings/PLACE-QA-06.md в том же run. Задача: PLACE-QA-06, PLACE-QA-06 — Скомпилированные переводы этого WORKTREE устарели, P2. Сохрани чужие изменения, active_run и стенды. Без commit/push/deploy/production.
-
-Подтверждённый trigger: Open AZ and EN admin Place forms at all six widths on the attested native runtime.
-Ожидание: Map-disabled explanatory message uses active language.
-Факт: 12 cells show Russian message. Active correct AZ/EN PO entries exist, compiled runtime MO keys are absent. Runtime assets unchanged; historical isolated-builder repair claim does not prove they were selected on this PC.
-Свежие доказательства: docs/qa/module13-2026-10-11-r1/browser-review/locale-check.result.json; matrix.json; screenshots-manifest.json. Source refs: locale/az/LC_MESSAGES/django.mo, locale/en/LC_MESSAGES/django.mo.
-Группа причины: COMPILED-LOCALE-FRESHNESS. 
-
-Сначала проверь текущий source и составь конкретный план исправления с файлами, зависимостями и meaningful regression проверками. Согласно audit scope реализацию выполняй только после согласования этого плана. Не меняй существующие assertions ради green. Применимые проверки: DJANGO_TESTING=1, собственные DB/cache/media/private-media/email, вымышленные данные, внешние интеграции выключены. После согласованного исправления повтори реальный UI trigger, сохранение/reload и PC/mobile RU/AZ/EN; сохраняй candidate/live и ACL. Отдельно классифицируй source translation, generated assets, baseline и environment failures. Сохрани свежий отчёт, точные команды/counts/exit codes/screenshots и NOT RUN ограничения.

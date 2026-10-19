@@ -1,6 +1,0 @@
-{
-  "initial_unexpected_failure": "catalog control GET302 before form; helper incorrectly reused SiteSettings pk for distinct CatalogContentSettings table",
-  "correction": "Use actual CatalogContentSettings fixture pk; keep destination and persistence assertions unchanged",
-  "initial_evidence_preserved": true,
-  "initial_application_changes": 0
-}

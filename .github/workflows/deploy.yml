@@ -74,6 +74,16 @@ jobs:
       - name: Complete isolated quality gate
         run: python scripts/run_isolated_quality.py --profile-root "$QUALITY_PROFILE_ROOT" --socket-dir "$QUALITY_SOCKET_DIR"
 
+      - name: Required current Django photo form integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/render_photo_form_fixture.py --profile-root "$QUALITY_PROFILE_ROOT" --socket-dir "$QUALITY_SOCKET_DIR" --output "$PWD/.tmp/quality-photo-form.html"
+          export KIDSMAP_JSDOM="$PWD/.tmp/phone-dom/node_modules/jsdom"
+          export KIDSMAP_PHOTO_FORM_HTML="$PWD/.tmp/quality-photo-form.html"
+          export KIDSMAP_REQUIRE_RENDERED_PHOTO_FORM=1
+          node --test scripts/test_photo_editor.cjs
+
       - name: Remove only this job's PostgreSQL
         if: always() && env.QUALITY_PROFILE_ROOT != ''
         shell: bash

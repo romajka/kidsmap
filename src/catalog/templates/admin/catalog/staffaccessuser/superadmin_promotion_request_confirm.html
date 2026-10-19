@@ -2,7 +2,7 @@
 {% load i18n static %}
 {% block extrahead %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/staff_profile.css' %}?v=6">{% endblock %}
 {% block content %}
-<main id="content-main" class="km-staff-promotion-page">
+<div id="content-main" class="km-staff-promotion-page">
   <header class="km-staff-promotion-header">
     <a class="km-staff-promotion-back" href="{% url 'admin:catalog_staffaccessuser_superadmin_request_list' %}"><span aria-hidden="true">←</span><span>{% translate "Запросы Superadmin" %}</span></a>
     <div class="km-staff-promotion-title-row">
@@ -48,5 +48,5 @@
       {% for entry in audit_entries %}<li><span aria-hidden="true"></span><div><time datetime="{{ entry.created_at|date:'c' }}">{{ entry.created_at|date:"d.m.Y H:i" }}</time><strong>{{ entry.get_action_display }}</strong><small>{{ entry.actor_display }}</small></div></li>{% empty %}<li class="km-staff-promotion-history__empty">{% translate "История пуста." %}</li>{% endfor %}
     </ol>
   </section>
-</main>
+</div>
 {% endblock %}

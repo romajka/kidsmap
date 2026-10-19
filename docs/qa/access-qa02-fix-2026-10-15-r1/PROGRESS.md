@@ -1,3 +1,0 @@
-# ACCESS-QA-02 completed scope
-
-Implementation and targeted/native acceptance complete. Read REPORT.md + verification.json +commands.jsonl, not old intermediate queue/session notes. Approval remains only02.71unique backend methods,953selected native observations +48support; ten RU timingfields replaced explicitly. Known3noJS transition aborts reproduced on unchanged login/read; no global motion fix. All foreign files preserved, container identity/ports verified; seven state discontinuities and olderprocess unavailable =NOT VERIFIED. No foreign restart. Current own runtime only in server.json, verify live identity/source before reuse.04/05/fullACCEPT07/08 NOT RUN.

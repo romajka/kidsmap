@@ -108,6 +108,46 @@ def program_create(request, org_id):
     return redirect('organization_program_detail', org_id=org.pk, program_id=program.pk)
 
 
+def _conflict_response(request, org_id, program_id, submitted, error):
+    """Keep the user's patch; require a new explicit submit against fresh CAS."""
+    org, program = _authorized(request.user, org_id, program_id)
+    context = _context(org, program)
+    revision = context['revision']
+    data = submitted.data.copy()
+    data['expected_version'] = program.content_version
+    data['revision_version'] = revision.version if revision else 0
+    form = ProgramForm(data)
+    form.is_valid()
+    message = t(
+        'Другой редактор или вкладка уже сохранили изменения. Ваш ввод остался в форме. Сравните его с сохранённым вариантом и отправьте снова, если хотите заменить этот вариант.',
+        'Başqa redaktor və ya səhifə artıq dəyişiklikləri saxlayıb. Daxil etdikləriniz formada qalıb. Saxlanılmış variantla müqayisə edin və onu əvəz etmək istəyirsinizsə, yenidən göndərin.',
+        'Another editor or tab has saved changes. Your input remains in the form. Compare it with the saved version and submit again if you want to replace that version.',
+    )
+    form.add_error(None, ValidationError(message, code=error.code))
+    form.fields['name_az'].widget.attrs['aria-describedby'] = 'program-conflict-message'
+    labels = {
+        'name_az': t('Название (AZ)', 'Ad (AZ)', 'Name (AZ)'),
+        'name_ru': t('Название (RU)', 'Ad (RU)', 'Name (RU)'),
+        'name_en': t('Название (EN)', 'Ad (EN)', 'Name (EN)'),
+        'description_az': t('Описание (AZ)', 'Təsvir (AZ)', 'Description (AZ)'),
+        'description_ru': t('Описание (RU)', 'Təsvir (RU)', 'Description (RU)'),
+        'description_en': t('Описание (EN)', 'Təsvir (EN)', 'Description (EN)'),
+        'category': t('Категория', 'Kateqoriya', 'Category'),
+        'subcategory': t('Подкатегория', 'Alt kateqoriya', 'Subcategory'),
+    }
+    current = []
+    for field, label in labels.items():
+        value = context['form'].initial.get(field)
+        if field in {'category', 'subcategory'} and value:
+            model = Category if field == 'category' else Subcategory
+            item = model.objects.filter(pk=value).first()
+            value = item.name_i18n() if item else ''
+        current.append({'label': label, 'value': value})
+    context.update(form=form, program_conflict=True, program_conflict_message=message,
+                   program_conflict_current=current)
+    return render(request, 'pages/program_editor.html', context, status=409)
+
+
 @require_POST
 def program_save(request, org_id, program_id):
     if not request.user.is_authenticated:
@@ -131,6 +171,8 @@ def program_save(request, org_id, program_id):
             except PermissionDenied:
                 raise Http404
             except ValidationError as exc:
+                if getattr(exc, 'code', None) in {'candidate_version_conflict', 'publication_source_conflict'}:
+                    return _conflict_response(request, org_id, program_id, form, exc)
                 form.add_error(None, exc)
     return render(request, 'pages/program_editor.html', _context(org, program, form),
         status=409 if form.non_field_errors() else 400)

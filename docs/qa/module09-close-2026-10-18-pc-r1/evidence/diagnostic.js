@@ -1,1 +1,0 @@
-async page=>{const rows=[];let i=0;for(const c of page.context().browser().contexts()){let j=0;for(const p of c.pages()){rows.push({context:i,page:j++,url:p.url(),state:await p.evaluate(()=>({uri:document.documentURI,readyState:document.readyState,body:document.body?.innerText.slice(0,180)})).catch(e=>({error:String(e).slice(0,160)}))});}i++;}return{rows};}

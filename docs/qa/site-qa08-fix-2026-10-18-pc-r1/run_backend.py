@@ -1,7 +1,0 @@
-import hashlib,json,re,subprocess
-from pathlib import Path
-R=Path('/mnt/c/kidsmap');O=Path(__file__).resolve().parent;Q=R/'.tmp/site08-pc-fix-r1'
-labels=['catalog.testcases.test_site_qa19_catalog_content','catalog.testcases.public.TestCatalogContentSettingsWiring','catalog.testcases.test_site_qa06_media_validation','catalog.testcases.test_site_qa01_media_permissions','catalog.testcases.test_site_qa15_settings_concurrency','catalog.testcases.admin.TestSiteGalleryImageAdminMedia','catalog.testcases.admin.TestAdminSidebarStructure','catalog.testcases.test_public_section_switches']
-cmd=['docker','exec','m10s08-fix-r1-app','python',str(Q/'runtime.py'),'test',*labels];r=subprocess.run(cmd,capture_output=True,text=True);raw=r.stdout+r.stderr;(Q/'green-tests.log').write_text(raw)
-result={'command':cmd,'exit':r.returncode,'summary':[x for x in raw.splitlines() if x.startswith(('Found ','Ran ','OK','FAILED'))],'failures':re.findall(r'^FAIL: (.+)$',raw,re.M),'errors':re.findall(r'^ERROR: (.+)$',raw,re.M),'source_template_sha256':hashlib.sha256((R/'src/catalog/templates/admin/catalog/shared_settings_change_form.html').read_bytes()).hexdigest(),'raw_log':'ignored own .tmp/site08-pc-fix-r1/green-tests.log'}
-(O/'evidence/green-backend.json').write_text(json.dumps(result,indent=2));print(json.dumps(result,indent=2));assert r.returncode==0 and not result['failures'] and not result['errors'] and any(x.startswith('Ran 105 tests') for x in result['summary'])

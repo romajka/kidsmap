@@ -565,7 +565,9 @@
     mapNoteEl.textContent = hasVisiblePlaces ? "" : emptyLabel || "";
   }
 
+  let homePaging = null;
   function updateLiveCount(count) {
+    if (homePaging) count = homePaging.count;
     const counterEls = document.querySelectorAll("[data-home-map-live-count]");
     counterEls.forEach(function (el) {
       if (el.textContent.trim() === String(count)) return;
@@ -1071,6 +1073,18 @@
 
     }
     rebuildMarkers(places);
+    sharedState.applyPage = points => { closePlace(); motion.cancel(); choice.close(false); rebuildMarkers(points); _doSync(); };
+    let viewportGesture = false;
+    map.addListener('dragstart', () => { viewportGesture = true; });
+    mapEl.addEventListener('wheel', () => { viewportGesture = true; }, {passive:true});
+    mapEl.addEventListener('keydown', () => { viewportGesture = true; });
+    if (homePaging) map.addListener('idle', () => {
+      if (!viewportGesture) return;
+      viewportGesture = false;
+      const b=map.getBounds(); if (!b) return;
+      const sw=b.getSouthWest(),ne=b.getNorthEast();
+      homePaging.viewport({south:sw.lat(),west:sw.lng(),north:ne.lat(),east:ne.lng()});
+    });
 
     // ── Core sync ───────────────────────────────────────────────────────────
     function syncVisibleMarkers() {
@@ -1101,7 +1115,7 @@
     function syncVisibleMarkersFromFilter() {
       updateFromServer();
     }
-    const updateFromServer = serverFilterUpdater(points => {
+    const updateFromServer = homePaging ? () => homePaging.replace() : serverFilterUpdater(points => {
       rebuildMarkers(points);
       _doSync();
       if (pendingFocusPlaceId && points.length) {
@@ -1249,6 +1263,7 @@
     const map = L.map(mapEl, {
       center: [DEFAULT_CENTER.lat, DEFAULT_CENTER.lng],
       zoom: DEFAULT_ZOOM,
+      maxZoom: 19,
       scrollWheelZoom: false,
       zoomControl: true,
     });
@@ -1382,6 +1397,12 @@
 
     }
     rebuildMarkers(places);
+    sharedState.applyPage = (points, meta) => { map.closePopup(); userInteracted=!!meta.bounds; rebuildMarkers(points); _doSync(); };
+    if (homePaging) map.on('moveend zoomend', () => {
+      if (!userInteracted) return;
+      const b=map.getBounds(),sw=b.getSouthWest(),ne=b.getNorthEast();
+      homePaging.viewport({south:sw.lat,west:sw.lng,north:ne.lat,east:ne.lng});
+    });
 
     // ── Core sync ───────────────────────────────────────────────────────────
     function syncVisibleMarkers() {
@@ -1420,8 +1441,7 @@
       // No results
       updateLiveCount(businessCount(visibleItems.map(item => item.place)));
       if (!visibleItems.length) {
-        userInteracted = false;
-        map.setView([DEFAULT_CENTER.lat, DEFAULT_CENTER.lng], DEFAULT_ZOOM, { animate: false });
+        if (!userInteracted) map.setView([DEFAULT_CENTER.lat, DEFAULT_CENTER.lng], DEFAULT_ZOOM, { animate: false });
         setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || "", false);
         return;
       }
@@ -1469,7 +1489,7 @@
       userInteracted = false;
       updateFromServer();
     }
-    const updateFromServer = serverFilterUpdater(points => {
+    const updateFromServer = homePaging ? () => homePaging.replace() : serverFilterUpdater(points => {
       rebuildMarkers(points);
       _doSync();
       if (pendingFocusPlaceId && points.length) {
@@ -1547,6 +1567,15 @@
 
     const sharedState = buildSharedState(mapEl, mapNoteEl);
     if (!sharedState) return;
+    const pagingControl = document.querySelector('[data-map-pagination="home"]');
+    if (pagingControl && window.KidsMapPaging) {
+      const metadata = JSON.parse(document.getElementById('home-map-page')?.textContent || '{}');
+      homePaging = window.KidsMapPaging.create({
+        control:pagingControl, initial:{...metadata,points:sharedState.places},
+        getParams:()=>new URLSearchParams(new FormData(document.querySelector('[data-home-map-filter-form]'))),
+        onChange:(points,meta)=>{ sharedState.places=points; sharedState.applyPage?.(points,meta); updateLiveCount(meta.count); if (pendingFocusPlaceId && points.length) { const target=pendingFocusPlaceId; pendingFocusPlaceId=null; activeMapFocusHandler?.(target); } },
+      });
+    }
 
     function tryMount() {
       if (mountGoogleMap(sharedState)) return true;

@@ -73,6 +73,8 @@ class PlaceController:
         events = []
         stats_qs = None
         map_places = []
+        map_page = {"points": [], "count": 0, "has_more": False, "next_cursor": None}
+        from catalog.services.public_map_page import build_map_page, page_metadata
         showing_events = filters.event_type == "temporary" and not force_new_only
         rating_sort_available = False
 
@@ -83,10 +85,8 @@ class PlaceController:
             timeline_places = list(qs.order_by("-created_at")[:5])
             qs = qs.exclude(id__in=[place.id for place in timeline_places])
         else:
-            map_places = self._serialize_map_places(
-                self.place_repository.map_ready_queryset(qs),
-                language_code=language_code, filters=filters,
-            )
+            map_page = build_map_page(qs, language_code, filters)
+            map_places = map_page["points"]
 
         if not force_new_only and not showing_events:
             rating_sort_available = (
@@ -230,8 +230,9 @@ class PlaceController:
             ),
             "catalog_map_places": map_places,
             "catalog_map_points_count": len(map_places),
-            "catalog_map_places_count": sum(len(point["members"]) for point in map_places),
-            "catalog_map_missing_count": max(page_obj.paginator.count - sum(len(point["members"]) for point in map_places), 0) if not force_new_only else 0,
+            "catalog_map_places_count": map_page["count"],
+            "catalog_map_page": page_metadata(map_page),
+            "catalog_map_missing_count": max(page_obj.paginator.count - map_page["count"], 0) if not force_new_only else 0,
             "analytics_events": self._build_list_analytics_events(
                 selected=selected,
                 results_total=page_obj.paginator.count,

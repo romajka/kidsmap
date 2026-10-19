@@ -11,7 +11,7 @@
 <div class="account-page-wrapper org-workspace" data-workspace="{{ workspace_mode }}" data-user-id="{{ request.user.pk }}" {% if organization %}data-org-id="{{ organization.pk }}"{% endif %}>
   <div class="account-main-layout">
     {% include 'pages/includes/account_navigation.html' %}
-    <main class="account-main-content" id="organization-main">
+    <div class="account-main-content" id="organization-main">
       {% if workspace_mode == 'index' %}
         <!-- Header Index -->
         <header class="org-hero">
@@ -625,7 +625,7 @@
           {% endif %}
         </section>
       {% endif %}
-    </main>
+    </div>
   </div>
 </div>
 {% if organization_create_confirmation %}{{ organization_create_confirmation|json_script:"org-create-confirmation" }}{% endif %}

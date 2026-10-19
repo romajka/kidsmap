@@ -1,3 +1,0 @@
-# SITE09 plan — ongoing immediate-fix authorization
-
-Direct canonical and two legacy Place routes must retire a published temporary Place when events switch isOFF, before canonical redirects; use same410 policy as event routes. Permanent places and ON behavior, unpublished404 and stored entities stay unchanged. Scope views.py and new4method regression; two explicit view guards after authorized published-object lookup. Do not alter shared queryset/readiness/owner/API rules. Fresh4method RED18direct route observations; three controls pass. Native visibility editor OFF/ON/restoration and3languages×3routes before/after patch, own entity SHA unchanged. Blank410 recovery is next listedSITE10, kept separate. No schema/data cleanup/production.

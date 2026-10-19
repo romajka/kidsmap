@@ -1,1 +1,0 @@
-Readonly control originally searched an exact single-class attribute but upload button has multiple classes. Strengthen to reject the actual write-control class token anywhere in HTML. Positive feedback-language expectations unchanged; rerun fresh RED before application patch. No existing repository test assertions changed.

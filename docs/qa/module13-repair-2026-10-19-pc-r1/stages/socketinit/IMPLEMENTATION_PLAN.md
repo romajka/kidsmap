@@ -1,1 +1,0 @@
-CROSS04 infrastructure reproduction: custom Unix socket must also be PGHOST during image entrypoint database creation. Add PGHOST=/qa-socket to CI PG container. Keep failed own r1 cluster unchanged, create fresh r2 own PG/app/socket volume for retry. No app/data/schema/guard relaxation.

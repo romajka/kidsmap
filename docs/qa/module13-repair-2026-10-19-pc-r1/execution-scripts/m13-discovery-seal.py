@@ -1,8 +1,0 @@
-from pathlib import Path
-import json,subprocess
-R=Path('/mnt/c/kidsmap');Q=R/'.tmp/m13-full-r1';O=R/'docs/qa/module13-repair-2026-10-19-pc-r1'
-t=(R/'.tmp/m13-discovery-final.py').read_text().replace('binpath.mkdir();','binpath.mkdir(exist_ok=True);');(R/'.tmp/m13-discovery-current-final.py').write_text(t)
-p=subprocess.run(['python3',str(R/'.tmp/m13-discovery-current-final.py')],capture_output=True,text=True);(Q/'discovery-final.log').write_text(p.stdout+p.stderr);assert p.returncode==0,p.stderr
-baseline=json.loads((O/'evidence/discovery-baseline.json').read_text());entry=json.loads((O/'source-entry.json').read_text());removed=[i for i in baseline['exhaustive']['ids'] if i.startswith('catalog.testcases.test_module13_event_projection.')];assert len(removed)==3
-current=json.loads((O/'evidence/discovery-current.json').read_text());head=json.loads((O/'evidence/head-discovery.json').read_text());d={'entry_baseline_exhaustive':baseline['exhaustive']['unique']-3,'entry_no_label':baseline['no_label']['unique'],'entry_catalog':baseline['catalog']['unique']-3,'baseline_qualified_removed_new_projection_ids':removed,'current_complete':current['no_label']['unique'],'current_catalog_scoped_only':current['catalog']['unique'],'manage_main_no_label_matches_complete':True,'wrapper_full_matches_manage_no_labels':True,'HEAD_source':{k:head[k]['unique'] for k in ['no_label','catalog','exhaustive']},'tracked_worktree':json.loads((O/'evidence/discovery-corpus.json').read_text()),'current_added_module13_methods':7,'GitHub_run':'NOT RUN'}
-(O/'evidence/discovery-reconciliation.json').write_text(json.dumps(d,indent=2));print(json.dumps(d,indent=2))

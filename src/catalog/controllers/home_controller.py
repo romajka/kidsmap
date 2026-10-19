@@ -63,13 +63,12 @@ class HomeController:
             )
 
         from catalog.services.filtering import PlaceListFilters
-        from catalog.services.map_payload import serialize_map_places
+        from catalog.services.public_map_page import build_map_page, page_metadata
         filters = PlaceListFilters.from_request(request)
         map_queryset = filters.apply(self.place_repository.active_queryset())
-        map_places = serialize_map_places(
-            self.place_repository.map_ready_queryset(map_queryset), language_code, filters
-        )
-        map_business_count = sum(len(point["members"]) for point in map_places)
+        map_page = build_map_page(map_queryset, language_code, filters)
+        map_places = map_page["points"]
+        map_business_count = map_page["count"]
 
         total_place_reviews_count = PlaceReview.objects.filter(
             is_approved=True,
@@ -109,6 +108,7 @@ class HomeController:
             "home_rail_places": home_rail_places,
             "upcoming_events": upcoming_events,
             "map_places": map_places,
+            "home_map_page": page_metadata(map_page),
             "map_business_count": map_business_count,
             "total_place_reviews_count": total_place_reviews_count,
             "google_maps_api_key": google_maps_api_key,

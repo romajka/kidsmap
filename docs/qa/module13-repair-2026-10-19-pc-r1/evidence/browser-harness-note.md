@@ -1,1 +1,0 @@
-Initial native RED attempt used an incorrect historical management URL; current canonical /account/places/events/<pk>/manage/ verified in catalog/urls.py. No model mutation in failed attempt. Corrected r2 is separate; first evidence retained.

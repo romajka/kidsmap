@@ -1,5 +1,0 @@
-{
-  "initial_launcher_exit": 1,
-  "cause": "Copied own launcher polled stale QA helper path /qa/site15/state/404; server itself served current root200.",
-  "resolution": "Correct own /qa/site06/state/ endpoint and restart only verified own server; reuse existing own proxy. Gallery readback moved inside explicit read-only transaction. No application changes."
-}

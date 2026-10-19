@@ -123,6 +123,41 @@
       if (canMove()) frame = requestAnimationFrame(tick);
     }
 
+    const copiedControls = 'a, button, input, select, textarea, [tabindex], [contenteditable]';
+    function excludeCopiedControls() {
+      track.querySelectorAll('[data-rail-copy]').forEach(copy => {
+        copy.querySelectorAll(copiedControls).forEach(control => control.setAttribute('tabindex', '-1'));
+      });
+    }
+    // A revealed phone replaces its button with a new link. Keep that copy
+    // outside sequential focus without disabling its visible pointer action.
+    new MutationObserver(records => {
+      const changed = new Map();
+      records.forEach(record => {
+        if (record.type !== 'attributes' || !record.target.matches('.like-btn')) return;
+        const form = record.target.closest('[data-like-form]');
+        if (form) changed.set(form.getAttribute('action'), record.target);
+      });
+      changed.forEach((source, action) => {
+        const pressed = source.getAttribute('aria-pressed');
+        const count = source.closest('form').querySelector('.like-count')?.textContent;
+        track.querySelectorAll('[data-like-form]').forEach(form => {
+          if (form.getAttribute('action') !== action) return;
+          const button = form.querySelector('.like-btn');
+          if (!button || button === source) return;
+          button.classList.toggle('active', pressed === 'true');
+          if (button.getAttribute('aria-pressed') !== pressed) button.setAttribute('aria-pressed', pressed);
+          ['aria-label', 'title'].forEach(name => {
+            const label = source.getAttribute(name);
+            if (label !== null && button.getAttribute(name) !== label) button.setAttribute(name, label);
+          });
+          const counter = form.querySelector('.like-count');
+          if (counter && count !== undefined && counter.textContent !== count) counter.textContent = count;
+        });
+      });
+      excludeCopiedControls();
+    }).observe(track, {childList: true, subtree: true, attributes: true, attributeFilter: ['aria-pressed']});
+
     function rebuild() {
       track.querySelectorAll('[data-rail-copy]').forEach((copy) => copy.remove());
       automatic = !reduced.matches && originals.length > 1;
@@ -144,7 +179,7 @@
             copy.setAttribute('data-rail-copy', '');
             copy.setAttribute('aria-hidden', 'true');
             copy.querySelectorAll('[id]').forEach((element) => element.removeAttribute('id'));
-            copy.querySelectorAll('a').forEach((link) => link.setAttribute('tabindex', '-1'));
+            copy.querySelectorAll(copiedControls).forEach(control => control.setAttribute('tabindex', '-1'));
             track.append(copy);
           });
         }
@@ -267,6 +302,8 @@
     viewport.addEventListener('pointerdown', (event) => {
       if (event.pointerType === 'mouse' && event.button !== 0) return;
       if (!['mouse', 'touch', 'pen'].includes(event.pointerType)) return;
+      // A new gesture must not inherit the previous drag's trailing-click guard.
+      hasMoved = false;
       if (event.target.closest('.card-go-btn, .like-btn, .like-form, .card-contact-toggle, [data-rail-toggle], [data-rail-prev], [data-rail-next]')) {
         return;
       }
@@ -408,12 +445,14 @@
     // CLICK HANDLER:
     // Only «Перейти ›» navigates to the place. Card body/image is a grab-and-scroll surface.
     track.addEventListener('click', (event) => {
-      if (hasMoved) {
+      if (hasMoved && event.detail !== 0) {
         event.preventDefault();
         event.stopPropagation();
         hasMoved = false;
         return;
       }
+
+      hasMoved = false;
 
       // If clicked «Перейти ›», allow navigation
       if (event.target.closest('.card-go-btn')) {

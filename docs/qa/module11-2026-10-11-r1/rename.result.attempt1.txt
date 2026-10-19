@@ -1,9 +1,0 @@
-### Error
-Error: locator.isVisible: Error: strict mode violation: locator('[name=name_az]') resolved to 3 elements:
-    1) <input type="text" required="" name="name_az" maxlength="255" id="id_branch_name_az"/> aka getByRole('textbox', { name: 'Название филиала (AZ)' })
-    2) <input required="" name="name_az" maxlength="255" aria-describedby="org-program-create-hint"/> aka getByRole('textbox', { name: 'Название программы (AZ)' })
-    3) <input type="text" name="name_az" maxlength="255" id="id_name_az" value="Uydurma QA11 şəbəkə"/> aka getByRole('textbox', { name: 'Название (AZ)' })
-
-Call log:
-[2m    - checking visibility of locator('[name=name_az]')[22m
-

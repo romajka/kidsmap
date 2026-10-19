@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "/home/ramin/kidsmap/docs/qa/offer-qa09-fix-2026-10-14-r1/verify.py", line 3, in <module>
-    P=Path(__file__).resolve().parent;R=P.parents[2];old=json.loads((P/'incoming-source.json').read_text());changed=[k for k,v in old.items() if hashlib.sha256((R/k).read_bytes()).hexdigest()!=v];assert changed==['src/catalog/services/volunteer_places.py'],changed
-                                                                                                                                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: ['src/catalog/services/volunteer_places.py', 'src/catalog/domain_admin/owner.py', 'src/catalog/templates/admin/catalog/placeownershiprequest/change_form.html', 'src/templates/admin/base.html', 'static/admin/css/kidsmap_admin_layout.css', 'static/admin/css/kidsmap_admin.css', 'static/admin/css/pages/kidsmap_admin_sidebar.css', 'templates/admin/base.html', 'templates/admin/base_site.html']

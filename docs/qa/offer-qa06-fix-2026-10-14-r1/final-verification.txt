@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "/home/ramin/kidsmap/docs/qa/offer-qa06-fix-2026-10-14-r1/verify.py", line 13, in <module>
-    d=json.loads((P/(name+'.json')).read_text());assert len(d['rows'])==count and all(x['status']=='PASS' for x in d['rows'])
-                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError

@@ -1,5 +1,0 @@
-# SITE09 CLOSED LOCAL — route policy
-
-Published temporary Place canonical and both legacy routes now return410 before canonical redirect when eventsOFF. Lookup still rejects unpublished404; ON and permanent-place behavior retained. No entity/data/queryset changes. Fresh4method RED18route observations and native baseline9routes15failedchecks→42cumulative backendPASS and74native-editor/browser-contextHTTP checksPASS. Exact original flag restored, entity SHA unchanged. Empty410 browser error is actual nextSITE10, retained explicitly; OFF rendered UI notGREEN.
-
-Fixture-restoration correction: the first failed blank410 browser run left the owned fixtureOFF. Earlier r2/SITE10 runs restored their immediate entryOFF flag, which was not the earlier pre-patch baselineON. Native followup restored baselineON then reran all3languages canonical/twolegacy OFF/ON routes with actual rendered HTML410:77/77checksPASS, finalON and entitySHA exactly match original pre-patch baseline. Prior evidence retained; no production/user records touched.

@@ -1,9 +1,0 @@
-### Result
-{"rows":[{"id":"two-context-focus-diagnostic","background":{"focused":true,"documentFocus":true,"active":"km-burger-close","open":"false"},"foreground":{"focused":true,"documentFocus":true,"active":"km-burger-close","open":"false"},"checks":{"foreground_keyboard_menu":true}}],"scope":"Actual source two browser contexts; compare real foreground keyboard focus, no app mutation."}
-### Ran Playwright code
-```js
-await (async original=>{
-const base='http://127.0.0.1:33640',b=original.context().browser(),aContext=await b.newContext({viewport:{width:360,height:1000}}),gContext=await b.newContext({viewport:{width:360,height:1000}});for(const c of [aContext,gContext])await c.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());const a=await aContext.newPage(),g=await gContext.newPage();await a.goto(base+'/qa/site08/login/super/');await a.goto(base+'/about/');const run=async()=>{await a.locator('#km-burger-open').focus();await a.keyboard.press('Enter');let focused=false;try{await a.waitForFunction(()=>document.activeElement===document.getElementById('km-burger-close'),null,{timeout:1000});focused=true;}catch(e){}return await a.evaluate(focused=>({focused,documentFocus:document.hasFocus(),active:document.activeElement.id,open:document.getElementById('km-mobile-drawer').getAttribute('aria-hidden')}),focused);};const background=await run();await a.bringToFront();await a.keyboard.press('Escape');const foreground=await run();await aContext.close();await gContext.close();return{rows:[{id:'two-context-focus-diagnostic',background,foreground,checks:{foreground_keyboard_menu:foreground.focused&&foreground.open==='false'}}],scope:'Actual source two browser contexts; compare real foreground keyboard focus, no app mutation.'};
-}
-)(page);
-```

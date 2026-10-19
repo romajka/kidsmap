@@ -1,2 +1,0 @@
-async original=>{__QA13_COMMON__
-const {c,p}=await context('admin');try{await visit(p,'/admin/catalog/event/1/change/');await Promise.all([p.waitForNavigation({waitUntil:'domcontentloaded'}),p.locator('[name=_publish_event]:visible').first().click({noWaitAfter:true})]);await visit(p,'/admin/catalog/event/1/change/');add('onsite-branch-event-native-published',await p.locator('[name=status]').inputValue()==='published',{},'admin','ru',1440,p.url(),await shot(p,'event-onsite-admin-published-1440'));return{rows};}catch(e){return{rows,error:String(e)};}finally{await c.close();}}

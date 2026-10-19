@@ -1,5 +1,0 @@
-# ADJ-ANONYMOUS-LOGIN-08 — OPEN/P2
-
-Fresh LOCAL own runtime confirms unauthenticated GET /account/notifications/ →302 /accounts/login/?next=... →404; actual /auth/login/ returns200. Same fallback target observed as6console404 messages when own QA logout helper followed the protected inbox. No access bypass; login recovery blocked on that path. Source: src/catalog/urls.py:182 binds account_login to auth/login/; current settings has no LOGIN_URL override. login_required decorators/settings/routes unchanged by approved SOCIAL08 patch, hashes unchanged from prepatch1022source. Pre-existing current-source mismatch; exact introduction UNKNOWN, production applicability UNKNOWN. No global completeness claim or unrelated source changes.
-
-This is separate from authenticated stale-invitation SOCIAL08. Artifact retains six console404 diagnostics, fresh direct/follow/canonical probes and native PNG. No classification of these errors as normal403, no source/test assertion changes. Needs separate reviewable plan and scope approval; not implemented in this run. SOCIAL08 closure is scoped to authenticated own invitation feedback and preserved guards; module09 remains OPEN.

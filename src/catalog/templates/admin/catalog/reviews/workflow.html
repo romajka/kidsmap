@@ -3,7 +3,7 @@
 {% block extrahead %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_review_workflow.css' %}">{% endblock %}
 {% block content %}
 {% get_current_language as language %}
-<main class="km-review-workflow" data-review-workflow data-review-id="{{ head.pk }}">
+<div class="km-review-workflow" data-review-workflow data-review-id="{{ head.pk }}">
   <a href="{{ review_return_url }}">{% if language == 'ru' %}К списку отзывов{% elif language == 'en' %}Back to reviews{% else %}Rəylərə qayıt{% endif %}</a>
   <h1>{% if language == 'ru' %}Проверка KidsMap{% elif language == 'en' %}KidsMap review{% else %}KidsMap yoxlaması{% endif %}</h1>
   <p>{{ target }}</p>
@@ -35,5 +35,5 @@
   <details class="km-review-workflow__card"><summary>{% if language == 'ru' %}История редакций{% elif language == 'en' %}Version history{% else %}Versiya tarixçəsi{% endif %}</summary>
     {% for revision in history %}<article><h3>#{{ revision.pk }} · {{ revision.get_status_display }} · {{ revision.rating }}/5</h3><p>{{ revision.author_name }} · {{ revision.created_at }}</p><blockquote>{{ revision.text|linebreaks }}</blockquote>{% if revision.rejection_reason %}<p>{{ revision.rejection_reason }}</p>{% endif %}</article>{% endfor %}
   </details>
-</main>
+</div>
 {% endblock %}

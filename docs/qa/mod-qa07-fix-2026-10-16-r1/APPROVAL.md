@@ -1,1 +1,0 @@
-User «одобряю», 2026-10-16. Approved ../mod-qa07-recheck-2026-10-16-r1/IMPLEMENTATION_PLAN.md: specialist change_form.html, specialist_admin.js, NEW test_mod07_specialist_error_summary.py. Targeted verification only; no other module patches.

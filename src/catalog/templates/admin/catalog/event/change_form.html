@@ -20,7 +20,6 @@
 
 {% block content %}
   {# The shared photo inline renders SVG icon references. #}
-  {% include "admin/catalog/includes/km_icon_sprite.html" %}
   <div id="content-main" class="km-place-form-page">
     {{ km_event_form_summary.progress_items|json_script:"km-admin-progress-config" }}
     <form
@@ -103,7 +102,7 @@
         {% endif %}
 
         <div class="km-place-form-layout">
-          <main class="km-place-form-main">
+          <div class="km-place-form-main">
             <nav class="km-place-form-steps" aria-label="{% translate 'Шаги формы' %}">
               {% for section in km_event_form_sections %}
                 <a
@@ -210,7 +209,7 @@
               </script>
             {% endblock %}
             {% prepopulated_fields_js %}
-          </main>
+          </div>
 
           <aside class="km-place-form-sidebar">
             <div class="km-place-sidebar-card km-place-sidebar-card--summary">

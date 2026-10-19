@@ -1,5 +1,0 @@
-# SITE03 Implementation Plan — same sequential authorization
-
-Goal: saved localized contact text must appear in contacts hero intro, including safe newlines, existing empty fallback and contact-channel links.
-Scope: src/catalog/templates/pages/contacts.html +new src/catalog/testcases/test_site_qa03_contacts_copy.py. Existing context remains source of truth. Priority if site_contacts_text then escaped linebreaksbr, then existing language literals. No model/schema/controller/permission/PO change. CSS only if current rendered text creates a measured new overflow; record separately before edits.
-RED:4methods/3failed methods9observations, existing contact links controlPASS. Apply minimal template condition/new regression bytes, fresh cumulative02+03/public+save regression GREEN, native admin save→contacts3langs6widths/configured/blank/escaping/links/restore. Existing header1280 SITE18 stays separatelyOPEN. No commit/push/deploy/production. Continue SITE04 after verification under same direct user authorization.

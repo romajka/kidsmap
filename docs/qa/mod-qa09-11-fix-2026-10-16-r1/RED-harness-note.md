@@ -1,1 +1,0 @@
-RED native run used default actual viewport 1280x720; result rows and filenames corrected to actual dimensions. Before subsequent GREEN runs viewport is explicitly set. Three real defects reproduced; no application patch was applied at RED.

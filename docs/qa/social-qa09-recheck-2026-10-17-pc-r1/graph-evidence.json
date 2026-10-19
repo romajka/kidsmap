@@ -1,7 +1,0 @@
-{
- "project":"C-kidsmap","root":"C:/kidsmap","status":"ready","generation":"2026-10-16T18:56:53Z","parse_partial_files":120,
- "discovery":"BM25 public_urls canonical query functions returned4symbols,has_more=false",
- "coverage":{"src/catalog/services/public_urls.py":"coverage_unavailable/metadata_changed","src/catalog/middleware.py":"coverage_unavailable/metadata_changed","src/catalog/controllers/place_reviews_controller.py":"coverage_unavailable/metadata_changed","src/catalog/context_processors.py":"coverage_unavailable/metadata_changed","src/catalog/templates/pages/place_reviews.html":"partial/metadata_changed,lines34/56/62"},
- "source_verified_edges":["place_reviews route name → PlaceReviewsController build_context reads sort/page","CleanPublicQueryMiddleware → filtered_query_string_for_path → PUBLIC_QUERY_PARAMS","context_processor language_switch_query → same helper → header language hrefs","canonical/robots feed base policy stays unchanged; catalog special policy separate"],
- "limits":"Graph hints only; relevant source verified; no completeness/deletion/cache export/reindex claims. One execution identity /root, Django lead/SEO/frontend/browser sequential."
-}

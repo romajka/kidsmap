@@ -1,6 +1,0 @@
-### Result
-{"chrome":"153.0.8010.36"}
-### Ran Playwright code
-```js
-await (async (page) => { return {chrome: page.context().browser().version()}; })(page);
-```

@@ -1,2 +1,0 @@
-async original=>{__COMMON__
-const x=await context('admin','en',1024),p=x.p;try{await visit(p,'/en/admin/catalog/place/__PLACE_ID__/change/');await p.locator('[data-price-policy=free]').click();await p.waitForTimeout(250);const modal=p.locator('.km-modal-backdrop.is-visible');const g=await geometry(p),visible=await modal.isVisible();add('EN1024 settled admin price modal',visible&&g.document<=1025,{...g,visible,shot:await shot(p,'modal-final-en1024')},'admin','en',1024);return{rows,errors,network};}finally{await x.c.close();}}

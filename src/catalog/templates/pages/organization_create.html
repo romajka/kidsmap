@@ -11,7 +11,7 @@
 <div class="account-page-wrapper org-workspace" data-workspace="create" data-user-id="{{ request.user.pk }}">
   <div class="account-main-layout">
     {% include 'pages/includes/account_navigation.html' %}
-    <main class="account-main-content" id="organization-create-main">
+    <div class="account-main-content" id="organization-create-main">
       <nav class="org-back">
         <a href="{% url 'organization_workspace_index' %}" class="org-back-link">
           <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
@@ -193,7 +193,7 @@
           </div>
         </form>
       </section>
-    </main>
+    </div>
   </div>
 </div>
 <script src="{% static 'js/organization_workspace.js' %}" defer></script>

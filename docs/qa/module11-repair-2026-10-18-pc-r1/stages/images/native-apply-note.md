@@ -1,1 +1,0 @@
-WSL write_bytes failed EINVAL while opening first source. Before native application, every1057current source and each stage entry hash matched: no partial mutation. Applied exact6candidates using native Windows nontruncating shared-write FileStream, verified final hashes. No foreign process/config/runtime restart or file-attribute change. Git apply --check passed again.

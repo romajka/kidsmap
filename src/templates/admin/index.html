@@ -13,7 +13,6 @@
 {% endblock %}
 
 {% block content %}
-    {% include "admin/catalog/includes/km_icon_sprite.html" %}
     {% get_dashboard_stats as stats %}
     {% get_side_menu using="app_list" as dashboard_list %}
     {% get_dashboard_workspace_hubs dashboard_list stats=stats as hubs %}

@@ -1,5 +1,0 @@
-SITE-QA-10 (P2) — Пустой 410 превращается в ошибку браузера.
-Прочитать текущие AGENTS/canonical orchestrator и свежий docs/qa/module10-full-2026-10-18-pc-r1/findings/SITE-QA-10.md/evidence; проверить текущий dirty WORKTREE/source drift. Status: OPEN.
-Source hints: src/catalog/views.py:362,1300. Root: HttpResponseGone() has no HTML recovery body. Status410 is intentional contract.
-Следующая задача: Сохранить410 и добавить локализованную recovery страницу; проверить прямой native GET и keyboard link RU/AZ/EN.
-Сначала свежая bounded проверка, impact map и конкретный PLAN с файлами/тестами/рисками. Не применять app fix до одобрения scope. Approval предыдущих SOCIAL01–12 не переносится на SITE. Не повторять security writes вне собственной isolated testDB/media. DJANGO_TESTING=1, isolated cache/media/email/current3MO, no production credentials. Сохранить старые evidence/местные изменения/ref/index/active_runNONE; no reset/clean/stash/commit/push/deploy. Новый уникальный package, red/green if approved, native evidence and honest NOTRUN.

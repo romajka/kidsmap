@@ -95,7 +95,7 @@
 
         <div class="km-place-form-layout">
           <!-- Main Content: Fieldsets & District Inline -->
-          <main class="km-place-form-main">
+          <div class="km-place-form-main">
             {% block field_sets %}
               {% for fieldset in adminform %}
                 <section class="km-place-section" id="fieldset-{{ forloop.counter0 }}">
@@ -116,7 +116,7 @@
               {% endfor %}
             {% endblock %}
 
-          </main>
+          </div>
 
           <!-- Sidebar: Summary & Actions -->
           <aside class="km-place-form-sidebar">
