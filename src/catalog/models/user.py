@@ -114,6 +114,22 @@ class UserEmailVerification(models.Model):
         return f"{self.user} ({self.email})"
 
 
+class PendingEmailChange(models.Model):
+    """A separate challenge; an unproved address never becomes User.email."""
+
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                related_name="pending_email_change")
+    source_email = models.EmailField(blank=True, default="")
+    email = models.EmailField(blank=True, default="")
+    token = models.UUIDField(default=uuid.uuid4, editable=False)
+    code_hash = models.CharField(max_length=255, blank=True, default="")
+    expires_at = models.DateTimeField(null=True, blank=True)
+    resend_available_at = models.DateTimeField(null=True, blank=True)
+    attempts_left = models.PositiveSmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class AccountDeletionRequest(models.Model):
     class Status(models.TextChoices):
         REQUESTED = "REQUESTED", _("Запрошено")

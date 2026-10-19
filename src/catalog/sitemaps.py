@@ -6,7 +6,7 @@ from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 
 from .models import Activity, Organization, CatalogContentSettings, Place, Specialist
-from .services.public_languages import available_languages
+from .services.public_languages import available_languages, public_activities_with_languages
 from .services.public_presentation import public_url
 from .services.content_quality import public_place_queryset
 from .services.features import is_events_section_enabled, is_specialists_section_enabled, is_organizations_section_enabled
@@ -97,10 +97,8 @@ class OrganizationSitemap(LocalizedSitemap):
 
 class ActivitySitemap(OrganizationSitemap):
     def items(self):
-        places = public_place_queryset(Place.objects.all())
-        return Activity.objects.filter(status='published', archived_at__isnull=True,
-            place__in=places).select_related('place__category', 'place__organization',
-                                           'program__organization').order_by('pk')
+        rows, self._language_cache = public_activities_with_languages()
+        return rows
 
 
 class SeoLandingSitemap(LocalizedSitemap):

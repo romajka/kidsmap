@@ -1,0 +1,27 @@
+.email-change-panel {
+  max-width: 600px;
+  margin-block: 26px 18px;
+  padding: clamp(18px, 2.8vw, 28px);
+}
+
+.email-change-panel h1 {
+  font-size: clamp(28px, 3vw, 40px);
+  line-height: 1.15;
+}
+
+.email-change-panel p,
+.email-change-panel a {
+  overflow-wrap: anywhere;
+}
+
+.email-change-panel .auth-form-secondary .btn {
+  background: var(--surface);
+  color: var(--brand-spruce);
+  border: 1px solid currentColor;
+  box-shadow: none;
+}
+
+.email-change-panel :is(a, button, input):focus-visible {
+  outline: 3px solid var(--brand-turf);
+  outline-offset: 3px;
+}

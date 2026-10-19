@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_safe
 from catalog.models import Organization, Activity, PlaceReview, ActivityReview
 from catalog.services.content_quality import published_place_queryset, public_review_queryset
-from catalog.services.public_presentation import present, current_organization, translated
+from catalog.services.public_presentation import present, prepare_cards, translated
 from catalog.services.tracking import track_subject_view
 from catalog.services.seo import build_public_entity_seo_payload
 
@@ -23,15 +23,14 @@ def organization_detail(request, public_id):
     if not data['visible']:
         raise Http404
     request._seo_entity = entity
-    branch_objects = [p for p in published_place_queryset(entity.places.all()).select_related('category','organization')
-        if current_organization(p) is not None]
+    branch_objects = [p for p in prepare_cards(published_place_queryset(entity.places.all()), lang)
+        if p._card_organization_id == entity.pk]
     branches = []
     districts_map = {}
     activities_map = {}
     for place in branch_objects:
-        branch = present(place, lang)
-        branch_activities = [present(activity, lang) for activity in place.activities.filter(
-            status='published', archived_at__isnull=True).select_related('place__organization', 'place__category', 'program__organization')]
+        branch = place._card_presentation
+        branch_activities = place._card_activities
         
         district_key = place.district or ''
         district_label = place.district_i18n(lang) if district_key else ''
@@ -60,14 +59,16 @@ def organization_detail(request, public_id):
     districts_filter = sorted(districts_map.values(), key=lambda d: d['label'])
     activities_filter = sorted([{'name': k, 'count': v} for k, v in activities_map.items()], key=lambda a: a['name'])
     programs = [present(p, lang) for p in entity.programs.filter(status='published', approved_at__isnull=False, archived_at__isnull=True)]
+    branch_presentations = {p.pk: p._card_presentation for p in branch_objects}
+    activity_presentations = {a['id']: a for p in branch_objects for a in p._card_activities}
     feed = []
-    for review in public_review_queryset(PlaceReview.objects.filter(place_id__in=[p.pk for p in branch_objects])).select_related('place').order_by('-created_at')[:30]:
-        target = present(review.place, lang)
+    for review in public_review_queryset(PlaceReview.objects.filter(place_id__in=branch_presentations)).order_by('-created_at')[:30]:
+        target = branch_presentations[review.place_id]
         feed.append({'target_name':target['name'], 'target_url':target['url']+'#reviews', 'text':review.text, 'rating':review.rating})
     for review in public_review_queryset(ActivityReview.objects.filter(activity__place_id__in=[p.pk for p in branch_objects],
-            activity__status='published', activity__archived_at__isnull=True)).select_related('activity__place__category', 'activity__program__organization').order_by('-created_at')[:30]:
-        target = present(review.activity, lang)
-        if target['visible']:
+            activity__status='published', activity__archived_at__isnull=True)).order_by('-created_at')[:30]:
+        target = activity_presentations.get(review.activity_id)
+        if target and target['visible']:
             feed.append({'target_name':target['name'], 'target_url':target['url']+'#reviews', 'text':review.text, 'rating':review.rating})
     # Top directions summary for compact hero block
     top_directions = [a['name'] for a in activities_filter[:4] if a.get('name')]
@@ -111,9 +112,8 @@ def organization_detail(request, public_id):
             if not live_consent:
                 continue
             specs_labels = [s.name_i18n(lang) for s in spec.specializations.all()[:2]]
-            spec_branches = [
-                loc.place.name_i18n(lang) for loc in spec.practice_locations.filter(is_active=True, place__in=branch_objects)
-            ]
+            spec_branches = [loc.place.name_i18n(lang) for loc in spec.practice_locations.all()
+                if loc.is_active and loc.place_id in branch_presentations]
             org_specialists.append({
                 'specialist': spec,
                 'name': spec.name,
@@ -122,12 +122,13 @@ def organization_detail(request, public_id):
                 'photo': spec.photo.url if spec.photo else None,
                 'specializations': specs_labels,
                 'branches': spec_branches,
+                'temporal_state': 'future' if emp.start_date > today else 'current',
+                'start_date': emp.start_date,
             })
 
     org_events = []
     events_enabled = is_events_section_enabled()
     if events_enabled:
-        from catalog.services.public_presentation import visible
         events_qs = (
             entity.organized_events.filter(
                 status='published',
@@ -135,15 +136,11 @@ def organization_detail(request, public_id):
                 occurrence_state__in=('scheduled', 'rescheduled'),
                 end_datetime__gte=timezone.now(),
             )
-            .select_related('related_place')
             .order_by('start_datetime')[:6]
         )
         for ev in events_qs:
-            venue_name = ''
-            if ev.related_place and visible(ev.related_place):
-                venue_name = ev.related_place.name_i18n(lang)
-            elif ev.venue_label:
-                venue_name = ev.venue_label
+            venue = ev.public_venue(lang)
+            venue_name = venue.get('label') or venue.get('address') or ''
             org_events.append({
                 'event': ev,
                 'name': ev.name_i18n(lang),

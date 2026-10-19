@@ -355,7 +355,8 @@ class DjangoOwnerTeamRepository(IOwnerTeamRepository):
         )
 
     def list_pending_invitations_for_user(self, *, user) -> QuerySet:
-        email = (user.email or "").strip().lower()
+        from catalog.services.email_identity import current_email_for_privileges
+        email = current_email_for_privileges(user)
         if not email:
             return OwnerTeamInvitation.objects.none()
         return (
@@ -380,7 +381,8 @@ class DjangoOwnerTeamRepository(IOwnerTeamRepository):
         )
 
     def get_pending_invitation_for_user(self, *, user, invitation_id: int) -> OwnerTeamInvitation | None:
-        email = (user.email or "").strip().lower()
+        from catalog.services.email_identity import current_email_for_privileges
+        email = current_email_for_privileges(user)
         if not email:
             return None
         return (

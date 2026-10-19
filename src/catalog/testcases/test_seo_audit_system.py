@@ -129,25 +129,30 @@ class TestSEOAuditSystem(TestCase):
             issue_code="place_detail_non_200",
             severity=SEOIssue.SEVERITY_WARNING,
             level=SEOIssue.LEVEL_A,
-            description="Recalculate ratings auto-fix",
-            status=SEOIssue.STATUS_OPEN,
+            description="Historical ratings auto-fix",
+            status=SEOIssue.STATUS_FIXED,
             is_auto_fixable=True,
             place=self.quality_place,
         )
 
-        engine = SEOFixEngine()
-        changes = engine.apply_safe_fixes(dry_run=False, issue_id=issue.pk)
-        self.assertEqual(len(changes), 1)
-
-        change = changes[0]
+        # Historical releases stored ratings while attempting unrelated SEO
+        # fixes. Preserve the ability to restore those captured values exactly.
+        Place.objects.filter(pk=self.quality_place.pk).update(rating_count=0, rating_avg=0)
+        change = SEOChange.objects.create(
+            issue=issue, change_summary="Historical rating recalculation",
+            old_value="rating_count=9, rating_avg=4.5", new_value="rating_count=0, rating_avg=0.0",
+            is_reversible=True,
+        )
         self.assertFalse(change.is_rolled_back)
 
         # Rollback
-        rolled_back_change = engine.rollback_change(change.pk)
+        rolled_back_change = SEOFixEngine().rollback_change(change.pk)
         self.assertTrue(rolled_back_change.is_rolled_back)
 
         issue.refresh_from_db()
         self.assertEqual(issue.status, SEOIssue.STATUS_OPEN)
+        self.quality_place.refresh_from_db()
+        self.assertEqual((self.quality_place.rating_count, self.quality_place.rating_avg), (9, 4.5))
 
     def test_management_commands_execution(self):
         # Test audit_seo

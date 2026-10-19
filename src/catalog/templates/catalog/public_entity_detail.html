@@ -435,6 +435,12 @@
           {% if item.role %}
             <span class="public-org-specialist-role">{{ item.role }}</span>
           {% endif %}
+          {% if item.temporal_state == 'future' %}
+            <p class="public-org-specialist-branches">
+              <span class="material-symbols-rounded" aria-hidden="true">event</span>
+              <span>{% if language == 'ru' %}Начнёт работу{% elif language == 'en' %}Starts on{% else %}İşə başlayır{% endif %} <time datetime="{{ item.start_date|date:'Y-m-d' }}">{{ item.start_date|date:'d.m.Y' }}</time></span>
+            </p>
+          {% endif %}
           <h3 class="public-org-specialist-name">
             {% if specialists_section_enabled and item.url %}
               <a href="{{ item.url }}">{{ item.name }}</a>

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+{% block title %}{% if CURRENT_LANGUAGE == 'az' %}E-poçt dəyişikliyini təsdiqləyin{% elif CURRENT_LANGUAGE == 'en' %}Confirm email change{% else %}Подтвердите смену email{% endif %}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/account_email_change.css' %}">{% endblock %}
+{% block content %}
+<section class="panel auth-panel email-change-panel" aria-labelledby="email-change-title">
+  <h1 id="email-change-title">{% if CURRENT_LANGUAGE == 'az' %}E-poçt dəyişikliyini təsdiqləyin{% elif CURRENT_LANGUAGE == 'en' %}Confirm email change{% else %}Подтвердите смену email{% endif %}</h1>
+  {% if email_change_error %}<p class="auth-error" id="email-change-error" role="alert">{{ email_change_error }}</p>{% endif %}
+  {% if pending_email_change %}
+    <p class="auth-subtitle" id="email-change-help">
+      {% if CURRENT_LANGUAGE == 'az' %}Kodu <strong>{{ pending_email_change.email }}</strong> ünvanına göndərdik. Kod 10 dəqiqə qüvvədədir. Təsdiqədək əvvəlki e-poçtunuz qüvvədədir.
+      {% elif CURRENT_LANGUAGE == 'en' %}We sent a code to <strong>{{ pending_email_change.email }}</strong>. It expires in 10 minutes. Your previous email remains active until confirmation.
+      {% else %}Мы отправили код на <strong>{{ pending_email_change.email }}</strong>. Он действует 10 минут. До подтверждения работает ваш прежний email.{% endif %}
+    </p>
+    <form method="post" class="auth-form" data-loading-form>
+      {% csrf_token %}
+      <input type="hidden" name="form_action" value="verify">
+      <input type="hidden" name="challenge_token" value="{{ pending_email_change.token }}">
+      <label for="id_email_change_code">{% if CURRENT_LANGUAGE == 'az' %}Altırəqəmli kod{% elif CURRENT_LANGUAGE == 'en' %}Six-digit code{% else %}Шестизначный код{% endif %}</label>
+      <input class="field" id="id_email_change_code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required aria-describedby="email-change-help{% if email_change_error %} email-change-error{% endif %}"{% if email_change_error %} aria-invalid="true"{% endif %}>
+      <button class="btn" type="submit" data-loading-button>{% if CURRENT_LANGUAGE == 'az' %}Yeni e-poçtu təsdiqlə{% elif CURRENT_LANGUAGE == 'en' %}Confirm new email{% else %}Подтвердить новый email{% endif %}</button>
+    </form>
+    <form method="post" class="auth-form auth-form-secondary" data-loading-form>
+      {% csrf_token %}
+      <input type="hidden" name="form_action" value="resend">
+      <input type="hidden" name="challenge_token" value="{{ pending_email_change.token }}">
+      <p class="auth-subtitle">{% if CURRENT_LANGUAGE == 'az' %}Kodu 60 saniyədən sonra yenidən göndərmək olar.{% elif CURRENT_LANGUAGE == 'en' %}You can resend the code after 60 seconds.{% else %}Повторная отправка доступна через 60 секунд.{% endif %}</p>
+      <button class="btn" type="submit" data-loading-button>{% if CURRENT_LANGUAGE == 'az' %}Kodu yenidən göndər{% elif CURRENT_LANGUAGE == 'en' %}Resend code{% else %}Отправить код повторно{% endif %}</button>
+    </form>
+    <form method="post" class="auth-form auth-form-secondary">
+      {% csrf_token %}
+      <input type="hidden" name="form_action" value="cancel">
+      <input type="hidden" name="challenge_token" value="{{ pending_email_change.token }}">
+      <button class="btn" type="submit">{% if CURRENT_LANGUAGE == 'az' %}Dəyişikliyi ləğv et{% elif CURRENT_LANGUAGE == 'en' %}Cancel email change{% else %}Отменить смену email{% endif %}</button>
+    </form>
+  {% else %}
+    <p class="auth-subtitle">{% if CURRENT_LANGUAGE == 'az' %}Təsdiq gözləyən e-poçt dəyişikliyi yoxdur.{% elif CURRENT_LANGUAGE == 'en' %}There is no email change awaiting confirmation.{% else %}Нет смены email, ожидающей подтверждения.{% endif %}</p>
+  {% endif %}
+  <p class="auth-alt"><a href="{% url 'account_settings' %}">{% if CURRENT_LANGUAGE == 'az' %}Profil ayarlarına qayıt{% elif CURRENT_LANGUAGE == 'en' %}Back to profile settings{% else %}Вернуться к настройкам профиля{% endif %}</a></p>
+</section>
+{% endblock %}

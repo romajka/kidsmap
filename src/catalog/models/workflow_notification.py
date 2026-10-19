@@ -13,7 +13,7 @@ class WorkflowNotification(models.Model):
     recipient_user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
         on_delete=models.SET_NULL, related_name='workflow_notifications')
     recipient_email = models.EmailField(blank=True, default='')
-    event_context = models.JSONField(default=dict, blank=True)
+    event_context = models.JSONField(default=dict, db_default={}, blank=True)
     read_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

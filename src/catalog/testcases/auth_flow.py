@@ -525,7 +525,12 @@ class TestAccountProfileUpdates(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.user.refresh_from_db()
-        self.assertEqual(self.user.email, "profile-new@example.com")
+        self.assertEqual(self.user.email, "profile@example.com")
+        from catalog.models import PendingEmailChange
+        pending = PendingEmailChange.objects.get(user=self.user)
+        self.assertEqual(pending.email, "profile-new@example.com")
+        self.assertEqual(pending.source_email, "profile@example.com")
+        self.assertTrue(pending.code_hash)
         self.assertEqual(self.user.first_name, "Новый")
         self.assertEqual(self.user.last_name, "Пользователь")
         self.assertEqual(self.user.profile.phone, "+994 55 111 22 33")

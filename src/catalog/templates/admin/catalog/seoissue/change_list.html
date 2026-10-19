@@ -56,12 +56,18 @@
             </p>
         </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <a href="{% url 'admin:catalog_seoauditrun_run_now' %}" class="btn" style="background-color: #2563eb; color: #ffffff; font-weight: 600; padding: 9px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);">
+            {% if perms.catalog.add_seoauditrun and perms.catalog.add_seoissue and perms.catalog.change_seoissue %}
+            <form method="post" action="{% url 'admin:catalog_seoauditrun_run_now' %}">{% csrf_token %}
+            <button type="submit" class="btn" style="border: 0; cursor: pointer; background-color: #2563eb; color: #ffffff; font-weight: 600; padding: 9px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);">
                 <span>🚀</span> {% translate "▶ Запустить аудит" %}
-            </a>
-            <a href="{% url 'admin:catalog_seoauditrun_apply_fixes_now' %}" class="btn" style="background-color: #059669; color: #ffffff; font-weight: 600; padding: 9px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3);">
+            </button></form>
+            {% endif %}
+            {% if perms.catalog.change_seoissue and perms.catalog.add_seochange %}
+            <form method="post" action="{% url 'admin:catalog_seoauditrun_apply_fixes_now' %}">{% csrf_token %}
+            <button type="submit" class="btn" style="border: 0; cursor: pointer; background-color: #059669; color: #ffffff; font-weight: 600; padding: 9px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3);">
                 <span>⚡</span> {% translate "Применить Level A" %}
-            </a>
+            </button></form>
+            {% endif %}
         </div>
     </div>
 </div>

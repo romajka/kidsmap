@@ -18,6 +18,7 @@ from catalog.services.place_access import (
 from catalog.services.organization_ownership import _actor, _parents, affiliation_current, _version
 from catalog.services.staff_roles import is_volunteer
 from catalog.services.workflow_notifications import emit
+from catalog.services.email_identity import current_email_for_privileges
 
 
 class TeamConflict(ValidationError):
@@ -219,7 +220,8 @@ def _locked_item(target_type, item_id, invitation=False, expected_target_id=None
 def accept(*, actor, target_type, invitation_id, expected_target_id=None):
     parent,item,grant_model,field = _locked_item(target_type,invitation_id,invitation=True,expected_target_id=expected_target_id)
     actor = _actor(actor)
-    if not actor.email or actor.email.strip().lower() != item.email.lower():
+    actor = get_user_model().objects.select_for_update().get(pk=actor.pk)
+    if current_email_for_privileges(actor) != item.email.lower():
         raise PermissionDenied
     if item.status != 'PENDING' or item.expires_at is None or item.expires_at <= timezone.now():
         raise ValidationError('Invitation unavailable or expired.')
@@ -249,7 +251,9 @@ def accept(*, actor, target_type, invitation_id, expected_target_id=None):
 def decide_invitation(*, actor, target_type, invitation_id, cancel=False, expected_target_id=None):
     parent,item,_,_ = _locked_item(target_type,invitation_id,invitation=True,expected_target_id=expected_target_id)
     actor = _owner(actor,parent) if cancel else _actor(actor)
-    if not cancel and (not actor.email or actor.email.strip().lower() != item.email.lower()):
+    if not cancel:
+        actor = get_user_model().objects.select_for_update().get(pk=actor.pk)
+    if not cancel and current_email_for_privileges(actor) != item.email.lower():
         raise PermissionDenied
     if item.status != 'PENDING':
         raise TeamConflict('Invitation already handled.')

@@ -27,6 +27,7 @@ from django.views.generic import TemplateView
 
 from .controllers.account_controller import AccountController
 from .controllers.auth_controller import AuthController
+from .services.email_change import EmailChangeError, copy as email_change_copy, pending_for as pending_email_change_for
 from .controllers.engagement_controller import EngagementController
 from .controllers.home_controller import HomeController
 from .controllers.owner_places_controller import OwnerPlacesController
@@ -1818,6 +1819,7 @@ class AccountProfileView(LoginRequiredMixin, View):
         return {
             "profile_model": profile,
             "profile_form": profile_form,
+            "pending_email_change": pending_email_change_for(self.request.user),
             "password_form": password_form,
             "favorites_count": dashboard_context["favorites_count"],
             "history_count": dashboard_context["history_count"],
@@ -1858,7 +1860,13 @@ class AccountProfileView(LoginRequiredMixin, View):
                 except IntegrityError:
                     request.user.refresh_from_db()
                     profile_form.add_error("email", _("Пользователь с таким email уже зарегистрирован. Укажите другой email."))
+                except EmailChangeError as exc:
+                    profile_form.add_error("email", exc)
                 else:
+                    if form_email := pending_email_change_for(request.user):
+                        if form_email.email == profile_form.cleaned_data['email']:
+                            messages.success(request, email_change_copy('sent'))
+                            return redirect('account_email_change')
                     messages.success(request, _("Профиль обновлен."))
                     return redirect(current_route)
             messages.error(request, _("Проверьте данные профиля и исправьте ошибки."))

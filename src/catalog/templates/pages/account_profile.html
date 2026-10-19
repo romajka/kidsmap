@@ -92,6 +92,14 @@
       
       {% if is_settings_view %}
         <!-- Settings Form: Profile Information -->
+        {% if pending_email_change %}
+          <p class="auth-subtitle" role="status">
+            {% if CURRENT_LANGUAGE == 'az' %}<strong>{{ pending_email_change.email }}</strong> ünvanı təsdiq gözləyir. Əvvəlki ünvan qüvvədədir.
+            {% elif CURRENT_LANGUAGE == 'en' %}<strong>{{ pending_email_change.email }}</strong> is awaiting confirmation. Your previous address remains active.
+            {% else %}<strong>{{ pending_email_change.email }}</strong> ожидает подтверждения. Прежний адрес продолжает работать.{% endif %}
+            <a href="{% url 'account_email_change' %}">{% if CURRENT_LANGUAGE == 'az' %}Kodu daxil et{% elif CURRENT_LANGUAGE == 'en' %}Enter code{% else %}Ввести код{% endif %}</a>
+          </p>
+        {% endif %}
         <div class="account-card-box" id="profile-details">
           <div class="account-card-box__head">
             <h2>{% if CURRENT_LANGUAGE == "az" %}Profil məlumatları{% elif CURRENT_LANGUAGE == "en" %}Profile details{% else %}Данные профиля{% endif %}</h2>
@@ -168,7 +176,8 @@
               <label class="account-field">
                 <span class="account-field-label">{% if CURRENT_LANGUAGE == "az" %}E-poçt{% elif CURRENT_LANGUAGE == "en" %}Email{% else %}Email{% endif %} <span class="required-mark">*</span></span>
                 {{ profile_form.email }}
-                {% if profile_form.email.errors %}<span class="auth-field-error">{{ profile_form.email.errors|join:", " }}</span>{% endif %}
+                <span class="account-avatar-uploader__hint" id="email-change-profile-help">{% if CURRENT_LANGUAGE == 'az' %}Yeni e-poçt yalnız məktubdakı kod təsdiqləndikdən sonra qüvvəyə minir.{% elif CURRENT_LANGUAGE == 'en' %}A new email becomes active only after you confirm the code sent to it.{% else %}Новый email начнёт работать после подтверждения кодом из письма.{% endif %}</span>
+                <span id="email-change-profile-error"{% if profile_form.email.errors %} class="auth-field-error"{% else %} hidden{% endif %}>{% if profile_form.email.errors %}{{ profile_form.email.errors|join:", " }}{% endif %}</span>
               </label>
 
               <label class="account-field">

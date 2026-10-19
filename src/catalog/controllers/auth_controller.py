@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from django.db import transaction
+from django.contrib.auth import get_user_model
 
 from catalog.forms import (
     AccountDeletionCancelForm,
@@ -59,7 +60,9 @@ class AuthController:
             "last_name": user.last_name,
             "phone": profile.phone,
         }
-        return UserProfileEditForm(data=data, files=files, initial=initial, user=user)
+        form = UserProfileEditForm(data=data, files=files, initial=initial, user=user)
+        form.fields['email'].widget.attrs['aria-describedby'] = 'email-change-profile-help email-change-profile-error'
+        return form
 
 
     def build_password_change_form(self, *, user, data=None) -> UserPasswordChangeForm:
@@ -109,10 +112,14 @@ class AuthController:
 
     @transaction.atomic
     def update_user_profile_from_form(self, *, user, form: UserProfileEditForm):
-        user.email = form.cleaned_data["email"]
-        user.first_name = form.cleaned_data["first_name"]
-        user.last_name = form.cleaned_data["last_name"]
-        user.save(update_fields=["email", "first_name", "last_name"])
+        from catalog.services.email_change import request_email_change
+        # Lock and re-read rather than writing a stale request.user email back.
+        current = get_user_model().objects.select_for_update().get(pk=user.pk, is_active=True)
+        request_email_change(actor=current, email=form.cleaned_data["email"])
+        current.first_name = form.cleaned_data["first_name"]
+        current.last_name = form.cleaned_data["last_name"]
+        current.save(update_fields=["first_name", "last_name"])
+        user.email, user.first_name, user.last_name = current.email, current.first_name, current.last_name
         self.profile_repository.set_phone(user=user, phone=form.cleaned_data["phone"])
         avatar = form.cleaned_data.get("avatar")
         clear_avatar = form.cleaned_data.get("clear_avatar", False)

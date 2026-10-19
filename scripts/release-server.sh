@@ -9,6 +9,16 @@ else
   PYTHON_BIN="python3"
 fi
 
+# The Python default introduced in0142 is not a persistent SQL default.
+# Confirm the externally enforced maintenance boundary before the whole batch.
+MIGRATION_PLAN="$("${PYTHON_BIN}" manage.py showmigrations catalog --plan)"
+if printf '%s\n' "$MIGRATION_PLAN" | grep -Eq '^\[ \] catalog\.014(2_workflownotification_event_context|4_workflownotification_event_context_db_default)([[:space:]]|$)'; then
+  if [ "${KIDSMAP_WRITERS_STOPPED:-0}" != "1" ]; then
+    printf '%s\n' 'Release blocked: stop and verify all writers before0142–0144; see docs/PRIVATE_STORAGE_RELEASE.md.' >&2
+    exit 1
+  fi
+fi
+
 "${PYTHON_BIN}" manage.py migrate --noinput
 "${PYTHON_BIN}" manage.py sync_site_defaults
 # NOTE: seed_catalog_taxonomy is NOT run on deploy.

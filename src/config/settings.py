@@ -494,7 +494,8 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 # QA derives this from its disposable MEDIA_ROOT; local/deployed roots remain separate.
-PRIVATE_MEDIA_ROOT = None if TESTING else BASE_DIR.parent / "kidsmap-private-media"
+PRIVATE_MEDIA_ROOT = None if TESTING else Path(os.getenv("PRIVATE_MEDIA_ROOT") or BASE_DIR.parent / "kidsmap-private-media")
+PRIVATE_DRAFT_MEDIA_ROOT = None if TESTING else Path(os.getenv("PRIVATE_DRAFT_MEDIA_ROOT") or BASE_DIR / "private_media_drafts")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

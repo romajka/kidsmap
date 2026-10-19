@@ -454,6 +454,8 @@ def confirm_account_deletion(
             locked_user.set_unusable_password()
             locked_user.save(update_fields=["is_active", "password"])
             UserEmailVerification.objects.filter(user=locked_user).delete()
+            from catalog.models import PendingEmailChange
+            PendingEmailChange.objects.filter(user=locked_user).delete()
             _delete_user_sessions(locked_user.pk)
             _audit(deletion, "deletion_scheduled")
     if error_code:

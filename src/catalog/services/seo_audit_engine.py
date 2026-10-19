@@ -14,6 +14,7 @@ import xml.etree.ElementTree as ET
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.db import transaction
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
@@ -33,6 +34,10 @@ class SEOAuditEngine:
         self.host = public_hostname() or "kidsmap.az"
         if self.host not in settings.ALLOWED_HOSTS and "testserver" in settings.ALLOWED_HOSTS:
             self.host = "testserver"
+        self.checked_issue_keys: set[tuple[str, str, str]] = set()
+
+    def _checked(self, path, language, *codes):
+        self.checked_issue_keys.update((path, language, code) for code in codes)
 
     def run_audit(
         self,
@@ -55,6 +60,7 @@ class SEOAuditEngine:
 
         issues: list[SEOIssue] = []
         tested_urls: set[str] = set()
+        self.checked_issue_keys.clear()
 
         try:
             if target_place_id:
@@ -64,10 +70,6 @@ class SEOAuditEngine:
             elif target_url:
                 self._audit_single_url(target_url, run=run, issues=issues, tested_urls=tested_urls)
             else:
-                # Clean up old open and orphan issues from previous runs for a fresh state
-                SEOIssue.objects.filter(status=SEOIssue.STATUS_OPEN).delete()
-                SEOIssue.objects.filter(audit_run__isnull=True).delete()
-
                 if audit_type in (SEOAuditRun.AUDIT_TYPE_FULL, SEOAuditRun.AUDIT_TYPE_SITEMAP, SEOAuditRun.AUDIT_TYPE_TECHNICAL):
                     self._audit_sitemap_and_robots(run=run, issues=issues, tested_urls=tested_urls)
 
@@ -76,11 +78,9 @@ class SEOAuditEngine:
                     self._audit_seo_landings(run=run, issues=issues, tested_urls=tested_urls, target_language=target_language)
                     self._audit_places_all(run=run, issues=issues, tested_urls=tested_urls, target_language=target_language, limit=limit)
 
+            present_keys = {(issue.url, issue.language, issue.issue_code) for issue in issues}
             if only_errors:
                 issues = [i for i in issues if i.severity == SEOIssue.SEVERITY_CRITICAL]
-
-            # Save issues
-            SEOIssue.objects.bulk_create(issues, ignore_conflicts=True)
 
             error_count = sum(1 for i in issues if i.severity == SEOIssue.SEVERITY_CRITICAL)
             warning_count = sum(1 for i in issues if i.severity == SEOIssue.SEVERITY_WARNING)
@@ -97,7 +97,20 @@ class SEOAuditEngine:
                 f"Found {error_count} critical errors, {warning_count} warnings. "
                 f"{auto_fixable_count} safe Level A auto-fixable items."
             )
-            run.save()
+            # A scanner failure must leave earlier evidence intact. Reconcile only
+            # invariants actually evaluated, retaining both run and issue history.
+            with transaction.atomic():
+                SEOIssue.objects.bulk_create(issues)
+                verified_absent = self.checked_issue_keys - present_keys
+                previous = SEOIssue.objects.filter(
+                    status=SEOIssue.STATUS_OPEN, detected_at__lt=run.started_at,
+                    url__in={key[0] for key in verified_absent},
+                ).values_list("pk", "url", "language", "issue_code")
+                resolved_ids = [pk for pk, path, language, code in previous if (path, language, code) in verified_absent]
+                SEOIssue.objects.filter(pk__in=resolved_ids, status=SEOIssue.STATUS_OPEN).update(
+                    status=SEOIssue.STATUS_RESOLVED, last_checked_at=run.finished_at,
+                )
+                run.save()
 
         except Exception as exc:
             run.status = SEOAuditRun.STATUS_FAILED
@@ -117,6 +130,7 @@ class SEOAuditEngine:
     def _audit_single_url(self, path: str, *, run: SEOAuditRun, issues: list[SEOIssue], tested_urls: set[str]):
         tested_urls.add(path)
         response = self._get_page(path)
+        self._checked(path, "all", "http_connection_failed")
         if response is None:
             issues.append(
                 SEOIssue(
@@ -131,6 +145,7 @@ class SEOAuditEngine:
             )
             return
 
+        self._checked(path, "all", "non_200_status")
         if response.status_code != 200:
             issues.append(
                 SEOIssue(
@@ -152,6 +167,7 @@ class SEOAuditEngine:
     def _audit_sitemap_and_robots(self, *, run: SEOAuditRun, issues: list[SEOIssue], tested_urls: set[str]):
         # Robots.txt
         robots_res = self._get_page("/robots.txt")
+        self._checked("/robots.txt", "all", "robots_txt_missing")
         tested_urls.add("/robots.txt")
         if not robots_res or robots_res.status_code != 200:
             issues.append(
@@ -167,6 +183,7 @@ class SEOAuditEngine:
                 )
             )
         else:
+            self._checked("/robots.txt", "all", "robots_sitemap_missing")
             robots_text = robots_res.content.decode("utf-8", errors="replace")
             if "Sitemap:" not in robots_text:
                 issues.append(
@@ -184,6 +201,7 @@ class SEOAuditEngine:
 
         # Sitemap.xml
         sitemap_res = self._get_page("/sitemap.xml")
+        self._checked("/sitemap.xml", "all", "sitemap_unavailable")
         tested_urls.add("/sitemap.xml")
         if not sitemap_res or sitemap_res.status_code != 200:
             issues.append(
@@ -200,6 +218,7 @@ class SEOAuditEngine:
             )
             return
 
+        self._checked("/sitemap.xml", "all", "sitemap_has_x_robots_tag", "sitemap_invalid_xml")
         if "X-Robots-Tag" in sitemap_res.headers:
             issues.append(
                 SEOIssue(
@@ -217,6 +236,7 @@ class SEOAuditEngine:
 
         try:
             root = ET.fromstring(sitemap_res.content)
+            self._checked("/sitemap.xml", "all", "sitemap_duplicate_urls", "sitemap_unwanted_urls", "sitemap_missing_published_places")
             ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
             loc_elements = [u.find("s:loc", ns) for u in root.findall("s:url", ns)]
             locs = [l.text for l in loc_elements if l is not None and l.text]
@@ -509,6 +529,9 @@ class SEOAuditEngine:
         lang: str = "az",
         place: Place | None = None,
     ):
+        self._checked(path, lang, "missing_title", "missing_meta_description", "missing_canonical", "missing_hreflangs", "images_missing_alt")
+        if page_type in ("place_detail", "home", "seo_landing"):
+            self._checked(path, lang, "missing_schema_json_ld")
         # 1. Title tag
         title_match = re.search(r"<title>(.*?)</title>", html, re.IGNORECASE | re.DOTALL)
         if not title_match or not title_match.group(1).strip():
@@ -527,6 +550,7 @@ class SEOAuditEngine:
                 )
             )
         else:
+            self._checked(path, lang, "title_too_short")
             title_text = title_match.group(1).strip()
             if len(title_text) < 10:
                 issues.append(
@@ -581,6 +605,7 @@ class SEOAuditEngine:
                 )
             )
         else:
+            self._checked(path, lang, "canonical_not_https")
             canonical_href = canonical_match.group(1).strip()
             if not canonical_href.startswith("https://"):
                 issues.append(
@@ -602,6 +627,8 @@ class SEOAuditEngine:
         # 4. Hreflang links
         hreflang_matches = re.findall(r'<link\s+rel=["\']alternate["\']\s+hreflang=["\'](.*?)["\']\s+href=["\'](.*?)["\']', html, re.IGNORECASE)
         hreflangs = {lang_code.lower(): href for lang_code, href in hreflang_matches}
+        if hreflangs:
+            self._checked(path, lang, "missing_x_default_hreflang")
         if not hreflangs:
             issues.append(
                 SEOIssue(
@@ -635,6 +662,8 @@ class SEOAuditEngine:
 
         # 5. Schema JSON-LD validation
         json_ld_matches = re.findall(r'<script\s+type=["\']application/ld\+json["\']>(.*?)</script>', html, re.IGNORECASE | re.DOTALL)
+        if json_ld_matches:
+            self._checked(path, lang, "invalid_json_ld")
         if not json_ld_matches and page_type in ("place_detail", "home", "seo_landing"):
             issues.append(
                 SEOIssue(
@@ -658,6 +687,7 @@ class SEOAuditEngine:
                 if isinstance(data, dict):
                     schema_type = data.get("@type", "")
                     if schema_type == "BreadcrumbList":
+                        self._checked(path, lang, "empty_breadcrumb_schema")
                         elements = data.get("itemListElement", [])
                         if not elements:
                             issues.append(

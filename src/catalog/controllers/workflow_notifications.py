@@ -13,6 +13,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from catalog.models import WorkflowNotification
 from catalog.services import business_team
+from catalog.services.email_identity import current_email_for_privileges
 
 _INVITATION_TARGET_TYPES = {
     'place_team_invitation': 'place',
@@ -21,11 +22,11 @@ _INVITATION_TARGET_TYPES = {
 
 
 def _mine(user):
-    current_email = (user.email or '').strip().lower()
-    rows = WorkflowNotification.objects.filter(recipient_user=user).filter(Q(recipient_email='') | Q(recipient_email__iexact=current_email))
-    if user.email:
+    current_email = current_email_for_privileges(user)
+    rows = WorkflowNotification.objects.filter(recipient_user=user, recipient_email='')
+    if current_email:
         from django.contrib.auth import get_user_model
-        if get_user_model().objects.filter(email__iexact=user.email, is_active=True).count() == 1:
+        if get_user_model().objects.filter(email__iexact=current_email, is_active=True).count() == 1:
             rows = WorkflowNotification.objects.filter(
                 (Q(recipient_user=user) & (Q(recipient_email='') | Q(recipient_email__iexact=current_email)))
                 | Q(recipient_user__isnull=True, recipient_email__iexact=current_email))
@@ -95,9 +96,10 @@ def _inbox_items(user):
                  .select_related('place', 'organization', 'program', 'activity__place',
                                  'offering_group__activity__place')}
     access_cache = {}
+    current_email = current_email_for_privileges(user)
     for item in items:
         item.moderation = _moderation_detail(user, item, revisions.get(item.entity_id), access_cache)
-        item.can_accept = item.event_kind == 'team_invitation' and _invitation_current(item, (user.email or '').strip().lower(), timezone.now())
+        item.can_accept = bool(current_email) and item.event_kind == 'team_invitation' and _invitation_current(item, current_email, timezone.now())
         item.can_reject = item.can_accept and item.entity_type in _INVITATION_TARGET_TYPES and item.entity_version == 1
         item.join_action_url = ''
         if item.event_kind == 'join_confirmation' and item.entity_id in joins and _join_confirmation_current(item):
@@ -161,7 +163,7 @@ def reject_invitation(request, notification_id):
             from catalog.services.workflow_notifications import _invitation_current
             if (current.entity_type != item.entity_type or current.entity_id != invitation.pk
                     or current.entity_version != 1
-                    or not _invitation_current(current, (actor.email or '').strip().lower(), timezone.now())):
+                    or not _invitation_current(current, current_email_for_privileges(actor), timezone.now())):
                 raise business_team.TeamConflict('Invitation no longer current.')
             business_team.decide_invitation(
                 actor=actor, target_type=target_type, invitation_id=invitation.pk,

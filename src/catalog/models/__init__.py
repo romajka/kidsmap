@@ -1,7 +1,7 @@
 from .location_override import PlaceLocationOverride
 from .category import Category, Subcategory
 from .place import Place, PlacePhoto, PlaceScheduleDay, PlaceScheduleInterval, Event, EventPhoto, PlaceLike, PlaceReviewsByClub
-from .user import AccountDeletionAudit, AccountDeletionRequest, UserProfile, SiteRegisteredUser, StaffAccessUser, UserEmailVerification
+from .user import AccountDeletionAudit, AccountDeletionRequest, PendingEmailChange, UserProfile, SiteRegisteredUser, StaffAccessUser, UserEmailVerification
 from .review import PlaceReviewCooldown, PlaceReview, PlaceReviewReaction, SiteReview, SiteReviewReaction
 from .owner import PlaceOwnershipRequest, PlaceOwnershipRequestAudit, OwnerTeamMembership, OwnerTeamInvitation, PlaceChangeAudit
 from .site import SiteSettings, SiteGalleryImage, SiteBrandingSettings, SiteAboutSettings, SiteContactsSettings, SiteFooterSettings, SiteEmptyStateSettings, SiteVisibilitySettings, SiteAnalytics, SiteVisit, FunnelEvent, CatalogContentSettings
@@ -40,6 +40,7 @@ __all__ = [
     'SiteRegisteredUser',
     'StaffAccessUser',
     'UserEmailVerification',
+    'PendingEmailChange',
     'AccountDeletionRequest',
     'AccountDeletionAudit',
     'PlaceReview',

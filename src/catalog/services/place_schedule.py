@@ -4,6 +4,8 @@ import json
 from dataclasses import dataclass
 from datetime import time
 
+from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import get_language, gettext as _, override
 
@@ -298,7 +300,39 @@ class ScheduleValidationResult:
 
 
 def validate_schedule_payload(raw_value) -> ScheduleValidationResult:
-    raw_days = parse_schedule_payload(raw_value)
+    # Display parsing is deliberately forgiving for old saved drafts. A writer
+    # must distinguish a missing input from corrupt syntax or schema instead of
+    # interpreting corruption as an explicit week of closed days.
+    payload = raw_value
+    if payload is None or (isinstance(payload, str) and not payload.strip()):
+        payload = []
+    elif isinstance(payload, str):
+        try:
+            payload = json.loads(payload)
+        except (TypeError, ValueError):
+            payload = None
+    if isinstance(payload, dict):
+        payload = payload.get('days')
+    invalid = not isinstance(payload, list)
+    raw_days = payload if isinstance(payload, list) else []
+    seen_weekdays = set()
+    for day in raw_days:
+        if not isinstance(day, dict) or day.get('weekday') not in WEEKDAY_ORDER:
+            invalid = True
+            continue
+        weekday = day['weekday']
+        if weekday in seen_weekdays:
+            invalid = True
+        seen_weekdays.add(weekday)
+        intervals = day.get('intervals', [])
+        if intervals is not None and (not isinstance(intervals, list)
+                or any(not isinstance(interval, dict) for interval in intervals)):
+            invalid = True
+        if any(isinstance(day.get(flag), (dict, list)) for flag in ('is_closed', 'is_24_hours')):
+            invalid = True
+    if invalid:
+        return ScheduleValidationResult(days=build_default_schedule_payload(),
+            errors={'__all__': [_("Проверьте расписание работы.")]})
     indexed_raw = {}
     for item in raw_days:
         if not isinstance(item, dict):
@@ -412,9 +446,14 @@ def serialize_place_schedule(place) -> list[dict[str, object]]:
     return [days_by_weekday.get(weekday, build_default_schedule_payload()[index]) for index, weekday in enumerate(WEEKDAY_ORDER)]
 
 
+@transaction.atomic
 def sync_place_schedule(place, days: list[dict[str, object]]) -> None:
     from catalog.models import PlaceScheduleDay, PlaceScheduleInterval
 
+    checked = validate_schedule_payload(days)
+    if checked.errors:
+        raise ValidationError({'structured_schedule': _("Проверьте расписание работы.")})
+    days = checked.days
     place.schedule_days.all().delete()
     if not is_meaningful_schedule(days):
         return

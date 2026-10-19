@@ -1,6 +1,9 @@
 from django.contrib import admin, messages
-from django.utils.html import format_html
+from django.core.exceptions import PermissionDenied
+from django.utils.decorators import method_decorator
+from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_POST
 
 from catalog.models import SEOAuditRun, SEOChange, SEOIssue
 from catalog.services.seo_fix_engine import SEOFixEngine
@@ -58,7 +61,10 @@ class SEOAuditRunAdmin(admin.ModelAdmin):
         ]
         return custom_urls + urls
 
+    @method_decorator(require_POST)
     def run_audit_now_view(self, request):
+        if not request.user.has_perms(("catalog.add_seoauditrun", "catalog.add_seoissue", "catalog.change_seoissue")):
+            raise PermissionDenied
         from catalog.services.seo_audit_engine import SEOAuditEngine
         try:
             engine = SEOAuditEngine(environment="admin_trigger")
@@ -74,25 +80,34 @@ class SEOAuditRunAdmin(admin.ModelAdmin):
         from django.shortcuts import redirect
         return redirect("admin:catalog_seoauditrun_changelist")
 
+    @method_decorator(require_POST)
     def apply_fixes_now_view(self, request):
+        if not request.user.has_perms(("catalog.change_seoissue", "catalog.add_seochange")):
+            raise PermissionDenied
         from catalog.services.seo_fix_engine import SEOFixEngine
         try:
             engine = SEOFixEngine()
             changes = engine.apply_safe_fixes(dry_run=False)
-            if changes:
+            fixed_count = SEOIssue.objects.filter(pk__in=[change.issue_id for change in changes], status=SEOIssue.STATUS_FIXED).count()
+            if fixed_count:
                 messages.success(
                     request,
-                    _("⚡ Успешно применено %(count)s безопасных автоисправлений Level A!") % {"count": len(changes)}
+                    _("⚡ Успешно применено %(count)s безопасных автоисправлений Level A!") % {"count": fixed_count}
                 )
             else:
-                messages.info(request, _("⚡ Нет открытых проблем Level A — все автоисправления уже применены."))
+                messages.info(request, _("Автоматическое исправление не подтверждено. Проверьте открытые замечания и результаты повторной проверки."))
         except Exception as exc:
             messages.error(request, _("Ошибка применения автоисправлений: %(error)s") % {"error": exc})
 
         from django.shortcuts import redirect
         return redirect("admin:catalog_seoauditrun_changelist")
 
+    @method_decorator(require_POST)
     def clear_history_now_view(self, request):
+        if not self.has_delete_permission(request) or not request.user.has_perms((
+            "catalog.delete_seoauditrun", "catalog.delete_seoissue", "catalog.change_seochange",
+        )):
+            raise PermissionDenied
         try:
             runs_count = SEOAuditRun.objects.count()
             issues_count = SEOIssue.objects.count()
@@ -139,52 +154,53 @@ class SEOAuditRunAdmin(admin.ModelAdmin):
         issues_url = reverse("admin:catalog_seoissue_changelist") + f"?audit_run__id__exact={obj.id}"
         issues_list = obj.issues.all()[:50]
 
-        issues_rows_html = ""
+        issues_rows = []
         for issue in issues_list:
             level_bg = "#22c55e" if issue.level == "A" else "#f97316" if issue.level == "B" else "#ef4444"
             sev_bg = "#dc2626" if issue.severity == "critical" else "#f59e0b"
-            issues_rows_html += f"""
+            issues_rows.append(format_html("""
             <tr style="border-bottom: 1px solid #f1f5f9;">
-                <td style="padding: 8px 10px;"><span style="background: {level_bg}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700;">Level {issue.level}</span></td>
-                <td style="padding: 8px 10px;"><span style="background: {sev_bg}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px;">{issue.get_severity_display()}</span></td>
-                <td style="padding: 8px 10px; font-family: monospace; font-size: 12px; font-weight: 600;">{issue.issue_code}</td>
-                <td style="padding: 8px 10px;"><a href="{issue.url}" target="_blank" style="color: #2563eb; text-decoration: underline;">{issue.url}</a></td>
-                <td style="padding: 8px 10px; font-size: 13px; color: #334155;">{issue.description}</td>
+                <td style="padding: 8px 10px;"><span style="background: {}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700;">Level {}</span></td>
+                <td style="padding: 8px 10px;"><span style="background: {}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px;">{}</span></td>
+                <td style="padding: 8px 10px; font-family: monospace; font-size: 12px; font-weight: 600;">{}</td>
+                <td style="padding: 8px 10px; overflow-wrap: anywhere;">{}</td>
+                <td style="padding: 8px 10px; font-size: 13px; color: #334155; overflow-wrap: anywhere;">{}</td>
             </tr>
-            """
+            """, level_bg, issue.level, sev_bg, issue.get_severity_display(), issue.issue_code, issue.url, issue.description))
 
-        if not issues_rows_html:
-            issues_rows_html = '<tr><td colspan="5" style="padding: 16px; text-align: center; color: #166534; font-weight: 600;">🎉 Ошибок не обнаружено! Все проверенные URL в идеальном порядке.</td></tr>'
+        issues_rows_html = format_html_join("", "{}", ((row,) for row in issues_rows))
+        if not issues_rows:
+            issues_rows_html = format_html('<tr><td colspan="5" style="padding: 16px; text-align: center;">{}</td></tr>', _("В этом запуске замечания не сохранены. Проверьте тип, статус и границы аудита."))
 
         return format_html(
-            f"""
+            """
             <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 14px; margin-bottom: 16px;">
                     <div>
-                        <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">📊 Отчёт аудита #{obj.id}</h3>
-                        <span style="font-size: 13px; color: #64748b;">Тип: {obj.get_audit_type_display()} | Статус: {obj.get_status_display()}</span>
+                        <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">📊 Отчёт аудита #{}</h3>
+                        <span style="font-size: 13px; color: #64748b;">Тип: {} | Статус: {}</span>
                     </div>
-                    <a href="{issues_url}" style="background-color: #2563eb; color: #ffffff; font-weight: 600; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px;">
-                        🔍 Открыть список проблем ({obj.error_count + obj.warning_count})
+                    <a href="{}" style="background-color: #2563eb; color: #ffffff; font-weight: 600; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px;">
+                        🔍 Открыть список проблем ({})
                     </a>
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr)); gap: 12px; margin-bottom: 20px;">
                     <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
                         <div style="font-size: 12px; color: #64748b; font-weight: 600;">ПРОВЕРЕНО URL</div>
-                        <div style="font-size: 22px; font-weight: 800; color: #0f172a;">{obj.total_urls}</div>
+                        <div style="font-size: 22px; font-weight: 800; color: #0f172a;">{}</div>
                     </div>
                     <div style="background: #fef2f2; padding: 12px; border-radius: 8px; border: 1px solid #fecaca; text-align: center;">
                         <div style="font-size: 12px; color: #991b1b; font-weight: 600;">ОШИБОК</div>
-                        <div style="font-size: 22px; font-weight: 800; color: #dc2626;">{obj.error_count}</div>
+                        <div style="font-size: 22px; font-weight: 800; color: #dc2626;">{}</div>
                     </div>
                     <div style="background: #fff7ed; padding: 12px; border-radius: 8px; border: 1px solid #fed7aa; text-align: center;">
                         <div style="font-size: 12px; color: #9a3412; font-weight: 600;">ПРЕДУПРЕЖДЕНИЙ</div>
-                        <div style="font-size: 22px; font-weight: 800; color: #d97706;">{obj.warning_count}</div>
+                        <div style="font-size: 22px; font-weight: 800; color: #d97706;">{}</div>
                     </div>
                     <div style="background: #f0fdf4; padding: 12px; border-radius: 8px; border: 1px solid #bbf7d0; text-align: center;">
                         <div style="font-size: 12px; color: #166534; font-weight: 600;">АВТОИСПРАВЛЕНИЙ</div>
-                        <div style="font-size: 22px; font-weight: 800; color: #16a34a;">{obj.auto_fix_count}</div>
+                        <div style="font-size: 22px; font-weight: 800; color: #16a34a;">{}</div>
                     </div>
                 </div>
 
@@ -201,12 +217,14 @@ class SEOAuditRunAdmin(admin.ModelAdmin):
                             </tr>
                         </thead>
                         <tbody>
-                            {issues_rows_html}
+                            {}
                         </tbody>
                     </table>
                 </div>
             </div>
-            """
+            """, obj.id, obj.get_audit_type_display(), obj.get_status_display(), issues_url,
+            obj.error_count + obj.warning_count, obj.total_urls, obj.error_count,
+            obj.warning_count, obj.auto_fix_count, issues_rows_html,
         )
     formatted_report_html.short_description = _("Наглядный отчёт аудита")
 
@@ -302,10 +320,10 @@ class SEOIssueAdmin(admin.ModelAdmin):
                 '<a class="button" href="{}" target="_blank" style="background-color: #475569; color: #ffffff; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">⚙️ Редактировать настройки</a>',
                 edit_url,
             )
-        return format_html('<span style="color: #94a3b8; font-size: 12px;">—</span>')
+        return format_html('<span style="color: #94a3b8; font-size: 12px;">{}</span>', "—")
     edit_object_button.short_description = _("Быстрое редактирование")
 
-    @admin.action(description=_("Утвердить выбранные предложения (Level B)"))
+    @admin.action(description=_("Утвердить выбранные предложения (Level B)"), permissions=["change"])
     def approve_selected_proposals(self, request, queryset):
         approved_count = 0
         for issue in queryset.filter(level=SEOIssue.LEVEL_B, status=SEOIssue.STATUS_OPEN):
@@ -314,7 +332,7 @@ class SEOIssueAdmin(admin.ModelAdmin):
             approved_count += 1
         self.message_user(request, f"Утверждено {approved_count} предложений Level B.", messages.SUCCESS)
 
-    @admin.action(description=_("Отклонить выбранные предложения"))
+    @admin.action(description=_("Отклонить выбранные предложения"), permissions=["change"])
     def reject_selected_proposals(self, request, queryset):
         rejected_count = 0
         for issue in queryset.filter(status=SEOIssue.STATUS_OPEN):
@@ -323,7 +341,7 @@ class SEOIssueAdmin(admin.ModelAdmin):
             rejected_count += 1
         self.message_user(request, f"Отклонено {rejected_count} проблем/предложений.", messages.WARNING)
 
-    @admin.action(description=_("Повторно проверить статус выбранных проблем"))
+    @admin.action(description=_("Повторно проверить статус выбранных проблем"), permissions=["change"])
     def recheck_selected_issues(self, request, queryset):
         from catalog.services.seo_fix_engine import SEOFixEngine
         engine = SEOFixEngine()
@@ -365,10 +383,10 @@ class SEOChangeAdmin(admin.ModelAdmin):
     def rollback_badge(self, obj):
         if obj.is_rolled_back:
             return format_html('<span style="color: red; font-weight: bold;">Откачено ({})</span>', obj.rolled_back_at.strftime('%Y-%m-%d')) if obj.rolled_back_at else "Откачено"
-        return format_html('<span style="color: green;">Активно</span>')
+        return format_html('<span style="color: green;">{}</span>', _("Активно"))
     rollback_badge.short_description = _("Статус отката")
 
-    @admin.action(description=_("Откатить выбранные изменения SEO"))
+    @admin.action(description=_("Откатить выбранные изменения SEO"), permissions=["rollback"])
     def rollback_selected_changes(self, request, queryset):
         engine = SEOFixEngine()
         success_count = 0
@@ -383,3 +401,6 @@ class SEOChangeAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+    def has_rollback_permission(self, request):
+        return request.user.has_perms(("catalog.change_seochange", "catalog.change_seoissue", "catalog.change_place"))

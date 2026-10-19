@@ -14,6 +14,9 @@ log() {
 
 cd "$ROOT_DIR"
 
+# Before the failure trap, checkout, build or any container replacement.
+bash ./scripts/check-private-storage.sh
+
 if [[ ! -d .git ]]; then
   log "Git repository not found in $ROOT_DIR"
   exit 1

@@ -83,7 +83,6 @@ class MultipleFileField(forms.FileField):
 
 class PlaceScheduleEditorFormMixin:
     def _init_schedule_editor(self):
-        from catalog.services.place_schedule import parse_schedule_payload
         if "schedule_mode" in self.fields:
             # Older clients and saved browser drafts do not send this new field.
             # Treat an omitted value as the original weekly mode.
@@ -127,7 +126,7 @@ class PlaceScheduleEditorFormMixin:
         if not raw_value:
             raw_value = dump_schedule_payload(payload)
         else:
-            payload = parse_schedule_payload(raw_value)
+            payload = validate_schedule_payload(raw_value).days
 
         self.fields["structured_schedule"].initial = raw_value
         self.schedule_editor_payload = raw_value
@@ -152,7 +151,7 @@ class PlaceScheduleEditorFormMixin:
         schedule_mode = cleaned.get("schedule_mode") or getattr(self.instance, "schedule_mode", Place.SCHEDULE_MODE_REGULAR)
         cleaned["schedule_mode"] = schedule_mode
         self.schedule_editor_payload = raw_value
-        self.schedule_editor_errors = validation.errors if schedule_mode == Place.SCHEDULE_MODE_REGULAR else {}
+        self.schedule_editor_errors = validation.errors if schedule_mode == Place.SCHEDULE_MODE_REGULAR or '__all__' in validation.errors else {}
         self.cleaned_schedule_days = validation.days
         self.schedule_editor_days = [
             {
@@ -174,6 +173,8 @@ class PlaceScheduleEditorFormMixin:
     def save_schedule(self, place):
         from catalog.services.place_schedule import sync_place_schedule
 
+        if self.is_bound and not self.is_valid():
+            raise ValueError('Cannot save an invalid schedule form.')
         if place.schedule_mode == Place.SCHEDULE_MODE_REGULAR:
             sync_place_schedule(place, self.cleaned_schedule_days)
 

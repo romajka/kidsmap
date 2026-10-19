@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from catalog.models import EmailOutbox, WorkflowNotification
+from catalog.services.email_identity import current_email_for_privileges
 
 MAX_ATTEMPTS = 5
 
@@ -29,10 +30,10 @@ def emit(*, kind, entity_type, entity_id, version, recipient_user=None,
         raise ValidationError('Invalid notification identity.')
     if event_context is not None and not isinstance(event_context, dict):
         raise ValidationError('Invalid notification context.')
-    address = _email(recipient_email or (recipient_user.email if recipient_user else ''))
+    address = _email(recipient_email) if recipient_email else current_email_for_privileges(recipient_user)
     if recipient_user is None and address:
         matches = list(get_user_model().objects.filter(email__iexact=address, is_active=True).order_by('pk')[:2])
-        if len(matches) == 1:
+        if len(matches) == 1 and current_email_for_privileges(matches[0]) == address:
             recipient_user = matches[0]
     if recipient_user is None and not address:
         raise ValidationError('Notification recipient required.')
@@ -81,7 +82,7 @@ def _join_confirmation_current(notification):
 def _delivery_allowed(notification, address, now):
     if notification.recipient_user_id:
         recipient = notification.recipient_user
-        if not recipient or not recipient.is_active or _email(recipient.email) != address:
+        if not recipient or current_email_for_privileges(recipient) != address:
             return False
     return _invitation_current(notification, address, now) and _join_confirmation_current(notification)
 

@@ -245,7 +245,12 @@ def _has_pricing_plan_q() -> Exists:
     from catalog.models import PricingPlan
 
     return Exists(
-        PricingPlan.objects.filter(place_id=OuterRef("pk")).filter(_pricing_plan_price_q())
+        PricingPlan.objects.filter(
+            Q(place_id=OuterRef("pk"), offering_group__isnull=True)
+            | Q(place__isnull=True, offering_group__activity__place_id=OuterRef("pk"),
+                offering_group__activity__status="published", offering_group__activity__archived_at__isnull=True,
+                offering_group__archived_at__isnull=True)
+        ).filter(_pricing_plan_price_q())
     )
 
 

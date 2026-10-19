@@ -413,7 +413,11 @@ def review(*,actor,revision_id,version,approve,note='',final_reject=False):
         now=timezone.now()
         if kind=='place':Place.objects.filter(pk=pk).update(status='published',is_active=True,published_at=target.published_at or now,moderated_at=now,moderated_by=actor,rejection_reason='')
         elif kind in {'program','organization'}:type(target).objects.filter(pk=pk).update(status='published',approved_at=now)
-        elif kind=='activity':Activity.objects.filter(pk=pk).update(status='published')
+        elif kind=='activity':
+            Activity.objects.filter(pk=pk).update(status='published')
+            from catalog.services.pricing_plans import sync_legacy_price_fields
+            if target.offering_groups.filter(pricing_plan_records__isnull=False).exists():
+                sync_legacy_price_fields(target.place_id)
         if kind=='program':
             from catalog.services.organization_ownership import approved_program_data
             target.refresh_from_db();rows=list(Activity.objects.select_for_update().filter(program_id=pk,archived_at__isnull=True).order_by('pk'))
@@ -468,5 +472,9 @@ def unpublish(*, actor, target_type, target_id, expected_version):
     if target_type == 'place':
         values['is_active'] = False
     type(target).objects.filter(pk=target.pk).update(**values)
+    if target_type == 'activity':
+        from catalog.services.pricing_plans import sync_legacy_price_fields
+        if target.offering_groups.filter(pricing_plan_records__isnull=False).exists():
+            sync_legacy_price_fields(target.place_id)
     target.refresh_from_db()
     return target

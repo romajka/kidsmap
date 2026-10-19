@@ -228,7 +228,7 @@ def activity_texts(activity, language, source):
             'supplement': supplement, 'supplement_language': supplement_lang}
 
 
-def present(obj, language=None):
+def present(obj, language=None, *, organizations_enabled=None):
     lang = language_code(language)
     kind = obj._meta.model_name
     result = {'kind':kind, 'id':obj.pk, 'visible':visible(obj), 'name':'', 'description':'',
@@ -270,7 +270,7 @@ def present(obj, language=None):
         result['map_available'] = map_identity(place) is not None
         result['image_url'] = place.public_image_url
         from catalog.services.features import is_organizations_section_enabled
-        if org and is_organizations_section_enabled():
+        if org and (is_organizations_section_enabled() if organizations_enabled is None else organizations_enabled):
             org_name, org_lang = translated(org, 'name', lang)
             result['organization'] = {'name':org_name, 'name_language':org_lang, 'url':public_url(org,lang)}
         price_place = place
@@ -346,13 +346,15 @@ def prepare_cards(places, language=None, *, filters=None):
             if org:
                 mark(org,org.status=='published' and org.archived_at is None and org.approved_at is not None)
             place._public_organization = org if org and org._public_visible and affiliation_current(place,org) else None
+        from catalog.services.features import is_organizations_section_enabled
+        organizations_enabled = is_organizations_section_enabled() if any(p._public_organization for p in batch) else False
         result=[]
         for old in source:
             place=fresh.get(old.pk)
             if place is None or not place._public_visible:
                 continue
             place.is_liked=getattr(old,'is_liked',False)
-            offers=[];matched_plans=[]
+            offers=[];matched_plans=[];activity_presentations=[]
             for activity in by_place[place.pk]:
                 mark(activity)
                 if activity.program_id:
@@ -361,7 +363,8 @@ def prepare_cards(places, language=None, *, filters=None):
                     mark(program.organization, program.organization.status=='published' and program.organization.approved_at is not None and program.organization.archived_at is None)
                 if filters is not None and not activity._public_groups:
                     continue
-                data=present(activity,language)
+                data=present(activity,language,organizations_enabled=organizations_enabled)
+                activity_presentations.append(data)
                 offers.append({'id':activity.pk,'name':data['name'],'url':data['url'],'groups':data['groups']})
                 matched_plans.extend(p for g in activity._public_groups for p in g._public_plans)
             if offer_filtered and by_place[place.pk]:
@@ -371,9 +374,11 @@ def prepare_cards(places, language=None, *, filters=None):
                 place.price_from=place.price_to=None
                 for code in ('az','ru','en'):
                     setattr(place,'custom_price_badge_'+code,'')
-            presentation=present(place,language)
+            presentation=present(place,language,organizations_enabled=organizations_enabled)
             presentation.update(matched_offers=offers,exact_filtered=exact)
             place._card_presentation=presentation
+            place._card_activities=activity_presentations
+            place._card_organization_id=place._public_organization.pk if place._public_organization else None
             result.append(place)
         return result
     finally:

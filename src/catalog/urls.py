@@ -5,6 +5,7 @@ from .controllers.public_details import organization_detail as public_organizati
 from .controllers.server_draft_api import draft_collection, draft_detail, draft_photo, draft_materialize
 from .controllers.business_team_api import business_team_action, business_permission_config
 from .controllers.workflow_notifications import inbox, mark_read, accept_invitation, reject_invitation
+from .controllers.email_change_controller import email_change
 from .controllers.location_resolution import location_resolve
 from .controllers.typed_reviews import target_reviews, review_action
 from .controllers.specialist_workspace import (specialist_workspace_index, specialist_workspace_profile,
@@ -159,6 +160,7 @@ urlpatterns = [
     path("listing-rules/", legal_page, {"page_slug": "listing-rules"}, name="listing_rules"),
     path("account/", account_dashboard, name="account_dashboard"),
     path("account/profile/", account_profile, name="account_profile"),
+    path("account/email-change/", email_change, name="account_email_change"),
     path("account/favorites/", account_favorites, name="account_favorites"),
     path("account/settings/", account_settings, name="account_settings"),
     path("account/deletion/", account_deletion_request, name="account_deletion_request"),

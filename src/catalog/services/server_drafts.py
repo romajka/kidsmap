@@ -1,6 +1,7 @@
 """Versioned private working copies; no live content writes on autosave."""
 from django.core.exceptions import FieldDoesNotExist, PermissionDenied, ValidationError
 from django.db import transaction
+from django.core.files.storage import FileSystemStorage
 from catalog.models import ServerDraft
 from catalog.services import publication
 
@@ -121,13 +122,23 @@ def read(*, user, draft_id):
     return draft
 
 
+class PrivateDraftStorage(FileSystemStorage):
+    def url(self, name):
+        raise ValueError('Private drafts are available only through an authorized reader')
+
+
 def private_storage():
     """Store outside MEDIA_ROOT, which nginx serves without Django auth."""
     from pathlib import Path
     from django.conf import settings
-    from django.core.files.storage import FileSystemStorage
-    media = Path(settings.MEDIA_ROOT)
-    return FileSystemStorage(location=media.parent / ('private_' + media.name + '_drafts'), base_url=None)
+    from django.core.exceptions import ImproperlyConfigured
+    media = Path(settings.MEDIA_ROOT).resolve()
+    configured = getattr(settings, 'PRIVATE_DRAFT_MEDIA_ROOT', None)
+    root = Path(configured or (media.parent / ('private_' + media.name + '_drafts'))).resolve()
+    if root == media or root.is_relative_to(media):
+        raise ImproperlyConfigured('Private drafts must be outside MEDIA_ROOT')
+    return PrivateDraftStorage(location=root, base_url=None,
+        file_permissions_mode=0o600, directory_permissions_mode=0o700)
 
 
 @transaction.atomic

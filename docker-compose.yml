@@ -110,10 +110,14 @@ services:
       DEFAULT_FROM_EMAIL: "${DEFAULT_FROM_EMAIL:-KidsMap <info@kidsmap.az>}"
       SERVER_EMAIL: "${SERVER_EMAIL:-info@kidsmap.az}"
       MEDIA_CACHE_MAX_AGE: "${MEDIA_CACHE_MAX_AGE:-604800}"
+      PRIVATE_MEDIA_ROOT: /kidsmap-private-media
+      PRIVATE_DRAFT_MEDIA_ROOT: /app/private_media_drafts
       DATABASE_URL: "${DATABASE_URL:?DATABASE_URL is required}"
       REDIS_URL: "${REDIS_URL:-redis://redis:6379/0}"
       USE_RUNSERVER: "${USE_RUNSERVER:-0}"
       RUN_COLLECTSTATIC_ON_RELEASE: "${RUN_COLLECTSTATIC_ON_RELEASE:-1}"
+      # An operator confirms maintenance; this flag does not stop any writer.
+      KIDSMAP_WRITERS_STOPPED: "${KIDSMAP_WRITERS_STOPPED:-0}"
       GUNICORN_WORKERS: "${GUNICORN_WORKERS:-3}"
       GUNICORN_TIMEOUT: "${GUNICORN_TIMEOUT:-120}"
     volumes:
@@ -121,8 +125,13 @@ services:
       # Nginx serves these same host paths directly in production.
       - ./media:/app/media
       - ./staticfiles:/app/staticfiles
+      # Authenticated downloads only; nginx must never serve these volumes.
+      - private_documents:/kidsmap-private-media
+      - private_drafts:/app/private_media_drafts
 
 volumes:
   mariadb_data:
   postgres_data:
   redis_data:
+  private_documents:
+  private_drafts:
