@@ -1,0 +1,10 @@
+### Result
+{"rows":[{"path":"/ru/reviews/place/target/1/","status":200,"main":2,"nested":1,"expectedSingleMain":false},{"path":"/ru/reviews/activity/target/1/","status":200,"main":2,"nested":1,"expectedSingleMain":false},{"path":"/ru/reviews/specialist/target/1/","status":200,"main":2,"nested":1,"expectedSingleMain":false},{"path":"/ru/reviews/event/target/1/","status":200,"main":2,"nested":1,"expectedSingleMain":false},{"path":"/ru/account/notifications/?tab=all","status":200,"main":2,"nested":1,"expectedSingleMain":false}],"expected":"single main landmark","redFailures":5}
+### Ran Playwright code
+```js
+await (async page=>{const rows=[];await page.context().route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());await page.goto('http://127.0.0.1:33420/qa/social11-login/author/');for(const path of [...['place','activity','specialist','event'].map(k=>'/ru/reviews/'+k+'/target/1/'),'/ru/account/notifications/?tab=all']){const r=await page.goto('http://127.0.0.1:33420'+path);rows.push({path,status:r.status(),main:await page.getByRole('main').count(),nested:await page.locator('main main').count(),expectedSingleMain:await page.getByRole('main').count()===1});}return{rows,expected:'single main landmark',redFailures:rows.filter(r=>!r.expectedSingleMain).length};}
+)(page);
+```
+### Page
+- Page URL: http://127.0.0.1:33420/ru/account/notifications/?tab=all
+- Page Title: Уведомления — KidsMap

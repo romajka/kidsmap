@@ -8,7 +8,7 @@
 
 {% block extrahead %}
   {{ block.super }}
-  <script src="{% static 'admin/js/kidsmap_site_media.js' %}" defer></script>
+  <script src="{% static 'admin/js/kidsmap_site_media.js' %}?v=20261018_site11_r1" defer></script>
 {% endblock %}
 
 {% block content_title %}
@@ -28,6 +28,7 @@
 {% block content %}
 <!-- CSRF Token for JS AJAX -->
 <input type="hidden" id="km-csrf-token" value="{{ csrf_token }}">
+{{ site_media_i18n|json_script:"km-site-media-i18n" }}
 
 <div class="km-site-media-page">
   <div class="km-media-layout">
@@ -81,6 +82,7 @@
             </div>
 
             <div class="km-media-actions">
+              {% if can_change_main_images %}
               <input type="file" accept="image/*" class="km-media-file-input" style="display: none;">
               <button type="button" class="km-btn-outline km-media-upload-btn">
                 <i class="fas fa-upload"></i> {% translate "Заменить файл" %}
@@ -93,6 +95,7 @@
               <a href="{{ img.edit_url }}" class="km-btn-link" style="margin-left:8px;">
                 <i class="fas fa-cog"></i> {% translate "В настройки" %}
               </a>
+              {% endif %}
               {% if img.preview_url %}
               <a href="{{ img.preview_url }}" class="km-btn-link" target="_blank" rel="noopener noreferrer" style="margin-left:8px;">
                 <i class="fas fa-external-link-alt"></i> {% translate "Открыть сайт" %}
@@ -134,8 +137,8 @@
                 <div class="km-gallery-card-footer">
                   <span class="km-gallery-card-size">{% if item.file %}{{ item.file.size }}{% else %}N/A{% endif %}</span>
                   <div class="km-gallery-card-actions">
-                    <a href="{{ item.edit_url }}" class="km-gallery-card-btn" title="{% translate 'Редактировать' %}"><i class="fas fa-pencil-alt"></i></a>
-                    <a href="{{ item.delete_url }}" class="km-gallery-card-btn delete" title="{% translate 'Удалить' %}"><i class="far fa-trash-alt"></i></a>
+                    {% if item.can_change %}<a href="{{ item.edit_url }}" class="km-gallery-card-btn" title="{% translate 'Редактировать' %}"><i class="fas fa-pencil-alt"></i></a>{% endif %}
+                    {% if item.can_delete %}<a href="{{ item.delete_url }}" class="km-gallery-card-btn delete" title="{% translate 'Удалить' %}"><i class="far fa-trash-alt"></i></a>{% endif %}
                   </div>
                 </div>
               </div>
@@ -143,12 +146,14 @@
             {% endfor %}
 
             <!-- Добавить новое изображение -->
+            {% if has_add_permission %}
             <div class="km-gallery-add" style="cursor: pointer;">
               <input type="file" multiple accept="image/*" class="km-gallery-file-input" style="display: none;">
               <i class="fas fa-plus-circle"></i>
               <span class="km-gallery-add-title">{% translate "Добавить изображение" %}</span>
               <span class="km-gallery-add-hint">{{ gallery.size_hint }}</span>
             </div>
+            {% endif %}
 
           </div>
         </div>

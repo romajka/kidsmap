@@ -1,0 +1,11 @@
+import json,subprocess
+from pathlib import Path
+R=Path('/mnt/c/kidsmap');O=Path(__file__).resolve().parent;Q=R/'.tmp/site19-pc-fix-r1'
+static=json.loads((Q/'static-result.json').read_text());(O/'evidence/static-runtime.json').write_bytes((Q/'static-result.json').read_bytes())
+probe=json.loads((O/'evidence/browser-locale-diagnose.json').read_text());assert len(probe['rows'])==3 and all(all(r['checks'].values()) for r in probe['rows'])
+initial=json.loads((O/'evidence/browser-flows.json').read_text());bad=[k for r in initial['rows'] for k,v in r['checks'].items() if not v];assert len(bad)==20 and set(bad)=={'localized_log'}
+source=(O/'browser-flows-initial.js').read_text();assert source.count('after.last_log_repr===info.model_label')==1
+source=source.replace(" const fields=",' const expectedLabels='+json.dumps(static['root_current_PO_labels'],ensure_ascii=False)+';\n const fields=',1).replace('after.last_log_repr===info.model_label','after.last_log_repr===expectedLabels[lang]').replace("const checks={post302:","const checks={admin_language:await p.locator('html').getAttribute('lang')===lang,post302:").replace("'/png/flow-'","'/png/flow-final-'")
+(O/'browser-flows-final.js').write_text(source)
+(O/'native-harness-refinement.json').write_text(json.dumps({'initial_rows':48,'initial_checks':324,'initial_pass':304,'initial_failed':20,'only_failed_assertion':'localized_log','cause':'Unprefixed QA /info uses defaultAZ through Django LocaleMiddleware/i18n_patterns; config.middleware admin-specific handling respects selected cookie. Original harness used helper current model_label for RU/EN expectation. Own LogEntry aggregate confirms10correct labels per language; all105backend tests pass.','proof':['evidence/browser-locale-diagnose.json','evidence/native-log-diagnosis.json','evidence/static-runtime.json'],'correction':'Same locale-aware equality now uses per-language labels evaluated with Django override against current isolated root MO; add actual admin HTML-language assertion. No application/fixture permission/existing test assertion change.','original_retained':True,'separate_PNG_prefix':True,'application_changes_after_green':0},ensure_ascii=False,indent=2))
+print('Native expected-label routing defect diagnosed; original20fail retained, strict locale checks corrected from current root MO')

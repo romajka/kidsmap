@@ -1,0 +1,11 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m10s15-fix-r1-app",
+    "python",
+    "/mnt/c/kidsmap/docs/qa/site-qa15-fix-2026-10-18-pc-r1/verify_runtime.py"
+  ],
+  "exit": 0,
+  "output": "{\"all_safety_checks\": true, \"template_compiled\": true, \"test_methods\": 55, \"catalog_fixture_exists\": true}\n"
+}

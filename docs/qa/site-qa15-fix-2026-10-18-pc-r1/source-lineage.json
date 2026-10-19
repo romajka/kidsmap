@@ -1,0 +1,60 @@
+{
+  "stages": [
+    {
+      "stage": "entry before application",
+      "backend": "954b151c81ad1f4f0f6ee3b02d2f5af30780be04e25dc0cfa96dacd4eb31e7c8",
+      "template": "7c8d5e6e26aa4755f4b8cc9e0919a4d96dfebde40f3855823a21998e68b6b709",
+      "test": null,
+      "evidence": [
+        "red-backend.json",
+        "browser-baseline.json"
+      ]
+    },
+    {
+      "stage": "exact initial candidate",
+      "backend": "c219782e166bb23f13796ba545de6c15d3b76ea1a613f28618853a25e39619fd",
+      "template": "6f71af8bbea5232abe3ea9b271df589dab4107b66bf731c15f9d6b9e476e555d",
+      "test": "b02e15d7efbbe64a457b43518f5c26379121deffbce038b355b4d73a840a7755",
+      "evidence": [
+        "green-backend.json (environment failure retained)",
+        "green-final-backend.json (fresh54PASS)",
+        "browser-green-smoke.json (functionalPASS/visualFAIL)",
+        "browser-green-matrix.json (functional1008PASS; not final visual proof)"
+      ]
+    },
+    {
+      "stage": "corrected conflict layout, initial backend",
+      "backend": "c219782e166bb23f13796ba545de6c15d3b76ea1a613f28618853a25e39619fd",
+      "template": "606d7f31fcc380c0021371997fefdb967a91880b83f675b6491a5e5c5101d6de",
+      "test": "b02e15d7efbbe64a457b43518f5c26379121deffbce038b355b4d73a840a7755",
+      "evidence": [
+        "render-final-backend.json (21PASS)",
+        "browser-final-smoke.json",
+        "browser-final-matrix.json (1224PASS)",
+        "browser-recovery.json",
+        "browser-file-media.json (functional48PASS/3preview404)",
+        "browser-editors.json (148PASS/2FAIL from separate baseline Catalog500)",
+        "browser-permissions.json"
+      ]
+    },
+    {
+      "stage": "current final backend, template, test22",
+      "backend": "b3b2c15ec1fd9236a50f03d88fa2098a2a0e736a7829cdbd7bbcd94f12508f63",
+      "template": "606d7f31fcc380c0021371997fefdb967a91880b83f675b6491a5e5c5101d6de",
+      "test": "1a32140dd0e3eb92f820cf0bae2f50aa25873cceb216da55a2f678e5723ec244",
+      "evidence": [
+        "preview-red.json (new method fails before final backend)",
+        "preview-final-backend.json (55PASS)",
+        "browser-preview-final-matrix.json",
+        "browser-preview-recovery.json",
+        "browser-preview-file-media.json",
+        "browser-preview-editors.json",
+        "browser-preview-permissions.json",
+        "static-runtime-preview.json"
+      ]
+    }
+  ],
+  "source_cohort": "entry1028 to current1029; six approved application files only",
+  "root_PO": "Same exact three candidate PO files from application onward; fresh own green MO; red locale snapshot retained",
+  "scope": "Labels such as final in earlier retained filenames refer to that stage only, not current application. Current acceptance uses preview-final backend/native evidence."
+}

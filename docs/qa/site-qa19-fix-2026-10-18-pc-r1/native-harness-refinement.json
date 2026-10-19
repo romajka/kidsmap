@@ -1,0 +1,17 @@
+{
+  "initial_rows": 48,
+  "initial_checks": 324,
+  "initial_pass": 304,
+  "initial_failed": 20,
+  "only_failed_assertion": "localized_log",
+  "cause": "Unprefixed QA /info uses defaultAZ through Django LocaleMiddleware/i18n_patterns; config.middleware admin-specific handling respects selected cookie. Original harness used helper current model_label for RU/EN expectation. Own LogEntry aggregate confirms10correct labels per language; all105backend tests pass.",
+  "proof": [
+    "evidence/browser-locale-diagnose.json",
+    "evidence/native-log-diagnosis.json",
+    "evidence/static-runtime.json"
+  ],
+  "correction": "Same locale-aware equality now uses per-language labels evaluated with Django override against current isolated root MO; add actual admin HTML-language assertion. No application/fixture permission/existing test assertion change.",
+  "original_retained": true,
+  "separate_PNG_prefix": true,
+  "application_changes_after_green": 0
+}

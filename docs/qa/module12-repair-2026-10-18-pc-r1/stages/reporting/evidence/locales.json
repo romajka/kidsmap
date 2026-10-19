@@ -1,0 +1,16 @@
+{
+  "command": [
+    "python3",
+    "/mnt/c/kidsmap/scripts/build_isolated_locales.py",
+    "build",
+    "--source-locale",
+    "/mnt/c/kidsmap/locale",
+    "--output",
+    "/mnt/c/kidsmap/.tmp/m12-full-r1/locales-reporting",
+    "--compiler",
+    "native"
+  ],
+  "exit": 0,
+  "separate_before_django_setup": true,
+  "shared_MO_unchanged": true
+}

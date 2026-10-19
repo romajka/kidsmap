@@ -1,0 +1,15 @@
+{
+  "rows": [
+    {
+      "id": "online-native-reschedule",
+      "checks": {
+        "redirect": true,
+        "readback": true
+      }
+    }
+  ],
+  "errors": [
+    "TimeoutError: locator.getAttribute: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a[href*=\"/events/3/\"]').first()\u001b[22m\n"
+  ],
+  "pageerrors": []
+}

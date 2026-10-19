@@ -1,0 +1,5114 @@
+[
+  {
+    "item": {
+      "lang": "ru",
+      "width": 360,
+      "url": "/ru/reviews/",
+      "groupName": "Ваша оценка"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Ваша оценка\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Ваша оценка\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-ru-360.png",
+      "screenshots/enter-ru-360.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "ru",
+      "width": 390,
+      "url": "/ru/reviews/",
+      "groupName": "Ваша оценка"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Ваша оценка\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Ваша оценка\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-ru-390.png",
+      "screenshots/enter-ru-390.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "ru",
+      "width": 768,
+      "url": "/ru/reviews/",
+      "groupName": "Ваша оценка"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Ваша оценка\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Ваша оценка\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-ru-768.png",
+      "screenshots/enter-ru-768.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "ru",
+      "width": 1024,
+      "url": "/ru/reviews/",
+      "groupName": "Ваша оценка"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Ваша оценка\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Ваша оценка\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-ru-1024.png",
+      "screenshots/enter-ru-1024.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "ru",
+      "width": 1280,
+      "url": "/ru/reviews/",
+      "groupName": "Ваша оценка"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Ваша оценка\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Ваша оценка\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-ru-1280.png",
+      "screenshots/enter-ru-1280.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "ru",
+      "width": 1440,
+      "url": "/ru/reviews/",
+      "groupName": "Ваша оценка"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Ваша оценка\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Ваша оценка\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Ваша оценка",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-ru-1440.png",
+      "screenshots/enter-ru-1440.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "az",
+      "width": 360,
+      "url": "/reviews/",
+      "groupName": "Sizin qiymətiniz"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Sizin qiymətiniz\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Sizin qiymətiniz\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-az-360.png",
+      "screenshots/enter-az-360.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "az",
+      "width": 390,
+      "url": "/reviews/",
+      "groupName": "Sizin qiymətiniz"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Sizin qiymətiniz\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Sizin qiymətiniz\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-az-390.png",
+      "screenshots/enter-az-390.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "az",
+      "width": 768,
+      "url": "/reviews/",
+      "groupName": "Sizin qiymətiniz"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Sizin qiymətiniz\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Sizin qiymətiniz\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-az-768.png",
+      "screenshots/enter-az-768.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "az",
+      "width": 1024,
+      "url": "/reviews/",
+      "groupName": "Sizin qiymətiniz"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Sizin qiymətiniz\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Sizin qiymətiniz\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-az-1024.png",
+      "screenshots/enter-az-1024.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "az",
+      "width": 1280,
+      "url": "/reviews/",
+      "groupName": "Sizin qiymətiniz"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Sizin qiymətiniz\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Sizin qiymətiniz\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-az-1280.png",
+      "screenshots/enter-az-1280.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "az",
+      "width": 1440,
+      "url": "/reviews/",
+      "groupName": "Sizin qiymətiniz"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Sizin qiymətiniz\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Sizin qiymətiniz\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Sizin qiymətiniz",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-az-1440.png",
+      "screenshots/enter-az-1440.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "en",
+      "width": 360,
+      "url": "/en/reviews/",
+      "groupName": "Your rating"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Your rating\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Your rating\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-en-360.png",
+      "screenshots/enter-en-360.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "en",
+      "width": 390,
+      "url": "/en/reviews/",
+      "groupName": "Your rating"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Your rating\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Your rating\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-en-390.png",
+      "screenshots/enter-en-390.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "en",
+      "width": 768,
+      "url": "/en/reviews/",
+      "groupName": "Your rating"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Your rating\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Your rating\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-en-768.png",
+      "screenshots/enter-en-768.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "en",
+      "width": 1024,
+      "url": "/en/reviews/",
+      "groupName": "Your rating"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Your rating\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Your rating\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-en-1024.png",
+      "screenshots/enter-en-1024.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "en",
+      "width": 1280,
+      "url": "/en/reviews/",
+      "groupName": "Your rating"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Your rating\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Your rating\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-en-1280.png",
+      "screenshots/enter-en-1280.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  },
+  {
+    "item": {
+      "lang": "en",
+      "width": 1440,
+      "url": "/en/reviews/",
+      "groupName": "Your rating"
+    },
+    "controls": {
+      "http200": true,
+      "five_stars": true,
+      "group_named": true,
+      "default5": true,
+      "space_native_changes_rating3": true,
+      "enter_native_changes_rating3": true,
+      "native_focus_retained": true,
+      "hover_not_committed": true,
+      "csrf_post": true,
+      "document_fits": true,
+      "no_business_write": true
+    },
+    "source": {
+      "default_single_selected_radio": true,
+      "space_selected_radio_matches_hidden": true,
+      "enter_selected_radio_matches_hidden": true,
+      "single_tab_stop": true,
+      "scale_names": true,
+      "tab_exits_group": true,
+      "shift_tab_returns_selected": true,
+      "arrow_selects_next": true
+    },
+    "facts": {
+      "initial": {
+        "rating": "5",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "false",
+          "true"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          -1,
+          0
+        ],
+        "focused": null
+      },
+      "space": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "spaceAX": "- radiogroup \"Your rating\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "enter": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "enterAX": "- radiogroup \"Your rating\":\n  - radio \"1 / 5\": ★\n  - radio \"2 / 5\": ★\n  - radio \"3 / 5\" [checked]: ★\n  - radio \"4 / 5\": ★\n  - radio \"5 / 5\": ★",
+      "shiftBack": {
+        "rating": "3",
+        "active": [
+          "1",
+          "2",
+          "3"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "true",
+          "false",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          0,
+          -1,
+          -1
+        ],
+        "focused": "3"
+      },
+      "arrow": {
+        "rating": "4",
+        "active": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "groupRole": "radiogroup",
+        "groupName": "Your rating",
+        "roles": [
+          "radio",
+          "radio",
+          "radio",
+          "radio",
+          "radio"
+        ],
+        "checked": [
+          "false",
+          "false",
+          "false",
+          "true",
+          "false"
+        ],
+        "names": [
+          "1 / 5",
+          "2 / 5",
+          "3 / 5",
+          "4 / 5",
+          "5 / 5"
+        ],
+        "tabIndices": [
+          -1,
+          -1,
+          -1,
+          0,
+          -1
+        ],
+        "focused": "4"
+      }
+    },
+    "before": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "after": {
+      "reviews": 2,
+      "approved": 2,
+      "pending": 0,
+      "reactions": 0,
+      "case_pending_ratings": [],
+      "own_pending_rating": null,
+      "ratings": [
+        4,
+        5
+      ],
+      "counters": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "pngs": [
+      "screenshots/space-en-1440.png",
+      "screenshots/enter-en-1440.png"
+    ],
+    "pageerrors": [],
+    "http_failures": [],
+    "request_failed": []
+  }
+]

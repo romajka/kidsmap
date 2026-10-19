@@ -1,0 +1,86 @@
+[
+  {
+    "item": {
+      "cell": 18,
+      "kind": "activity",
+      "lang": "ru",
+      "width": 360,
+      "pk": 1,
+      "url": "/ru/reviews/activity/target/1/"
+    },
+    "stage": "conflict",
+    "status": 409,
+    "checks": {
+      "actual409": true,
+      "no_write": true,
+      "current_public_preserved": true,
+      "candidate_a_preserved": true,
+      "editor_b_rating_text": true,
+      "latest_a_visible": true,
+      "fresh_cas": true,
+      "navigation": true,
+      "alert": true,
+      "labels": true,
+      "field_error_description": true,
+      "initial_focus": true,
+      "keyboard_submit": true,
+      "no_horizontal_overflow": true,
+      "message_contrast": true,
+      "reload_warns": true,
+      "controls_scroll_reachable": false
+    },
+    "hitChecks": {
+      "message": true,
+      "textarea": true,
+      "submit": true,
+      "reload": false
+    },
+    "contrast": 14.594605705272535,
+    "before": {
+      "candidate_id": 19,
+      "current_id": 1,
+      "candidate_rating": 5,
+      "candidate_text": "Latest private candidate A",
+      "current_text": "Public current four",
+      "current_rating": 4,
+      "revisions": 2,
+      "public": {
+        "average": 4,
+        "count": 1
+      },
+      "retry_after": 120
+    },
+    "after": {
+      "candidate_id": 19,
+      "current_id": 1,
+      "candidate_rating": 5,
+      "candidate_text": "Latest private candidate A",
+      "current_text": "Public current four",
+      "current_rating": 4,
+      "revisions": 2,
+      "public": {
+        "average": 4,
+        "count": 1
+      },
+      "retry_after": 120
+    },
+    "initial_focus": "review-text",
+    "pageerrors": [],
+    "console_errors": [
+      "Failed to load resource: the server responded with a status of 409 (Conflict)"
+    ],
+    "request_failed": [],
+    "posts": [
+      {
+        "status": 302,
+        "url": "http://127.0.0.1:33271/ru/reviews/activity/target/1/"
+      },
+      {
+        "status": 409,
+        "url": "http://127.0.0.1:33271/ru/reviews/activity/target/1/"
+      }
+    ],
+    "png": "/mnt/c/kidsmap/.tmp/social03-pc-fix-r1/png/conflict-activity-ru-360.png",
+    "browser": "155.0.8059.12"
+  }
+]

@@ -1,0 +1,1 @@
+CROSS04 runtime correction: retain /var/run/postgresql for the image bootstrap and additionally listen on the actual owned /qa-socket; TCP stays disabled/network none. PGHOST-only attempt r2 proved insufficient and is retained, no tested data exists. New fresh r3 volumes and identities; do not restart prior failed clusters. CI same dual Unix-socket GUC.

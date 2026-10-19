@@ -74,10 +74,10 @@
         </h1>
 
         <p class="about-hero-lead">
-          {% if CURRENT_LANGUAGE == "az" %}
-            KidsMap Azərbaycanda uşaqlar üçün kurs və məşğələ kataloqudur.
-          {% elif site_about_text %}
+          {% if site_about_text %}
             {{ site_about_text }}
+          {% elif CURRENT_LANGUAGE == "az" %}
+            KidsMap Azərbaycanda uşaqlar üçün kurs və məşğələ kataloqudur.
           {% elif CURRENT_LANGUAGE == "en" %}
             KidsMap is the premier directory for kids' clubs, courses, and sports in Azerbaijan.
           {% else %}

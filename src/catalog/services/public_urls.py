@@ -26,6 +26,7 @@ PUBLIC_QUERY_PARAMS = {
         "price_from", "price_to", "sort", "language", "min_rating", "page",
     },
     "site_reviews": {"sort", "page"},
+    "place_reviews": {"sort", "page"},
     "owner_place_create": {"type", "draft_session"},
     "owner_event_create": {"draft_session"},
     "owner_place_edit": {"draft_session"},

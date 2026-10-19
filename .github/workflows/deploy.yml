@@ -11,37 +11,6 @@ on:
 jobs:
   quality:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:17-alpine
-        env:
-          POSTGRES_DB: kidsmap
-          POSTGRES_USER: kidsmap
-          POSTGRES_PASSWORD: postgrespass
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U kidsmap -d kidsmap"
-          --health-interval=5s
-          --health-timeout=5s
-          --health-retries=30
-      redis:
-        image: redis:7.4-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 30
-    env:
-      DJANGO_DEBUG: "0"
-      DJANGO_TESTING: "1"
-      DJANGO_SECRET_KEY: "ci-secret-key-for-kidsmap-not-for-prod"
-      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,testserver"
-      DJANGO_CSRF_TRUSTED_ORIGINS: "http://localhost"
-      DATABASE_URL: "postgresql://kidsmap:postgrespass@127.0.0.1:5432/kidsmap"
-      REDIS_URL: "redis://127.0.0.1:6379/0"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,27 +24,65 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Compile translations
-        run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y gettext
-          python manage.py compilemessages --ignore .venv --ignore venv
 
-      - name: Apply migrations
-        run: python manage.py migrate --noinput
+      - name: Standalone Python checks
+        run: python -m unittest discover -s scripts/tests -p 'test_*.py' -v
 
-      - name: Ensure migrations committed
-        run: python manage.py makemigrations --check --dry-run
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
 
-      - name: Django system checks
-        run: python manage.py check
+      - name: JavaScript unit and DOM checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --prefix .tmp/phone-dom --no-save --package-lock=false jsdom@29.1.1
+          export NODE_PATH="$PWD/.tmp/phone-dom/node_modules"
+          export KIDSMAP_JSDOM="$NODE_PATH/jsdom"
+          units=()
+          for file in scripts/test_*.cjs scripts/tests/*.test.cjs static/js/tests/*.test.js; do
+            case "$file" in
+              scripts/test_localized_place_urls.cjs|scripts/test_review_submission.cjs|scripts/test_review_cooldown.cjs)
+                # Require synthetic authenticated browser fixtures; accepted separately.
+                continue ;;
+            esac
+            units+=("$file")
+          done
+          node --test "${units[@]}"
 
-      - name: Run tests
-        # The suite mutates process-global translation and cache state. The
-        # custom runner resets both between tests; keep CI sequential so a
-        # failure is reported cleanly and one worker cannot obscure another.
-        run: python manage.py test --parallel 1
+      - name: Provision disposable Unix-socket PostgreSQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ && "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          mkdir -p "$GITHUB_WORKSPACE/.tmp"
+          profile_root=$(mktemp -d /tmp/kidsmap-task33-qa04-ci-XXXXXX)
+          socket_root=$(mktemp -d "$GITHUB_WORKSPACE/.tmp/kidsmap-task33-qa04-socket-ci-XXXXXX")
+          mkdir -m 0777 "$socket_root/socket"
+          container_id=$(docker run -d --name "kidsmap-quality-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"             --label "kidsmap.quality.run=$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"             --network none --mount "type=bind,source=$socket_root/socket,target=/qa-socket"             -e POSTGRES_USER=qa_stage04 -e POSTGRES_DB=qa_stage04 -e PGHOST=/qa-socket             -e POSTGRES_HOST_AUTH_METHOD=trust postgres:17-alpine             postgres -c listen_addresses= -c unix_socket_directories=/var/run/postgresql,/qa-socket)
+          printf '%s\n' "$container_id" > "$profile_root/postgres-id"
+          printf 'QUALITY_PROFILE_ROOT=%s\nQUALITY_SOCKET_DIR=%s\n' "$profile_root" "$socket_root/socket" >> "$GITHUB_ENV"
+          for attempt in $(seq 1 60); do
+            if docker exec "$container_id" pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04; then break; fi
+            sleep 1
+          done
+          docker exec "$container_id" pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04
+
+      - name: Complete isolated quality gate
+        run: python scripts/run_isolated_quality.py --profile-root "$QUALITY_PROFILE_ROOT" --socket-dir "$QUALITY_SOCKET_DIR"
+
+      - name: Remove only this job's PostgreSQL
+        if: always() && env.QUALITY_PROFILE_ROOT != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          container_id=$(cat "$QUALITY_PROFILE_ROOT/postgres-id")
+          actual=$(docker inspect --format '{{index .Config.Labels "kidsmap.quality.run"}}' "$container_id")
+          [[ "$actual" == "$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" ]]
+          docker rm --force "$container_id"
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

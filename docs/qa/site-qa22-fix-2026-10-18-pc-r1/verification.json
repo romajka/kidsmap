@@ -1,0 +1,184 @@
+{
+  "utc": "2026-10-18T14:22:21.236898+00:00",
+  "status": "SITE22/P3 CLOSED LOCAL; exact3file patch applied; backend/native acceptance PASS",
+  "application_files": [
+    "src/catalog/domain_admin/site.py",
+    "src/catalog/testcases/test_site_qa22_save_exit.py",
+    "static/admin/css/pages/kidsmap_site_settings.css"
+  ],
+  "application_refinements": 0,
+  "source_count": 1034,
+  "other_existing_sources_unchanged": 1031,
+  "backend": {
+    "methods": 114,
+    "seconds": 33.601,
+    "exit": 0,
+    "failures": 0,
+    "errors": 0,
+    "RED_methods": 9,
+    "RED_failed_methods": 3,
+    "RED_failure_observations": 20
+  },
+  "native": {
+    "rows": 435,
+    "acceptance_checks": 5118,
+    "pass": 5118,
+    "fail": 0,
+    "main_save_states": 240,
+    "regular_states": 216,
+    "long_states": 24,
+    "languages": [
+      "az",
+      "ru",
+      "en"
+    ],
+    "widths": [
+      360,
+      390,
+      768,
+      1024,
+      1280,
+      1440
+    ],
+    "main_direct_hub_exits": 120,
+    "both_save_actions": true,
+    "suites": {
+      "browser-focused-green": {
+        "rows": 6,
+        "checks": 78,
+        "pass": 78,
+        "fail": 0
+      },
+      "browser-saves-az": {
+        "rows": 86,
+        "checks": 1362,
+        "pass": 1362,
+        "fail": 0
+      },
+      "browser-saves-ru": {
+        "rows": 86,
+        "checks": 1362,
+        "pass": 1362,
+        "fail": 0
+      },
+      "browser-saves-en": {
+        "rows": 86,
+        "checks": 1362,
+        "pass": 1362,
+        "fail": 0
+      },
+      "browser-readonly-green": {
+        "rows": 18,
+        "checks": 126,
+        "pass": 126,
+        "fail": 0
+      },
+      "browser-sentinels-green": {
+        "rows": 12,
+        "checks": 72,
+        "pass": 72,
+        "fail": 0
+      },
+      "browser-json-error-snapshots": {
+        "rows": 18,
+        "checks": 126,
+        "pass": 126,
+        "fail": 0
+      },
+      "browser-file-error-central": {
+        "rows": 12,
+        "checks": 72,
+        "pass": 72,
+        "fail": 0
+      },
+      "browser-stale-email": {
+        "rows": 24,
+        "checks": 150,
+        "pass": 150,
+        "fail": 0
+      },
+      "browser-access": {
+        "rows": 30,
+        "checks": 129,
+        "pass": 129,
+        "fail": 0
+      },
+      "browser-neighbor-destinations": {
+        "rows": 39,
+        "checks": 225,
+        "pass": 225,
+        "fail": 0
+      },
+      "browser-console": {
+        "rows": 18,
+        "checks": 54,
+        "pass": 54,
+        "fail": 0
+      }
+    },
+    "focused_RED": {
+      "pass": 72,
+      "expected_fail": 6
+    },
+    "nullable_fixture_recovery": {
+      "pass": 4,
+      "failed_main_run_not_counted": true
+    },
+    "pageerrors_recorded": 0,
+    "unexpected_local_HTTP_errors_recorded": 0,
+    "console_scope": "18read-only hub/footer/visibility cells; blocked externalfont errors retained; no whole-matrix console-clean claim",
+    "PNG": 442,
+    "no_transport_or_style_simulation": true
+  },
+  "preservation": {
+    "source_count": 1034,
+    "approved_application_files": [
+      "src/catalog/domain_admin/site.py",
+      "src/catalog/testcases/test_site_qa22_save_exit.py",
+      "static/admin/css/pages/kidsmap_site_settings.css"
+    ],
+    "changed_existing": 2,
+    "new_test": 1,
+    "other_existing_sources_unchanged": 1031,
+    "exact_candidate_hashes": true,
+    "prior_packages": 38,
+    "prior_files": 7576,
+    "shared_MO_cbmignore": true,
+    "HEAD_branch_task33_index_bytes_empty_staging": true,
+    "active_run_NONE": true,
+    "foreign_container_identities_states": 73,
+    "own_container_verified": true,
+    "reverse_exact_diff_check_exit": 0,
+    "native_git_diff_check_exit": 0
+  },
+  "git": {
+    "head": "852938d96764ae315b92859e3651e5ea62054a36",
+    "branch": "codex/module09-transfer-2026-10-16-r1",
+    "task33_ref": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+    "index_sha256": "b45c562cb2c4cc7ea04de5664e3ef09a2c7bf9728e17cc55ddcb74551543a171"
+  },
+  "fixture": "Scoped sixsection scalars/JSON/gallery display values restored natively;media filenames+bytes unchanged;419expected synthetic logs/update timestamps retained",
+  "module10": "13OPEN (9P2/4P3); full module acceptance pending",
+  "retained_LOCAL_closures": [
+    "SITE01",
+    "SITE15",
+    "SITE06",
+    "SITE19",
+    "SITE21",
+    "SITE08",
+    "module09 composite"
+  ],
+  "separate_OPEN": [
+    "SITE20 readonly desktop actions",
+    "SITE11 localization",
+    "remaining canonical module10 findings"
+  ],
+  "production": "UNKNOWN; not contacted",
+  "NOT_RUN": [
+    "full module10/global/module11 acceptance",
+    "production/release/deploy",
+    "full WCAG/cross-browser/physical devices",
+    "controlled public JSON dependency"
+  ],
+  "execution": "/root inline; no independent-agent claim"
+}

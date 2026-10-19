@@ -1,0 +1,73 @@
+[
+  {
+    "file": "scripts/test_localized_place_urls.cjs",
+    "command": [
+      "npx",
+      "--yes",
+      "--package",
+      "node@24",
+      "node",
+      "/mnt/c/kidsmap/.tmp/m13-full-r1/stock-scripts/test_localized_place_urls.cjs"
+    ],
+    "exit": 1,
+    "source_sha256": "8b255817c9074c85d7568fb94ffca4d53cfb0ab52f93f00217acc9d8fc3e7cd6",
+    "only_shadow_screenshot_destination_changed": true,
+    "assertions_unchanged": true,
+    "success_lines": [],
+    "explicit_simulation": "blocked external transport and script-declared route failures, actual local application POST/GET"
+  },
+  {
+    "file": "scripts/test_review_submission.cjs",
+    "command": [
+      "npx",
+      "--yes",
+      "--package",
+      "node@24",
+      "node",
+      "/mnt/c/kidsmap/.tmp/m13-full-r1/stock-scripts/test_review_submission.cjs"
+    ],
+    "exit": 1,
+    "source_sha256": "0d1eb2ca53987beb83168fdff8a6b06de36097b980d4204b3216332e7e540c05",
+    "only_shadow_screenshot_destination_changed": true,
+    "assertions_unchanged": true,
+    "success_lines": [
+      "PASS composer validation and keyboard ru",
+      "PASS composer validation and keyboard az",
+      "PASS composer validation and keyboard en",
+      "PASS pending request edits and button restoration",
+      "PASS ru 375 success, duplicate lock, viewport",
+      "PASS ru 768 success, duplicate lock, viewport",
+      "PASS ru 1024 success, duplicate lock, viewport",
+      "PASS ru 1440 success, duplicate lock, viewport",
+      "PASS az 375 success, duplicate lock, viewport",
+      "PASS az 768 success, duplicate lock, viewport",
+      "PASS az 1024 success, duplicate lock, viewport",
+      "PASS az 1440 success, duplicate lock, viewport",
+      "PASS en 375 success, duplicate lock, viewport",
+      "PASS en 768 success, duplicate lock, viewport",
+      "PASS en 1024 success, duplicate lock, viewport",
+      "PASS en 1440 success, duplicate lock, viewport",
+      "PASS additional review form /reviews/"
+    ],
+    "explicit_simulation": "blocked external transport and script-declared route failures, actual local application POST/GET"
+  },
+  {
+    "file": "scripts/test_review_cooldown.cjs",
+    "command": [
+      "npx",
+      "--yes",
+      "--package",
+      "node@24",
+      "node",
+      "/mnt/c/kidsmap/.tmp/m13-full-r1/stock-scripts/test_review_cooldown.cjs"
+    ],
+    "exit": 0,
+    "source_sha256": "3779005f1edfda840f452f0adb1806923cc3912c44ce01fa433d4b2cb809878d",
+    "only_shadow_screenshot_destination_changed": true,
+    "assertions_unchanged": true,
+    "success_lines": [
+      "PASS cooldown: success, reload, 429/Retry-After, wall-clock tampering, automatic expiry, concurrent 200+429, stale-tab 429 and retained draft, another pending submission, no JS errors"
+    ],
+    "explicit_simulation": "blocked external transport and script-declared route failures, actual local application POST/GET"
+  }
+]

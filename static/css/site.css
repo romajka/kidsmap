@@ -1950,7 +1950,8 @@ body::before {
   box-shadow: 0 2px 5px rgba(50, 92, 62, 0.2);
 }
 
-main {
+main,
+.km-page-content {
   margin-top: 14px;
   flex: 1;
   position: relative;
@@ -2568,6 +2569,7 @@ main {
 }
 
 .footer-brand-block {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -2575,6 +2577,8 @@ main {
 }
 
 .footer-brand-link {
+  min-width: 0;
+  max-width: 100%;
   display: inline-flex;
   align-items: center;
   gap: 12px;
@@ -2591,6 +2595,8 @@ main {
 }
 
 .footer-brand-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-family: var(--font-display);
   font-size: 32px;
   font-weight: 900;
@@ -21959,6 +21965,17 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   border: 1px solid rgba(0, 133, 82, 0.13);
   background: rgba(255, 255, 255, 0.86);
   padding: clamp(18px, 3vw, 26px);
+}
+
+/* The site editor has two fields; zero track minimums prevent page expansion. */
+.site-reviews-page .review-form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 760px) {
+  .site-reviews-page .review-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* Public reviews of catalog listings */

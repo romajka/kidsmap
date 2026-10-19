@@ -1,0 +1,28 @@
+{
+  "rows": [
+    {
+      "id": "native-delete-route",
+      "raw_href": "delete/",
+      "resolved_href": "http://127.0.0.1:33630/admin/catalog/sitegalleryimage/1/change/delete/",
+      "redirect_chain": [
+        {
+          "path": "/admin/catalog/sitegalleryimage/1/change/delete/",
+          "status": 302,
+          "method": "GET"
+        },
+        {
+          "path": "/admin/",
+          "status": 200,
+          "method": "GET"
+        }
+      ],
+      "landing": "/admin/",
+      "checks": {
+        "relative_wrong_object_path": true,
+        "no_deletion": true,
+        "no_delete_POST": true
+      }
+    }
+  ],
+  "scope": "Positive diagnostic of observed existing delete URL defect, not replacement of original correct_route failures. No delete POST."
+}

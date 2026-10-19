@@ -5,7 +5,7 @@
 <header class="km-header topbar" role="banner" id="km-site-header">
   <div class="km-header-inner">
     <!-- Brand / Logo Lockup -->
-    <a class="km-brand brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}">
+    <a class="km-brand brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}" title="{{ brand_name }}">
       <span class="km-brand-logo-frame">
         <img
           class="km-brand-logo"
@@ -281,7 +281,7 @@
   <aside class="km-drawer-sheet" role="dialog" aria-modal="true" aria-label="{% trans 'Навигационное меню' %}">
     <!-- Drawer Header -->
     <div class="km-drawer-header">
-      <a class="km-brand brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}">
+      <a class="km-brand brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}" title="{{ brand_name }}">
         <span class="km-brand-logo-frame">
           <img
             class="km-brand-logo"

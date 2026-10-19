@@ -1,0 +1,46 @@
+{
+  "application_scope_changes": "Only the approved shared template received a conflict-only layout refinement after exact candidate application; other five application files remain exact candidates.",
+  "keepdb": {
+    "retained_result": "evidence/green-backend.json",
+    "symptom": "First GREEN had 2 failures and 11 errors in shared taxonomy-dependent tests.",
+    "cause": "RED included TransactionTestCase; its final flush removed migration-seeded taxonomy from the reused keepdb.",
+    "resolution": "Scratch profile selected a new owned test_m10s15_fix_r1_green test DB. Fresh migration and identical54method suite passed; application and test assertions unchanged."
+  },
+  "rendered_alert": {
+    "retained_result": "evidence/browser-green-matrix.json",
+    "initial_functional_checks": 1008,
+    "functional_pass_was_not_visual_pass": true,
+    "cause": "Existing CSS expects a two-column grid with30px icon and content; the initial template placed independent text/list/link children in those grid cells.",
+    "resolution": "Use existing icon/content classes only on conflict. Preserve original generic error branch. Add3measured layout assertions per final matrix case and inspect PNGs.",
+    "smoke_png_retained_as": "png/smoke-content-ru-390-disjoint-conflict.png",
+    "smoke_png_rename": "Moved the initial smoke image before the bulk initial matrix reused its original green-content-ru-390-disjoint-conflict.png name; distinct smoke bytes preserved. Final smoke uses its own filename."
+  },
+  "static_probe": {
+    "initial_exit": 1,
+    "initial_error": "OSError Errno30 Read-only file system while writing evidence/static-runtime.json from app container.",
+    "assertions_before_write_passed": true,
+    "resolution": "Write result to owned RW scratch then copy on host; final static probe exit0. Read-only repository mount retained."
+  },
+  "preview_refinement": {
+    "initial_native_result": "browser-file-media:48functionalPASS,3unexpected/media/fixture.png404 retained",
+    "root_cause": "Django ModelForm._post_clean constructs submitted values on the in-memory instance even after non-field clean rejects the token; readonly preview used uncommitted file.name.",
+    "new_regression": "preview-red.json:1methodFAIL/0errors against first backend; prior21methods unchanged",
+    "resolution": "Conflict-only _post_clean skip keeps stored instance preview. Bound text/checkbox widgets retain submitted draft. Normal valid/other-invalid form processing unchanged.",
+    "final_server": "preview-final-backend.json:55PASS on new owned testDB",
+    "final_native_files": "browser-preview-file-media.json:12rows51PASS,0pageerrors/0unexpectedlocalHTTP"
+  },
+  "separate_baseline_failure": {
+    "id": "SITE-QA-19/P2",
+    "initial_result": "browser-editors.json:29rows150checks148PASS2FAIL; direct CatalogContentSettings GET500",
+    "proof": "catalog-baseline.json:model_str and ModelAdmin both raise TypeError before template; model source SHA and admin class AST unchanged",
+    "classification": "Separate OPEN finding; native JSON controls after exception NOT RUN. Current final editor suite28rows147checks excludes that blocked control and retains original failures. No model fix or assertion relaxation."
+  },
+  "finalization_accounting": {
+    "initial_exit": 1,
+    "cause": "Preservation gate initially expected only2changed existing cohort files; source-entry cohort also includes the3root PO files.",
+    "verified_actual_changed_paths": ["locale/az/LC_MESSAGES/django.po", "locale/en/LC_MESSAGES/django.po", "locale/ru/LC_MESSAGES/django.po", "src/catalog/domain_admin/site.py", "src/catalog/templates/admin/catalog/shared_settings_change_form.html"],
+    "resolution": "Require the exact5approved existing files and newtest1:1023unchanged +2code/template +3PO +1newtest =1029. No application change; guide/MASTER had not been appended at this failed gate."
+  },
+  "test_assertion_changes": 0,
+  "raw_logs": "Own ignored .tmp/site15-pc-fix-r1 only; no raw Django HTML/application logs copied into repository reports."
+}

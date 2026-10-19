@@ -1,0 +1,1474 @@
+{
+  "rows": [
+    {
+      "id": "configured-native-admin",
+      "checks": {
+        "two_POST302": true,
+        "exact_persistence": true,
+        "two_logs": true
+      }
+    },
+    {
+      "id": "configured-about-az-360",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "az",
+      "width": 360,
+      "actual": "SITE02 az <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-az-360",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "az",
+      "width": 360,
+      "actual": "SITE02 az <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-az-390",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "az",
+      "width": 390,
+      "actual": "SITE02 az <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-az-390",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "az",
+      "width": 390,
+      "actual": "SITE02 az <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-az-768",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "az",
+      "width": 768,
+      "actual": "SITE02 az <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-az-768",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "az",
+      "width": 768,
+      "actual": "SITE02 az <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-az-1024",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "az",
+      "width": 1024,
+      "actual": "SITE02 az <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-az-1024",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "az",
+      "width": 1024,
+      "actual": "SITE02 az <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-az-1280",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "az",
+      "width": 1280,
+      "actual": "SITE02 az <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": false,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-az-1280",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "az",
+      "width": 1280,
+      "actual": "SITE02 az <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": false,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-az-1440",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "az",
+      "width": 1440,
+      "actual": "SITE02 az <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-az-1440",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "az",
+      "width": 1440,
+      "actual": "SITE02 az <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-ru-360",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "ru",
+      "width": 360,
+      "actual": "SITE02 ru <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-ru-360",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "ru",
+      "width": 360,
+      "actual": "SITE02 ru <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-ru-390",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "ru",
+      "width": 390,
+      "actual": "SITE02 ru <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-ru-390",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "ru",
+      "width": 390,
+      "actual": "SITE02 ru <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-ru-768",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "ru",
+      "width": 768,
+      "actual": "SITE02 ru <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-ru-768",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "ru",
+      "width": 768,
+      "actual": "SITE02 ru <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-ru-1024",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "ru",
+      "width": 1024,
+      "actual": "SITE02 ru <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-ru-1024",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "ru",
+      "width": 1024,
+      "actual": "SITE02 ru <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-ru-1280",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "ru",
+      "width": 1280,
+      "actual": "SITE02 ru <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": false,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-ru-1280",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "ru",
+      "width": 1280,
+      "actual": "SITE02 ru <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": false,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-ru-1440",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "ru",
+      "width": 1440,
+      "actual": "SITE02 ru <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-ru-1440",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "ru",
+      "width": 1440,
+      "actual": "SITE02 ru <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-en-360",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "en",
+      "width": 360,
+      "actual": "SITE02 en <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-en-360",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "en",
+      "width": 360,
+      "actual": "SITE02 en <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-en-390",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "en",
+      "width": 390,
+      "actual": "SITE02 en <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-en-390",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "en",
+      "width": 390,
+      "actual": "SITE02 en <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-en-768",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "en",
+      "width": 768,
+      "actual": "SITE02 en <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-en-768",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "en",
+      "width": 768,
+      "actual": "SITE02 en <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-en-1024",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "en",
+      "width": 1024,
+      "actual": "SITE02 en <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-en-1024",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "en",
+      "width": 1024,
+      "actual": "SITE02 en <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-en-1280",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "en",
+      "width": 1280,
+      "actual": "SITE02 en <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": false,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-en-1280",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "en",
+      "width": 1280,
+      "actual": "SITE02 en <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": false,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-about-en-1440",
+      "mode": "configured",
+      "kind": "about",
+      "lang": "en",
+      "width": 1440,
+      "actual": "SITE02 en <b>about & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-catalog-en-1440",
+      "mode": "configured",
+      "kind": "catalog",
+      "lang": "en",
+      "width": 1440,
+      "actual": "SITE02 en <b>empty & visible</b>",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "configured-read-only-public",
+      "checks": {
+        "no_public_settings_or_log_write": true
+      }
+    },
+    {
+      "id": "blank-native-admin",
+      "checks": {
+        "two_POST302": true,
+        "exact_persistence": true,
+        "two_logs": true
+      }
+    },
+    {
+      "id": "blank-about-az-360",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "az",
+      "width": 360,
+      "actual": "KidsMap Az\u0259rbaycanda u\u015faqlar \u00fc\u00e7\u00fcn d\u0259rn\u0259k v\u0259 kurs kataloqudur.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-az-360",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "az",
+      "width": 360,
+      "actual": "He\u00e7 n\u0259 tap\u0131lmad\u0131.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-az-390",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "az",
+      "width": 390,
+      "actual": "KidsMap Az\u0259rbaycanda u\u015faqlar \u00fc\u00e7\u00fcn d\u0259rn\u0259k v\u0259 kurs kataloqudur.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-az-390",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "az",
+      "width": 390,
+      "actual": "He\u00e7 n\u0259 tap\u0131lmad\u0131.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-az-768",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "az",
+      "width": 768,
+      "actual": "KidsMap Az\u0259rbaycanda u\u015faqlar \u00fc\u00e7\u00fcn d\u0259rn\u0259k v\u0259 kurs kataloqudur.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-az-768",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "az",
+      "width": 768,
+      "actual": "He\u00e7 n\u0259 tap\u0131lmad\u0131.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-az-1024",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "az",
+      "width": 1024,
+      "actual": "KidsMap Az\u0259rbaycanda u\u015faqlar \u00fc\u00e7\u00fcn d\u0259rn\u0259k v\u0259 kurs kataloqudur.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-az-1024",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "az",
+      "width": 1024,
+      "actual": "He\u00e7 n\u0259 tap\u0131lmad\u0131.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-az-1280",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "az",
+      "width": 1280,
+      "actual": "KidsMap Az\u0259rbaycanda u\u015faqlar \u00fc\u00e7\u00fcn d\u0259rn\u0259k v\u0259 kurs kataloqudur.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": false,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-az-1280",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "az",
+      "width": 1280,
+      "actual": "He\u00e7 n\u0259 tap\u0131lmad\u0131.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": false,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-az-1440",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "az",
+      "width": 1440,
+      "actual": "KidsMap Az\u0259rbaycanda u\u015faqlar \u00fc\u00e7\u00fcn d\u0259rn\u0259k v\u0259 kurs kataloqudur.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-az-1440",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "az",
+      "width": 1440,
+      "actual": "He\u00e7 n\u0259 tap\u0131lmad\u0131.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-ru-360",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "ru",
+      "width": 360,
+      "actual": "KidsMap \u2014 \u043a\u0430\u0442\u0430\u043b\u043e\u0433 \u0434\u0435\u0442\u0441\u043a\u0438\u0445 \u043a\u0440\u0443\u0436\u043a\u043e\u0432 \u0438 \u0441\u0435\u043a\u0446\u0438\u0439 \u043f\u043e \u0410\u0437\u0435\u0440\u0431\u0430\u0439\u0434\u0436\u0430\u043d\u0443.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-ru-360",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "ru",
+      "width": 360,
+      "actual": "\u041d\u0438\u0447\u0435\u0433\u043e \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-ru-390",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "ru",
+      "width": 390,
+      "actual": "KidsMap \u2014 \u043a\u0430\u0442\u0430\u043b\u043e\u0433 \u0434\u0435\u0442\u0441\u043a\u0438\u0445 \u043a\u0440\u0443\u0436\u043a\u043e\u0432 \u0438 \u0441\u0435\u043a\u0446\u0438\u0439 \u043f\u043e \u0410\u0437\u0435\u0440\u0431\u0430\u0439\u0434\u0436\u0430\u043d\u0443.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-ru-390",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "ru",
+      "width": 390,
+      "actual": "\u041d\u0438\u0447\u0435\u0433\u043e \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-ru-768",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "ru",
+      "width": 768,
+      "actual": "KidsMap \u2014 \u043a\u0430\u0442\u0430\u043b\u043e\u0433 \u0434\u0435\u0442\u0441\u043a\u0438\u0445 \u043a\u0440\u0443\u0436\u043a\u043e\u0432 \u0438 \u0441\u0435\u043a\u0446\u0438\u0439 \u043f\u043e \u0410\u0437\u0435\u0440\u0431\u0430\u0439\u0434\u0436\u0430\u043d\u0443.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-ru-768",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "ru",
+      "width": 768,
+      "actual": "\u041d\u0438\u0447\u0435\u0433\u043e \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-ru-1024",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "ru",
+      "width": 1024,
+      "actual": "KidsMap \u2014 \u043a\u0430\u0442\u0430\u043b\u043e\u0433 \u0434\u0435\u0442\u0441\u043a\u0438\u0445 \u043a\u0440\u0443\u0436\u043a\u043e\u0432 \u0438 \u0441\u0435\u043a\u0446\u0438\u0439 \u043f\u043e \u0410\u0437\u0435\u0440\u0431\u0430\u0439\u0434\u0436\u0430\u043d\u0443.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-ru-1024",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "ru",
+      "width": 1024,
+      "actual": "\u041d\u0438\u0447\u0435\u0433\u043e \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-ru-1280",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "ru",
+      "width": 1280,
+      "actual": "KidsMap \u2014 \u043a\u0430\u0442\u0430\u043b\u043e\u0433 \u0434\u0435\u0442\u0441\u043a\u0438\u0445 \u043a\u0440\u0443\u0436\u043a\u043e\u0432 \u0438 \u0441\u0435\u043a\u0446\u0438\u0439 \u043f\u043e \u0410\u0437\u0435\u0440\u0431\u0430\u0439\u0434\u0436\u0430\u043d\u0443.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": false,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-ru-1280",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "ru",
+      "width": 1280,
+      "actual": "\u041d\u0438\u0447\u0435\u0433\u043e \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": false,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-ru-1440",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "ru",
+      "width": 1440,
+      "actual": "KidsMap \u2014 \u043a\u0430\u0442\u0430\u043b\u043e\u0433 \u0434\u0435\u0442\u0441\u043a\u0438\u0445 \u043a\u0440\u0443\u0436\u043a\u043e\u0432 \u0438 \u0441\u0435\u043a\u0446\u0438\u0439 \u043f\u043e \u0410\u0437\u0435\u0440\u0431\u0430\u0439\u0434\u0436\u0430\u043d\u0443.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-ru-1440",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "ru",
+      "width": 1440,
+      "actual": "\u041d\u0438\u0447\u0435\u0433\u043e \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-en-360",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "en",
+      "width": 360,
+      "actual": "KidsMap is a catalog of kids clubs and courses across Azerbaijan.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-en-360",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "en",
+      "width": 360,
+      "actual": "Nothing found.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-en-390",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "en",
+      "width": 390,
+      "actual": "KidsMap is a catalog of kids clubs and courses across Azerbaijan.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-en-390",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "en",
+      "width": 390,
+      "actual": "Nothing found.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-en-768",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "en",
+      "width": 768,
+      "actual": "KidsMap is a catalog of kids clubs and courses across Azerbaijan.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-en-768",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "en",
+      "width": 768,
+      "actual": "Nothing found.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-en-1024",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "en",
+      "width": 1024,
+      "actual": "KidsMap is a catalog of kids clubs and courses across Azerbaijan.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-en-1024",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "en",
+      "width": 1024,
+      "actual": "Nothing found.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-en-1280",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "en",
+      "width": 1280,
+      "actual": "KidsMap is a catalog of kids clubs and courses across Azerbaijan.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": false,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-en-1280",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "en",
+      "width": 1280,
+      "actual": "Nothing found.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": false,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-about-en-1440",
+      "mode": "blank",
+      "kind": "about",
+      "lang": "en",
+      "width": 1440,
+      "actual": "KidsMap is a catalog of kids clubs and courses across Azerbaijan.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-catalog-en-1440",
+      "mode": "blank",
+      "kind": "catalog",
+      "lang": "en",
+      "width": 1440,
+      "actual": "Nothing found.",
+      "checks": {
+        "get200": true,
+        "language": true,
+        "configured_or_nonempty_fallback": true,
+        "text_not_markup": true,
+        "no_overflow": true,
+        "keyboard": true,
+        "next_link": true
+      }
+    },
+    {
+      "id": "blank-read-only-public",
+      "checks": {
+        "no_public_settings_or_log_write": true
+      }
+    },
+    {
+      "id": "restore",
+      "checks": {
+        "two_POST302": true,
+        "exact_original_values": true,
+        "two_logs": true
+      }
+    }
+  ],
+  "pageerrors": [],
+  "local_errors": [],
+  "blocked": [
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com"
+  ],
+  "console_errors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "initial": {
+    "values": {
+      "brand_name": "KidsMap QA synthetic",
+      "about_text_az": "SITE02 az seed about",
+      "about_text_ru": "SITE02 ru seed about",
+      "about_text_en": "SITE02 en seed about",
+      "empty_results_text_az": "SITE02 az seed empty",
+      "empty_results_text_ru": "SITE02 ru seed empty",
+      "empty_results_text_en": "SITE02 en seed empty",
+      "contacts_text_az": "Biziml\u0259 e-po\u00e7t vasit\u0259sil\u0259 \u0259laq\u0259 saxlay\u0131n: info@kidsmap.az",
+      "contacts_text_ru": "\u0421\u0432\u044f\u0436\u0438\u0442\u0435\u0441\u044c \u0441 \u043d\u0430\u043c\u0438 \u043f\u043e \u043f\u043e\u0447\u0442\u0435: info@kidsmap.az",
+      "contacts_text_en": "Contact us by email: info@kidsmap.az",
+      "home_search_placeholder_az": "",
+      "home_search_placeholder_ru": "",
+      "home_search_placeholder_en": "",
+      "home_cta_text_az": "",
+      "home_cta_text_ru": "",
+      "home_cta_text_en": ""
+    },
+    "logs": 0,
+    "urls": {
+      "az": {
+        "about": "/about/",
+        "catalog": "/catalog/",
+        "contacts": "/contacts/",
+        "home": "/"
+      },
+      "ru": {
+        "about": "/ru/about/",
+        "catalog": "/ru/catalog/",
+        "contacts": "/ru/contacts/",
+        "home": "/ru/"
+      },
+      "en": {
+        "about": "/en/about/",
+        "catalog": "/en/catalog/",
+        "contacts": "/en/contacts/",
+        "home": "/en/"
+      }
+    }
+  },
+  "final": {
+    "values": {
+      "brand_name": "KidsMap QA synthetic",
+      "about_text_az": "SITE02 az seed about",
+      "about_text_ru": "SITE02 ru seed about",
+      "about_text_en": "SITE02 en seed about",
+      "empty_results_text_az": "SITE02 az seed empty",
+      "empty_results_text_ru": "SITE02 ru seed empty",
+      "empty_results_text_en": "SITE02 en seed empty",
+      "contacts_text_az": "Biziml\u0259 e-po\u00e7t vasit\u0259sil\u0259 \u0259laq\u0259 saxlay\u0131n: info@kidsmap.az",
+      "contacts_text_ru": "\u0421\u0432\u044f\u0436\u0438\u0442\u0435\u0441\u044c \u0441 \u043d\u0430\u043c\u0438 \u043f\u043e \u043f\u043e\u0447\u0442\u0435: info@kidsmap.az",
+      "contacts_text_en": "Contact us by email: info@kidsmap.az",
+      "home_search_placeholder_az": "",
+      "home_search_placeholder_ru": "",
+      "home_search_placeholder_en": "",
+      "home_cta_text_az": "",
+      "home_cta_text_ru": "",
+      "home_cta_text_en": ""
+    },
+    "logs": 6,
+    "urls": {
+      "az": {
+        "about": "/about/",
+        "catalog": "/catalog/",
+        "contacts": "/contacts/",
+        "home": "/"
+      },
+      "ru": {
+        "about": "/ru/about/",
+        "catalog": "/ru/catalog/",
+        "contacts": "/ru/contacts/",
+        "home": "/ru/"
+      },
+      "en": {
+        "about": "/en/about/",
+        "catalog": "/en/catalog/",
+        "contacts": "/en/contacts/",
+        "home": "/en/"
+      }
+    }
+  },
+  "successful_native_posts": 6,
+  "scope": "SITE02 actual source, native admin-save\u2192public DOM, configured/blank/escaped copy3languages\u00d76widths\u00d72pages, keyboard links and native original-text restore; no response/style injection. External fonts blocked explicitly."
+}

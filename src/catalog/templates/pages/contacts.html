@@ -48,7 +48,9 @@
       </h1>
 
       <p class="contacts-hero-lead">
-        {% if CURRENT_LANGUAGE == "az" %}
+        {% if site_contacts_text %}
+          {{ site_contacts_text|linebreaksbr }}
+        {% elif CURRENT_LANGUAGE == "az" %}
           Sizin üçün uyğun əlaqə üsulunu seçin: zəng, email və ya WhatsApp.
         {% elif CURRENT_LANGUAGE == "en" %}
           Choose the most convenient way to reach us: phone, email or WhatsApp.
@@ -120,11 +122,11 @@
             </h2>
             <p class="contacts-card-sub">
               {% if CURRENT_LANGUAGE == "az" %}
-                Kataloq, məkan yerləşdirmə və suallarınız üçün operativ əlaqə.
+                Sizin üçün uyğun əlaqə üsulunu seçin: zəng, email və ya WhatsApp.
               {% elif CURRENT_LANGUAGE == "en" %}
-                For directory questions, place listings, and quick feedback.
+                Choose the most convenient way to reach us: phone, email or WhatsApp.
               {% else %}
-                По вопросам каталога, размещения кружков и оперативной связи.
+                Выберите удобный способ связи: прямой звонок, email или быстрое сообщение в WhatsApp.
               {% endif %}
             </p>
           </div>

@@ -1,0 +1,7 @@
+### Result
+{"http":200,"path":"/ru/account/specialists/3/claims/","actions":["request"],"alerts":[],"flags":{"events":true,"organizations":true,"specialists":true}}
+### Ran Playwright code
+```js
+await (async original=>{const B='http://127.0.0.1:33810',c=await original.context().browser().newContext(),p=await c.newPage();try{await c.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());await p.goto(B+'/qa/m13/login/editor/');const r=await p.goto(B+'/ru/account/specialists/3/claims/');return{http:r.status(),path:new URL(p.url()).pathname,actions:await p.locator('button[name=action]').evaluateAll(es=>es.map(e=>e.value)),alerts:await p.locator('.errorlist,[role=alert],.flash-error').allTextContents(),flags:(await(await c.request.get(B+'/qa/m13/state/')).json()).flags}}finally{await c.close()}}
+)(page);
+```

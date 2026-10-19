@@ -1,0 +1,46 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m10s22-fix-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/site22-pc-fix-r1/runtime.py",
+    "test",
+    "test_site22_candidate"
+  ],
+  "exit": 1,
+  "summary": [
+    "Found 9 test(s).",
+    "Using existing test database for alias 'default' ('test_m10s22_fix_r1')...",
+    "Ran 9 tests in 4.502s",
+    "FAILED (failures=20)",
+    "Preserving test database for alias 'default' ('test_m10s22_fix_r1')..."
+  ],
+  "failure_observations": 20,
+  "failures": [
+    "test_default_enter_submission_exits_to_hub (test_site22_candidate.Site22SaveExitTests.test_default_enter_submission_exits_to_hub)",
+    "test_proxy_only_editor_can_exit_to_existing_hub (test_site22_candidate.Site22SaveExitTests.test_proxy_only_editor_can_exit_to_existing_hub)",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='az', model='sitebrandingsettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='az', model='siteaboutsettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='az', model='sitecontactssettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='az', model='sitefootersettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='az', model='siteemptystatesettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='az', model='sitevisibilitysettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='ru', model='sitebrandingsettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='ru', model='siteaboutsettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='ru', model='sitecontactssettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='ru', model='sitefootersettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='ru', model='siteemptystatesettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='ru', model='sitevisibilitysettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='en', model='sitebrandingsettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='en', model='siteaboutsettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='en', model='sitecontactssettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='en', model='sitefootersettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='en', model='siteemptystatesettings')",
+    "test_save_exits_all_six_sections_to_localized_hub (test_site22_candidate.Site22SaveExitTests.test_save_exits_all_six_sections_to_localized_hub) (language='en', model='sitevisibilitysettings')"
+  ],
+  "errors": [],
+  "log": "ignored own scratch red-tests.log; no raw external/production logs copied",
+  "application_files_changed": 0,
+  "GREEN": "NOT RUN; candidate not applied"
+}

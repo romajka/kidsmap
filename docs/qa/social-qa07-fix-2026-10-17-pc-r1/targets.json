@@ -1,0 +1,72 @@
+{
+  "activities": [
+    {
+      "variant": "localized",
+      "kind": "activity",
+      "pk": 1,
+      "detail": "/activities/1/",
+      "reviews": "/reviews/activity/target/1/",
+      "names": {
+        "az": "Uydurma məşğələ AZ",
+        "ru": "Вымышленное занятие RU",
+        "en": "Fictional class EN"
+      }
+    },
+    {
+      "variant": "azfallback",
+      "kind": "activity",
+      "pk": 2,
+      "detail": "/activities/2/",
+      "reviews": "/reviews/activity/target/2/",
+      "names": {
+        "az": "Uydurma yalnız AZ",
+        "ru": "Uydurma yalnız AZ",
+        "en": "Uydurma yalnız AZ"
+      }
+    },
+    {
+      "variant": "snapshot",
+      "kind": "activity",
+      "pk": 3,
+      "detail": "/activities/3/",
+      "reviews": "/reviews/activity/target/3/",
+      "names": {
+        "az": "Approved snapshot AZ",
+        "ru": "Approved snapshot RU",
+        "en": "Approved snapshot EN"
+      }
+    }
+  ],
+  "shared": [
+    {
+      "kind": "place",
+      "pk": 1,
+      "reviews": "/reviews/place/target/1/",
+      "names": {
+        "az": "Fictional place AZ",
+        "ru": "Fictional place RU",
+        "en": "Fictional place EN"
+      }
+    },
+    {
+      "kind": "specialist",
+      "pk": 1,
+      "reviews": "/reviews/specialist/target/1/",
+      "names": {
+        "az": "Fictional specialist",
+        "ru": "Fictional specialist",
+        "en": "Fictional specialist"
+      }
+    },
+    {
+      "kind": "event",
+      "pk": 1,
+      "reviews": "/reviews/event/target/1/",
+      "names": {
+        "az": "Fictional event AZ",
+        "ru": "Fictional event RU",
+        "en": "Fictional event EN"
+      }
+    }
+  ]
+}

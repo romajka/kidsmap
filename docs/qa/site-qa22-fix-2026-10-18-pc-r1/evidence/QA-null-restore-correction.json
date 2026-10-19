@@ -1,0 +1,9 @@
+{
+  "failure": "Nullable public_favorites_minimum initialNone restored with String(null); Playwright number input rejects null text",
+  "classification": "QA restore fixture representation; application source unchanged",
+  "fix": "Use empty input for None/null; keep exact database-restoration expectation, destination assertions and all save-case assertions unchanged",
+  "preserved_failed_PNG": 80,
+  "initial_script_CLI_commands_preserved": true,
+  "failed_run_counts": "Not counted as PASS; interrupted function returned no structured matrix",
+  "original_null_value_evidence": "evidence/browser-focused-red.json initial.values.public_favorites_minimum"
+}

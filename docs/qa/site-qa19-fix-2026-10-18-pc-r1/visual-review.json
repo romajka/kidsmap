@@ -1,0 +1,6 @@
+{
+  "reviewed":true,
+  "images":["png/matrix-super-en-1440.png","png/matrix-super-az-390.png","png/matrix-viewer-ru-1440.png","png/flow-editor-en-invalid-districts_json.png","png/desktop-layout-en-1440.png","png/mobile-error-az-390.png","png/viewer-defect-en-403.png"],
+  "observations":["Actual editor replaces old TypeError page. Native labels/Tab focus and desktop saves/error retries work.","Malformed JSON is visible and retained, with actual localized field error and summary. Existing untranslated labels/title/plural text remain; no translation closure.","Mobile error page remains an actual server response resized after desktop native submit; error textarea focuses via real label. Mobile save sidebar is hidden, so native mobile submit is NOT RUN.","Desktop normal JSON editor cards shrink beyond their grid main bounds and overlap actions; 74–94px textareas confirmed in full-page native PNG and measured rectangles. Recorded separately SITE21/P2, no layout pass claim.","Readonly desktop viewer has active Save controls followed by actual403; recorded separately SITE20/P3. No unauthorized storage mutation."],
+  "limits":"Only listed native images visually inspected. Not physical devices, screenreader, other browsers or a broad accessibility/layout/localization pass. Functional SITE19 closure does not close SITE08/SITE11/SITE20/SITE21."
+}

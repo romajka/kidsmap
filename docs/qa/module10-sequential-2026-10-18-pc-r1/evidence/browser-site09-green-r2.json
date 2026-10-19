@@ -1,0 +1,378 @@
+{
+  "rows": [
+    {
+      "id": "native-save-false",
+      "checks": {
+        "POST302": true,
+        "persisted": true,
+        "one_log": true,
+        "entities_unchanged": true
+      }
+    },
+    {
+      "id": "off-az-canonical",
+      "lang": "az",
+      "route": "canonical",
+      "status": 410,
+      "redirected": false,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "off-az-legacy",
+      "lang": "az",
+      "route": "legacy",
+      "status": 410,
+      "redirected": false,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "off-az-root",
+      "lang": "az",
+      "route": "root",
+      "status": 410,
+      "redirected": false,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "permanent-false-az",
+      "checks": {
+        "get200": true
+      }
+    },
+    {
+      "id": "off-ru-canonical",
+      "lang": "ru",
+      "route": "canonical",
+      "status": 410,
+      "redirected": false,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "off-ru-legacy",
+      "lang": "ru",
+      "route": "legacy",
+      "status": 410,
+      "redirected": false,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "off-ru-root",
+      "lang": "ru",
+      "route": "root",
+      "status": 410,
+      "redirected": false,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "permanent-false-ru",
+      "checks": {
+        "get200": true
+      }
+    },
+    {
+      "id": "off-en-canonical",
+      "lang": "en",
+      "route": "canonical",
+      "status": 410,
+      "redirected": false,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "off-en-legacy",
+      "lang": "en",
+      "route": "legacy",
+      "status": 410,
+      "redirected": false,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "off-en-root",
+      "lang": "en",
+      "route": "root",
+      "status": 410,
+      "redirected": false,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "permanent-false-en",
+      "checks": {
+        "get200": true
+      }
+    },
+    {
+      "id": "public-no-write-false",
+      "checks": {
+        "unchanged": true
+      }
+    },
+    {
+      "id": "native-save-true",
+      "checks": {
+        "POST302": true,
+        "persisted": true,
+        "one_log": true,
+        "entities_unchanged": true
+      }
+    },
+    {
+      "id": "on-az-canonical",
+      "lang": "az",
+      "route": "canonical",
+      "status": 200,
+      "redirected": false,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "on-az-legacy",
+      "lang": "az",
+      "route": "legacy",
+      "status": 200,
+      "redirected": true,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "on-az-root",
+      "lang": "az",
+      "route": "root",
+      "status": 200,
+      "redirected": true,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "permanent-true-az",
+      "checks": {
+        "get200": true
+      }
+    },
+    {
+      "id": "on-ru-canonical",
+      "lang": "ru",
+      "route": "canonical",
+      "status": 200,
+      "redirected": false,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "on-ru-legacy",
+      "lang": "ru",
+      "route": "legacy",
+      "status": 200,
+      "redirected": true,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "on-ru-root",
+      "lang": "ru",
+      "route": "root",
+      "status": 200,
+      "redirected": true,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "permanent-true-ru",
+      "checks": {
+        "get200": true
+      }
+    },
+    {
+      "id": "on-en-canonical",
+      "lang": "en",
+      "route": "canonical",
+      "status": 200,
+      "redirected": false,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "on-en-legacy",
+      "lang": "en",
+      "route": "legacy",
+      "status": 200,
+      "redirected": true,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "on-en-root",
+      "lang": "en",
+      "route": "root",
+      "status": 200,
+      "redirected": true,
+      "checks": {
+        "correct_status": true,
+        "off_no_redirect": true,
+        "canonical_when_on": true
+      }
+    },
+    {
+      "id": "permanent-true-en",
+      "checks": {
+        "get200": true
+      }
+    },
+    {
+      "id": "public-no-write-true",
+      "checks": {
+        "unchanged": true
+      }
+    },
+    {
+      "id": "restore",
+      "checks": {
+        "POST302": true,
+        "flag_restored": true,
+        "entities_unchanged": true,
+        "one_log": true
+      }
+    }
+  ],
+  "initial": {
+    "enabled": false,
+    "entity_sha256": "63fcf3ad00aa8104105c30d0cacd976e125064b725aa8e015af51de425f53f0d",
+    "logs": 29,
+    "urls": {
+      "az": {
+        "canonical": "/place/2-aile-musiqi-gunortasi/",
+        "legacy": "/place/2/",
+        "root": "/2-old-event/",
+        "permanent": "/place/1-musiqi-ve-sahmat-merkezi/"
+      },
+      "ru": {
+        "canonical": "/ru/place/2-aile-musiqi-gunortasi/",
+        "legacy": "/ru/place/2/",
+        "root": "/ru/2-old-event/",
+        "permanent": "/ru/place/1-musiqi-ve-sahmat-merkezi/"
+      },
+      "en": {
+        "canonical": "/en/place/2-aile-musiqi-gunortasi/",
+        "legacy": "/en/place/2/",
+        "root": "/en/2-old-event/",
+        "permanent": "/en/place/1-musiqi-ve-sahmat-merkezi/"
+      }
+    }
+  },
+  "final": {
+    "enabled": false,
+    "entity_sha256": "63fcf3ad00aa8104105c30d0cacd976e125064b725aa8e015af51de425f53f0d",
+    "logs": 32,
+    "urls": {
+      "az": {
+        "canonical": "/place/2-aile-musiqi-gunortasi/",
+        "legacy": "/place/2/",
+        "root": "/2-old-event/",
+        "permanent": "/place/1-musiqi-ve-sahmat-merkezi/"
+      },
+      "ru": {
+        "canonical": "/ru/place/2-aile-musiqi-gunortasi/",
+        "legacy": "/ru/place/2/",
+        "root": "/ru/2-old-event/",
+        "permanent": "/ru/place/1-musiqi-ve-sahmat-merkezi/"
+      },
+      "en": {
+        "canonical": "/en/place/2-aile-musiqi-gunortasi/",
+        "legacy": "/en/place/2/",
+        "root": "/en/2-old-event/",
+        "permanent": "/en/place/1-musiqi-ve-sahmat-merkezi/"
+      }
+    }
+  },
+  "pageerrors": [],
+  "unexpected_http": [],
+  "blocked": [
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "maps.google.com",
+    "maps.google.com",
+    "maps.google.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "maps.google.com",
+    "maps.google.com",
+    "maps.google.com",
+    "maps.google.com",
+    "maps.google.com",
+    "maps.google.com",
+    "maps.google.com",
+    "maps.google.com",
+    "maps.google.com",
+    "maps.google.com",
+    "maps.google.com",
+    "maps.google.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com"
+  ],
+  "successful_native_posts": 3,
+  "scope": "Own fictional temporary/permanent places; native visibility OFF/ON saves,3languages3direct routes; no external maps, original flag restored."
+}

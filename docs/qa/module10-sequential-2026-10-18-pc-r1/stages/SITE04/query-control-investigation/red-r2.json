@@ -1,0 +1,39 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m10seq-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m10-seq-r1/runtime.py",
+    "test",
+    "test_site04_candidate"
+  ],
+  "exit": 1,
+  "fresh_own_test_db": "test_m10seq_04_red_r2",
+  "test_ids": [
+    "test_site04_candidate.Site04HomeSearchCopyTests.test_blank_fields_use_existing_controller_localized_defaults",
+    "test_site04_candidate.Site04HomeSearchCopyTests.test_configured_placeholder_and_action_are_visible",
+    "test_site04_candidate.Site04HomeSearchCopyTests.test_custom_attribute_text_cannot_inject_event_or_markup",
+    "test_site04_candidate.Site04HomeSearchCopyTests.test_existing_query_form_and_data_hooks_are_preserved"
+  ],
+  "failures": [
+    "test_blank_fields_use_existing_controller_localized_defaults (test_site04_candidate.Site04HomeSearchCopyTests.test_blank_fields_use_existing_controller_localized_defaults) (lang='az')",
+    "test_blank_fields_use_existing_controller_localized_defaults (test_site04_candidate.Site04HomeSearchCopyTests.test_blank_fields_use_existing_controller_localized_defaults) (lang='ru')",
+    "test_blank_fields_use_existing_controller_localized_defaults (test_site04_candidate.Site04HomeSearchCopyTests.test_blank_fields_use_existing_controller_localized_defaults) (lang='en')",
+    "test_configured_placeholder_and_action_are_visible (test_site04_candidate.Site04HomeSearchCopyTests.test_configured_placeholder_and_action_are_visible) (lang='az')",
+    "test_configured_placeholder_and_action_are_visible (test_site04_candidate.Site04HomeSearchCopyTests.test_configured_placeholder_and_action_are_visible) (lang='ru')",
+    "test_configured_placeholder_and_action_are_visible (test_site04_candidate.Site04HomeSearchCopyTests.test_configured_placeholder_and_action_are_visible) (lang='en')",
+    "test_custom_attribute_text_cannot_inject_event_or_markup (test_site04_candidate.Site04HomeSearchCopyTests.test_custom_attribute_text_cannot_inject_event_or_markup) (lang='az')",
+    "test_custom_attribute_text_cannot_inject_event_or_markup (test_site04_candidate.Site04HomeSearchCopyTests.test_custom_attribute_text_cannot_inject_event_or_markup) (lang='ru')",
+    "test_custom_attribute_text_cannot_inject_event_or_markup (test_site04_candidate.Site04HomeSearchCopyTests.test_custom_attribute_text_cannot_inject_event_or_markup) (lang='en')",
+    "test_existing_query_form_and_data_hooks_are_preserved (test_site04_candidate.Site04HomeSearchCopyTests.test_existing_query_form_and_data_hooks_are_preserved) (lang='az')",
+    "test_existing_query_form_and_data_hooks_are_preserved (test_site04_candidate.Site04HomeSearchCopyTests.test_existing_query_form_and_data_hooks_are_preserved) (lang='ru')",
+    "test_existing_query_form_and_data_hooks_are_preserved (test_site04_candidate.Site04HomeSearchCopyTests.test_existing_query_form_and_data_hooks_are_preserved) (lang='en')"
+  ],
+  "errors": [],
+  "summary": [
+    "Found 4 test(s).",
+    "Ran 4 tests in 8.380s",
+    "FAILED (failures=12)"
+  ]
+}

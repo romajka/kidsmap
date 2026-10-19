@@ -1,0 +1,51 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m10seq-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m10-seq-r1/runtime.py",
+    "test",
+    "test_site10_candidate"
+  ],
+  "exit": 1,
+  "fresh_own_test_db": "test_m10seq_10_red_r1",
+  "test_ids": [
+    "test_site10_candidate.Site10RetiredPageRecoveryTests.test_recovery_destinations_are_available_and_do_not_retire_permanent_catalog",
+    "test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_html_is_explicitly_not_indexable",
+    "test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_requests_do_not_mutate_the_saved_configuration",
+    "test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_routes_have_localized_heading_and_recovery_links"
+  ],
+  "failures": [
+    "test_retired_html_is_explicitly_not_indexable (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_html_is_explicitly_not_indexable) (lang='az', url='/events/')",
+    "test_retired_html_is_explicitly_not_indexable (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_html_is_explicitly_not_indexable) (lang='az', url='/event/987-retired/')",
+    "test_retired_html_is_explicitly_not_indexable (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_html_is_explicitly_not_indexable) (lang='az', url='/place/2-keyfiyyetli-usaq-derneyi/')",
+    "test_retired_html_is_explicitly_not_indexable (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_html_is_explicitly_not_indexable) (lang='az', url='/place/2/')",
+    "test_retired_html_is_explicitly_not_indexable (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_html_is_explicitly_not_indexable) (lang='ru', url='/ru/events/')",
+    "test_retired_html_is_explicitly_not_indexable (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_html_is_explicitly_not_indexable) (lang='ru', url='/ru/event/987-retired/')",
+    "test_retired_html_is_explicitly_not_indexable (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_html_is_explicitly_not_indexable) (lang='ru', url='/ru/place/2-keyfiyyetli-usaq-derneyi/')",
+    "test_retired_html_is_explicitly_not_indexable (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_html_is_explicitly_not_indexable) (lang='ru', url='/ru/place/2/')",
+    "test_retired_html_is_explicitly_not_indexable (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_html_is_explicitly_not_indexable) (lang='en', url='/en/events/')",
+    "test_retired_html_is_explicitly_not_indexable (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_html_is_explicitly_not_indexable) (lang='en', url='/en/event/987-retired/')",
+    "test_retired_html_is_explicitly_not_indexable (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_html_is_explicitly_not_indexable) (lang='en', url='/en/place/2-keyfiyyetli-usaq-derneyi/')",
+    "test_retired_html_is_explicitly_not_indexable (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_html_is_explicitly_not_indexable) (lang='en', url='/en/place/2/')",
+    "test_retired_routes_have_localized_heading_and_recovery_links (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_routes_have_localized_heading_and_recovery_links) (lang='az', url='/events/')",
+    "test_retired_routes_have_localized_heading_and_recovery_links (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_routes_have_localized_heading_and_recovery_links) (lang='az', url='/event/987-retired/')",
+    "test_retired_routes_have_localized_heading_and_recovery_links (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_routes_have_localized_heading_and_recovery_links) (lang='az', url='/place/4-keyfiyyetli-usaq-derneyi/')",
+    "test_retired_routes_have_localized_heading_and_recovery_links (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_routes_have_localized_heading_and_recovery_links) (lang='az', url='/place/4/')",
+    "test_retired_routes_have_localized_heading_and_recovery_links (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_routes_have_localized_heading_and_recovery_links) (lang='ru', url='/ru/events/')",
+    "test_retired_routes_have_localized_heading_and_recovery_links (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_routes_have_localized_heading_and_recovery_links) (lang='ru', url='/ru/event/987-retired/')",
+    "test_retired_routes_have_localized_heading_and_recovery_links (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_routes_have_localized_heading_and_recovery_links) (lang='ru', url='/ru/place/4-keyfiyyetli-usaq-derneyi/')",
+    "test_retired_routes_have_localized_heading_and_recovery_links (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_routes_have_localized_heading_and_recovery_links) (lang='ru', url='/ru/place/4/')",
+    "test_retired_routes_have_localized_heading_and_recovery_links (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_routes_have_localized_heading_and_recovery_links) (lang='en', url='/en/events/')",
+    "test_retired_routes_have_localized_heading_and_recovery_links (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_routes_have_localized_heading_and_recovery_links) (lang='en', url='/en/event/987-retired/')",
+    "test_retired_routes_have_localized_heading_and_recovery_links (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_routes_have_localized_heading_and_recovery_links) (lang='en', url='/en/place/4-keyfiyyetli-usaq-derneyi/')",
+    "test_retired_routes_have_localized_heading_and_recovery_links (test_site10_candidate.Site10RetiredPageRecoveryTests.test_retired_routes_have_localized_heading_and_recovery_links) (lang='en', url='/en/place/4/')"
+  ],
+  "errors": [],
+  "summary": [
+    "Found 4 test(s).",
+    "Ran 4 tests in 2.188s",
+    "FAILED (failures=24)"
+  ]
+}

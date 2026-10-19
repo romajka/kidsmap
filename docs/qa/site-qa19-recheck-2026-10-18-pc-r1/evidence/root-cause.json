@@ -1,0 +1,136 @@
+{
+  "model": [
+    {
+      "lang": "az",
+      "current_gettext": "Kataloqda yenilər",
+      "raw_dunder_return_type": "__proxy__",
+      "str_error": "__str__ returned non-string (type __proxy__)"
+    },
+    {
+      "lang": "ru",
+      "current_gettext": "Контент каталога",
+      "raw_dunder_return_type": "__proxy__",
+      "str_error": "__str__ returned non-string (type __proxy__)"
+    },
+    {
+      "lang": "en",
+      "current_gettext": "New in catalog",
+      "raw_dunder_return_type": "__proxy__",
+      "str_error": "__str__ returned non-string (type __proxy__)"
+    }
+  ],
+  "admin": {
+    "exception": "TypeError",
+    "message": "__str__ returned non-string (type __proxy__)",
+    "frames": [
+      {
+        "file": "docs/qa/site-qa19-recheck-2026-10-18-pc-r1/probe.py",
+        "function": "<module>",
+        "line": 27
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/test/client.py",
+        "function": "get",
+        "line": 1124
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/test/client.py",
+        "function": "get",
+        "line": 475
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/test/client.py",
+        "function": "generic",
+        "line": 671
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/test/client.py",
+        "function": "request",
+        "line": 1087
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/test/client.py",
+        "function": "check_exception",
+        "line": 802
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py",
+        "function": "inner",
+        "line": 55
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/core/handlers/base.py",
+        "function": "_get_response",
+        "line": 198
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py",
+        "function": "wrapper",
+        "line": 710
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py",
+        "function": "_view_wrapper",
+        "line": 192
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py",
+        "function": "_view_wrapper",
+        "line": 190
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/views/decorators/cache.py",
+        "function": "_view_wrapper",
+        "line": 80
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/contrib/admin/sites.py",
+        "function": "inner",
+        "line": 247
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py",
+        "function": "change_view",
+        "line": 1945
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py",
+        "function": "_wrapper",
+        "line": 48
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py",
+        "function": "_view_wrapper",
+        "line": 192
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py",
+        "function": "_view_wrapper",
+        "line": 190
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py",
+        "function": "changeform_view",
+        "line": 1798
+      },
+      {
+        "file": "/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py",
+        "function": "_changeform_view",
+        "line": 1911
+      }
+    ]
+  },
+  "registered_base_model": true,
+  "catalog_content_proxy_app_installed": false,
+  "environment": {
+    "testing": true,
+    "normal_database": "m10s19_plan_r1",
+    "cache": "locmem",
+    "email": "locmem",
+    "external_integrations": "disabled",
+    "locales": [
+      "/mnt/c/kidsmap/.tmp/site19-pc-plan-r1/locales-plan/locale"
+    ],
+    "media": "/tmp/site19-pc-plan-r1-media"
+  }
+}

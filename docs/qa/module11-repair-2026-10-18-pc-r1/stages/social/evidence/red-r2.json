@@ -1,0 +1,55 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m11full-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m11-full-r1/runtime.py",
+    "test",
+    "test_m11_candidate.SocialMetadataTests",
+    "test_m11_candidate.ContentEditorTests"
+  ],
+  "exit": 1,
+  "fresh_own_test_db": "test_m11full_social_red_r2",
+  "test_ids": [
+    "test_m11_candidate.SocialMetadataTests.test_event_social_image_uses_actual_uploaded_photo",
+    "test_m11_candidate.SocialMetadataTests.test_event_without_photo_keeps_absolute_default_image",
+    "test_m11_candidate.SocialMetadataTests.test_other_existing_entity_social_titles_are_preserved",
+    "test_m11_candidate.SocialMetadataTests.test_private_entities_do_not_expose_their_metadata",
+    "test_m11_candidate.SocialMetadataTests.test_social_description_attributes_escape_untrusted_quotes",
+    "test_m11_candidate.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description",
+    "test_m11_candidate.SocialMetadataTests.test_specialist_social_titles_match_rendered_seo_title",
+    "test_m11_candidate.ContentEditorTests.test_current_editor_loads_for_superuser_in_three_languages",
+    "test_m11_candidate.ContentEditorTests.test_editor_denial_remains_for_ungranted_staff"
+  ],
+  "failures": [
+    "test_event_social_image_uses_actual_uploaded_photo (test_m11_candidate.SocialMetadataTests.test_event_social_image_uses_actual_uploaded_photo) (lang='az')",
+    "test_event_social_image_uses_actual_uploaded_photo (test_m11_candidate.SocialMetadataTests.test_event_social_image_uses_actual_uploaded_photo) (lang='ru')",
+    "test_event_social_image_uses_actual_uploaded_photo (test_m11_candidate.SocialMetadataTests.test_event_social_image_uses_actual_uploaded_photo) (lang='en')",
+    "test_social_description_attributes_escape_untrusted_quotes (test_m11_candidate.SocialMetadataTests.test_social_description_attributes_escape_untrusted_quotes)",
+    "test_social_descriptions_match_each_entity_own_meta_description (test_m11_candidate.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description) (lang='az', entity='Place')",
+    "test_social_descriptions_match_each_entity_own_meta_description (test_m11_candidate.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description) (lang='az', entity='Organization')",
+    "test_social_descriptions_match_each_entity_own_meta_description (test_m11_candidate.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description) (lang='az', entity='Activity')",
+    "test_social_descriptions_match_each_entity_own_meta_description (test_m11_candidate.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description) (lang='az', entity='Specialist')",
+    "test_social_descriptions_match_each_entity_own_meta_description (test_m11_candidate.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description) (lang='az', entity='Event')",
+    "test_social_descriptions_match_each_entity_own_meta_description (test_m11_candidate.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description) (lang='ru', entity='Place')",
+    "test_social_descriptions_match_each_entity_own_meta_description (test_m11_candidate.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description) (lang='ru', entity='Organization')",
+    "test_social_descriptions_match_each_entity_own_meta_description (test_m11_candidate.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description) (lang='ru', entity='Activity')",
+    "test_social_descriptions_match_each_entity_own_meta_description (test_m11_candidate.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description) (lang='ru', entity='Specialist')",
+    "test_social_descriptions_match_each_entity_own_meta_description (test_m11_candidate.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description) (lang='ru', entity='Event')",
+    "test_social_descriptions_match_each_entity_own_meta_description (test_m11_candidate.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description) (lang='en', entity='Place')",
+    "test_social_descriptions_match_each_entity_own_meta_description (test_m11_candidate.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description) (lang='en', entity='Organization')",
+    "test_social_descriptions_match_each_entity_own_meta_description (test_m11_candidate.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description) (lang='en', entity='Activity')",
+    "test_social_descriptions_match_each_entity_own_meta_description (test_m11_candidate.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description) (lang='en', entity='Specialist')",
+    "test_social_descriptions_match_each_entity_own_meta_description (test_m11_candidate.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description) (lang='en', entity='Event')",
+    "test_specialist_social_titles_match_rendered_seo_title (test_m11_candidate.SocialMetadataTests.test_specialist_social_titles_match_rendered_seo_title) (lang='az')",
+    "test_specialist_social_titles_match_rendered_seo_title (test_m11_candidate.SocialMetadataTests.test_specialist_social_titles_match_rendered_seo_title) (lang='ru')",
+    "test_specialist_social_titles_match_rendered_seo_title (test_m11_candidate.SocialMetadataTests.test_specialist_social_titles_match_rendered_seo_title) (lang='en')"
+  ],
+  "errors": [],
+  "summary": [
+    "Found 9 test(s).",
+    "Ran 9 tests in 7.228s",
+    "FAILED (failures=22)"
+  ]
+}

@@ -15,6 +15,7 @@ def _empty_period_stats() -> dict[str, dict[str, int]]:
         "day": dict(empty),
         "week": dict(empty),
         "month": dict(empty),
+        "quarter": dict(empty),
         "year": dict(empty),
     }
 
@@ -62,6 +63,7 @@ class GoogleAnalyticsAdminReportingService:
         "day": "today",
         "week": "6daysAgo",
         "month": "29daysAgo",
+        "quarter": "89daysAgo",
         "year": "364daysAgo",
     }
 

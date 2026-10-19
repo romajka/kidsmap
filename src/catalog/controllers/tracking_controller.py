@@ -58,7 +58,10 @@ class TrackingController:
 
         place_id = None
         if str(place_id_raw).isdigit():
-            place_id = int(place_id_raw)
+            try:
+                place_id = int(place_id_raw)
+            except (ValueError, OverflowError):
+                return TrackEventResult(ok=False, status_code=400, error="invalid_payload")
 
         saved = self.tracking_service.track_click_event(
             request=request,

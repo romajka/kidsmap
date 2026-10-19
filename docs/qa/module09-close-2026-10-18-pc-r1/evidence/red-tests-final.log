@@ -1,0 +1,194 @@
+ OK
+  Applying catalog.0131_task33_specialist_foundation... OK
+  Applying catalog.0132_task33_specialist_foundation... OK
+  Applying catalog.0133_task33_event_foundation... OK
+  Applying catalog.0134_completion_taxonomy... OK
+  Applying catalog.0135_sitesettings_organizations_section_enabled... OK
+  Applying catalog.0136_retire_optional_listing_verification... OK
+  Applying catalog.0137_organization_connection_operation... OK
+  Applying catalog.0138_business_role_labels... OK
+  Applying catalog.0139_connection_receipt_actor_retention... OK
+  Applying catalog.0140_specialist_proposal_draft... OK
+  Applying catalog.0141_catalog_admin_names... OK
+  Applying catalog_moderation.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying socialaccount.0001_initial... OK
+  Applying socialaccount.0002_token_max_lengths... OK
+  Applying socialaccount.0003_extra_data_default_dict... OK
+  Applying socialaccount.0004_app_provider_id_settings... OK
+  Applying socialaccount.0005_socialtoken_nullable_app... OK
+  Applying socialaccount.0006_alter_socialaccount_extra_data... OK
+System check identified no issues (0 silenced).
+test_anonymous_inactive_and_self_keep_forbidden_response (candidate_tests.ReactionConflictRecoveryTests.test_anonymous_inactive_and_self_keep_forbidden_response) ... /usr/local/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /mnt/c/kidsmap/.tmp/module09-pc-close-r1/staticfiles/
+  mw_instance = middleware(adapted_handler)
+Forbidden: /reviews/place/1/react/
+Forbidden: /reviews/activity/1/react/
+Forbidden: /reviews/specialist/1/react/
+Forbidden: /reviews/event/1/react/
+Forbidden: /reviews/place/1/react/
+Forbidden: /reviews/activity/1/react/
+Forbidden: /reviews/specialist/1/react/
+Forbidden: /reviews/event/1/react/
+Forbidden: /reviews/place/1/react/
+Forbidden: /reviews/activity/1/react/
+Forbidden: /reviews/specialist/1/react/
+Forbidden: /reviews/event/1/react/
+ok
+test_current_reaction_toggle_and_counters_remain_unchanged (candidate_tests.ReactionConflictRecoveryTests.test_current_reaction_toggle_and_counters_remain_unchanged) ... ok
+test_missing_csrf_is_denied_before_recovery (candidate_tests.ReactionConflictRecoveryTests.test_missing_csrf_is_denied_before_recovery) ... Forbidden (CSRF cookie not set.): /reviews/place/3/react/
+Forbidden (CSRF cookie not set.): /reviews/activity/3/react/
+Forbidden (CSRF cookie not set.): /reviews/specialist/3/react/
+Forbidden (CSRF cookie not set.): /reviews/event/3/react/
+ok
+test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) ... Conflict: /reviews/place/4/react/
+
+  test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='place', lang='az') ... FAIL
+Conflict: /ru/reviews/place/4/react/
+  test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='place', lang='ru') ... FAIL
+Conflict: /en/reviews/place/4/react/
+  test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='place', lang='en') ... FAIL
+Conflict: /reviews/activity/4/react/
+  test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='activity', lang='az') ... FAIL
+Conflict: /ru/reviews/activity/4/react/
+  test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='activity', lang='ru') ... FAIL
+Conflict: /en/reviews/activity/4/react/
+  test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='activity', lang='en') ... FAIL
+Conflict: /reviews/specialist/4/react/
+  test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='specialist', lang='az') ... FAIL
+Conflict: /ru/reviews/specialist/4/react/
+  test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='specialist', lang='ru') ... FAIL
+Conflict: /en/reviews/specialist/4/react/
+  test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='specialist', lang='en') ... FAIL
+Conflict: /reviews/event/4/react/
+  test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='event', lang='az') ... FAIL
+Conflict: /ru/reviews/event/4/react/
+  test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='event', lang='ru') ... FAIL
+Conflict: /en/reviews/event/4/react/
+  test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='event', lang='en') ... FAIL
+
+======================================================================
+FAIL: test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='place', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/module09-pc-close-r1/candidate_tests.py", line 31, in test_stale_reaction_offers_localized_get_recovery_without_write
+    response=self.react(kind,old);self.assertEqual(response.status_code,409);self.assertContains(response,'data-review-reaction-conflict',status_code=409);self.assertTemplateUsed(response,'catalog/review_reaction_conflict.html');self.assertContains(response,'role="alert"',status_code=409);self.assertContains(response,'href="'+reverse('typed_reviews',args=[kind,self.targets[kind].pk])+'"',status_code=409);self.assertNotContains(response,'Fictional old current',status_code=409);self.assertEqual(self.state(kind),before)
+                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : Couldn't find 'data-review-reaction-conflict' in the following response
+b''
+
+======================================================================
+FAIL: test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='place', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/module09-pc-close-r1/candidate_tests.py", line 31, in test_stale_reaction_offers_localized_get_recovery_without_write
+    response=self.react(kind,old);self.assertEqual(response.status_code,409);self.assertContains(response,'data-review-reaction-conflict',status_code=409);self.assertTemplateUsed(response,'catalog/review_reaction_conflict.html');self.assertContains(response,'role="alert"',status_code=409);self.assertContains(response,'href="'+reverse('typed_reviews',args=[kind,self.targets[kind].pk])+'"',status_code=409);self.assertNotContains(response,'Fictional old current',status_code=409);self.assertEqual(self.state(kind),before)
+                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : Couldn't find 'data-review-reaction-conflict' in the following response
+b''
+
+======================================================================
+FAIL: test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='place', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/module09-pc-close-r1/candidate_tests.py", line 31, in test_stale_reaction_offers_localized_get_recovery_without_write
+    response=self.react(kind,old);self.assertEqual(response.status_code,409);self.assertContains(response,'data-review-reaction-conflict',status_code=409);self.assertTemplateUsed(response,'catalog/review_reaction_conflict.html');self.assertContains(response,'role="alert"',status_code=409);self.assertContains(response,'href="'+reverse('typed_reviews',args=[kind,self.targets[kind].pk])+'"',status_code=409);self.assertNotContains(response,'Fictional old current',status_code=409);self.assertEqual(self.state(kind),before)
+                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : Couldn't find 'data-review-reaction-conflict' in the following response
+b''
+
+======================================================================
+FAIL: test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='activity', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/module09-pc-close-r1/candidate_tests.py", line 31, in test_stale_reaction_offers_localized_get_recovery_without_write
+    response=self.react(kind,old);self.assertEqual(response.status_code,409);self.assertContains(response,'data-review-reaction-conflict',status_code=409);self.assertTemplateUsed(response,'catalog/review_reaction_conflict.html');self.assertContains(response,'role="alert"',status_code=409);self.assertContains(response,'href="'+reverse('typed_reviews',args=[kind,self.targets[kind].pk])+'"',status_code=409);self.assertNotContains(response,'Fictional old current',status_code=409);self.assertEqual(self.state(kind),before)
+                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : Couldn't find 'data-review-reaction-conflict' in the following response
+b''
+
+======================================================================
+FAIL: test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='activity', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/module09-pc-close-r1/candidate_tests.py", line 31, in test_stale_reaction_offers_localized_get_recovery_without_write
+    response=self.react(kind,old);self.assertEqual(response.status_code,409);self.assertContains(response,'data-review-reaction-conflict',status_code=409);self.assertTemplateUsed(response,'catalog/review_reaction_conflict.html');self.assertContains(response,'role="alert"',status_code=409);self.assertContains(response,'href="'+reverse('typed_reviews',args=[kind,self.targets[kind].pk])+'"',status_code=409);self.assertNotContains(response,'Fictional old current',status_code=409);self.assertEqual(self.state(kind),before)
+                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : Couldn't find 'data-review-reaction-conflict' in the following response
+b''
+
+======================================================================
+FAIL: test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='activity', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/module09-pc-close-r1/candidate_tests.py", line 31, in test_stale_reaction_offers_localized_get_recovery_without_write
+    response=self.react(kind,old);self.assertEqual(response.status_code,409);self.assertContains(response,'data-review-reaction-conflict',status_code=409);self.assertTemplateUsed(response,'catalog/review_reaction_conflict.html');self.assertContains(response,'role="alert"',status_code=409);self.assertContains(response,'href="'+reverse('typed_reviews',args=[kind,self.targets[kind].pk])+'"',status_code=409);self.assertNotContains(response,'Fictional old current',status_code=409);self.assertEqual(self.state(kind),before)
+                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : Couldn't find 'data-review-reaction-conflict' in the following response
+b''
+
+======================================================================
+FAIL: test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='specialist', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/module09-pc-close-r1/candidate_tests.py", line 31, in test_stale_reaction_offers_localized_get_recovery_without_write
+    response=self.react(kind,old);self.assertEqual(response.status_code,409);self.assertContains(response,'data-review-reaction-conflict',status_code=409);self.assertTemplateUsed(response,'catalog/review_reaction_conflict.html');self.assertContains(response,'role="alert"',status_code=409);self.assertContains(response,'href="'+reverse('typed_reviews',args=[kind,self.targets[kind].pk])+'"',status_code=409);self.assertNotContains(response,'Fictional old current',status_code=409);self.assertEqual(self.state(kind),before)
+                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : Couldn't find 'data-review-reaction-conflict' in the following response
+b''
+
+======================================================================
+FAIL: test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='specialist', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/module09-pc-close-r1/candidate_tests.py", line 31, in test_stale_reaction_offers_localized_get_recovery_without_write
+    response=self.react(kind,old);self.assertEqual(response.status_code,409);self.assertContains(response,'data-review-reaction-conflict',status_code=409);self.assertTemplateUsed(response,'catalog/review_reaction_conflict.html');self.assertContains(response,'role="alert"',status_code=409);self.assertContains(response,'href="'+reverse('typed_reviews',args=[kind,self.targets[kind].pk])+'"',status_code=409);self.assertNotContains(response,'Fictional old current',status_code=409);self.assertEqual(self.state(kind),before)
+                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : Couldn't find 'data-review-reaction-conflict' in the following response
+b''
+
+======================================================================
+FAIL: test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='specialist', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/module09-pc-close-r1/candidate_tests.py", line 31, in test_stale_reaction_offers_localized_get_recovery_without_write
+    response=self.react(kind,old);self.assertEqual(response.status_code,409);self.assertContains(response,'data-review-reaction-conflict',status_code=409);self.assertTemplateUsed(response,'catalog/review_reaction_conflict.html');self.assertContains(response,'role="alert"',status_code=409);self.assertContains(response,'href="'+reverse('typed_reviews',args=[kind,self.targets[kind].pk])+'"',status_code=409);self.assertNotContains(response,'Fictional old current',status_code=409);self.assertEqual(self.state(kind),before)
+                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : Couldn't find 'data-review-reaction-conflict' in the following response
+b''
+
+======================================================================
+FAIL: test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='event', lang='az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/module09-pc-close-r1/candidate_tests.py", line 31, in test_stale_reaction_offers_localized_get_recovery_without_write
+    response=self.react(kind,old);self.assertEqual(response.status_code,409);self.assertContains(response,'data-review-reaction-conflict',status_code=409);self.assertTemplateUsed(response,'catalog/review_reaction_conflict.html');self.assertContains(response,'role="alert"',status_code=409);self.assertContains(response,'href="'+reverse('typed_reviews',args=[kind,self.targets[kind].pk])+'"',status_code=409);self.assertNotContains(response,'Fictional old current',status_code=409);self.assertEqual(self.state(kind),before)
+                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : Couldn't find 'data-review-reaction-conflict' in the following response
+b''
+
+======================================================================
+FAIL: test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='event', lang='ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/module09-pc-close-r1/candidate_tests.py", line 31, in test_stale_reaction_offers_localized_get_recovery_without_write
+    response=self.react(kind,old);self.assertEqual(response.status_code,409);self.assertContains(response,'data-review-reaction-conflict',status_code=409);self.assertTemplateUsed(response,'catalog/review_reaction_conflict.html');self.assertContains(response,'role="alert"',status_code=409);self.assertContains(response,'href="'+reverse('typed_reviews',args=[kind,self.targets[kind].pk])+'"',status_code=409);self.assertNotContains(response,'Fictional old current',status_code=409);self.assertEqual(self.state(kind),before)
+                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : Couldn't find 'data-review-reaction-conflict' in the following response
+b''
+
+======================================================================
+FAIL: test_stale_reaction_offers_localized_get_recovery_without_write (candidate_tests.ReactionConflictRecoveryTests.test_stale_reaction_offers_localized_get_recovery_without_write) (kind='event', lang='en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/module09-pc-close-r1/candidate_tests.py", line 31, in test_stale_reaction_offers_localized_get_recovery_without_write
+    response=self.react(kind,old);self.assertEqual(response.status_code,409);self.assertContains(response,'data-review-reaction-conflict',status_code=409);self.assertTemplateUsed(response,'catalog/review_reaction_conflict.html');self.assertContains(response,'role="alert"',status_code=409);self.assertContains(response,'href="'+reverse('typed_reviews',args=[kind,self.targets[kind].pk])+'"',status_code=409);self.assertNotContains(response,'Fictional old current',status_code=409);self.assertEqual(self.state(kind),before)
+                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : Couldn't find 'data-review-reaction-conflict' in the following response
+b''
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.297s
+
+FAILED (failures=12)
+Preserving test database for alias 'default' ('test_m09close_r1')...
+

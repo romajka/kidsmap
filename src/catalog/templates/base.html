@@ -26,13 +26,13 @@
       <meta property="og:locale:alternate" content="{{ locale }}" />
     {% endfor %}
     <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
-    <meta property="og:title" content="{% block og_title %}{% block og_title_inner %}{% block title_plain %}KidsMap{% endblock %}{% endblock %}{% endblock %}" />
-    <meta property="og:description" content="{% block og_description %}{% block meta_description_og %}{% trans 'Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
+    <meta property="og:title" content="{% block og_title %}{% block og_title_inner %}{% block title_plain %}{{ seo_title|default:"KidsMap" }}{% endblock %}{% endblock %}{% endblock %}" />
+    <meta property="og:description" content="{% block og_description %}{% block meta_description_og %}{% if meta_description %}{{ meta_description }}{% else %}{% trans 'Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, образование.' %}{% endif %}{% endblock %}{% endblock %}" />
     <meta property="og:url" content="{{ canonical_url }}" />
     {% block og_image %}<meta property="og:image" content="{% firstof public_base_url request.scheme|add:'://'|add:request.get_host %}{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />{% endblock %}
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{% block twitter_title %}{% block title_plain_twitter %}KidsMap{% endblock %}{% endblock %}" />
-    <meta name="twitter:description" content="{% block twitter_description %}{% block meta_description_twitter %}{% trans 'Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
+    <meta name="twitter:title" content="{% block twitter_title %}{% block title_plain_twitter %}{{ seo_title|default:"KidsMap" }}{% endblock %}{% endblock %}" />
+    <meta name="twitter:description" content="{% block twitter_description %}{% block meta_description_twitter %}{% if meta_description %}{{ meta_description }}{% else %}{% trans 'Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, образование.' %}{% endif %}{% endblock %}{% endblock %}" />
     {% block twitter_image %}<meta name="twitter:image" content="{% firstof public_base_url request.scheme|add:'://'|add:request.get_host %}{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />{% endblock %}
     <link rel="icon" type="image/svg+xml" href="{% static 'img/logo-mark.svg' %}" />
     <link rel="apple-touch-icon" href="{% static 'img/logo-mark.svg' %}" />
@@ -46,7 +46,7 @@
       </script>
     {% endif %}
     <link rel="stylesheet" href="{% static 'css/components/icons.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/site.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=20261018_site18_r3" />
     <link rel="stylesheet" href="{% static 'css/components/states.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}" />
     <style>
@@ -102,8 +102,8 @@
     <link rel="stylesheet" href="{% static 'css/motion.css' %}" />
     {% block navigation_motion %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=2">
-    <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261005">
-    <script src="{% static 'js/header.js' %}?v=20260915" defer></script>
+    <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261018_site18_r1">
+    <script src="{% static 'js/header.js' %}?v=20261018_site18_r2" defer></script>
     <script src="{% static 'js/motion.js' %}"></script>
   </head>
   <body id="top" class="{% if site_preview %}page-place_detail{% elif request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
@@ -755,8 +755,7 @@
             try {
               if (navigator.sendBeacon) {
                 const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-                navigator.sendBeacon(trackUrl, blob);
-                return;
+                if (navigator.sendBeacon(trackUrl, blob)) return; // Enqueued
               }
             } catch (err) {}
 

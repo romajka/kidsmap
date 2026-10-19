@@ -1,0 +1,23 @@
+### Result
+{"rows":[{"id":"viewer-save-az","role":"viewer","lang":"az","width":1440,"visible":true,"enabled":true,"textareas":0,"status":403,"checks":{"readonly_save_hidden":false,"permission_enforced403":true,"no_json_or_log_write":true},"classification":"Separate pre-existing shared-template UI defect; expected readonly_save_hidden FAIL. Not a permission bypass or SITE19 representation failure."},{"id":"viewer-save-ru","role":"viewer","lang":"ru","width":1440,"visible":true,"enabled":true,"textareas":0,"status":403,"checks":{"readonly_save_hidden":false,"permission_enforced403":true,"no_json_or_log_write":true},"classification":"Separate pre-existing shared-template UI defect; expected readonly_save_hidden FAIL. Not a permission bypass or SITE19 representation failure."},{"id":"viewer-save-en","role":"viewer","lang":"en","width":1440,"visible":true,"enabled":true,"textareas":0,"status":403,"checks":{"readonly_save_hidden":false,"permission_enforced403":true,"no_json_or_log_write":true},"classification":"Separate pre-existing shared-template UI defect; expected readonly_save_hidden FAIL. Not a permission bypass or SITE19 representation failure."}],"pageerrors":[],"local_errors":[{"path":"/admin/catalog/catalogcontentsettings/1/change/","status":403},{"path":"/admin/catalog/catalogcontentsettings/1/change/","status":403},{"path":"/admin/catalog/catalogcontentsettings/1/change/","status":403}],"scope":"Native readonly viewer visible Save click→403; real CSRF/session and unchanged JSON/timestamp/log. No permission changes, template fix or assertion weakening."}
+### Ran Playwright code
+```js
+await (async original=>{
+ const base='http://127.0.0.1:33540',O='/mnt/c/kidsmap/docs/qa/site-qa19-fix-2026-10-18-pc-r1',url=base+'/admin/catalog/catalogcontentsettings/1/change/';
+ const rows=[],pageerrors=[],local_errors=[];const c=await original.context().browser().newContext({viewport:{width:1440,height:950},serviceWorkers:'block'});
+ await c.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());
+ const p=await c.newPage();p.on('pageerror',e=>pageerrors.push(String(e)));p.on('response',r=>{if(r.url().startsWith(base)&&r.status()>=400)local_errors.push({path:new URL(r.url()).pathname,status:r.status()});});
+ await p.goto(base+'/qa/site19/login/viewer/',{waitUntil:'domcontentloaded'});
+ for(const lang of ['az','ru','en']){
+  const csrf=(await c.cookies()).find(x=>x.name==='csrftoken').value;await p.request.post(base+'/i18n/setlang/',{headers:{'X-CSRFToken':csrf},form:{language:lang,next:'/admin/'},maxRedirects:0});
+  await p.goto(url,{waitUntil:'domcontentloaded'});await p.locator('#catalogcontentsettings_form').waitFor();
+  const before=await(await p.request.get(base+'/qa/site19/state/')).json();const control=p.locator('button[name=_continue]');const visible=await control.isVisible(),enabled=await control.isEnabled(),textareas=await p.locator('textarea').count();
+  await p.screenshot({path:O+'/png/viewer-defect-'+lang+'-before.png',animations:'disabled'});
+  const [response]=await Promise.all([p.waitForResponse(r=>r.url()===url&&r.request().method()==='POST'),control.click()]);await p.waitForLoadState('domcontentloaded');
+  const after=await(await p.request.get(base+'/qa/site19/state/')).json();await p.screenshot({path:O+'/png/viewer-defect-'+lang+'-403.png',animations:'disabled'});
+  rows.push({id:'viewer-save-'+lang,role:'viewer',lang,width:1440,visible,enabled,textareas,status:response.status(),checks:{readonly_save_hidden:!visible,permission_enforced403:response.status()===403,no_json_or_log_write:JSON.stringify(before)===JSON.stringify(after)},classification:'Separate pre-existing shared-template UI defect; expected readonly_save_hidden FAIL. Not a permission bypass or SITE19 representation failure.'});
+ }
+ await c.close();return{rows,pageerrors,local_errors,scope:'Native readonly viewer visible Save click→403; real CSRF/session and unchanged JSON/timestamp/log. No permission changes, template fix or assertion weakening.'};
+}
+)(page);
+```

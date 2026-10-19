@@ -1,0 +1,72 @@
+{
+  "rows": [
+    {
+      "id": "beacon-false-az-390",
+      "lang": "az",
+      "width": 390,
+      "checks": {
+        "http200": true,
+        "simulated_rejection": true,
+        "one_fallback_event": true,
+        "directions_delta": true
+      }
+    },
+    {
+      "id": "beacon-false-az-1440",
+      "lang": "az",
+      "width": 1440,
+      "checks": {
+        "http200": true,
+        "simulated_rejection": true,
+        "one_fallback_event": true,
+        "directions_delta": true
+      }
+    },
+    {
+      "id": "beacon-false-ru-390",
+      "lang": "ru",
+      "width": 390,
+      "checks": {
+        "http200": true,
+        "simulated_rejection": true,
+        "one_fallback_event": true,
+        "directions_delta": true
+      }
+    },
+    {
+      "id": "beacon-false-ru-1440",
+      "lang": "ru",
+      "width": 1440,
+      "checks": {
+        "http200": true,
+        "simulated_rejection": true,
+        "one_fallback_event": true,
+        "directions_delta": true
+      }
+    },
+    {
+      "id": "beacon-false-en-390",
+      "lang": "en",
+      "width": 390,
+      "checks": {
+        "http200": true,
+        "simulated_rejection": true,
+        "one_fallback_event": true,
+        "directions_delta": true
+      }
+    },
+    {
+      "id": "beacon-false-en-1440",
+      "lang": "en",
+      "width": 1440,
+      "checks": {
+        "http200": true,
+        "simulated_rejection": true,
+        "one_fallback_event": true,
+        "directions_delta": true
+      }
+    }
+  ],
+  "errors": [],
+  "simulation": "Explicit navigator.sendBeacon=false; native tracked link triggers existing real same-origin fetch fallback. No real queue overflow claimed."
+}

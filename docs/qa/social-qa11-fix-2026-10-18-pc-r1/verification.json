@@ -1,0 +1,108 @@
+{
+  "utc": "2026-10-17T21:16:37.829831+00:00",
+  "status": "SOCIAL-QA-11 CLOSED LOCAL / scoped PASS",
+  "module09": "OPEN — final evidence reconciliation; two historical capture gaps NOTRUN",
+  "source_files": 1025,
+  "application_files_changed": 3,
+  "other_sources_unchanged": 1022,
+  "fresh_red_cases": 5,
+  "fresh_red_failures": 5,
+  "green_matrix_screens": 234,
+  "green_matrix_checks": 2574,
+  "pc_supplement_screens": 39,
+  "pc_supplement_checks": 429,
+  "geometry_pairs": 90,
+  "geometry_checks": 360,
+  "canonical_subset_cases": 12,
+  "canonical_subset_checks": 90,
+  "canonical_successful_checks_total": 3453,
+  "raw_initial_subset_cases": 12,
+  "raw_initial_subset_checks": 90,
+  "raw_initial_harness_failed_checks": 9,
+  "retry_403_cases": 3,
+  "retry_403_checks": 21,
+  "expected_raw_403_409_http_and_resource_console": 9,
+  "unexpected_console_page_network_errors": 0,
+  "png": 90,
+  "backend_methods_run": 0,
+  "prior_packages": {
+    "module09-pc-resume-2026-10-16-r1": true,
+    "social-qa03-fix-2026-10-16-pc-r1": true,
+    "social-qa04-fix-2026-10-17-pc-r1": true,
+    "social-qa04-recheck-2026-10-16-pc-r1": true,
+    "social-qa05-fix-2026-10-17-pc-r1": true,
+    "social-qa05-recheck-2026-10-17-pc-r1": true,
+    "social-qa06-fix-2026-10-17-pc-r1": true,
+    "social-qa06-recheck-2026-10-17-pc-r1": true,
+    "social-qa07-fix-2026-10-17-pc-r1": true,
+    "social-qa07-recheck-2026-10-17-pc-r1": true,
+    "social-qa08-recheck-2026-10-17-pc-r1": true,
+    "social-qa08-fix-2026-10-17-pc-r1": true,
+    "social-qa09-recheck-2026-10-17-pc-r1": true,
+    "social-qa09-fix-2026-10-17-pc-r1": true,
+    "module09-full-2026-10-17-pc-r1": true,
+    "social-qa10-recheck-2026-10-18-pc-r1": true,
+    "social-qa10-fix-2026-10-18-pc-r1": true,
+    "social-qa11-recheck-2026-10-18-pc-r1": true
+  },
+  "checks": {
+    "exact_approved_three_file_candidate": true,
+    "only_three_changed_other1022_unchanged": true,
+    "all_current1025_source_hashes_verified": true,
+    "shared_mo_unchanged": true,
+    "cbmignore_unchanged": true,
+    "refs_index_staged_unchanged": true,
+    "other_git_status_unchanged": true,
+    "active_none": true,
+    "prior18_packages_byte_unchanged": true,
+    "fresh_red_five_real_landmark_failures": true,
+    "green234_screens_2574_checks": true,
+    "pc39_screens_429_checks": true,
+    "matrix_pc_console_page_network_clean": true,
+    "geometry90_pairs360_checks": true,
+    "initial_harness_nine_false_observations_retained": true,
+    "targeted_409_403_guest12_cases90_checks": true,
+    "subset_expected_nine_http_console_only": true,
+    "db_public_candidate_revoked_contracts_preserved": true,
+    "actual_application_template_css_origins": true,
+    "own_current_three_mo_sole_locale_paths": true,
+    "entry_container_identities_preserved": true,
+    "runtime_isolation_verified": true,
+    "native90_png_verified": true,
+    "guide_prefix_preserved_append_only": true,
+    "artifact_manifest_verified": true
+  },
+  "all_checks_pass": true,
+  "raw_initial_subset_failed_checks": [
+    {
+      "id": "revoked403",
+      "lang": "az",
+      "failed_checks": [
+        "singleMain",
+        "alert",
+        "idPreserved"
+      ]
+    },
+    {
+      "id": "revoked403",
+      "lang": "ru",
+      "failed_checks": [
+        "singleMain",
+        "alert",
+        "idPreserved"
+      ]
+    },
+    {
+      "id": "revoked403",
+      "lang": "en",
+      "failed_checks": [
+        "singleMain",
+        "alert",
+        "idPreserved"
+      ]
+    }
+  ],
+  "container_state_deltas": [],
+  "artifact_files_excluding_manifest_verification": 163,
+  "full_backend_global_production": "NOT RUN"
+}

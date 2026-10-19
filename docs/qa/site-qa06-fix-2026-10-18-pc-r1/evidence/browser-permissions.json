@@ -1,0 +1,196 @@
+{
+  "rows": [
+    {
+      "id": "hub-authority",
+      "role": "viewer",
+      "status": 200,
+      "checks": {
+        "expectedStatus": true,
+        "noMainMutators": true,
+        "galleryControls": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "viewer",
+      "target": {
+        "field": "logo"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "viewer",
+      "target": {
+        "field": "logo",
+        "placement": "HOME_PARTNERS"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "viewer",
+      "target": {
+        "placement": "HOME_HERO"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "main-delete-authority",
+      "role": "viewer",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "hub-authority",
+      "role": "addonly",
+      "status": 200,
+      "checks": {
+        "expectedStatus": true,
+        "noMainMutators": true,
+        "galleryControls": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "addonly",
+      "target": {
+        "field": "logo"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "addonly",
+      "target": {
+        "field": "logo",
+        "placement": "HOME_PARTNERS"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "addonly",
+      "target": {
+        "placement": "HOME_HERO"
+      },
+      "status": 400,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "main-delete-authority",
+      "role": "addonly",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "addonly-native-positive",
+      "role": "addonly",
+      "status": 200,
+      "checks": {
+        "accepted200": true,
+        "noChangeDeleteLinks": true
+      }
+    },
+    {
+      "id": "hub-authority",
+      "role": "proxyfooter",
+      "status": 200,
+      "checks": {
+        "expectedStatus": false,
+        "noMainMutators": true,
+        "galleryControls": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "proxyfooter",
+      "target": {
+        "field": "logo"
+      },
+      "status": 200,
+      "checks": {
+        "expectedStatus": false,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "proxyfooter",
+      "target": {
+        "field": "logo",
+        "placement": "HOME_PARTNERS"
+      },
+      "status": 200,
+      "checks": {
+        "expectedStatus": false,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "proxyfooter",
+      "target": {
+        "placement": "HOME_HERO"
+      },
+      "status": 200,
+      "checks": {
+        "expectedStatus": false,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "main-delete-authority",
+      "role": "proxyfooter",
+      "status": 200,
+      "checks": {
+        "denied403": false,
+        "noMutation": true
+      }
+    }
+  ],
+  "pageerrors": [],
+  "local_errors": [],
+  "blocked": [
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com"
+  ],
+  "error": "TimeoutError: locator.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[name=footer_phone]')\u001b[22m\n"
+}

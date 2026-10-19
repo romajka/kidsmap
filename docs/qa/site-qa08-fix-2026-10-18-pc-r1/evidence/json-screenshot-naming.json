@@ -1,0 +1,7 @@
+{
+  "classification": "QA evidence naming collision",
+  "application_changes": 0,
+  "original_suite": "browser-json-mobile.json:48rows/354checks PASS, full width/lang data retained",
+  "limitation": "Original reused invalid image/id prefix omitted width;9initial360 screenshots overwritten by390 within the same new-owned run;39PNG files retained for48rows. No older packages affected.",
+  "recovery": "Supplementary browser-json-error-snapshots.js captures all18invalid field/lang/width states with unique names, native POST200/retained values/focus/bounds/no write. No product assertions weakened and no positive writes repeated."
+}

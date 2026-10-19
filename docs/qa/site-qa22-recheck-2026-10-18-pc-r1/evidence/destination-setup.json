@@ -1,0 +1,13 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m10s22-plan-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/site22-pc-plan-r1/runtime.py",
+    "migrate"
+  ],
+  "exit": 0,
+  "purpose": "New own normal DB foundation for labelled transport+temporary CSS destination prototype; no candidate application",
+  "loopback": 33600
+}

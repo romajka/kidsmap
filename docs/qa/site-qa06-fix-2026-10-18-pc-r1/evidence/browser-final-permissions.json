@@ -1,0 +1,416 @@
+{
+  "rows": [
+    {
+      "id": "hub-authority",
+      "role": "viewer",
+      "status": 200,
+      "checks": {
+        "expectedStatus": true,
+        "noMainMutators": true,
+        "galleryControls": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "viewer",
+      "target": {
+        "field": "logo"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "viewer",
+      "target": {
+        "field": "logo",
+        "placement": "HOME_PARTNERS"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "viewer",
+      "target": {
+        "placement": "HOME_HERO"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "main-delete-authority",
+      "role": "viewer",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "hub-authority",
+      "role": "addonly",
+      "status": 200,
+      "checks": {
+        "expectedStatus": true,
+        "noMainMutators": true,
+        "galleryControls": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "addonly",
+      "target": {
+        "field": "logo"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "addonly",
+      "target": {
+        "field": "logo",
+        "placement": "HOME_PARTNERS"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "addonly",
+      "target": {
+        "placement": "HOME_HERO"
+      },
+      "status": 400,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "main-delete-authority",
+      "role": "addonly",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "addonly-native-positive",
+      "role": "addonly",
+      "status": 200,
+      "checks": {
+        "accepted200": true,
+        "noChangeDeleteLinks": true
+      }
+    },
+    {
+      "id": "hub-authority",
+      "role": "proxyfooter",
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMainMutators": true,
+        "galleryControls": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "proxyfooter",
+      "target": {
+        "field": "logo"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "proxyfooter",
+      "target": {
+        "field": "logo",
+        "placement": "HOME_PARTNERS"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "proxyfooter",
+      "target": {
+        "placement": "HOME_HERO"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "main-delete-authority",
+      "role": "proxyfooter",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "proxy-only-legitimate-form",
+      "checks": {
+        "save302": true,
+        "valueSaved": true
+      }
+    },
+    {
+      "id": "hub-authority",
+      "role": "denied",
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMainMutators": true,
+        "galleryControls": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "denied",
+      "target": {
+        "field": "logo"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "denied",
+      "target": {
+        "field": "logo",
+        "placement": "HOME_PARTNERS"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "denied",
+      "target": {
+        "placement": "HOME_HERO"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "main-delete-authority",
+      "role": "denied",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "hub-authority",
+      "role": "volunteer",
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMainMutators": true,
+        "galleryControls": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "volunteer",
+      "target": {
+        "field": "logo"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "volunteer",
+      "target": {
+        "field": "logo",
+        "placement": "HOME_PARTNERS"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "permission-before-validation",
+      "role": "volunteer",
+      "target": {
+        "placement": "HOME_HERO"
+      },
+      "status": 403,
+      "checks": {
+        "expectedStatus": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "main-delete-authority",
+      "role": "volunteer",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "csrf-before-validation",
+      "target": {
+        "field": "logo"
+      },
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "csrf-before-validation",
+      "target": {
+        "placement": "HOME_HERO"
+      },
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "destination-policy",
+      "target": {
+        "field": "UNKNOWN"
+      },
+      "status": 400,
+      "checks": {
+        "rejected400": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "destination-policy",
+      "target": {
+        "placement": "UNKNOWN"
+      },
+      "status": 400,
+      "checks": {
+        "rejected400": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "destination-policy",
+      "target": {
+        "field": "home_hero_image",
+        "placement": "HOME_PARTNERS"
+      },
+      "status": 400,
+      "checks": {
+        "rejected400": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "mixed-main-target-wins",
+      "status": 200,
+      "checks": {
+        "mainAccepted200": true,
+        "logoChanged": true,
+        "galleryUnchanged": true
+      }
+    },
+    {
+      "id": "native-size-boundary",
+      "file": "exact.png",
+      "status": 200,
+      "checks": {
+        "expectedStatus": true,
+        "bytesOrNoWrite": true
+      }
+    },
+    {
+      "id": "native-size-boundary",
+      "file": "over.png",
+      "status": 400,
+      "checks": {
+        "expectedStatus": true,
+        "bytesOrNoWrite": true
+      }
+    }
+  ],
+  "pageerrors": [],
+  "local_errors": [
+    {
+      "path": "/admin/catalog/sitegalleryimage/",
+      "status": 403
+    },
+    {
+      "path": "/admin/catalog/sitegalleryimage/",
+      "status": 403
+    },
+    {
+      "path": "/admin/catalog/sitegalleryimage/",
+      "status": 403
+    },
+    {
+      "path": "/admin/catalog/sitegalleryimage/ajax-upload/",
+      "status": 400
+    }
+  ],
+  "blocked": [
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com"
+  ]
+}

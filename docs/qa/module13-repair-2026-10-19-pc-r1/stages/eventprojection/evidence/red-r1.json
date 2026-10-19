@@ -1,0 +1,32 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m13full-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m13-full-r1/runtime.py",
+    "test",
+    "catalog.testcases.test_module13_event_projection"
+  ],
+  "exit": 1,
+  "fresh_own_test_db": "test_m13full_eventprojection_red_r1",
+  "test_ids": [
+    "catalog.testcases.test_module13_event_projection.OrganizationUpcomingEventTests.test_native_cancel_and_sections_preserve_rows",
+    "catalog.testcases.test_module13_event_projection.OrganizationUpcomingEventTests.test_native_reschedule_retains_physical_and_online_upcoming",
+    "catalog.testcases.test_module13_event_projection.OrganizationUpcomingEventTests.test_upcoming_excludes_nonpublic_cancelled_past_and_deleted"
+  ],
+  "failures": [
+    "test_native_cancel_and_sections_preserve_rows (catalog.testcases.test_module13_event_projection.OrganizationUpcomingEventTests.test_native_cancel_and_sections_preserve_rows)",
+    "test_native_reschedule_retains_physical_and_online_upcoming (catalog.testcases.test_module13_event_projection.OrganizationUpcomingEventTests.test_native_reschedule_retains_physical_and_online_upcoming) (lang='az', format='online')",
+    "test_native_reschedule_retains_physical_and_online_upcoming (catalog.testcases.test_module13_event_projection.OrganizationUpcomingEventTests.test_native_reschedule_retains_physical_and_online_upcoming) (lang='ru', format='online')",
+    "test_native_reschedule_retains_physical_and_online_upcoming (catalog.testcases.test_module13_event_projection.OrganizationUpcomingEventTests.test_native_reschedule_retains_physical_and_online_upcoming) (lang='en', format='online')"
+  ],
+  "errors": [
+    "test_native_reschedule_retains_physical_and_online_upcoming (catalog.testcases.test_module13_event_projection.OrganizationUpcomingEventTests.test_native_reschedule_retains_physical_and_online_upcoming) (format='offline')"
+  ],
+  "summary": [
+    "Found 3 test(s).",
+    "Ran 3 tests in 1.582s",
+    "FAILED (failures=4, errors=1)"
+  ]
+}

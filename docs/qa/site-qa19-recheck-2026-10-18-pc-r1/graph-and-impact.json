@@ -1,0 +1,24 @@
+{
+  "project":"C-kidsmap",
+  "root":"C:/kidsmap",
+  "status":"ready",
+  "nodes":51523,
+  "edges":280457,
+  "generation":"2026-10-16T18:56:53Z",
+  "freshness":"stale navigation only; graph admin class at1092, actual current1229",
+  "search":"CatalogContentSettings:7matches, has_more=false; model/admin/public-test found",
+  "trace":"Model class depth1 inbound/outbound CALLS0; not proof of no consumers (Django/ORM dynamic edges)",
+  "coverage":"All checked existing operated/cited source paths metadata_changed/coverage_unavailable. Recording truncated2000/23533ignored files. Direct source/hash verification used; no reindex/cache mutation.",
+  "checked_existing_paths":["src/catalog/models/site.py","src/catalog/domain_admin/site.py","src/catalog/testcases/public.py","src/catalog/forms.py","src/catalog/repositories/django_repositories.py","src/catalog/sitemaps.py","src/catalog/indexnow_signals.py","src/catalog/domain_admin/user.py","src/catalog/proxy_apps/catalog_content/models.py","src/catalog/proxy_apps/catalog_content/admin.py","src/catalog/templates/admin/catalog/shared_settings_change_form.html"],
+  "nonexistent_discovery_hint":"src/catalog/services/catalog_content.py does not exist; no evidence attributed to it",
+  "verified_source_consumers":[
+    "CatalogContentSettingsAdmin actual default ModelAdmin calls str(obj) before template; same representation used in successful admin LogEntry",
+    "_HiddenFromAdminIndexMixin.get_model_perms returns{}; add/delete disabled; ordinary Django model view/change permissions remain",
+    "ContentCatalogSettings proxy inherits model representation; proxy app not installed in current verified runtime; no registration change proposed",
+    "DjangoSettingsRepository.get_catalog_settings returns singleton; forms metro choices, sitemap SEO and IndexNow receiver use JSON methods; those methods/signals unchanged"
+  ],
+  "proposed_scope":"Only eager str around existing lazy translation inside __str__ at call time, and12-method regression file. Preserve existing msgids/translations; avoid _meta.verbose_name because proxy overrides metadata.",
+  "db_impact":"No field/options/migrations/data conversion. str must perform0queries/writes. JSON saves are existing authorized admin behavior; isolated fixtures only.",
+  "security_impact":"No permission/CSRF/registration/template/URL edits. Test denied/view-only POST, anonymous, no add/delete; no exposure of hidden editor on index.",
+  "limits":"No broad dead-code conclusion, proxy activation, production data audit, translation correction or concurrency expansion (CatalogContentSettings has no SITE15 revision token)."
+}

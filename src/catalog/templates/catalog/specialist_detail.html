@@ -4,6 +4,8 @@
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
+{% block og_image %}{% if seo_image_url %}<meta property="og:image" content="{{ seo_image_url }}" />{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block twitter_image %}{% if seo_image_url %}<meta name="twitter:image" content="{{ seo_image_url }}" />{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}" />
@@ -98,7 +100,7 @@
   <div class="km-detail-columns">
 
     <!-- Left column: Main Content -->
-    <main class="km-detail-main-column">
+    <div class="km-detail-main-column">
 
       <!-- About -->
       {% if specialist.bio_ru or specialist.bio_az or specialist.bio_en %}
@@ -317,7 +319,7 @@
         </p>
       </div>
 
-    </main>
+    </div>
 
     <!-- Right column: Sidebar -->
     <aside class="km-detail-sidebar">

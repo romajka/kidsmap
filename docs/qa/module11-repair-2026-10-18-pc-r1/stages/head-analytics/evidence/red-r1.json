@@ -1,0 +1,18 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m11full-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m11-full-r1/runtime-head-red.py",
+    "test",
+    "test_m11_head_analytics_candidate"
+  ],
+  "exit": 1,
+  "fresh_own_test_db": "test_m11full_head_red_r1",
+  "separate_settings_storage_cache": true,
+  "test_ids": [],
+  "failures": [],
+  "errors": [],
+  "summary": []
+}

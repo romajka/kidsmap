@@ -3,11 +3,11 @@
 
 {% block extrastyle %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'admin/css/kidsmap_statistics.css' %}" />
+  <link rel="stylesheet" href="{% static 'admin/css/kidsmap_statistics.css' %}?v=20261019_module12_r1" />
 {% endblock %}
 
 {% block content %}
-  <div id="content-main" class="km-statistics-page">
+  <div id="content-main" class="km-statistics-page" data-analytics-state="{{ ga_reporting_state }}">
     <div class="km-statistics-wrap">
       <header class="km-statistics-header">
         <div class="km-statistics-header__titles">
@@ -22,12 +22,22 @@
             <a href="?period=365" class="km-period-selector__btn{% if period_days == 365 %} is-active{% endif %}" data-period="365">365 {% trans "дней" %}</a>
           </nav>
           <div class="km-updated-label">
-            <span>↻</span>
-            <span>{% trans "Обновлено сегодня" %}</span>
+            <span aria-hidden="true">↻</span>
+            {% if ga4_loaded_at %}
+              <time datetime="{{ ga4_loaded_at|date:'c' }}">{% trans "Обновлено" %} {{ ga4_loaded_at|date:"d.m.Y H:i" }}</time>
+            {% else %}
+              <span>{% trans "Данные не загружены" %}</span>
+            {% endif %}
           </div>
         </div>
       </header>
 
+      {% if ga_reporting_state != "ready" %}
+        <div class="km-ga4-notice" role="status">
+          <span class="km-ga4-notice__text">{% if ga_reporting_state == "disabled" %}{% trans "GA4 не настроен." %}{% else %}{% trans "Данные GA4 временно недоступны." %}{% endif %}</span>
+          {% if ga_reporting_state == "unavailable" %}<a class="km-period-selector__btn" href="?period={{ period_days }}">{% trans "Повторить загрузку" %}</a>{% endif %}
+        </div>
+      {% endif %}
       <section class="km-statistics-kpis">
         {% for card in kpi_cards %}
           <article class="km-kpi-card" data-kpi="{{ card.key }}">

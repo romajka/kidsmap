@@ -1,0 +1,94 @@
+{
+  "utc": "2026-10-17T19:36:29.659294+00:00",
+  "status": "PLAN EVIDENCE VERIFIED; SOCIAL09 defect remains OPEN",
+  "scope": "SOCIAL-QA-09 PLAN only; implementation approval PENDING",
+  "results": {
+    "utc": "2026-10-17T19:36:05.621613+00:00",
+    "status": "PLAN COMPLETE; SOCIAL-QA-09 CONFIRMED OPEN/P2; implementation approval PENDING",
+    "snapshot": {
+      "head": "852938d96764ae315b92859e3651e5ea62054a36",
+      "branch": "codex/module09-transfer-2026-10-16-r1",
+      "source_files": 1023,
+      "application_changes": 0
+    },
+    "candidate": {
+      "scope": [
+        "src/catalog/services/public_urls.py",
+        "src/catalog/testcases/test_social_qa09_feed_query.py"
+      ],
+      "new_test_methods": 9,
+      "applied": false,
+      "apply_check_exit": 0,
+      "candidate_live_rendering": "NOT RUN"
+    },
+    "tests_RED": {
+      "current_unique_methods": 9,
+      "failed_methods": 8,
+      "passed_methods": 1,
+      "assertion_subtest_failures": 33,
+      "errors": 0,
+      "seconds": 1.987,
+      "exit": 1,
+      "initial_candidate_run": "9methods1.910s/same33fail retained; unreached robots/HTML href expectations corrected before final rerun; two prior9method runs retained"
+    },
+    "native": {
+      "cells": 36,
+      "controlsPASS": 540,
+      "sourceFAIL": 216,
+      "seo_rows": 6,
+      "seo_controlsPASS": 23,
+      "seo_sourceFAIL": 10,
+      "pageerrors": 0,
+      "requestfailed": 0,
+      "http_failures": 0,
+      "console_errors": 0,
+      "png": 111
+    },
+    "preservation": {
+      "source1023_unchanged": true,
+      "prior_packages": 12,
+      "entry_container_ID_names_preserved": 44,
+      "entry_state_changes": {
+        "m09s04-fix-r1-app": "running→exited;exit0/OOMfalse; exact cause UNKNOWN; no agent stop/restart"
+      },
+      "final_containers": 46,
+      "sharedMO_cbmignore_refs_index_activeNONE": true
+    },
+    "adjacent": "ADJ-ANONYMOUS-LOGIN-08 remains OPEN/P2, not in09scope",
+    "not_run": [
+      "implementation09/GREEN",
+      "full ACCEPT09",
+      "global corpus",
+      "adjacent login fix",
+      "production",
+      "physical devices",
+      "real screenreader/full WCAG",
+      "other browsers",
+      "external services"
+    ]
+  },
+  "integrity": {
+    "all1023sources_unchanged": true,
+    "candidate_not_applied": true,
+    "future_test_absent": true,
+    "exact_candidate_hashes": true,
+    "prior12packages_bytes": true,
+    "entry44container_ID_names": true,
+    "entry_state_change_recorded": "m09s04-fix-r1-app running→exited exit0/OOMfalse; exactcauseUNKNOWN",
+    "guide_prior_bytes": true,
+    "sharedMO_cbmignore_refs_index_activeNONE": true,
+    "artifact_files": 162,
+    "artifact_manifest_sha256": "1aef9c742bf82913b2e30bb614d12a444946dfe994950e93d989a063f657ae60"
+  },
+  "not_run": [
+    "implementation09/GREEN",
+    "full ACCEPT09",
+    "global corpus",
+    "adjacent login fix",
+    "production",
+    "physical devices",
+    "real screenreader/full WCAG",
+    "other browsers",
+    "external services"
+  ]
+}

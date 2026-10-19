@@ -1,0 +1,6 @@
+# Preserve source snapshots and sealed QA SHA-256 manifests across platforms.
+* -text
+# Bash entry points must also run from Windows checkouts under WSL.
+*.sh text eol=lf
+# Historical shell evidence is an immutable snapshot, not an executable entry point.
+/docs/qa/** -text

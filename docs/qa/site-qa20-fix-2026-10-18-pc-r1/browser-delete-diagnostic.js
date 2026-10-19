@@ -1,0 +1,3 @@
+async original=>{
+const rows=[];for(const c of original.context().browser().contexts())for(const p of c.pages())if(p.url().startsWith('http://127.0.0.1:33630/'))rows.push({url:p.url(),state:await p.evaluate(()=>({dialogs:[...document.querySelectorAll('[role=dialog],dialog,.modal')].filter(e=>e.getClientRects().length).map(e=>({role:e.getAttribute('role'),id:e.id,classes:e.className,buttons:[...e.querySelectorAll('button')].map(b=>({text:b.innerText,id:b.id,classes:b.className}))})),active:document.activeElement?.textContent?.slice(0,90)}))});return{rows,scope:'Read-only diagnostic for existing unified delete navigation modal; no delete POST'};
+}

@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponseForbidden
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -53,13 +53,13 @@ def _render_inbox(request, *, error=None, status=200):
     }, status=status)
 
 
-@login_required
+@login_required(login_url="account_login")
 @require_GET
 def inbox(request):
     return _render_inbox(request)
 
 
-@login_required
+@login_required(login_url="account_login")
 @require_POST
 def mark_read(request, notification_id):
     item = get_object_or_404(_mine(request.user), pk=notification_id)
@@ -69,7 +69,7 @@ def mark_read(request, notification_id):
     return redirect('account_notifications')
 
 
-@login_required
+@login_required(login_url="account_login")
 @require_POST
 def accept_invitation(request, notification_id):
     item = get_object_or_404(_mine(request.user), pk=notification_id, event_kind='team_invitation')
@@ -79,11 +79,11 @@ def accept_invitation(request, notification_id):
     try:
         business_team.accept(actor=request.user, target_type=target_type, invitation_id=item.entity_id)
     except (ValidationError, business_team.TeamConflict, PermissionDenied, business_team.OwnerTeamInvitation.DoesNotExist, business_team.OrganizationTeamInvitation.DoesNotExist):
-        return HttpResponseForbidden()
+        return _render_inbox(request, error='invitation_unavailable', status=403)
     return redirect('account_notifications')
 
 
-@login_required
+@login_required(login_url="account_login")
 @require_POST
 def reject_invitation(request, notification_id):
     item = get_object_or_404(_mine(request.user), pk=notification_id, event_kind='team_invitation')

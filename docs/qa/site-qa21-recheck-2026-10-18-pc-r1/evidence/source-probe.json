@@ -1,0 +1,88 @@
+{
+  "origins": {
+    "admin/change_form.html": {
+      "path": "/usr/local/lib/python3.12/site-packages/jazzmin/templates/admin/change_form.html",
+      "relevant_lines": [
+        {
+          "line": 43,
+          "source": "{% block content_title %} {{ opts.verbose_name_plural|capfirst }} {% endblock %}"
+        },
+        {
+          "line": 45,
+          "source": "{% block content %}"
+        },
+        {
+          "line": 47,
+          "source": "<div id=\"content-main\" class=\"col-12\">"
+        },
+        {
+          "line": 68,
+          "source": "<div class=\"row\">"
+        },
+        {
+          "line": 73,
+          "source": "<div class=\"col-12 col-lg-9\">"
+        },
+        {
+          "line": 89,
+          "source": "<div class=\"col-12 col-lg-3\">"
+        }
+      ]
+    },
+    "admin/base.html": {
+      "path": "/mnt/c/kidsmap/templates/admin/base.html",
+      "relevant_lines": [
+        {
+          "line": 223,
+          "source": "{% block content_title %}{% endblock %}"
+        },
+        {
+          "line": 257,
+          "source": "<div class=\"row\">"
+        },
+        {
+          "line": 258,
+          "source": "{% block content %}{% endblock %}"
+        }
+      ]
+    },
+    "admin/catalog/shared_settings_change_form.html": {
+      "path": "/mnt/c/kidsmap/src/catalog/templates/admin/catalog/shared_settings_change_form.html",
+      "relevant_lines": [
+        {
+          "line": 14,
+          "source": "{% block content %}"
+        },
+        {
+          "line": 15,
+          "source": "<div id=\"content-main\" class=\"km-place-form-page\">"
+        }
+      ]
+    }
+  },
+  "source_guard": 1032,
+  "current3root_locales_verified": true,
+  "model_SITE19_labels": {
+    "az": "Kataloqda yenilər",
+    "ru": "Контент каталога",
+    "en": "New in catalog"
+  },
+  "candidate_template_compile": true,
+  "root_conditional_branches": {
+    "catalogcontentsettings": "<div id=\"content-main\" class=\"km-place-form-page col-12\">",
+    "sitebrandingsettings": "<div id=\"content-main\" class=\"km-place-form-page\">",
+    "siteaboutsettings": "<div id=\"content-main\" class=\"km-place-form-page\">",
+    "sitecontactssettings": "<div id=\"content-main\" class=\"km-place-form-page\">",
+    "sitefootersettings": "<div id=\"content-main\" class=\"km-place-form-page\">",
+    "siteemptystatesettings": "<div id=\"content-main\" class=\"km-place-form-page\">",
+    "sitevisibilitysettings": "<div id=\"content-main\" class=\"km-place-form-page\">",
+    "siteanalytics": "<div id=\"content-main\" class=\"km-place-form-page\">",
+    "sitesettings": "<div id=\"content-main\" class=\"km-place-form-page\">",
+    "sitegalleryimage": "<div id=\"content-main\" class=\"km-place-form-page\">",
+    "contentcatalogsettings": "<div id=\"content-main\" class=\"km-place-form-page\">"
+  },
+  "candidate_not_applied": true,
+  "candidate_GET_GREEN": "NOT RUN",
+  "environment": "cleared before Django import; isolated normal/test DB, own locmem cache/email/media/private; disabled integrations",
+  "production": false
+}

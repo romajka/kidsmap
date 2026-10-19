@@ -1,0 +1,237 @@
+{
+  "transport": [
+    {
+      "item": {
+        "cell": 0,
+        "kind": "place",
+        "lang": "ru",
+        "width": 360,
+        "pk": 1,
+        "url": "/ru/reviews/place/target/1/"
+      },
+      "simulated": "POST transport aborted by QA route before server delivery",
+      "checks": {
+        "one_explicit_attempt": true,
+        "no_write": true
+      },
+      "before": {
+        "candidate_id": 19,
+        "current_id": 1,
+        "candidate_rating": 5,
+        "candidate_text": "Latest private candidate A",
+        "current_text": "Public current four",
+        "current_rating": 4,
+        "revisions": 2,
+        "public": {
+          "average": 4,
+          "count": 1
+        },
+        "retry_after": 0
+      },
+      "after": {
+        "candidate_id": 19,
+        "current_id": 1,
+        "candidate_rating": 5,
+        "candidate_text": "Latest private candidate A",
+        "current_text": "Public current four",
+        "current_rating": 4,
+        "revisions": 2,
+        "public": {
+          "average": 4,
+          "count": 1
+        },
+        "retry_after": 0
+      },
+      "events": [
+        {
+          "url": "http://127.0.0.1:33271/ru/reviews/place/target/1/",
+          "error": "net::ERR_FAILED"
+        }
+      ],
+      "navigation_error": "page.waitForNavigation: net::ERR_FAILED\n=========================== logs ===========================\nwaiting for navigation until \"domcontentloaded\"\n============================================================",
+      "png": "screenshots/simulated-transport-place.png"
+    },
+    {
+      "item": {
+        "cell": 18,
+        "kind": "activity",
+        "lang": "ru",
+        "width": 360,
+        "pk": 1,
+        "url": "/ru/reviews/activity/target/1/"
+      },
+      "simulated": "POST transport aborted by QA route before server delivery",
+      "checks": {
+        "one_explicit_attempt": true,
+        "no_write": true
+      },
+      "before": {
+        "candidate_id": 21,
+        "current_id": 1,
+        "candidate_rating": 5,
+        "candidate_text": "Latest private candidate A",
+        "current_text": "Public current four",
+        "current_rating": 4,
+        "revisions": 3,
+        "public": {
+          "average": 4,
+          "count": 1
+        },
+        "retry_after": 0
+      },
+      "after": {
+        "candidate_id": 21,
+        "current_id": 1,
+        "candidate_rating": 5,
+        "candidate_text": "Latest private candidate A",
+        "current_text": "Public current four",
+        "current_rating": 4,
+        "revisions": 3,
+        "public": {
+          "average": 4,
+          "count": 1
+        },
+        "retry_after": 0
+      },
+      "events": [
+        {
+          "url": "http://127.0.0.1:33271/ru/reviews/activity/target/1/",
+          "error": "net::ERR_FAILED"
+        }
+      ],
+      "navigation_error": "page.waitForNavigation: net::ERR_FAILED\n=========================== logs ===========================\nwaiting for navigation until \"domcontentloaded\"\n============================================================",
+      "png": "screenshots/simulated-transport-activity.png"
+    },
+    {
+      "item": {
+        "cell": 36,
+        "kind": "event",
+        "lang": "ru",
+        "width": 360,
+        "pk": 1,
+        "url": "/ru/reviews/event/target/1/"
+      },
+      "simulated": "POST transport aborted by QA route before server delivery",
+      "checks": {
+        "one_explicit_attempt": true,
+        "no_write": true
+      },
+      "before": {
+        "candidate_id": 19,
+        "current_id": 1,
+        "candidate_rating": 5,
+        "candidate_text": "Latest private candidate A",
+        "current_text": "Public current four",
+        "current_rating": 4,
+        "revisions": 2,
+        "public": {
+          "average": 4,
+          "count": 1
+        },
+        "retry_after": 0
+      },
+      "after": {
+        "candidate_id": 19,
+        "current_id": 1,
+        "candidate_rating": 5,
+        "candidate_text": "Latest private candidate A",
+        "current_text": "Public current four",
+        "current_rating": 4,
+        "revisions": 2,
+        "public": {
+          "average": 4,
+          "count": 1
+        },
+        "retry_after": 0
+      },
+      "events": [
+        {
+          "url": "http://127.0.0.1:33271/ru/reviews/event/target/1/",
+          "error": "net::ERR_FAILED"
+        }
+      ],
+      "navigation_error": "page.waitForNavigation: net::ERR_FAILED\n=========================== logs ===========================\nwaiting for navigation until \"domcontentloaded\"\n============================================================",
+      "png": "screenshots/simulated-transport-event.png"
+    },
+    {
+      "item": {
+        "cell": 54,
+        "kind": "specialist",
+        "lang": "ru",
+        "width": 360,
+        "pk": 1,
+        "url": "/ru/reviews/specialist/target/1/"
+      },
+      "simulated": "POST transport aborted by QA route before server delivery",
+      "checks": {
+        "one_explicit_attempt": true,
+        "no_write": true
+      },
+      "before": {
+        "candidate_id": 49,
+        "current_id": 1,
+        "candidate_rating": 5,
+        "candidate_text": "Latest private candidate A",
+        "current_text": "Public current four",
+        "current_rating": 4,
+        "revisions": 3,
+        "public": {
+          "average": 4,
+          "count": 1
+        },
+        "retry_after": 0
+      },
+      "after": {
+        "candidate_id": 49,
+        "current_id": 1,
+        "candidate_rating": 5,
+        "candidate_text": "Latest private candidate A",
+        "current_text": "Public current four",
+        "current_rating": 4,
+        "revisions": 3,
+        "public": {
+          "average": 4,
+          "count": 1
+        },
+        "retry_after": 0
+      },
+      "events": [
+        {
+          "url": "http://127.0.0.1:33271/ru/reviews/specialist/target/1/",
+          "error": "net::ERR_FAILED"
+        }
+      ],
+      "navigation_error": "page.waitForNavigation: net::ERR_FAILED\n=========================== logs ===========================\nwaiting for navigation until \"domcontentloaded\"\n============================================================",
+      "png": "screenshots/simulated-transport-specialist.png"
+    }
+  ],
+  "accessibility": {
+    "item": {
+      "cell": 54,
+      "kind": "specialist",
+      "lang": "ru",
+      "width": 360,
+      "pk": 1,
+      "url": "/ru/reviews/specialist/target/1/"
+    },
+    "checks": {
+      "actual409": true,
+      "no_write": true,
+      "heading_readable_after_native_scroll": true
+    },
+    "style": {
+      "color": "rgb(255, 255, 255)",
+      "background": "rgb(76, 175, 80)",
+      "fontSize": "16px",
+      "fontWeight": "400"
+    },
+    "png": "screenshots/accessibility-heading-specialist.png"
+  },
+  "existing_normal_editor_button_style": {
+    "color": "rgb(255, 255, 255)",
+    "background": "rgb(76, 175, 80)",
+    "fontSize": "16px",
+    "fontWeight": "400"
+  },
+  "note": "Shared CSS unmodified; style sample is not a full WCAG audit"
+}

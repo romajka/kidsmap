@@ -11,6 +11,7 @@ from catalog.interfaces.tracking import IEventPlaceRepository, IFunnelEventRepos
 from catalog.models import FunnelEvent, Place
 from catalog.repositories.tracking_repositories import DjangoEventPlaceRepository, DjangoFunnelEventRepository
 from catalog.services.reactions import ensure_session_key
+from catalog.services.analytics_persistence import persist_analytics
 from catalog.services.analytics_identity import analytics_identity_for_request, classify_device
 
 
@@ -222,6 +223,12 @@ class TrackingService:
             event_place_repository=DjangoEventPlaceRepository(),
         )
 
+    def _store_event(self, *, request, **payload) -> bool:
+        saved = persist_analytics(self.event_repository.create_event, **payload)
+        if not saved:
+            request._analytics_persistence_failed = True
+        return saved
+
     def track_event(
         self,
         *,
@@ -251,7 +258,10 @@ class TrackingService:
             if language not in {code.split("-", 1)[0] for code, _ in settings.LANGUAGES}:
                 language = ""
             referrer = str(request.META.get("HTTP_REFERER") or "")
-            referrer_domain = (urlsplit(referrer).hostname or "")[:180] if referrer else ""
+            try:
+                referrer_domain = (urlsplit(referrer).hostname or "")[:180] if referrer else ""
+            except ValueError:
+                referrer_domain = ""
             request_url_name = getattr(request.resolver_match, "url_name", "")
             event_path = path or ("" if request_url_name == "track_event" else request.path or "")
             page_type = ""
@@ -260,7 +270,8 @@ class TrackingService:
                     page_type = PUBLIC_ANALYTICS_PAGE_TYPES.get(resolve(event_path).url_name, "")
                 except Resolver404:
                     page_type = ""
-            self.event_repository.create_event(
+            return self._store_event(
+                request=request,
                 event_type=event_type,
                 path=event_path[:255],
                 place=place,
@@ -279,13 +290,13 @@ class TrackingService:
                 referrer_domain=referrer_domain,
                 campaign=str(request.GET.get("utm_campaign") or "")[:80],
             )
-            return True
 
         session_key = ensure_session_key(request) or ""
         user = request.user if request.user.is_authenticated else None
         event_path = (path or request.path or "")[:255]
 
-        self.event_repository.create_event(
+        return self._store_event(
+            request=request,
             event_type=event_type,
             path=event_path,
             place=place,
@@ -293,7 +304,6 @@ class TrackingService:
             session_key=session_key,
             event_meta=_normalize_meta(meta),
         )
-        return True
 
     def track_catalog_funnel_events(self, *, request, selected: dict[str, Any], results_total: int, is_new_page: bool) -> None:
         query = (selected.get("q") or "").strip()
@@ -338,6 +348,8 @@ class TrackingService:
             )
 
     def track_place_open_event(self, *, request, place: Place) -> None:
+        if getattr(request, "method", "GET") != "GET":
+            return
         self.track_event(
             request=request,
             event_type=FunnelEvent.EVENT_PLACE_VIEW,
@@ -417,7 +429,8 @@ class TrackingService:
             "page_type": page_type,
             "language": language,
         }
-        self.event_repository.create_event(
+        return self._store_event(
+            request=request,
             event_type=FunnelEvent.EVENT_AI_REFERRAL_VISIT,
             path=landing_path,
             place=None,
@@ -425,7 +438,6 @@ class TrackingService:
             session_key="",
             event_meta=event_meta,
         )
-        return True
 
     def track_cta_click_event(
         self,
@@ -502,6 +514,8 @@ def track_click_event(*, request, event_type: str, place_id: int | None, source:
 
 def track_subject_view(*, request, subject):
     """Record existing Organization/Activity subjects once per request, no backfill."""
+    if getattr(request, "method", "GET") != "GET":
+        return False
     from catalog.models import Organization, Activity
     from catalog.services.public_presentation import visible
     if not isinstance(subject, (Organization, Activity)) or not visible(subject):
@@ -515,11 +529,11 @@ def track_subject_view(*, request, subject):
     if not getattr(settings, 'LOCAL_ANALYTICS_STORAGE_ENABLED', False):
         return True
     visitor_hash, session_hash = analytics_identity_for_request(request)
-    _tracking_service.event_repository.create_event(
+    return _tracking_service._store_event(
+        request=request,
         event_type=kind+'_view', path=request.path[:255], place=None,
         user=request.user if request.user.is_authenticated else None, session_key='', event_meta={},
         schema_version=FunnelEvent.SCHEMA_V2, subject_type=kind, subject_id=subject.pk,
         visitor_key_hash=visitor_hash, session_key_hash=session_hash, source='',
         page_type=kind+'_detail', language=str(getattr(request,'LANGUAGE_CODE','az')).split('-')[0],
         device_class=classify_device(request), referrer_domain='', campaign='')
-    return True

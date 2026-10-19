@@ -1,0 +1,4 @@
+from pathlib import Path
+O=Path('/mnt/c/kidsmap/docs/qa/module11-repair-2026-10-18-pc-r1');t=(O/'browser-routing-final.js').read_text();t=t.replace('rows=[],errors=[],pageerrors=[],dialogs=[]','rows=[],errors=[],pageerrors=[],dialogs=[],visiblePhotos={}');old="const get=await p.request.get(base+path),head=await p.request.head(base+path);";assert old in t;t=t.replace(old,old+"const image=(await get.text()).match(/property=\"og:image\" content=\"([^\"]+)\"/);visiblePhotos[lang+'-'+kind]=image&&image[1];")
+old="noindex:(await p.locator('meta[name=robots]').getAttribute('content')).includes('noindex')";assert old in t;t=t.replace(old,old+",no_entity_photo_in_metadata:(await p.locator('meta[property=\"og:image\"]').getAttribute('content'))!==visiblePhotos[lang+'-'+kind]")
+(O/'browser-routing-photos-final.js').write_text(t)

@@ -1,0 +1,138 @@
+{
+  "decision": "SOCIAL-QA-04 CLOSED LOCAL scoped functional/UI acceptance; module09 OPEN",
+  "date": "2026-10-17",
+  "timezone": "Asia/Baku",
+  "execution": "/root, canonical roles sequential; no independent subagents",
+  "approval": "approval.json",
+  "snapshot": {
+    "root": "C:/kidsmap",
+    "head": "852938d96764ae315b92859e3651e5ea62054a36",
+    "branch": "codex/module09-transfer-2026-10-16-r1",
+    "dirty": true,
+    "source_files": 1021
+  },
+  "scope": [
+    "src/catalog/templates/pages/account_notifications.html",
+    "static/css/pages/account_notifications.css"
+  ],
+  "matches_approved_candidates_normalized": true,
+  "existing_assertions_changed": false,
+  "red_reference": "../social-qa04-recheck-2026-10-16-pc-r1/verification.json",
+  "red": {
+    "source_files": 1020,
+    "cells": 108,
+    "style_fail": 684,
+    "na_raw_true_slots": 18,
+    "unchanged_source_reused": true
+  },
+  "green": {
+    "backend_methods": 4,
+    "failures": 0,
+    "errors": 0,
+    "exit": 0,
+    "seconds": 1.4,
+    "matrix_cells": 108,
+    "control_pass": 1188,
+    "style_pass": 1368,
+    "fail": 0
+  },
+  "native": {
+    "flows": {
+      "cases": 30,
+      "pass": 279,
+      "fail": 0
+    },
+    "guards": {
+      "cases": 3,
+      "pass": 24,
+      "fail": 0
+    },
+    "role_and_shared_smoke": {
+      "cases": 30,
+      "pass": 144,
+      "fail": 0
+    },
+    "focus": {
+      "cases": 6,
+      "pass": 18,
+      "fail": 0
+    }
+  },
+  "minimum_text_contrast": 6.094530130647246,
+  "minimum_focus_contrast": 6.094530130647246,
+  "normal_unhandled_pageerrors": 0,
+  "png": 174,
+  "runtime": {
+    "info": {
+      "testing": true,
+      "python": "3.12.15",
+      "django": "6.0.2",
+      "postgresql": "17.11",
+      "source_files": 1021,
+      "template": "/mnt/c/kidsmap/src/catalog/templates/pages/account_notifications.html",
+      "hashes": {
+        "src/catalog/templates/pages/account_notifications.html": "4a9776122d72ed8fce085119b8da188993bc2e33ccf96e6237840e88236601a6",
+        "static/css/pages/account_notifications.css": "ce6fbe83283d4fe51be4cecf046c8d8dfde9265a80ab25ae2f880fc3aa6aa408"
+      },
+      "sole_locales": [
+        "/mnt/c/kidsmap/.tmp/social04-pc-fix-r1/locales/locale"
+      ]
+    },
+    "browser": "155.0.8059.12"
+  },
+  "preservation": {
+    "source1021_match_green": true,
+    "outside_approved_template_source_match_entry": true,
+    "head": "852938d96764ae315b92859e3651e5ea62054a36",
+    "branch": "codex/module09-transfer-2026-10-16-r1",
+    "task33_ref": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+    "index_tree": "881e0c48c7d557c46221beb3b2410a157982f861",
+    "index_empty_diff": true,
+    "active_run": [
+      "active_run: NONE"
+    ],
+    "shared_mo_match": true,
+    "cbmignore_match": true,
+    "entry_container_ids_states_match": true,
+    "entry_containers": 30,
+    "foreign_restart_commands": 0,
+    "whole_machine_continuity": "NOT VERIFIED; bounded ID/state Docker snapshot"
+  },
+  "simulated": {
+    "finite500ms_delay": 3,
+    "pre_delivery_post_abort": 3,
+    "concurrent_revoke_via_real_service": 3,
+    "native_malformed_post_dom_extra_field": 3,
+    "auth": "QA fixture login; real password/OAuth not tested"
+  },
+  "shared_overflow_observations": [],
+  "not_run": [
+    "full ACCEPT09/global corpus",
+    "SOCIAL05-09/module10",
+    "production/GitHub/commit/push/deploy",
+    "real external integrations/delivery",
+    "physical devices/other browsers/real screenreader/full WCAG"
+  ],
+  "metadata_gate": "VERIFIED approved source/evidence integrity; SOCIAL04 scoped LOCAL closure, module09 OPEN",
+  "final_verified_at": "2026-10-17T00:15:04+04:00",
+  "metadata_integrity": {
+    "source1021_match_green": true,
+    "outside_approved_source_match_entry": true,
+    "approved_candidate_matches": 2,
+    "original_forms_csrf_urls_retained": true,
+    "existing_assertions_changed": false,
+    "head_branch_task33_index_active_run_shared_mo_cbmignore_match": true,
+    "guide_original_bytes_preserved": true,
+    "prior_manifests": {
+      "module09-pc-resume-2026-10-16-r1": 43,
+      "social-qa03-fix-2026-10-16-pc-r1": 181,
+      "social-qa04-recheck-2026-10-16-pc-r1": 149
+    },
+    "entry30container_ids_states_match": true,
+    "png_sha_dimensions_verified": 174,
+    "document_links_verified": 24,
+    "python_helpers_ast_verified": true,
+    "git_diff_check_exit": 0,
+    "artifact_manifest_files": 212
+  }
+}

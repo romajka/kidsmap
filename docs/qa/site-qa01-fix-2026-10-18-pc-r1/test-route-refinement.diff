@@ -1,0 +1,30 @@
+diff --git a/mnt/c/kidsmap/docs/qa/site-qa01-recheck-2026-10-18-pc-r1/candidate/src/catalog/testcases/test_site_qa01_media_permissions.py b/mnt/c/kidsmap/src/catalog/testcases/test_site_qa01_media_permissions.py
+index 02ebaf4a..077dc608 100755
+--- a/mnt/c/kidsmap/docs/qa/site-qa01-recheck-2026-10-18-pc-r1/candidate/src/catalog/testcases/test_site_qa01_media_permissions.py
++++ b/mnt/c/kidsmap/src/catalog/testcases/test_site_qa01_media_permissions.py
+@@ -189,8 +189,24 @@ class Site01MediaPermissionsTests(TestCase):
+ 
+     def test_localized_aliases_deny_no_permission_staff(self):
+         self.user()
+-        for prefix in ['', '/ru', '/az', '/en']:
++        for prefix in ['', '/ru', '/en']:
+             with self.subTest(prefix=prefix):
+                 self.assertEqual(self.client.get(prefix + self.hub).status_code, 403)
+                 self.denied(prefix + self.upload, {'field': 'logo', 'image': self.image()})
+                 self.denied(prefix + self.delete, {'field': 'logo'})
++
++        # AZ uses an unprefixed canonical URL; the legacy alias redirects first.
++        for url, data in [
++            (self.hub, None),
++            (self.upload, {'field': 'logo', 'image': self.image()}),
++            (self.delete, {'field': 'logo'}),
++        ]:
++            with self.subTest(legacy_az_alias=url):
++                before = self.snapshot()
++                response = (self.client.get('/az' + url) if data is None
++                            else self.client.post('/az' + url, data))
++                self.assertEqual(response.status_code, 301)
++                self.assertEqual(response['Location'], url)
++                self.assertEqual(self.snapshot(), before)
++                self.assertEqual(self.client.get(response['Location']).status_code,
++                                 403 if data is None else 400)

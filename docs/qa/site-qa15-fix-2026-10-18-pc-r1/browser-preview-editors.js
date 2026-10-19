@@ -1,0 +1,33 @@
+async original=>{
+const base='http://127.0.0.1:33500',O='/mnt/c/kidsmap/docs/qa/site-qa15-fix-2026-10-18-pc-r1',fixture='/mnt/c/kidsmap/.tmp/site15-pc-fix-r1/fixture.png',rows=[],pageerrors=[],local_errors=[],blocked=[],browser=original.context().browser();
+const footer='/admin/catalog/sitefootersettings/1/change/',visibility='/admin/catalog/sitevisibilitysettings/1/change/',hub='/admin/catalog/sitegalleryimage/';
+try{
+ const c=await browser.newContext({viewport:{width:1440,height:950},serviceWorkers:'block'});await c.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():(blocked.push(new URL(r.request().url()).hostname),r.abort()));
+ const a=await c.newPage(),b=await c.newPage();for(const p of[a,b]){p.setDefaultTimeout(12000);p.on('pageerror',e=>pageerrors.push(String(e)));p.on('response',r=>{if(new URL(r.url()).hostname==='127.0.0.1'&&r.status()>=400&&![403,409].includes(r.status()))local_errors.push({path:new URL(r.url()).pathname,status:r.status()});});}
+ const state=async()=>(await a.request.get(base+'/qa/site15/state/')).json();
+ async function save(p,path,name='_continue'){const[r]=await Promise.all([p.waitForResponse(r=>r.request().method()==='POST'&&new URL(r.url()).pathname===path),p.waitForNavigation({waitUntil:'domcontentloaded'}),p.locator('button[name='+name+']').click()]);return r.status();}
+ await a.goto(base+'/qa/site15/login/super/');
+ for(const lang of ['az','ru','en']){
+  const csrf=(await c.cookies()).find(x=>x.name==='csrftoken').value;await a.request.post(base+'/i18n/setlang/',{headers:{'X-CSRFToken':csrf},form:{language:lang,next:'/admin/'},maxRedirects:0});
+  for(const editor of ['sitebrandingsettings','siteaboutsettings','sitecontactssettings','sitefootersettings','siteemptystatesettings','sitevisibilitysettings','siteanalytics']){
+   const path='/admin/catalog/'+editor+'/1/change/',r=await a.goto(base+path),token=await a.locator('[name=settings_revision]').inputValue(),before=await state(),status=await save(a,path),after=await state();
+   const strip=x=>{const{updated_at,admin_log_count,...rest}=x;return rest;};
+   rows.push({id:'fresh-editor',lang,editor,status,checks:{get200:r.status()===200,oneNonemptyRevision:await a.locator('[name=settings_revision]').count()===1&&!!token,language:await a.locator('html').getAttribute('lang')===lang,save302:status===302,valuesFilesPreserved:JSON.stringify(strip(before))===JSON.stringify(strip(after)),noConflict:await a.locator('.km-place-form-alert[role=alert]').count()===0}});
+  }
+  const stats=await a.goto(base+'/admin/catalog/siteanalytics/');rows.push({id:'statistics-changelist',lang,checks:{get200:stats.status()===200,noRevision:await a.locator('[name=settings_revision]').count()===0}});
+ }
+ // Both native submit actions retain their ordinary success path and reject an old version.
+ await a.goto(base+footer);await b.goto(base+footer);const freshSave=await save(a,footer,'_save');await b.locator('[name=footer_email]').fill('site15-save-draft@example.invalid');const beforeSave=await state(),staleSave=await save(b,footer,'_save'),afterSave=await state();
+ rows.push({id:'save-action',checks:{freshSave302:freshSave===302,staleSave409:staleSave===409,draftRetained:await b.locator('[name=footer_email]').inputValue()==='site15-save-draft@example.invalid',noWrite:JSON.stringify(beforeSave)===JSON.stringify(afterSave)}});
+ // Checkbox drafts are bound even though the newer row's stored flag is unchanged.
+ await b.goto(base+visibility);const checkbox=b.locator('[name=events_section_enabled]'),old=await checkbox.isChecked();await checkbox.setChecked(!old);await a.goto(base+footer);await a.locator('[name=footer_phone]').fill('+994503150001');await save(a,footer);const beforeFlag=await state(),flagStatus=await save(b,visibility),afterFlag=await state();
+ rows.push({id:'checkbox-draft',checks:{conflict409:flagStatus===409,draftRetained:await b.locator('[name=events_section_enabled]').isChecked()===!old,storedFlagRetained:afterFlag.flags.events_section_enabled===old,noWrite:JSON.stringify(beforeFlag)===JSON.stringify(afterFlag)}});await b.screenshot({path:O+'/png/preview-checkbox-draft-en-1440.png',animations:'disabled'});
+ // Gallery writes use a separate table and leave a settings snapshot valid.
+ await b.goto(base+footer);const originalToken=await b.locator('[name=settings_revision]').inputValue();await a.goto(base+hub);const gallery=a.locator('.km-gallery-grid[data-placement] input[type=file]').first();const uploadPromise=a.waitForResponse(r=>r.request().method()==='POST'&&r.url().includes('/ajax-upload/'));await gallery.setInputFiles(fixture);const upload=await uploadPromise;await a.waitForTimeout(300);await b.locator('[name=footer_email]').fill('site15-gallery-kept@example.invalid');const gallerySave=await save(b,footer);
+ rows.push({id:'gallery-no-settings-conflict',checks:{upload200:upload.status()===200,originalTokenWasPresent:!!originalToken,settingsSave302:gallerySave===302,explicitValueSaved:(await state()).footer_email==='site15-gallery-kept@example.invalid'}});
+ await a.goto(base+hub);const galleryLink=await a.locator('a[href*="/sitegalleryimage/"][href$="/change/"]').first().getAttribute('href');const gr=await a.goto(base+galleryLink);rows.push({id:'shared-gallery-form',checks:{get200:gr.status()===200,noSettingsRevision:await a.locator('[name=settings_revision]').count()===0,submitPresent:await a.locator('button[name=_continue]').count()===1}});
+ // CatalogContentSettings direct UI is NOT RUN beyond existing __str__ TypeError500; baseline proof and first failed observation retained separately.
+
+ await c.close();return{rows,pageerrors,local_errors,blocked};
+}catch(e){return{rows,pageerrors,local_errors,blocked,error:String(e)};}
+}

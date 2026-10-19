@@ -1,0 +1,47 @@
+{
+  "rows": [
+    {
+      "id": "organization-native-submit",
+      "checks": {
+        "ok": true
+      }
+    },
+    {
+      "id": "organization-pending-approved-by-separate-staff",
+      "checks": {
+        "ok": true
+      }
+    },
+    {
+      "id": "organization-native-approve",
+      "checks": {
+        "ok": true
+      }
+    },
+    {
+      "id": "organization-new-candidate-submit",
+      "checks": {
+        "ok": true
+      }
+    },
+    {
+      "id": "organization-two-tab-conflict",
+      "checks": {
+        "ok": true
+      }
+    },
+    {
+      "id": "stale-input-retained",
+      "checks": {
+        "ok": true
+      }
+    }
+  ],
+  "errors": [
+    {
+      "phase": "program-submit",
+      "message": "TimeoutError: locator.click: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('form[data-program-form] button[name=submit]')\u001b[22m\n"
+    }
+  ],
+  "pageerrors": []
+}

@@ -1,0 +1,111 @@
+--- a/src/catalog/controllers/typed_reviews.py
++++ b/src/catalog/controllers/typed_reviews.py
+@@ -95,7 +95,7 @@
+             own_decision = latest
+     can_review = request.user.is_active and request.user.is_staff and request.user.has_perm('catalog.change_' + heads._meta.model_name)
+     candidates = list(heads.objects.filter(**{kind: target, 'is_current': True, 'candidate_revision__status': 'pending'}).select_related('candidate_revision')) if can_review else []
+-    return render(request, 'catalog/typed_reviews.html', {'kind': kind, 'target': target, 'target_name': getattr(target, 'name_i18n', None) or str(target), 'language': getattr(request, 'LANGUAGE_CODE', get_language()), 'reviews': reviews, 'own_review': own, 'own_review_decision': own_decision, 'candidates': candidates, 'review_rating': rating_summary(target), 'review_conflict': review_conflict, 'submitted_review': submitted_review}, status=409 if review_conflict else 200)
++    return render(request, 'catalog/typed_reviews.html', {'kind': kind, 'target': target, 'target_name': present(target, getattr(request, 'LANGUAGE_CODE', get_language()))['name'] if kind == 'activity' else (getattr(target, 'name_i18n', None) or str(target)), 'language': getattr(request, 'LANGUAGE_CODE', get_language()), 'reviews': reviews, 'own_review': own, 'own_review_decision': own_decision, 'candidates': candidates, 'review_rating': rating_summary(target), 'review_conflict': review_conflict, 'submitted_review': submitted_review}, status=409 if review_conflict else 200)
+ 
+ 
+ @require_POST
+--- /dev/null
++++ b/src/catalog/testcases/test_social_qa07_activity_review_title.py
+@@ -0,0 +1,97 @@
++"""SOCIAL07 behavior regression candidate, executed outside application path."""
++from datetime import timedelta
++from django.contrib.auth import get_user_model
++from django.test import TestCase
++from django.utils import timezone
++from django.utils.html import escape
++from catalog.models import Activity,Event,Organization,Program,SiteSettings,Specialist
++from catalog.services.public_presentation import present
++from catalog.testcases.utils import create_ready_place
++
++class SocialQA07TitleTests(TestCase):
++    def setUp(self):
++        self.author=get_user_model().objects.create_user('s07-test-author')
++        self.place=create_ready_place(name='Fictional place',name_az='Place AZ',name_ru='Place RU',name_en='Place EN')
++        site=SiteSettings.get_solo();site.specialists_section_enabled=site.events_section_enabled=True;site.save()
++
++    def response(self,activity,lang='az'):
++        prefix='' if lang=='az' else '/'+lang
++        return self.client.get(prefix+f'/reviews/activity/target/{activity.pk}/')
++
++    def assert_title(self,activity,expected,lang='az'):
++        response=self.response(activity,lang)
++        self.assertEqual(response.status_code,200)
++        self.assertEqual(response.context['target_name'],expected)
++        self.assertNotIn('Activity object (',response.context['target_name'])
++        self.assertContains(response,escape(expected))
++        return response
++
++    def test_requested_names_match_public_detail_for_guest_and_author(self):
++        names={'az':'Uydurma AZ','ru':'Вымышленное RU','en':'Fictional EN'}
++        a=Activity.objects.create(place=self.place,status='published',**{'name_'+k:v for k,v in names.items()})
++        for authenticated in [False,True]:
++            if authenticated:self.client.force_login(self.author)
++            for lang,expected in names.items():
++                with self.subTest(authenticated=authenticated,lang=lang):
++                    self.assert_title(a,expected,lang)
++                    detail=self.client.get(('' if lang=='az' else '/'+lang)+f'/activities/{a.pk}/')
++                    self.assertEqual(detail.status_code,200)
++                    self.assertEqual(detail.context['presentation']['name'],expected)
++
++    def test_missing_translation_uses_existing_az_fallback(self):
++        a=Activity.objects.create(place=self.place,status='published',name_az='Yalnız AZ',name_ru=' ',name_en='')
++        for lang in ['az','ru','en']:
++            with self.subTest(lang=lang):self.assert_title(a,'Yalnız AZ',lang)
++
++    def test_permitted_snapshot_name_is_shared_with_public_presentation(self):
++        a=Activity.objects.create(place=self.place,status='published',program_snapshot={'name_az':'Snapshot AZ','name_ru':'Снимок RU','name_en':'Snapshot EN'})
++        for lang,expected in [('az','Snapshot AZ'),('ru','Снимок RU'),('en','Snapshot EN')]:
++            with self.subTest(lang=lang):
++                self.assertEqual(present(a,lang)['name'],expected)
++                self.assert_title(a,expected,lang)
++
++    def test_live_approved_program_name_uses_canonical_inheritance(self):
++        from catalog.services.organization_ownership import request_join
++        parent=create_ready_place(owner=self.author,created_by=self.author,name='Program parent')
++        org=Organization.objects.create(owner=self.author,created_by=self.author,name_az='Fictional org',status='published',approved_at=timezone.now())
++        request_join(actor=self.author,place_id=parent.pk,organization_id=org.pk);parent.refresh_from_db()
++        program=Program.objects.create(organization=org,name_az='Live AZ',name_ru='Live RU',name_en='Live EN',status='published',approved_at=timezone.now())
++        a=Activity.objects.create(place=parent,program=program,status='published')
++        for lang in ['az','ru','en']:
++            with self.subTest(lang=lang):
++                expected={'az':'Live AZ','ru':'Live RU','en':'Live EN'}[lang]
++                self.assertEqual(present(a,lang)['name'],expected)
++                self.assert_title(a,expected,lang)
++
++    def test_title_text_is_html_escaped(self):
++        a=Activity.objects.create(place=self.place,status='published',name_az='<script>fictional()</script> & class')
++        response=self.assert_title(a,a.name_az)
++        self.assertNotContains(response,'<script>fictional()</script>')
++
++    def test_no_public_name_remains_canonical_empty_not_object_id(self):
++        a=Activity.objects.create(place=self.place,status='published')
++        self.assertEqual(present(a,'az')['name'],'')
++        self.assert_title(a,'')
++
++    def test_other_target_kinds_keep_their_existing_title_path(self):
++        spec=Specialist.objects.create(name='Fictional specialist',status='published',is_active=True)
++        event=Event.objects.create(name='Fictional event',name_az='Event AZ',category=self.place.category,status='published',event_format='online',
++            start_datetime=timezone.now()+timedelta(days=4),end_datetime=timezone.now()+timedelta(days=4,hours=1))
++        for kind,target,expected in [('place',self.place,'Place AZ'),('specialist',spec,'Fictional specialist'),('event',event,'Event AZ')]:
++            with self.subTest(kind=kind):
++                response=self.client.get(f'/reviews/{kind}/target/{target.pk}/')
++                self.assertEqual(response.status_code,200)
++                self.assertContains(response,expected)
++
++    def test_hidden_activity_stays_404_for_guest_and_author(self):
++        a=Activity.objects.create(place=self.place,status='draft',name_az='PRIVATE DRAFT')
++        self.assertEqual(self.response(a).status_code,404)
++        self.client.force_login(self.author)
++        self.assertEqual(self.response(a).status_code,404)
++
++    def test_staff_hidden_activity_does_not_leak_a_public_name(self):
++        a=Activity.objects.create(place=self.place,status='draft',name_az='PRIVATE DRAFT')
++        staff=get_user_model().objects.create_superuser('s07-staff','staff@example.invalid',None)
++        self.client.force_login(staff)
++        self.assertEqual(present(a,'az')['name'],'')
++        self.assert_title(a,'')

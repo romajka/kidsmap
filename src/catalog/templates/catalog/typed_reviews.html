@@ -4,7 +4,7 @@
 {% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/typed_reviews.css' %}">{% endblock %}
 {% block title %}{% if language == 'ru' %}Отзывы{% elif language == 'en' %}Reviews{% else %}Rəylər{% endif %} — {{ target_name }}{% endblock %}
 {% block content %}
-<main class="container typed-reviews">
+<div class="container typed-reviews km-page-content">
   <h1>{% if language == 'ru' %}Отзывы{% elif language == 'en' %}Reviews{% else %}Rəylər{% endif %}: {{ target_name }}</h1>
   <p>{% if language == 'ru' %}Каждый отзыв относится только к этой странице. KidsMap проверяет отзывы; бизнес может ответить или пожаловаться.{% elif language == 'en' %}Each review belongs to this target. KidsMap reviews submissions; businesses can reply or report.{% else %}Hər rəy yalnız bu səhifəyə aiddir. Rəyləri KidsMap yoxlayır; biznes cavab verə və ya şikayət edə bilər.{% endif %}</p>
   {% if review_rating.count %}<p data-review-rating>{{ review_rating.average|floatformat:1 }} / 5 · {{ review_rating.count }}</p>{% endif %}
@@ -27,16 +27,28 @@
       <blockquote>{{ own_review_decision.text|linebreaks }}</blockquote>
     </aside>
     {% endif %}
+    {% if review_conflict %}
+    <aside class="review-item" role="alert" aria-labelledby="review-conflict-title" data-review-conflict>
+      <h3 id="review-conflict-title">{% if language == 'ru' %}Отзыв изменился{% elif language == 'en' %}The review has changed{% else %}Rəy dəyişib{% endif %}</h3>
+      <p id="review-conflict-message">{% if language == 'ru' %}Ваш вариант не сохранён. Он остался в форме ниже. Сравните его с актуальной редакцией и отправьте снова, если хотите заменить её.{% elif language == 'en' %}Your version was not saved. It remains in the form below. Compare it with the latest version and submit again if you want to replace it.{% else %}Sizin versiyanız saxlanılmadı. O, aşağıdakı formada qalıb. Onu aktual versiya ilə müqayisə edin və əvəz etmək istəyirsinizsə, yenidən göndərin.{% endif %}</p>
+      {% with latest_review=own_review.candidate_revision|default:own_review %}
+      {% if latest_review %}<p>{% if language == 'ru' %}Актуальная редакция{% elif language == 'en' %}Latest version{% else %}Aktual versiya{% endif %} · {{ latest_review.rating }} / 5</p><blockquote data-review-latest>{{ latest_review.text|linebreaks }}</blockquote>{% endif %}
+      {% endwith %}
+    </aside>
+    {% endif %}
     {% if own_review.candidate_revision %}<p data-candidate-status>{{ own_review.candidate_revision.get_status_display }}</p>{% endif %}
     <form method="post" data-review-edit>{% csrf_token %}<input type="hidden" name="expected_revision_id" value="{% firstof own_review.candidate_revision_id own_review.current_revision_id '' %}">
-    {% with editor_review=own_review.candidate_revision|default:own_review %}
-      <label for="review-rating">{% if language == 'ru' %}Оценка{% elif language == 'en' %}Rating{% else %}Qiymət{% endif %}</label><select id="review-rating" name="rating" required><option value="">—</option><option value="1"{% if editor_review.rating == 1 %} selected{% endif %}>1</option><option value="2"{% if editor_review.rating == 2 %} selected{% endif %}>2</option><option value="3"{% if editor_review.rating == 3 %} selected{% endif %}>3</option><option value="4"{% if editor_review.rating == 4 %} selected{% endif %}>4</option><option value="5"{% if editor_review.rating == 5 %} selected{% endif %}>5</option></select>
+    {% with saved_editor_review=own_review.candidate_revision|default:own_review %}
+    {% with editor_review=submitted_review|default:saved_editor_review %}
+      <label for="review-rating">{% if language == 'ru' %}Оценка{% elif language == 'en' %}Rating{% else %}Qiymət{% endif %}</label><select id="review-rating" name="rating" required{% if review_conflict %} aria-describedby="review-conflict-message"{% endif %}><option value="">—</option><option value="1"{% if editor_review.rating == 1 %} selected{% endif %}>1</option><option value="2"{% if editor_review.rating == 2 %} selected{% endif %}>2</option><option value="3"{% if editor_review.rating == 3 %} selected{% endif %}>3</option><option value="4"{% if editor_review.rating == 4 %} selected{% endif %}>4</option><option value="5"{% if editor_review.rating == 5 %} selected{% endif %}>5</option></select>
     {% endwith %}
-      <label for="review-text">{% if language == 'ru' %}Текст отзыва{% elif language == 'en' %}Review text{% else %}Rəy mətni{% endif %}</label><textarea id="review-text" name="text" required maxlength="5000" rows="5" style="width:100%;box-sizing:border-box">{% firstof own_review.candidate_revision.text own_review.text '' %}</textarea><button>{% if language == 'ru' %}Отправить на проверку{% elif language == 'en' %}Submit for review{% else %}Yoxlanışa göndər{% endif %}</button>
+    {% endwith %}
+      <label for="review-text">{% if language == 'ru' %}Текст отзыва{% elif language == 'en' %}Review text{% else %}Rəy mətni{% endif %}</label><textarea id="review-text" name="text"{% if review_conflict %} autofocus aria-describedby="review-conflict-message"{% endif %} required maxlength="5000" rows="5" style="width:100%;box-sizing:border-box">{% if submitted_review %}{{ submitted_review.text }}{% else %}{% firstof own_review.candidate_revision.text own_review.text '' %}{% endif %}</textarea><button>{% if review_conflict %}{% if language == 'ru' %}Отправить мой вариант{% elif language == 'en' %}Submit my version{% else %}Mənim versiyamı göndər{% endif %}{% else %}{% if language == 'ru' %}Отправить на проверку{% elif language == 'en' %}Submit for review{% else %}Yoxlanışa göndər{% endif %}{% endif %}</button>
     </form>
+    {% if review_conflict %}<p><a href="{% url 'typed_reviews' kind target.pk %}" data-review-reload>{% if language == 'ru' %}Загрузить актуальную редакцию — мой ввод будет сброшен{% elif language == 'en' %}Load the latest version — discard my input{% else %}Aktual versiyanı yüklə — daxil etdiyim mətn silinəcək{% endif %}</a></p>{% endif %}
   </section>{% endif %}
   {% if candidates %}<section aria-labelledby="candidate-reviews"><h2 id="candidate-reviews">{% if language == 'ru' %}Проверка KidsMap{% elif language == 'en' %}KidsMap review{% else %}KidsMap yoxlanışı{% endif %}</h2>
     {% for head in candidates %}<article data-candidate-id="{{ head.candidate_revision_id }}"><p>{{ head.candidate_revision.rating }} / 5</p><blockquote>{{ head.candidate_revision.text|linebreaks }}</blockquote><form method="post" action="{% url 'typed_review_action' kind head.pk 'approve' %}">{% csrf_token %}<input type="hidden" name="revision_id" value="{{ head.candidate_revision_id }}"><button>{% if language == 'ru' %}Одобрить редакцию{% elif language == 'en' %}Approve version{% else %}Versiyanı təsdiqlə{% endif %}</button></form><form method="post" action="{% url 'typed_review_action' kind head.pk 'reject' %}">{% csrf_token %}<input type="hidden" name="revision_id" value="{{ head.candidate_revision_id }}"><label for="reason-{{ head.pk }}">{% if language == 'ru' %}Причина отклонения{% elif language == 'en' %}Rejection reason{% else %}Rədd səbəbi{% endif %}</label><textarea id="reason-{{ head.pk }}" name="reason" maxlength="5000" style="width:100%;box-sizing:border-box"></textarea><button>{% if language == 'ru' %}Отклонить редакцию{% elif language == 'en' %}Reject version{% else %}Versiyanı rədd et{% endif %}</button></form></article>{% endfor %}
   </section>{% endif %}
-</main>
+</div>
 {% endblock %}

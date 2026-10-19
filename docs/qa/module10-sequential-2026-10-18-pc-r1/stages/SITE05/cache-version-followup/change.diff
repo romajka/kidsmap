@@ -1,0 +1,11 @@
+--- a/src/catalog/templates/pages/home.html
++++ b/src/catalog/templates/pages/home.html
+@@ -11,7 +11,7 @@
+ {% endif %}
+ {% endblock %}
+ {% block extra_head %}
+-<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20260928_mobile_hero1" />
++<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20261018_site05_r1" />
+ {% endblock %}
+ 
+ {% block content %}

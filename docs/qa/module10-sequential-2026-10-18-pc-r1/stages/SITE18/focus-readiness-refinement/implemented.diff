@@ -1,0 +1,56 @@
+--- a/static/css/components/header.css
++++ b/static/css/components/header.css
+@@ -71,8 +71,9 @@
+   gap: 10px;
+   text-decoration: none;
+   color: inherit;
+-  flex-shrink: 0;
++  flex-shrink: 1;
+   min-width: 0;
++  max-width: 360px;
+   cursor: pointer;
+   touch-action: manipulation;
+   -webkit-tap-highlight-color: transparent;
+@@ -120,7 +121,10 @@
+   letter-spacing: -0.025em;
+   line-height: 1;
+   white-space: nowrap;
+-  flex-shrink: 0;
++  flex-shrink: 1;
++  min-width: 0;
++  overflow: hidden;
++  text-overflow: ellipsis;
+   margin: 0;
+ }
+ 
+--- a/src/catalog/templates/includes/header.html
++++ b/src/catalog/templates/includes/header.html
+@@ -5,7 +5,7 @@
+ <header class="km-header topbar" role="banner" id="km-site-header">
+   <div class="km-header-inner">
+     <!-- Brand / Logo Lockup -->
+-    <a class="km-brand brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}">
++    <a class="km-brand brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}" title="{{ brand_name }}">
+       <span class="km-brand-logo-frame">
+         <img
+           class="km-brand-logo"
+@@ -281,7 +281,7 @@
+   <aside class="km-drawer-sheet" role="dialog" aria-modal="true" aria-label="{% trans 'Навигационное меню' %}">
+     <!-- Drawer Header -->
+     <div class="km-drawer-header">
+-      <a class="km-brand brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}">
++      <a class="km-brand brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}" title="{{ brand_name }}">
+         <span class="km-brand-logo-frame">
+           <img
+             class="km-brand-logo"
+--- a/src/catalog/templates/base.html
++++ b/src/catalog/templates/base.html
+@@ -102,7 +102,7 @@
+     <link rel="stylesheet" href="{% static 'css/motion.css' %}" />
+     {% block navigation_motion %}{% endblock %}
+     <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=2">
+-    <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261005">
++    <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261018_site18_r1">
+     <script src="{% static 'js/header.js' %}?v=20260915" defer></script>
+     <script src="{% static 'js/motion.js' %}"></script>
+   </head>

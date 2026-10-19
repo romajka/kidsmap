@@ -1,0 +1,67 @@
+{
+  "utc": "2026-10-17T03:40:29.512001+00:00",
+  "status": "PLAN COMPLETE; SOCIAL-QA-08 CONFIRMED OPEN/P2; implementation approval PENDING",
+  "snapshot": {
+    "head": "852938d96764ae315b92859e3651e5ea62054a36",
+    "branch": "codex/module09-transfer-2026-10-16-r1",
+    "source_files": 1022,
+    "application_changes": 0
+  },
+  "candidate": {
+    "scope": [
+      "src/catalog/controllers/workflow_notifications.py",
+      "src/catalog/testcases/test_social_qa08_invitation_feedback.py"
+    ],
+    "new_test_methods": 9,
+    "apply_check_exit": 0,
+    "applied": false,
+    "candidate_live_rendering": "NOT RUN"
+  },
+  "tests_RED": {
+    "unique_methods": 9,
+    "failed_methods": 5,
+    "passed_methods": 4,
+    "assertion_subtest_failures": 14,
+    "errors": 0,
+    "seconds": 1.706,
+    "exit": 1,
+    "failed_method_names": [
+      "test_expired_invitation_keeps_403_with_feedback_and_no_grant",
+      "test_missing_invitation_for_own_notice_has_safe_feedback",
+      "test_repeat_accepted_invitation_does_not_regrant_and_has_feedback",
+      "test_revoked_invitation_explains_denial_for_both_kinds_and_locales",
+      "test_stale_ownership_keeps_403_with_feedback_and_no_grant"
+    ]
+  },
+  "native": {
+    "cells": 36,
+    "controlsPASS": 468,
+    "sourceFAIL": 108,
+    "expected_empty403": 36,
+    "expected_requestfailed": 36,
+    "pageerrors": 0,
+    "unexpected_http_failures": 0,
+    "unexpected_requestfailed": 0,
+    "png": 75
+  },
+  "preservation": {
+    "prior_packages": 10,
+    "entry_container_ID_name_states": 41,
+    "final_containers": 43,
+    "sources_all_unchanged": true,
+    "sharedMO_cbmignore_refs_index_activeNONE": true
+  },
+  "not_run": [
+    "candidate/live GREEN",
+    "implementation08",
+    "SOCIAL09",
+    "full ACCEPT09",
+    "global corpus",
+    "production",
+    "physical devices",
+    "real screenreader/full WCAG",
+    "other browsers",
+    "external email/integrations",
+    "complete per-cell console history"
+  ]
+}

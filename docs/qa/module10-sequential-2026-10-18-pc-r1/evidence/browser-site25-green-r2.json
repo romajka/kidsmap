@@ -1,0 +1,159 @@
+{
+  "rows": [
+    {
+      "id": "az-gallery_deleter-360",
+      "checks": {
+        "delete_visible": true,
+        "correct_href": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "az-gallery_deleter-390",
+      "checks": {
+        "delete_visible": true,
+        "correct_href": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "az-gallery_deleter-768",
+      "checks": {
+        "delete_visible": true,
+        "correct_href": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "az-gallery_deleter-1024",
+      "checks": {
+        "delete_visible": true,
+        "correct_href": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "az-gallery_deleter-1280",
+      "checks": {
+        "delete_visible": true,
+        "correct_href": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "az-gallery_deleter-1440",
+      "checks": {
+        "delete_visible": true,
+        "correct_href": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "az-gallery_deleter-escape",
+      "checks": {
+        "same_editor": true,
+        "no_write": true
+      }
+    },
+    {
+      "id": "az-gallery_deleter-cancel",
+      "checks": {
+        "same_editor": true,
+        "no_write": true
+      }
+    },
+    {
+      "id": "az-gallery_deleter-confirmation",
+      "checks": {
+        "correct_route": true,
+        "confirmation_form": true,
+        "no_write": true
+      }
+    },
+    {
+      "id": "az-gallery_deleter-actual-delete",
+      "pk": 11,
+      "checks": {
+        "POST302": true,
+        "permitted_destination": false,
+        "exactly_target_row_deleted": true,
+        "one_log": true,
+        "media_bytes_unchanged": true,
+        "brand_preserved": true
+      }
+    },
+    {
+      "id": "az-super-360",
+      "checks": {
+        "delete_visible": true,
+        "correct_href": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "az-super-390",
+      "checks": {
+        "delete_visible": true,
+        "correct_href": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "az-super-768",
+      "checks": {
+        "delete_visible": true,
+        "correct_href": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "az-super-1024",
+      "checks": {
+        "delete_visible": true,
+        "correct_href": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "az-super-1280",
+      "checks": {
+        "delete_visible": true,
+        "correct_href": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "az-super-1440",
+      "checks": {
+        "delete_visible": true,
+        "correct_href": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "az-super-escape",
+      "checks": {
+        "same_editor": true,
+        "no_write": true
+      }
+    },
+    {
+      "id": "az-super-cancel",
+      "checks": {
+        "same_editor": true,
+        "no_write": true
+      }
+    }
+  ],
+  "errors": [
+    {
+      "lang": "az",
+      "error": "Error: locator.waitFor: Error: strict mode violation: getByRole('button', { name: '\u0414\u0430, \u043f\u0440\u043e\u0434\u043e\u043b\u0436\u0438\u0442\u044c', exact: true }) resolved to 2 elements:\n    1) <button type=\"button\" class=\"km-btn-modal km-btn-modal--danger\">\u0414\u0430, \u043f\u0440\u043e\u0434\u043e\u043b\u0436\u0438\u0442\u044c</button> aka getByRole('button', { name: '\u0414\u0430, \u043f\u0440\u043e\u0434\u043e\u043b\u0436\u0438\u0442\u044c' }).first()\n    2) <button type=\"button\" class=\"km-btn-modal km-btn-modal--danger\">\u0414\u0430, \u043f\u0440\u043e\u0434\u043e\u043b\u0436\u0438\u0442\u044c</button> aka getByRole('button', { name: '\u0414\u0430, \u043f\u0440\u043e\u0434\u043e\u043b\u0436\u0438\u0442\u044c' }).nth(1)\n\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '\u0414\u0430, \u043f\u0440\u043e\u0434\u043e\u043b\u0436\u0438\u0442\u044c', exact: true }) to be visible\u001b[22m\n"
+    }
+  ],
+  "pageerrors": [],
+  "deleted": [
+    11
+  ],
+  "scope": "Only six owned inactive SITE23 synthetic rows deleted by actual native Django confirmation POST, view+delete and super3languages6widths; cancel/Escape no write. Storage files retained per existing model policy, original media bytes preserved. Negative direct GET and UI links verified, POST denial covered backend."
+}

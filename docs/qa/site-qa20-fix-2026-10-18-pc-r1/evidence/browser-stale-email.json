@@ -1,0 +1,1054 @@
+{
+  "rows": [
+    {
+      "id": "invalid-email-az-360",
+      "lang": "az",
+      "width": 360,
+      "checks": {
+        "native_POST200": true,
+        "no_DB_log_media_write": true,
+        "draft_retained": true,
+        "error_summary_visible": true,
+        "label_focus": true,
+        "stays_in_editor": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "stale-first-writer-az-360",
+      "lang": "az",
+      "width": 360,
+      "checks": {
+        "native_POST302": true,
+        "one_LogEntry": true,
+        "exact_email": true
+      }
+    },
+    {
+      "id": "stale-file-conflict-az-360",
+      "lang": "az",
+      "width": 360,
+      "checks": {
+        "native_POST409": true,
+        "no_DB_log_media_write": true,
+        "draft_retained": true,
+        "old_token_retained": true,
+        "current_version_link_visible": true,
+        "current_version_link_target": true,
+        "reselect_notice_visible": true,
+        "file_must_be_reselected": true,
+        "stays_in_editor": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "restore-footer-az-360",
+      "lang": "az",
+      "width": 360,
+      "checks": {
+        "native_POST302": true,
+        "original_email": true,
+        "original_brand": true,
+        "media_and_gallery_unchanged": true,
+        "one_LogEntry": true
+      }
+    },
+    {
+      "id": "invalid-email-az-1440",
+      "lang": "az",
+      "width": 1440,
+      "checks": {
+        "native_POST200": true,
+        "no_DB_log_media_write": true,
+        "draft_retained": true,
+        "error_summary_visible": true,
+        "label_focus": true,
+        "stays_in_editor": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "stale-first-writer-az-1440",
+      "lang": "az",
+      "width": 1440,
+      "checks": {
+        "native_POST302": true,
+        "one_LogEntry": true,
+        "exact_email": true
+      }
+    },
+    {
+      "id": "stale-file-conflict-az-1440",
+      "lang": "az",
+      "width": 1440,
+      "checks": {
+        "native_POST409": true,
+        "no_DB_log_media_write": true,
+        "draft_retained": true,
+        "old_token_retained": true,
+        "current_version_link_visible": true,
+        "current_version_link_target": true,
+        "reselect_notice_visible": true,
+        "file_must_be_reselected": true,
+        "stays_in_editor": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "restore-footer-az-1440",
+      "lang": "az",
+      "width": 1440,
+      "checks": {
+        "native_POST302": true,
+        "original_email": true,
+        "original_brand": true,
+        "media_and_gallery_unchanged": true,
+        "one_LogEntry": true
+      }
+    },
+    {
+      "id": "invalid-email-ru-360",
+      "lang": "ru",
+      "width": 360,
+      "checks": {
+        "native_POST200": true,
+        "no_DB_log_media_write": true,
+        "draft_retained": true,
+        "error_summary_visible": true,
+        "label_focus": true,
+        "stays_in_editor": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "stale-first-writer-ru-360",
+      "lang": "ru",
+      "width": 360,
+      "checks": {
+        "native_POST302": true,
+        "one_LogEntry": true,
+        "exact_email": true
+      }
+    },
+    {
+      "id": "stale-file-conflict-ru-360",
+      "lang": "ru",
+      "width": 360,
+      "checks": {
+        "native_POST409": true,
+        "no_DB_log_media_write": true,
+        "draft_retained": true,
+        "old_token_retained": true,
+        "current_version_link_visible": true,
+        "current_version_link_target": true,
+        "reselect_notice_visible": true,
+        "file_must_be_reselected": true,
+        "stays_in_editor": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "restore-footer-ru-360",
+      "lang": "ru",
+      "width": 360,
+      "checks": {
+        "native_POST302": true,
+        "original_email": true,
+        "original_brand": true,
+        "media_and_gallery_unchanged": true,
+        "one_LogEntry": true
+      }
+    },
+    {
+      "id": "invalid-email-ru-1440",
+      "lang": "ru",
+      "width": 1440,
+      "checks": {
+        "native_POST200": true,
+        "no_DB_log_media_write": true,
+        "draft_retained": true,
+        "error_summary_visible": true,
+        "label_focus": true,
+        "stays_in_editor": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "stale-first-writer-ru-1440",
+      "lang": "ru",
+      "width": 1440,
+      "checks": {
+        "native_POST302": true,
+        "one_LogEntry": true,
+        "exact_email": true
+      }
+    },
+    {
+      "id": "stale-file-conflict-ru-1440",
+      "lang": "ru",
+      "width": 1440,
+      "checks": {
+        "native_POST409": true,
+        "no_DB_log_media_write": true,
+        "draft_retained": true,
+        "old_token_retained": true,
+        "current_version_link_visible": true,
+        "current_version_link_target": true,
+        "reselect_notice_visible": true,
+        "file_must_be_reselected": true,
+        "stays_in_editor": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "restore-footer-ru-1440",
+      "lang": "ru",
+      "width": 1440,
+      "checks": {
+        "native_POST302": true,
+        "original_email": true,
+        "original_brand": true,
+        "media_and_gallery_unchanged": true,
+        "one_LogEntry": true
+      }
+    },
+    {
+      "id": "invalid-email-en-360",
+      "lang": "en",
+      "width": 360,
+      "checks": {
+        "native_POST200": true,
+        "no_DB_log_media_write": true,
+        "draft_retained": true,
+        "error_summary_visible": true,
+        "label_focus": true,
+        "stays_in_editor": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "stale-first-writer-en-360",
+      "lang": "en",
+      "width": 360,
+      "checks": {
+        "native_POST302": true,
+        "one_LogEntry": true,
+        "exact_email": true
+      }
+    },
+    {
+      "id": "stale-file-conflict-en-360",
+      "lang": "en",
+      "width": 360,
+      "checks": {
+        "native_POST409": true,
+        "no_DB_log_media_write": true,
+        "draft_retained": true,
+        "old_token_retained": true,
+        "current_version_link_visible": true,
+        "current_version_link_target": true,
+        "reselect_notice_visible": true,
+        "file_must_be_reselected": true,
+        "stays_in_editor": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "restore-footer-en-360",
+      "lang": "en",
+      "width": 360,
+      "checks": {
+        "native_POST302": true,
+        "original_email": true,
+        "original_brand": true,
+        "media_and_gallery_unchanged": true,
+        "one_LogEntry": true
+      }
+    },
+    {
+      "id": "invalid-email-en-1440",
+      "lang": "en",
+      "width": 1440,
+      "checks": {
+        "native_POST200": true,
+        "no_DB_log_media_write": true,
+        "draft_retained": true,
+        "error_summary_visible": true,
+        "label_focus": true,
+        "stays_in_editor": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "stale-first-writer-en-1440",
+      "lang": "en",
+      "width": 1440,
+      "checks": {
+        "native_POST302": true,
+        "one_LogEntry": true,
+        "exact_email": true
+      }
+    },
+    {
+      "id": "stale-file-conflict-en-1440",
+      "lang": "en",
+      "width": 1440,
+      "checks": {
+        "native_POST409": true,
+        "no_DB_log_media_write": true,
+        "draft_retained": true,
+        "old_token_retained": true,
+        "current_version_link_visible": true,
+        "current_version_link_target": true,
+        "reselect_notice_visible": true,
+        "file_must_be_reselected": true,
+        "stays_in_editor": true,
+        "no_document_overflow": true
+      }
+    },
+    {
+      "id": "restore-footer-en-1440",
+      "lang": "en",
+      "width": 1440,
+      "checks": {
+        "native_POST302": true,
+        "original_email": true,
+        "original_brand": true,
+        "media_and_gallery_unchanged": true,
+        "one_LogEntry": true
+      }
+    }
+  ],
+  "pageerrors": [],
+  "local_errors": [],
+  "blocked": [
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com"
+  ],
+  "initial": {
+    "brand_name": "KidsMap QA synthetic",
+    "footer_email": "qa@example.invalid",
+    "logo": "site/synthetic_long_filename_long_filename_long_filename_long_filename_long_filename_lon_8ZEgLjx.png",
+    "logo_size": [
+      32,
+      32
+    ],
+    "updated_at": "2026-10-18T15:31:44.607Z",
+    "media": {
+      "site/synthetic_long_filename_long_filename_long_filename_long_filename_long_filename_lon_8ZEgLjx.png": "3fd1f60526f931cffecb98e4d7cedd92c4e2f6ff3198d2b5757988046a0ed13a",
+      "responsive-images/v1/6b687a1047254562efd81840b445e442/manifest.json": "68502eee3d8a02c39818ec10eb90da0c27f40fab46f976eb5c727e4413bf63d2",
+      "responsive-images/v1/6b687a1047254562efd81840b445e442/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/87346b59e982be581a57375ce98bf31c/manifest.json": "69141965b5c5ffe680dbc790d981dd3c0b4590c443ae39ab68073acd25519c14",
+      "responsive-images/v1/87346b59e982be581a57375ce98bf31c/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/481116be8d117b17adba573b0c4d61ac/manifest.json": "c1bdb255a477bb676265118e522fb9f3a64353f2e642244bacbc2c65b8138549",
+      "responsive-images/v1/481116be8d117b17adba573b0c4d61ac/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/91ab0e2bda2d754b087a6de0eb50bbea/manifest.json": "c77c3cda92393a7830cf6ee73c32bc10ac0238d19984106d4876a6ed36fec76d",
+      "responsive-images/v1/91ab0e2bda2d754b087a6de0eb50bbea/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/7cbbd5e32d88f1b589d1a89e32caf95e/manifest.json": "55e1444199d12fd950876788c00f210b16f855b85a27c9a0a75df7a5656b49dd",
+      "responsive-images/v1/7cbbd5e32d88f1b589d1a89e32caf95e/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/a2d06e1bc25b4d32aaadd66f0ccf8497/manifest.json": "8da00dd7c5ce24a51c6495250d4daf4b23beb11aaf111445da4d4c398e3dcb53",
+      "responsive-images/v1/a2d06e1bc25b4d32aaadd66f0ccf8497/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/d19f4635bb606f3f8b6b07ca059c515a/manifest.json": "a6ad793e191f6b62b16f87116922e447d2bc0d8ecd29e64a6ca112cf759ab5dc",
+      "responsive-images/v1/d19f4635bb606f3f8b6b07ca059c515a/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/b34c83abe495658e2dd4a017a4b8c1ef/manifest.json": "5cc04eabf3b9a134942095adaa54c644dd391fe18c58785d8633444cf168b871",
+      "responsive-images/v1/b34c83abe495658e2dd4a017a4b8c1ef/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/8cea2152683d00a6b1d4219f9e264833/manifest.json": "537fcd74112230f435ccf0348400da1b71f98b1ec462110c2ed3d68371c9f370",
+      "responsive-images/v1/8cea2152683d00a6b1d4219f9e264833/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/bc8e874f93fba579aa13c7d63ad64162/manifest.json": "9fdf1759269812112490b319b1deb526ea27e283dbcdd0abc34924b475357461",
+      "responsive-images/v1/bc8e874f93fba579aa13c7d63ad64162/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/7da83e55c9f3f47c66311feb64327f11/manifest.json": "cb34e08c481b838c886776e4abff8e3f5764691cdf9d43d143e9a28c7d0abdcd",
+      "responsive-images/v1/7da83e55c9f3f47c66311feb64327f11/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/24cc0bed8cebdf263784d858f94afd77/manifest.json": "55b58cdc51d26999bc2fe1948aee68fd9ded01a369a5069b2d85f38cd62d63be",
+      "responsive-images/v1/24cc0bed8cebdf263784d858f94afd77/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/manifest.json": "13f136fbb333f59d97be5a7d1762b1f70d61010b21ae4ff340cded28231e000d",
+      "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/1024.webp": "ebafa7f884e79ac11d5203c77190ce96cbaf3df994cc54e5b67767101c0cd779",
+      "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/960.webp": "0853125c708502d2bdb9aa4897442a00438e63069f456b711a5db28a046caf8e",
+      "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/640.webp": "e87b21cc18211b9b812f9081433c9c0c64fbacd7c4d2af5464464c6ed5086585",
+      "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/320.webp": "9f2459ccfa8b3b13f1d9cec2f8c32b3d9764654e854a6eb1639f67ecbec7a9b3",
+      "responsive-images/v1/51c42e7fa3b71c4b577a8d68313be578/manifest.json": "ceed444400e2a884bbe5d89cca2bc9012d27dd2870ce63ef82e201080b3462ab",
+      "responsive-images/v1/51c42e7fa3b71c4b577a8d68313be578/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/bf0e146603e3cd682264533711a2233d/manifest.json": "0b704428fa439af195e827b345a338f1d9aba6a11f3cc1d5b840fc4aca6638cc",
+      "responsive-images/v1/bf0e146603e3cd682264533711a2233d/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/45f9516557e7917e682e462e2d28e6aa/manifest.json": "060521265514585ee0543628a0694fb7d8e07428ca7164e18cb101adbed50a19",
+      "responsive-images/v1/45f9516557e7917e682e462e2d28e6aa/32.webp": "1974816b12f337362b337620d25fa82f0400b5da95df53367d0b668b19fae053",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_dVWLk9S.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_xGNhzJA.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_t31p2fx.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_ke0ybCl.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_T7nQaCy.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_ig3vwr1.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_2rJv1Tq.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_qia5rPz.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_z0uTByR.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_mApBn2g.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_k6X7SiI.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_EcDQzXd.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_80kIOnQ.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_w78wF8C.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/home-hero-09-team-hands.jpg": "f9959ea240ae6f52aa6daf2a9e1dc35480a460f78a6cfe95d5efbdb73a59d1cb",
+      "site/gallery/home-hero-08-art-drawing.jpg": "23079c95fa65fa253a3e2a42360e77bdbcc725a74e3d934bc850e898d64f0ef0",
+      "site/gallery/home-hero-07-family-park.jpg": "e665fe0771602069f48e4a060b36d8a2993e49d789b427e9a481e6d3258e7082",
+      "site/gallery/home-hero-06-sports-class.jpg": "21019e37a935897abc0ec26ad0d9631d645b6148baaa66cb9dd7a950f48cd17a",
+      "site/gallery/home-hero-05-art-class.jpg": "b8a822acfa308eb5007de8e0016414de5fcc8f75699044f6a7a02629e7c30b1c",
+      "site/gallery/home-hero-04-family-balloons.jpg": "9b1651b0a0f8950fb21ef509f2cb4ade697e545a2b208c2fde138c54d8e4967b",
+      "site/gallery/home-hero-03-music-lesson.jpg": "59ca68e6ea0735a233e37e83933c05cc6d00f5433deea85ba45b915e6fb634b8",
+      "site/gallery/home-hero-02-kids-craft.jpg": "c85b1cf834cc27f4bd395b915404743316fb530f015a8770dae6b0adc6ddc2f1",
+      "site/gallery/home-hero-01-family-studio.jpg": "89ef15250f913b0ecbba52af18c384782d92acf57ef284936f2f45c138c082f9"
+    },
+    "gallery": [
+      {
+        "pk": 1,
+        "placement": "HOME_HERO",
+        "order": 1,
+        "is_active": true,
+        "title_ru": "\u0421\u0435\u043c\u044c\u044f",
+        "title_az": "Ail\u0259",
+        "title_en": "Family",
+        "image": "site/gallery/home-hero-01-family-studio.jpg"
+      },
+      {
+        "pk": 2,
+        "placement": "HOME_HERO",
+        "order": 2,
+        "is_active": true,
+        "title_ru": "\u0422\u0432\u043e\u0440\u0447\u0435\u0441\u0442\u0432\u043e",
+        "title_az": "Yarad\u0131c\u0131l\u0131q",
+        "title_en": "Creativity",
+        "image": "site/gallery/home-hero-02-kids-craft.jpg"
+      },
+      {
+        "pk": 3,
+        "placement": "HOME_HERO",
+        "order": 3,
+        "is_active": true,
+        "title_ru": "\u041c\u0443\u0437\u044b\u043a\u0430",
+        "title_az": "Musiqi",
+        "title_en": "Music",
+        "image": "site/gallery/home-hero-03-music-lesson.jpg"
+      },
+      {
+        "pk": 4,
+        "placement": "HOME_HERO",
+        "order": 4,
+        "is_active": true,
+        "title_ru": "\u0421\u0435\u043c\u0435\u0439\u043d\u044b\u0439 \u0434\u043e\u0441\u0443\u0433",
+        "title_az": "Ail\u0259 istirah\u0259ti",
+        "title_en": "Family time",
+        "image": "site/gallery/home-hero-04-family-balloons.jpg"
+      },
+      {
+        "pk": 5,
+        "placement": "HOME_HERO",
+        "order": 5,
+        "is_active": true,
+        "title_ru": "\u0422\u0432\u043e\u0440\u0447\u0435\u0441\u0442\u0432\u043e",
+        "title_az": "Yarad\u0131c\u0131l\u0131q",
+        "title_en": "Creativity",
+        "image": "site/gallery/home-hero-05-art-class.jpg"
+      },
+      {
+        "pk": 6,
+        "placement": "HOME_HERO",
+        "order": 6,
+        "is_active": true,
+        "title_ru": "\u0421\u043f\u043e\u0440\u0442",
+        "title_az": "\u0130dman",
+        "title_en": "Sport",
+        "image": "site/gallery/home-hero-06-sports-class.jpg"
+      },
+      {
+        "pk": 7,
+        "placement": "HOME_HERO",
+        "order": 7,
+        "is_active": true,
+        "title_ru": "\u0421\u0435\u043c\u0435\u0439\u043d\u044b\u0439 \u0434\u043e\u0441\u0443\u0433",
+        "title_az": "Ail\u0259 istirah\u0259ti",
+        "title_en": "Family time",
+        "image": "site/gallery/home-hero-07-family-park.jpg"
+      },
+      {
+        "pk": 8,
+        "placement": "HOME_HERO",
+        "order": 8,
+        "is_active": true,
+        "title_ru": "\u0420\u0438\u0441\u043e\u0432\u0430\u043d\u0438\u0435",
+        "title_az": "R\u0259sm",
+        "title_en": "Drawing",
+        "image": "site/gallery/home-hero-08-art-drawing.jpg"
+      },
+      {
+        "pk": 9,
+        "placement": "HOME_HERO",
+        "order": 9,
+        "is_active": true,
+        "title_ru": "\u041a\u043e\u043c\u0430\u043d\u0434\u043d\u044b\u0435 \u0437\u0430\u043d\u044f\u0442\u0438\u044f",
+        "title_az": "Komanda m\u0259\u015f\u011f\u0259l\u0259l\u0259ri",
+        "title_en": "Team activities",
+        "image": "site/gallery/home-hero-09-team-hands.jpg"
+      },
+      {
+        "pk": 10,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 synthetic gallery",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/synthetic_long_filename_long_filename_long_filename_long_filename_long_filename_lon_8ZEgLjx.png"
+      },
+      {
+        "pk": 11,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 red add _save",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_w78wF8C.png"
+      },
+      {
+        "pk": 12,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 red add _continue",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_80kIOnQ.png"
+      },
+      {
+        "pk": 13,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green az 360 _save",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_EcDQzXd.png"
+      },
+      {
+        "pk": 14,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green az 360 _continue",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_k6X7SiI.png"
+      },
+      {
+        "pk": 15,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green az 1440 _save",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_mApBn2g.png"
+      },
+      {
+        "pk": 16,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green az 1440 _continue",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_z0uTByR.png"
+      },
+      {
+        "pk": 17,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green ru 360 _save",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_qia5rPz.png"
+      },
+      {
+        "pk": 18,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green ru 360 _continue",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_2rJv1Tq.png"
+      },
+      {
+        "pk": 19,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green ru 1440 _save",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_ig3vwr1.png"
+      },
+      {
+        "pk": 20,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green ru 1440 _continue",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_T7nQaCy.png"
+      },
+      {
+        "pk": 21,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green en 360 _save",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_ke0ybCl.png"
+      },
+      {
+        "pk": 22,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green en 360 _continue",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_t31p2fx.png"
+      },
+      {
+        "pk": 23,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green en 1440 _save",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_xGNhzJA.png"
+      },
+      {
+        "pk": 24,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green en 1440 _continue",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_dVWLk9S.png"
+      }
+    ],
+    "admin_log_count": 149,
+    "last_log_repr": "Home: hero slider \u00b7 24"
+  },
+  "final": {
+    "brand_name": "KidsMap QA synthetic",
+    "footer_email": "qa@example.invalid",
+    "logo": "site/synthetic_long_filename_long_filename_long_filename_long_filename_long_filename_lon_8ZEgLjx.png",
+    "logo_size": [
+      32,
+      32
+    ],
+    "updated_at": "2026-10-18T15:33:11.097Z",
+    "media": {
+      "site/synthetic_long_filename_long_filename_long_filename_long_filename_long_filename_lon_8ZEgLjx.png": "3fd1f60526f931cffecb98e4d7cedd92c4e2f6ff3198d2b5757988046a0ed13a",
+      "responsive-images/v1/6b687a1047254562efd81840b445e442/manifest.json": "68502eee3d8a02c39818ec10eb90da0c27f40fab46f976eb5c727e4413bf63d2",
+      "responsive-images/v1/6b687a1047254562efd81840b445e442/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/87346b59e982be581a57375ce98bf31c/manifest.json": "69141965b5c5ffe680dbc790d981dd3c0b4590c443ae39ab68073acd25519c14",
+      "responsive-images/v1/87346b59e982be581a57375ce98bf31c/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/481116be8d117b17adba573b0c4d61ac/manifest.json": "c1bdb255a477bb676265118e522fb9f3a64353f2e642244bacbc2c65b8138549",
+      "responsive-images/v1/481116be8d117b17adba573b0c4d61ac/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/91ab0e2bda2d754b087a6de0eb50bbea/manifest.json": "c77c3cda92393a7830cf6ee73c32bc10ac0238d19984106d4876a6ed36fec76d",
+      "responsive-images/v1/91ab0e2bda2d754b087a6de0eb50bbea/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/7cbbd5e32d88f1b589d1a89e32caf95e/manifest.json": "55e1444199d12fd950876788c00f210b16f855b85a27c9a0a75df7a5656b49dd",
+      "responsive-images/v1/7cbbd5e32d88f1b589d1a89e32caf95e/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/a2d06e1bc25b4d32aaadd66f0ccf8497/manifest.json": "8da00dd7c5ce24a51c6495250d4daf4b23beb11aaf111445da4d4c398e3dcb53",
+      "responsive-images/v1/a2d06e1bc25b4d32aaadd66f0ccf8497/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/d19f4635bb606f3f8b6b07ca059c515a/manifest.json": "a6ad793e191f6b62b16f87116922e447d2bc0d8ecd29e64a6ca112cf759ab5dc",
+      "responsive-images/v1/d19f4635bb606f3f8b6b07ca059c515a/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/b34c83abe495658e2dd4a017a4b8c1ef/manifest.json": "5cc04eabf3b9a134942095adaa54c644dd391fe18c58785d8633444cf168b871",
+      "responsive-images/v1/b34c83abe495658e2dd4a017a4b8c1ef/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/8cea2152683d00a6b1d4219f9e264833/manifest.json": "537fcd74112230f435ccf0348400da1b71f98b1ec462110c2ed3d68371c9f370",
+      "responsive-images/v1/8cea2152683d00a6b1d4219f9e264833/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/bc8e874f93fba579aa13c7d63ad64162/manifest.json": "9fdf1759269812112490b319b1deb526ea27e283dbcdd0abc34924b475357461",
+      "responsive-images/v1/bc8e874f93fba579aa13c7d63ad64162/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/7da83e55c9f3f47c66311feb64327f11/manifest.json": "cb34e08c481b838c886776e4abff8e3f5764691cdf9d43d143e9a28c7d0abdcd",
+      "responsive-images/v1/7da83e55c9f3f47c66311feb64327f11/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/24cc0bed8cebdf263784d858f94afd77/manifest.json": "55b58cdc51d26999bc2fe1948aee68fd9ded01a369a5069b2d85f38cd62d63be",
+      "responsive-images/v1/24cc0bed8cebdf263784d858f94afd77/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/manifest.json": "13f136fbb333f59d97be5a7d1762b1f70d61010b21ae4ff340cded28231e000d",
+      "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/1024.webp": "ebafa7f884e79ac11d5203c77190ce96cbaf3df994cc54e5b67767101c0cd779",
+      "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/960.webp": "0853125c708502d2bdb9aa4897442a00438e63069f456b711a5db28a046caf8e",
+      "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/640.webp": "e87b21cc18211b9b812f9081433c9c0c64fbacd7c4d2af5464464c6ed5086585",
+      "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/320.webp": "9f2459ccfa8b3b13f1d9cec2f8c32b3d9764654e854a6eb1639f67ecbec7a9b3",
+      "responsive-images/v1/51c42e7fa3b71c4b577a8d68313be578/manifest.json": "ceed444400e2a884bbe5d89cca2bc9012d27dd2870ce63ef82e201080b3462ab",
+      "responsive-images/v1/51c42e7fa3b71c4b577a8d68313be578/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/bf0e146603e3cd682264533711a2233d/manifest.json": "0b704428fa439af195e827b345a338f1d9aba6a11f3cc1d5b840fc4aca6638cc",
+      "responsive-images/v1/bf0e146603e3cd682264533711a2233d/128.webp": "075639a82fbb94395a754e69b9e61a2a3b54615c7731f1907062f85ff8591da4",
+      "responsive-images/v1/45f9516557e7917e682e462e2d28e6aa/manifest.json": "060521265514585ee0543628a0694fb7d8e07428ca7164e18cb101adbed50a19",
+      "responsive-images/v1/45f9516557e7917e682e462e2d28e6aa/32.webp": "1974816b12f337362b337620d25fa82f0400b5da95df53367d0b668b19fae053",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_dVWLk9S.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_xGNhzJA.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_t31p2fx.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_ke0ybCl.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_T7nQaCy.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_ig3vwr1.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_2rJv1Tq.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_qia5rPz.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_z0uTByR.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_mApBn2g.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_k6X7SiI.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_EcDQzXd.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_80kIOnQ.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_w78wF8C.png": "2c45ce33b4c94be85e6391cf60a899af81736f608c96b6fc4b5af37c2df91490",
+      "site/gallery/home-hero-09-team-hands.jpg": "f9959ea240ae6f52aa6daf2a9e1dc35480a460f78a6cfe95d5efbdb73a59d1cb",
+      "site/gallery/home-hero-08-art-drawing.jpg": "23079c95fa65fa253a3e2a42360e77bdbcc725a74e3d934bc850e898d64f0ef0",
+      "site/gallery/home-hero-07-family-park.jpg": "e665fe0771602069f48e4a060b36d8a2993e49d789b427e9a481e6d3258e7082",
+      "site/gallery/home-hero-06-sports-class.jpg": "21019e37a935897abc0ec26ad0d9631d645b6148baaa66cb9dd7a950f48cd17a",
+      "site/gallery/home-hero-05-art-class.jpg": "b8a822acfa308eb5007de8e0016414de5fcc8f75699044f6a7a02629e7c30b1c",
+      "site/gallery/home-hero-04-family-balloons.jpg": "9b1651b0a0f8950fb21ef509f2cb4ade697e545a2b208c2fde138c54d8e4967b",
+      "site/gallery/home-hero-03-music-lesson.jpg": "59ca68e6ea0735a233e37e83933c05cc6d00f5433deea85ba45b915e6fb634b8",
+      "site/gallery/home-hero-02-kids-craft.jpg": "c85b1cf834cc27f4bd395b915404743316fb530f015a8770dae6b0adc6ddc2f1",
+      "site/gallery/home-hero-01-family-studio.jpg": "89ef15250f913b0ecbba52af18c384782d92acf57ef284936f2f45c138c082f9"
+    },
+    "gallery": [
+      {
+        "pk": 1,
+        "placement": "HOME_HERO",
+        "order": 1,
+        "is_active": true,
+        "title_ru": "\u0421\u0435\u043c\u044c\u044f",
+        "title_az": "Ail\u0259",
+        "title_en": "Family",
+        "image": "site/gallery/home-hero-01-family-studio.jpg"
+      },
+      {
+        "pk": 2,
+        "placement": "HOME_HERO",
+        "order": 2,
+        "is_active": true,
+        "title_ru": "\u0422\u0432\u043e\u0440\u0447\u0435\u0441\u0442\u0432\u043e",
+        "title_az": "Yarad\u0131c\u0131l\u0131q",
+        "title_en": "Creativity",
+        "image": "site/gallery/home-hero-02-kids-craft.jpg"
+      },
+      {
+        "pk": 3,
+        "placement": "HOME_HERO",
+        "order": 3,
+        "is_active": true,
+        "title_ru": "\u041c\u0443\u0437\u044b\u043a\u0430",
+        "title_az": "Musiqi",
+        "title_en": "Music",
+        "image": "site/gallery/home-hero-03-music-lesson.jpg"
+      },
+      {
+        "pk": 4,
+        "placement": "HOME_HERO",
+        "order": 4,
+        "is_active": true,
+        "title_ru": "\u0421\u0435\u043c\u0435\u0439\u043d\u044b\u0439 \u0434\u043e\u0441\u0443\u0433",
+        "title_az": "Ail\u0259 istirah\u0259ti",
+        "title_en": "Family time",
+        "image": "site/gallery/home-hero-04-family-balloons.jpg"
+      },
+      {
+        "pk": 5,
+        "placement": "HOME_HERO",
+        "order": 5,
+        "is_active": true,
+        "title_ru": "\u0422\u0432\u043e\u0440\u0447\u0435\u0441\u0442\u0432\u043e",
+        "title_az": "Yarad\u0131c\u0131l\u0131q",
+        "title_en": "Creativity",
+        "image": "site/gallery/home-hero-05-art-class.jpg"
+      },
+      {
+        "pk": 6,
+        "placement": "HOME_HERO",
+        "order": 6,
+        "is_active": true,
+        "title_ru": "\u0421\u043f\u043e\u0440\u0442",
+        "title_az": "\u0130dman",
+        "title_en": "Sport",
+        "image": "site/gallery/home-hero-06-sports-class.jpg"
+      },
+      {
+        "pk": 7,
+        "placement": "HOME_HERO",
+        "order": 7,
+        "is_active": true,
+        "title_ru": "\u0421\u0435\u043c\u0435\u0439\u043d\u044b\u0439 \u0434\u043e\u0441\u0443\u0433",
+        "title_az": "Ail\u0259 istirah\u0259ti",
+        "title_en": "Family time",
+        "image": "site/gallery/home-hero-07-family-park.jpg"
+      },
+      {
+        "pk": 8,
+        "placement": "HOME_HERO",
+        "order": 8,
+        "is_active": true,
+        "title_ru": "\u0420\u0438\u0441\u043e\u0432\u0430\u043d\u0438\u0435",
+        "title_az": "R\u0259sm",
+        "title_en": "Drawing",
+        "image": "site/gallery/home-hero-08-art-drawing.jpg"
+      },
+      {
+        "pk": 9,
+        "placement": "HOME_HERO",
+        "order": 9,
+        "is_active": true,
+        "title_ru": "\u041a\u043e\u043c\u0430\u043d\u0434\u043d\u044b\u0435 \u0437\u0430\u043d\u044f\u0442\u0438\u044f",
+        "title_az": "Komanda m\u0259\u015f\u011f\u0259l\u0259l\u0259ri",
+        "title_en": "Team activities",
+        "image": "site/gallery/home-hero-09-team-hands.jpg"
+      },
+      {
+        "pk": 10,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 synthetic gallery",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/synthetic_long_filename_long_filename_long_filename_long_filename_long_filename_lon_8ZEgLjx.png"
+      },
+      {
+        "pk": 11,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 red add _save",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_w78wF8C.png"
+      },
+      {
+        "pk": 12,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 red add _continue",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_80kIOnQ.png"
+      },
+      {
+        "pk": 13,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green az 360 _save",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_EcDQzXd.png"
+      },
+      {
+        "pk": 14,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green az 360 _continue",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_k6X7SiI.png"
+      },
+      {
+        "pk": 15,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green az 1440 _save",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_mApBn2g.png"
+      },
+      {
+        "pk": 16,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green az 1440 _continue",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_z0uTByR.png"
+      },
+      {
+        "pk": 17,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green ru 360 _save",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_qia5rPz.png"
+      },
+      {
+        "pk": 18,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green ru 360 _continue",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_2rJv1Tq.png"
+      },
+      {
+        "pk": 19,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green ru 1440 _save",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_ig3vwr1.png"
+      },
+      {
+        "pk": 20,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green ru 1440 _continue",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_T7nQaCy.png"
+      },
+      {
+        "pk": 21,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green en 360 _save",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_ke0ybCl.png"
+      },
+      {
+        "pk": 22,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green en 360 _continue",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_t31p2fx.png"
+      },
+      {
+        "pk": 23,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green en 1440 _save",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_xGNhzJA.png"
+      },
+      {
+        "pk": 24,
+        "placement": "HOME_HERO",
+        "order": 0,
+        "is_active": true,
+        "title_ru": "SITE20 green en 1440 _continue",
+        "title_az": "",
+        "title_en": "",
+        "image": "site/gallery/valid_long_name_long_name_long_name_long_name_long_name_long_name_long_name_dVWLk9S.png"
+      }
+    ],
+    "admin_log_count": 161,
+    "last_log_repr": "KidsMap QA synthetic"
+  },
+  "expected_successful_native_posts": 12,
+  "scope": "Unmodified native invalid-email Save and two-tab stale valid-file409; bound draft/old revision/no writes/reselection/link; own native first-writer+restore only. Expected409 responses classified; no transport rewrite or positive business API POST."
+}

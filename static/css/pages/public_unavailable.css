@@ -1,0 +1,9 @@
+.public-unavailable {
+  max-width: 720px; margin: clamp(40px, 8vw, 96px) auto;
+  padding: 0 20px; overflow-wrap: anywhere;
+}
+.public-unavailable h1 { margin: 0 0 16px; font-size: clamp(28px, 5vw, 44px); line-height: 1.15; }
+.public-unavailable p { margin: 0 0 28px; max-width: 55ch; line-height: 1.6; }
+.public-unavailable-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
+.public-unavailable-actions a { display: inline-flex; align-items: center; min-height: 44px; max-width: 100%; }
+.public-unavailable-actions a:focus-visible { outline: 3px solid currentColor; outline-offset: 4px; }

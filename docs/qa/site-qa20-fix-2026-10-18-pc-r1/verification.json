@@ -1,0 +1,420 @@
+{
+  "status": "SITE20 permission presentation CLOSED LOCAL; exact2file applied; separate SITE23/SITE24/SITE25 P3 OPEN; no blanket native GREEN",
+  "source_count": 1035,
+  "application_refinements": 0,
+  "backend": {
+    "methods": 122,
+    "seconds": 58.451,
+    "exit": 0,
+    "failures": 0,
+    "errors": 0,
+    "RED_methods": 8,
+    "RED_failed_methods": 3,
+    "RED_observations": 29,
+    "initial_GREEN_environment_error": "20s QueryCanceled in unchanged public catalog test, retained; same source/expectations/timeouts fresh sequential retry122OK"
+  },
+  "native": {
+    "rows": 683,
+    "checks": 5921,
+    "PASS": 5909,
+    "FAIL": 12,
+    "suites": {
+      "browser-layout-az": {
+        "rows": 120,
+        "checks": 1320,
+        "PASS": 1320,
+        "FAIL": 0
+      },
+      "browser-layout-ru": {
+        "rows": 120,
+        "checks": 1320,
+        "PASS": 1320,
+        "FAIL": 0
+      },
+      "browser-layout-en": {
+        "rows": 120,
+        "checks": 1320,
+        "PASS": 1320,
+        "FAIL": 0
+      },
+      "browser-negative": {
+        "rows": 49,
+        "checks": 98,
+        "PASS": 98,
+        "FAIL": 0
+      },
+      "browser-saves": {
+        "rows": 135,
+        "checks": 1080,
+        "PASS": 1077,
+        "FAIL": 3
+      },
+      "browser-add-green": {
+        "rows": 24,
+        "checks": 168,
+        "PASS": 162,
+        "FAIL": 6
+      },
+      "browser-stale-email": {
+        "rows": 24,
+        "checks": 150,
+        "PASS": 150,
+        "FAIL": 0
+      },
+      "browser-json-error-snapshots": {
+        "rows": 18,
+        "checks": 126,
+        "PASS": 126,
+        "FAIL": 0
+      },
+      "browser-file-error-central": {
+        "rows": 12,
+        "checks": 72,
+        "PASS": 72,
+        "FAIL": 0
+      },
+      "browser-sentinels-green": {
+        "rows": 12,
+        "checks": 72,
+        "PASS": 72,
+        "FAIL": 0
+      },
+      "browser-console": {
+        "rows": 18,
+        "checks": 54,
+        "PASS": 54,
+        "FAIL": 0
+      },
+      "browser-delete-navigation": {
+        "rows": 6,
+        "checks": 30,
+        "PASS": 27,
+        "FAIL": 3
+      },
+      "browser-keyboard": {
+        "rows": 18,
+        "checks": 72,
+        "PASS": 72,
+        "FAIL": 0
+      },
+      "browser-statistics-message": {
+        "rows": 6,
+        "checks": 36,
+        "PASS": 36,
+        "FAIL": 0
+      },
+      "browser-delete-route": {
+        "rows": 1,
+        "checks": 3,
+        "PASS": 3,
+        "FAIL": 0
+      }
+    },
+    "retained_out_of_scope_failures": [
+      {
+        "suite": "browser-saves",
+        "id": "siteanalytics-az-360-_save",
+        "failed": [
+          "no_overflow"
+        ],
+        "preexisting_continue403": false
+      },
+      {
+        "suite": "browser-saves",
+        "id": "siteanalytics-ru-360-_save",
+        "failed": [
+          "no_overflow"
+        ],
+        "preexisting_continue403": false
+      },
+      {
+        "suite": "browser-saves",
+        "id": "siteanalytics-en-360-_save",
+        "failed": [
+          "no_overflow"
+        ],
+        "preexisting_continue403": false
+      },
+      {
+        "suite": "browser-add-green",
+        "id": "add-az-360-_continue",
+        "failed": [
+          "landing200"
+        ],
+        "preexisting_continue403": true
+      },
+      {
+        "suite": "browser-add-green",
+        "id": "add-az-1440-_continue",
+        "failed": [
+          "landing200"
+        ],
+        "preexisting_continue403": true
+      },
+      {
+        "suite": "browser-add-green",
+        "id": "add-ru-360-_continue",
+        "failed": [
+          "landing200"
+        ],
+        "preexisting_continue403": true
+      },
+      {
+        "suite": "browser-add-green",
+        "id": "add-ru-1440-_continue",
+        "failed": [
+          "landing200"
+        ],
+        "preexisting_continue403": true
+      },
+      {
+        "suite": "browser-add-green",
+        "id": "add-en-360-_continue",
+        "failed": [
+          "landing200"
+        ],
+        "preexisting_continue403": true
+      },
+      {
+        "suite": "browser-add-green",
+        "id": "add-en-1440-_continue",
+        "failed": [
+          "landing200"
+        ],
+        "preexisting_continue403": true
+      },
+      {
+        "suite": "browser-delete-navigation",
+        "id": "az-1440",
+        "failed": [
+          "correct_route"
+        ],
+        "preexisting_continue403": false
+      },
+      {
+        "suite": "browser-delete-navigation",
+        "id": "ru-1440",
+        "failed": [
+          "correct_route"
+        ],
+        "preexisting_continue403": false
+      },
+      {
+        "suite": "browser-delete-navigation",
+        "id": "en-1440",
+        "failed": [
+          "correct_route"
+        ],
+        "preexisting_continue403": false
+      }
+    ],
+    "permission_matrix": {
+      "states": 360,
+      "checks": 3960,
+      "PASS": 3960
+    },
+    "new_synthetic_gallery_rows_retained": 14,
+    "PNG": 175,
+    "initial_screenshot_timeout": "No complete matrix returned, not counted PASS; original/CLI/PNG retained. Same assertions split3language batches, viewport images; own browser closed/reopened."
+  },
+  "fixture": {
+    "scoped_original_values_form_cleaned_restored": true,
+    "about_normalization": {
+      "about_text_ru": {
+        "strip": true,
+        "one_trailing_blank_removed": true
+      },
+      "about_text_az": {
+        "strip": true,
+        "one_trailing_blank_removed": true
+      },
+      "about_text_en": {
+        "strip": true,
+        "one_trailing_blank_removed": true
+      }
+    },
+    "catalog_three_JSON_restored": true,
+    "original_gallery_display_rows_unchanged": 10,
+    "expected_added_gallery_rows": 14,
+    "original_media_paths_hashes_unchanged": 12,
+    "native_new_source_files": 14,
+    "native_upload_bytes_exact": true,
+    "new_verified_responsive_cache_files": 33,
+    "manifests": [
+      {
+        "gallery_id": 1,
+        "files": 5,
+        "dimensions": [
+          1024,
+          1024
+        ]
+      },
+      {
+        "gallery_id": 10,
+        "files": 2,
+        "dimensions": [
+          32,
+          32
+        ]
+      },
+      {
+        "gallery_id": 11,
+        "files": 2,
+        "dimensions": [
+          128,
+          128
+        ]
+      },
+      {
+        "gallery_id": 12,
+        "files": 2,
+        "dimensions": [
+          128,
+          128
+        ]
+      },
+      {
+        "gallery_id": 13,
+        "files": 2,
+        "dimensions": [
+          128,
+          128
+        ]
+      },
+      {
+        "gallery_id": 14,
+        "files": 2,
+        "dimensions": [
+          128,
+          128
+        ]
+      },
+      {
+        "gallery_id": 15,
+        "files": 2,
+        "dimensions": [
+          128,
+          128
+        ]
+      },
+      {
+        "gallery_id": 16,
+        "files": 2,
+        "dimensions": [
+          128,
+          128
+        ]
+      },
+      {
+        "gallery_id": 17,
+        "files": 2,
+        "dimensions": [
+          128,
+          128
+        ]
+      },
+      {
+        "gallery_id": 18,
+        "files": 2,
+        "dimensions": [
+          128,
+          128
+        ]
+      },
+      {
+        "gallery_id": 19,
+        "files": 2,
+        "dimensions": [
+          128,
+          128
+        ]
+      },
+      {
+        "gallery_id": 20,
+        "files": 2,
+        "dimensions": [
+          128,
+          128
+        ]
+      },
+      {
+        "gallery_id": 21,
+        "files": 2,
+        "dimensions": [
+          128,
+          128
+        ]
+      },
+      {
+        "gallery_id": 22,
+        "files": 2,
+        "dimensions": [
+          128,
+          128
+        ]
+      },
+      {
+        "gallery_id": 23,
+        "files": 2,
+        "dimensions": [
+          128,
+          128
+        ]
+      },
+      {
+        "gallery_id": 24,
+        "files": 2,
+        "dimensions": [
+          128,
+          128
+        ]
+      }
+    ],
+    "logs_expected_and_actual": 167,
+    "read_only_transaction": true,
+    "no_full_DB_or_media_inventory_rollback_claim": true
+  },
+  "preservation": {
+    "source_count": 1035,
+    "changed_existing": 1,
+    "new_test": 1,
+    "other_existing_unchanged": 1033,
+    "exact_candidate": true,
+    "application_refinements": 0,
+    "prior_packages": 40,
+    "prior_files": 8205,
+    "MO_cbmignore": true,
+    "HEAD_branch_task33_index_bytes_empty_staging": true,
+    "active_NONE": true,
+    "foreign_container_identities_states": 75,
+    "own_container_identity": true,
+    "reverse_apply_check_exit": 0,
+    "native_diff_check_exit": 0
+  },
+  "module10": "15OPEN (9P2/6P3) =13entry -SITE20 +SITE23 +SITE24 +SITE25; full module acceptance pending",
+  "retained_LOCAL_closures": [
+    "SITE01",
+    "SITE15",
+    "SITE06",
+    "SITE19",
+    "SITE21",
+    "SITE08",
+    "SITE22",
+    "module09 composite"
+  ],
+  "separate_OPEN": [
+    "SITE23 add-only Continue redirect403",
+    "SITE24 statistics dashboard saved-message overflow360",
+    "SITE25 existing delete link wrong relative URL",
+    "SITE11 localization",
+    "remaining canonical findings"
+  ],
+  "NOT_RUN": [
+    "full module10/global/module11 acceptance",
+    "production/deploy/release",
+    "full WCAG/cross-browser/physical devices",
+    "successful deletion POST in new native checks"
+  ],
+  "production": "UNKNOWN; not contacted",
+  "execution": "/root inline, no independent-agent claim"
+}

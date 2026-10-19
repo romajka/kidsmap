@@ -1,0 +1,28 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m10s21-fix-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/site21-pc-fix-r1/runtime.py",
+    "test",
+    "catalog.testcases.test_site_qa19_catalog_content",
+    "catalog.testcases.public.TestCatalogContentSettingsWiring",
+    "catalog.testcases.test_site_qa06_media_validation",
+    "catalog.testcases.test_site_qa01_media_permissions",
+    "catalog.testcases.test_site_qa15_settings_concurrency",
+    "catalog.testcases.admin.TestSiteGalleryImageAdminMedia",
+    "catalog.testcases.admin.TestAdminSidebarStructure",
+    "catalog.testcases.test_public_section_switches"
+  ],
+  "exit": 0,
+  "summary": [
+    "Found 105 test(s).",
+    "Ran 105 tests in 50.338s",
+    "OK"
+  ],
+  "failures": [],
+  "errors": [],
+  "source_template_sha256": "a8e0733b7004b7b02bf047568ff7e5e43e38fd0e44dc683d9bfd7751e739f0d0",
+  "raw_log": "ignored own .tmp/site21-pc-fix-r1/green-tests.log"
+}

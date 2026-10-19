@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "status": "complete",
+  "source_root": "/mnt/c/kidsmap/locale",
+  "locale_root": "/mnt/c/kidsmap/.tmp/social05-pc-plan-r1/locales/locale",
+  "locales": [
+    "ru",
+    "az",
+    "en"
+  ],
+  "entries": [
+    {
+      "source": "ru/LC_MESSAGES/django.po",
+      "po_sha256": "1da5fed7a66dc68af250a4d5b3f20de13bf60391df78b842f7ae9c40e18e2fb1",
+      "snapshot": "source/ru/LC_MESSAGES/django.po",
+      "mo": "locale/ru/LC_MESSAGES/django.mo",
+      "mo_sha256": "0745a1c0f78757d97b453681347510bf0f3d6137c4b1e02d3f1b9ff06fc5cbeb",
+      "command": [
+        "/usr/bin/msgfmt",
+        "--check-format",
+        "--statistics",
+        "--endianness=little",
+        "-o",
+        "/mnt/c/kidsmap/.tmp/social05-pc-plan-r1/locales/locale/ru/LC_MESSAGES/django.mo.tmp",
+        "/mnt/c/kidsmap/.tmp/social05-pc-plan-r1/locales/source/ru/LC_MESSAGES/django.po"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "4368 translated messages, 10 untranslated messages."
+    },
+    {
+      "source": "az/LC_MESSAGES/django.po",
+      "po_sha256": "c6595ae5b20861a77a605c139bda29ec76bc20ff2da77722a09a751675832d24",
+      "snapshot": "source/az/LC_MESSAGES/django.po",
+      "mo": "locale/az/LC_MESSAGES/django.mo",
+      "mo_sha256": "2a68021c1d34bf3e1b5b5ecf8ff3a299a75c7d45b2878641118859e1c02ae61d",
+      "command": [
+        "/usr/bin/msgfmt",
+        "--check-format",
+        "--statistics",
+        "--endianness=little",
+        "-o",
+        "/mnt/c/kidsmap/.tmp/social05-pc-plan-r1/locales/locale/az/LC_MESSAGES/django.mo.tmp",
+        "/mnt/c/kidsmap/.tmp/social05-pc-plan-r1/locales/source/az/LC_MESSAGES/django.po"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "2840 translated messages, 1040 fuzzy translations, 18 untranslated messages."
+    },
+    {
+      "source": "en/LC_MESSAGES/django.po",
+      "po_sha256": "5555a5df0ee97ab90be5203106eaf9144b43f1c7a81ce109dd26c5d23c0eec41",
+      "snapshot": "source/en/LC_MESSAGES/django.po",
+      "mo": "locale/en/LC_MESSAGES/django.mo",
+      "mo_sha256": "f1dac5aa13dd5e92d6328b1b1a67b8f085ad8dd92567075c58de3ac7653a86f1",
+      "command": [
+        "/usr/bin/msgfmt",
+        "--check-format",
+        "--statistics",
+        "--endianness=little",
+        "-o",
+        "/mnt/c/kidsmap/.tmp/social05-pc-plan-r1/locales/locale/en/LC_MESSAGES/django.mo.tmp",
+        "/mnt/c/kidsmap/.tmp/social05-pc-plan-r1/locales/source/en/LC_MESSAGES/django.po"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "2840 translated messages, 1035 fuzzy translations, 24 untranslated messages."
+    }
+  ],
+  "compiler": {
+    "mode": "native",
+    "argv": [
+      "/usr/bin/msgfmt"
+    ],
+    "version": "msgfmt (GNU gettext-tools) 0.21",
+    "options": [
+      "--check-format",
+      "--statistics",
+      "--endianness=little"
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m11full-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m11-full-r1/runtime-head-red-r3.py",
+    "test",
+    "test_m11_head_analytics_candidate",
+    "test_m11_list_candidate"
+  ],
+  "exit": 1,
+  "fresh_own_test_db": "test_m11full_head_red_r3",
+  "separate_settings_storage_cache": true,
+  "test_ids": [
+    "test_m11_head_analytics_candidate.HeadAnalyticsTests.test_head_does_not_record_human_views_for_public_entities",
+    "test_m11_head_analytics_candidate.HeadAnalyticsTests.test_ordinary_get_still_records_organization_and_activity_views",
+    "test_m11_list_candidate.SpecialistListLandmarksTests.test_specialist_directory_has_single_main_and_unchanged_visible_card"
+  ],
+  "failures": [
+    "test_head_does_not_record_human_views_for_public_entities (test_m11_head_analytics_candidate.HeadAnalyticsTests.test_head_does_not_record_human_views_for_public_entities) (entity='Place')",
+    "test_head_does_not_record_human_views_for_public_entities (test_m11_head_analytics_candidate.HeadAnalyticsTests.test_head_does_not_record_human_views_for_public_entities) (entity='Organization')",
+    "test_head_does_not_record_human_views_for_public_entities (test_m11_head_analytics_candidate.HeadAnalyticsTests.test_head_does_not_record_human_views_for_public_entities) (entity='Activity')",
+    "test_specialist_directory_has_single_main_and_unchanged_visible_card (test_m11_list_candidate.SpecialistListLandmarksTests.test_specialist_directory_has_single_main_and_unchanged_visible_card) (lang='az')",
+    "test_specialist_directory_has_single_main_and_unchanged_visible_card (test_m11_list_candidate.SpecialistListLandmarksTests.test_specialist_directory_has_single_main_and_unchanged_visible_card) (lang='ru')",
+    "test_specialist_directory_has_single_main_and_unchanged_visible_card (test_m11_list_candidate.SpecialistListLandmarksTests.test_specialist_directory_has_single_main_and_unchanged_visible_card) (lang='en')"
+  ],
+  "errors": [],
+  "summary": [
+    "Found 3 test(s).",
+    "Ran 3 tests in 3.193s",
+    "FAILED (failures=6)"
+  ]
+}

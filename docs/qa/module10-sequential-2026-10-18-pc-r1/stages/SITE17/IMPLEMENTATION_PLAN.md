@@ -1,0 +1,3 @@
+# SITE17 plan — ongoing immediate-fix authorization
+
+Fresh current native privacy/terms36cells3languages6widths: RU privacy title glyphs clip at360/390; other native controlsPASS. Additional explicitly SIMULATED doubled heading font-size6cells reproduces2RU failures, not native zoom. Make long heading words wrap with overflow-wrap:anywhere and ensure hero content min-width0. Preserve text/type size/other legal content and ancestor decorative overflow. Scope legal.css and legal.html stylesheet version only. No new backend assertion mirroring CSS; meaningful native RED→GREEN incl exact heading preservation,3languages6widths and explicit text200 simulation, visually inspect RU360/390. No schema/permissions/PO/body text/production change.

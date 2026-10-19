@@ -1,0 +1,3 @@
+# Manual visual subset
+
+Reviewed pending-place-ru-390.png and denied-organization-ru-390.png using native image viewer. Pending recipient sees the normal styled RU inbox and real Accept/Decline/Mark-read controls. Denial shows Chromium's native Access denied / HTTP ERROR403 document, no KidsMap shell or recovery link. Historical pure-white wording is not the literal browser appearance on this runtime. No claim of manual inspection of all75 PNG or full WCAG/real screenreader. matrix.facts.rendered_url is captured after successful GET recovery, not used as denial-location proof; inspect-denial-cli.txt records chrome-error://chromewebdata/ and raw browser text for the empty403 stage.

@@ -1,0 +1,13 @@
+import sys
+sys.path.insert(0,'/mnt/c/kidsmap/.tmp/m12-full-r1')
+from stage_apply import *
+S=O/'stages/readfailure'
+(S/'IMPLEMENTATION_PLAN.md').write_text('''# ANALYTICS-QA-14 — independent read failures
+
+Fresh3-method RED:3failures/0errors. Healthy core catalog and GA, simulated actual local aggregate read DatabaseError gives owner500 and adminGA500; real SQL read error poisons outer transaction. Initial583-method broad run passed before this newly expanded fault coverage; preserve it as earlier snapshot, do not label it final after source change.
+
+Modify only services/analytics_metrics.py and add testcases/test_module12_read_failure.py. Public build_subject_metrics keeps existing unsupported-type/disabled gate, invokes unchanged aggregation in a private _build_subject_metrics within transaction.atomic, catches DatabaseError outside savepoint and returns AnalyticsSummary(available=False), constant safe warning only. No fallback zero, no fake data, no catch around core catalog/ACL/GA reads or programming errors, no metric-definition change. Existing owner unavailable branch and independent GA use the result without other application changes.
+
+Acceptance: owner200/explicit notice/no grid, GA200/selected90KPI unchanged/local unavailable, real SQL savepoint recovery with usable catalog; healthy22acceptance metrics/session/role/history tests unchanged. Fresh new targeted GREEN, real native SIMULATED read-fault owner/admin, then current-source full regression on a new own DB. User authorization already covers related fixes.
+''')
+p='src/catalog/services/analytics_metrics.py';text=(R/p).read_bytes().decode();text=text.replace('from dataclasses import dataclass','import logging\nfrom dataclasses import dataclass').replace('from django.db.models import Count, Q','from django.db import DatabaseError, transaction\nfrom django.db.models import Count, Q');old='    ids = list(subject_ids)\n    values = _period_values';new='    try:\n        with transaction.atomic():\n            return _build_subject_metrics(subject_ids=subject_ids, start=start, end=end)\n    except DatabaseError:\n        logging.getLogger(__name__).warning("Optional analytics aggregation unavailable")\n        return AnalyticsSummary(available=False)\n\n\ndef _build_subject_metrics(*, subject_ids, start, end):\n    ids = list(subject_ids)\n    values = _period_values';assert old in text;text=text.replace(old,new);files={p:text.encode(),'src/catalog/testcases/test_module12_read_failure.py':(Q/'test_m12_read_failure_candidate.py').read_bytes()};apply('readfailure',files,'stages/readfailure/evidence/red-r1.json')

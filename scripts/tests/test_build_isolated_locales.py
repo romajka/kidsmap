@@ -47,7 +47,7 @@ class IsolatedLocaleBuildTests(unittest.TestCase):
         return subprocess.run([sys.executable,str(TOOL),*map(str,args)],cwd=ROOT,capture_output=True,text=True,encoding='utf-8')
 
     def build(self,output=None):
-        result = self.command('build','--source-locale',self.source,'--output',output or self.output,'--locales','az','--compiler','wsl')
+        result = self.command('build','--source-locale',self.source,'--output',output or self.output,'--locales','az','--compiler','wsl' if os.name == 'nt' else 'native')
         self.assertEqual(result.returncode,0,result.stderr)
         return json.loads(((output or self.output)/'manifest.json').read_text(encoding='utf-8'))
 
@@ -83,20 +83,20 @@ class IsolatedLocaleBuildTests(unittest.TestCase):
 
     def test_existing_output_and_source_are_refused_without_changes(self):
         self.build(); before = (self.output/'manifest.json').read_bytes()
-        result = self.command('build','--source-locale',self.source,'--output',self.output,'--locales','az','--compiler','wsl')
+        result = self.command('build','--source-locale',self.source,'--output',self.output,'--locales','az','--compiler','wsl' if os.name == 'nt' else 'native')
         self.assertNotEqual(result.returncode,0)
         self.assertEqual((self.output/'manifest.json').read_bytes(),before)
-        result = self.command('build','--source-locale',self.source,'--output',self.source,'--locales','az','--compiler','wsl')
+        result = self.command('build','--source-locale',self.source,'--output',self.source,'--locales','az','--compiler','wsl' if os.name == 'nt' else 'native')
         self.assertNotEqual(result.returncode,0); self.assertEqual(self.po.read_text(encoding='utf-8'),PO)
 
     def test_format_error_never_publishes_complete_manifest(self):
         self.po.write_text(PO+'\n#, python-format\nmsgid "Count %s"\nmsgstr "Count %d"\n',encoding='utf-8')
-        result = self.command('build','--source-locale',self.source,'--output',self.output,'--locales','az','--compiler','wsl')
+        result = self.command('build','--source-locale',self.source,'--output',self.output,'--locales','az','--compiler','wsl' if os.name == 'nt' else 'native')
         self.assertNotEqual(result.returncode,0)
         self.assertFalse((self.output/'manifest.json').exists())
 
     def test_outside_owned_scratch_is_rejected(self):
-        result = self.command('build','--source-locale',self.source,'--output',ROOT/'locale-illegal-test-output','--locales','az','--compiler','wsl')
+        result = self.command('build','--source-locale',self.source,'--output',ROOT/'locale-illegal-test-output','--locales','az','--compiler','wsl' if os.name == 'nt' else 'native')
         self.assertNotEqual(result.returncode,0); self.assertFalse((ROOT/'locale-illegal-test-output').exists())
 
     def test_incomplete_and_escaping_manifests_are_rejected(self):
@@ -112,9 +112,9 @@ class IsolatedLocaleBuildTests(unittest.TestCase):
         link=self.run_root/'source-link'
         created=subprocess.run(['cmd','/c','mklink','/J',str(link),str(self.source)],capture_output=True)
         self.assertEqual(created.returncode,0)
-        result=self.command('build','--source-locale',link,'--output',self.output,'--locales','az','--compiler','wsl')
+        result=self.command('build','--source-locale',link,'--output',self.output,'--locales','az','--compiler','wsl' if os.name == 'nt' else 'native')
         self.assertNotEqual(result.returncode,0,'Source junction was accepted')
-        result=self.command('build','--source-locale',self.source,'--output',link/'nested','--locales','az','--compiler','wsl')
+        result=self.command('build','--source-locale',self.source,'--output',link/'nested','--locales','az','--compiler','wsl' if os.name == 'nt' else 'native')
         self.assertNotEqual(result.returncode,0)
         self.assertFalse((self.source/'nested').exists())
 

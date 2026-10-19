@@ -1,0 +1,41 @@
+[
+  {
+    "command": [
+      "docker",
+      "exec",
+      "m10s15-plan-r1-app",
+      "python",
+      "/mnt/c/kidsmap/.tmp/site15-pc-plan-r1/check_candidate.py"
+    ],
+    "exit": 0,
+    "stdout": "{\n  \"python_ast\": true,\n  \"candidate_template_compiles\": true,\n  \"actual_template_origin\": \"/mnt/c/kidsmap/src/catalog/templates/admin/catalog/shared_settings_change_form.html\",\n  \"source_runtime_hashes_match\": true,\n  \"site_settings_admins\": {\n    \"catalog.sitesettings\": {\n      \"admin\": \"SiteSettingsCompatAdmin\",\n      \"template\": null\n    },\n    \"catalog.sitebrandingsettings\": {\n      \"admin\": \"SiteBrandingSettingsAdmin\",\n      \"template\": \"admin/catalog/shared_settings_change_form.html\"\n    },\n    \"catalog.siteaboutsettings\": {\n      \"admin\": \"SiteAboutSettingsAdmin\",\n      \"template\": \"admin/catalog/shared_settings_change_form.html\"\n    },\n    \"catalog.sitecontactssettings\": {\n      \"admin\": \"SiteContactsSettingsAdmin\",\n      \"template\": \"admin/catalog/shared_settings_change_form.html\"\n    },\n    \"catalog.sitefootersettings\": {\n      \"admin\": \"SiteFooterSettingsAdmin\",\n      \"template\": \"admin/catalog/shared_settings_change_form.html\"\n    },\n    \"catalog.siteemptystatesettings\": {\n      \"admin\": \"SiteEmptyStateSettingsAdmin\",\n      \"template\": \"admin/catalog/shared_settings_change_form.html\"\n    },\n    \"catalog.sitevisibilitysettings\": {\n      \"admin\": \"SiteVisibilitySettingsAdmin\",\n      \"template\": \"admin/catalog/shared_settings_change_form.html\"\n    },\n    \"catalog.siteanalytics\": {\n      \"admin\": \"SiteAnalyticsAdmin\",\n      \"template\": null\n    }\n  },\n  \"candidate_behavior_green\": \"NOT RUN; proposal only\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "/mnt/c/kidsmap/scripts/build_isolated_locales.py",
+      "verify",
+      "--manifest",
+      "/mnt/c/kidsmap/.tmp/site15-pc-plan-r1/candidate-locales/manifest.json",
+      "--source-locale",
+      "/mnt/c/kidsmap/docs/qa/site-qa15-recheck-2026-10-18-pc-r1/candidate/locale"
+    ],
+    "exit": 0,
+    "stdout": "{\"status\": \"complete\", \"locale_root\": \"/mnt/c/kidsmap/.tmp/site15-pc-plan-r1/candidate-locales/locale\", \"catalogues\": 3}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "-C",
+      "/mnt/c/kidsmap",
+      "apply",
+      "--check",
+      "/mnt/c/kidsmap/docs/qa/site-qa15-recheck-2026-10-18-pc-r1/proposed.diff"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

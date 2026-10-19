@@ -1,0 +1,29 @@
+{
+  "status": "CLOSED LOCAL scoped SITE03; existing SITE18 header remains OPEN",
+  "backend_methods": 30,
+  "native_rows": 41,
+  "native_checks": 337,
+  "PASS": 331,
+  "known_SITE18_FAIL": 6,
+  "original_settings_restored": true,
+  "initial_harness_failures_retained": "initial-harness; CRLF serialization and actual Tab order verified separately",
+  "full_module_acceptance": "PENDING",
+  "SITE18_layout_followup": {
+    "status": "RESOLVED LOCAL",
+    "evidence": "../../evidence/browser-site18-prior-overflow-r2.json",
+    "all24_prior1280_cells_PASS": true
+  },
+  "channel_helper_followup": {
+    "status": "CLOSED LOCAL followup",
+    "new_helper_RED_observations": 3,
+    "targeted_backend_methods": 18,
+    "native_rows": 41,
+    "native_checks": 373,
+    "PASS": 373,
+    "FAIL": 0,
+    "existing_public_smoke_source_unchanged": true,
+    "configured_intro_and_localized_channel_instruction_both_preserved": true,
+    "original_fields_restored": true,
+    "broader_initial100method_result": "99PASS/1real regression; retained structured result, corrected by this followup, not relabeled GREEN"
+  }
+}

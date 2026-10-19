@@ -782,7 +782,7 @@ class CatalogContentSettings(models.Model):
         verbose_name_plural = _("Контент каталога")
 
     def __str__(self):
-        return _("Контент каталога")
+        return str(_("Контент каталога"))
 
 
 @receiver(post_save, sender=SiteSettings)

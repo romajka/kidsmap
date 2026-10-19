@@ -460,6 +460,10 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     inlines = [SpecialistPracticeLocationInline, SpecialistDocumentInline]
     actions = ("mark_published", "mark_draft", "mark_pending", "mark_rejected")
 
+    def get_readonly_fields(self, request, obj=None):
+        fields = tuple(super().get_readonly_fields(request, obj))
+        return fields + ("slug",) if obj is not None else fields
+
     @admin.display(description=_("Дата подтверждения личности"))
     def identity_verification_date(self, obj):
         return display_for_field(

@@ -1,0 +1,3 @@
+# SITE04 plan — existing sequential immediate-fix authorization
+
+Use existing HomeController hero_search_placeholder/hero_cta_text context in home template input placeholder and visible/accessible submit label. Preserve form method/action, query cleanup policy, data hooks, icon and map behavior. Scope home.html plus new4method regression. Fresh RED has9 expected text observations and passing form/query-policy control. Fresh cumulative backend test, native branding admin saves then home3languages6widths configured/blank/safe attributes and actual typed form submission. Restore settings. Known SITE18 header remains OPEN. No schema/controller/JS/PO/production change.

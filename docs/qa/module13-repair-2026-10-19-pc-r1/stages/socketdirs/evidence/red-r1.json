@@ -1,0 +1,10 @@
+{
+  "exit": 1,
+  "failures": [
+    "Owned PG r2 initialization still failed; installed official entrypoint explicitly clears PGHOST/PGHOSTADDR for bootstrap psql. Both default and owned Unix socket directories are required."
+  ],
+  "errors": [],
+  "own_PG_exit": 2,
+  "OOMKilled": false,
+  "source_reference": "Installed docker-entrypoint.sh docker_process_sql: PGHOST= PGHOSTADDR=; source copied only to ignored scratch."
+}

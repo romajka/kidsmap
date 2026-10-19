@@ -1,0 +1,35 @@
+# SOCIAL-QA-08 — CONFIRMED OPEN/P2, PLAN COMPLETE
+
+Execution /root,2026-10-17 Asia/Baku; django-reviewer lead, frontend/security/browser checks sequentially by same agent. No independent subagent execution. Canonical definitions/registry/architecture/source-of-truth/audit-contract read. Mode PLAN only; application changes0, implementation approval pending. LOCAL HEAD852938d96764ae315b92859e3651e5ea62054a36, branch codex/module09-transfer-2026-10-16-r1; dirty WORKTREE03–07 preserved. PRODUCTION applicability UNKNOWN, no production access.
+
+## Finding and cause
+
+Fresh isolated current1022source reproduces SOCIAL-QA-08 for Place and Organization invitation recipients. Owner creates an invitation through real UI; recipient opens inbox; separate owner browser context cancels through real UI; recipient keyboard focuses/Enter submits stale Accept. Server correctly returns403/body0, CANCELED remains, no membership or grant. Current Chromium155 displays its native Access denied / HTTP ERROR403 document (chrome-error://chromewebdata/), rather than simply a white page. Both lack KidsMap explanation, app shell and recovery link. Historical white-page wording is not copied as current literal browser appearance. SeverityP2/confidenceHIGH/reproducible; no access bypass, permanent data loss or production incident established.
+
+Source src/catalog/controllers/workflow_notifications.py:accept_invitation (~74–83): own notification resolved by _mine before service call; caught ValidationError/TeamConflict/PermissionDenied/missing invitation becomes HttpResponseForbidden() with no body. Actual services/business_team.py:accept and decide_invitation guards correctly reject CANCELED/expired/stale ownership and preserve transactions. Routes in catalog/urls.py bind this controller; legacy place owner repository delegates actual invite/cancel to same service; Organization workspace native forms use business_team_api. Source edges verified, not inferred from graph alone.
+
+Existing _render_inbox and account_notifications.html already provide scoped own items, localized invitation_unavailable text, role=alert, styled account shell and navigation link back to GET inbox. Proposed minimal fix reuses these, preserves HTTP403/service/ACL/CSRF/login/POST behavior, removes only now-unused HttpResponseForbidden import. No template/CSS/JS/PO/services/models/schema/routes edits. Exceptions and foreign invitation details never shown; foreign/missing notification stays404 before handler.
+
+## Fresh proof
+
+36native cases: Place/Organization×RU/AZ/EN×360/390/768/1024/1280/1440.468controlPASS/108sourceFAIL. Each has actual owner invite/cancel, recipient native keyboard submit, denial403, no access/no denial write, GET inbox/reload recovery and revoked action hidden. All36 responses body length0. Expected browser-native HTTP403 request failures are recorded separately, pageerrors0/unexpected HTTP or request failures0.75PNG:72matrix images+3retained attempt screenshots. Console inspection covers final recovered GET only (0errors/0warnings); complete per-cell console history not retained, no claim of full console PASS. Manual visual subset recorded separately; not all75 manually inspected.
+
+Candidate regressions ran outside application as candidate_tests.SocialQA08InvitationFeedbackTests:9unique methods,5failed/4passed,14assertion/subtest failures,0errors,1.706s,exit1. Failing assertions are missing localized feedback on revoked/expired/ownership-stale/missing-own-invite/repeat-accepted cases; status/no-grant/no-write assertions precede them. Foreign/nonexistent404, changed-email404, anonymous/GET/CSRF guards and current invitation success pass. Existing assertions unchanged. Candidate controller and9-method test AST parse and exact diff git apply --check --ignore-space-change exit0; patch not applied, candidate live rendering/GREEN NOTRUN.
+
+## Impact and bounded plan
+
+Only src/catalog/controllers/workflow_notifications.py and new src/catalog/testcases/test_social_qa08_invitation_feedback.py. Existing UI and safe generic copy reused; failed own error path reads current own inbox (up to100items). Service semantics/transaction locks/grants/outbox/permissions unchanged. No migration/SEO/public indexing impact; no dead-code/deletion proposal. Extra render reads may cost more than empty response; appropriate to recovery UX, optimization outside scope. Exact code/hashes and12-method post-approval/native acceptance in IMPLEMENTATION_PLAN.md/proposed.diff/candidate-manifest.json.
+
+## Isolation and preservation
+
+New own social08-pc-plan-r1 profile, m09s08-plan-r1-app/pg/internal network/volume, PostgreSQL17.11, Python3.12.15/Django6.0.2. RO repository bind, own scratch RW, cleared env/DJANGO_TESTING1, isolated cache/media/private-media/locmem email, own normal DB m09s08_plan_r1 and testDB test_m09s08_plan_r1. Fresh native RU/AZ/EN MO built/verified before every setup as sole LOCALE_PATHS; sharedMO untouched. Headless owned Chromium/session social08-pc-plan-r1, loopback33358, browser external requests blocked by localhost allowlist. No external SMTP delivery run in normal fixture DB. Owner native actions mutate only own fictional DB; no denial grants or notifications/outbox/read mutations. Harness retries leave additional CANCELED fictional invitations/outbox rows; retained, no cleanup. Final per-case readback business-final.json.
+
+All1022application source hashes unchanged, future new test absent. HEAD/index/task33-progress/active_run:NONE/sharedMO/.cbmignore and10previous current-PC packages preserved byte-for-byte.41entrycontainer ID/name/state retained,+2own containers=43; only own serving Python restarted once to reload corrected QA state helper. This does not establish whole-machine process continuity. Historical partial PNG packages untouched, no downloads. Guide receives separate PLAN08 note with reverse-hash proof of preserved prior bytes.
+
+## Preparation failures, limitations, next step
+
+preparation-attempts.json retains initial too-broad historical package selector, bounded source path corrections, expected403 URL wait mismatch and error-document navigation timing race. Raw native failures/attemptPNG retained; first4completed native cells reused, only failed cases retried with new actual invitations; assertions/test expectations not relaxed to claim green. Current browser-native error handling distinguishes expected empty403 transport failure from unrelated network errors.
+
+Graph C-kidsmap ready, generation2026-10-16T18:56:53Z,120partial files; relevant coverage metadata_changed/unavailable, so all critical edges source-verified. No cache export/reindex/graph completeness claims.
+
+SOCIAL01–07 retain their scoped LOCAL closures;08OPEN/P2; module09OPEN. Next step is approval of this exact two-file plan, then targeted12methods/native36cells and guards in a new fix-run. No extra approval for this planning work is needed. Implementation08, SOCIAL09/fullACCEPT09/global/production/physical devices/realSR/fullWCAG/otherbrowsers/external integrations NOTRUN. No commit/push/deploy/reset/clean/stash/dirty checkout switch/active_run assignment.

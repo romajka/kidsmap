@@ -1,0 +1,260 @@
+--- a/src/catalog/templates/admin/catalog/shared_settings_change_form.html
++++ b/src/catalog/templates/admin/catalog/shared_settings_change_form.html
+@@ -5,7 +5,11 @@
+   {{ block.super }}
+   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_admin_form_shell.css' %}">
+   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_settings_forms.css' %}">
+-  <script src="{% static 'admin/js/kidsmap_admin_form_shell.js' %}" defer></script>
++  <script src="{% static 'admin/js/kidsmap_admin_form_shell.js' %}?v=20261018_site14_r1" defer></script>
++  {% if km_settings_hub_url and has_change_permission %}
++  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_settings_draft.css' %}">
++  <script src="{% static 'admin/js/kidsmap_settings_draft.js' %}" defer></script>
++  {% endif %}
+   {% if opts.model_name == 'sitevisibilitysettings' %}<link rel="stylesheet" href="{% static 'admin/css/pages/site_sections.css' %}">{% endif %}
+ {% endblock %}
+ 
+@@ -19,6 +23,7 @@
+       {% if form_url %}action="{{ form_url }}"{% endif %}
+       method="post"
+       id="{{ opts.model_name }}_form"
++      {% if km_settings_hub_url and has_change_permission %}data-settings-draft-owner="{{ request.user.pk }}" data-settings-draft-can-clear="{% if request.method == 'GET' %}true{% else %}false{% endif %}"{% endif %}
+       novalidate
+     >
+       {% csrf_token %}
+@@ -46,6 +51,17 @@
+             </p>
+           </div>
+         </header>
++
++        {% if km_settings_hub_url and has_change_permission %}
++        <div class="km-place-form-alert km-place-form-alert--warning km-settings-draft-notice" data-settings-draft-notice role="status" aria-live="polite" hidden>
++          <strong>{% translate "Есть черновик ввода" %}</strong>
++          <p>{% translate "Ввод хранится только в этой вкладке 30 минут. При восстановлении файлы выберите заново." %}</p>
++          <div class="km-settings-draft-actions">
++            <button type="button" class="km-btn--sidebar km-btn--draft" data-settings-draft-restore>{% translate "Восстановить ввод" %}</button>
++            <button type="button" class="km-btn--sidebar km-btn--secondary-save" data-settings-draft-discard>{% translate "Удалить черновик" %}</button>
++          </div>
++        </div>
++        {% endif %}
+ 
+         {% if errors %}
+           <div class="km-place-form-alert km-place-form-alert--danger" role="alert" tabindex="-1" autofocus>
+--- a/static/admin/js/kidsmap_admin_form_shell.js
++++ b/static/admin/js/kidsmap_admin_form_shell.js
+@@ -2641,11 +2641,13 @@
+     }
+ 
+     // Set initial serialized form after a short delay to allow default values and scripts to initialize
+-    setTimeout(function() {
+-      if (form) {
+-        initialSerializedForm = serializeForm(form);
+-      }
+-    }, 1000);
++    if (form && form.hasAttribute("data-settings-draft-owner")) {
++      initialSerializedForm = serializeForm(form);
++    } else {
++      setTimeout(function() {
++        if (form) initialSerializedForm = serializeForm(form);
++      }, 1000);
++    }
+ 
+     function isFormDirty() {
+       if (!form || !initialSerializedForm) return false;
+@@ -2710,6 +2712,7 @@
+               form.submit();
+             },
+             onExitWithoutSaving: function () {
++              form.dispatchEvent(new Event("km:discard-settings-draft"));
+               formSubmitted = true;
+               window.location.href = href;
+             }
+--- /dev/null
++++ b/static/admin/js/kidsmap_settings_draft.js
+@@ -0,0 +1,82 @@
++/* Public site-settings input recovery. No tokens, credentials or files. */
++(function () {
++  "use strict";
++  function init() {
++    const form = document.querySelector("form[data-settings-draft-owner]");
++    const notice = form && form.querySelector("[data-settings-draft-notice]");
++    if (!form || !notice) return;
++    const owner = form.dataset.settingsDraftOwner;
++    if (!owner) return;
++    const key = "km-settings-draft:v1:" + owner + ":" + location.pathname;
++    const ttl = 30 * 60 * 1000;
++    const maxBytes = 250000;
++    const allowed = new Set([
++      "brand_name", "home_hero_show_decor", "home_recommendations_limit",
++      "footer_phone", "footer_email", "footer_instagram", "footer_telegram",
++      "footer_youtube", "footer_tiktok", "footer_facebook", "footer_linkedin", "footer_whatsapp",
++      "events_section_enabled", "specialists_section_enabled", "organizations_section_enabled",
++      "public_favorites_count_enabled", "public_favorites_minimum"
++    ]);
++    for (const prefix of ["home_title", "home_subtitle", "home_search_label", "home_search_placeholder", "home_cta_text", "about_text", "contacts_text", "empty_results_text"]) {
++      for (const lang of ["az", "ru", "en"]) allowed.add(prefix + "_" + lang);
++    }
++    const controls = Array.from(form.elements).filter(el => allowed.has(el.name) && !el.disabled &&
++      (el.tagName === "TEXTAREA" || ["text", "email", "tel", "url", "number", "checkbox"].includes(el.type)));
++    if (!controls.length) return;
++    const byName = new Map(controls.map(el => [el.name, el]));
++    let restoring = false;
++    const collect = () => Object.fromEntries(controls.map(el => [el.name, el.type === "checkbox" ? el.checked : el.value]));
++    const remove = () => { try { sessionStorage.removeItem(key); } catch (_) {} notice.hidden = true; };
++    const same = (a, b) => Object.keys(a).length === Object.keys(b).length && Object.keys(a).every(name =>
++      typeof a[name] === "string" ? typeof b[name] === "string" && a[name].trim() === b[name].trim() : a[name] === b[name]);
++    function read() {
++      try {
++        const raw = sessionStorage.getItem(key);
++        if (!raw) return null;
++        if (raw.length > maxBytes) { remove(); return null; }
++        const record = JSON.parse(raw);
++        if (record.version !== 1 || !Number.isFinite(record.savedAt) || record.savedAt > Date.now() + 60000 || Date.now() - record.savedAt > ttl ||
++            !record.fields || Array.isArray(record.fields) || typeof record.fields !== "object" || !Object.keys(record.fields).length ||
++            Object.keys(record.fields).some(name => !byName.has(name) || typeof record.fields[name] !== (byName.get(name).type === "checkbox" ? "boolean" : "string"))) {
++          remove(); return null;
++        }
++        return record;
++      } catch (_) { remove(); return null; }
++    }
++    function persist() {
++      if (restoring) return;
++      try {
++        const raw = JSON.stringify({ version: 1, savedAt: Date.now(), fields: collect() });
++        if (raw.length <= maxBytes) sessionStorage.setItem(key, raw);
++      } catch (_) { /* Storage failure must never block normal native saving. */ }
++    }
++    const stored = read();
++    if (stored) {
++      const matching = same(stored.fields, collect());
++      if (matching && form.dataset.settingsDraftCanClear === "true") remove();
++      else if (!matching) notice.hidden = false;
++    }
++    controls.forEach(el => { el.addEventListener("input", persist); el.addEventListener("change", persist); });
++    form.addEventListener("submit", persist, true);
++    form.addEventListener("km:discard-settings-draft", remove);
++    notice.querySelector("[data-settings-draft-discard]").addEventListener("click", remove);
++    notice.querySelector("[data-settings-draft-restore]").addEventListener("click", function () {
++      const record = read();
++      if (!record) return;
++      restoring = true;
++      let first = null;
++      for (const [name, value] of Object.entries(record.fields)) {
++        const el = byName.get(name);
++        if (!first && (el.type === "checkbox" ? el.checked !== value : el.value !== value)) first = el;
++        if (el.type === "checkbox") el.checked = value; else el.value = value;
++        el.dispatchEvent(new Event("input", { bubbles: true }));
++        el.dispatchEvent(new Event("change", { bubbles: true }));
++      }
++      restoring = false;
++      notice.hidden = true;
++      persist();
++      if (first) first.focus();
++    });
++  }
++  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
++}());
+--- /dev/null
++++ b/static/admin/css/pages/kidsmap_settings_draft.css
+@@ -0,0 +1,10 @@
++.km-settings-form-page [data-settings-draft-notice][hidden] { display: none !important; }
++.km-settings-form-page .km-settings-draft-notice { display: block; min-width: 0; overflow-wrap: anywhere; }
++.km-settings-draft-notice strong { display: block; }
++.km-settings-draft-notice p { margin: 8px 0 12px; }
++.km-settings-draft-actions { display: flex; flex-wrap: wrap; gap: 10px; }
++.km-settings-draft-actions .km-btn--sidebar {
++  flex: 1 1 160px; width: auto; min-height: 44px; padding: 10px 12px;
++  white-space: normal; overflow-wrap: anywhere;
++}
++.km-settings-draft-actions button:focus-visible { outline: 3px solid #136f38; outline-offset: 3px; }
+--- /dev/null
++++ b/src/catalog/testcases/test_site_qa14_settings_draft.py
+@@ -0,0 +1,35 @@
++from html.parser import HTMLParser
++from django.conf import settings
++from django.contrib.auth import get_user_model
++from django.contrib.auth.models import Permission
++from django.test import TestCase
++from django.urls import reverse
++from catalog.models import SiteSettings
++from catalog.models.site import clear_singleton_caches
++
++class DraftParser(HTMLParser):
++    def __init__(self):super().__init__();self.form={};self.banner={};self.scripts=[]
++    def handle_starttag(self,tag,attrs):
++        a=dict(attrs)
++        if tag=='form' and 'data-settings-draft-owner' in a:self.form=a
++        if 'data-settings-draft-notice' in a:self.banner=a
++        if tag=='script':self.scripts.append(a.get('src',''))
++
++class Site14SettingsDraftScopeTests(TestCase):
++    def setUp(self):
++        self.assertTrue(settings.TESTING);clear_singleton_caches();self.site=SiteSettings.get_solo()
++        self.editor=get_user_model().objects.create_superuser('draft_editor','draft-editor@example.invalid','fictional')
++        self.viewer=get_user_model().objects.create_user('draft_viewer','draft-viewer@example.invalid','fictional',is_staff=True)
++        self.viewer.user_permissions.add(Permission.objects.get(codename='view_sitefootersettings',content_type__app_label='catalog'))
++        self.url=reverse('admin:catalog_sitefootersettings_change',args=[self.site.pk])
++    def test_editable_settings_offer_recovery_scoped_to_the_current_actor(self):
++        self.client.force_login(self.editor);r=self.client.get(self.url);self.assertEqual(r.status_code,200);p=DraftParser();p.feed(r.content.decode())
++        self.assertEqual(p.form.get('data-settings-draft-owner'),str(self.editor.pk));self.assertEqual(p.form.get('data-settings-draft-can-clear'),'true');self.assertIn('hidden',p.banner)
++        self.assertTrue(any('kidsmap_settings_draft.js' in s for s in p.scripts))
++    def test_readonly_settings_do_not_enable_local_draft_writes(self):
++        self.client.force_login(self.viewer);r=self.client.get(self.url);self.assertEqual(r.status_code,200);p=DraftParser();p.feed(r.content.decode());self.assertFalse(p.form);self.assertFalse(p.banner)
++        self.assertFalse(any('kidsmap_settings_draft.js' in s for s in p.scripts))
++    def test_another_admin_form_does_not_get_settings_recovery(self):
++        self.client.force_login(self.editor);r=self.client.get(reverse('admin:auth_user_change',args=[self.editor.pk]));self.assertEqual(r.status_code,200);p=DraftParser();p.feed(r.content.decode());self.assertFalse(p.form)
++    def test_get_does_not_change_settings(self):
++        self.client.force_login(self.editor);before=SiteSettings.objects.values().get(pk=self.site.pk);self.client.get(self.url);self.assertEqual(before,SiteSettings.objects.values().get(pk=self.site.pk))
+--- a/locale/ru/LC_MESSAGES/django.po
++++ b/locale/ru/LC_MESSAGES/django.po
+@@ -20964,3 +20964,15 @@
+ #: src/catalog/templates/pages/public_unavailable.html
+ msgid "Посмотрите доступные места и занятия в каталоге."
+ msgstr "Посмотрите доступные места и занятия в каталоге."
++
++#: src/catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Есть черновик ввода"
++msgstr "Есть черновик ввода"
++
++#: src/catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Ввод хранится только в этой вкладке 30 минут. При восстановлении файлы выберите заново."
++msgstr "Ввод хранится только в этой вкладке 30 минут. При восстановлении файлы выберите заново."
++
++#: src/catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Удалить черновик"
++msgstr "Удалить черновик"
+--- a/locale/az/LC_MESSAGES/django.po
++++ b/locale/az/LC_MESSAGES/django.po
+@@ -23524,3 +23524,15 @@
+ #: src/catalog/templates/pages/public_unavailable.html
+ msgid "Посмотрите доступные места и занятия в каталоге."
+ msgstr "Mövcud məkan və məşğələlərə kataloqda baxın."
++
++#: src/catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Есть черновик ввода"
++msgstr "Daxil edilmiş məlumatların qaralaması var"
++
++#: src/catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Ввод хранится только в этой вкладке 30 минут. При восстановлении файлы выберите заново."
++msgstr "Qaralama yalnız bu vərəqdə 30 dəqiqə saxlanılır. Bərpa zamanı faylları yenidən seçin."
++
++#: src/catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Удалить черновик"
++msgstr "Qaralamanı sil"
+--- a/locale/en/LC_MESSAGES/django.po
++++ b/locale/en/LC_MESSAGES/django.po
+@@ -23378,3 +23378,15 @@
+ #: src/catalog/templates/pages/public_unavailable.html
+ msgid "Посмотрите доступные места и занятия в каталоге."
+ msgstr "Explore available places and activities in the catalogue."
++
++#: src/catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Есть черновик ввода"
++msgstr "An input draft is available"
++
++#: src/catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Ввод хранится только в этой вкладке 30 минут. При восстановлении файлы выберите заново."
++msgstr "The draft is kept in this tab for 30 minutes. Select files again when restoring it."
++
++#: src/catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Удалить черновик"
++msgstr "Delete draft"

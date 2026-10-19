@@ -1,0 +1,11 @@
+### Result
+{"rows":[{"id":"fresh-native-directions","checks":{"recorded_once":true},"delta":1}],"errors":[],"requests":[{"path":"/ru/events/track/","method":"POST"}],"failures":[{"host":"maps.google.com","error":"net::ERR_FAILED"}],"clicks":["directions_click"],"target":{"href":"https://www.google.com/maps/dir/?api=1&destination=40.4093,49.8671","source":"place-detail-hero","tag":"A"},"response":200}
+### Ran Playwright code
+```js
+await (async original=>{
+ const B='http://127.0.0.1:33780',c=await original.context().browser().newContext({viewport:{width:1440,height:950},userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/153.0.0.0 Safari/537.36'}),requests=[],failures=[],popups=[];await c.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());const p=await c.newPage();p.on('popup',q=>popups.push(q));p.on('request',r=>{if(r.url().includes('/events/track/'))requests.push({path:new URL(r.url()).pathname,method:r.method()})});p.on('requestfailed',r=>failures.push({host:new URL(r.url()).hostname,error:r.failure()?.errorText}));
+ const before=await(await c.request.get(B+'/qa/m12/state/')).json();await p.goto(B+before.urls.ru.place);const link=p.locator('[data-track-event="directions_click"]:visible').first();const target=await link.evaluate(e=>({href:e.getAttribute('href'),source:e.dataset.trackSource,tag:e.tagName}));await p.evaluate(()=>{window.__qaClicks=[];document.addEventListener('click',e=>window.__qaClicks.push(e.target.closest('[data-track-event]')?.dataset.trackEvent||''),true)});
+ const responsePromise=p.waitForResponse(r=>r.url().includes('/events/track/'),{timeout:5000}).catch(()=>null);await link.click();const response=await responsePromise;const after=await(await c.request.get(B+'/qa/m12/state/')).json();const clicks=await p.evaluate(()=>window.__qaClicks);for(const q of popups)await q.close();await c.close();return{rows:[{id:'fresh-native-directions',checks:{recorded_once:after.metrics.directions-before.metrics.directions===1},delta:after.metrics.directions-before.metrics.directions}],errors:[],requests,failures,clicks,target,response:response?.status()||null};
+}
+)(page);
+```

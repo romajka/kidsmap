@@ -1,0 +1,25 @@
+### Result
+{"rows":[],"errors":[{"phase":"create-empty-organization","message":"TimeoutError: locator.click: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('details:not([open]) > summary').nth(2)\u001b[22m\n"}],"pageerrors":[],"entities":{}}
+### Ran Playwright code
+```js
+await (async original=>{
+ const B='http://127.0.0.1:33810',rows=[],errors=[],pageerrors=[],contexts=[],out={},br=original.context().browser();let phase='start';
+ const check=(id,ok)=>{rows.push({id,checks:{ok}});if(!ok)throw new Error(id)};
+ async function make(role){const c=await br.newContext({viewport:{width:1440,height:950},userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/153.0.0.0 Safari/537.36'});contexts.push(c);await c.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());const p=await c.newPage();p.setDefaultTimeout(12000);p.on('pageerror',e=>pageerrors.push(String(e)));p.on('dialog',d=>d.accept());if(role)await p.goto(B+'/qa/m13/login/'+role+'/');return p}
+ async function post(p,selector){let status;const watch=r=>{if(r.request().method()==='POST')status=r.status()};p.on('response',watch);await Promise.all([p.waitForNavigation({waitUntil:'domcontentloaded'}),p.locator(selector).click()]);p.off('response',watch);return status}
+ try{
+  const p=await make('owner'),a=await make('admin');phase='create-empty-organization';await p.goto(B+'/ru/account/organizations/create/');for(const summary of await p.locator('details:not([open]) > summary').all())await summary.click();
+  await p.locator('[name=name_az]').fill('M13 Orbit Intermodule Organization');await p.locator('[name=name_ru]').fill('M13 Межмодульная организация Орбита');await p.locator('[name=name_en]').fill('M13 Orbit Intermodule Organization');await p.locator('[name=description_az]').fill('Fictional Module13 organization '+('Safe children activities. '.repeat(12)));await p.locator('[name=phone]').fill('+994500000013');
+  const created=await post(p,'[data-org-create-form] button[type=submit]');out.organization=Number(await p.locator('[data-org-id]').getAttribute('data-org-id'));check('organization-created-without-branches',created===302&&out.organization>1);check('no-invented-branch',await p.locator('a[href*="/branches/2/"]').count()===0);
+  await p.reload();check('organization-create-reload',Number(await p.locator('[data-org-id]').getAttribute('data-org-id'))===out.organization);await p.screenshot({path:'/mnt/c/kidsmap/docs/qa/module13-repair-2026-10-19-pc-r1/png/org-empty-native.png',fullPage:true});
+  phase='publish-initial-draft-place';out.place=2;await a.goto(B+'/admin/catalog/place/?id__exact=2');await a.locator('[name=_selected_action][value="2"]').check();const button=a.locator('[data-bulk-submit=mark_published]');if(!await button.isVisible())await a.locator('#km-bulk-bar details summary').click();const published=await post(a,'[data-bulk-submit=mark_published]');check('native-admin-place-publication',published===302);
+  phase='canonical-connect';await p.goto(B+'/ru/account/organizations/'+out.organization+'/connections/?place_ids=2');await p.locator('[name=place_ids][value="2"]').first().check();await post(p,'button[data-preview]');check('canonical-preview-review',await p.locator('[data-confirm-form]').count()===1);check('explicit-consent-required',await p.locator('[data-confirm-form] [name=consent]').getAttribute('required')!==null);
+  await p.locator('[data-confirm-form] [name=consent]').check();const confirmed=await post(p,'[data-confirm-form] button[value=confirm]');check('canonical-confirm',confirmed===302);out.receipt=new URL(p.url()).pathname;await p.reload();check('receipt-reload-kept',new URL(p.url()).pathname===out.receipt);await p.screenshot({path:'/mnt/c/kidsmap/docs/qa/module13-repair-2026-10-19-pc-r1/png/connection-native-receipt.png',fullPage:true});
+  await p.goto(B+'/ru/account/organizations/'+out.organization+'/');check('connected-branch-visible-in-workspace',await p.locator('a[href*="/branches/2/"]').count()>0);
+  phase='program-create';const form=p.locator('form[action$="/programs/create/"]');await form.locator('[name=name_az]').fill('M13 Orbit Creative Program');await post(p,'form[action$="/programs/create/"] button[type=submit]');out.program=Number(new URL(p.url()).pathname.match(/programs\/(\d+)\//)?.[1]);check('program-created-within-network',out.program>1);await p.reload();check('program-draft-reload',await p.locator('[name=name_az]').inputValue()==='M13 Orbit Creative Program');
+  await p.screenshot({path:'/mnt/c/kidsmap/docs/qa/module13-repair-2026-10-19-pc-r1/png/program-draft-native.png',fullPage:true});
+ }catch(e){errors.push({phase,message:String(e)})}finally{for(const c of contexts)await c.close()}
+ return{rows,errors,pageerrors,entities:out};
+}
+)(page);
+```

@@ -1,0 +1,3 @@
+# Full acceptance behavioral regressions
+
+Add only src/catalog/testcases/test_module12_acceptance.py, exact bytes of the13-method scratch module that just passed with9existing analytics methods (22total0F0E). This is additional verification of existing contracts, not a production fix; no fabricated RED. Covers actual persisted repeat/session/role/bot/exclusion metrics, Baku half-open equal windows, subject separation, contact aliases/directions, redirects/stable names, hidden/restore history, favorite commit despite optional storage failure, disabled collection and owner privacy. No old assertion/source edit. Full final suite includes these tests with current application source.

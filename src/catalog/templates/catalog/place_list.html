@@ -967,12 +967,12 @@
           </div>
         </div>
       {% endif %}
-      {% if language == "az" %}
-        <h2>0 məkan tapıldı</h2>
-        <p>Seçilmiş filtrlərə görə nəticə tapılmadı.</p>
-      {% elif site_empty_results_text %}
+      {% if site_empty_results_text %}
         <h2>{{ site_empty_results_text }}</h2>
         <p>{% trans "Попробуйте изменить фильтры или сбросить поиск." %}</p>
+      {% elif language == "az" %}
+        <h2>0 məkan tapıldı</h2>
+        <p>Seçilmiş filtrlərə görə nəticə tapılmadı.</p>
       {% else %}
         <h2>{% trans "Ничего не найдено." %}</h2>
         <p>{% trans "Попробуйте изменить фильтры или сбросить поиск." %}</p>

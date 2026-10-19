@@ -50,11 +50,21 @@
         document.body.classList.add('km-drawer-locked');
         document.body.style.overflow = 'hidden';
 
-        // Focus close button on open
+        // Wait for the animated panel to become focusable; never steal focus
+        // after the user has already entered the drawer or closed it.
         if (burgerCloseBtn) {
-          setTimeout(function () {
-            burgerCloseBtn.focus();
-          }, 50);
+          let attempts = 0;
+          function focusDrawerControl() {
+            if (!drawer.classList.contains('is-active') || drawer.contains(document.activeElement)) return;
+            const style = window.getComputedStyle(burgerCloseBtn);
+            if (style.visibility !== 'hidden' && style.display !== 'none') {
+              burgerCloseBtn.focus({ preventScroll: true });
+            }
+            if (document.activeElement !== burgerCloseBtn && ++attempts < 60) {
+              window.requestAnimationFrame(focusDrawerControl);
+            }
+          }
+          window.requestAnimationFrame(focusDrawerControl);
         }
       }
 

@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Collection
 
 from django.conf import settings
+from django.db import DatabaseError, transaction
 from django.db.models import Count, Q
 
 from catalog.models import FunnelEvent
@@ -72,6 +74,15 @@ def _period_values(*, subject_ids, start, end):
 def build_subject_metrics(*, subject_type: str, subject_ids: Collection[int], start: datetime, end: datetime) -> AnalyticsSummary:
     if subject_type != "place" or not getattr(settings, "LOCAL_ANALYTICS_STORAGE_ENABLED", False):
         return AnalyticsSummary(available=False)
+    try:
+        with transaction.atomic():
+            return _build_subject_metrics(subject_ids=subject_ids, start=start, end=end)
+    except DatabaseError:
+        logging.getLogger(__name__).warning("Optional analytics aggregation unavailable")
+        return AnalyticsSummary(available=False)
+
+
+def _build_subject_metrics(*, subject_ids, start, end):
     ids = list(subject_ids)
     values = _period_values(subject_ids=ids, start=start, end=end)
     previous_end = start

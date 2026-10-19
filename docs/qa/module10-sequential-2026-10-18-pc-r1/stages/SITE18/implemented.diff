@@ -1,0 +1,123 @@
+--- a/static/css/components/header.css
++++ b/static/css/components/header.css
+@@ -71,8 +71,9 @@
+   gap: 10px;
+   text-decoration: none;
+   color: inherit;
+-  flex-shrink: 0;
++  flex-shrink: 1;
+   min-width: 0;
++  max-width: 360px;
+   cursor: pointer;
+   touch-action: manipulation;
+   -webkit-tap-highlight-color: transparent;
+@@ -120,7 +121,10 @@
+   letter-spacing: -0.025em;
+   line-height: 1;
+   white-space: nowrap;
+-  flex-shrink: 0;
++  flex-shrink: 1;
++  min-width: 0;
++  overflow: hidden;
++  text-overflow: ellipsis;
+   margin: 0;
+ }
+ 
+--- a/src/catalog/templates/includes/header.html
++++ b/src/catalog/templates/includes/header.html
+@@ -5,7 +5,7 @@
+ <header class="km-header topbar" role="banner" id="km-site-header">
+   <div class="km-header-inner">
+     <!-- Brand / Logo Lockup -->
+-    <a class="km-brand brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}">
++    <a class="km-brand brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}" title="{{ brand_name }}">
+       <span class="km-brand-logo-frame">
+         <img
+           class="km-brand-logo"
+@@ -281,7 +281,7 @@
+   <aside class="km-drawer-sheet" role="dialog" aria-modal="true" aria-label="{% trans 'Навигационное меню' %}">
+     <!-- Drawer Header -->
+     <div class="km-drawer-header">
+-      <a class="km-brand brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}">
++      <a class="km-brand brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}" title="{{ brand_name }}">
+         <span class="km-brand-logo-frame">
+           <img
+             class="km-brand-logo"
+--- a/src/catalog/templates/base.html
++++ b/src/catalog/templates/base.html
+@@ -46,7 +46,7 @@
+       </script>
+     {% endif %}
+     <link rel="stylesheet" href="{% static 'css/components/icons.css' %}" />
+-    <link rel="stylesheet" href="{% static 'css/site.css' %}" />
++    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=20261018_site18_r3" />
+     <link rel="stylesheet" href="{% static 'css/components/states.css' %}" />
+     <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}" />
+     <style>
+@@ -102,8 +102,8 @@
+     <link rel="stylesheet" href="{% static 'css/motion.css' %}" />
+     {% block navigation_motion %}{% endblock %}
+     <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=2">
+-    <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261005">
+-    <script src="{% static 'js/header.js' %}?v=20260915" defer></script>
++    <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261018_site18_r1">
++    <script src="{% static 'js/header.js' %}?v=20261018_site18_r2" defer></script>
+     <script src="{% static 'js/motion.js' %}"></script>
+   </head>
+   <body id="top" class="{% if site_preview %}page-place_detail{% elif request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
+--- a/static/js/header.js
++++ b/static/js/header.js
+@@ -50,11 +50,21 @@
+         document.body.classList.add('km-drawer-locked');
+         document.body.style.overflow = 'hidden';
+ 
+-        // Focus close button on open
++        // Wait for the animated panel to become focusable; never steal focus
++        // after the user has already entered the drawer or closed it.
+         if (burgerCloseBtn) {
+-          setTimeout(function () {
+-            burgerCloseBtn.focus();
+-          }, 50);
++          let attempts = 0;
++          function focusDrawerControl() {
++            if (!drawer.classList.contains('is-active') || drawer.contains(document.activeElement)) return;
++            const style = window.getComputedStyle(burgerCloseBtn);
++            if (style.visibility !== 'hidden' && style.display !== 'none') {
++              burgerCloseBtn.focus({ preventScroll: true });
++            }
++            if (document.activeElement !== burgerCloseBtn && ++attempts < 60) {
++              window.requestAnimationFrame(focusDrawerControl);
++            }
++          }
++          window.requestAnimationFrame(focusDrawerControl);
+         }
+       }
+ 
+--- a/static/css/site.css
++++ b/static/css/site.css
+@@ -2569,6 +2569,7 @@
+ }
+ 
+ .footer-brand-block {
++  min-width: 0;
+   display: flex;
+   flex-direction: column;
+   gap: 14px;
+@@ -2576,6 +2577,8 @@
+ }
+ 
+ .footer-brand-link {
++  min-width: 0;
++  max-width: 100%;
+   display: inline-flex;
+   align-items: center;
+   gap: 12px;
+@@ -2592,6 +2595,8 @@
+ }
+ 
+ .footer-brand-name {
++  min-width: 0;
++  overflow-wrap: anywhere;
+   font-family: var(--font-display);
+   font-size: 32px;
+   font-weight: 900;

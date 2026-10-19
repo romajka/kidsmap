@@ -1,0 +1,24 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m10s15-fix-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/site15-pc-fix-r1/runtime.py",
+    "test",
+    "catalog.testcases.test_site_qa15_settings_concurrency",
+    "catalog.testcases.test_site_qa01_media_permissions",
+    "catalog.testcases.admin.TestSiteGalleryImageAdminMedia",
+    "catalog.testcases.admin.TestAdminSidebarStructure",
+    "catalog.testcases.test_public_section_switches"
+  ],
+  "exit": 0,
+  "failures": 0,
+  "errors": 0,
+  "summary": [
+    "Ran 55 tests in 21.516s",
+    "OK"
+  ],
+  "raw_sha256": "5d01fc56d50ceb26b1a07b9ede87c241c7e777829f88ada07e395a14849e3383",
+  "scope": "Final backend/template/test22 +33unchanged methods; fresh owned preview testDB"
+}

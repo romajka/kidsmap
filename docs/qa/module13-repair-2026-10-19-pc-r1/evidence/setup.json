@@ -1,0 +1,24 @@
+{
+  "container_id": "cd0db8f2c17258be5174ff2ddab798d03bdf308df5956ae6250caf28475ae951",
+  "pg_container_id": "ae87cbe4cc7de1f25fe757e31e168bc6ab59bb542d3719d1235e2d12bca49921",
+  "app": "m13full-r1-app",
+  "pg": "m13-full-r1-pg",
+  "normal_db": "m13full_r1",
+  "port": 33810,
+  "source_count": 1066,
+  "prior_packages": 44,
+  "prior_files": 9905,
+  "locales_command": [
+    "python3",
+    "/mnt/c/kidsmap/scripts/build_isolated_locales.py",
+    "build",
+    "--source-locale",
+    "/mnt/c/kidsmap/locale",
+    "--output",
+    "/mnt/c/kidsmap/.tmp/m13-full-r1/locales-current",
+    "--compiler",
+    "native"
+  ],
+  "source_RO_own_scratch_RW": true,
+  "PG_loopback_app_namespace_only": true
+}

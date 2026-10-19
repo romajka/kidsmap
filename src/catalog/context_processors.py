@@ -82,6 +82,8 @@ NOINDEX_URL_NAMES = {
 }
 
 QUERY_NOINDEX_URL_NAMES = {
+    "specialist_list",
+    "events_landing",
     "organization_list",
     "place_list",
     "place_new",

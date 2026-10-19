@@ -1,0 +1,80 @@
+import json
+from datetime import datetime,timedelta
+from zoneinfo import ZoneInfo
+from unittest.mock import patch
+from django.contrib.auth import get_user_model
+from django.db import DatabaseError
+from django.test import Client,override_settings
+from django.urls import reverse
+from django.utils import timezone,translation
+from catalog.models import AnalyticsActorExclusion,FunnelEvent,PlaceLike
+from catalog.services.analytics_metrics import build_subject_metrics
+from catalog.testcases.test_module11_seo import Module11Fixture
+
+@override_settings(LOCAL_ANALYTICS_STORAGE_ENABLED=True,OWNER_ANALYTICS_ENABLED=True,ANALYTICS_IDENTITY_HASH_KEY='fictional-module12-acceptance-key')
+class AcceptanceTests(Module11Fixture):
+    def summary(self,*,start=None,end=None):
+        end=end or timezone.now()+timedelta(seconds=1);start=start or end-timedelta(days=30)
+        return build_subject_metrics(subject_type='place',subject_ids=[self.place.pk],start=start,end=end)
+    def test_anonymous_repeated_language_visits_add_views_not_unique_people(self):
+        for lang in ['az','ru','en']:self.assertEqual(self.response(self.place,lang).status_code,200)
+        metrics=self.summary();self.assertEqual((metrics.views,metrics.unique_visitors,metrics.unique_sessions),(3,1,1))
+    def test_same_logged_in_user_two_sessions_is_one_visitor(self):
+        self.client.force_login(self.owner);self.assertEqual(self.response(self.place).status_code,200)
+        second=Client();second.force_login(self.owner)
+        with translation.override('az'):url=self.place.get_absolute_url()
+        self.assertEqual(second.get(url).status_code,200)
+        metrics=self.summary();self.assertEqual((metrics.views,metrics.unique_visitors,metrics.unique_sessions),(2,1,2))
+    def test_staff_and_bot_are_excluded_but_owner_is_included(self):
+        staff=get_user_model().objects.create_user('m12-accept-staff',is_staff=True)
+        self.client.force_login(staff);self.assertEqual(self.response(self.place).status_code,200);self.assertEqual(self.summary().views,0)
+        self.client.logout()
+        with translation.override('az'):url=self.place.get_absolute_url()
+        self.assertEqual(self.client.get(url,HTTP_USER_AGENT='SyntheticBot/1.0').status_code,200);self.assertEqual(self.summary().views,0)
+        self.client.force_login(self.owner);self.assertEqual(self.response(self.place).status_code,200);self.assertEqual(self.summary().views,1);self.assertEqual(FunnelEvent.objects.count(),3)
+    def test_explicit_active_exclusion_filters_history_and_expiry_restores_it(self):
+        self.client.force_login(self.owner);self.assertEqual(self.response(self.place).status_code,200);self.assertEqual(self.summary().views,1)
+        exclusion=AnalyticsActorExclusion.objects.create(user=self.owner,reason_code='staff_test',starts_at=timezone.now()-timedelta(days=1));self.assertEqual(self.summary().views,0)
+        exclusion.ends_at=timezone.now()-timedelta(seconds=1);exclusion.save(update_fields=['ends_at']);self.assertEqual(self.summary().views,1);self.assertEqual(FunnelEvent.objects.count(),1)
+    def test_equal_previous_windows_and_baku_half_open_boundaries(self):
+        end=datetime(2026,10,19,0,0,tzinfo=ZoneInfo('Asia/Baku'));start=end-timedelta(days=30)
+        for at in [start-timedelta(microseconds=1),start,end-timedelta(microseconds=1),end]:
+            FunnelEvent.objects.create(place=self.place,schema_version=2,event_type='place_view',subject_type='place',subject_id=self.place.pk,occurred_at=at,visitor_key_hash='v1:fictional',session_key_hash='v1:fictional')
+        metrics=self.summary(start=start,end=end);self.assertEqual((metrics.views,metrics.previous_views,metrics.views_change_percent),(2,1,100.0))
+    def test_subject_ids_do_not_mix_organization_activity_and_place_metrics(self):
+        now=timezone.now()
+        for kind in ['organization','activity']:
+            FunnelEvent.objects.create(schema_version=2,event_type=kind+'_view',subject_type=kind,subject_id=self.place.pk,occurred_at=now,visitor_key_hash='v1:fictional',session_key_hash='v1:fictional')
+        self.assertEqual(self.summary().views,0)
+    def test_contact_aliases_are_canonical_and_directions_are_separate(self):
+        for kind in ['cta_call','cta_whatsapp','cta_instagram','website_click','directions_click']:
+            response=self.client.post(reverse('track_event'),data=json.dumps({'event_type':kind,'place_id':self.place.pk,'source':'place-detail'}),content_type='application/json');self.assertEqual(response.status_code,200)
+        metrics=self.summary();self.assertEqual((metrics.views,metrics.contact_actions,metrics.directions,metrics.unique_visitors),(0,4,1,1));self.assertEqual(set(FunnelEvent.objects.values_list('event_type',flat=True)),{'phone_click','whatsapp_click','social_click','website_click','directions_click'})
+    def test_query_and_obsolete_slug_redirects_count_one_successful_render_each(self):
+        with translation.override('ru'):url=self.place.get_absolute_url()
+        self.assertEqual(self.client.get(url+'?fictional=discard',follow=True).status_code,200);self.assertEqual(self.summary().views,1)
+        self.assertEqual(self.client.get('/ru/place/'+str(self.place.pk)+'-fictional-obsolete/',follow=True).status_code,200);self.assertEqual(self.summary().views,2)
+    def test_name_edit_preserves_address_and_aggregates_on_entity_id(self):
+        with translation.override('ru'):url=self.place.get_absolute_url()
+        self.place.name_ru='M12 changed fictional name';self.place.save(update_fields=['name_ru'])
+        with translation.override('ru'):self.assertEqual(self.place.get_absolute_url(),url)
+        self.assertEqual(self.client.get(url).status_code,200);self.assertEqual(self.summary().views,1)
+    def test_hidden_and_restored_place_preserves_history(self):
+        self.assertEqual(self.response(self.place).status_code,200);self.place.is_active=False;self.place.save(update_fields=['is_active']);self.assertEqual(self.response(self.place).status_code,404);self.assertEqual(self.summary().views,1)
+        self.place.is_active=True;self.place.save(update_fields=['is_active']);self.assertEqual(self.response(self.place).status_code,200);self.assertEqual(self.summary().views,2)
+    def test_favorite_commit_survives_optional_analytics_failure(self):
+        self.client.force_login(self.owner)
+        with patch('catalog.repositories.tracking_repositories.DjangoFunnelEventRepository.create_event',side_effect=DatabaseError('fictional analytics unavailable')):
+            with self.captureOnCommitCallbacks(execute=True):response=self.client.post(reverse('toggle_place_like',args=[self.place.pk]),HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code,200);self.assertTrue(PlaceLike.objects.filter(place=self.place,user=self.owner).exists());self.assertFalse(FunnelEvent.objects.exists())
+    @override_settings(LOCAL_ANALYTICS_STORAGE_ENABLED=False)
+    def test_disabled_storage_has_no_events_and_owner_reports_unavailable(self):
+        self.assertEqual(self.response(self.place).status_code,200);self.assertFalse(FunnelEvent.objects.exists());self.assertFalse(self.summary().available)
+        self.client.force_login(self.owner)
+        with translation.override('az'):url=reverse('owner_place_analytics',args=[self.place.pk])
+        result=self.client.get(url);self.assertEqual(result.status_code,200);self.assertFalse(result.context['metrics'].available)
+    def test_owner_dashboard_hides_other_owners_and_private_dimensions(self):
+        outsider=get_user_model().objects.create_user('m12-accept-outsider');self.client.force_login(outsider)
+        with translation.override('ru'):url=reverse('owner_place_analytics',args=[self.place.pk])
+        self.assertEqual(self.client.get(url).status_code,404);self.client.force_login(self.owner);result=self.client.get(url);self.assertEqual(result.status_code,200)
+        for private in ['visitor_key_hash','session_key_hash','referrer_domain','fictional-module12-acceptance-key']:self.assertNotContains(result,private)

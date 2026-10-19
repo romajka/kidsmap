@@ -1,0 +1,46 @@
+{
+  "rows": [
+    {
+      "id": "two-tab-disjoint-settings",
+      "checks": {
+        "A302": true,
+        "AStored": true,
+        "BEmailStored": true,
+        "APhonePreserved": false,
+        "conflictOrMerge": false
+      },
+      "responseB": 302,
+      "before": {
+        "phone": "+994501111111",
+        "email": "contact-m10@example.invalid"
+      },
+      "afterA": {
+        "phone": "+994501111112",
+        "email": "contact-m10@example.invalid"
+      },
+      "afterB": {
+        "phone": "+994501111111",
+        "email": "tab-b-m10@example.invalid"
+      }
+    },
+    {
+      "id": "transport-failure-draft-recovery",
+      "simulation": "route abort POST before server; browser Back/reload real",
+      "checks": {
+        "noServerWrite": true,
+        "draftRetained": false
+      },
+      "originalText": "QA M10 CONTACTS ru",
+      "enteredDraft": "QA M10 UNSAVED TRANSPORT DRAFT",
+      "afterBack": null,
+      "error": " BACK:TimeoutError: locator.waitFor: Timeout 8000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[name=contacts_text_ru]') to be visible\u001b[22m\n"
+    }
+  ],
+  "changes": [
+    {
+      "label": "footer restored by native form",
+      "phone": "+994501111111",
+      "email": "contact-m10@example.invalid"
+    }
+  ]
+}

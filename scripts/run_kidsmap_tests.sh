@@ -56,7 +56,8 @@ case "$SUITE" in
       src.catalog.testcases.test_seo_landing_visibility
     ;;
   full)
-    run_suite catalog
+    # No labels selects the canonical complete KidsMapTestRunner corpus.
+    run_suite
     ;;
   *)
     echo "Unknown suite: $SUITE" >&2

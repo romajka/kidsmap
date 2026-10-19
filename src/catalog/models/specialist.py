@@ -1,7 +1,8 @@
-from django.db import models
+from django.db import models, router
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
 from django.utils.text import slugify
@@ -231,7 +232,22 @@ class Specialist(models.Model):
         from django.urls import reverse
         return reverse("specialist_detail", kwargs={"slug": self.slug})
 
+    def _validate_stable_slug(self, using=None):
+        if not self.pk:
+            return
+        database = using or self._state.db or router.db_for_read(type(self), instance=self)
+        original_slug = type(self).objects.using(database).filter(pk=self.pk).values_list("slug", flat=True).first()
+        if original_slug and self.slug != original_slug:
+            raise ValidationError({"slug": _("Адрес существующего профиля нельзя изменить.")})
+
+    def clean(self):
+        super().clean()
+        self._validate_stable_slug()
+
     def save(self, *args, **kwargs):
+        update_fields = kwargs.get("update_fields")
+        if update_fields is None or "slug" in update_fields:
+            self._validate_stable_slug(kwargs.get("using"))
         if not self.slug:
             self.slug = slugify(self.name, allow_unicode=False) or "specialist"
             # Проверка на уникальность

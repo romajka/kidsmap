@@ -1,0 +1,39 @@
+{
+  "yaml_parse": "PASS",
+  "jobs": [
+    "deploy",
+    "quality"
+  ],
+  "deploy_needs": "quality",
+  "deploy_bytes_sha256": "170befa4cb42f3fc65085d37651a4e2c2123b3505474e9d13df7c276dae170a9",
+  "deploy_job_byte_identical": true,
+  "bash_syntax": [
+    {
+      "step": 0,
+      "syntax_exit": 0
+    },
+    {
+      "step": 1,
+      "syntax_exit": 0
+    },
+    {
+      "step": 2,
+      "syntax_exit": 0
+    },
+    {
+      "step": 3,
+      "syntax_exit": 0
+    },
+    {
+      "step": 4,
+      "syntax_exit": 0
+    },
+    {
+      "step": 5,
+      "syntax_exit": 0
+    }
+  ],
+  "contains_continue_on_error": false,
+  "actual_GitHub_execution": "NOT RUN",
+  "provision_and_cleanup_not_executed_by_this_syntax_check": true
+}

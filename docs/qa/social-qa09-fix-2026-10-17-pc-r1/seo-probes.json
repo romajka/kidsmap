@@ -1,0 +1,173 @@
+{
+  "rows": [
+    {
+      "id": "ru-query-language",
+      "controls": {
+        "foreign_removed301": true,
+        "followed200": true,
+        "canonical_base": true,
+        "robots_policy": true,
+        "alternate_base_urls": true,
+        "native_switch_language": true
+      },
+      "source": {
+        "legal_query_after_cleanup": true,
+        "language_link_query": true,
+        "native_switch_query": true
+      },
+      "facts": {
+        "redirect_status": 301,
+        "location": "/ru/place-reviews/?sort=likes&page=2",
+        "canonical": "http://127.0.0.1:33370/ru/place-reviews/",
+        "robots": "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1",
+        "alternates": [
+          {
+            "lang": "ru",
+            "href": "http://127.0.0.1:33370/ru/place-reviews/"
+          },
+          {
+            "lang": "az",
+            "href": "http://127.0.0.1:33370/place-reviews/"
+          },
+          {
+            "lang": "en",
+            "href": "http://127.0.0.1:33370/en/place-reviews/"
+          },
+          {
+            "lang": "x-default",
+            "href": "http://127.0.0.1:33370/place-reviews/"
+          }
+        ],
+        "href": "http://127.0.0.1:33370/en/place-reviews/?sort=likes&page=2",
+        "switched": "http://127.0.0.1:33370/en/place-reviews/?sort=likes&page=2"
+      }
+    },
+    {
+      "id": "az-query-language",
+      "controls": {
+        "foreign_removed301": true,
+        "followed200": true,
+        "canonical_base": true,
+        "robots_policy": true,
+        "alternate_base_urls": true,
+        "native_switch_language": true
+      },
+      "source": {
+        "legal_query_after_cleanup": true,
+        "language_link_query": true,
+        "native_switch_query": true
+      },
+      "facts": {
+        "redirect_status": 301,
+        "location": "/place-reviews/?sort=likes&page=2",
+        "canonical": "http://127.0.0.1:33370/place-reviews/",
+        "robots": "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1",
+        "alternates": [
+          {
+            "lang": "ru",
+            "href": "http://127.0.0.1:33370/ru/place-reviews/"
+          },
+          {
+            "lang": "az",
+            "href": "http://127.0.0.1:33370/place-reviews/"
+          },
+          {
+            "lang": "en",
+            "href": "http://127.0.0.1:33370/en/place-reviews/"
+          },
+          {
+            "lang": "x-default",
+            "href": "http://127.0.0.1:33370/place-reviews/"
+          }
+        ],
+        "href": "http://127.0.0.1:33370/en/place-reviews/?sort=likes&page=2",
+        "switched": "http://127.0.0.1:33370/en/place-reviews/?sort=likes&page=2"
+      }
+    },
+    {
+      "id": "en-query-language",
+      "controls": {
+        "foreign_removed301": true,
+        "followed200": true,
+        "canonical_base": true,
+        "robots_policy": true,
+        "alternate_base_urls": true,
+        "native_switch_language": true
+      },
+      "source": {
+        "legal_query_after_cleanup": true,
+        "language_link_query": true,
+        "native_switch_query": true
+      },
+      "facts": {
+        "redirect_status": 301,
+        "location": "/en/place-reviews/?sort=likes&page=2",
+        "canonical": "http://127.0.0.1:33370/en/place-reviews/",
+        "robots": "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1",
+        "alternates": [
+          {
+            "lang": "ru",
+            "href": "http://127.0.0.1:33370/ru/place-reviews/"
+          },
+          {
+            "lang": "az",
+            "href": "http://127.0.0.1:33370/place-reviews/"
+          },
+          {
+            "lang": "en",
+            "href": "http://127.0.0.1:33370/en/place-reviews/"
+          },
+          {
+            "lang": "x-default",
+            "href": "http://127.0.0.1:33370/place-reviews/"
+          }
+        ],
+        "href": "http://127.0.0.1:33370/ru/place-reviews/?sort=likes&page=2",
+        "switched": "http://127.0.0.1:33370/ru/place-reviews/?sort=likes&page=2"
+      }
+    },
+    {
+      "id": "legacyAZ",
+      "controls": {
+        "status301": true
+      },
+      "source": {
+        "legacy_legal_query": true
+      },
+      "facts": {
+        "status": 301,
+        "location": "/place-reviews/?sort=likes&page=2",
+        "expected": "/place-reviews/?sort=likes&page=2"
+      }
+    },
+    {
+      "id": "site",
+      "controls": {
+        "status301": true,
+        "location": true
+      },
+      "source": {},
+      "facts": {
+        "status": 301,
+        "location": "/reviews/?sort=likes&page=2",
+        "expected": "/reviews/?sort=likes&page=2"
+      }
+    },
+    {
+      "id": "catalog",
+      "controls": {
+        "status301": true,
+        "location": true
+      },
+      "source": {},
+      "facts": {
+        "status": 301,
+        "location": "/catalog/?q=Fictional",
+        "expected": "/catalog/?q=Fictional"
+      }
+    }
+  ],
+  "pageerrors": [],
+  "requestfailed": [],
+  "consoleErrors": []
+}

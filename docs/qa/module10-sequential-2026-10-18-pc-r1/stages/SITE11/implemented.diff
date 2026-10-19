@@ -1,0 +1,397 @@
+--- a/src/catalog/domain_admin/site.py
++++ b/src/catalog/domain_admin/site.py
+@@ -1058,6 +1058,21 @@
+             "opts": self.model._meta,
+             "main_images": main_images,
+             "can_change_main_images": request.user.has_perm("catalog.change_sitesettings"),
++            "site_media_i18n": {
++                "loading": _("Загрузка..."),
++                "deleting": _("Удаление..."),
++                "delete_title": _("Удалить изображение?"),
++                "delete_message": _("Загруженное изображение будет удалено без возможности восстановления."),
++                "confirm_delete": _("Удалить"),
++                "cancel": _("Отмена"),
++                "upload_error": _("Не удалось загрузить файл"),
++                "delete_error": _("Не удалось удалить изображение"),
++                "network_error": _("Не удалось подключиться к серверу. Повторите попытку."),
++                "server_error": _("Ошибка сервера"),
++                "unknown_error": _("Неизвестная ошибка"),
++                "active": _("Активно"),
++                "edit": _("Редактировать"),
++            },
+             "has_add_permission": self.has_add_permission(request),
+             "galleries": galleries,
+         }
+--- a/templates/admin/catalog/sitegalleryimage/change_list.html
++++ b/templates/admin/catalog/sitegalleryimage/change_list.html
+@@ -8,7 +8,7 @@
+ 
+ {% block extrahead %}
+   {{ block.super }}
+-  <script src="{% static 'admin/js/kidsmap_site_media.js' %}" defer></script>
++  <script src="{% static 'admin/js/kidsmap_site_media.js' %}?v=20261018_site11_r1" defer></script>
+ {% endblock %}
+ 
+ {% block content_title %}
+@@ -28,6 +28,7 @@
+ {% block content %}
+ <!-- CSRF Token for JS AJAX -->
+ <input type="hidden" id="km-csrf-token" value="{{ csrf_token }}">
++{{ site_media_i18n|json_script:"km-site-media-i18n" }}
+ 
+ <div class="km-site-media-page">
+   <div class="km-media-layout">
+--- a/static/admin/js/kidsmap_site_media.js
++++ b/static/admin/js/kidsmap_site_media.js
+@@ -1,3 +1,16 @@
++/* Localized server gettext payload; safe English fallback for an absent payload. */
++const kmSiteMediaCopy = (() => {
++    const fallback = {"loading": "Loading...", "deleting": "Deleting...", "delete_title": "Delete image?", "delete_message": "This uploaded image will be deleted permanently.", "confirm_delete": "Delete", "cancel": "Cancel", "upload_error": "Could not upload file", "delete_error": "Could not delete image", "network_error": "Could not connect to the server. Please try again.", "server_error": "Server error", "unknown_error": "Unknown error", "active": "Active", "edit": "Edit"};
++    const node = document.getElementById("km-site-media-i18n");
++    if (!node) return fallback;
++    try { return Object.assign(fallback, JSON.parse(node.textContent)); }
++    catch (_) { return fallback; }
++})();
++function kmSiteMediaError(error) {
++    return error && error.name === "TypeError" ? kmSiteMediaCopy.network_error :
++        (error && error.message) || kmSiteMediaCopy.unknown_error;
++}
++
+ /* kidsmap_site_media.js */
+ 
+ document.addEventListener("DOMContentLoaded", () => {
+@@ -116,7 +129,7 @@
+                 <i class="fas fa-spinner fa-spin fa-2x" style="color:#009A4E;"></i>
+             </div>
+             <div class="km-gallery-card-body" style="padding:10px 12px; display:flex; align-items:center; justify-content:center; border-top: 1px solid #F3F4F6;">
+-                <span style="font-size:12px; color:#6B7280;">Загрузка...</span>
++                <span style="font-size:12px; color:#6B7280;">${kmSiteMediaCopy.loading}</span>
+             </div>
+         `;
+         // Insert loader before add button
+@@ -137,7 +150,7 @@
+         .then(response => {
+             if (!response.ok) {
+                 return response.json().then(err => {
+-                    throw new Error(err.error || `Ошибка сервера (${response.status})`);
++                    throw new Error(err.error || `${kmSiteMediaCopy.server_error} (${response.status})`);
+                 });
+             }
+             return response.json();
+@@ -156,23 +169,23 @@
+                         <div class="km-gallery-card-footer">
+                             <span class="km-gallery-card-size">${data.file.size}</span>
+                             <div class="km-gallery-card-actions">
+-                                ${data.edit_url ? `<a href="${data.edit_url}" class="km-gallery-card-btn" title="Редактировать"><i class="fas fa-pencil-alt"></i></a>` : ""}
+-                                ${data.delete_url ? `<a href="${data.delete_url}" class="km-gallery-card-btn delete" title="Удалить"><i class="far fa-trash-alt"></i></a>` : ""}
++                                ${data.edit_url ? `<a href="${data.edit_url}" class="km-gallery-card-btn" title="${kmSiteMediaCopy.edit}"><i class="fas fa-pencil-alt"></i></a>` : ""}
++                                ${data.delete_url ? `<a href="${data.delete_url}" class="km-gallery-card-btn delete" title="${kmSiteMediaCopy.confirm_delete}"><i class="far fa-trash-alt"></i></a>` : ""}
+                             </div>
+                         </div>
+                     </div>
+                 `;
+                 loader.replaceWith(newCard);
+             } else {
+-                throw new Error(data.error || "Неизвестная ошибка");
++                throw new Error(data.error || kmSiteMediaCopy.unknown_error);
+             }
+         })
+         .catch(err => {
+             loader.remove();
+             if (window.kmToast) {
+-                window.kmToast.error(`Не удалось загрузить файл «${file.name}»: ${err.message}`);
++                window.kmToast.error(`${kmSiteMediaCopy.upload_error} «${file.name}»: ${kmSiteMediaError(err)}`);
+             } else {
+-                alert(`Не удалось загрузить файл "${file.name}": ${err.message}`);
++                alert(`${kmSiteMediaCopy.upload_error} «${file.name}»: ${kmSiteMediaError(err)}`);
+             }
+         });
+     });
+@@ -194,7 +207,7 @@
+         </div>
+     `;
+     statusContainer.innerHTML = `
+-        <span class="km-media-status" style="background:#E5E7EB; color:#4B5563; display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:600;"><i class="fas fa-spinner fa-spin"></i> Загрузка...</span>
++        <span class="km-media-status" style="background:#E5E7EB; color:#4B5563; display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:600;"><i class="fas fa-spinner fa-spin"></i> ${kmSiteMediaCopy.loading}</span>
+     `;
+     if (uploadBtn) uploadBtn.disabled = true;
+ 
+@@ -212,7 +225,7 @@
+     .then(response => {
+         if (!response.ok) {
+             return response.json().then(err => {
+-                throw new Error(err.error || `Ошибка сервера (${response.status})`);
++                throw new Error(err.error || `${kmSiteMediaCopy.server_error} (${response.status})`);
+             });
+         }
+         return response.json();
+@@ -223,12 +236,12 @@
+             previewContainer.innerHTML = `<img src="${data.file.url}" alt="${file.name}">`;
+             // Update status & details
+             statusContainer.innerHTML = `
+-                <span class="km-media-status km-media-status-active"><i class="fas fa-check-circle"></i> Активно</span>
++                <span class="km-media-status km-media-status-active"><i class="fas fa-check-circle"></i> ${kmSiteMediaCopy.active}</span>
+                 <span class="km-media-filename" title="${data.file.name}">${data.file.name} &bull; ${data.file.size}</span>
+             `;
+             ensureDeleteButton(row);
+         } else {
+-            throw new Error(data.error || "Неизвестная ошибка");
++            throw new Error(data.error || kmSiteMediaCopy.unknown_error);
+         }
+     })
+     .catch(err => {
+@@ -236,9 +249,9 @@
+         previewContainer.innerHTML = origPreview;
+         statusContainer.innerHTML = origStatus;
+         if (window.kmToast) {
+-            window.kmToast.error(`Не удалось загрузить файл «${file.name}»: ${err.message}`);
++            window.kmToast.error(`${kmSiteMediaCopy.upload_error} «${file.name}»: ${kmSiteMediaError(err)}`);
+         } else {
+-            alert(`Не удалось загрузить файл "${file.name}": ${err.message}`);
++            alert(`${kmSiteMediaCopy.upload_error} «${file.name}»: ${kmSiteMediaError(err)}`);
+         }
+     })
+     .finally(() => {
+@@ -253,7 +266,8 @@
+     const deleteBtn = document.createElement("button");
+     deleteBtn.type = "button";
+     deleteBtn.className = "km-btn-link km-btn-link-danger km-media-delete-btn";
+-    deleteBtn.innerHTML = '<i class="far fa-trash-alt"></i> Удалить';
++    deleteBtn.innerHTML = '<i class="far fa-trash-alt"></i> ';
++    deleteBtn.appendChild(document.createTextNode(kmSiteMediaCopy.confirm_delete));
+ 
+     if (settingsLink) {
+         settingsLink.before(deleteBtn);
+@@ -269,7 +283,8 @@
+         const deleteBtn = row.querySelector(".km-media-delete-btn");
+         if (deleteBtn) {
+             deleteBtn.disabled = true;
+-            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Удаление...';
++            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ';
++            deleteBtn.appendChild(document.createTextNode(kmSiteMediaCopy.deleting));
+         }
+ 
+         const formData = new FormData();
+@@ -285,42 +300,43 @@
+         .then(response => {
+             if (!response.ok) {
+                 return response.json().then(err => {
+-                    throw new Error(err.error || `Ошибка сервера (${response.status})`);
++                    throw new Error(err.error || `${kmSiteMediaCopy.server_error} (${response.status})`);
+                 });
+             }
+             return response.json();
+         })
+         .then(data => {
+             if (!data.success) {
+-                throw new Error(data.error || "Неизвестная ошибка");
++                throw new Error(data.error || kmSiteMediaCopy.unknown_error);
+             }
+             window.location.reload();
+         })
+         .catch(err => {
+             if (window.kmToast) {
+-                window.kmToast.error(`Не удалось удалить изображение: ${err.message}`);
++                window.kmToast.error(`${kmSiteMediaCopy.delete_error}: ${kmSiteMediaError(err)}`);
+             } else {
+-                alert(`Не удалось удалить изображение: ${err.message}`);
++                alert(`${kmSiteMediaCopy.delete_error}: ${kmSiteMediaError(err)}`);
+             }
+             if (deleteBtn) {
+                 deleteBtn.disabled = false;
+-                deleteBtn.innerHTML = '<i class="far fa-trash-alt"></i> Удалить';
++                deleteBtn.innerHTML = '<i class="far fa-trash-alt"></i> ';
++                deleteBtn.appendChild(document.createTextNode(kmSiteMediaCopy.confirm_delete));
+             }
+         });
+     };
+ 
+     if (window.kmModal) {
+         window.kmModal.confirm({
+-            title: 'Удалить изображение?',
+-            message: 'Загруженное изображение будет удалено без возможности восстановления.',
++            title: kmSiteMediaCopy.delete_title,
++            message: kmSiteMediaCopy.delete_message,
+             iconTone: 'danger',
+-            confirmText: 'Удалить',
+-            cancelText: 'Отмена',
++            confirmText: kmSiteMediaCopy.confirm_delete,
++            cancelText: kmSiteMediaCopy.cancel,
+             isAlertDialog: true
+         }).then(function(confirmed) {
+             if (confirmed) doDelete();
+         });
+-    } else if (window.confirm("Удалить загруженное изображение?")) {
++    } else if (window.confirm(kmSiteMediaCopy.delete_title)) {
+         doDelete();
+     }
+ }
+--- /dev/null
++++ b/src/catalog/testcases/test_site_qa11_media_feedback.py
+@@ -0,0 +1,40 @@
++import json
++from html.parser import HTMLParser
++from django.conf import settings
++from django.contrib.auth import get_user_model
++from django.contrib.auth.models import Permission
++from django.test import TestCase
++from django.urls import reverse
++from catalog.models import SiteSettings
++from catalog.models.site import clear_singleton_caches
++
++class MediaCopyParser(HTMLParser):
++    def __init__(self):super().__init__();self.active=False;self.raw=''
++    def handle_starttag(self,tag,attrs):
++        if tag=='script' and dict(attrs).get('id')=='km-site-media-i18n':self.active=True
++    def handle_endtag(self,tag):
++        if tag=='script':self.active=False
++    def handle_data(self,data):
++        if self.active:self.raw+=data
++
++class Site11MediaFeedbackCopyTests(TestCase):
++    def setUp(self):
++        self.assertTrue(settings.TESTING);clear_singleton_caches();self.site=SiteSettings.get_solo()
++        self.actor=get_user_model().objects.create_superuser('media_copy','media-copy@example.invalid','fictional');self.client.force_login(self.actor)
++        self.url=reverse('admin:catalog_sitegalleryimage_changelist')
++    def payload(self,lang):
++        self.client.cookies['django_language']=lang;r=self.client.get(self.url);self.assertEqual(r.status_code,200);p=MediaCopyParser();p.feed(r.content.decode());self.assertTrue(p.raw,'Missing localized media feedback payload');return json.loads(p.raw)
++    def test_loading_and_deletion_feedback_use_selected_language(self):
++        expected={'az':('Yüklənir...','Silinir...','Şəkil silinsin?'),'ru':('Загрузка...','Удаление...','Удалить изображение?'),'en':('Loading...','Deleting...','Delete image?')}
++        for lang,values in expected.items():
++            with self.subTest(lang=lang):
++                p=self.payload(lang);self.assertEqual((p['loading'],p['deleting'],p['delete_title']),values)
++    def test_confirmation_and_errors_are_localized(self):
++        expected={'az':('Sil','Ləğv et','Faylı yükləmək mümkün olmadı'),'ru':('Удалить','Отмена','Не удалось загрузить файл'),'en':('Delete','Cancel','Could not upload file')}
++        for lang,values in expected.items():
++            with self.subTest(lang=lang):
++                p=self.payload(lang);self.assertEqual((p['confirm_delete'],p['cancel'],p['upload_error']),values)
++    def test_translation_payload_contains_only_public_feedback_strings(self):
++        p=self.payload('en');self.assertEqual(set(p),{'loading','deleting','delete_title','delete_message','confirm_delete','cancel','upload_error','delete_error','network_error','server_error','unknown_error','active','edit'});self.assertTrue(all(isinstance(v,str) and v for v in p.values()))
++    def test_readonly_media_keeps_write_controls_unavailable(self):
++        viewer=get_user_model().objects.create_user('media_reader','media-reader@example.invalid','fictional',is_staff=True);viewer.user_permissions.add(Permission.objects.get(codename='view_sitegalleryimage',content_type__app_label='catalog'));self.client.force_login(viewer);r=self.client.get(self.url);self.assertEqual(r.status_code,200);self.assertNotContains(r,'km-media-upload-btn');self.assertNotContains(r,'km-gallery-add')
+--- a/locale/ru/LC_MESSAGES/django.po
++++ b/locale/ru/LC_MESSAGES/django.po
+@@ -20976,3 +20976,39 @@
+ #: src/catalog/templates/admin/catalog/shared_settings_change_form.html
+ msgid "Удалить черновик"
+ msgstr "Удалить черновик"
++
++#: src/catalog/domain_admin/site.py
++msgid "Загрузка..."
++msgstr "Загрузка..."
++
++#: src/catalog/domain_admin/site.py
++msgid "Удаление..."
++msgstr "Удаление..."
++
++#: src/catalog/domain_admin/site.py
++msgid "Удалить изображение?"
++msgstr "Удалить изображение?"
++
++#: src/catalog/domain_admin/site.py
++msgid "Загруженное изображение будет удалено без возможности восстановления."
++msgstr "Загруженное изображение будет удалено без возможности восстановления."
++
++#: src/catalog/domain_admin/site.py
++msgid "Не удалось загрузить файл"
++msgstr "Не удалось загрузить файл"
++
++#: src/catalog/domain_admin/site.py
++msgid "Не удалось удалить изображение"
++msgstr "Не удалось удалить изображение"
++
++#: src/catalog/domain_admin/site.py
++msgid "Не удалось подключиться к серверу. Повторите попытку."
++msgstr "Не удалось подключиться к серверу. Повторите попытку."
++
++#: src/catalog/domain_admin/site.py
++msgid "Ошибка сервера"
++msgstr "Ошибка сервера"
++
++#: src/catalog/domain_admin/site.py
++msgid "Неизвестная ошибка"
++msgstr "Неизвестная ошибка"
+--- a/locale/en/LC_MESSAGES/django.po
++++ b/locale/en/LC_MESSAGES/django.po
+@@ -23390,3 +23390,39 @@
+ #: src/catalog/templates/admin/catalog/shared_settings_change_form.html
+ msgid "Удалить черновик"
+ msgstr "Delete draft"
++
++#: src/catalog/domain_admin/site.py
++msgid "Загрузка..."
++msgstr "Loading..."
++
++#: src/catalog/domain_admin/site.py
++msgid "Удаление..."
++msgstr "Deleting..."
++
++#: src/catalog/domain_admin/site.py
++msgid "Удалить изображение?"
++msgstr "Delete image?"
++
++#: src/catalog/domain_admin/site.py
++msgid "Загруженное изображение будет удалено без возможности восстановления."
++msgstr "This uploaded image will be deleted permanently."
++
++#: src/catalog/domain_admin/site.py
++msgid "Не удалось загрузить файл"
++msgstr "Could not upload file"
++
++#: src/catalog/domain_admin/site.py
++msgid "Не удалось удалить изображение"
++msgstr "Could not delete image"
++
++#: src/catalog/domain_admin/site.py
++msgid "Не удалось подключиться к серверу. Повторите попытку."
++msgstr "Could not connect to the server. Please try again."
++
++#: src/catalog/domain_admin/site.py
++msgid "Ошибка сервера"
++msgstr "Server error"
++
++#: src/catalog/domain_admin/site.py
++msgid "Неизвестная ошибка"
++msgstr "Unknown error"
+--- a/locale/az/LC_MESSAGES/django.po
++++ b/locale/az/LC_MESSAGES/django.po
+@@ -23536,3 +23536,39 @@
+ #: src/catalog/templates/admin/catalog/shared_settings_change_form.html
+ msgid "Удалить черновик"
+ msgstr "Qaralamanı sil"
++
++#: src/catalog/domain_admin/site.py
++msgid "Загрузка..."
++msgstr "Yüklənir..."
++
++#: src/catalog/domain_admin/site.py
++msgid "Удаление..."
++msgstr "Silinir..."
++
++#: src/catalog/domain_admin/site.py
++msgid "Удалить изображение?"
++msgstr "Şəkil silinsin?"
++
++#: src/catalog/domain_admin/site.py
++msgid "Загруженное изображение будет удалено без возможности восстановления."
++msgstr "Yüklənmiş şəkil həmişəlik silinəcək."
++
++#: src/catalog/domain_admin/site.py
++msgid "Не удалось загрузить файл"
++msgstr "Faylı yükləmək mümkün olmadı"
++
++#: src/catalog/domain_admin/site.py
++msgid "Не удалось удалить изображение"
++msgstr "Şəkli silmək mümkün olmadı"
++
++#: src/catalog/domain_admin/site.py
++msgid "Не удалось подключиться к серверу. Повторите попытку."
++msgstr "Serverə qoşulmaq mümkün olmadı. Yenidən cəhd edin."
++
++#: src/catalog/domain_admin/site.py
++msgid "Ошибка сервера"
++msgstr "Server xətası"
++
++#: src/catalog/domain_admin/site.py
++msgid "Неизвестная ошибка"
++msgstr "Naməlum xəta"

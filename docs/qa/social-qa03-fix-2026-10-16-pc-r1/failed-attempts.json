@@ -1,0 +1,54 @@
+[
+  {
+    "id": "ENV-WSL",
+    "classification": "ENVIRONMENT",
+    "result": "Initial exec-bound WSL proxy/process continuity ended; own app/PG stopped after RED. Persistent owned PG volume retained test DB. Restarted only m09s03-fix-r1 app/PG, then used an independent hidden WSL helper.",
+    "application_changes": 0,
+    "limits": "Two preceding chat-owned QA containers also stopped during this environment discontinuity; no foreign restart commands. Their continuity/data in old tmpfs is NOT VERIFIED."
+  },
+  {
+    "id": "QA-HIT-RECT",
+    "classification": "QA HARNESS",
+    "result": "First inline reload-link reachability check sampled the bounding-box center between wrapped lines. getClientRects showed both text line centers hit the link. Corrected only QA geometry; original matrix-attempt1.json and attempt PNG retained."
+  },
+  {
+    "id": "QA-PROBE-ENCODING",
+    "classification": "QA HARNESS",
+    "result": "A Windows diagnostic helper read UTF-8 as default encoding and corrupted its expected RU word. The UI text was correct. Normal matrix/lifecycle scripts explicitly read UTF-8. Diagnostic raw helper/output retained."
+  },
+  {
+    "id": "QA-TAB-QUERY",
+    "classification": "QA HARNESS",
+    "result": "Diagnostic assumed qa_case query survived canonical navigation; app removed it. Switched only test page lookup to the actual unique target URL, excluding root page. No app URL behavior changed."
+  },
+  {
+    "id": "QA-RECHECK-COOLDOWN",
+    "classification": "QA PRECONDITION",
+    "result": "A bounded replay attempted a new A while its actual cooldown was active; A/B got429, no conflict message to inspect. Added actual A302/new-candidate precondition and real cooldown wait. No timestamp/cooldown bypass. HTTP log retains429; no product409 failure claimed."
+  },
+  {
+    "id": "QA-PLACE-RACE-ORDER",
+    "classification": "QA PRECONDITION",
+    "result": "First repeated Place race posted B immediately after C and correctly got429 before CAS. Timeout waiting for a form was a harness error. Corrected preparation/finish order and waited real cooldown. First case C already existed; a further native C was recorded, with no fixture reset."
+  },
+  {
+    "id": "QA-VALIDATED-TEXT",
+    "classification": "QA ORACLE",
+    "result": "Native long/script input ended in one space. Source review_use_cases.py:53 uses strip(), which the approved plan preserves. Raw-space expectation failed and remains in race-attempt1.json. Supplementary real HTTP409 proved1289raw/1288validated/1288returned characters and no author-review write. First case has explicit HTTP-supplement attribution; remaining23native cases use validated expectation. Existing application test assertions unchanged."
+  },
+  {
+    "id": "QA-LOADING-GATE",
+    "classification": "SIMULATED TRANSPORT / QA HARNESS",
+    "result": "An indefinite test transport gate tried a navigation-aware DOM read before releasing the request, causing30s timeout. unrouteAll during cleanup released the original native B POST, so restore no-write assertions were FALSE. Kept raw output. Stopped exact owned driver before a second submit; one new pendingB revision/public4 read back, then native approval/public2 completed. Final four loading cases use finite500ms transport delay and do not inspect a navigating DOM."
+  },
+  {
+    "id": "QA-METADATA-SHAPE",
+    "classification": "QA METADATA VERIFIER",
+    "command": "python -X utf8 docs/qa/social-qa03-fix-2026-10-16-pc-r1/verify_artifacts.py",
+    "initial_exit": 1,
+    "error": "TypeError: list indices must be integers or slices, not str",
+    "cause": "race-attempt1.json is a list containing one failed row, not a single row object",
+    "correction": "Iterate the existing rows to prove the retained FALSE oracle; evidence/application/assertions not changed",
+    "following_exit": 0
+  }
+]

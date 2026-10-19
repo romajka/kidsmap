@@ -1,0 +1,40 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m10seq-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m10-seq-r1/runtime.py",
+    "test",
+    "catalog.testcases.test_site_qa25_gallery_delete_destination",
+    "catalog.testcases.test_site_qa20_permission_actions",
+    "catalog.testcases.test_site_qa23_gallery_add_continuation"
+  ],
+  "exit": 0,
+  "fresh_own_test_db": "test_m10seq_25_green_r1",
+  "test_ids": [
+    "catalog.testcases.test_site_qa25_gallery_delete_destination.Site25GalleryDeleteDestinationTests.test_authorized_confirmation_post_deletes_exact_object_once",
+    "catalog.testcases.test_site_qa25_gallery_delete_destination.Site25GalleryDeleteDestinationTests.test_delete_links_reach_confirmation_for_each_pk_and_language",
+    "catalog.testcases.test_site_qa25_gallery_delete_destination.Site25GalleryDeleteDestinationTests.test_view_only_cannot_delete_and_add_form_has_no_delete",
+    "catalog.testcases.test_site_qa20_permission_actions.Site20PermissionActionsTests.test_add_only_gallery_cannot_edit_existing_image",
+    "catalog.testcases.test_site_qa20_permission_actions.Site20PermissionActionsTests.test_add_only_gallery_keeps_actions_and_editable_mobile_marker",
+    "catalog.testcases.test_site_qa20_permission_actions.Site20PermissionActionsTests.test_change_only_keeps_both_save_actions",
+    "catalog.testcases.test_site_qa20_permission_actions.Site20PermissionActionsTests.test_denied_actor_cannot_read_or_post_any_consumer",
+    "catalog.testcases.test_site_qa20_permission_actions.Site20PermissionActionsTests.test_singleton_add_routes_remain_forbidden",
+    "catalog.testcases.test_site_qa20_permission_actions.Site20PermissionActionsTests.test_view_and_delete_keeps_delete_without_offering_save",
+    "catalog.testcases.test_site_qa20_permission_actions.Site20PermissionActionsTests.test_view_only_forged_posts_remain_forbidden_without_writes",
+    "catalog.testcases.test_site_qa20_permission_actions.Site20PermissionActionsTests.test_view_only_has_no_save_controls_or_empty_action_card",
+    "catalog.testcases.test_site_qa23_gallery_add_continuation.Site23GalleryAddContinuationTests.test_add_only_continue_uses_permitted_destination_once",
+    "catalog.testcases.test_site_qa23_gallery_add_continuation.Site23GalleryAddContinuationTests.test_editor_continue_keeps_object_editor",
+    "catalog.testcases.test_site_qa23_gallery_add_continuation.Site23GalleryAddContinuationTests.test_popup_response_stays_a_popup",
+    "catalog.testcases.test_site_qa23_gallery_add_continuation.Site23GalleryAddContinuationTests.test_save_exit_and_denied_post_keep_their_boundaries",
+    "catalog.testcases.test_site_qa23_gallery_add_continuation.Site23GalleryAddContinuationTests.test_view_and_add_can_continue_to_readonly_object"
+  ],
+  "failures": [],
+  "errors": [],
+  "summary": [
+    "Found 16 test(s).",
+    "Ran 16 tests in 7.399s",
+    "OK"
+  ]
+}

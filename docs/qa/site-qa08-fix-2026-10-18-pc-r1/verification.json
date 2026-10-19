@@ -1,0 +1,154 @@
+{
+  "utc": "2026-10-18T12:31:48.520512+00:00",
+  "status": "Exact approved2file patch APPLIED; acceptance PARTIAL; SITE-QA-08 REMAINS OPEN",
+  "application_files": [
+    "src/catalog/templates/admin/catalog/shared_settings_change_form.html",
+    "static/admin/css/pages/kidsmap_settings_forms.css"
+  ],
+  "application_refinements": 0,
+  "source_count": 1033,
+  "other_existing_sources_unchanged": 1031,
+  "backend": {
+    "tests": 105,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 33.566,
+    "exit": 0
+  },
+  "native": {
+    "basic_source_GET_readonly_neighbor_checks_pass": 1320,
+    "raw_actual_source_checks": 2535,
+    "raw_pass": 2495,
+    "raw_fail": 40,
+    "real_failures": 13,
+    "QA_observation_failures": 27,
+    "suites": {
+      "browser-acceptance-red": {
+        "rows": 162,
+        "pass": 820,
+        "fail": 314
+      },
+      "browser-readonly-red": {
+        "rows": 18,
+        "pass": 126,
+        "fail": 0
+      },
+      "browser-sentinels-red": {
+        "rows": 12,
+        "pass": 48,
+        "fail": 0
+      },
+      "browser-acceptance-green": {
+        "rows": 162,
+        "pass": 1134,
+        "fail": 0
+      },
+      "browser-readonly-green": {
+        "rows": 18,
+        "pass": 126,
+        "fail": 0
+      },
+      "browser-sentinels-green": {
+        "rows": 12,
+        "pass": 60,
+        "fail": 0
+      },
+      "browser-json-mobile": {
+        "rows": 48,
+        "pass": 354,
+        "fail": 0
+      },
+      "browser-media-footer": {
+        "rows": 62,
+        "pass": 355,
+        "fail": 25
+      },
+      "browser-public-json": {
+        "rows": 3,
+        "pass": 15,
+        "fail": 3
+      },
+      "browser-long-json": {
+        "rows": 20,
+        "pass": 186,
+        "fail": 0
+      },
+      "browser-permissions": {
+        "rows": 2,
+        "pass": 7,
+        "fail": 0
+      },
+      "browser-json-error-snapshots": {
+        "rows": 18,
+        "pass": 126,
+        "fail": 0
+      },
+      "browser-file-error-snapshots": {
+        "rows": 12,
+        "pass": 60,
+        "fail": 12
+      },
+      "browser-file-error-central": {
+        "rows": 12,
+        "pass": 72,
+        "fail": 0
+      },
+      "browser-followup-prototype": {
+        "rows": 5,
+        "pass": 14,
+        "fail": 0
+      }
+    },
+    "pageerrors": 0,
+    "unexpected_local_HTTP_errors": 0,
+    "expected_negative_HTTP": "viewerPOST403/deniedGET403 explicitly tested",
+    "PNG": 239,
+    "no_positive_API_POST": true
+  },
+  "followup": {
+    "files": 1,
+    "applied": false,
+    "temporary_CSS_prototype": "366→360→366",
+    "controls_pass": 14,
+    "actual_source_followup_GREEN": "NOT RUN"
+  },
+  "preservation": {
+    "prior_packages": 34,
+    "prior_files": 6763,
+    "shared_MO": true,
+    "cbmignore": true,
+    "refs_index_bytes_empty_staging": true,
+    "active_run_NONE": true,
+    "foreign_container_identities_states": 70,
+    "fixture_original_JSON_scalar_image_dimensions_gallery_rows_restored": true,
+    "own_native_successful_log_count": 84
+  },
+  "git": {
+    "head": "852938d96764ae315b92859e3651e5ea62054a36",
+    "branch": "codex/module09-transfer-2026-10-16-r1",
+    "task33_ref": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+    "index_sha256": "b45c562cb2c4cc7ea04de5664e3ef09a2c7bf9728e17cc55ddcb74551543a171"
+  },
+  "module10": "15canonical OPEN (10P2/5P3); SITE08 still OPEN, new SITE22/P3 OPEN; full acceptance pending",
+  "closed_local_retained": [
+    "SITE01",
+    "SITE15",
+    "SITE06",
+    "SITE19",
+    "SITE21",
+    "module09 composite"
+  ],
+  "separate_open_limits": [
+    "SITE20",
+    "SITE11",
+    "SITE22"
+  ],
+  "execution": "inline; no independent-agent claim",
+  "NOT_RUN": [
+    "applied-source followup GREEN",
+    "backend Save-exit repair",
+    "controlled native public JSON dependency",
+    "full accessibility",
+    "production/global/module11"
+  ]
+}

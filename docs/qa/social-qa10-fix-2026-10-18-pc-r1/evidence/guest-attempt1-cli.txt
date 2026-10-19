@@ -1,0 +1,8 @@
+### Error
+Error: locator.inputValue: Error: strict mode violation: locator('input[name=next]') resolved to 2 elements:
+    1) <input name="next" type="hidden" value="/account/notifications/?tab=all"/> aka locator('form').filter({ hasText: 'Google ilə davam et' }).locator('input[name="next"]')
+    2) <input name="next" type="hidden" value="/account/notifications/?tab=all"/> aka locator('form').filter({ hasText: 'E-poçt Şifrə Məni xatırla Ş' }).locator('input[name="next"]')
+
+Call log:
+[2m  - waiting for locator('input[name=next]')[22m
+

@@ -1,0 +1,5 @@
+SITE-QA-09 (P2) — Events OFF оставляет direct legacy temporary Place.
+Прочитать текущие AGENTS/canonical orchestrator и свежий docs/qa/module10-full-2026-10-18-pc-r1/findings/SITE-QA-09.md/evidence; проверить текущий dirty WORKTREE/source drift. Status: OPEN.
+Source hints: src/catalog/controllers/place_controller.py; src/catalog/views.py:place_detail; src/catalog/services/features.py. Root: Legacy Place direct visibility does not enforce events feature policy used in event/catalog surfaces.
+Следующая задача: Согласовать off policy для legacy temporary Place/direct/map/search; не удалять записи и не унифицировать статусы без контракта.
+Сначала свежая bounded проверка, impact map и конкретный PLAN с файлами/тестами/рисками. Не применять app fix до одобрения scope. Approval предыдущих SOCIAL01–12 не переносится на SITE. Не повторять security writes вне собственной isolated testDB/media. DJANGO_TESTING=1, isolated cache/media/email/current3MO, no production credentials. Сохранить старые evidence/местные изменения/ref/index/active_runNONE; no reset/clean/stash/commit/push/deploy. Новый уникальный package, red/green if approved, native evidence and honest NOTRUN.

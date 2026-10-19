@@ -1,0 +1,1 @@
+Initial proposed profile3 native creation/submission yielded actual404 for author person-editor access; historical H1 wording regex did not match current localized recovery page and falsely failed. Native HTTP404 retained in network evidence. r2 uses HTTP and absence of editor, with a fresh second synthetic proposal; no identity was granted by fixture repair.

@@ -1,0 +1,11 @@
+KidsMap: IMPLEMENT SOCIAL-QA-04 только после явного одобрения конкретного двухфайлового плана этого запуска.
+
+Checkout C:\kidsmap, branch codex/module09-transfer-2026-10-16-r1, HEAD852938d96764ae315b92859e3651e5ea62054a36 +approved dirty SOCIAL03. Сохрани все местные изменения/.cbmignore/QA packages; без reset/clean/stash/dirty switch/commit/push/deploy/production, active_run не назначай автоматически.
+
+Прочитай AGENTS.md, canonical .agents frontend-reviewer/browser-qa definitions, guide и docs/qa/social-qa04-recheck-2026-10-16-pc-r1/REPORT.md, verification.json, IMPLEMENTATION_PLAN.md, proposed.diff/candidate-manifest.json. Scope04: Modify src/catalog/templates/pages/account_notifications.html; Create static/css/pages/account_notifications.css. Пока пользователь не одобрил этот scope, app patch запрещён. После approval не запрашивай его повторно для тех же2файлов.
+
+Fresh current source1020:108native inbox cells,1188controlPASS/684styleFAIL/18explicitNAslots,6Favorites controls42PASS,4affected backend methodsPASS. Missing account CSS причина подтверждена; native action clicks/post-patch acceptance ещё NOT RUN. Кандидаты не применены/не рендерились как приложение.
+
+При неизменных source/runtime используй RED из этого run, не повторяй успешные full suites. Проверить ownership/isolation/source/fresh soleRU/AZ/ENMO перед reuse собственного m09s04-plan-r1 профиля; старые localhost33304/PID/settings не считать действующими автоматически. При drift только целевой fresh RED, затем approved patch/GREEN/actual UI matrix и ограниченные meaningful affected checks из плана. Только DJANGO_TESTING=1, собственные PostgreSQL/DB/cache/media/private-media/email, fictional fixtures, no production credentials/.env, external blocked/SIMULATED. Не запускать старые prepare/deploy scripts из docs.
+
+Новый уникальный fix-run REPORT/verification, source/hashes/commands-exits-counts/nativePNG, raw failures/NOTRUN/SIMULATED, preserve foreign state. После scoped closure04 обнови guide, SOCIAL05 не реализуй автоматически. Full ACCEPT09 один раз после всех SOCIAL01–09, global corpus отдельно.

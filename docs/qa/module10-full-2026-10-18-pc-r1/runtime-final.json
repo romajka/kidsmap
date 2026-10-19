@@ -1,0 +1,19 @@
+{
+  "checks": {
+    "DJANGO_TESTING": true,
+    "own_database": true,
+    "own_test_database": true,
+    "isolated_locales": true,
+    "own_media": true,
+    "own_private_media": true,
+    "locmem_email": true,
+    "locmem_cache": true,
+    "external_analytics_off": true
+  },
+  "database": "m10full_pc_r1",
+  "postgres_version": "PostgreSQL 17.11 on x86_64-pc-linux-musl",
+  "python": "3.12.15",
+  "django": "6.0.2",
+  "source_guard_files": 1027,
+  "locale_guard": "current RU/AZ/EN verified before django.setup"
+}

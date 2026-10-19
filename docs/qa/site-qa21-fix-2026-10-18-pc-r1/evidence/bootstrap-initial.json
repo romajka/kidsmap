@@ -1,0 +1,1 @@
+{"exit":1,"stage":"Before bootstrap/DB/container creation","cause":"Dependent bootstrap launched before the WSL preparation command session completed; bootstrap.py was not yet written at process open.","correction":"Wait for preparation completion, then run generated own bootstrap. No app/source/preservation assertion changed; retain initial failure."}

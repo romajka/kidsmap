@@ -1,0 +1,187 @@
+{
+  "utc": "2026-10-17T20:14:08.224221+00:00",
+  "module_status": "OPEN",
+  "acceptance": "FAIL: SOCIAL-QA-10 P2 + SOCIAL-QA-11 P3",
+  "source_files": 1024,
+  "backend": {
+    "full_once": {
+      "methods": 168,
+      "exit": 1,
+      "failures": 0,
+      "errors": 10,
+      "passed": 158,
+      "reason": "Missing original guard module in TCP profile"
+    },
+    "socket_targeted": {
+      "methods": 11,
+      "exit": 0,
+      "failures": 0,
+      "errors": 0,
+      "passed": 11,
+      "scope": "10 blocked methods + 1 migration method"
+    },
+    "unique_methods": 169,
+    "unique_final_passed": 169,
+    "total_method_executions": 179,
+    "assertions_changed": false
+  },
+  "matrix": {
+    "roles": 8,
+    "languages": [
+      "ru",
+      "az",
+      "en"
+    ],
+    "widths": [
+      360,
+      390,
+      768,
+      1024,
+      1280,
+      1440
+    ],
+    "screens": 810,
+    "raw_observations": 3888,
+    "raw_statuses": {
+      "FAIL": 540,
+      "PASS": 3348
+    },
+    "confirmed_SOCIAL11_observations": 486,
+    "excluded_structural_observations": 54,
+    "unhandled_pageerrors": 0,
+    "unexpected_local_http": 0,
+    "console_messages": 198,
+    "blocked_external_requests": 180,
+    "expected403_console": 18
+  },
+  "functional_raw": {
+    "observations": 347,
+    "statuses": {
+      "PASS": 319,
+      "NOT RUN": 9,
+      "FAIL": 19
+    },
+    "per_package": {
+      "flows": {
+        "PASS": 17,
+        "NOT RUN": 4
+      },
+      "flows-complete": {
+        "PASS": 20
+      },
+      "decisions": {
+        "PASS": 29,
+        "FAIL": 1,
+        "NOT RUN": 1
+      },
+      "edits": {
+        "PASS": 21,
+        "NOT RUN": 2
+      },
+      "site-finish": {
+        "PASS": 8
+      },
+      "favorites-notifications": {
+        "PASS": 13,
+        "NOT RUN": 2
+      },
+      "favorites-finish": {
+        "PASS": 8
+      },
+      "recovery": {
+        "PASS": 5
+      },
+      "adjacent-feed": {
+        "FAIL": 18,
+        "PASS": 108
+      },
+      "extra-invites": {
+        "PASS": 42
+      },
+      "loading": {
+        "PASS": 48
+      }
+    }
+  },
+  "all_raw_observations": 4235,
+  "all_raw_statuses": {
+    "FAIL": 559,
+    "PASS": 3667,
+    "NOT RUN": 9
+  },
+  "readback": {
+    "rows": [
+      {
+        "key": "place-ru",
+        "status": "ACCEPTED",
+        "grants": 1,
+        "decision_count": 1,
+        "decision_outbox_count": 1,
+        "passed": true
+      },
+      {
+        "key": "place-az",
+        "status": "ACCEPTED",
+        "grants": 1,
+        "decision_count": 1,
+        "decision_outbox_count": 1,
+        "passed": true
+      },
+      {
+        "key": "place-en",
+        "status": "ACCEPTED",
+        "grants": 1,
+        "decision_count": 1,
+        "decision_outbox_count": 1,
+        "passed": true
+      },
+      {
+        "key": "organization-ru",
+        "status": "ACCEPTED",
+        "grants": 1,
+        "decision_count": 1,
+        "decision_outbox_count": 1,
+        "passed": true
+      },
+      {
+        "key": "organization-az",
+        "status": "ACCEPTED",
+        "grants": 1,
+        "decision_count": 1,
+        "decision_outbox_count": 1,
+        "passed": true
+      },
+      {
+        "key": "organization-en",
+        "status": "ACCEPTED",
+        "grants": 1,
+        "decision_count": 1,
+        "decision_outbox_count": 1,
+        "passed": true
+      }
+    ],
+    "no_duplicate_outbox": true,
+    "outbox_before": 9,
+    "outbox_after": 15
+  },
+  "not_run": [
+    "physical devices",
+    "real screenreader",
+    "cross-browser",
+    "real OAuth/SMTP/CDN integrations",
+    "production",
+    "global full-project suite",
+    "Place/Specialist stale-reaction native screenshots after2Chromium capture errors"
+  ],
+  "simulated": [
+    "network failure favorites",
+    "delayed/503 favorite transport",
+    "blocked external browser requests"
+  ],
+  "finding_ids": [
+    "SOCIAL-QA-10",
+    "SOCIAL-QA-11"
+  ],
+  "png_files": 1402,
+  "png_bytes": 160129634
+}

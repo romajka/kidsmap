@@ -1,0 +1,5 @@
+import json,subprocess,sys
+from pathlib import Path
+R=Path('/mnt/c/kidsmap');Q=R/'.tmp/m12-full-r1';O=R/'docs/qa/module12-repair-2026-10-18-pc-r1';mode=sys.argv[1];revision=sys.argv[2] if len(sys.argv)>2 else 'r1';assert mode in ['disabled','filled','empty','error','partial']
+(Q/'simulation.json').write_text(json.dumps({'report':mode,'storage':'healthy'}));name='browser-report-'+mode+'-'+revision+'.js';assert not (O/name).exists();(O/name).write_text((O/'browser-report-matrix.js').read_text().replace('__REPORT_MODE__',mode).replace('__REVISION__',revision))
+p=subprocess.run(['python3',str(O/'browser_driver.py'),name],capture_output=True,text=True);(Q/(name+'.log')).write_text(p.stdout+p.stderr);d=json.loads((O/'evidence'/(name[:-3]+'.json')).read_text());values=[v for r in d['rows'] for v in r['checks'].values()];print(json.dumps({'mode':mode,'exit':p.returncode,'rows':len(d['rows']),'checks':len(values),'PASS':values.count(True),'FAIL':values.count(False),'failed_keys':sorted({k for r in d['rows'] for k,v in r['checks'].items() if v is False}),'errors':d.get('errors')},indent=2));raise SystemExit(p.returncode)

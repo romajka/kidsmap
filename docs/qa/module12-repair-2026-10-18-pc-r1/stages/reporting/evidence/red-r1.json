@@ -1,0 +1,50 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m12full-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m12-full-r1/runtime.py",
+    "test",
+    "test_m12_reporting_candidate",
+    "test_m12_localization_candidate"
+  ],
+  "exit": 1,
+  "fresh_own_test_db": "test_m12full_reporting_red_r1",
+  "test_ids": [
+    "test_m12_reporting_candidate.ReportingTests.test_disabled_report_is_unavailable_not_zero",
+    "test_m12_reporting_candidate.ReportingTests.test_failed_partial_report_does_not_show_data_or_provider_error",
+    "test_m12_reporting_candidate.ReportingTests.test_invalid_period_falls_back_to_thirty",
+    "test_m12_reporting_candidate.ReportingTests.test_missing_selected_period_is_unavailable_instead_of_fabricated_zero",
+    "test_m12_reporting_candidate.ReportingTests.test_real_ga_builder_requests_exact_ninety_day_range",
+    "test_m12_reporting_candidate.ReportingTests.test_selected_period_uses_its_own_kpi_window",
+    "test_m12_reporting_candidate.ReportingTests.test_successful_empty_report_displays_real_zero",
+    "test_m12_localization_candidate.LocalizationTests.test_az_analytics_labels_have_specific_translations",
+    "test_m12_localization_candidate.LocalizationTests.test_owner_az_comparison_is_az_and_matches_real_delta"
+  ],
+  "failures": [
+    "test_disabled_report_is_unavailable_not_zero (test_m12_reporting_candidate.ReportingTests.test_disabled_report_is_unavailable_not_zero)",
+    "test_failed_partial_report_does_not_show_data_or_provider_error (test_m12_reporting_candidate.ReportingTests.test_failed_partial_report_does_not_show_data_or_provider_error)",
+    "test_missing_selected_period_is_unavailable_instead_of_fabricated_zero (test_m12_reporting_candidate.ReportingTests.test_missing_selected_period_is_unavailable_instead_of_fabricated_zero)",
+    "test_real_ga_builder_requests_exact_ninety_day_range (test_m12_reporting_candidate.ReportingTests.test_real_ga_builder_requests_exact_ninety_day_range)",
+    "test_selected_period_uses_its_own_kpi_window (test_m12_reporting_candidate.ReportingTests.test_selected_period_uses_its_own_kpi_window) (days=90)",
+    "test_successful_empty_report_displays_real_zero (test_m12_reporting_candidate.ReportingTests.test_successful_empty_report_displays_real_zero)",
+    "test_az_analytics_labels_have_specific_translations (test_m12_localization_candidate.LocalizationTests.test_az_analytics_labels_have_specific_translations) (source='\u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0435 \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u0438')",
+    "test_az_analytics_labels_have_specific_translations (test_m12_localization_candidate.LocalizationTests.test_az_analytics_labels_have_specific_translations) (source='\u0421\u0435\u0441\u0441\u0438\u0438')",
+    "test_az_analytics_labels_have_specific_translations (test_m12_localization_candidate.LocalizationTests.test_az_analytics_labels_have_specific_translations) (source='\u041f\u0440\u043e\u0441\u043c\u043e\u0442\u0440\u044b \u0441\u0442\u0440\u0430\u043d\u0438\u0446')",
+    "test_az_analytics_labels_have_specific_translations (test_m12_localization_candidate.LocalizationTests.test_az_analytics_labels_have_specific_translations) (source='GA4, \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0435 30 \u0434\u043d\u0435\u0439')",
+    "test_az_analytics_labels_have_specific_translations (test_m12_localization_candidate.LocalizationTests.test_az_analytics_labels_have_specific_translations) (source='\u0412\u044b\u0431\u043e\u0440 \u043f\u0435\u0440\u0438\u043e\u0434\u0430')",
+    "test_az_analytics_labels_have_specific_translations (test_m12_localization_candidate.LocalizationTests.test_az_analytics_labels_have_specific_translations) (source='\u0422\u043e\u043f \u0441\u043e\u0431\u044b\u0442\u0438\u0439 \u0437\u0430 \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0435 30 \u0434\u043d\u0435\u0439')",
+    "test_az_analytics_labels_have_specific_translations (test_m12_localization_candidate.LocalizationTests.test_az_analytics_labels_have_specific_translations) (source='GA4 \u043f\u043e\u043a\u0430 \u043d\u0435 \u0432\u0435\u0440\u043d\u0443\u043b \u0441\u043e\u0431\u044b\u0442\u0438\u0439\u043d\u044b\u0435 \u0434\u0430\u043d\u043d\u044b\u0435.')",
+    "test_az_analytics_labels_have_specific_translations (test_m12_localization_candidate.LocalizationTests.test_az_analytics_labels_have_specific_translations) (source='\u041f\u043e\u043f\u0443\u043b\u044f\u0440\u043d\u044b\u0435 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u044b GA4')",
+    "test_az_analytics_labels_have_specific_translations (test_m12_localization_candidate.LocalizationTests.test_az_analytics_labels_have_specific_translations) (source='\u0422\u043e\u043f \u0441\u0442\u0440\u0430\u043d\u0438\u0446 \u0437\u0430 \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0435 30 \u0434\u043d\u0435\u0439')",
+    "test_az_analytics_labels_have_specific_translations (test_m12_localization_candidate.LocalizationTests.test_az_analytics_labels_have_specific_translations) (source='GA4 \u043f\u043e\u043a\u0430 \u043d\u0435 \u0432\u0435\u0440\u043d\u0443\u043b \u0434\u0430\u043d\u043d\u044b\u0435 \u043f\u043e \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430\u043c.')",
+    "test_owner_az_comparison_is_az_and_matches_real_delta (test_m12_localization_candidate.LocalizationTests.test_owner_az_comparison_is_az_and_matches_real_delta)"
+  ],
+  "errors": [],
+  "summary": [
+    "Found 9 test(s).",
+    "Ran 9 tests in 1.059s",
+    "FAILED (failures=17)"
+  ]
+}

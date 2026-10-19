@@ -1,0 +1,34 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m11full-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m11-full-r1/runtime.py",
+    "test",
+    "test_m11_images_candidate"
+  ],
+  "exit": 1,
+  "fresh_own_test_db": "test_m11full_images_red_r1",
+  "test_ids": [
+    "test_m11_images_candidate.PublicEntitySocialImageTests.test_default_logo_remains_when_no_profile_or_visible_branch_photo_exists",
+    "test_m11_images_candidate.PublicEntitySocialImageTests.test_social_image_matches_the_publicly_rendered_entity_hero"
+  ],
+  "failures": [
+    "test_social_image_matches_the_publicly_rendered_entity_hero (test_m11_images_candidate.PublicEntitySocialImageTests.test_social_image_matches_the_publicly_rendered_entity_hero) (lang='az', entity='Organization')",
+    "test_social_image_matches_the_publicly_rendered_entity_hero (test_m11_images_candidate.PublicEntitySocialImageTests.test_social_image_matches_the_publicly_rendered_entity_hero) (lang='az', entity='Activity')",
+    "test_social_image_matches_the_publicly_rendered_entity_hero (test_m11_images_candidate.PublicEntitySocialImageTests.test_social_image_matches_the_publicly_rendered_entity_hero) (lang='az', entity='Specialist')",
+    "test_social_image_matches_the_publicly_rendered_entity_hero (test_m11_images_candidate.PublicEntitySocialImageTests.test_social_image_matches_the_publicly_rendered_entity_hero) (lang='ru', entity='Organization')",
+    "test_social_image_matches_the_publicly_rendered_entity_hero (test_m11_images_candidate.PublicEntitySocialImageTests.test_social_image_matches_the_publicly_rendered_entity_hero) (lang='ru', entity='Activity')",
+    "test_social_image_matches_the_publicly_rendered_entity_hero (test_m11_images_candidate.PublicEntitySocialImageTests.test_social_image_matches_the_publicly_rendered_entity_hero) (lang='ru', entity='Specialist')",
+    "test_social_image_matches_the_publicly_rendered_entity_hero (test_m11_images_candidate.PublicEntitySocialImageTests.test_social_image_matches_the_publicly_rendered_entity_hero) (lang='en', entity='Organization')",
+    "test_social_image_matches_the_publicly_rendered_entity_hero (test_m11_images_candidate.PublicEntitySocialImageTests.test_social_image_matches_the_publicly_rendered_entity_hero) (lang='en', entity='Activity')",
+    "test_social_image_matches_the_publicly_rendered_entity_hero (test_m11_images_candidate.PublicEntitySocialImageTests.test_social_image_matches_the_publicly_rendered_entity_hero) (lang='en', entity='Specialist')"
+  ],
+  "errors": [],
+  "summary": [
+    "Found 2 test(s).",
+    "Ran 2 tests in 3.136s",
+    "FAILED (failures=9)"
+  ]
+}

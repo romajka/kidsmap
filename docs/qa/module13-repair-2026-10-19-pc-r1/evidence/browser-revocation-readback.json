@@ -1,0 +1,25 @@
+{
+  "rows": [
+    {
+      "id": "native-revoked-grant-history-retained",
+      "checks": {
+        "suspended": true,
+        "no_mutation_controls": true
+      }
+    },
+    {
+      "id": "network-revoke-effective",
+      "checks": {
+        "editor_blocked": true
+      }
+    },
+    {
+      "id": "direct-place-grant-independent",
+      "checks": {
+        "own_direct_right_preserved": false
+      }
+    }
+  ],
+  "errors": [],
+  "note": "Native role/revoke POST200 evidence retained in browser-employee-revoke; suspended grant remains in audit UI by contract."
+}

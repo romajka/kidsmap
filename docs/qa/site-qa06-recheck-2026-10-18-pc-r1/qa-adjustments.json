@@ -1,0 +1,22 @@
+{
+  "initial_backend": {
+    "evidence":"evidence/red-initial-backend.json",
+    "result":"82methods94failure observations3errors",
+    "cause":"Three new form tests assumed response.context after their own expected200 failed: current app accepts corrupt upload and redirects302.",
+    "resolution":"Explicit assertIsNotNone turns unexpected redirect into contract FAIL without weakening expectations. Added truncated and animated-raster cases; fresh testDBs for subsequent RED. Existing tests/application unchanged."
+  },
+  "intermediate_backend": {"evidence":"evidence/red-v2-backend.json","result":"83methods103failure observations0errors"},
+  "final_backend": {"evidence":"evidence/red-backend.json","result":"84methods106failure observations0errors;29candidate21failed8pass;55existingpass"},
+  "launcher":"evidence/readiness-adjustment.json: copied readiness path was stale404; repaired only own helper/server, reused own verified proxy; app root already200",
+  "patch_line_endings": {
+    "initial_evidence":"evidence/static-initial-commands.json",
+    "initial_diff":"proposed-normalized-eol.diff",
+    "cause":"Text-normalized unified patch did not apply to current CRLF backend/template.",
+    "resolution":"Generate byte-preserving line endings from before/candidate data. Final git apply --check exit0 without whitespace bypass. Initial diff retained but not the approved artifact."
+  },
+  "native_output":"Initial browser driver printed oversized failed-row fixture snapshots; full evidence retained; driver output now projects IDs and failed check names only.",
+  "ui_scope":"Generic alert heading30px is pre-existing supporting validation-state evidence, not candidate rendered-browser proof or a new module-wide layout closure. Desktop form positioning and existing untranslated generic hints are not fixed by this plan.",
+  "application_changes":0,
+  "candidate_python_green":"NOT RUN; approval pending",
+  "raw_application_logs":"Own ignored .tmp/site06-pc-plan-r1 only; no raw Django logs/HTML copied into repository artifacts"
+}

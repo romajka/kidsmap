@@ -1,0 +1,10 @@
+### Result
+{"rows":[{"path":"/ru/admin/catalog/place/add/","http":200,"final":"/ru/admin/add-choice/","localized_block":0,"url_status":0,"status_text":[],"block_labels":[],"h1":["Что вы хотите добавить?"],"script_paths":[]},{"path":"/admin/catalog/place/add/","http":200,"final":"/ru/admin/add-choice/","localized_block":0,"url_status":0,"status_text":[],"block_labels":[],"h1":["Что вы хотите добавить?"],"script_paths":[]}]}
+### Ran Playwright code
+```js
+await (async original=>{
+ const B='http://127.0.0.1:33811',c=await original.context().browser().newContext(),p=await c.newPage(),rows=[];
+ try{await c.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());await p.goto(B+'/qa/m13/login/admin/');for(const path of ['/ru/admin/catalog/place/add/','/admin/catalog/place/add/']){const r=await p.goto(B+path);rows.push({path,http:r.status(),final:new URL(p.url()).pathname,localized_block:await p.locator('[data-place-localized-urls]').count(),url_status:await p.locator('[data-url-status]').count(),status_text:await p.locator('[data-url-status]').allTextContents(),block_labels:await p.locator('[data-place-localized-urls]').evaluateAll(es=>es.map(e=>({labelNew:e.dataset.labelNew,labelDraft:e.dataset.labelDraft}))),h1:await p.locator('h1').allTextContents(),script_paths:await p.locator('script[src]').evaluateAll(es=>es.map(e=>new URL(e.src).pathname).filter(e=>e.includes('place')))});}return{rows}}finally{await c.close()}
+}
+)(page);
+```

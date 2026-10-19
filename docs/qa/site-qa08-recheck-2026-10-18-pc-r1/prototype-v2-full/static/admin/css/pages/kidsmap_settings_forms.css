@@ -1,0 +1,51 @@
+/* Shared site-settings forms only; the Place/Event shell keeps its own rules. */
+.km-settings-form-page .km-place-section,
+.km-settings-form-page .km-place-section__body,
+.km-settings-form-page fieldset {
+  min-width: 0;
+}
+
+.km-settings-form-page .file-upload,
+.km-settings-form-page .file-upload a,
+.km-settings-form-page .clearable-file-input,
+.km-settings-form-page .url {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.km-settings-form-page input[type="file"] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 760px) {
+  .km-settings-form-page--editable .km-place-sidebar-card--actions {
+    display: block;
+  }
+}
+
+/* A clear checkbox belongs to a file widget, not a boolean-only field row. */
+.km-settings-form-page .km-place-section .form-group:has(input[type="file"]) > .row {
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+
+.km-settings-form-page .km-place-section .form-group:has(input[type="file"]) > .row > div {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0;
+  flex: initial !important;
+}
+
+.km-settings-form-page .km-place-form-main,
+.km-settings-form-page .km-place-section__body {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.km-settings-form-page .select2-container {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100%;
+}

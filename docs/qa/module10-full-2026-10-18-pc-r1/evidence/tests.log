@@ -1,0 +1,379 @@
+Found 124 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: allauth, google, jazzmin, messages, sitemaps, staticfiles
+  Apply all migrations: account, admin, auth, catalog, catalog_moderation, contenttypes, sessions, socialaccount
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying account.0001_initial... OK
+  Applying account.0002_email_max_length... OK
+  Applying account.0003_alter_emailaddress_create_unique_verified_email... OK
+  Applying account.0004_alter_emailaddress_drop_unique_email... OK
+  Applying account.0005_emailaddress_idx_upper_email... OK
+  Applying account.0006_emailaddress_lower... OK
+  Applying account.0007_emailaddress_idx_email... OK
+  Applying account.0008_emailaddress_unique_primary_email_fixup... OK
+  Applying account.0009_emailaddress_unique_primary_email... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying catalog.0001_initial... OK
+  Applying catalog.0002_place_i18n_fields... OK
+  Applying catalog.0003_place_catalog_improvements... OK
+  Applying catalog.0004_place_photo... OK
+  Applying catalog.0005_place_cover_and_gallery... OK
+  Applying catalog.0006_place_slug... OK
+  Applying catalog.0007_place_likes_count... OK
+  Applying catalog.0008_alter_place_options_placelike... OK
+  Applying catalog.0009_sitesettings... OK
+  Applying catalog.0010_sitesettings_footer_contacts... OK
+  Applying catalog.0011_siteaboutsettings_sitebrandingsettings_and_more... OK
+  Applying catalog.0012_alter_sitesettings_empty_results_image_and_more... OK
+  Applying catalog.0013_place_rating_avg_place_rating_count_placereview... OK
+  Applying catalog.0014_remove_placelike_unique_place_like_per_session_and_more... OK
+  Applying catalog.0015_catalogcontentsettings... OK
+  Applying catalog.0016_placereviewsbyclub... OK
+  Applying catalog.0017_alter_placereview_options_and_more... OK
+  Applying catalog.0018_siteanalytics... OK
+  Applying catalog.0019_sitevisit... OK
+  Applying catalog.0020_place_is_temporary_place_temporary_end_and_more... OK
+  Applying catalog.0021_sitesettings_home_cta_text_az_and_more... OK
+  Applying catalog.0022_funnelevent... OK
+  Applying catalog.0023_userprofile... OK
+  Applying catalog.0024_place_owner_placeownershiprequest_and_more... OK
+  Applying catalog.0025_userprofile_owner_permissions_override_and_more... OK
+  Applying catalog.0026_placechangeaudit_ownerteaminvitation_and_more... OK
+  Applying catalog.0027_userprofile_phone... OK
+  Applying catalog.0028_useremailverification... OK
+  Applying catalog.0029_userprofile_gender... OK
+  Applying catalog.0030_update_public_contacts_defaults... OK
+  Applying catalog.0031_siteregistereduser_staffaccessuser... OK
+  Applying catalog.0032_place_additional_info_place_extra_conditions_and_more... OK
+  Applying catalog.0033_update_footer_phone_default... OK
+  Applying catalog.0034_place_soft_delete_fields... OK
+  Applying catalog.0035_sitesettings_add_social_links... OK
+  Applying catalog.0036_sitegalleryimage... OK
+  Applying catalog.0037_seed_home_hero_site_gallery_images... OK
+  Applying catalog.0038_alter_funnelevent_event_type... OK
+  Applying catalog.0039_expand_catalog_to_azerbaijan... OK
+  Applying catalog.0040_content_moderation_statuses... OK
+  Applying catalog.0041_quarantine_low_quality_public_content... OK
+  Applying catalog.0042_event... OK
+  Applying catalog.0043_alter_place_options_alter_placereviewsbyclub_options... OK
+  Applying catalog.0044_category_alter_event_category_alter_place_category_and_more... OK
+  Applying catalog.0045_category_is_active_subcategory_code_and_more... OK
+  Applying catalog.0046_alter_category_options_alter_subcategory_options... OK
+  Applying catalog.0047_sitesettings_about_hero_image_and_more... OK
+  Applying catalog.0048_alter_category_icon... OK
+  Applying catalog.0049_mariadb_compatible_unique_constraints... OK
+  Applying catalog.0050_migrate_to_hierarchical_districts... OK
+  Applying catalog.0051_placescheduleday_placescheduleinterval... OK
+  Applying catalog.0052_category_color_bg_category_color_text... OK
+  Applying catalog.0053_userprofile_avatar... OK
+  Applying catalog.0054_metrostation_region_specialistspecialization_and_more... OK
+  Applying catalog.0055_seed_specialist_locations_and_specializations... OK
+  Applying catalog.0056_specialist_duration_minutes_specialist_education_az_and_more... OK
+  Applying catalog.0057_specialist_phone_specialist_whatsapp... OK
+  Applying catalog.0058_alter_place_options... OK
+  Applying catalog.0059_seed_educator_specializations... OK
+  Applying catalog.0060_sitesettings_specialists_section_enabled... OK
+  Applying catalog.0061_sitevisibilitysettings... OK
+  Applying catalog.0062_place_lesson_details_and_pricing_plans... OK
+  Applying catalog.0063_event_location_contacts... OK
+  Applying catalog.0064_event_location_filters... OK
+  Applying catalog.0065_eventphoto... OK
+  Applying catalog.0066_sitesettings_events_section_enabled... OK
+  Applying catalog.0067_place_offers_adult_classes... OK
+  Applying catalog.0068_place_phone2_place_phone3... OK
+  Applying catalog.0069_place_multilingual_extra_fields... OK
+  Applying catalog.0070_fix_regional_demo_place_coordinates... OK
+  Applying catalog.0071_category_subcategory_audit_softdelete... OK
+  Applying catalog.0072_subcategory_icon... OK
+  Applying catalog.0073_postgresql_native_constraints... OK
+  Applying catalog.0074_ensure_absheron_region... OK
+  Applying catalog.0075_normalize_public_slugs... OK
+  Applying catalog.0076_place_home_recommendations... OK
+  Applying catalog.0077_place_age_open_ended... OK
+  Applying catalog.0078_place_created_by... OK
+  Applying catalog.0079_sync_public_taxonomy... OK
+  Applying catalog.0080_clean_public_taxonomy... OK
+  Applying catalog.0081_add_ai_referral_event... OK
+  Applying catalog.0082_alter_sitegalleryimage_category... OK
+  Applying catalog.0083_alter_sitegalleryimage_category... OK
+  Applying catalog.0084_pricingplan_relational... OK
+  Applying catalog.0085_pricingplan_integrity_constraints... OK
+  Applying catalog.0086_sitesettings_home_categories_image_and_more... OK
+  Applying catalog.0087_sitesettings_footer_background_image_and_more... OK
+  Applying catalog.0088_sitesettings_about_hero_mobile_image_and_more... OK
+  Applying catalog.0089_seoauditrun_seoissue_seochange... OK
+  Applying catalog.0090_seoissue_cascade_delete... OK
+  Applying catalog.0091_place_custom_price_badge_az_and_more... OK
+  Applying catalog.0092_place_scoped_team_access... OK
+  Applying catalog.0093_backfill_place_scoped_team_access... OK
+  Applying catalog.0094_funnelevent_add_place_signup_events... OK
+  Applying catalog.0095_stage4_neutral_labels... OK
+  Applying catalog.0096_place_schedule_modes... OK
+  Applying catalog.0097_drop_legacy_userprofile_roles... OK
+  Applying catalog.0098_replace_legacy_gmail_contact... OK
+  Applying catalog.0099_alter_place_schedule_mode... OK
+  Applying catalog.0100_place_price_mode... OK
+  Applying catalog.0101_unique_user_email... OK
+  Applying catalog.0102_volunteer_place_revision... OK
+  Applying catalog.0103_place_review_cooldown... OK
+  Applying catalog.0104_sitesettings_home_recommendations_limit... OK
+  Applying catalog.0105_placechangeaudit_volunteer_source... OK
+  Applying catalog.0106_staff_role_audit_and_superadmin_promotion... OK
+  Applying catalog.0107_account_deletion_retention... OK
+  Applying catalog.0108_analytics_measurement... OK
+  Applying catalog.0109_alter_analytics_choices_and_threshold... OK
+  Applying catalog.0110_public_favorites_activation_constraint... OK
+  Applying catalog.0111_analytics_ingress_daily... OK
+  Applying catalog.0112_ratingrankingcalibration... OK
+  Applying catalog.0113_place_localized_slugs... OK
+  Applying catalog.0114_coordinate_location... OK
+  Applying catalog.0115_moderation_sla_timestamps... OK
+  Applying catalog.0116_moderation_sla_lifecycle... OK
+  Applying catalog.0117_task33_catalog_structure... OK
+  Applying catalog.0118_task33_ownership... OK
+  Applying catalog.0119_task33_business_permissions... OK
+  Applying catalog.0120_task33_publication... OK
+  Applying catalog.0121_task33_publication... OK
+  Applying catalog.0122_task33_server_draft... OK
+  Applying catalog.0123_task33_group_pricing... OK
+  Applying catalog.0124_task33_conversion... OK
+  Applying catalog.0125_task33_group_conditions_verified... OK
+  Applying catalog.0126_task33_volunteer_review_status... OK
+  Applying catalog.0127_task33_workflow_notifications... OK
+  Applying catalog.0128_task33_review_versions... OK
+  Applying catalog.0129_task33_review_versions... OK
+  Applying catalog.0130_task33_review_versions... OK
+  Applying catalog.0131_task33_specialist_foundation... OK
+  Applying catalog.0132_task33_specialist_foundation... OK
+  Applying catalog.0133_task33_event_foundation... OK
+  Applying catalog.0134_completion_taxonomy... OK
+  Applying catalog.0135_sitesettings_organizations_section_enabled... OK
+  Applying catalog.0136_retire_optional_listing_verification... OK
+  Applying catalog.0137_organization_connection_operation... OK
+  Applying catalog.0138_business_role_labels... OK
+  Applying catalog.0139_connection_receipt_actor_retention... OK
+  Applying catalog.0140_specialist_proposal_draft... OK
+  Applying catalog.0141_catalog_admin_names... OK
+  Applying catalog_moderation.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying socialaccount.0001_initial... OK
+  Applying socialaccount.0002_token_max_lengths... OK
+  Applying socialaccount.0003_extra_data_default_dict... OK
+  Applying socialaccount.0004_app_provider_id_settings... OK
+  Applying socialaccount.0005_socialtoken_nullable_app... OK
+  Applying socialaccount.0006_alter_socialaccount_extra_data... OK
+System check identified no issues (0 silenced).
+Using existing test database for alias 'default' ('test_m10full_pc_r1')...
+test_about_page_shows_extended_project_description (catalog.testcases.public.TestPublicPagesSmoke.test_about_page_shows_extended_project_description) ... /usr/local/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /mnt/c/kidsmap/.tmp/module10-full-pc-r1/staticfiles/
+  mw_instance = middleware(adapted_handler)
+ok
+test_add_place_and_legal_pages_open_in_languages (catalog.testcases.public.TestPublicPagesSmoke.test_add_place_and_legal_pages_open_in_languages) ... ok
+test_add_place_page_explains_free_listing_moderation_and_actions_in_all_languages (catalog.testcases.public.TestPublicPagesSmoke.test_add_place_page_explains_free_listing_moderation_and_actions_in_all_languages) ... ok
+test_admin_page_opens_login (catalog.testcases.public.TestPublicPagesSmoke.test_admin_page_opens_login) ... ok
+test_admin_page_redirects_to_admin_host_when_configured (catalog.testcases.public.TestPublicPagesSmoke.test_admin_page_redirects_to_admin_host_when_configured) ... ok
+test_az_catalog_page_localizes_catalog_seo_strings (catalog.testcases.public.TestPublicPagesSmoke.test_az_catalog_page_localizes_catalog_seo_strings) ... ok
+test_az_contacts_page_uses_azerbaijani_contact_helpers (catalog.testcases.public.TestPublicPagesSmoke.test_az_contacts_page_uses_azerbaijani_contact_helpers) ... ok
+test_az_home_page_translates_faq_supporting_cards (catalog.testcases.public.TestPublicPagesSmoke.test_az_home_page_translates_faq_supporting_cards) ... ok
+test_az_reviews_page_translates_reaction_helper (catalog.testcases.public.TestPublicPagesSmoke.test_az_reviews_page_translates_reaction_helper) ... ok
+test_back_to_top_hover_effect_is_limited_to_pointer_devices (catalog.testcases.public.TestPublicPagesSmoke.test_back_to_top_hover_effect_is_limited_to_pointer_devices)
+A tap must not leave the scroll control in its desktop hover state. ... ok
+test_back_to_top_reserves_space_for_chat_launcher (catalog.testcases.public.TestPublicPagesSmoke.test_back_to_top_reserves_space_for_chat_launcher)
+The fixed scroll control must stay above Tawk's bottom-right launcher. ... ok
+test_bare_place_segment_redirects_to_catalog (catalog.testcases.public.TestPublicPagesSmoke.test_bare_place_segment_redirects_to_catalog) ... ok
+test_canonical_host_redirect_does_not_capture_admin_subdomain (catalog.testcases.public.TestPublicPagesSmoke.test_canonical_host_redirect_does_not_capture_admin_subdomain) ... ok
+test_catalog_page_opens_with_i18n_redirect (catalog.testcases.public.TestPublicPagesSmoke.test_catalog_page_opens_with_i18n_redirect) ... ok
+test_catalog_page_renders_visible_breadcrumbs (catalog.testcases.public.TestPublicPagesSmoke.test_catalog_page_renders_visible_breadcrumbs) ... ok
+test_collectstatic_builds_manifest_for_public_assets_in_production_mode (catalog.testcases.public.TestPublicPagesSmoke.test_collectstatic_builds_manifest_for_public_assets_in_production_mode) ... ERROR
+test_contacts_page_shows_public_phone (catalog.testcases.public.TestPublicPagesSmoke.test_contacts_page_shows_public_phone) ... ok
+test_contacts_page_shows_public_social_links (catalog.testcases.public.TestPublicPagesSmoke.test_contacts_page_shows_public_social_links) ... ok
+test_en_catalog_page_localizes_catalog_seo_strings (catalog.testcases.public.TestPublicPagesSmoke.test_en_catalog_page_localizes_catalog_seo_strings) ... ok
+test_en_catalog_page_uses_english_map_strings (catalog.testcases.public.TestPublicPagesSmoke.test_en_catalog_page_uses_english_map_strings) ... ok
+test_en_header_uses_flagged_language_codes (catalog.testcases.public.TestPublicPagesSmoke.test_en_header_uses_flagged_language_codes) ... ok
+test_en_home_page_translates_current_faq_interface (catalog.testcases.public.TestPublicPagesSmoke.test_en_home_page_translates_current_faq_interface) ... ok
+test_en_home_title_is_localized (catalog.testcases.public.TestPublicPagesSmoke.test_en_home_title_is_localized) ... ok
+test_en_login_page_uses_english_auth_labels (catalog.testcases.public.TestPublicPagesSmoke.test_en_login_page_uses_english_auth_labels) ... ok
+test_en_password_reset_page_uses_english_text (catalog.testcases.public.TestPublicPagesSmoke.test_en_password_reset_page_uses_english_text) ... ok
+test_en_register_page_uses_english_helper_text (catalog.testcases.public.TestPublicPagesSmoke.test_en_register_page_uses_english_helper_text) ... ok
+test_en_reviews_page_sets_html_lang_and_translates_apply_button (catalog.testcases.public.TestPublicPagesSmoke.test_en_reviews_page_sets_html_lang_and_translates_apply_button) ... ok
+test_faq_page_has_no_russian_accessibility_copy_in_azerbaijani_or_english (catalog.testcases.public.TestPublicPagesSmoke.test_faq_page_has_no_russian_accessibility_copy_in_azerbaijani_or_english) ... ok
+test_faq_page_has_no_russian_copy_in_azerbaijani_or_english (catalog.testcases.public.TestPublicPagesSmoke.test_faq_page_has_no_russian_copy_in_azerbaijani_or_english) ... ok
+test_faq_page_loads_in_all_languages (catalog.testcases.public.TestPublicPagesSmoke.test_faq_page_loads_in_all_languages) ... ok
+test_filtered_catalog_breadcrumbs_match_the_place_card_trail (catalog.testcases.public.TestPublicPagesSmoke.test_filtered_catalog_breadcrumbs_match_the_place_card_trail) ... ok
+test_filtered_catalog_page_uses_noindex_and_itemlist_schema (catalog.testcases.public.TestPublicPagesSmoke.test_filtered_catalog_page_uses_noindex_and_itemlist_schema) ... ok
+test_header_exposes_account_and_all_language_controls (catalog.testcases.public.TestPublicPagesSmoke.test_header_exposes_account_and_all_language_controls) ... ok
+test_home_hero_statistics_do_not_add_plus_to_exact_counts (catalog.testcases.public.TestPublicPagesSmoke.test_home_hero_statistics_do_not_add_plus_to_exact_counts) ... ok
+test_home_map_popup_uses_main_photo_preview (catalog.testcases.public.TestPublicPagesSmoke.test_home_map_popup_uses_main_photo_preview) ... Responsive image generation skipped (UnidentifiedImageError)
+Responsive image generation skipped (UnidentifiedImageError)
+ok
+test_home_map_search_text_includes_subcategory_name (catalog.testcases.public.TestPublicPagesSmoke.test_home_map_search_text_includes_subcategory_name) ... ok
+test_home_map_uses_current_page_language_for_google_maps (catalog.testcases.public.TestPublicPagesSmoke.test_home_map_uses_current_page_language_for_google_maps) ... ok
+test_home_page_does_not_show_site_reviews_teaser (catalog.testcases.public.TestPublicPagesSmoke.test_home_page_does_not_show_site_reviews_teaser) ... ok
+test_home_page_includes_google_analytics_tag_when_configured (catalog.testcases.public.TestPublicPagesSmoke.test_home_page_includes_google_analytics_tag_when_configured) ... ok
+test_home_page_includes_website_schema_with_search_action (catalog.testcases.public.TestPublicPagesSmoke.test_home_page_includes_website_schema_with_search_action) ... ok
+test_home_page_limits_recommended_places_to_four_cards (catalog.testcases.public.TestPublicPagesSmoke.test_home_page_limits_recommended_places_to_four_cards) ... ok
+test_home_page_opens_with_i18n_redirect (catalog.testcases.public.TestPublicPagesSmoke.test_home_page_opens_with_i18n_redirect) ... ok
+test_home_page_prefers_google_maps_when_key_is_configured (catalog.testcases.public.TestPublicPagesSmoke.test_home_page_prefers_google_maps_when_key_is_configured) ... ok
+test_home_page_renders_interactive_map_without_google_maps_key (catalog.testcases.public.TestPublicPagesSmoke.test_home_page_renders_interactive_map_without_google_maps_key) ... ok
+test_home_page_renders_static_hero_grid_for_single_slide (catalog.testcases.public.TestPublicPagesSmoke.test_home_page_renders_static_hero_grid_for_single_slide) ... Responsive image generation skipped (UnidentifiedImageError)
+Responsive image generation skipped (UnidentifiedImageError)
+Responsive image generation skipped (UnidentifiedImageError)
+ok
+test_home_page_uses_admin_selected_recommendations_in_configured_order (catalog.testcases.public.TestPublicPagesSmoke.test_home_page_uses_admin_selected_recommendations_in_configured_order) ... ok
+test_home_page_uses_compact_conversion_flow_without_dropping_seo_links (catalog.testcases.public.TestPublicPagesSmoke.test_home_page_uses_compact_conversion_flow_without_dropping_seo_links) ... ok
+test_home_page_versions_interactive_static_assets (catalog.testcases.public.TestPublicPagesSmoke.test_home_page_versions_interactive_static_assets) ... ok
+test_home_place_card_reveals_first_number_on_demand (catalog.testcases.public.TestPublicPagesSmoke.test_home_place_card_reveals_first_number_on_demand) ... ok
+test_home_rail_uses_the_catalog_place_card (catalog.testcases.public.TestPublicPagesSmoke.test_home_rail_uses_the_catalog_place_card) ... Responsive image generation skipped (UnidentifiedImageError)
+ok
+test_legacy_az_urls_redirect_to_default_language_without_prefix (catalog.testcases.public.TestPublicPagesSmoke.test_legacy_az_urls_redirect_to_default_language_without_prefix) ... ok
+test_legacy_azerbaijani_reviews_url_redirects_to_canonical_reviews_page (catalog.testcases.public.TestPublicPagesSmoke.test_legacy_azerbaijani_reviews_url_redirects_to_canonical_reviews_page) ... ok
+test_legacy_for_business_url_redirects_permanently_to_add_place (catalog.testcases.public.TestPublicPagesSmoke.test_legacy_for_business_url_redirects_permanently_to_add_place) ... ok
+test_legacy_owner_account_url_keeps_query_string (catalog.testcases.public.TestPublicPagesSmoke.test_legacy_owner_account_url_keeps_query_string) ... ok
+test_legacy_owner_account_urls_redirect_permanently_to_places_section (catalog.testcases.public.TestPublicPagesSmoke.test_legacy_owner_account_urls_redirect_permanently_to_places_section) ... ok
+test_legacy_redirect_keeps_catalog_filter_but_drops_foreign_query (catalog.testcases.public.TestPublicPagesSmoke.test_legacy_redirect_keeps_catalog_filter_but_drops_foreign_query) ... ok
+test_listing_rules_is_full_document_in_all_languages (catalog.testcases.public.TestPublicPagesSmoke.test_listing_rules_is_full_document_in_all_languages) ... ok
+test_login_page_is_marked_noindex (catalog.testcases.public.TestPublicPagesSmoke.test_login_page_is_marked_noindex) ... ok
+test_media_serve_view_sets_cache_headers (catalog.testcases.public.TestPublicPagesSmoke.test_media_serve_view_sets_cache_headers) ... ok
+test_place_detail_map_pin_and_link_open_directions (catalog.testcases.public.TestPublicPagesSmoke.test_place_detail_map_pin_and_link_open_directions) ... ok
+test_place_detail_page_includes_breadcrumb_and_aggregate_rating_schema (catalog.testcases.public.TestPublicPagesSmoke.test_place_detail_page_includes_breadcrumb_and_aggregate_rating_schema) ... ok
+test_place_detail_page_renders_visible_breadcrumbs (catalog.testcases.public.TestPublicPagesSmoke.test_place_detail_page_renders_visible_breadcrumbs) ... ok
+test_place_detail_page_reveals_all_phone_numbers_on_demand (catalog.testcases.public.TestPublicPagesSmoke.test_place_detail_page_reveals_all_phone_numbers_on_demand) ... ok
+test_privacy_policy_is_full_document_in_all_languages (catalog.testcases.public.TestPublicPagesSmoke.test_privacy_policy_is_full_document_in_all_languages) ... ok
+test_production_nginx_keeps_admin_host_out_of_www_redirect_block (catalog.testcases.public.TestPublicPagesSmoke.test_production_nginx_keeps_admin_host_out_of_www_redirect_block) ... ok
+test_public_pages_without_trailing_slash_redirect_to_canonical_url (catalog.testcases.public.TestPublicPagesSmoke.test_public_pages_without_trailing_slash_redirect_to_canonical_url) ... ok
+test_public_seo_urls_ignore_request_host_when_origin_is_configured (catalog.testcases.public.TestPublicPagesSmoke.test_public_seo_urls_ignore_request_host_when_origin_is_configured) ... ok
+test_public_site_css_uses_subset_font_without_heavy_ttf (catalog.testcases.public.TestPublicPagesSmoke.test_public_site_css_uses_subset_font_without_heavy_ttf) ... ok
+test_public_urls_on_admin_host_redirect_to_public_origin (catalog.testcases.public.TestPublicPagesSmoke.test_public_urls_on_admin_host_redirect_to_public_origin) ... ok
+test_register_page_hides_role_selector (catalog.testcases.public.TestPublicPagesSmoke.test_register_page_hides_role_selector) ... ok
+test_robots_txt_disallows_private_sections (catalog.testcases.public.TestPublicPagesSmoke.test_robots_txt_disallows_private_sections) ... ok
+test_ru_catalog_uses_ru_result_count_and_singular_card_grammar (catalog.testcases.public.TestPublicPagesSmoke.test_ru_catalog_uses_ru_result_count_and_singular_card_grammar) ... ok
+test_ru_footer_privacy_link_points_to_ru_privacy (catalog.testcases.public.TestPublicPagesSmoke.test_ru_footer_privacy_link_points_to_ru_privacy) ... ok
+test_seo_landing_breadcrumbs_include_the_catalog_level (catalog.testcases.public.TestPublicPagesSmoke.test_seo_landing_breadcrumbs_include_the_catalog_level) ... ok
+test_seo_landing_uses_matching_language_content_and_hreflang (catalog.testcases.public.TestPublicPagesSmoke.test_seo_landing_uses_matching_language_content_and_hreflang) ... ok
+test_site_reviews_page_opens_with_i18n_redirect (catalog.testcases.public.TestPublicPagesSmoke.test_site_reviews_page_opens_with_i18n_redirect) ... ok
+test_sitemap_and_robots_use_configured_public_origin (catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_and_robots_use_configured_public_origin) ... ok
+test_sitemap_does_not_contain_changefreq_or_priority (catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_does_not_contain_changefreq_or_priority) ... ok
+test_sitemap_excludes_deleted_places (catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_excludes_deleted_places) ... ok
+test_sitemap_excludes_draft_places (catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_excludes_draft_places) ... ok
+test_sitemap_excludes_place_new (catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_excludes_place_new) ... ok
+test_sitemap_has_no_duplicate_urls (catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_has_no_duplicate_urls) ... ok
+test_sitemap_includes_all_languages_and_hreflang_alternates (catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_includes_all_languages_and_hreflang_alternates) ... ok
+test_sitemap_lastmod_matches_model_updated_at (catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_lastmod_matches_model_updated_at) ... ok
+test_sitemap_xml_is_valid_xml (catalog.testcases.public.TestPublicPagesSmoke.test_sitemap_xml_is_valid_xml) ... ok
+test_terms_of_use_is_full_document_in_all_languages (catalog.testcases.public.TestPublicPagesSmoke.test_terms_of_use_is_full_document_in_all_languages) ... ok
+test_terms_page_mentions_public_sources_disclaimer (catalog.testcases.public.TestPublicPagesSmoke.test_terms_page_mentions_public_sources_disclaimer) ... ok
+test_www_alias_redirects_permanently_to_canonical_origin (catalog.testcases.public.TestPublicPagesSmoke.test_www_alias_redirects_permanently_to_canonical_origin) ... ok
+test_base_template_uses_request_language_even_if_active_locale_differs (catalog.testcases.public.PublicLanguageConsistencyTests.test_base_template_uses_request_language_even_if_active_locale_differs) ... ok
+test_header_and_footer_follow_url_language (catalog.testcases.public.PublicLanguageConsistencyTests.test_header_and_footer_follow_url_language) ... ok
+test_home_how_it_works_block_uses_one_language_only (catalog.testcases.public.PublicLanguageConsistencyTests.test_home_how_it_works_block_uses_one_language_only) ... ok
+test_home_map_javascript_gets_age_and_error_labels_from_template (catalog.testcases.public.PublicLanguageConsistencyTests.test_home_map_javascript_gets_age_and_error_labels_from_template) ... ok
+test_home_map_marker_click_uses_shared_age_labels (catalog.testcases.public.PublicLanguageConsistencyTests.test_home_map_marker_click_uses_shared_age_labels) ... ok
+test_place_missing_translation_stays_hidden_and_event_source_is_identified (catalog.testcases.public.PublicLanguageConsistencyTests.test_place_missing_translation_stays_hidden_and_event_source_is_identified) ... ok
+test_place_review_block_uses_the_page_language_for_all_system_copy (catalog.testcases.public.PublicLanguageConsistencyTests.test_place_review_block_uses_the_page_language_for_all_system_copy) ... ok
+test_place_review_list_has_no_extra_framed_wrapper (catalog.testcases.public.PublicLanguageConsistencyTests.test_place_review_list_has_no_extra_framed_wrapper) ... ok
+test_public_pages_keep_system_text_in_url_language_across_requests (catalog.testcases.public.PublicLanguageConsistencyTests.test_public_pages_keep_system_text_in_url_language_across_requests) ... ok
+test_site_settings_and_legacy_seo_json_do_not_leak_ru_or_az_copy (catalog.testcases.public.PublicLanguageConsistencyTests.test_site_settings_and_legacy_seo_json_do_not_leak_ru_or_az_copy) ... ok
+test_catalog_filter_values_are_sorted_alphabetically (catalog.testcases.public.TestCatalogContentSettingsWiring.test_catalog_filter_values_are_sorted_alphabetically) ... ok
+test_default_metro_station_list_contains_all_open_baku_metro_stations (catalog.testcases.public.TestCatalogContentSettingsWiring.test_default_metro_station_list_contains_all_open_baku_metro_stations) ... ok
+test_home_page_uses_catalog_settings_districts (catalog.testcases.public.TestCatalogContentSettingsWiring.test_home_page_uses_catalog_settings_districts) ... ok
+test_owner_place_form_uses_catalog_settings_metro_options (catalog.testcases.public.TestCatalogContentSettingsWiring.test_owner_place_form_uses_catalog_settings_metro_options) ... ok
+test_owner_place_form_uses_only_main_photo_field (catalog.testcases.public.TestCatalogContentSettingsWiring.test_owner_place_form_uses_only_main_photo_field) ... ok
+test_place_gallery_files_prefers_main_photo_before_cover (catalog.testcases.public.TestCatalogContentSettingsWiring.test_place_gallery_files_prefers_main_photo_before_cover) ... Responsive image generation skipped (UnidentifiedImageError)
+Responsive image generation skipped (UnidentifiedImageError)
+ok
+test_place_gallery_files_uses_cover_photo_only_as_fallback (catalog.testcases.public.TestCatalogContentSettingsWiring.test_place_gallery_files_uses_cover_photo_only_as_fallback) ... Responsive image generation skipped (UnidentifiedImageError)
+ok
+test_place_public_media_ignores_missing_storage_files (catalog.testcases.public.TestCatalogContentSettingsWiring.test_place_public_media_ignores_missing_storage_files) ... ok
+test_admin_form_has_three_controls_and_proxy_save_invalidates_cache (catalog.testcases.test_public_section_switches.PublicSectionSwitchTests.test_admin_form_has_three_controls_and_proxy_save_invalidates_cache) ... ok
+test_admin_section_controls_follow_selected_language (catalog.testcases.test_public_section_switches.PublicSectionSwitchTests.test_admin_section_controls_follow_selected_language) ... ok
+test_off_hides_public_routes_and_navigation_without_deleting_data (catalog.testcases.test_public_section_switches.PublicSectionSwitchTests.test_off_hides_public_routes_and_navigation_without_deleting_data) ... Not Found: /organizations/
+Not Found: /organizations/c9d171d7-4e40-4bd0-93b3-ea1625c824be/
+ok
+test_off_hides_search_and_card_links_but_preserves_place_content (catalog.testcases.test_public_section_switches.PublicSectionSwitchTests.test_off_hides_search_and_card_links_but_preserves_place_content) ... ok
+test_sitemaps_follow_switch_and_flags_are_independent (catalog.testcases.test_public_section_switches.PublicSectionSwitchTests.test_sitemaps_follow_switch_and_flags_are_independent) ... ok
+test_disabled_section_hides_public_and_owner_event_interfaces (catalog.testcases.events_feature.TestEventsFeatureFlag.test_disabled_section_hides_public_and_owner_event_interfaces) ... Gone: /events/
+Gone: /event/1-skrytoe-meropriyatie/
+Not Found: /account/places/events/create/
+Not Found: /account/places/events/1/edit/
+ok
+test_proxy_admin_save_invalidates_cached_event_feature_flag (catalog.testcases.events_feature.TestEventsFeatureFlag.test_proxy_admin_save_invalidates_cached_event_feature_flag) ... ok
+test_feature_disabled_on_db_error (catalog.testcases.specialists.TestSpecialistsFeatureFlag.test_feature_disabled_on_db_error) ... Not Found: /specialists/
+ok
+test_feature_disabled_returns_404 (catalog.testcases.specialists.TestSpecialistsFeatureFlag.test_feature_disabled_returns_404) ... Not Found: /specialists/
+Not Found: /specialists/test-specialist/
+Not Found: /account/places/specialists/create/
+Not Found: /account/places/specialists/create/
+Not Found: /account/places/specialists/2/edit/
+Not Found: /account/places/specialists/2/edit/
+Not Found: /specialists/2/review/
+ok
+test_feature_enabled_by_default (catalog.testcases.specialists.TestSpecialistsFeatureFlag.test_feature_enabled_by_default) ... Bad Request: /account/places/specialists/create/
+ok
+test_proxy_admin_save_invalidates_cached_feature_flag (catalog.testcases.specialists.TestSpecialistsFeatureFlag.test_proxy_admin_save_invalidates_cached_feature_flag) ... ok
+test_activation_requires_threshold (catalog.testcases.test_public_favorite_count.PublicFavoriteCountSettingsTests.test_activation_requires_threshold) ... ok
+test_disabled_by_default (catalog.testcases.test_public_favorite_count.PublicFavoriteCountSettingsTests.test_disabled_by_default) ... ok
+test_enabled_count_is_rendered_on_public_place_detail (catalog.testcases.test_public_favorite_count.PublicFavoriteCountSettingsTests.test_enabled_count_is_rendered_on_public_place_detail) ... ok
+test_exact_threshold_uses_authoritative_count (catalog.testcases.test_public_favorite_count.PublicFavoriteCountSettingsTests.test_exact_threshold_uses_authoritative_count) ... ok
+test_partial_is_not_silently_activated_on_public_place (catalog.testcases.test_public_favorite_count.PublicFavoriteCountSettingsTests.test_partial_is_not_silently_activated_on_public_place) ... ok
+test_whatsapp_and_phone_across_site_pages (catalog.testcases.test_site_whatsapp.SiteWhatsAppContactTests.test_whatsapp_and_phone_across_site_pages) ... ok
+test_hidden_public_sections_remain_available_in_admin (catalog.testcases.admin.TestAdminSidebarStructure.test_hidden_public_sections_remain_available_in_admin) ... ok
+
+======================================================================
+ERROR: test_collectstatic_builds_manifest_for_public_assets_in_production_mode (catalog.testcases.public.TestPublicPagesSmoke.test_collectstatic_builds_manifest_for_public_assets_in_production_mode)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/src/catalog/testcases/public.py", line 1461, in test_collectstatic_builds_manifest_for_public_assets_in_production_mode
+    call_command("collectstatic", interactive=False, verbosity=0, clear=True)
+  File "/usr/local/lib/python3.12/site-packages/django/core/management/__init__.py", line 195, in call_command
+    return command.execute(*args, **defaults)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/core/management/base.py", line 464, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/staticfiles/management/commands/collectstatic.py", line 214, in handle
+    collected = self.collect()
+                ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/staticfiles/management/commands/collectstatic.py", line 151, in collect
+    for original_path, processed_path, processed in processor:
+                                                    ^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/whitenoise/storage.py", line 85, in post_process
+    for name, hashed_name, processed in files:
+                                        ^^^^^
+  File "/usr/local/lib/python3.12/site-packages/whitenoise/storage.py", line 99, in post_process_with_compression
+    for name, hashed_name, processed in files:
+                                        ^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/staticfiles/storage.py", line 498, in post_process
+    yield from super().post_process(*args, **kwargs)
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/staticfiles/storage.py", line 306, in post_process
+    for name, hashed_name, processed, _ in self._post_process(
+                                           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/staticfiles/storage.py", line 408, in _post_process
+    saved_name = self._save(hashed_name, original_file)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/core/files/storage/filesystem.py", line 126, in _save
+    _file.write(chunk)
+OSError: [Errno 28] No space left on device
+
+----------------------------------------------------------------------
+Ran 124 tests in 65.539s
+
+FAILED (errors=1)
+Preserving test database for alias 'default' ('test_m10full_pc_r1')...

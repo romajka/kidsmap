@@ -1,0 +1,23 @@
+### Result
+{"rows":[{"id":"kpi-fit-az-360","lang":"az","width":360,"checks":{"card_contents_fit":false},"geometry":[{"fits":false,"labelRight":157.984375,"iconLeft":157.984375,"iconRight":191.984375,"cardRight":175.09375},{"fits":false,"labelRight":284.71875,"iconLeft":284.71875,"iconRight":318.71875,"cardRight":320.1875},{"fits":false,"labelRight":127.34375,"iconLeft":127.34375,"iconRight":161.34375,"cardRight":175.09375}]},{"id":"kpi-fit-az-1440","lang":"az","width":1440,"checks":{"card_contents_fit":false},"geometry":[{"fits":false,"labelRight":493.984375,"iconLeft":493.984375,"iconRight":527.984375,"cardRight":534},{"fits":true,"labelRight":645.625,"iconLeft":653,"iconRight":687,"cardRight":704},{"fits":false,"labelRight":823,"iconLeft":823,"iconRight":857,"cardRight":874}]},{"id":"kpi-fit-ru-360","lang":"ru","width":360,"checks":{"card_contents_fit":false},"geometry":[{"fits":false,"labelRight":163.15625,"iconLeft":163.15625,"iconRight":197.15625,"cardRight":172},{"fits":true,"labelRight":257.140625,"iconLeft":265,"iconRight":299,"cardRight":314},{"fits":false,"labelRight":144.84375,"iconLeft":144.84375,"iconRight":178.84375,"cardRight":172}]},{"id":"kpi-fit-ru-1440","lang":"ru","width":1440,"checks":{"card_contents_fit":false},"geometry":[{"fits":false,"labelRight":499.15625,"iconLeft":499.15625,"iconRight":533.15625,"cardRight":534},{"fits":true,"labelRight":621.140625,"iconLeft":653,"iconRight":687,"cardRight":704},{"fits":false,"labelRight":823,"iconLeft":823,"iconRight":857,"cardRight":874}]},{"id":"kpi-fit-en-360","lang":"en","width":360,"checks":{"card_contents_fit":false},"geometry":[{"fits":false,"labelRight":163.15625,"iconLeft":163.15625,"iconRight":197.15625,"cardRight":172},{"fits":true,"labelRight":257.140625,"iconLeft":265,"iconRight":299,"cardRight":314},{"fits":false,"labelRight":144.84375,"iconLeft":144.84375,"iconRight":178.84375,"cardRight":172}]},{"id":"kpi-fit-en-1440","lang":"en","width":1440,"checks":{"card_contents_fit":false},"geometry":[{"fits":false,"labelRight":499.15625,"iconLeft":499.15625,"iconRight":533.15625,"cardRight":534},{"fits":true,"labelRight":621.140625,"iconLeft":653,"iconRight":687,"cardRight":704},{"fits":false,"labelRight":823,"iconLeft":823,"iconRight":857,"cardRight":874}]}],"errors":[]}
+### Ran Playwright code
+```js
+await (async page=>{
+ const B='http://127.0.0.1:33780',rows=[],errors=[];
+ try{
+  await page.goto(B+'/qa/m12/login/admin/');
+  for(const lang of ['az','ru','en'])for(const width of [360,1440]){
+   await page.context().addCookies([{name:'django_language',value:lang,domain:'127.0.0.1',path:'/'}]);await page.setViewportSize({width,height:900});await page.goto(B+'/admin/catalog/siteanalytics/');
+   const geometry=await page.locator('.km-kpi-card').evaluateAll(cards=>cards.map(card=>{const c=card.getBoundingClientRect(),l=card.querySelector('.km-kpi-card__label').getBoundingClientRect(),i=card.querySelector('.km-kpi-card__icon').getBoundingClientRect();return{fits:i.right<=c.right-8&&l.right<=i.left-4,labelRight:l.right,iconLeft:i.left,iconRight:i.right,cardRight:c.right}}));
+   rows.push({id:'kpi-fit-'+lang+'-'+width,lang,width,checks:{card_contents_fit:geometry.every(g=>g.fits)},geometry});
+  }
+ }catch(e){errors.push(String(e))}return{rows,errors};
+}
+)(page);
+```
+### Page
+- Page URL: http://127.0.0.1:33780/admin/catalog/siteanalytics/
+- Page Title: Statistics | KidsMap Dashboard
+- Console: 2 errors, 0 warnings
+### Events
+- New console entries: browser/console-2026-10-18T20-08-25-710Z.log#L77-L88

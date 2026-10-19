@@ -1,0 +1,29 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m12full-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m12-full-r1/runtime.py",
+    "test",
+    "test_m12_read_failure_candidate"
+  ],
+  "exit": 1,
+  "fresh_own_test_db": "test_m12full_readfailure_red_r1",
+  "test_ids": [
+    "test_m12_read_failure_candidate.ReadFailureTests.test_local_read_failure_does_not_break_independent_ga_report",
+    "test_m12_read_failure_candidate.ReadFailureTests.test_owner_dashboard_displays_unavailable_when_aggregate_read_fails",
+    "test_m12_read_failure_candidate.ReadFailureTests.test_real_sql_read_error_recovers_transaction_and_keeps_catalog_usable"
+  ],
+  "failures": [
+    "test_local_read_failure_does_not_break_independent_ga_report (test_m12_read_failure_candidate.ReadFailureTests.test_local_read_failure_does_not_break_independent_ga_report)",
+    "test_owner_dashboard_displays_unavailable_when_aggregate_read_fails (test_m12_read_failure_candidate.ReadFailureTests.test_owner_dashboard_displays_unavailable_when_aggregate_read_fails)",
+    "test_real_sql_read_error_recovers_transaction_and_keeps_catalog_usable (test_m12_read_failure_candidate.ReadFailureTests.test_real_sql_read_error_recovers_transaction_and_keeps_catalog_usable)"
+  ],
+  "errors": [],
+  "summary": [
+    "Found 3 test(s).",
+    "Ran 3 tests in 1.401s",
+    "FAILED (failures=3)"
+  ]
+}

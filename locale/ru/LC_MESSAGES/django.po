@@ -20921,3 +20921,119 @@ msgstr "«%(name)s» переведена в черновики."
 #, python-format
 msgid "«%(name)s» опубликована и видна на сайте."
 msgstr "«%(name)s» опубликована и видна на сайте."
+
+
+#: catalog/domain_admin/site.py catalog/templates/admin/catalog/shared_settings_change_form.html
+msgid "Настройки изменились в другой вкладке. Ваш ввод не сохранён. Скопируйте нужные значения и откройте текущую версию отдельно."
+msgstr "Настройки изменились в другой вкладке. Ваш ввод не сохранён. Скопируйте нужные значения и откройте текущую версию отдельно."
+
+#: catalog/domain_admin/site.py catalog/templates/admin/catalog/shared_settings_change_form.html
+msgid "Открыть текущую версию в новой вкладке"
+msgstr "Открыть текущую версию в новой вкладке"
+
+#: catalog/domain_admin/site.py catalog/templates/admin/catalog/shared_settings_change_form.html
+msgid "Выбранные файлы нужно выбрать заново перед повторным сохранением."
+msgstr "Выбранные файлы нужно выбрать заново перед повторным сохранением."
+
+
+#: catalog/services/site_media_validation.py catalog/domain_admin/site.py
+msgid "Загрузите корректный JPG, PNG или WebP. SVG разрешён только для логотипа и партнёров."
+msgstr "Загрузите корректный JPG, PNG или WebP. SVG разрешён только для логотипа и партнёров."
+
+#: catalog/services/site_media_validation.py catalog/domain_admin/site.py
+#, python-format
+msgid "Файл слишком большой. Максимум: %(limit)s КБ."
+msgstr "Файл слишком большой. Максимум: %(limit)s КБ."
+
+#: catalog/services/site_media_validation.py catalog/domain_admin/site.py
+msgid "Изображение слишком большое: максимум 12000 пикселей по стороне и 50 мегапикселей."
+msgstr "Изображение слишком большое: максимум 12000 пикселей по стороне и 50 мегапикселей."
+
+#: catalog/services/site_media_validation.py catalog/domain_admin/site.py
+msgid "SVG должен быть статичным и не содержать скриптов, внешних ресурсов или встроенных изображений."
+msgstr "SVG должен быть статичным и не содержать скриптов, внешних ресурсов или встроенных изображений."
+
+#: catalog/services/site_media_validation.py catalog/domain_admin/site.py
+msgid "Укажите допустимый раздел галереи."
+msgstr "Укажите допустимый раздел галереи."
+
+#: src/catalog/templates/pages/public_unavailable.html
+msgid "Страница недоступна"
+msgstr "Страница недоступна"
+
+#: src/catalog/templates/pages/public_unavailable.html
+msgid "Посмотрите доступные места и занятия в каталоге."
+msgstr "Посмотрите доступные места и занятия в каталоге."
+
+#: src/catalog/templates/admin/catalog/shared_settings_change_form.html
+msgid "Есть черновик ввода"
+msgstr "Есть черновик ввода"
+
+#: src/catalog/templates/admin/catalog/shared_settings_change_form.html
+msgid "Ввод хранится только в этой вкладке 30 минут. При восстановлении файлы выберите заново."
+msgstr "Ввод хранится только в этой вкладке 30 минут. При восстановлении файлы выберите заново."
+
+#: src/catalog/templates/admin/catalog/shared_settings_change_form.html
+msgid "Удалить черновик"
+msgstr "Удалить черновик"
+
+#: src/catalog/domain_admin/site.py
+msgid "Загрузка..."
+msgstr "Загрузка..."
+
+#: src/catalog/domain_admin/site.py
+msgid "Удаление..."
+msgstr "Удаление..."
+
+#: src/catalog/domain_admin/site.py
+msgid "Удалить изображение?"
+msgstr "Удалить изображение?"
+
+#: src/catalog/domain_admin/site.py
+msgid "Загруженное изображение будет удалено без возможности восстановления."
+msgstr "Загруженное изображение будет удалено без возможности восстановления."
+
+#: src/catalog/domain_admin/site.py
+msgid "Не удалось загрузить файл"
+msgstr "Не удалось загрузить файл"
+
+#: src/catalog/domain_admin/site.py
+msgid "Не удалось удалить изображение"
+msgstr "Не удалось удалить изображение"
+
+#: src/catalog/domain_admin/site.py
+msgid "Не удалось подключиться к серверу. Повторите попытку."
+msgstr "Не удалось подключиться к серверу. Повторите попытку."
+
+#: src/catalog/domain_admin/site.py
+msgid "Ошибка сервера"
+msgstr "Ошибка сервера"
+
+#: src/catalog/domain_admin/site.py
+msgid "Неизвестная ошибка"
+msgstr "Неизвестная ошибка"
+
+
+#: catalog/models/specialist.py
+msgid "Адрес существующего профиля нельзя изменить."
+msgstr "Адрес существующего профиля нельзя изменить."
+
+
+# Module12 reporting state
+msgid "Данные GA4 временно недоступны."
+msgstr "Данные GA4 временно недоступны."
+
+
+# Module12 reporting state
+msgid "Повторить загрузку"
+msgstr "Повторить загрузку"
+
+
+# Module12 reporting state
+msgid "Данные не загружены"
+msgstr "Данные не загружены"
+
+
+# Module12 reporting state
+msgid "Сравнение с предыдущим периодом недоступно."
+msgstr "Сравнение с предыдущим периодом недоступно."

@@ -29,7 +29,7 @@
     <section class="owner-analytics__grid" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Məkan göstəriciləri{% elif CURRENT_LANGUAGE == 'en' %}Place metrics{% else %}Метрики места{% endif %}">
       <article>
         <span class="owner-analytics__metric-icon material-symbols-rounded" aria-hidden="true">visibility</span>
-        <div><span>{% if CURRENT_LANGUAGE == "az" %}Baxışlar{% elif CURRENT_LANGUAGE == "en" %}Views{% else %}Просмотры{% endif %}</span><strong>{{ metrics.views }}</strong>{% if metrics.views_change_percent != None %}<small>{{ metrics.views_change_percent }}% {% if CURRENT_LANGUAGE == "en" %}vs previous period{% else %}к прошлому периоду{% endif %}</small>{% endif %}</div>
+        <div><span>{% if CURRENT_LANGUAGE == "az" %}Baxışlar{% elif CURRENT_LANGUAGE == "en" %}Views{% else %}Просмотры{% endif %}</span><strong>{{ metrics.views }}</strong>{% if metrics.views_change_percent != None %}<small>{{ metrics.views_change_percent }}% {% if CURRENT_LANGUAGE == "az" %}əvvəlki dövrlə müqayisədə{% elif CURRENT_LANGUAGE == "en" %}vs previous period{% else %}к прошлому периоду{% endif %}</small>{% endif %}</div>
       </article>
       <article>
         <span class="owner-analytics__metric-icon material-symbols-rounded" aria-hidden="true">group</span>
@@ -41,7 +41,7 @@
       </article>
       <article>
         <span class="owner-analytics__metric-icon material-symbols-rounded" aria-hidden="true">touch_app</span>
-        <div><span>{% if CURRENT_LANGUAGE == "az" %}Əlaqə hərəkətləri{% elif CURRENT_LANGUAGE == "en" %}Contact actions{% else %}Контактные действия{% endif %}</span><strong>{{ metrics.contact_actions }}</strong>{% if metrics.contact_actions_change_percent != None %}<small>{{ metrics.contact_actions_change_percent }}% {% if CURRENT_LANGUAGE == "en" %}vs previous period{% else %}к прошлому периоду{% endif %}</small>{% endif %}</div>
+        <div><span>{% if CURRENT_LANGUAGE == "az" %}Əlaqə hərəkətləri{% elif CURRENT_LANGUAGE == "en" %}Contact actions{% else %}Контактные действия{% endif %}</span><strong>{{ metrics.contact_actions }}</strong>{% if metrics.contact_actions_change_percent != None %}<small>{{ metrics.contact_actions_change_percent }}% {% if CURRENT_LANGUAGE == "az" %}əvvəlki dövrlə müqayisədə{% elif CURRENT_LANGUAGE == "en" %}vs previous period{% else %}к прошлому периоду{% endif %}</small>{% endif %}</div>
       </article>
       <article>
         <span class="owner-analytics__metric-icon material-symbols-rounded" aria-hidden="true">route</span>

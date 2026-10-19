@@ -19,16 +19,16 @@ def _delta_none() -> dict:
         "kind": "none",
         "class_name": "km-delta--none",
         "arrow": "",
-        "text": str(_("Дельта недоступна в локальном режиме без хранения сырых событий")),
+        "text": str(_("Сравнение с предыдущим периодом недоступно.")),
     }
 
 
-def _build_kpi_card(*, key: str, label: str, value: int, icon: str, icon_class: str) -> dict:
+def _build_kpi_card(*, key: str, label: str, value: int | None, icon: str, icon_class: str) -> dict:
     return {
         "key": key,
         "label": label,
-        "value": int(value or 0),
-        "formatted_value": "",
+        "value": int(value) if value is not None else None,
+        "formatted_value": "" if value is not None else "—",
         "icon": icon,
         "icon_class": icon_class,
         "delta": _delta_none(),
@@ -40,6 +40,8 @@ def _ga_period_key(period_days: int) -> str:
         return "week"
     if period_days <= 30:
         return "month"
+    if period_days <= 90:
+        return "quarter"
     return "year"
 
 
@@ -67,32 +69,37 @@ def build_statistics_context(period_days: int = 30) -> dict:
     ga4 = build_google_analytics_context()
     ga_period = _ga_period_key(period_days)
     ga_stats = ga4.get("period_stats", {}).get(ga_period, {})
+    ga_ready = bool(ga4.get("enabled") and ga4.get("connected") and ga_stats)
+    ga_state = "ready" if ga_ready else ("unavailable" if ga4.get("enabled") else "disabled")
+
+    def metric(name):
+        return int(ga_stats.get(name) or 0) if ga_ready else None
 
     kpi_cards = [
         _build_kpi_card(
             key="unique_sessions",
             label=str(_("Активные пользователи")),
-            value=int(ga_stats.get("active_users") or 0),
+            value=metric("active_users"),
             icon="◔",
             icon_class="km-kpi-icon--blue",
         ),
         _build_kpi_card(
             key="sessions",
             label=str(_("Сессии")),
-            value=int(ga_stats.get("sessions") or 0),
+            value=metric("sessions"),
             icon="◎",
             icon_class="km-kpi-icon--teal",
         ),
         _build_kpi_card(
             key="page_views",
             label=str(_("Просмотры страниц")),
-            value=int(ga_stats.get("page_views") or 0),
+            value=metric("page_views"),
             icon="◈",
             icon_class="km-kpi-icon--green",
         ),
     ]
 
-    chart = ga4.get("daily_chart") or {}
+    chart = (ga4.get("daily_chart") or {}) if ga_ready else {}
     visits_daily_chart = {
         "labels": list(chart.get("labels") or []),
         "unique_sessions": list(chart.get("active_users") or []),
@@ -107,19 +114,21 @@ def build_statistics_context(period_days: int = 30) -> dict:
     )
 
     return {
+        "ga_reporting_state": ga_state,
+        "ga4_loaded_at": timezone.now() if ga_ready else None,
         "period_days": period_days,
         "period_start": current_start,
         "period_end": today,
         "kpi": {
-            "unique_sessions": int(ga_stats.get("active_users") or 0),
-            "sessions": int(ga_stats.get("sessions") or 0),
-            "page_views": int(ga_stats.get("page_views") or 0),
+            "unique_sessions": metric("active_users"),
+            "sessions": metric("sessions"),
+            "page_views": metric("page_views"),
         },
         "kpi_cards": kpi_cards,
         "visits_chart_subtitle": str(_("GA4, последние 30 дней")),
         "visits_daily_chart": visits_daily_chart,
-        "ga4_top_pages": list(ga4.get("top_pages") or []),
-        "ga4_top_events": list(ga4.get("top_events") or []),
+        "ga4_top_pages": list(ga4.get("top_pages") or []) if ga_ready else [],
+        "ga4_top_events": list(ga4.get("top_events") or []) if ga_ready else [],
         "ga4": ga4,
         "local_place_metrics": local_place_metrics,
     }

@@ -1,0 +1,11 @@
+[
+  {
+    "command": "python docs/qa/module09-pc-resume-2026-10-16-r1/verify_artifacts.py",
+    "attempt": 1,
+    "exit": 1,
+    "classification": "OWN QA METADATA HARNESS",
+    "cause": "git helper .strip() removed the leading index/worktree status column from the first porcelain line; the unchanged guide was then parsed at the wrong offset",
+    "correction": "Preserve leading whitespace with rstrip of line endings. Keep original allowed-path/source/index assertions.",
+    "application_changes": 0
+  }
+]

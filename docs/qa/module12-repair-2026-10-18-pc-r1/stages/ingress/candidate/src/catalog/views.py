@@ -1,0 +1,3111 @@
+from datetime import timedelta
+from urllib.parse import urlencode
+from uuid import uuid4
+
+from django.conf import settings
+from django.contrib.auth import get_user_model, login as auth_login
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+from django.core.cache import cache
+from django.core.mail import send_mail
+from django.db import transaction
+from django.db.models import Q
+from django.contrib.auth import views as auth_views
+from django.db.utils import IntegrityError, OperationalError, ProgrammingError
+from django.http import Http404, HttpResponseGone, HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
+from django.utils import timezone
+from django.utils.translation import gettext as _
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.views import View
+from django.views.generic import TemplateView
+
+from .controllers.account_controller import AccountController
+from .controllers.auth_controller import AuthController
+from .controllers.engagement_controller import EngagementController
+from .controllers.home_controller import HomeController
+from .controllers.owner_places_controller import OwnerPlacesController
+from .controllers import owner_events_controller
+from .controllers.owner_reviews_controller import OwnerReviewsController
+from .controllers.owner_team_controller import OwnerTeamController
+from .controllers.ownership_controller import OwnershipController
+from .controllers.place_controller import PlaceController
+from .controllers.place_reviews_controller import PlaceReviewsController
+from .controllers.seo_controller import SeoController
+from .controllers.site_reviews_controller import SiteReviewsController
+from .controllers.tracking_controller import TrackingController
+from .controllers.owner_analytics_controller import owner_analytics_controller
+from .forms import OwnerEventForm, OwnerSpecialistForm, UserPasswordResetForm
+from .legal_content import get_legal_page_content
+from .models import AccountDeletionRequest, Category, Event, Place, PlaceOwnershipRequest, PlaceReview, SiteReview, SiteSettings, Specialist
+from .models import FunnelEvent
+from .services.content_quality import approved_review_queryset, public_place_queryset, public_review_queryset
+from .services.pricing_plans import public_pricing_plans
+from .services.account_deletion import (
+    AccountDeletionError,
+    cancel_account_deletion,
+    confirmation_code_ttl_minutes,
+    confirm_account_deletion,
+    get_active_retention_policy,
+    issue_cancellation_code,
+    make_status_token,
+    policy_from_request,
+    request_account_deletion,
+    typed_confirmation_phrase,
+    verify_status_token,
+)
+
+
+def place_pricing_api(request, slug):
+    from django.shortcuts import get_object_or_404
+    from catalog.models import Place
+    from catalog.services.pricing_plans import build_public_price_summary, serialize_pricing_plans, place_pricing_records
+
+    language = (request.GET.get("lang") or getattr(request, "LANGUAGE_CODE", "az") or "az").split("-")[0]
+    if language not in {"az", "ru", "en"}:
+        language = "az"
+    place = get_object_or_404(
+        Place.objects.prefetch_related("pricing_plan_records"),
+        slug=slug, is_active=True, status=Place.STATUS_PUBLISHED, deleted_at__isnull=True,
+    )
+    plans = [plan for plan in place_pricing_records(place) if plan.is_active]
+    summary = build_public_price_summary(place, language)
+    summary = {
+        **summary,
+        "min_price": format(summary["min_price"], ".2f") if summary["min_price"] is not None else None,
+        "max_price": format(summary["max_price"], ".2f") if summary["max_price"] is not None else None,
+    }
+    return JsonResponse({
+        "place": {"id": place.pk, "slug": place.slug, "name": place.name_i18n(language)},
+        "summary": summary,
+        "pricing_plans": serialize_pricing_plans(plans, language),
+    })
+
+
+def catalog_search_suggestions(request):
+    query = (request.GET.get("q") or "").strip()
+    if not query:
+        return JsonResponse({"categories": [], "places": []})
+
+    language = (request.GET.get("lang") or getattr(request, "LANGUAGE_CODE", "az") or "az").split("-")[0]
+    if language not in {"az", "ru", "en"}:
+        language = "az"
+
+    matching_categories = []
+    from catalog.models import Category
+    q_lower = query.lower()
+    for cat in Category.active.all():
+        name = cat.name_i18n(language)
+        alt_names = [getattr(cat, f"name_{l}", "") for l in ("ru", "az", "en")]
+        if q_lower in name.lower() or any(q_lower in (a or "").lower() for a in alt_names):
+            matching_categories.append({
+                "code": cat.code,
+                "name": name,
+                "url": f"/catalog/?category={cat.code}",
+            })
+            if len(matching_categories) >= 4:
+                break
+
+    from catalog.services.filtering import PlaceListFilters
+    filters = PlaceListFilters(query=query)
+    base_qs = place_controller.place_repository.filtered_active_queryset()
+    places_qs = filters.apply(base_qs).prefetch_related(None).select_related("category", "subcategory")[:6]
+    from catalog.services.public_presentation import prepare_cards, organization_matches
+    places = prepare_cards(places_qs, language, filters=filters)
+
+    age_suffix = " yaş" if language == "az" else (" yrs" if language == "en" else " лет")
+
+    places_data = []
+    for place in places:
+        presentation = place._card_presentation
+        if presentation['matched_offers']:
+            ages = dict.fromkeys(group['age'] for offer in presentation['matched_offers'] for group in offer['groups'] if group['age'])
+            age_str = ', '.join(age + age_suffix for age in ages)
+        else:
+            age_str = f"{place.age_display}{age_suffix}" if place.age_display else ""
+        category_title = place.category.name_i18n(language) if place.category else (place.get_category_display() or "")
+        places_data.append({
+            "id": place.id,
+            "name": presentation["name"],
+            "url": presentation["url"],
+            "category": category_title,
+            "district": place.district_i18n(language) or place.metro_i18n(language) or "",
+            "image": place.public_image_url or "",
+            "rating": round(float(place.rating_avg or 0), 1) if place.rating_count else None,
+            "price": presentation["prices"]["label"],
+            "age": age_str,
+        })
+
+    return JsonResponse({
+        "query": query,
+        "categories": matching_categories,
+        "organizations": organization_matches(query, language),
+        "places": places_data,
+    })
+
+from .services.reactions import ensure_session_key
+from .services.owner_specialist_use_cases import save_owner_specialist_profile
+from .services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event
+from .services.features import is_events_section_enabled, require_events_section_enabled, require_specialists_section_enabled
+from .services.auth_redirects import resolve_safe_next_url
+from .services.place_access import PLACE_PERMISSION_EDIT, has_place_permission
+
+home_controller = HomeController.build_default()
+place_controller = PlaceController.build_default()
+engagement_controller = EngagementController.build_default()
+auth_controller = AuthController.build_default()
+ownership_controller = OwnershipController.build_default()
+owner_places_controller = OwnerPlacesController.build_default()
+owner_team_controller = OwnerTeamController.build_default()
+owner_reviews_controller = OwnerReviewsController.build_default()
+seo_controller = SeoController.build_default()
+tracking_controller = TrackingController.build_default()
+account_controller = AccountController.build_default()
+site_reviews_controller = SiteReviewsController.build_default()
+place_reviews_controller = PlaceReviewsController()
+
+
+def _resolve_safe_next_url(request, fallback_url: str) -> str:
+    return resolve_safe_next_url(request, fallback_url)
+
+
+
+def _is_ajax_request(request) -> bool:
+    return request.headers.get("x-requested-with") == "XMLHttpRequest"
+
+
+def _build_login_redirect_url(request, fallback_url: str) -> str:
+    target = _resolve_safe_next_url(request, fallback_url)
+    query = urlencode({"next": target})
+    return f"{reverse('account_login')}?{query}"
+
+
+def _build_owner_create_draft_key(request, *, prefix: str) -> str:
+    has_session = hasattr(request, "session")
+    if request.method == "GET" and request.GET.get("fresh") == "1":
+        key = f"{prefix}-{uuid4().hex}"
+        if has_session:
+            request.session[f"{prefix}_last_key"] = key
+        return key
+
+    existing = (request.POST.get("draft_client_key") or request.GET.get("draft_session") or "").strip()
+    if existing.startswith(prefix + "-"):
+        if has_session:
+            request.session[f"{prefix}_last_key"] = existing
+        return existing
+    if existing:
+        key = f"{prefix}-{existing}"
+        if has_session:
+            request.session[f"{prefix}_last_key"] = key
+        return key
+
+    session_key = request.session.get(f"{prefix}_last_key") if has_session else None
+    if session_key and session_key.startswith(prefix + "-"):
+        return session_key
+
+    key = f"{prefix}-{uuid4().hex}"
+    if has_session:
+        request.session[f"{prefix}_last_key"] = key
+    return key
+
+
+def _engagement_login_required_response(request, fallback_url: str):
+    message = _("Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.")
+    login_url = _build_login_redirect_url(request, fallback_url)
+    messages.info(request, message)
+    if _is_ajax_request(request):
+        return JsonResponse(
+            {
+                "ok": False,
+                "auth_required": True,
+                "redirect_url": login_url,
+                "message": message,
+            },
+            status=401,
+        )
+    return redirect(login_url)
+
+
+def _allowed_tracking_hosts(request) -> set[str]:
+    hosts = {request.get_host().lower()}
+    for origin in getattr(settings, "CSRF_TRUSTED_ORIGINS", []):
+        if "://" not in origin:
+            continue
+        host = origin.split("://", 1)[1].split("/", 1)[0].lower()
+        if host:
+            hosts.add(host)
+    return hosts
+
+
+def _has_allowed_tracking_origin(request) -> bool:
+    allowed_hosts = _allowed_tracking_hosts(request)
+    origin = (request.headers.get("Origin") or "").strip()
+    referer = (request.headers.get("Referer") or "").strip()
+
+    if origin and origin.lower() != "null":
+        return url_has_allowed_host_and_scheme(
+            origin,
+            allowed_hosts=allowed_hosts,
+            require_https=request.is_secure(),
+        )
+
+    if referer:
+        return url_has_allowed_host_and_scheme(
+            referer,
+            allowed_hosts=allowed_hosts,
+            require_https=request.is_secure(),
+        )
+
+    fetch_site = (request.headers.get("Sec-Fetch-Site") or "").strip().lower()
+    return fetch_site in {"", "same-origin", "same-site", "none"}
+
+
+def _tracking_rate_limit_exceeded(request) -> bool:
+    limit = max(int(getattr(settings, "TRACKING_EVENT_RATE_LIMIT", 60) or 60), 1)
+    window_seconds = max(int(getattr(settings, "TRACKING_EVENT_RATE_WINDOW_SECONDS", 60) or 60), 1)
+    session_key = ensure_session_key(request) or "anonymous"
+    remote_addr = (request.META.get("REMOTE_ADDR") or "unknown").strip()
+    cache_key = f"tracking-rate:{session_key}:{remote_addr}"
+
+    added = cache.add(cache_key, 1, timeout=window_seconds)
+    if added:
+        return False
+
+    try:
+        current_count = cache.incr(cache_key)
+    except ValueError:
+        cache.set(cache_key, 1, timeout=window_seconds)
+        return False
+    return current_count > limit
+
+
+def _redirect_to_login(request):
+    query = urlencode({"next": request.get_full_path()})
+    return redirect(f"{reverse('account_login')}?{query}")
+
+
+def _build_managed_places_summary(user) -> dict:
+    from catalog.services.business_team import accessible_place_ids
+    managed_places = list(Place.objects.filter(pk__in=accessible_place_ids(user=user)).order_by("-updated_at"))
+    active_managed_places_count = sum(
+        1 for place in managed_places if place.status == Place.STATUS_PUBLISHED and place.is_active
+    )
+    draft_managed_places_count = sum(
+        1
+        for place in managed_places
+        if place.status != Place.STATUS_PUBLISHED or not place.is_active
+    )
+    actionable_draft_places = [
+        place
+        for place in managed_places
+        if place.status in {Place.STATUS_DRAFT, Place.STATUS_REJECTED} or not place.is_active
+    ]
+    can_edit_managed_places = any(
+        has_place_permission(user=user, place=place, permission_code=PLACE_PERMISSION_EDIT)
+        for place in managed_places
+    )
+    return {
+        "managed_places": managed_places,
+        "managed_places_count": len(managed_places),
+        "active_managed_places_count": active_managed_places_count,
+        "draft_managed_places_count": draft_managed_places_count,
+        "actionable_draft_places_count": len(actionable_draft_places),
+        "latest_actionable_draft_place": actionable_draft_places[0] if actionable_draft_places else None,
+        "can_edit_managed_places": can_edit_managed_places,
+    }
+
+
+AUTH_INTENT_ADD_PLACE = "add_place"
+# "owner_place" is the historical value; keep accepting it so old links keep working.
+LEGACY_AUTH_INTENT_ADD_PLACE = "owner_place"
+
+
+def _resolve_auth_intent(request) -> str:
+    intent = (request.POST.get("intent") or request.GET.get("intent") or "").strip()
+    if intent in {AUTH_INTENT_ADD_PLACE, LEGACY_AUTH_INTENT_ADD_PLACE}:
+        return AUTH_INTENT_ADD_PLACE
+    return ""
+
+
+def home(request):
+    context = home_controller.build_context(
+        request=request,
+        google_maps_api_key=settings.GOOGLE_MAPS_API_KEY,
+    )
+
+    return render(
+        request,
+        "pages/home.html",
+        context,
+    )
+
+
+def place_list(request):
+    return _render_place_list(request)
+
+
+def place_new(request):
+    return _render_place_list(request, force_new_only=True)
+
+
+def _retired_public_page(request):
+    return render(request, "pages/public_unavailable.html", status=410)
+
+
+def events_landing(request):
+    # Events are retired rather than temporarily unavailable. A 410 removes
+    # obsolete /events/ URLs from search indexes faster than a soft 404.
+    from .services.features import is_events_section_enabled
+
+    if not is_events_section_enabled():
+        return _retired_public_page(request)
+    context = place_controller.build_events_landing_context(request)
+    return render(request, "catalog/events_landing.html", context)
+
+
+def _render_place_list(request, force_new_only=False, created_after=None):
+    if request.GET.getlist("view"):
+        normalized_query = place_controller.build_normalized_list_query(
+            request,
+            force_new_only=force_new_only,
+        )
+        target_url = request.path
+        if normalized_query:
+            target_url = f"{target_url}?{normalized_query}"
+        return redirect(target_url)
+
+    context = place_controller.build_list_context(
+        request,
+        force_new_only=force_new_only,
+        created_after=created_after,
+    )
+    context["google_maps_api_key"] = settings.GOOGLE_MAPS_API_KEY
+
+    return render(request, "catalog/place_list.html", context)
+
+
+def place_detail_legacy(request, pk, slug=None):
+    place = place_controller.get_active_place_for_legacy_redirect(pk=pk)
+    if place.is_temporary and not is_events_section_enabled():
+        return _retired_public_page(request)
+    return redirect(place.get_absolute_url(), permanent=True)
+
+
+def place_detail(request, pk, slug):
+    place = place_controller.get_active_place_with_gallery(pk=pk)
+    if place.is_temporary and not is_events_section_enabled():
+        return _retired_public_page(request)
+    from catalog.services.place_urls import place_slug_for_language
+    if slug != place_slug_for_language(place, request.LANGUAGE_CODE) or request.META.get("QUERY_STRING"):
+        return redirect(place.get_absolute_url(), permanent=True)
+
+    request._seo_place = place
+    context = place_controller.build_detail_context(request, place=place)
+    context.update(ownership_controller.build_place_claim_context(request=request, place=place))
+    context["public_pricing_plans"] = public_pricing_plans(place.pricing_plans, context.get("language"))
+
+    from catalog.services.pricing_plans import build_pricing_summary
+    context["pricing_summary"] = build_pricing_summary(place, context.get("language"))
+
+    from catalog.services.public_favorite_count import build_public_favorite_count
+    context["favorite_social_proof"] = build_public_favorite_count(place_id=place.pk)
+
+    return render(
+        request,
+        "catalog/place_detail.html",
+        context,
+    )
+
+
+@require_POST
+def toggle_place_like(request, pk):
+    place = place_controller.get_active_place_with_gallery(pk=pk)
+    if not request.user.is_authenticated:
+        return _engagement_login_required_response(request, place.get_absolute_url())
+
+    result = engagement_controller.toggle_place_like(request=request, place_id=pk)
+    action = "saved" if result.liked else "removed"
+    event_name = FunnelEvent.EVENT_FAVORITE_ADDED if result.liked else FunnelEvent.EVENT_FAVORITE_REMOVED
+    analytics_event = build_google_analytics_event(
+        event_name,
+        {
+            "place_id": result.place.id,
+            "page_type": "favorite_toggle",
+            "action": action,
+        },
+    )
+    track_funnel_event(
+        request=request,
+        event_type=event_name,
+        place=result.place,
+        meta={"source": "favorite-toggle"},
+    )
+
+    if _is_ajax_request(request):
+        return JsonResponse(
+            {
+                "ok": True,
+                "liked": result.liked,
+                "likes_count": result.likes_count,
+                "analytics_event": analytics_event,
+            }
+        )
+
+    queue_google_analytics_event(
+        request=request,
+        name=event_name,
+        params={
+            "place_id": result.place.id,
+            "page_type": "favorite_toggle",
+            "action": action,
+        },
+    )
+    return redirect(result.place.get_absolute_url())
+
+
+def _review_submission_response(request, *, ok, message, redirect_url, cooldown=None):
+    limited = not ok and cooldown and cooldown["active"]
+    if _is_ajax_request(request):
+        response = JsonResponse({
+            "ok": ok,
+            "message": message,
+            "title": _("Спасибо! Отзыв отправлен на модерацию") if ok else "",
+            "cooldown": cooldown,
+            "code": "review_cooldown" if limited else "",
+        }, status=200 if ok else (429 if limited else 400))
+        if limited:
+            response["Retry-After"] = str(cooldown["retry_after"])
+        return response
+    notify = messages.success if ok else (messages.warning if limited else messages.error)
+    notify(request, message, extra_tags="review-submission")
+    return redirect(redirect_url)
+
+
+@require_POST
+def add_place_review(request, pk):
+    place = place_controller.get_active_place_with_gallery(pk=pk)
+    if getattr(settings, "REVIEWS_REQUIRE_AUTH", True) and not request.user.is_authenticated:
+        return _engagement_login_required_response(request, f"{place.get_absolute_url()}#reviews")
+
+    place, result = engagement_controller.add_place_review(
+        request=request,
+        place_id=pk,
+        require_auth=getattr(settings, "REVIEWS_REQUIRE_AUTH", True),
+    )
+    if result.ok:
+        track_funnel_event(
+            request=request,
+            event_type=FunnelEvent.EVENT_REVIEW_SUBMIT,
+            place=place,
+            meta={"scope": "place"},
+        )
+        queue_google_analytics_event(
+            request=request,
+            name=FunnelEvent.EVENT_REVIEW_SUBMIT,
+            params={
+                "place_id": place.id,
+                "page_type": "place_review",
+                "review_scope": "place",
+            },
+        )
+    return _review_submission_response(
+        request, ok=result.ok, message=result.message, redirect_url=f"{place.get_absolute_url()}#reviews",
+        cooldown=result.cooldown,
+    )
+
+
+@require_POST
+def add_site_review(request):
+    if getattr(settings, "REVIEWS_REQUIRE_AUTH", True) and not request.user.is_authenticated:
+        return _engagement_login_required_response(request, f"{reverse('site_reviews')}#site-reviews")
+
+    result = engagement_controller.add_site_review(
+        request=request,
+        require_auth=getattr(settings, "REVIEWS_REQUIRE_AUTH", True),
+    )
+    if result.ok:
+        track_funnel_event(
+            request=request,
+            event_type=FunnelEvent.EVENT_REVIEW_SUBMIT,
+            meta={"scope": "site"},
+        )
+        queue_google_analytics_event(
+            request=request,
+            name=FunnelEvent.EVENT_REVIEW_SUBMIT,
+            params={
+                "page_type": "site_review",
+                "review_scope": "site",
+            },
+        )
+    return _review_submission_response(
+        request, ok=result.ok, message=result.message, redirect_url=f"{reverse('site_reviews')}#site-reviews",
+    )
+
+
+def site_reviews(request):
+    context = site_reviews_controller.build_context(request)
+    return render(request, "pages/site_reviews.html", context)
+
+
+def place_reviews(request):
+    context = place_reviews_controller.build_context(request)
+    return render(request, "pages/place_reviews.html", context)
+
+
+@require_POST
+def vote_place_review(request, review_id):
+    value = (request.POST.get("value") or "").strip()
+    if value not in {"1", "-1"}:
+        message = _("Не удалось обработать реакцию на отзыв.")
+        if _is_ajax_request(request):
+            return JsonResponse({"ok": False, "message": message}, status=400)
+        messages.error(request, message)
+        return redirect(reverse("home"))
+
+    review = approved_review_queryset(PlaceReview.objects.select_related("place")).filter(pk=review_id).first()
+    if review is None:
+        message = _("Не удалось обработать реакцию на отзыв.")
+        if _is_ajax_request(request):
+            return JsonResponse({"ok": False, "message": message}, status=404)
+        messages.error(request, message)
+        return redirect(reverse("home"))
+    if not request.user.is_authenticated:
+        return _engagement_login_required_response(request, f"{review.place.get_absolute_url()}#reviews")
+    if review.user_id == request.user.id:
+        message = _("Нельзя оценивать собственный отзыв.")
+        if _is_ajax_request(request):
+            return JsonResponse({"ok": False, "message": message}, status=403)
+        messages.error(request, message)
+        return redirect(_resolve_safe_next_url(request, f"{review.place.get_absolute_url()}#reviews"))
+
+    result = engagement_controller.toggle_place_review_reaction(
+        request=request,
+        review_id=review_id,
+        value=int(value),
+    )
+    if _is_ajax_request(request):
+        return JsonResponse(
+            {
+                "ok": True,
+                "current_reaction": result.current_reaction,
+                "likes_count": result.likes_count,
+                "dislikes_count": result.dislikes_count,
+            }
+        )
+    return redirect(_resolve_safe_next_url(request, f"{result.review.place.get_absolute_url()}#reviews"))
+
+
+@require_POST
+def vote_site_review(request, review_id):
+    value = (request.POST.get("value") or "").strip()
+    if value not in {"1", "-1"}:
+        message = _("Не удалось обработать реакцию на отзыв.")
+        if _is_ajax_request(request):
+            return JsonResponse({"ok": False, "message": message}, status=400)
+        messages.error(request, message)
+        return redirect(reverse("site_reviews"))
+
+    review = approved_review_queryset(SiteReview.objects.all()).filter(pk=review_id).first()
+    if review is None:
+        message = _("Не удалось обработать реакцию на отзыв.")
+        if _is_ajax_request(request):
+            return JsonResponse({"ok": False, "message": message}, status=404)
+        messages.error(request, message)
+        return redirect(reverse("site_reviews"))
+    if not request.user.is_authenticated:
+        return _engagement_login_required_response(request, reverse("site_reviews"))
+    if review.user_id == request.user.id:
+        message = _("Нельзя оценивать собственный отзыв.")
+        if _is_ajax_request(request):
+            return JsonResponse({"ok": False, "message": message}, status=403)
+        messages.error(request, message)
+        return redirect(reverse("site_reviews"))
+
+    result = engagement_controller.toggle_site_review_reaction(
+        request=request,
+        review_id=review_id,
+        value=int(value),
+    )
+    if _is_ajax_request(request):
+        return JsonResponse(
+            {
+                "ok": True,
+                "current_reaction": result.current_reaction,
+                "likes_count": result.likes_count,
+                "dislikes_count": result.dislikes_count,
+            }
+        )
+    return redirect(reverse("site_reviews"))
+
+
+@csrf_exempt
+@require_POST
+def track_event(request):
+    from catalog.services.analytics_quality import record_analytics_ingress
+    if not _has_allowed_tracking_origin(request):
+        record_analytics_ingress(rejected=1)
+        return JsonResponse({"ok": False, "error": "forbidden_origin"}, status=403)
+    if _tracking_rate_limit_exceeded(request):
+        record_analytics_ingress(rejected=1, rate_limited=1)
+        return JsonResponse({"ok": False, "error": "rate_limited"}, status=429)
+    result = tracking_controller.track_event_from_json(request=request, raw_body=request.body)
+    record_analytics_ingress(accepted=1 if result.ok else 0, rejected=0 if result.ok else 1)
+    if not result.ok and getattr(request, "_analytics_persistence_failed", False):
+        return JsonResponse({"ok": False, "error": "analytics_unavailable"}, status=503)
+    return JsonResponse(result.as_payload(), status=result.status_code)
+
+
+def seo_landing(request, seo_slug):
+    context = seo_controller.build_landing_context(request=request, seo_slug=seo_slug)
+    return render(request, "catalog/seo_landing.html", context)
+
+
+def about(request):
+    lang = (request.LANGUAGE_CODE or "az").split("-")[0]
+    titles = {
+        "az": "KidsMap haqqında | Uşaq dərnəkləri və idman bölmələri kataloqu",
+        "ru": "О проекте KidsMap | Каталог детских кружков и секций в Баку",
+        "en": "About KidsMap | Children's Clubs & Sports Directory in Baku",
+    }
+    meta_descriptions = {
+        "az": "KidsMap haqqında: Bakı və Аzərbaycanda uşaq dərnəkləri, bölmələr və inkişaf mərkəzləri kataloqu.",
+        "ru": "О проекте KidsMap: полный каталог детских кружков, спортивных секций и центров развития в Баку и Азербайджане.",
+        "en": "About KidsMap project: comprehensive directory of children's clubs, sports sections and development centers in Baku, Azerbaijan.",
+    }
+    places_count = public_place_queryset(Place.objects.all()).count()
+    categories_count = Category.objects.filter(is_active=True).count()
+    reviews_count = public_review_queryset(PlaceReview.objects.all()).count()
+
+    return render(
+        request,
+        "pages/about.html",
+        {
+            "page_title": titles.get(lang, titles["az"]),
+            "meta_description": meta_descriptions.get(lang, meta_descriptions["az"]),
+            "places_count": places_count,
+            "categories_count": categories_count,
+            "reviews_count": reviews_count,
+        },
+    )
+
+
+def faq_page(request):
+    lang = (request.LANGUAGE_CODE or "az").split("-")[0]
+    titles = {
+        "az": "KidsMap haqqında tez-tez verilən suallar | FAQ",
+        "ru": "Частые вопросы о KidsMap | FAQ",
+        "en": "Frequently Asked Questions about KidsMap | FAQ",
+    }
+    meta_descriptions = {
+        "az": "KidsMap haqqında tez-tez verilən suallar: valideynlər üçün dərnək axtarışı, rəylər və məkan sahibləri üçün kartın yerləşdirilməsi.",
+        "ru": "Частые вопросы о KidsMap: поиск кружков для родителей, отзывы и размещение карточек для владельцев мест.",
+        "en": "Frequently asked questions about KidsMap: finding kids clubs, leaving reviews, and place listing for owners.",
+    }
+    places_count = public_place_queryset(Place.objects.all()).count()
+    categories_count = Category.objects.filter(is_active=True).count()
+
+    return render(
+        request,
+        "pages/faq.html",
+        {
+            "page_title": titles.get(lang, titles["az"]),
+            "meta_description": meta_descriptions.get(lang, meta_descriptions["az"]),
+            "places_count": places_count,
+            "categories_count": categories_count,
+        },
+    )
+
+
+
+def contacts(request):
+    lang = (request.LANGUAGE_CODE or "az").split("-")[0]
+    titles = {
+        "az": "KidsMap Əlaqə | Telefon, ünvan və əlaqə vasitələri",
+        "ru": "Контакты KidsMap | Связаться с нами и адрес в Баку",
+        "en": "Contact KidsMap | Address, Phone & Support in Baku",
+    }
+    meta_descriptions = {
+        "az": "KidsMap layihəsi ilə əlaqə: telefon, e-poçt, ünvan və rəy forması.",
+        "ru": "Контакты проекта KidsMap: телефон, e-mail, адрес и форма обратной связи.",
+        "en": "Contact KidsMap team: phone, email, address and feedback form.",
+    }
+    return render(
+        request,
+        "pages/contacts.html",
+        {
+            "page_title": titles.get(lang, titles["az"]),
+            "meta_description": meta_descriptions.get(lang, meta_descriptions["az"]),
+        },
+    )
+
+
+ADD_PLACE_CONTENT = {
+    "az": {
+        "title": "Uşaq məkanınızı KidsMap-də yerləşdirin",
+        "mobile_title": "Məkanınızı yerləşdirin",
+        "eyebrow": "KidsMap-də yerləşdirmə",
+        "free_badge": "Əsas yerləşdirmə pulsuzdur",
+        "subtitle": "Foto, ünvan, əlaqə məlumatları, iş qrafiki və qiyməti olan kart yaradın. Kart moderasiyadan sonra kataloqda dərc olunur.",
+        "moderation_note": "Dərc edilməzdən əvvəl məlumatların dolğunluğunu və qaydalara uyğunluğunu yoxlayırıq.",
+        "primary_cta": "Məkan əlavə et",
+        "secondary_cta": "Mövcud kartı tap",
+        "steps_title": "Kartı necə dərc etmək olar",
+        "steps": [
+            ("Hesab yaradın", "Daxil olun və ya qısa qeydiyyatdan keçin."),
+            ("Kartı doldurun", "Foto, ünvan, kontaktlar, iş qrafiki və qiyməti əlavə edin."),
+            ("Moderasiyaya göndərin", "Məlumatların dolğunluğunu və qaydalara uyğunluğunu yoxlayacağıq."),
+            ("Kataloqda görünün", "Təsdiqdən sonra kart valideynlər üçün əlçatan olacaq."),
+        ],
+        "details_title": "Əsas yerləşdirmə haqqında",
+        "details_intro": "Kartı yaratmaq və əsas məlumatları kataloqda yerləşdirmək pulsuzdur.",
+        "detail_cards": [
+            ("Pulsuz nələr daxildir", ["Foto və məkanın təsviri", "Ünvan və xəritədə mövqe", "Telefon və digər əlaqə məlumatları", "İş qrafiki və qiymət"]),
+            ("Moderasiya nəyi yoxlayır", ["Məcburi məlumatların doldurulmasını", "Məlumatların aydın və ziddiyyətsiz olmasını", "Məzmunun KidsMap qaydalarına uyğunluğunu", "Test və natamam kartlar dərc edilmir"]),
+            ("Məlumatları necə yeniləmək olar", ["Şəxsi kabinetdə kartınızı açın", "Lazım olan sahələri dəyişin", "Yenilənmiş məlumatları yoxlamaya göndərin", "Dəyişikliklər yenidən moderasiya oluna bilər"]),
+        ],
+    },
+    "ru": {
+        "title": "Разместите детское место на KidsMap",
+        "mobile_title": "Разместите место",
+        "eyebrow": "Размещение на KidsMap",
+        "free_badge": "Базовое размещение бесплатно",
+        "subtitle": "Создайте карточку с фото, адресом, контактами, расписанием и ценой. После модерации она появится в каталоге.",
+        "moderation_note": "Перед публикацией мы проверяем полноту данных и соответствие правилам площадки.",
+        "primary_cta": "Добавить место",
+        "secondary_cta": "Найти существующую карточку",
+        "steps_title": "Как опубликовать карточку",
+        "steps": [
+            ("Создайте аккаунт", "Войдите или пройдите короткую регистрацию."),
+            ("Заполните карточку", "Добавьте фото, адрес, контакты, расписание и цену."),
+            ("Отправьте на модерацию", "Мы проверим полноту данных и соответствие правилам."),
+            ("Появитесь в каталоге", "После одобрения карточка станет доступна родителям."),
+        ],
+        "details_title": "Всё о базовом размещении",
+        "details_intro": "Создание карточки и размещение основной информации в каталоге бесплатны.",
+        "detail_cards": [
+            ("Что входит бесплатно", ["Фото и описание места", "Адрес и точка на карте", "Телефон и другие контакты", "Расписание и цена"]),
+            ("Что проверяет модерация", ["Заполнены ли обязательные данные", "Понятна ли информация и нет ли противоречий", "Соответствует ли содержание правилам KidsMap", "Тестовые и неполные карточки не публикуются"]),
+            ("Как обновить данные", ["Откройте карточку в личном кабинете", "Измените нужные поля", "Отправьте обновлённые данные на проверку", "Изменения могут повторно пройти модерацию"]),
+        ],
+    },
+    "en": {
+        "title": "List your kids place on KidsMap",
+        "mobile_title": "List your place",
+        "eyebrow": "Listing on KidsMap",
+        "free_badge": "Basic listing is free",
+        "subtitle": "Create a listing with photos, address, contacts, schedule and price. It will appear in the catalog after moderation.",
+        "moderation_note": "Before publishing, we check that the information is complete and follows the platform rules.",
+        "primary_cta": "Add a place",
+        "secondary_cta": "Find an existing listing",
+        "steps_title": "How to publish your listing",
+        "steps": [
+            ("Create an account", "Sign in or complete a short registration."),
+            ("Fill in the listing", "Add photos, address, contacts, schedule and price."),
+            ("Send it for moderation", "We check completeness and compliance with the rules."),
+            ("Appear in the catalog", "Once approved, the listing becomes available to parents."),
+        ],
+        "details_title": "About the basic listing",
+        "details_intro": "Creating a listing and publishing its essential information in the catalog is free.",
+        "detail_cards": [
+            ("What is included for free", ["Photos and place description", "Address and map location", "Phone and other contact details", "Schedule and price"]),
+            ("What moderation checks", ["All required information is provided", "Information is clear and consistent", "Content follows the KidsMap rules", "Test and incomplete listings are not published"]),
+            ("How to update information", ["Open the listing in your account", "Edit the necessary fields", "Send the updated information for review", "Changes may be moderated again"]),
+        ],
+    },
+}
+
+
+def add_place(request):
+    language = request.LANGUAGE_CODE if request.LANGUAGE_CODE in ADD_PLACE_CONTENT else "az"
+    content = ADD_PLACE_CONTENT[language]
+    places_count = public_place_queryset(Place.objects.all()).count()
+    return render(
+        request,
+        "pages/add_place.html",
+        {
+            "content": content,
+            "meta_description": content["subtitle"],
+            "places_count": places_count,
+        },
+    )
+
+
+def _permanent_redirect_with_query(request, target: str):
+    query = request.META.get("QUERY_STRING", "")
+    if query:
+        target = f"{target}?{query}"
+    return redirect(target, permanent=True)
+
+
+def legacy_for_business_redirect(request):
+    """Keep the historical /for-business/ URL alive after the rename to /add-place/."""
+    return _permanent_redirect_with_query(request, reverse("add_place"))
+
+
+def place_root_redirect(request):
+    """/place/ has no page of its own, so send the bare segment to the catalog.
+
+    Place cards live at /place/<id>-<slug>/, and both the visible breadcrumbs and
+    the BreadcrumbList markup name the catalog as their parent. Truncating the URL
+    should land on that parent instead of a 404.
+    """
+    return _permanent_redirect_with_query(request, reverse("place_list"))
+
+
+def legacy_owner_section_redirect(request, subpath: str = ""):
+    """Keep historical /account/owner/... URLs alive after the move to /account/places/..."""
+    if subpath == "places" or subpath.startswith("places/"):
+        subpath = subpath[len("places/"):]
+    return _permanent_redirect_with_query(request, f"{reverse('owner_places_dashboard')}{subpath}")
+
+
+def legal_page(request, page_slug):
+    language = request.LANGUAGE_CODE if request.LANGUAGE_CODE in {"az", "ru", "en"} else "az"
+    if page_slug == "review-rules":
+        titles = {
+            "az": "Rəy qaydaları | KidsMap",
+            "ru": "Правила отзывов | KidsMap",
+            "en": "Review Rules | KidsMap",
+        }
+        descriptions = {
+            "az": "KidsMap platformasında rəylərin yerləşdirilməsi, moderasiyası və icma qaydaları.",
+            "ru": "Правила публикации и модерации отзывов на платформе KidsMap. Рекомендации для родителей и секций.",
+            "en": "Review guidelines, moderation policy and community rules on KidsMap platform.",
+        }
+        return render(
+            request,
+            "pages/review_rules.html",
+            {
+                "page_title": titles.get(language, titles["az"]),
+                "meta_description": descriptions.get(language, descriptions["az"]),
+                "page_slug": page_slug,
+            },
+        )
+    if page_slug == "listing-rules":
+        titles = {
+            "az": "Yerləşdirmə qaydaları | KidsMap",
+            "ru": "Правила размещения мест | KidsMap",
+            "en": "Listing Rules | KidsMap",
+        }
+        descriptions = {
+            "az": "KidsMap platformasında dərnək və məkanların yerləşdirilməsi, 12 vacib tələb və moderasiya qaydaları.",
+            "ru": "Правила добавления и модерации карточек детских кружков и секций на платформе KidsMap. 12 обязательных критериев готовности.",
+            "en": "Guidelines for listing kids clubs and places on KidsMap. 12 readiness criteria and moderation workflow.",
+        }
+        return render(
+            request,
+            "pages/listing_rules.html",
+            {
+                "page_title": titles.get(language, titles["az"]),
+                "meta_description": descriptions.get(language, descriptions["az"]),
+                "page_slug": page_slug,
+            },
+        )
+    context = get_legal_page_content(page_slug=page_slug, language=language)
+    return render(request, "pages/legal.html", context)
+
+
+def owner_places_dashboard(request):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    context, access = owner_places_controller.build_dashboard_context(request=request)
+    if not access.ok:
+        messages.error(request, access.message)
+        return redirect("account_profile")
+
+    from .services.features import is_events_section_enabled
+
+    owner_events = []
+    if is_events_section_enabled():
+        from django.db.models import Q
+        from catalog.services.event_domain import can_manage_event
+        candidates = Event.objects.filter(deleted_at__isnull=True, organizer_resolution='resolved').filter(
+            Q(organizer_organization__owner=request.user, organizer_organization__owner__is_active=True,
+              organizer_organization__archived_at__isnull=True)
+            | Q(organizer_specialist__verified_person_user=request.user,
+                organizer_specialist__verified_person_user__is_active=True,
+                organizer_specialist__person_verified_at__isnull=False, organizer_specialist__is_active=True)
+        ).select_related('related_place', 'organizer_organization', 'organizer_specialist').order_by('-updated_at')
+        owner_events = [event for event in candidates if can_manage_event(request.user, event)]
+    owner_specialists = list(
+        Specialist.objects.filter(verified_person_user=request.user, verified_person_user__is_active=True,
+                                  person_verified_at__isnull=False)
+        .prefetch_related("specializations").order_by("-updated_at")
+    )
+    from catalog.models import Organization, OrganizationPlaceRequest
+    from catalog.services.business_team import has_action
+    from catalog.services.organization_ownership import affiliation_current
+    direct_places = list(Place.objects.filter(owner=request.user, deleted_at__isnull=True).order_by('pk'))
+    context['joinable_places'] = [p for p in direct_places if p.organization_id is None]
+    context['joinable_organizations'] = list(Organization.objects.filter(status='published', archived_at__isnull=True).order_by('pk')[:100])
+    context['place_affiliation_requests'] = list(OrganizationPlaceRequest.objects.filter(
+        place__owner=request.user, status='pending').select_related('place', 'organization').order_by('-pk'))
+    from catalog.services.organization_ownership import join_recovery_rows
+    join_recovery_rows(actor=request.user, items=context['place_affiliation_requests'])
+    context['affiliated_places'] = [p for p in direct_places if p.organization_id and affiliation_current(p, p.organization)]
+    context['informational_places'] = [p for p in context['affiliated_places'] if p.organization_relationship_kind == 'informational']
+    context.update(
+        {
+            "owner_events": owner_events,
+            "owner_specialists": owner_specialists,
+            "owner_event_stats": {
+                "total": len(owner_events),
+                "published": sum(1 for event in owner_events if event.status == Event.STATUS_PUBLISHED),
+                "active": sum(1 for event in owner_events if event.status == Event.STATUS_PUBLISHED and not event.has_ended and event.occurrence_state != 'cancelled'),
+                "drafts": sum(1 for event in owner_events if event.status in {Event.STATUS_DRAFT, Event.STATUS_PENDING, Event.STATUS_REJECTED}),
+                "ended": sum(1 for event in owner_events if event.occurrence_status == 'completed'),
+                "cancelled": sum(1 for event in owner_events if event.occurrence_state == 'cancelled'),
+            },
+            "owner_specialist_stats": {
+                "total": len(owner_specialists),
+                "published": sum(1 for item in owner_specialists if item.status == Specialist.STATUS_PUBLISHED and item.is_active),
+                "drafts": sum(1 for item in owner_specialists if item.status in {Specialist.STATUS_DRAFT, Specialist.STATUS_PENDING, Specialist.STATUS_REJECTED}),
+            },
+            "meta_description": _("Мои места KidsMap: редактирование, черновики, модерация и статистика."),
+        }
+    )
+    return render(request, "pages/owner_places.html", context)
+
+
+def owner_place_analytics(request, pk):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+    context = owner_analytics_controller.build_context(request=request, place_id=pk)
+    return render(request, "pages/owner_analytics.html", context)
+
+
+def _build_owner_taxonomy_picker_config(form):
+    from .models import Category, Subcategory
+    from django.db.models import Count
+
+    category_field = form.fields.get("category")
+    subcategory_field = form.fields.get("subcategory")
+    if category_field is None or subcategory_field is None:
+        return {"categories": [], "subcategories": []}
+
+    categories = []
+    category_queryset = category_field.queryset.order_by("order", "name_ru", "name")
+    subcategory_counts = {
+        item["category_id"]: item["total"]
+        for item in Subcategory.active.filter(category__in=category_queryset)
+        .values("category_id")
+        .annotate(total=Count("pk"))
+    }
+    for category in category_queryset:
+        categories.append(
+            {
+                "code": category.pk,
+                "label": str(category.name_i18n()),
+                "icon": category.icon_file_url,
+                "icon_class": category.icon_name if category.icon_is_font_class else "",
+                "color_bg": category.resolved_color_bg,
+                "color_text": category.resolved_color_text,
+                "subcategory_count": int(subcategory_counts.get(category.pk, 0) or 0),
+            }
+        )
+
+    subcategories = []
+    for subcategory in subcategory_field.queryset.order_by("category__order", "order", "name_ru", "name"):
+        subcategories.append(
+            {
+                "id": str(subcategory.pk),
+                "category": subcategory.category_id,
+                "label": str(subcategory.name_i18n()),
+                "icon": subcategory.icon_file_url,
+            }
+        )
+
+    return {
+        "categories": categories,
+        "subcategories": subcategories,
+    }
+
+
+def owner_place_create(request):
+    explicit_save_cutoff = timezone.now()
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    if request.method == "GET" and request.GET.get("type") != "permanent":
+        result = owner_places_controller.build_create_form_context(request=request)
+        if not result.ok:
+            messages.error(request, result.message)
+            return redirect("owner_places_dashboard")
+        return render(
+            request,
+            "pages/owner_listing_type_select.html",
+            {
+                "meta_description": _("Выбор типа объявления KidsMap."),
+            },
+        )
+
+    if request.method == "POST":
+        draft_client_key = _build_owner_create_draft_key(request, prefix="owner-place-create")
+        form_action = (request.POST.get("form_action") or "").strip()
+        place_post_data = request.POST.copy()
+        place_post_data["is_temporary"] = ""
+        place_post_data["temporary_start"] = ""
+        place_post_data["temporary_end"] = ""
+        if form_action == "check_coordinates":
+            result = owner_places_controller.preview_create_coordinates(
+                request=request,
+                data=place_post_data,
+                files=request.FILES,
+            )
+            if result.form is None:
+                messages.error(request, result.message)
+                return redirect("owner_places_dashboard")
+            if result.message:
+                if result.ok:
+                    messages.success(request, result.message)
+                else:
+                    messages.error(request, result.message)
+            context = {
+                "form": result.form,
+                "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
+                "meta_description": _("Создание места в личном кабинете KidsMap."),
+                "draft_client_key": draft_client_key,
+                "km_place_taxonomy_picker": _build_owner_taxonomy_picker_config(result.form),
+            }
+            return render(request, "pages/owner_place_create.html", context)
+
+        if form_action in {"save_draft", "save_draft_exit"}:
+            result = owner_places_controller.create_place(
+                request=request,
+                data=place_post_data,
+                files=request.FILES,
+                draft_save_only=True,
+            )
+            if result.ok:
+                from catalog.services.server_drafts import mark_explicit_save
+                mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=None, cutoff=explicit_save_cutoff)
+                messages.success(request, result.message)
+                return redirect("owner_places_dashboard")
+
+            if result.form is None:
+                messages.error(request, result.message)
+                return redirect("owner_places_dashboard")
+
+            context = {
+                "form": result.form,
+                "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
+                "meta_description": _("Создание места в личном кабинете KidsMap."),
+                "draft_client_key": draft_client_key,
+                "km_place_taxonomy_picker": _build_owner_taxonomy_picker_config(result.form),
+            }
+            return render(request, "pages/owner_place_create.html", context)
+
+        result = owner_places_controller.create_place(
+            request=request,
+            data=place_post_data,
+            files=request.FILES,
+        )
+        if result.ok:
+            from catalog.services.server_drafts import mark_explicit_save
+            mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=None, cutoff=explicit_save_cutoff)
+            messages.success(request, result.message)
+            return redirect("owner_places_dashboard")
+
+        if result.form is None:
+            messages.error(request, result.message)
+            return redirect("owner_places_dashboard")
+
+        context = {
+            "form": result.form,
+            "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
+            "meta_description": _("Создание места в личном кабинете KidsMap."),
+            "draft_client_key": draft_client_key,
+            "km_place_taxonomy_picker": _build_owner_taxonomy_picker_config(result.form),
+        }
+        return render(request, "pages/owner_place_create.html", context)
+
+    result = owner_places_controller.build_create_form_context(request=request)
+    if not result.ok or result.form is None:
+        messages.error(request, result.message)
+        return redirect("owner_places_dashboard")
+
+    context = {
+        "form": result.form,
+        "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
+        "meta_description": _("Создание места в личном кабинете KidsMap."),
+        "draft_client_key": _build_owner_create_draft_key(request, prefix="owner-place-create"),
+        "km_place_taxonomy_picker": _build_owner_taxonomy_picker_config(result.form),
+    }
+    return render(request, "pages/owner_place_create.html", context)
+
+
+def owner_event_create(request):
+    require_events_section_enabled()
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    if request.method == "POST":
+        form_action = (request.POST.get("form_action") or "").strip()
+        draft_save_only = form_action == "save_draft"
+        result = owner_events_controller.create_event(
+            request=request,
+            data=request.POST,
+            files=request.FILES,
+            draft_save_only=draft_save_only
+        )
+        if result.ok:
+            messages.success(request, result.message)
+            request.session['owner_event_explicit_save'] = {'key': f"km-owner-event-v2:{request.user.pk}:{'create'}", 'entity': str(result.event.pk), 'revision': result.event.updated_at.isoformat()}
+            return redirect("owner_event_edit", pk=result.event.pk) if draft_save_only else redirect("owner_places_dashboard")
+
+        if result.form is None:
+            messages.error(request, result.message)
+            return redirect("owner_places_dashboard")
+
+        form = result.form
+    else:
+        related_place = (request.GET.get("related_place") or "").strip()
+        form = OwnerEventForm(
+            user=request.user,
+            initial={"related_place": related_place} if related_place else None,
+        )
+
+    return render(
+        request,
+        "pages/owner_event_form.html",
+        {
+            **owner_events_controller.entry_context(request, form, error_code=result.error_code if request.method == 'POST' else ''),
+            "form": form,
+            "event": None,
+            "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
+            "meta_description": _("Создание временного мероприятия KidsMap."),
+        },
+    )
+
+
+def owner_event_edit(request, pk):
+    require_events_section_enabled()
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    if request.method == "POST":
+        form_action = (request.POST.get("form_action") or "").strip()
+        draft_save_only = form_action == "save_draft"
+        result = owner_events_controller.edit_event(
+            request=request,
+            pk=pk,
+            data=request.POST,
+            files=request.FILES,
+            draft_save_only=draft_save_only
+        )
+        if result.ok:
+            messages.success(request, result.message)
+            request.session['owner_event_explicit_save'] = {'key': f"km-owner-event-v2:{request.user.pk}:{result.event.pk}", 'entity': str(result.event.pk), 'revision': result.event.updated_at.isoformat()}
+            return redirect("owner_event_edit", pk=result.event.pk) if draft_save_only else redirect("owner_places_dashboard")
+
+        if result.form is None:
+            messages.error(request, result.message)
+            return redirect("owner_places_dashboard")
+
+        form = result.form
+        event = result.event
+    else:
+        event = owner_events_controller._managed_event(request, pk)
+        if event.status in {Event.STATUS_PENDING, Event.STATUS_PUBLISHED}:
+            messages.error(request, _("Tədbir yalnız qaralama və ya rədd edildikdən sonra redaktə oluna bilər."))
+            return redirect("owner_places_dashboard")
+
+        form = OwnerEventForm(instance=event, user=request.user)
+
+    return render(
+        request,
+        "pages/owner_event_form.html",
+        {
+            **owner_events_controller.entry_context(request, form, event, error_code=result.error_code if request.method == 'POST' else ''),
+            "form": form,
+            "event": event,
+            "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
+            "meta_description": _("Редактирование временного мероприятия KidsMap."),
+        },
+    )
+
+
+@require_POST
+def owner_event_submit_review(request, pk):
+    require_events_section_enabled()
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_events_controller.submit_event_for_review(request=request, pk=pk)
+    if result.ok:
+        messages.success(request, result.message)
+        return redirect("owner_places_dashboard")
+
+    messages.error(request, result.message)
+    if result.event and result.event.status != Event.STATUS_PENDING:
+        return redirect("owner_event_edit", pk=pk)
+    return redirect("owner_places_dashboard")
+
+
+@require_POST
+def owner_event_delete(request, pk):
+    require_events_section_enabled()
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_events_controller.delete_event(request=request, pk=pk)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_places_dashboard")
+
+
+
+def _owner_event_management_response(request, event, form=None, error_code='', reschedule=False):
+    from zoneinfo import ZoneInfo
+    from catalog.controllers.owner_events_controller import EventOccurrenceForm
+    initial = {'expected_updated_at': event.updated_at.isoformat()}
+    for name in ('start_datetime', 'end_datetime'):
+        value = getattr(event, name)
+        initial[name] = timezone.localtime(value, ZoneInfo('Asia/Baku')) if value else None
+    return render(request, 'pages/owner_event_manage.html', {'event': event, 'occurrence_form': form or EventOccurrenceForm(initial=initial),
+        'event_error_code': error_code, 'reschedule_action': reschedule,
+        'can_reschedule': bool(event.start_datetime and event.start_datetime > timezone.now() and event.occurrence_state != 'cancelled')})
+
+
+def owner_event_manage(request, pk):
+    require_events_section_enabled()
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+    event = owner_events_controller._managed_event(request, pk)
+    return _owner_event_management_response(request, event)
+
+
+@require_POST
+def owner_event_cancel(request, pk):
+    return _owner_event_occurrence_action(request, pk, False)
+
+
+@require_POST
+def owner_event_reschedule(request, pk):
+    return _owner_event_occurrence_action(request, pk, True)
+
+
+def _owner_event_occurrence_action(request, pk, reschedule):
+    require_events_section_enabled()
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+    result = owner_events_controller.change_occurrence(request, pk, reschedule=reschedule)
+    if result.ok:
+        messages.success(request, result.message)
+        return redirect('owner_event_manage', pk=pk)
+    return _owner_event_management_response(request, result.event, result.form, result.error_code, reschedule)
+
+def event_detail(request, pk, slug):
+    from .services.features import is_events_section_enabled
+
+    if not is_events_section_enabled():
+        return _retired_public_page(request)
+    event = get_object_or_404(
+        Event.objects.select_related("related_place", "organizer_organization", "organizer_specialist").prefetch_related("gallery"),
+        pk=pk,
+        status=Event.STATUS_PUBLISHED,
+        deleted_at__isnull=True,
+        start_datetime__isnull=False,
+    )
+    if not event.is_public:
+        raise Http404
+    if slug != event.slug:
+        return redirect(event.get_absolute_url(), permanent=True)
+    from catalog.models import EventReview
+    from catalog.services.content_quality import public_review_queryset
+    from catalog.services.seo import build_event_seo_payload
+    from django.utils.dateparse import parse_datetime
+    from zoneinfo import ZoneInfo
+    language = request.LANGUAGE_CODE.split('-')[0]
+    state = event.occurrence_state if event.occurrence_state in {'cancelled', 'rescheduled'} else event.occurrence_status
+    labels = {
+        'az': {'upcoming':'Qarşıdakı tədbir', 'ongoing':'Tədbir keçirilir', 'completed':'Başa çatıb', 'cancelled':'Ləğv edilib', 'rescheduled':'Vaxtı dəyişdirilib'},
+        'en': {'upcoming':'Upcoming', 'ongoing':'Happening now', 'completed':'Ended', 'cancelled':'Cancelled', 'rescheduled':'Rescheduled'},
+        'ru': {'upcoming':'Предстоит', 'ongoing':'Мероприятие идёт', 'completed':'Завершено', 'cancelled':'Отменено', 'rescheduled':'Перенесено'},
+    }
+    reviews = list(public_review_queryset(EventReview.objects.filter(event=event))
+        .filter(current_revision__status='approved').select_related('current_revision').order_by('-moderated_at', '-pk'))
+    count = len(reviews)
+    rating = {'average':sum(review.current_revision.rating for review in reviews)/count if count else 0.0, 'count':count}
+    from catalog.services.public_presentation import visible, translated, public_url, present
+    from catalog.services.features import is_organizations_section_enabled, is_specialists_section_enabled
+    orgs_enabled = is_organizations_section_enabled()
+    specs_enabled = is_specialists_section_enabled()
+
+    organizer = None
+    org, person = event.organizer_organization, event.organizer_specialist
+    if org and visible(org):
+        name, name_language = translated(org, 'name', language)
+        url = public_url(org, language) if orgs_enabled else None
+        organizer = {
+            'type': 'Organization',
+            'name': name,
+            'language': name_language,
+            'url': url,
+            'website': org.website or '',
+            'phone': org.phone or '',
+            'whatsapp': org.whatsapp or '',
+        }
+    elif person and person.status == 'published' and person.is_active and person.person_verified_at and person.verified_person_user_id:
+        url = person.get_absolute_url() if specs_enabled else None
+        organizer = {
+            'type': 'Person',
+            'name': person.name,
+            'language': language,
+            'url': url,
+            'photo': person.photo.url if person.photo else None,
+            'phone': person.phone or '',
+            'whatsapp': person.whatsapp or '',
+        }
+
+    related_place_presentation = None
+    if event.related_place and visible(event.related_place):
+        related_place_presentation = present(event.related_place, language)
+
+    previous_periods = []
+    for change in event.occurrence_changes.filter(kind='reschedule').order_by('-happened_at', '-pk'):
+        before = change.before if isinstance(change.before, dict) else {}
+        try:
+            start = parse_datetime(str(before.get('start_datetime') or ''))
+            end = parse_datetime(str(before.get('end_datetime') or ''))
+        except ValueError:
+            continue
+        if start and end and timezone.is_aware(start) and timezone.is_aware(end):
+            previous_periods.append({'start':start.astimezone(ZoneInfo('Asia/Baku')), 'end':end.astimezone(ZoneInfo('Asia/Baku'))})
+    context = {'event':event, 'language':language, 'event_online':event.event_format == 'online',
+        'event_venue':event.public_venue(language),
+        'related_place_presentation': related_place_presentation,
+        'organizations_section_enabled': orgs_enabled,
+        'specialists_section_enabled': specs_enabled,
+        'event_state_label':labels.get(language, labels['az']).get(state, ''),
+        'event_reviews':reviews, 'event_rating':rating, 'event_previous_periods':previous_periods,
+        'event_organizer':organizer}
+    context.update(build_event_seo_payload(event, request, language, public_context=context))
+    return render(request, 'catalog/event_detail.html', context)
+
+
+def _place_revision_context(place):
+    from catalog.models import VolunteerPlaceRevision
+    from catalog.services.place_readiness import inherited_contact
+    return {'place_revision': VolunteerPlaceRevision.objects.filter(place=place).first(), 'inherited_contact_source': bool(inherited_contact(place))} if place else {}
+
+
+def owner_place_edit(request, pk):
+    explicit_save_cutoff = timezone.now()
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    if request.method == "POST":
+        form_action = (request.POST.get("form_action") or "").strip()
+        place_post_data = request.POST.copy()
+        place_post_data["is_temporary"] = ""
+        place_post_data["temporary_start"] = ""
+        place_post_data["temporary_end"] = ""
+        result = owner_places_controller.save_edit_form(
+            request=request,
+            place_id=pk,
+            data=place_post_data,
+            files=request.FILES,
+            force_coordinate_refresh=form_action == "refresh_coordinates",
+            draft_save_only=form_action in {"save_draft", "save_draft_exit"},
+            submit_for_moderation=form_action == "save_and_publish",
+        )
+        if result.ok:
+            from catalog.services.server_drafts import mark_explicit_save
+            mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=pk, cutoff=explicit_save_cutoff)
+            messages.success(request, result.message)
+            if form_action == "save_draft_exit":
+                return redirect("owner_places_dashboard")
+            if form_action in {"refresh_coordinates", "save_draft"}:
+                return redirect("owner_place_edit", pk=pk)
+            return redirect("owner_places_dashboard")
+
+        if result.form is None:
+            messages.error(request, result.message)
+            return redirect("owner_places_dashboard")
+
+        context = {
+            "form": result.form,
+            "place": result.place,
+            **_place_revision_context(result.place),
+            "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
+            "meta_description": _("Редактирование места в личном кабинете KidsMap."),
+            "km_place_taxonomy_picker": _build_owner_taxonomy_picker_config(result.form),
+        }
+        return render(request, "pages/owner_place_edit.html", context)
+
+    result = owner_places_controller.build_edit_form_context(request=request, place_id=pk)
+    if not result.ok or result.form is None:
+        messages.error(request, result.message)
+        return redirect("owner_places_dashboard")
+
+    context = {
+        "form": result.form,
+        "place": result.place,
+        **_place_revision_context(result.place),
+        "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
+        "meta_description": _("Редактирование места в личном кабинете KidsMap."),
+        "km_place_taxonomy_picker": _build_owner_taxonomy_picker_config(result.form),
+    }
+    return render(request, "pages/owner_place_edit.html", context)
+
+
+@require_POST
+def owner_place_publish(request, pk):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_places_controller.set_publication_state(request=request, place_id=pk, is_active=True)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_places_dashboard")
+
+
+@require_POST
+def owner_place_draft(request, pk):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_places_controller.set_publication_state(request=request, place_id=pk, is_active=False)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_places_dashboard")
+
+
+@require_POST
+def owner_place_submit_review(request, pk):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_places_controller.submit_for_moderation(request=request, place_id=pk)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_places_dashboard")
+
+
+@require_POST
+def owner_place_delete(request, pk):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_places_controller.delete_place(request=request, place_id=pk)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_places_dashboard")
+
+
+@require_POST
+def owner_place_gallery_photo_delete(request, pk, photo_id):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_places_controller.delete_gallery_photo(
+        request=request,
+        place_id=pk,
+        photo_id=photo_id,
+    )
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_place_edit", pk=pk)
+
+
+def owner_team_dashboard(request):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    context, access = owner_team_controller.build_manager_context(request=request)
+    if not access.ok:
+        messages.error(request, access.message)
+        return redirect("owner_places_dashboard")
+
+    context.update(
+        {
+            "meta_description": _("Команда KidsMap: приглашения, роли и управление доступом к вашим местам."),
+        }
+    )
+    return render(request, "pages/owner_team.html", context)
+
+
+@require_POST
+def owner_team_invite(request):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_team_controller.submit_invitation(request=request)
+    if result.ok:
+        messages.success(request, result.message)
+        return redirect("owner_team_dashboard")
+
+    messages.error(request, result.message)
+    context, access = owner_team_controller.build_manager_context(request=request, form=result.form)
+    if not access.ok:
+        return redirect("owner_places_dashboard")
+    context.update(
+        {
+            "meta_description": _("Команда KidsMap: приглашения, роли и управление доступом к вашим местам."),
+        }
+    )
+    return render(request, "pages/owner_team.html", context)
+
+
+@require_POST
+def owner_team_cancel_invitation(request, invitation_id):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_team_controller.cancel_invitation(request=request, invitation_id=invitation_id)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_team_dashboard")
+
+
+@require_POST
+def owner_team_update_member_role(request, membership_id):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_team_controller.update_member_role(request=request, membership_id=membership_id)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_team_dashboard")
+
+
+@require_POST
+def owner_team_remove_member(request, membership_id):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_team_controller.remove_member(request=request, membership_id=membership_id)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_team_dashboard")
+
+
+@require_POST
+def owner_team_accept_invitation(request, invitation_id):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_team_controller.accept_invitation_for_user(request=request, invitation_id=invitation_id)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_places_dashboard")
+
+
+@require_POST
+def owner_team_reject_invitation(request, invitation_id):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_team_controller.reject_invitation_for_user(request=request, invitation_id=invitation_id)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_places_dashboard")
+
+
+def owner_reviews_dashboard(request):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    context, result = owner_reviews_controller.build_context(request=request)
+    if not result.ok:
+        messages.error(request, result.message)
+        return redirect("owner_places_dashboard")
+
+    context.update(
+        {
+            "meta_description": _("Модерация отзывов: управление публикацией отзывов по вашим местам."),
+        }
+    )
+    return render(request, "pages/owner_reviews.html", context)
+
+
+@require_POST
+def owner_review_approve(request, review_id):
+    from django.http import HttpResponseForbidden
+    return HttpResponseForbidden()
+
+@require_POST
+def owner_review_reject(request, review_id):
+    from django.http import HttpResponseForbidden
+    return HttpResponseForbidden()
+
+@require_POST
+def request_place_ownership(request, pk):
+    place, result = ownership_controller.submit_claim_request(request=request, place_id=pk)
+    if result.ok:
+        track_funnel_event(
+            request=request,
+            event_type=FunnelEvent.EVENT_CLAIM_PLACE_SUBMIT,
+            place=place,
+            meta={"source": "place_claim_form"},
+        )
+        queue_google_analytics_event(
+            request=request,
+            name=FunnelEvent.EVENT_CLAIM_PLACE_SUBMIT,
+            params={
+                "place_id": place.id,
+                "page_type": "claim_place",
+            },
+        )
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect(place.get_absolute_url())
+
+
+def account_verify_email(request):
+    if request.user.is_authenticated:
+        return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
+
+    initial_email = (request.GET.get("email") or "").strip().lower()
+    initial_next = _resolve_safe_next_url(request, reverse("account_profile"))
+    auth_intent = _resolve_auth_intent(request)
+    verify_form = auth_controller.build_email_verification_form(initial={"email": initial_email})
+    resend_form = auth_controller.build_email_verification_resend_form(initial={"email": initial_email})
+
+    if request.method == "POST":
+        action = (request.POST.get("form_action") or "verify").strip().lower()
+        if action == "resend":
+            resend_form = auth_controller.build_email_verification_resend_form(data=request.POST)
+            verify_form = auth_controller.build_email_verification_form(initial={"email": resend_form.data.get("email", "")})
+            if resend_form.is_valid():
+                result = auth_controller.resend_registration_verification_code(email=resend_form.cleaned_data["email"])
+                if result.ok:
+                    messages.success(request, result.message)
+                else:
+                    messages.error(request, result.message)
+                query = urlencode({"email": resend_form.cleaned_data["email"], "next": initial_next, "intent": auth_intent})
+                return redirect(f"{reverse('account_verify_email')}?{query}")
+            messages.error(request, _("Проверьте email и повторите отправку кода."))
+        else:
+            verify_form = auth_controller.build_email_verification_form(data=request.POST)
+            resend_form = auth_controller.build_email_verification_resend_form(
+                initial={"email": verify_form.data.get("email", "")}
+            )
+            if verify_form.is_valid():
+                result = auth_controller.verify_registration_email_code(
+                    email=verify_form.cleaned_data["email"],
+                    code=verify_form.cleaned_data["code"],
+                )
+                if result.ok and result.user is not None:
+                    auth_login(request, result.user)
+                    if auth_intent == AUTH_INTENT_ADD_PLACE:
+                        track_funnel_event(
+                            request=request,
+                            event_type=FunnelEvent.EVENT_ADD_PLACE_SIGNUP_COMPLETE,
+                            meta={"intent": auth_intent},
+                        )
+                        queue_google_analytics_event(
+                            request=request,
+                            name=FunnelEvent.EVENT_ADD_PLACE_SIGNUP_COMPLETE,
+                            params={
+                                "page_type": "add_place_signup",
+                                "intent": auth_intent,
+                            },
+                        )
+                    messages.success(request, result.message)
+                    return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
+                messages.error(request, result.message)
+            else:
+                messages.error(request, _("Проверьте email и код подтверждения."))
+
+    return render(
+        request,
+        "auth/verify_email.html",
+        {
+            "verify_form": verify_form,
+            "resend_form": resend_form,
+            "meta_description": _("Подтверждение email в KidsMap."),
+            "next_url": initial_next,
+            "auth_intent": auth_intent,
+        },
+    )
+
+
+class AccountDashboardView(LoginRequiredMixin, TemplateView):
+    template_name = "pages/account_dashboard.html"
+    login_url = reverse_lazy("account_login")
+    redirect_field_name = "next"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dashboard_context = account_controller.build_dashboard_context(user=self.request.user)
+        context.update(dashboard_context)
+        context.update(_build_managed_places_summary(self.request.user))
+        context.update(
+            {
+                "meta_description": _("Личный кабинет KidsMap: профиль, избранное, история просмотров и мои места."),
+            }
+        )
+        return context
+
+
+class AccountFavoritesView(LoginRequiredMixin, TemplateView):
+    template_name = "pages/account_favorites.html"
+    login_url = reverse_lazy("account_login")
+    redirect_field_name = "next"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        profile = account_controller.ensure_profile(user=self.request.user)
+        dashboard_context = account_controller.build_dashboard_context(user=self.request.user)
+        context.update(dashboard_context)
+        context.update(_build_managed_places_summary(self.request.user))
+        context.update(
+            {
+                "profile_model": profile,
+                "meta_description": _("Избранные кружки пользователя в KidsMap."),
+            }
+        )
+        return context
+
+
+class AccountProfileView(LoginRequiredMixin, View):
+    login_url = reverse_lazy("account_login")
+    redirect_field_name = "next"
+    template_name = "pages/account_profile.html"
+
+    def _build_context(self, *, profile, profile_form, password_form):
+        dashboard_context = account_controller.build_dashboard_context(user=self.request.user)
+        current_route = self.request.resolver_match.url_name if self.request.resolver_match else "account_profile"
+        managed_places_summary = _build_managed_places_summary(self.request.user)
+        try:
+            deletion_policy = get_active_retention_policy()
+        except AccountDeletionError:
+            deletion_policy = None
+        active_deletion = AccountDeletionRequest.objects.filter(
+            user=self.request.user,
+            status__in=AccountDeletionRequest.ACTIVE_STATUSES,
+        ).first()
+        is_staff_user = bool(self.request.user.is_staff or self.request.user.is_superuser)
+        pending_staff_deletion = None
+        if is_staff_user:
+            pending_staff_deletion = AccountDeletionRequest.objects.filter(
+                user=self.request.user,
+                status=AccountDeletionRequest.Status.HELD,
+                hold_code="STAFF_OFFBOARDING_REVIEW",
+            ).first()
+
+        return {
+            "profile_model": profile,
+            "profile_form": profile_form,
+            "password_form": password_form,
+            "favorites_count": dashboard_context["favorites_count"],
+            "history_count": dashboard_context["history_count"],
+            **managed_places_summary,
+            "is_settings_view": current_route == "account_settings",
+            "account_deletion_available": deletion_policy is not None and not is_staff_user,
+            "account_deletion_staff_blocked": is_staff_user,
+            "active_account_deletion": active_deletion,
+            "pending_staff_deletion": pending_staff_deletion,
+            "staff_deletion_form": auth_controller.build_staff_account_deletion_review_form(),
+            "meta_description": _("Личный кабинет KidsMap: данные профиля, контакты и безопасность аккаунта."),
+        }
+
+    def get(self, request, *args, **kwargs):
+        profile = auth_controller.ensure_profile(user=request.user)
+        profile_form = auth_controller.build_profile_edit_form(user=request.user)
+        password_form = auth_controller.build_password_change_form(user=request.user)
+        return render(
+            request,
+            self.template_name,
+            self._build_context(profile=profile, profile_form=profile_form, password_form=password_form),
+        )
+
+    def post(self, request, *args, **kwargs):
+        profile = auth_controller.ensure_profile(user=request.user)
+        profile_form = auth_controller.build_profile_edit_form(user=request.user)
+        password_form = auth_controller.build_password_change_form(user=request.user)
+        current_route = request.resolver_match.url_name if request.resolver_match else "account_profile"
+        if current_route not in {"account_profile", "account_settings"}:
+            current_route = "account_profile"
+
+        form_action = (request.POST.get("form_action") or "").strip().lower()
+        if form_action == "profile":
+            profile_form = auth_controller.build_profile_edit_form(user=request.user, data=request.POST, files=request.FILES)
+            if profile_form.is_valid():
+                try:
+                    profile = auth_controller.update_user_profile_from_form(user=request.user, form=profile_form)
+                except IntegrityError:
+                    request.user.refresh_from_db()
+                    profile_form.add_error("email", _("Пользователь с таким email уже зарегистрирован. Укажите другой email."))
+                else:
+                    messages.success(request, _("Профиль обновлен."))
+                    return redirect(current_route)
+            messages.error(request, _("Проверьте данные профиля и исправьте ошибки."))
+        elif form_action == "password":
+            password_form = auth_controller.build_password_change_form(user=request.user, data=request.POST)
+            if password_form.is_valid():
+                updated_user = auth_controller.update_password_from_form(form=password_form)
+                update_session_auth_hash(request, updated_user)
+                messages.success(request, _("Пароль успешно изменен."))
+                return redirect(current_route)
+            messages.error(request, _("Не удалось изменить пароль. Проверьте введенные поля."))
+        elif form_action == "staff_deletion_request":
+            if not (request.user.is_staff or request.user.is_superuser):
+                messages.error(request, _("Это действие доступно только для служебных аккаунтов."))
+                return redirect(current_route)
+            staff_deletion_form = auth_controller.build_staff_account_deletion_review_form(data=request.POST)
+            if staff_deletion_form.is_valid():
+                reason = staff_deletion_form.cleaned_data["reason"]
+                details = staff_deletion_form.cleaned_data["details"]
+                reason_display = dict(staff_deletion_form.fields["reason"].choices).get(reason, reason)
+                try:
+                    policy = get_active_retention_policy()
+                    policy_version = policy.version
+                except Exception:
+                    policy_version = "v1"
+
+                now = timezone.now()
+                with transaction.atomic():
+                    deletion, created = AccountDeletionRequest.objects.select_for_update().get_or_create(
+                        user=request.user,
+                        status=AccountDeletionRequest.Status.HELD,
+                        defaults={
+                            "hold_code": "STAFF_OFFBOARDING_REVIEW",
+                            "policy_version": policy_version,
+                            "policy_snapshot": {
+                                "reason": reason,
+                                "reason_display": str(reason_display),
+                                "details": details,
+                                "requested_by": request.user.username,
+                                "is_staff_offboarding": True,
+                                "requested_at": now.isoformat(),
+                            },
+                        },
+                    )
+                    if not created:
+                        deletion.hold_code = "STAFF_OFFBOARDING_REVIEW"
+                        deletion.policy_snapshot = {
+                            "reason": reason,
+                            "reason_display": str(reason_display),
+                            "details": details,
+                            "requested_by": request.user.username,
+                            "is_staff_offboarding": True,
+                            "requested_at": now.isoformat(),
+                        }
+                        deletion.save(update_fields=["hold_code", "policy_snapshot", "updated_at"])
+
+                try:
+                    superadmins = get_user_model().objects.filter(is_superuser=True, is_active=True).exclude(pk=request.user.pk)
+                    recipient_emails = [u.email for u in superadmins if u.email]
+                    if recipient_emails:
+                        subject = f"[KidsMap] Запрос на удаление служебного аккаунта: @{request.user.username}"
+                        body = (
+                            f"Сотрудник @{request.user.username} ({request.user.get_full_name() or request.user.username}) "
+                            f"отправил запрос на удаление/отключение аккаунта.\n\n"
+                            f"Причина: {reason_display}\n"
+                            f"Комментарий: {details or '—'}\n"
+                            f"Дата: {now.strftime('%d.%m.%Y %H:%M')}\n\n"
+                            f"Для рассмотрения перейдите в профиль сотрудника в админ-панели."
+                        )
+                        send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, recipient_emails, fail_silently=True)
+                except Exception:
+                    pass
+
+                messages.success(request, _("Müraciətiniz qeydə alındı və baxılmaq üçün administratora göndərildi."))
+                return redirect(current_route)
+            else:
+                messages.error(request, _("Zəhmət olmasa silinmə səbəbini seçin."))
+        elif form_action == "cancel_staff_deletion_request":
+            if request.user.is_staff or request.user.is_superuser:
+                with transaction.atomic():
+                    AccountDeletionRequest.objects.filter(
+                        user=request.user,
+                        status=AccountDeletionRequest.Status.HELD,
+                        hold_code="STAFF_OFFBOARDING_REVIEW",
+                    ).update(
+                        status=AccountDeletionRequest.Status.CANCELED,
+                        canceled_at=timezone.now(),
+                        hold_code="",
+                    )
+                messages.success(request, _("Hesabın silinməsi müraciəti ləğv edildi."))
+            return redirect(current_route)
+        else:
+            messages.error(request, _("Неизвестное действие формы."))
+            return redirect(current_route)
+
+        return render(
+            request,
+            self.template_name,
+            self._build_context(profile=profile, profile_form=profile_form, password_form=password_form),
+        )
+
+
+def account_dashboard(request):
+    return AccountDashboardView.as_view()(request)
+
+
+def account_favorites(request):
+    return AccountFavoritesView.as_view()(request)
+
+
+def account_profile(request):
+    return AccountProfileView.as_view()(request)
+
+
+def account_settings(request):
+    return AccountProfileView.as_view()(request)
+
+
+def _account_deletion_language(request) -> str:
+    language = (getattr(request, "LANGUAGE_CODE", None) or "ru").split("-", 1)[0].lower()
+    return language if language in {"az", "ru", "en"} else "ru"
+
+
+def _account_deletion_error_message(code: str) -> str:
+    return {
+        "retention_policy_not_active": _("Удаление аккаунта временно недоступно до утверждения политики хранения данных."),
+        "retention_policy_incomplete": _("Политика хранения данных настроена не полностью."),
+        "retention_policy_changed": _("Политика хранения изменилась. Начните запрос заново, чтобы увидеть актуальные условия."),
+        "verified_email_required": _("Для удаления аккаунта нужен подтверждённый текущий email."),
+        "staff_self_service_forbidden": _("Для служебного аккаунта обратитесь к уполномоченному администратору."),
+        "typed_confirmation_invalid": _("Введите фразу подтверждения точно так, как она показана."),
+        "confirmation_code_invalid": _("Неверный код подтверждения."),
+        "confirmation_attempts_exhausted": _("Лимит попыток исчерпан. Начните запрос заново."),
+        "confirmation_code_expired": _("Срок действия кода истёк."),
+        "confirmation_code_unavailable": _("Запросите новый код подтверждения."),
+        "confirmation_email_failed": _("Не удалось отправить письмо. Повторите попытку позже."),
+        "account_deletion_not_cancelable": _("Этот запрос уже нельзя отменить."),
+        "cancellation_period_expired": _("Срок отмены запроса истёк."),
+        "cancellation_email_unavailable": _("Не удалось отправить код отмены. Обратитесь в поддержку."),
+    }.get(code, _("Не удалось выполнить действие. Повторите попытку или обратитесь в поддержку."))
+
+
+def _deletion_context(
+    *,
+    deletion=None,
+    policy=None,
+    language="ru",
+    token="",
+    form=None,
+    code_sent=False,
+    staff_blocked=False,
+    staff_deletion_form=None,
+    pending_staff_deletion=None,
+):
+    if policy is None and deletion is not None:
+        policy = policy_from_request(deletion)
+    return {
+        "deletion": deletion,
+        "deletion_policy": policy,
+        "policy_copy": policy.disclosure(language) if policy is not None else {},
+        "confirmation_phrase": typed_confirmation_phrase(language),
+        "confirmation_code_ttl_minutes": confirmation_code_ttl_minutes(),
+        "projected_processing_date": (
+            deletion.scheduled_for
+            if deletion is not None and deletion.scheduled_for is not None
+            else timezone.now() + timedelta(days=policy.grace_period_days)
+            if policy is not None
+            else None
+        ),
+        "status_token": token,
+        "form": form,
+        "code_sent": code_sent,
+        "staff_blocked": staff_blocked,
+        "staff_deletion_form": staff_deletion_form,
+        "pending_staff_deletion": pending_staff_deletion,
+        "meta_description": _("Безопасное удаление аккаунта KidsMap и связанных персональных данных."),
+    }
+
+
+def _render_account_deletion(request, template_name, context, *, status=200):
+    response = render(request, template_name, context, status=status)
+    response["Cache-Control"] = "no-store, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["Referrer-Policy"] = "origin"
+    return response
+
+
+class AccountDeletionRequestView(LoginRequiredMixin, View):
+    login_url = reverse_lazy("account_login")
+    template_name = "pages/account_deletion_request.html"
+
+    def get(self, request):
+        try:
+            policy = get_active_retention_policy()
+        except AccountDeletionError:
+            policy = None
+        form = auth_controller.build_account_deletion_request_form()
+        is_staff_user = bool(request.user.is_staff or request.user.is_superuser)
+        pending_staff_deletion = None
+        if is_staff_user:
+            pending_staff_deletion = AccountDeletionRequest.objects.filter(
+                user=request.user,
+                status=AccountDeletionRequest.Status.HELD,
+                hold_code="STAFF_OFFBOARDING_REVIEW",
+            ).first()
+
+        return _render_account_deletion(
+            request,
+            self.template_name,
+            _deletion_context(
+                policy=policy,
+                language=_account_deletion_language(request),
+                form=form,
+                staff_blocked=is_staff_user,
+                staff_deletion_form=auth_controller.build_staff_account_deletion_review_form(),
+                pending_staff_deletion=pending_staff_deletion,
+            ),
+        )
+
+    def post(self, request):
+        form_action = (request.POST.get("form_action") or "").strip().lower()
+        if form_action == "staff_deletion_request":
+            if not (request.user.is_staff or request.user.is_superuser):
+                messages.error(request, _("Это действие доступно только для служебных аккаунтов."))
+                return redirect("account_settings")
+            staff_deletion_form = auth_controller.build_staff_account_deletion_review_form(data=request.POST)
+            if staff_deletion_form.is_valid():
+                reason = staff_deletion_form.cleaned_data["reason"]
+                details = staff_deletion_form.cleaned_data["details"]
+                reason_display = dict(staff_deletion_form.fields["reason"].choices).get(reason, reason)
+                try:
+                    policy = get_active_retention_policy()
+                    policy_version = policy.version
+                except Exception:
+                    policy_version = "v1"
+
+                now = timezone.now()
+                with transaction.atomic():
+                    deletion, created = AccountDeletionRequest.objects.select_for_update().get_or_create(
+                        user=request.user,
+                        status=AccountDeletionRequest.Status.HELD,
+                        defaults={
+                            "hold_code": "STAFF_OFFBOARDING_REVIEW",
+                            "policy_version": policy_version,
+                            "policy_snapshot": {
+                                "reason": reason,
+                                "reason_display": str(reason_display),
+                                "details": details,
+                                "requested_by": request.user.username,
+                                "is_staff_offboarding": True,
+                                "requested_at": now.isoformat(),
+                            },
+                        },
+                    )
+                    if not created:
+                        deletion.hold_code = "STAFF_OFFBOARDING_REVIEW"
+                        deletion.policy_snapshot = {
+                            "reason": reason,
+                            "reason_display": str(reason_display),
+                            "details": details,
+                            "requested_by": request.user.username,
+                            "is_staff_offboarding": True,
+                            "requested_at": now.isoformat(),
+                        }
+                        deletion.save(update_fields=["hold_code", "policy_snapshot", "updated_at"])
+
+                try:
+                    superadmins = get_user_model().objects.filter(is_superuser=True, is_active=True).exclude(pk=request.user.pk)
+                    recipient_emails = [u.email for u in superadmins if u.email]
+                    if recipient_emails:
+                        subject = f"[KidsMap] Запрос на удаление служебного аккаунта: @{request.user.username}"
+                        body = (
+                            f"Сотрудник @{request.user.username} ({request.user.get_full_name() or request.user.username}) "
+                            f"отправил запрос на удаление/отключение аккаунта.\n\n"
+                            f"Причина: {reason_display}\n"
+                            f"Комментарий: {details or '—'}\n"
+                            f"Дата: {now.strftime('%d.%m.%Y %H:%M')}\n\n"
+                            f"Для рассмотрения перейдите в профиль сотрудника в админ-панели."
+                        )
+                        send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, recipient_emails, fail_silently=True)
+                except Exception:
+                    pass
+
+                messages.success(request, _("Müraciətiniz qeydə alındı və baxılmaq üçün administratora göndərildi."))
+                return redirect("account_settings")
+            else:
+                messages.error(request, _("Zəhmət olmasa silinmə səbəbini seçin."))
+
+        language = _account_deletion_language(request)
+        form = auth_controller.build_account_deletion_request_form(data=request.POST)
+        policy = None
+        try:
+            policy = get_active_retention_policy()
+        except AccountDeletionError as exc:
+            form.add_error(None, _account_deletion_error_message(exc.code))
+        if policy is not None and form.is_valid():
+            try:
+                deletion = request_account_deletion(user=request.user, language_code=language)
+            except AccountDeletionError as exc:
+                form.add_error(None, _account_deletion_error_message(exc.code))
+            else:
+                return redirect("account_deletion_confirm", subject_reference=deletion.subject_reference)
+        return _render_account_deletion(
+            request,
+            self.template_name,
+            _deletion_context(
+                policy=policy,
+                language=language,
+                form=form,
+                staff_blocked=request.user.is_staff or request.user.is_superuser,
+            ),
+            status=400,
+        )
+
+
+class AccountDeletionConfirmView(LoginRequiredMixin, View):
+    login_url = reverse_lazy("account_login")
+    template_name = "pages/account_deletion_confirm.html"
+
+    def _get_deletion(self, request, subject_reference):
+        return get_object_or_404(
+            AccountDeletionRequest,
+            subject_reference=subject_reference,
+            user=request.user,
+            status=AccountDeletionRequest.Status.CONFIRMATION_SENT,
+        )
+
+    def get(self, request, subject_reference):
+        deletion = self._get_deletion(request, subject_reference)
+        form = auth_controller.build_account_deletion_confirm_form()
+        return _render_account_deletion(
+            request,
+            self.template_name,
+            _deletion_context(deletion=deletion, language=_account_deletion_language(request), form=form),
+        )
+
+    def post(self, request, subject_reference):
+        deletion = self._get_deletion(request, subject_reference)
+        language = _account_deletion_language(request)
+        form = auth_controller.build_account_deletion_confirm_form(data=request.POST)
+        if form.is_valid():
+            try:
+                deletion = confirm_account_deletion(
+                    user=request.user,
+                    code=form.cleaned_data["confirmation_code"],
+                    typed_confirmation=form.cleaned_data["typed_confirmation"],
+                    language_code=language,
+                    http_request=request,
+                )
+            except AccountDeletionError as exc:
+                field = "typed_confirmation" if exc.code == "typed_confirmation_invalid" else "confirmation_code"
+                if exc.code not in {
+                    "typed_confirmation_invalid",
+                    "confirmation_code_invalid",
+                    "confirmation_attempts_exhausted",
+                    "confirmation_code_expired",
+                    "confirmation_code_unavailable",
+                }:
+                    field = None
+                form.add_error(field, _account_deletion_error_message(exc.code))
+            else:
+                token = make_status_token(deletion.subject_reference)
+                url = reverse("account_deletion_status", args=[deletion.subject_reference])
+                return redirect(f"{url}?{urlencode({'token': token})}")
+        return _render_account_deletion(
+            request,
+            self.template_name,
+            _deletion_context(deletion=deletion, language=language, form=form),
+            status=400,
+        )
+
+
+def account_deletion_status(request, subject_reference):
+    token = request.GET.get("token", "")
+    if not verify_status_token(subject_reference, token):
+        raise Http404
+    deletion = get_object_or_404(AccountDeletionRequest, subject_reference=subject_reference)
+    return _render_account_deletion(
+        request,
+        "pages/account_deletion_status.html",
+        _deletion_context(deletion=deletion, language=_account_deletion_language(request), token=token),
+    )
+
+
+def account_deletion_cancel(request, subject_reference):
+    token = request.GET.get("token", "") or request.POST.get("status_token", "")
+    if not verify_status_token(subject_reference, token):
+        raise Http404
+    deletion = get_object_or_404(AccountDeletionRequest, subject_reference=subject_reference)
+    language = _account_deletion_language(request)
+    code_sent = deletion.code_purpose == AccountDeletionRequest.CodePurpose.CANCEL
+    if request.method == "POST":
+        form = auth_controller.build_account_deletion_cancel_form(data=request.POST)
+        if form.is_valid():
+            action = form.cleaned_data["form_action"]
+            try:
+                if action == "send_code":
+                    deletion = issue_cancellation_code(subject_reference=subject_reference, language_code=language)
+                    code_sent = True
+                else:
+                    deletion = cancel_account_deletion(
+                        subject_reference=subject_reference,
+                        code=form.cleaned_data["confirmation_code"],
+                    )
+                    url = reverse("account_deletion_status", args=[deletion.subject_reference])
+                    return redirect(f"{url}?{urlencode({'token': token})}")
+            except AccountDeletionError as exc:
+                field = "confirmation_code" if action == "cancel" else None
+                form.add_error(field, _account_deletion_error_message(exc.code))
+        response_status = 400 if form.errors else 200
+    else:
+        form = auth_controller.build_account_deletion_cancel_form(form_action="send_code")
+        response_status = 200
+    return _render_account_deletion(
+        request,
+        "pages/account_deletion_cancel.html",
+        _deletion_context(deletion=deletion, language=language, token=token, form=form, code_sent=code_sent),
+        status=response_status,
+    )
+
+
+def account_deletion_request(request):
+    return AccountDeletionRequestView.as_view()(request)
+
+
+def account_deletion_confirm(request, subject_reference):
+    return AccountDeletionConfirmView.as_view()(request, subject_reference=subject_reference)
+
+
+def account_register(request):
+    if request.user.is_authenticated:
+        return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
+
+    auth_intent = _resolve_auth_intent(request)
+    language = (request.LANGUAGE_CODE or "az").split("-")[0]
+    form = auth_controller.build_registration_form(data=request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        try:
+            user = auth_controller.register_user_from_form(form=form)
+        except IntegrityError:
+            form.add_error("email", _("Пользователь с таким email уже зарегистрирован. Войдите в аккаунт или используйте другой email."))
+            return render(request, "auth/register.html", {
+                "form": form,
+                "next_url": _resolve_safe_next_url(request, reverse("account_profile")),
+                "auth_intent": auth_intent,
+            })
+        verification = auth_controller.send_registration_verification_code(
+            user=user,
+            email=form.cleaned_data["email"],
+        )
+        if verification.ok:
+            success_message = {
+                "az": "Qeydiyyat demək olar ki, tamamlandı. E-poçta göndərilən kodu daxil edib hesabınızı təsdiqləyin.",
+                "en": "Registration is almost complete. Enter the code from your email to confirm your account.",
+            }.get(language, _("Регистрация почти завершена. Введите код из письма для подтверждения email."))
+            messages.success(
+                request,
+                success_message,
+            )
+        else:
+            messages.error(request, verification.message)
+        query = urlencode(
+            {
+                "email": form.cleaned_data["email"],
+                "next": _resolve_safe_next_url(request, reverse("account_profile")),
+                "intent": auth_intent,
+            }
+        )
+        return redirect(f"{reverse('account_verify_email')}?{query}")
+
+    return render(
+        request,
+        "auth/register.html",
+        {
+            "form": form,
+            "meta_description": {
+                "az": "KidsMap qeydiyyatı: hesab yaradın və kataloqdan rahat istifadə etməyə başlayın.",
+                "en": "Register on KidsMap and start using the catalog.",
+            }.get(language, _("Регистрация в KidsMap: создайте аккаунт и начните пользоваться каталогом.")),
+            "next_url": _resolve_safe_next_url(request, reverse("account_profile")),
+            "auth_intent": auth_intent,
+            "analytics_events": [
+                {
+                    "name": FunnelEvent.EVENT_ADD_PLACE_SIGNUP_START,
+                    "params": {"page_type": "add_place_signup", "intent": auth_intent},
+                }
+            ]
+            if auth_intent == AUTH_INTENT_ADD_PLACE
+            else [],
+        },
+    )
+
+
+def account_login(request):
+    if request.user.is_authenticated:
+        return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
+
+    auth_intent = _resolve_auth_intent(request)
+    language = (request.LANGUAGE_CODE or "az").split("-")[0]
+    form = auth_controller.build_login_form(request=request, data=request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        auth_login(request, form.get_user())
+        if form.cleaned_data.get("remember_me"):
+            request.session.set_expiry(int(getattr(settings, "SESSION_COOKIE_AGE", 1209600)))
+        else:
+            request.session.set_expiry(0)
+        if language == "az":
+            messages.success(request, "Hesabınıza daxil oldunuz.")
+        elif language == "en":
+            messages.success(request, "You are now signed in.")
+        else:
+            messages.success(request, _("Вы вошли в аккаунт."))
+        return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
+
+    if language == "az":
+        meta_description = "KidsMap hesabınıza daxil olun."
+    elif language == "en":
+        meta_description = "Sign in to your KidsMap account."
+    else:
+        meta_description = _("Вход в аккаунт KidsMap.")
+
+    return render(
+        request,
+        "auth/login.html",
+        {
+            "form": form,
+            "meta_description": meta_description,
+            "next_url": _resolve_safe_next_url(request, reverse("account_profile")),
+            "auth_intent": auth_intent,
+        },
+    )
+
+
+@require_POST
+def account_logout(request):
+    auth_logout(request)
+    messages.info(request, _("Вы вышли из аккаунта."))
+    return redirect(reverse("home"))
+
+
+class UserPasswordResetView(auth_views.PasswordResetView):
+    template_name = "auth/password_reset_form.html"
+    email_template_name = "auth/password_reset_email.txt"
+    html_email_template_name = "auth/password_reset_email.html"
+    subject_template_name = "auth/password_reset_subject.txt"
+    form_class = UserPasswordResetForm
+    success_url = reverse_lazy("password_reset_done")
+
+    def form_valid(self, form):
+        opts = {
+            "use_https": self.request.is_secure(),
+            "token_generator": self.token_generator,
+            "from_email": self.from_email,
+            "email_template_name": self.email_template_name,
+            "subject_template_name": self.subject_template_name,
+            "request": self.request,
+            "html_email_template_name": self.html_email_template_name,
+            "extra_email_context": self.extra_email_context,
+        }
+        form.save(**opts)
+        is_ajax = (
+            self.request.headers.get("x-requested-with") == "XMLHttpRequest"
+            or self.request.POST.get("is_ajax") == "1"
+            or "application/json" in self.request.headers.get("accept", "")
+        )
+        if is_ajax:
+            language = (getattr(self.request, "LANGUAGE_CODE", None) or "az").split("-")[0]
+            if language == "az":
+                msg = "Şifrənin bərpası üçün təlimat e-poçt ünvanınıza göndərildi."
+            elif language == "en":
+                msg = "Password reset instructions have been sent to your email."
+            else:
+                msg = "Письмо со ссылкой для смены пароля отправлено на ваш email."
+            return JsonResponse({"ok": True, "message": msg})
+        return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form):
+        is_ajax = (
+            self.request.headers.get("x-requested-with") == "XMLHttpRequest"
+            or self.request.POST.get("is_ajax") == "1"
+            or "application/json" in self.request.headers.get("accept", "")
+        )
+        if is_ajax:
+            error_list = []
+            for field, errors in form.errors.items():
+                for error in errors:
+                    error_list.append(str(error))
+            msg = error_list[0] if error_list else _("Проверьте введенные данные.")
+            return JsonResponse(
+                {
+                    "ok": False,
+                    "errors": form.errors.get_json_data(),
+                    "error_list": error_list,
+                    "message": msg,
+                },
+                status=400,
+            )
+        return super().form_invalid(form)
+
+
+def serve_specialist_document(request, document_id):
+    require_specialists_section_enabled()
+    from catalog.models import SpecialistDocument
+    from django.http import FileResponse, Http404
+
+    doc = get_object_or_404(SpecialistDocument, pk=document_id)
+    from catalog.services.specialist_documents import can_download_document
+    if not can_download_document(request.user, doc):
+        raise Http404(_("Документ не найден или доступ ограничен."))
+    # Legacy public files require an explicitly verified operational transition.
+    if not doc.file or not doc.file.name.startswith('specialist-documents/'):
+        raise Http404()
+    try:
+        response = FileResponse(doc.file.open('rb'), as_attachment=True, filename='document.bin',
+                                content_type='application/octet-stream')
+    except (OSError, ValueError):
+        raise Http404() from None
+    response['Cache-Control'] = 'private, no-store'
+    response['X-Content-Type-Options'] = 'nosniff'
+    response['Content-Security-Policy'] = "sandbox; default-src 'none'"
+    return response
+
+
+def specialist_list(request):
+    require_specialists_section_enabled()
+
+    from catalog.models import Specialist, SpecialistSpecialization, Region, District, MetroStation, SpecialistPracticeLocation
+    from catalog.services.public_filter_options import build_public_specialist_filter_options
+    from django.db import models
+    from django.core.paginator import Paginator
+
+    from django.db.models import Prefetch
+    qs = Specialist.objects.filter(status=Specialist.STATUS_PUBLISHED, is_active=True).prefetch_related(
+        Prefetch('practice_locations', queryset=SpecialistPracticeLocation.objects.filter(is_active=True)
+                 .select_related('place', 'region', 'district', 'metro')))
+
+    # 1. Search Query
+    q = (request.GET.get("q") or "").strip()
+    if q:
+        qs = qs.filter(
+            models.Q(name__icontains=q)
+            | models.Q(name_alt__icontains=q)
+            | models.Q(bio_ru__icontains=q)
+            | models.Q(bio_az__icontains=q)
+            | models.Q(bio_en__icontains=q)
+        )
+
+    # 2. Specialization
+    spec_code = (request.GET.get("specialization") or "").strip()
+    if spec_code:
+        qs = qs.filter(specializations__code=spec_code)
+
+    # 3. Consultation Format
+    cf = (request.GET.get("format") or "").strip()
+    if cf:
+        if cf == "online":
+            qs = qs.filter(consultation_format__in=[Specialist.FORMAT_ONLINE, Specialist.FORMAT_BOTH])
+        elif cf == "offline":
+            qs = qs.filter(consultation_format__in=[Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH])
+
+    # 4. Location Filters
+    region_key = (request.GET.get("region") or "").strip()
+    district_key = (request.GET.get("district") or "").strip()
+    metro_key = (request.GET.get("metro") or "").strip()
+
+    if region_key or district_key or metro_key:
+        loc_q = models.Q(practice_locations__is_active=True)
+        if region_key:
+            loc_q &= models.Q(practice_locations__region_id=region_key)
+        if district_key:
+            loc_q &= models.Q(practice_locations__district_id=district_key)
+        if metro_key:
+            loc_q &= models.Q(practice_locations__metro_id=metro_key)
+        qs = qs.filter(loc_q)
+
+    # 5. Age (supports age_from and age_to range like catalog places, with fallback to single age)
+    age = (request.GET.get("age") or "").strip()
+    age_from = (request.GET.get("age_from") or "").strip()
+    age_to = (request.GET.get("age_to") or "").strip()
+
+    if age_from.isdigit() or age_to.isdigit():
+        af_val = int(age_from) if age_from.isdigit() else 0
+        at_val = int(age_to) if age_to.isdigit() else 18
+        if not (af_val == 0 and at_val == 18):
+            qs = qs.filter(
+                (models.Q(age_from__isnull=True) | models.Q(age_from__lte=at_val))
+                & (models.Q(age_to__isnull=True) | models.Q(age_to__gte=af_val))
+            )
+    elif age.isdigit():
+        age_val = int(age)
+        qs = qs.filter(
+            (models.Q(age_from__isnull=True) | models.Q(age_from__lte=age_val))
+            & (models.Q(age_to__isnull=True) | models.Q(age_to__gte=age_val))
+        )
+
+    # 6. Price range
+    price_from = (request.GET.get("price_from") or "").strip()
+    price_to = (request.GET.get("price_to") or "").strip()
+    if price_from.isdigit():
+        p_from = int(price_from)
+        qs = qs.filter(
+            models.Q(price_from__gte=p_from) |
+            models.Q(practice_locations__price_per_session__gte=p_from, practice_locations__is_active=True)
+        )
+    if price_to.isdigit():
+        p_to = int(price_to)
+        qs = qs.filter(
+            models.Q(price_to__lte=p_to) |
+            models.Q(practice_locations__price_per_session__lte=p_to, practice_locations__is_active=True)
+        )
+
+    # 6a. Consultation Language
+    consult_lang = (request.GET.get("language") or "").strip()
+    if consult_lang in ["az", "ru", "en"]:
+        qs = qs.filter(**{f"language_{consult_lang}": True})
+
+    # 6b. Verified Specialist
+
+    # 6c. Minimum Rating
+    min_rating = (request.GET.get("min_rating") or "").strip()
+    if min_rating:
+        try:
+            qs = qs.filter(rating_avg__gte=float(min_rating))
+        except ValueError:
+            pass
+
+    # 7. Sorting
+    sort = (request.GET.get("sort") or "new").strip()
+    if sort == "rating":
+        qs = qs.order_by("-rating_avg", "-rating_count", "-created_at")
+    elif sort == "price_asc":
+        from django.db.models.functions import Coalesce
+        from django.db.models import Min
+        qs = qs.annotate(
+            min_price=Coalesce(Min("practice_locations__price_per_session", filter=models.Q(practice_locations__is_active=True)), "price_from")
+        ).order_by("min_price", "-created_at")
+    elif sort == "price_desc":
+        from django.db.models.functions import Coalesce
+        from django.db.models import Max
+        qs = qs.annotate(
+            max_price=Coalesce(Max("practice_locations__price_per_session", filter=models.Q(practice_locations__is_active=True)), "price_to")
+        ).order_by("-max_price", "-created_at")
+    elif sort == "experience":
+        qs = qs.order_by("-experience_years", "-created_at")
+    else:
+        qs = qs.order_by("-created_at")
+
+    qs = qs.distinct()
+
+    paginator = Paginator(qs, 12)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    active_filter_chips = []
+    language = (request.LANGUAGE_CODE or "az").split("-")[0]
+
+    def rebuild_url(*exclude_params):
+        params = request.GET.copy()
+        for p in exclude_params:
+            params.pop(p, None)
+        return f"?{params.urlencode()}" if params else request.path
+
+    specialist_query_params = request.GET.copy()
+    specialist_query_params.pop("page", None)
+
+    if q:
+        active_filter_chips.append({
+            "label": f"{_('Поиск')}: {q}",
+            "remove_url": rebuild_url("q")
+        })
+    if spec_code:
+        spec_obj = SpecialistSpecialization.objects.filter(code=spec_code).first()
+        if spec_obj:
+            active_filter_chips.append({
+                "label": spec_obj.name_i18n(language),
+                "remove_url": rebuild_url("specialization")
+            })
+    if cf:
+        format_labels = {
+            "online": _("Онлайн"),
+            "offline": _("Очно"),
+        }
+        active_filter_chips.append({
+            "label": format_labels.get(cf, cf),
+            "remove_url": rebuild_url("format")
+        })
+    if region_key:
+        reg_obj = Region.objects.filter(key=region_key).first()
+        if reg_obj:
+            active_filter_chips.append({
+                "label": reg_obj.name_i18n(language),
+                "remove_url": rebuild_url("region")
+            })
+    if district_key:
+        dist_obj = District.objects.filter(key=district_key).first()
+        if dist_obj:
+            active_filter_chips.append({
+                "label": dist_obj.name_i18n(language),
+                "remove_url": rebuild_url("district")
+            })
+    if metro_key:
+        metro_obj = MetroStation.objects.filter(key=metro_key).first()
+        if metro_obj:
+            active_filter_chips.append({
+                "label": metro_obj.name_i18n(language),
+                "remove_url": rebuild_url("metro")
+            })
+    if (age_from or age_to) and not (age_from in {"", "0"} and age_to in {"", "18"}):
+        if language == "az":
+            age_label = f"{age_from or '0'}–{age_to or '18'} yaş"
+        elif language == "en":
+            age_label = f"{age_from or '0'}–{age_to or '18'} years"
+        else:
+            age_label = f"{age_from or '0'}–{age_to or '18'} лет"
+        active_filter_chips.append({
+            "label": f"{_('Возраст')}: {age_label}",
+            "remove_url": rebuild_url("age_from", "age_to", "age")
+        })
+    elif age:
+        active_filter_chips.append({
+            "label": f"{_('Возраст')}: {age}",
+            "remove_url": rebuild_url("age")
+        })
+    if price_from or price_to:
+        pf = price_from or "0"
+        pt = price_to or "..."
+        active_filter_chips.append({
+            "label": f"{pf} - {pt} AZN",
+            "remove_url": rebuild_url("price_from", "price_to")
+        })
+    if consult_lang:
+        lang_labels = {
+            "az": _("Азербайджанский"),
+            "ru": _("Русский"),
+            "en": _("Английский"),
+        }
+        active_filter_chips.append({
+            "label": f"{_('Язык')}: {lang_labels.get(consult_lang, consult_lang)}",
+            "remove_url": rebuild_url("language")
+        })
+    if min_rating:
+        active_filter_chips.append({
+            "label": f"{_('Рейтинг')} ≥ {min_rating}",
+            "remove_url": rebuild_url("min_rating")
+        })
+
+    filter_options = build_public_specialist_filter_options(language_code=language)
+
+    # Count specialists matching the current filters
+    count = qs.count()
+    if language == "az":
+        results_count_label = f"{count} mütəxəssis tapıldı"
+    elif language == "en":
+        results_count_label = f"Found {count} specialist" if count == 1 else f"Found {count} specialists"
+    else:
+        rem10 = count % 10
+        rem100 = count % 100
+        if rem10 == 1 and rem100 != 11:
+            results_count_label = f"Найден {count} специалист"
+        elif 2 <= rem10 <= 4 and not (12 <= rem100 <= 14):
+            results_count_label = f"Найдено {count} специалиста"
+        else:
+            results_count_label = f"Найдено {count} специалистов"
+
+    # Enrich specialist cards with strictly ordered and preformatted metadata
+    for specialist in page_obj:
+        # Check if photo exists on storage
+        specialist.has_valid_photo = False
+        if specialist.photo:
+            try:
+                if specialist.photo.storage.exists(specialist.photo.name):
+                    specialist.has_valid_photo = True
+            except Exception:
+                specialist.has_valid_photo = False
+
+        # 0. Initials for avatar placeholder
+        name_parts = (specialist.name or "").strip().split()
+        if len(name_parts) >= 2:
+            specialist.card_initials = (name_parts[0][:1] + name_parts[1][:1]).upper()
+        elif len(name_parts) == 1:
+            specialist.card_initials = name_parts[0][:2].upper()
+        else:
+            specialist.card_initials = "KM"
+
+        # 1. Specialization list
+        specialist.card_specializations = [s.name_i18n(language) for s in specialist.specializations.all()]
+
+        # 2. Age range
+        if specialist.age_from and specialist.age_to:
+            if language == "az":
+                specialist.card_age = f"{specialist.age_from}–{specialist.age_to} yaş"
+            elif language == "en":
+                specialist.card_age = f"{specialist.age_from}–{specialist.age_to} yrs"
+            else:
+                specialist.card_age = f"{specialist.age_from}–{specialist.age_to} лет"
+        elif specialist.age_from:
+            if language == "az":
+                specialist.card_age = f"{specialist.age_from} yaşdan"
+            elif language == "en":
+                specialist.card_age = f"From {specialist.age_from} yrs"
+            else:
+                specialist.card_age = f"С {specialist.age_from} лет"
+        elif specialist.age_to:
+            if language == "az":
+                specialist.card_age = f"{specialist.age_to} yaşadək"
+            elif language == "en":
+                specialist.card_age = f"Up to {specialist.age_to} yrs"
+            else:
+                specialist.card_age = f"До {specialist.age_to} лет"
+        else:
+            if language == "az":
+                specialist.card_age = "İstənilən yaş"
+            elif language == "en":
+                specialist.card_age = "Any age"
+            else:
+                specialist.card_age = "Любой возраст"
+
+        # 3. Format
+        fmt = specialist.consultation_format
+        if fmt == Specialist.FORMAT_ONLINE:
+            specialist.card_format_label = "Onlayn" if language == "az" else ("Online" if language == "en" else "Онлайн")
+            specialist.card_format_icon = "videocam"
+        elif fmt == Specialist.FORMAT_OFFLINE:
+            specialist.card_format_label = "Otaqda (Əyani)" if language == "az" else ("In Office" if language == "en" else "Очно (в кабинете)")
+            specialist.card_format_icon = "location_on"
+        else:
+            specialist.card_format_label = "Onlayn və əyani" if language == "az" else ("Online & In Office" if language == "en" else "Онлайн и очно")
+            specialist.card_format_icon = "devices"
+
+        # 4. District / Location
+        if fmt == Specialist.FORMAT_ONLINE:
+            specialist.card_location = "Bütün Azərbaycan üzrə onlayn" if language == "az" else ("Online across Azerbaijan" if language == "en" else "Онлайн по всему Азербайджану")
+        else:
+            loc_names = []
+            for loc in specialist.practice_locations.all():
+                loc_label = None
+                if loc.district:
+                    loc_label = loc.district.name_i18n(language)
+                elif loc.metro:
+                    loc_label = loc.metro.name_i18n(language)
+                elif loc.place and loc.place.district:
+                    loc_label = loc.place.district_i18n(language)
+                elif loc.address:
+                    loc_label = loc.address
+                if loc_label and loc_label not in loc_names:
+                    loc_names.append(loc_label)
+            if loc_names:
+                specialist.card_location = ", ".join(loc_names)
+            elif fmt in [Specialist.FORMAT_ONLINE, Specialist.FORMAT_BOTH]:
+                specialist.card_location = "Bütün Azərbaycan üzrə onlayn" if language == "az" else ("Online across Azerbaijan" if language == "en" else "Онлайн по всему Азербайджану")
+            else:
+                specialist.card_location = "Bakı" if language == "az" else ("Baku" if language == "en" else "Баку")
+
+        # 5. Price
+        session_suffix = " / seans" if language == "az" else (" / session" if language == "en" else " / приём")
+        if specialist.price_from and specialist.price_to:
+            specialist.card_price = f"{specialist.price_from}–{specialist.price_to} AZN{session_suffix}"
+        elif specialist.price_from:
+            if language == "az":
+                specialist.card_price = f"{specialist.price_from} AZN-dən{session_suffix}"
+            elif language == "en":
+                specialist.card_price = f"from {specialist.price_from} AZN{session_suffix}"
+            else:
+                specialist.card_price = f"от {specialist.price_from} AZN{session_suffix}"
+        elif specialist.price_to:
+            if language == "az":
+                specialist.card_price = f"{specialist.price_to} AZN-dək{session_suffix}"
+            elif language == "en":
+                specialist.card_price = f"up to {specialist.price_to} AZN{session_suffix}"
+            else:
+                specialist.card_price = f"до {specialist.price_to} AZN{session_suffix}"
+        else:
+            locs = list(specialist.practice_locations.all())
+            is_free = any(l.price_per_session == 0 for l in locs)
+            prices = [l.price_per_session for l in locs if l.price_per_session and l.price_per_session > 0]
+            if is_free and not prices:
+                specialist.card_price = "Pulsuz" if language == "az" else ("Free" if language == "en" else "Бесплатно")
+            elif prices:
+                min_p = min(prices)
+                max_p = max(prices)
+                if min_p == max_p:
+                    specialist.card_price = f"{min_p} AZN{session_suffix}"
+                else:
+                    specialist.card_price = f"{min_p}–{max_p} AZN{session_suffix}"
+            else:
+                specialist.card_price = "Razılaşma yolu ilə" if language == "az" else ("By agreement" if language == "en" else "По договорённости")
+
+    context = {
+        "page_obj": page_obj,
+        "specialists": page_obj,
+        "selected": {
+            "q": q,
+            "specialization": spec_code,
+            "format": cf,
+            "region": region_key,
+            "district": district_key,
+            "metro": metro_key,
+            "age": age,
+            "age_from": age_from,
+            "age_to": age_to,
+            "price_from": price_from,
+            "price_to": price_to,
+            "sort": sort,
+            "language": consult_lang,
+            "min_rating": min_rating,
+        },
+        "filter_options": filter_options,
+        "active_filter_chips": active_filter_chips,
+        "specialist_query_without_page": specialist_query_params.urlencode(),
+        "reset_filters_url": request.path,
+        "results_count_label": results_count_label,
+        "language": language,
+        "seo_title": _("Педагоги и специалисты для детей — KidsMap"),
+        "meta_description": _("Найдите репетитора, педагога, психолога, логопеда, тренера или другого специалиста для ребёнка."),
+    }
+    return render(request, "catalog/specialist_list.html", context)
+
+
+def specialist_detail(request, slug):
+    require_specialists_section_enabled()
+
+    from catalog.models import Specialist, SpecialistReview, SpecialistPracticeLocation
+    from catalog.services.public_urls import build_public_absolute_uri
+    from django.db.models import Prefetch
+
+    specialist = get_object_or_404(
+        Specialist.objects.prefetch_related(
+            "specializations",
+            Prefetch('practice_locations', queryset=SpecialistPracticeLocation.objects.filter(is_active=True)
+                     .select_related('place', 'region', 'district', 'metro')),
+            "documents",
+        ),
+        slug=slug,
+        status=Specialist.STATUS_PUBLISHED,
+        is_active=True
+    )
+
+    from catalog.services.content_quality import public_review_queryset
+    reviews = public_review_queryset(specialist.reviews.all()).order_by("-created_at")
+    reviews_count = reviews.count()
+    if specialist.rating_count != reviews_count:
+        specialist.refresh_rating_stats()
+
+    visible_documents = specialist.documents.filter(
+        document_type__in=["diploma", "certificate"],
+        status="approved",
+        is_published=True, opted_in_by_id=specialist.verified_person_user_id,
+        opted_in_at__isnull=False, opted_in_by__is_active=True,
+    )
+    if not specialist.verified_person_user_id or not specialist.person_verified_at:
+        visible_documents = visible_documents.none()
+
+    language = (request.LANGUAGE_CODE or "az").split("-")[0]
+
+    seo_title = f"{specialist.name} — {', '.join(spec.name_i18n(language) for spec in specialist.specializations.all())}"
+    meta_description = f"{specialist.name_alt or specialist.name}: {specialist.bio_i18n(language)[:150]}"
+
+    has_coords = any(loc.lat is not None and loc.lng is not None for loc in specialist.practice_locations.all())
+
+    context = {
+        "specialist": specialist,
+        "reviews": reviews,
+        "visible_documents": visible_documents,
+        "language": language,
+        "seo_title": seo_title,
+        "seo_image_url": build_public_absolute_uri(request, specialist.photo.url) if specialist.photo else "",
+        "meta_description": meta_description,
+        "has_coords": has_coords,
+        "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
+    }
+    from catalog.services.specialist_presentation import public_profile_context
+    from catalog.services.specialist_documents import is_person
+    context.update(public_profile_context(specialist))
+    context['can_manage_specialist'] = is_person(request.user, specialist)
+    context['claim_workspace_url'] = reverse('specialist_workspace_claims', args=[specialist.pk])
+    return render(request, "catalog/specialist_detail.html", context)
+
+
+@require_POST
+def add_specialist_review(request, pk):
+    require_specialists_section_enabled()
+
+    from catalog.models import Specialist, SpecialistReview
+    from catalog.services.review_moderation import moderate_review_content
+    from django.contrib import messages
+
+    specialist = get_object_or_404(Specialist, pk=pk, status=Specialist.STATUS_PUBLISHED, is_active=True)
+
+    if not request.user.is_authenticated:
+        return _engagement_login_required_response(request, f"{specialist.get_absolute_url()}#reviews")
+
+    rating_raw = (request.POST.get("rating") or "").strip()
+    review_text = (request.POST.get("text") or "").strip()
+
+    if not rating_raw:
+        return _review_submission_response(request, ok=False, message=_("Выберите оценку от 1 до 5, чтобы отправить отзыв."),
+                                           redirect_url=f"{specialist.get_absolute_url()}#reviews")
+
+    try:
+        rating = int(rating_raw)
+    except (TypeError, ValueError):
+        return _review_submission_response(request, ok=False, message=_("Оценка должна быть числом от 1 до 5."),
+                                           redirect_url=f"{specialist.get_absolute_url()}#reviews")
+
+    if rating < 1 or rating > 5:
+        return _review_submission_response(request, ok=False, message=_("Оценка вне диапазона. Укажите значение от 1 до 5."),
+                                           redirect_url=f"{specialist.get_absolute_url()}#reviews")
+
+    if not review_text:
+        return _review_submission_response(request, ok=False, message=_("Добавьте текст отзыва, чтобы другим пользователям было полезно ваше мнение."),
+                                           redirect_url=f"{specialist.get_absolute_url()}#reviews")
+
+    if len(review_text) > 5000:
+        return _review_submission_response(request, ok=False, message=_("Текст отзыва слишком длинный. Сократите его до 5000 символов."),
+                                           redirect_url=f"{specialist.get_absolute_url()}#reviews")
+
+    author_name = ""
+    if request.user.is_authenticated:
+        candidates = (
+            request.user.get_full_name(),
+            request.user.get_username(),
+            getattr(request.user, "email", ""),
+        )
+        for value in candidates:
+            value = (value or "").strip()
+            if value:
+                author_name = value[:80]
+                break
+    if not author_name:
+        author_name = _("Гость")
+
+    moderated = moderate_review_content(author_name=author_name, text=review_text)
+
+    defaults = {
+        "rating": rating,
+        "text": moderated.text,
+        "author_name": moderated.author_name,
+        "status": SpecialistReview.STATUS_PENDING,
+        'submitted_at': timezone.now(), 'moderated_at': None, 'moderated_by': None,
+        "is_approved": False,
+        "rejection_reason": "",
+    }
+
+    from catalog.services.review_versions import submit_review, ReviewCooldown
+    try:
+        review_obj, revision = submit_review(target=specialist, user=request.user,
+            rating=rating, text=moderated.text, author_name=moderated.author_name,
+            contains_profanity=moderated.contains_profanity, enforce_cooldown=False)
+    except ReviewCooldown as exc:
+        from catalog.services.place_review_submission import cooldown_payload
+        response = JsonResponse({'ok': False, 'cooldown': cooldown_payload(exc.next_allowed_at)}, status=429)
+        response['Retry-After'] = str(cooldown_payload(exc.next_allowed_at)['retry_after'])
+        return response
+
+    from catalog.services.moderation_sla import submission_message
+    message = submission_message('review')
+    if moderated.contains_profanity:
+        message = f"{message} {_('Нецензурные слова были автоматически скрыты.')}"
+
+    return _review_submission_response(request, ok=True, message=message,
+                                       redirect_url=f"{specialist.get_absolute_url()}#reviews")
+
+
+def owner_specialist_create(request):
+    require_specialists_section_enabled()
+
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    if request.method == "POST":
+        form_action = (request.POST.get("form_action") or "").strip()
+        draft_save_only = form_action == "save_draft"
+        form = OwnerSpecialistForm(request.POST, request.FILES, draft_save_only=draft_save_only)
+        result = save_owner_specialist_profile(user=request.user, form=form, draft_save_only=draft_save_only)
+        if result.ok:
+            messages.success(request, result.message)
+            return redirect("owner_places_dashboard")
+        form = result.form or form
+    else:
+        form = OwnerSpecialistForm()
+
+    specializations = form.fields["specializations"].queryset.order_by("order", "name_ru")
+    return render(
+        request,
+        "pages/owner_specialist_create.html",
+        {
+            "form": form,
+            "specialist": None,
+            "specializations": specializations,
+            "meta_description": _("Добавление специалиста в каталог KidsMap."),
+        },
+    )
+
+
+def owner_specialist_edit(request, pk):
+    require_specialists_section_enabled()
+
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    specialist = get_object_or_404(Specialist, pk=pk, verified_person_user=request.user,
+                                  verified_person_user__is_active=True, person_verified_at__isnull=False)
+
+    if request.method == "POST":
+        form_action = (request.POST.get("form_action") or "").strip()
+        draft_save_only = form_action == "save_draft"
+        form = OwnerSpecialistForm(
+            request.POST,
+            request.FILES,
+            instance=specialist,
+            draft_save_only=draft_save_only,
+        )
+        result = save_owner_specialist_profile(user=request.user, form=form, draft_save_only=draft_save_only)
+        if result.ok:
+            messages.success(request, result.message)
+            return redirect("owner_places_dashboard")
+        form = result.form or form
+    else:
+        form = OwnerSpecialistForm(instance=specialist)
+
+    specializations = form.fields["specializations"].queryset.order_by("order", "name_ru")
+    return render(
+        request,
+        "pages/owner_specialist_create.html",
+        {
+            "form": form,
+            "specialist": specialist,
+            "specializations": specializations,
+            "meta_description": _("Редактирование профиля специалиста KidsMap."),
+        },
+    )
+
+
+from django.contrib import admin
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required
+def admin_add_choice(request):
+    context = admin.site.each_context(request)
+    context.update(
+        {
+            "title": _("Добавить публикацию"),
+            "has_permission": True,
+        }
+    )
+    return render(
+        request,
+        "admin/add_choice.html",
+        context,
+    )

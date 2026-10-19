@@ -1,0 +1,11 @@
+--- a/.github/workflows/deploy.yml
++++ b/.github/workflows/deploy.yml
+@@ -62,7 +62,7 @@
+           profile_root=$(mktemp -d /tmp/kidsmap-task33-qa04-ci-XXXXXX)
+           socket_root=$(mktemp -d "$GITHUB_WORKSPACE/.tmp/kidsmap-task33-qa04-socket-ci-XXXXXX")
+           mkdir -m 0777 "$socket_root/socket"
+-          container_id=$(docker run -d --name "kidsmap-quality-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"             --label "kidsmap.quality.run=$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"             --network none --mount "type=bind,source=$socket_root/socket,target=/qa-socket"             -e POSTGRES_USER=qa_stage04 -e POSTGRES_DB=qa_stage04 -e PGHOST=/qa-socket             -e POSTGRES_HOST_AUTH_METHOD=trust postgres:17-alpine             postgres -c listen_addresses= -k /qa-socket)
++          container_id=$(docker run -d --name "kidsmap-quality-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"             --label "kidsmap.quality.run=$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"             --network none --mount "type=bind,source=$socket_root/socket,target=/qa-socket"             -e POSTGRES_USER=qa_stage04 -e POSTGRES_DB=qa_stage04 -e PGHOST=/qa-socket             -e POSTGRES_HOST_AUTH_METHOD=trust postgres:17-alpine             postgres -c listen_addresses= -c unix_socket_directories=/var/run/postgresql,/qa-socket)
+           printf '%s\n' "$container_id" > "$profile_root/postgres-id"
+           printf 'QUALITY_PROFILE_ROOT=%s\nQUALITY_SOCKET_DIR=%s\n' "$profile_root" "$socket_root/socket" >> "$GITHUB_ENV"
+           for attempt in $(seq 1 60); do

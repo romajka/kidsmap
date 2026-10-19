@@ -1,0 +1,53 @@
+{
+  "template_origin": "/mnt/c/kidsmap/src/catalog/templates/admin/catalog/shared_settings_change_form.html",
+  "template_sha256": "a8e0733b7004b7b02bf047568ff7e5e43e38fd0e44dc683d9bfd7751e739f0d0",
+  "template_compiled": true,
+  "css_origin": "/mnt/c/kidsmap/static/admin/css/pages/kidsmap_admin_form_shell.css",
+  "css_sha256": "bd79355f49c85200388e0374e24faae886606ffb4a0864b64ed12a44113dc1a9",
+  "current3root_locales_verified": true,
+  "sources_verified": 1032,
+  "consumers": [
+    {
+      "model": "sitebrandingsettings",
+      "admin": "SiteBrandingSettingsAdmin"
+    },
+    {
+      "model": "siteaboutsettings",
+      "admin": "SiteAboutSettingsAdmin"
+    },
+    {
+      "model": "sitecontactssettings",
+      "admin": "SiteContactsSettingsAdmin"
+    },
+    {
+      "model": "sitefootersettings",
+      "admin": "SiteFooterSettingsAdmin"
+    },
+    {
+      "model": "siteemptystatesettings",
+      "admin": "SiteEmptyStateSettingsAdmin"
+    },
+    {
+      "model": "sitevisibilitysettings",
+      "admin": "SiteVisibilitySettingsAdmin"
+    },
+    {
+      "model": "siteanalytics",
+      "admin": "SiteAnalyticsAdmin"
+    },
+    {
+      "model": "sitegalleryimage",
+      "admin": "SiteGalleryImageAdmin"
+    },
+    {
+      "model": "catalogcontentsettings",
+      "admin": "CatalogContentSettingsAdmin"
+    }
+  ],
+  "testing": true,
+  "normal_DB": "m10s08_plan_r1",
+  "test_DB": "test_m10s08_plan_r1",
+  "cache": "m10s08-plan-r1",
+  "media": "/tmp/site08-pc-plan-r1-media",
+  "external_integrations_disabled": true
+}

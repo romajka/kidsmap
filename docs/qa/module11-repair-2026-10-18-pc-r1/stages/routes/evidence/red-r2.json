@@ -1,0 +1,44 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m11full-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m11-full-r1/runtime.py",
+    "test",
+    "test_m11_routes_candidate"
+  ],
+  "exit": 1,
+  "fresh_own_test_db": "test_m11full_routes_red_r2",
+  "test_ids": [
+    "test_m11_routes_candidate.EventSitemapTests.test_event_sitemap_has_current_language_alternates_and_lastmod",
+    "test_m11_routes_candidate.EventSitemapTests.test_hidden_or_deleted_events_and_section_off_are_excluded",
+    "test_m11_routes_candidate.EventSitemapTests.test_public_event_is_in_sitemap_in_three_languages",
+    "test_m11_routes_candidate.EventSitemapTests.test_valid_past_cancelled_and_rescheduled_public_occurrences_remain_listed",
+    "test_m11_routes_candidate.PublicHeadTests.test_head_keeps_visibility_guards",
+    "test_m11_routes_candidate.PublicHeadTests.test_public_head_matches_get_status_and_content_type_without_body",
+    "test_m11_routes_candidate.PublicHeadTests.test_unsafe_methods_stay_forbidden_and_get_keeps_payload",
+    "test_m11_routes_candidate.SpecialistLandmarksTests.test_specialist_has_one_main_without_losing_profile_content"
+  ],
+  "failures": [
+    "test_event_sitemap_has_current_language_alternates_and_lastmod (test_m11_routes_candidate.EventSitemapTests.test_event_sitemap_has_current_language_alternates_and_lastmod)",
+    "test_public_event_is_in_sitemap_in_three_languages (test_m11_routes_candidate.EventSitemapTests.test_public_event_is_in_sitemap_in_three_languages)",
+    "test_valid_past_cancelled_and_rescheduled_public_occurrences_remain_listed (test_m11_routes_candidate.EventSitemapTests.test_valid_past_cancelled_and_rescheduled_public_occurrences_remain_listed)",
+    "test_head_keeps_visibility_guards (test_m11_routes_candidate.PublicHeadTests.test_head_keeps_visibility_guards)",
+    "test_public_head_matches_get_status_and_content_type_without_body (test_m11_routes_candidate.PublicHeadTests.test_public_head_matches_get_status_and_content_type_without_body) (lang='az', entity='Organization')",
+    "test_public_head_matches_get_status_and_content_type_without_body (test_m11_routes_candidate.PublicHeadTests.test_public_head_matches_get_status_and_content_type_without_body) (lang='az', entity='Activity')",
+    "test_public_head_matches_get_status_and_content_type_without_body (test_m11_routes_candidate.PublicHeadTests.test_public_head_matches_get_status_and_content_type_without_body) (lang='ru', entity='Organization')",
+    "test_public_head_matches_get_status_and_content_type_without_body (test_m11_routes_candidate.PublicHeadTests.test_public_head_matches_get_status_and_content_type_without_body) (lang='ru', entity='Activity')",
+    "test_public_head_matches_get_status_and_content_type_without_body (test_m11_routes_candidate.PublicHeadTests.test_public_head_matches_get_status_and_content_type_without_body) (lang='en', entity='Organization')",
+    "test_public_head_matches_get_status_and_content_type_without_body (test_m11_routes_candidate.PublicHeadTests.test_public_head_matches_get_status_and_content_type_without_body) (lang='en', entity='Activity')",
+    "test_specialist_has_one_main_without_losing_profile_content (test_m11_routes_candidate.SpecialistLandmarksTests.test_specialist_has_one_main_without_losing_profile_content) (lang='az')",
+    "test_specialist_has_one_main_without_losing_profile_content (test_m11_routes_candidate.SpecialistLandmarksTests.test_specialist_has_one_main_without_losing_profile_content) (lang='ru')",
+    "test_specialist_has_one_main_without_losing_profile_content (test_m11_routes_candidate.SpecialistLandmarksTests.test_specialist_has_one_main_without_losing_profile_content) (lang='en')"
+  ],
+  "errors": [],
+  "summary": [
+    "Found 8 test(s).",
+    "Ran 8 tests in 8.326s",
+    "FAILED (failures=13)"
+  ]
+}

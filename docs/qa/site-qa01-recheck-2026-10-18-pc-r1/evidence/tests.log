@@ -1,0 +1,532 @@
+Found 28 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: allauth, google, jazzmin, messages, sitemaps, staticfiles
+  Apply all migrations: account, admin, auth, catalog, catalog_moderation, contenttypes, sessions, socialaccount
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  No migrations to apply.
+System check identified no issues (0 silenced).
+Using existing test database for alias 'default' ('test_m10s01_plan_r1')...
+test_add_permission_can_create_gallery_but_not_modify_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_add_permission_can_create_gallery_but_not_modify_main_image) ... /usr/local/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /mnt/c/kidsmap/.tmp/site01-pc-plan-r1/staticfiles/
+  mw_instance = middleware(adapted_handler)
+
+  test_add_permission_can_create_gallery_but_not_modify_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_add_permission_can_create_gallery_but_not_modify_main_image) (check='status') ... FAIL
+  test_add_permission_can_create_gallery_but_not_modify_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_add_permission_can_create_gallery_but_not_modify_main_image) (check='no-mutation') ... FAIL
+test_add_without_change_delete_returns_no_mutation_links (test_site01_candidate.Site01MediaPermissionsTests.test_add_without_change_delete_returns_no_mutation_links) ... 
+  test_add_without_change_delete_returns_no_mutation_links (test_site01_candidate.Site01MediaPermissionsTests.test_add_without_change_delete_returns_no_mutation_links) (key='edit_url') ... FAIL
+  test_add_without_change_delete_returns_no_mutation_links (test_site01_candidate.Site01MediaPermissionsTests.test_add_without_change_delete_returns_no_mutation_links) (key='delete_url') ... FAIL
+test_change_permission_cannot_create_gallery_image (test_site01_candidate.Site01MediaPermissionsTests.test_change_permission_cannot_create_gallery_image) ... 
+  test_change_permission_cannot_create_gallery_image (test_site01_candidate.Site01MediaPermissionsTests.test_change_permission_cannot_create_gallery_image) (check='status') ... FAIL
+  test_change_permission_cannot_create_gallery_image (test_site01_candidate.Site01MediaPermissionsTests.test_change_permission_cannot_create_gallery_image) (check='no-mutation') ... FAIL
+test_content_manager_preset_preserves_legitimate_access (test_site01_candidate.Site01MediaPermissionsTests.test_content_manager_preset_preserves_legitimate_access) ... ok
+test_csrf_remains_required_even_for_authorized_actor (test_site01_candidate.Site01MediaPermissionsTests.test_csrf_remains_required_even_for_authorized_actor) ... Forbidden (CSRF cookie not set.): /admin/catalog/sitegalleryimage/ajax-upload/
+Forbidden (CSRF cookie not set.): /admin/catalog/sitegalleryimage/ajax-delete-main-image/
+ok
+test_existing_invalid_field_and_wrong_method_contract_preserved (test_site01_candidate.Site01MediaPermissionsTests.test_existing_invalid_field_and_wrong_method_contract_preserved) ... Bad Request: /admin/catalog/sitegalleryimage/ajax-upload/
+Bad Request: /admin/catalog/sitegalleryimage/ajax-delete-main-image/
+Bad Request: /admin/catalog/sitegalleryimage/ajax-upload/
+Bad Request: /admin/catalog/sitegalleryimage/ajax-delete-main-image/
+ok
+test_gallery_change_permission_cannot_delete_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_gallery_change_permission_cannot_delete_main_image) ... 
+  test_gallery_change_permission_cannot_delete_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_gallery_change_permission_cannot_delete_main_image) (check='status') ... FAIL
+  test_gallery_change_permission_cannot_delete_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_gallery_change_permission_cannot_delete_main_image) (check='no-mutation') ... FAIL
+test_gallery_change_permission_does_not_grant_main_mutation (test_site01_candidate.Site01MediaPermissionsTests.test_gallery_change_permission_does_not_grant_main_mutation) ... 
+  test_gallery_change_permission_does_not_grant_main_mutation (test_site01_candidate.Site01MediaPermissionsTests.test_gallery_change_permission_does_not_grant_main_mutation) (check='status') ... FAIL
+  test_gallery_change_permission_does_not_grant_main_mutation (test_site01_candidate.Site01MediaPermissionsTests.test_gallery_change_permission_does_not_grant_main_mutation) (check='no-mutation') ... FAIL
+test_gallery_view_permission_does_not_grant_main_mutation (test_site01_candidate.Site01MediaPermissionsTests.test_gallery_view_permission_does_not_grant_main_mutation) ... 
+  test_gallery_view_permission_does_not_grant_main_mutation (test_site01_candidate.Site01MediaPermissionsTests.test_gallery_view_permission_does_not_grant_main_mutation) (check='status') ... FAIL
+  test_gallery_view_permission_does_not_grant_main_mutation (test_site01_candidate.Site01MediaPermissionsTests.test_gallery_view_permission_does_not_grant_main_mutation) (check='no-mutation') ... FAIL
+test_localized_aliases_deny_no_permission_staff (test_site01_candidate.Site01MediaPermissionsTests.test_localized_aliases_deny_no_permission_staff) ... 
+  test_localized_aliases_deny_no_permission_staff (test_site01_candidate.Site01MediaPermissionsTests.test_localized_aliases_deny_no_permission_staff) (prefix='') ... FAIL
+  test_localized_aliases_deny_no_permission_staff (test_site01_candidate.Site01MediaPermissionsTests.test_localized_aliases_deny_no_permission_staff) (prefix='/ru') ... FAIL
+  test_localized_aliases_deny_no_permission_staff (test_site01_candidate.Site01MediaPermissionsTests.test_localized_aliases_deny_no_permission_staff) (prefix='/az') ... FAIL
+  test_localized_aliases_deny_no_permission_staff (test_site01_candidate.Site01MediaPermissionsTests.test_localized_aliases_deny_no_permission_staff) (prefix='/en') ... FAIL
+test_no_permissions_cannot_create_gallery_image (test_site01_candidate.Site01MediaPermissionsTests.test_no_permissions_cannot_create_gallery_image) ... 
+  test_no_permissions_cannot_create_gallery_image (test_site01_candidate.Site01MediaPermissionsTests.test_no_permissions_cannot_create_gallery_image) (check='status') ... FAIL
+  test_no_permissions_cannot_create_gallery_image (test_site01_candidate.Site01MediaPermissionsTests.test_no_permissions_cannot_create_gallery_image) (check='no-mutation') ... FAIL
+test_no_permissions_cannot_delete_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_no_permissions_cannot_delete_main_image) ... 
+  test_no_permissions_cannot_delete_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_no_permissions_cannot_delete_main_image) (check='status') ... FAIL
+  test_no_permissions_cannot_delete_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_no_permissions_cannot_delete_main_image) (check='no-mutation') ... FAIL
+test_no_permissions_cannot_upload_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_no_permissions_cannot_upload_main_image) ... 
+  test_no_permissions_cannot_upload_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_no_permissions_cannot_upload_main_image) (check='status') ... FAIL
+  test_no_permissions_cannot_upload_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_no_permissions_cannot_upload_main_image) (check='no-mutation') ... FAIL
+test_nonstaff_and_guest_cannot_mutate (test_site01_candidate.Site01MediaPermissionsTests.test_nonstaff_and_guest_cannot_mutate) ... ok
+test_settings_change_permission_can_upload_and_delete_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_settings_change_permission_can_upload_and_delete_main_image) ... ok
+test_site_settings_view_permission_does_not_grant_mutation (test_site01_candidate.Site01MediaPermissionsTests.test_site_settings_view_permission_does_not_grant_mutation) ... 
+  test_site_settings_view_permission_does_not_grant_mutation (test_site01_candidate.Site01MediaPermissionsTests.test_site_settings_view_permission_does_not_grant_mutation) (check='status') ... FAIL
+  test_site_settings_view_permission_does_not_grant_mutation (test_site01_candidate.Site01MediaPermissionsTests.test_site_settings_view_permission_does_not_grant_mutation) (check='no-mutation') ... FAIL
+test_staff_without_permissions_cannot_read_hub (test_site01_candidate.Site01MediaPermissionsTests.test_staff_without_permissions_cannot_read_hub) ... FAIL
+test_standard_gallery_change_and_delete_remain_denied_to_viewer (test_site01_candidate.Site01MediaPermissionsTests.test_standard_gallery_change_and_delete_remain_denied_to_viewer) ... Forbidden (Permission denied): /admin/catalog/sitegalleryimage/30/change/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py", line 710, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/views/decorators/cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/admin/sites.py", line 247, in inner
+    return view(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py", line 1945, in change_view
+    return self.changeform_view(request, object_id, form_url, extra_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py", line 1801, in changeform_view
+    return self._changeform_view(request, object_id, form_url, extra_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py", line 1825, in _changeform_view
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+Forbidden (Permission denied): /admin/catalog/sitegalleryimage/30/delete/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py", line 710, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/views/decorators/cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/admin/sites.py", line 247, in inner
+    return view(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py", line 2165, in delete_view
+    return self._delete_view(request, object_id, extra_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py", line 2180, in _delete_view
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+ok
+test_superuser_preserves_legitimate_access (test_site01_candidate.Site01MediaPermissionsTests.test_superuser_preserves_legitimate_access) ... ok
+test_view_permission_cannot_create_gallery_image (test_site01_candidate.Site01MediaPermissionsTests.test_view_permission_cannot_create_gallery_image) ... 
+  test_view_permission_cannot_create_gallery_image (test_site01_candidate.Site01MediaPermissionsTests.test_view_permission_cannot_create_gallery_image) (check='status') ... FAIL
+  test_view_permission_cannot_create_gallery_image (test_site01_candidate.Site01MediaPermissionsTests.test_view_permission_cannot_create_gallery_image) (check='no-mutation') ... FAIL
+test_viewer_hub_has_no_mutation_controls (test_site01_candidate.Site01MediaPermissionsTests.test_viewer_hub_has_no_mutation_controls) ... 
+  test_viewer_hub_has_no_mutation_controls (test_site01_candidate.Site01MediaPermissionsTests.test_viewer_hub_has_no_mutation_controls) (marker='class="km-media-file-input"') ... FAIL
+  test_viewer_hub_has_no_mutation_controls (test_site01_candidate.Site01MediaPermissionsTests.test_viewer_hub_has_no_mutation_controls) (marker='km-media-upload-btn') ... FAIL
+  test_viewer_hub_has_no_mutation_controls (test_site01_candidate.Site01MediaPermissionsTests.test_viewer_hub_has_no_mutation_controls) (marker='km-media-delete-btn') ... FAIL
+  test_viewer_hub_has_no_mutation_controls (test_site01_candidate.Site01MediaPermissionsTests.test_viewer_hub_has_no_mutation_controls) (marker='class="km-gallery-add"') ... FAIL
+test_volunteer_is_denied_even_with_accidental_model_permissions (test_site01_candidate.Site01MediaPermissionsTests.test_volunteer_is_denied_even_with_accidental_model_permissions) ... Forbidden (Permission denied): /admin/catalog/sitegalleryimage/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/base.py", line 186, in _get_response
+    response = middleware_method(
+               ^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/volunteer_middleware.py", line 35, in process_view
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+Forbidden (Permission denied): /admin/catalog/sitegalleryimage/ajax-upload/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/base.py", line 186, in _get_response
+    response = middleware_method(
+               ^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/volunteer_middleware.py", line 35, in process_view
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+Forbidden (Permission denied): /admin/catalog/sitegalleryimage/ajax-delete-main-image/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/base.py", line 186, in _get_response
+    response = middleware_method(
+               ^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/volunteer_middleware.py", line 35, in process_view
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+ok
+test_ajax_delete_main_image_clears_uploaded_site_settings_file (catalog.testcases.admin.TestSiteGalleryImageAdminMedia.test_ajax_delete_main_image_clears_uploaded_site_settings_file) ... ok
+test_catalog_and_moderation_use_real_admin_pages_and_metrics (catalog.testcases.admin.TestAdminSidebarStructure.test_catalog_and_moderation_use_real_admin_pages_and_metrics) ... ok
+test_hidden_public_sections_remain_available_in_admin (catalog.testcases.admin.TestAdminSidebarStructure.test_hidden_public_sections_remain_available_in_admin) ... ok
+test_moderation_items_open_separate_pending_workspaces (catalog.testcases.admin.TestAdminSidebarStructure.test_moderation_items_open_separate_pending_workspaces) ... ok
+test_place_moderation_shows_whether_creator_used_admin_or_site (catalog.testcases.admin.TestAdminSidebarStructure.test_place_moderation_shows_whether_creator_used_admin_or_site) ... ok
+test_staff_access_sidebar_marks_only_the_current_link_active (catalog.testcases.admin.TestAdminSidebarStructure.test_staff_access_sidebar_marks_only_the_current_link_active) ... ok
+
+======================================================================
+FAIL: test_add_permission_can_create_gallery_but_not_modify_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_add_permission_can_create_gallery_but_not_modify_main_image) (check='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 29, in denied
+    with self.subTest(check='status'):self.assertEqual(r.status_code,403)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 200 != 403
+
+======================================================================
+FAIL: test_add_permission_can_create_gallery_but_not_modify_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_add_permission_can_create_gallery_but_not_modify_main_image) (check='no-mutation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 30, in denied
+    with self.subTest(check='no-mutation'):self.assertEqual(self.snapshot(),before)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'logo': '', 'files': {'responsive-images/v1/337f8e[359 chars]: 10} != {'logo': 'site/fictional-site01.png', 'files': {'si[481 chars]: 10}
+  {'files': {'responsive-images/v1/337f8e8487905336dca6dbb0cd4b60cc/12.webp': 'e34027b30182df9c772cec733b469aca23603d7600796a4472841d14b812a872',
+             'responsive-images/v1/337f8e8487905336dca6dbb0cd4b60cc/manifest.json': '9e84e40353c785c71907d9c857e5ae095d59b5df70a28edc1452514530b3861d',
++            'site/fictional-site01.png': '2fe679d378d9c6ef043903fa046ea26914a9c29fbca9d442ea60aba93c23ba9c',
+             'site/gallery/fictional-site01.png': '2fe679d378d9c6ef043903fa046ea26914a9c29fbca9d442ea60aba93c23ba9c'},
+   'gallery': 10,
+-  'logo': ''}
++  'logo': 'site/fictional-site01.png'}
+
+======================================================================
+FAIL: test_add_without_change_delete_returns_no_mutation_links (test_site01_candidate.Site01MediaPermissionsTests.test_add_without_change_delete_returns_no_mutation_links) (key='edit_url')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 64, in test_add_without_change_delete_returns_no_mutation_links
+    with self.subTest(key=key):self.assertIsNone(r.json()[key])
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '/admin/catalog/sitegalleryimage/26/change/' is not None
+
+======================================================================
+FAIL: test_add_without_change_delete_returns_no_mutation_links (test_site01_candidate.Site01MediaPermissionsTests.test_add_without_change_delete_returns_no_mutation_links) (key='delete_url')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 64, in test_add_without_change_delete_returns_no_mutation_links
+    with self.subTest(key=key):self.assertIsNone(r.json()[key])
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '/admin/catalog/sitegalleryimage/26/delete/' is not None
+
+======================================================================
+FAIL: test_change_permission_cannot_create_gallery_image (test_site01_candidate.Site01MediaPermissionsTests.test_change_permission_cannot_create_gallery_image) (check='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 29, in denied
+    with self.subTest(check='status'):self.assertEqual(r.status_code,403)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 200 != 403
+
+======================================================================
+FAIL: test_change_permission_cannot_create_gallery_image (test_site01_candidate.Site01MediaPermissionsTests.test_change_permission_cannot_create_gallery_image) (check='no-mutation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 30, in denied
+    with self.subTest(check='no-mutation'):self.assertEqual(self.snapshot(),before)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'log[133 chars]ba9c', 'responsive-images/v1/c12eb10c84fb6878c[348 chars]: 10} != {'log[133 chars]ba9c'}, 'gallery': 9}
+Diff is 874 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_gallery_change_permission_cannot_delete_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_gallery_change_permission_cannot_delete_main_image) (check='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 29, in denied
+    with self.subTest(check='status'):self.assertEqual(r.status_code,403)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 200 != 403
+
+======================================================================
+FAIL: test_gallery_change_permission_cannot_delete_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_gallery_change_permission_cannot_delete_main_image) (check='no-mutation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 30, in denied
+    with self.subTest(check='no-mutation'):self.assertEqual(self.snapshot(),before)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'logo': '', 'files': {}, 'gallery': 9} != {'logo': 'site/fictional-site01.png', 'files': {'si[103 chars]': 9}
+- {'files': {}, 'gallery': 9, 'logo': ''}
++ {'files': {'site/fictional-site01.png': '2fe679d378d9c6ef043903fa046ea26914a9c29fbca9d442ea60aba93c23ba9c'},
++  'gallery': 9,
++  'logo': 'site/fictional-site01.png'}
+
+======================================================================
+FAIL: test_gallery_change_permission_does_not_grant_main_mutation (test_site01_candidate.Site01MediaPermissionsTests.test_gallery_change_permission_does_not_grant_main_mutation) (check='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 29, in denied
+    with self.subTest(check='status'):self.assertEqual(r.status_code,403)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 200 != 403
+
+======================================================================
+FAIL: test_gallery_change_permission_does_not_grant_main_mutation (test_site01_candidate.Site01MediaPermissionsTests.test_gallery_change_permission_does_not_grant_main_mutation) (check='no-mutation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 30, in denied
+    with self.subTest(check='no-mutation'):self.assertEqual(self.snapshot(),before)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'log[21 chars]ite01_NbBclN3.png', 'files': {'site/fictional-[195 chars]': 9} != {'log[21 chars]ite01.png', 'files': {'site/fictional-site01.p[82 chars]': 9}
+- {'files': {'site/fictional-site01.png': '2fe679d378d9c6ef043903fa046ea26914a9c29fbca9d442ea60aba93c23ba9c',
++ {'files': {'site/fictional-site01.png': '2fe679d378d9c6ef043903fa046ea26914a9c29fbca9d442ea60aba93c23ba9c'},
+?                                                                                                           +
+
+-            'site/fictional-site01_NbBclN3.png': '2fe679d378d9c6ef043903fa046ea26914a9c29fbca9d442ea60aba93c23ba9c'},
+   'gallery': 9,
+-  'logo': 'site/fictional-site01_NbBclN3.png'}
+?                                --------
+
++  'logo': 'site/fictional-site01.png'}
+
+======================================================================
+FAIL: test_gallery_view_permission_does_not_grant_main_mutation (test_site01_candidate.Site01MediaPermissionsTests.test_gallery_view_permission_does_not_grant_main_mutation) (check='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 29, in denied
+    with self.subTest(check='status'):self.assertEqual(r.status_code,403)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 200 != 403
+
+======================================================================
+FAIL: test_gallery_view_permission_does_not_grant_main_mutation (test_site01_candidate.Site01MediaPermissionsTests.test_gallery_view_permission_does_not_grant_main_mutation) (check='no-mutation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 30, in denied
+    with self.subTest(check='no-mutation'):self.assertEqual(self.snapshot(),before)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'log[21 chars]ite01_88pgAUu.png', 'files': {'site/fictional-[195 chars]': 9} != {'log[21 chars]ite01.png', 'files': {'site/fictional-site01.p[82 chars]': 9}
+- {'files': {'site/fictional-site01.png': '2fe679d378d9c6ef043903fa046ea26914a9c29fbca9d442ea60aba93c23ba9c',
++ {'files': {'site/fictional-site01.png': '2fe679d378d9c6ef043903fa046ea26914a9c29fbca9d442ea60aba93c23ba9c'},
+?                                                                                                           +
+
+-            'site/fictional-site01_88pgAUu.png': '2fe679d378d9c6ef043903fa046ea26914a9c29fbca9d442ea60aba93c23ba9c'},
+   'gallery': 9,
+-  'logo': 'site/fictional-site01_88pgAUu.png'}
+?                                --------
+
++  'logo': 'site/fictional-site01.png'}
+
+======================================================================
+FAIL: test_localized_aliases_deny_no_permission_staff (test_site01_candidate.Site01MediaPermissionsTests.test_localized_aliases_deny_no_permission_staff) (prefix='')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 85, in test_localized_aliases_deny_no_permission_staff
+    with self.subTest(prefix=prefix):self.assertEqual(self.client.get(prefix+self.hub).status_code,403);self.denied(prefix+self.upload,{'field':'logo','image':self.image()});self.denied(prefix+self.delete,{'field':'logo'})
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 200 != 403
+
+======================================================================
+FAIL: test_localized_aliases_deny_no_permission_staff (test_site01_candidate.Site01MediaPermissionsTests.test_localized_aliases_deny_no_permission_staff) (prefix='/ru')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 85, in test_localized_aliases_deny_no_permission_staff
+    with self.subTest(prefix=prefix):self.assertEqual(self.client.get(prefix+self.hub).status_code,403);self.denied(prefix+self.upload,{'field':'logo','image':self.image()});self.denied(prefix+self.delete,{'field':'logo'})
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 200 != 403
+
+======================================================================
+FAIL: test_localized_aliases_deny_no_permission_staff (test_site01_candidate.Site01MediaPermissionsTests.test_localized_aliases_deny_no_permission_staff) (prefix='/az')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 85, in test_localized_aliases_deny_no_permission_staff
+    with self.subTest(prefix=prefix):self.assertEqual(self.client.get(prefix+self.hub).status_code,403);self.denied(prefix+self.upload,{'field':'logo','image':self.image()});self.denied(prefix+self.delete,{'field':'logo'})
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 301 != 403
+
+======================================================================
+FAIL: test_localized_aliases_deny_no_permission_staff (test_site01_candidate.Site01MediaPermissionsTests.test_localized_aliases_deny_no_permission_staff) (prefix='/en')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 85, in test_localized_aliases_deny_no_permission_staff
+    with self.subTest(prefix=prefix):self.assertEqual(self.client.get(prefix+self.hub).status_code,403);self.denied(prefix+self.upload,{'field':'logo','image':self.image()});self.denied(prefix+self.delete,{'field':'logo'})
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 200 != 403
+
+======================================================================
+FAIL: test_no_permissions_cannot_create_gallery_image (test_site01_candidate.Site01MediaPermissionsTests.test_no_permissions_cannot_create_gallery_image) (check='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 29, in denied
+    with self.subTest(check='status'):self.assertEqual(r.status_code,403)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 200 != 403
+
+======================================================================
+FAIL: test_no_permissions_cannot_create_gallery_image (test_site01_candidate.Site01MediaPermissionsTests.test_no_permissions_cannot_create_gallery_image) (check='no-mutation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 30, in denied
+    with self.subTest(check='no-mutation'):self.assertEqual(self.snapshot(),before)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'log[133 chars]ba9c', 'responsive-images/v1/945c05766544099d2[348 chars]: 10} != {'log[133 chars]ba9c'}, 'gallery': 9}
+Diff is 874 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_no_permissions_cannot_delete_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_no_permissions_cannot_delete_main_image) (check='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 29, in denied
+    with self.subTest(check='status'):self.assertEqual(r.status_code,403)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 200 != 403
+
+======================================================================
+FAIL: test_no_permissions_cannot_delete_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_no_permissions_cannot_delete_main_image) (check='no-mutation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 30, in denied
+    with self.subTest(check='no-mutation'):self.assertEqual(self.snapshot(),before)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'logo': '', 'files': {}, 'gallery': 9} != {'logo': 'site/fictional-site01.png', 'files': {'si[103 chars]': 9}
+- {'files': {}, 'gallery': 9, 'logo': ''}
++ {'files': {'site/fictional-site01.png': '2fe679d378d9c6ef043903fa046ea26914a9c29fbca9d442ea60aba93c23ba9c'},
++  'gallery': 9,
++  'logo': 'site/fictional-site01.png'}
+
+======================================================================
+FAIL: test_no_permissions_cannot_upload_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_no_permissions_cannot_upload_main_image) (check='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 29, in denied
+    with self.subTest(check='status'):self.assertEqual(r.status_code,403)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 200 != 403
+
+======================================================================
+FAIL: test_no_permissions_cannot_upload_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_no_permissions_cannot_upload_main_image) (check='no-mutation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 30, in denied
+    with self.subTest(check='no-mutation'):self.assertEqual(self.snapshot(),before)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'log[21 chars]ite01_SwDXiac.png', 'files': {'site/fictional-[195 chars]': 9} != {'log[21 chars]ite01.png', 'files': {'site/fictional-site01.p[82 chars]': 9}
+- {'files': {'site/fictional-site01.png': '2fe679d378d9c6ef043903fa046ea26914a9c29fbca9d442ea60aba93c23ba9c',
++ {'files': {'site/fictional-site01.png': '2fe679d378d9c6ef043903fa046ea26914a9c29fbca9d442ea60aba93c23ba9c'},
+?                                                                                                           +
+
+-            'site/fictional-site01_SwDXiac.png': '2fe679d378d9c6ef043903fa046ea26914a9c29fbca9d442ea60aba93c23ba9c'},
+   'gallery': 9,
+-  'logo': 'site/fictional-site01_SwDXiac.png'}
+?                                --------
+
++  'logo': 'site/fictional-site01.png'}
+
+======================================================================
+FAIL: test_site_settings_view_permission_does_not_grant_mutation (test_site01_candidate.Site01MediaPermissionsTests.test_site_settings_view_permission_does_not_grant_mutation) (check='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 29, in denied
+    with self.subTest(check='status'):self.assertEqual(r.status_code,403)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 200 != 403
+
+======================================================================
+FAIL: test_site_settings_view_permission_does_not_grant_mutation (test_site01_candidate.Site01MediaPermissionsTests.test_site_settings_view_permission_does_not_grant_mutation) (check='no-mutation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 30, in denied
+    with self.subTest(check='no-mutation'):self.assertEqual(self.snapshot(),before)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'log[21 chars]ite01_sibPgYb.png', 'files': {'site/fictional-[195 chars]': 9} != {'log[21 chars]ite01.png', 'files': {'site/fictional-site01.p[82 chars]': 9}
+- {'files': {'site/fictional-site01.png': '2fe679d378d9c6ef043903fa046ea26914a9c29fbca9d442ea60aba93c23ba9c',
++ {'files': {'site/fictional-site01.png': '2fe679d378d9c6ef043903fa046ea26914a9c29fbca9d442ea60aba93c23ba9c'},
+?                                                                                                           +
+
+-            'site/fictional-site01_sibPgYb.png': '2fe679d378d9c6ef043903fa046ea26914a9c29fbca9d442ea60aba93c23ba9c'},
+   'gallery': 9,
+-  'logo': 'site/fictional-site01_sibPgYb.png'}
+?                                --------
+
++  'logo': 'site/fictional-site01.png'}
+
+======================================================================
+FAIL: test_staff_without_permissions_cannot_read_hub (test_site01_candidate.Site01MediaPermissionsTests.test_staff_without_permissions_cannot_read_hub)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 32, in test_staff_without_permissions_cannot_read_hub
+    self.user();self.assertEqual(self.client.get(self.hub).status_code,403)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 200 != 403
+
+======================================================================
+FAIL: test_view_permission_cannot_create_gallery_image (test_site01_candidate.Site01MediaPermissionsTests.test_view_permission_cannot_create_gallery_image) (check='status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 29, in denied
+    with self.subTest(check='status'):self.assertEqual(r.status_code,403)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 200 != 403
+
+======================================================================
+FAIL: test_view_permission_cannot_create_gallery_image (test_site01_candidate.Site01MediaPermissionsTests.test_view_permission_cannot_create_gallery_image) (check='no-mutation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 30, in denied
+    with self.subTest(check='no-mutation'):self.assertEqual(self.snapshot(),before)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'log[133 chars]ba9c', 'responsive-images/v1/4a6335010e7ee2dfe[348 chars]: 10} != {'log[133 chars]ba9c'}, 'gallery': 9}
+Diff is 874 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_viewer_hub_has_no_mutation_controls (test_site01_candidate.Site01MediaPermissionsTests.test_viewer_hub_has_no_mutation_controls) (marker='class="km-media-file-input"')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 36, in test_viewer_hub_has_no_mutation_controls
+    with self.subTest(marker=marker):self.assertFalse(marker in body, "Unexpected mutation control: "+marker)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : Unexpected mutation control: class="km-media-file-input"
+
+======================================================================
+FAIL: test_viewer_hub_has_no_mutation_controls (test_site01_candidate.Site01MediaPermissionsTests.test_viewer_hub_has_no_mutation_controls) (marker='km-media-upload-btn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 36, in test_viewer_hub_has_no_mutation_controls
+    with self.subTest(marker=marker):self.assertFalse(marker in body, "Unexpected mutation control: "+marker)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : Unexpected mutation control: km-media-upload-btn
+
+======================================================================
+FAIL: test_viewer_hub_has_no_mutation_controls (test_site01_candidate.Site01MediaPermissionsTests.test_viewer_hub_has_no_mutation_controls) (marker='km-media-delete-btn')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 36, in test_viewer_hub_has_no_mutation_controls
+    with self.subTest(marker=marker):self.assertFalse(marker in body, "Unexpected mutation control: "+marker)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : Unexpected mutation control: km-media-delete-btn
+
+======================================================================
+FAIL: test_viewer_hub_has_no_mutation_controls (test_site01_candidate.Site01MediaPermissionsTests.test_viewer_hub_has_no_mutation_controls) (marker='class="km-gallery-add"')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/site01-pc-plan-r1/test_site01_candidate.py", line 36, in test_viewer_hub_has_no_mutation_controls
+    with self.subTest(marker=marker):self.assertFalse(marker in body, "Unexpected mutation control: "+marker)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : Unexpected mutation control: class="km-gallery-add"
+
+----------------------------------------------------------------------
+Ran 28 tests in 7.785s
+
+FAILED (failures=31)
+Preserving test database for alias 'default' ('test_m10s01_plan_r1')...

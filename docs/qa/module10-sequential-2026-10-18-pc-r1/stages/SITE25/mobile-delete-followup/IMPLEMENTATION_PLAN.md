@@ -1,0 +1,3 @@
+# SITE25 measured scope refinement
+
+First final native run exposed genuine mobile view+delete action invisibility360/390, then focus cannot open modal. No deletion happened. Source shared shell hides mobile actions; settings override only editable class, delete-only intentionally not editable. Add separate actions class for editable OR permitted existing delete; preserve editable marker/save gate. CSS mobile override targets actions class.2files template/CSS plus new own SITE25 semantic regression assertion; existing assertions unchanged. Cache-version settings CSS to ensure new asset. Preserve failed raw native run and execute new r2 suite. No grants/new visible save controls.

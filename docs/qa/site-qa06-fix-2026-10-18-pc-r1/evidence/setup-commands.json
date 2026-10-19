@@ -1,0 +1,37 @@
+[
+  {
+    "command": [
+      "python3",
+      "/mnt/c/kidsmap/scripts/build_isolated_locales.py",
+      "build",
+      "--source-locale",
+      "/mnt/c/kidsmap/locale",
+      "--output",
+      "/mnt/c/kidsmap/.tmp/site06-pc-fix-r1/locales-red",
+      "--compiler",
+      "native"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "m10s06-fix-r1-app",
+      "python",
+      "/mnt/c/kidsmap/.tmp/site06-pc-fix-r1/runtime.py",
+      "migrate"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "m10s06-fix-r1-app",
+      "python",
+      "/mnt/c/kidsmap/.tmp/site06-pc-fix-r1/seed.py"
+    ],
+    "exit": 0
+  }
+]

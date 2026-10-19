@@ -1,0 +1,21 @@
+{
+  "app_id": "74cdbf1ffa9f7200d83256471f56d7d6c3518d9aabe73e45a69c2bc7f2bae3f6",
+  "pg_id": "0c206e9e2e6e5dd9ae309187ec1af640a5c855c51a1183f17fe209755694c3c6",
+  "internal_network": true,
+  "app_readonly_root": true,
+  "mounts": [
+    {
+      "destination": "/mnt/c/kidsmap/.tmp/social08-pc-fix-r1",
+      "RW": true
+    },
+    {
+      "destination": "/mnt/c/kidsmap",
+      "RW": false
+    }
+  ],
+  "profile": "social08-pc-fix-r1",
+  "loopback_port": 33359,
+  "browser_session": "social08-pc-fix-r1",
+  "normal_db": "own fictional m09s08_plan_r1 reused after ownership proof",
+  "test_db": "test_m09s08_fix_r1"
+}

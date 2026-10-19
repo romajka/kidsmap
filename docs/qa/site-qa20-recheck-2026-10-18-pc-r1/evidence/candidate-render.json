@@ -1,0 +1,449 @@
+{
+  "status": "PASS: isolated candidate render only, NOT APPLIED-source GREEN or native candidate evidence",
+  "runtime_consumers": [
+    "catalog.catalogcontentsettings",
+    "catalog.siteaboutsettings",
+    "catalog.siteanalytics",
+    "catalog.sitebrandingsettings",
+    "catalog.sitecontactssettings",
+    "catalog.siteemptystatesettings",
+    "catalog.sitefootersettings",
+    "catalog.sitegalleryimage",
+    "catalog.sitevisibilitysettings"
+  ],
+  "rows": [
+    {
+      "role": "all_viewer",
+      "model": "sitebrandingsettings",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_viewer",
+      "model": "siteaboutsettings",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_viewer",
+      "model": "sitecontactssettings",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_viewer",
+      "model": "sitefootersettings",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_viewer",
+      "model": "siteemptystatesettings",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_viewer",
+      "model": "sitevisibilitysettings",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_viewer",
+      "model": "siteanalytics",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_viewer",
+      "model": "catalogcontentsettings",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_viewer",
+      "model": "sitegalleryimage",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_editor",
+      "model": "sitebrandingsettings",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_editor",
+      "model": "siteaboutsettings",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_editor",
+      "model": "sitecontactssettings",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_editor",
+      "model": "sitefootersettings",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_editor",
+      "model": "siteemptystatesettings",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_editor",
+      "model": "sitevisibilitysettings",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_editor",
+      "model": "siteanalytics",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_editor",
+      "model": "catalogcontentsettings",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "all_editor",
+      "model": "sitegalleryimage",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "gallery_adder",
+      "model": "sitegalleryimage",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "role": "gallery_deleter",
+      "model": "sitegalleryimage",
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    }
+  ],
+  "truth_table": [
+    {
+      "add": false,
+      "change": false,
+      "has_add": false,
+      "has_delete": false,
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "add": false,
+      "change": false,
+      "has_add": false,
+      "has_delete": true,
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "add": false,
+      "change": false,
+      "has_add": true,
+      "has_delete": false,
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "add": false,
+      "change": false,
+      "has_add": true,
+      "has_delete": true,
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "add": false,
+      "change": true,
+      "has_add": false,
+      "has_delete": false,
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "add": false,
+      "change": true,
+      "has_add": false,
+      "has_delete": true,
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "add": false,
+      "change": true,
+      "has_add": true,
+      "has_delete": false,
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "add": false,
+      "change": true,
+      "has_add": true,
+      "has_delete": true,
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "add": true,
+      "change": false,
+      "has_add": false,
+      "has_delete": false,
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "add": true,
+      "change": false,
+      "has_add": false,
+      "has_delete": true,
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "add": true,
+      "change": false,
+      "has_add": true,
+      "has_delete": false,
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "add": true,
+      "change": false,
+      "has_add": true,
+      "has_delete": true,
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "add": true,
+      "change": true,
+      "has_add": false,
+      "has_delete": false,
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "add": true,
+      "change": true,
+      "has_add": false,
+      "has_delete": true,
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "add": true,
+      "change": true,
+      "has_add": true,
+      "has_delete": false,
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    },
+    {
+      "add": true,
+      "change": true,
+      "has_add": true,
+      "has_delete": true,
+      "checks": {
+        "save": true,
+        "continue": true,
+        "editable": true,
+        "delete": true,
+        "card": true
+      }
+    }
+  ],
+  "checks": 180,
+  "passed": true,
+  "django_version": "6.0.2"
+}

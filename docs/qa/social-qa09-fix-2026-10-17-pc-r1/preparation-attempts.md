@@ -1,0 +1,5 @@
+# Preparation / limits
+
+Exact approved candidate applied with git apply --ignore-space-change, exit0. Git reported one nonfatal new blank line at EOF in the approved new regression file; exact candidate retained rather than changing its hash. AST and source guards pass. No application tests rerun after success: one12-method GREEN run3.853s. Current native matrix adds only3reload controls to original15controls/6source assertions and captures all console/network failures; no assertion weakened. Normal fixture DB reused only after ownership/internal-network/RO/current-source proof, no reseed or concurrent fixture mutation. Prior PLAN09 RED33fail/current9methods retained unchanged.
+
+ADJ-ANONYMOUS-LOGIN-08 remains OPEN/P2 outside09 scope; no auth/settings changes or full ACCEPT09/global execution. Finite lifetime of older QA app containers can cause state changes independently of this task; publication records actual ID/name/state deltas without stopping/restarting old runtimes or claiming whole-machine continuity.

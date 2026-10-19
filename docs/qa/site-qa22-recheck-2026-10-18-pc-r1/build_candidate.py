@@ -1,0 +1,13 @@
+import ast,difflib,hashlib,json,subprocess
+from pathlib import Path
+R=Path('/mnt/c/kidsmap');O=Path(__file__).resolve().parent;Q=R/'.tmp/site22-pc-plan-r1';sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+red=json.loads((O/'evidence/red-backend.json').read_text());assert red['exit']==1 and red['failure_observations']==20 and not red['errors']
+rel='src/catalog/domain_admin/site.py';before=(R/rel).read_bytes();needle=b'    def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):\r\n';start=before.index(b'class _BaseSiteSettingsSectionAdmin(');at=before.index(needle,start)
+extra=b'    def response_post_save_change(self, request, obj):\r\n        """Exit a saved subsection to the existing settings hub."""\r\n        return redirect(reverse("admin:catalog_sitesettings_changelist"))\r\n\r\n'
+after=before[:at]+extra+before[at:];p=O/'candidate'/rel;p.parent.mkdir(parents=True);p.write_bytes(after);ast.parse(after.decode())
+testrel='src/catalog/testcases/test_site_qa22_save_exit.py';assert not (R/testrel).exists();test=(O/'test_site22_candidate.py').read_bytes();p=O/'candidate'/testrel;p.parent.mkdir(parents=True);p.write_bytes(test);ast.parse(test.decode())
+diff=''.join(difflib.unified_diff(before.decode().splitlines(True),after.decode().splitlines(True),fromfile='a/'+rel,tofile='b/'+rel))
+diff+=''.join(difflib.unified_diff([],test.decode().splitlines(True),fromfile='/dev/null',tofile='b/'+testrel));(O/'proposed.diff').write_bytes(diff.encode())
+check=subprocess.run(['git','-C',str(R),'apply','--check',str(O/'proposed.diff')],capture_output=True,text=True);(Q/'candidate-apply-check.log').write_text(check.stdout+check.stderr);assert check.returncode==0,check.stderr
+manifest={'files':{rel:{'before_sha256':sha(R/rel),'candidate_sha256':sha(O/'candidate'/rel)},testrel:{'before_sha256':None,'candidate_sha256':sha(O/'candidate'/testrel)}},'diff_sha256':sha(O/'proposed.diff'),'not_applied':True,'application_changes':0,'scope':'SITE22: normal subsection Save exits to existing settings hub; six base subclasses only; persistent meaningful regression suite'}
+(O/'candidate-manifest.json').write_text(json.dumps(manifest,indent=2));(O/'evidence/candidate-checks.json').write_text(json.dumps({'candidate_AST_parse':True,'git_apply_check_exit':check.returncode,'CRLF_existing_source_preserved':b'\n' not in after.replace(b'\r\n',b''),'no_spaces_tabs_before_EOL':all(not line.endswith((b' ',b'\t')) for line in after.splitlines()),'WSL_Git_CRLF_diagnostic':bool(check.stderr),'candidate_not_applied':True},indent=2));print(json.dumps(manifest,indent=2))

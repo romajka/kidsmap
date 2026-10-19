@@ -1,0 +1,23 @@
+import json
+from django.core.cache import cache
+from django.test import TestCase,override_settings
+from django.urls import reverse
+from catalog.models import FunnelEvent,Place,AnalyticsIngressDaily
+
+@override_settings(LOCAL_ANALYTICS_STORAGE_ENABLED=True,ANALYTICS_IDENTITY_HASH_KEY='fictional-module12-payload-key')
+class PayloadBoundaryTests(TestCase):
+    def setUp(self):
+        cache.clear();self.place=Place.objects.create(name='M12 payload fixture',category='EDU',is_active=True,status='published');self.client.raise_request_exception=False
+    def send(self,**kwargs):
+        payload={'event_type':'phone_click','place_id':self.place.pk};payload.update(kwargs.pop('payload',{}))
+        return self.client.post(reverse('track_event'),data=json.dumps(payload),content_type='application/json',HTTP_ORIGIN='http://testserver',**kwargs)
+    def test_unparseable_numeric_ids_are_bad_requests_without_writes(self):
+        for value in ['²','9'*5000]:
+            with self.subTest(value_kind='unicode' if len(value)==1 else 'oversized'):
+                result=self.send(payload={'place_id':value});self.assertEqual(result.status_code,400);self.assertFalse(FunnelEvent.objects.exists())
+    def test_malformed_optional_referrer_does_not_crash_valid_event(self):
+        result=self.send(HTTP_REFERER='http://[')
+        self.assertEqual(result.status_code,200);self.assertEqual(FunnelEvent.objects.get().referrer_domain,'')
+    def test_valid_referrer_keeps_domain_only_and_payload_dimensions_stay_server_owned(self):
+        result=self.send(HTTP_REFERER='https://user:fictional@example.invalid/secret-path?q=fictional',payload={'visitor_key_hash':'forged','session_key_hash':'forged','subject_id':999,'event_meta':{'private':'fictional'}})
+        self.assertEqual(result.status_code,200);event=FunnelEvent.objects.get();self.assertEqual(event.referrer_domain,'example.invalid');self.assertEqual(event.subject_id,self.place.pk);self.assertEqual(event.event_meta,{});self.assertNotIn('forged',event.visitor_key_hash)

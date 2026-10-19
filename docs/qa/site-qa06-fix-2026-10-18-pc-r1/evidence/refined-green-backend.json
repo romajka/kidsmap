@@ -1,0 +1,25 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m10s06-fix-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/site06-pc-fix-r1/runtime.py",
+    "test",
+    "catalog.testcases.test_site_qa06_media_validation",
+    "catalog.testcases.test_site_qa01_media_permissions",
+    "catalog.testcases.test_site_qa15_settings_concurrency",
+    "catalog.testcases.admin.TestSiteGalleryImageAdminMedia",
+    "catalog.testcases.admin.TestAdminSidebarStructure",
+    "catalog.testcases.test_public_section_switches"
+  ],
+  "exit": 0,
+  "failed_methods": [],
+  "failure_observations": 0,
+  "errors": 0,
+  "summary": [
+    "Ran 85 tests in 56.448s",
+    "OK"
+  ],
+  "raw_sha256": "6532bc119ae3b32a4f5c87f6f92f3e275bab4e1a81cd641e4f180fbeacb4bf5c"
+}

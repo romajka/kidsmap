@@ -1,0 +1,49 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m10s06-fix-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/site06-pc-fix-r1/runtime.py",
+    "test",
+    "test_site06_candidate",
+    "catalog.testcases.test_site_qa01_media_permissions",
+    "catalog.testcases.test_site_qa15_settings_concurrency",
+    "catalog.testcases.admin.TestSiteGalleryImageAdminMedia",
+    "catalog.testcases.admin.TestAdminSidebarStructure",
+    "catalog.testcases.test_public_section_switches"
+  ],
+  "exit": 1,
+  "candidate_methods": 29,
+  "candidate_sha256": "a7590ada4c9f2ba1cffdd47c53909f42a72a7f847fd78c2ea0c206b9f1f4ae33",
+  "failed_methods": [
+    "test_active_or_external_svg_is_rejected_without_parsing_side_effects",
+    "test_animated_png_is_rejected_by_static_media_policy",
+    "test_branding_form_rejects_corrupt_file_and_keeps_stored_logo",
+    "test_corrupt_png_gallery_does_not_create_row_or_file",
+    "test_corrupt_png_main_does_not_replace_logo",
+    "test_declared_extension_must_match_decoded_format",
+    "test_declared_mime_must_match_decoded_format",
+    "test_dimension_over_12000_is_rejected_before_storage",
+    "test_direct_analytics_form_cannot_bypass_file_validation",
+    "test_empty_file_is_rejected_without_write",
+    "test_errors_are_localized_in_ru_az_en",
+    "test_gallery_add_form_rejects_corrupt_file",
+    "test_logo_over_500kib_is_rejected",
+    "test_malformed_svg_is_rejected",
+    "test_other_media_over_2mib_is_rejected",
+    "test_partner_over_500kib_is_rejected",
+    "test_pixels_over_50million_are_rejected_before_storage",
+    "test_svg_is_rejected_for_other_destinations",
+    "test_truncated_raster_after_a_real_header_is_rejected",
+    "test_unknown_gallery_placement_cannot_create_media",
+    "test_unsupported_real_gif_is_rejected"
+  ],
+  "failure_observations": 106,
+  "errors": 0,
+  "summary": [
+    "Ran 84 tests in 54.356s",
+    "FAILED (failures=106)"
+  ],
+  "raw_sha256": "b5c9b6a5c89d6d4bada4da12ca9c70696d951e7e86a280af204275d4491b3362"
+}

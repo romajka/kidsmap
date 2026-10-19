@@ -1,0 +1,29 @@
+# Keep code and Markdown reports searchable; omit generated QA data from the graph.
+# This changes indexing only. The original reports and evidence stay on disk.
+/docs/qa/**/*.json
+/docs/qa/**/*.jsonl
+/docs/qa/**/*.ndjson
+/docs/qa/**/*.csv
+/docs/qa/**/*.tsv
+/docs/qa/**/*.xml
+/docs/qa/**/*.po
+/docs/task33/**/*.json
+/docs/task33/**/*.jsonl
+/docs/task33/**/*.ndjson
+/docs/task33/**/*.csv
+/docs/task33/**/*.tsv
+/docs/task33/**/*.xml
+/docs/task33/**/*.po
+
+# Generated copies, local output and caches are not application source.
+/backups/
+/.codebase-memory/
+/.tmp/
+/tmp/
+/output/
+/scratch/
+/staticfiles/
+/.playwright-cli/
+/.playwright-mcp/
+/.venv/
+__pycache__/

@@ -1,0 +1,187 @@
+{
+  "decision": "SOCIAL-QA-03 CLOSED LOCAL — scoped functional acceptance; module09 OPEN",
+  "date": "2026-10-16",
+  "timezone": "Asia/Baku",
+  "identity": "/root; canonical roles sequential, no independent subagents",
+  "approved_plan": "docs/qa/module09-pc-resume-2026-10-16-r1/IMPLEMENTATION_PLAN.md",
+  "approval": "approval.json",
+  "snapshot": {
+    "root": "C:/kidsmap",
+    "head": "852938d96764ae315b92859e3651e5ea62054a36",
+    "branch": "codex/module09-transfer-2026-10-16-r1",
+    "dirty": true,
+    "source_files": 1020
+  },
+  "patch": {
+    "application_files": [
+      "src/catalog/controllers/typed_reviews.py",
+      "src/catalog/templates/catalog/typed_reviews.html",
+      "src/catalog/testcases/test_social_qa03_conflict_recovery.py"
+    ],
+    "matches_approved_candidates_normalized": true,
+    "existing_assertions_changed": false,
+    "services_schema_po_js_css_changed": false
+  },
+  "tests": {
+    "red_exit": 1,
+    "red_methods": 6,
+    "red_failing_methods": 3,
+    "red_assertion_failures": 14,
+    "red_errors": 0,
+    "green_exit": 0,
+    "green_unique_methods": 10,
+    "green_failures": 0,
+    "green_errors": 0,
+    "green_seconds": 9.808,
+    "unchanged_full_suites_repeated": false,
+    "test_db": "own isolated PostgreSQL17.11 keepdb; no production credentials"
+  },
+  "runtime": {
+    "phase": "green",
+    "source_files": 1020,
+    "python": "3.12.15",
+    "django": "6.0.2",
+    "postgresql": "17.11",
+    "sole_locale_paths": [
+      "/mnt/c/kidsmap/.tmp/social03-pc-fix-r1/locales/locale"
+    ],
+    "template": "/mnt/c/kidsmap/src/catalog/templates/catalog/typed_reviews.html",
+    "template_sha256": "639bc24201b89862fa1b443ae9864d52b18c278e8edb96eb5ea948c91b5a4a5c",
+    "testing": true,
+    "cooldown_seconds": 120
+  },
+  "native_counts": {
+    "matrix": {
+      "cases": 72,
+      "pass": 1224,
+      "fail": 0
+    },
+    "race": {
+      "cases": 24,
+      "pass": 314,
+      "fail": 0
+    },
+    "guards": {
+      "cases": 24,
+      "pass": 264,
+      "fail": 0
+    },
+    "retry": {
+      "cases": 24,
+      "pass": 222,
+      "fail": 0
+    }
+  },
+  "normal_unhandled_pageerrors": 0,
+  "png": {
+    "total": 127,
+    "accepted_ui": 121,
+    "simulated": 4,
+    "retained_attempts": 2
+  },
+  "normalization_supplement": "race first-case one validated-text check uses explicit supplementary real HTTP409; original failed raw-space oracle retained",
+  "queued_retry_case": "First Place390 original native B request released by unrouteAll; one new B revision/readback, native approval. No second B POST. Failed restore no-write assertions remain recorded.",
+  "simulated": {
+    "finite500ms_loading_cases": 4,
+    "blocked_post_transport_cases": 4,
+    "external": "browser localhost allowlist, app internal Docker network; real external services not tested",
+    "auth_setup": "QA-only fictional fixture login; review actions use actual routes/UI"
+  },
+  "http_codes": {
+    "302": 196,
+    "200": 17102,
+    "301": 20,
+    "409": 124,
+    "429": 3,
+    "403": 24
+  },
+  "preservation": {
+    "head": true,
+    "branch": true,
+    "index_tree": true,
+    "unapproved_source_unchanged": true,
+    "shared_mo": true,
+    "active_run": [
+      "active_run: NONE"
+    ],
+    "foreign_containers_entry": 26,
+    "foreign_container_ids_states_match": [
+      "kidsmap-place-qa08-fix-20261011-r1",
+      "kidsmap-module01-recheck-20261011-r1",
+      "kidsmap-module13-20261011-r1",
+      "kidsmap-module12-20261011-r1",
+      "kidsmap-module11-20261011-r1",
+      "kidsmap-placeqa01-07-fix-20261010-r2",
+      "kidsmap-module10-20261010-r1",
+      "kidsmap-placeqa01-07-fix-20261010",
+      "kidsmap-module09-20261010-r1",
+      "kidsmap-module08-20261010-r1",
+      "kidsmap-module07-20261010-r1",
+      "kidsmap-placeqa07-plan-20261010",
+      "kidsmap-module06-20261010-r1",
+      "kidsmap-placeqa06-plan-20261010",
+      "kidsmap-module05-20261010-r1",
+      "kidsmap-placeqa05-plan-20261010",
+      "kidsmap-placeqa03-plan-20261010",
+      "kidsmap-module04-20261010-r1",
+      "kidsmap-module03-20261010-r1",
+      "kidsmap-module01-20261009-r2",
+      "kidsmap-module02-20261009-r1",
+      "kidsmap-module01-20261009-r1",
+      "kidsmap-manual-portable",
+      "kidsmap-manual-20261004"
+    ],
+    "foreign_container_state_changes": [
+      "m09pc-r1-app",
+      "m09pc-r1-pg"
+    ],
+    "foreign_restart_commands": 0,
+    "whole_machine_process_continuity": "NOT VERIFIED; WSL discontinuity recorded"
+  },
+  "style_observation": {
+    "title": "Контраст общей кнопки",
+    "normal": {
+      "color": "rgb(255, 255, 255)",
+      "background": "rgb(76, 175, 80)",
+      "fontSize": "16px",
+      "fontWeight": "400"
+    },
+    "conflict": {
+      "color": "rgb(255, 255, 255)",
+      "background": "rgb(76, 175, 80)",
+      "fontSize": "16px",
+      "fontWeight": "400"
+    },
+    "contrast": 2.7795697203442264,
+    "qa_threshold": 4.5,
+    "css": "static/css/pages/typed_reviews.css:15",
+    "css_unchanged": true,
+    "classification": "Existing shared style observation, outside SOCIAL03 recovery scope; no CSS edits. Separate plan needed; no full WCAG PASS."
+  },
+  "not_run": [
+    "full ACCEPT09/global project corpus",
+    "SOCIAL04-09/module10",
+    "production/commit/push/deploy",
+    "physical devices/cross-browser/real screenreader",
+    "real external integrations",
+    "full WCAG audit"
+  ],
+  "metadata_gate": "VERIFIED scoped source/evidence integrity; functional closure03 only; module09 OPEN",
+  "metadata_integrity": {
+    "source1020_match_green": true,
+    "unapproved_entry_source_match": true,
+    "approved_candidate_matches": 3,
+    "existing_test_assertions_changed": false,
+    "head_branch_task33_index_active_run_match": true,
+    "shared_mo_match": true,
+    "prior_package_manifest_match_files": 43,
+    "guide_original_bytes_preserved": true,
+    "untracked_cbmignore_retained_since_late_observation": true,
+    "png_sha_dimensions_verified": 127,
+    "document_links_verified": 37,
+    "git_diff_check_exit": 0,
+    "artifact_manifest_files": 181,
+    "live_final_source_locales_match": true,
+    "failed_attempts_preserved_without_pass_relabeling": true
+  }
+}

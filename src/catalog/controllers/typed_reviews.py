@@ -6,7 +6,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import get_language
 from django.views.decorators.http import require_http_methods, require_POST
-from catalog.services.permanent_place_rules import copy as t
 from catalog.services.review_versions import (review_types, submit_review, moderate_candidate, business_can_respond, respond_to_review, rating_summary, ReviewConflict, ReviewCooldown)
 from catalog.services.content_quality import approved_review_queryset
 from catalog.services.public_presentation import present
@@ -42,6 +41,8 @@ def target_reviews(request, kind, pk):
     target = _target(kind, pk, request)
     _, heads, _, _ = _types(kind)
     url = reverse('typed_reviews', args=[kind, pk])
+    review_conflict = False
+    submitted_review = None
     if request.method == 'POST':
         if not request.user.is_authenticated:
             return HttpResponseForbidden()
@@ -64,7 +65,8 @@ def target_reviews(request, kind, pk):
                     author_name=content.author_name, contains_profanity=content.contains_profanity,
                     expected_revision_id=request.POST.get('expected_revision_id') or None, enforce_cooldown=kind != 'specialist')
         except ReviewConflict:
-            return HttpResponse(t('Отзыв изменился. Обновите страницу.', 'Rəy dəyişib. Səhifəni yeniləyin.', 'The review changed. Reload the page.'), status=409)
+            review_conflict = True
+            submitted_review = {'rating': payload.rating, 'text': payload.text}
         except ValidationError:
             return HttpResponse(status=400)
         except PermissionError:
@@ -74,9 +76,10 @@ def target_reviews(request, kind, pk):
             response = JsonResponse({'ok': False, 'cooldown': cooldown_payload(exc.next_allowed_at)}, status=429)
             response['Retry-After'] = str(cooldown_payload(exc.next_allowed_at)['retry_after'])
             return response
-        from catalog.services.moderation_sla import submission_message
-        messages.success(request, submission_message('review'))
-        return redirect(url)
+        if not review_conflict:
+            from catalog.services.moderation_sla import submission_message
+            messages.success(request, submission_message('review'))
+            return redirect(url)
     reviews = list(approved_review_queryset(heads.objects.filter(**{kind: target})).select_related('current_revision').order_by('-moderated_at', '-pk'))
     from catalog.services.reactions import _mark_review_reactions
     reviews = _mark_review_reactions(reviews, request, reaction_model=_types(kind)[3])
@@ -92,7 +95,7 @@ def target_reviews(request, kind, pk):
             own_decision = latest
     can_review = request.user.is_active and request.user.is_staff and request.user.has_perm('catalog.change_' + heads._meta.model_name)
     candidates = list(heads.objects.filter(**{kind: target, 'is_current': True, 'candidate_revision__status': 'pending'}).select_related('candidate_revision')) if can_review else []
-    return render(request, 'catalog/typed_reviews.html', {'kind': kind, 'target': target, 'target_name': getattr(target, 'name_i18n', None) or str(target), 'language': getattr(request, 'LANGUAGE_CODE', get_language()), 'reviews': reviews, 'own_review': own, 'own_review_decision': own_decision, 'candidates': candidates, 'review_rating': rating_summary(target)})
+    return render(request, 'catalog/typed_reviews.html', {'kind': kind, 'target': target, 'target_name': present(target, getattr(request, 'LANGUAGE_CODE', get_language()))['name'] if kind == 'activity' else (getattr(target, 'name_i18n', None) or str(target)), 'language': getattr(request, 'LANGUAGE_CODE', get_language()), 'reviews': reviews, 'own_review': own, 'own_review_decision': own_decision, 'candidates': candidates, 'review_rating': rating_summary(target), 'review_conflict': review_conflict, 'submitted_review': submitted_review}, status=409 if review_conflict else 200)
 
 
 @require_POST
@@ -122,6 +125,11 @@ def review_action(request, kind, pk, action):
     except PermissionError:
         return HttpResponseForbidden()
     except ReviewConflict:
+        if action == 'react':
+            return render(request, 'catalog/review_reaction_conflict.html', {
+                'review_reload_url': reverse('typed_reviews', args=[kind, target.pk]),
+                'language': getattr(request, 'LANGUAGE_CODE', get_language()),
+            }, status=409)
         return HttpResponse(status=409)
     except ValidationError:
         return HttpResponse(status=400)

@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/.tmp/module09-pc-resume-2026-10-16-r1/runtime.py", line 49, in <module>
+    moderate_candidate(head=head, revision_id=head.candidate_revision_id, actor=staff, approve=True)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'candidate_revision_id'

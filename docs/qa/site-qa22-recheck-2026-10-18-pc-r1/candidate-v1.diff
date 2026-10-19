@@ -1,0 +1,201 @@
+--- a/src/catalog/domain_admin/site.py
++++ b/src/catalog/domain_admin/site.py
+@@ -180,6 +180,10 @@
+         opts = self.model._meta
+         url = reverse(f"admin:{opts.app_label}_{opts.model_name}_change", args=[obj.pk])
+         return redirect(url)
++
++    def response_post_save_change(self, request, obj):
++        """Exit a saved subsection to the existing settings hub."""
++        return redirect(reverse("admin:catalog_sitesettings_changelist"))
+ 
+     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
+         context["km_settings_title"] = self.model._meta.verbose_name.capitalize()
+--- /dev/null
++++ b/src/catalog/testcases/test_site_qa22_save_exit.py
+@@ -0,0 +1,185 @@
++"""Candidate integration regression: saved subsection exits to the existing hub.
++
++Mutation caught: returning a subsection changelist loops back to its editor;
++putting the hook on the shared revision mixin also redirects analytics incorrectly.
++Expectations come from the visible settings-hub navigation, not admin internals.
++"""
++import html
++import re
++import tempfile
++from pathlib import Path
++
++from django import forms
++from django.conf import settings
++from django.contrib.admin.models import LogEntry
++from django.contrib.auth import get_user_model
++from django.contrib.auth.models import Permission
++from django.test import TestCase, override_settings
++from django.urls import reverse
++from django.utils import translation
++
++from catalog.models import SiteSettings, CatalogContentSettings
++from catalog.models.site import clear_singleton_caches
++
++
++SECTIONS = (
++    ('sitebrandingsettings', 'brand_name', 'SITE22 fictional brand'),
++    ('siteaboutsettings', 'about_text_ru', 'SITE22 fictional about'),
++    ('sitecontactssettings', 'contacts_text_ru', 'SITE22 fictional contacts'),
++    ('sitefootersettings', 'footer_email', 'site22-new@example.invalid'),
++    ('siteemptystatesettings', 'empty_results_text_ru', 'SITE22 fictional empty'),
++    ('sitevisibilitysettings', 'public_favorites_minimum', '7'),
++)
++
++
++class Site22SaveExitTests(TestCase):
++    def setUp(self):
++        self.assertTrue(settings.TESTING)
++        self.temp = tempfile.TemporaryDirectory(prefix='site22-')
++        self.addCleanup(self.temp.cleanup)
++        override = override_settings(MEDIA_ROOT=self.temp.name)
++        override.enable()
++        self.addCleanup(override.disable)
++        clear_singleton_caches()
++        self.actor = get_user_model().objects.create_superuser(
++            'site22_actor', 'site22-actor@example.invalid', 'fictional')
++        self.client.force_login(self.actor)
++        self.site = SiteSettings.get_solo()
++        self.site.footer_email = 'site22-before@example.invalid'
++        self.site.save()
++        self.catalog = CatalogContentSettings.get_solo()
++
++    def payload(self, model, language='ru', button='_save'):
++        self.client.cookies['django_language'] = language
++        with translation.override(language):
++            pk = self.catalog.pk if model == 'catalogcontentsettings' else self.site.pk
++            url = reverse('admin:catalog_' + model + '_change', args=[pk])
++        response = self.client.get(url)
++        self.assertEqual(response.status_code, 200)
++        form = response.context['adminform'].form
++        data = {button: '1'}
++        for name, field in form.fields.items():
++            value = form[name].value()
++            if isinstance(field, forms.FileField):
++                continue
++            if isinstance(field, forms.BooleanField):
++                if value:
++                    data[name] = 'on'
++            else:
++                data[name] = '' if value is None else value
++        token = re.search(r'name="settings_revision" value="([^"]*)"', response.content.decode())
++        if token:
++            data['settings_revision'] = html.unescape(token.group(1))
++        return url, data
++
++    def snapshot(self):
++        self.site.refresh_from_db()
++        return ({f.name: f.value_to_string(self.site) for f in self.site._meta.concrete_fields},
++                LogEntry.objects.count(), sorted(p.relative_to(self.temp.name).as_posix()
++                                                for p in Path(self.temp.name).rglob('*') if p.is_file()))
++
++    def test_save_exits_all_six_sections_to_localized_hub(self):
++        for language in ['az', 'ru', 'en']:
++            with translation.override(language):
++                hub = reverse('admin:catalog_sitesettings_changelist')
++            for model, field, value in SECTIONS:
++                with self.subTest(language=language, model=model):
++                    url, data = self.payload(model, language)
++                    data[field] = value
++                    before = LogEntry.objects.count()
++                    response = self.client.post(url, data, follow=True)
++                    self.site.refresh_from_db()
++                    self.assertEqual(str(getattr(self.site, field)), value)
++                    self.assertEqual(LogEntry.objects.count(), before + 1)
++                    self.assertEqual(response.status_code, 200)
++                    self.assertTemplateUsed(response, 'admin/catalog/site_settings_hub.html')
++                    self.assertEqual(response.redirect_chain, [(hub, 302)])
++                    self.assertTrue(any('success' in m.tags for m in response.context['messages']))
++
++    def test_continue_stays_in_editor_after_exactly_one_save(self):
++        for model, field, value in SECTIONS:
++            with self.subTest(model=model):
++                url, data = self.payload(model, button='_continue')
++                data[field] = value
++                before = LogEntry.objects.count()
++                response = self.client.post(url, data, follow=True)
++                self.assertEqual(response.status_code, 200)
++                self.assertEqual(response.request['PATH_INFO'], url)
++                self.assertEqual(len(response.redirect_chain), 1)
++                self.assertEqual(LogEntry.objects.count(), before + 1)
++                self.site.refresh_from_db()
++                self.assertEqual(str(getattr(self.site, field)), value)
++
++    def test_default_enter_submission_exits_to_hub(self):
++        url, data = self.payload('sitefootersettings')
++        data.pop('_save')
++        data['footer_email'] = 'site22-enter@example.invalid'
++        with translation.override('ru'):
++            hub = reverse('admin:catalog_sitesettings_changelist')
++        response = self.client.post(url, data, follow=True)
++        self.assertEqual(response.redirect_chain, [(hub, 302)])
++
++    def test_invalid_form_does_not_exit_or_write(self):
++        url, data = self.payload('sitefootersettings')
++        data['footer_email'] = 'invalid-email'
++        before = self.snapshot()
++        response = self.client.post(url, data)
++        self.assertEqual(response.status_code, 200)
++        self.assertEqual(response.context['adminform'].form['footer_email'].value(), 'invalid-email')
++        self.assertIn('footer_email', response.context['adminform'].form.errors)
++        self.assertEqual(self.snapshot(), before)
++
++    def test_stale_save_keeps_draft_and_does_not_exit(self):
++        url, stale = self.payload('sitefootersettings')
++        _, fresh = self.payload('sitefootersettings', button='_continue')
++        fresh['footer_email'] = 'site22-first@example.invalid'
++        self.assertEqual(self.client.post(url, fresh).status_code, 302)
++        before = self.snapshot()
++        stale['footer_email'] = 'site22-stale@example.invalid'
++        response = self.client.post(url, stale)
++        self.assertEqual(response.status_code, 409)
++        self.assertEqual(response.context['adminform'].form['footer_email'].value(), stale['footer_email'])
++        self.assertEqual(self.snapshot(), before)
++
++    def test_denied_post_does_not_save_or_redirect_to_hub(self):
++        url, data = self.payload('sitefootersettings')
++        denied = get_user_model().objects.create_user('site22_denied', is_staff=True)
++        self.client.force_login(denied)
++        before = self.snapshot()
++        self.assertEqual(self.client.post(url, data).status_code, 403)
++        self.assertEqual(self.snapshot(), before)
++
++    def test_proxy_only_editor_can_exit_to_existing_hub(self):
++        editor = get_user_model().objects.create_user('site22_proxy_editor', is_staff=True)
++        editor.user_permissions.add(Permission.objects.get(
++            content_type__app_label='catalog', codename='change_sitefootersettings'))
++        self.client.force_login(editor)
++        self.assertFalse(editor.has_perm('catalog.view_sitesettings'))
++        url, data = self.payload('sitefootersettings')
++        data['footer_email'] = 'site22-proxy@example.invalid'
++        with translation.override('ru'):
++            hub = reverse('admin:catalog_sitesettings_changelist')
++        response = self.client.post(url, data, follow=True)
++        self.assertEqual(response.status_code, 200)
++        self.assertEqual(response.redirect_chain, [(hub, 302)])
++
++    def test_analytics_save_retains_its_statistics_destination(self):
++        url, data = self.payload('siteanalytics')
++        data['footer_email'] = 'site22-analytics@example.invalid'
++        with translation.override('ru'):
++            destination = reverse('admin:catalog_siteanalytics_changelist')
++        response = self.client.post(url, data, follow=True)
++        self.assertEqual(response.status_code, 200)
++        self.assertTemplateUsed(response, 'admin/catalog/site_analytics.html')
++        self.assertEqual(response.redirect_chain, [(destination, 302)])
++
++    def test_catalog_save_keeps_catalog_destination(self):
++        url, data = self.payload('catalogcontentsettings')
++        data['districts_json'] = '["site22-fictional-district"]'
++        data['metro_stations_json'] = '[]'
++        data['seo_pages_json'] = '{}'
++        with translation.override('ru'):
++            destination = reverse('admin:catalog_catalogcontentsettings_changelist')
++        response = self.client.post(url, data, follow=True)
++        self.assertEqual(response.status_code, 200)
++        self.assertEqual(response.redirect_chain, [(destination, 302)])

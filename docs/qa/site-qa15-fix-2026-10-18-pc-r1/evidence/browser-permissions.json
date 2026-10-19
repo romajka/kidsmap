@@ -1,0 +1,107 @@
+{
+  "rows": [
+    {
+      "id": "proxy-only-fresh-save",
+      "checks": {
+        "save302": true,
+        "valueSaved": true
+      }
+    },
+    {
+      "id": "settings-permission-before-revision",
+      "role": "viewer",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "site01-main-media-denial",
+      "role": "viewer",
+      "endpoint": "ajax-upload/",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "site01-main-media-denial",
+      "role": "viewer",
+      "endpoint": "ajax-delete-main-image/",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "settings-permission-before-revision",
+      "role": "denied",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "site01-main-media-denial",
+      "role": "denied",
+      "endpoint": "ajax-upload/",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "site01-main-media-denial",
+      "role": "denied",
+      "endpoint": "ajax-delete-main-image/",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "settings-permission-before-revision",
+      "role": "volunteer",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "site01-main-media-denial",
+      "role": "volunteer",
+      "endpoint": "ajax-upload/",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "site01-main-media-denial",
+      "role": "volunteer",
+      "endpoint": "ajax-delete-main-image/",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    },
+    {
+      "id": "csrf-before-revision",
+      "status": 403,
+      "checks": {
+        "denied403": true,
+        "noMutation": true
+      }
+    }
+  ],
+  "pageerrors": []
+}

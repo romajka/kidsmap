@@ -41,7 +41,8 @@ class AdminReviewWorkflowFixTests(TestCase):
             snapshot = response.context_data.get('review_snapshot', '')
         return self.client.post(url, {'action': action, '_selected_action': [h.pk for h in heads], 'review_snapshot': snapshot})
 
-    @override_settings(ADMIN_HOST='admin.audit.invalid', PUBLIC_BASE_URL='https://public.audit.invalid')
+    @override_settings(ADMIN_HOST='admin.audit.invalid', PUBLIC_BASE_URL='https://public.audit.invalid',
+                       ALLOWED_HOSTS=['admin.audit.invalid', 'public.audit.invalid'])
     def test_workflow_stays_on_admin_origin_and_guest_never_sees_candidate(self):
         head, candidate = self.pending()
         response = self.client.get(self.workflow(head), HTTP_HOST='admin.audit.invalid', secure=True)

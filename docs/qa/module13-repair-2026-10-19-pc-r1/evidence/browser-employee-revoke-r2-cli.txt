@@ -1,0 +1,20 @@
+### Result
+{"rows":[{"id":"network-member-place-editor-before-revoke","checks":{"ok":true}},{"id":"native-grant-controls-present","checks":{"ok":true}},{"id":"native-network-role-save","checks":{"ok":true}},{"id":"native-network-revoke","checks":{"ok":true}},{"id":"revoke-survives-reload","checks":{"ok":true}},{"id":"network-only-branch-editor-revoked","checks":{"ok":true}},{"id":"separate-place-editor-preserved","checks":{"ok":true}}],"errors":[],"pageerrors":[]}
+### Ran Playwright code
+```js
+await (async original=>{
+ const B='http://127.0.0.1:33810',rows=[],errors=[],pageerrors=[],contexts=[],br=original.context().browser();let phase='start';
+ const check=(id,ok)=>{rows.push({id,checks:{ok}});if(!ok)throw new Error(id)};
+ async function make(role){const c=await br.newContext({viewport:{width:390,height:950},userAgent:'Mozilla/5.0 Chrome/153.0.0.0 Safari/537.36'});contexts.push(c);await c.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());const p=await c.newPage();p.setDefaultTimeout(15000);p.on('pageerror',e=>pageerrors.push(String(e)));if(role)await p.goto(B+'/qa/m13/login/'+role+'/');return p}
+ try{
+  const owner=await make('owner'),member=await make('editor');phase='access-before';let r=await member.goto(B+'/ru/account/places/2/edit/?fresh=1');check('network-member-place-editor-before-revoke',r.status()===200&&await member.locator('[name=nested_pricing]').count()===1);
+  await owner.goto(B+'/ru/account/organizations/2/');const row=owner.locator('[data-grant-row]').filter({hasText:'m13_editor'});const grant=await row.getAttribute('data-grant-row');check('native-grant-controls-present',!!grant);await row.locator('[data-team-operation=role] select[name=role]').selectOption('MODERATOR');const[role]=await Promise.all([owner.waitForResponse(r=>r.request().method()==='POST'&&r.url().endsWith('/grant/')),row.locator('[data-team-operation=role] button[type=submit]').click()]);check('native-network-role-save',role.status()===200);await owner.waitForFunction(id=>document.querySelector('[data-grant-row="'+id+'"] select[name=role]')?.value==='MODERATOR',grant);
+  phase='native-revoke';await row.locator('[data-team-confirm-open]').click();const[revoked]=await Promise.all([owner.waitForResponse(r=>r.request().method()==='POST'&&r.url().endsWith('/grant/')),row.locator('[data-team-operation=revoke] button[type=submit]').click()]);check('native-network-revoke',revoked.status()===200);await owner.waitForFunction(id=>document.querySelector('[data-grant-row="'+id+'"]')?.textContent.includes('Приостановлен'),grant);
+  await owner.reload();check('revoke-survives-reload',await owner.locator('[data-grant-row="'+grant+'"] [data-team-operation]').count()===0);
+  r=await member.goto(B+'/ru/account/places/2/edit/?fresh=1');check('network-only-branch-editor-revoked',[403,404].includes(r.status())||!new URL(member.url()).pathname.includes('/2/edit/'));r=await member.goto(B+'/ru/account/places/1/edit/?fresh=1');check('separate-place-editor-preserved',r.status()===200&&await member.locator('[name=nested_pricing]').count()===1);
+  await owner.screenshot({path:'/mnt/c/kidsmap/docs/qa/module13-repair-2026-10-19-pc-r1/png/network-grant-revoked.png',fullPage:true});
+ }catch(e){errors.push({phase,message:String(e)})}finally{for(const c of contexts)await c.close()}
+ return{rows,errors,pageerrors};
+}
+)(page);
+```

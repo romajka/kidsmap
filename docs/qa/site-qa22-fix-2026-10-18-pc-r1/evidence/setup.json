@@ -1,0 +1,27 @@
+{
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "/mnt/c/kidsmap/scripts/build_isolated_locales.py",
+        "build",
+        "--source-locale",
+        "/mnt/c/kidsmap/locale",
+        "--output",
+        "/mnt/c/kidsmap/.tmp/site22-pc-fix-r1/locales-current",
+        "--compiler",
+        "native"
+      ],
+      "exit": 0
+    }
+  ],
+  "app": "m10s22-fix-r1-app",
+  "container_id": "a1482d9959316ceb074d047bc6c715070ec18f169834ba59e305bcdd546875c0",
+  "normal_db": "m10s22_fix_r1",
+  "test_db": "test_m10s22_fix_r1",
+  "source_count": 1033,
+  "internal_qa_network": true,
+  "read_only_repo": true,
+  "RW_own_scratch": true,
+  "loopback": 33610
+}

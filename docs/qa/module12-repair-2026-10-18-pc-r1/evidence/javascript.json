@@ -1,0 +1,70 @@
+[
+  {
+    "name": "sender",
+    "command": [
+      "npx",
+      "--yes",
+      "--package",
+      "node@24",
+      "node",
+      "/mnt/c/kidsmap/scripts/test_analytics_sender.cjs",
+      "/mnt/c/kidsmap"
+    ],
+    "exit": 0,
+    "result": {
+      "tests": 4,
+      "results": [
+        {
+          "mode": "rejected",
+          "PASS": true
+        },
+        {
+          "mode": "accepted",
+          "PASS": true
+        },
+        {
+          "mode": "throws",
+          "PASS": true
+        },
+        {
+          "mode": "missing",
+          "PASS": true
+        }
+      ]
+    }
+  },
+  {
+    "name": "ai-referral",
+    "command": [
+      "npx",
+      "--yes",
+      "--package",
+      "node@24",
+      "node",
+      "/mnt/c/kidsmap/static/js/tests/ai_referral_tracking.test.js"
+    ],
+    "exit": 0,
+    "summary": [
+      "AI referral tracking tests passed"
+    ]
+  },
+  {
+    "name": "phone-dom",
+    "command": [
+      "npx",
+      "--yes",
+      "--package",
+      "node@24",
+      "node",
+      "--test",
+      "/mnt/c/kidsmap/scripts/test_phone_reveal.cjs"
+    ],
+    "exit": 0,
+    "summary": [
+      "tests4",
+      "pass4",
+      "fail0",
+      "skipped0"
+    ]
+  }
+]

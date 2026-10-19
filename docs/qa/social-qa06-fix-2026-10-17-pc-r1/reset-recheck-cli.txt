@@ -1,0 +1,32 @@
+### Result
+{"rows":[{"id":"reset-ru-390","lang":"ru","width":390,"png":"/mnt/c/kidsmap/.tmp/social06-pc-fix-r1/png/reset-final-ru-390.png","checks":{"initial5":true,"chosen2":true,"reset5":true},"facts":{"initial":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]},"chosen":{"rating":2,"defaultValue":2,"checked":[2],"tab":[2]},"reset":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]}}},{"id":"reset-ru-768","lang":"ru","width":768,"png":"/mnt/c/kidsmap/.tmp/social06-pc-fix-r1/png/reset-final-ru-768.png","checks":{"initial5":true,"chosen2":true,"reset5":true},"facts":{"initial":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]},"chosen":{"rating":2,"defaultValue":2,"checked":[2],"tab":[2]},"reset":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]}}},{"id":"reset-ru-1440","lang":"ru","width":1440,"png":"/mnt/c/kidsmap/.tmp/social06-pc-fix-r1/png/reset-final-ru-1440.png","checks":{"initial5":true,"chosen2":true,"reset5":true},"facts":{"initial":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]},"chosen":{"rating":2,"defaultValue":2,"checked":[2],"tab":[2]},"reset":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]}}},{"id":"reset-az-390","lang":"az","width":390,"png":"/mnt/c/kidsmap/.tmp/social06-pc-fix-r1/png/reset-final-az-390.png","checks":{"initial5":true,"chosen2":true,"reset5":true},"facts":{"initial":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]},"chosen":{"rating":2,"defaultValue":2,"checked":[2],"tab":[2]},"reset":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]}}},{"id":"reset-az-768","lang":"az","width":768,"png":"/mnt/c/kidsmap/.tmp/social06-pc-fix-r1/png/reset-final-az-768.png","checks":{"initial5":true,"chosen2":true,"reset5":true},"facts":{"initial":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]},"chosen":{"rating":2,"defaultValue":2,"checked":[2],"tab":[2]},"reset":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]}}},{"id":"reset-az-1440","lang":"az","width":1440,"png":"/mnt/c/kidsmap/.tmp/social06-pc-fix-r1/png/reset-final-az-1440.png","checks":{"initial5":true,"chosen2":true,"reset5":true},"facts":{"initial":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]},"chosen":{"rating":2,"defaultValue":2,"checked":[2],"tab":[2]},"reset":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]}}},{"id":"reset-en-390","lang":"en","width":390,"png":"/mnt/c/kidsmap/.tmp/social06-pc-fix-r1/png/reset-final-en-390.png","checks":{"initial5":true,"chosen2":true,"reset5":true},"facts":{"initial":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]},"chosen":{"rating":2,"defaultValue":2,"checked":[2],"tab":[2]},"reset":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]}}},{"id":"reset-en-768","lang":"en","width":768,"png":"/mnt/c/kidsmap/.tmp/social06-pc-fix-r1/png/reset-final-en-768.png","checks":{"initial5":true,"chosen2":true,"reset5":true},"facts":{"initial":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]},"chosen":{"rating":2,"defaultValue":2,"checked":[2],"tab":[2]},"reset":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]}}},{"id":"reset-en-1440","lang":"en","width":1440,"png":"/mnt/c/kidsmap/.tmp/social06-pc-fix-r1/png/reset-final-en-1440.png","checks":{"initial5":true,"chosen2":true,"reset5":true},"facts":{"initial":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]},"chosen":{"rating":2,"defaultValue":2,"checked":[2],"tab":[2]},"reset":{"rating":5,"defaultValue":5,"checked":[5],"tab":[5]}}}],"pageerrors":[]}
+### Ran Playwright code
+```js
+await (async (page) => {
+  const origin='http://127.0.0.1:33337',rows=[],errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  const snap=async()=>await page.locator('[data-review-stars]').evaluate(p=>{const s=[...p.querySelectorAll('[role=radio]')],i=p.parentElement.querySelector('[name=rating]');
+    return {rating:Number(i.value),defaultValue:Number(i.defaultValue),checked:s.filter(e=>e.getAttribute('aria-checked')==='true').map(e=>Number(e.dataset.value)),
+      tab:s.filter(e=>e.tabIndex===0).map(e=>Number(e.dataset.value))};});
+  const agrees=(s,n)=>s.rating===n&&JSON.stringify(s.checked)==='['+n+']'&&JSON.stringify(s.tab)==='['+n+']';
+  try {
+    await page.goto(origin+'/qa/login/author/');
+    for(const [lang,prefix] of [['ru','/ru'],['az',''],['en','/en']]){
+      for(const width of [390,768,1440]){
+        await page.setViewportSize({width,height:844});await page.goto(origin+prefix+'/reviews/');
+        const initial=await snap(),f=page.locator('#site-reviews form.review-form');
+        await f.locator('[data-value="2"]').click();const chosen=await snap();
+        await f.evaluate(e=>e.reset());await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+        const reset=await snap();
+        const png='/mnt/c/kidsmap/.tmp/social06-pc-fix-r1/png/reset-final-'+lang+'-'+width+'.png';await page.screenshot({path:png});
+        rows.push({id:'reset-'+lang+'-'+width,lang,width,png,checks:{initial5:agrees(initial,5),chosen2:agrees(chosen,2),reset5:agrees(reset,5)},facts:{initial,chosen,reset}});
+      }
+    }
+    return {rows,pageerrors:errors};
+  }catch(e){return {rows,pageerrors:errors,fatal:{message:e.message}};}
+}
+)(page);
+```
+### Page
+- Page URL: http://127.0.0.1:33337/en/reviews/
+- Page Title: KidsMap reviews from parents and users | KidsMap

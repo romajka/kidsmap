@@ -1,0 +1,18 @@
+{
+  "reason": "Measured new media-summary link text contrast3.66:1",
+  "change": "Existing text-body utility on media-summary anchors only; no CSS/JS/policy/backend/test change",
+  "before_template_sha256": "430e1302846de8e42519623651ca751e8be25eb8b1ca9de30c37c2f9c43517c6",
+  "after_template_sha256": "8e49001fa79a70e9990f22e775dda6b6733ab3f8ee5d7d01b767f6bf61afe975",
+  "files": {
+    "locale/az/LC_MESSAGES/django.po": "83be8c14b7e29c22cbec8e132fb68898288efa1f5156254875f4dfb95c35ae91",
+    "locale/en/LC_MESSAGES/django.po": "cdc04b9a108fe4d29e762a40ef1ba094adf07ef35a2355d59c05c57f57e93a71",
+    "locale/ru/LC_MESSAGES/django.po": "371d950aff54198919fe7173dd68cbee141fb4deaec8d3575cedd2ab8f1f29f9",
+    "src/catalog/domain_admin/site.py": "634324102d46228ddfa767e5272bba9e9ca3e2de6fff48c7b154108e81d05ccd",
+    "src/catalog/services/site_media_validation.py": "9ef1fc0d0cc49944e9f03d8fb493447d684041cf35460e81a5e4430e4a23be42",
+    "src/catalog/testcases/test_site_qa06_media_validation.py": "fa30c27490aa0a51b155a318bada3a9b01d7d6a6eac463f9f6ee1ad719222aa1",
+    "src/catalog/templates/admin/catalog/shared_settings_change_form.html": "8e49001fa79a70e9990f22e775dda6b6733ab3f8ee5d7d01b767f6bf61afe975"
+  },
+  "diff_sha256": "2a099da314446c3cd928cf3560034e32cc48387af591be6d5ed87484845f22b1",
+  "full_behavior_matrix_snapshot": "pre-color-matrix-source.json",
+  "current_render_verification": "browser-color-forms.js, all36branding cells plus post-color edge editors"
+}

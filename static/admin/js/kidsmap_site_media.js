@@ -1,3 +1,16 @@
+/* Localized server gettext payload; safe English fallback for an absent payload. */
+const kmSiteMediaCopy = (() => {
+    const fallback = {"loading": "Loading...", "deleting": "Deleting...", "delete_title": "Delete image?", "delete_message": "This uploaded image will be deleted permanently.", "confirm_delete": "Delete", "cancel": "Cancel", "upload_error": "Could not upload file", "delete_error": "Could not delete image", "network_error": "Could not connect to the server. Please try again.", "server_error": "Server error", "unknown_error": "Unknown error", "active": "Active", "edit": "Edit"};
+    const node = document.getElementById("km-site-media-i18n");
+    if (!node) return fallback;
+    try { return Object.assign(fallback, JSON.parse(node.textContent)); }
+    catch (_) { return fallback; }
+})();
+function kmSiteMediaError(error) {
+    return error && error.name === "TypeError" ? kmSiteMediaCopy.network_error :
+        (error && error.message) || kmSiteMediaCopy.unknown_error;
+}
+
 /* kidsmap_site_media.js */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -116,7 +129,7 @@ function uploadGalleryFiles(files, grid, placement, uploadUrl, csrfToken) {
                 <i class="fas fa-spinner fa-spin fa-2x" style="color:#009A4E;"></i>
             </div>
             <div class="km-gallery-card-body" style="padding:10px 12px; display:flex; align-items:center; justify-content:center; border-top: 1px solid #F3F4F6;">
-                <span style="font-size:12px; color:#6B7280;">Загрузка...</span>
+                <span style="font-size:12px; color:#6B7280;">${kmSiteMediaCopy.loading}</span>
             </div>
         `;
         // Insert loader before add button
@@ -137,7 +150,7 @@ function uploadGalleryFiles(files, grid, placement, uploadUrl, csrfToken) {
         .then(response => {
             if (!response.ok) {
                 return response.json().then(err => {
-                    throw new Error(err.error || `Ошибка сервера (${response.status})`);
+                    throw new Error(err.error || `${kmSiteMediaCopy.server_error} (${response.status})`);
                 });
             }
             return response.json();
@@ -156,23 +169,23 @@ function uploadGalleryFiles(files, grid, placement, uploadUrl, csrfToken) {
                         <div class="km-gallery-card-footer">
                             <span class="km-gallery-card-size">${data.file.size}</span>
                             <div class="km-gallery-card-actions">
-                                <a href="${data.edit_url}" class="km-gallery-card-btn" title="Редактировать"><i class="fas fa-pencil-alt"></i></a>
-                                <a href="${data.delete_url}" class="km-gallery-card-btn delete" title="Удалить"><i class="far fa-trash-alt"></i></a>
+                                ${data.edit_url ? `<a href="${data.edit_url}" class="km-gallery-card-btn" title="${kmSiteMediaCopy.edit}"><i class="fas fa-pencil-alt"></i></a>` : ""}
+                                ${data.delete_url ? `<a href="${data.delete_url}" class="km-gallery-card-btn delete" title="${kmSiteMediaCopy.confirm_delete}"><i class="far fa-trash-alt"></i></a>` : ""}
                             </div>
                         </div>
                     </div>
                 `;
                 loader.replaceWith(newCard);
             } else {
-                throw new Error(data.error || "Неизвестная ошибка");
+                throw new Error(data.error || kmSiteMediaCopy.unknown_error);
             }
         })
         .catch(err => {
             loader.remove();
             if (window.kmToast) {
-                window.kmToast.error(`Не удалось загрузить файл «${file.name}»: ${err.message}`);
+                window.kmToast.error(`${kmSiteMediaCopy.upload_error} «${file.name}»: ${kmSiteMediaError(err)}`);
             } else {
-                alert(`Не удалось загрузить файл "${file.name}": ${err.message}`);
+                alert(`${kmSiteMediaCopy.upload_error} «${file.name}»: ${kmSiteMediaError(err)}`);
             }
         });
     });
@@ -194,7 +207,7 @@ function uploadSingleFile(file, row, field, uploadUrl, csrfToken) {
         </div>
     `;
     statusContainer.innerHTML = `
-        <span class="km-media-status" style="background:#E5E7EB; color:#4B5563; display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:600;"><i class="fas fa-spinner fa-spin"></i> Загрузка...</span>
+        <span class="km-media-status" style="background:#E5E7EB; color:#4B5563; display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:600;"><i class="fas fa-spinner fa-spin"></i> ${kmSiteMediaCopy.loading}</span>
     `;
     if (uploadBtn) uploadBtn.disabled = true;
 
@@ -212,7 +225,7 @@ function uploadSingleFile(file, row, field, uploadUrl, csrfToken) {
     .then(response => {
         if (!response.ok) {
             return response.json().then(err => {
-                throw new Error(err.error || `Ошибка сервера (${response.status})`);
+                throw new Error(err.error || `${kmSiteMediaCopy.server_error} (${response.status})`);
             });
         }
         return response.json();
@@ -223,12 +236,12 @@ function uploadSingleFile(file, row, field, uploadUrl, csrfToken) {
             previewContainer.innerHTML = `<img src="${data.file.url}" alt="${file.name}">`;
             // Update status & details
             statusContainer.innerHTML = `
-                <span class="km-media-status km-media-status-active"><i class="fas fa-check-circle"></i> Активно</span>
+                <span class="km-media-status km-media-status-active"><i class="fas fa-check-circle"></i> ${kmSiteMediaCopy.active}</span>
                 <span class="km-media-filename" title="${data.file.name}">${data.file.name} &bull; ${data.file.size}</span>
             `;
             ensureDeleteButton(row);
         } else {
-            throw new Error(data.error || "Неизвестная ошибка");
+            throw new Error(data.error || kmSiteMediaCopy.unknown_error);
         }
     })
     .catch(err => {
@@ -236,9 +249,9 @@ function uploadSingleFile(file, row, field, uploadUrl, csrfToken) {
         previewContainer.innerHTML = origPreview;
         statusContainer.innerHTML = origStatus;
         if (window.kmToast) {
-            window.kmToast.error(`Не удалось загрузить файл «${file.name}»: ${err.message}`);
+            window.kmToast.error(`${kmSiteMediaCopy.upload_error} «${file.name}»: ${kmSiteMediaError(err)}`);
         } else {
-            alert(`Не удалось загрузить файл "${file.name}": ${err.message}`);
+            alert(`${kmSiteMediaCopy.upload_error} «${file.name}»: ${kmSiteMediaError(err)}`);
         }
     })
     .finally(() => {
@@ -253,7 +266,8 @@ function ensureDeleteButton(row) {
     const deleteBtn = document.createElement("button");
     deleteBtn.type = "button";
     deleteBtn.className = "km-btn-link km-btn-link-danger km-media-delete-btn";
-    deleteBtn.innerHTML = '<i class="far fa-trash-alt"></i> Удалить';
+    deleteBtn.innerHTML = '<i class="far fa-trash-alt"></i> ';
+    deleteBtn.appendChild(document.createTextNode(kmSiteMediaCopy.confirm_delete));
 
     if (settingsLink) {
         settingsLink.before(deleteBtn);
@@ -269,7 +283,8 @@ function deleteSingleFile(row, field, deleteUrl, csrfToken) {
         const deleteBtn = row.querySelector(".km-media-delete-btn");
         if (deleteBtn) {
             deleteBtn.disabled = true;
-            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Удаление...';
+            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ';
+            deleteBtn.appendChild(document.createTextNode(kmSiteMediaCopy.deleting));
         }
 
         const formData = new FormData();
@@ -285,42 +300,43 @@ function deleteSingleFile(row, field, deleteUrl, csrfToken) {
         .then(response => {
             if (!response.ok) {
                 return response.json().then(err => {
-                    throw new Error(err.error || `Ошибка сервера (${response.status})`);
+                    throw new Error(err.error || `${kmSiteMediaCopy.server_error} (${response.status})`);
                 });
             }
             return response.json();
         })
         .then(data => {
             if (!data.success) {
-                throw new Error(data.error || "Неизвестная ошибка");
+                throw new Error(data.error || kmSiteMediaCopy.unknown_error);
             }
             window.location.reload();
         })
         .catch(err => {
             if (window.kmToast) {
-                window.kmToast.error(`Не удалось удалить изображение: ${err.message}`);
+                window.kmToast.error(`${kmSiteMediaCopy.delete_error}: ${kmSiteMediaError(err)}`);
             } else {
-                alert(`Не удалось удалить изображение: ${err.message}`);
+                alert(`${kmSiteMediaCopy.delete_error}: ${kmSiteMediaError(err)}`);
             }
             if (deleteBtn) {
                 deleteBtn.disabled = false;
-                deleteBtn.innerHTML = '<i class="far fa-trash-alt"></i> Удалить';
+                deleteBtn.innerHTML = '<i class="far fa-trash-alt"></i> ';
+                deleteBtn.appendChild(document.createTextNode(kmSiteMediaCopy.confirm_delete));
             }
         });
     };
 
     if (window.kmModal) {
         window.kmModal.confirm({
-            title: 'Удалить изображение?',
-            message: 'Загруженное изображение будет удалено без возможности восстановления.',
+            title: kmSiteMediaCopy.delete_title,
+            message: kmSiteMediaCopy.delete_message,
             iconTone: 'danger',
-            confirmText: 'Удалить',
-            cancelText: 'Отмена',
+            confirmText: kmSiteMediaCopy.confirm_delete,
+            cancelText: kmSiteMediaCopy.cancel,
             isAlertDialog: true
         }).then(function(confirmed) {
             if (confirmed) doDelete();
         });
-    } else if (window.confirm("Удалить загруженное изображение?")) {
+    } else if (window.confirm(kmSiteMediaCopy.delete_title)) {
         doDelete();
     }
 }

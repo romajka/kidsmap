@@ -1,0 +1,54 @@
+{
+  "original_files": 10,
+  "original_paths_hashes_unchanged": true,
+  "source_image": "site/gallery/home-hero-01-family-studio.jpg",
+  "source_dimensions": [
+    1024,
+    1024
+  ],
+  "new_cache_files": [
+    "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/1024.webp",
+    "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/320.webp",
+    "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/640.webp",
+    "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/960.webp",
+    "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/manifest.json"
+  ],
+  "variants": [
+    {
+      "name": "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/320.webp",
+      "width": 320,
+      "height": 320
+    },
+    {
+      "name": "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/640.webp",
+      "width": 640,
+      "height": 640
+    },
+    {
+      "name": "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/960.webp",
+      "width": 960,
+      "height": 960
+    },
+    {
+      "name": "responsive-images/v1/b7fa6cb5cb788e7ad0a196b1ca8fb645/1024.webp",
+      "width": 1024,
+      "height": 1024
+    }
+  ],
+  "manifest_verified": true,
+  "read_only_probe": true,
+  "command": [
+    "docker",
+    "exec",
+    "m10s22-fix-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/site22-pc-fix-r1/derivative_probe.py"
+  ],
+  "exit": 0,
+  "source_evidence": [
+    "src/catalog/signals.py:prepare_responsive_photos post_save SiteGalleryImage",
+    "src/catalog/services/responsive_images.py:generate_variants retains original bytes"
+  ],
+  "classification": "Expected existing gallery post_save derivative generation in own QA media; initial inventory-equality guard incorrectly included new cache as original-file mutation",
+  "application_refinements": 0
+}

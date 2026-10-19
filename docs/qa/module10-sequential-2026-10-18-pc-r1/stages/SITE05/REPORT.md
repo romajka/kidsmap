@@ -1,0 +1,3 @@
+# SITE05 CLOSED LOCAL
+
+Uploaded desktop/mobile main-banner backgrounds now render in a decorative responsive picture behind the existing hero. Mobile source at760px; either image alone has a valid fallback; no uploads preserve prior hero/gallery. Scoped muted background keeps copy readable. Fresh4method RED5observations→68cumulative backendPASS, including30media-validation tests. Native chooser/reload baseline6missing banners→green36rows261/261PASS across4modes/3languages/mobile+desktop+760/761boundary. Native deletion/restoration returns exact pre-upload settings; gallery retained. RU mobile/desktop screenshots inspected. Initial navigation observer failures retained; application source unchanged by corrections. No production/full-module claim.

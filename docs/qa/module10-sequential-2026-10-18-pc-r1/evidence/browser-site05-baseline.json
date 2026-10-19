@@ -1,0 +1,205 @@
+{
+  "rows": [
+    {
+      "id": "native-upload-home_hero_image",
+      "checks": {
+        "HTTP200": true,
+        "success": true,
+        "reload_preview": true,
+        "persisted": true
+      }
+    },
+    {
+      "id": "native-upload-home_hero_mobile_image",
+      "checks": {
+        "HTTP200": true,
+        "success": true,
+        "reload_preview": true,
+        "persisted": true
+      }
+    },
+    {
+      "id": "baseline-az-360",
+      "lang": "az",
+      "width": 360,
+      "expected": "/media/site/site05-mobile.png",
+      "checks": {
+        "get200": true,
+        "uploaded_banner_rendered": false
+      }
+    },
+    {
+      "id": "baseline-az-1440",
+      "lang": "az",
+      "width": 1440,
+      "expected": "/media/site/site05-desktop.png",
+      "checks": {
+        "get200": true,
+        "uploaded_banner_rendered": false
+      }
+    },
+    {
+      "id": "baseline-ru-360",
+      "lang": "ru",
+      "width": 360,
+      "expected": "/media/site/site05-mobile.png",
+      "checks": {
+        "get200": true,
+        "uploaded_banner_rendered": false
+      }
+    },
+    {
+      "id": "baseline-ru-1440",
+      "lang": "ru",
+      "width": 1440,
+      "expected": "/media/site/site05-desktop.png",
+      "checks": {
+        "get200": true,
+        "uploaded_banner_rendered": false
+      }
+    },
+    {
+      "id": "baseline-en-360",
+      "lang": "en",
+      "width": 360,
+      "expected": "/media/site/site05-mobile.png",
+      "checks": {
+        "get200": true,
+        "uploaded_banner_rendered": false
+      }
+    },
+    {
+      "id": "baseline-en-1440",
+      "lang": "en",
+      "width": 1440,
+      "expected": "/media/site/site05-desktop.png",
+      "checks": {
+        "get200": true,
+        "uploaded_banner_rendered": false
+      }
+    },
+    {
+      "id": "public-no-write",
+      "checks": {
+        "unchanged": true
+      }
+    }
+  ],
+  "initial": {
+    "values": {
+      "brand_name": "KidsMap QA synthetic",
+      "home_hero_image": "",
+      "home_hero_mobile_image": "",
+      "about_text_az": "SITE02 az seed about",
+      "about_text_ru": "SITE02 ru seed about",
+      "about_text_en": "SITE02 en seed about",
+      "empty_results_text_az": "SITE02 az seed empty",
+      "empty_results_text_ru": "SITE02 ru seed empty",
+      "empty_results_text_en": "SITE02 en seed empty",
+      "contacts_text_az": "Biziml\u0259 e-po\u00e7t vasit\u0259sil\u0259 \u0259laq\u0259 saxlay\u0131n: info@kidsmap.az",
+      "contacts_text_ru": "\u0421\u0432\u044f\u0436\u0438\u0442\u0435\u0441\u044c \u0441 \u043d\u0430\u043c\u0438 \u043f\u043e \u043f\u043e\u0447\u0442\u0435: info@kidsmap.az",
+      "contacts_text_en": "Contact us by email: info@kidsmap.az",
+      "home_search_placeholder_az": "",
+      "home_search_placeholder_ru": "",
+      "home_search_placeholder_en": "",
+      "home_cta_text_az": "",
+      "home_cta_text_ru": "",
+      "home_cta_text_en": ""
+    },
+    "logs": 25,
+    "urls": {
+      "az": {
+        "about": "/about/",
+        "catalog": "/catalog/",
+        "contacts": "/contacts/",
+        "home": "/"
+      },
+      "ru": {
+        "about": "/ru/about/",
+        "catalog": "/ru/catalog/",
+        "contacts": "/ru/contacts/",
+        "home": "/ru/"
+      },
+      "en": {
+        "about": "/en/about/",
+        "catalog": "/en/catalog/",
+        "contacts": "/en/contacts/",
+        "home": "/en/"
+      }
+    }
+  },
+  "final": {
+    "values": {
+      "brand_name": "KidsMap QA synthetic",
+      "home_hero_image": "site/site05-desktop.png",
+      "home_hero_mobile_image": "site/site05-mobile.png",
+      "about_text_az": "SITE02 az seed about",
+      "about_text_ru": "SITE02 ru seed about",
+      "about_text_en": "SITE02 en seed about",
+      "empty_results_text_az": "SITE02 az seed empty",
+      "empty_results_text_ru": "SITE02 ru seed empty",
+      "empty_results_text_en": "SITE02 en seed empty",
+      "contacts_text_az": "Biziml\u0259 e-po\u00e7t vasit\u0259sil\u0259 \u0259laq\u0259 saxlay\u0131n: info@kidsmap.az",
+      "contacts_text_ru": "\u0421\u0432\u044f\u0436\u0438\u0442\u0435\u0441\u044c \u0441 \u043d\u0430\u043c\u0438 \u043f\u043e \u043f\u043e\u0447\u0442\u0435: info@kidsmap.az",
+      "contacts_text_en": "Contact us by email: info@kidsmap.az",
+      "home_search_placeholder_az": "",
+      "home_search_placeholder_ru": "",
+      "home_search_placeholder_en": "",
+      "home_cta_text_az": "",
+      "home_cta_text_ru": "",
+      "home_cta_text_en": ""
+    },
+    "logs": 25,
+    "urls": {
+      "az": {
+        "about": "/about/",
+        "catalog": "/catalog/",
+        "contacts": "/contacts/",
+        "home": "/"
+      },
+      "ru": {
+        "about": "/ru/about/",
+        "catalog": "/ru/catalog/",
+        "contacts": "/ru/contacts/",
+        "home": "/ru/"
+      },
+      "en": {
+        "about": "/en/about/",
+        "catalog": "/en/catalog/",
+        "contacts": "/en/contacts/",
+        "home": "/en/"
+      }
+    }
+  },
+  "pageerrors": [],
+  "local_errors": [],
+  "blocked": [
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "unpkg.com",
+    "unpkg.com",
+    "unpkg.com",
+    "unpkg.com",
+    "unpkg.com",
+    "unpkg.com",
+    "unpkg.com",
+    "unpkg.com",
+    "unpkg.com",
+    "unpkg.com",
+    "unpkg.com",
+    "unpkg.com",
+    "unpkg.com",
+    "unpkg.com",
+    "unpkg.com",
+    "unpkg.com",
+    "unpkg.com",
+    "unpkg.com"
+  ],
+  "scope": "Fresh source before SITE05 app fix; fictional native file chooser uploads persisted; keep only owned new banner fields for post-fix verification, original empty fields recorded."
+}

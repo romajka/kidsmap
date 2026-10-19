@@ -1,0 +1,23 @@
+import ast,json,hashlib,subprocess,socket
+from pathlib import Path
+R=Path('/mnt/c/kidsmap');Q=R/'.tmp/social10-pc-fix-r1';OLD=R/'.tmp/social10-pc-plan-r1';P=R/'docs/qa/social-qa10-recheck-2026-10-18-pc-r1';O=R/'docs/qa/social-qa10-fix-2026-10-18-pc-r1';sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+e=json.loads((P/'source-entry.json').read_text());assert len(e['sources'])==1024 and all(sha(R/p)==h for p,h in e['sources'].items());assert all(sha(R/p)==h for p,h in e['shared_mo'].items())
+for n,fs in e['prior_packages'].items():assert all(sha(P.parent/n/p)==h for p,h in fs.items()),n
+e['prior_packages'][P.name]={p.relative_to(P).as_posix():sha(p) for p in P.rglob('*') if p.is_file()};e['guide_sha256']=sha(R/'docs/qa/continuation-and-repair-prompts-2026-10-11.md');e['containers']=subprocess.check_output(['docker','ps','-a','--format','{{.ID}} {{.Names}} {{.State}}'],text=True).splitlines();git=json.loads((Q/'git-entry.json').read_text(encoding='utf-8-sig'))
+assert git['head']=='852938d96764ae315b92859e3651e5ea62054a36' and git['branch']=='codex/module09-transfer-2026-10-16-r1' and git['index_tree']=='881e0c48c7d557c46221beb3b2410a157982f861' and git['task33_ref']=='e4e05cc213b34e2d771ecb854901bfd016d1db51' and not git['staged']
+assert [l for l in (R/'docs/task33/implementation-status.md').read_text().splitlines() if l.startswith('active_run:')]==['active_run: NONE'];e['git']=git
+m=json.loads((P/'candidate-manifest.json').read_text());assert sha(P/'proposed.diff')==m['diff_sha256'] and sha(R/m['controller_path'])==m['before_raw_sha256'] and not (R/m['test_path']).exists()
+assert sha(P/'candidate-controller.py')==m['candidate_controller_sha256'] and sha(P/'candidate_tests.py')==m['candidate_tests_sha256']
+assert json.loads(subprocess.check_output(['docker','network','inspect','m09full-r1-net']))[0]['Internal'];pg=json.loads(subprocess.check_output(['docker','inspect','m09full-r1-pg']))[0];assert pg['State']['Running'] and any(x.get('Name')=='m09full-r1-pgdata' for x in pg['Mounts']) and not any(pg['NetworkSettings']['Ports'].values())
+with socket.socket() as s:s.bind(('127.0.0.1',33400))
+O.mkdir(exist_ok=False);(O/'source-entry.json').write_text(json.dumps(e,indent=2));(O/'approval.json').write_text(json.dumps({'human_message':'дальше','interpretation':'approval to proceed with exact two-file plan after direct scope approval question','plan':str(P.relative_to(R))+'/IMPLEMENTATION_PLAN.md','diff_sha256':m['diff_sha256'],'app_scope':[m['controller_path'],m['test_path']]},ensure_ascii=False,indent=2))
+subprocess.run(['git','apply','--check','--ignore-space-change',str(P/'proposed.diff')],cwd=R,check=True);subprocess.run(['git','apply','--ignore-space-change',str(P/'proposed.diff')],cwd=R,check=True)
+assert (R/m['controller_path']).read_text()==(P/'candidate-controller.py').read_text() and (R/m['test_path']).read_text()==(P/'candidate_tests.py').read_text();ast.parse((R/m['controller_path']).read_text());ast.parse((R/m['test_path']).read_text())
+s={p:sha(R/p) for p in e['sources']};assert [p for p in s if s[p]!=e['sources'][p]]==[m['controller_path']];s[m['test_path']]=sha(R/m['test_path']);(Q/'expected-source.json').write_text(json.dumps({'sources':s},indent=2));(O/'source-applied.json').write_text(json.dumps({'sources':s},indent=2))
+for n in ['runtime.py','qa_settings.py','proxy.py','playwright.json','browser_driver.py']:
+ t=(OLD/n).read_text().replace('social10-pc-plan-r1','social10-pc-fix-r1').replace('m09s10-plan-r1-app','m09s10-fix-r1-app').replace('test_m09s10_plan_r1','test_m09s10_fix_r1').replace("'LOCATION': 's10-plan-r1'","'LOCATION': 's10-fix-r1'").replace('33390','33400');(Q/n).write_text(t)
+(Q/'qa_urls.py').write_text('from config.urls import urlpatterns\n')
+for n in ['png','media','private-media']:(Q/n).mkdir()
+subprocess.run(['docker','run','-d','--name','m09s10-fix-r1-app','--network','m09full-r1-net','--read-only','--tmpfs','/tmp','-v',str(R)+':'+str(R)+':ro','-v',str(Q)+':'+str(Q)+':rw','-w',str(Q),'--entrypoint','python','bb90c815dc2b','-c','import time; time.sleep(86400)'],check=True,stdout=subprocess.DEVNULL)
+(Q/'green-tests.sh').write_text((OLD/'red-tests.sh').read_text().replace('social10-pc-plan-r1','social10-pc-fix-r1').replace('m09s10-plan-r1-app','m09s10-fix-r1-app').replace('candidate_tests.SocialQA10NotificationLoginTests','catalog.testcases.test_social_qa10_notification_login.SocialQA10NotificationLoginTests').replace('red-tests','green-tests'))
+print('Approved exact patch applied;source1025/other1023unchanged; prior16packages and',len(e['containers']),'entry containers retained; own new app prepared')

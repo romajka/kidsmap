@@ -392,7 +392,11 @@ class SpecialistCatalogVenueTests(TestCase):
 
 
 class EventAdminAutocommitTests(TransactionTestCase):
-    setUp = EventAdminVersionTests.setUp
+    def setUp(self):
+        # TransactionTestCase flushes seed data left by migrations.
+        from catalog.models import Category
+        Category.objects.get_or_create(code='EDU', defaults={'name_az': 'QA Education'})
+        EventAdminVersionTests.setUp(self)
 
     def test_edit_get_readiness_does_not_lock_or_write_outside_transaction(self):
         from django.db import connection

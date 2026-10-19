@@ -1,0 +1,5 @@
+SITE-QA-13 (P2) — Исторический выход фокуса media modal.
+Прочитать текущие AGENTS/canonical orchestrator и свежий docs/qa/module10-full-2026-10-18-pc-r1/findings/SITE-QA-13.md/evidence; проверить текущий dirty WORKTREE/source drift. Status: NOT REPRODUCED CURRENT PROFILE.
+Source hints: static/admin/js/kidsmap_site_media.js:314; shared kmModal. Root: Current shared modal behavior did not reproduce historical defect under settled render timing.
+Следующая задача: Не исправлять неподтверждённый сценарий. Сохранить focused regression and separate fast-Escape timing observation as unresolved.
+Сначала свежая bounded проверка, impact map и конкретный PLAN с файлами/тестами/рисками. Не применять app fix до одобрения scope. Approval предыдущих SOCIAL01–12 не переносится на SITE. Не повторять security writes вне собственной isolated testDB/media. DJANGO_TESTING=1, isolated cache/media/email/current3MO, no production credentials. Сохранить старые evidence/местные изменения/ref/index/active_runNONE; no reset/clean/stash/commit/push/deploy. Новый уникальный package, red/green if approved, native evidence and honest NOTRUN.

@@ -1,0 +1,4122 @@
+{
+  "rows": [
+    {
+      "id": "required-place",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/flow-place-required.png",
+      "url": "http://127.0.0.1:33380/ru/reviews/place/target/2/",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "create-pending-place",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 28,
+        "place_id": 2,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST place <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "pending",
+        "is_approved": false,
+        "current_revision_id": null,
+        "candidate_revision_id": 28,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "screenshot": "screenshots/flow-place-pending.png",
+      "url": "http://127.0.0.1:33380/ru/reviews/place/target/2/",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "reload-text-place",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "ratingValue": "4",
+      "screenshot": "screenshots/flow-place-reload.png",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "reload-rating-place",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "observed": "4",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "harness-place",
+      "status": "NOT RUN",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "error": "Error: locator.innerText: Error: strict mode violation: locator('main') resolved to 2 elements:\n    1) <main>…</main> aka getByRole('main').first()\n    2) <main class=\"container typed-reviews\">…</main> aka getByText('Отзывы: Вымышленное QA09 empty Каждый отзыв относится только к этой странице.')\n\nCall log:\n\u001b[2m  - waiting for locator('main')\u001b[22m\n",
+      "screenshot": "screenshots/flow-place-harness.png",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "required-specialist",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/flow-specialist-required.png",
+      "url": "http://127.0.0.1:33380/ru/reviews/specialist/target/1/",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "create-pending-specialist",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "specialist_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST specialist <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "pending",
+        "is_approved": false,
+        "current_revision_id": null,
+        "candidate_revision_id": 1,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "screenshot": "screenshots/flow-specialist-pending.png",
+      "url": "http://127.0.0.1:33380/ru/reviews/specialist/target/1/",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "reload-text-specialist",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "ratingValue": "4",
+      "screenshot": "screenshots/flow-specialist-reload.png",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "reload-rating-specialist",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "observed": "4",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "harness-specialist",
+      "status": "NOT RUN",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "error": "Error: locator.innerText: Error: strict mode violation: locator('main') resolved to 2 elements:\n    1) <main>…</main> aka getByRole('main').first()\n    2) <main class=\"container typed-reviews\">…</main> aka getByRole('main').nth(1)\n\nCall log:\n\u001b[2m  - waiting for locator('main')\u001b[22m\n",
+      "screenshot": "screenshots/flow-specialist-harness.png",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "required-activity",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/flow-activity-required.png",
+      "url": "http://127.0.0.1:33380/ru/reviews/activity/target/1/",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "create-pending-activity",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "activity_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST activity <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "pending",
+        "is_approved": false,
+        "current_revision_id": null,
+        "candidate_revision_id": 1,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "screenshot": "screenshots/flow-activity-pending.png",
+      "url": "http://127.0.0.1:33380/ru/reviews/activity/target/1/",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "reload-text-activity",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "ratingValue": "4",
+      "screenshot": "screenshots/flow-activity-reload.png",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "reload-rating-activity",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "observed": "4",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "harness-activity",
+      "status": "NOT RUN",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "error": "Error: locator.innerText: Error: strict mode violation: locator('main') resolved to 2 elements:\n    1) <main>…</main> aka getByRole('main').first()\n    2) <main class=\"container typed-reviews\">…</main> aka getByText('Отзывы: Uydurma QA09 fəaliyyət Каждый отзыв относится только к этой странице.')\n\nCall log:\n\u001b[2m  - waiting for locator('main')\u001b[22m\n",
+      "screenshot": "screenshots/flow-activity-harness.png",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "required-event",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/flow-event-required.png",
+      "url": "http://127.0.0.1:33380/ru/reviews/event/target/1/",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "create-pending-event",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "event_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST event <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "pending",
+        "is_approved": false,
+        "current_revision_id": null,
+        "candidate_revision_id": 1,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "screenshot": "screenshots/flow-event-pending.png",
+      "url": "http://127.0.0.1:33380/ru/reviews/event/target/1/",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "reload-text-event",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "ratingValue": "4",
+      "screenshot": "screenshots/flow-event-reload.png",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "reload-rating-event",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "observed": "4",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "harness-event",
+      "status": "NOT RUN",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "error": "Error: locator.innerText: Error: strict mode violation: locator('main') resolved to 2 elements:\n    1) <main>…</main> aka getByRole('main').first()\n    2) <main class=\"container typed-reviews\">…</main> aka getByText('Отзывы: Uydurma QA09 tədbir Каждый отзыв относится только к этой странице.')\n\nCall log:\n\u001b[2m  - waiting for locator('main')\u001b[22m\n",
+      "screenshot": "screenshots/flow-event-harness.png",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "site-native-create",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "forms": [
+        {
+          "action": "/ru/auth/logout/",
+          "data": []
+        },
+        {
+          "action": "/ru/auth/logout/",
+          "data": []
+        },
+        {
+          "action": null,
+          "data": []
+        },
+        {
+          "action": "/ru/site-review/27/vote/",
+          "data": [
+            "data-review-reaction-form"
+          ]
+        },
+        {
+          "action": "/ru/site-review/26/vote/",
+          "data": [
+            "data-review-reaction-form"
+          ]
+        },
+        {
+          "action": "/ru/site-review/25/vote/",
+          "data": [
+            "data-review-reaction-form"
+          ]
+        },
+        {
+          "action": "/ru/site-review/24/vote/",
+          "data": [
+            "data-review-reaction-form"
+          ]
+        },
+        {
+          "action": "/ru/site-review/23/vote/",
+          "data": [
+            "data-review-reaction-form"
+          ]
+        },
+        {
+          "action": "/ru/site-review/22/vote/",
+          "data": [
+            "data-review-reaction-form"
+          ]
+        },
+        {
+          "action": "/ru/site-review/21/vote/",
+          "data": [
+            "data-review-reaction-form"
+          ]
+        },
+        {
+          "action": "/ru/site-review/20/vote/",
+          "data": [
+            "data-review-reaction-form"
+          ]
+        },
+        {
+          "action": "/ru/site-review/19/vote/",
+          "data": [
+            "data-review-reaction-form"
+          ]
+        },
+        {
+          "action": "/ru/site-review/18/vote/",
+          "data": [
+            "data-review-reaction-form"
+          ]
+        },
+        {
+          "action": "/ru/site-review/17/vote/",
+          "data": [
+            "data-review-reaction-form"
+          ]
+        },
+        {
+          "action": "/ru/site-review/16/vote/",
+          "data": [
+            "data-review-reaction-form"
+          ]
+        },
+        {
+          "action": "/ru/review/",
+          "data": [
+            "data-loading-form",
+            "data-review-submission"
+          ]
+        }
+      ],
+      "screenshot": "screenshots/flow-site-pending.png",
+      "artifact": "flows.json"
+    },
+    {
+      "id": "pending-private-place",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "moderation-place",
+      "status": "PASS",
+      "role": "moderator",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 28,
+        "place_id": 2,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST place <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 28,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "screenshot": "screenshots/flow-place-decision.png",
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "author-rejection-reason-place",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "savedReason": "",
+      "visible": "Отзывы: Вымышленное QA09 empty\n\nКаждый отзыв относится только к этой странице. KidsMap проверяет отзывы; бизнес может ответить или пожаловаться.\n\n4,0 / 5 · 1\n\nОпубликованные отзывы\nFictional QA09 author\n\n4 / 5\n\nQA09 FIRST place <img src=x onerror=\"window.QA09_XSS=2\"> & text\n\nМой отзыв\n\nОдобренный отзыв остаётся видимым, пока новая редакция проходит проверку.\n\nОценка\n—\n1\n2\n3\n4\n5\nТекст отзыва\nОтправить на проверку",
+      "screenshot": "screenshots/flow-place-author-decision.png",
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "public-projection-place",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "summary": {
+        "average": 4,
+        "count": 1
+      },
+      "screenshot": "screenshots/flow-place-public.png",
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "escaped-html-place",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "pending-private-specialist",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "moderation-specialist",
+      "status": "PASS",
+      "role": "moderator",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "specialist_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST specialist <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 1,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "screenshot": "screenshots/flow-specialist-decision.png",
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "author-rejection-reason-specialist",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "savedReason": "",
+      "visible": "Отзывы: Fictional QA09 specialist\n\nКаждый отзыв относится только к этой странице. KidsMap проверяет отзывы; бизнес может ответить или пожаловаться.\n\n4,0 / 5 · 1\n\nОпубликованные отзывы\n\n4 / 5\n\nQA09 FIRST specialist <img src=x onerror=\"window.QA09_XSS=2\"> & text\n\nМой отзыв\n\nОдобренный отзыв остаётся видимым, пока новая редакция проходит проверку.\n\nОценка\n—\n1\n2\n3\n4\n5\nТекст отзыва\nОтправить на проверку",
+      "screenshot": "screenshots/flow-specialist-author-decision.png",
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "public-projection-specialist",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "summary": {
+        "average": 4,
+        "count": 1
+      },
+      "screenshot": "screenshots/flow-specialist-public.png",
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "escaped-html-specialist",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "pending-private-activity",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "moderation-activity",
+      "status": "PASS",
+      "role": "moderator",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "activity_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST activity <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 1,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "screenshot": "screenshots/flow-activity-decision.png",
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "author-rejection-reason-activity",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "savedReason": "",
+      "visible": "Отзывы: Uydurma QA09 fəaliyyət\n\nКаждый отзыв относится только к этой странице. KidsMap проверяет отзывы; бизнес может ответить или пожаловаться.\n\n4,0 / 5 · 1\n\nОпубликованные отзывы\nFictional QA09 author\n\n4 / 5\n\nQA09 FIRST activity <img src=x onerror=\"window.QA09_XSS=2\"> & text\n\nМой отзыв\n\nОдобренный отзыв остаётся видимым, пока новая редакция проходит проверку.\n\nОценка\n—\n1\n2\n3\n4\n5\nТекст отзыва\nОтправить на проверку",
+      "screenshot": "screenshots/flow-activity-author-decision.png",
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "public-projection-activity",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "summary": {
+        "average": 4,
+        "count": 1
+      },
+      "screenshot": "screenshots/flow-activity-public.png",
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "escaped-html-activity",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "pending-private-event",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "moderation-event",
+      "status": "PASS",
+      "role": "moderator",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "event_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST event <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "rejected",
+        "is_approved": false,
+        "current_revision_id": null,
+        "candidate_revision_id": null,
+        "rejection_reason": "QA09 REJECT: clarify fictional event facts",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "screenshot": "screenshots/flow-event-decision.png",
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "author-rejection-reason-event",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "savedReason": "QA09 REJECT: clarify fictional event facts",
+      "visible": "Отзывы: Uydurma QA09 tədbir\n\nКаждый отзыв относится только к этой странице. KidsMap проверяет отзывы; бизнес может ответить или пожаловаться.\n\nОпубликованные отзывы\n\nОтзывов пока нет.\n\nМой отзыв\n\nОдобренный отзыв остаётся видимым, пока новая редакция проходит проверку.\n\nРедакция отклонена\n\nПричина отказа\n\nQA09 REJECT: clarify fictional event facts\n\nОтклонённая редакция · 4 / 5\n\nQA09 FIRST event <img src=x onerror=\"window.QA09_XSS=2\"> & text\n\nОценка\n—\n1\n2\n3\n4\n5\nТекст отзыва\nОтправить на проверку",
+      "screenshot": "screenshots/flow-event-author-decision.png",
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "public-projection-event",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "summary": {
+        "average": 0,
+        "count": 0
+      },
+      "screenshot": "screenshots/flow-event-public.png",
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "escaped-html-event",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "flows-complete.json"
+    },
+    {
+      "id": "rejection-reason-place",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "savedReason": "",
+      "visible": "Отзывы: Вымышленное QA09 empty\n\nКаждый отзыв относится только к этой странице. KidsMap проверяет отзывы; бизнес может ответить или пожаловаться.\n\n4,0 / 5 · 1\n\nОпубликованные отзывы\nFictional QA09 author\n\n4 / 5\n\nQA09 FIRST place <img src=x onerror=\"window.QA09_XSS=2\"> & text\n\nМой отзыв\n\nОдобренный отзыв остаётся видимым, пока новая редакция проходит проверку.\n\nОценка\n—\n1\n2\n3\n4\n5\nТекст отзыва\nОтправить на проверку",
+      "screenshot": "screenshots/decision-place-author.png",
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "public-place",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "summary": {
+        "average": 4,
+        "count": 1
+      },
+      "screenshot": "screenshots/decision-place-public.png",
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "safe-html-place",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "owner-reply-available-place",
+      "status": "PASS",
+      "role": "owner",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "owner-reply-saved-place",
+      "status": "PASS",
+      "role": "owner",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/reply-place.png",
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "employee-reply-scope-place",
+      "status": "PASS",
+      "role": "employee",
+      "lang": "ru",
+      "width": 1440,
+      "replyCount": 0,
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "helpful-saved-place",
+      "status": "PASS",
+      "role": "employee",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 28,
+        "place_id": 2,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST place <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 28,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 1,
+        "dislikes_count": 0
+      },
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "helpful-repeat-toggle-place",
+      "status": "PASS",
+      "role": "employee",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 28,
+        "place_id": 2,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST place <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 28,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "unhelpful-reload-count-place",
+      "status": "PASS",
+      "role": "employee",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 28,
+        "place_id": 2,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST place <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 28,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 1
+      },
+      "screenshot": "screenshots/reaction-place.png",
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "rejection-reason-specialist",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "savedReason": "",
+      "visible": "Отзывы: Fictional QA09 specialist\n\nКаждый отзыв относится только к этой странице. KidsMap проверяет отзывы; бизнес может ответить или пожаловаться.\n\n4,0 / 5 · 1\n\nОпубликованные отзывы\n\n4 / 5\n\nQA09 FIRST specialist <img src=x onerror=\"window.QA09_XSS=2\"> & text\n\nМой отзыв\n\nОдобренный отзыв остаётся видимым, пока новая редакция проходит проверку.\n\nОценка\n—\n1\n2\n3\n4\n5\nТекст отзыва\nОтправить на проверку",
+      "screenshot": "screenshots/decision-specialist-author.png",
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "public-specialist",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "summary": {
+        "average": 4,
+        "count": 1
+      },
+      "screenshot": "screenshots/decision-specialist-public.png",
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "safe-html-specialist",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "owner-reply-available-specialist",
+      "status": "PASS",
+      "role": "owner",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "owner-reply-saved-specialist",
+      "status": "PASS",
+      "role": "owner",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/reply-specialist.png",
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "employee-reply-scope-specialist",
+      "status": "PASS",
+      "role": "employee",
+      "lang": "ru",
+      "width": 1440,
+      "replyCount": 0,
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "helpful-saved-specialist",
+      "status": "PASS",
+      "role": "employee",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "specialist_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST specialist <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 1,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 1,
+        "dislikes_count": 0
+      },
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "helpful-repeat-toggle-specialist",
+      "status": "PASS",
+      "role": "employee",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "specialist_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST specialist <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 1,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "unhelpful-reload-count-specialist",
+      "status": "PASS",
+      "role": "employee",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "specialist_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST specialist <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 1,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 1
+      },
+      "screenshot": "screenshots/reaction-specialist.png",
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "rejection-reason-activity",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "savedReason": "",
+      "visible": "Отзывы: Uydurma QA09 fəaliyyət\n\nКаждый отзыв относится только к этой странице. KidsMap проверяет отзывы; бизнес может ответить или пожаловаться.\n\n4,0 / 5 · 1\n\nОпубликованные отзывы\nFictional QA09 author\n\n4 / 5\n\nQA09 FIRST activity <img src=x onerror=\"window.QA09_XSS=2\"> & text\n\nМой отзыв\n\nОдобренный отзыв остаётся видимым, пока новая редакция проходит проверку.\n\nОценка\n—\n1\n2\n3\n4\n5\nТекст отзыва\nОтправить на проверку",
+      "screenshot": "screenshots/decision-activity-author.png",
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "public-activity",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "summary": {
+        "average": 4,
+        "count": 1
+      },
+      "screenshot": "screenshots/decision-activity-public.png",
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "safe-html-activity",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "owner-reply-available-activity",
+      "status": "PASS",
+      "role": "owner",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "owner-reply-saved-activity",
+      "status": "PASS",
+      "role": "owner",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/reply-activity.png",
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "employee-reply-scope-activity",
+      "status": "FAIL",
+      "role": "employee",
+      "lang": "ru",
+      "width": 1440,
+      "replyCount": 0,
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "helpful-saved-activity",
+      "status": "PASS",
+      "role": "employee",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "activity_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST activity <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 1,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 1,
+        "dislikes_count": 0
+      },
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "helpful-repeat-toggle-activity",
+      "status": "PASS",
+      "role": "employee",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "activity_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST activity <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 1,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "unhelpful-reload-count-activity",
+      "status": "PASS",
+      "role": "employee",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "activity_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST activity <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 1,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 1
+      },
+      "screenshot": "screenshots/reaction-activity.png",
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "rejection-reason-event",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "savedReason": "QA09 REJECT: clarify fictional event facts",
+      "visible": "Отзывы: Uydurma QA09 tədbir\n\nКаждый отзыв относится только к этой странице. KidsMap проверяет отзывы; бизнес может ответить или пожаловаться.\n\nОпубликованные отзывы\n\nОтзывов пока нет.\n\nМой отзыв\n\nОдобренный отзыв остаётся видимым, пока новая редакция проходит проверку.\n\nРедакция отклонена\n\nПричина отказа\n\nQA09 REJECT: clarify fictional event facts\n\nОтклонённая редакция · 4 / 5\n\nQA09 FIRST event <img src=x onerror=\"window.QA09_XSS=2\"> & text\n\nОценка\n—\n1\n2\n3\n4\n5\nТекст отзыва\nОтправить на проверку",
+      "screenshot": "screenshots/decision-event-author.png",
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "public-event",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "summary": {
+        "average": 0,
+        "count": 0
+      },
+      "screenshot": "screenshots/decision-event-public.png",
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "safe-html-event",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "site-decision-harness",
+      "status": "NOT RUN",
+      "role": "moderator",
+      "lang": "ru",
+      "width": 1440,
+      "error": "TimeoutError: locator.click: Timeout 6000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('form[method=post] button[type=submit]').visible().last()\u001b[22m\n",
+      "artifact": "decisions.json"
+    },
+    {
+      "id": "edit-candidate-place",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "before": {
+        "id": 28,
+        "place_id": 2,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST place <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 28,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 1
+      },
+      "after": {
+        "id": 28,
+        "place_id": 2,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST place <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 28,
+        "candidate_revision_id": 29,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 1
+      },
+      "screenshot": "screenshots/edit-place-pending.png",
+      "artifact": "edits.json"
+    },
+    {
+      "id": "edit-live-stable-place",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "summary": {
+        "average": 4,
+        "count": 1
+      },
+      "artifact": "edits.json"
+    },
+    {
+      "id": "edit-approved-place",
+      "status": "PASS",
+      "role": "moderator",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 28,
+        "place_id": 2,
+        "user_id": 1,
+        "rating": 2,
+        "text": "QA09 EDIT place <script>window.QA09_XSS=8</script>",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 29,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "summary": {
+        "average": 2,
+        "count": 1
+      },
+      "artifact": "edits.json"
+    },
+    {
+      "id": "new-public-place",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/edit-place-public.png",
+      "artifact": "edits.json"
+    },
+    {
+      "id": "new-revision-reaction-reset-place",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 28,
+        "place_id": 2,
+        "user_id": 1,
+        "rating": 2,
+        "text": "QA09 EDIT place <script>window.QA09_XSS=8</script>",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 29,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "artifact": "edits.json"
+    },
+    {
+      "id": "edit-harness-place",
+      "status": "NOT RUN",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "error": "Error: page.screenshot: Protocol error (Page.captureScreenshot): Unable to capture screenshot\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n",
+      "artifact": "edits.json"
+    },
+    {
+      "id": "edit-candidate-specialist",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "before": {
+        "id": 1,
+        "specialist_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST specialist <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 1,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 1
+      },
+      "after": {
+        "id": 1,
+        "specialist_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST specialist <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 1,
+        "candidate_revision_id": 2,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 1
+      },
+      "screenshot": "screenshots/edit-specialist-pending.png",
+      "artifact": "edits.json"
+    },
+    {
+      "id": "edit-live-stable-specialist",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "summary": {
+        "average": 4,
+        "count": 1
+      },
+      "artifact": "edits.json"
+    },
+    {
+      "id": "edit-approved-specialist",
+      "status": "PASS",
+      "role": "moderator",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "specialist_id": 1,
+        "user_id": 1,
+        "rating": 2,
+        "text": "QA09 EDIT specialist <script>window.QA09_XSS=8</script>",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 2,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "summary": {
+        "average": 2,
+        "count": 1
+      },
+      "artifact": "edits.json"
+    },
+    {
+      "id": "new-public-specialist",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/edit-specialist-public.png",
+      "artifact": "edits.json"
+    },
+    {
+      "id": "new-revision-reaction-reset-specialist",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "specialist_id": 1,
+        "user_id": 1,
+        "rating": 2,
+        "text": "QA09 EDIT specialist <script>window.QA09_XSS=8</script>",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 2,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "artifact": "edits.json"
+    },
+    {
+      "id": "edit-harness-specialist",
+      "status": "NOT RUN",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "error": "Error: page.screenshot: Protocol error (Page.captureScreenshot): Unable to capture screenshot\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n",
+      "artifact": "edits.json"
+    },
+    {
+      "id": "edit-candidate-activity",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "before": {
+        "id": 1,
+        "activity_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST activity <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 1,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 1
+      },
+      "after": {
+        "id": 1,
+        "activity_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST activity <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 1,
+        "candidate_revision_id": 2,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 1
+      },
+      "screenshot": "screenshots/edit-activity-pending.png",
+      "artifact": "edits.json"
+    },
+    {
+      "id": "edit-live-stable-activity",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "summary": {
+        "average": 4,
+        "count": 1
+      },
+      "artifact": "edits.json"
+    },
+    {
+      "id": "edit-approved-activity",
+      "status": "PASS",
+      "role": "moderator",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "activity_id": 1,
+        "user_id": 1,
+        "rating": 2,
+        "text": "QA09 EDIT activity <script>window.QA09_XSS=8</script>",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 2,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "summary": {
+        "average": 2,
+        "count": 1
+      },
+      "artifact": "edits.json"
+    },
+    {
+      "id": "new-public-activity",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/edit-activity-public.png",
+      "artifact": "edits.json"
+    },
+    {
+      "id": "new-revision-reaction-reset-activity",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "activity_id": 1,
+        "user_id": 1,
+        "rating": 2,
+        "text": "QA09 EDIT activity <script>window.QA09_XSS=8</script>",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 2,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "artifact": "edits.json"
+    },
+    {
+      "id": "stale-react-activity",
+      "status": "PASS",
+      "role": "employee",
+      "lang": "ru",
+      "width": 1440,
+      "http": 409,
+      "screenshot": "screenshots/stale-react-activity.png",
+      "artifact": "edits.json"
+    },
+    {
+      "id": "edit-candidate-event",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "before": {
+        "id": 1,
+        "event_id": 1,
+        "user_id": 1,
+        "rating": 4,
+        "text": "QA09 FIRST event <img src=x onerror=\"window.QA09_XSS=2\"> & text",
+        "status": "rejected",
+        "is_approved": false,
+        "current_revision_id": null,
+        "candidate_revision_id": null,
+        "rejection_reason": "QA09 REJECT: clarify fictional event facts",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "after": {
+        "id": 1,
+        "event_id": 1,
+        "user_id": 1,
+        "rating": 2,
+        "text": "QA09 EDIT event <script>window.QA09_XSS=8</script>",
+        "status": "pending",
+        "is_approved": false,
+        "current_revision_id": null,
+        "candidate_revision_id": 2,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "screenshot": "screenshots/edit-event-pending.png",
+      "artifact": "edits.json"
+    },
+    {
+      "id": "edit-live-stable-event",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "summary": {
+        "average": 0,
+        "count": 0
+      },
+      "artifact": "edits.json"
+    },
+    {
+      "id": "edit-approved-event",
+      "status": "PASS",
+      "role": "moderator",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "event_id": 1,
+        "user_id": 1,
+        "rating": 2,
+        "text": "QA09 EDIT event <script>window.QA09_XSS=8</script>",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 2,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "summary": {
+        "average": 2,
+        "count": 1
+      },
+      "artifact": "edits.json"
+    },
+    {
+      "id": "new-public-event",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/edit-event-public.png",
+      "artifact": "edits.json"
+    },
+    {
+      "id": "new-revision-reaction-reset-event",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 1,
+        "event_id": 1,
+        "user_id": 1,
+        "rating": 2,
+        "text": "QA09 EDIT event <script>window.QA09_XSS=8</script>",
+        "status": "approved",
+        "is_approved": true,
+        "current_revision_id": 2,
+        "candidate_revision_id": null,
+        "rejection_reason": "",
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "artifact": "edits.json"
+    },
+    {
+      "id": "site-save-rejected-0",
+      "status": "PASS",
+      "role": "moderator",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 28,
+        "user_id": 1,
+        "text": "QA09 SITE NATIVE <script>window.QA09_XSS=3</script>",
+        "rating": 5,
+        "status": "rejected",
+        "is_approved": false,
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "screenshot": "screenshots/site-status-rejected.png",
+      "artifact": "site-finish.json"
+    },
+    {
+      "id": "site-public-rejected",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/site-public-status-rejected.png",
+      "artifact": "site-finish.json"
+    },
+    {
+      "id": "site-save-approved-2",
+      "status": "PASS",
+      "role": "moderator",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 28,
+        "user_id": 1,
+        "text": "QA09 SITE NATIVE <script>window.QA09_XSS=3</script>",
+        "rating": 5,
+        "status": "approved",
+        "is_approved": true,
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "screenshot": "screenshots/site-status-approved.png",
+      "artifact": "site-finish.json"
+    },
+    {
+      "id": "site-public-approved",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/site-public-status-approved.png",
+      "artifact": "site-finish.json"
+    },
+    {
+      "id": "site-save-pending-4",
+      "status": "PASS",
+      "role": "moderator",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 28,
+        "user_id": 1,
+        "text": "QA09 SITE NATIVE <script>window.QA09_XSS=3</script>",
+        "rating": 5,
+        "status": "pending",
+        "is_approved": false,
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "screenshot": "screenshots/site-status-pending.png",
+      "artifact": "site-finish.json"
+    },
+    {
+      "id": "site-public-pending",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/site-public-status-pending.png",
+      "artifact": "site-finish.json"
+    },
+    {
+      "id": "site-save-approved-6",
+      "status": "PASS",
+      "role": "moderator",
+      "lang": "ru",
+      "width": 1440,
+      "head": {
+        "id": 28,
+        "user_id": 1,
+        "text": "QA09 SITE NATIVE <script>window.QA09_XSS=3</script>",
+        "rating": 5,
+        "status": "approved",
+        "is_approved": true,
+        "likes_count": 0,
+        "dislikes_count": 0
+      },
+      "screenshot": "screenshots/site-status-approved.png",
+      "artifact": "site-finish.json"
+    },
+    {
+      "id": "site-public-approved",
+      "status": "PASS",
+      "role": "guest",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/site-public-status-approved.png",
+      "artifact": "site-finish.json"
+    },
+    {
+      "id": "initial-hidden-archive-deleted-no-leak",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "storedLikes": [
+        {
+          "id": 1,
+          "place_id": 3,
+          "user_id": 1
+        },
+        {
+          "id": 2,
+          "place_id": 4,
+          "user_id": 1
+        },
+        {
+          "id": 3,
+          "place_id": 5,
+          "user_id": 1
+        },
+        {
+          "id": 4,
+          "place_id": 6,
+          "user_id": 1
+        }
+      ],
+      "visible": "Избранные места\n0\nОткрыть каталог\narrow_forward\nfavorite\nВ избранном пусто\n\nНажмите на сердечко в каталоге — место сохранится здесь.\n\nПерейти в каталог",
+      "screenshot": "screenshots/favorites-hidden-empty.png",
+      "artifact": "favorites-notifications.json"
+    },
+    {
+      "id": "favorites-flow-harness",
+      "status": "NOT RUN",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "error": "TimeoutError: locator.dblclick: Timeout 6000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('form[action$=\"/place/1/like/\"] button')\u001b[22m\n",
+      "artifact": "favorites-notifications.json"
+    },
+    {
+      "id": "favorites-remove-harness",
+      "status": "NOT RUN",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "error": "TimeoutError: locator.click: Timeout 6000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('form[action$=\"/place/1/like/\"] button')\u001b[22m\n",
+      "artifact": "favorites-notifications.json"
+    },
+    {
+      "id": "notification-read-saved",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/notification-read.png",
+      "artifact": "favorites-notifications.json"
+    },
+    {
+      "id": "notification-read-reload",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "favorites-notifications.json"
+    },
+    {
+      "id": "notification-repeat-read-idempotent",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "http": 302,
+      "mechanism": "negative HTTP replay",
+      "artifact": "favorites-notifications.json"
+    },
+    {
+      "id": "foreign-notification-read",
+      "status": "PASS",
+      "role": "outsider",
+      "lang": "ru",
+      "width": 1440,
+      "http": 404,
+      "artifact": "favorites-notifications.json"
+    },
+    {
+      "id": "foreign-notification-accept",
+      "status": "PASS",
+      "role": "outsider",
+      "lang": "ru",
+      "width": 1440,
+      "http": 404,
+      "artifact": "favorites-notifications.json"
+    },
+    {
+      "id": "deleted-entity-notification-safe",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "note": "Initial notices reference nonexistent entity90000+. No object payload/link exposed.",
+      "artifact": "favorites-notifications.json"
+    },
+    {
+      "id": "native-invite-notification-invitee",
+      "status": "PASS",
+      "role": "owner",
+      "lang": "ru",
+      "width": 1440,
+      "invitation": {
+        "id": 1,
+        "place_id": 1,
+        "status": "PENDING",
+        "invited_user_id": null,
+        "email": "invitee09@example.invalid"
+      },
+      "notice": {
+        "id": 4,
+        "event_kind": "team_invitation",
+        "entity_type": "place_team_invitation",
+        "entity_id": 1,
+        "entity_version": 1,
+        "recipient_user_id": 9,
+        "read_at": null
+      },
+      "screenshot": "screenshots/invite-invitee.png",
+      "artifact": "favorites-notifications.json"
+    },
+    {
+      "id": "native-invite-accept",
+      "status": "PASS",
+      "role": "invitee",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/notification-accepted.png",
+      "artifact": "favorites-notifications.json"
+    },
+    {
+      "id": "stale-invite-second-tab",
+      "status": "PASS",
+      "role": "invitee",
+      "lang": "ru",
+      "width": 1440,
+      "http": 403,
+      "screenshot": "screenshots/notification-stale-accept.png",
+      "artifact": "favorites-notifications.json"
+    },
+    {
+      "id": "native-invite-notification-author",
+      "status": "PASS",
+      "role": "owner",
+      "lang": "ru",
+      "width": 1440,
+      "invitation": {
+        "id": 2,
+        "place_id": 1,
+        "status": "PENDING",
+        "invited_user_id": null,
+        "email": "author09@example.invalid"
+      },
+      "notice": {
+        "id": 6,
+        "event_kind": "team_invitation",
+        "entity_type": "place_team_invitation",
+        "entity_id": 2,
+        "entity_version": 1,
+        "recipient_user_id": 1,
+        "read_at": null
+      },
+      "screenshot": "screenshots/invite-author.png",
+      "artifact": "favorites-notifications.json"
+    },
+    {
+      "id": "revoked-invitation-denied",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "http": 403,
+      "screenshot": "screenshots/notification-revoked-error.png",
+      "artifact": "favorites-notifications.json"
+    },
+    {
+      "id": "revoked-invitation-no-accept-button",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/notification-revoked-reload.png",
+      "artifact": "favorites-notifications.json"
+    },
+    {
+      "id": "initial-hidden-archive-deleted-no-leak",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "storedLikes": [
+        {
+          "id": 1,
+          "place_id": 3,
+          "user_id": 1
+        },
+        {
+          "id": 2,
+          "place_id": 4,
+          "user_id": 1
+        },
+        {
+          "id": 3,
+          "place_id": 5,
+          "user_id": 1
+        },
+        {
+          "id": 4,
+          "place_id": 6,
+          "user_id": 1
+        }
+      ],
+      "visible": "Избранные места\n0\nОткрыть каталог\narrow_forward\nfavorite\nВ избранном пусто\n\nНажмите на сердечко в каталоге — место сохранится здесь.\n\nПерейти в каталог",
+      "screenshot": "screenshots/favorites-hidden-empty.png",
+      "artifact": "favorites-finish.json"
+    },
+    {
+      "id": "favorite-double-click-single-save",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "before": 4,
+      "after": 5,
+      "screenshot": "screenshots/favorite-add.png",
+      "artifact": "favorites-finish.json"
+    },
+    {
+      "id": "favorite-native-list",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/favorites-filled.png",
+      "artifact": "favorites-finish.json"
+    },
+    {
+      "id": "favorite-reload",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "favorites-finish.json"
+    },
+    {
+      "id": "favorite-logout-stored",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "favorites-finish.json"
+    },
+    {
+      "id": "favorite-login-list-preserved",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/favorite-relogin.png",
+      "artifact": "favorites-finish.json"
+    },
+    {
+      "id": "favorite-remove-saved",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/favorite-removed.png",
+      "artifact": "favorites-finish.json"
+    },
+    {
+      "id": "favorite-network-failure-no-mutation",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "classification": "SIMULATED transport failure",
+      "screenshot": "screenshots/favorite-network-error.png",
+      "artifact": "favorites-finish.json"
+    },
+    {
+      "id": "conflict-409-keeps-B",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/accept-conflict-409.png",
+      "artifact": "recovery.json"
+    },
+    {
+      "id": "conflict-no-server-overwrite",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "recovery.json"
+    },
+    {
+      "id": "rejected-edit-author-feedback",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "screenshot": "screenshots/accept-rejected-edit.png",
+      "artifact": "recovery.json"
+    },
+    {
+      "id": "new-pending-removes-old-rejection",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "recovery.json"
+    },
+    {
+      "id": "resubmission-approved",
+      "status": "PASS",
+      "role": "author",
+      "lang": "ru",
+      "width": 1440,
+      "artifact": "recovery.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "ru",
+      "width": 360,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/ru/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/ru/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-ru-360.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "ru",
+      "width": 390,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/ru/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/ru/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-ru-390.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "ru",
+      "width": 768,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/ru/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/ru/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-ru-768.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "ru",
+      "width": 1024,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/ru/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/ru/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-ru-1024.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "ru",
+      "width": 1280,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/ru/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/ru/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-ru-1280.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "ru",
+      "width": 1440,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/ru/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/ru/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-ru-1440.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "az",
+      "width": 360,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-az-360.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "az",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "az",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "az",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "az",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "az",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "az",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "az",
+      "width": 390,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-az-390.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "az",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "az",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "az",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "az",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "az",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "az",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "az",
+      "width": 768,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-az-768.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "az",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "az",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "az",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "az",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "az",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "az",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "az",
+      "width": 1024,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-az-1024.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "az",
+      "width": 1280,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-az-1280.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "az",
+      "width": 1440,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-az-1440.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "en",
+      "width": 360,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/en/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/en/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-en-360.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "en",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "en",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "en",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "en",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "en",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "en",
+      "width": 360,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "en",
+      "width": 390,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/en/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/en/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-en-390.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "en",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "en",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "en",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "en",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "en",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "en",
+      "width": 390,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "en",
+      "width": 768,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/en/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/en/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-en-768.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "en",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "en",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "en",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "en",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "en",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "en",
+      "width": 768,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "en",
+      "width": 1024,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/en/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/en/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-en-1024.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1024,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "en",
+      "width": 1280,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/en/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/en/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-en-1280.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1280,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "anonymous-notifications-login-recovery",
+      "status": "FAIL",
+      "lang": "en",
+      "width": 1440,
+      "role": "guest",
+      "url": "http://127.0.0.1:33380/en/account/notifications/",
+      "initialHttp": 302,
+      "location": "/accounts/login/?next=/en/account/notifications/",
+      "finalHttp": 404,
+      "finalUrl": "http://127.0.0.1:33380/accounts/login/",
+      "screenshot": "png/anonymous-login-en-1440.png",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "actual-login-route-reachable",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-native",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-page2-reload",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-native",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-sort-reload",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "feed-no-overflow",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1440,
+      "role": "guest",
+      "artifact": "adjacent-feed.json"
+    },
+    {
+      "id": "valid-invitation-native-accept",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "ru",
+      "width": 1280,
+      "role": "recipient",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "ru",
+      "width": 360,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-ru-360.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "ru",
+      "width": 390,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-ru-390.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "ru",
+      "width": 768,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-ru-768.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "ru",
+      "width": 1024,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-ru-1024.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "ru",
+      "width": 1280,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-ru-1280.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "ru",
+      "width": 1440,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-ru-1440.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "valid-invitation-native-accept",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "az",
+      "width": 1280,
+      "role": "recipient",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "az",
+      "width": 360,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-az-360.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "az",
+      "width": 390,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-az-390.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "az",
+      "width": 768,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-az-768.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "az",
+      "width": 1024,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-az-1024.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "az",
+      "width": 1280,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-az-1280.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "az",
+      "width": 1440,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-az-1440.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "valid-invitation-native-accept",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "en",
+      "width": 1280,
+      "role": "recipient",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "en",
+      "width": 360,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-en-360.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "en",
+      "width": 390,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-en-390.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "en",
+      "width": 768,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-en-768.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "en",
+      "width": 1024,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-en-1024.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "en",
+      "width": 1280,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-en-1280.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "place",
+      "lang": "en",
+      "width": 1440,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-place-en-1440.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "valid-invitation-native-accept",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "ru",
+      "width": 1280,
+      "role": "recipient",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "ru",
+      "width": 360,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-ru-360.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "ru",
+      "width": 390,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-ru-390.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "ru",
+      "width": 768,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-ru-768.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "ru",
+      "width": 1024,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-ru-1024.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "ru",
+      "width": 1280,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-ru-1280.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "ru",
+      "width": 1440,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-ru-1440.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "valid-invitation-native-accept",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "az",
+      "width": 1280,
+      "role": "recipient",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "az",
+      "width": 360,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-az-360.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "az",
+      "width": 390,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-az-390.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "az",
+      "width": 768,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-az-768.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "az",
+      "width": 1024,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-az-1024.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "az",
+      "width": 1280,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-az-1280.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "az",
+      "width": 1440,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-az-1440.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "valid-invitation-native-accept",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "en",
+      "width": 1280,
+      "role": "recipient",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "en",
+      "width": 360,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-en-360.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "en",
+      "width": 390,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-en-390.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "en",
+      "width": 768,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-en-768.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "en",
+      "width": 1024,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-en-1024.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "en",
+      "width": 1280,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-en-1280.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "stale-invitation-rendered-feedback",
+      "status": "PASS",
+      "kind": "organization",
+      "lang": "en",
+      "width": 1440,
+      "role": "recipient",
+      "checks": {
+        "denied403": true,
+        "feedback": true,
+        "noAccept": true,
+        "fit": true
+      },
+      "screenshot": "png/stale-organization-en-1440.png",
+      "artifact": "extra-invites.json"
+    },
+    {
+      "id": "mobile-drawer-keyboard",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 360,
+      "role": "author",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 360,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-ru-360.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 360,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-ru-360.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "mobile-drawer-keyboard",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 390,
+      "role": "author",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 390,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-ru-390.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 390,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-ru-390.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "mobile-drawer-keyboard",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 768,
+      "role": "author",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 768,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-ru-768.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 768,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-ru-768.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "mobile-drawer-keyboard",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1024,
+      "role": "author",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1024,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-ru-1024.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1024,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-ru-1024.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1280,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-ru-1280.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1280,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-ru-1280.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1440,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-ru-1440.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "ru",
+      "width": 1440,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-ru-1440.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "mobile-drawer-keyboard",
+      "status": "PASS",
+      "lang": "az",
+      "width": 360,
+      "role": "author",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "az",
+      "width": 360,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-az-360.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "az",
+      "width": 360,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-az-360.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "mobile-drawer-keyboard",
+      "status": "PASS",
+      "lang": "az",
+      "width": 390,
+      "role": "author",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "az",
+      "width": 390,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-az-390.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "az",
+      "width": 390,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-az-390.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "mobile-drawer-keyboard",
+      "status": "PASS",
+      "lang": "az",
+      "width": 768,
+      "role": "author",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "az",
+      "width": 768,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-az-768.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "az",
+      "width": 768,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-az-768.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "mobile-drawer-keyboard",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1024,
+      "role": "author",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1024,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-az-1024.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1024,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-az-1024.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1280,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-az-1280.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1280,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-az-1280.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1440,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-az-1440.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "az",
+      "width": 1440,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-az-1440.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "mobile-drawer-keyboard",
+      "status": "PASS",
+      "lang": "en",
+      "width": 360,
+      "role": "author",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "en",
+      "width": 360,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-en-360.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "en",
+      "width": 360,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-en-360.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "mobile-drawer-keyboard",
+      "status": "PASS",
+      "lang": "en",
+      "width": 390,
+      "role": "author",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "en",
+      "width": 390,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-en-390.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "en",
+      "width": 390,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-en-390.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "mobile-drawer-keyboard",
+      "status": "PASS",
+      "lang": "en",
+      "width": 768,
+      "role": "author",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "en",
+      "width": 768,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-en-768.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "en",
+      "width": 768,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-en-768.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "mobile-drawer-keyboard",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1024,
+      "role": "author",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1024,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-en-1024.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1024,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-en-1024.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1280,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-en-1280.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1280,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-en-1280.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-pending-disabled",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1440,
+      "role": "author",
+      "classification": "SIMULATED delayed transport",
+      "screenshot": "png/loading-en-1440.png",
+      "artifact": "loading.json"
+    },
+    {
+      "id": "favorite-503-feedback-recovered-no-write",
+      "status": "PASS",
+      "lang": "en",
+      "width": 1440,
+      "role": "author",
+      "classification": "SIMULATED HTTP503",
+      "screenshot": "png/error503-en-1440.png",
+      "artifact": "loading.json"
+    }
+  ]
+}

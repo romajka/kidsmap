@@ -1,0 +1,18 @@
+# Exact primary commands and results
+
+Host C:\kidsmap, WSL Ubuntu-24.04; all paths below absolute Linux view of this workspace. No old package launcher/finalizer was executed. Runtime scripts here are newly adapted, own source guards/DB/locale paths.
+
+- `python3 /mnt/c/kidsmap/docs/qa/site-qa15-recheck-2026-10-18-pc-r1/prepare.py`: attempt1 exit1 before DB creation (psql count parser); corrected attempt exit0,1028source/25prior packages preserved, new m10s15_plan_r1/test_m10s15_plan_r1 selection and m10s15-plan-r1-app.
+- `python3 /mnt/c/kidsmap/docs/qa/site-qa15-recheck-2026-10-18-pc-r1/setup_runtime.py`: premature attempt exit1 (no app container), own current locale build had completed. After successful prepare, verify current3catalogues + real migrate both exit0; exact subprocess arguments in `evidence/setup-commands.json`. No migration/production script or old stand reseed.
+- `docker exec m10s15-plan-r1-app python /mnt/c/kidsmap/.tmp/site15-pc-plan-r1/seed.py`: exit0,2fictional roles and owned settings values. Script copied from this new package.
+- `python3 /mnt/c/kidsmap/docs/qa/site-qa15-recheck-2026-10-18-pc-r1/build_candidate.py`: exit0;exact6file candidate/proposed.diff/manifest only, no root app changes. Candidate backend refined statically to share CAS across six sections/direct analytics; executed test file unchanged.
+- `python3 /mnt/c/kidsmap/docs/qa/site-qa15-recheck-2026-10-18-pc-r1/run_red.py`: EXPECTED exit1,54methods/36failure observations/0errors,13.021s. All exact labels/command/raw SHA256 in `evidence/red-backend.json`;21new methods/33existing,16new failed/5new passed.
+- `python3 /mnt/c/kidsmap/docs/qa/site-qa15-recheck-2026-10-18-pc-r1/start_browser.py`: exit0;own server/proxy loopback33490, own process IDs in ignored scratch.
+- `python3 /mnt/c/kidsmap/docs/qa/site-qa15-recheck-2026-10-18-pc-r1/browser_driver.py open http://127.0.0.1:33490/ --config=/mnt/c/kidsmap/.tmp/site15-pc-plan-r1/playwright.json`: exit0, own Chromium session site15-pc-plan-r1; installed npx available, same proven CLI setup as preceding scoped run. Exact npx prefix/options/exits in browser command ledger.
+- Same browser driver `browser-red.js`: exit1, hidden mobile button timeout/no POST/0completecells. Next `browser-inspect.js` returned actual DOM diagnostics with exit1 from stale pending promise; `browser-inspect2.js` exit0, no app writes.
+- `python3 /mnt/c/kidsmap/docs/qa/site-qa15-recheck-2026-10-18-pc-r1/adapt_browser.py`: exit0, new browser-red-final.js preserves assertions and uses actual native Enter for hidden mobile buttons; promises serialized, old owned extra contexts closed.
+- Browser driver `browser-red-final.js`: script exit0,12cells/84checks/36expectedRED,36fresh matrix PNG,0pageerrors. All submit/readback actions are real on owned synthetic settings.
+- `python3 /mnt/c/kidsmap/docs/qa/site-qa15-recheck-2026-10-18-pc-r1/run_static.py`: first attempt exit1 due copied-script relative candidate path; corrected static run exit0, final static run exit0. Exact Python/template/candidate-PO build-or-verify/git apply --check arguments and results in `evidence/candidate-static.json`. Candidate behavior GREEN NOT RUN.
+- `python3 /mnt/c/kidsmap/docs/qa/site-qa15-recheck-2026-10-18-pc-r1/finalize.py`: final source/candidate/diff/apply/preservation verification and append-only guide/MASTER. Exact results in `verification.json`.
+
+Graph/source discovery tool use is summarized in IMPACT_MAP with generation/coverage limitations. Existing site.py/model/template, normal role presets, installed Django transaction/get_object implementation and dynamic ORM writers were directly reviewed; graph caches are not artifacts. No existing full module audit or unchanged test corpus was rerun.

@@ -1,0 +1,146 @@
+{
+  "utc": "2026-10-18T11:34:38.347195+00:00",
+  "status": "SITE-QA-21/P2 CLOSED LOCAL",
+  "application_files": [
+    "src/catalog/templates/admin/catalog/shared_settings_change_form.html"
+  ],
+  "application_changes": 1,
+  "source_count": 1032,
+  "other_sources_unchanged": 1031,
+  "application_refinements": 0,
+  "exact_candidate_verified": true,
+  "backend": {
+    "tests": 105,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 50.338,
+    "exit": 0
+  },
+  "native": {
+    "accepted_checks": 1050,
+    "accepted_failures": 0,
+    "suites": {
+      "browser-acceptance-red": {
+        "rows": 36,
+        "pass": 305,
+        "fail": 55,
+        "pageerrors": 0,
+        "unexpected_local_http": 0,
+        "console_diagnostics": 72,
+        "blocked_external_requests": 72
+      },
+      "browser-acceptance-stable-red": {
+        "rows": 36,
+        "pass": 304,
+        "fail": 56,
+        "pageerrors": 0,
+        "unexpected_local_http": 0,
+        "console_diagnostics": 72,
+        "blocked_external_requests": 72
+      },
+      "browser-acceptance-green": {
+        "rows": 36,
+        "pass": 360,
+        "fail": 0,
+        "pageerrors": 0,
+        "unexpected_local_http": 0,
+        "console_diagnostics": 72,
+        "blocked_external_requests": 72
+      },
+      "browser-sentinels-red": {
+        "rows": 18,
+        "pass": 54,
+        "fail": 0,
+        "pageerrors": 0,
+        "unexpected_local_http": 0,
+        "console_diagnostics": 0,
+        "blocked_external_requests": 36
+      },
+      "browser-sentinels-green": {
+        "rows": 18,
+        "pass": 108,
+        "fail": 0,
+        "pageerrors": 0,
+        "unexpected_local_http": 0,
+        "console_diagnostics": 0,
+        "blocked_external_requests": 36
+      },
+      "browser-json-flows": {
+        "rows": 48,
+        "pass": 354,
+        "fail": 0,
+        "pageerrors": 0,
+        "unexpected_local_http": 0,
+        "console_diagnostics": 156,
+        "blocked_external_requests": 156
+      },
+      "browser-long-json": {
+        "rows": 20,
+        "pass": 186,
+        "fail": 0,
+        "pageerrors": 0,
+        "unexpected_local_http": 0,
+        "console_diagnostics": 0,
+        "blocked_external_requests": 44
+      },
+      "browser-mobile-errors": {
+        "rows": 6,
+        "pass": 42,
+        "fail": 0,
+        "pageerrors": 0,
+        "unexpected_local_http": 0,
+        "console_diagnostics": 0,
+        "blocked_external_requests": 12
+      }
+    },
+    "actual_source_RED_to_GREEN": true,
+    "no_style_class_transport_injection": true,
+    "identical_stable_RED_GREEN_checks": true,
+    "png": 216
+  },
+  "static": {
+    "compiled_actual_template": true,
+    "branches": 11,
+    "other_branches_unchanged": 10,
+    "test_storage_isolation": true,
+    "105unique_test_ids": true
+  },
+  "preservation": {
+    "prior_packages": 32,
+    "prior_files": 6234,
+    "shared_MO": true,
+    "cbmignore": true,
+    "refs_index_bytes_empty_staging": true,
+    "active_run_NONE": true,
+    "foreign_container_identities_states": 68,
+    "original_JSON_restored": true,
+    "successful_native_synthetic_saves": 32
+  },
+  "git": {
+    "head": "852938d96764ae315b92859e3651e5ea62054a36",
+    "branch": "codex/module09-transfer-2026-10-16-r1",
+    "task33_ref": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+    "index_sha256": "b45c562cb2c4cc7ea04de5664e3ef09a2c7bf9728e17cc55ddcb74551543a171"
+  },
+  "module10": "14canonical OPEN (10P2/4P3); full acceptance pending",
+  "closed_local_retained": [
+    "SITE01",
+    "SITE15",
+    "SITE06",
+    "SITE19",
+    "module09 composite"
+  ],
+  "separate_open_limits": [
+    "SITE08",
+    "SITE20",
+    "SITE11"
+  ],
+  "execution": "inline, no independent-agent claim",
+  "production_global_release": "NOT RUN",
+  "harness_limits": [
+    "initial bootstrap preparation race retained; no resources created on failed attempt",
+    "initial RED55 failures retained; stable RED56 failures; identical readiness-only refinement for RED and GREEN",
+    "mobile native submit NOT RUN; desktop native error response resized to mobile",
+    "external fonts blocked; console-clean not claimed"
+  ]
+}

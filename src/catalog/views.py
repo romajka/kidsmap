@@ -151,7 +151,7 @@ def catalog_search_suggestions(request):
 from .services.reactions import ensure_session_key
 from .services.owner_specialist_use_cases import save_owner_specialist_profile
 from .services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event
-from .services.features import require_events_section_enabled, require_specialists_section_enabled
+from .services.features import is_events_section_enabled, require_events_section_enabled, require_specialists_section_enabled
 from .services.auth_redirects import resolve_safe_next_url
 from .services.place_access import PLACE_PERMISSION_EDIT, has_place_permission
 
@@ -232,11 +232,11 @@ def _engagement_login_required_response(request, fallback_url: str):
 
 
 def _allowed_tracking_hosts(request) -> set[str]:
-    hosts = {request.get_host().split(":", 1)[0].lower()}
+    hosts = {request.get_host().lower()}
     for origin in getattr(settings, "CSRF_TRUSTED_ORIGINS", []):
         if "://" not in origin:
             continue
-        host = origin.split("://", 1)[1].split("/", 1)[0].split(":", 1)[0].lower()
+        host = origin.split("://", 1)[1].split("/", 1)[0].lower()
         if host:
             hosts.add(host)
     return hosts
@@ -353,13 +353,17 @@ def place_new(request):
     return _render_place_list(request, force_new_only=True)
 
 
+def _retired_public_page(request):
+    return render(request, "pages/public_unavailable.html", status=410)
+
+
 def events_landing(request):
     # Events are retired rather than temporarily unavailable. A 410 removes
     # obsolete /events/ URLs from search indexes faster than a soft 404.
     from .services.features import is_events_section_enabled
 
     if not is_events_section_enabled():
-        return HttpResponseGone()
+        return _retired_public_page(request)
     context = place_controller.build_events_landing_context(request)
     return render(request, "catalog/events_landing.html", context)
 
@@ -387,11 +391,15 @@ def _render_place_list(request, force_new_only=False, created_after=None):
 
 def place_detail_legacy(request, pk, slug=None):
     place = place_controller.get_active_place_for_legacy_redirect(pk=pk)
+    if place.is_temporary and not is_events_section_enabled():
+        return _retired_public_page(request)
     return redirect(place.get_absolute_url(), permanent=True)
 
 
 def place_detail(request, pk, slug):
     place = place_controller.get_active_place_with_gallery(pk=pk)
+    if place.is_temporary and not is_events_section_enabled():
+        return _retired_public_page(request)
     from catalog.services.place_urls import place_slug_for_language
     if slug != place_slug_for_language(place, request.LANGUAGE_CODE) or request.META.get("QUERY_STRING"):
         return redirect(place.get_absolute_url(), permanent=True)
@@ -647,6 +655,8 @@ def track_event(request):
         return JsonResponse({"ok": False, "error": "rate_limited"}, status=429)
     result = tracking_controller.track_event_from_json(request=request, raw_body=request.body)
     record_analytics_ingress(accepted=1 if result.ok else 0, rejected=0 if result.ok else 1)
+    if not result.ok and getattr(request, "_analytics_persistence_failed", False):
+        return JsonResponse({"ok": False, "error": "analytics_unavailable"}, status=503)
     return JsonResponse(result.as_payload(), status=result.status_code)
 
 
@@ -1297,7 +1307,7 @@ def event_detail(request, pk, slug):
     from .services.features import is_events_section_enabled
 
     if not is_events_section_enabled():
-        return HttpResponseGone()
+        return _retired_public_page(request)
     event = get_object_or_404(
         Event.objects.select_related("related_place", "organizer_organization", "organizer_specialist").prefetch_related("gallery"),
         pk=pk,
@@ -2871,6 +2881,7 @@ def specialist_detail(request, slug):
     require_specialists_section_enabled()
 
     from catalog.models import Specialist, SpecialistReview, SpecialistPracticeLocation
+    from catalog.services.public_urls import build_public_absolute_uri
     from django.db.models import Prefetch
 
     specialist = get_object_or_404(
@@ -2913,6 +2924,7 @@ def specialist_detail(request, slug):
         "visible_documents": visible_documents,
         "language": language,
         "seo_title": seo_title,
+        "seo_image_url": build_public_absolute_uri(request, specialist.photo.url) if specialist.photo else "",
         "meta_description": meta_description,
         "has_coords": has_coords,
         "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,

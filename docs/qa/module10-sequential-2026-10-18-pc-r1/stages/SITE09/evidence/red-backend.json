@@ -1,0 +1,45 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m10seq-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m10-seq-r1/runtime.py",
+    "test",
+    "test_site09_candidate"
+  ],
+  "exit": 1,
+  "fresh_own_test_db": "test_m10seq_09_red_r1",
+  "test_ids": [
+    "test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect",
+    "test_site09_candidate.Site09LegacyEventSwitchTests.test_on_restores_existing_detail_and_canonical_redirects",
+    "test_site09_candidate.Site09LegacyEventSwitchTests.test_permanent_place_remains_available_when_events_are_off",
+    "test_site09_candidate.Site09LegacyEventSwitchTests.test_switch_does_not_mutate_places_or_expose_unpublished_events"
+  ],
+  "failures": [
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='az', url='/place/1-keyfiyyetli-usaq-derneyi/', suffix='')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='az', url='/place/1-keyfiyyetli-usaq-derneyi/', suffix='?foreign=synthetic')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='az', url='/place/1/', suffix='')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='az', url='/place/1/', suffix='?foreign=synthetic')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='az', url='/1-old-event/', suffix='')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='az', url='/1-old-event/', suffix='?foreign=synthetic')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='ru', url='/ru/place/1-keyfiyyetli-usaq-derneyi/', suffix='')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='ru', url='/ru/place/1-keyfiyyetli-usaq-derneyi/', suffix='?foreign=synthetic')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='ru', url='/ru/place/1/', suffix='')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='ru', url='/ru/place/1/', suffix='?foreign=synthetic')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='ru', url='/ru/1-old-event/', suffix='')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='ru', url='/ru/1-old-event/', suffix='?foreign=synthetic')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='en', url='/en/place/1-keyfiyyetli-usaq-derneyi/', suffix='')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='en', url='/en/place/1-keyfiyyetli-usaq-derneyi/', suffix='?foreign=synthetic')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='en', url='/en/place/1/', suffix='')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='en', url='/en/place/1/', suffix='?foreign=synthetic')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='en', url='/en/1-old-event/', suffix='')",
+    "test_off_retires_all_public_legacy_event_routes_before_redirect (test_site09_candidate.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect) (lang='en', url='/en/1-old-event/', suffix='?foreign=synthetic')"
+  ],
+  "errors": [],
+  "summary": [
+    "Found 4 test(s).",
+    "Ran 4 tests in 2.424s",
+    "FAILED (failures=18)"
+  ]
+}

@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/pages/legal.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/pages/legal.css' %}?v=20261018_site17_r1" />
 {% endblock %}
 
 {% block content %}
@@ -111,7 +111,7 @@
       </aside>
 
       <!-- Main Document Stream -->
-      <main class="legal-document-content">
+      <div class="legal-document-content">
         {% for item in sections %}
           <article
             id="{{ item.id }}"
@@ -190,7 +190,7 @@
           </div>
         </section>
 
-      </main>
+      </div>
     </div>
 
   {% else %}

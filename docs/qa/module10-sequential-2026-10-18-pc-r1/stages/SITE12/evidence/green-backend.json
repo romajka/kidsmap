@@ -1,0 +1,44 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m10seq-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m10-seq-r1/runtime.py",
+    "test",
+    "catalog.testcases.test_site_qa12_not_found",
+    "catalog.testcases.test_site_qa10_retired_recovery",
+    "catalog.testcases.test_site_qa09_legacy_events_switch",
+    "catalog.testcases.test_site_qa03_contacts_copy",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_az_contacts_page_uses_azerbaijani_contact_helpers"
+  ],
+  "exit": 0,
+  "fresh_own_test_db": "test_m10seq_12_green_r2",
+  "test_ids": [
+    "catalog.testcases.test_site_qa12_not_found.Site12PublicNotFoundRecoveryTests.test_404_does_not_echo_query_tokens_or_change_settings",
+    "catalog.testcases.test_site_qa12_not_found.Site12PublicNotFoundRecoveryTests.test_404_is_not_indexable",
+    "catalog.testcases.test_site_qa12_not_found.Site12PublicNotFoundRecoveryTests.test_debug_false_404_has_localized_heading_and_recovery",
+    "catalog.testcases.test_site_qa12_not_found.Site12PublicNotFoundRecoveryTests.test_recovery_links_work_and_missing_page_stays_404",
+    "catalog.testcases.test_site_qa10_retired_recovery.Site10RetiredPageRecoveryTests.test_recovery_destinations_are_available_and_do_not_retire_permanent_catalog",
+    "catalog.testcases.test_site_qa10_retired_recovery.Site10RetiredPageRecoveryTests.test_retired_html_is_explicitly_not_indexable",
+    "catalog.testcases.test_site_qa10_retired_recovery.Site10RetiredPageRecoveryTests.test_retired_requests_do_not_mutate_the_saved_configuration",
+    "catalog.testcases.test_site_qa10_retired_recovery.Site10RetiredPageRecoveryTests.test_retired_routes_have_localized_heading_and_recovery_links",
+    "catalog.testcases.test_site_qa09_legacy_events_switch.Site09LegacyEventSwitchTests.test_off_retires_all_public_legacy_event_routes_before_redirect",
+    "catalog.testcases.test_site_qa09_legacy_events_switch.Site09LegacyEventSwitchTests.test_on_restores_existing_detail_and_canonical_redirects",
+    "catalog.testcases.test_site_qa09_legacy_events_switch.Site09LegacyEventSwitchTests.test_permanent_place_remains_available_when_events_are_off",
+    "catalog.testcases.test_site_qa09_legacy_events_switch.Site09LegacyEventSwitchTests.test_switch_does_not_mutate_places_or_expose_unpublished_events",
+    "catalog.testcases.test_site_qa03_contacts_copy.Site03ContactsCopyTests.test_blank_contact_copy_uses_existing_context_defaults",
+    "catalog.testcases.test_site_qa03_contacts_copy.Site03ContactsCopyTests.test_channel_helper_stays_localized_alongside_configured_intro",
+    "catalog.testcases.test_site_qa03_contacts_copy.Site03ContactsCopyTests.test_contact_copy_is_escaped_not_executable_html",
+    "catalog.testcases.test_site_qa03_contacts_copy.Site03ContactsCopyTests.test_existing_configured_contact_links_are_retained",
+    "catalog.testcases.test_site_qa03_contacts_copy.Site03ContactsCopyTests.test_saved_contact_copy_and_linebreaks_in_all_languages",
+    "catalog.testcases.public.TestPublicPagesSmoke.test_az_contacts_page_uses_azerbaijani_contact_helpers"
+  ],
+  "failures": [],
+  "errors": [],
+  "summary": [
+    "Found 18 test(s).",
+    "Ran 18 tests in 9.099s",
+    "OK"
+  ]
+}

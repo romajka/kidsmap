@@ -1,0 +1,9 @@
+### Result
+{"rows":[],"scope":"Read only actual owned failed native context diagnostic, no hidden fields/cookies/CSRF copied."}
+### Ran Playwright code
+```js
+await (async original=>{
+const base='http://127.0.0.1:33710',rows=[];for(const c of original.context().browser().contexts())for(const p of c.pages())if(p.url().startsWith(base)){rows.push({url:p.url(),messages:await p.locator('[role=alertdialog],[role=dialog],.km-error-banner,.errorlist').allTextContents(),forms:await p.locator('form').evaluateAll(fs=>fs.map(f=>({id:f.id,action:f.getAttribute('action'),method:f.method}))),state:await(await p.request.get(base+'/qa/m11/state/')).json()});}return{rows,scope:'Read only actual owned failed native context diagnostic, no hidden fields/cookies/CSRF copied.'};
+}
+)(page);
+```

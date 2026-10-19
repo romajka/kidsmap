@@ -1,0 +1,31 @@
+{
+  "python_ast": true,
+  "only_one_existing_method_return_expression_changes": true,
+  "original_CRLF_bytes_retained_outside_replacement": true,
+  "test_methods": [
+    "Site19StringContract.test_unsaved_real_string_in_all_locales_without_queries",
+    "Site19StringContract.test_same_object_uses_active_language_each_call",
+    "Site19AdminContract.test_persisted_model_string_is_read_only",
+    "Site19AdminContract.test_authorized_editor_get_renders_json_fields_without_write",
+    "Site19AdminContract.test_view_only_get_is_read_only",
+    "Site19AdminContract.test_valid_json_roundtrip_and_admin_log",
+    "Site19AdminContract.test_invalid_json_returns_bound_form_and_preserves_storage",
+    "Site19AdminContract.test_viewer_and_denied_posts_cannot_write",
+    "Site19AdminContract.test_denied_get_is_forbidden",
+    "Site19AdminContract.test_anonymous_is_redirected_to_login",
+    "Site19AdminContract.test_singleton_add_delete_and_index_stay_disabled",
+    "Site19AdminContract.test_existing_content_methods_keep_json_semantics"
+  ],
+  "apply_check_command": [
+    "git",
+    "-C",
+    "/mnt/c/kidsmap",
+    "apply",
+    "--check",
+    "/mnt/c/kidsmap/docs/qa/site-qa19-recheck-2026-10-18-pc-r1/proposed.diff"
+  ],
+  "apply_check_exit": 0,
+  "stderr": "",
+  "not_applied": true,
+  "green_not_run": true
+}

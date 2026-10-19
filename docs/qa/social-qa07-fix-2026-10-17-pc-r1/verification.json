@@ -1,0 +1,79 @@
+{
+  "utc": "2026-10-16T23:57:36.769017+00:00",
+  "status": "PASS",
+  "scope": "SOCIAL-QA-07 CLOSED LOCAL only; module09 OPEN",
+  "results": {
+    "utc": "2026-10-16T23:57:22.703809+00:00",
+    "status": "SOCIAL-QA-07 CLOSED LOCAL scoped PASS; module09 OPEN",
+    "head": "852938d96764ae315b92859e3651e5ea62054a36",
+    "branch": "codex/module09-transfer-2026-10-16-r1",
+    "source_files": 1022,
+    "unchanged_prior_sources": 1020,
+    "tests": {
+      "new": 9,
+      "affected_existing": 2,
+      "total": 11,
+      "seconds": 5.415,
+      "failures": 0,
+      "errors": 0,
+      "exit": 0
+    },
+    "native": {
+      "cells": 66,
+      "controlsPASS": 540,
+      "sourcePASS": 144,
+      "sourceFAIL": 0,
+      "edge_rows": 28,
+      "edge_checksPASS": 157,
+      "redirect_rows": 2,
+      "redirect_checksPASS": 10,
+      "png": 135,
+      "pageerrors": 0,
+      "unexpected_http_failures": 0,
+      "requestfailed": 0
+    },
+    "preservation": {
+      "prior_plan_files": 151,
+      "prior_packages": 8,
+      "entry_containers": 40,
+      "final_containers": 41,
+      "sharedMO": true,
+      "cbmignore": true,
+      "HEAD_index_task33": true,
+      "active_run_NONE": true
+    },
+    "not_run": [
+      "SOCIAL08-09",
+      "full ACCEPT09",
+      "global corpus",
+      "physical devices",
+      "real screenreader/full WCAG",
+      "other browsers",
+      "production/deployment",
+      "external services"
+    ]
+  },
+  "integrity": {
+    "source1022": true,
+    "other1020unchanged": true,
+    "exact_approved_candidates": true,
+    "unchanged_browser_assertions": true,
+    "prior151_PLAN07files": true,
+    "prior8packages": true,
+    "entry40containers_preserved": true,
+    "guide_previous_bytes": true,
+    "sharedMO_cbmignore_refs_index_activeNONE": true,
+    "artifact_files": 190,
+    "artifact_sha256": "72afca264847b5aa7781a1d32bd6a931b27a59c2c7f88df0165bbf04d29cd617"
+  },
+  "not_run": [
+    "SOCIAL08-09",
+    "full ACCEPT09",
+    "global corpus",
+    "physical devices",
+    "real screenreader/full WCAG",
+    "other browsers",
+    "production/deployment",
+    "external services"
+  ]
+}

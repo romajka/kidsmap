@@ -1,0 +1,772 @@
+Found 168 test(s).
+Using existing test database for alias 'default' ('test_m09full_r1')...
+Operations to perform:
+  Synchronize unmigrated apps: allauth, google, jazzmin, messages, sitemaps, staticfiles
+  Apply all migrations: account, admin, auth, catalog, catalog_moderation, contenttypes, sessions, socialaccount
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying account.0001_initial... OK
+  Applying account.0002_email_max_length... OK
+  Applying account.0003_alter_emailaddress_create_unique_verified_email... OK
+  Applying account.0004_alter_emailaddress_drop_unique_email... OK
+  Applying account.0005_emailaddress_idx_upper_email... OK
+  Applying account.0006_emailaddress_lower... OK
+  Applying account.0007_emailaddress_idx_email... OK
+  Applying account.0008_emailaddress_unique_primary_email_fixup... OK
+  Applying account.0009_emailaddress_unique_primary_email... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying catalog.0001_initial... OK
+  Applying catalog.0002_place_i18n_fields... OK
+  Applying catalog.0003_place_catalog_improvements... OK
+  Applying catalog.0004_place_photo... OK
+  Applying catalog.0005_place_cover_and_gallery... OK
+  Applying catalog.0006_place_slug... OK
+  Applying catalog.0007_place_likes_count... OK
+  Applying catalog.0008_alter_place_options_placelike... OK
+  Applying catalog.0009_sitesettings... OK
+  Applying catalog.0010_sitesettings_footer_contacts... OK
+  Applying catalog.0011_siteaboutsettings_sitebrandingsettings_and_more... OK
+  Applying catalog.0012_alter_sitesettings_empty_results_image_and_more... OK
+  Applying catalog.0013_place_rating_avg_place_rating_count_placereview... OK
+  Applying catalog.0014_remove_placelike_unique_place_like_per_session_and_more... OK
+  Applying catalog.0015_catalogcontentsettings... OK
+  Applying catalog.0016_placereviewsbyclub... OK
+  Applying catalog.0017_alter_placereview_options_and_more... OK
+  Applying catalog.0018_siteanalytics... OK
+  Applying catalog.0019_sitevisit... OK
+  Applying catalog.0020_place_is_temporary_place_temporary_end_and_more... OK
+  Applying catalog.0021_sitesettings_home_cta_text_az_and_more... OK
+  Applying catalog.0022_funnelevent... OK
+  Applying catalog.0023_userprofile... OK
+  Applying catalog.0024_place_owner_placeownershiprequest_and_more... OK
+  Applying catalog.0025_userprofile_owner_permissions_override_and_more... OK
+  Applying catalog.0026_placechangeaudit_ownerteaminvitation_and_more... OK
+  Applying catalog.0027_userprofile_phone... OK
+  Applying catalog.0028_useremailverification... OK
+  Applying catalog.0029_userprofile_gender... OK
+  Applying catalog.0030_update_public_contacts_defaults... OK
+  Applying catalog.0031_siteregistereduser_staffaccessuser... OK
+  Applying catalog.0032_place_additional_info_place_extra_conditions_and_more... OK
+  Applying catalog.0033_update_footer_phone_default... OK
+  Applying catalog.0034_place_soft_delete_fields... OK
+  Applying catalog.0035_sitesettings_add_social_links... OK
+  Applying catalog.0036_sitegalleryimage... OK
+  Applying catalog.0037_seed_home_hero_site_gallery_images... OK
+  Applying catalog.0038_alter_funnelevent_event_type... OK
+  Applying catalog.0039_expand_catalog_to_azerbaijan... OK
+  Applying catalog.0040_content_moderation_statuses... OK
+  Applying catalog.0041_quarantine_low_quality_public_content... OK
+  Applying catalog.0042_event... OK
+  Applying catalog.0043_alter_place_options_alter_placereviewsbyclub_options... OK
+  Applying catalog.0044_category_alter_event_category_alter_place_category_and_more... OK
+  Applying catalog.0045_category_is_active_subcategory_code_and_more... OK
+  Applying catalog.0046_alter_category_options_alter_subcategory_options... OK
+  Applying catalog.0047_sitesettings_about_hero_image_and_more... OK
+  Applying catalog.0048_alter_category_icon... OK
+  Applying catalog.0049_mariadb_compatible_unique_constraints... OK
+  Applying catalog.0050_migrate_to_hierarchical_districts... OK
+  Applying catalog.0051_placescheduleday_placescheduleinterval... OK
+  Applying catalog.0052_category_color_bg_category_color_text... OK
+  Applying catalog.0053_userprofile_avatar... OK
+  Applying catalog.0054_metrostation_region_specialistspecialization_and_more... OK
+  Applying catalog.0055_seed_specialist_locations_and_specializations... OK
+  Applying catalog.0056_specialist_duration_minutes_specialist_education_az_and_more... OK
+  Applying catalog.0057_specialist_phone_specialist_whatsapp... OK
+  Applying catalog.0058_alter_place_options... OK
+  Applying catalog.0059_seed_educator_specializations... OK
+  Applying catalog.0060_sitesettings_specialists_section_enabled... OK
+  Applying catalog.0061_sitevisibilitysettings... OK
+  Applying catalog.0062_place_lesson_details_and_pricing_plans... OK
+  Applying catalog.0063_event_location_contacts... OK
+  Applying catalog.0064_event_location_filters... OK
+  Applying catalog.0065_eventphoto... OK
+  Applying catalog.0066_sitesettings_events_section_enabled... OK
+  Applying catalog.0067_place_offers_adult_classes... OK
+  Applying catalog.0068_place_phone2_place_phone3... OK
+  Applying catalog.0069_place_multilingual_extra_fields... OK
+  Applying catalog.0070_fix_regional_demo_place_coordinates... OK
+  Applying catalog.0071_category_subcategory_audit_softdelete... OK
+  Applying catalog.0072_subcategory_icon... OK
+  Applying catalog.0073_postgresql_native_constraints... OK
+  Applying catalog.0074_ensure_absheron_region... OK
+  Applying catalog.0075_normalize_public_slugs... OK
+  Applying catalog.0076_place_home_recommendations... OK
+  Applying catalog.0077_place_age_open_ended... OK
+  Applying catalog.0078_place_created_by... OK
+  Applying catalog.0079_sync_public_taxonomy... OK
+  Applying catalog.0080_clean_public_taxonomy... OK
+  Applying catalog.0081_add_ai_referral_event... OK
+  Applying catalog.0082_alter_sitegalleryimage_category... OK
+  Applying catalog.0083_alter_sitegalleryimage_category... OK
+  Applying catalog.0084_pricingplan_relational... OK
+  Applying catalog.0085_pricingplan_integrity_constraints... OK
+  Applying catalog.0086_sitesettings_home_categories_image_and_more... OK
+  Applying catalog.0087_sitesettings_footer_background_image_and_more... OK
+  Applying catalog.0088_sitesettings_about_hero_mobile_image_and_more... OK
+  Applying catalog.0089_seoauditrun_seoissue_seochange... OK
+  Applying catalog.0090_seoissue_cascade_delete... OK
+  Applying catalog.0091_place_custom_price_badge_az_and_more... OK
+  Applying catalog.0092_place_scoped_team_access... OK
+  Applying catalog.0093_backfill_place_scoped_team_access... OK
+  Applying catalog.0094_funnelevent_add_place_signup_events... OK
+  Applying catalog.0095_stage4_neutral_labels... OK
+  Applying catalog.0096_place_schedule_modes... OK
+  Applying catalog.0097_drop_legacy_userprofile_roles... OK
+  Applying catalog.0098_replace_legacy_gmail_contact... OK
+  Applying catalog.0099_alter_place_schedule_mode... OK
+  Applying catalog.0100_place_price_mode... OK
+  Applying catalog.0101_unique_user_email... OK
+  Applying catalog.0102_volunteer_place_revision... OK
+  Applying catalog.0103_place_review_cooldown... OK
+  Applying catalog.0104_sitesettings_home_recommendations_limit... OK
+  Applying catalog.0105_placechangeaudit_volunteer_source... OK
+  Applying catalog.0106_staff_role_audit_and_superadmin_promotion... OK
+  Applying catalog.0107_account_deletion_retention... OK
+  Applying catalog.0108_analytics_measurement... OK
+  Applying catalog.0109_alter_analytics_choices_and_threshold... OK
+  Applying catalog.0110_public_favorites_activation_constraint... OK
+  Applying catalog.0111_analytics_ingress_daily... OK
+  Applying catalog.0112_ratingrankingcalibration... OK
+  Applying catalog.0113_place_localized_slugs... OK
+  Applying catalog.0114_coordinate_location... OK
+  Applying catalog.0115_moderation_sla_timestamps... OK
+  Applying catalog.0116_moderation_sla_lifecycle... OK
+  Applying catalog.0117_task33_catalog_structure... OK
+  Applying catalog.0118_task33_ownership... OK
+  Applying catalog.0119_task33_business_permissions... OK
+  Applying catalog.0120_task33_publication... OK
+  Applying catalog.0121_task33_publication... OK
+  Applying catalog.0122_task33_server_draft... OK
+  Applying catalog.0123_task33_group_pricing... OK
+  Applying catalog.0124_task33_conversion... OK
+  Applying catalog.0125_task33_group_conditions_verified... OK
+  Applying catalog.0126_task33_volunteer_review_status... OK
+  Applying catalog.0127_task33_workflow_notifications... OK
+  Applying catalog.0128_task33_review_versions... OK
+  Applying catalog.0129_task33_review_versions... OK
+  Applying catalog.0130_task33_review_versions... OK
+  Applying catalog.0131_task33_specialist_foundation... OK
+  Applying catalog.0132_task33_specialist_foundation... OK
+  Applying catalog.0133_task33_event_foundation... OK
+  Applying catalog.0134_completion_taxonomy... OK
+  Applying catalog.0135_sitesettings_organizations_section_enabled... OK
+  Applying catalog.0136_retire_optional_listing_verification... OK
+  Applying catalog.0137_organization_connection_operation... OK
+  Applying catalog.0138_business_role_labels... OK
+  Applying catalog.0139_connection_receipt_actor_retention... OK
+  Applying catalog.0140_specialist_proposal_draft... OK
+  Applying catalog.0141_catalog_admin_names... OK
+  Applying catalog_moderation.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying socialaccount.0001_initial... OK
+  Applying socialaccount.0002_token_max_lengths... OK
+  Applying socialaccount.0003_extra_data_default_dict... OK
+  Applying socialaccount.0004_app_provider_id_settings... OK
+  Applying socialaccount.0005_socialtoken_nullable_app... OK
+  Applying socialaccount.0006_alter_socialaccount_extra_data... OK
+System check identified no issues (0 silenced).
+test_bulk_second_current_known_head_is_denied_by_database (catalog.testcases.test_task33_reviews.ReviewVersionContractTests.test_bulk_second_current_known_head_is_denied_by_database) ... ok
+test_latest_approved_effective_timestamp_and_archive_preserved (catalog.testcases.test_task33_reviews.ReviewVersionContractTests.test_latest_approved_effective_timestamp_and_archive_preserved) ... ok
+test_nonstaff_and_stale_decision_cannot_publish (catalog.testcases.test_task33_reviews.ReviewVersionContractTests.test_nonstaff_and_stale_decision_cannot_publish) ... ok
+test_pending_edit_keeps_approved_projection_and_one_rating (catalog.testcases.test_task33_reviews.ReviewVersionContractTests.test_pending_edit_keeps_approved_projection_and_one_rating) ... ok
+test_reaction_ids_and_original_revision_are_preserved (catalog.testcases.test_task33_reviews.ReviewVersionContractTests.test_reaction_ids_and_original_revision_are_preserved) ... ok
+test_retention_clears_all_labels_and_pending_candidate (catalog.testcases.test_task33_reviews.ReviewVersionContractTests.test_retention_clears_all_labels_and_pending_candidate) ... ok
+test_typed_review_page_uses_requested_language (catalog.testcases.test_task33_reviews.ReviewVersionContractTests.test_typed_review_page_uses_requested_language) ... /usr/local/lib/python3.12/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /mnt/c/kidsmap/.tmp/module09-full-pc-r1/staticfiles/
+  mw_instance = middleware(adapted_handler)
+ok
+test_unknown_sources_remain_independent (catalog.testcases.test_task33_reviews.ReviewVersionContractTests.test_unknown_sources_remain_independent) ... ok
+test_account_deletion_cutoff_is_not_early_and_includes_exact_boundary (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_account_deletion_cutoff_is_not_early_and_includes_exact_boundary) ... ok
+test_anonymization_covers_all_typed_approved_history_and_candidates (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_anonymization_covers_all_typed_approved_history_and_candidates) ... ok
+test_approval_starts_new_reaction_counter_and_preserves_old_pk (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_approval_starts_new_reaction_counter_and_preserves_old_pk) ... ok
+test_cross_parent_reaction_and_stale_revision_are_rejected (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_cross_parent_reaction_and_stale_revision_are_rejected) ... Conflict: /reviews/place/15/react/
+ok
+test_disposition_delete_all_removes_all_typed_versions (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_disposition_delete_all_removes_all_typed_versions) ... ok
+test_event_review_route_does_not_expose_undated_expired_or_disabled_target (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_event_review_route_does_not_expose_undated_expired_or_disabled_target) ... Not Found: /reviews/event/target/6/
+Not Found: /reviews/event/target/6/
+Not Found: /reviews/event/target/6/
+ok
+test_hidden_target_rejects_public_submit_without_creating_review (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_hidden_target_rejects_public_submit_without_creating_review) ... Not Found: /reviews/activity/target/7/
+ok
+test_legacy_selection_preserves_source_ids_texts_and_reactions (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_legacy_selection_preserves_source_ids_texts_and_reactions) ... ok
+test_malformed_edit_revision_returns_client_error_without_candidate_write (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_malformed_edit_revision_returns_client_error_without_candidate_write) ... Bad Request: /reviews/activity/target/9/
+Bad Request: /reviews/activity/4/approve/
+Bad Request: /reviews/activity/4/approve/
+Bad Request: /reviews/activity/4/approve/
+Bad Request: /reviews/activity/4/approve/
+ok
+test_owner_moderation_denied_but_reply_report_scoped (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_owner_moderation_denied_but_reply_report_scoped) ... Forbidden: /account/places/reviews/21/approve/
+Forbidden: /account/places/reviews/21/reject/
+ok
+test_published_event_review_route_and_deleted_event_visibility (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_published_event_review_route_and_deleted_event_visibility) ... Not Found: /reviews/event/target/11/
+ok
+test_reply_rechecks_owner_revocation_at_locked_write_boundary (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_reply_rechecks_owner_revocation_at_locked_write_boundary) ... ok
+test_staff_admin_renders_typed_workflow_links_and_readonly_version_history (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_staff_admin_renders_typed_workflow_links_and_readonly_version_history) ... ok
+test_staff_without_review_permission_cannot_approve_candidate (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_staff_without_review_permission_cannot_approve_candidate) ... ok
+test_typed_rating_contributions_never_mix_and_pending_keeps_approved (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_typed_rating_contributions_never_mix_and_pending_keeps_approved) ... ok
+test_unknown_authors_same_name_session_remain_separate_sources (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_unknown_authors_same_name_session_remain_separate_sources) ... ok
+test_voter_deletion_removes_all_typed_reactions_and_refreshes_visible_counters (catalog.testcases.test_task33_review_independent.IndependentReviewContracts.test_voter_deletion_removes_all_typed_reactions_and_refreshes_visible_counters) ... ok
+test_ajax_success_history_or_update_and_validation (catalog.testcases.test_review_confirmation.ReviewConfirmationTests.test_ajax_success_history_or_update_and_validation) ... Bad Request: /place/27/review/
+Bad Request: /review/
+Bad Request: /specialists/18/review/
+ok
+test_edit_of_approved_review_returns_to_pending_and_stays_single (catalog.testcases.test_review_confirmation.ReviewConfirmationTests.test_edit_of_approved_review_returns_to_pending_and_stays_single) ... ok
+test_empty_text_requirement_matches_existing_scope_rules (catalog.testcases.test_review_confirmation.ReviewConfirmationTests.test_empty_text_requirement_matches_existing_scope_rules) ... Bad Request: /place/29/review/
+Bad Request: /specialists/20/review/
+ok
+test_expired_session_never_returns_success (catalog.testcases.test_review_confirmation.ReviewConfirmationTests.test_expired_session_never_returns_success) ... Unauthorized: /place/30/review/
+Unauthorized: /review/
+Unauthorized: /specialists/21/review/
+ok
+test_invalid_rating_and_text_boundaries_in_all_languages (catalog.testcases.test_review_confirmation.ReviewConfirmationTests.test_invalid_rating_and_text_boundaries_in_all_languages) ... Bad Request: /ru/place/31/review/
+Bad Request: /ru/place/31/review/
+Bad Request: /ru/place/31/review/
+Bad Request: /ru/place/31/review/
+Bad Request: /ru/place/31/review/
+Bad Request: /ru/place/31/review/
+Bad Request: /ru/place/31/review/
+Bad Request: /ru/review/
+Bad Request: /ru/review/
+Bad Request: /ru/review/
+Bad Request: /ru/review/
+Bad Request: /ru/review/
+Bad Request: /ru/review/
+Bad Request: /ru/review/
+Bad Request: /ru/specialists/22/review/
+Bad Request: /ru/specialists/22/review/
+Bad Request: /ru/specialists/22/review/
+Bad Request: /ru/specialists/22/review/
+Bad Request: /ru/specialists/22/review/
+Bad Request: /ru/specialists/22/review/
+Bad Request: /ru/specialists/22/review/
+Bad Request: /place/31/review/
+Bad Request: /place/31/review/
+Bad Request: /place/31/review/
+Bad Request: /place/31/review/
+Bad Request: /place/31/review/
+Bad Request: /place/31/review/
+Bad Request: /place/31/review/
+Bad Request: /review/
+Bad Request: /review/
+Bad Request: /review/
+Bad Request: /review/
+Bad Request: /review/
+Bad Request: /review/
+Bad Request: /review/
+Bad Request: /specialists/22/review/
+Bad Request: /specialists/22/review/
+Bad Request: /specialists/22/review/
+Bad Request: /specialists/22/review/
+Bad Request: /specialists/22/review/
+Bad Request: /specialists/22/review/
+Bad Request: /specialists/22/review/
+Bad Request: /en/place/31/review/
+Bad Request: /en/place/31/review/
+Bad Request: /en/place/31/review/
+Bad Request: /en/place/31/review/
+Bad Request: /en/place/31/review/
+Bad Request: /en/place/31/review/
+Bad Request: /en/place/31/review/
+Bad Request: /en/review/
+Bad Request: /en/review/
+Bad Request: /en/review/
+Bad Request: /en/review/
+Bad Request: /en/review/
+Bad Request: /en/review/
+Bad Request: /en/review/
+Bad Request: /en/specialists/22/review/
+Bad Request: /en/specialists/22/review/
+Bad Request: /en/specialists/22/review/
+Bad Request: /en/specialists/22/review/
+Bad Request: /en/specialists/22/review/
+Bad Request: /en/specialists/22/review/
+Bad Request: /en/specialists/22/review/
+ok
+test_missing_csrf_does_not_save_review (catalog.testcases.test_review_confirmation.ReviewConfirmationTests.test_missing_csrf_does_not_save_review) ... Forbidden (CSRF cookie not set.): /place/32/review/
+Forbidden (CSRF cookie not set.): /review/
+Forbidden (CSRF cookie not set.): /specialists/23/review/
+ok
+test_place_review_is_pending_from_first_save (catalog.testcases.test_review_confirmation.ReviewConfirmationTests.test_place_review_is_pending_from_first_save) ... ok
+test_post_confirmation_visible_once_after_redirect_in_all_languages (catalog.testcases.test_review_confirmation.ReviewConfirmationTests.test_post_confirmation_visible_once_after_redirect_in_all_languages) ... ok
+test_post_validation_error_and_success_for_each_review_scope (catalog.testcases.test_review_confirmation.ReviewConfirmationTests.test_post_validation_error_and_success_for_each_review_scope) ... ok
+test_boundary_creates_pending_version_and_preserves_approved_history (catalog.testcases.test_place_review_cooldown.PlaceReviewCooldownTests.test_boundary_creates_pending_version_and_preserves_approved_history) ... ok
+test_deletion_does_not_bypass_timer (catalog.testcases.test_place_review_cooldown.PlaceReviewCooldownTests.test_deletion_does_not_bypass_timer) ... Too Many Requests: /place/37/review/
+ok
+test_early_repeat_is_429_and_never_overwrites_review (catalog.testcases.test_place_review_cooldown.PlaceReviewCooldownTests.test_early_repeat_is_429_and_never_overwrites_review) ... Too Many Requests: /place/38/review/
+ok
+test_failed_save_rolls_back_timer_reservation (catalog.testcases.test_place_review_cooldown.PlaceReviewCooldownTests.test_failed_save_rolls_back_timer_reservation) ... Internal Server Error: /place/39/review/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/views/decorators/http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/views.py", line 487, in add_place_review
+    place, result = engagement_controller.add_place_review(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/controllers/engagement_controller.py", line 53, in add_place_review
+    result = submit_place_review(request=request, place=place, require_auth=require_auth)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/services/review_use_cases.py", line 117, in submit_place_review
+    review_obj, cooldown = create_pending_place_review(
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/services/place_review_submission.py", line 55, in create_pending_place_review
+    review, _ = submit_review(target=place, user=user, rating=rating, text=text,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/services/review_versions.py", line 181, in submit_review
+    revision = revisions.objects.create(review=head, rating=rating, text=text, author_name=author_name,
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+RuntimeError: synthetic save failure
+ok
+test_get_restores_timer_for_the_same_user_only (catalog.testcases.test_place_review_cooldown.PlaceReviewCooldownTests.test_get_restores_timer_for_the_same_user_only) ... ok
+test_invalid_submission_does_not_start_timer (catalog.testcases.test_place_review_cooldown.PlaceReviewCooldownTests.test_invalid_submission_does_not_start_timer) ... Bad Request: /place/41/review/
+ok
+test_other_place_and_other_user_are_independent (catalog.testcases.test_place_review_cooldown.PlaceReviewCooldownTests.test_other_place_and_other_user_are_independent) ... ok
+test_bulk_delete_recalculates_rating (catalog.testcases.test_place_review_cooldown.ReviewAdminDeleteAndPermissionsTests.test_bulk_delete_recalculates_rating) ... ok
+test_delete_requires_confirmation_and_recalculates_rating (catalog.testcases.test_place_review_cooldown.ReviewAdminDeleteAndPermissionsTests.test_delete_requires_confirmation_and_recalculates_rating) ... ok
+test_staff_without_permissions_cannot_moderate_or_delete (catalog.testcases.test_place_review_cooldown.ReviewAdminDeleteAndPermissionsTests.test_staff_without_permissions_cannot_moderate_or_delete) ... Forbidden (Permission denied): /admin/catalog/placereview/46/approve/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/views/decorators/cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/admin/sites.py", line 247, in inner
+    return view(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/domain_admin/review_versions.py", line 112, in approve_view
+    return self._decision_view(request, object_id, 'approve')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/domain_admin/review_versions.py", line 77, in _decision_view
+    obj = self._review_object(request, object_id)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/domain_admin/review_versions.py", line 46, in _review_object
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+Forbidden (Permission denied): /admin/catalog/placereview/46/hide/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/views/decorators/cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/admin/sites.py", line 247, in inner
+    return view(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/domain_admin/review_versions.py", line 118, in hide_view
+    return self._decision_view(request, object_id, 'hide')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/domain_admin/review_versions.py", line 77, in _decision_view
+    obj = self._review_object(request, object_id)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/domain_admin/review_versions.py", line 46, in _review_object
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+Forbidden (Permission denied): /admin/catalog/placereview/46/reject/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/views/decorators/cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/admin/sites.py", line 247, in inner
+    return view(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/domain_admin/review_versions.py", line 115, in reject_view
+    return self._decision_view(request, object_id, 'reject')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/domain_admin/review_versions.py", line 77, in _decision_view
+    obj = self._review_object(request, object_id)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/c/kidsmap/src/catalog/domain_admin/review_versions.py", line 46, in _review_object
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+Forbidden (Permission denied): /admin/catalog/placereview/46/delete/
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py", line 710, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/views/decorators/cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/admin/sites.py", line 247, in inner
+    return view(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/utils/decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py", line 2165, in delete_view
+    return self._delete_view(request, object_id, extra_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/django/contrib/admin/options.py", line 2180, in _delete_view
+    raise PermissionDenied
+django.core.exceptions.PermissionDenied
+ok
+test_only_active_nonexcluded_registered_users_count (catalog.testcases.test_favorite_metrics.FavoriteMetricTests.test_only_active_nonexcluded_registered_users_count) ... ok
+test_reconcile_repairs_cached_count (catalog.testcases.test_favorite_metrics.FavoriteMetricTests.test_reconcile_repairs_cached_count) ... ok
+test_user_deactivation_reconciles_cached_count (catalog.testcases.test_favorite_metrics.FavoriteMetricTests.test_user_deactivation_reconciles_cached_count) ... ok
+test_activation_requires_threshold (catalog.testcases.test_public_favorite_count.PublicFavoriteCountSettingsTests.test_activation_requires_threshold) ... ok
+test_disabled_by_default (catalog.testcases.test_public_favorite_count.PublicFavoriteCountSettingsTests.test_disabled_by_default) ... ok
+test_enabled_count_is_rendered_on_public_place_detail (catalog.testcases.test_public_favorite_count.PublicFavoriteCountSettingsTests.test_enabled_count_is_rendered_on_public_place_detail) ... ok
+test_exact_threshold_uses_authoritative_count (catalog.testcases.test_public_favorite_count.PublicFavoriteCountSettingsTests.test_exact_threshold_uses_authoritative_count) ... ok
+test_partial_is_not_silently_activated_on_public_place (catalog.testcases.test_public_favorite_count.PublicFavoriteCountSettingsTests.test_partial_is_not_silently_activated_on_public_place) ... ok
+test_emit_is_transactional_and_dedupes_event_entity_version_recipient (catalog.testcases.test_task33_notifications.NotificationContractTests.test_emit_is_transactional_and_dedupes_event_entity_version_recipient) ... ok
+test_smtp_failure_keeps_inbox_and_retry_sends_once (catalog.testcases.test_task33_notifications.NotificationContractTests.test_smtp_failure_keeps_inbox_and_retry_sends_once) ... ok
+test_changed_email_cannot_read_old_address_notification (catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_changed_email_cannot_read_old_address_notification) ... Not Found: /account/notifications/5/read/
+Not Found: /account/notifications/5/accept/
+ok
+test_csrf_required_for_inbox_actions (catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_csrf_required_for_inbox_actions) ... Forbidden (CSRF cookie not set.): /account/notifications/6/accept/
+Forbidden (CSRF cookie not set.): /account/notifications/6/read/
+ok
+test_invitation_dedupe_survives_account_creation (catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_invitation_dedupe_survives_account_creation) ... ok
+test_invitation_inbox_post_only_recipient_scoped_and_revocation_suppresses_mail (catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_invitation_inbox_post_only_recipient_scoped_and_revocation_suppresses_mail) ... Not Found: /account/notifications/8/read/
+Not Found: /account/notifications/8/accept/
+Method Not Allowed (GET): /account/notifications/8/accept/
+Forbidden: /account/notifications/8/accept/
+ok
+test_join_confirmation_form_is_current_owner_post_only (catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_join_confirmation_form_is_current_owner_post_only) ... Method Not Allowed (GET): /account/organizations/6/requests/1/confirm/
+ok
+test_join_detach_transfer_and_access_disable_emit_once_for_each_recipient (catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_join_detach_transfer_and_access_disable_emit_once_for_each_recipient) ... ok
+test_runner_preview_and_send_with_test_backend (catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_runner_preview_and_send_with_test_backend) ... ok
+test_stale_join_confirmation_is_suppressed_after_owner_change (catalog.testcases.test_task33_notifications.WorkflowIntegrationTests.test_stale_join_confirmation_is_suppressed_after_owner_change) ... ok
+test_approved_rating_is_restored (catalog.testcases.test_social_qa01_rating_readback.TypedReviewRatingReadbackTests.test_approved_rating_is_restored) ... ok
+test_first_rejection_retains_author_rating (catalog.testcases.test_social_qa01_rating_readback.TypedReviewRatingReadbackTests.test_first_rejection_retains_author_rating) ... ok
+test_new_editor_and_foreign_candidate_have_empty_rating (catalog.testcases.test_social_qa01_rating_readback.TypedReviewRatingReadbackTests.test_new_editor_and_foreign_candidate_have_empty_rating) ... ok
+test_pending_edit_uses_candidate_and_preserves_live_rating (catalog.testcases.test_social_qa01_rating_readback.TypedReviewRatingReadbackTests.test_pending_edit_uses_candidate_and_preserves_live_rating) ... ok
+test_pending_rating_is_restored (catalog.testcases.test_social_qa01_rating_readback.TypedReviewRatingReadbackTests.test_pending_rating_is_restored) ... ok
+test_rejected_edit_restores_approved_rating (catalog.testcases.test_social_qa01_rating_readback.TypedReviewRatingReadbackTests.test_rejected_edit_restores_approved_rating) ... ok
+test_reload_then_resubmit_preserves_rating_and_escapes_text (catalog.testcases.test_social_qa01_rating_readback.TypedReviewRatingReadbackTests.test_reload_then_resubmit_preserves_rating_and_escapes_text) ... ok
+test_first_rejection_shows_reason_and_retained_text (catalog.testcases.test_social_qa02_rejection_feedback.TypedReviewRejectionFeedbackTests.test_first_rejection_shows_reason_and_retained_text) ... ok
+test_new_pending_and_approved_version_hide_old_rejection_feedback (catalog.testcases.test_social_qa02_rejection_feedback.TypedReviewRejectionFeedbackTests.test_new_pending_and_approved_version_hide_old_rejection_feedback) ... ok
+test_rejected_edit_feedback_is_author_only_and_keeps_current_projection (catalog.testcases.test_social_qa02_rejection_feedback.TypedReviewRejectionFeedbackTests.test_rejected_edit_feedback_is_author_only_and_keeps_current_projection) ... ok
+test_rejection_reason_and_text_are_escaped (catalog.testcases.test_social_qa02_rejection_feedback.TypedReviewRejectionFeedbackTests.test_rejection_reason_and_text_are_escaped) ... ok
+test_conflicting_script_text_is_escaped_and_preserved (catalog.testcases.test_social_qa03_conflict_recovery.TypedReviewConflictRecoveryTests.test_conflicting_script_text_is_escaped_and_preserved) ... Conflict: /reviews/place/target/72/
+Conflict: /reviews/activity/target/29/
+Conflict: /reviews/specialist/target/38/
+Conflict: /reviews/event/target/29/
+ok
+test_current_token_early_repeat_keeps_429_and_retry_after (catalog.testcases.test_social_qa03_conflict_recovery.TypedReviewConflictRecoveryTests.test_current_token_early_repeat_keeps_429_and_retry_after) ... Too Many Requests: /reviews/place/target/73/
+Too Many Requests: /reviews/activity/target/30/
+Too Many Requests: /reviews/event/target/30/
+ok
+test_draft_is_not_shared_with_other_users_or_persisted (catalog.testcases.test_social_qa03_conflict_recovery.TypedReviewConflictRecoveryTests.test_draft_is_not_shared_with_other_users_or_persisted) ... Conflict: /reviews/place/target/74/
+Forbidden: /reviews/place/target/74/
+Conflict: /reviews/activity/target/31/
+Forbidden: /reviews/activity/target/31/
+Conflict: /reviews/specialist/target/40/
+Forbidden: /reviews/specialist/target/40/
+Conflict: /reviews/event/target/31/
+Forbidden: /reviews/event/target/31/
+ok
+test_explicit_retry_saves_draft_and_a_new_race_conflicts_again (catalog.testcases.test_social_qa03_conflict_recovery.TypedReviewConflictRecoveryTests.test_explicit_retry_saves_draft_and_a_new_race_conflicts_again) ... Conflict: /reviews/place/target/75/
+Conflict: /reviews/place/target/75/
+Conflict: /reviews/activity/target/32/
+Conflict: /reviews/activity/target/32/
+Conflict: /reviews/specialist/target/41/
+Conflict: /reviews/specialist/target/41/
+Conflict: /reviews/event/target/32/
+Conflict: /reviews/event/target/32/
+ok
+test_invalid_input_keeps_400_and_does_not_overwrite_candidate (catalog.testcases.test_social_qa03_conflict_recovery.TypedReviewConflictRecoveryTests.test_invalid_input_keeps_400_and_does_not_overwrite_candidate) ... Bad Request: /reviews/place/target/76/
+Bad Request: /reviews/place/target/76/
+Bad Request: /reviews/activity/target/33/
+Bad Request: /reviews/activity/target/33/
+Bad Request: /reviews/specialist/target/42/
+Bad Request: /reviews/specialist/target/42/
+Bad Request: /reviews/event/target/33/
+Bad Request: /reviews/event/target/33/
+ok
+test_stale_draft_renders_with_latest_version_and_no_write (catalog.testcases.test_social_qa03_conflict_recovery.TypedReviewConflictRecoveryTests.test_stale_draft_renders_with_latest_version_and_no_write) ... Conflict: /ru/reviews/place/target/77/
+Conflict: /reviews/place/target/77/
+Conflict: /en/reviews/place/target/77/
+Conflict: /ru/reviews/activity/target/34/
+Conflict: /reviews/activity/target/34/
+Conflict: /en/reviews/activity/target/34/
+Conflict: /ru/reviews/specialist/target/43/
+Conflict: /reviews/specialist/target/43/
+Conflict: /en/reviews/specialist/target/43/
+Conflict: /ru/reviews/event/target/34/
+Conflict: /reviews/event/target/34/
+Conflict: /en/reviews/event/target/34/
+ok
+test_hidden_activity_stays_404_for_guest_and_author (catalog.testcases.test_social_qa07_activity_review_title.SocialQA07TitleTests.test_hidden_activity_stays_404_for_guest_and_author) ... Not Found: /reviews/activity/target/35/
+Not Found: /reviews/activity/target/35/
+ok
+test_live_approved_program_name_uses_canonical_inheritance (catalog.testcases.test_social_qa07_activity_review_title.SocialQA07TitleTests.test_live_approved_program_name_uses_canonical_inheritance) ... ok
+test_missing_translation_uses_existing_az_fallback (catalog.testcases.test_social_qa07_activity_review_title.SocialQA07TitleTests.test_missing_translation_uses_existing_az_fallback) ... ok
+test_no_public_name_remains_canonical_empty_not_object_id (catalog.testcases.test_social_qa07_activity_review_title.SocialQA07TitleTests.test_no_public_name_remains_canonical_empty_not_object_id) ... ok
+test_other_target_kinds_keep_their_existing_title_path (catalog.testcases.test_social_qa07_activity_review_title.SocialQA07TitleTests.test_other_target_kinds_keep_their_existing_title_path) ... ok
+test_permitted_snapshot_name_is_shared_with_public_presentation (catalog.testcases.test_social_qa07_activity_review_title.SocialQA07TitleTests.test_permitted_snapshot_name_is_shared_with_public_presentation) ... ok
+test_requested_names_match_public_detail_for_guest_and_author (catalog.testcases.test_social_qa07_activity_review_title.SocialQA07TitleTests.test_requested_names_match_public_detail_for_guest_and_author) ... ok
+test_staff_hidden_activity_does_not_leak_a_public_name (catalog.testcases.test_social_qa07_activity_review_title.SocialQA07TitleTests.test_staff_hidden_activity_does_not_leak_a_public_name) ... ok
+test_title_text_is_html_escaped (catalog.testcases.test_social_qa07_activity_review_title.SocialQA07TitleTests.test_title_text_is_html_escaped) ... ok
+test_auth_get_and_csrf_guards_are_unchanged (catalog.testcases.test_social_qa08_invitation_feedback.SocialQA08InvitationFeedbackTests.test_auth_get_and_csrf_guards_are_unchanged) ... Method Not Allowed (GET): /account/notifications/25/accept/
+Forbidden (CSRF cookie not set.): /account/notifications/25/accept/
+ok
+test_changed_email_cannot_read_or_accept_old_notice (catalog.testcases.test_social_qa08_invitation_feedback.SocialQA08InvitationFeedbackTests.test_changed_email_cannot_read_or_accept_old_notice) ... Not Found: /account/notifications/26/accept/
+ok
+test_current_invitation_success_keeps_redirect_and_single_grant (catalog.testcases.test_social_qa08_invitation_feedback.SocialQA08InvitationFeedbackTests.test_current_invitation_success_keeps_redirect_and_single_grant) ... ok
+test_expired_invitation_keeps_403_with_feedback_and_no_grant (catalog.testcases.test_social_qa08_invitation_feedback.SocialQA08InvitationFeedbackTests.test_expired_invitation_keeps_403_with_feedback_and_no_grant) ... Forbidden: /account/notifications/31/accept/
+Forbidden: /account/notifications/32/accept/
+ok
+test_foreign_and_nonexistent_notice_remain_404 (catalog.testcases.test_social_qa08_invitation_feedback.SocialQA08InvitationFeedbackTests.test_foreign_and_nonexistent_notice_remain_404) ... Not Found: /account/notifications/33/accept/
+Not Found: /account/notifications/1000032/accept/
+ok
+test_missing_invitation_for_own_notice_has_safe_feedback (catalog.testcases.test_social_qa08_invitation_feedback.SocialQA08InvitationFeedbackTests.test_missing_invitation_for_own_notice_has_safe_feedback) ... Forbidden: /account/notifications/34/accept/
+Forbidden: /account/notifications/35/accept/
+ok
+test_repeat_accepted_invitation_does_not_regrant_and_has_feedback (catalog.testcases.test_social_qa08_invitation_feedback.SocialQA08InvitationFeedbackTests.test_repeat_accepted_invitation_does_not_regrant_and_has_feedback) ... Forbidden: /account/notifications/36/accept/
+Forbidden: /account/notifications/38/accept/
+ok
+test_revoked_invitation_explains_denial_for_both_kinds_and_locales (catalog.testcases.test_social_qa08_invitation_feedback.SocialQA08InvitationFeedbackTests.test_revoked_invitation_explains_denial_for_both_kinds_and_locales) ... Forbidden: /account/notifications/40/accept/
+Forbidden: /ru/account/notifications/40/accept/
+Forbidden: /en/account/notifications/40/accept/
+Forbidden: /account/notifications/41/accept/
+Forbidden: /ru/account/notifications/41/accept/
+Forbidden: /en/account/notifications/41/accept/
+ok
+test_stale_ownership_keeps_403_with_feedback_and_no_grant (catalog.testcases.test_social_qa08_invitation_feedback.SocialQA08InvitationFeedbackTests.test_stale_ownership_keeps_403_with_feedback_and_no_grant) ... Forbidden: /account/notifications/42/accept/
+Forbidden: /account/notifications/43/accept/
+ok
+test_all_existing_sort_choices_reach_controller (catalog.testcases.test_social_qa09_feed_query.SocialQA09FeedQueryTests.test_all_existing_sort_choices_reach_controller) ... ok
+test_combined_sort_page_and_pagination_link_preserve_sort (catalog.testcases.test_social_qa09_feed_query.SocialQA09FeedQueryTests.test_combined_sort_page_and_pagination_link_preserve_sort) ... ok
+test_foreign_query_is_removed_without_losing_owned_values (catalog.testcases.test_social_qa09_feed_query.SocialQA09FeedQueryTests.test_foreign_query_is_removed_without_losing_owned_values) ... ok
+test_invalid_sort_and_page_keep_existing_safe_fallback (catalog.testcases.test_social_qa09_feed_query.SocialQA09FeedQueryTests.test_invalid_sort_and_page_keep_existing_safe_fallback) ... ok
+test_language_query_survives_while_existing_canonical_policy_stays (catalog.testcases.test_social_qa09_feed_query.SocialQA09FeedQueryTests.test_language_query_survives_while_existing_canonical_policy_stays) ... ok
+test_page_one_two_three_are_distinct_and_complete (catalog.testcases.test_social_qa09_feed_query.SocialQA09FeedQueryTests.test_page_one_two_three_are_distinct_and_complete) ... ok
+test_page_two_survives_for_guest_author_and_all_locales (catalog.testcases.test_social_qa09_feed_query.SocialQA09FeedQueryTests.test_page_two_survives_for_guest_author_and_all_locales) ... ok
+test_resolver_allowlist_keeps_repeated_and_default_values (catalog.testcases.test_social_qa09_feed_query.SocialQA09FeedQueryTests.test_resolver_allowlist_keeps_repeated_and_default_values) ... ok
+test_site_reviews_and_other_query_rules_stay_unchanged (catalog.testcases.test_social_qa09_feed_query.SocialQA09FeedQueryTests.test_site_reviews_and_other_query_rules_stay_unchanged) ... ok
+test_add_place_review_requires_login_and_redirects_guest (catalog.testcases.public.TestReviewEnhancements.test_add_place_review_requires_login_and_redirects_guest) ... ok
+test_az_guest_review_block_uses_azerbaijani_text (catalog.testcases.public.TestReviewEnhancements.test_az_guest_review_block_uses_azerbaijani_text) ... ok
+test_guest_review_block_is_localized_on_place_detail (catalog.testcases.public.TestReviewEnhancements.test_guest_review_block_is_localized_on_place_detail) ... ok
+test_home_and_catalog_use_localized_strings_in_az_and_en (catalog.testcases.public.TestReviewEnhancements.test_home_and_catalog_use_localized_strings_in_az_and_en) ... ok
+test_place_like_ajax_updates_without_reload_for_authenticated_user (catalog.testcases.public.TestReviewEnhancements.test_place_like_ajax_updates_without_reload_for_authenticated_user) ... ok
+test_place_like_requires_login_and_redirects_guest (catalog.testcases.public.TestReviewEnhancements.test_place_like_requires_login_and_redirects_guest) ... ok
+test_place_like_requires_login_for_guest_ajax (catalog.testcases.public.TestReviewEnhancements.test_place_like_requires_login_for_guest_ajax) ... Unauthorized: /place/105/like/
+ok
+test_place_review_profanity_is_masked_before_publish (catalog.testcases.public.TestReviewEnhancements.test_place_review_profanity_is_masked_before_publish) ... ok
+test_place_review_reaction_ajax_updates_without_reload (catalog.testcases.public.TestReviewEnhancements.test_place_review_reaction_ajax_updates_without_reload) ... ok
+test_place_review_reaction_can_be_removed_and_not_duplicated (catalog.testcases.public.TestReviewEnhancements.test_place_review_reaction_can_be_removed_and_not_duplicated) ... ok
+test_place_review_reaction_requires_csrf_token (catalog.testcases.public.TestReviewEnhancements.test_place_review_reaction_requires_csrf_token) ... Forbidden (CSRF cookie not set.): /place-review/97/vote/
+ok
+test_place_review_reaction_requires_login_for_guest_ajax (catalog.testcases.public.TestReviewEnhancements.test_place_review_reaction_requires_login_for_guest_ajax) ... Unauthorized: /place-review/98/vote/
+ok
+test_place_review_reactions_update_counters (catalog.testcases.public.TestReviewEnhancements.test_place_review_reactions_update_counters) ... ok
+test_place_reviews_feed_shows_a_clear_link_to_the_reviewed_place (catalog.testcases.public.TestReviewEnhancements.test_place_reviews_feed_shows_a_clear_link_to_the_reviewed_place) ... ok
+test_review_models_disable_anonymous_flag_and_keep_author_name (catalog.testcases.public.TestReviewEnhancements.test_review_models_disable_anonymous_flag_and_keep_author_name) ... ok
+test_site_review_demo_content_is_localized_in_az_and_en (catalog.testcases.public.TestReviewEnhancements.test_site_review_demo_content_is_localized_in_az_and_en) ... ok
+test_site_review_reaction_requires_login_for_guest_ajax (catalog.testcases.public.TestReviewEnhancements.test_site_review_reaction_requires_login_for_guest_ajax) ... Unauthorized: /site-review/37/vote/
+ok
+test_site_review_reactions_update_counters (catalog.testcases.public.TestReviewEnhancements.test_site_review_reactions_update_counters) ... ok
+test_site_reviews_page_can_sort_reviews_by_likes (catalog.testcases.public.TestReviewEnhancements.test_site_reviews_page_can_sort_reviews_by_likes) ... ok
+test_site_reviews_page_shows_empty_state_without_text_reviews (catalog.testcases.public.TestReviewEnhancements.test_site_reviews_page_shows_empty_state_without_text_reviews) ... ok
+test_site_reviews_page_skips_blank_text_reviews (catalog.testcases.public.TestReviewEnhancements.test_site_reviews_page_skips_blank_text_reviews) ... ok
+test_user_cannot_react_to_own_place_review (catalog.testcases.public.TestReviewEnhancements.test_user_cannot_react_to_own_place_review) ... Forbidden: /place-review/102/vote/
+ok
+test_user_cannot_react_to_own_site_review (catalog.testcases.public.TestReviewEnhancements.test_user_cannot_react_to_own_site_review) ... Forbidden: /site-review/46/vote/
+ok
+test_approve_single_review_action (catalog.testcases.admin.ReviewAdminModerationTests.test_approve_single_review_action) ... ok
+test_change_form_injects_km_review_form_summary (catalog.testcases.admin.ReviewAdminModerationTests.test_change_form_injects_km_review_form_summary) ... ok
+test_reject_single_review_action (catalog.testcases.admin.ReviewAdminModerationTests.test_reject_single_review_action) ... ok
+test_place_detail_self_heals_out_of_sync_rating_stats (catalog.testcases.admin.TestReviewRatingSyncAndAdminBulkActions.test_place_detail_self_heals_out_of_sync_rating_stats) ... ok
+test_place_review_bulk_approve_updates_place_rating_stats (catalog.testcases.admin.TestReviewRatingSyncAndAdminBulkActions.test_place_review_bulk_approve_updates_place_rating_stats) ... Bad Request: /admin/catalog/placereview/
+ok
+test_specialist_review_bulk_approve_updates_specialist_rating_stats (catalog.testcases.admin.TestReviewRatingSyncAndAdminBulkActions.test_specialist_review_bulk_approve_updates_specialist_rating_stats) ... Bad Request: /admin/catalog/specialistreview/
+ok
+test_diagnose_place_visibility_command_is_read_only (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_diagnose_place_visibility_command_is_read_only) ... ok
+test_finished_temporary_place_is_hidden (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_finished_temporary_place_is_hidden) ... ok
+test_junk_tokens_are_whole_tokens_not_substrings (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_junk_tokens_are_whole_tokens_not_substrings) ... ok
+test_map_ready_places_prefetch_structured_schedules (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_map_ready_places_prefetch_structured_schedules) ... ok
+test_only_published_quality_places_are_public (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_only_published_quality_places_are_public) ... ok
+test_phone_number_with_test_like_digits_does_not_hide_valid_place (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_phone_number_with_test_like_digits_does_not_hide_valid_place) ... ok
+test_place_with_test_content_is_not_public (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_place_with_test_content_is_not_public) ... ok
+test_price_only_in_active_pricing_plan_makes_place_public (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_price_only_in_active_pricing_plan_makes_place_public) ... ok
+test_published_active_place_is_hidden_for_every_catalog_rule (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_published_active_place_is_hidden_for_every_catalog_rule) ... ok
+test_range_pricing_plan_is_a_price_for_both_quality_and_catalog (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_range_pricing_plan_is_a_price_for_both_quality_and_catalog) ... ok
+test_review_aggregate_filter_agrees_with_public_review_queryset (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_review_aggregate_filter_agrees_with_public_review_queryset) ... ok
+test_review_junk_filter_matches_moderation_check_for_both_fields (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_review_junk_filter_matches_moderation_check_for_both_fields) ... ok
+test_review_junk_tokens_are_whole_tokens_not_substrings (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_review_junk_tokens_are_whole_tokens_not_substrings) ... ok
+test_review_public_queryset_requires_approved_status_and_quality_text (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_review_public_queryset_requires_approved_status_and_quality_text) ... ok
+test_short_or_test_review_cannot_pass_quality_check (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_short_or_test_review_cannot_pass_quality_check) ... ok
+test_structured_schedule_counts_as_public_schedule_content (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_structured_schedule_counts_as_public_schedule_content) ... ok
+test_temporary_place_is_hidden_when_events_section_is_disabled (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_temporary_place_is_hidden_when_events_section_is_disabled) ... ok
+test_test_tokens_in_public_text_fields_hide_place_and_match_admin_check (catalog.testcases.catalog.ContentModerationPublicVisibilityTests.test_test_tokens_in_public_text_fields_hide_place_and_match_admin_check) ... ok
+test_two_edits_compare_and_swap_then_two_approvals (catalog.testcases.test_task33_reviews.ReviewVersionPostgresConcurrencyTests.test_two_edits_compare_and_swap_then_two_approvals) ... ok
+test_two_first_submits_one_claim_and_one_candidate (catalog.testcases.test_task33_reviews.ReviewVersionPostgresConcurrencyTests.test_two_first_submits_one_claim_and_one_candidate) ... ok
+test_two_first_activity_submits_claim_only_one_candidate (catalog.testcases.test_task33_review_independent.IndependentReviewConcurrency.test_two_first_activity_submits_claim_only_one_candidate) ... ok
+test_two_reviewers_decide_candidate_only_once (catalog.testcases.test_task33_review_independent.IndependentReviewConcurrency.test_two_reviewers_decide_candidate_only_once) ... ok
+test_parallel_duplicate_event_has_one_inbox_and_one_outbox (catalog.testcases.test_task33_notifications.NotificationConcurrencyTests.test_parallel_duplicate_event_has_one_inbox_and_one_outbox) ... ok
+test_crash_after_acceptance_retries_and_demonstrates_permitted_duplicate (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_crash_after_acceptance_retries_and_demonstrates_permitted_duplicate) ... ERROR
+test_crash_after_commit_and_repeated_workers_never_resend_sent (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_crash_after_commit_and_repeated_workers_never_resend_sent) ... ERROR
+test_crash_after_sent_update_before_commit_rolls_back_but_smtp_acceptance_survives (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_crash_after_sent_update_before_commit_rolls_back_but_smtp_acceptance_survives) ... ERROR
+test_crash_before_smtp_keeps_committed_business_and_retries_without_duplicate (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_crash_before_smtp_keeps_committed_business_and_retries_without_duplicate) ... ERROR
+test_normal_smtp_errors_keep_committed_business_exact_backoff_and_five_attempt_cap (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_normal_smtp_errors_keep_committed_business_exact_backoff_and_five_attempt_cap) ... ERROR
+test_parallel_workers_skip_locked_and_only_one_smtp_acceptance (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_parallel_workers_skip_locked_and_only_one_smtp_acceptance) ... ERROR
+test_retry_rechecks_cancelled_invitation_after_ambiguous_acceptance (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_retry_rechecks_cancelled_invitation_after_ambiguous_acceptance) ... ERROR
+test_retry_rechecks_changed_address_after_ambiguous_acceptance (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_retry_rechecks_changed_address_after_ambiguous_acceptance) ... ERROR
+test_retry_rechecks_ownership_version_after_ambiguous_acceptance (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_retry_rechecks_ownership_version_after_ambiguous_acceptance) ... ERROR
+test_retry_rechecks_revoked_recipient_after_ambiguous_acceptance (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_retry_rechecks_revoked_recipient_after_ambiguous_acceptance) ... ERROR
+
+======================================================================
+ERROR: test_crash_after_acceptance_retries_and_demonstrates_permitted_duplicate (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_crash_after_acceptance_retries_and_demonstrates_permitted_duplicate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/src/catalog/testcases/test_task33_notification_crashes.py", line 53, in setUp
+    from guard import socket_path
+ModuleNotFoundError: No module named 'guard'
+
+======================================================================
+ERROR: test_crash_after_commit_and_repeated_workers_never_resend_sent (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_crash_after_commit_and_repeated_workers_never_resend_sent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/src/catalog/testcases/test_task33_notification_crashes.py", line 53, in setUp
+    from guard import socket_path
+ModuleNotFoundError: No module named 'guard'
+
+======================================================================
+ERROR: test_crash_after_sent_update_before_commit_rolls_back_but_smtp_acceptance_survives (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_crash_after_sent_update_before_commit_rolls_back_but_smtp_acceptance_survives)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/src/catalog/testcases/test_task33_notification_crashes.py", line 53, in setUp
+    from guard import socket_path
+ModuleNotFoundError: No module named 'guard'
+
+======================================================================
+ERROR: test_crash_before_smtp_keeps_committed_business_and_retries_without_duplicate (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_crash_before_smtp_keeps_committed_business_and_retries_without_duplicate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/src/catalog/testcases/test_task33_notification_crashes.py", line 53, in setUp
+    from guard import socket_path
+ModuleNotFoundError: No module named 'guard'
+
+======================================================================
+ERROR: test_normal_smtp_errors_keep_committed_business_exact_backoff_and_five_attempt_cap (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_normal_smtp_errors_keep_committed_business_exact_backoff_and_five_attempt_cap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/src/catalog/testcases/test_task33_notification_crashes.py", line 53, in setUp
+    from guard import socket_path
+ModuleNotFoundError: No module named 'guard'
+
+======================================================================
+ERROR: test_parallel_workers_skip_locked_and_only_one_smtp_acceptance (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_parallel_workers_skip_locked_and_only_one_smtp_acceptance)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/src/catalog/testcases/test_task33_notification_crashes.py", line 53, in setUp
+    from guard import socket_path
+ModuleNotFoundError: No module named 'guard'
+
+======================================================================
+ERROR: test_retry_rechecks_cancelled_invitation_after_ambiguous_acceptance (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_retry_rechecks_cancelled_invitation_after_ambiguous_acceptance)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/src/catalog/testcases/test_task33_notification_crashes.py", line 53, in setUp
+    from guard import socket_path
+ModuleNotFoundError: No module named 'guard'
+
+======================================================================
+ERROR: test_retry_rechecks_changed_address_after_ambiguous_acceptance (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_retry_rechecks_changed_address_after_ambiguous_acceptance)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/src/catalog/testcases/test_task33_notification_crashes.py", line 53, in setUp
+    from guard import socket_path
+ModuleNotFoundError: No module named 'guard'
+
+======================================================================
+ERROR: test_retry_rechecks_ownership_version_after_ambiguous_acceptance (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_retry_rechecks_ownership_version_after_ambiguous_acceptance)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/src/catalog/testcases/test_task33_notification_crashes.py", line 53, in setUp
+    from guard import socket_path
+ModuleNotFoundError: No module named 'guard'
+
+======================================================================
+ERROR: test_retry_rechecks_revoked_recipient_after_ambiguous_acceptance (catalog.testcases.test_task33_notification_crashes.NotificationCrashTests.test_retry_rechecks_revoked_recipient_after_ambiguous_acceptance)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/kidsmap/src/catalog/testcases/test_task33_notification_crashes.py", line 53, in setUp
+    from guard import socket_path
+ModuleNotFoundError: No module named 'guard'
+
+----------------------------------------------------------------------
+Ran 168 tests in 68.689s
+
+FAILED (errors=10)
+Preserving test database for alias 'default' ('test_m09full_r1')...

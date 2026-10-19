@@ -1,0 +1,7 @@
+# ANALYTICS-QA-15 — refused Beacon has no fallback
+
+Fresh Node VM executes the actual sender function extracted from base.html:4cases, rejected-beacon caseFAIL, accepted/throws/missing controlsPASS. Existing sender returns unconditionally after sendBeacon even when it reports false. W3C primary API contract: https://www.w3.org/TR/beacon/#sendbeacon-method — false means the data could not be queued; true is queue acceptance, not proof of server delivery. No claim of a real production queue overflow.
+
+Exactly two files: src/catalog/templates/base.html returns only if navigator.sendBeacon(trackUrl,blob) is true; otherwise falls through to the already existing same-origin keepalive fetch. Add scripts/test_analytics_sender.cjs exact tested VM regression. No taxonomy/payload/extra retry/event-policy change; accepted Beacon emits no duplicate fetch, throws/missing still use one existing fallback.
+
+Acceptance:4Node sender behaviors; native SIMULATED false-return branch then real same-origin POST200 and delta+1, no duplicates. Original current-page native phone→directions problem is separate: diagnostic observes no second DOM click after unsupported tel navigation under headless Chromium, but fresh-page directions records1/200. Do not attribute that to rejected Beacon; independent next action uses a newly loaded page and preserves that limitation/evidence. Final fresh backend/UI regression on latest source, no real outbound contact/GA.

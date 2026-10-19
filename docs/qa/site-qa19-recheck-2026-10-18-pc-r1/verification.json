@@ -1,0 +1,68 @@
+{
+  "utc": "2026-10-18T10:19:24.390033+00:00",
+  "status": "SITE-QA-19/P2 CONFIRMED OPEN; two-file PLAN READY / APPROVAL PENDING",
+  "mode": "PLAN",
+  "application_changes": 0,
+  "candidate_applied": false,
+  "green": "NOT RUN",
+  "source_count": 1031,
+  "candidate_files": 2,
+  "candidate_test_methods": 12,
+  "backend": {
+    "total_methods": 20,
+    "failed_methods": 7,
+    "failure_observations": 28,
+    "errors": 0,
+    "pass_methods": 13,
+    "existing_content_pass": 8,
+    "candidate_controls_pass": 5,
+    "exit": 1
+  },
+  "native": {
+    "cells": 36,
+    "checks": 72,
+    "control_pass": 42,
+    "expected_red_fail": 30,
+    "permitted_http500": 30,
+    "denied_http403": 6,
+    "pageerrors": 0,
+    "unexpected_local_http": 0,
+    "console_diagnostics": 36,
+    "blocked_external_requests": 0,
+    "editor_controls_after500": "NOT RUN"
+  },
+  "png": 36,
+  "static": {
+    "candidate_python_ast": true,
+    "existing_AST_delta": "one __str__ return expression",
+    "CRLF_outside_replacement_retained": true,
+    "git_apply_check_exit": 0,
+    "native_git_diff_check_exit": 0
+  },
+  "preservation": {
+    "prior_packages": 29,
+    "prior_files": 5861,
+    "all_1031_sources": true,
+    "shared_MO": true,
+    "cbmignore": true,
+    "refs_index_bytes_empty_staging": true,
+    "active_run_NONE": true,
+    "foreign_container_identities_states": 65,
+    "fixture_json_timestamp_adminlog_unchanged": true
+  },
+  "git": {
+    "head": "852938d96764ae315b92859e3651e5ea62054a36",
+    "branch": "codex/module09-transfer-2026-10-16-r1",
+    "task33_ref": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+    "index_sha256": "b45c562cb2c4cc7ea04de5664e3ef09a2c7bf9728e17cc55ddcb74551543a171"
+  },
+  "module10": "14canonical OPEN (11P2/3P3); SITE19 remains OPEN; full acceptance pending",
+  "closed_local_retained": [
+    "SITE01",
+    "SITE15",
+    "SITE06",
+    "module09 composite"
+  ],
+  "execution": "inline, no independent agent claim",
+  "production_global_release": "NOT RUN"
+}

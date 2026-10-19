@@ -1,0 +1,22 @@
+### Result
+{"attribution":"Supplementary real HTTP409 normalization proof for same source/case; original native raw-space assertion retained separately","status":409,"raw_length":1289,"validated_length":1288,"returned_length":1288,"checks":{"validated_b_exact":true,"raw_boundary_space_trimmed":true,"no_write":true},"before":{"candidate_id":38,"current_id":2,"candidate_rating":1,"candidate_text":"Newer private candidate C","current_text":"Public current four","current_rating":4,"revisions":4,"public":{"average":4,"count":1},"retry_after":0},"after":{"candidate_id":38,"current_id":2,"candidate_rating":1,"candidate_text":"Newer private candidate C","current_text":"Public current four","current_rating":4,"revisions":4,"public":{"average":4,"count":1},"retry_after":0}}
+### Ran Playwright code
+```js
+await (async(page)=>{
+ const c=page.context(),a=c.pages()[0],url='http://127.0.0.1:33271/ru/reviews/place/target/2/';
+ const b=c.pages().slice(1).filter(p=>p.url()===url).at(-1);
+ const state=async()=>await(await a.request.get('http://127.0.0.1:33271/qa/state/1/')).json();
+ const before=await state();
+ if(before.retry_after>0)throw new Error('Wait real cooldown before supplementary stale request');
+ const draft='<script>window.SOCIAL03_EXECUTED=true</script> & <b>literal</b>\n'+('Long fictional draft — Ə Ö İ Ş Ü Ж Я & "quotes". '.repeat(25));
+ const csrf=await b.locator('form[data-review-edit] [name=csrfmiddlewaretoken]').inputValue();
+ const response=await c.request.post(url,{form:{rating:'2',text:draft,expected_revision_id:'37',csrfmiddlewaretoken:csrf}});
+ const value=await b.evaluate(html=>new DOMParser().parseFromString(html,'text/html').querySelector('form[data-review-edit] textarea').value,await response.text());
+ const after=await state();
+ const stable=s=>{const{retry_after,...rest}=s;return rest;};
+ return{attribution:'Supplementary real HTTP409 normalization proof for same source/case; original native raw-space assertion retained separately',
+   status:response.status(),raw_length:draft.length,validated_length:draft.trim().length,returned_length:value.length,
+   checks:{validated_b_exact:response.status()===409&&value===draft.trim(),raw_boundary_space_trimmed:value!==draft&&value===draft.trim(),no_write:JSON.stringify(stable(before))===JSON.stringify(stable(after))},before,after};
+}
+)(page);
+```

@@ -1,0 +1,240 @@
+{
+  "rows": [
+    {
+      "id": "empty",
+      "accepted": false,
+      "error": "invalid_site_media",
+      "bytes": 0,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "bad-png",
+      "accepted": false,
+      "error": "invalid_site_media",
+      "bytes": 3,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "empty-mime",
+      "accepted": true,
+      "error": null,
+      "bytes": 129,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "generic-mime",
+      "accepted": true,
+      "error": null,
+      "bytes": 129,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "uppercase-extension",
+      "accepted": true,
+      "error": null,
+      "bytes": 129,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "bad-mime",
+      "accepted": false,
+      "error": "invalid_site_media",
+      "bytes": 129,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "exact-500kib",
+      "accepted": true,
+      "error": null,
+      "bytes": 512000,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "over-500kib",
+      "accepted": false,
+      "error": "site_media_size",
+      "bytes": 512001,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "exact-2mib",
+      "accepted": true,
+      "error": null,
+      "bytes": 2097152,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "over-2mib",
+      "accepted": false,
+      "error": "site_media_size",
+      "bytes": 2097153,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "animated-webp",
+      "accepted": false,
+      "error": "invalid_site_media",
+      "bytes": 202,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "svg-with-valid-xml-declaration",
+      "accepted": true,
+      "error": null,
+      "bytes": 172,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "svg-malformed-xml-declaration",
+      "accepted": false,
+      "error": "unsafe_site_svg",
+      "bytes": 145,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "svg-non-utf8-declaration",
+      "accepted": false,
+      "error": "unsafe_site_svg",
+      "bytes": 177,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "svg-depth65",
+      "accepted": false,
+      "error": "unsafe_site_svg",
+      "bytes": 494,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "svg-node-budget",
+      "accepted": false,
+      "error": "unsafe_site_svg",
+      "bytes": 80046,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "svg-attribute-budget",
+      "accepted": false,
+      "error": "unsafe_site_svg",
+      "bytes": 65595,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    },
+    {
+      "id": "svg-nonfinite-size",
+      "accepted": false,
+      "error": "invalid_site_media",
+      "bytes": 136,
+      "checks": {
+        "policy": true,
+        "rewound": true,
+        "bytesUnchanged": true,
+        "sameObject": true,
+        "errorCode": true
+      }
+    }
+  ],
+  "unsafe_svg": "server-only; never browser-loaded",
+  "database_writes": false
+}

@@ -1,0 +1,12 @@
+{
+  "execution":"Native Chromium images inspected by /root inline; no independent specialist claim",
+  "images":[
+    {"png":"png/red-content-ru-390-broken-public-logo.png","result":"Confirmed RED: visible broken logo after accepted corrupt PNG"},
+    {"png":"png/red-content-ru-390-restored-public-logo.png","result":"Control PASS: decoded synthetic green logo after valid retry"},
+    {"png":"png/red-super-en-1440-accepted-bad-form.png","result":"Confirmed RED: success message/current invalid file and broken preview after ordinary form302. Existing form-shell positioning is not a new scoped conclusion"},
+    {"png":"png/baseline-generic-error-ru-390.png","result":"Pre-existing generic error FAIL: heading/text overlap in icon grid column"},
+    {"png":"png/baseline-generic-error-en-1440.png","result":"Pre-existing generic error FAIL: heading constrained to30px; existing untranslated hint/other layout not included in proposed closure"}
+  ],
+  "candidate_UI":"NOT RENDERED; only template compile checked",
+  "not_run":["physical device","screenreader","other browser","candidate GREEN"]
+}

@@ -1,0 +1,21 @@
+### Result
+{"rows":[{"id":"three-real-mixed-previews","checks":{"ok":true}},{"id":"native-mixed-batch-confirm","checks":{"ok":true}},{"id":"mixed-results-retain-conflict-and-waiting-consent","checks":{"ok":true}},{"id":"mixed-receipt-repeat-does-not-replay","checks":{"ok":true}},{"id":"other-owner-not-implicitly-attached","checks":{"ok":true}},{"id":"second-owner-explicit-confirmation-form","checks":{"ok":true}},{"id":"second-owner-native-confirm","checks":{"ok":true}},{"id":"branch-attached-only-after-both-consents","checks":{"ok":true}},{"id":"conflicting-other-network-kept-original-branch","checks":{"ok":true}}],"errors":[],"pageerrors":[]}
+### Ran Playwright code
+```js
+await (async original=>{
+ const B='http://127.0.0.1:33810',rows=[],errors=[],pageerrors=[],contexts=[],br=original.context().browser();let phase='start';
+ const check=(id,ok)=>{rows.push({id,checks:{ok}});if(!ok)throw new Error(id)};
+ async function make(role){const c=await br.newContext({viewport:{width:390,height:950},userAgent:'Mozilla/5.0 Chrome/153.0.0.0 Safari/537.36'});contexts.push(c);await c.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());const p=await c.newPage();p.setDefaultTimeout(15000);p.on('pageerror',e=>pageerrors.push(String(e)));await p.goto(B+'/qa/m13/login/'+role+'/');return p}
+ async function post(p,selector){let status;const watch=r=>{if(r.request().method()==='POST')status=r.status()};p.on('response',watch);await Promise.all([p.waitForNavigation({waitUntil:'domcontentloaded'}),p.locator(selector).click()]);p.off('response',watch);return status}
+ try{
+  const p=await make('owner'),editor=await make('editor');phase='mixed-preview';await p.goto(B+'/ru/account/organizations/2/connections/?place_ids=1&place_ids=2&place_ids=3');await post(p,'button[data-preview]');let codes=await p.locator('tr[data-result]').evaluateAll(es=>es.map(e=>e.dataset.result));check('three-real-mixed-previews',codes.length===3&&codes.includes('other_network')&&codes.includes('already_connected')&&codes.includes('requested'));
+  await p.locator('[data-confirm-form] [name=consent]').check();check('native-mixed-batch-confirm',await post(p,'[data-confirm-form] button[value=confirm]')===302);codes=await p.locator('tr[data-result]').evaluateAll(es=>es.map(e=>e.dataset.result));check('mixed-results-retain-conflict-and-waiting-consent',codes.includes('other_network')&&codes.includes('already_connected')&&codes.includes('requested'));
+  const receipt=new URL(p.url()).pathname;await p.reload();check('mixed-receipt-repeat-does-not-replay',new URL(p.url()).pathname===receipt&&await p.locator('[data-confirm-form]').count()===0);const before=await(await p.context().request.get(B+'/qa/m13/cross/')).json();check('other-owner-not-implicitly-attached',before.organization.branches===1);
+  phase='second-owner-consent';await editor.goto(B+'/ru/account/organizations/2/connections/?place_ids=3');await post(editor,'button[data-preview]');check('second-owner-explicit-confirmation-form',await editor.locator('[data-confirm-form]').count()===1);await editor.locator('[data-confirm-form] [name=consent]').check();check('second-owner-native-confirm',await post(editor,'[data-confirm-form] button[value=confirm]')===302);const after=await(await p.context().request.get(B+'/qa/m13/cross/')).json();check('branch-attached-only-after-both-consents',after.organization.branches===2);
+  const old=await(await p.context().request.get(B+'/qa/m13/state/')).json();await p.goto(B+old.urls.ru.organization);check('conflicting-other-network-kept-original-branch',(await p.locator('body').innerText()).includes('M13 name ru'));
+  await editor.screenshot({path:'/mnt/c/kidsmap/docs/qa/module13-repair-2026-10-19-pc-r1/png/partial-batch-second-consent.png',fullPage:true});
+ }catch(e){errors.push({phase,message:String(e)})}finally{for(const c of contexts)await c.close()}
+ return{rows,errors,pageerrors};
+}
+)(page);
+```

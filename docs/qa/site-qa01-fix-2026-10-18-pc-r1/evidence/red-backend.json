@@ -1,0 +1,35 @@
+{
+  "phase": "red",
+  "command": [
+    "docker",
+    "exec",
+    "m10s01-fix-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/site01-pc-fix-r1/runtime.py",
+    "test",
+    "test_site01_candidate.Site01MediaPermissionsTests",
+    "catalog.testcases.admin.TestSiteGalleryImageAdminMedia",
+    "catalog.testcases.admin.TestAdminSidebarStructure"
+  ],
+  "exit": 1,
+  "raw_sha256": "8f75f696ec8f5adde7fe3dafe0a12c8d3de243e5f2fa9f9cf89808e30098e5f7",
+  "method_lines": [
+    "test_content_manager_preset_preserves_legitimate_access (test_site01_candidate.Site01MediaPermissionsTests.test_content_manager_preset_preserves_legitimate_access) ... ok",
+    "test_nonstaff_and_guest_cannot_mutate (test_site01_candidate.Site01MediaPermissionsTests.test_nonstaff_and_guest_cannot_mutate) ... ok",
+    "test_settings_change_permission_can_upload_and_delete_main_image (test_site01_candidate.Site01MediaPermissionsTests.test_settings_change_permission_can_upload_and_delete_main_image) ... ok",
+    "test_staff_without_permissions_cannot_read_hub (test_site01_candidate.Site01MediaPermissionsTests.test_staff_without_permissions_cannot_read_hub) ... FAIL",
+    "test_superuser_preserves_legitimate_access (test_site01_candidate.Site01MediaPermissionsTests.test_superuser_preserves_legitimate_access) ... ok",
+    "test_ajax_delete_main_image_clears_uploaded_site_settings_file (catalog.testcases.admin.TestSiteGalleryImageAdminMedia.test_ajax_delete_main_image_clears_uploaded_site_settings_file) ... ok",
+    "test_catalog_and_moderation_use_real_admin_pages_and_metrics (catalog.testcases.admin.TestAdminSidebarStructure.test_catalog_and_moderation_use_real_admin_pages_and_metrics) ... ok",
+    "test_hidden_public_sections_remain_available_in_admin (catalog.testcases.admin.TestAdminSidebarStructure.test_hidden_public_sections_remain_available_in_admin) ... ok",
+    "test_moderation_items_open_separate_pending_workspaces (catalog.testcases.admin.TestAdminSidebarStructure.test_moderation_items_open_separate_pending_workspaces) ... ok",
+    "test_place_moderation_shows_whether_creator_used_admin_or_site (catalog.testcases.admin.TestAdminSidebarStructure.test_place_moderation_shows_whether_creator_used_admin_or_site) ... ok",
+    "test_staff_access_sidebar_marks_only_the_current_link_active (catalog.testcases.admin.TestAdminSidebarStructure.test_staff_access_sidebar_marks_only_the_current_link_active) ... ok"
+  ],
+  "failed_observations": 31,
+  "errors": 0,
+  "summary": [
+    "Ran 28 tests in 4.919s",
+    "FAILED (failures=31)"
+  ]
+}

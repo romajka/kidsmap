@@ -1,0 +1,1 @@
+{"exit":1,"model_and_admin_exception_reproduced":true,"exception":"TypeError: __str__ returned non-string (type __proxy__)","harness_error":"Result writer attempted repository artifact path inside read-only repo bind.","correction":"Write own ignored scratch then host-side copy into report. Repository remains read-only in app; no application change."}

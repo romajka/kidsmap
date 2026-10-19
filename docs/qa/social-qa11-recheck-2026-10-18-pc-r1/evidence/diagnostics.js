@@ -1,0 +1,7 @@
+async original=>{
+const c=await original.context().browser().newContext({viewport:{width:390,height:950},serviceWorkers:'block'}),p=await c.newPage(),consoleErrors=[],pageerrors=[],http=[],failed=[],blocked=[],rows=[];
+await c.route('**/*',r=>{const u=new URL(r.request().url());if(u.hostname==='127.0.0.1')return r.continue();blocked.push(u.hostname);return r.abort();});
+p.on('pageerror',e=>pageerrors.push(String(e)));p.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text());});p.on('response',r=>{if(r.status()>=400)http.push({path:new URL(r.url()).pathname,status:r.status()});});p.on('requestfailed',r=>failed.push({path:new URL(r.url()).pathname,error:r.failure()?.errorText}));
+for(const port of [33410,33411]){await p.goto('http://127.0.0.1:'+port+'/qa/social11-login/');for(const path of ['/ru/reviews/place/target/1/','/ru/reviews/activity/target/1/','/ru/reviews/specialist/target/1/','/ru/reviews/event/target/1/','/ru/account/notifications/?tab=all']){const r=await p.goto('http://127.0.0.1:'+port+path);rows.push({port,path,status:r.status(),visibleMainLandmarks:await p.getByRole('main').count()});}}
+await c.close();return{rows,consoleErrors,pageerrors,http,failed,blocked,scope:'10 RU390 navigations; console/requestfailed not collected in 90-cell matrix'};
+}

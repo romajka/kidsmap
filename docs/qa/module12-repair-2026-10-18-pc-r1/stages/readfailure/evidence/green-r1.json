@@ -1,0 +1,21 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m12full-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m12-full-r1/runtime.py",
+    "test",
+    "catalog.testcases.test_module12_read_failure",
+    "catalog.testcases.test_module12_acceptance",
+    "catalog.testcases.test_module12_reporting",
+    "catalog.testcases.test_analytics_metrics",
+    "catalog.testcases.test_owner_analytics"
+  ],
+  "exit": 1,
+  "fresh_own_test_db": "test_m12full_readfailure_green_r1",
+  "test_ids": [],
+  "failures": [],
+  "errors": [],
+  "summary": []
+}

@@ -1,0 +1,76 @@
+{
+  "utc": "2026-10-17T03:52:26.222632+00:00",
+  "status": "PASS",
+  "scope": "SOCIAL-QA-08 CLOSED LOCAL only; module09 OPEN",
+  "results": {
+    "utc": "2026-10-17T03:52:00.130424+00:00",
+    "status": "SOCIAL-QA-08 CLOSED LOCAL scoped PASS; module09 OPEN",
+    "head": "852938d96764ae315b92859e3651e5ea62054a36",
+    "branch": "codex/module09-transfer-2026-10-16-r1",
+    "source_files": 1023,
+    "unchanged_prior_source_files": 1021,
+    "tests": {
+      "new": 9,
+      "affected_existing": 3,
+      "unique_methods": 12,
+      "seconds": 3.053,
+      "failures": 0,
+      "errors": 0,
+      "exit": 0
+    },
+    "native": {
+      "cells": 36,
+      "controlsPASS": 576,
+      "sourcePASS": 108,
+      "guard_and_current_rows": 12,
+      "guard_and_current_checksPASS": 96,
+      "pageerrors": 0,
+      "requestfailed": 0,
+      "matrix_unexpected_console_errors": 0,
+      "adjacent_console404": 6,
+      "adjacent_finding": "ADJ-ANONYMOUS-LOGIN-08 OPEN/P2",
+      "expected_document403": 36,
+      "expected_console403": 36,
+      "png": 81,
+      "matrix_unexpected_http": 0
+    },
+    "preservation": {
+      "prior_packages": 11,
+      "entry_container_ID_name_states": 43,
+      "final_containers": 44,
+      "sharedMO_cbmignore_refs_index_activeNONE": true
+    },
+    "preparation_failure": "One no-write cell contaminated only by concurrent guard fixture outbox+6; raw fail retained,6successful cells reused,failed case+remaining serialized; assertion unchanged",
+    "not_run": [
+      "SOCIAL09",
+      "full ACCEPT09",
+      "global corpus",
+      "production/deployment",
+      "physical devices",
+      "real screenreader/full WCAG",
+      "other browsers",
+      "external SMTP/integrations"
+    ]
+  },
+  "integrity": {
+    "sources1023_other1021unchanged": true,
+    "exact_approved_candidates": true,
+    "prior11packages_bytes": true,
+    "entry43container_ID_name_states": true,
+    "guide_prior_bytes": true,
+    "sharedMO_cbmignore_refs_index_activeNONE": true,
+    "failed_harness_attempt_retained": true,
+    "artifact_files": 135,
+    "artifact_manifest_sha256": "1956d85d772a0d165b9719b1c0c57f58a5082b9696fbd4932b3c7a16828e9c64"
+  },
+  "not_run": [
+    "SOCIAL09",
+    "full ACCEPT09",
+    "global corpus",
+    "production/deployment",
+    "physical devices",
+    "real screenreader/full WCAG",
+    "other browsers",
+    "external SMTP/integrations"
+  ]
+}

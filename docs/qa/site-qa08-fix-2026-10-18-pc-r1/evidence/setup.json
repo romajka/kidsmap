@@ -1,0 +1,41 @@
+{
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "/mnt/c/kidsmap/scripts/build_isolated_locales.py",
+        "build",
+        "--source-locale",
+        "/mnt/c/kidsmap/locale",
+        "--output",
+        "/mnt/c/kidsmap/.tmp/site08-pc-fix-r1/locales-current",
+        "--compiler",
+        "native"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "docker",
+        "exec",
+        "m10s08-fix-r1-app",
+        "python",
+        "/mnt/c/kidsmap/.tmp/site08-pc-fix-r1/runtime.py",
+        "migrate"
+      ],
+      "exit": 0
+    }
+  ],
+  "app": "m10s08-fix-r1-app",
+  "container_id": "d9136c713d52d89d1e29e5d7cdeee7b26a42407b097f4ed6a2e83adc8a48891d",
+  "normal_db": "m10s08_fix_r1",
+  "test_db": "test_m10s08_fix_r1",
+  "source_count": 1032,
+  "internal_qa_network": true,
+  "owned_qa_PG_volume": true,
+  "no_published_PG_ports": true,
+  "read_only_repo": true,
+  "RW_own_scratch": true,
+  "own_media": "/tmp/site08-pc-fix-r1-media",
+  "loopback": 33580
+}

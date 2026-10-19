@@ -1,0 +1,38 @@
+{
+  "cases": [
+    {
+      "lang": "az",
+      "role": "author",
+      "email": "author09@example.invalid",
+      "user_id": 1,
+      "foreign_notice_id": 4
+    },
+    {
+      "lang": "ru",
+      "role": "owner",
+      "email": "owner09@example.invalid",
+      "user_id": 2,
+      "foreign_notice_id": 1
+    },
+    {
+      "lang": "en",
+      "role": "invitee",
+      "email": "invitee09@example.invalid",
+      "user_id": 9,
+      "foreign_notice_id": 1
+    }
+  ],
+  "revoked": {
+    "notice_id": 6,
+    "invitation_id": 2,
+    "recipient": "author09@example.invalid",
+    "status": "CANCELED"
+  },
+  "business_counts": {
+    "notifications": 18,
+    "unread": 17,
+    "outbox": 15,
+    "memberships": 5,
+    "grants": 3
+  }
+}

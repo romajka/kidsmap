@@ -1,0 +1,520 @@
+--- a/locale/az/LC_MESSAGES/django.po
++++ b/locale/az/LC_MESSAGES/django.po
+@@ -23481,3 +23481,16 @@
+ #, python-format
+ msgid "«%(name)s» опубликована и видна на сайте."
+ msgstr "«%(name)s» dərc olundu və saytda görünür."
++
++
++#: catalog/domain_admin/site.py catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Настройки изменились в другой вкладке. Ваш ввод не сохранён. Скопируйте нужные значения и откройте текущую версию отдельно."
++msgstr "Parametrlər başqa vərəqdə dəyişdirilib. Daxil etdiyiniz məlumatlar yadda saxlanılmayıb. Lazım olan dəyərləri köçürün və cari versiyanı ayrıca açın."
++
++#: catalog/domain_admin/site.py catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Открыть текущую версию в новой вкладке"
++msgstr "Cari versiyanı yeni vərəqdə aç"
++
++#: catalog/domain_admin/site.py catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Выбранные файлы нужно выбрать заново перед повторным сохранением."
++msgstr "Yenidən yadda saxlamazdan əvvəl faylları təkrar seçin."
+--- a/locale/en/LC_MESSAGES/django.po
++++ b/locale/en/LC_MESSAGES/django.po
+@@ -23335,3 +23335,16 @@
+ #, python-format
+ msgid "«%(name)s» опубликована и видна на сайте."
+ msgstr "“%(name)s” is published and visible on the site."
++
++
++#: catalog/domain_admin/site.py catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Настройки изменились в другой вкладке. Ваш ввод не сохранён. Скопируйте нужные значения и откройте текущую версию отдельно."
++msgstr "Settings changed in another tab. Your input has not been saved. Copy the values you need and open the current version separately."
++
++#: catalog/domain_admin/site.py catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Открыть текущую версию в новой вкладке"
++msgstr "Open the current version in a new tab"
++
++#: catalog/domain_admin/site.py catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Выбранные файлы нужно выбрать заново перед повторным сохранением."
++msgstr "Select your files again before saving another time."
+--- a/locale/ru/LC_MESSAGES/django.po
++++ b/locale/ru/LC_MESSAGES/django.po
+@@ -20921,3 +20921,16 @@
+ #, python-format
+ msgid "«%(name)s» опубликована и видна на сайте."
+ msgstr "«%(name)s» опубликована и видна на сайте."
++
++
++#: catalog/domain_admin/site.py catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Настройки изменились в другой вкладке. Ваш ввод не сохранён. Скопируйте нужные значения и откройте текущую версию отдельно."
++msgstr "Настройки изменились в другой вкладке. Ваш ввод не сохранён. Скопируйте нужные значения и откройте текущую версию отдельно."
++
++#: catalog/domain_admin/site.py catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Открыть текущую версию в новой вкладке"
++msgstr "Открыть текущую версию в новой вкладке"
++
++#: catalog/domain_admin/site.py catalog/templates/admin/catalog/shared_settings_change_form.html
++msgid "Выбранные файлы нужно выбрать заново перед повторным сохранением."
++msgstr "Выбранные файлы нужно выбрать заново перед повторным сохранением."
+--- a/src/catalog/domain_admin/site.py
++++ b/src/catalog/domain_admin/site.py
+@@ -1,4 +1,9 @@
++from django import forms
+ from django.contrib import admin
++from django.core import signing
++from django.db import transaction
++import hashlib
++import json
+ from django.core.exceptions import PermissionDenied
+ from django.shortcuts import redirect
+ from django.urls import reverse, path
+@@ -26,7 +31,76 @@
+ from .user import _HiddenFromAdminIndexMixin
+ 
+ 
+-class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
++_SETTINGS_REVISION_SALT = "catalog.site-settings-revision.v1"
++
++
++def _settings_revision_payload(obj, actor):
++    values = {field.name: field.value_to_string(obj)
++              for field in obj._meta.concrete_fields}
++    digest = hashlib.sha256(json.dumps(values, sort_keys=True).encode()).hexdigest()
++    return {"row": obj.pk, "section": obj._meta.label_lower,
++            "actor": actor, "digest": digest}
++
++
++class _SettingsRevisionForm(forms.ModelForm):
++    settings_revision_actor = None
++
++    def clean(self):
++        cleaned = super().clean()
++        if self.instance.pk:
++            try:
++                payload = signing.loads(self.data.get("settings_revision", ""),
++                                        salt=_SETTINGS_REVISION_SALT)
++            except signing.BadSignature:
++                payload = None
++            if payload != _settings_revision_payload(self.instance, self.settings_revision_actor):
++                self.settings_conflict = True
++                raise forms.ValidationError(
++                    _("Настройки изменились в другой вкладке. Ваш ввод не сохранён. Скопируйте нужные значения и откройте текущую версию отдельно."),
++                    code="stale_settings",
++                )
++        return cleaned
++
++
++    def _post_clean(self):
++        # A rejected snapshot must not turn uncommitted uploads into preview URLs.
++        if not getattr(self, "settings_conflict", False):
++            super()._post_clean()
++
++
++class _SiteSettingsConcurrencyAdminMixin:
++    form = _SettingsRevisionForm
++    change_form_template = "admin/catalog/shared_settings_change_form.html"
++
++    def get_queryset(self, request):
++        queryset = super().get_queryset(request)
++        # Django's admin changeform POST owns the surrounding transaction.
++        return queryset.select_for_update() if request.method == "POST" else queryset
++
++    def get_form(self, request, obj=None, change=False, **kwargs):
++        base = super().get_form(request, obj, change=change, **kwargs)
++        return type("ActorBoundSettingsForm", (base,),
++                    {"settings_revision_actor": request.user.pk})
++
++    def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
++        form = context["adminform"].form
++        context.setdefault("km_settings_title", self.model._meta.verbose_name.capitalize())
++        context.setdefault("km_settings_subtitle", _("Заполните настройки для этого раздела сайта."))
++        context.setdefault("km_settings_hub_url", reverse("admin:catalog_sitesettings_changelist"))
++        context["km_settings_revision_enabled"] = True
++        context["km_settings_revision"] = (request.POST.get("settings_revision", "")
++            if request.method == "POST" else signing.dumps(
++                _settings_revision_payload(obj, request.user.pk), salt=_SETTINGS_REVISION_SALT))
++        context["km_settings_conflict"] = getattr(form, "settings_conflict", False)
++        context["km_settings_current_url"] = request.path
++        context["km_settings_reselect_files"] = bool(request.FILES)
++        response = super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
++        if context["km_settings_conflict"]:
++            response.status_code = 409
++        return response
++
++
++class _BaseSiteSettingsSectionAdmin(_SiteSettingsConcurrencyAdminMixin, admin.ModelAdmin):
+     change_form_template = "admin/catalog/shared_settings_change_form.html"
+     list_display = ("brand_name", "updated_at")
+     readonly_fields = (
+@@ -461,7 +535,7 @@
+ 
+ 
+ @admin.register(SiteAnalytics)
+-class SiteAnalyticsAdmin(admin.ModelAdmin):
++class SiteAnalyticsAdmin(_SiteSettingsConcurrencyAdminMixin, admin.ModelAdmin):
+     def has_add_permission(self, request):
+         return False
+ 
+@@ -1015,9 +1089,10 @@
+                 if field_name not in self.MAIN_IMAGE_FIELDS:
+                     return JsonResponse({"success": False, "error": "Invalid field name"}, status=400)
+                 
+-                site = SiteSettings.get_solo()
+-                setattr(site, field_name, image_file)
+-                site.save()
++                with transaction.atomic():
++                    site = SiteSettings.objects.select_for_update().get(pk=SiteSettings.get_solo().pk)
++                    setattr(site, field_name, image_file)
++                    site.save(update_fields=[field_name, "updated_at"])
+                 
+                 # Clear singleton cache
+                 from catalog.models.site import clear_singleton_caches
+@@ -1087,19 +1162,20 @@
+             return JsonResponse({"success": False, "error": "Invalid field name"}, status=400)
+ 
+         try:
+-            site = SiteSettings.get_solo()
+-            image_field = getattr(site, field_name)
+-            if not image_field:
+-                return JsonResponse({"success": True, "field": field_name, "deleted": False})
+-
+-            image_field.delete(save=False)
+-            setattr(site, field_name, None)
+-            site.save(update_fields=[field_name, "updated_at"])
+-
+-            from catalog.models.site import clear_singleton_caches
+-            clear_singleton_caches()
+-
+-            return JsonResponse({"success": True, "field": field_name, "deleted": True})
++            with transaction.atomic():
++                site = SiteSettings.objects.select_for_update().get(pk=SiteSettings.get_solo().pk)
++                image_field = getattr(site, field_name)
++                if not image_field:
++                    return JsonResponse({"success": True, "field": field_name, "deleted": False})
++
++                image_field.delete(save=False)
++                setattr(site, field_name, None)
++                site.save(update_fields=[field_name, "updated_at"])
++
++                from catalog.models.site import clear_singleton_caches
++                clear_singleton_caches()
++
++                return JsonResponse({"success": True, "field": field_name, "deleted": True})
+         except Exception as e:
+             return JsonResponse({"success": False, "error": str(e)}, status=500)
+ 
+--- /dev/null
++++ b/src/catalog/testcases/test_site_qa15_settings_concurrency.py
+@@ -0,0 +1,266 @@
++import hashlib
++import html
++import io
++import re
++import tempfile
++import threading
++from concurrent.futures import ThreadPoolExecutor
++from pathlib import Path
++
++from PIL import Image
++from django import forms
++from django.conf import settings
++from django.contrib.auth import get_user_model
++from django.core.files.uploadedfile import SimpleUploadedFile
++from django.db import close_old_connections
++from django.test import Client, TestCase, TransactionTestCase, override_settings
++from django.urls import reverse
++
++from catalog.models import SiteSettings, SiteGalleryImage
++from catalog.models.site import clear_singleton_caches
++
++
++class Site15FixtureMixin:
++    def setUp(self):
++        super().setUp()
++        assert settings.TESTING
++        self.temp = tempfile.TemporaryDirectory(prefix='site15-')
++        self.addCleanup(self.temp.cleanup)
++        override = override_settings(MEDIA_ROOT=self.temp.name)
++        override.enable()
++        self.addCleanup(override.disable)
++        clear_singleton_caches()
++        self.actor = get_user_model().objects.create_superuser(
++            'site15_actor', 'site15-actor@example.invalid', 'fictional-password')
++        self.client.force_login(self.actor)
++        self.client.cookies['django_language'] = 'ru'
++        self.site = SiteSettings.get_solo()
++        self.site.footer_phone = '+994500001500'
++        self.site.footer_email = 'site15-before@example.invalid'
++        self.site.save()
++        clear_singleton_caches()
++        self.url = reverse('admin:catalog_sitefootersettings_change', args=[self.site.pk])
++
++    def payload(self, url=None, client=None):
++        response = (client or self.client).get(url or self.url)
++        self.assertEqual(response.status_code, 200)
++        form = response.context['adminform'].form
++        data = {'_continue': '1'}
++        for name, field in form.fields.items():
++            value = form[name].value()
++            if isinstance(field, forms.FileField):
++                continue
++            if isinstance(field, forms.BooleanField):
++                if value:
++                    data[name] = 'on'
++            else:
++                data[name] = '' if value is None else value
++        token = re.search(r'name="settings_revision" value="([^"]*)"', response.content.decode())
++        data['settings_revision'] = html.unescape(token.group(1)) if token else 'missing-in-current-implementation'
++        return data
++
++    def snapshot(self):
++        self.site.refresh_from_db()
++        return {'row': {f.name: f.value_to_string(self.site) for f in self.site._meta.concrete_fields},
++                'files': {p.relative_to(self.temp.name).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
++                          for p in Path(self.temp.name).rglob('*') if p.is_file()}}
++
++    def image(self):
++        buffer = io.BytesIO()
++        Image.new('RGB', (12, 12), 'green').save(buffer, 'PNG')
++        return SimpleUploadedFile('site15-fictional.png', buffer.getvalue(), content_type='image/png')
++
++    def first_save(self):
++        data = self.payload()
++        data['footer_phone'] = '+994500001501'
++        self.assertEqual(self.client.post(self.url, data).status_code, 302)
++
++    def assert_conflict(self, data, url=None):
++        before = self.snapshot()
++        response = self.client.post(url or self.url, data)
++        with self.subTest(check='conflict409'):
++            self.assertEqual(response.status_code, 409)
++        with self.subTest(check='no-row-or-file-write'):
++            self.assertEqual(self.snapshot(), before)
++        return response
++
++
++class Site15SettingsConflictTests(Site15FixtureMixin, TestCase):
++    def test_form_includes_nonempty_revision(self):
++        self.assertNotEqual(self.payload()['settings_revision'], 'missing-in-current-implementation')
++
++    def test_fresh_valid_form_still_saves(self):
++        data = self.payload()
++        data['footer_email'] = 'site15-fresh@example.invalid'
++        self.assertEqual(self.client.post(self.url, data).status_code, 302)
++        self.site.refresh_from_db()
++        self.assertEqual(self.site.footer_email, 'site15-fresh@example.invalid')
++
++    def test_missing_revision_cannot_write(self):
++        data = self.payload()
++        data.pop('settings_revision')
++        data['footer_phone'] = '+994500001599'
++        self.assert_conflict(data)
++
++    def test_tampered_revision_cannot_write(self):
++        data = self.payload()
++        data['settings_revision'] += 'tampered'
++        data['footer_phone'] = '+994500001599'
++        self.assert_conflict(data)
++
++    def test_two_tabs_same_field_rejects_second_save(self):
++        data = self.payload()
++        self.first_save()
++        data['footer_phone'] = '+994500001502'
++        response = self.assert_conflict(data)
++        self.assertContains(response, '+994500001502', status_code=409)
++
++    def test_two_tabs_disjoint_fields_preserves_first_and_second_draft(self):
++        data = self.payload()
++        self.first_save()
++        data['footer_email'] = 'site15-draft-b@example.invalid'
++        response = self.assert_conflict(data)
++        self.assertContains(response, 'site15-draft-b@example.invalid', status_code=409)
++        self.assertContains(response, 'target="_blank"', status_code=409)
++
++    def test_change_in_another_section_conflicts_conservatively(self):
++        data = self.payload()
++        about = reverse('admin:catalog_siteaboutsettings_change', args=[self.site.pk])
++        first = self.payload(about)
++        first['about_text_ru'] = 'Fictional SITE15 saved about'
++        self.assertEqual(self.client.post(about, first).status_code, 302)
++        data['footer_email'] = 'site15-section-b@example.invalid'
++        self.assert_conflict(data)
++
++    def test_direct_analytics_editor_cannot_overwrite_a_newer_settings_row(self):
++        url = reverse('admin:catalog_siteanalytics_change', args=[self.site.pk])
++        data = self.payload(url)
++        self.first_save()
++        data['footer_email'] = 'site15-analytics-draft@example.invalid'
++        self.assert_conflict(data, url)
++
++    def test_repeated_stale_post_never_refreshes_revision_or_writes(self):
++        data = self.payload()
++        self.first_save()
++        data['footer_email'] = 'site15-repeated@example.invalid'
++        self.assert_conflict(data)
++        self.assert_conflict(data)
++
++    def test_revision_from_another_actor_is_rejected(self):
++        data = self.payload()
++        actor = get_user_model().objects.create_superuser('site15_actor_b', 'site15-actor-b@example.invalid', 'fictional')
++        self.client.force_login(actor)
++        data['footer_email'] = 'site15-other-actor@example.invalid'
++        self.assert_conflict(data)
++
++    def test_revision_from_another_section_is_rejected(self):
++        footer = self.payload()
++        url = reverse('admin:catalog_sitecontactssettings_change', args=[self.site.pk])
++        data = self.payload(url)
++        data['settings_revision'] = footer['settings_revision']
++        data['contacts_text_ru'] = 'Fictional section-token mismatch'
++        self.assert_conflict(data, url)
++
++    def test_ajax_main_upload_invalidates_open_form_revision(self):
++        data = self.payload()
++        upload = reverse('admin:catalog_sitegalleryimage_ajax_upload')
++        self.assertEqual(self.client.post(upload, {'field': 'logo', 'image': self.image()}).status_code, 200)
++        data['footer_email'] = 'site15-after-upload@example.invalid'
++        self.assert_conflict(data)
++
++    def test_ajax_main_delete_invalidates_open_form_revision(self):
++        self.site.logo = self.image()
++        self.site.save()
++        data = self.payload()
++        delete = reverse('admin:catalog_sitegalleryimage_ajax_delete_main_image')
++        self.assertEqual(self.client.post(delete, {'field': 'logo'}).status_code, 200)
++        data['footer_email'] = 'site15-after-delete@example.invalid'
++        self.assert_conflict(data)
++
++    def test_gallery_creation_does_not_invalidate_settings_form(self):
++        data = self.payload()
++        upload = reverse('admin:catalog_sitegalleryimage_ajax_upload')
++        self.assertEqual(self.client.post(upload, {'placement': SiteGalleryImage.PLACEMENT_HOME_HERO,
++                                                  'image': self.image()}).status_code, 200)
++        data['footer_email'] = 'site15-after-gallery@example.invalid'
++        self.assertEqual(self.client.post(self.url, data).status_code, 302)
++
++    def test_invalid_email_retains_baseline_for_explicit_valid_retry(self):
++        data = self.payload()
++        data['footer_email'] = 'invalid-email'
++        before = self.snapshot()
++        self.assertEqual(self.client.post(self.url, data).status_code, 200)
++        self.assertEqual(self.snapshot(), before)
++        data['footer_email'] = 'site15-valid-retry@example.invalid'
++        self.assertEqual(self.client.post(self.url, data).status_code, 302)
++
++    def test_stale_uploaded_file_is_not_stored_and_requires_reselection(self):
++        url = reverse('admin:catalog_sitebrandingsettings_change', args=[self.site.pk])
++        data = self.payload(url)
++        self.first_save()
++        data['logo'] = self.image()
++        response = self.assert_conflict(data, url)
++        self.assertContains(response, 'Выбранные файлы', status_code=409)
++
++    def test_stale_upload_preview_uses_current_stored_file(self):
++        url = reverse('admin:catalog_sitebrandingsettings_change', args=[self.site.pk])
++        self.site.logo = self.image()
++        self.site.save()
++        stored_name = self.site.logo.name
++        data = self.payload(url)
++        self.first_save()
++        data['logo'] = self.image()
++        response = self.assert_conflict(data, url)
++        self.assertEqual(response.context['original'].logo.name, stored_name)
++
++    def test_draft_html_is_escaped_in_conflict_response(self):
++        data = self.payload()
++        self.first_save()
++        data['footer_phone'] = '<script>alert("site15")</script>'
++        response = self.assert_conflict(data)
++        self.assertNotContains(response, '<script>alert("site15")</script>', status_code=409)
++        self.assertContains(response, '&lt;script&gt;', status_code=409)
++
++    def test_update_without_timestamp_still_invalidates_full_row_snapshot(self):
++        data = self.payload()
++        SiteSettings.objects.filter(pk=self.site.pk).update(footer_phone='+994500001577')
++        data['footer_email'] = 'site15-no-timestamp@example.invalid'
++        self.assert_conflict(data)
++
++    def test_permission_denial_precedes_any_revision_write(self):
++        data = self.payload()
++        user = get_user_model().objects.create_user('site15_denied', 'site15-denied@example.invalid', is_staff=True)
++        self.client.force_login(user)
++        before = self.snapshot()
++        self.assertEqual(self.client.post(self.url, data).status_code, 403)
++        self.assertEqual(self.snapshot(), before)
++
++    def test_csrf_is_required_with_a_valid_revision(self):
++        client = Client(enforce_csrf_checks=True)
++        client.force_login(self.actor)
++        data = self.payload(client=client)
++        before = self.snapshot()
++        self.assertEqual(client.post(self.url, data).status_code, 403)
++        self.assertEqual(self.snapshot(), before)
++
++
++class Site15ConcurrentSettingsTests(Site15FixtureMixin, TransactionTestCase):
++    def test_two_concurrent_forms_have_exactly_one_winner(self):
++        data = self.payload()
++        barrier = threading.Barrier(2)
++
++        def submit(email):
++            close_old_connections()
++            try:
++                client = Client()
++                client.force_login(self.actor)
++                barrier.wait(timeout=10)
++                return client.post(self.url, {**data, 'footer_email': email}).status_code
++            finally:
++                close_old_connections()
++
++        with ThreadPoolExecutor(max_workers=2) as pool:
++            futures = [pool.submit(submit, email) for email in
++                       ['site15-concurrent-a@example.invalid', 'site15-concurrent-b@example.invalid']]
++            statuses = [f.result(timeout=20) for f in futures]
++        self.assertEqual(sorted(statuses), [302, 409])
+--- a/src/catalog/templates/admin/catalog/shared_settings_change_form.html
++++ b/src/catalog/templates/admin/catalog/shared_settings_change_form.html
+@@ -21,6 +21,7 @@
+       novalidate
+     >
+       {% csrf_token %}
++      {% if km_settings_revision_enabled %}<input type="hidden" name="settings_revision" value="{{ km_settings_revision }}">{% endif %}
+       {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+       {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+ 
+@@ -46,16 +47,26 @@
+         </header>
+ 
+         {% if errors %}
+-          <div class="km-place-form-alert km-place-form-alert--danger">
+-            <strong>{% translate "Форма содержит ошибки" %}.</strong>
+-            <span>
+-              {% blocktranslate count counter=errors|length %}
+-                Исправьте проблему ниже и сохраните карточку ещё раз.
+-              {% plural %}
+-                Исправьте проблемы ниже и сохраните карточку ещё раз.
+-              {% endblocktranslate %}
+-            </span>
+-            {{ adminform.form.non_field_errors }}
++          <div class="km-place-form-alert km-place-form-alert--danger"{% if km_settings_conflict %} role="alert" tabindex="-1" autofocus{% endif %}>
++            {% if km_settings_conflict %}
++              <span class="km-place-form-alert__icon" aria-hidden="true">!</span>
++              <div class="km-place-form-alert__content">
++                <strong class="km-place-form-alert__heading">{% translate "Форма содержит ошибки" %}.</strong>
++                {{ adminform.form.non_field_errors }}
++                <p class="km-place-form-alert__description"><a href="{{ km_settings_current_url }}" target="_blank" rel="noopener noreferrer">{% translate "Открыть текущую версию в новой вкладке" %}</a></p>
++                {% if km_settings_reselect_files %}<p class="km-place-form-alert__description">{% translate "Выбранные файлы нужно выбрать заново перед повторным сохранением." %}</p>{% endif %}
++              </div>
++            {% else %}
++              <strong>{% translate "Форма содержит ошибки" %}.</strong>
++              <span>
++                {% blocktranslate count counter=errors|length %}
++                  Исправьте проблему ниже и сохраните карточку ещё раз.
++                {% plural %}
++                  Исправьте проблемы ниже и сохраните карточку ещё раз.
++                {% endblocktranslate %}
++              </span>
++              {{ adminform.form.non_field_errors }}
++            {% endif %}
+           </div>
+         {% endif %}
+ 

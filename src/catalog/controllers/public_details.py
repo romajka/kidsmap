@@ -1,7 +1,7 @@
 """Public approved Organization and concrete Place Activity pages."""
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_safe
 from catalog.models import Organization, Activity, PlaceReview, ActivityReview
 from catalog.services.content_quality import published_place_queryset, public_review_queryset
 from catalog.services.public_presentation import present, current_organization, translated
@@ -13,7 +13,7 @@ def _language(request):
     return getattr(request, 'LANGUAGE_CODE', 'az')
 
 
-@require_GET
+@require_safe
 def organization_detail(request, public_id):
     from catalog.services.features import require_organizations_section_enabled
     require_organizations_section_enabled()
@@ -132,7 +132,7 @@ def organization_detail(request, public_id):
             entity.organized_events.filter(
                 status='published',
                 deleted_at__isnull=True,
-                occurrence_state='scheduled',
+                occurrence_state__in=('scheduled', 'rescheduled'),
                 end_datetime__gte=timezone.now(),
             )
             .select_related('related_place')
@@ -172,10 +172,10 @@ def organization_detail(request, public_id):
         'events_section_enabled':events_enabled,
         'programs':programs,
         'review_feed':feed,
-        **build_public_entity_seo_payload(entity, request, lang)})
+        **build_public_entity_seo_payload(entity, request, lang, image_url=hero_image_url)})
 
 
-@require_GET
+@require_safe
 def activity_detail(request, pk):
     entity = get_object_or_404(Activity.objects.select_related('place__category','place__organization','program__organization'), pk=pk)
     data = present(entity, _language(request))

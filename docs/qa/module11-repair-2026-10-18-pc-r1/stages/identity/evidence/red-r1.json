@@ -1,0 +1,54 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m11full-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m11-full-r1/runtime.py",
+    "test",
+    "test_m11_identity_candidate",
+    "catalog.testcases.test_module11_routes",
+    "catalog.testcases.test_module11_seo"
+  ],
+  "exit": 1,
+  "fresh_own_test_db": "test_m11full_identity_red_r1",
+  "test_ids": [
+    "test_m11_identity_candidate.SpecialistStableIdentityTests.test_existing_admin_slug_is_readonly_but_creation_can_choose_it",
+    "test_m11_identity_candidate.SpecialistStableIdentityTests.test_existing_slug_cannot_be_cleared_and_regenerated",
+    "test_m11_identity_candidate.SpecialistStableIdentityTests.test_existing_slug_change_is_rejected_before_save",
+    "test_m11_identity_candidate.SpecialistStableIdentityTests.test_inactive_profile_remains_private_at_stable_address",
+    "test_m11_identity_candidate.SpecialistStableIdentityTests.test_model_validation_reports_changed_slug",
+    "test_m11_identity_candidate.SpecialistStableIdentityTests.test_new_profile_can_have_a_chosen_slug",
+    "test_m11_identity_candidate.SpecialistStableIdentityTests.test_partial_unrelated_save_does_not_write_dirty_slug",
+    "test_m11_identity_candidate.SpecialistStableIdentityTests.test_repeated_name_changes_preserve_all_language_public_urls",
+    "catalog.testcases.test_module11_routes.EventSitemapTests.test_event_sitemap_has_current_language_alternates_and_lastmod",
+    "catalog.testcases.test_module11_routes.EventSitemapTests.test_hidden_or_deleted_events_and_section_off_are_excluded",
+    "catalog.testcases.test_module11_routes.EventSitemapTests.test_public_event_is_in_sitemap_in_three_languages",
+    "catalog.testcases.test_module11_routes.EventSitemapTests.test_valid_past_cancelled_and_rescheduled_public_occurrences_remain_listed",
+    "catalog.testcases.test_module11_routes.PublicHeadTests.test_head_keeps_visibility_guards",
+    "catalog.testcases.test_module11_routes.PublicHeadTests.test_public_head_matches_get_status_and_content_type_without_body",
+    "catalog.testcases.test_module11_routes.PublicHeadTests.test_unsafe_methods_stay_forbidden_and_get_keeps_payload",
+    "catalog.testcases.test_module11_routes.SpecialistLandmarksTests.test_specialist_has_one_main_without_losing_profile_content",
+    "catalog.testcases.test_module11_seo.ContentEditorTests.test_current_editor_loads_for_superuser_in_three_languages",
+    "catalog.testcases.test_module11_seo.ContentEditorTests.test_editor_denial_remains_for_ungranted_staff",
+    "catalog.testcases.test_module11_seo.SocialMetadataTests.test_event_social_image_uses_actual_uploaded_photo",
+    "catalog.testcases.test_module11_seo.SocialMetadataTests.test_event_without_photo_keeps_absolute_default_image",
+    "catalog.testcases.test_module11_seo.SocialMetadataTests.test_other_existing_entity_social_titles_are_preserved",
+    "catalog.testcases.test_module11_seo.SocialMetadataTests.test_private_entities_do_not_expose_their_metadata",
+    "catalog.testcases.test_module11_seo.SocialMetadataTests.test_social_description_attributes_escape_untrusted_quotes",
+    "catalog.testcases.test_module11_seo.SocialMetadataTests.test_social_descriptions_match_each_entity_own_meta_description",
+    "catalog.testcases.test_module11_seo.SocialMetadataTests.test_specialist_social_titles_match_rendered_seo_title"
+  ],
+  "failures": [
+    "test_existing_admin_slug_is_readonly_but_creation_can_choose_it (test_m11_identity_candidate.SpecialistStableIdentityTests.test_existing_admin_slug_is_readonly_but_creation_can_choose_it)",
+    "test_existing_slug_cannot_be_cleared_and_regenerated (test_m11_identity_candidate.SpecialistStableIdentityTests.test_existing_slug_cannot_be_cleared_and_regenerated)",
+    "test_existing_slug_change_is_rejected_before_save (test_m11_identity_candidate.SpecialistStableIdentityTests.test_existing_slug_change_is_rejected_before_save)",
+    "test_model_validation_reports_changed_slug (test_m11_identity_candidate.SpecialistStableIdentityTests.test_model_validation_reports_changed_slug)"
+  ],
+  "errors": [],
+  "summary": [
+    "Found 25 test(s).",
+    "Ran 25 tests in 20.244s",
+    "FAILED (failures=4)"
+  ]
+}

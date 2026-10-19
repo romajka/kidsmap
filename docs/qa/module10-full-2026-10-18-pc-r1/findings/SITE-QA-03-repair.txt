@@ -1,0 +1,5 @@
+SITE-QA-03 (P2) — Редактируемый текст контактов не выводится.
+Прочитать текущие AGENTS/canonical orchestrator и свежий docs/qa/module10-full-2026-10-18-pc-r1/findings/SITE-QA-03.md/evidence; проверить текущий dirty WORKTREE/source drift. Status: OPEN.
+Source hints: src/catalog/templates/pages/contacts.html:40; src/catalog/views.py:contacts. Root: Public template does not render configured site_contacts_text.
+Следующая задача: Согласовать место текста в UI и вывод трёх языков, проверить empty/fallback и реальные save→public.
+Сначала свежая bounded проверка, impact map и конкретный PLAN с файлами/тестами/рисками. Не применять app fix до одобрения scope. Approval предыдущих SOCIAL01–12 не переносится на SITE. Не повторять security writes вне собственной isolated testDB/media. DJANGO_TESTING=1, isolated cache/media/email/current3MO, no production credentials. Сохранить старые evidence/местные изменения/ref/index/active_runNONE; no reset/clean/stash/commit/push/deploy. Новый уникальный package, red/green if approved, native evidence and honest NOTRUN.

@@ -1,0 +1,31 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m10seq-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m10-seq-r1/runtime.py",
+    "test",
+    "test_site23_candidate"
+  ],
+  "exit": 1,
+  "fresh_own_test_db": "test_m10seq_23_red_r1",
+  "test_ids": [
+    "test_site23_candidate.Site23GalleryAddContinuationTests.test_add_only_continue_uses_permitted_destination_once",
+    "test_site23_candidate.Site23GalleryAddContinuationTests.test_editor_continue_keeps_object_editor",
+    "test_site23_candidate.Site23GalleryAddContinuationTests.test_popup_response_stays_a_popup",
+    "test_site23_candidate.Site23GalleryAddContinuationTests.test_save_exit_and_denied_post_keep_their_boundaries",
+    "test_site23_candidate.Site23GalleryAddContinuationTests.test_view_and_add_can_continue_to_readonly_object"
+  ],
+  "failures": [
+    "test_add_only_continue_uses_permitted_destination_once (test_site23_candidate.Site23GalleryAddContinuationTests.test_add_only_continue_uses_permitted_destination_once) (lang='az')",
+    "test_add_only_continue_uses_permitted_destination_once (test_site23_candidate.Site23GalleryAddContinuationTests.test_add_only_continue_uses_permitted_destination_once) (lang='ru')",
+    "test_add_only_continue_uses_permitted_destination_once (test_site23_candidate.Site23GalleryAddContinuationTests.test_add_only_continue_uses_permitted_destination_once) (lang='en')"
+  ],
+  "errors": [],
+  "summary": [
+    "Found 5 test(s).",
+    "Ran 5 tests in 2.109s",
+    "FAILED (failures=3)"
+  ]
+}

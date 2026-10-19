@@ -1,0 +1,101 @@
+{
+  "rows": [
+    {
+      "id": "partial-draft-step1",
+      "checks": {
+        "ok": true
+      },
+      "detail": {
+        "edit": "http://127.0.0.1:33810/ru/account/places/events/4/edit/",
+        "id": 4
+      }
+    },
+    {
+      "id": "reload-step1",
+      "checks": {
+        "ok": true
+      },
+      "detail": {}
+    },
+    {
+      "id": "draft-step2-reload",
+      "checks": {
+        "ok": true
+      },
+      "detail": {}
+    },
+    {
+      "id": "draft-step3-photo-reload",
+      "checks": {
+        "ok": true
+      },
+      "detail": {}
+    },
+    {
+      "id": "incomplete-submit-errors",
+      "checks": {
+        "ok": true
+      },
+      "detail": {}
+    },
+    {
+      "id": "format-toggle-retains-address",
+      "checks": {
+        "ok": true
+      },
+      "detail": {}
+    },
+    {
+      "id": "send-for-review",
+      "checks": {
+        "ok": true
+      },
+      "detail": {}
+    },
+    {
+      "id": "admin-pending",
+      "checks": {
+        "ok": true
+      },
+      "detail": {}
+    },
+    {
+      "id": "rejection-reload",
+      "checks": {
+        "ok": true
+      },
+      "detail": {}
+    },
+    {
+      "id": "owner-rejection-visible",
+      "checks": {
+        "ok": true
+      },
+      "detail": {}
+    },
+    {
+      "id": "resubmit",
+      "checks": {
+        "ok": true
+      },
+      "detail": {}
+    },
+    {
+      "id": "resubmit-pending",
+      "checks": {
+        "ok": true
+      },
+      "detail": {}
+    },
+    {
+      "id": "approve-published",
+      "checks": {
+        "ok": true
+      },
+      "detail": {}
+    }
+  ],
+  "error": "Error: locator.getAttribute: Error: strict mode violation: locator('[data-main-photo-root] a') resolved to 2 elements:\n    1) <a href=\"/media/events/event-photo_gWDIE1l_sclR9W5.webp\">events/event-photo_gWDIE1l_sclR9W5.webp</a> aka locator('a').filter({ hasText: 'events/event-' })\n    2) <a rel=\"noopener\" target=\"_blank\" class=\"km-media-main__view\" href=\"/ru/event/4-uydurma-module13-gece-festivali/\">\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u043a\u0430\u043a \u043d\u0430 \u0441\u0430\u0439\u0442\u0435</a> aka getByRole('link', { name: '\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u043a\u0430\u043a \u043d\u0430 \u0441\u0430\u0439\u0442\u0435' })\n\nCall log:\n\u001b[2m  - waiting for locator('[data-main-photo-root] a')\u001b[22m\n",
+  "consoleRows": [],
+  "network": []
+}

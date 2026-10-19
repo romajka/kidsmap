@@ -1,0 +1,56 @@
+[
+  {
+    "command": [
+      "python3",
+      "/mnt/c/kidsmap/docs/qa/site-qa06-fix-2026-10-18-pc-r1/browser_driver.py",
+      "browser-final-permissions.js"
+    ],
+    "exit": 0,
+    "stdout": "{\n  \"script\": \"browser-final-permissions.js\",\n  \"exit\": 0,\n  \"rows\": 35,\n  \"checks\": 76,\n  \"pass\": 76,\n  \"fail\": 0,\n  \"failed_rows\": [],\n  \"pageerrors\": [],\n  \"error\": null\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "/mnt/c/kidsmap/docs/qa/site-qa06-fix-2026-10-18-pc-r1/browser_driver.py",
+      "browser-concurrency.js"
+    ],
+    "exit": 0,
+    "stdout": "{\n  \"script\": \"browser-concurrency.js\",\n  \"exit\": 0,\n  \"rows\": 12,\n  \"checks\": 48,\n  \"pass\": 48,\n  \"fail\": 0,\n  \"failed_rows\": [],\n  \"pageerrors\": [],\n  \"error\": null\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "m10s06-fix-r1-app",
+      "python",
+      "/mnt/c/kidsmap/docs/qa/site-qa06-fix-2026-10-18-pc-r1/seed_legacy.py"
+    ],
+    "exit": 0,
+    "stdout": "{\"owned_legacy_fixture_seeded\": true, \"not_new_upload_ingress\": true}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "/mnt/c/kidsmap/docs/qa/site-qa06-fix-2026-10-18-pc-r1/browser_driver.py",
+      "browser-legacy.js"
+    ],
+    "exit": 0,
+    "stdout": "{\n  \"script\": \"browser-legacy.js\",\n  \"exit\": 0,\n  \"rows\": 3,\n  \"checks\": 10,\n  \"pass\": 10,\n  \"fail\": 0,\n  \"failed_rows\": [],\n  \"pageerrors\": [],\n  \"error\": null\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "m10s06-fix-r1-app",
+      "python",
+      "/mnt/c/kidsmap/docs/qa/site-qa06-fix-2026-10-18-pc-r1/export_owned_media.py"
+    ],
+    "exit": 0,
+    "stdout": "{\"owned_final_media_exported\": 530, \"all_SHA_equal\": true, \"source_retained\": true}\n",
+    "stderr": ""
+  }
+]

@@ -1,0 +1,49 @@
+{
+  "synthetic_only": true,
+  "specialist_id": 2,
+  "cases": {
+    "az": {
+      "user_id": 43,
+      "head_id": 2,
+      "current_revision_id": 5,
+      "public_text": "QA11 PUBLIC C az",
+      "candidate_a": "QA11 CANDIDATE A az",
+      "draft_b": "QA11 DRAFT B az"
+    },
+    "ru": {
+      "user_id": 44,
+      "head_id": 3,
+      "current_revision_id": 6,
+      "public_text": "QA11 PUBLIC C ru",
+      "candidate_a": "QA11 CANDIDATE A ru",
+      "draft_b": "QA11 DRAFT B ru"
+    },
+    "en": {
+      "user_id": 45,
+      "head_id": 4,
+      "current_revision_id": 7,
+      "public_text": "QA11 PUBLIC C en",
+      "candidate_a": "QA11 CANDIDATE A en",
+      "draft_b": "QA11 DRAFT B en"
+    }
+  },
+  "revoked": {
+    "notice_id": 6,
+    "invitation_id": 2,
+    "status": "CANCELED"
+  },
+  "business_counts_before_seed": {
+    "notifications": 18,
+    "unread": 17,
+    "outbox": 15,
+    "memberships": 5,
+    "grants": 3
+  },
+  "business_counts_after_seed": {
+    "notifications": 18,
+    "unread": 17,
+    "outbox": 15,
+    "memberships": 5,
+    "grants": 3
+  }
+}

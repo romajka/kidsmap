@@ -1,0 +1,121 @@
+{
+  "utc": "2026-10-18T10:44:45.228764+00:00",
+  "status": "SITE-QA-19/P2 CLOSED LOCAL",
+  "application_files": 2,
+  "exact_approved_hashes": {
+    "src/catalog/models/site.py": "e1532a1948a3910eb95a98a508269cae1e45ad033b366f0e9c8b1cbcd234ce94",
+    "src/catalog/testcases/test_site_qa19_catalog_content.py": "26615cdfae74ef3bf038d436b0778c1e3b1a1a4148cc3206c3018b3ee3c9be8d"
+  },
+  "source_count": 1032,
+  "existing_unchanged": 1030,
+  "existing_changed": 1,
+  "new_sources": 1,
+  "backend": {
+    "red_methods": 20,
+    "red_failed_methods": 7,
+    "red_failure_observations": 28,
+    "red_errors": 0,
+    "green_methods": 105,
+    "green_failure_observations": 0,
+    "green_errors": 0,
+    "green_exit": 0,
+    "green_summary": [
+      "Found 105 test(s).",
+      "Ran 105 tests in 35.437s",
+      "OK"
+    ]
+  },
+  "native": {
+    "browser-matrix": {
+      "rows": 36,
+      "checks": 222,
+      "pass": 222,
+      "fail": 0,
+      "pageerrors": 0,
+      "unexpected_local_http": 0,
+      "expected403": 6,
+      "console_diagnostics": 66,
+      "blocked_external": 60
+    },
+    "browser-flows-final": {
+      "rows": 48,
+      "checks": 354,
+      "pass": 354,
+      "fail": 0,
+      "pageerrors": 0,
+      "unexpected_local_http": 0,
+      "expected403": 0,
+      "console_diagnostics": 156,
+      "blocked_external": 156
+    },
+    "browser-mobile-errors": {
+      "rows": 6,
+      "checks": 30,
+      "pass": 30,
+      "fail": 0,
+      "pageerrors": 0,
+      "unexpected_local_http": 0,
+      "expected403": 0,
+      "console_diagnostics": "not collected",
+      "blocked_external": 12
+    }
+  },
+  "accepted_native_functional_checks": 606,
+  "initial_native_harness": {
+    "rows": 48,
+    "pass": 304,
+    "fail": 20,
+    "only_failed_check": "localized_log",
+    "cause": "QA helper defaultAZ vs admin cookie language, strict per-language expected value corrected; application unchanged"
+  },
+  "separate_open_findings": {
+    "SITE20": {
+      "priority": "P3",
+      "native_rows": 3,
+      "expected_failure_checks": 3,
+      "permission_no_write_controls_pass": 6
+    },
+    "SITE21": {
+      "priority": "P2",
+      "native_rows": 6,
+      "derived_visible_card_failure_checks": 12,
+      "minimal_CSS_root_fix": "UNCONFIRMED"
+    }
+  },
+  "png": 150,
+  "static": {
+    "105unique_test_ids": true,
+    "fields_Meta_AST_unchanged": true,
+    "str_queries": 0,
+    "current3PO_verified": true,
+    "own_isolation_verified": true,
+    "git_reverse_apply_check_exit": 0,
+    "native_git_diff_check_exit": 0
+  },
+  "preservation": {
+    "prior_packages": 30,
+    "prior_files": 5944,
+    "1030other_existing_sources": true,
+    "shared_MO": true,
+    "cbmignore": true,
+    "refs_index_bytes_empty_staging": true,
+    "active_run_NONE": true,
+    "foreign_container_identities_states": 66,
+    "original_synthetic_JSON_restored_native": true
+  },
+  "git": {
+    "head": "852938d96764ae315b92859e3651e5ea62054a36",
+    "branch": "codex/module09-transfer-2026-10-16-r1",
+    "task33_ref": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+    "index_sha256": "b45c562cb2c4cc7ea04de5664e3ef09a2c7bf9728e17cc55ddcb74551543a171"
+  },
+  "module10": "15canonical OPEN (11P2/4P3)=14entry-SITE19+SITE20+SITE21; full acceptance pending",
+  "closed_local_retained": [
+    "SITE01",
+    "SITE15",
+    "SITE06",
+    "module09 composite"
+  ],
+  "execution": "inline; no independent-agent claim",
+  "production_global_release": "NOT RUN"
+}

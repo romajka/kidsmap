@@ -14,6 +14,11 @@ from django.shortcuts import render
 from django.contrib.sitemaps.views import sitemap as django_sitemap
 
 
+def public_not_found(request, exception):
+    """Keep missing-page recovery localized without exposing exception details."""
+    return render(request, "pages/public_unavailable.html", status=404)
+
+
 def sitemap_xsl(request):
     """Render sitemap.xsl stylesheet for browser rendering."""
     return render(request, "sitemap.xsl", content_type="text/xml; charset=utf-8")

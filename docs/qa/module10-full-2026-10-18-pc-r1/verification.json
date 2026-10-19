@@ -1,0 +1,42 @@
+{
+  "utc": "2026-10-18T00:32:03.315530+00:00",
+  "status": "AUDIT COMPLETE / MODULE10 OPEN ACCEPT FAIL",
+  "application_files_changed": 0,
+  "open_findings": 16,
+  "P1": 1,
+  "P2": 12,
+  "P3": 3,
+  "historical_not_reproduced": [
+    "SITE-QA-07",
+    "SITE-QA-13"
+  ],
+  "backend_unique_methods_pass": 124,
+  "backend_executions": 125,
+  "png": 324,
+  "source_files_unchanged": 1027,
+  "prior_packages_preserved": 21,
+  "scope_checks": {
+    "DJANGO_TESTING": true,
+    "own_database": true,
+    "own_test_database": true,
+    "isolated_locales": true,
+    "own_media": true,
+    "own_private_media": true,
+    "locmem_email": true,
+    "locmem_cache": true,
+    "external_analytics_off": true,
+    "git_preserved": true,
+    "source_preserved": true,
+    "prior21preserved": true,
+    "guide_append_only": true,
+    "master_append_only": true,
+    "png_signatures_and_hashes": true,
+    "activeNONE": true
+  },
+  "all_preservation_checks_pass": true,
+  "all_application_acceptance_checks_pass": false,
+  "module09": "CLOSED LOCAL composite scoped evidence retained",
+  "module11": "NOT STARTED",
+  "production_global_release": "NOT RUN",
+  "artifact_files_manifested": 467
+}

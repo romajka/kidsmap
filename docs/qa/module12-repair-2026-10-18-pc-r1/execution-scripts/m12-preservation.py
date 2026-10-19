@@ -1,0 +1,22 @@
+import json,hashlib,re,subprocess
+from pathlib import Path
+R=Path('/mnt/c/kidsmap');O=R/'docs/qa/module12-repair-2026-10-18-pc-r1';Q=R/'.tmp/m12-full-r1';read=lambda p:json.loads(p.read_text());sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();entry=read(O/'source-entry.json');current=read(Q/'expected-source.json')['sources'];assert all(sha(R/p)==h for p,h in current.items());approved=set()
+for patch in (O/'stages').rglob('implemented.diff'):approved.update(re.findall(r'^\+\+\+ b/(.+)$',patch.read_text(),re.M))
+changed={p:{'before':entry['sources'].get(p),'after':h} for p,h in current.items() if entry['sources'].get(p)!=h};assert set(changed)<=approved;assert all(current[p]==h for p,h in entry['sources'].items() if p.startswith('src/catalog/testcases/'))
+for package,files in entry['prior_packages'].items():
+ folder=R/'docs/qa'/package;assert {p.relative_to(folder).as_posix() for p in folder.rglob('*') if p.is_file()}==set(files),package;assert all(sha(folder/p)==h for p,h in files.items()),package
+git=lambda *args:subprocess.check_output(['/mnt/c/Program Files/Git/cmd/git.exe','-C','C:/kidsmap',*args],text=True).strip();g={'head':git('rev-parse','HEAD'),'branch':git('branch','--show-current'),'task33_ref':git('rev-parse','task33-progress'),'index_sha256':sha(R/'.git/index')};assert g==entry['git'] and not git('diff','--cached','--name-only');assert sha(R/'.cbmignore')==entry['cbmignore'];assert all(sha(R/p)==h for p,h in entry['shared_mo'].items());assert re.search(r'^active_run: NONE$',(R/'docs/task33/implementation-status.md').read_text(),re.M)
+assert all(sha(R/p)==h for p,h in read(O/'document-current.json').items());containers=subprocess.check_output(['docker','ps','-a','--format','{{.ID}} {{.Names}} {{.State}}'],text=True).splitlines();current_containers={line.split()[1]:line.split() for line in containers};transitions=[]
+for previous in entry['containers']:
+ fields=previous.split();actual=current_containers[fields[1]];assert actual[:2]==fields[:2]
+ if actual[2]!=fields[2]:
+  assert fields[1] in ['m09s10-fix-r1-app','m09s10-plan-r1-app','m09full-r1-socket-app','m09full-r1-app'] and fields[2]=='running' and actual[2]=='exited'
+  meta=json.loads(subprocess.check_output(['docker','inspect',fields[1],'--format','{"exit":{{.State.ExitCode}},"oom":{{.State.OOMKilled}},"started":{{json .State.StartedAt}},"finished":{{json .State.FinishedAt}},"entry":{{json .Config.Entrypoint}},"cmd":{{json .Config.Cmd}}}'],text=True))
+  from datetime import datetime
+  duration=(datetime.fromisoformat(meta['finished'].replace('Z','+00:00'))-datetime.fromisoformat(meta['started'].replace('Z','+00:00'))).total_seconds();assert meta['exit']==0 and not meta['oom'] and meta['entry']==['python'] and meta['cmd']==['-c','import time; time.sleep(86400)'] and duration>=86400
+  transitions.append({'name':fields[1],'identity_preserved':True,'transition':'running→exited','exit':0,'OOM':False,'duration_seconds':duration,'configured_lifetime_seconds':86400,'explanation':'Original Python sleep(86400) PID1 lifetime elapsed; no task stop/restart/recreate or cleanup. Foreign data/volumes left untouched.'})
+(O/'evidence/foreign-runtime-transitions.json').write_text(json.dumps(transitions,indent=2))
+p=subprocess.run(['/mnt/c/Program Files/Git/cmd/git.exe','-C','C:/kidsmap','diff','--check','--',*changed],capture_output=True,text=True);assert p.returncode==0,p.stderr
+for path in changed:
+ if path.endswith('.py'):compile((R/path).read_text(),path,'exec')
+(O/'source-current.json').write_text(json.dumps({'sources':current,'changes':changed,'git':g},indent=2));result={'status':'PASS source/artifact preservation; documented natural runtime expirations','sources_checked':len(current),'original_sources':len(entry['sources']),'changed_or_added':len(changed),'all_changes_planned':True,'all_original_test_sources_unchanged':True,'prior_packages':len(entry['prior_packages']),'prior_files':sum(map(len,entry['prior_packages'].values())),'prior_hashes_and_sets_unchanged':True,'git':g,'entry_refs_index_empty_staging_preserved':True,'shared_MO_cbmignore_active_run_preserved':True,'foreign_container_identity_preserved':True,'foreign_states_unchanged':not transitions,'documented_86400s_expirations':len(transitions),'python_syntax':'PASS','whitespace_exit':p.returncode,'production':'NOT TOUCHED'};(O/'evidence/preservation.json').write_text(json.dumps(result,indent=2));print(json.dumps(result,indent=2))

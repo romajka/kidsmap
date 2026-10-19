@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% get_current_language as CURRENT_LANGUAGE %}
+
+{% block title %}{% if CURRENT_LANGUAGE == "az" %}Məkan analitikası{% elif CURRENT_LANGUAGE == "en" %}Place analytics{% else %}Аналитика места{% endif %}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=20260913_analytics_visual" />{% endblock %}
+{% block content %}
+<div class="account-page-wrapper owner-analytics">
+  <a class="owner-analytics__back" href="{% url 'owner_places_dashboard' %}">
+    <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
+    <span>{% if CURRENT_LANGUAGE == "az" %}Məkanlarıma{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</span>
+  </a>
+  <header class="owner-analytics__header">
+    <div>
+      <p class="owner-analytics__eyebrow">KidsMap Analytics</p>
+      <h1>{{ place.name_i18n }}</h1>
+    </div>
+    <p class="owner-analytics__period">
+      <span class="material-symbols-rounded" aria-hidden="true">date_range</span>
+      <span>{% if CURRENT_LANGUAGE == "az" %}Son 30 gün{% elif CURRENT_LANGUAGE == "en" %}Last 30 days{% else %}Последние 30 дней{% endif %}</span>
+    </p>
+  </header>
+  {% if not metrics.available %}
+    <section class="owner-analytics__notice" role="status">
+      <span class="material-symbols-rounded" aria-hidden="true">info</span>
+      <span>{% if CURRENT_LANGUAGE == "az" %}Bu dövr üçün məlumatların toplanması aktiv deyil.{% elif CURRENT_LANGUAGE == "en" %}Data collection is unavailable for this period.{% else %}Сбор данных за этот период недоступен или ещё не включён.{% endif %}</span>
+    </section>
+  {% else %}
+    <section class="owner-analytics__grid" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Məkan göstəriciləri{% elif CURRENT_LANGUAGE == 'en' %}Place metrics{% else %}Метрики места{% endif %}">
+      <article>
+        <span class="owner-analytics__metric-icon material-symbols-rounded" aria-hidden="true">visibility</span>
+        <div><span>{% if CURRENT_LANGUAGE == "az" %}Baxışlar{% elif CURRENT_LANGUAGE == "en" %}Views{% else %}Просмотры{% endif %}</span><strong>{{ metrics.views }}</strong>{% if metrics.views_change_percent != None %}<small>{{ metrics.views_change_percent }}% {% if CURRENT_LANGUAGE == "en" %}vs previous period{% else %}к прошлому периоду{% endif %}</small>{% endif %}</div>
+      </article>
+      <article>
+        <span class="owner-analytics__metric-icon material-symbols-rounded" aria-hidden="true">group</span>
+        <div><span>{% if CURRENT_LANGUAGE == "az" %}Unikal ziyarətçilər{% elif CURRENT_LANGUAGE == "en" %}Unique visitors{% else %}Уникальные посетители{% endif %}</span><strong>{{ metrics.unique_visitors }}</strong></div>
+      </article>
+      <article class="owner-analytics__metric--favorites">
+        <span class="owner-analytics__metric-icon material-symbols-rounded" aria-hidden="true">favorite</span>
+        <div><span>{% if CURRENT_LANGUAGE == "az" %}Məkanı saxlayan istifadəçilər{% elif CURRENT_LANGUAGE == "en" %}Users who saved this Place{% else %}Пользователи, сохранившие место{% endif %}</span><strong>{{ metrics.favorites }}</strong></div>
+      </article>
+      <article>
+        <span class="owner-analytics__metric-icon material-symbols-rounded" aria-hidden="true">touch_app</span>
+        <div><span>{% if CURRENT_LANGUAGE == "az" %}Əlaqə hərəkətləri{% elif CURRENT_LANGUAGE == "en" %}Contact actions{% else %}Контактные действия{% endif %}</span><strong>{{ metrics.contact_actions }}</strong>{% if metrics.contact_actions_change_percent != None %}<small>{{ metrics.contact_actions_change_percent }}% {% if CURRENT_LANGUAGE == "en" %}vs previous period{% else %}к прошлому периоду{% endif %}</small>{% endif %}</div>
+      </article>
+      <article>
+        <span class="owner-analytics__metric-icon material-symbols-rounded" aria-hidden="true">route</span>
+        <div><span>{% if CURRENT_LANGUAGE == "az" %}Marşrutlar{% elif CURRENT_LANGUAGE == "en" %}Directions{% else %}Маршруты{% endif %}</span><strong>{{ metrics.directions }}</strong></div>
+      </article>
+    </section>
+    <p class="owner-analytics__meta">
+      <span class="material-symbols-rounded" aria-hidden="true">verified</span>
+      <span>{% if collection_started_at %}{% if CURRENT_LANGUAGE == "az" %}Etibarlı məlumatların toplanması{% elif CURRENT_LANGUAGE == "en" %}Reliable collection since{% else %}Надёжный сбор с{% endif %} {{ collection_started_at|date:"d.m.Y H:i" }} · {% endif %}{% if CURRENT_LANGUAGE == "az" %}Yenilənib{% elif CURRENT_LANGUAGE == "en" %}Updated{% else %}Обновлено{% endif %} {{ analytics_last_updated_at|date:"d.m.Y H:i" }}</span>
+    </p>
+  {% endif %}
+</div>
+{% endblock %}

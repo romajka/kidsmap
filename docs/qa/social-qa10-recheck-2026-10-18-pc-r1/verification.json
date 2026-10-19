@@ -1,0 +1,61 @@
+{
+  "utc": "2026-10-17T20:26:10.346047+00:00",
+  "status": "PLAN COMPLETE / SOCIAL-QA-10 OPEN / approval PENDING",
+  "application_changes": false,
+  "source_files": 1024,
+  "scope_app_files": 2,
+  "native_reproductions": 18,
+  "candidate_tests_methods": 8,
+  "candidate_failed_methods": 4,
+  "subtest_failures": 24,
+  "shared_passed_methods": 4,
+  "errors": 0,
+  "checks": {
+    "source1024_unchanged": true,
+    "shared_mo_unchanged": true,
+    "cbmignore_unchanged": true,
+    "git_refs_index_staged_unchanged": true,
+    "other_git_status_unchanged": true,
+    "active_none": true,
+    "prior15_packages_unchanged": true,
+    "previous_guide_bytes_preserved": true,
+    "own_current_mo_verified": true,
+    "all_entry_container_identities_preserved": true,
+    "verified_isolation": true,
+    "candidate_not_applied": true,
+    "exact_candidate_hashes": true,
+    "red_exit_and_native_confirmed": true,
+    "png18_verified": true,
+    "artifact_manifest_valid": true
+  },
+  "preservation_pass": true,
+  "prior_packages": {
+    "module09-pc-resume-2026-10-16-r1": true,
+    "social-qa03-fix-2026-10-16-pc-r1": true,
+    "social-qa04-fix-2026-10-17-pc-r1": true,
+    "social-qa04-recheck-2026-10-16-pc-r1": true,
+    "social-qa05-fix-2026-10-17-pc-r1": true,
+    "social-qa05-recheck-2026-10-17-pc-r1": true,
+    "social-qa06-fix-2026-10-17-pc-r1": true,
+    "social-qa06-recheck-2026-10-17-pc-r1": true,
+    "social-qa07-fix-2026-10-17-pc-r1": true,
+    "social-qa07-recheck-2026-10-17-pc-r1": true,
+    "social-qa08-recheck-2026-10-17-pc-r1": true,
+    "social-qa08-fix-2026-10-17-pc-r1": true,
+    "social-qa09-recheck-2026-10-17-pc-r1": true,
+    "social-qa09-fix-2026-10-17-pc-r1": true,
+    "module09-full-2026-10-17-pc-r1": true
+  },
+  "container_state_changes": [
+    {
+      "name": "m09s06-plan-r1-app",
+      "before": "running",
+      "after": "exited",
+      "cause": "UNKNOWN; agent did not stop/restart entry container"
+    }
+  ],
+  "artifact_files_excluding_manifest_verification": 57,
+  "GREEN": "NOT RUN",
+  "full_corpus_repeat": "NOT RUN",
+  "production": "NOT RUN"
+}

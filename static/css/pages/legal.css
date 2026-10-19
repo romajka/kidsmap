@@ -164,6 +164,7 @@
 }
 
 .legal-hero-content {
+  min-width: 0;
   position: relative;
   z-index: 2;
   display: flex;
@@ -173,6 +174,7 @@
 }
 
 .legal-hero-title {
+  overflow-wrap: anywhere;
   margin: 0;
   font-size: clamp(30px, 4vw, 44px);
   font-weight: 900;

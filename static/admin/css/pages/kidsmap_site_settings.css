@@ -189,3 +189,11 @@
     border-bottom: 0;
   }
 }
+
+/* Saved subsection messages are shown on the settings hub. */
+body:has(.km-site-settings-page) #content > .alert {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}

@@ -1,0 +1,14 @@
+### Result
+{"url":"chrome-error://chromewebdata/","title":"127.0.0.1","body":"Access to 127.0.0.1 was denied\n\nYou don't have authorization to view this page.\n\nHTTP ERROR 403","html":"<!DOCTYPE html><html dir=\"ltr\" lang=\"en\"><head>\n  <meta charset=\"utf-8\">\n  <meta name=\"color-scheme\" content=\"light dark\">\n  <meta name=\"theme-color\" content=\"#fff\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0,\n                                 maximum-scale=1.0, user-scala"}
+### Ran Playwright code
+```js
+await (async(page)=>({url:page.url(),title:await page.title(),body:(await page.locator('body').innerText()).slice(0,400),html:(await page.content()).slice(0,300)})
+)(page);
+```
+### Page
+- Page URL: chrome-error://chromewebdata/
+- Page Title: 127.0.0.1
+- HTTP status: 403 Forbidden
+- Console: 1 errors, 0 warnings
+### Events
+- New console entries: .tmp/social08-pc-plan-r1/browser/console-2026-10-17T03-33-14-170Z.log#L1

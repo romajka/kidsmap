@@ -1,0 +1,12 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "m10seq-r1-app",
+    "python",
+    "/mnt/c/kidsmap/.tmp/m10-seq-r1/runtime.py",
+    "migrate"
+  ],
+  "exit": 0,
+  "own_normal_DB_only": true
+}

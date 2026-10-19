@@ -5,7 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic.base import RedirectView
 
-from catalog.sitemaps import StaticViewSitemap, PlaceSitemap, SeoLandingSitemap, SpecialistSitemap, OrganizationSitemap, ActivitySitemap
+from catalog.sitemaps import StaticViewSitemap, PlaceSitemap, SeoLandingSitemap, SpecialistSitemap, OrganizationSitemap, ActivitySitemap, EventSitemap
 from catalog.views import admin_add_choice, place_pricing_api, catalog_search_suggestions
 from catalog.google_auth import google_login, google_callback
 from config.views import (
@@ -25,7 +25,10 @@ sitemaps = {
     "activities": ActivitySitemap,
     "seo": SeoLandingSitemap,
     "specialists": SpecialistSitemap,
+    "events": EventSitemap,
 }
+
+handler404 = "config.views.public_not_found"
 
 urlpatterns = [
     path("auth/google/", google_login, name="google_login"),

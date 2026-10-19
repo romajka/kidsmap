@@ -1,0 +1,29 @@
+--- a/static/css/pages/legal.css
++++ b/static/css/pages/legal.css
+@@ -164,6 +164,7 @@
+ }
+ 
+ .legal-hero-content {
++  min-width: 0;
+   position: relative;
+   z-index: 2;
+   display: flex;
+@@ -173,6 +174,7 @@
+ }
+ 
+ .legal-hero-title {
++  overflow-wrap: anywhere;
+   margin: 0;
+   font-size: clamp(30px, 4vw, 44px);
+   font-weight: 900;
+--- a/src/catalog/templates/pages/legal.html
++++ b/src/catalog/templates/pages/legal.html
+@@ -11,7 +11,7 @@
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+-  <link rel="stylesheet" href="{% static 'css/pages/legal.css' %}" />
++  <link rel="stylesheet" href="{% static 'css/pages/legal.css' %}?v=20261018_site17_r1" />
+ {% endblock %}
+ 
+ {% block content %}

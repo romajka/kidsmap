@@ -1,0 +1,1 @@
+CROSS04: preserve both existing safety contracts. QA04 profile stays /tmp; current isolated locale compiler output is a separate unique repository .tmp/quality-<profile.name>/locales. No compiler/path guard changes. Local read-only source container mounts only this new locale parent RW. CI host profile can create it directly.

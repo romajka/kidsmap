@@ -1,0 +1,54 @@
+{
+  "utc": "2026-10-18T08:47:36.719717+00:00",
+  "status": "SITE-QA-06/P2 CONFIRMED OPEN — PLAN READY / APPROVAL PENDING",
+  "application_changes": 0,
+  "candidate_applied": false,
+  "candidate_files": 7,
+  "source1029_unchanged": true,
+  "backend": {
+    "total_methods": 84,
+    "candidate_methods": 29,
+    "failed_candidate_methods": 21,
+    "candidate_pass": 8,
+    "existing_controls_pass": 55,
+    "failure_observations": 106,
+    "errors": 0,
+    "exit": 1
+  },
+  "native": {
+    "core_rows": 30,
+    "core_checks": 138,
+    "control_pass": 69,
+    "expected_red": 69,
+    "pageerrors": 0,
+    "unexpected_local_http": 0,
+    "blocked_external_requests": 42,
+    "console_diagnostics": 42,
+    "adjacent_generic_error_rows": 6,
+    "adjacent_checks": 18,
+    "adjacent_control_pass": 12,
+    "adjacent_heading_fail": 6
+  },
+  "png": 45,
+  "static": {
+    "candidate_python_template_compile": true,
+    "candidate3PO_compiled_verified": true,
+    "current_runtime_and_source_guard": true,
+    "git_apply_check_exit": 0,
+    "git_diff_check_exit": 0
+  },
+  "candidate_green": "NOT RUN; policy/scope approval pending",
+  "preservation": {
+    "prior_packages": 27,
+    "prior_files": 5353,
+    "shared_MO": true,
+    "cbmignore": true,
+    "refs_empty_index_bytes": true,
+    "active_run_NONE": true,
+    "foreign_container_identities_states": 63
+  },
+  "module10": "15canonicalOPEN (12P2/3P3); SITE06/SITE19 remain OPEN; SITE01/SITE15 closures retained; full acceptance pending",
+  "module09": "CLOSED LOCAL composite retained",
+  "production_global_release": "NOT RUN",
+  "execution": "inline, no independent agent claim"
+}

@@ -1,0 +1,24 @@
+{
+  "app": "m10seq-r1-app",
+  "container_id": "2ec4eaadb09d72aa8e8161f1a1d4aa86e0d0953b382a506b7eab9db115ea5c0a",
+  "normal_db": "m10seq_r1",
+  "first_test_db": "test_m10seq_red02_r1",
+  "loopback": 33640,
+  "source_count": 1035,
+  "prior_packages": 41,
+  "prior_files": 8514,
+  "current_locale_command": [
+    "python3",
+    "/mnt/c/kidsmap/scripts/build_isolated_locales.py",
+    "build",
+    "--source-locale",
+    "/mnt/c/kidsmap/locale",
+    "--output",
+    "/mnt/c/kidsmap/.tmp/m10-seq-r1/locales-current",
+    "--compiler",
+    "native"
+  ],
+  "locale_exit": 0,
+  "internal_network_PG_not_published": true,
+  "RO_source_ownRW_scratch": true
+}

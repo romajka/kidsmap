@@ -1,0 +1,21 @@
+{
+  "command": [
+    "git",
+    "apply",
+    "--check",
+    "proposed.diff"
+  ],
+  "exit": 0,
+  "stderr": "",
+  "candidate_test_AST": true,
+  "original_CRLF_preserved": true,
+  "application_changes": 0,
+  "newline_audit": {
+    "original_CRLF": 158,
+    "candidate_CRLF": 162,
+    "added_lines": 4,
+    "no_lone_LF": true,
+    "original_bytes_outside_exact_diff_preserved": true
+  },
+  "audit_correction": "Initial guessed +5 count was false; actual four inserted template lines independently audited. No candidate/assertion changes."
+}

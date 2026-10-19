@@ -1,0 +1,8 @@
+{
+  "application_changes": 0,
+  "first_result": "browser-permissions.json:16rows35checks30PASS5false permission assertions; then missing footer field timeout",
+  "actual_actor_state": "fixture-authority.json: proxy actor active/staff with only two footer permissions",
+  "fresh_context_control": "browser-proxy-fresh.json: same actor footer200/hub403",
+  "reproduced_cause": "browser-auth-race.json: after valid gallery upload then forced role switch, late media response deletes session cookie; actor lands on login page; cookie values never recorded",
+  "correction": "Fresh BrowserContext per fictional actor; old media responses cannot affect next actor. Also maxRedirects0 on API probes so authentication redirects cannot masquerade as200. Original permission/no-mutation expectations retained."
+}

@@ -1,0 +1,113 @@
+{
+  "decision": "SOCIAL-QA-07 CONFIRMED OPEN/P3; PLAN COMPLETE; implementation approval PENDING",
+  "application_changes": 0,
+  "proposal": {
+    "scope": [
+      "src/catalog/controllers/typed_reviews.py",
+      "src/catalog/testcases/test_social_qa07_activity_review_title.py"
+    ],
+    "applied": false,
+    "apply_check_exit": 0,
+    "candidate_python_AST": "PASS; no livecandidate execution"
+  },
+  "snapshot": {
+    "head": "852938d96764ae315b92859e3651e5ea62054a36",
+    "branch": "codex/module09-transfer-2026-10-16-r1",
+    "source_files": 1021,
+    "dirty_social03_06_retained": true
+  },
+  "native": {
+    "cells": 66,
+    "localized_activity_cells": 36,
+    "fallback_snapshot_cells": 12,
+    "shared_other_kind_cells": 18,
+    "controls_pass": 540,
+    "source_fail": 144,
+    "source_failed_cells": 48,
+    "PNG": 114,
+    "pageerrors": 0,
+    "http_failures": 0,
+    "request_failed": 0
+  },
+  "candidate_tests_baseline": {
+    "application_path_used": false,
+    "label": "candidate_tests.SocialQA07TitleTests",
+    "unique_methods": 9,
+    "failed_methods": 7,
+    "passed_methods": 2,
+    "assertion_or_subtest_failures": 18,
+    "errors": 0,
+    "seconds": 2.769,
+    "exit": 1,
+    "failed_method_names": [
+      "test_live_approved_program_name_uses_canonical_inheritance",
+      "test_missing_translation_uses_existing_az_fallback",
+      "test_no_public_name_remains_canonical_empty_not_object_id",
+      "test_permitted_snapshot_name_is_shared_with_public_presentation",
+      "test_requested_names_match_public_detail_for_guest_and_author",
+      "test_staff_hidden_activity_does_not_leak_a_public_name",
+      "test_title_text_is_html_escaped"
+    ],
+    "existing_assertions_changed": false
+  },
+  "roles": "One lead django/frontend/browser checks sequentially; no independent subagents",
+  "limitations": [
+    "Staff-only unpublished/all-public-names-empty use canonical empty, not invented fallback",
+    "Second read-only present() call for Activity; general resolver/query optimization excluded"
+  ],
+  "attempts": [
+    {
+      "id": "POWERSHELL-RG-GLOB",
+      "result": "Read-only rg with path wildcards test_public*/test_review* returned OS123; retried rg --files/-g on actual directory; no app writes"
+    }
+  ],
+  "not_run": [
+    "application patch/postpatchGREEN/acceptance",
+    "SOCIAL08-09/fullACCEPT09/global/module10",
+    "realSR/fullWCAG/physical/otherbrowsers",
+    "realexternalintegrations/production/commit/push/deploy",
+    "unchanged fullbackendcorpus"
+  ],
+  "metadata_gate": "PASS: integrity only; SOCIAL07 OPEN/P3, approvalPENDING",
+  "final_verifier_exit": 0,
+  "final_utc": "2026-10-16T23:47:24.818363+00:00",
+  "preservation": {
+    "sources1021_unchanged": true,
+    "application_changes": 0,
+    "head": "852938d96764ae315b92859e3651e5ea62054a36",
+    "branch": "codex/module09-transfer-2026-10-16-r1",
+    "index_tree": "881e0c48c7d557c46221beb3b2410a157982f861",
+    "task33_ref": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+    "staged_diff_empty": true,
+    "active_run": [
+      "active_run: NONE"
+    ],
+    "sharedMO_match": true,
+    "cbmignore_match": true,
+    "prior_manifest_counts": {
+      "module09-pc-resume-2026-10-16-r1": 43,
+      "social-qa03-fix-2026-10-16-pc-r1": 181,
+      "social-qa04-recheck-2026-10-16-pc-r1": 149,
+      "social-qa04-fix-2026-10-17-pc-r1": 212,
+      "social-qa05-recheck-2026-10-17-pc-r1": 79,
+      "social-qa05-fix-2026-10-17-pc-r1": 163,
+      "social-qa06-recheck-2026-10-17-pc-r1": 68,
+      "social-qa06-fix-2026-10-17-pc-r1": 164
+    },
+    "prior_verification_hashes_match": true,
+    "entry_container_ids_states_match": 38,
+    "new_own_containers": 2,
+    "foreign_restarts": 0,
+    "whole_machine_process_continuity": "NOT VERIFIED; bounded Docker snapshot",
+    "guide_old_bytes_preserved": true,
+    "guide_after_sha256": "54f5b9787a309588273f181b2e712d608559e4ab5af6bce4eee4aeb1ca2488cd"
+  },
+  "artifact_manifest": {
+    "files": 149,
+    "sha256": "deaa2aa439a6318128a382fc5402813be4f0e14f4a1bc0bd45d96d7e078c75b9",
+    "excludes": [
+      "artifact-manifest.json",
+      "verification.json"
+    ]
+  }
+}

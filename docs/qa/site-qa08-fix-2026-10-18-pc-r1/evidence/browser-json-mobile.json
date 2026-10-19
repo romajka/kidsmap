@@ -1,0 +1,1181 @@
+{
+  "rows": [
+    {
+      "id": "editor-az-360-valid-initial",
+      "role": "editor",
+      "lang": "az",
+      "width": 360,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-az-invalid-districts_json",
+      "role": "editor",
+      "lang": "az",
+      "width": 360,
+      "field": "districts_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_metro_stations_json": true,
+        "other_draft_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-az-360-retry-districts_json",
+      "role": "editor",
+      "lang": "az",
+      "width": 360,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-az-invalid-metro_stations_json",
+      "role": "editor",
+      "lang": "az",
+      "width": 360,
+      "field": "metro_stations_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_districts_json": true,
+        "other_draft_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-az-360-retry-metro_stations_json",
+      "role": "editor",
+      "lang": "az",
+      "width": 360,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-az-invalid-seo_pages_json",
+      "role": "editor",
+      "lang": "az",
+      "width": 360,
+      "field": "seo_pages_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_districts_json": true,
+        "other_draft_metro_stations_json": true
+      }
+    },
+    {
+      "id": "editor-az-360-retry-seo_pages_json",
+      "role": "editor",
+      "lang": "az",
+      "width": 360,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-az-360-save-exit",
+      "role": "editor",
+      "lang": "az",
+      "width": 360,
+      "action": "_save",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "exits_editor": true
+      }
+    },
+    {
+      "id": "editor-az-390-valid-initial",
+      "role": "editor",
+      "lang": "az",
+      "width": 390,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-az-invalid-districts_json",
+      "role": "editor",
+      "lang": "az",
+      "width": 390,
+      "field": "districts_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_metro_stations_json": true,
+        "other_draft_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-az-390-retry-districts_json",
+      "role": "editor",
+      "lang": "az",
+      "width": 390,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-az-invalid-metro_stations_json",
+      "role": "editor",
+      "lang": "az",
+      "width": 390,
+      "field": "metro_stations_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_districts_json": true,
+        "other_draft_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-az-390-retry-metro_stations_json",
+      "role": "editor",
+      "lang": "az",
+      "width": 390,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-az-invalid-seo_pages_json",
+      "role": "editor",
+      "lang": "az",
+      "width": 390,
+      "field": "seo_pages_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_districts_json": true,
+        "other_draft_metro_stations_json": true
+      }
+    },
+    {
+      "id": "editor-az-390-retry-seo_pages_json",
+      "role": "editor",
+      "lang": "az",
+      "width": 390,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-az-390-save-exit",
+      "role": "editor",
+      "lang": "az",
+      "width": 390,
+      "action": "_save",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "exits_editor": true
+      }
+    },
+    {
+      "id": "editor-ru-360-valid-initial",
+      "role": "editor",
+      "lang": "ru",
+      "width": 360,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-ru-invalid-districts_json",
+      "role": "editor",
+      "lang": "ru",
+      "width": 360,
+      "field": "districts_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_metro_stations_json": true,
+        "other_draft_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-ru-360-retry-districts_json",
+      "role": "editor",
+      "lang": "ru",
+      "width": 360,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-ru-invalid-metro_stations_json",
+      "role": "editor",
+      "lang": "ru",
+      "width": 360,
+      "field": "metro_stations_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_districts_json": true,
+        "other_draft_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-ru-360-retry-metro_stations_json",
+      "role": "editor",
+      "lang": "ru",
+      "width": 360,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-ru-invalid-seo_pages_json",
+      "role": "editor",
+      "lang": "ru",
+      "width": 360,
+      "field": "seo_pages_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_districts_json": true,
+        "other_draft_metro_stations_json": true
+      }
+    },
+    {
+      "id": "editor-ru-360-retry-seo_pages_json",
+      "role": "editor",
+      "lang": "ru",
+      "width": 360,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-ru-360-save-exit",
+      "role": "editor",
+      "lang": "ru",
+      "width": 360,
+      "action": "_save",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "exits_editor": true
+      }
+    },
+    {
+      "id": "editor-ru-390-valid-initial",
+      "role": "editor",
+      "lang": "ru",
+      "width": 390,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-ru-invalid-districts_json",
+      "role": "editor",
+      "lang": "ru",
+      "width": 390,
+      "field": "districts_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_metro_stations_json": true,
+        "other_draft_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-ru-390-retry-districts_json",
+      "role": "editor",
+      "lang": "ru",
+      "width": 390,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-ru-invalid-metro_stations_json",
+      "role": "editor",
+      "lang": "ru",
+      "width": 390,
+      "field": "metro_stations_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_districts_json": true,
+        "other_draft_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-ru-390-retry-metro_stations_json",
+      "role": "editor",
+      "lang": "ru",
+      "width": 390,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-ru-invalid-seo_pages_json",
+      "role": "editor",
+      "lang": "ru",
+      "width": 390,
+      "field": "seo_pages_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_districts_json": true,
+        "other_draft_metro_stations_json": true
+      }
+    },
+    {
+      "id": "editor-ru-390-retry-seo_pages_json",
+      "role": "editor",
+      "lang": "ru",
+      "width": 390,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-ru-390-save-exit",
+      "role": "editor",
+      "lang": "ru",
+      "width": 390,
+      "action": "_save",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "exits_editor": true
+      }
+    },
+    {
+      "id": "editor-en-360-valid-initial",
+      "role": "editor",
+      "lang": "en",
+      "width": 360,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-en-invalid-districts_json",
+      "role": "editor",
+      "lang": "en",
+      "width": 360,
+      "field": "districts_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_metro_stations_json": true,
+        "other_draft_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-en-360-retry-districts_json",
+      "role": "editor",
+      "lang": "en",
+      "width": 360,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-en-invalid-metro_stations_json",
+      "role": "editor",
+      "lang": "en",
+      "width": 360,
+      "field": "metro_stations_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_districts_json": true,
+        "other_draft_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-en-360-retry-metro_stations_json",
+      "role": "editor",
+      "lang": "en",
+      "width": 360,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-en-invalid-seo_pages_json",
+      "role": "editor",
+      "lang": "en",
+      "width": 360,
+      "field": "seo_pages_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_districts_json": true,
+        "other_draft_metro_stations_json": true
+      }
+    },
+    {
+      "id": "editor-en-360-retry-seo_pages_json",
+      "role": "editor",
+      "lang": "en",
+      "width": 360,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-en-360-save-exit",
+      "role": "editor",
+      "lang": "en",
+      "width": 360,
+      "action": "_save",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "exits_editor": true
+      }
+    },
+    {
+      "id": "editor-en-390-valid-initial",
+      "role": "editor",
+      "lang": "en",
+      "width": 390,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-en-invalid-districts_json",
+      "role": "editor",
+      "lang": "en",
+      "width": 390,
+      "field": "districts_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_metro_stations_json": true,
+        "other_draft_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-en-390-retry-districts_json",
+      "role": "editor",
+      "lang": "en",
+      "width": 390,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-en-invalid-metro_stations_json",
+      "role": "editor",
+      "lang": "en",
+      "width": 390,
+      "field": "metro_stations_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_districts_json": true,
+        "other_draft_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-en-390-retry-metro_stations_json",
+      "role": "editor",
+      "lang": "en",
+      "width": 390,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-en-invalid-seo_pages_json",
+      "role": "editor",
+      "lang": "en",
+      "width": 390,
+      "field": "seo_pages_json",
+      "active_element": {
+        "tag": "DIV",
+        "role": "alert"
+      },
+      "checks": {
+        "post200": true,
+        "no_db_or_log_write": true,
+        "malformed_draft_retained": true,
+        "visible_error": true,
+        "visible_summary": true,
+        "other_draft_districts_json": true,
+        "other_draft_metro_stations_json": true
+      }
+    },
+    {
+      "id": "editor-en-390-retry-seo_pages_json",
+      "role": "editor",
+      "lang": "en",
+      "width": 390,
+      "action": "_continue",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "reload_districts_json": true,
+        "reload_metro_stations_json": true,
+        "reload_seo_pages_json": true
+      }
+    },
+    {
+      "id": "editor-en-390-save-exit",
+      "role": "editor",
+      "lang": "en",
+      "width": 390,
+      "action": "_save",
+      "checks": {
+        "admin_language": true,
+        "post302": true,
+        "exact_json_roundtrip": true,
+        "one_admin_log": true,
+        "localized_log": true,
+        "exits_editor": true
+      }
+    }
+  ],
+  "pageerrors": [],
+  "local_errors": [],
+  "console_errors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "blocked": [
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com"
+  ],
+  "scope": "Actual native mobile textarea edits/button submits/reload/readback; every malformed field tested then native valid retry, both save actions, two authorized actors and3languages. No API submission in these rows."
+}

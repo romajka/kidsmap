@@ -1,0 +1,41 @@
+{
+  "rows": [
+    {
+      "path": "/ru/reviews/place/target/1/",
+      "status": 200,
+      "main": 2,
+      "nested": 1,
+      "expectedSingleMain": false
+    },
+    {
+      "path": "/ru/reviews/activity/target/1/",
+      "status": 200,
+      "main": 2,
+      "nested": 1,
+      "expectedSingleMain": false
+    },
+    {
+      "path": "/ru/reviews/specialist/target/1/",
+      "status": 200,
+      "main": 2,
+      "nested": 1,
+      "expectedSingleMain": false
+    },
+    {
+      "path": "/ru/reviews/event/target/1/",
+      "status": 200,
+      "main": 2,
+      "nested": 1,
+      "expectedSingleMain": false
+    },
+    {
+      "path": "/ru/account/notifications/?tab=all",
+      "status": 200,
+      "main": 2,
+      "nested": 1,
+      "expectedSingleMain": false
+    }
+  ],
+  "expected": "single main landmark",
+  "redFailures": 5
+}

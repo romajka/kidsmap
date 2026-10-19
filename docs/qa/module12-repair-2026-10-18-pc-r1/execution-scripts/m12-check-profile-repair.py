@@ -1,0 +1,4 @@
+import json
+from pathlib import Path
+R=Path('/mnt/c/kidsmap');Q=R/'.tmp/m12-full-r1';O=R/'docs/qa/module12-repair-2026-10-18-pc-r1';p=Q/'qa_settings.py';p.write_text(p.read_text()+"\nANALYTICS_RAW_EVENT_RETENTION_DAYS=90\nANALYTICS_COLLECTION_STARTED_AT='2026-08-20T00:00:00+04:00'\n")
+(O/'evidence/checks-initial-environment.json').write_text(json.dumps({'command':['docker','exec','m12full-r1-app','python',str(Q/'checks.py')],'exit':1,'classification':'own enabled normal QA profile omitted explicit positive retention and fictional collection-start settings; not an application defect','check_ids':['catalog.E102','catalog.E104'],'repair':'Set only own scratch profile retention90 and fictional2026-08-20 start before all synthetic day40/day1 history. No production/env read or edit. Tests explicitly override relevant configuration; old assertions unchanged. Fresh checks required.'},indent=2))

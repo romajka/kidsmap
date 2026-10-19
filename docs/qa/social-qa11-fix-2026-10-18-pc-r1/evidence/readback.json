@@ -1,0 +1,22 @@
+{
+  "business_counts_unchanged_after_seed": true,
+  "revoked_status_unchanged": true,
+  "owned_review_contracts": {
+    "az": {
+      "public_current_preserved": true,
+      "candidate_a_preserved": true,
+      "only_two_revisions": true
+    },
+    "ru": {
+      "public_current_preserved": true,
+      "candidate_a_preserved": true,
+      "only_two_revisions": true
+    },
+    "en": {
+      "public_current_preserved": true,
+      "candidate_a_preserved": true,
+      "only_two_revisions": true
+    }
+  },
+  "expected_writes": "new own fictional specialist/3actors/3approvedbaseline revisions +3native A revisions, QA sessions/last_login; no B save and no revoked accept"
+}

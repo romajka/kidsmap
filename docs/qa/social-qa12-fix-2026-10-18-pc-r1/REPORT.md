@@ -1,0 +1,28 @@
+# SOCIAL-QA-12 и итог модуля09
+
+## 1. Решение и авторизация
+**SOCIAL-QA-12 P3 CLOSED LOCAL. Модуль09 CLOSED LOCAL в границах composite acceptance.** Явное «одобряю» разрешило ровно3-file PLAN12. Applied exactcandidate SHA c96c28ca11dae5f31e73e67dfef3b440be301317d724b811be9e6bda2f3e622f. Lead kidsmap-orchestrator, backend/UI/accessibility/verification последовательно одним исполнителем; независимые агенты не запускались. Module10 NOTSTARTED; global/release/production PASS не заявлены.
+
+## 2. Snapshot
+HEAD 852938d96764ae315b92859e3651e5ea62054a36, branch codex/module09-transfer-2026-10-16-r1, task33-progress e4e05cc213b34e2d771ecb854901bfd016d1db51, index tree 881e0c48c7d557c46221beb3b2410a157982f861; staged empty, active_run NONE. Dirty WORKTREE1027source,1024прежних файла unchanged. Только typed_reviews.py catch изменён, добавлены review_reaction_conflict.html и test_social_qa12_reaction_conflict.py. HEAD не равен WORKTREE; production UNKNOWN. Applieddiff/manifest/source-final закрепляют фактические bytes.
+
+## 3. Причина и изменение
+Ранее stale reaction верно отвергался409, но пустой ответ открывал native Chromium HTTPERROR409. Теперь только react branch ReviewConflict render localized409страницы KidsMap с H1/alert/явной GETссылкой. Пользователь сам решает повторить реакцию после просмотра актуальной версии. Status409, no stalewrite, targetvisibility/login-active/self/CSRF/value-revision validation/locking/CAS неизменны. Otheractions409fallback неизменён. Шаблон extendsbase, один main изbase/div+existingclasses/noindex/no stale author/text payload; root содержит0forms, no JS/automaticPOST. Services/schema/PO/globalCSS-JS не менялись.
+
+## 4. Backend RED/GREEN
+Current prepatch1025 byte-identical RED snapshot:4candidate methods,3PASS,1failedmethod/12subtestfailures,0errors/exit1 из immutable priorpackage. Повтор unchangedRED не делали. Exactcandidate4methods +2approvedaffected publicreaction/CSRF methods на новом собственном test_m09s12_fix_r1: **6PASS/0F0E/exit0**, methodtime2.719s; DB отсутствовала до запуска, proof testdb-entry. Проверены4kind/3locale recovery, freshtoggle/counters, anonymous-inactive-self403 и missingCSRF403. Ни existing assertions, ни approvedcandidate ожидания не менялись. Framework warning об отсутствии ownSTATIC_ROOT в тестах сохранён в log, не appfailure.
+
+## 5. Native browser и readback
+4kind×RU/AZ/EN×360/390/768/1024/1280/1440=72realstalePOST cases,4native moderatorapprovals:1604checksPASS. Формы реально открыты до смены current revision, no injected stale tokens.409appdocument/localizedH1-alert/one main/nooverflow/privacy/noform/visiblefocus/Tab-ShiftTab/Enter GET200/newpublictoken/noautomaticreplay проверены. DB before/after stalePOST идентична во всех72; counts0. Дополнительно одна осознанная fresh Place reaction:9PASS, native302/save1/reload/pressed state;4head readback24PASS (Place1reaction, others0, currentnew/no candidate/two revisions). Fictional rolelogin SIMULATED, application POST/GET/moderation реальные.73nativePNG: PC/mobile before/error/recovered72 +freshvote1. Ручной visual review выборочный RU390409, не всех изображений.
+
+## 6. Diagnostics и runtime
+Raw72expectedHTTP409 +72matchingresourceconsoleerrors retained;0pageerrors/requestfailed/externalblocked/unexpectedlocalHTTP. Это не «нулевая консоль»: штатный errorstatus сохранён. Браузерных QA interruptions в этом fix run нет. New m09s12-fix-r1-app readonlyroot/repo +ownRWscratch/cache/media/private-media/locmememail, loopback33440; clearedenv/DJANGO_TESTING1. OwnedPG m09full-r1-pg/m09full_r1 volume/internalnetwork/no-publishedport freshproof; ownnamedtestDB separate. Current3MO nativebuild/manifestverify/soleLOCALE_PATHS доDjango, actualsrc/template origins/hashguard1027 подтверждены. Normal QA writes ограничены ownedfixtures4targets/2users/8revisions,4native decisions,1deliberate vote andsessions. No production credentials; copied disposable QA key redacted. COMMANDS/evidence содержат exactcommands/exits/logs.
+
+## 7. Решение по module09
+Module09 closed LOCAL по совокупности fullACCEPT09 и targeted10/11/12 evidence, а не по новому full1027run. Originalfull1024:169uniquebackend/810screens; исходный FAIL10/11 не переписан. Current1027 отличается только5approved existingpaths+3newfiles,1019oldfiles byte-identical. SOCIAL10 namedlogin имеет свои12GREEN/nativeguest-password-guard proof; SOCIAL11 nestedmain234screens+PC39/3453canonicalchecks;2старых stalecapturegaps разрешены при reconciliation, которое выявило12; настоящий12recovery теперь доказан. SOCIAL01–12 scopedLOCAL closures, knowncanonicalopen0. Full169 на1027/globalfull не запускались и исторический PASS не объявлен свежим. См. module09-decision.json и source delta; ограничения всех priorpackages сохранены.
+
+## 8. Сохранность и NOTRUN
+20priorpackages byte-identical, sharedMO/.cbmignore/refs-index/staged/activeNONE preserved; guide oldprefix preserved append-only. Entrycontainers57, current58, identities preserved; statedeltas []. Added ownapp only; no foreign stop/restart, externalchange causes UNKNOWN. Realphysicaldevices/screenreader/crossbrowser/realOAuth-SMTP-CDN/globalproject/release/production NOTRUN. No reset/clean/stash/checkout-switch/commit/push/deploy/activeassignment/oldPNGdownload. Все решения LOCAL, без заявления полного отсутствия неизвестных дефектов.
+
+## 9. Handoff
+Модуль09 завершён в перечисленных границах. Следующий модуль10 — отдельная запрошенная пользователем read-only приёмка по guide ACCEPT10; автоматически не запускался. Новые appfix требуют concreteplan/scopeapproval; SOCIAL01–12 approvals сохраняются, повторно не запрашивать. Для переноса брать currentsource1027/dirtyworktree и этот report, HEAD сам по себе не содержит все исправления.

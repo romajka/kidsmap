@@ -1,0 +1,94 @@
+{
+  "decision": "SOCIAL-QA-06 CLOSED LOCAL — scoped template/native acceptance; module09 OPEN",
+  "approval": {
+    "human_message": "одобряю",
+    "scope": [
+      "src/catalog/templates/pages/site_reviews.html"
+    ],
+    "initial_exact_candidate_applied": true,
+    "same_file_reset_iteration": true
+  },
+  "snapshot": {
+    "head": "852938d96764ae315b92859e3651e5ea62054a36",
+    "branch": "codex/module09-transfer-2026-10-16-r1",
+    "source_files": 1021,
+    "other1020_unchanged": true
+  },
+  "native": {
+    "matrix_cells": 18,
+    "matrix_control_pass": 198,
+    "matrix_semantic_keyboard_pass": 144,
+    "matrix_fail": 0,
+    "matrix_source_phase": "initial approved candidate, unaffected by final reset-only correction",
+    "extended_initial_cells": 9,
+    "extended_initial_pass": 117,
+    "extended_initial_reset_fail": 9,
+    "final_reset_cells": 9,
+    "final_reset_pass": 27,
+    "reset_assertions_replaced": 9,
+    "extended_nonreset_pass_retained": 117,
+    "actual_submit_reload_guard_rows": 9,
+    "actual_submit_and_guard_pass": 68,
+    "shared_cells": 45,
+    "shared_pass": 270,
+    "captured_pageerrors": 0,
+    "intentional_submit_abort": 1,
+    "shared_media_404_events": 81,
+    "shared_unique_missing_gallery_assets": 9,
+    "blocked_external_requests": 36,
+    "existing_SOCIAL07_observations": 9,
+    "PNG": 107
+  },
+  "backend_tests": "NOT RUN: unchanged backend, prior05subset retained; fresh native POST/range/ACL readback executed",
+  "roles": "One lead sequential frontend/browser/Django contract checks; no independent subagents",
+  "not_run": [
+    "SOCIAL07fix/08-09/fullACCEPT09/global/module10",
+    "realSR/fullWCAG/physical/otherbrowsers",
+    "realexternalintegrations/homegallerymedia acceptance",
+    "production/commit/push/deploy"
+  ],
+  "metadata_gate": "PASS: source/evidence/preservation; initial reset FAIL and media limitations retained",
+  "final_verifier_exit": 0,
+  "final_utc": "2026-10-16T21:08:28.056221+00:00",
+  "preservation": {
+    "sources": 1021,
+    "application_changed": [
+      "src/catalog/templates/pages/site_reviews.html"
+    ],
+    "other1020_bytes_match": true,
+    "head": "852938d96764ae315b92859e3651e5ea62054a36",
+    "branch": "codex/module09-transfer-2026-10-16-r1",
+    "index_tree": "881e0c48c7d557c46221beb3b2410a157982f861",
+    "task33_ref": "e4e05cc213b34e2d771ecb854901bfd016d1db51",
+    "staged_diff_empty": true,
+    "active_run": [
+      "active_run: NONE"
+    ],
+    "shared_mo_match": true,
+    "cbmignore_match": true,
+    "prior_plan_files_preserved": 70,
+    "old_manifest_counts": {
+      "module09-pc-resume-2026-10-16-r1": 43,
+      "social-qa03-fix-2026-10-16-pc-r1": 181,
+      "social-qa04-recheck-2026-10-16-pc-r1": 149,
+      "social-qa04-fix-2026-10-17-pc-r1": 212,
+      "social-qa05-recheck-2026-10-17-pc-r1": 79,
+      "social-qa05-fix-2026-10-17-pc-r1": 163
+    },
+    "entry_container_ids_states_match": 37,
+    "new_own_containers": 1,
+    "foreign_restarts": 0,
+    "own_serve_reload": 1,
+    "whole_machine_process_continuity": "NOT VERIFIED; bounded Docker snapshot",
+    "guide_old_bytes_preserved": true,
+    "guide_after_sha256": "a1560c4d3966936c46401b16df4636a36d9a89e0f6b5ee098b9fe09c56d5e789"
+  },
+  "artifact_manifest": {
+    "files": 164,
+    "sha256": "d5758bb2bb6bffcbe978412d1168ddd4af979ff4be1edae7359e8382026be6a6",
+    "excludes": [
+      "artifact-manifest.json",
+      "verification.json"
+    ]
+  }
+}

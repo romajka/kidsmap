@@ -81,10 +81,16 @@ class ModerationLifecycleTests(TestCase):
 
     def test_review_decision_tracks_date_and_actor(self):
         from catalog.models import PlaceReview
-        review = PlaceReview.objects.create(place=self.place, text='Good place', status='pending')
+        from django.contrib.auth import get_user_model
+        from catalog.testcases.utils import create_quality_place
+        from catalog.services.review_versions import submit_review
+        author = get_user_model().objects.create_user('sla-review-author')
+        review, candidate = submit_review(target=create_quality_place(), user=author,
+                                         text='Good place', rating=5)
         self.client.force_login(self.admin)
         from django.urls import reverse
-        response = self.client.post(reverse('admin:catalog_placereview_approve', args=[review.pk]))
+        response = self.client.post(reverse('admin:catalog_placereview_approve', args=[review.pk]),
+                                    {'revision_id': candidate.pk})
         self.assertEqual(response.status_code, 302)
         review.refresh_from_db()
         self.assertIsNotNone(review.moderated_at)

@@ -1,0 +1,483 @@
+{
+  "rows": [
+    {
+      "id": "proxy-editor-az-390",
+      "role": "section_editor",
+      "lang": "az",
+      "width": 390,
+      "checks": {
+        "GET200": true,
+        "native_POST302": true,
+        "exact_email": true,
+        "one_LogEntry": true,
+        "direct_hub": true,
+        "hub_visible": true,
+        "language": true,
+        "no_overflow": true
+      }
+    },
+    {
+      "id": "csrf-denied-az-390",
+      "role": "section_editor",
+      "lang": "az",
+      "width": 390,
+      "checks": {
+        "negative_POST403": true,
+        "no_write": true
+      }
+    },
+    {
+      "id": "restore-az-390",
+      "role": "section_editor",
+      "lang": "az",
+      "width": 390,
+      "checks": {
+        "native_POST302": true,
+        "original_email": true,
+        "one_LogEntry": true
+      }
+    },
+    {
+      "id": "proxy-editor-az-1440",
+      "role": "section_editor",
+      "lang": "az",
+      "width": 1440,
+      "checks": {
+        "GET200": true,
+        "native_POST302": true,
+        "exact_email": true,
+        "one_LogEntry": true,
+        "direct_hub": true,
+        "hub_visible": true,
+        "language": true,
+        "no_overflow": true
+      }
+    },
+    {
+      "id": "csrf-denied-az-1440",
+      "role": "section_editor",
+      "lang": "az",
+      "width": 1440,
+      "checks": {
+        "negative_POST403": true,
+        "no_write": true
+      }
+    },
+    {
+      "id": "restore-az-1440",
+      "role": "section_editor",
+      "lang": "az",
+      "width": 1440,
+      "checks": {
+        "native_POST302": true,
+        "original_email": true,
+        "one_LogEntry": true
+      }
+    },
+    {
+      "id": "proxy-editor-ru-390",
+      "role": "section_editor",
+      "lang": "ru",
+      "width": 390,
+      "checks": {
+        "GET200": true,
+        "native_POST302": true,
+        "exact_email": true,
+        "one_LogEntry": true,
+        "direct_hub": true,
+        "hub_visible": true,
+        "language": true,
+        "no_overflow": true
+      }
+    },
+    {
+      "id": "csrf-denied-ru-390",
+      "role": "section_editor",
+      "lang": "ru",
+      "width": 390,
+      "checks": {
+        "negative_POST403": true,
+        "no_write": true
+      }
+    },
+    {
+      "id": "restore-ru-390",
+      "role": "section_editor",
+      "lang": "ru",
+      "width": 390,
+      "checks": {
+        "native_POST302": true,
+        "original_email": true,
+        "one_LogEntry": true
+      }
+    },
+    {
+      "id": "proxy-editor-ru-1440",
+      "role": "section_editor",
+      "lang": "ru",
+      "width": 1440,
+      "checks": {
+        "GET200": true,
+        "native_POST302": true,
+        "exact_email": true,
+        "one_LogEntry": true,
+        "direct_hub": true,
+        "hub_visible": true,
+        "language": true,
+        "no_overflow": true
+      }
+    },
+    {
+      "id": "csrf-denied-ru-1440",
+      "role": "section_editor",
+      "lang": "ru",
+      "width": 1440,
+      "checks": {
+        "negative_POST403": true,
+        "no_write": true
+      }
+    },
+    {
+      "id": "restore-ru-1440",
+      "role": "section_editor",
+      "lang": "ru",
+      "width": 1440,
+      "checks": {
+        "native_POST302": true,
+        "original_email": true,
+        "one_LogEntry": true
+      }
+    },
+    {
+      "id": "proxy-editor-en-390",
+      "role": "section_editor",
+      "lang": "en",
+      "width": 390,
+      "checks": {
+        "GET200": true,
+        "native_POST302": true,
+        "exact_email": true,
+        "one_LogEntry": true,
+        "direct_hub": true,
+        "hub_visible": true,
+        "language": true,
+        "no_overflow": true
+      }
+    },
+    {
+      "id": "csrf-denied-en-390",
+      "role": "section_editor",
+      "lang": "en",
+      "width": 390,
+      "checks": {
+        "negative_POST403": true,
+        "no_write": true
+      }
+    },
+    {
+      "id": "restore-en-390",
+      "role": "section_editor",
+      "lang": "en",
+      "width": 390,
+      "checks": {
+        "native_POST302": true,
+        "original_email": true,
+        "one_LogEntry": true
+      }
+    },
+    {
+      "id": "proxy-editor-en-1440",
+      "role": "section_editor",
+      "lang": "en",
+      "width": 1440,
+      "checks": {
+        "GET200": true,
+        "native_POST302": true,
+        "exact_email": true,
+        "one_LogEntry": true,
+        "direct_hub": true,
+        "hub_visible": true,
+        "language": true,
+        "no_overflow": true
+      }
+    },
+    {
+      "id": "csrf-denied-en-1440",
+      "role": "section_editor",
+      "lang": "en",
+      "width": 1440,
+      "checks": {
+        "negative_POST403": true,
+        "no_write": true
+      }
+    },
+    {
+      "id": "restore-en-1440",
+      "role": "section_editor",
+      "lang": "en",
+      "width": 1440,
+      "checks": {
+        "native_POST302": true,
+        "original_email": true,
+        "one_LogEntry": true
+      }
+    },
+    {
+      "id": "section_viewer-az-390",
+      "role": "section_viewer",
+      "lang": "az",
+      "width": 390,
+      "desktop_actions_known_SITE20": null,
+      "checks": {
+        "GET_status": true,
+        "negative_POST403": true,
+        "no_write": true,
+        "no_editable_marker": true,
+        "email_not_editable": true,
+        "mobile_save_hidden": true
+      }
+    },
+    {
+      "id": "section_viewer-az-1440",
+      "role": "section_viewer",
+      "lang": "az",
+      "width": 1440,
+      "desktop_actions_known_SITE20": 2,
+      "checks": {
+        "GET_status": true,
+        "negative_POST403": true,
+        "no_write": true,
+        "no_editable_marker": true,
+        "email_not_editable": true
+      }
+    },
+    {
+      "id": "section_viewer-ru-390",
+      "role": "section_viewer",
+      "lang": "ru",
+      "width": 390,
+      "desktop_actions_known_SITE20": null,
+      "checks": {
+        "GET_status": true,
+        "negative_POST403": true,
+        "no_write": true,
+        "no_editable_marker": true,
+        "email_not_editable": true,
+        "mobile_save_hidden": true
+      }
+    },
+    {
+      "id": "section_viewer-ru-1440",
+      "role": "section_viewer",
+      "lang": "ru",
+      "width": 1440,
+      "desktop_actions_known_SITE20": 2,
+      "checks": {
+        "GET_status": true,
+        "negative_POST403": true,
+        "no_write": true,
+        "no_editable_marker": true,
+        "email_not_editable": true
+      }
+    },
+    {
+      "id": "section_viewer-en-390",
+      "role": "section_viewer",
+      "lang": "en",
+      "width": 390,
+      "desktop_actions_known_SITE20": null,
+      "checks": {
+        "GET_status": true,
+        "negative_POST403": true,
+        "no_write": true,
+        "no_editable_marker": true,
+        "email_not_editable": true,
+        "mobile_save_hidden": true
+      }
+    },
+    {
+      "id": "section_viewer-en-1440",
+      "role": "section_viewer",
+      "lang": "en",
+      "width": 1440,
+      "desktop_actions_known_SITE20": 2,
+      "checks": {
+        "GET_status": true,
+        "negative_POST403": true,
+        "no_write": true,
+        "no_editable_marker": true,
+        "email_not_editable": true
+      }
+    },
+    {
+      "id": "denied-az-390",
+      "role": "denied",
+      "lang": "az",
+      "width": 390,
+      "desktop_actions_known_SITE20": null,
+      "checks": {
+        "GET_status": true,
+        "negative_POST403": true,
+        "no_write": true
+      }
+    },
+    {
+      "id": "denied-az-1440",
+      "role": "denied",
+      "lang": "az",
+      "width": 1440,
+      "desktop_actions_known_SITE20": null,
+      "checks": {
+        "GET_status": true,
+        "negative_POST403": true,
+        "no_write": true
+      }
+    },
+    {
+      "id": "denied-ru-390",
+      "role": "denied",
+      "lang": "ru",
+      "width": 390,
+      "desktop_actions_known_SITE20": null,
+      "checks": {
+        "GET_status": true,
+        "negative_POST403": true,
+        "no_write": true
+      }
+    },
+    {
+      "id": "denied-ru-1440",
+      "role": "denied",
+      "lang": "ru",
+      "width": 1440,
+      "desktop_actions_known_SITE20": null,
+      "checks": {
+        "GET_status": true,
+        "negative_POST403": true,
+        "no_write": true
+      }
+    },
+    {
+      "id": "denied-en-390",
+      "role": "denied",
+      "lang": "en",
+      "width": 390,
+      "desktop_actions_known_SITE20": null,
+      "checks": {
+        "GET_status": true,
+        "negative_POST403": true,
+        "no_write": true
+      }
+    },
+    {
+      "id": "denied-en-1440",
+      "role": "denied",
+      "lang": "en",
+      "width": 1440,
+      "desktop_actions_known_SITE20": null,
+      "checks": {
+        "GET_status": true,
+        "negative_POST403": true,
+        "no_write": true
+      }
+    }
+  ],
+  "pageerrors": [],
+  "local_errors": [],
+  "expected_negative_HTTP": [
+    {
+      "path": "/admin/catalog/sitefootersettings/1/change/",
+      "method": "GET",
+      "status": 403
+    },
+    {
+      "path": "/admin/catalog/sitefootersettings/1/change/",
+      "method": "GET",
+      "status": 403
+    },
+    {
+      "path": "/admin/catalog/sitefootersettings/1/change/",
+      "method": "GET",
+      "status": 403
+    },
+    {
+      "path": "/admin/catalog/sitefootersettings/1/change/",
+      "method": "GET",
+      "status": 403
+    },
+    {
+      "path": "/admin/catalog/sitefootersettings/1/change/",
+      "method": "GET",
+      "status": 403
+    },
+    {
+      "path": "/admin/catalog/sitefootersettings/1/change/",
+      "method": "GET",
+      "status": 403
+    }
+  ],
+  "blocked": [
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.googleapis.com"
+  ],
+  "expected_successful_native_posts": 12,
+  "scope": "Native proxy-only footer editor success/restore with no SiteSettings grant; viewer/denied and missing-CSRF negative HTTP POST403; valid native business POSTs only. Desktop readonly controls recorded under known SITE20, not fixed."
+}

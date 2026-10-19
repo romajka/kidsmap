@@ -1,0 +1,23 @@
+{
+  "inspection_completed": true,
+  "execution": "/root inline via view_image; actual native PNG, no independent reviewer claim",
+  "inspected": [
+    "discovery-sitebrandingsettings-ru-360.png",
+    "final-prototype-sitebrandingsettings-ru-1440.png",
+    "final-prototype-sitefootersettings-az-390.png",
+    "final-prototype-catalogcontentsettings-en-390.png",
+    "final-viewer-prototype-catalogcontentsettings-ru-390.png"
+  ],
+  "observations": [
+    "Initial RU360 document expands to1097px; form/file controls extend outside phone viewport",
+    "Final temporary desktop branding root fills available column, fields and actions separated, long synthetic filename wraps",
+    "AZ390 footer URLs wrap, native fields fit, both save actions visible above fields",
+    "EN390 catalogue fields fit with two visible mobile actions; existing mixed-language title/copy unchanged",
+    "RU390 readonly catalogue fits; no mobile Save actions introduced"
+  ],
+  "limits": [
+    "These are temporary DOM/CSS prototypes, NOT applied-source GREEN",
+    "Tool downscaled initial1097x4386, finalbranding1440x4486 and footer390x2347 images; review of those images concerns overall layout, not precise small text; native DOM validates bounds",
+    "No native save/upload/error/Select2 dropdown or full accessibility acceptance in this PLAN"
+  ]
+}

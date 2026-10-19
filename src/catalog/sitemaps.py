@@ -136,3 +136,14 @@ class SpecialistSitemap(LocalizedSitemap):
 
     def lastmod(self, obj):
         return obj.updated_at
+
+
+class EventSitemap(LocalizedSitemap):
+    """All publicly readable occurrences, including retained historical pages."""
+
+    def items(self):
+        from catalog.services.event_queries import EventPeriod, query_public_events
+        return query_public_events(period=EventPeriod(None, None)).order_by("pk")
+
+    def lastmod(self, obj):
+        return obj.updated_at

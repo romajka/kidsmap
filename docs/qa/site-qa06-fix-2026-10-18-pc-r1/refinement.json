@@ -1,0 +1,23 @@
+{
+  "reason": "Native initial51rows/663checks:17 missing aria-describedby,5 overflow growth; timeout before complete matrix",
+  "initial_evidence": "evidence/initial-browser-green-matrix.json",
+  "root_cause": "Django AdminFileWidget.use_fieldset=True suppresses input descriptions while Jazzmin renders divs; clearable checkbox activates width:auto/flex:none and long errors expand it",
+  "correction": "Existing shared wrapping error-summary list with field anchor/id, file aria-describedby, suppress only duplicate inline media errors with existing d-none utility; preserve field errors/context/draft/preview; no CSS/JS/policy changes",
+  "changed_from_candidate": [
+    "src/catalog/domain_admin/site.py",
+    "src/catalog/testcases/test_site_qa06_media_validation.py",
+    "src/catalog/templates/admin/catalog/shared_settings_change_form.html"
+  ],
+  "new_regression_methods": 1,
+  "existing_29_unchanged_prefix": true,
+  "files": {
+    "locale/az/LC_MESSAGES/django.po": "83be8c14b7e29c22cbec8e132fb68898288efa1f5156254875f4dfb95c35ae91",
+    "locale/en/LC_MESSAGES/django.po": "cdc04b9a108fe4d29e762a40ef1ba094adf07ef35a2355d59c05c57f57e93a71",
+    "locale/ru/LC_MESSAGES/django.po": "371d950aff54198919fe7173dd68cbee141fb4deaec8d3575cedd2ab8f1f29f9",
+    "src/catalog/domain_admin/site.py": "634324102d46228ddfa767e5272bba9e9ca3e2de6fff48c7b154108e81d05ccd",
+    "src/catalog/services/site_media_validation.py": "9ef1fc0d0cc49944e9f03d8fb493447d684041cf35460e81a5e4430e4a23be42",
+    "src/catalog/testcases/test_site_qa06_media_validation.py": "fa30c27490aa0a51b155a318bada3a9b01d7d6a6eac463f9f6ee1ad719222aa1",
+    "src/catalog/templates/admin/catalog/shared_settings_change_form.html": "430e1302846de8e42519623651ca751e8be25eb8b1ca9de30c37c2f9c43517c6"
+  },
+  "diff_sha256": "f075816fa157bef6dcb6084444059a82719e4d57fa1b088828fa293513b67409"
+}

@@ -1,0 +1,28 @@
+{
+  "app": "m13qa04-r5-app",
+  "app_id": "9a2fa5f6927d7e81ff4e2b3de986d835d90c81c0c6015adfbbad4119ea3b9fcb",
+  "pg": "m13qa04-r5-pg",
+  "pg_id": "93790311984e39b93623e40e141d16fe641701d8bba22864cda247a5f4d0c80a",
+  "socket_volume": "m13-qa04-r5-socket",
+  "data_volume": "m13-qa04-r5-data",
+  "root": "/tmp/kidsmap-task33-qa04-module13-r5",
+  "socket": "/mnt/c/kidsmap/.tmp/kidsmap-task33-qa04-socket-m13-r5/socket",
+  "actual_fresh_resources": true,
+  "network": "none for both containers",
+  "labels": [],
+  "command": [
+    "docker",
+    "exec",
+    "m13qa04-r5-app",
+    "python",
+    "/mnt/c/kidsmap/scripts/run_isolated_quality.py",
+    "--profile-root",
+    "/tmp/kidsmap-task33-qa04-module13-r5",
+    "--socket-dir",
+    "/mnt/c/kidsmap/.tmp/kidsmap-task33-qa04-socket-m13-r5/socket",
+    "--port",
+    "55494",
+    "--source-manifest",
+    "/mnt/c/kidsmap/.tmp/m13-full-r1/expected-source.json"
+  ]
+}

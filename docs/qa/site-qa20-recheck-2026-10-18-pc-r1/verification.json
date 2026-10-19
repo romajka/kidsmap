@@ -1,0 +1,68 @@
+{
+  "status": "SITE20/P3 CONFIRMED OPEN; exact2file PLAN READY, approval pending; NOT APPLIED",
+  "backend_RED": {
+    "methods": 8,
+    "failed_methods": 3,
+    "passed_methods": 5,
+    "failure_observations": 29,
+    "errors": 0,
+    "seconds": 2.582,
+    "exit": 1
+  },
+  "native_baseline": {
+    "rows": 75,
+    "checks": 498,
+    "control_PASS": 375,
+    "expected_FAIL": 123,
+    "failure_categories": {
+      "permission_actions": 60,
+      "no_empty_action_card": 54,
+      "editable_marker": 6,
+      "mobile_add_actions": 3
+    },
+    "native_viewer_forbidden_posts": 3,
+    "no_row_log_media_write": true,
+    "PNG": 27,
+    "pageerrors": 0,
+    "unexpected_local_HTTP": 0,
+    "expected403": 3,
+    "blocked_external_fonts": true
+  },
+  "candidate_render": {
+    "checks": 180,
+    "runtime_consumers": 9,
+    "permission_truth_table": 16,
+    "PASS": true,
+    "applied_or_native_GREEN": false
+  },
+  "static_apply_AST_CRLF": true,
+  "preservation": {
+    "sources_unchanged": 1034,
+    "application_changes": 0,
+    "prior_packages": 39,
+    "prior_files": 8134,
+    "shared_MO_cbmignore": true,
+    "HEAD_branch_task33_index_empty_staging": true,
+    "active_run_NONE": true,
+    "foreign_runtime_identities_states": 74,
+    "own_container_identity": true,
+    "documents_append_only": true
+  },
+  "module10": "13OPEN (9P2/4P3); full module acceptance pending",
+  "retained_LOCAL": [
+    "SITE01",
+    "SITE15",
+    "SITE06",
+    "SITE19",
+    "SITE21",
+    "SITE08",
+    "SITE22",
+    "module09 composite"
+  ],
+  "NOT_RUN": [
+    "application implementation/GREEN",
+    "candidate rendered-browser acceptance",
+    "full module10/global/release/production/module11/cross-browser/WCAG/physical devices"
+  ],
+  "execution": "/root inline, no independent-agent claim"
+}

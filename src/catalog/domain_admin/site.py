@@ -1,4 +1,11 @@
+from django import forms
 from django.contrib import admin
+from django.core import signing
+from django.db import transaction
+import hashlib
+import json
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.files.uploadedfile import UploadedFile
 from django.shortcuts import redirect
 from django.urls import reverse, path
 from django.utils.html import format_html
@@ -22,10 +29,104 @@ from catalog.models import (
     RatingRankingCalibration,
 )
 from catalog.services.admin_analytics import build_statistics_context
+from catalog.services.site_media_validation import validate_site_media_upload
 from .user import _HiddenFromAdminIndexMixin
 
 
-class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
+_SETTINGS_REVISION_SALT = "catalog.site-settings-revision.v1"
+
+
+def _settings_revision_payload(obj, actor):
+    values = {field.name: field.value_to_string(obj)
+              for field in obj._meta.concrete_fields}
+    digest = hashlib.sha256(json.dumps(values, sort_keys=True).encode()).hexdigest()
+    return {"row": obj.pk, "section": obj._meta.label_lower,
+            "actor": actor, "digest": digest}
+
+
+def _add_site_media_error(form, name, error):
+    """Use the shared wrapping summary for media errors, linked to the file input."""
+    form.add_error(name, error)
+    error_id = f"{form[name].auto_id}_media_error"
+    widget = form.fields[name].widget
+    described = widget.attrs.get("aria-describedby", "").split()
+    if error_id not in described:
+        described.append(error_id)
+    widget.attrs["aria-describedby"] = " ".join(described)
+    # The clearable widget's checkbox triggers an existing no-wrap form layout.
+    # Its field error remains in form.errors; display it once in the linked summary.
+    form.errors[name].error_class += " d-none"
+    if not hasattr(form, "site_media_error_fields"):
+        form.site_media_error_fields = set()
+    form.site_media_error_fields.add(name)
+
+
+class _SettingsRevisionForm(forms.ModelForm):
+    settings_revision_actor = None
+
+    def clean(self):
+        cleaned = super().clean()
+        if self.instance.pk:
+            try:
+                payload = signing.loads(self.data.get("settings_revision", ""),
+                                        salt=_SETTINGS_REVISION_SALT)
+            except signing.BadSignature:
+                payload = None
+            if payload != _settings_revision_payload(self.instance, self.settings_revision_actor):
+                self.settings_conflict = True
+                raise forms.ValidationError(
+                    _("Настройки изменились в другой вкладке. Ваш ввод не сохранён. Скопируйте нужные значения и откройте текущую версию отдельно."),
+                    code="stale_settings",
+                )
+        for name, field in self.fields.items():
+            upload = cleaned.get(name)
+            if isinstance(field, forms.FileField) and isinstance(upload, UploadedFile):
+                try:
+                    validate_site_media_upload(upload, field=name)
+                except ValidationError as exc:
+                    _add_site_media_error(self, name, exc)
+        return cleaned
+
+
+    def _post_clean(self):
+        # A rejected snapshot must not turn uncommitted uploads into preview URLs.
+        if not getattr(self, "settings_conflict", False):
+            super()._post_clean()
+
+
+class _SiteSettingsConcurrencyAdminMixin:
+    form = _SettingsRevisionForm
+    change_form_template = "admin/catalog/shared_settings_change_form.html"
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        # Django's admin changeform POST owns the surrounding transaction.
+        return queryset.select_for_update() if request.method == "POST" else queryset
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        base = super().get_form(request, obj, change=change, **kwargs)
+        return type("ActorBoundSettingsForm", (base,),
+                    {"settings_revision_actor": request.user.pk})
+
+    def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
+        form = context["adminform"].form
+        context.setdefault("km_settings_title", self.model._meta.verbose_name.capitalize())
+        context.setdefault("km_settings_subtitle", _("Заполните настройки для этого раздела сайта."))
+        context.setdefault("km_settings_hub_url", reverse("admin:catalog_sitesettings_changelist"))
+        context["km_settings_revision_enabled"] = True
+        context["km_settings_revision"] = (request.POST.get("settings_revision", "")
+            if request.method == "POST" else signing.dumps(
+                _settings_revision_payload(obj, request.user.pk), salt=_SETTINGS_REVISION_SALT))
+        context["km_settings_conflict"] = getattr(form, "settings_conflict", False)
+        context["km_settings_current_url"] = request.path
+        context["km_settings_reselect_files"] = bool(request.FILES)
+        response = super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
+        if context["km_settings_conflict"]:
+            response.status_code = 409
+        return response
+
+
+class _BaseSiteSettingsSectionAdmin(_SiteSettingsConcurrencyAdminMixin, admin.ModelAdmin):
     change_form_template = "admin/catalog/shared_settings_change_form.html"
     list_display = ("brand_name", "updated_at")
     readonly_fields = (
@@ -79,6 +180,10 @@ class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
         opts = self.model._meta
         url = reverse(f"admin:{opts.app_label}_{opts.model_name}_change", args=[obj.pk])
         return redirect(url)
+
+    def response_post_save_change(self, request, obj):
+        """Exit a saved subsection to the existing settings hub."""
+        return redirect(reverse("admin:catalog_sitesettings_changelist"))
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
         context["km_settings_title"] = self.model._meta.verbose_name.capitalize()
@@ -460,7 +565,7 @@ class SiteVisibilitySettingsAdmin(_BaseSiteSettingsSectionAdmin):
 
 
 @admin.register(SiteAnalytics)
-class SiteAnalyticsAdmin(admin.ModelAdmin):
+class SiteAnalyticsAdmin(_SiteSettingsConcurrencyAdminMixin, admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
@@ -468,6 +573,8 @@ class SiteAnalyticsAdmin(admin.ModelAdmin):
         return False
 
     def changelist_view(self, request, extra_context=None):
+        if not self.has_view_or_change_permission(request):
+            raise PermissionDenied
         try:
             period_days = int(request.GET.get("period", 30))
         except (ValueError, TypeError):
@@ -482,8 +589,21 @@ class SiteAnalyticsAdmin(admin.ModelAdmin):
         return TemplateResponse(request, "admin/catalog/site_analytics.html", context)
 
 
+class _SiteGalleryMediaForm(forms.ModelForm):
+    def clean(self):
+        cleaned = super().clean()
+        upload = cleaned.get("image")
+        if isinstance(upload, UploadedFile):
+            try:
+                validate_site_media_upload(upload, placement=cleaned.get("placement"))
+            except ValidationError as exc:
+                _add_site_media_error(self, "image", exc)
+        return cleaned
+
+
 @admin.register(SiteGalleryImage)
 class SiteGalleryImageAdmin(admin.ModelAdmin):
+    form = _SiteGalleryMediaForm
     MAIN_IMAGE_FIELDS = {
         "logo",
         "header_background_image",
@@ -567,7 +687,14 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
         ),
     )
 
+    def response_add(self, request, obj, post_url_continue=None):
+        if "_continue" in request.POST and not self.has_view_or_change_permission(request, obj):
+            post_url_continue = self.response_post_save_add(request, obj).url
+        return super().response_add(request, obj, post_url_continue)
+
     def changelist_view(self, request, extra_context=None):
+        if not self.has_view_or_change_permission(request):
+            raise PermissionDenied
         if request.GET.get("placement__exact"):
             return super().changelist_view(request, extra_context)
 
@@ -905,6 +1032,8 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
                 "title": img.title_i18n(),
                 "file": get_file_info(img.image),
                 "edit_url": reverse("admin:catalog_sitegalleryimage_change", args=[img.id]),
+                "can_change": self.has_change_permission(request, img),
+                "can_delete": self.has_delete_permission(request, img),
                 "delete_url": reverse("admin:catalog_sitegalleryimage_delete", args=[img.id]),
             }
             if img.placement == SiteGalleryImage.PLACEMENT_HOME_HERO:
@@ -935,6 +1064,23 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
             "title": _("Фото для блоков сайта"),
             "opts": self.model._meta,
             "main_images": main_images,
+            "can_change_main_images": request.user.has_perm("catalog.change_sitesettings"),
+            "site_media_i18n": {
+                "loading": _("Загрузка..."),
+                "deleting": _("Удаление..."),
+                "delete_title": _("Удалить изображение?"),
+                "delete_message": _("Загруженное изображение будет удалено без возможности восстановления."),
+                "confirm_delete": _("Удалить"),
+                "cancel": _("Отмена"),
+                "upload_error": _("Не удалось загрузить файл"),
+                "delete_error": _("Не удалось удалить изображение"),
+                "network_error": _("Не удалось подключиться к серверу. Повторите попытку."),
+                "server_error": _("Ошибка сервера"),
+                "unknown_error": _("Неизвестная ошибка"),
+                "active": _("Активно"),
+                "edit": _("Редактировать"),
+            },
+            "has_add_permission": self.has_add_permission(request),
             "galleries": galleries,
         }
         return TemplateResponse(request, "admin/catalog/sitegalleryimage/change_list.html", context)
@@ -990,21 +1136,37 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
         image_file = request.FILES.get("image")
         placement = request.POST.get("placement")
         field_name = request.POST.get("field")
+
+        if field_name:
+            if not request.user.has_perm("catalog.change_sitesettings"):
+                raise PermissionDenied
+        elif not self.has_add_permission(request):
+            raise PermissionDenied
         
         if not image_file:
             return JsonResponse({"success": False, "error": "Missing image file"}, status=400)
             
+        if field_name and field_name not in self.MAIN_IMAGE_FIELDS:
+            return JsonResponse({"success": False, "error": "Invalid field name"}, status=400)
+        if not field_name:
+            if not placement:
+                return JsonResponse({"success": False, "error": "Missing placement or field parameter"}, status=400)
+            if placement not in {value for value, _ in SiteGalleryImage.PLACEMENT_CHOICES}:
+                return JsonResponse({"success": False, "error": str(_("Укажите допустимый раздел галереи."))}, status=400)
+        try:
+            validate_site_media_upload(image_file, field=field_name, placement=placement if not field_name else None)
+        except ValidationError as exc:
+            return JsonResponse({"success": False, "error": " ".join(exc.messages)}, status=400)
+
         try:
             from django.template.defaultfilters import filesizeformat
             import os
             
             if field_name:
-                if field_name not in self.MAIN_IMAGE_FIELDS:
-                    return JsonResponse({"success": False, "error": "Invalid field name"}, status=400)
-                
-                site = SiteSettings.get_solo()
-                setattr(site, field_name, image_file)
-                site.save()
+                with transaction.atomic():
+                    site = SiteSettings.objects.select_for_update().get(pk=SiteSettings.get_solo().pk)
+                    setattr(site, field_name, image_file)
+                    site.save(update_fields=[field_name, "updated_at"])
                 
                 # Clear singleton cache
                 from catalog.models.site import clear_singleton_caches
@@ -1023,9 +1185,6 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
                         "size": size
                     }
                 })
-                
-            if not placement:
-                return JsonResponse({"success": False, "error": "Missing placement or field parameter"}, status=400)
                 
             from django.db.models import Max
             
@@ -1056,8 +1215,8 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
                     "name": os.path.basename(instance.image.name),
                     "size": size
                 },
-                "edit_url": edit_url,
-                "delete_url": delete_url,
+                "edit_url": edit_url if self.has_change_permission(request, instance) else None,
+                "delete_url": delete_url if self.has_delete_permission(request, instance) else None,
             })
         except Exception as e:
             return JsonResponse({"success": False, "error": str(e)}, status=500)
@@ -1066,24 +1225,28 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
         if request.method != "POST":
             return JsonResponse({"success": False, "error": "Only POST requests are allowed"}, status=400)
 
+        if not request.user.has_perm("catalog.change_sitesettings"):
+            raise PermissionDenied
+
         field_name = request.POST.get("field")
         if field_name not in self.MAIN_IMAGE_FIELDS:
             return JsonResponse({"success": False, "error": "Invalid field name"}, status=400)
 
         try:
-            site = SiteSettings.get_solo()
-            image_field = getattr(site, field_name)
-            if not image_field:
-                return JsonResponse({"success": True, "field": field_name, "deleted": False})
+            with transaction.atomic():
+                site = SiteSettings.objects.select_for_update().get(pk=SiteSettings.get_solo().pk)
+                image_field = getattr(site, field_name)
+                if not image_field:
+                    return JsonResponse({"success": True, "field": field_name, "deleted": False})
 
-            image_field.delete(save=False)
-            setattr(site, field_name, None)
-            site.save(update_fields=[field_name, "updated_at"])
+                image_field.delete(save=False)
+                setattr(site, field_name, None)
+                site.save(update_fields=[field_name, "updated_at"])
 
-            from catalog.models.site import clear_singleton_caches
-            clear_singleton_caches()
+                from catalog.models.site import clear_singleton_caches
+                clear_singleton_caches()
 
-            return JsonResponse({"success": True, "field": field_name, "deleted": True})
+                return JsonResponse({"success": True, "field": field_name, "deleted": True})
         except Exception as e:
             return JsonResponse({"success": False, "error": str(e)}, status=500)
 

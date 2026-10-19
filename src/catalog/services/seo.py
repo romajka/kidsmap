@@ -539,7 +539,7 @@ def build_place_seo_payload(place, request, language_code):
         }
 
 
-def build_public_entity_seo_payload(entity, request, language_code):
+def build_public_entity_seo_payload(entity, request, language_code, *, image_url=None):
     """Organization/Course facts from the same approved reader as public SSR."""
     from catalog.models import Organization
     from catalog.services.public_languages import canonical_language
@@ -560,6 +560,7 @@ def build_public_entity_seo_payload(entity, request, language_code):
             'url': _absolute_uri(request, data['organization']['url'])}
     return {'seo_title': data['name'] + ' | KidsMap',
             'meta_description': _truncate_text(data['description'], 160),
+            'seo_image_url': _absolute_uri(request, image_url or data.get('image_url', '')),
             'entity_schema_json': _serialize_json_ld(schema)}
 
 
@@ -637,6 +638,7 @@ def build_event_seo_payload(event, request, language_code, *, public_context):
             'datePublished':review.current_revision.created_at.isoformat()} for review in reviews]
     return {'seo_title':build_branded_seo_title(event.name_i18n(language_code)),
             'meta_description':_truncate_text(event.description_i18n(language_code) or event.name_i18n(language_code)),
+            'seo_image_url':_absolute_uri(request, event.photo.url) if event.photo else '',
             'event_schema_json':_serialize_json_ld(schema)}
 
 

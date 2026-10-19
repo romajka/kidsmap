@@ -1,0 +1,50 @@
+{
+  "status": "SOCIAL-QA-10 CONFIRMED OPEN / PLAN COMPLETE / approval PENDING",
+  "application_changes": false,
+  "source_files": 1024,
+  "native": {
+    "cells": 18,
+    "confirmed_bug": 18,
+    "required_recovery_fail": 18,
+    "png": 18,
+    "expected_console404": 18,
+    "unhandled_pageerrors": 0,
+    "action_redirect_headers": 54
+  },
+  "red_tests": {
+    "total_methods": 12,
+    "candidate_methods": 8,
+    "candidate_failed_methods": 4,
+    "candidate_passed_methods": 4,
+    "shared_passed_methods": 4,
+    "subtest_failures": 24,
+    "errors": 0,
+    "exit": 1,
+    "duration_seconds": 1.535,
+    "failed_methods": [
+      "test_guest_get_action_urls_use_login_before_method_guard",
+      "test_guest_inbox_reaches_real_localized_login_with_full_next",
+      "test_guest_post_with_valid_csrf_redirects_without_business_writes",
+      "test_password_login_returns_to_original_inbox_not_action_replay"
+    ]
+  },
+  "candidate": {
+    "app_files": [
+      "src/catalog/controllers/workflow_notifications.py",
+      "src/catalog/testcases/test_social_qa10_notification_login.py"
+    ],
+    "decorator_lines": 4,
+    "new_test_methods": 8,
+    "apply_check_exit": 0,
+    "applied": false
+  },
+  "not_run": [
+    "candidate GREEN",
+    "candidate runtime rendering",
+    "postpatch login round trip",
+    "full unchanged module corpus repeat",
+    "global project suite",
+    "production",
+    "physical devices/screenreader/cross-browser"
+  ]
+}
