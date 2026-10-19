@@ -32,13 +32,71 @@ def _mine(user):
     return rows
 
 
+def _moderation_detail(user, item, revision, access_cache):
+    """Historical decision text, with a link authorized against today's object."""
+    from catalog.services import publication
+    from catalog.services.permanent_place_rules import copy as t
+
+    context = item.event_context
+    if (item.event_kind != 'moderation_decision' or item.entity_type != 'volunteer_revision'
+            or revision is None or not isinstance(context, dict)
+            or context.get('schema_version') != 1):
+        return None
+    decisions = {
+        'approved': t('Одобрено', 'Təsdiqləndi', 'Approved'),
+        'needs_changes': t('Нужны исправления', 'Düzəliş lazımdır', 'Changes requested'),
+        'rejected': t('Отклонено', 'Rədd edildi', 'Rejected'),
+    }
+    kind, pk = context.get('target_type'), context.get('target_id')
+    titles, reason, decision = context.get('titles'), context.get('reason', ''), context.get('decision')
+    if (not isinstance(kind, str) or kind not in publication.TARGETS or type(pk) is not int
+            or getattr(revision, kind + '_id') != pk
+            or not isinstance(decision, str) or decision not in decisions
+            or not isinstance(titles, dict) or not isinstance(reason, str)):
+        return None
+    key = (kind, pk)
+    if key not in access_cache:
+        target = getattr(revision, kind)
+        try:
+            publication.authorize(user, target, kind)
+        except PermissionDenied:
+            access_cache[key] = None
+        else:
+            if publication.volunteer_can_author(user, target, kind):
+                name, args = ('admin:volunteer_edit', [pk]) if kind == 'place' else (
+                    'admin:volunteer_proposal_edit', [kind, pk])
+            elif kind == 'organization':
+                name, args = 'organization_workspace_detail', [pk]
+            elif kind == 'program':
+                name, args = 'organization_program_detail', [target.organization_id, pk]
+            else:
+                place_id = pk if kind == 'place' else target.place_id if kind == 'activity' else target.activity.place_id
+                name, args = 'owner_place_edit', [place_id]
+            access_cache[key] = reverse(name, args=args)
+    if not access_cache[key]:
+        return None
+    lang = (get_language() or 'az').split('-')[0]
+    title = titles.get(lang) or titles.get('az')
+    if not isinstance(title, str):
+        return None
+    return {'decision': decisions[context['decision']], 'title': title[:255],
+            'reason': reason[:4000], 'url': access_cache[key]}
+
+
 def _inbox_items(user):
     items = list(_mine(user).order_by('-created_at', '-pk')[:100])
     from catalog.services.workflow_notifications import _invitation_current, _join_confirmation_current
-    from catalog.models import OrganizationPlaceRequest
+    from catalog.models import OrganizationPlaceRequest, VolunteerPlaceRevision
     join_ids = [item.entity_id for item in items if item.event_kind == 'join_confirmation']
     joins = {row.pk: row for row in OrganizationPlaceRequest.objects.filter(pk__in=join_ids)}
+    revision_ids = [item.entity_id for item in items if item.event_kind == 'moderation_decision'
+                    and item.entity_type == 'volunteer_revision']
+    revisions = {row.pk: row for row in VolunteerPlaceRevision.objects.filter(pk__in=revision_ids)
+                 .select_related('place', 'organization', 'program', 'activity__place',
+                                 'offering_group__activity__place')}
+    access_cache = {}
     for item in items:
+        item.moderation = _moderation_detail(user, item, revisions.get(item.entity_id), access_cache)
         item.can_accept = item.event_kind == 'team_invitation' and _invitation_current(item, (user.email or '').strip().lower(), timezone.now())
         item.can_reject = item.can_accept and item.entity_type in _INVITATION_TARGET_TYPES and item.entity_version == 1
         item.join_action_url = ''

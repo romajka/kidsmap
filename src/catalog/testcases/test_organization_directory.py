@@ -8,6 +8,19 @@ from catalog.testcases.utils import create_quality_place
 
 
 class OrganizationDirectoryTests(TestCase):
+    def test_head_preserves_get_visibility_and_unsafe_methods_are_refused(self):
+        for prefix in ('', '/ru', '/en'):
+            with self.subTest(prefix=prefix):
+                path = prefix + '/organizations/'
+                get = self.client.get(path)
+                head = self.client.head(path)
+                self.assertEqual(head.status_code, 200)
+                self.assertEqual(head.content, b'')
+                self.assertEqual(head['Content-Type'], get['Content-Type'])
+                self.assertEqual(head.context['cards'][0]['branch_count'], 1)
+                for method in ('post', 'put', 'delete'):
+                    self.assertEqual(getattr(self.client, method)(path).status_code, 405)
+
     def setUp(self):
         self.owner = get_user_model().objects.create_user('directory_owner')
         self.org = Organization.objects.create(owner=self.owner, name_az='Şəbəkə', name_ru='Сеть музыки', name_en='Music network', description_az='Uşaqlar üçün', status='published', approved_at=timezone.now())

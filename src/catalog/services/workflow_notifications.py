@@ -1,4 +1,5 @@
 """Transactional service events and opt-in local email delivery."""
+import copy
 import hashlib
 from datetime import timedelta
 from smtplib import SMTPException
@@ -23,9 +24,11 @@ def _email(value):
 
 @transaction.atomic
 def emit(*, kind, entity_type, entity_id, version, recipient_user=None,
-         recipient_email='', email=True):
+         recipient_email='', email=True, event_context=None):
     if not kind or not entity_type or not isinstance(entity_id, int) or isinstance(entity_id, bool) or entity_id < 1 or not isinstance(version, int) or isinstance(version, bool) or version < 1:
         raise ValidationError('Invalid notification identity.')
+    if event_context is not None and not isinstance(event_context, dict):
+        raise ValidationError('Invalid notification context.')
     address = _email(recipient_email or (recipient_user.email if recipient_user else ''))
     if recipient_user is None and address:
         matches = list(get_user_model().objects.filter(email__iexact=address, is_active=True).order_by('pk')[:2])
@@ -37,7 +40,8 @@ def emit(*, kind, entity_type, entity_id, version, recipient_user=None,
     item, _ = WorkflowNotification.objects.get_or_create(
         event_kind=kind, entity_type=entity_type, entity_id=entity_id,
         entity_version=version, recipient_key=key,
-        defaults={'recipient_user': recipient_user, 'recipient_email': address})
+        defaults={'recipient_user': recipient_user, 'recipient_email': address,
+                  'event_context': copy.deepcopy(event_context or {})})
     if email and address:
         EmailOutbox.objects.get_or_create(notification=item, defaults={'recipient_email': address})
     return item

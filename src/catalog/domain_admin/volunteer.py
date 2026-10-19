@@ -146,6 +146,9 @@ def review_index(request):
 
 
 def display_value(name, value):
+    if name == 'nature':
+        return {'business': t('Бизнес', 'Biznes', 'Business'),
+                'public_space': t('Общественное место', 'İctimai məkan', 'Public space')}.get(value, '—')
     if name == "structured_schedule":
         return build_schedule_summary(value or []) or "—"
     if name == "pricing_plans":
@@ -162,6 +165,35 @@ def display_value(name, value):
     return str(value) if value not in (None, "") else "—"
 
 
+def gallery_preview(value):
+    from pathlib import PurePosixPath
+    from catalog.models import PlacePhoto
+
+    storage = PlacePhoto._meta.get_field('image').storage
+    images = []
+    for index, row in enumerate(value[:10] if isinstance(value, list) else []):
+        if not isinstance(row, dict):
+            continue
+        name = row.get('image')
+        if not isinstance(name, str) or not name.startswith('places/') or '\\' in name:
+            continue
+        path = PurePosixPath(name)
+        if ('..' in path.parts or path.as_posix() != name
+                or path.suffix.lower() not in {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.heic', '.heif'}):
+            continue
+        try:
+            if not storage.exists(name):
+                continue
+            url = storage.url(name)
+        except (OSError, ValueError):
+            continue
+        order = row.get('order', index)
+        caption = row.get('caption', '')
+        images.append({'url': url, 'caption': caption[:255] if isinstance(caption, str) else '',
+                       'order': order if type(order) is int else index})
+    return sorted(images, key=lambda image: image['order'])
+
+
 @require_http_methods(["GET", "POST"])
 def review(request, place_id):
     require_reviewer(request.user)
@@ -175,17 +207,25 @@ def review(request, place_id):
             review_proposal(user=request.user, place_id=place_id, version=int(request.POST.get("version", -1)),
                             approve=action == "approve", note=request.POST.get("note", ""))
         except (ValidationError, ValueError) as exc:
-            error = "; ".join(exc.messages) if isinstance(exc, ValidationError) else str(_("Обновите страницу."))
+            error = proposal_error(exc) if isinstance(exc, ValidationError) else str(_("Обновите страницу."))
         else:
             messages.success(request, _("Изменения опубликованы.") if action == "approve" else _("Возвращено на доработку."))
             return redirect("admin:volunteer_review_index")
-    current = live_snapshot(revision.place)
+    from catalog.services.publication import snapshot
+    current = snapshot(revision.place, 'place')
     rows = []
     for name, proposed in revision.payload.items():
         previous = current.get(name)
         if proposed == previous:
             continue
+        if name == 'gallery':
+            rows.append({'label': t('Галерея', 'Qalereya', 'Gallery'), 'is_gallery': True,
+                         'before_images': gallery_preview(previous), 'after_images': gallery_preview(proposed),
+                         'empty_label': t('Нет фотографий', 'Şəkil yoxdur', 'No photos')})
+            continue
         label = Place._meta.get_field(name).verbose_name if name in CONTENT_FIELDS else {"pricing_plans": _("Тарифы"), "structured_schedule": _("Расписание")}.get(name, name)
+        if name == 'nature':
+            label = t('Тип места', 'Məkanın növü', 'Place type')
         row = {"label": label, "before": display_value(name, previous), "after": display_value(name, proposed)}
         if name in {"photo", "cover_photo"}:
             storage = Place._meta.get_field(name).storage

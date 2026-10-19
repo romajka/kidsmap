@@ -3,7 +3,7 @@ from urllib.parse import urlencode
 from django.core.paginator import Paginator
 from django.db.models import Count, F, Q
 from django.shortcuts import render
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_safe
 from catalog.models import Organization, Place
 from catalog.services.content_quality import published_place_queryset
 from catalog.services.locations import get_all_districts_flat_choices
@@ -27,7 +27,7 @@ def confirmed_branches():
     )
 
 
-@require_GET
+@require_safe
 def organization_list(request):
     from catalog.services.features import require_organizations_section_enabled
     require_organizations_section_enabled()

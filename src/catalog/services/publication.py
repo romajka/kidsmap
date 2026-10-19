@@ -421,7 +421,19 @@ def review(*,actor,revision_id,version,approve,note='',final_reject=False):
             Activity.objects.filter(pk__in=[a.pk for a in rows]).update(program_snapshot=approved_program_data(target),source_program=target,source_program_version=target.content_version,content_version=F('content_version')+1,updated_at=now)
     revision.status='approved' if approve else 'declined' if final_reject else 'rejected';revision.reviewed_by=actor;revision.review_note=note.strip();revision.version+=1;revision.save()
     from catalog.services.workflow_notifications import emit
-    emit(kind='moderation_decision', entity_type='volunteer_revision', entity_id=revision.pk, version=revision.version, recipient_user=revision.author)
+    target.refresh_from_db()
+    decision_context = {
+        'schema_version': 1,
+        'decision': 'approved' if approve else 'rejected' if final_reject else 'needs_changes',
+        'target_type': kind,
+        'target_id': pk,
+        'titles': {lang: str(revision.payload.get('name_' + lang,
+                       getattr(target, 'name_' + lang, '')) or '')[:255]
+                   for lang in ('az', 'ru', 'en')},
+        'reason': '' if approve else note.strip()[:4000],
+    }
+    emit(kind='moderation_decision', entity_type='volunteer_revision', entity_id=revision.pk,
+         version=revision.version, recipient_user=revision.author, event_context=decision_context)
     return revision
 
 
