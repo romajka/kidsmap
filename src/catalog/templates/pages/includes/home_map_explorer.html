@@ -7,7 +7,7 @@
   data-empty-label="{% trans 'По выбранным фильтрам на карте пока нет мест' %}"
   data-guide-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə işarə və ya siyahıdan məkan seçin.{% elif request.LANGUAGE_CODE == 'en' %}Select a pin or a place in the list.{% else %}Нажмите на метку — покажу, что это за занятие.{% endif %}"
   data-selected-label="{% if request.LANGUAGE_CODE == 'az' %}Seçildi: {name}{% elif request.LANGUAGE_CODE == 'en' %}Selected: {name}{% else %}Выбрано: {name}{% endif %}">
-  
+
   <div class="home-map-head">
     <div class="home-map-copy">
       <div class="home-map-eyebrow-row">
@@ -59,7 +59,7 @@
     </button>
   </div>
   <p class="home-explorer-status" data-home-explorer-status role="status" aria-live="polite" hidden></p>
-  
+
   <div class="home-explorer-workspace">
     <div class="home-explorer-list-panel" id="home-explorer-list-panel" data-home-explorer-list role="tabpanel" aria-labelledby="home-explorer-list-tab">
       <ol class="home-explorer-list" data-home-map-list aria-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədəki məkanlar{% elif request.LANGUAGE_CODE == 'en' %}Places on the map{% else %}Места на карте{% endif %}"></ol>
