@@ -1,7 +1,7 @@
 {% extends "admin/base_site.html" %}
 {% load static i18n %}
 {% block extrahead %}{{ block.super }}<script defer src="{% static 'admin/js/volunteer_hub.js' %}"></script>{% endblock %}
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/volunteer.css' %}">{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/volunteer.css' %}?v=20261020_release_r1">{% endblock %}
 {% block bodyclass %}{{ block.super }} km-volunteer-page{% endblock %}
 {% block content %}<div class="km-volunteer">
   {% block workspace %}{% endblock %}

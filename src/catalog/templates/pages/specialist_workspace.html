@@ -2,7 +2,7 @@
 {% load i18n static %}
 {% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
 {% block title %}{% if workspace_mode == 'index' and not my_specialist %}{% trans 'Анкеты специалистов' %}{% elif workspace_mode == 'claims' %}{% trans 'Подтверждение личности' %}{% elif workspace_mode == 'review' %}{% trans 'Проверка KidsMap' %}{% elif workspace_mode == 'organization' %}{% trans 'Специалисты организации' %}{% else %}{% trans 'Кабинет специалиста' %}{% endif %}{% endblock %}
-{% block extra_head %}<script src="{% static 'js/specialist_recovery.js' %}?v=20261020self1" defer></script>{{ block.super }}<meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}?v=20261020account3">{% endblock %}
+{% block extra_head %}<script src="{% static 'js/specialist_recovery.js' %}?v=20261020_release_r1" defer></script>{{ block.super }}<meta name="robots" content="noindex,nofollow"><link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}?v=20261020_release_r1">{% endblock %}
 {% block account_content %}
 {{ clear_specialist_recovery|json_script:'specialist-clear-recovery' }}
 <div id="specialist-recovery-identity" data-actor="{{ recovery_actor }}" hidden></div>

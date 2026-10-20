@@ -2,7 +2,7 @@
 {% load i18n static %}
 {% get_current_language as CURRENT_LANGUAGE %}
 {% block title %}{% if CURRENT_LANGUAGE == 'az' %}E-poçt dəyişikliyini təsdiqləyin{% elif CURRENT_LANGUAGE == 'en' %}Confirm email change{% else %}Подтвердите смену email{% endif %}{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/account_email_change.css' %}">{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/account_email_change.css' %}?v=20261020_release_r1">{% endblock %}
 {% block content %}
 <section class="panel auth-panel email-change-panel" aria-labelledby="email-change-title">
   <h1 id="email-change-title">{% if CURRENT_LANGUAGE == 'az' %}E-poçt dəyişikliyini təsdiqləyin{% elif CURRENT_LANGUAGE == 'en' %}Confirm email change{% else %}Подтвердите смену email{% endif %}</h1>

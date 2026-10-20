@@ -3,7 +3,7 @@
 {% get_current_language as CURRENT_LANGUAGE %}
 
 {% block title %}{% if CURRENT_LANGUAGE == "az" %}Məkan analitikası{% elif CURRENT_LANGUAGE == "en" %}Place analytics{% else %}Аналитика места{% endif %}{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=20260913_analytics_visual" />{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=20261020_release_r1" />{% endblock %}
 {% block content %}
 <div class="account-page-wrapper owner-analytics">
   <a class="owner-analytics__back" href="{% url 'owner_places_dashboard' %}">
