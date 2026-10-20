@@ -25,7 +25,7 @@ class Site02PublicCopyTests(TestCase):
         self.assertEqual(response.status_code,200)
         body=response.content.decode()
         pattern=(r'<p class="about-hero-lead">(.*?)</p>' if kind=='about'
-                 else r'<section class="empty-state catalog-empty-state">.*?<h2>(.*?)</h2>')
+                 else r'<section class="empty-state catalog-empty-state(?: [^"]*)?">.*?<h2>(.*?)</h2>')
         match=re.search(pattern,body,re.S);self.assertIsNotNone(match)
         return response,match.group(1).strip()
 

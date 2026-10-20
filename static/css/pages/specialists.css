@@ -451,6 +451,9 @@ body.km-filter-lock {
 
 /* ─── Age Range Slider in Specialists ─── */
 .km-specialists-page .range-filter {
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -464,18 +467,18 @@ body.km-filter-lock {
 }
 
 .km-specialists-page .range-filter-current {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--km-primary);
-  background: #ecfdf5;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid #a7f3d0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f2937;
+  background: transparent;
+  padding: 0;
+  border: 0;
+  white-space: nowrap;
 }
 
 .km-specialists-page .range-filter-track {
   position: relative;
-  height: 24px;
+  height: 20px;
   display: flex;
   align-items: center;
 }
@@ -485,18 +488,29 @@ body.km-filter-lock {
   position: absolute;
   left: 0;
   right: 0;
-  height: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 5px;
   border-radius: 999px;
-  background: #e2e8f0;
+  background: linear-gradient(
+    to right,
+    #d1ded5 0%,
+    #d1ded5 var(--from-pct, 0%),
+    #22b25d var(--from-pct, 0%),
+    #22b25d var(--to-pct, 100%),
+    #d1ded5 var(--to-pct, 100%),
+    #d1ded5 100%
+  );
   pointer-events: none;
 }
 
 .km-specialists-page .range-slider {
   position: absolute;
   left: 0;
-  top: 0;
+  top: 50%;
+  transform: translateY(-50%);
   width: 100%;
-  height: 24px;
+  height: 16px;
   margin: 0;
   background: transparent;
   pointer-events: none;
@@ -508,29 +522,29 @@ body.km-filter-lock {
   pointer-events: auto;
   -webkit-appearance: none;
   appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
-  background: #ffffff;
-  border: 2.5px solid var(--km-primary);
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+  background: #22b25d;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(28, 119, 62, 0.25);
   cursor: pointer;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .km-specialists-page .range-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
-  box-shadow: 0 0 0 5px rgba(0, 154, 78, 0.15);
+  transform: scale(1.2);
+  box-shadow: 0 0 0 4px rgba(34, 178, 93, 0.2);
 }
 
 .km-specialists-page .range-slider::-moz-range-thumb {
   pointer-events: auto;
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
-  background: #ffffff;
-  border: 2.5px solid var(--km-primary);
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+  background: #22b25d;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(28, 119, 62, 0.25);
   cursor: pointer;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
@@ -4601,3 +4615,228 @@ body.km-filter-lock {
 .km-specialist-owner-page .spec-practice-field:has(input[type=checkbox]){display:flex;align-items:center;gap:12px;min-height:44px}
 .km-specialist-owner-page .spec-practice-field:has(input[type=checkbox]) label{margin:0;flex:1;cursor:pointer}
 .km-specialist-owner-page .spec-practice-field input[type=checkbox]{width:20px;height:20px;min-width:20px;min-height:20px;padding:0;margin:0;flex:none;cursor:pointer}
+
+/* ─────────────────────────────────────────────────────────────
+   SPECIALIST FORM VISUAL POLISH & STEPPER UNIFICATION
+   ───────────────────────────────────────────────────────────── */
+
+/* Top Head Row & Status Chips */
+.km-specialist-head .km-head-top-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.km-specialist-head .org-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.km-specialist-head .org-status--server-draft {
+  background: #EBF5F0;
+  color: #0D8A52;
+  border: 1px solid #C6E6D5;
+}
+
+.km-specialist-head .org-status--approved {
+  background: #EAF7EF;
+  color: #0D8A52;
+  border: 1px solid #A7F3D0;
+}
+
+/* Save State Box */
+.km-specialist-owner-page .spec-save-state {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  margin-bottom: 14px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 14px;
+  background: #F8FAFC;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+
+.km-specialist-owner-page .spec-save-state::before {
+  content: "";
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #94A3B8;
+  flex-shrink: 0;
+}
+
+/* Draft Informational Notice (replaces bare helptext) */
+.km-draft-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  margin-bottom: 22px;
+  border: 1.5px solid #D1EAD9;
+  border-radius: 14px;
+  background: #F4FAF6;
+  color: #234E3A;
+  font-size: 13.5px;
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+.km-draft-notice-icon {
+  font-size: 20px;
+  color: #0D8A52;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ─── STEPPER DESKTOP: Unified, crisp cards with NO nested boxes ─── */
+.km-owner-stepper {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  margin-bottom: 24px !important;
+}
+
+.km-owner-stepper button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  min-height: 50px !important;
+  padding: 8px 12px !important;
+  border: 1.5px solid #E2E8F0 !important;
+  border-radius: 14px !important;
+  background: #FFFFFF !important;
+  color: #475569 !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+.km-owner-stepper button:hover {
+  border-color: #B5DEC9 !important;
+  color: #0D8A52 !important;
+  background: #F4FAF6 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 8px rgba(13, 138, 82, 0.08) !important;
+}
+
+.km-owner-stepper button:active {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+.km-owner-stepper button.is-active {
+  border-color: #0D8A52 !important;
+  background: #0D8A52 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(13, 138, 82, 0.26) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Number Circle Badge - Perfect Circle with zero outer padding or borders */
+.km-owner-stepper button .step-num {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 26px !important;
+  min-width: 26px !important;
+  max-width: 26px !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  max-height: 26px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 999px !important;
+  background: #EDF2F7 !important;
+  color: #475569 !important;
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  flex: 0 0 26px !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease !important;
+}
+
+.km-owner-stepper button:hover .step-num {
+  background: #E2E8F0 !important;
+  color: #0D8A52 !important;
+}
+
+.km-owner-stepper button.is-active .step-num {
+  background: rgba(255, 255, 255, 0.28) !important;
+  color: #FFFFFF !important;
+}
+
+/* Step Label - Clean plain text with NO borders, NO backgrounds, NO pills */
+.km-owner-stepper button .step-label {
+  display: inline !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  line-height: 1.25 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  flex: 0 1 auto !important;
+}
+
+/* Sidebar Cards Polish */
+.km-sidebar-card {
+  background: #FFFFFF !important;
+  border: 1.5px solid #E2E8F0 !important;
+  border-radius: 16px !important;
+  padding: 20px !important;
+  margin-bottom: 16px !important;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03) !important;
+}
+
+.km-sidebar-card h2 {
+  font-size: 15.5px !important;
+  font-weight: 800 !important;
+  color: #0F172A !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 0 12px !important;
+}
+
+.km-sidebar-card h2 i {
+  color: #0D8A52 !important;
+  font-size: 17px !important;
+}
+
+.km-sidebar-card p {
+  font-size: 13.5px !important;
+  color: #334155 !important;
+  line-height: 1.5 !important;
+  margin: 0 0 8px !important;
+}
+
+.km-help-bullets li {
+  font-size: 13.5px !important;
+  color: #475569 !important;
+  line-height: 1.55 !important;
+  padding: 3px 0 !important;
+}

@@ -92,7 +92,10 @@ class HomeController:
         )
         home_districts = public_filter_options.districts
 
+        selected_filters = filters.selected()
         return {
+            "home_age_from": selected_filters["age_from"],
+            "home_age_to": selected_filters["age_to"],
             "home_categories": public_filter_options.categories,
             "active_category_codes": {item["value"] for item in public_filter_options.categories},
             "home_districts": home_districts,

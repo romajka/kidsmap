@@ -7,3 +7,27 @@
 .sw-workspace :is(a,button,input,select,textarea,summary):focus-visible,.km-specialist-owner-page :is(a,button,input,select,textarea):focus-visible{outline:3px solid var(--brand-turf);outline-offset:3px}.sw-workspace :is(p,a,button,h1,h2,h3,li,label),.sw-public-employment :is(p,a,h3){overflow-wrap:anywhere}.sw-public-employment{margin-top:20px}.sw-public-employment ul{list-style:none;padding:0}.sw-public-employment li{padding:16px 0;border-bottom:1px solid var(--tint-line-200)}.sw-public-employment h3{margin-bottom:6px}.sw-public-employment .sw-help{margin-top:12px}.sw-workspace [hidden]{display:none!important}
 @media(max-width:1000px){.sw-layout{grid-template-columns:180px minmax(0,1fr);gap:22px}.sw-row-head{flex-wrap:wrap}.sw-pill{flex-shrink:1}}
 @media(max-width:767px){.sw-workspace{padding:0 16px;margin-top:24px}.sw-layout{display:block}.sw-nav{position:static;grid-template-columns:1fr 1fr;margin-bottom:26px;gap:4px}.sw-nav a{font-size:14px;padding:10px 9px}.sw-card{padding:22px 18px}.sw-consents{grid-template-columns:1fr}.sw-button{width:auto}.sw-actions>*{max-width:100%}.sw-card h2{font-size:22px}}
+
+/* Specialist screens remain inside the ordinary account navigation. */
+.account-specialist-workspace{max-width:none;width:100%;margin:0;padding:0}
+.account-specialist-workspace .sw-heading{margin-bottom:18px}
+.account-specialist-workspace .sw-heading h1{font-family:inherit;font-size:22px;margin:0;line-height:1.3}
+.account-specialist-workspace .sw-lede{font-size:15px;margin:6px 0 0}
+.account-specialist-workspace .sw-subnav{display:flex;flex-wrap:wrap;position:static;gap:6px;margin-bottom:18px}
+.account-specialist-workspace .sw-subnav a{min-height:44px;padding:8px 12px;font-size:14px}
+.account-specialist-workspace .sw-card{border-radius:18px;padding:22px}
+.account-specialist-workspace .sw-card h2{font-size:19px}
+.account-specialist-shell .km-specialist-owner-page{width:100%;max-width:none;margin:0;box-sizing:border-box;min-width:0}
+.account-specialist-shell .km-specialist-owner-form .owner-event-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
+.account-specialist-shell .km-specialist-side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;position:static;margin:0}
+.account-specialist-shell .km-specialist-side .owner-event-help-card{margin:0;min-width:0}
+@media(max-width:1000px){.account-specialist-shell .km-specialist-side{grid-template-columns:minmax(0,1fr)}.account-specialist-shell .km-owner-stepper{display:none}.account-specialist-shell .km-owner-mobile-progress{display:block}}
+@media(max-width:767px){.account-specialist-workspace .sw-card{padding:20px 16px}.account-specialist-workspace .sw-subnav{display:flex;margin-bottom:16px}}
+
+.account-specialist-shell .spec-profile-subject{margin:0 0 22px;padding:18px 20px;border:1px solid var(--tint-line-200);border-radius:12px;min-width:0}
+.account-specialist-shell .spec-profile-subject legend{padding:0 6px;font-weight:650;color:var(--ink)}
+.account-specialist-shell .spec-profile-subject-options{display:flex;flex-wrap:wrap;gap:12px 24px}
+.account-specialist-shell .spec-profile-subject-options label{display:flex;align-items:center;gap:10px;min-height:44px;cursor:pointer;color:var(--ink);font-weight:600}
+.account-specialist-shell .spec-profile-subject-options input[type=radio]{width:20px;height:20px;margin:0;flex-shrink:0;accent-color:var(--brand-turf)}
+.account-specialist-shell .spec-profile-subject p{margin:10px 0 0;color:var(--muted);font-size:14px;line-height:1.5;max-width:80ch}
+@media(max-width:767px){.account-specialist-shell .spec-profile-subject{padding:14px}.account-specialist-shell .spec-profile-subject-options{display:grid;gap:4px}}

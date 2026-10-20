@@ -592,3 +592,11 @@
   color: #b91c1c;
 }
 
+
+/* Main cover preview keeps the whole image, matching public card contain-fit. */
+.pw-photo-items--main .pw-photo-item{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);align-items:center;gap:18px}
+.pw-photo-items--main .pw-photo-item img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:contain;background:var(--tint-mist-050,#f7faf7);border-radius:10px}
+.pw-photo-cover-label{margin:0 0 6px;color:var(--pw-green);font-size:13px;font-weight:750;line-height:1.5}
+.pw-photo-cover-help{margin:0;padding:12px 14px;border-inline-start:3px solid var(--pw-green);background:var(--tint-mist-050,#f7faf7);color:var(--pw-muted);font-size:13px;line-height:1.6}
+
+@media(max-width:620px){.pw-photo-items--main .pw-photo-item{grid-template-columns:minmax(0,1fr);gap:12px}}

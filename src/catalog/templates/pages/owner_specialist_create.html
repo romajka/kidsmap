@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "pages/account_shell.html" %}
 {% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
 {% load i18n static %}
 {% get_current_language as CURRENT_LANGUAGE %}
@@ -9,15 +9,15 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block extra_head %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261007spec5" />
-  <link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261020self1" />
+  <link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}?v=20261020account3" />
   <script src="{% static 'js/specialists.js' %}?v=20261007spec5" defer></script>
   <script src="{% static 'js/specialist_workspace.js' %}" defer></script>
   <script src="{% static 'js/specialist_locations.js' %}" defer></script>
-  <script src="{% static 'js/specialist_recovery.js' %}" defer></script>
+  <script src="{% static 'js/specialist_recovery.js' %}?v=20261020self1" defer></script>
 {% endblock %}
 
-{% block content %}
+{% block account_content %}
 {{ clear_specialist_recovery|json_script:'specialist-clear-recovery' }}
 <div id="specialist-recovery-identity" data-actor="{{ recovery_actor }}" hidden></div>
 <section class="panel owner-event-page km-specialist-owner-page">
@@ -25,14 +25,14 @@
   <div class="owner-page-head km-specialist-head">
     <div class="km-head-title-group">
       <div class="km-head-top-row">
-        <a class="km-back-btn" href="{% url 'owner_places_dashboard' %}" aria-label="{% trans 'Назад в кабинет' %}">
+        <a class="km-back-btn" href="{% url 'account_dashboard' %}" aria-label="{% trans 'Назад в кабинет' %}">
           <i class="fas fa-arrow-left" aria-hidden="true"></i>
           <span>{% if CURRENT_LANGUAGE == "az" %}Kabinetə qayıt{% elif CURRENT_LANGUAGE == "en" %}Back to dashboard{% else %}В кабинет{% endif %}</span>
         </a>
         {% if specialist %}
           <span class="org-status org-status--approved"><i class="fas fa-user-check" aria-hidden="true"></i> {% trans 'Личный профиль специалиста' %}</span>
         {% else %}
-          <span class="org-status org-status--server-draft"><i class="fas fa-user-plus" aria-hidden="true"></i> {% trans 'Предложение профиля' %}</span>
+          <span class="org-status org-status--server-draft"><i class="fas fa-user-plus" aria-hidden="true"></i> {% trans 'Анкета специалиста' %}</span>
         {% endif %}
       </div>
       <h1>{% if specialist %}{% trans 'Редактировать профиль' %}{% else %}{% trans 'Добавить профиль специалиста' %}{% endif %}</h1>
@@ -40,7 +40,7 @@
         {% if specialist %}
           {% trans 'Управляйте личными сведениями, форматами и местами практики. Публикация проходит проверку KidsMap.' %}
         {% else %}
-          {% trans 'Предложите профиль человека. Управление личными сведениями доступно специалисту после подтверждения личности.' %}
+          {% trans 'Укажите, чей профиль вы добавляете, заполните анкету и отправьте её на проверку.' %}
         {% endif %}
       </p>
     </div>
@@ -57,11 +57,21 @@
     data-specialist-id="{% if specialist %}{{ specialist.pk }}{% else %}new{% endif %}"
   >
     {% csrf_token %}
+    {% if is_proposal %}
+      <fieldset class="spec-profile-subject" aria-describedby="profile-subject-help">
+        <legend>{% trans 'Чей профиль вы добавляете?' %}</legend>
+        <div class="spec-profile-subject-options">
+          <label><input type="radio" name="profile_subject" value="self"{% if profile_subject == 'self' %} checked{% endif %}> <span>{% trans 'Свой — я специалист' %}</span></label>
+          <label><input type="radio" name="profile_subject" value="other"{% if profile_subject != 'self' %} checked{% endif %}> <span>{% trans 'Другого специалиста' %}</span></label>
+        </div>
+        <p id="profile-subject-help">{% trans 'Для своей анкеты при отправке создаётся запрос на подтверждение личности. Предложение чужой анкеты не даёт права управлять ею.' %}</p>
+      </fieldset>
+    {% endif %}
     {% if draft_key %}<input type="hidden" name="draft_key" value="{{ draft_key }}"><input type="hidden" name="draft_version" value="{{ draft_version }}">{% endif %}
-    <div class="spec-save-state" role="status" aria-live="polite" data-specialist-save-status data-error="{% trans 'Изменения не сохранены. Проверьте ошибки.' %}" data-local="{% trans 'Есть несохранённые изменения. Копия ввода сохранена только в этом браузере.' %}" data-dirty="{% trans 'Есть несохранённые изменения' %}" data-saving="{% trans 'Сохранение… Дождитесь ответа сервера.' %}">{% if server_saved_at %}{% trans 'Сохранено на сервере' %}: {{ server_saved_at }}{% else %}{% trans 'Новое предложение ещё не сохранено' %}{% endif %}</div>
+    <div class="spec-save-state" role="status" aria-live="polite" data-specialist-save-status data-error="{% trans 'Изменения не сохранены. Проверьте ошибки.' %}" data-local="{% trans 'Есть несохранённые изменения. Копия ввода сохранена только в этом браузере.' %}" data-dirty="{% trans 'Есть несохранённые изменения' %}" data-saving="{% trans 'Сохранение… Дождитесь ответа сервера.' %}">{% if server_saved_at %}{% trans 'Сохранено на сервере' %}: {{ server_saved_at }}{% else %}{% trans 'Анкета ещё не сохранена' %}{% endif %}</div>
     {% if specialist.status == 'published' %}<p class="org-alert org-alert--warning">{% trans 'Сохранение черновика или отправка изменений снимает этот профиль с публикации до следующей проверки KidsMap.' %}</p>{% endif %}
     <div class="spec-recovery" data-specialist-recovery hidden><p data-recovery-description data-same="{% trans 'Есть несохранённая копия в этом браузере. Сравните её с данными сервера перед восстановлением.' %}" data-conflict="{% trans 'Данные сервера изменились. Локальную копию нельзя восстановить поверх новой версии. Скопируйте нужный текст и обновите форму.' %}"></p><ul data-recovery-diff></ul><button type="button" class="btn-secondary" data-recovery-restore>{% trans 'Восстановить ввод' %}</button><button type="button" class="btn-secondary" data-recovery-discard>{% trans 'Удалить локальную копию' %}</button></div>
-    <p class="helptext">{% trans 'Черновик допускает неполные сведения. Отправка требует имени, формата, направления, описания, контакта, языка работы и активного места для очного приёма. Фото, стаж, цена и сертификаты необязательны.' %}</p>
+    <div class="km-draft-notice"><span class="material-symbols-rounded km-draft-notice-icon">info</span><span>{% trans 'Черновик допускает неполные сведения. Отправка требует имени, формата, направления, описания, контакта, языка работы и активного места для очного приёма. Фото, стаж, цена и сертификаты необязательны.' %}</span></div>
     {% if specialist %}<input type="hidden" name="expected_updated_at" value="{{ profile_version }}">{% endif %}
 
     {% if specialist and specialist.status == 'rejected' %}
@@ -104,7 +114,7 @@
       <div class="owner-event-main">
 
         <!-- Stepper (Desktop) -->
-        <nav class="owner-event-stepper km-owner-stepper" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Addımlar{% elif CURRENT_LANGUAGE == 'en' %}Steps{% else %}Шаги{% endif %}">
+        <nav class="km-owner-stepper" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Addımlar{% elif CURRENT_LANGUAGE == 'en' %}Steps{% else %}Шаги{% endif %}">
           <button type="button" class="is-active" data-owner-step-target="0">
             <span class="step-num">1</span>
             <span class="step-label">{% if CURRENT_LANGUAGE == "az" %}Əsas{% elif CURRENT_LANGUAGE == "en" %}Basic{% else %}Основное{% endif %}</span>
@@ -153,7 +163,11 @@
               {% for e in form.name.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
             </label>
 
-            <label class="owner-event-full km-input-wrapper">{{ form.name_alt.label_tag }}{{ form.name_alt }}{{ form.name_alt.errors }}</label>
+            <label class="owner-event-full km-input-wrapper">
+              <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Alternativ ad / Translasiya{% elif CURRENT_LANGUAGE == "en" %}Alternative name / Transliteration{% else %}Альтернативное имя / Транслитерация{% endif %}</span>
+              {{ form.name_alt }}
+              {% for e in form.name_alt.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
             <label class="km-input-wrapper km-input-half">
               <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}İş stajı (tam il){% elif CURRENT_LANGUAGE == "en" %}Work experience (yrs){% else %}Стаж работы (полных лет){% endif %}</span>
               {{ form.experience_years }}
@@ -565,9 +579,9 @@
           </article>
         {% else %}
           <article class="owner-event-help-card km-sidebar-card">
-            <h2><i class="fas fa-shield-alt" aria-hidden="true"></i> {% trans 'Предложение профиля' %}</h2>
-            <p>{% trans 'Авторство предложения не даёт права менять личные сведения человека.' %}</p>
-            <p class="km-side-muted">{% trans 'После одобрения модератором настоящий специалист сможет подтвердить свою личность и получить доступ к кабинету.' %}</p>
+            <h2><i class="fas fa-shield-alt" aria-hidden="true"></i> {% trans 'Анкета специалиста' %}</h2>
+            <p>{% trans 'Черновик и статус проверки доступны в вашем личном кабинете.' %}</p>
+            <p class="km-side-muted">{% trans 'Для своей анкеты мы проверим личность. После подтверждения вы сможете управлять профилем, сотрудничеством и документами.' %}</p>
           </article>
         {% endif %}
 
@@ -606,5 +620,6 @@
 
     </div><!-- /.owner-event-layout -->
   </form>
+</section>
 {% endblock %}
 

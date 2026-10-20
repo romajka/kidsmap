@@ -1,14 +1,32 @@
 {% load i18n %}
-<dialog class="km-pf-dialog" id="km-json-prompt" data-place-json-prompt-dialog aria-labelledby="km-json-prompt-title">
+<dialog class="km-pf-dialog km-pf-prompt" id="km-json-prompt" data-place-json-prompt-dialog aria-labelledby="km-json-prompt-title"
+  data-search-hint="{% translate 'Скопируйте промт в ChatGPT, чтобы найти несколько мест. Категорию можно не выбирать.' %}"
+  data-json-hint="{% translate 'Вставьте промт в чат с выбранными местами. ChatGPT уточнит недостающее и подготовит отдельный JSON для каждого места.' %}"
+  data-prompt-reset-message="{% translate 'Шаблон текущего промта восстановлен.' %}"
+  data-prompt-copied-message="{% translate 'Промт скопирован. Вставьте его в ChatGPT.' %}"
+  data-prompt-copy-error="{% translate 'Не удалось скопировать. Выделите текст и скопируйте его вручную.' %}">
   <div class="km-pf-dialog__head">
     <div>
       <span class="km-pf-dialog__eyebrow">ChatGPT</span>
-      <h2 id="km-json-prompt-title">{% translate "Инструкция для создания JSON" %}</h2>
+      <h2 id="km-json-prompt-title">{% translate "Промты для ChatGPT" %}</h2>
     </div>
     <button type="button" class="km-pf-iconbtn" data-place-json-prompt-close aria-label="{% translate 'Закрыть' %}"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg></button>
   </div>
-  <p class="km-pf-dialog__hint">{% translate "Проверьте и отредактируйте текст под свою задачу. Затем скопируйте его и отправьте в ChatGPT вместе с данными о месте." %}</p>
-  <textarea aria-labelledby="km-json-prompt-title" data-place-json-prompt-input rows="20" spellcheck="false"></textarea>
+  <fieldset class="km-pf-prompt__modes">
+    <legend class="km-pf-prompt__legend">{% translate "Выберите задачу" %}</legend>
+    <label><input type="radio" name="km_place_prompt_mode" value="search" data-place-json-prompt-mode checked><span>{% translate "Найти места" %}</span></label>
+    <label><input type="radio" name="km_place_prompt_mode" value="json" data-place-json-prompt-mode><span>{% translate "Собрать JSON" %}</span></label>
+  </fieldset>
+  <p class="km-pf-dialog__hint" id="km-json-prompt-hint" data-place-json-prompt-hint>{% translate "Скопируйте промт в ChatGPT, чтобы найти несколько мест. Категорию можно не выбирать." %}</p>
+  <div class="km-pf-prompt__search" data-place-json-search-options>
+    <label for="km-json-search-category">{% translate "Категория (необязательно)" %}
+      <select id="km-json-search-category" data-place-json-search-category data-dropdown-parent="#km-json-prompt"><option value="">{% translate "Все категории" %}</option></select>
+    </label>
+    <label for="km-json-search-subcategory">{% translate "Подкатегория (необязательно)" %}
+      <select id="km-json-search-subcategory" data-place-json-search-subcategory data-dropdown-parent="#km-json-prompt" disabled><option value="">{% translate "Любая подкатегория" %}</option></select>
+    </label>
+  </div>
+  <textarea aria-labelledby="km-json-prompt-title" aria-describedby="km-json-prompt-hint" data-place-json-prompt-input rows="16" spellcheck="false"></textarea>
   <p class="km-pf-dialog__message" data-place-json-prompt-message role="status" aria-live="polite"></p>
   <div class="km-pf-dialog__actions">
     <button type="button" class="km-pf-btn km-pf-btn--quiet" data-place-json-prompt-reset>{% translate "Вернуть шаблон" %}</button>

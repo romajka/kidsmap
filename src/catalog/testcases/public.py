@@ -362,6 +362,18 @@ class TestPublicPagesSmoke(TestCase):
                 anchor_ids = [item["id"] for item in page_sections]
                 self.assertEqual(len(anchor_ids), len(set(anchor_ids)))
 
+    def test_privacy_describes_configured_metrica_in_all_languages(self):
+        for counter_id in ("", "invalid", "12345678"):
+            with override_settings(YANDEX_METRICA_COUNTER_ID=counter_id, YANDEX_METRICA_WEBVISOR_ENABLED=True):
+                for path, label in (("/privacy/", "Yandex Metrica"), ("/ru/privacy/", "Яндекс Метрика"), ("/en/privacy/", "Yandex Metrica")):
+                    with self.subTest(counter_id=counter_id, path=path):
+                        response = self.client.get(path)
+                        if counter_id == "12345678":
+                            self.assertContains(response, label)
+                        else:
+                            self.assertNotContains(response, label)
+                        self.assertNotContains(response, 'id="kidsmap-yandex-metrica"')
+
     def test_terms_of_use_is_full_document_in_all_languages(self):
         current_email = "legal@kidsmap.az"
         site_settings = SiteSettings.get_solo()
@@ -870,7 +882,7 @@ class TestPublicPagesSmoke(TestCase):
             'class="home-hero panel',
             'class="home-places-rail"',
             'class="home-discover"',
-            'class="panel home-map-panel"',
+            'id="home-map-section"',
             'class="home-steps panel home-steps-lite',
             'id="add-place"',
             'class="panel home-faq-panel"',
@@ -1876,7 +1888,7 @@ class TestPublicFilterCounts(TestCase):
         self.assertNotContains(response, "Пустой район")
         self.assertNotContains(response, "Пустое метро")
 
-    def test_catalog_collapses_categories_after_first_ten(self):
+    def test_catalog_dropdown_keeps_every_category_beyond_the_first_ten(self):
         for index in range(9):
             category = Category.objects.create(
                 code=f"OVERFLOW{index}",
@@ -1897,9 +1909,27 @@ class TestPublicFilterCounts(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["categories"][0]["value"], "COUNTED")
-        self.assertContains(response, " is-category-extra", count=2, html=False)
-        self.assertContains(response, "Показать ещё", count=4)
-        self.assertContains(response, 'class="category-overflow-toggle"', count=2, html=False)
+        # The shared dropdown replaces duplicate collapsed chip lists. Both the
+        # visible listbox and native fallback must retain every counted category.
+        from html.parser import HTMLParser
+        class CategoryOptions(HTMLParser):
+            def __init__(self):
+                super().__init__(); self.in_category = False; self.native = []; self.custom = []
+            def handle_starttag(self, tag, attrs):
+                attrs = dict(attrs)
+                if tag == 'select':
+                    self.in_category = attrs.get('name') == 'category'
+                elif tag == 'option' and self.in_category:
+                    self.native.append(attrs.get('value'))
+                elif attrs.get('role') == 'option' and 'data-category-code' in attrs:
+                    self.custom.append(attrs['data-category-code'])
+            def handle_endtag(self, tag):
+                if tag == 'select': self.in_category = False
+        options = CategoryOptions(); options.feed(response.content.decode())
+        codes = [category['value'] for category in response.context['categories']]
+        self.assertGreater(len(codes), 10)
+        self.assertEqual(options.native, [''] + codes)
+        self.assertEqual(options.custom, ['ALL'] + codes)
 
     def test_home_filters_use_same_public_counts(self):
         response = self.client.get("/ru/", follow=True)
@@ -2566,7 +2596,7 @@ class TestCatalogEnhancements(TestCase):
                 }
             ]
         member = expected[0]
-        member.update(district=matching_place.district, district_label=matching_place.district_i18n(language_code),
+        member.update(age='6–12 yaş', district=matching_place.district, district_label=matching_place.district_i18n(language_code),
             metro=matching_place.metro, metro_label=matching_place.metro_i18n(language_code),
             matched_offers=[], translation_fallback=False,
             content_language=language_code, translation_label='')
@@ -2626,7 +2656,7 @@ class TestCatalogEnhancements(TestCase):
                 }
             ]
         member = expected[0]
-        member.update(district=place.district, district_label=place.district_i18n('ru'),
+        member.update(age='6–12 лет', district=place.district, district_label=place.district_i18n('ru'),
             metro=place.metro, metro_label=place.metro_i18n('ru'),
             matched_offers=[], translation_fallback=True,
             content_language='az', translation_label='Текст на азербайджанском')
@@ -2989,8 +3019,8 @@ class TestReviewEnhancements(TestCase):
 
         az_catalog = self.client.get("/az/catalog/", follow=True)
         self.assertEqual(az_catalog.status_code, 200)
-        self.assertContains(az_catalog, "Dərnək seçin")
-        self.assertContains(az_catalog, "Kateqoriya, rayon və yaş bir yerdə.")
+        self.assertContains(az_catalog, "Filtrləri seçin")
+        self.assertContains(az_catalog, "Kateqoriya, region və uşağın yaşı.")
         self.assertNotContains(az_catalog, "Подобрать кружок")
         self.assertNotContains(az_catalog, "Категория, район, возраст и бюджет в одном месте.")
 
@@ -3341,16 +3371,20 @@ class PublicLanguageConsistencyTests(TestCase):
 
     def test_home_map_javascript_gets_age_and_error_labels_from_template(self):
         source = (settings.BASE_DIR / "static/js/home_map.js").read_text(encoding="utf-8")
-        template_source = (
-            settings.BASE_DIR / "src/catalog/templates/pages/home.html"
-        ).read_text(encoding="utf-8")
-
         self.assertNotIn('return from + "–" + to + " yaş"', source)
         self.assertIn("mapEl.dataset.ageRangeLabel", source)
         self.assertIn("homeMapUnavailableLabel", source)
-        self.assertIn("{from}–{to} yaş", template_source)
-        self.assertIn("{from}–{to} лет", template_source)
-        self.assertIn("Ages {from}–{to}", template_source)
+        # This class also has an intentionally demo-named card, excluded from maps.
+        create_quality_place(name="Age range venue", name_az="Yaşa uyğun dərslər",
+                             name_ru="Занятия по возрасту", name_en="Activities by age")
+        # Verify the rendered include wiring, including the active URL language.
+        for path, label in (("/", "{from}–{to} yaş"),
+                            ("/ru/", "{from}–{to} лет"),
+                            ("/en/", "Ages {from}–{to}")):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, f'data-age-range-label="{label}"')
 
     def test_home_map_marker_click_uses_shared_age_labels(self):
         source = (settings.BASE_DIR / "static/js/home_map.js").read_text(encoding="utf-8")

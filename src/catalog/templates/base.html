@@ -36,6 +36,7 @@
     {% block twitter_image %}<meta name="twitter:image" content="{% firstof public_base_url request.scheme|add:'://'|add:request.get_host %}{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />{% endblock %}
     <link rel="icon" type="image/svg+xml" href="{% static 'img/logo-mark.svg' %}" />
     <link rel="apple-touch-icon" href="{% static 'img/logo-mark.svg' %}" />
+    {% include "includes/yandex_metrica.html" %}
     {% if google_analytics_enabled and not site_preview %}
       <script async src="https://www.googletagmanager.com/gtag/js?id={{ google_analytics_measurement_id|urlencode }}"></script>
       <script>
@@ -120,6 +121,18 @@
         <section class="flash-stack" aria-live="polite">
           {% for message in messages %}
             {% if 'review-submission' not in message.tags %}
+            {% if 'mappy-submitted' in message.tags %}
+            <section class="flash-message flash-success mappy-submission" role="status">
+              <div class="mappy-scene" aria-hidden="true"><img class="mappy-success-image" src="{% static 'img/mappy/mappy-success.webp' %}" width="384" height="420" alt="" decoding="async"></div>
+              <div class="mappy-success-copy">
+                <span class="mappy-success-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg></span>
+                <h2>{% if request.LANGUAGE_CODE == 'az' %}Yoxlamaya göndərildi{% elif request.LANGUAGE_CODE == 'en' %}Sent for review{% else %}Отправлено на проверку{% endif %}</h2>
+                <p class="flash-message__text">{{ message }}</p>
+                <a class="mappy-success-link" href="#owner-places-list">{% if request.LANGUAGE_CODE == 'az' %}Mənim məkanlarım{% elif request.LANGUAGE_CODE == 'en' %}My places{% else %}Мои места{% endif %}<span aria-hidden="true"> →</span></a>
+              </div>
+              <button type="button" class="flash-message__close" aria-label="{% trans 'Закрыть' %}" onclick="this.closest('.flash-message').remove()"><span aria-hidden="true">×</span></button>
+            </section>
+            {% else %}
             <p class="flash-message {% if message.tags %}flash-{{ message.tags }}{% else %}flash-info{% endif %}" role="status">
               {% if 'success' in message.tags %}<span class="material-symbols-rounded flash-message__icon" aria-hidden="true">check_circle</span>{% endif %}
               <span class="flash-message__text">{{ message }}</span>
@@ -127,6 +140,7 @@
                 <span class="material-symbols-rounded" aria-hidden="true">close</span>
               </button>
             </p>
+            {% endif %}
             {% endif %}
           {% endfor %}
         </section>
@@ -282,6 +296,13 @@
         const toastCloseLabel = "{% trans 'Закрыть' %}";
         const genericActionErrorMessage = "{% trans 'Не удалось выполнить действие. Попробуйте ещё раз.' %}";
 
+        const favoriteFeedbackMessages = {
+          ru: { added: "Добавлено в избранное", removed: "Удалено из избранного" },
+          az: { added: "Seçilmişlərə əlavə edildi", removed: "Seçilmişlərdən silindi" },
+          en: { added: "Added to favorites", removed: "Removed from favorites" },
+        };
+        const favoriteFeedback = favoriteFeedbackMessages[(document.documentElement.lang || "az").split("-")[0]] || favoriteFeedbackMessages.az;
+
         function showToast(message, options) {
           if (!toastStack || !message) return;
           const config = options || {};
@@ -416,7 +437,9 @@
                 background.remove();
               });
               img.remove();
-              (mediaLink || container).appendChild(buildImagePlaceholder(text));
+              const categoryTemplate = container.querySelector("template[data-card-image-placeholder]");
+              const categoryPlaceholder = categoryTemplate && categoryTemplate.content.firstElementChild;
+              (mediaLink || container).appendChild(categoryPlaceholder ? categoryPlaceholder.cloneNode(true) : buildImagePlaceholder(text));
             };
 
             img.addEventListener("error", applyFallback);
@@ -448,6 +471,7 @@
           if (countEl && typeof payload.likes_count === "number") {
             countEl.textContent = payload.likes_count;
           }
+          showToast(payload.liked ? favoriteFeedback.added : favoriteFeedback.removed);
           if (payload.analytics_event && typeof window.kidsMapEmitAnalyticsEvent === "function") {
             window.kidsMapEmitAnalyticsEvent(payload.analytics_event);
           }
@@ -720,6 +744,9 @@
           function emitAnalyticsEvent(eventItem) {
             if (!eventItem || !eventItem.name) return;
             sendGoogleAnalyticsEvent(eventItem.name, eventItem.params || {});
+            if (typeof window.kidsMapTrackYandexMetricaEvent === "function") {
+              window.kidsMapTrackYandexMetricaEvent(eventItem.name);
+            }
           }
 
           window.kidsMapEmitAnalyticsEvent = emitAnalyticsEvent;

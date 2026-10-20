@@ -1,0 +1,713 @@
+/* Catalog presentation layer. Keep legacy form, card and modal contracts intact.
+   !important is limited to properties already fixed by catalog_places.css. */
+.page-place_list .hero.catalog-faq-hero {
+  padding: 26px 30px !important;
+  gap: 28px !important;
+  border-color: var(--tint-line-200) !important;
+  background: var(--tint-turf-050) !important;
+  box-shadow: none !important;
+}
+
+.page-place_list .catalog-faq-hero .faq-hero-badge {
+  padding: 0;
+  margin-bottom: 10px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--brand-turf);
+  font-size: 11px;
+  letter-spacing: .06em;
+}
+
+.page-place_list .catalog-faq-hero .faq-hero-badge-dot {
+  display: none;
+}
+
+.page-place_list .hero.catalog-faq-hero .hero-intro-text {
+  margin-bottom: 12px !important;
+}
+
+.page-place_list .catalog-faq-hero .catalog-hero-search-wrap {
+  margin-top: 0;
+}
+
+.page-place_list .catalog-faq-hero .catalog-hero-tags {
+  margin-top: 12px;
+}
+
+.page-place_list .catalog-faq-hero .faq-hero-stat {
+  padding: 10px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.page-place_list .catalog-faq-hero .faq-hero-stat + .faq-hero-stat {
+  border-top: 1px solid var(--tint-line-200);
+}
+
+.page-place_list .catalog-faq-hero .faq-hero-stat:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.page-place_list .catalog-faq-hero .faq-hero-stat-label {
+  color: var(--muted);
+}
+
+/* A single filter surface; sections are separated by space and fine rules. */
+.page-place_list .catalog-layout .filters-catalog {
+  gap: 4px;
+  box-shadow: none !important;
+  border-color: var(--tint-line-200) !important;
+}
+
+.page-place_list .catalog-layout .filters-catalog > label,
+.page-place_list .catalog-layout .filters-catalog > .range-filter,
+.page-place_list .catalog-layout .filters-catalog > .catalog-advanced-filters,
+.page-place_list .catalog-layout .filters-catalog .filter-price-section {
+  padding: 14px 0;
+  border: 0;
+  border-bottom: 1px solid var(--tint-line-200);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.page-place_list .filters-catalog .desktop-filter-head {
+  grid-template-columns: minmax(0, 1fr);
+  padding: 2px 0 12px;
+}
+
+.page-place_list .filters-catalog .desktop-filter-head-icon {
+  display: none;
+}
+
+.page-place_list .filters-catalog .desktop-filter-head p {
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.page-place_list .filters-catalog .desktop-category-chip,
+.page-place_list .filters-catalog .mobile-category-chip {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  min-height: 44px !important;
+}
+
+.page-place_list .filters-catalog .desktop-category-chip:hover,
+.page-place_list .filters-catalog .mobile-category-chip:hover {
+  background: var(--tint-mist-050) !important;
+}
+
+.page-place_list .filters-catalog .desktop-category-chip.is-active,
+.page-place_list .filters-catalog .mobile-category-chip.is-active {
+  border-color: var(--tone-border-strong) !important;
+  background: var(--tint-turf-100) !important;
+  color: var(--brand-spruce) !important;
+}
+
+/* Age and location precede descriptive copy in the shared card's DOM. */
+.page-place_list .grid:not(.results-list-mode) .place-card .card-title {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: 2.7em;
+  font-size: 18px !important;
+  line-height: 1.35 !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .place-card .card-tags-row {
+  height: auto !important;
+  min-height: 26px !important;
+  flex-wrap: wrap !important;
+  overflow: visible !important;
+  gap: 6px 10px !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .place-card .card-meta-chip {
+  height: auto !important;
+  min-height: 26px !important;
+  line-height: 1.45 !important;
+  padding: 3px 8px !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .place-card .card-meta-chip--age {
+  background: var(--tint-turf-100) !important;
+  border-color: transparent !important;
+  font-size: 13px !important;
+  font-weight: 750 !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .place-card .card-meta-chip--type {
+  padding-inline: 0 !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--muted) !important;
+  font-weight: 500 !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .place-card .card-location {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 6px;
+  height: auto !important;
+  min-height: 20px !important;
+  color: var(--ink) !important;
+  white-space: normal !important;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.page-place_list .place-card .card-location-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.page-place_list .place-card .card-location-icon {
+  flex: 0 0 auto;
+}
+
+.page-place_list .card.place-card .card-price-pill {
+  background: var(--brand-turf) !important;
+  box-shadow: none !important;
+  border-radius: 10px !important;
+  padding: 7px 12px !important;
+  max-width: calc(100% - 20px);
+  box-sizing: border-box;
+}
+
+.page-place_list .card.place-card:hover .card-price-pill {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.page-place_list .card.place-card .like-btn {
+  width: 44px !important;
+  height: 44px !important;
+}
+
+@media (max-width: 760px) {
+  /* Search already exists in the hero: avoid a second mobile search surface. */
+  .page-place_list .hero.catalog-faq-hero {
+    padding: 16px !important;
+    margin-bottom: 12px !important;
+    gap: 0 !important;
+  }
+
+  .page-place_list .catalog-faq-hero .faq-hero-badge,
+  .page-place_list .hero.catalog-faq-hero .hero-intro-text,
+  .page-place_list .catalog-faq-hero .catalog-hero-tags {
+    display: none !important;
+  }
+
+  .page-place_list .hero.catalog-faq-hero h1 {
+    margin-bottom: 14px !important;
+  }
+
+  .page-place_list .catalog-layout {
+    margin-top: 12px !important;
+    gap: 12px !important;
+  }
+
+  .page-place_list .catalog-layout .catalog-top-stack {
+    margin-bottom: 0 !important;
+    gap: 8px !important;
+  }
+
+  .page-place_list .catalog-layout .results-toolbar {
+    margin-bottom: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Preserve contain-fit images: posters must keep all their original text. */
+  .page-place_list .grid:not(.results-list-mode) .card-media {
+    aspect-ratio: 4 / 3 !important;
+  }
+
+  .page-place_list .grid:not(.results-list-mode) .card-body {
+    gap: 8px !important;
+    padding: 14px 16px 16px !important;
+  }
+}
+
+/* Empty search: one clear recovery action, with room for the query above. */
+.page-place_list .catalog-empty-state { padding: 28px 20px !important; border-radius: 20px !important; }
+.page-place_list .catalog-empty-state .empty-illustration { margin-bottom: 12px !important; transform: none !important; }
+.page-place_list .catalog-empty-state p { max-width: 42ch !important; margin: 10px auto 18px !important; line-height: 1.55 !important; }
+.page-place_list .catalog-empty-state .empty-actions { margin-top: 0 !important; }
+.page-place_list .catalog-empty-state .empty-icon-glow { display: none !important; }
+@media (max-width: 640px) {
+ .page-place_list .catalog-empty-state { padding: 22px 16px !important; }
+ .page-place_list .catalog-empty-state .empty-illustration { display: none !important; }
+ .page-place_list .catalog-empty-state h2 { font-size: 23px !important; }
+ .page-place_list .catalog-empty-state .empty-actions a { min-height: 44px !important; }
+}
+
+
+/* ============================================================
+   Unified Filters Sidebar (Catalog & Specialists Alignment)
+   ============================================================ */
+
+/* 1. Filter Title Header */
+.page-place_list .km-filter-title.catalog-filter-title {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  margin-bottom: 16px !important;
+  padding: 0 0 12px 0 !important;
+  border-bottom: 1px solid #eef3f0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.page-place_list .km-filter-title.catalog-filter-title h2 {
+  margin: 0 !important;
+  font-size: 16.5px !important;
+  font-weight: 800 !important;
+  color: #12201a !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.page-place_list .km-filter-title.catalog-filter-title h2 .material-symbols-rounded {
+  color: #009a4e !important;
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+  line-height: 20px !important;
+}
+
+.page-place_list .km-filter-head-reset {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #009a4e !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease;
+}
+
+.page-place_list .km-filter-head-reset:hover {
+  text-decoration: underline !important;
+  color: #087b43 !important;
+}
+
+/* 2. Filter Groups & Labels */
+.page-place_list .catalog-layout .filters-catalog .km-filter-group {
+  margin-bottom: 14px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.page-place_list .catalog-layout .filters-catalog .km-filter-group > label,
+.page-place_list .catalog-layout .filters-catalog .km-filter-group > legend {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  color: #314038 !important;
+  margin-bottom: 6px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.page-place_list .catalog-layout .filters-catalog .km-filter-group label .material-symbols-rounded,
+.page-place_list .catalog-layout .filters-catalog .km-filter-group legend .material-symbols-rounded {
+  color: #009a4e !important;
+  width: 18px !important;
+  font-size: 18px !important;
+  text-align: center !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
+
+.page-place_list .catalog-layout .filters-catalog .filter-subcategory__parent {
+  font-size: 11.5px !important;
+  color: #647067 !important;
+  font-weight: 600 !important;
+  margin-left: 4px !important;
+}
+
+/* 3. Custom Select Component in Catalog */
+.page-place_list .km-custom-select {
+  position: relative !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.page-place_list .km-custom-select__trigger {
+  width: 100% !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  box-sizing: border-box !important;
+  border-radius: 8px !important;
+  border: 1.5px solid #dfe8e2 !important;
+  background: #ffffff !important;
+  padding: 0 12px !important;
+  font-size: 13.5px !important;
+  font-weight: 550 !important;
+  color: #12201a !important;
+  font-family: inherit !important;
+  cursor: pointer !important;
+  outline: none !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  text-align: left !important;
+}
+
+.page-place_list .km-custom-select__trigger:hover {
+  border-color: #009a4e !important;
+  background: #fbfdfc !important;
+  box-shadow: 0 3px 8px rgba(0, 154, 78, 0.08) !important;
+}
+
+.page-place_list .km-custom-select.is-open .km-custom-select__trigger,
+.page-place_list .km-custom-select__trigger:focus-visible {
+  border-color: #009a4e !important;
+  box-shadow: 0 0 0 3.5px rgba(0, 154, 78, 0.15) !important;
+  background: #ffffff !important;
+}
+
+.page-place_list .km-custom-select__value {
+  flex: 1 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  color: #12201a !important;
+  font-size: 13.5px !important;
+  font-weight: 550 !important;
+}
+
+.page-place_list .km-custom-select__arrow {
+  display: grid !important;
+  place-items: center !important;
+  flex-shrink: 0 !important;
+  color: #64748b !important;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease !important;
+}
+
+.page-place_list .km-custom-select__arrow svg {
+  display: block !important;
+  width: 17px !important;
+  height: 17px !important;
+}
+
+.page-place_list .km-custom-select.is-open .km-custom-select__arrow {
+  transform: rotate(180deg) !important;
+  color: #009a4e !important;
+}
+
+/* Floating Custom Select Menu */
+.page-place_list .km-custom-select__menu {
+  position: absolute !important;
+  top: calc(100% + 6px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  min-width: 200px !important;
+  max-height: 270px !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1.5px solid rgba(0, 154, 78, 0.22) !important;
+  border-radius: 12px !important;
+  padding: 6px !important;
+  box-shadow:
+    0 12px 28px -4px rgba(15, 23, 42, 0.14),
+    0 4px 10px rgba(15, 23, 42, 0.05) !important;
+  z-index: 1000 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transform: translateY(-6px) scale(0.98) !important;
+  transform-origin: top center !important;
+  transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.18s !important;
+  pointer-events: none !important;
+  box-sizing: border-box !important;
+}
+
+.page-place_list .km-custom-select.is-open .km-custom-select__menu {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) scale(1) !important;
+  pointer-events: auto !important;
+}
+
+.page-place_list .km-custom-select__option {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  padding: 7px 11px !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 550 !important;
+  color: #334155 !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  transition: all 0.14s ease !important;
+  border: none !important;
+  background: transparent !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+}
+
+.page-place_list .km-custom-select__option:hover {
+  background: #edf7f1 !important;
+  color: #067245 !important;
+  transform: translateX(2px) !important;
+}
+
+.page-place_list .km-custom-select__option.is-selected {
+  background: #e1f4e9 !important;
+  color: #086b3b !important;
+  font-weight: 700 !important;
+}
+
+.page-place_list .km-custom-select__option.is-selected::after {
+  content: '' !important;
+  width: 5px !important;
+  height: 5px !important;
+  border-radius: 50% !important;
+  background: #009a4e !important;
+  box-shadow: 0 0 5px rgba(0, 154, 78, 0.6) !important;
+  flex-shrink: 0 !important;
+}
+
+.page-place_list .km-custom-select__opt-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 6px !important;
+  flex-shrink: 0 !important;
+  margin-right: 2px !important;
+}
+
+.page-place_list .km-custom-select__opt-icon img,
+.page-place_list .km-custom-select__opt-icon svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.page-place_list .km-custom-select__opt-text {
+  flex: 1 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
+
+.page-place_list .km-custom-select__opt-count {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1px 6px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  background: #e2e8f0 !important;
+  color: #475569 !important;
+  flex-shrink: 0 !important;
+}
+
+.page-place_list .km-custom-select__option:hover .km-custom-select__opt-count,
+.page-place_list .km-custom-select__option.is-selected .km-custom-select__opt-count {
+  background: #c2ebd4 !important;
+  color: #086b3b !important;
+}
+
+/* 4. Action Buttons Matching Specialists */
+.page-place_list .catalog-layout .filters-catalog .km-filter-actions {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  margin-top: 18px !important;
+  padding-top: 14px !important;
+  border-top: 1px solid #eef3f0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.page-place_list .catalog-layout .filters-catalog .km-btn-apply {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  padding: 0 12px !important;
+  background: #009a4e !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease, transform 0.1s ease !important;
+  box-shadow: none !important;
+  width: 100% !important;
+  text-decoration: none !important;
+}
+
+.page-place_list .catalog-layout .filters-catalog .km-btn-apply:hover {
+  background: #087b43 !important;
+  transform: none !important;
+}
+
+.page-place_list .catalog-layout .filters-catalog .km-btn-apply:active {
+  transform: scale(0.98) !important;
+}
+
+.page-place_list .catalog-layout .filters-catalog .km-btn-apply .material-symbols-rounded {
+  font-size: 18px !important;
+  line-height: 1 !important;
+}
+
+.page-place_list .catalog-layout .filters-catalog .km-btn-reset {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  padding: 0 12px !important;
+  background: #f4fbf7 !important;
+  color: #455a50 !important;
+  border: 1px solid #dfe8e2 !important;
+  border-radius: 8px !important;
+  font-weight: 650 !important;
+  font-size: 13px !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease, border-color 0.15s ease !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.page-place_list .catalog-layout .filters-catalog .km-btn-reset:hover {
+  background: #e8f5ee !important;
+  border-color: #cbdad1 !important;
+  color: #12201a !important;
+}
+
+.page-place_list .catalog-layout .filters-catalog .km-btn-reset .material-symbols-rounded {
+  font-size: 17px !important;
+  line-height: 1 !important;
+}
+
+/* 5. Age Range Slider Track Fill & Clean Caption */
+.page-place_list .range-filter-current {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #1f2937 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border: 0 !important;
+  white-space: nowrap !important;
+}
+
+.page-place_list .range-filter-track::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  height: 5px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(
+    to right,
+    #d1ded5 0%,
+    #d1ded5 var(--from-pct, 0%),
+    #22b25d var(--from-pct, 0%),
+    #22b25d var(--to-pct, 100%),
+    #d1ded5 var(--to-pct, 100%),
+    #d1ded5 100%
+  ) !important;
+  pointer-events: none !important;
+}
+
+.page-place_list .range-slider::-webkit-slider-thumb {
+  pointer-events: auto !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 15px !important;
+  height: 15px !important;
+  border-radius: 50% !important;
+  background: #22b25d !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 2px 6px rgba(28, 119, 62, 0.25) !important;
+  cursor: pointer !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease !important;
+}
+
+.page-place_list .range-slider::-moz-range-thumb {
+  pointer-events: auto !important;
+  width: 15px !important;
+  height: 15px !important;
+  border-radius: 50% !important;
+  background: #22b25d !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 2px 6px rgba(28, 119, 62, 0.25) !important;
+  cursor: pointer !important;
+}
+
+/* 6. District Dropdown Trigger Uniformity */
+.page-place_list .km-location-tree .km-tree-trigger {
+  width: 100% !important;
+  min-height: 42px !important;
+  height: 42px !important;
+  border-radius: 8px !important;
+  border: 1.5px solid #dfe8e2 !important;
+  background: #ffffff !important;
+  font-size: 13.5px !important;
+  font-weight: 550 !important;
+  color: #12201a !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.page-place_list .km-location-tree .km-tree-trigger:hover {
+  border-color: #009a4e !important;
+  background: #fbfdfc !important;
+}
+
+.page-place_list .km-location-tree.is-open .km-tree-trigger {
+  border-color: #009a4e !important;
+  box-shadow: 0 0 0 3.5px rgba(0, 154, 78, 0.15) !important;
+}
+
+.page-place_list .km-visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  pointer-events: none !important;
+}
+
+.page-place_list .catalog-layout .filters-catalog .km-btn-apply::before,
+.page-place_list .catalog-layout .filters-catalog .km-btn-reset::before {
+  display: none !important;
+}

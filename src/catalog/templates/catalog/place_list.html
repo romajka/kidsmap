@@ -11,7 +11,9 @@
 {% endblock %}
 
 {% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=mappy_scene4" />
   <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20260928_2" />
+  {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_polish.css' %}?v=completion_20261020_r1" />{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -323,111 +325,103 @@
       {% if not is_new_page %}
         <div class="mobile-filters-head">
           <span class="mobile-filters-handle" aria-hidden="true"></span>
-          <h2>{% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}Фильтры{% endif %}</h2>
+          <h2 id="mobile-filters-title">{% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}Фильтры{% endif %}</h2>
           <button type="button" class="mobile-filters-close" data-filters-close aria-label="{% if language == 'az' %}Bağla{% elif language == 'en' %}Close{% else %}Закрыть{% endif %}">×</button>
         </div>
-        <div class="desktop-filter-head">
-          <span class="desktop-filter-head-icon" aria-hidden="true"></span>
-          <div>
-            <h2>{% if language == "az" %}Dərnək seçin{% elif language == "en" %}Find a club{% else %}Подобрать кружок{% endif %}</h2>
-            <p>{% if language == "az" %}Kateqoriya, rayon və yaş bir yerdə.{% elif language == "en" %}Category, district, and age in one place.{% else %}Категория, район и возраст в одном месте.{% endif %}</p>
-          </div>
+        <div class="km-filter-title catalog-filter-title">
+          <h2><span class="material-symbols-rounded" aria-hidden="true">tune</span> {% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}Фильтры{% endif %}</h2>
+          {% if selected.category or selected.subcategory or selected.district or selected.age_from or selected.age_to or selected.min_rating or selected.event_type %}
+            <a href="{% url 'place_list' %}" class="km-filter-head-reset">
+              {% if language == "az" %}Sıfırla{% elif language == "en" %}Reset{% else %}Сбросить{% endif %}
+            </a>
+          {% endif %}
         </div>
       {% endif %}
 
-      <label class="filter-item filter-category">
-        {% if language == "az" %}Kateqoriya{% elif language == "en" %}Category{% else %}{% trans "Категория" %}{% endif %}
-        {% if not is_new_page %}
-          <div class="mobile-category-options" aria-label="{% if language == 'az' %}Kateqoriya{% elif language == 'en' %}Category{% else %}{% trans 'Категория' %}{% endif %}" data-mobile-filter-section="category" data-category-overflow>
-            <button type="button" class="mobile-category-chip{% if not selected.category %} is-active{% endif %}" data-select-target="category" data-select-value="">
-              <span class="mobile-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code="ALL" %}</span>
-              <span>{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</span>
-            </button>
+      <!-- Category (Custom Select matching Specialists) -->
+      <div class="km-filter-group filter-item filter-category" data-cat-custom-select-wrap>
+        <label id="cat-select-label"><span class="material-symbols-rounded" aria-hidden="true">school</span> {% if language == "az" %}Kateqoriya{% elif language == "en" %}Category{% else %}{% trans "Категория" %}{% endif %}</label>
+        <div class="km-custom-select km-filter-custom-select" id="custom-select-category">
+          <button type="button" class="km-custom-select__trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="cat-select-label custom-select-cat-val">
+            <span class="km-custom-select__value" id="custom-select-cat-val">
+              {% if selected.category %}
+                {% for category in categories %}{% if selected.category == category.value %}{{ category.label }}{% if category.count %} ({{ category.count }}){% endif %}{% endif %}{% endfor %}
+              {% else %}
+                {% if language == "az" %}Bütün kateqoriyalar{% elif language == "en" %}All categories{% else %}Все категории{% endif %}
+              {% endif %}
+            </span>
+            <span class="km-custom-select__arrow" aria-hidden="true">
+              <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+            </span>
+          </button>
+          <div class="km-custom-select__menu" role="listbox" aria-labelledby="cat-select-label" tabindex="-1">
+            <div class="km-custom-select__option desktop-category-chip mobile-category-chip{% if not selected.category %} is-selected is-active{% endif %}" role="option" aria-selected="{% if not selected.category %}true{% else %}false{% endif %}" data-select-target="category" data-select-value="" data-category-code="ALL" data-value="">
+              <span class="km-custom-select__opt-text">{% if language == "az" %}Bütün kateqoriyalar{% elif language == "en" %}All categories{% else %}Все категории{% endif %}</span>
+            </div>
             {% for category in categories %}
-              <button type="button" class="mobile-category-chip{% if selected.category == category.value %} is-active{% endif %}{% if forloop.counter > 10 %} is-category-extra{% endif %}" data-select-target="category" data-select-value="{{ category.value }}" {% if forloop.counter > 10 %}hidden{% endif %}>
-                <span class="mobile-category-chip-icon" style="background-color: {{ category.color_bg|default:'#F3F4F6' }}; color: {{ category.color_text|default:'#6B7280' }};" aria-hidden="true">
+              <div class="km-custom-select__option desktop-category-chip mobile-category-chip{% if selected.category == category.value %} is-selected is-active{% endif %}" role="option" aria-selected="{% if selected.category == category.value %}true{% else %}false{% endif %}" data-select-target="category" data-select-value="{{ category.value }}" data-category-code="{{ category.value }}" data-value="{{ category.value }}">
+                <span class="km-custom-select__opt-icon" style="background-color: {{ category.color_bg|default:'#F3F4F6' }}; color: {{ category.color_text|default:'#6B7280' }};" aria-hidden="true">
                   {% include "catalog/includes/category_visual_icon.html" with code=category.value icon_file_url=category.icon_file_url icon_is_svg=category.icon_is_svg icon_is_font=category.icon_is_font icon_name=category.icon_name %}
                 </span>
-                <span>{% firstof category.label_with_count category.label %}</span>
-              </button>
+                <span class="km-custom-select__opt-text">{{ category.label }}</span>
+                {% if category.count %}<span class="km-custom-select__opt-count">{{ category.count }}</span>{% endif %}
+              </div>
             {% endfor %}
-            {% if categories|length > 10 %}
-              <button type="button" class="category-overflow-toggle" data-category-overflow-toggle aria-expanded="false"
-                data-more-label="{% if language == 'az' %}Daha çox göstər{% elif language == 'en' %}Show more{% else %}Показать ещё{% endif %}"
-                data-less-label="{% if language == 'az' %}Daha az göstər{% elif language == 'en' %}Show less{% else %}Свернуть{% endif %}">
-                <span data-category-overflow-label>{% if language == "az" %}Daha çox göstər{% elif language == "en" %}Show more{% else %}Показать ещё{% endif %}</span>
-                <span class="category-overflow-toggle__icon" aria-hidden="true">⌄</span>
-              </button>
-            {% endif %}
           </div>
-        {% endif %}
-        {% if not is_new_page %}
-          <div class="desktop-category-options" aria-label="{% trans 'Категория' %}" data-category-overflow>
-            <button type="button" class="desktop-category-chip{% if not selected.category %} is-active{% endif %}" data-select-target="category" data-select-value="" data-category-code="ALL">
-              <span class="desktop-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code="ALL" %}</span>
-              <span>{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</span>
-            </button>
+          <select class="filter-select km-visually-hidden" name="category" tabindex="-1" aria-hidden="true">
+            <option value="">{% if language == "az" %}Bütün kateqoriyalar{% elif language == "en" %}All categories{% else %}Все категории{% endif %}</option>
             {% for category in categories %}
-              <button type="button" class="desktop-category-chip{% if selected.category == category.value %} is-active{% endif %}{% if forloop.counter > 10 %} is-category-extra{% endif %}" data-select-target="category" data-select-value="{{ category.value }}" data-category-code="{{ category.value }}" {% if forloop.counter > 10 %}hidden{% endif %}>
-                <span class="desktop-category-chip-icon" style="background-color: {{ category.color_bg|default:'#F3F4F6' }}; color: {{ category.color_text|default:'#6B7280' }};" aria-hidden="true">
-                  {% include "catalog/includes/category_visual_icon.html" with code=category.value icon_file_url=category.icon_file_url icon_is_svg=category.icon_is_svg icon_is_font=category.icon_is_font icon_name=category.icon_name %}
-                </span>
-                <span>{% firstof category.label_with_count category.label %}</span>
-              </button>
-            {% endfor %}
-            {% if categories|length > 10 %}
-              <button type="button" class="category-overflow-toggle" data-category-overflow-toggle aria-expanded="false"
-                data-more-label="{% if language == 'az' %}Daha çox göstər{% elif language == 'en' %}Show more{% else %}Показать ещё{% endif %}"
-                data-less-label="{% if language == 'az' %}Daha az göstər{% elif language == 'en' %}Show less{% else %}Свернуть{% endif %}">
-                <span data-category-overflow-label>{% if language == "az" %}Daha çox göstər{% elif language == "en" %}Show more{% else %}Показать ещё{% endif %}</span>
-                <span class="category-overflow-toggle__icon" aria-hidden="true">⌄</span>
-              </button>
-            {% endif %}
-          </div>
-        {% endif %}
-        <select class="filter-select" name="category">
-          <option value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</option>
-          {% for category in categories %}
-            <option value="{{ category.value }}" {% if selected.category == category.value %}selected{% endif %}>{% firstof category.label_with_count category.label %}</option>
-          {% endfor %}
-        </select>
-      </label>
-
-      {% comment %}
-        Подкатегории появляются только после выбора категории и только те,
-        за которыми есть места — список формируется в контроллере
-        (subcategory_options_for_category), пустой блок не рисуется.
-      {% endcomment %}
-      {% if subcategory_options_for_category %}
-        <label class="filter-item filter-subcategory" data-subcategory-filter>
-          <span class="filter-subcategory__legend">
-            {% if language == "az" %}Alt kateqoriya{% elif language == "en" %}Subcategory{% else %}{% trans "Подкатегория" %}{% endif %}
-            {% if selected_category_label %}<span class="filter-subcategory__parent">{{ selected_category_label }}</span>{% endif %}
-          </span>
-          <div class="subcategory-options" aria-label="{% if language == 'az' %}Alt kateqoriya{% elif language == 'en' %}Subcategory{% else %}{% trans 'Подкатегория' %}{% endif %}">
-            <button type="button" class="subcategory-chip{% if not selected.subcategory %} is-active{% endif %}" data-select-target="subcategory" data-select-value="">
-              <span class="subcategory-chip__label">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</span>
-            </button>
-            {% for subcategory in subcategory_options_for_category %}
-              <button type="button" class="subcategory-chip{% if selected.subcategory == subcategory.value %} is-active{% endif %}" data-select-target="subcategory" data-select-value="{{ subcategory.value }}">
-                <span class="subcategory-chip__label">{{ subcategory.label }}</span>
-                {% if subcategory.count %}<span class="subcategory-chip__count">{{ subcategory.count }}</span>{% endif %}
-              </button>
-            {% endfor %}
-          </div>
-          <select class="filter-select" name="subcategory">
-            <option value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</option>
-            {% for subcategory in subcategory_options_for_category %}
-              <option value="{{ subcategory.value }}" {% if selected.subcategory == subcategory.value %}selected{% endif %}>{% firstof subcategory.label_with_count subcategory.label %}</option>
+              <option value="{{ category.value }}" {% if selected.category == category.value %}selected{% endif %}>{% firstof category.label_with_count category.label %}</option>
             {% endfor %}
           </select>
-        </label>
+        </div>
+      </div>
+
+      {% if subcategory_options_for_category %}
+        <div class="km-filter-group filter-item filter-subcategory" data-subcategory-filter>
+          <label id="subcat-select-label">
+            <span class="material-symbols-rounded" aria-hidden="true">layers</span>
+            {% if language == "az" %}Alt kateqoriya{% elif language == "en" %}Subcategory{% else %}{% trans "Подкатегория" %}{% endif %}
+            {% if selected_category_label %}<span class="filter-subcategory__parent">({{ selected_category_label }})</span>{% endif %}
+          </label>
+          <div class="km-custom-select km-filter-custom-select" id="custom-select-subcategory">
+            <button type="button" class="km-custom-select__trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="subcat-select-label custom-select-subcat-val">
+              <span class="km-custom-select__value" id="custom-select-subcat-val">
+                {% if selected.subcategory %}
+                  {% for subcategory in subcategory_options_for_category %}{% if selected.subcategory == subcategory.value %}{{ subcategory.label }}{% if subcategory.count %} ({{ subcategory.count }}){% endif %}{% endif %}{% endfor %}
+                {% else %}
+                  {% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}
+                {% endif %}
+              </span>
+              <span class="km-custom-select__arrow" aria-hidden="true">
+                <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+              </span>
+            </button>
+            <div class="km-custom-select__menu" role="listbox" aria-labelledby="subcat-select-label" tabindex="-1">
+              <div class="km-custom-select__option subcategory-chip{% if not selected.subcategory %} is-selected is-active{% endif %}" role="option" aria-selected="{% if not selected.subcategory %}true{% else %}false{% endif %}" data-select-target="subcategory" data-select-value="" data-value="">
+                <span class="km-custom-select__opt-text">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</span>
+              </div>
+              {% for subcategory in subcategory_options_for_category %}
+                <div class="km-custom-select__option subcategory-chip{% if selected.subcategory == subcategory.value %} is-selected is-active{% endif %}" role="option" aria-selected="{% if selected.subcategory == subcategory.value %}true{% else %}false{% endif %}" data-select-target="subcategory" data-select-value="{{ subcategory.value }}" data-value="{{ subcategory.value }}">
+                  <span class="km-custom-select__opt-text">{{ subcategory.label }}</span>
+                  {% if subcategory.count %}<span class="km-custom-select__opt-count">{{ subcategory.count }}</span>{% endif %}
+                </div>
+              {% endfor %}
+            </div>
+            <select class="filter-select km-visually-hidden" name="subcategory" tabindex="-1" aria-hidden="true">
+              <option value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</option>
+              {% for subcategory in subcategory_options_for_category %}
+                <option value="{{ subcategory.value }}" {% if selected.subcategory == subcategory.value %}selected{% endif %}>{% firstof subcategory.label_with_count subcategory.label %}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
       {% endif %}
 
       {% if not is_new_page %}
         {% if is_events_section_enabled %}
         <fieldset class="filter-item filter-event-type">
-          <legend>{% if language == "az" %}Məkan növü{% elif language == "en" %}Place type{% else %}{% trans "Тип места" %}{% endif %}</legend>
+          <legend><span class="material-symbols-rounded" aria-hidden="true">category</span> {% if language == "az" %}Məkan növü{% elif language == "en" %}Place type{% else %}{% trans "Тип места" %}{% endif %}</legend>
           <div class="event-type-filter" role="radiogroup" aria-label="{% if language == 'az' %}Məkan növü{% elif language == 'en' %}Place type{% else %}{% trans 'Тип места' %}{% endif %}">
             <label class="event-type-option{% if not selected.event_type %} is-active{% endif %}">
               <input type="radio" name="event_type" value="" {% if not selected.event_type %}checked{% endif %} />
@@ -449,8 +443,8 @@
         {% endif %}
       {% endif %}
 
-      <label class="filter-item filter-district" data-mobile-filter-section="district">
-        {% if language == "az" %}Rayon{% elif language == "en" %}District{% else %}{% trans "Регион / район" %}{% endif %}
+      <div class="filter-item filter-district km-filter-group" data-mobile-filter-section="district">
+        <label id="district-select-label"><span class="material-symbols-rounded" aria-hidden="true">location_on</span> {% if language == "az" %}Rayon{% elif language == "en" %}District{% else %}{% trans "Регион / район" %}{% endif %}</label>
         {% if not is_new_page %}
           <div class="filter-mobile-tools">
             <div class="km-location-tree" data-tree-select="district">
@@ -503,12 +497,12 @@
             >{% firstof district.label_with_count district.label %}</option>
           {% endfor %}
         </select>
-      </label>
+      </div>
 
       {% if not is_new_page %}
-        <div class="range-filter filter-age-range" data-range data-min="0" data-max="18" data-mobile-filter-section="age">
+        <div class="range-filter filter-age-range km-filter-group" data-range data-min="0" data-max="18" data-mobile-filter-section="age">
           <div class="range-filter-head">
-            <span>{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}{% trans "Возраст" %}{% endif %}</span>
+            <label><span class="material-symbols-rounded" aria-hidden="true">child_care</span> {% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}{% trans "Возраст" %}{% endif %}</label>
             <strong class="range-filter-current" data-range-caption></strong>
           </div>
           <input type="hidden" name="age_from" value="{{ selected.age_from|default:'0' }}" data-range-from-input />
@@ -519,9 +513,9 @@
           </div>
         </div>
 
-        <div class="filter-item filter-rating" data-mobile-filter-section="min_rating">
+        <div class="filter-item filter-rating km-filter-group" data-mobile-filter-section="min_rating">
           <div class="filter-rating-head">
-            <span>{% if language == "az" %}Reytinq ən azı{% elif language == "en" %}Minimum rating{% else %}{% trans "Рейтинг не ниже" %}{% endif %}</span>
+            <label><span class="material-symbols-rounded" aria-hidden="true">star</span> {% if language == "az" %}Reytinq ən azı{% elif language == "en" %}Minimum rating{% else %}{% trans "Рейтинг не ниже" %}{% endif %}</label>
           </div>
           <div class="rating-filter-pills" aria-label="{% if language == 'az' %}Reytinq ən azı{% elif language == 'en' %}Minimum rating{% else %}{% trans 'Рейтинг не ниже' %}{% endif %}">
             <button type="button" class="rating-filter-pill{% if not selected.min_rating %} is-active{% endif %}" data-select-target="min_rating" data-select-value="">
@@ -564,12 +558,16 @@
 
       {% endif %}
 
-      <div class="actions">
-        <button class="btn icon-btn icon-search icon-only-btn" type="submit" aria-label="{% if language == 'az' %}Axtar{% elif language == 'en' %}Search{% else %}{% trans 'Поиск' %}{% endif %}">
+      <div class="km-filter-actions">
+        <button class="km-btn-apply btn icon-btn icon-search icon-only-btn" type="submit" aria-label="{% if language == 'az' %}Tətbiq et{% elif language == 'en' %}Apply{% else %}{% trans 'Применить' %}{% endif %}">
+          <span class="material-symbols-rounded" aria-hidden="true">check</span>
           <span class="filter-submit-label">{% if language == "az" %}Tətbiq et{% elif language == "en" %}Apply{% else %}{% trans "Применить" %}{% endif %}</span>
           <span class="visually-hidden">{% if language == "az" %}Axtar{% elif language == "en" %}Search{% else %}{% trans "Поиск" %}{% endif %}</span>
         </button>
-        <a class="link-btn icon-btn icon-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% if language == "az" %}Sıfırla{% elif language == "en" %}Reset{% else %}{% trans "Сброс" %}{% endif %}</a>
+        <a class="km-btn-reset link-btn icon-btn icon-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">
+          <span class="material-symbols-rounded" aria-hidden="true">restart_alt</span>
+          <span>{% if language == "az" %}Sıfırla{% elif language == "en" %}Reset{% else %}{% trans "Сброс" %}{% endif %}</span>
+        </a>
       </div>
     </form>
   </section>
@@ -954,40 +952,35 @@
       {% endfor %}
     </section>
   {% else %}
-    <section class="empty-state catalog-empty-state">
+    <section class="empty-state catalog-empty-state{% if not site_settings.empty_results_image %} mappy-empty-state{% endif %}">
       {% if site_settings.empty_results_image %}
         <img class="empty-custom-image" src="{{ site_settings.empty_results_image.url }}" alt="{% if language == 'az' %}Hələ uyğun məkan tapılmadı{% else %}{% trans 'Ничего не найдено.' %}{% endif %}" loading="lazy" decoding="async" />
       {% else %}
-        <div class="empty-illustration" aria-hidden="true">
-          <div class="empty-icon-glow"></div>
-          <div class="empty-icon-bubble">
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="7.5"></circle>
-              <path d="m21 21-4.35-4.35"></path>
-              <path d="M11 7.5a3.5 3.5 0 0 0-3.5 3.5" opacity="0.65" stroke-width="1.5"></path>
-            </svg>
-          </div>
-        </div>
+        <div class="mappy-scene" aria-hidden="true"><img class="mappy-empty-image" src="{% static 'img/mappy/mappy-empty.webp' %}" width="384" height="420" alt="" loading="lazy" decoding="async"></div>
       {% endif %}
+      <div class="mappy-empty-copy">
       {% if site_empty_results_text %}
         <h2>{{ site_empty_results_text }}</h2>
-        <p>{% trans "Попробуйте изменить фильтры или сбросить поиск." %}</p>
       {% elif language == "az" %}
-        <h2>0 məkan tapıldı</h2>
-        <p>Seçilmiş filtrlərə görə nəticə tapılmadı.</p>
+        <h2>Uyğun məkan tapılmadı</h2>
+      {% elif language == "en" %}
+        <h2>No matching places yet</h2>
       {% else %}
         <h2>{% trans "Ничего не найдено." %}</h2>
-        <p>{% trans "Попробуйте изменить фильтры или сбросить поиск." %}</p>
       {% endif %}
+      <p>{% if language == 'ru' %}Попробуйте другое название или уберите часть фильтров. Можно начать заново со всех мест.{% elif language == 'en' %}Try a different name or fewer filters. You can also start again with all places.{% else %}Başqa ad yoxlayın və ya filtrləri azaldın. Bütün məkanlardan yenidən başlaya bilərsiniz.{% endif %}</p>
       <div class="empty-actions">
         <a class="btn catalog-empty-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           <span>{% if language == "az" %}Filtrləri sıfırla{% elif language == "en" %}Reset filters{% else %}{% trans "Сбросить всё" %}{% endif %}</span>
         </a>
+        {% if is_new_page %}
         <a class="link-btn catalog-empty-back" href="{% url 'place_list' %}">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/><rect width="7" height="7" x="3" y="14" rx="1.5"/></svg>
           <span>{% if language == "az" %}Əsas kataloqa qayıt{% elif language == "en" %}Back to catalog{% else %}Вернуться в каталог{% endif %}</span>
         </a>
+        {% endif %}
+      </div>
       </div>
     </section>
   {% endif %}
@@ -1245,6 +1238,10 @@
         function updateCaption(a, b) {
           if (!caption) return;
           caption.textContent = unit ? `${a}–${b} ${unit}` : `${a}–${b}`;
+          const fromPct = max > min ? ((a - min) / (max - min)) * 100 : 0;
+          const toPct = max > min ? ((b - min) / (max - min)) * 100 : 100;
+          root.style.setProperty("--from-pct", fromPct + "%");
+          root.style.setProperty("--to-pct", toPct + "%");
         }
 
         function syncFromInput() {
@@ -1282,6 +1279,150 @@
         syncFromInput();
       });
     })();
+
+    /* ─── Unified Custom Selects Interactivity ─── */
+    (function () {
+      const customSelects = Array.from(document.querySelectorAll('.km-custom-select'));
+      if (!customSelects.length) return;
+
+      customSelects.forEach(function (cs) {
+        const trigger = cs.querySelector('.km-custom-select__trigger');
+        const menu = cs.querySelector('.km-custom-select__menu');
+        const valueSpan = cs.querySelector('.km-custom-select__value');
+        const options = Array.from(cs.querySelectorAll('.km-custom-select__option'));
+        const nativeSelect = cs.querySelector('select');
+        if (!trigger || !menu || !options.length) return;
+
+        function closeMenu() {
+          cs.classList.remove('is-open');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function openMenu() {
+          customSelects.forEach(function (other) {
+            if (other !== cs) {
+              other.classList.remove('is-open');
+              const otherTrig = other.querySelector('.km-custom-select__trigger');
+              if (otherTrig) otherTrig.setAttribute('aria-expanded', 'false');
+            }
+          });
+          cs.classList.add('is-open');
+          trigger.setAttribute('aria-expanded', 'true');
+        }
+
+        trigger.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (cs.classList.contains('is-open')) {
+            closeMenu();
+          } else {
+            openMenu();
+          }
+        });
+
+        options.forEach(function (opt) {
+          opt.addEventListener('click', function (e) {
+            const val = opt.getAttribute('data-select-value') || opt.getAttribute('data-value') || '';
+            const optText = opt.querySelector('.km-custom-select__opt-text');
+            const label = optText ? optText.textContent.trim() : opt.textContent.trim();
+            const optCount = opt.querySelector('.km-custom-select__opt-count');
+
+            options.forEach(function (o) {
+              o.classList.remove('is-selected');
+              o.setAttribute('aria-selected', 'false');
+            });
+            opt.classList.add('is-selected');
+            opt.setAttribute('aria-selected', 'true');
+
+            if (valueSpan) {
+              if (optCount && val) {
+                valueSpan.textContent = label + ' (' + optCount.textContent.trim() + ')';
+              } else {
+                valueSpan.textContent = label;
+              }
+            }
+
+            if (nativeSelect) {
+              nativeSelect.value = val;
+              nativeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            closeMenu();
+            trigger.focus();
+          });
+        });
+
+        // Keyboard navigation
+        trigger.addEventListener('keydown', function (e) {
+          if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openMenu();
+            const firstOpt = menu.querySelector('.km-custom-select__option.is-selected') || options[0];
+            if (firstOpt) firstOpt.focus();
+          } else if (e.key === 'Escape') {
+            closeMenu();
+          }
+        });
+
+        menu.addEventListener('keydown', function (e) {
+          const cur = document.activeElement;
+          const curIndex = options.indexOf(cur);
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const nextIndex = curIndex < options.length - 1 ? curIndex + 1 : 0;
+            options[nextIndex].focus();
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const prevIndex = curIndex > 0 ? curIndex - 1 : options.length - 1;
+            options[prevIndex].focus();
+          } else if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (cur && cur.classList.contains('km-custom-select__option')) {
+              cur.click();
+            }
+          } else if (e.key === 'Escape') {
+            closeMenu();
+            trigger.focus();
+          }
+        });
+
+        // Sync when native select changes
+        if (nativeSelect) {
+          nativeSelect.addEventListener('change', function () {
+            const curVal = nativeSelect.value || '';
+            let matched = null;
+            options.forEach(function (opt) {
+              const v = opt.getAttribute('data-select-value') || opt.getAttribute('data-value') || '';
+              const isMatch = (v === curVal);
+              opt.classList.toggle('is-selected', isMatch);
+              opt.setAttribute('aria-selected', isMatch ? 'true' : 'false');
+              if (isMatch) matched = opt;
+            });
+            if (matched && valueSpan) {
+              const optText = matched.querySelector('.km-custom-select__opt-text');
+              const label = optText ? optText.textContent.trim() : matched.textContent.trim();
+              const optCount = matched.querySelector('.km-custom-select__opt-count');
+              if (optCount && curVal) {
+                valueSpan.textContent = label + ' (' + optCount.textContent.trim() + ')';
+              } else {
+                valueSpan.textContent = label;
+              }
+            }
+          });
+        }
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('.km-custom-select')) {
+          customSelects.forEach(function (cs) {
+            cs.classList.remove('is-open');
+            const trig = cs.querySelector('.km-custom-select__trigger');
+            if (trig) trig.setAttribute('aria-expanded', 'false');
+          });
+        }
+      });
+    })();
+
 
     (function () {
       const quickMenuButtons = Array.from(document.querySelectorAll("[data-quick-filter-toggle]"));
@@ -1358,16 +1499,64 @@
       const mobileMedia = window.matchMedia("(max-width: 760px)");
       let pendingFilterFocus = "";
       let activeOpenButton = null;
+      let drawerOpen = false;
+      let lastDrawerFocus = null;
+      const backgroundState = new Map();
+
+      function isolateBackground(isolate) {
+        if (!isolate) {
+          backgroundState.forEach(function (value, element) {
+            if (value === null) element.removeAttribute("inert");
+            else element.setAttribute("inert", value);
+          });
+          backgroundState.clear();
+          return;
+        }
+        // Keep the form's ancestor chain and its clickable backdrop active.
+        for (let branch = drawer; branch.parentElement; branch = branch.parentElement) {
+          Array.from(branch.parentElement.children).forEach(function (element) {
+            if (element === branch || element === backdrop || backgroundState.has(element)) return;
+            backgroundState.set(element, element.getAttribute("inert"));
+            element.inert = true;
+          });
+          if (branch.parentElement === document.body) break;
+        }
+      }
+
+      function focusDrawer() {
+        let attempts = 0;
+        function focusWhenVisible() {
+          if (!drawerOpen || drawer.contains(document.activeElement)) return;
+          closeBtn.focus({ preventScroll: true });
+          if (document.activeElement !== closeBtn && ++attempts < 60) {
+            window.requestAnimationFrame(focusWhenVisible);
+          }
+        }
+        window.requestAnimationFrame(focusWhenVisible);
+      }
 
       function setDrawerOpen(isOpen, restoreFocus) {
+        drawerOpen = isOpen && mobileMedia.matches;
+        isOpen = drawerOpen;
+        drawer.inert = mobileMedia.matches && !isOpen;
+        isolateBackground(isOpen);
+        if (isOpen) {
+          drawer.setAttribute("role", "dialog");
+          drawer.setAttribute("aria-modal", "true");
+          drawer.setAttribute("aria-labelledby", "mobile-filters-title");
+        } else {
+          drawer.removeAttribute("role");
+          drawer.removeAttribute("aria-modal");
+          drawer.removeAttribute("aria-labelledby");
+        }
         document.body.classList.toggle("filters-drawer-open", isOpen);
         openButtons.forEach(function (button) {
           button.setAttribute("aria-expanded", isOpen ? "true" : "false");
         });
-        drawer.setAttribute("aria-hidden", isOpen ? "false" : "true");
+        drawer.setAttribute("aria-hidden", isOpen || !mobileMedia.matches ? "false" : "true");
         backdrop.hidden = !isOpen;
         if (isOpen) {
-          window.setTimeout(function () { closeBtn.focus(); }, 0);
+          focusDrawer();
         } else if (restoreFocus && activeOpenButton) {
           activeOpenButton.focus();
           activeOpenButton = null;
@@ -1405,17 +1594,53 @@
         }
       });
 
+      document.addEventListener("focusin", function (event) {
+        lastDrawerFocus = drawer.contains(event.target) ? event.target : null;
+        if (drawerOpen && !drawer.contains(event.target)) focusDrawer();
+      });
+
+      function drawerControls() {
+        return Array.from(drawer.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]'
+        )).filter(function (element) {
+          return element.tabIndex >= 0 && !element.matches(":disabled") &&
+            !element.closest("[inert]") && element.getClientRects().length > 0 &&
+            window.getComputedStyle(element).visibility !== "hidden";
+        });
+      }
+
       document.addEventListener("keydown", function (event) {
+        if (!drawerOpen) return;
         if (event.key === "Escape") {
+          event.preventDefault();
           setDrawerOpen(false, true);
+          return;
+        }
+        if (event.key !== "Tab") return;
+        const controls = drawerControls();
+        const first = controls[0] || closeBtn;
+        const last = controls[controls.length - 1] || closeBtn;
+        if (!drawer.contains(document.activeElement) ||
+            (event.shiftKey && document.activeElement === first) ||
+            (!event.shiftKey && document.activeElement === last)) {
+          event.preventDefault();
+          (event.shiftKey ? last : first).focus();
         }
       });
 
-      function handleViewportChange(e) {
-        if (!e.matches) {
-          setDrawerOpen(false);
-          drawer.setAttribute("aria-hidden", "false");
+      function handleViewportChange() {
+        // A media change can hide the focused control before this callback;
+        // Chromium then focuses BODY without another focusin event.
+        const focusWasInside = drawer.contains(document.activeElement) ||
+          (document.activeElement === document.body && lastDrawerFocus !== null);
+        setDrawerOpen(false);
+        if (focusWasInside) {
+          const target = mobileMedia.matches ? openButtons.find(function (button) {
+            return button.getClientRects().length > 0;
+          }) : drawerControls()[0];
+          if (target) target.focus({ preventScroll: true });
         }
+        activeOpenButton = null;
       }
 
       if (typeof mobileMedia.addEventListener === "function") {

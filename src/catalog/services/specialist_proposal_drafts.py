@@ -28,8 +28,9 @@ def proposal_data(payload):
 
 
 def _payload(data):
-    # No IDs, claims, consent, document metadata, tokens or arbitrary form keys.
-    keys=set(PUBLIC_FIELDS)
+    # Subject is an application intent, never identity proof or authority.
+    # No IDs, consent, document metadata, tokens or arbitrary form keys.
+    keys=set(PUBLIC_FIELDS) | {'profile_subject'}
     keys.update('locations-'+key for key in ('TOTAL_FORMS','INITIAL_FORMS','MIN_NUM_FORMS','MAX_NUM_FORMS'))
     for i in range(31):keys.update(f'locations-{i}-{key}' for key in (*PracticeLocationForm.Meta.fields,'DELETE'))
     return {key:data.getlist(key) for key in keys if key in data}
@@ -63,6 +64,9 @@ def save_proposal(*,actor,draft_id,expected_version,data,files,submit=False):
                 raise ValidationError(_('Предложение уже отправлено.'))
             current=draft.version if draft else 0
             if str(current)!=str(expected_version):raise ValidationError(_('Запись изменилась. Обновите страницу.'),code='stale_version')
+            subject=data.get('profile_subject', 'other')
+            if subject not in ('self', 'other'):
+                raise ValidationError(_('Выберите, чей профиль вы добавляете.'))
             form,locations=proposal_forms(actor=actor,data=data,files=files,submit=submit)
             if files.get('documents') or data.get('documents'):
                 form.add_error('documents',_('Документы может загрузить только подтверждённый специалист.'))
@@ -91,6 +95,8 @@ def save_proposal(*,actor,draft_id,expected_version,data,files,submit=False):
                     error=ValidationError(_('Проверьте поля формы.'),code='invalid_form');error.form=result.form;error.locations=locations
                     raise error
                 draft.submitted_specialist=result.specialist;draft.submitted_at=timezone.now()
+                if subject == 'self':
+                    specialist_domain.request_claim(actor=actor, specialist_id=result.specialist.pk)
                 draft.photo='';draft.photo_content_type=''
             draft.save()
             if old_photo and old_photo!=draft.photo.name:

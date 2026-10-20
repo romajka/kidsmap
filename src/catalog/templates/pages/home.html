@@ -11,7 +11,12 @@
 {% endif %}
 {% endblock %}
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20261018_site05_r1" />
+<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=completion_20261020_design_r1" />
+<link rel="stylesheet" href="{% static 'css/pages/home_search.css' %}?v=unified_search1" />
+<link rel="stylesheet" href="{% static 'css/pages/home_layout.css' %}?v=20261020_photo_motion_r1" />
+<link rel="stylesheet" href="{% static 'css/pages/home_map_explorer.css' %}?v=mappy_guide2" />
+<link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=mappy_scene5" />
+<script defer src="{% static 'js/mappy.js' %}?v=mappy_scene5"></script>
 {% endblock %}
 
 {% block content %}
@@ -43,75 +48,30 @@
 
   <div class="home-hero-grid">
     <div class="home-hero-copy">
-      <div class="home-redesign-eyebrow"><span aria-hidden="true"></span>{% if request.LANGUAGE_CODE == 'az' %}Uşaqlıq kəşflərlə doludur{% elif request.LANGUAGE_CODE == 'en' %}A childhood full of discovery{% else %}Детство, полное открытий{% endif %}</div>
+      <div class="home-redesign-eyebrow"><span aria-hidden="true"></span>{% if request.LANGUAGE_CODE == 'az' %}Azərbaycanın uşaq məkanları xəritəsi{% elif request.LANGUAGE_CODE == 'en' %}Azerbaijan’s map of places for kids{% else %}Карта детских мест Азербайджана{% endif %}</div>
       <h1>{{ hero_title }}</h1>
       <p>{{ hero_subtitle }}</p>
+      {% include "includes/mappy_helper.html" %}
       <div class="home-redesign-actions">
+{% if map_places %}
         <a class="home-redesign-primary" href="{% if map_places %}#home-map-section{% else %}{% url 'place_list' %}{% endif %}">
-          <span>{% if request.LANGUAGE_CODE == 'az' %}Uyğun yer tap{% elif request.LANGUAGE_CODE == 'en' %}Find your next discovery{% else %}Найти своё место{% endif %}</span>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Xəritədə bax{% elif request.LANGUAGE_CODE == 'en' %}Explore the map{% else %}Смотреть на карте{% endif %}</span>
           <span class="home-btn-icon" aria-hidden="true">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="7" y1="17" x2="17" y2="7"></line>
-              <polyline points="7 7 17 7 17 17"></polyline>
-            </svg>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z"/><path d="M9 3v15M15 6v15"/></svg>
           </span>
         </a>
+{% endif %}
         <a class="home-redesign-secondary" href="{% url 'place_list' %}">
           <span>{% trans "Открыть весь каталог" %}</span>
           <span class="home-btn-icon" aria-hidden="true">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
           </span>
-        </a>
-      </div>
-
-      <div class="home-hero-stats" aria-label="{% trans 'Преимущества KidsMap' %}">
-        <a class="home-hero-stat km-stat-card km-stat-places km-stat-link"
-          href="{% if map_places %}#home-map-section{% else %}{% url 'place_list' %}{% endif %}">
-          <div class="km-stat-icon-wrapper">
-            <svg class="km-stat-svg km-stat-svg--places" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <ellipse cx="16" cy="27" rx="6" ry="2" class="km-pin-ground-shadow" fill="rgba(19, 111, 56, 0.2)" />
-              <circle cx="16" cy="27" r="5" class="km-pin-pulse-wave" stroke="currentColor" stroke-width="1.5" />
-              <g class="km-pin-group">
-                <path d="M16 3C11.03 3 7 7.03 7 12C7 18.25 16 27 16 27C16 27 25 18.25 25 12C25 7.03 20.97 3 16 3Z" class="km-pin-body" fill="currentColor" fill-opacity="0.16" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
-                <circle cx="16" cy="12" r="3.2" class="km-pin-dot" fill="currentColor" />
-              </g>
-            </svg>
-          </div>
-          <div class="km-stat-details">
-            <strong>{{ map_business_count }}</strong>
-            <span>{% trans "мест и занятий на карте" %}</span>
-          </div>
-        </a>
-        <a class="home-hero-stat km-stat-card km-stat-reviews km-stat-link" href="{% url 'place_reviews' %}">
-          <div class="km-stat-icon-wrapper">
-            <svg class="km-stat-svg km-stat-svg--reviews" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <g class="km-bubble-group">
-                <path d="M26 15C26 20.52 21.52 25 16 25C14.07 25 12.27 24.45 10.74 23.5L5 25.5L7.2 20.1C5.83 18.62 5 16.68 5 14.5C5 8.98 9.92 4.5 16 4.5C21.52 4.5 26 8.98 26 14.5V15Z" class="km-bubble-body" fill="currentColor" fill-opacity="0.16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M16 8.5L17.85 12.25L22 12.85L19 15.77L19.7 19.9L16 17.95L12.3 19.9L13 15.77L10 12.85L14.15 12.25L16 8.5Z" class="km-bubble-star" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" />
-              </g>
-              <path d="M25 5.5L25.8 7.2L27.5 8L25.8 8.8L25 10.5L24.2 8.8L22.5 8L24.2 7.2L25 5.5Z" class="km-sparkle km-sparkle-1" fill="currentColor" />
-              <circle cx="28.5" cy="13.5" r="1.2" class="km-sparkle km-sparkle-2" fill="currentColor" />
-            </svg>
-          </div>
-          <div class="km-stat-details">
-            <strong>{% if total_place_reviews_count %}{{ total_place_reviews_count }}{% else %}—{% endif %}</strong>
-            <span>
-              {% if total_place_reviews_count %}
-              {{ total_place_reviews_count|parent_review_label }}
-              {% else %}
-              {% trans "Пока нет отзывов" %}
-              {% endif %}
-            </span>
-          </div>
         </a>
       </div>
     </div>
 
-    {% if hero_gallery_slides %}
     <div class="home-hero-visual">
+    {% if hero_gallery_slides %}
       {% if hero_gallery_slides|length > 1 %}
       <div class="home-hero-slider" data-home-hero-slider>
         <div class="home-hero-slider-viewport" data-home-hero-slider-viewport>
@@ -174,7 +134,51 @@
       </div>
       {% endwith %}
       {% endif %}
+    {% endif %}
+      <div class="home-hero-stats" aria-label="{% trans 'Преимущества KidsMap' %}">
+        <a class="home-hero-stat km-stat-card km-stat-places km-stat-link"
+          href="{% if map_places %}#home-map-section{% else %}{% url 'place_list' %}{% endif %}">
+          <div class="km-stat-icon-wrapper">
+            <svg class="km-stat-svg km-stat-svg--places" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <ellipse cx="16" cy="27" rx="6" ry="2" class="km-pin-ground-shadow" fill="rgba(19, 111, 56, 0.2)" />
+              <circle cx="16" cy="27" r="5" class="km-pin-pulse-wave" stroke="currentColor" stroke-width="1.5" />
+              <g class="km-pin-group">
+                <path d="M16 3C11.03 3 7 7.03 7 12C7 18.25 16 27 16 27C16 27 25 18.25 25 12C25 7.03 20.97 3 16 3Z" class="km-pin-body" fill="currentColor" fill-opacity="0.16" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                <circle cx="16" cy="12" r="3.2" class="km-pin-dot" fill="currentColor" />
+              </g>
+            </svg>
+          </div>
+          <div class="km-stat-details">
+            <strong>{{ map_business_count }}</strong>
+            <span>{% trans "мест и занятий на карте" %}</span>
+          </div>
+        </a>
+        <a class="home-hero-stat km-stat-card km-stat-reviews km-stat-link" href="{% url 'place_reviews' %}">
+          <div class="km-stat-icon-wrapper">
+            <svg class="km-stat-svg km-stat-svg--reviews" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <g class="km-bubble-group">
+                <path d="M26 15C26 20.52 21.52 25 16 25C14.07 25 12.27 24.45 10.74 23.5L5 25.5L7.2 20.1C5.83 18.62 5 16.68 5 14.5C5 8.98 9.92 4.5 16 4.5C21.52 4.5 26 8.98 26 14.5V15Z" class="km-bubble-body" fill="currentColor" fill-opacity="0.16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M16 8.5L17.85 12.25L22 12.85L19 15.77L19.7 19.9L16 17.95L12.3 19.9L13 15.77L10 12.85L14.15 12.25L16 8.5Z" class="km-bubble-star" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" />
+              </g>
+              <path d="M25 5.5L25.8 7.2L27.5 8L25.8 8.8L25 10.5L24.2 8.8L22.5 8L24.2 7.2L25 5.5Z" class="km-sparkle km-sparkle-1" fill="currentColor" />
+              <circle cx="28.5" cy="13.5" r="1.2" class="km-sparkle km-sparkle-2" fill="currentColor" />
+            </svg>
+          </div>
+          <div class="km-stat-details">
+            <strong>{% if total_place_reviews_count %}{{ total_place_reviews_count }}{% else %}—{% endif %}</strong>
+            <span>
+              {% if total_place_reviews_count %}
+              {{ total_place_reviews_count|parent_review_label }}
+              {% else %}
+              {% trans "Пока нет отзывов" %}
+              {% endif %}
+            </span>
+          </div>
+        </a>
+      </div>
     </div>
+    {% if not map_places %}
+    {% include "pages/includes/home_map_search.html" %}
     {% endif %}
   </div>
 </section>
@@ -209,280 +213,7 @@
 
 
 {% if map_places %}
-<section class="panel home-map-panel" id="home-map-section">
-  <div class="home-map-head">
-    <div class="home-map-copy">
-      <div class="home-map-eyebrow-row">
-        <div class="home-redesign-eyebrow home-map-eyebrow">
-          <span aria-hidden="true"></span>
-          {% if request.LANGUAGE_CODE == 'az' %}İnteraktiv xəritə{% elif request.LANGUAGE_CODE == 'en' %}Interactive map{% else %}Интерактивная карта{% endif %}
-        </div>
-
-      </div>
-      <h2>
-        {% if request.LANGUAGE_CODE == 'az' %}Uşaqlar üçün məkanlar xəritədə{% elif request.LANGUAGE_CODE == 'en' %}Discover kids’ places on the map{% else %}Детские места на карте{% endif %}
-      </h2>
-      <p class="home-map-subtitle">
-        {% if request.LANGUAGE_CODE == 'az' %}Rayon, fəaliyyət və uşağınızın yaşını seçin.{% elif request.LANGUAGE_CODE == 'en' %}Choose an area, an activity and your child’s age.{% else %}Выберите район, занятие и возраст ребёнка.{% endif %}
-      </p>
-    </div>
-    <a class="home-map-catalog-link" href="{% url 'place_list' %}">
-      <span class="home-map-desktop-label">{% trans "Открыть весь каталог" %}</span>
-      <span class="home-map-mobile-label">{% if request.LANGUAGE_CODE == 'az' %}Kataloq{% elif request.LANGUAGE_CODE == 'en' %}Catalog{% else %}Каталог{% endif %}</span>
-      <span class="home-btn-icon" aria-hidden="true">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="7" y1="17" x2="17" y2="7"></line>
-          <polyline points="7 7 17 7 17 17"></polyline>
-        </svg>
-      </span>
-    </a>
-  </div>
-
-  <div class="home-map-search-deck">
-    <form class="home-search home-search-compact" method="get" action="{% url 'place_list' %}"
-      data-home-map-filter-form>
-      {% trans "Начать поиск" as default_search_label %}
-      <div class="home-search-head">
-        <label class="home-search-label" for="home-hero-search-input">{{ hero_search_label }}</label>
-        <span class="home-search-instant-badge">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-          {% if request.LANGUAGE_CODE == 'az' %}Xəritədə dərhal axtarış{% elif request.LANGUAGE_CODE == 'en' %}Map updates instantly{% else %}Карта обновляется сразу{% endif %}
-        </span>
-      </div>
-
-      <div class="home-search-primary-row">
-        <div class="home-search-input-wrap">
-          <span class="home-search-input-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-          </span>
-          <input
-            id="home-hero-search-input"
-            type="search"
-            name="q"
-            value="{{ request.GET.q|default:'' }}"
-            data-search-input
-            autocomplete="off"
-            placeholder="{{ hero_search_placeholder }}"
-            aria-label="{{ hero_search_label }}"
-          />
-          <button
-            class="home-search-clear-btn"
-            type="button"
-            data-home-search-clear
-            data-search-target="home-hero-search-input"
-            aria-label="{% if request.LANGUAGE_CODE == 'az' %}Axtarışı təmizlə{% elif request.LANGUAGE_CODE == 'en' %}Clear search{% else %}Очистить поиск{% endif %}"
-            {% if not request.GET.q %}hidden{% endif %}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-              <path d="m6 6 12 12M18 6 6 18" />
-            </svg>
-          </button>
-
-          <!-- Autocomplete Dropdown with Live Places -->
-          <div class="home-search-autocomplete" id="home-search-autocomplete" data-home-search-autocomplete
-            data-label-on-map="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə{% elif request.LANGUAGE_CODE == 'en' %}On map{% else %}На карте{% endif %}"
-            data-label-show-all="{% if request.LANGUAGE_CODE == 'az' %}Bütün {count} nəticəni xəritədə göstər{% elif request.LANGUAGE_CODE == 'en' %}Show all {count} results on map{% else %}Показать все {count} мест на карте{% endif %}"
-            hidden>
-            <div class="hs-ac-header">
-              <span class="hs-ac-title" data-hs-ac-count-title>
-                {% if request.LANGUAGE_CODE == 'az' %}Tapılan məkanlar{% elif request.LANGUAGE_CODE == 'en' %}Found places{% else %}Найденные кружки и секции{% endif %}
-              </span>
-              <span class="hs-ac-hint">
-                {% if request.LANGUAGE_CODE == 'az' %}Xəritədə göstərmək üçün klikləyin{% elif request.LANGUAGE_CODE == 'en' %}Click to show on map{% else %}Нажмите, чтобы показать на карте{% endif %}
-              </span>
-            </div>
-            <ul class="hs-ac-list" role="listbox" data-hs-ac-list></ul>
-            <div class="hs-ac-footer" data-hs-ac-footer hidden>
-              <button type="button" class="hs-ac-show-all-btn" data-hs-ac-show-all>
-                <span data-hs-ac-show-all-text>
-                  {% if request.LANGUAGE_CODE == 'az' %}Bütün nəticələri xəritədə göstər{% elif request.LANGUAGE_CODE == 'en' %}Show all results on map{% else %}Показать все на карте{% endif %}
-                </span>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </button>
-            </div>
-            <div class="hs-ac-empty" data-hs-ac-empty hidden>
-              <div class="hs-ac-empty-icon" aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              </div>
-              <p class="hs-ac-empty-text">{% if request.LANGUAGE_CODE == 'az' %}Heç bir məkan tapılmadı{% elif request.LANGUAGE_CODE == 'en' %}No places found for this search{% else %}По этому запросу ничего не найдено{% endif %}</p>
-              <span class="hs-ac-empty-sub">{% if request.LANGUAGE_CODE == 'az' %}Açar sözü dəyişməyə və ya filtrləri sıfırlamağa çalışın{% elif request.LANGUAGE_CODE == 'en' %}Try changing keywords or resetting filters{% else %}Попробуйте изменить запрос или сбросить фильтры{% endif %}</span>
-            </div>
-          </div>
-        </div>
-
-        <button class="btn home-search-show-map-btn" type="submit" data-home-show-map-btn
-          aria-label="{{ hero_cta_text }}">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-            <line x1="8" y1="2" x2="8" y2="18"></line>
-            <line x1="16" y1="6" x2="16" y2="22"></line>
-          </svg>
-          <span>{{ hero_cta_text }}</span>
-        </button>
-      </div>
-
-      <div class="home-search-row home-search-filters-row">
-        <select name="district" class="home-filter-district-select" hidden>
-          <option value="">{% trans "Регион / район" %}</option>
-          {% for district in home_districts %}
-          <option value="{{ district.value }}" data-label-current="{{ district.label }}"
-            data-label-az="{{ district.label_az }}" data-label-ru="{{ district.label_ru }}"
-            data-label-en="{{ district.label_en }}"
-            data-is-baku-city="{% if district.value == 'baku' %}1{% else %}0{% endif %}"
-            data-is-baku-district="{% if district.value|slice:':5' == 'baku_' %}1{% else %}0{% endif %}" {% if request.GET.district == district.value or request.GET.district == district.label %}selected{% endif %}>
-            {% firstof district.label_with_count district.label %}
-          </option>
-          {% endfor %}
-        </select>
-
-        <div class="km-location-tree" data-tree-select="district">
-          <button type="button" class="km-tree-trigger" id="district-tree-trigger" aria-haspopup="tree"
-            aria-expanded="false" aria-controls="district-tree-dropdown"
-            aria-label="{% if request.LANGUAGE_CODE == 'az' %}Region və ya rayon seç{% elif request.LANGUAGE_CODE == 'en' %}Choose region or district{% else %}Выбрать регион или район{% endif %}">
-            <span class="km-tree-trigger-icon" aria-hidden="true">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg>
-            </span>
-            <span class="km-tree-trigger-text">
-              {% trans "Регион / район" %}
-            </span>
-          </button>
-          <div id="district-tree-dropdown" class="km-tree-dropdown" role="tree" tabindex="-1"
-            data-all-baku-label="{% trans 'Все районы Баку' %}" data-default-label="{% trans 'Регион / район' %}"
-            data-toggle-label="{% trans 'Переключить раздел' %}" hidden></div>
-        </div>
-
-        <select id="home-search-category" name="category" hidden>
-          <option value="">{% trans "Все категории" %}</option>
-          {% for item in home_categories %}
-          <option value="{{ item.value }}" {% if request.GET.category == item.value %}selected{% endif %}>{% firstof item.label_with_count item.label %}</option>
-          {% endfor %}
-        </select>
-
-        <!-- Custom Category Dropdown -->
-        <div class="km-category-select" data-category-select>
-          <button type="button" class="km-category-trigger" id="category-dropdown-trigger" aria-haspopup="listbox"
-            aria-expanded="false" aria-controls="category-dropdown-menu"
-            aria-label="{% if request.LANGUAGE_CODE == 'az' %}Kateqoriya seç{% elif request.LANGUAGE_CODE == 'en' %}Choose category{% else %}Выбрать категорию{% endif %}">
-            <span class="km-category-trigger-icon" data-category-trigger-icon>
-              <span class="km-category-option-icon all-categories-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-                  <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-                  <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-                  <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
-                </svg>
-              </span>
-            </span>
-            <span class="km-category-trigger-text" data-category-trigger-text>
-              {% trans "Все категории" %}
-            </span>
-          </button>
-          <div class="km-category-dropdown" id="category-dropdown-menu" role="listbox" hidden>
-            <div class="km-category-option is-active" data-value="" role="option">
-              <span class="km-category-option-icon all-categories-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-                  <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-                  <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-                  <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
-                </svg>
-              </span>
-              <span class="km-category-option-text">
-                {% trans "Все категории" %}
-              </span>
-            </div>
-            {% for item in home_categories %}
-            <div class="km-category-option" data-value="{{ item.value }}" role="option"
-              data-color-bg="{{ item.color_bg|default:'#F3F4F6' }}"
-              data-color-text="{{ item.color_text|default:'#6B7280' }}">
-              <span class="km-category-option-icon"
-                style="background-color: {{ item.color_bg|default:'#F3F4F6' }}; color: {{ item.color_text|default:'#6B7280' }};">
-                {% include "catalog/includes/category_visual_icon.html" with code=item.value icon_file_url=item.icon_file_url icon_is_svg=item.icon_is_svg icon_is_font=item.icon_is_font icon_name=item.icon_name %}
-              </span>
-              <span class="km-category-option-text">
-                {% firstof item.label_with_count item.label %}
-              </span>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-
-        <div class="home-age-presets" role="group" aria-label="{% trans 'Возраст' %}">
-          <span class="home-age-presets-label" aria-hidden="true">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-            <span>{% if request.LANGUAGE_CODE == 'az' %}Uşağın yaşı{% elif request.LANGUAGE_CODE == 'en' %}Child’s age{% else %}Возраст ребёнка{% endif %}</span>
-          </span>
-          <div class="home-age-chips-wrap">
-            <input type="hidden" name="age" value="{{ selected_age }}" />
-            {% for age in home_age_options %}
-            {% with age_value=age|stringformat:"s" %}
-            <button type="button" class="home-age-chip{% if selected_age == age_value %} is-active{% endif %}"
-              data-home-age-chip data-age-value="{{ age_value }}"
-              aria-pressed="{% if selected_age == age_value %}true{% else %}false{% endif %}"
-              aria-label="{% if request.LANGUAGE_CODE == 'az' %}{{ age }} yaşlı uşaq üçün{% elif request.LANGUAGE_CODE == 'en' %}For a child aged {{ age }}{% else %}Для ребёнка {{ age }} лет{% endif %}">
-              {{ age }}
-            </button>
-            {% endwith %}
-            {% endfor %}
-          </div>
-        </div>
-
-        <button type="button" class="home-search-reset-btn" data-home-search-reset
-          aria-label="{% if request.LANGUAGE_CODE == 'az' %}Filtrləri sıfırla{% elif request.LANGUAGE_CODE == 'en' %}Reset filters{% else %}Сбросить фильтры{% endif %}"
-          title="{% if request.LANGUAGE_CODE == 'az' %}Filtrləri sıfırla{% elif request.LANGUAGE_CODE == 'en' %}Reset filters{% else %}Сбросить фильтры{% endif %}">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-            <path d="M3 3v5h5"></path>
-          </svg>
-          <span>{% if request.LANGUAGE_CODE == 'az' %}Sıfırla{% elif request.LANGUAGE_CODE == 'en' %}Reset{% else %}Сбросить{% endif %}</span>
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <div class="home-map-results-bar">
-        <div class="home-map-live-pill" role="status" aria-live="polite" aria-atomic="true">
-          <span class="home-map-pulse-dot" aria-hidden="true"></span>
-          <span data-home-map-live-count>{{ map_business_count }}</span>
-          <span class="home-map-live-text">{% if request.LANGUAGE_CODE == 'az' %}məkan xəritədə{% elif request.LANGUAGE_CODE == 'en' %}places on map{% else %}мест на карте{% endif %}</span>
-        </div>
-    <span class="home-map-results-hint home-map-desktop-label">{% if request.LANGUAGE_CODE == 'az' %}Məkanı açmaq üçün xəritədəki işarəyə klikləyin{% elif request.LANGUAGE_CODE == 'en' %}Select a pin to discover a place{% else %}Нажмите на метку, чтобы открыть место{% endif %}</span>
-    <span class="home-map-results-hint home-map-mobile-label">{% if request.LANGUAGE_CODE == 'az' %}İşarəyə toxunun{% elif request.LANGUAGE_CODE == 'en' %}Select a pin{% else %}Выберите метку{% endif %}</span>
-  </div>
-
-  <div id="home-map" data-map-endpoint="{% url 'public_map' %}" class="home-map" data-details-label="{% trans 'Подробнее' %}"
-    data-age-range-label="{% if request.LANGUAGE_CODE == 'az' %}{from}–{to} yaş{% elif request.LANGUAGE_CODE == 'en' %}Ages {from}–{to}{% else %}{from}–{to} лет{% endif %}"
-    data-age-from-label="{% if request.LANGUAGE_CODE == 'az' %}{from}+ yaş{% elif request.LANGUAGE_CODE == 'en' %}Ages {from}+{% else %}от {from} лет{% endif %}"
-    data-age-to-label="{% if request.LANGUAGE_CODE == 'az' %}0–{to} yaş{% elif request.LANGUAGE_CODE == 'en' %}Up to age {to}{% else %}до {to} лет{% endif %}"
-    data-fallback-title="{% trans 'Карта детских мест по Азербайджану' %}"
-    data-empty-label="{% trans 'По выбранным фильтрам на карте пока нет мест' %}"
-    data-marker-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə məkanı aç: {name}{% elif request.LANGUAGE_CODE == 'en' %}Open place on map: {name}{% else %}Открыть место на карте: {name}{% endif %}"
-    data-catalog-url="{% url 'place_list' %}"
-    data-catalog-label="{% trans 'Открыть весь каталог' %}">
-  </div>
-  <p class="home-map-note" id="home-map-note" hidden aria-live="polite"></p>
-  <noscript>
-    <iframe class="home-map home-map-fallback" src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed&hl={{ request.LANGUAGE_CODE|urlencode }}"
-      loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-      title="{% trans 'Карта детских мест по Азербайджану' %}"></iframe>
-  </noscript>
-  {{ map_places|json_script:"home-map-data" }}
-  {{ home_map_page|json_script:"home-map-page" }}
-  {% include "catalog/includes/map_pagination.html" with map_kind="home" map_page=home_map_page %}
-</section>
+{% include "pages/includes/home_map_explorer.html" %}
 {% endif %}
 
 
@@ -2724,7 +2455,7 @@
 <script src="{% static 'js/google_maps_motion.js' %}?v=20260910"></script>
 <script src="{% static 'js/google_maps_markers.js' %}?v=20260910"></script>
 <script src="{% static 'js/map_paging.js' %}?v=20261019_r15"></script>
-<script src="{% static 'js/home_map.js' %}?v=20261019_r15" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
+<script src="{% static 'js/home_map.js' %}?v=mappy_guide_20261020_r2" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
   data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
   data-home-map-route-label="{% trans 'Маршрут' %}"
   data-home-map-language="{{ request.LANGUAGE_CODE|escape }}"

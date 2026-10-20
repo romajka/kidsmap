@@ -1332,7 +1332,7 @@ def get_legal_page_content(*, page_slug: str, language: str) -> dict:
                 "breadcrumb_aria_label": "Səhifə yolu",
                 "summary": "Bu sənəd KidsMap platformasında hansı məlumatların emal olunduğunu, hansı məqsədlərlə istifadə edildiyini və istifadəçinin hansı hüquqlara malik olduğunu aydın izah edir.",
                 "effective": "22 iyun 2026",
-                "updated": "03 sentyabr 2026",
+                "updated": "20 oktyabr 2026",
                 "dates_aria_label": "Sənəd tarixləri",
                 "effective_label": "Qüvvəyə minmə tarixi",
                 "updated_label": "Son yenilənmə",
@@ -1348,7 +1348,7 @@ def get_legal_page_content(*, page_slug: str, language: str) -> dict:
                 "breadcrumb_aria_label": "Хлебные крошки",
                 "summary": "Этот документ объясняет, какие данные обрабатываются в KidsMap, для каких целей они используются и какими правами обладает пользователь.",
                 "effective": "22 июня 2026 года",
-                "updated": "03 сентября 2026 года",
+                "updated": "20 октября 2026 года",
                 "dates_aria_label": "Даты документа",
                 "effective_label": "Дата вступления в силу",
                 "updated_label": "Последнее обновление",
@@ -1364,7 +1364,7 @@ def get_legal_page_content(*, page_slug: str, language: str) -> dict:
                 "breadcrumb_aria_label": "Breadcrumbs",
                 "summary": "This document explains what data is processed by KidsMap, why it is used, and what privacy rights users have.",
                 "effective": "June 22, 2026",
-                "updated": "September 03, 2026",
+                "updated": "October 20, 2026",
                 "dates_aria_label": "Document dates",
                 "effective_label": "Effective date",
                 "updated_label": "Last updated",
@@ -1376,6 +1376,23 @@ def get_legal_page_content(*, page_slug: str, language: str) -> dict:
         }
         meta = meta_map[safe_language]
         sections = sections_map[safe_language](analytics_enabled=analytics_enabled, maps_enabled=maps_enabled)
+        metrica_id = str(getattr(settings, "YANDEX_METRICA_COUNTER_ID", "") or "").strip()
+        if metrica_id.isascii() and metrica_id.isdecimal() and int(metrica_id) > 0:
+            metrica_text = {
+                "ru": "На публичных страницах каталога, главной странице и карточках мест для посетителей без входа в аккаунт подключается Яндекс Метрика. Сервис может обрабатывать IP-адрес, cookies, технические идентификаторы браузера, очищенные адреса страниц, источники переходов и нажатия на контакты. Личный кабинет, страницы входа, административные разделы и сеансы авторизованных пользователей исключены. Содержимое форм скрывается; произвольные параметры событий и введённый поисковый текст намеренно не передаются. Cookies и технические идентификаторы не считаются гарантированно анонимными данными.",
+                "az": "Hesaba daxil olmayan ziyarətçilər üçün ana səhifədə, açıq kataloq və məkan səhifələrində Yandex Metrica qoşulur. Xidmət IP ünvanını, cookies fayllarını, brauzerin texniki identifikatorlarını, təmizlənmiş səhifə ünvanlarını, keçid mənbələrini və əlaqə düymələrinə klikləri emal edə bilər. Şəxsi kabinet, giriş, inzibati bölmələr və hesaba daxil olmuş istifadəçilərin sessiyaları istisna edilir. Formaların məzmunu gizlədilir; sərbəst hadisə parametrləri və daxil edilmiş axtarış mətni məqsədli şəkildə ötürülmür. Cookies və texniki identifikatorların tam anonimliyi təmin edilmir.",
+                "en": "Yandex Metrica is enabled on the home page, public catalog and place pages for visitors who are not signed in. The service may process IP addresses, cookies, technical browser identifiers, cleaned page addresses, referral sources and contact clicks. Account, sign-in and administrative pages and signed-in sessions are excluded. Form content is hidden; arbitrary event parameters and entered search text are not intentionally transmitted. Cookies and technical identifiers are not guaranteed to be anonymous.",
+            }[safe_language]
+            replay_text = {
+                "ru": "При включённом Вебвизоре могут записываться действия на этих страницах: клики, прокрутка и движения указателя. Поля ввода и формы маскируются; запись отключается на страницах с поисковыми и другими немаркетинговыми параметрами или фрагментом адреса.",
+                "az": "Vebvizor aktiv olduqda bu səhifələrdə kliklər, sürüşdürmə və kursor hərəkətləri yazıla bilər. Daxiletmə sahələri və formalar maskalanır; axtarış və digər qeyri-marketinq parametrləri və ya ünvan fraqmenti olan səhifələrdə sessiya yazısı söndürülür.",
+                "en": "When Session Replay is enabled, clicks, scrolling and pointer movements on these pages may be recorded. Input fields and forms are masked; replay is disabled on pages containing search or other non-marketing query parameters or a URL fragment.",
+            }[safe_language]
+            for item in sections:
+                if item["id"] in {"cookies", "analytics", "third-parties"}:
+                    item["content"].append(paragraph(metrica_text))
+                    if item["id"] == "analytics" and getattr(settings, "YANDEX_METRICA_WEBVISOR_ENABLED", False):
+                        item["content"].append(paragraph(replay_text))
         return {
             "page_slug": "privacy",
             "is_privacy_document": True,

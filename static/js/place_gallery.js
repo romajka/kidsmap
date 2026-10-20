@@ -11,6 +11,8 @@
     const prevEl = gallery.querySelector("[data-place-gallery-prev]");
     const nextEl = gallery.querySelector("[data-place-gallery-next]");
     const currentEl = gallery.querySelector("[data-place-gallery-current]");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const thumbStrip = gallery.querySelector(".place-gallery__thumbs");
     const thumbButtons = Array.from(gallery.querySelectorAll("[data-place-gallery-thumb]"));
 
     if (!mainEl) return;
@@ -23,19 +25,27 @@
       });
 
       const activeThumb = thumbButtons[activeIndex];
-      if (activeThumb && (scroll || !document.body.hasAttribute('data-site-preview'))) {
-        activeThumb.scrollIntoView({
-          behavior: "smooth",
-          inline: "center",
-          block: "nearest",
-        });
+      // Move only the thumbnail strip; scrollIntoView also moves the page.
+      if (activeThumb && scroll && thumbStrip) {
+        const left = activeThumb.offsetLeft;
+        const right = left + activeThumb.offsetWidth;
+        if (left < thumbStrip.scrollLeft || right > thumbStrip.scrollLeft + thumbStrip.clientWidth) {
+          thumbStrip.scrollTo({
+            left: Math.max(0, left - (thumbStrip.clientWidth - activeThumb.offsetWidth) / 2),
+            behavior: reducedMotion ? "instant" : "smooth",
+          });
+        }
       }
     }
 
     const swiperOptions = {
       slidesPerView: 1,
       spaceBetween: 0,
-      speed: 320,
+      speed: reducedMotion ? 0 : 320,
+      a11y: {
+        prevSlideMessage: prevEl ? prevEl.getAttribute("aria-label") : undefined,
+        nextSlideMessage: nextEl ? nextEl.getAttribute("aria-label") : undefined,
+      },
       threshold: 8,
       touchRatio: 1,
       longSwipesRatio: 0.18,

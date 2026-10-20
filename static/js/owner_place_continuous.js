@@ -420,7 +420,7 @@
     userInteracted = true; dirty = true; editedAt = Date.now(); localStore(); schedule(); updatePreview(); updateMarkers(); setStatus(ui.unsaved, 'dirty'); form.querySelector('[data-pc-readiness-status]').textContent = ui.needs_check;
     if (event.target?.type === 'file') { photoDirty = true; localStore(); setStatus(ui.upload_pending, 'browser'); }
   });
-  ['km:pricing-change','km:schedule-change','km:map-change','km:photos-change','km:offerings-change'].forEach(name => form.addEventListener(name, () => { if (restoring || !userInteracted) return; dirty = true; editedAt = Date.now(); localStore(); schedule(); updatePreview(); updateMarkers(); setStatus(ui.unsaved, 'dirty'); form.querySelector('[data-pc-readiness-status]').textContent = ui.needs_check; if (name === 'km:photos-change') { photoDirty = true; localStore(); setStatus(ui.upload_pending, 'browser'); } }));
+  ['km:pricing-change','km:schedule-change','km:map-change','km:photos-change','km:offerings-change'].forEach(name => form.addEventListener(name, () => { if (restoring || (!userInteracted && !(name === 'km:photos-change' && photoEditor?.hasChanges()))) return; userInteracted = true; dirty = true; editedAt = Date.now(); localStore(); schedule(); updatePreview(); updateMarkers(); setStatus(ui.unsaved, 'dirty'); form.querySelector('[data-pc-readiness-status]').textContent = ui.needs_check; if (name === 'km:photos-change') { photoDirty = true; localStore(); setStatus(ui.upload_pending, 'browser'); } }));
   form.addEventListener('submit', async event => {
     if (halted) { event.preventDefault(); setStatus(ui.server_conflict, 'conflict'); return; }
     if (submitting) { event.preventDefault(); return; }

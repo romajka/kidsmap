@@ -15,6 +15,7 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=mappy_scene4" />
   <link rel="stylesheet" href="{% static 'css/pages/organization_workspace.css' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -117,21 +118,21 @@
 
       <!-- Sub-tabs (Places / Events / Specialists) -->
       {% if is_events_section_enabled or is_specialists_section_enabled %}
-        <nav class="account-tabs-nav" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Bölmələr{% elif CURRENT_LANGUAGE == 'en' %}Sections{% else %}Разделы{% endif %}">
-          <a class="account-tab-pill is-active" href="#owner-places-list">
+        <nav class="account-tabs-nav" role="tablist" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Bölmələr{% elif CURRENT_LANGUAGE == 'en' %}Sections{% else %}Разделы{% endif %}">
+          <a class="account-tab-pill is-active" id="owner-tab-pill-places" role="tab" aria-selected="true" aria-controls="owner-panel-places" tabindex="0" href="#owner-places-list" data-tab-target="owner-panel-places">
             <span class="material-symbols-rounded">location_on</span>
             <span>{% if CURRENT_LANGUAGE == "az" %}Məkanlar{% elif CURRENT_LANGUAGE == "en" %}Places{% else %}Места{% endif %}</span>
             <span class="account-nav-count">{{ owner_stats.total_places }}</span>
           </a>
           {% if is_events_section_enabled %}
-            <a class="account-tab-pill" href="#owner-events-list">
+            <a class="account-tab-pill" id="owner-tab-pill-events" role="tab" aria-selected="false" aria-controls="owner-panel-events" tabindex="-1" href="#owner-events-list" data-tab-target="owner-panel-events">
               <span class="material-symbols-rounded">event</span>
               <span>{% if CURRENT_LANGUAGE == "az" %}Tədbirlər{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}Мероприятия{% endif %}</span>
               <span class="account-nav-count">{{ owner_event_stats.total }}</span>
             </a>
           {% endif %}
           {% if is_specialists_section_enabled %}
-            <a class="account-tab-pill" href="#owner-specialists-list">
+            <a class="account-tab-pill" id="owner-tab-pill-specialists" role="tab" aria-selected="false" aria-controls="owner-panel-specialists" tabindex="-1" href="#owner-specialists-list" data-tab-target="owner-panel-specialists">
               <span class="material-symbols-rounded">badge</span>
               <span>{% if CURRENT_LANGUAGE == "az" %}Mütəxəssislər{% elif CURRENT_LANGUAGE == "en" %}Specialists{% else %}Специалисты{% endif %}</span>
               <span class="account-nav-count">{{ owner_specialist_stats.total }}</span>
@@ -140,8 +141,10 @@
         </nav>
       {% endif %}
 
-      <!-- Statistics Metric Pills -->
-      <div class="account-metric-pills">
+      <!-- Tab Panel: Places -->
+      <div class="owner-tab-panel is-active" id="owner-panel-places" role="tabpanel" aria-labelledby="owner-tab-pill-places">
+        <!-- Statistics Metric Pills -->
+        <div class="account-metric-pills">
         <div class="account-metric-pill">
           <span class="material-symbols-rounded metric-icon-green">location_on</span>
           <strong>{{ owner_stats.total_places }}</strong>
@@ -489,9 +492,12 @@
         {% endif %}
       </div>
 
-      <!-- Section: Events (if enabled) -->
+      </div>
+
+      <!-- Tab Panel: Events (if enabled) -->
       {% if is_events_section_enabled %}
-        <div class="account-card-box" id="owner-events-list">
+        <div class="owner-tab-panel" id="owner-panel-events" role="tabpanel" aria-labelledby="owner-tab-pill-events">
+          <div class="account-card-box" id="owner-events-list">
           <div class="account-card-box__head">
             <h2>
               <span class="material-symbols-rounded" style="color: #3B82F6; font-size: 20px;">event</span>
@@ -595,12 +601,14 @@
               </a>
             </div>
           {% endif %}
+          </div>
         </div>
       {% endif %}
 
-      <!-- Section: Specialists (if enabled) -->
+      <!-- Tab Panel: Specialists (if enabled) -->
       {% if is_specialists_section_enabled %}
-        <div class="account-card-box" id="owner-specialists-list">
+        <div class="owner-tab-panel" id="owner-panel-specialists" role="tabpanel" aria-labelledby="owner-tab-pill-specialists">
+          <div class="account-card-box" id="owner-specialists-list">
           <div class="account-card-box__head">
             <h2>
               <span class="material-symbols-rounded" style="color: #8B5CF6; font-size: 20px;">badge</span>
@@ -678,6 +686,7 @@
               </a>
             </div>
           {% endif %}
+          </div>
         </div>
       {% endif %}
 
@@ -685,4 +694,5 @@
   </div>
 </div>
 <script src="{% static 'js/organization_workspace.js' %}" defer></script>
+<script src="{% static 'js/owner_places_tabs.js' %}" defer></script>
 {% endblock %}

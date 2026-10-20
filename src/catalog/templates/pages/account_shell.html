@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% block extra_head %}
+  {{ block.super }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}">
+{% endblock %}
+{% block content %}
+{% get_current_language as CURRENT_LANGUAGE %}
+<div class="account-page-wrapper account-specialist-shell">
+  <!-- User Identity Header Card -->
+  <div class="account-user-card">
+    <div class="account-user-avatar">
+      {% if profile_model.avatar %}
+        <img src="{{ profile_model.avatar.url }}" alt="{{ request.user.username }}" class="account-user-avatar__img">
+      {% elif request.user.profile.avatar %}
+        <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" class="account-user-avatar__img">
+      {% else %}
+        {{ request.user.first_name|default:request.user.username|slice:":2"|upper }}
+      {% endif %}
+    </div>
+    <div class="account-user-info">
+      <h1 class="account-user-name">{{ request.user.get_full_name|default:request.user.username }}</h1>
+      <span class="account-user-email">{{ request.user.email|default:request.user.username }}</span>
+    </div>
+    <div class="account-user-meta">
+      <span class="material-symbols-rounded">event_available</span>
+      <span>
+        {% if CURRENT_LANGUAGE == "az" %}
+          Qeydiyyat: {{ request.user.date_joined|date:"d.m.Y" }}
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Joined: {{ request.user.date_joined|date:"d.m.Y" }}
+        {% else %}
+          С нами с {{ request.user.date_joined|date:"d.m.Y" }}
+        {% endif %}
+      </span>
+    </div>
+    <div class="account-user-actions">
+      <a href="{% url 'account_settings' %}" class="account-edit-profile-btn">
+        <span class="material-symbols-rounded">edit</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Profili redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit profile{% else %}Редактировать профиль{% endif %}</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="account-main-layout">
+    {% include "pages/includes/account_navigation.html" %}
+    <div class="account-main-content">
+      {% block account_content %}{% endblock %}
+    </div>
+  </div>
+</div>
+{% endblock %}

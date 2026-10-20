@@ -3,21 +3,21 @@
 {% block title %}{{ form.wizard_copy.title }} | KidsMap{% endblock %}
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=20260928_1">
-<link rel="stylesheet" href="{% static 'css/pages/permanent_place_wizard.css' %}?v=20260915">
-<link rel="stylesheet" href="{% static 'css/pages/owner_place_continuous.css' %}?v=20261010_place_qa">
+<link rel="stylesheet" href="{% static 'css/pages/permanent_place_wizard.css' %}?v=20261020_release_photos1">
+<link rel="stylesheet" href="{% static 'css/pages/owner_place_continuous.css' %}?v=20261020_release_photos1">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 {% endblock %}
 {% block content %}
 {% include "pages/includes/owner_place_continuous.html" %}
 {% endblock %}
 {% block extra_body %}
-<script src="{% static 'js/permanent_place_photos.js' %}?v=2"></script>
+<script src="{% static 'js/permanent_place_photos.js' %}?v=20261020_release_photos1"></script>
 <script src="{% static 'js/owner_place_offerings.js' %}?v=20261007_place_r5"></script>
-<script src="{% static 'js/owner_place_continuous.js' %}?v=20261010_place_qa"></script>
+<script src="{% static 'js/owner_place_continuous.js' %}?v=20261020_release_photos1"></script>
 <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=20260915"></script>
 <script src="{% static 'js/permanent_place_pricing.js' %}?v=20260915"></script>
 <script src="{% static 'js/kidsmap_dependent_subcategory.js' %}"></script>
 <script data-owner-map-sdk="leaflet" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="{% static 'js/owner_place_map_picker.js' %}?v=20261010_place_qa"></script>
+<script src="{% static 'js/owner_place_map_picker.js' %}?v=20261020_release_photos1"></script>
 {% if google_maps_api_key %}<script async src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&libraries=places&callback=kidsMapInitOwnerMapPickers"></script>{% endif %}
 {% endblock %}

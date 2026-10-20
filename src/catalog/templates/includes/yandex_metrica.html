@@ -1,0 +1,5 @@
+{% load static %}{% if yandex_metrica_enabled and not site_preview %}
+<script id="kidsmap-yandex-metrica" defer src="{% static 'js/yandex_metrica.js' %}"
+        data-counter-id="{{ yandex_metrica_counter_id }}"
+        data-webvisor="{{ yandex_metrica_webvisor_enabled|yesno:'true,false' }}"></script>
+{% endif %}

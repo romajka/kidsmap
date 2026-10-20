@@ -169,15 +169,15 @@
 
       <div class="owner-listing-choice-card__body">
         <strong class="owner-listing-choice-card__title">
-          {% if CURRENT_LANGUAGE == "az" %}Mütəxəssis profili{% elif CURRENT_LANGUAGE == "en" %}Specialist profile{% else %}Профиль специалиста{% endif %}
+          {% trans 'Я специалист' %}
         </strong>
         <p class="owner-listing-choice-card__text">
           {% if CURRENT_LANGUAGE == "az" %}
-            Uşaq psixoloqu, loqoped, repetitor, məşqçi və ya fərdi dərslər keçən müəllimin fərdi kartı.
+            Repetitor, loqoped, psixoloq, məşqçi və ya müəllim kimi öz profilinizi əlavə edin.
           {% elif CURRENT_LANGUAGE == "en" %}
-            Personal profile for a child psychologist, speech therapist, tutor, or private sports coach.
+            Add your own profile as a tutor, speech therapist, psychologist, coach, or teacher.
           {% else %}
-            Персональная страница репетитора, детского психолога, логопеда, тренера или частного педагога.
+            Добавьте свою анкету репетитора, логопеда, психолога, тренера или педагога.
           {% endif %}
         </p>
 
@@ -204,7 +204,7 @@
 
       <span class="owner-listing-choice-card__button">
         <span class="material-symbols-rounded" aria-hidden="true">add_circle</span>
-        <span>{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add specialist{% else %}Добавить специалиста{% endif %}</span>
+        <span>{% trans 'Добавить свой профиль' %}</span>
       </span>
     </a>
     {% endif %}

@@ -13,8 +13,14 @@
         {% if card_image.srcset %}srcset="{{ card_image.srcset }}" sizes="{% if request.resolver_match.url_name == 'home' %}(max-width: 760px) 280px, 320px{% else %}(max-width: 760px) calc(100vw - 28px), (max-width: 1100px) calc((100vw - 64px) / 2), 320px{% endif %}" width="{{ card_image.width }}" height="{{ card_image.height }}"{% endif %}
         alt="{{ presentation.name }}" loading="lazy" decoding="async"
         data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+      <template data-card-image-placeholder>
+        <div class="image-placeholder" data-category-placeholder role="img" aria-label="{% trans 'Фото скоро будет.' %}">
+          <span class="image-placeholder-icon" aria-hidden="true">{% include "catalog/includes/public_category_icon.html" with icon=presentation.placeholder_icon %}</span>
+          <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
+        </div>
+      </template>
       {% else %}
-      <div class="image-placeholder" data-category-placeholder aria-label="{% trans 'Фото скоро будет.' %}">
+      <div class="image-placeholder" data-category-placeholder role="img" aria-label="{% trans 'Фото скоро будет.' %}">
         <span class="image-placeholder-icon" aria-hidden="true">{% include "catalog/includes/public_category_icon.html" with icon=presentation.placeholder_icon %}</span>
         <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
       </div>
@@ -81,14 +87,6 @@
     </h3>
 
     {% if presentation.translation_fallback %}<p class="meta" data-translation-fallback>{% if card_language == 'ru' %}Текст на азербайджанском{% elif card_language == 'en' %}Text in Azerbaijani{% else %}Mətn azərbaycancadır{% endif %}</p>{% endif %}
-    {% if not presentation.exact_filtered %}
-    {% with desc=presentation.description %}
-    <p class="card-description{% if not desc %} is-empty{% endif %}">
-      {% if desc %}{{ desc|striptags|truncatechars:92 }}{% else %}&nbsp;{% endif %}
-    </p>
-    {% endwith %}
-    {% endif %}
-
     <div class="card-tags-row{% if place.offers_adult_classes %} card-tags-row--with-adults{% endif %}">
       {% if place.age_display and not presentation.exact_filtered %}
         <span class="card-meta-chip card-meta-chip--age">
@@ -110,6 +108,33 @@
         {% endif %}
       </span>
     </div>
+
+
+    <p class="meta card-location{% if not place.district and not place.metro and not place.address %} is-empty{% endif %}">
+      <span class="card-location-icon" aria-hidden="true">
+        <svg class="card-location-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="rgba(16, 185, 129, 0.15)" />
+          <circle cx="12" cy="10" r="3" fill="#10b981" />
+        </svg>
+      </span>
+      <span class="card-location-text">
+        {% if place.district %}{{ place.district_i18n }}{% endif %}
+        {% if place.district and place.metro %} / {% endif %}
+        {% if place.metro %}{{ place.metro_i18n }}{% endif %}
+        {% if not place.district and not place.metro and place.address %}{{ place.address_i18n|truncatechars:48 }}{% endif %}
+        {% if not place.district and not place.metro and not place.address %}&nbsp;{% endif %}
+      </span>
+    </p>
+
+
+    {% if not presentation.exact_filtered %}
+    {% with desc=presentation.description %}
+    <p class="card-description{% if not desc %} is-empty{% endif %}">
+      {% if desc %}{{ desc|striptags|truncatechars:92 }}{% else %}&nbsp;{% endif %}
+    </p>
+    {% endwith %}
+    {% endif %}
+
 
     {% if presentation.organization %}
     <p class="meta card-organization"><a href="{{ presentation.organization.url }}">{{ presentation.organization.name }}</a></p>
@@ -150,21 +175,6 @@
       {% endif %}
     </div>
 
-    <p class="meta card-location{% if not place.district and not place.metro and not place.address %} is-empty{% endif %}">
-      <span class="card-location-icon" aria-hidden="true">
-        <svg class="card-location-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="rgba(16, 185, 129, 0.15)" />
-          <circle cx="12" cy="10" r="3" fill="#10b981" />
-        </svg>
-      </span>
-      <span class="card-location-text">
-        {% if place.district %}{{ place.district_i18n }}{% endif %}
-        {% if place.district and place.metro %} / {% endif %}
-        {% if place.metro %}{{ place.metro_i18n }}{% endif %}
-        {% if not place.district and not place.metro and place.address %}{{ place.address_i18n|truncatechars:48 }}{% endif %}
-        {% if not place.district and not place.metro and not place.address %}&nbsp;{% endif %}
-      </span>
-    </p>
 
     {% if not presentation.map_available %}
       <p class="card-map-missing">{% if card_language == 'en' %}Location not marked on map{% elif card_language == 'ru' %}Место не отмечено на карте{% else %}Məkan xəritədə qeyd olunmayıb{% endif %}</p>

@@ -1,4 +1,4 @@
-from urllib.parse import parse_qsl, urlencode
+from urllib.parse import parse_qsl, urlencode, urlsplit
 
 from django.conf import settings
 from django.templatetags.static import static
@@ -242,10 +242,54 @@ def _google_analytics_context(request) -> dict[str, object]:
     }
 
 
+def _yandex_metrica_context(request) -> dict[str, object]:
+    counter_id = str(getattr(settings, "YANDEX_METRICA_COUNTER_ID", "") or "").strip()
+    valid_id = counter_id.isascii() and counter_id.isdecimal() and int(counter_id) > 0
+    hostname = request.get_host().partition(":")[0].lower()
+    public_host = urlsplit(getattr(settings, "PUBLIC_BASE_URL", "") or "https://kidsmap.az").hostname
+    user = getattr(request, "user", None)
+    match = getattr(request, "resolver_match", None)
+    enabled = bool(
+        valid_id and not settings.DEBUG and not getattr(settings, "TESTING", False)
+        and hostname == public_host == "kidsmap.az"
+        and not getattr(request, "site_preview", False)
+        and user is not None and not user.is_authenticated
+        and getattr(match, "url_name", None) in {
+            "home", "place_list", "place_new", "seo_landing", "place_detail",
+        }
+    )
+    return {
+        "yandex_metrica_enabled": enabled,
+        "yandex_metrica_counter_id": counter_id if enabled else "",
+        "yandex_metrica_webvisor_enabled": enabled and bool(
+            getattr(settings, "YANDEX_METRICA_WEBVISOR_ENABLED", False)
+        ),
+    }
+
+
+def _specialist_account_context(request):
+    """Account navigation reflects existing applications, never grants access."""
+    actor = getattr(request, 'user', None)
+    if '/account/' not in request.path or not actor or not actor.is_authenticated or not actor.is_active:
+        return {}
+    if not is_specialists_section_enabled():
+        return {}
+    from .models import Specialist, SpecialistProposalDraft, SpecialistClaim
+    verified = Specialist.objects.filter(verified_person_user=actor, person_verified_at__isnull=False).exists()
+    has_applications = verified or (
+        SpecialistProposalDraft.objects.filter(actor=actor, submitted_at__isnull=True).exists()
+        or Specialist.objects.filter(created_by=actor, verified_person_user__isnull=True).exists()
+        or SpecialistClaim.objects.filter(applicant=actor).exists()
+    )
+    return {'has_verified_specialist_profile': verified, 'has_specialist_applications': has_applications}
+
+
 def site_settings(request):
     is_preview = getattr(request, 'site_preview', False)
     queued_analytics_events = [] if is_preview else pop_queued_google_analytics_events(request)
     google_analytics_context = _google_analytics_context(request)
+    yandex_metrica_context = _yandex_metrica_context(request)
+    specialist_account_context = _specialist_account_context(request)
     try:
         cfg = SiteSettings.objects.first() if is_preview else SiteSettings.get_solo()
     except (OperationalError, ProgrammingError):
@@ -273,6 +317,8 @@ def site_settings(request):
             "footer_whatsapp_url": DEFAULT_FOOTER_WHATSAPP_URL,
             "footer_social_links": footer_social_links,
             **google_analytics_context,
+            **yandex_metrica_context,
+            **specialist_account_context,
             "queued_analytics_events": queued_analytics_events,
             "is_specialists_section_enabled": is_specialists_section_enabled(),
             "is_events_section_enabled": is_events_section_enabled(),
@@ -328,6 +374,8 @@ def site_settings(request):
         "footer_whatsapp_url": footer_whatsapp_url,
         "footer_social_links": footer_social_links,
         **google_analytics_context,
+        **yandex_metrica_context,
+        **specialist_account_context,
         "queued_analytics_events": queued_analytics_events,
         "is_specialists_section_enabled": is_specialists_section_enabled(),
         "is_events_section_enabled": is_events_section_enabled(),
