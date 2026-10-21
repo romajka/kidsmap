@@ -2310,10 +2310,9 @@ class TestCatalogEnhancements(TestCase):
         self.assertEqual(response.status_code, 200)
         names = [item.name_ru for item in response.context["places"]]
         self.assertIn(overlapping_place.name_ru, names)
-        self.assertIn(out_of_range_place.name_ru, names)
-        # Budget filtering was removed: a legacy URL must not silently hide cards.
-        self.assertNotContains(response, 'name="price_from"')
-        self.assertNotContains(response, 'name="price_to"')
+        self.assertNotIn(out_of_range_place.name_ru, names)
+        self.assertContains(response, 'name="price_from"')
+        self.assertContains(response, 'name="price_to"')
 
     def test_new_page_with_photo_filter_ignores_null_photo_fields(self):
         with_photo_place = create_quality_place(

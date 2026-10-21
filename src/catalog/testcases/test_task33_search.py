@@ -61,12 +61,20 @@ class ExactSearchTests(TestCase):
         self.english.archived_at=timezone.now();self.english.save(update_fields=['archived_at'])
         self.assertEqual(list(self.search(category='EDU',age='5')[1]), [])
 
-    def test_obsolete_prices_are_ignored_and_removed_from_selected(self):
-        filters, qs = self.search(price_from='9999',price_max='1',sort='price_asc')
-        self.assertIn(self.place.pk, qs.values_list('pk',flat=True))
-        self.assertEqual(filters.sort,'new')
-        self.assertEqual(filters.selected()['price_from'],'')
-        self.assertEqual(filters.selected()['price_to'],'')
+    def test_price_filter_matches_matching_offers_and_normalizes_selected(self):
+        filters, qs = self.search(price_from='20', price_to='100', sort='price_asc')
+        self.assertIn(self.place.pk, qs.values_list('pk', flat=True))
+        self.assertEqual(filters.sort, 'new')
+        self.assertEqual(filters.selected()['price_from'], '20')
+        self.assertEqual(filters.selected()['price_to'], '100')
+
+        neutral_filters, neutral_qs = self.search(price_from='0', price_to='500')
+        self.assertIn(self.place.pk, neutral_qs.values_list('pk', flat=True))
+        self.assertEqual(neutral_filters.selected()['price_from'], '')
+        self.assertEqual(neutral_filters.selected()['price_to'], '')
+
+        _, qs_high = self.search(price_from='200', price_to='500')
+        self.assertNotIn(self.place.pk, qs_high.values_list('pk', flat=True))
 
     def test_subcategory_needs_approved_offer_mapping(self):
         from catalog.testcases.utils import ensure_quality_subcategory
@@ -176,8 +184,8 @@ class ExactSearchTests(TestCase):
         response=self.client.get(reverse('place_list'),{'q':'EmptyDiscoverOrg','price_max':'1','sort':'price_desc'},follow=True)
         self.assertEqual(response.status_code,200)
         self.assertContains(response,f'/organizations/{org.public_id}/')
-        self.assertNotContains(response,'name="price_from"')
-        self.assertNotContains(response,'name="price_to"')
+        self.assertContains(response,'name="price_from"')
+        self.assertContains(response,'name="price_to"')
         self.assertNotContains(response,'value="price_asc"')
         self.assertNotContains(response,'value="price_desc"')
 

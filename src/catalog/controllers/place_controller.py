@@ -432,6 +432,13 @@ class PlaceController:
                 add_param("age_from", age_from)
                 add_param("age_to", age_to)
 
+        price_from = str(selected.get("price_from") or "").strip()
+        price_to = str(selected.get("price_to") or "").strip()
+        if price_from or price_to:
+            if not (price_from in {"", "0"} and price_to in {"", "500"}):
+                add_param("price_from", price_from)
+                add_param("price_to", price_to)
+
         if not force_new_only:
             sort_value = str(selected.get("sort") or "").strip()
             if sort_value and sort_value != "new":

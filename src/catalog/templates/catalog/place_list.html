@@ -94,6 +94,8 @@
             {% if selected.district %}<input type="hidden" name="district" value="{{ selected.district }}" />{% endif %}
             {% if selected.age_from %}<input type="hidden" name="age_from" value="{{ selected.age_from }}" />{% endif %}
             {% if selected.age_to %}<input type="hidden" name="age_to" value="{{ selected.age_to }}" />{% endif %}
+            {% if selected.price_from %}<input type="hidden" name="price_from" value="{{ selected.price_from }}" />{% endif %}
+            {% if selected.price_to %}<input type="hidden" name="price_to" value="{{ selected.price_to }}" />{% endif %}
             {% if selected.min_rating %}<input type="hidden" name="min_rating" value="{{ selected.min_rating }}" />{% endif %}
             {% if selected.sort %}<input type="hidden" name="sort" value="{{ selected.sort }}" />{% endif %}
             <button type="submit" class="hero-search-submit">
@@ -206,6 +208,8 @@
           {% if selected.district %}<input type="hidden" name="district" value="{{ selected.district }}" />{% endif %}
           {% if selected.age_from %}<input type="hidden" name="age_from" value="{{ selected.age_from }}" />{% endif %}
           {% if selected.age_to %}<input type="hidden" name="age_to" value="{{ selected.age_to }}" />{% endif %}
+          {% if selected.price_from %}<input type="hidden" name="price_from" value="{{ selected.price_from }}" />{% endif %}
+          {% if selected.price_to %}<input type="hidden" name="price_to" value="{{ selected.price_to }}" />{% endif %}
           {% if selected.min_rating %}<input type="hidden" name="min_rating" value="{{ selected.min_rating }}" />{% endif %}
           {% if selected.sort %}<input type="hidden" name="sort" value="{{ selected.sort }}" />{% endif %}
           <div class="mobile-search-field">
@@ -240,6 +244,7 @@
         <div class="mobile-quick-filters" aria-label="{% if language == 'az' %}Sürətli filtrlər{% elif language == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
           <button type="button" class="mobile-quick-filter{% if selected.district %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="district" data-filter-focus="district" aria-expanded="false" aria-controls="quick-menu-district">{% if language == "az" %}Rayon{% elif language == "en" %}District{% else %}Район{% endif %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.age_from or selected.age_to %}{% if selected.age_from != '0' or selected.age_to != '18' %} is-active{% endif %}{% endif %}" data-filters-open data-filter-focus="age">{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</button>
+          <button type="button" class="mobile-quick-filter{% if selected.price_from or selected.price_to %}{% if selected.price_from != '0' or selected.price_to != '500' %} is-active{% endif %}{% endif %}" data-filters-open data-filter-focus="price">{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.min_rating %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="min_rating" data-filter-focus="min_rating" aria-expanded="false" aria-controls="quick-menu-min_rating">{% if language == "az" %}Reytinq{% elif language == "en" %}Rating{% else %}Рейтинг{% endif %}</button>
         </div>
 
@@ -330,7 +335,7 @@
         </div>
         <div class="km-filter-title catalog-filter-title">
           <h2><span class="material-symbols-rounded" aria-hidden="true">tune</span> {% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}Фильтры{% endif %}</h2>
-          {% if selected.category or selected.subcategory or selected.district or selected.age_from or selected.age_to or selected.min_rating or selected.event_type %}
+          {% if selected.category or selected.subcategory or selected.district or selected.age_from or selected.age_to or selected.price_from or selected.price_to or selected.min_rating or selected.event_type %}
             <a href="{% url 'place_list' %}" class="km-filter-head-reset">
               {% if language == "az" %}Sıfırla{% elif language == "en" %}Reset{% else %}Сбросить{% endif %}
             </a>
@@ -510,6 +515,19 @@
           <div class="range-filter-track">
             <input class="range-slider range-slider-from" type="range" min="0" max="18" aria-label="{% if language == 'az' %}Minimum yaş{% elif language == 'en' %}Minimum age{% else %}Минимальный возраст{% endif %}" value="{{ selected.age_from|default:'0' }}" data-range-from-range />
             <input class="range-slider range-slider-to" type="range" min="0" max="18" aria-label="{% if language == 'az' %}Maksimum yaş{% elif language == 'en' %}Maximum age{% else %}Максимальный возраст{% endif %}" value="{{ selected.age_to|default:'18' }}" data-range-to-range />
+          </div>
+        </div>
+
+        <div class="range-filter filter-price-range km-filter-group" data-range data-min="0" data-max="500" data-step="5" data-unit="₼" data-mobile-filter-section="price">
+          <div class="range-filter-head">
+            <label><span class="material-symbols-rounded" aria-hidden="true">payments</span> {% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}{% trans "Цена" %}{% endif %}</label>
+            <strong class="range-filter-current" data-range-caption></strong>
+          </div>
+          <input type="hidden" name="price_from" value="{{ selected.price_from|default:'0' }}" data-range-from-input />
+          <input type="hidden" name="price_to" value="{{ selected.price_to|default:'500' }}" data-range-to-input />
+          <div class="range-filter-track">
+            <input class="range-slider range-slider-from" type="range" min="0" max="500" step="5" aria-label="{% if language == 'az' %}Minimum qiymət{% elif language == 'en' %}Minimum price{% else %}Минимальная цена{% endif %}" value="{{ selected.price_from|default:'0' }}" data-range-from-range />
+            <input class="range-slider range-slider-to" type="range" min="0" max="500" step="5" aria-label="{% if language == 'az' %}Maksimum qiymət{% elif language == 'en' %}Maximum price{% else %}Максимальная цена{% endif %}" value="{{ selected.price_to|default:'500' }}" data-range-to-range />
           </div>
         </div>
 
@@ -1282,10 +1300,20 @@
 
     /* ─── Unified Custom Selects Interactivity ─── */
     (function () {
-      const customSelects = Array.from(document.querySelectorAll('.km-custom-select'));
-      if (!customSelects.length) return;
+      function closeAllCustomSelects(except) {
+        document.querySelectorAll('.km-custom-select.is-open').forEach(function (other) {
+          if (other !== except) {
+            other.classList.remove('is-open');
+            const otherTrig = other.querySelector('.km-custom-select__trigger');
+            if (otherTrig) otherTrig.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
 
-      customSelects.forEach(function (cs) {
+      function initCustomSelect(cs) {
+        if (!cs || cs.dataset.customSelectInit === "true") return;
+        cs.dataset.customSelectInit = "true";
+
         const trigger = cs.querySelector('.km-custom-select__trigger');
         const menu = cs.querySelector('.km-custom-select__menu');
         const valueSpan = cs.querySelector('.km-custom-select__value');
@@ -1299,13 +1327,7 @@
         }
 
         function openMenu() {
-          customSelects.forEach(function (other) {
-            if (other !== cs) {
-              other.classList.remove('is-open');
-              const otherTrig = other.querySelector('.km-custom-select__trigger');
-              if (otherTrig) otherTrig.setAttribute('aria-expanded', 'false');
-            }
-          });
+          closeAllCustomSelects(cs);
           cs.classList.add('is-open');
           trigger.setAttribute('aria-expanded', 'true');
         }
@@ -1328,11 +1350,11 @@
             const optCount = opt.querySelector('.km-custom-select__opt-count');
 
             options.forEach(function (o) {
-              o.classList.remove('is-selected');
-              o.setAttribute('aria-selected', 'false');
+              const isSel = (o === opt);
+              o.classList.toggle('is-selected', isSel);
+              o.classList.toggle('is-active', isSel);
+              o.setAttribute('aria-selected', isSel ? 'true' : 'false');
             });
-            opt.classList.add('is-selected');
-            opt.setAttribute('aria-selected', 'true');
 
             if (valueSpan) {
               if (optCount && val) {
@@ -1344,7 +1366,9 @@
 
             if (nativeSelect) {
               nativeSelect.value = val;
-              nativeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+              if (!opt.hasAttribute('data-select-target')) {
+                nativeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+              }
             }
 
             closeMenu();
@@ -1395,6 +1419,7 @@
               const v = opt.getAttribute('data-select-value') || opt.getAttribute('data-value') || '';
               const isMatch = (v === curVal);
               opt.classList.toggle('is-selected', isMatch);
+              opt.classList.toggle('is-active', isMatch);
               opt.setAttribute('aria-selected', isMatch ? 'true' : 'false');
               if (isMatch) matched = opt;
             });
@@ -1410,15 +1435,28 @@
             }
           });
         }
-      });
+      }
 
+      function initCustomSelects(root) {
+        (root || document).querySelectorAll('.km-custom-select').forEach(initCustomSelect);
+      }
+
+      window.kidsMapInitCustomSelects = initCustomSelects;
+      initCustomSelects(document);
+
+      // Delegated fallback for dynamic nodes
       document.addEventListener('click', function (e) {
+        const trigger = e.target.closest('.km-custom-select__trigger');
+        if (trigger) {
+          const cs = trigger.closest('.km-custom-select');
+          if (cs && cs.dataset.customSelectInit !== "true") {
+            initCustomSelect(cs);
+            trigger.click();
+            return;
+          }
+        }
         if (!e.target.closest('.km-custom-select')) {
-          customSelects.forEach(function (cs) {
-            cs.classList.remove('is-open');
-            const trig = cs.querySelector('.km-custom-select__trigger');
-            if (trig) trig.setAttribute('aria-expanded', 'false');
-          });
+          closeAllCustomSelects();
         }
       });
     })();
@@ -2075,11 +2113,14 @@
         const formData = new FormData(form);
         const params = new URLSearchParams();
         const neutralAgeRange = formData.get("age_from") === "0" && formData.get("age_to") === "18";
+        const neutralPriceRange = (formData.get("price_from") === "0" || !formData.get("price_from")) &&
+                                  (formData.get("price_to") === "500" || !formData.get("price_to"));
 
         formData.forEach(function (value, key) {
           const cleanValue = String(value || "").trim();
           if (!cleanValue || key === "page") return;
           if (neutralAgeRange && (key === "age_from" || key === "age_to")) return;
+          if (neutralPriceRange && (key === "price_from" || key === "price_to")) return;
           params.append(key, cleanValue);
         });
 
@@ -2126,8 +2167,13 @@
         }
 
         const block = document.querySelector("[data-subcategory-filter]");
-        if (window.kidsMapBindSelectTargets) {
-          window.kidsMapBindSelectTargets(block);
+        if (block) {
+          if (window.kidsMapInitCustomSelects) {
+            window.kidsMapInitCustomSelects(block);
+          }
+          if (window.kidsMapBindSelectTargets) {
+            window.kidsMapBindSelectTargets(block);
+          }
         }
         // Значение из чипа попадает в select, а отправляет форму именно его
         // change — у свежевставленного узла слушателя ещё нет.
@@ -2334,6 +2380,9 @@
         });
 
         initCustomSortDropdown();
+        if (window.kidsMapInitCustomSelects) {
+          window.kidsMapInitCustomSelects(document);
+        }
       }
 
       if (filtersForm) {

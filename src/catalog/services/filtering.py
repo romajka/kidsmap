@@ -1,8 +1,101 @@
 from dataclasses import dataclass, field
 from datetime import timedelta
 
-from django.db.models import Q
+from django.db.models import Exists, OuterRef, Q
 from django.utils import timezone
+
+
+
+def apply_price_filter(qs, price_from_int, price_to_int, filters=None):
+    from catalog.models import Place, PricingPlan
+
+    plan_q = Q(is_active=True, charge_role="primary", is_trial=False, currency="AZN")
+    if price_to_int is not None:
+        plan_q &= (
+            Q(price_kind__in=("exact", "free"), price__lte=price_to_int)
+            | Q(price_kind__in=("from", "range"), price_min__lte=price_to_int)
+        )
+    if price_from_int is not None and price_from_int > 0:
+        plan_q &= ~Q(price_kind="free")
+        plan_q &= (
+            Q(price_kind="exact", price__gte=price_from_int)
+            | Q(price_kind="from", price_min__gte=price_from_int)
+            | Q(price_kind="range", price_max__gte=price_from_int)
+        )
+
+    direct_plans = PricingPlan.objects.filter(
+        plan_q,
+        place_id=OuterRef("pk"),
+        offering_group__isnull=True,
+    )
+
+    if filters is not None:
+        from catalog.services.catalog_search import has_offer_filters, matching_groups
+        if has_offer_filters(filters):
+            nested_plans = PricingPlan.objects.filter(
+                plan_q,
+                place__isnull=True,
+                offering_group__in=matching_groups(filters),
+                offering_group__activity__place_id=OuterRef("pk"),
+            )
+        else:
+            nested_plans = PricingPlan.objects.filter(
+                plan_q,
+                place__isnull=True,
+                offering_group__activity__place_id=OuterRef("pk"),
+                offering_group__activity__status="published",
+                offering_group__archived_at__isnull=True,
+                offering_group__activity__archived_at__isnull=True,
+            )
+    else:
+        nested_plans = PricingPlan.objects.filter(
+            plan_q,
+            place__isnull=True,
+            offering_group__activity__place_id=OuterRef("pk"),
+            offering_group__activity__status="published",
+            offering_group__archived_at__isnull=True,
+            offering_group__activity__archived_at__isnull=True,
+        )
+
+    has_matching_plan = Exists(direct_plans) | Exists(nested_plans)
+
+    free_mode_match = Q(pk__in=[])
+    if (price_from_int is None or price_from_int <= 0) and (price_to_int is None or price_to_int >= 0):
+        free_mode_match = Q(price_mode__in=(Place.PRICE_MODE_FREE, Place.PRICE_MODE_FREE_ENTRY))
+
+    all_plans = PricingPlan.objects.filter(
+        Q(place_id=OuterRef("pk"), offering_group__isnull=True)
+        | Q(
+            place__isnull=True,
+            offering_group__activity__place_id=OuterRef("pk"),
+            offering_group__activity__status="published",
+            offering_group__archived_at__isnull=True,
+            offering_group__activity__archived_at__isnull=True,
+        ),
+        is_active=True,
+        charge_role="primary",
+        is_trial=False,
+        currency="AZN",
+    )
+    legacy_q = ~Exists(all_plans)
+    legacy_filters = Q()
+    if price_to_int is not None:
+        legacy_filters &= (
+            Q(price_from__lte=price_to_int)
+            | Q(price_to__lte=price_to_int)
+            | Q(price_per_lesson__lte=price_to_int)
+            | Q(price_per_month__lte=price_to_int)
+        )
+    if price_from_int is not None and price_from_int > 0:
+        legacy_filters &= (
+            Q(price_to__gte=price_from_int)
+            | (Q(price_to__isnull=True) & Q(price_from__gte=price_from_int))
+            | Q(price_per_lesson__gte=price_from_int)
+            | Q(price_per_month__gte=price_from_int)
+        )
+    legacy_q &= legacy_filters
+
+    return qs.filter(has_matching_plan | free_mode_match | legacy_q)
 
 
 @dataclass
@@ -132,6 +225,9 @@ class PlaceListFilters:
         if price_from_int is not None and price_to_int is not None and price_from_int > price_to_int:
             price_from_int, price_to_int = price_to_int, price_from_int
 
+        if price_from_int == 0 and price_to_int == 500:
+            return None, None
+
         return price_from_int, price_to_int
 
     def apply(self, qs, created_after=None):
@@ -143,8 +239,11 @@ class PlaceListFilters:
 
         from catalog.services.catalog_search import apply_offer_matching
         qs = apply_offer_matching(qs, self)
-        # Old URLs remain valid, but incompatible currencies/units cannot filter or sort.
-        self.price_from = self.price_to = self.price_max = ""
+
+        price_from_int, price_to_int = self._normalized_price_bounds()
+        if price_from_int is not None or price_to_int is not None:
+            qs = apply_price_filter(qs, price_from_int, price_to_int, filters=self)
+
         if self.sort in {"price_asc", "price_desc"}:
             self.sort = "new"
 
@@ -197,6 +296,14 @@ class PlaceListFilters:
 
     def selected(self):
         age_from_int, age_to_int = self._normalized_age_bounds()
+        price_from_int, price_to_int = self._normalized_price_bounds()
+        if (price_from_int is None and price_to_int is None) or (price_from_int == 0 and price_to_int == 500):
+            sel_price_from = ""
+            sel_price_to = ""
+        else:
+            sel_price_from = str(price_from_int if price_from_int is not None else self.price_from)
+            sel_price_to = str(price_to_int if price_to_int is not None else self.price_to)
+
         return {
             "category": self.category,
             "subcategory": self.subcategory,
@@ -206,8 +313,8 @@ class PlaceListFilters:
             "age": self.age,
             "age_from": str(age_from_int if age_from_int is not None else self.age_from),
             "age_to": str(age_to_int if age_to_int is not None else self.age_to),
-            "price_from": "",
-            "price_to": "",
+            "price_from": sel_price_from,
+            "price_to": sel_price_to,
             "min_rating": self.min_rating,
             "sort": self.sort,
             "days": self.days,
