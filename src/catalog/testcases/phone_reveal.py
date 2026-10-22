@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.cache import cache
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
@@ -32,7 +33,7 @@ class PhoneRevealTests(TestCase):
     def test_post_returns_callable_public_contacts_without_caching(self):
         response = self.client.post(self.url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()['phones'][0], {'number': '+994501234567', 'href': 'tel:+994501234567'})
+        self.assertEqual(response.json()['phones'][0], {'number': '+994501234567', 'href': 'tel:+994501234567', 'display': '+994 50 123 45 67'})
         self.assertEqual(len(response.json()['phones']), 2)
         self.assertIn('no-store', response.headers['Cache-Control'])
 
@@ -49,7 +50,7 @@ class PhoneRevealTests(TestCase):
     def test_browser_csrf_token_allows_reveal(self):
         client = Client(enforce_csrf_checks=True)
         client.get(self.place.get_absolute_url())
-        token = client.cookies['csrftoken'].value
+        token = client.cookies[settings.CSRF_COOKIE_NAME].value
         self.assertEqual(client.post(self.url, HTTP_X_CSRFTOKEN=token).status_code, 200)
 
     @override_settings(PHONE_REVEAL_RATE_LIMIT=1, PHONE_REVEAL_TRUSTED_PROXIES=['127.0.0.1'])

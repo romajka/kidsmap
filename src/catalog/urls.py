@@ -13,7 +13,7 @@ from .controllers.specialist_workspace import (specialist_workspace_index, speci
     specialist_workspace_review, organization_specialists, specialist_workspace_proposal,
     specialist_proposal_photo)
 from django.contrib.auth import views as auth_views
-from django.urls import path, re_path, reverse_lazy
+from django.urls import include, path, re_path, reverse_lazy
 
 from .forms import UserPasswordResetForm, UserSetPasswordForm
 from .phone_views import reveal_place_phones
@@ -94,6 +94,7 @@ from catalog.controllers.program_workspace import program_create, program_detail
 from catalog.controllers.organization_workspace import (organization_index, organization_create, organization_detail, organization_branch, organization_save, organization_join, organization_confirm, organization_detach, organization_branch_create, organization_join_recovery, organization_cancel)
 
 urlpatterns = [
+    path("parents/", include("catalog.parent_guide_urls")),
     path('account/specialists/', specialist_workspace_index, name='specialist_workspace_index'),
     path('account/specialists/<int:pk>/', specialist_workspace_profile, name='specialist_workspace_profile'),
     path('account/specialists/<int:pk>/claims/', specialist_workspace_claims, name='specialist_workspace_claims'),

@@ -1,0 +1,11 @@
+{% load i18n admin_urls jazzmin %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+{% block object-tools-items %}
+    {% if has_add_permission %}
+        {% url cl.opts|admin_urlname:'add' as add_url %}
+        <a href="{% add_preserved_filters add_url is_popup to_field %}" class="btn {{ jazzmin_ui.button_classes.success }} float-right" style="font-weight: 500;">
+            <i class="fa fa-plus-circle mr-1"></i> {% trans "Add" %}
+        </a>
+    {% endif %}
+{% endblock %}

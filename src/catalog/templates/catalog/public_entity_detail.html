@@ -85,7 +85,7 @@
                 <span>{% if language == 'ru' %}Сайт{% elif language == 'en' %}Website{% else %}Sayt{% endif %}</span>
               </a>
             {% endif %}
-            {% if presentation.contacts.whatsapp_url %}
+            {% if presentation.contacts.whatsapp_url and not place %}
               <a class="public-contact public-contact--whatsapp" href="{{ presentation.contacts.whatsapp_url }}" target="_blank" rel="noopener noreferrer">
                 <span class="material-symbols-rounded" aria-hidden="true">chat</span>
                 <span>WhatsApp</span>
@@ -644,7 +644,8 @@
       {% if place %}<section class="public-section"><h2>{% if language == 'ru' %}Место проведения{% elif language == 'en' %}Location{% else %}Keçirildiyi məkan{% endif %}</h2><a class="public-parent-link" href="{{ place_presentation.url }}" lang="{{ place_presentation.name_language }}">{{ place_presentation.name }}</a>{% if place.address_i18n %}<p>{{ place.address_i18n }}</p>{% endif %}<p class="public-muted">{% if language == 'ru' %}Часы работы места не являются расписанием занятия.{% elif language == 'en' %}Place opening hours are not the class schedule.{% else %}Məkanın iş saatları dərs cədvəli deyil.{% endif %}</p></section>{% endif %}
       <section class="public-section" aria-labelledby="contacts-heading"><h2 id="contacts-heading" class="public-aside-heading"><span class="material-symbols-rounded" aria-hidden="true">contact_phone</span><span>{% if language == 'ru' %}Контакты{% elif language == 'en' %}Contact{% else %}Əlaqə{% endif %}</span></h2>
         <div class="public-actions">
-        {% if place and presentation.contacts.has_phone %}{% include "catalog/includes/phone_reveal.html" with phone_class="public-contact" phone_index=0 %}{% include "catalog/includes/phone_reveal.html" with phone_class="public-contact public-contact--secondary" phone_index=0 whatsapp=True %}{% endif %}
+        {% if place and presentation.contacts.has_phone %}{% include "catalog/includes/phone_reveal.html" with phone_class="public-contact" phone_index=0 %}{% endif %}
+        {% if place and presentation.contacts.has_whatsapp %}{% include "catalog/includes/phone_reveal.html" with phone_class="public-contact public-contact--secondary" phone_index=0 whatsapp=True %}{% endif %}
         {% if presentation.contacts.website_url %}<a class="public-contact public-contact--website" href="{{ presentation.contacts.website_url }}" target="_blank" rel="noopener noreferrer"><span class="material-symbols-rounded" aria-hidden="true">language</span><span>{% if language == 'ru' %}Перейти на сайт{% elif language == 'en' %}Visit website{% else %}Sayta keç{% endif %}</span></a>{% endif %}
         {% if not place and presentation.contacts.whatsapp_url %}<a class="public-contact public-contact--whatsapp" href="{{ presentation.contacts.whatsapp_url }}" target="_blank" rel="noopener noreferrer"><span class="material-symbols-rounded" aria-hidden="true">chat</span><span>WhatsApp</span></a>{% endif %}
         </div>

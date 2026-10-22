@@ -267,6 +267,9 @@
       phone1: "",
       phone2: "",
       phone3: "",
+      phone_country: "AZ",
+      whatsapp_mode: "same",
+      whatsapp_number: "",
       instagram: "",
       website: "",
       schedule_mode: "",
@@ -342,7 +345,7 @@
       "- Для других регионов: region='<код_региона>', district='<код_региона>'.",
       "- Координаты (lat, lng): заполняй ТОЛЬКО если они точно известны из Google Maps / источника. Иначе оставь null и добавь задачу в editor_review.map_task.",
       "7. КОНТАКТЫ:",
-      "Основной телефон — в phone1, дополнительные — в phone2, phone3. В международном формате (+994...).",
+      "Основной телефон — в phone1, дополнительные — в phone2, phone3. Сохраняйте международный код (+994, +1, +90...). WhatsApp: whatsapp_mode = same / separate / none, отдельный номер или https://wa.me/номер — в whatsapp_number. Для местных номеров phone_country (AZ по умолчанию).",
       "8. ФОТОГРАФИИ:",
       "JSON НЕ МОЖЕТ загрузить фотографии на сайт. Главное фото редактор загружает вручную. В editor_review.media_to_upload сохрани ссылку на фото/страницу-источник, конкретный филиал и известные условия использования. Доступная картинка не означает разрешение на публикацию; если разрешение неизвестно, укажи необходимость проверки. Не выдавай стоковые или сгенерированные интерьеры за реальные фотографии места.",
       "9. НАЗВАНИЯ НА ТРЁХ ЯЗЫКАХ И АДРЕСА КАРТОЧКИ\n\nЗаполни name_az, name_ru и name_en на соответствующих языках, если исходное\nназвание известно и возможен качественный перевод. Сначала используй\nофициальные названия из источников. Если официального перевода нет, можно\nперевести описательное название без добавления новых фактов.\n\nБренды и собственные имена не переводи буквально и не переименовывай.\nНапример, Kids Planet может оставаться Kids Planet во всех трёх полях.\nНе добавляй в название слова «лучший», «для детей», «Баку», район и другие\nпоисковые слова, если они не являются частью подтверждённого названия.\n\nСобственные переводы названий, как и описаний, перечисли в\neditor_review.generated_translations, например:\n[\"name_ru: перевод описательного названия\", \"name_en: перевод описательного названия\"].\nЕсли название не найдено или перевод вызывает сомнение, оставь нужное\nполе пустым и укажи причину в editor_review.needs_verification.\n\nURL карточки KidsMap сайт создаёт сам из названий. Не добавляй в JSON поля\nslug, slug_az, slug_ru, slug_en и полный URL карточки KidsMap. Не превращай\nназвания в транслит ради адреса: name_ru должен содержать нормальное\nрусское название, name_az — азербайджанское, name_en — английское.\nПоле website содержит только подтверждённый официальный сайт организации.\n\nЭтот шаблон предназначен для новых карточек. Не используй полный набор\nпустых значений для обновления существующего места: можно затереть\nтарифы и расписание. Сначала нужен свежий экспорт и согласованные изменения.\nНазвание не является разрешением менять уже созданные URL.",
@@ -528,6 +531,18 @@
         showMessage("JSON предназначен для другой карточки. Проверьте place_id.", true);
         return;
       }
+        // 1. Phones array alias support
+        var rawPhones = data.phones || data.телефоны;
+        if (Array.isArray(rawPhones) && rawPhones.length) {
+          if (!data.phone1 && rawPhones[0]) data.phone1 = rawPhones[0];
+          if (!data.phone2 && rawPhones[1]) data.phone2 = rawPhones[1];
+          if (!data.phone3 && rawPhones[2]) data.phone3 = rawPhones[2];
+        }
+
+        if (!data.whatsapp_number && data.whatsapp) data.whatsapp_number = data.whatsapp;
+        if (data.whatsapp_number && !data.whatsapp_mode) data.whatsapp_mode = "separate";
+
+
       var validateUrl = dialog.dataset.pricingValidateUrl;
       if (validateUrl) {
         try {
@@ -549,6 +564,7 @@
             data.pricing_plans = validation.pricing_plans;
           }
           if (validation.nested_pricing) data.nested_pricing = validation.nested_pricing;
+          if (validation.contacts) Object.assign(data, validation.contacts);
           if (validation.warnings && validation.warnings.length) showMessage(validation.warnings.join(" "), false);
         } catch (error) {
           showMessage("Не удалось проверить тарифы на сервере.", true);
@@ -559,14 +575,6 @@
       function applyData() {
         var filled = 0;
         if (data.nested_pricing && setValue("nested_pricing", data.nested_pricing)) filled += 1;
-
-        // 1. Phones array alias support
-        var rawPhones = data.phones || data.телефоны;
-        if (Array.isArray(rawPhones) && rawPhones.length) {
-          if (!data.phone1 && rawPhones[0]) data.phone1 = rawPhones[0];
-          if (!data.phone2 && rawPhones[1]) data.phone2 = rawPhones[1];
-          if (!data.phone3 && rawPhones[2]) data.phone3 = rawPhones[2];
-        }
 
         // 2. Backward compatibility for legacy extra_conditions and additional_info
         if (data.extra_conditions && !data.extra_conditions_ru) {
@@ -600,6 +608,9 @@
           phone1: ["phone1", "phone", "телефон"],
           phone2: ["phone2", "additional_phone", "дополнительный_телефон"],
           phone3: ["phone3", "other_phone", "ещё_один_телефон"],
+          phone_country: ["phone_country"],
+          whatsapp_mode: ["whatsapp_mode"],
+          whatsapp_number: ["whatsapp_number", "whatsapp"],
           instagram: ["instagram"],
           website: ["website", "site", "сайт"],
           lat: ["lat", "latitude", "широта"],
@@ -702,6 +713,7 @@
           "offers_adult_classes", "занятия_для_взрослых",
           "region", "город", "регион", "district", "район", "metro", "метро", "address", "адрес",
           "phone", "телефон", "phone1", "phone2", "phone3", "phones", "телефоны", "additional_phone", "other_phone",
+          "phone_country", "whatsapp_mode", "whatsapp_number", "whatsapp",
           "instagram", "website", "site", "сайт",
           "schedule_mode", "schedule_days", "structured_schedule", "расписание_по_дням",
           "schedule_note_az", "schedule_note_ru", "schedule_note_en",

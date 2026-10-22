@@ -192,6 +192,8 @@
         </a>
         {% if presentation.contacts.has_phone %}
         {% include "catalog/includes/phone_reveal.html" with phone_class="card-contact-toggle" phone_index=0 compact=True %}
+        {% elif presentation.contacts.has_whatsapp %}
+        {% include "catalog/includes/phone_reveal.html" with phone_class="card-contact-toggle" compact=True whatsapp=True %}
         {% endif %}
       </div>
     </div>

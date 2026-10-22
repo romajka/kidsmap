@@ -16,6 +16,7 @@
     <meta name="robots" content="{% block robots_meta %}{{ robots_content }}{% endblock %}" />
     <meta name="googlebot" content="{% block googlebot_meta %}{{ robots_content }}{% endblock %}" />
     <link rel="canonical" href="{{ canonical_url }}" />
+    <link rel="describedby" type="text/plain" href="{% url 'llms_txt' %}" />
     {% for code, url in alternate_urls.items %}
       <link rel="alternate" hreflang="{{ code }}" href="{{ url }}" />
     {% endfor %}
@@ -47,7 +48,7 @@
       </script>
     {% endif %}
     <link rel="stylesheet" href="{% static 'css/components/icons.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=20261018_site18_r3" />
+    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=20261022_release_all_r1" />
     <link rel="stylesheet" href="{% static 'css/components/states.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}" />
     <style>
@@ -102,7 +103,7 @@
     {% endcomment %}
     <link rel="stylesheet" href="{% static 'css/motion.css' %}" />
     {% block navigation_motion %}{% endblock %}
-    <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=20261022_release_all_r1">
     <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261018_site18_r1">
     <script src="{% static 'js/header.js' %}?v=20261018_site18_r2" defer></script>
     <script src="{% static 'js/motion.js' %}"></script>
@@ -113,7 +114,7 @@
     data-page-language="{{ current_lang_code }}">
     <div class="toast-stack" data-toast-stack aria-live="polite" aria-atomic="true"></div>
     <div hidden data-phone-config data-phone-endpoint="{% url 'place_phone_reveal' 0 %}">{% csrf_token %}</div>
-    <script src="{% static 'js/place_phone_reveal.js' %}?v=2"></script>
+    <script src="{% static 'js/place_phone_reveal.js' %}?v=20261022_release_all_r1"></script>
     <div class="site-shell">
       {% include "includes/header.html" %}
 
@@ -200,6 +201,8 @@
               </button></h3>
               <div class="footer-accordion-content">
                 <nav class="footer-nav-list" aria-label="{% trans 'Информация' %}">
+                  <a href="{% url 'parent_guide' slug='sport' %}">{% if CURRENT_LANGUAGE == "az" %}Uşaq üçün idman seçimi{% elif CURRENT_LANGUAGE == "en" %}Choosing sports for your child{% else %}Как выбрать спорт для ребёнка{% endif %}</a>
+                  <a href="{% url 'parent_guide' slug='baku-with-kids' %}">{% if CURRENT_LANGUAGE == "az" %}Bakıda uşaqlarla hara getmək olar{% elif CURRENT_LANGUAGE == "en" %}Baku with kids{% else %}Куда сходить с ребёнком в Баку{% endif %}</a>
                   <a href="{% url 'about' %}">{% if CURRENT_LANGUAGE == "az" %}Layihə haqqında{% elif CURRENT_LANGUAGE == "en" %}About KidsMap{% else %}{% trans "О проекте" %}{% endif %}</a>
                   <a href="{% url 'add_place' %}">{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a place{% else %}{% trans "Добавить место" %}{% endif %}</a>
                   <a href="{% url 'faq_page' %}">{% if CURRENT_LANGUAGE == "az" %}Tez-tez verilən suallar (FAQ){% elif CURRENT_LANGUAGE == "en" %}FAQ{% else %}Частые вопросы (FAQ){% endif %}</a>
@@ -971,8 +974,8 @@
     {% endcomment %}
     {% if living_map_enabled %}
       <canvas class="living-map-background" data-living-map aria-hidden="true"></canvas>
-      <script src="{% static 'js/living_map_scene.js' %}?v=5" defer></script>
-      <script src="{% static 'js/living_map_background.js' %}?v=5" defer></script>
+      <script src="{% static 'js/living_map_scene.js' %}?v=20261022_release_all_r1" defer></script>
+      <script src="{% static 'js/living_map_background.js' %}?v=20261022_release_all_r1" defer></script>
     {% endif %}
     {% block extra_body %}{% endblock %}
   </body>

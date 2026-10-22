@@ -97,7 +97,11 @@
     if (volunteer) return result;
     if (photoEditor?.validationMessage()) result.set('gallery_images', photoEditor.validationMessage());
     requiredNames().forEach(name => { if (!filled(name)) result.set(name, ui.required); });
-    if (rules.contact_required && !(rules.contact_any || []).some(name => filled(name))) result.set('phone1', ui.required);
+    const policy = rules.contact_policy;
+    const contactOptional = policy && (policy.optional_pairs?.[value('category')]?.includes(value('subcategory')) || (policy.optional && value('category') === policy.original_category && value('subcategory') === policy.original_subcategory));
+    const inherited = policy?.inherited_by_mode ? policy.inherited_by_mode[value('whatsapp_mode') || 'legacy'] : policy?.inherited;
+    const contactNeeded = policy ? !inherited && !contactOptional : rules.contact_required;
+    if (contactNeeded && !(rules.contact_any || []).some(name => filled(name) && (name !== 'whatsapp_number' || value('whatsapp_mode') === 'separate'))) result.set('phone1', ui.required);
     if (!rules.names.some(name => value(name))) result.set('name_az', ui.required);
     if (Math.max(...rules.descriptions.map(name => value(name).length)) < rules.description_min) result.set('description_az', `${ui.invalid}: ${rules.description_min}`);
 
@@ -467,11 +471,7 @@
         if (sanitized !== target.value) {
           target.value = sanitized;
         }
-      } else if (['phone1', 'phone2', 'phone3'].includes(target.name)) {
-        const sanitized = target.value.replace(/[^\d+\s()\-\.]/g, '');
-        if (sanitized !== target.value) {
-          target.value = sanitized;
-        }
+
       }
     }
     dirty = true;

@@ -22,10 +22,17 @@ def publication_errors(data, *, instance=None, schedule_days=()):
 def client_rules(form):
     from catalog.services.pricing_plans import build_public_price_summary
     summary = build_public_price_summary(form.instance, get_language())
-    from catalog.services.place_readiness import inherited_contact
-    contact_required = getattr(form.instance, 'nature', '') != 'public_space' and not inherited_contact(form.instance)
+    from catalog.services.place_readiness import inherited_contact_for_form, readiness_data_from_form
+    from catalog.services.contact_policy import contact_optional, contact_client_config
+    snapshot = readiness_presentation_snapshot(form)
+    data = readiness_data_from_form(snapshot)
+    inherited = bool(inherited_contact_for_form(snapshot))
+    policy = contact_client_config(form.instance, original_taxonomy=getattr(form, 'contact_original_taxonomy', None), approved_nature=getattr(form, 'contact_approved_nature', None))
+    policy['inherited'] = inherited
+    contact_required = not contact_optional(category_code=data.category_code, subcategory_code=data.subcategory_code,
+        subcategory_category_code=data.subcategory_category_code, nature=data.nature) and not inherited
     return {
-        'required': [name for name in REQUIRED if name != 'phone1'], 'contact_any': ['phone1','phone2','phone3','website'], 'contact_required': bool(contact_required), 'names': ['name_az'],
+        'required': [name for name in REQUIRED if name != 'phone1'], 'contact_any': ['phone1','phone2','phone3','website','whatsapp_number'], 'contact_required': bool(contact_required), 'contact_policy': policy, 'names': ['name_az'],
         'descriptions': list(DESCRIPTION_FIELDS), 'description_min': 1,
         'max_plans': 12, 'max_gallery': MAX_GALLERY_IMAGES,
         'existing_price_label': summary['label'], 'custom_price': summary['source'] == 'custom_override',
@@ -49,6 +56,10 @@ def readiness_presentation_snapshot(form):
                     values[name] = json.loads(values[name] or 'null')
                 except (ValueError, TypeError):
                     values[name] = None
+        # This is a display projection before full_clean. Normalize hostile
+        # schedule shapes here, while retaining raw input for field validation.
+        from catalog.services.place_schedule import validate_schedule_payload
+        schedule_days = validate_schedule_payload(values.get('structured_schedule')).days
         instance = object_copy.copy(form.instance)
         if 'nested_pricing' in values and not values['nested_pricing'] and instance.pk:
             from catalog.services.pricing_plans import serialize_nested_pricing
@@ -56,14 +67,16 @@ def readiness_presentation_snapshot(form):
         instance.nature = values.get('nature') or instance.nature
         snapshot = SimpleNamespace(
             instance=instance, cleaned_data=values,
-            cleaned_schedule_days=values.get('structured_schedule') or [],
+            contact_original_taxonomy=getattr(form, 'contact_original_taxonomy', (str(instance.category_id or ''), str(instance.subcategory_id or ''))),
+            contact_approved_nature=getattr(form, 'contact_approved_nature', getattr(instance, 'nature', '') or ''),
+            cleaned_schedule_days=schedule_days,
         )
     return snapshot
 
 
 def submission_readiness(form):
     """Present the existing server verdict; do not validate or save the form."""
-    from catalog.services.place_readiness import evaluate_form_readiness, inherited_contact
+    from catalog.services.place_readiness import evaluate_form_readiness
     snapshot = readiness_presentation_snapshot(form)
     readiness = evaluate_form_readiness(snapshot, snapshot.instance)
     items = []
@@ -71,10 +84,10 @@ def submission_readiness(form):
         requirement = item.requirement
         config = dict(requirement.client_config)
         if item.code == 'phone':
-            config.update(fields=['phone1', 'phone2', 'phone3', 'website'],
-                          optional=snapshot.instance.nature == 'public_space',
-                          optional_nature='public_space',
-                          inherited=bool(inherited_contact(snapshot.instance)))
+            from catalog.services.contact_policy import contact_client_config
+            config.update(contact_client_config(form.instance, original_taxonomy=getattr(form, 'contact_original_taxonomy', None), approved_nature=getattr(form, 'contact_approved_nature', None)))
+            mode = snapshot.cleaned_data.get('whatsapp_mode', getattr(snapshot.instance, 'whatsapp_mode', 'legacy'))
+            config['inherited'] = config.get('inherited_by_mode', {}).get(mode, config.get('inherited', False))
         items.append(dict(code=item.code, label=str(requirement.label),
                           field=requirement.field, anchor=requirement.anchor,
                           config=config, complete=item.is_complete,

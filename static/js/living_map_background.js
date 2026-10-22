@@ -141,18 +141,14 @@
         .map(element => bounds(element).top - 24)
         .sort((a, b) => a - b)
         .filter((y, index, all) => y > 100 && (index === 0 || y - all[index - 1] > 140));
-    state.scenes = window.KidsMapLivingScene?.create({width: state.width, height: state.pageHeight, bands, masks: state.masks, connectHero: isHome}) || [];
+    state.scenes = [];
     const shell = document.querySelector('.site-shell');
     const footer = document.querySelector('.site-footer');
     const hero = state.zones.find(zone => zone.selector === '.home-hero');
-    const landmarkMasks = state.scenes.flatMap(route => route.nodes.map(node => ({
-      left: node.x - node.radius - 12, right: node.x + node.radius + 12,
-      top: node.y - node.radius - 12, bottom: node.y + node.radius + 12,
-    })));
     state.scenes.push(...(window.KidsMapLivingScene?.createVertical({
       width: state.width, top: hero ? hero.bottom + 70 : 120,
       bottom: footer ? bounds(footer).bottom - 12 : state.pageHeight - 36,
-      gutter: shell ? Math.max(0, bounds(shell).left) : 14, masks: [...state.masks, ...landmarkMasks],
+      gutter: shell ? Math.max(0, bounds(shell).left) : 14, masks: state.masks,
     }) || []));
   }
 

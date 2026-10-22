@@ -71,7 +71,7 @@ class OwnerTeamMembershipAdmin(_BusinessTeamDiagnosticMixin, _HiddenFromAdminInd
 class OrganizationGrantAdmin(_BusinessTeamDiagnosticMixin, _HiddenFromAdminIndexMixin, admin.ModelAdmin):
     list_display = ("organization", "member", "role", "scope", "is_active", "updated_at")
     list_filter = ("organization", "role", "scope", "is_active")
-    search_fields = ("organization__name_az", "member__username", "member__email")
+    search_fields = ("organization__name_az", "organization__name_ru", "member__username", "member__email")
     readonly_fields = ("created_at", "updated_at")
 
 

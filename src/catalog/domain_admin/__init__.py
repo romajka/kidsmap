@@ -46,12 +46,18 @@ def _get_sidebar_metrics(request) -> dict[str, int]:
         "places_active": 0,
         "places_pending": 0,
         "places_deleted": 0,
+        "organizations_total": 0,
+        "organizations_pending": 0,
+        "programs_total": 0,
+        "programs_pending": 0,
+        "activities_total": 0,
         "events_total": 0,
         "events_active": 0,
         "events_pending": 0,
         "specialists_total": 0,
         "specialists_active": 0,
         "specialists_pending": 0,
+        "place_reviews_total": 0,
         "place_reviews_pending": 0,
         "specialist_reviews_pending": 0,
         "ownership_pending": 0,
@@ -61,6 +67,17 @@ def _get_sidebar_metrics(request) -> dict[str, int]:
         return empty_metrics
 
     now = timezone.now()
+    org_counts = Organization.objects.aggregate(
+        total=Count("pk", filter=Q(archived_at__isnull=True)),
+        pending=Count("pk", filter=Q(archived_at__isnull=True, status="pending")),
+    )
+    program_counts = Program.objects.aggregate(
+        total=Count("pk", filter=Q(archived_at__isnull=True)),
+        pending=Count("pk", filter=Q(archived_at__isnull=True, status="pending")),
+    )
+    activity_counts = Activity.objects.aggregate(
+        total=Count("pk", filter=Q(archived_at__isnull=True)),
+    )
     place_counts = Place.objects.aggregate(
         total=Count("pk", filter=Q(deleted_at__isnull=True, is_temporary=False)),
         active=Count(
@@ -107,6 +124,7 @@ def _get_sidebar_metrics(request) -> dict[str, int]:
         pending=Count("pk", filter=Q(status=Specialist.STATUS_PENDING)),
     )
     place_review_counts = PlaceReview.objects.aggregate(
+        total=Count("pk"),
         pending=Count("pk", filter=Q(status=PlaceReview.STATUS_PENDING)),
     )
     specialist_review_counts = SpecialistReview.objects.aggregate(
@@ -120,12 +138,18 @@ def _get_sidebar_metrics(request) -> dict[str, int]:
         "places_active": int(place_counts["active"] or 0),
         "places_pending": int(place_counts["pending"] or 0),
         "places_deleted": int(place_counts["deleted"] or 0),
+        "organizations_total": int(org_counts["total"] or 0),
+        "organizations_pending": int(org_counts["pending"] or 0),
+        "programs_total": int(program_counts["total"] or 0),
+        "programs_pending": int(program_counts["pending"] or 0),
+        "activities_total": int(activity_counts["total"] or 0),
         "events_total": int(event_counts["total"] or 0),
         "events_active": int(event_counts["active"] or 0),
         "events_pending": int(event_counts["pending"] or 0),
         "specialists_total": int(specialist_counts["total"] or 0),
         "specialists_active": int(specialist_counts["active"] or 0),
         "specialists_pending": int(specialist_counts["pending"] or 0),
+        "place_reviews_total": int(place_review_counts["total"] or 0),
         "place_reviews_pending": int(place_review_counts["pending"] or 0),
         "specialist_reviews_pending": int(specialist_review_counts["pending"] or 0),
         "ownership_pending": int(ownership_counts["pending"] or 0),
@@ -234,6 +258,16 @@ def _kidsmap_get_app_list(self, request, app_label=None):
                     "name": model["name"],
                     "count": specialist_review_pending_count,
                 }
+            if object_name == "organization" and sidebar_metrics.get("organizations_pending"):
+                model["name"] = _("%(name)s (модерация: %(count)s)") % {
+                    "name": model["name"],
+                    "count": sidebar_metrics["organizations_pending"],
+                }
+            if object_name == "program" and sidebar_metrics.get("programs_pending"):
+                model["name"] = _("%(name)s (модерация: %(count)s)") % {
+                    "name": model["name"],
+                    "count": sidebar_metrics["programs_pending"],
+                }
         app["models"].sort(
             key=lambda model: (
                 priority.get(model.get("object_name", "").lower(), 999),
@@ -250,8 +284,8 @@ def _admin_role_label(user) -> str:
 
 
 def _normalize_admin_path(path_value: str) -> str:
-    base = str(path_value or "").split("?", 1)[0].rstrip("/")
-    return f"{base}/" if base else "/"
+    from .navigation import _normalized
+    return _normalized(str(path_value or ""))
 
 
 def _path_matches_any_prefix(request_path: str, prefixes: list[str]) -> bool:
@@ -348,7 +382,7 @@ def _build_sidebar_item(
     }
 
 
-def _build_sidebar_sections(request, *, metrics: dict[str, int]) -> list[dict]:
+def _build_legacy_sidebar_sections(request, *, metrics: dict[str, int]) -> list[dict]:
     if not request.user.is_authenticated or not request.user.is_staff:
         return []
 
@@ -358,9 +392,9 @@ def _build_sidebar_sections(request, *, metrics: dict[str, int]) -> list[dict]:
             "label": _("Каталог"),
             "icon": "far fa-folder-open",
             "items": [
-                _build_sidebar_item(request, model=Organization, label=_("Организации"), icon="fas fa-building", status_label=_("Скрыто на сайте") if not is_organizations_section_enabled() else ""),
-                _build_sidebar_item(request, model=Program, label=_("Общие программы"), icon="fas fa-book-open"),
-                _build_sidebar_item(request, model=Activity, label=_("Занятия"), icon="fas fa-chalkboard-teacher"),
+                _build_sidebar_item(request, model=Organization, label=_("Организации"), icon="fas fa-building", badge_label=str(metrics.get("organizations_total", 0)), status_label=_("Скрыто на сайте") if not is_organizations_section_enabled() else ""),
+                _build_sidebar_item(request, model=Program, label=_("Общие программы"), icon="fas fa-book-open", badge_label=str(metrics.get("programs_total", 0))),
+                _build_sidebar_item(request, model=Activity, label=_("Занятия"), icon="fas fa-chalkboard-teacher", badge_label=str(metrics.get("activities_total", 0))),
                 _build_sidebar_item(request, model=OfferingGroup, label=_("Группы и тарифы"), icon="fas fa-users"),
                 _build_sidebar_item(request, model=OrganizationGrant, label=_("Сотрудники организаций"), icon="fas fa-user-friends"),
                 _build_sidebar_item(
@@ -392,6 +426,7 @@ def _build_sidebar_sections(request, *, metrics: dict[str, int]) -> list[dict]:
                     model=PlaceReview,
                     label=_("Отзывы"),
                     icon="far fa-star",
+                    badge_label=str(metrics.get("place_reviews_total", 0)),
                 ),
                 _build_sidebar_item(
                     request,
@@ -586,6 +621,11 @@ def _build_sidebar_sections(request, *, metrics: dict[str, int]) -> list[dict]:
     return sections
 
 
+def _build_sidebar_sections(request, *, metrics: dict[str, int]) -> list[dict]:
+    from .navigation import compact_sections
+    return compact_sections(request, _build_legacy_sidebar_sections(request, metrics=metrics))
+
+
 def _kidsmap_each_context(self, request):
     context = _original_each_context(request)
     sidebar_metrics = _get_sidebar_metrics(request)
@@ -614,7 +654,7 @@ def _kidsmap_each_context(self, request):
     elif request.user.is_authenticated and request.user.is_staff and (request.user.is_superuser or request.user.has_perm("catalog.change_place") or request.user.has_perm("catalog.change_placeownershiprequest")):
         context["kidsmap_sidebar_sections"].append({
             "key": "volunteer_review", "label": str(_("Волонтёры")), "icon": "fas fa-check", "active": False,
-            "items": [{"label": str(_("Центр модерации")), "url": reverse("admin:volunteer_moderation_hub"), "icon": "fas fa-check", "active": request.path.startswith(reverse("admin:volunteer_moderation_hub"))}],
+            "items": [{"label": str(_("Центр модерации")), "url": reverse("admin:volunteer_moderation_hub"), "icon": "fas fa-check", "active": _path_matches_any_prefix(request.path, [reverse("admin:volunteer_moderation_hub")])}],
         })
     from catalog.services.moderation_queue import allowed_kinds
     if allowed_kinds(request.user):
@@ -625,8 +665,8 @@ def _kidsmap_each_context(self, request):
             'items': [{'label': t('Сроки модерации', 'Moderasiya müddətləri', 'Moderation deadlines'), 'url': reverse('admin:moderation_sla'),
                        'icon': 'fas fa-clock', 'active': getattr(request.resolver_match, 'url_name', '') == 'moderation_sla'}],
         })
-    for section in context['kidsmap_sidebar_sections']:
-        section['active']=any(item.get('active',False) for item in section['items'])
+    from .navigation import merge_moderation_sections
+    context['kidsmap_sidebar_sections'] = merge_moderation_sections(context['kidsmap_sidebar_sections'])
     return context
 
 
@@ -644,3 +684,6 @@ from .specialist import *
 from .seo import *
 from . import volunteer
 from . import moderation_sla
+
+from .navigation import install_navigation_urls
+install_navigation_urls()

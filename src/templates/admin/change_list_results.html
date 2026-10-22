@@ -46,4 +46,25 @@
             </table>
         </div>
     </div>
+{% else %}
+    <div class="card km-empty-state-card" style="border: 1px dashed #cbd5e1; border-radius: 8px; background: #f8fafc; padding: 48px 24px; text-align: center; margin-top: 16px;">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 16px;">
+            <i class="fas fa-inbox"></i>
+        </div>
+        <h5 style="font-weight: 600; color: #1e293b; margin-bottom: 8px;">{% trans "Записи не найдены" %}</h5>
+        <p style="color: #64748b; font-size: 14px; max-width: 480px; margin: 0 auto 20px;">
+            {% if cl.has_filters %}
+                {% trans "По выбранным фильтрам ничего не найдено. Попробуйте сбросить фильтры или изменить условия поиска." %}
+            {% else %}
+                {% trans "В этом разделе пока нет данных. Нажмите кнопку добавления вверху, чтобы создать первую запись." %}
+            {% endif %}
+        </p>
+        {% if cl.has_filters %}
+            <div>
+                <a href="{{ request.path }}" class="btn btn-outline-secondary btn-sm" style="font-size: 13px;">
+                    <i class="fas fa-times mr-1"></i> {% trans "Сбросить фильтры" %}
+                </a>
+            </div>
+        {% endif %}
+    </div>
 {% endif %}

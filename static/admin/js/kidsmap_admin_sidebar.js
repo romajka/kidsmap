@@ -1,4 +1,13 @@
 (function () {
+  function isMobileSidebar() {
+    return window.innerWidth < 768;
+  }
+
+  function scrollBehavior(smooth) {
+    var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return smooth && !reducedMotion ? 'smooth' : 'auto';
+  }
+
   function applyGroupState(group, isOpen, persist) {
     var button = group.querySelector("[data-km-sidebar-toggle]");
     var panel = group.querySelector("[data-km-sidebar-panel]");
@@ -24,6 +33,7 @@
   function resolveInitialState(group) {
     var key = group.getAttribute("data-km-sidebar-key");
     var defaultOpen = group.getAttribute("data-default-open") === "true";
+    if (isMobileSidebar()) return defaultOpen;
     if (defaultOpen) return true;
 
     if (!key) {
@@ -45,11 +55,146 @@
     return defaultOpen;
   }
 
+  var STORAGE_KEY_SCROLL = "km-admin-sidebar-scroll";
+
+  function isElementVisibleInScroller(scroller, el) {
+    if (!scroller || !el) return false;
+    var scrollerRect = scroller.getBoundingClientRect();
+    var elRect = el.getBoundingClientRect();
+    var buffer = 15;
+    return (
+      elRect.top >= scrollerRect.top + buffer &&
+      elRect.bottom <= scrollerRect.bottom - buffer
+    );
+  }
+
+  function scrollActiveIntoView(scroller, activeElement, smooth) {
+    if (!scroller || !activeElement) return;
+    try {
+      activeElement.scrollIntoView({
+        behavior: scrollBehavior(smooth),
+        block: "center",
+        inline: "nearest"
+      });
+    } catch (e) {
+      var scrollerRect = scroller.getBoundingClientRect();
+      var elRect = activeElement.getBoundingClientRect();
+      var targetScrollTop =
+        scroller.scrollTop +
+        (elRect.top - scrollerRect.top) -
+        scrollerRect.height / 2 +
+        elRect.height / 2;
+      scroller.scrollTop = Math.max(0, targetScrollTop);
+    }
+  }
+
+  function restoreSidebarScroll(options) {
+    var scroller = document.querySelector(".km-admin-sidebar__scroller");
+    if (!scroller) return;
+
+    var smooth = !!(options && options.smooth);
+    var activeLink =
+      scroller.querySelector(".km-admin-sidebar__link.is-active") ||
+      scroller.querySelector(".km-admin-sidebar__link[aria-current='page']");
+
+    if (activeLink) {
+      var parentGroup = activeLink.closest("[data-km-sidebar-group]");
+      if (parentGroup && parentGroup.getAttribute("data-open") !== "true") {
+        if (isMobileSidebar()) {
+          document.querySelectorAll('[data-km-sidebar-group]').forEach(function (group) {
+            if (group !== parentGroup) applyGroupState(group, false, false);
+          });
+        }
+        applyGroupState(parentGroup, true, false);
+      }
+    }
+
+    var restored = false;
+    try {
+      var saved = window.sessionStorage.getItem(STORAGE_KEY_SCROLL);
+      if (saved !== null && saved !== "") {
+        var parsed = parseInt(saved, 10);
+        if (!isNaN(parsed) && parsed >= 0) {
+          scroller.scrollTop = parsed;
+          restored = true;
+        }
+      }
+    } catch (e) {}
+
+    window.requestAnimationFrame(function () {
+      if (activeLink) {
+        if (!restored || !isElementVisibleInScroller(scroller, activeLink)) {
+          scrollActiveIntoView(scroller, activeLink, smooth);
+        }
+      }
+    });
+  }
+
+  function initSidebarScroll() {
+    var scroller = document.querySelector(".km-admin-sidebar__scroller");
+    if (!scroller) return;
+
+    restoreSidebarScroll({ smooth: false });
+
+    var scrollTimeout = null;
+    scroller.addEventListener(
+      "scroll",
+      function () {
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout);
+        }
+        scrollTimeout = setTimeout(function () {
+          try {
+            window.sessionStorage.setItem(STORAGE_KEY_SCROLL, String(scroller.scrollTop));
+          } catch (e) {}
+        }, 80);
+      },
+      { passive: true }
+    );
+
+    scroller.addEventListener("click", function (event) {
+      var link = event.target.closest("a.km-admin-sidebar__link");
+      if (link) {
+        try {
+          window.sessionStorage.setItem(STORAGE_KEY_SCROLL, String(scroller.scrollTop));
+        } catch (e) {}
+      }
+    });
+
+    window.addEventListener("beforeunload", function () {
+      try {
+        window.sessionStorage.setItem(STORAGE_KEY_SCROLL, String(scroller.scrollTop));
+      } catch (e) {}
+    });
+  }
+
   function initSidebarGroups() {
     var groups = document.querySelectorAll("[data-km-sidebar-group]");
     if (!groups.length) {
       return;
     }
+
+    var mobile = isMobileSidebar();
+    function restoreGroupStates() {
+      var mobileGroupOpened = false;
+      groups.forEach(function (group) {
+        var open = resolveInitialState(group);
+        if (mobile && open) {
+          open = !mobileGroupOpened;
+          mobileGroupOpened = true;
+        }
+        applyGroupState(group, open, false);
+      });
+    }
+    restoreGroupStates();
+
+    window.addEventListener('resize', function () {
+      var nextMobile = isMobileSidebar();
+      if (mobile === nextMobile) return;
+      mobile = nextMobile;
+      restoreGroupStates();
+      restoreSidebarScroll({ smooth: false });
+    });
 
     groups.forEach(function (group) {
       var button = group.querySelector("[data-km-sidebar-toggle]");
@@ -57,11 +202,23 @@
         return;
       }
 
-      applyGroupState(group, resolveInitialState(group), false);
-
       button.addEventListener("click", function () {
         var isOpen = button.getAttribute("aria-expanded") === "true";
-        applyGroupState(group, !isOpen, true);
+        var willBeOpen = !isOpen;
+        if (mobile && willBeOpen) {
+          groups.forEach(function (otherGroup) {
+            if (otherGroup !== group) applyGroupState(otherGroup, false, false);
+          });
+        }
+        applyGroupState(group, willBeOpen, !mobile);
+        if (willBeOpen) {
+          window.requestAnimationFrame(function () {
+            var scroller = document.querySelector(".km-admin-sidebar__scroller");
+            if (scroller && !isElementVisibleInScroller(scroller, button)) {
+              button.scrollIntoView({ behavior: scrollBehavior(true), block: "nearest" });
+            }
+          });
+        }
       });
 
       button.addEventListener("keydown", function (event) {
@@ -79,6 +236,7 @@
     var opener = document.querySelector('.km-admin-header__toggle[data-widget="pushmenu"]');
     if (!sidebar || !opener) return;
     var close = sidebar.querySelector('[data-km-sidebar-close]');
+    var wasExpanded = expanded();
 
     function expanded() {
       return window.innerWidth < 768
@@ -87,7 +245,14 @@
     }
 
     function sync() {
-      opener.setAttribute('aria-expanded', expanded() ? 'true' : 'false');
+      var nowExpanded = expanded();
+      opener.setAttribute('aria-expanded', nowExpanded ? 'true' : 'false');
+      if (!wasExpanded && nowExpanded) {
+        setTimeout(function () {
+          restoreSidebarScroll({ smooth: false });
+        }, 80);
+      }
+      wasExpanded = nowExpanded;
     }
 
     function restoreFocus() {
@@ -175,6 +340,12 @@
     document.addEventListener("DOMContentLoaded", initSidebarGroups);
   } else {
     initSidebarGroups();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSidebarScroll);
+  } else {
+    initSidebarScroll();
   }
 
   if (document.readyState === "loading") {

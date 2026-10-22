@@ -2,16 +2,18 @@
 {% load i18n admin_urls static admin_modify %}
 
 {% block extrahead %}
+<script src="{% static 'js/kidsmap_contact_fields.js' %}?v=20261022_release_all_r1" defer></script>
+
 <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_urls.css' %}?v=20260918">
 <script src="{% static 'admin/js/kidsmap_place_urls.js' %}" defer></script>
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=20261020_release_r1">
-  <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=20260928_1">
-  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=20261010_place_qa" defer></script>
+  <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=20261022_release_all_r1">
+  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=20261022_release_all_r1" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_media.js' %}?v=20261007_place_r5" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_duplicates.js' %}?v=1" defer></script>
-  <script src="{% static 'admin/js/kidsmap_place_json_import.js' %}?v=20261020_release_r1" defer></script>
-  <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=20260915" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_json_import.js' %}?v=20261022_release_all_r1" defer></script>
+  <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=20261022_release_all_r1" defer></script>
   <script src="{% static 'js/owner_pricing_plans.js' %}?v=19" defer></script>
   <link rel="stylesheet" href="{% static 'admin/css/components/activity_editor.css' %}?v=20261004">
   <script src="{% static 'js/owner_place_offerings.js' %}?v=20261007_place_r5" defer></script>
@@ -90,6 +92,12 @@
 
       <div class="km-pf__shell">
         {% include "admin/catalog/place/form/header.html" %}
+
+        {% if km_place_navigation %}
+        <nav class="km-admin-related-links" aria-label="{% translate 'Занятия и услуги' %}">
+          {% for link in km_place_navigation %}<a class="km-pf-btn km-pf-btn--ghost" href="{{ link.url }}">{{ link.label }}</a>{% endfor %}
+        </nav>
+        {% elif add %}<p class="help">{% translate 'Сначала сохраните место.' %}</p>{% endif %}
 
         <label class="km-pf__mobile-nav">{{ km_place_entry_copy.section_nav }}<select data-pf-section-select>{% for section in km_place_form_sections %}<option value="{{ section.id }}">{{ section.title }}</option>{% endfor %}<option value="{{ km_place_verification_section.id }}">{{ km_place_verification_section.title }}</option></select></label>
         <nav class="km-pf__nav" data-pf-nav aria-label="{% translate 'Разделы карточки' %}">

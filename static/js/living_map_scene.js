@@ -260,28 +260,7 @@
         drawVertical(ctx, route, {time, scroll, height, palette, pointer, reduced});
         continue;
       }
-      const strength = Math.max(.35, intensity(route.nodes[0].y));
-      const story = timeline(time, route.delay, reduced);
-      const points = route.points;
-      // A quiet complete cartographic trail remains behind the growing route.
-      ctx.strokeStyle = palette.green;
-      ctx.setLineDash([2, 7]); ctx.lineWidth = 1.3;
-      ctx.globalAlpha = strength * .3;
-      strokePath(ctx, points);
-      ctx.setLineDash([]); ctx.lineWidth = 2;
-      ctx.globalAlpha = strength * .62 * story.opacity;
-      const tip = pointAt(points, story.progress);
-      strokePath(ctx, points, tip.index + 1, tip);
-      if (!reduced && story.progress < 1) {
-        ctx.globalAlpha = strength * .13; ctx.fillStyle = palette.green;
-        ctx.beginPath(); ctx.arc(tip.x, tip.y, 12, 0, Math.PI * 2); ctx.fill();
-        ctx.globalAlpha = strength * .85;
-        ctx.beginPath(); ctx.arc(tip.x, tip.y, 4, 0, Math.PI * 2); ctx.fill();
-        ctx.globalAlpha = strength; ctx.fillStyle = palette.paper;
-        ctx.beginPath(); ctx.arc(tip.x, tip.y, 1.6, 0, Math.PI * 2); ctx.fill();
-      }
-      for (const node of route.nodes) landmark(ctx, node, story, time, strength, palette,
-        {x: pointer.x, y: pointer.y + scroll, active: pointer.active && !reduced}, reduced);
+      // Horizontal routes going across content are disabled per user request
     }
     ctx.restore();
   }

@@ -5,7 +5,8 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from catalog.forms import PlaceScheduleEditorFormMixin, SubcategorySelect, _validate_azerbaijan_phone
+from catalog.forms import PlaceScheduleEditorFormMixin, SubcategorySelect
+from catalog.services.phone_forms import ContactPhoneFormMixin
 from catalog.models import Place, Subcategory
 from catalog.services.image_uploads import normalize_uploaded_image
 from catalog.services.pricing_plans import normalize_pricing_plans
@@ -20,7 +21,7 @@ CONTENT_FIELDS = (
     "description_az", "description_ru", "description_en",
     "age_from", "age_to", "age_open_ended", "offers_adult_classes",
     "district", "metro", "address", "lat", "lng",
-    "phone1", "phone2", "phone3", "instagram", "website",
+    "phone1", "phone2", "phone3", "phone_country", "whatsapp_mode", "whatsapp_number", "instagram", "website",
     "photo", "cover_photo", "schedule", "schedule_mode",
     "schedule_note_az", "schedule_note_ru", "schedule_note_en",
     "price_mode", "lesson_duration_minutes", "lesson_format",
@@ -32,7 +33,7 @@ CONTENT_FIELDS = (
 )
 
 
-class VolunteerPlaceForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
+class VolunteerPlaceForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, forms.ModelForm):
     require_location_region = False
     revision_version = forms.IntegerField(min_value=0, widget=forms.HiddenInput)
     base_token = forms.CharField(widget=forms.HiddenInput)
@@ -150,18 +151,6 @@ class VolunteerPlaceForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         value = self.cleaned_data.get("cover_photo")
         return normalize_uploaded_image(value) if "cover_photo" in self.files else value
 
-    def clean_phone1(self):
-        value = self.cleaned_data.get("phone1") or ""
-        return _validate_azerbaijan_phone(value) if value else ""
-
-    def clean_phone2(self):
-        value = self.cleaned_data.get("phone2") or ""
-        return _validate_azerbaijan_phone(value) if value else ""
-
-    def clean_phone3(self):
-        value = self.cleaned_data.get("phone3") or ""
-        return _validate_azerbaijan_phone(value) if value else ""
-
     @property
     def publication_rules(self):
         # Owner browser validation differs from canonical moderation readiness.
@@ -208,7 +197,7 @@ VOLUNTEER_ENTITY_FIELDS = {
 }
 
 
-def volunteer_entity_form(kind, data=None, initial=None):
+def volunteer_entity_form(kind, data=None, initial=None, *, existing=False):
     from django import forms
     from catalog.services import publication
     from catalog.services.permanent_place_rules import copy as t
@@ -246,7 +235,8 @@ def volunteer_entity_form(kind, data=None, initial=None):
             fields[name] = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}), **common)
         else:
             fields[name] = forms.CharField(max_length=db_field.max_length, **common)
-    form = type('VolunteerEntityForm', (forms.Form,), fields)(data=data, initial=initial)
+    form_class = type('VolunteerEntityForm', ((ContactPhoneFormMixin, forms.Form) if kind == 'organization' else (forms.Form,)), fields)
+    form = form_class(data=data, initial=initial, **({'preserve_existing_contacts': existing} if kind == 'organization' else {}))
     if data is not None and not form.is_valid():
         for name in form.errors:
             if name in form.fields:

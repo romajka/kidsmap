@@ -181,11 +181,13 @@
       }
     });
 
-    /* ─── 2. Age Range Slider (matching catalog places) ─── */
+    /* ─── 2. Age and price range sliders ─── */
     var rangeRoots = page.querySelectorAll("[data-range]");
     rangeRoots.forEach(function (root) {
       var min = Number(root.dataset.min || 0);
       var max = Number(root.dataset.max || 18);
+      var unit = root.dataset.unit || "";
+      var isPriceRange = root.classList.contains("filter-price-range");
       var fromInput = root.querySelector("[data-range-from-input]");
       var toInput = root.querySelector("[data-range-to-input]");
       var fromRange = root.querySelector("[data-range-from-range]");
@@ -201,9 +203,15 @@
 
       function updateCaption(a, b) {
         if (!caption) return;
-        caption.textContent = a + "–" + b;
-        var fromPct = ((a - min) / (max - min)) * 100;
-        var toPct = ((b - min) / (max - min)) * 100;
+        var openPriceRange = isPriceRange && b >= max;
+        caption.textContent = openPriceRange && a > min
+          ? (root.dataset.fromLabel || "") + a + " " + unit + (root.dataset.fromSuffix || "")
+          : a + "–" + b + (unit ? " " + unit : "");
+        if (isPriceRange) {
+          toRange.setAttribute("aria-valuetext", openPriceRange ? root.dataset.unlimitedLabel : b + " " + unit);
+        }
+        var fromPct = max > min ? ((a - min) / (max - min)) * 100 : 0;
+        var toPct = max > min ? ((b - min) / (max - min)) * 100 : 100;
         root.style.setProperty("--from-pct", fromPct + "%");
         root.style.setProperty("--to-pct", toPct + "%");
       }
@@ -240,6 +248,30 @@
 
       syncFromInput();
     });
+
+    if (filtersForm) {
+      filtersForm.addEventListener("submit", function (event) {
+        var data = new FormData(filtersForm);
+        var params = new URLSearchParams();
+        var priceRange = filtersForm.querySelector(".filter-price-range");
+        var ceiling = priceRange ? Number(priceRange.dataset.max) : NaN;
+        var upper = String(data.get("price_to") || "").trim();
+        var openUpper = !upper || (Number.isFinite(ceiling) && Number(upper) >= ceiling);
+        var neutralAge = data.get("age_from") === "0" && data.get("age_to") === "18";
+        data.forEach(function (value, key) {
+          var clean = String(value || "").trim();
+          if (!clean || key === "page" || (key === "sort" && clean === "new")) return;
+          if (neutralAge && (key === "age_from" || key === "age_to")) return;
+          if (key === "price_to" && openUpper) return;
+          if (key === "price_from" && Number(clean) === 0) return;
+          params.append(key, clean);
+        });
+        var url = new URL(filtersForm.getAttribute("action") || window.location.pathname, window.location.origin);
+        url.search = params.toString();
+        event.preventDefault();
+        window.location.assign(url.href);
+      });
+    }
 
     /* ─── 3. Rating Pills (matching catalog places) ─── */
     var ratingPills = page.querySelectorAll("[data-select-target='min_rating']");

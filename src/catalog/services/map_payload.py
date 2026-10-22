@@ -60,6 +60,7 @@ def _serialize_map_places(qs, language_code, filters=None):
             'lat': lat, 'lng': lng, 'price': data['prices']['label'],
             'age': f"{age} {_('лет')}" if age else '',
             'image_url': data['image_url'], 'has_phone': data['contacts']['has_phone'],
+            'has_whatsapp': data['contacts']['has_whatsapp'], 'has_contact': data['contacts']['has_contact'],
             'category': data['category_label'], 'category_code': place.category_code,
             'category_color_bg': category.resolved_color_bg if category else '#F3F4F6',
             'category_color_text': category.resolved_color_text if category else '#6B7280',

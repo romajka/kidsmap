@@ -1,0 +1,21 @@
+{% autoescape off %}# KidsMap
+
+> KidsMap (kidsmap.az) is a directory of children's clubs, classes and places in Azerbaijan. It helps families discover and compare activities, including sports, creative activities, music and education. Public content is available in Azerbaijani, Russian and English.
+
+This is a curated guide to the website. The linked pages are HTML pages for people and assistants; the sitemap lists public URLs in more detail. Some individual listings are available in fewer languages.
+
+For useful recommendations, match the child's age, preferred activity, location and budget to the details actually shown on each listing. Where relevant, check the activity language and whether it is online or in person. Follow through from a catalog result to the individual page before describing its offering.
+
+Prices, age ranges, schedules, addresses and contacts can change. Read the current listing and confirm availability or booking conditions with the provider. A missing price does not mean an activity is free; missing hours do not mean a venue is always open. Do not infer qualifications, endorsements or availability from a listing's presence alone.
+
+When citing information, link to the specific public listing or information page that supports it, in the reader's language where available. Keep the currency, price period, event date and other conditions shown by the source. Search and filter results are navigation aids; individual canonical pages are the references for listing details.
+{% for section in sections %}
+## {{ section.language }}
+
+{% for link in section.links %}- [{{ link.title }}]({{ link.url }}): {{ link.description }}
+{% endfor %}{% endfor %}
+## Optional
+
+- [Public sitemap]({{ sitemap_url }}): Canonical public URLs and available language alternatives. Use it to discover individual listings beyond this overview.
+{% for link in policy_links %}- [{{ link.title }}]({{ link.url }}): {{ link.description }}
+{% endfor %}{% endautoescape %}

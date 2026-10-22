@@ -454,6 +454,11 @@
   }
 }
 
+/* A contact may offer calls or WhatsApp alone. Fill the available bar. */
+.detail-mobile-bar > .detail-cta:only-child {
+  flex: 1 1 100% !important;
+}
+
 /* Mobile Sticky Bar Adjustments */
 .detail-mobile-bar .detail-cta--soft {
   flex: 0 0 auto !important;

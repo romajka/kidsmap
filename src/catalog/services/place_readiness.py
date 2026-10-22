@@ -43,6 +43,7 @@ class PlaceReadinessData:
     category_code: str = ""
     subcategory_id: int | None = None
     subcategory_category_code: str = ""
+    subcategory_code: str = ""
     district: str = ""
     address: str = ""
     lat: float | None = None
@@ -270,7 +271,10 @@ def _check_price(data: PlaceReadinessData):
 
 
 def _check_phone(data: PlaceReadinessData):
-    if data.nature != "public_space" and not (_text(data.phone1) or _text(data.other_contact)):
+    from .contact_policy import contact_optional
+    optional = contact_optional(category_code=data.category_code, subcategory_code=data.subcategory_code,
+                                subcategory_category_code=data.subcategory_category_code, nature=data.nature)
+    if not optional and not (_text(data.phone1) or _text(data.other_contact)):
         return ("missing_phone", _("Укажите телефон, WhatsApp или сайт."))
     return None
 
@@ -552,6 +556,7 @@ def readiness_data_from_place(place) -> PlaceReadinessData:
         category_code=getattr(place, "category_id", "") or "",
         subcategory_id=getattr(place, "subcategory_id", None),
         subcategory_category_code=subcategory_category_code,
+        subcategory_code=getattr(subcategory, "code", "") or "",
         district=getattr(place, "district", "") or "",
         address=getattr(place, "address", "") or "",
         lat=getattr(place, "lat", None),
@@ -589,6 +594,18 @@ def _form_value(form, cleaned, field_name, instance):
     return None
 
 
+def inherited_contact_for_form(form, instance=None):
+    """Evaluate displayed contact intent without mutating the approved instance."""
+    import copy
+    instance = instance if instance is not None else getattr(form, "instance", None)
+    if instance is None:
+        return ''
+    displayed = copy.copy(instance)
+    cleaned = getattr(form, "cleaned_data", None) or {}
+    displayed.whatsapp_mode = _form_value(form, cleaned, "whatsapp_mode", instance) or 'legacy'
+    return inherited_contact(displayed)
+
+
 def readiness_data_from_form(form, instance=None) -> PlaceReadinessData:
     """Build a snapshot from a bound place form before anything is saved.
 
@@ -600,6 +617,9 @@ def readiness_data_from_form(form, instance=None) -> PlaceReadinessData:
 
     cleaned = getattr(form, "cleaned_data", None) or {}
     instance = instance if instance is not None else getattr(form, "instance", None)
+    original_taxonomy = getattr(form, "contact_original_taxonomy", (
+        str(getattr(instance, "category_id", "") or ""),
+        str(getattr(instance, "subcategory_id", "") or "")))
 
     def text(field_name: str) -> str:
         return _text(_form_value(form, cleaned, field_name, instance))
@@ -659,6 +679,7 @@ def readiness_data_from_form(form, instance=None) -> PlaceReadinessData:
         category_code=category_code,
         subcategory_id=getattr(subcategory, "pk", None),
         subcategory_category_code=subcategory_category_code,
+        subcategory_code=getattr(subcategory, "code", "") or "",
         district=text("district"),
         address=text("address"),
         lat=_coerce_coordinate(_form_value(form, cleaned, "lat", instance)),
@@ -669,9 +690,11 @@ def readiness_data_from_form(form, instance=None) -> PlaceReadinessData:
         price_mode=price_mode,
         has_priced_plan=has_priced_plan,
         has_legacy_price=has_legacy_price,
-        nature=getattr(instance, "nature", "") or "",
+        nature=(getattr(form, "contact_approved_nature", getattr(instance, "nature", "")) or "") if (
+            (category_code, str(getattr(subcategory, "pk", "") or "")) == original_taxonomy
+        ) else "",
         phone1=text("phone1"),
-        other_contact=" ".join(filter(None, [text("phone2"),text("phone3"),text("website"), inherited_contact(instance)])),
+        other_contact=" ".join(filter(None, [text("phone2"),text("phone3"),text("website"), text("whatsapp_number") if text("whatsapp_mode") == 'separate' else '', inherited_contact_for_form(form, instance)])),
         schedule_mode=schedule_mode,
         schedule_has_structured=schedule_has_structured,
         schedule_text=schedule_text,
@@ -726,15 +749,30 @@ def publication_blocked_message(readiness: PlaceReadiness) -> str:
     )
 
 
-def inherited_contact(place):
-    """Only current confirmed links to an active approved organization count."""
-    if not getattr(place,'organization_id',None):return ''
+def inherited_contact_by_mode(place):
+    """Approved current organization contacts, with explicit WhatsApp intent."""
+    modes = ('legacy', 'same', 'separate', 'none')
+    empty = dict.fromkeys(modes, '')
+    if not getattr(place, 'organization_id', None):
+        return empty
     from catalog.models import Organization
     from catalog.services.organization_ownership import affiliation_current
-    org=Organization.objects.filter(pk=place.organization_id,archived_at__isnull=True,status='published',approved_at__isnull=False).first()
-    if org is None or not affiliation_current(place,org):return ''
-    return ' '.join(filter(None,[org.phone,org.whatsapp,org.website]))
+    org = Organization.objects.filter(pk=place.organization_id, archived_at__isnull=True,
+        status='published', approved_at__isnull=False).first()
+    if org is None or not affiliation_current(place, org):
+        return empty
+    common = ' '.join(filter(None, [org.phone, org.website]))
+    result = dict.fromkeys(modes, common)
+    result['legacy'] = ' '.join(filter(None, [org.phone, org.whatsapp, org.website]))
+    return result
+
+
+def inherited_contact(place):
+    """Only current confirmed links to an active approved organization count."""
+    return inherited_contact_by_mode(place).get(getattr(place, 'whatsapp_mode', 'legacy'), '')
 
 
 def effective_contact(place):
-    return ' '.join(filter(None,[getattr(place,'phone2',''),getattr(place,'phone3',''),getattr(place,'website',''),inherited_contact(place)]))
+    from .phone_numbers import safe_phone
+    whatsapp = safe_phone(getattr(place, 'whatsapp_number', ''), default_region=getattr(place, 'phone_country', 'AZ')) if getattr(place, 'whatsapp_mode', 'legacy') == 'separate' else ''
+    return ' '.join(filter(None,[getattr(place,'phone2',''),getattr(place,'phone3',''),getattr(place,'website',''),whatsapp,inherited_contact(place)]))

@@ -306,7 +306,7 @@
       targetBlank: true,
       disabled: !routeUrl,
     });
-    const phoneButton = place.has_phone ? window.kidsMapPhoneButton(place.id, "catalog-map-card-action is-secondary") : "";
+    const phoneButton = (place.has_phone || place.has_whatsapp) ? window.kidsMapPhoneButton(place.id, "catalog-map-card-action is-secondary", !place.has_phone && place.has_whatsapp) : "";
 
     return (
       '<div class="catalog-map-card-shell">' +

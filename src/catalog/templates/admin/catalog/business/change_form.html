@@ -133,7 +133,7 @@
       {% for group in km_activity_groups %}
         <p><a href="{% url 'admin:catalog_offeringgroup_change' group.pk %}">{{ group.name_az|default:group.pk }}</a> · {% translate 'Тарифы' %}: {{ group.pricing_plan_records.count }}</p>
       {% empty %}<p>{% translate 'Групп пока нет.' %}</p>{% endfor %}
-      <a class="km-pf-btn km-pf-btn--ghost" href="{% url 'admin:catalog_offeringgroup_add' %}?activity={{ km_business_object.pk }}">{% translate 'Добавить группу' %}</a>
+      {% if km_business_can_add_group %}<a class="km-pf-btn km-pf-btn--ghost" href="{% url 'admin:catalog_offeringgroup_add' %}?activity={{ km_business_object.pk }}">{% translate 'Добавить группу' %}</a>{% endif %}
     </section>
   {% endif %}
   {% if km_business_can_invite %}

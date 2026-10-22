@@ -1,3 +1,4 @@
+from datetime import date
 from types import SimpleNamespace
 from urllib.parse import urlsplit
 
@@ -56,6 +57,25 @@ class StaticViewSitemap(LocalizedSitemap):
 
     def location(self, item):
         return reverse(item)
+
+
+class ParentGuideSitemap(LocalizedSitemap):
+    """Complete editorial answers remain discoverable with an empty catalog."""
+
+    def items(self):
+        from .parent_guide_content import GUIDE_PAGES
+        return list(GUIDE_PAGES)
+
+    def location(self, item):
+        return reverse('parent_guide', kwargs={'slug': item})
+
+    def get_languages_for_item(self, item):
+        from .parent_guide_content import GUIDE_PAGES
+        return list(GUIDE_PAGES[item]['translations'])
+
+    def lastmod(self, item):
+        from .parent_guide_content import GUIDE_PAGES
+        return date.fromisoformat(GUIDE_PAGES[item]['updated'])
 
 
 class PlaceSitemap(LocalizedSitemap):

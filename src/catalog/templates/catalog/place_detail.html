@@ -21,7 +21,7 @@
 
 {% block content %}
   {% with gallery=place.gallery_files language=request.LANGUAGE_CODE %}
-  <section class="detail-wrap{% if presentation.contacts.has_phone %} detail-wrap--sticky-cta{% endif %}">
+  <section class="detail-wrap{% if presentation.contacts.has_contact %} detail-wrap--sticky-cta{% endif %}">
 
     <article class="detail-page">
 
@@ -263,7 +263,7 @@
             {% endif %}
 
             <div class="detail-decision__cta-row">
-              {% if presentation.contacts.has_phone %}
+              {% if presentation.contacts.has_whatsapp %}
                 {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--soft" phone_index=0 whatsapp=True %}
               {% endif %}
               {% if map_open_url %}
@@ -859,14 +859,18 @@
               {% if presentation.contacts.source == 'organization' %}<p class="public-muted" data-contact-source="organization">{% if language == 'ru' %}Источник контактов: организация{% elif language == 'en' %}Contact source: organization{% else %}Əlaqə mənbəyi: təşkilat{% endif %}</p>{% endif %}
               {% if presentation.contacts.has_phone %}
                 {% include "catalog/includes/phone_reveal.html" with phone_class="detail-contacts__row detail-contacts__row--primary" phone_index=0 %}
-                {% if place.phone_numbers|length > 1 %}
+                {% if presentation.contacts.phones|length > 1 %}
                   <div class="detail-contacts__secondary" aria-label="{% trans 'Дополнительные номера' %}">
                     <span class="detail-contacts__secondary-label">{% trans "Дополнительные номера" %}</span>
-                    {% for phone in place.phone_numbers|slice:"1:" %}
+                    {% for phone in presentation.contacts.phones|slice:"1:" %}
                       {% include "catalog/includes/phone_reveal.html" with phone_class="detail-contacts__secondary-link" phone_index=forloop.counter %}
                     {% endfor %}
                   </div>
                 {% endif %}
+              {% endif %}
+
+              {% if presentation.contacts.has_whatsapp %}
+                {% include "catalog/includes/phone_reveal.html" with phone_class="detail-contacts__row" whatsapp=True %}
               {% endif %}
 
               {% if place.instagram %}
@@ -908,7 +912,7 @@
                 </div>
               {% endif %}
 
-              {% if not presentation.contacts.has_phone and not place.instagram and not place.address and not presentation.contacts.website_url %}
+              {% if not presentation.contacts.has_contact and not place.instagram and not place.address and not presentation.contacts.website_url %}
                 <p class="detail-contacts__empty" role="status">{% trans "Контактные данные уточняются." %}</p>
               {% endif %}
             </div>
@@ -970,10 +974,10 @@
       </div>
     </article>
 
-    {% if presentation.contacts.has_phone %}
+    {% if presentation.contacts.has_contact %}
       <div class="detail-mobile-bar" aria-label="{% trans 'Быстрая связь' %}">
-        {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--primary" phone_index=0 %}
-        {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--soft" phone_index=0 whatsapp=True %}
+        {% if presentation.contacts.has_phone %}{% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--primary" phone_index=0 %}{% endif %}
+        {% if presentation.contacts.has_whatsapp %}{% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--soft" phone_index=0 whatsapp=True %}{% endif %}
       </div>
     {% endif %}
 

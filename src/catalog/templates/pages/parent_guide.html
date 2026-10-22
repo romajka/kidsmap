@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ seo_title }}{% endblock %}
+{% block title_plain %}{{ seo_title }}{% endblock %}
+{% block title_plain_twitter %}{{ seo_title }}{% endblock %}
+{% block meta_description %}{{ guide.meta_description }}{% endblock %}
+{% block og_description %}{{ guide.meta_description }}{% endblock %}
+{% block twitter_description %}{{ guide.meta_description }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_image %}<meta property="og:image" content="{% firstof public_base_url request.scheme|add:'://'|add:request.get_host %}{% static guide.hero_image %}">{% endblock %}
+{% block twitter_image %}<meta name="twitter:image" content="{% firstof public_base_url request.scheme|add:'://'|add:request.get_host %}{% static guide.hero_image %}">{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/parent_guides.css' %}?v=20261022_release_all_r1">
+  <script src="{% static 'js/parent_guides.js' %}?v=20261022_release_all_r1" defer></script>
+{% endblock %}
+
+{% block structured_data %}
+  {% if guide_article_json %}<script type="application/ld+json">{{ guide_article_json|safe }}</script>{% endif %}
+  {% if guide_breadcrumbs_json %}<script type="application/ld+json">{{ guide_breadcrumbs_json|safe }}</script>{% endif %}
+{% endblock %}
+
+{% block content %}
+<article class="parent-guide parent-guide--{{ guide_slug }}" aria-labelledby="guide-title">
+  <nav class="pg-breadcrumb" aria-label="{{ guide.crumb }}">
+    <ol>
+      <li><a href="{% url 'home' %}">KidsMap</a></li>
+      <li aria-current="page">{{ guide.crumb }}</li>
+    </ol>
+  </nav>
+
+  <header class="pg-hero">
+    <div class="pg-hero__copy">
+      <p class="pg-eyebrow"><span aria-hidden="true"></span>{{ guide.eyebrow }}</p>
+      <h1 id="guide-title">{{ guide.title }}</h1>
+      <p class="pg-hero__lead">{{ guide.lead }}</p>
+      <div class="pg-hero__actions">
+        <a class="pg-button" href="#guide-places">{{ guide.toc_places }}<span class="pg-arrow" aria-hidden="true"><svg class="pg-ico-arrow" width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L10.5 3.5M10.5 3.5H5.5M10.5 3.5V8.5"/></svg></span></a>
+        <a class="pg-text-link" href="{{ guide_catalog_url }}"><span class="pg-control-full">{{ guide.catalog_label }}</span><span class="pg-control-short">{{ guide.mobile_catalog_label }}</span><span class="pg-arrow" aria-hidden="true"><svg class="pg-ico-arrow" width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L10.5 3.5M10.5 3.5H5.5M10.5 3.5V8.5"/></svg></span></a>
+      </div>
+      <p class="pg-byline"><span>{{ guide.editorial_label }}</span><span>{{ guide.updated_label }} <time datetime="{{ guide.updated|date:'Y-m-d' }}">{{ guide.updated|date:"d.m.Y" }}</time></span></p>
+    </div>
+    <div class="pg-hero__art">
+      <img src="{% static guide.hero_image %}" alt="{{ guide.hero_alt }}" width="1200" height="800" fetchpriority="high" decoding="async">
+    </div>
+  </header>
+
+  <nav class="pg-toc" aria-label="{{ guide.toc_label }}">
+    <span class="pg-toc__label">{{ guide.toc_label }}</span>
+    <a href="#guide-places"><span aria-hidden="true">01</span>{{ guide.toc_places }}</a>
+    <a href="#guide-topics"><span aria-hidden="true">02</span><span class="pg-control-full">{{ guide.toc_topics }}</span><span class="pg-control-short">{{ guide.mobile_topics_label }}</span></a>
+    <a href="#guide-faq"><span aria-hidden="true">03</span><span class="pg-control-full">{{ guide.toc_faq }}</span><span class="pg-control-short">{{ guide.mobile_faq_label }}</span></a>
+  </nav>
+
+  <section id="guide-places" class="pg-section pg-places" aria-labelledby="guide-places-title">
+    <div class="pg-section-heading"><div><h2 id="guide-places-title">{{ guide.places_title }}</h2></div><p>{{ guide.places_intro }}</p></div>
+    {% if guide_quick_choices %}
+    <nav class="pg-quick" aria-label="{{ guide.quick_label }}">
+      {% for choice in guide_quick_choices %}<a href="{{ choice.url }}">{{ choice.label }}<span aria-hidden="true">↗</span></a>{% endfor %}
+    </nav>
+    {% endif %}
+    {% if guide_places %}
+    <div class="pg-places__grid">
+      {% for place in guide_places %}
+      <article class="pg-place" data-guide-place-id="{{ place.id }}">
+        <a class="pg-place__link" href="{{ place.url }}" aria-labelledby="guide-place-{{ place.id }}">
+          <span class="pg-place__image">
+            {% if place.image_url %}<img src="{{ place.image_url }}" alt="" width="200" height="200" loading="lazy" decoding="async">{% else %}<span class="pg-place__placeholder" aria-hidden="true"><img src="{% static 'img/logo-mark.svg' %}" width="56" height="56" alt="" loading="lazy"></span>{% endif %}
+          </span>
+          <div class="pg-place__copy">
+            <h3 id="guide-place-{{ place.id }}" lang="{{ place.name_language }}">{{ place.name }}<span class="pg-place__arrow" aria-hidden="true"><svg class="pg-ico-arrow" width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L10.5 3.5M10.5 3.5H5.5M10.5 3.5V8.5"/></svg></span></h3>
+            <span class="pg-place__topics">{% for label in place.topics %}<span>{{ label }}</span>{% endfor %}</span>
+            {% if place.location %}<span class="pg-place__location">{{ place.location }}</span>{% endif %}
+          </div>
+          {% if place.description %}<span class="pg-place__description" lang="{{ place.description_language }}">{{ place.description }}</span>{% endif %}
+          {% if place.address %}<span class="pg-place__address">{{ place.address }}</span>{% endif %}
+        </a>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="pg-empty">
+      <span class="pg-empty__icon" aria-hidden="true"><img src="{% static 'img/icon/coolicons.iconjar/icons/map-pin.svg' %}" width="28" height="28" alt="" loading="lazy"></span>
+      <div><h3>{{ guide.empty_title }}</h3><p>{{ guide.empty_text }}</p><a class="pg-text-link" href="{{ guide_add_url }}">{{ guide.suggest_label }}<span class="pg-arrow" aria-hidden="true"><svg class="pg-ico-arrow" width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L10.5 3.5M10.5 3.5H5.5M10.5 3.5V8.5"/></svg></span></a></div>
+    </div>
+    {% endif %}
+    <a class="pg-button pg-button--outline" href="{{ guide_catalog_url }}">{{ guide.catalog_label }}<span class="pg-arrow" aria-hidden="true"><svg class="pg-ico-arrow" width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L10.5 3.5M10.5 3.5H5.5M10.5 3.5V8.5"/></svg></span></a>
+  </section>
+
+  <section id="guide-topics" class="pg-section pg-topics" aria-labelledby="guide-topics-title">
+    <div class="pg-section-heading">
+      <div><h2 id="guide-topics-title">{{ guide.topics_title }}</h2></div>
+      <p>{{ guide.topics_intro }}</p>
+    </div>
+    <div class="pg-topics__grid">
+      {% for topic in guide_topics %}
+      <section class="pg-topic" aria-labelledby="guide-topic-{{ forloop.counter }}">
+        <div class="pg-topic__top">
+          <span class="pg-topic__icon" aria-hidden="true"><img src="{% static topic.icon %}" width="28" height="28" alt="" loading="lazy" decoding="async"></span>
+          <h3 id="guide-topic-{{ forloop.counter }}">{{ topic.title }}</h3>
+        </div>
+        <p class="pg-topic__text">{{ topic.text }}</p>
+        <div class="pg-topic__footer">
+          {% if topic.url %}
+          <a href="{{ topic.url }}"><span class="pg-topic__link-label">{{ guide.topic_link_label }}</span><span class="pg-arrow" aria-hidden="true"><svg class="pg-ico-arrow" width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L10.5 3.5M10.5 3.5H5.5M10.5 3.5V8.5"/></svg></span><span class="visually-hidden">: {{ topic.title }}</span></a>
+          {% else %}
+          <a href="{{ guide_add_url }}"><span class="pg-topic__link-label">{{ guide.suggest_label }}</span><span class="pg-arrow" aria-hidden="true"><svg class="pg-ico-arrow" width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L10.5 3.5M10.5 3.5H5.5M10.5 3.5V8.5"/></svg></span><span class="visually-hidden">: {{ topic.title }}</span></a>
+          {% endif %}
+          {% if topic.count %}<span class="pg-topic__count">{{ guide.availability_label }}: {{ topic.count }}</span>{% endif %}
+        </div>
+      </section>
+      {% endfor %}
+    </div>
+  </section>
+
+  <details class="pg-advice">
+    <summary>
+      <span class="pg-advice__heading">
+        <span class="pg-advice__badge" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </span>
+        <span>{{ guide.checklist_title }}</span>
+      </span>
+      <span class="pg-faq__toggle" aria-hidden="true"></span>
+    </summary>
+    <div class="pg-advice__body">
+      <p>{{ guide.checklist_intro }}</p>
+      <ul>{% for item in guide.checklist %}<li><span class="pg-check-icon" aria-hidden="true"><svg width="11" height="9" viewBox="0 0 11 9" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 4.5L4 7.5L10 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>{{ item }}</li>{% endfor %}</ul>
+    </div>
+  </details>
+
+  <section id="guide-faq" class="pg-section pg-faq" aria-labelledby="guide-faq-title">
+    <div class="pg-section-heading">
+      <div><h2 id="guide-faq-title">{{ guide.faq_title }}</h2></div>
+      {% if guide.faq_intro %}<p>{{ guide.faq_intro }}</p>{% endif %}
+    </div>
+    <div class="pg-faq__items">
+      {% for item in guide_faq %}
+      <details{% if item.key %} id="guide-faq-{{ item.key }}"{% endif %}{% if item.key == 'rain' %} open{% endif %}>
+        <summary><span>{{ item.question }}</span><span class="pg-faq__toggle" aria-hidden="true"></span></summary>
+        <div class="pg-faq__answer">{{ item.answer|linebreaks }}
+          {% if item.places %}<ul class="pg-faq__places">{% for place in item.places %}<li><a href="{{ place.url }}" lang="{{ place.name_language }}">{{ place.name }}</a></li>{% endfor %}</ul>
+          {% elif item.empty_text %}<p class="pg-faq__empty">{{ item.empty_text }}</p>{% endif %}
+        </div>
+      </details>
+      {% endfor %}
+    </div>
+  </section>
+
+  <aside class="pg-related" aria-labelledby="guide-related-title">
+    <div><h2 id="guide-related-title">{{ guide.related_title }}</h2><p class="pg-related__text">{{ guide.related_text }}</p></div>
+    <a href="{{ guide_related_url }}">{{ guide.related_link }}<span class="pg-arrow" aria-hidden="true"><svg class="pg-ico-arrow" width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L10.5 3.5M10.5 3.5H5.5M10.5 3.5V8.5"/></svg></span></a>
+  </aside>
+</article>
+{% endblock %}

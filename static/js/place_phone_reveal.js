@@ -51,23 +51,16 @@
   const loaded = new Map(), pending = new Map();
   let errorSequence = 0;
 
-  function formatPhone(raw) {
-    if (!raw) return '';
-    const trimmed = String(raw).trim();
-    if (/\s|-|\(|\)/.test(trimmed)) return trimmed;
-    // Standard Azerbaijan +994XXXXXXXXX (13 chars)
-    if (trimmed.startsWith('+994') && trimmed.length === 13) {
-      return `+994 ${trimmed.slice(4, 6)} ${trimmed.slice(6, 9)} ${trimmed.slice(9, 11)} ${trimmed.slice(11, 13)}`;
-    }
-    // 994XXXXXXXXX (12 chars)
-    if (trimmed.startsWith('994') && trimmed.length === 12) {
-      return `+994 ${trimmed.slice(3, 5)} ${trimmed.slice(5, 8)} ${trimmed.slice(8, 10)} ${trimmed.slice(10, 12)}`;
-    }
-    // 0XXXXXXXXX (10 chars)
-    if (trimmed.startsWith('0') && trimmed.length === 10) {
-      return `${trimmed.slice(0, 3)} ${trimmed.slice(3, 6)} ${trimmed.slice(6, 8)} ${trimmed.slice(8, 10)}`;
-    }
-    return trimmed;
+  function validPayload(data) {
+    if (!data || !Array.isArray(data.phones)) return false;
+    if (!data.phones.every(phone => phone && /^\+[1-9]\d{6,14}$/.test(phone.number) && phone.href === 'tel:' + phone.number)) return false;
+    if (data.whatsapp && !/^https:\/\/wa\.me\/[1-9]\d{6,14}$/.test(data.whatsapp)) return false;
+    return Boolean(data.phones.length || data.whatsapp);
+  }
+
+  function displayPhone(phone) {
+    // Presentation comes from the same server parser as tel:/WhatsApp links.
+    return String(phone.display || phone.number).replace(/[&<>"']/g, char => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[char]));
   }
 
   async function copyToClipboard(text) {
@@ -105,17 +98,18 @@
   }
 
   // Map popups use this factory too; only the ID is present in their payload.
-  window.kidsMapPhoneButton = (id, className = '') => {
+  window.kidsMapPhoneButton = (id, className = '', whatsapp = false) => {
     const isCard = className.includes('card-contact-toggle');
     const button = document.createElement('button');
     button.type = 'button';
     button.className = (className + ' km-phone-control' + (isCard ? ' km-phone-control--card' : '')).trim();
     button.dataset.phoneReveal = String(id);
     if (isCard) button.dataset.phoneCard = '1';
-    const text = isCard ? copy.call : copy.show;
+    if (whatsapp) button.dataset.phoneWhatsapp = '1';
+    const text = whatsapp ? 'WhatsApp' : (isCard ? copy.call : copy.show);
     button.setAttribute('aria-label', text);
     button.setAttribute('title', text);
-    button.innerHTML = `<span class="km-phone-icon km-phone-icon--phone" aria-hidden="true">${phoneSvg}</span><span class="km-phone-label">${text}</span>`;
+    button.innerHTML = `<span class="km-phone-icon km-phone-icon--${whatsapp ? 'whatsapp' : 'phone'}" aria-hidden="true">${whatsapp ? whatsappSvg : phoneSvg}</span><span class="km-phone-label">${text}</span>`;
     return button.outerHTML;
   };
 
@@ -128,6 +122,7 @@
       clearError(button);
 
       if (whatsapp) {
+        if (!data.whatsapp) { button.remove(); return; }
         const link = document.createElement('a');
         link.className = button.className;
         link.classList.add('km-phone-control--revealed', 'km-phone-whatsapp-revealed');
@@ -148,8 +143,8 @@
       }
 
       const phone = data.phones[Number(button.dataset.phoneIndex || 0)];
-      if (!phone) return;
-      const formatted = formatPhone(phone.number);
+      if (!phone) { button.remove(); return; }
+      const formatted = displayPhone(phone);
 
       // On compact catalog cards: do not blow up dimensions into split number/copy pill.
       // Render as a direct tel: link with the call icon (and label if space permits), keeping card dimensions unchanged.
@@ -260,7 +255,7 @@
     if (loaded.has(id)) {
       const data = loaded.get(id);
       reveal(id, data);
-      if (isCard) {
+      if (isCard && button.dataset.phoneWhatsapp !== '1') {
         const phone = data.phones[Number(button.dataset.phoneIndex || 0)];
         if (phone && phone.href) {
           window.location.href = phone.href;
@@ -292,7 +287,7 @@
           if (document.body.hasAttribute('data-site-preview')) {
             const node = document.getElementById('site-preview-phones');
             const data = node && JSON.parse(node.textContent);
-            if (!data || String(data.place_id) !== String(id)) throw new Error(copy.error);
+            if (!data || String(data.place_id) !== String(id) || !validPayload(data)) throw new Error(copy.error);
             loaded.set(id, data);
             return data;
           }
@@ -305,14 +300,14 @@
           });
           if (!response.ok) throw new Error(response.status === 429 ? copy.limit : copy.error);
           const data = await response.json();
-          if (!Array.isArray(data.phones) || !data.phones.length) throw new Error(copy.error);
+          if (!validPayload(data)) throw new Error(copy.error);
           loaded.set(id, data);
           return data;
         })());
       }
       const data = await pending.get(id);
       reveal(id, data);
-      if (isCard) {
+      if (isCard && button.dataset.phoneWhatsapp !== '1') {
         const phone = data.phones[Number(button.dataset.phoneIndex || 0)];
         if (phone && phone.href) {
           window.location.href = phone.href;
@@ -320,7 +315,7 @@
       }
     } catch (error) {
       button.disabled = false;
-      const defaultText = isCard ? copy.call : (button.dataset.phoneWhatsapp === '1' ? 'WhatsApp' : copy.show);
+      const defaultText = button.dataset.phoneWhatsapp === '1' ? 'WhatsApp' : (isCard ? copy.call : copy.show);
       const labelSpan = button.querySelector('.km-phone-label');
       if (labelSpan) {
         labelSpan.textContent = defaultText;

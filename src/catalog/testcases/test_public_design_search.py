@@ -1,6 +1,18 @@
 """Search remains usable when the home map has no matching pins."""
+from html.parser import HTMLParser
+
 from django.test import TestCase
 from catalog.testcases.utils import create_quality_place
+
+
+class SearchControlParser(HTMLParser):
+    """Inspect actual elements without matching selector strings in scripts."""
+    def __init__(self):
+        super().__init__()
+        self.elements = []
+
+    def handle_starttag(self, tag, attrs):
+        self.elements.append(dict(attrs))
 
 
 class HomeDesignSearchFallbackTests(TestCase):
@@ -12,9 +24,12 @@ class HomeDesignSearchFallbackTests(TestCase):
                 self.assertEqual(response.context['map_places'], [])
                 self.assertContains(response, 'id="home-hero-search-input"', count=1)
                 self.assertContains(response, 'method="get" action="'+prefix+'catalog/"')
-                self.assertNotContains(response, 'data-home-search-reset')
-                self.assertNotContains(response, 'data-home-search-clear')
-                self.assertNotContains(response, 'class="home-search-instant-badge"')
+                parser = SearchControlParser()
+                parser.feed(response.content.decode(response.charset))
+                for attrs in parser.elements:
+                    self.assertNotIn('data-home-search-reset', attrs)
+                    self.assertNotIn('data-home-search-clear', attrs)
+                    self.assertNotIn('home-search-instant-badge', attrs.get('class', '').split())
 
     def test_places_without_pins_remain_discoverable_through_catalog_search(self):
         place = create_quality_place(name_az='No pin design fixture', name_ru='No pin design fixture',

@@ -179,6 +179,7 @@ class PlaceController:
             "catalog_breadcrumb_items": seo_payload["catalog_breadcrumb_items"],
             "catalog_item_list_schema_json": seo_payload["catalog_item_list_schema_json"],
             "selected": selected,
+            "catalog_price_max": filters.catalog_price_max,
             "rating_sort_available": rating_sort_available,
             "categories": public_filter_options.categories,
             "active_category_codes": {item["value"] for item in public_filter_options.categories},
@@ -434,10 +435,8 @@ class PlaceController:
 
         price_from = str(selected.get("price_from") or "").strip()
         price_to = str(selected.get("price_to") or "").strip()
-        if price_from or price_to:
-            if not (price_from in {"", "0"} and price_to in {"", "500"}):
-                add_param("price_from", price_from)
-                add_param("price_to", price_to)
+        add_param("price_from", price_from)
+        add_param("price_to", price_to)
 
         if not force_new_only:
             sort_value = str(selected.get("sort") or "").strip()
@@ -586,8 +585,15 @@ class PlaceController:
 
         price_from = str(selected.get("price_from") or "").strip()
         price_to = str(selected.get("price_to") or "").strip()
-        if not force_new_only and (price_from or price_to) and not (price_from in {"", "0"} and price_to in {"", "500"}):
-            price_label = _("%(from)s–%(to)s AZN") % {"from": price_from or "0", "to": price_to or "500"}
+        if not force_new_only and (price_from or price_to):
+            if price_to:
+                price_label = f"{price_from or '0'}–{price_to} ₼"
+            elif language_code == "az":
+                price_label = f"{price_from} ₼-dən"
+            elif language_code == "en":
+                price_label = f"from {price_from} ₼"
+            else:
+                price_label = f"от {price_from} ₼"
             if language_code == "az":
                 label = price_label
             elif language_code == "en":

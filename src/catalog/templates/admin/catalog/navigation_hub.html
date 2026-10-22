@@ -1,0 +1,31 @@
+{% extends "admin/base_site.html" %}
+{% load i18n kidsmap_navigation %}
+
+{% block content %}
+<div class="km-admin-navigation-hub">
+    <div class="km-admin-navigation-hub__heading">
+        <h1>{{ navigation_title }}</h1>
+        <p>{% trans "Выберите нужный раздел" %}</p>
+    </div>
+    <div class="km-admin-navigation-hub__groups">
+        {% for group in navigation_groups %}
+        <section class="km-admin-navigation-hub__group" aria-labelledby="km-navigation-group-{{ forloop.counter }}">
+            <h2 id="km-navigation-group-{{ forloop.counter }}">{{ group.label }}</h2>
+            <ul class="km-admin-navigation-hub__list">
+                {% for item in group.items %}
+                <li>
+                    <a class="km-admin-navigation-hub__link" href="{{ item.url }}">
+                        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-{{ item.icon|navigation_icon }}"></use></svg>
+                        <span>{{ item.label }}</span>
+                        <svg class="km-i km-admin-navigation-hub__arrow" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-chevron_right"></use></svg>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% empty %}
+        <p class="km-admin-navigation-hub__empty">{% trans "Нет доступных разделов" %}</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

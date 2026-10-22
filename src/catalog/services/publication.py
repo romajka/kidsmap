@@ -166,9 +166,12 @@ def _integer(value):
     return value
 
 
-def _validate_patch(target,kind,patch):
+def _validate_patch(target,kind,patch,*,pending=None):
     from catalog.services.volunteer_places import json_value
     if not isinstance(patch,dict) or not set(patch)<=fields_for(kind):raise ValidationError('Unknown/protected publication fields.')
+    if kind in {'place', 'organization'}:
+        from catalog.services.phone_numbers import normalize_contact_patch
+        patch = normalize_contact_patch(target, patch, pending=pending)
     candidate=copy.copy(target);candidate._state=copy.copy(target._state);normalized={}
     for name,value in patch.items():
         if name=='location_override':
@@ -333,7 +336,7 @@ def propose(*,actor,target_type,target_id,patch,schema_version,expected_version,
     from catalog.services.staff_roles import is_volunteer
     if revision and is_volunteer(actor) and revision.author_id != actor.pk:
         raise PermissionDenied
-    patch=_validate_patch(target,target_type,patch);live=snapshot(target,target_type)
+    patch=_validate_patch(target,target_type,patch,pending=revision.payload if revision and revision.status in {'draft','pending'} else None);live=snapshot(target,target_type)
     if revision and revision.status not in {'approved','rejected','declined'}:
         if revision.schema_version!=SCHEMA_VERSION or revision.dependencies!=dependencies(target,target_type):raise ValidationError('Candidate dependency conflict.', code='candidate_dependency_conflict')
         if any(live.get(k)!=revision.base_snapshot.get(k) for k in revision.changed_fields):raise ValidationError('Candidate source conflict.', code='candidate_source_conflict')

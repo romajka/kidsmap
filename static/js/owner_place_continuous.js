@@ -58,6 +58,13 @@
   const canonicalFields = fields();
   let recovery = null;
   let recoveryPreserved = true;
+  const formatTime = iso => {
+    try {
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return '';
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    } catch { return ''; }
+  };
   const setStatus = (message, state) => {
     if (halted && state !== 'conflict') { message = ui.server_conflict; state = 'conflict'; }
     status.textContent = message; status.dataset.state = state;
@@ -200,7 +207,8 @@
         }
         draftId = detail.draft_id; draftVersion = detail.version;
         form.elements.namedItem('server_draft_id').value = draftId;
-        apply(detail); setStatus(`${ui.server_saved} · ${new Date(detail.saved_at).toLocaleString()}`, 'saved'); localStore();
+        const timeStr = formatTime(detail.saved_at);
+        apply(detail); setStatus(`${ui.server_saved}${timeStr ? ' · ' + timeStr : ''}`, 'saved'); localStore();
       } else if (local && !userInteracted) {
         draftId = null; draftVersion = 0; form.elements.namedItem('server_draft_id').value = '';
         apply(local); dirty = true; localStore(); schedule(); setStatus(ui.browser_saved, 'browser');
@@ -229,7 +237,8 @@
         dirty = JSON.stringify(fields()) !== JSON.stringify(submitted);
         succeeded = true; localStore();
         if (targetId === null) { const url = new URL(location.href); url.searchParams.set('draft_id', draftId); history.replaceState(null, '', url); }
-        setStatus(dirty ? ui.unsaved : `${ui.server_saved} · ${new Date(result.saved_at).toLocaleString()}${photoDirty ? ' · ' + ui.upload_pending : ''}`, dirty ? 'dirty' : 'saved');
+        const saveTime = formatTime(result.saved_at);
+        setStatus(dirty ? ui.unsaved : `${ui.server_saved}${saveTime ? ' · ' + saveTime : ''}${photoDirty ? ' · ' + ui.upload_pending : ''}`, dirty ? 'dirty' : 'saved');
         return true;
       } catch { localStore(); setStatus(ui.save_failed, 'error'); return false; }
       finally { saving = false; if (succeeded && dirty && !halted && !submitting) schedule(); }
@@ -370,6 +379,24 @@
     if (ids.length) input.setAttribute('aria-describedby', `${input.getAttribute('aria-describedby') || ''} ${ids.join(' ')}`.trim());
     if (wrapper.querySelector('.pw-error')) input.setAttribute('aria-invalid','true');
   }
+  function contactOptional(config) {
+    const category = String(form.elements.namedItem('category')?.value || '');
+    const subcategory = String(form.elements.namedItem('subcategory')?.value || '');
+    return Boolean(config?.optional_pairs?.[category]?.includes(subcategory) ||
+      (config?.optional && category === config.original_category && subcategory === config.original_subcategory));
+  }
+  function filledContact(name) {
+    if (name === 'whatsapp_number' && form.elements.namedItem('whatsapp_mode')?.value !== 'separate') return false;
+    return Boolean(form.elements.namedItem(name)?.value?.trim());
+  }
+  function contactInherited(config) {
+    const mode = form.elements.namedItem('whatsapp_mode')?.value || 'legacy';
+    return Boolean(config?.inherited_by_mode ? config.inherited_by_mode[mode] : config?.inherited);
+  }
+  function contactNeeded() {
+    const contact = readiness.items.find(item => item.code === 'phone');
+    return Boolean(contact && !contactInherited(contact.config) && !contactOptional(contact.config));
+  }
   function updateMarkers() {
     const required = new Set(readiness.items.filter(item => item.code !== 'phone').map(item => item.field));
     if (readiness.items.some(item => item.code === 'age') && form.elements.namedItem('age_open_ended')?.value !== '1') required.add('age_to');
@@ -377,10 +404,12 @@
     if (readiness.items.some(item => item.code === 'price')) required.add('price_mode');
     if (readiness.items.some(item => item.code === 'schedule')) required.add('schedule_mode');
     const contact = readiness.items.find(item => item.code === 'phone');
-    const contactNeeded = contact && !contact.config.inherited && form.elements.namedItem('nature')?.value !== contact.config.optional_nature;
+    const needsContact = contactNeeded();
+    const hint = form.querySelector('[data-pc-contact-hint]');
+    if (hint) hint.textContent = contactInherited(contact?.config) ? ui.contact_inherited : needsContact ? ui.contact_required : ui.contact_optional;
     form.querySelectorAll('[data-pw-required]').forEach(badge => {
       const name = badge.dataset.pwRequired;
-      const oneContact = contact?.config.fields.includes(name) && contactNeeded;
+      const oneContact = contact?.config.fields.includes(name) && needsContact;
       badge.textContent = oneContact ? ui.contact_choice : ui.required;
       badge.hidden = !required.has(name) && !oneContact;
       if (name === 'age_from' && form.elements.namedItem('age_open_ended')?.value === '1') badge.hidden = true;
@@ -389,20 +418,86 @@
   form.querySelectorAll('[data-pc-go-field]').forEach(button => button.addEventListener('click', () => goTo(fieldTarget(button.dataset.pcGoField))));
   const sectionSelect = form.querySelector('[data-pc-section-select]');
   const sectionLinks = [...form.querySelectorAll('.pc-nav a')];
+  function updateStepProgress() {
+    const s1Complete = Boolean(form.elements.namedItem('name_az')?.value?.trim() && form.elements.namedItem('category')?.value);
+    const contact = readiness.items.find(item => item.code === 'phone');
+    const s2Complete = Boolean(form.elements.namedItem('address')?.value?.trim() && (!contactNeeded() || contact?.config.fields.some(filledContact)));
+    const s3Complete = Boolean((form.querySelector('[data-tariff-list]')?.children.length || 0) > 0 || form.elements.namedItem('nested_pricing')?.value?.includes('"title_az"') || form.elements.namedItem('nested_pricing')?.value?.includes('"name_az"'));
+    const s4Complete = Boolean(readiness && readiness.completed_count >= readiness.required_count);
+
+    const statuses = [s1Complete, s2Complete, s3Complete, s4Complete];
+    let completedCount = 0;
+    statuses.forEach((done, index) => {
+      const stepNum = index + 1;
+      const badge = form.querySelector(`[data-pc-step-badge="${stepNum}"]`);
+      const tag = form.querySelector(`[data-pc-section-tag="${stepNum}"]`);
+      if (done) {
+        completedCount++;
+        if (badge) { badge.dataset.status = 'complete'; badge.title = ui.step_done || 'Готово'; }
+        if (tag) { tag.dataset.tag = 'complete'; tag.textContent = ui.step_done || 'Готово'; }
+      } else {
+        if (badge) { delete badge.dataset.status; badge.removeAttribute('title'); }
+        if (tag) { delete tag.dataset.tag; tag.textContent = ''; }
+      }
+    });
+
+    const pct = Math.round((completedCount / 4) * 100);
+    const fill = root.querySelector('[data-pc-progress-fill]');
+    const pctText = root.querySelector('[data-pc-progress-pct]');
+    if (fill) fill.style.width = `${Math.max(pct, 25)}%`;
+    if (pctText) pctText.textContent = `${pct}%`;
+  }
+
+  let isNavigatingStep = false;
   function selectSection(id, focus = false) {
     sectionLinks.forEach(link => { if (link.hash === `#${id}`) link.setAttribute('aria-current','location'); else link.removeAttribute('aria-current'); });
     sectionSelect.value = id;
-    if (focus) goTo(document.getElementById(id)?.querySelector('h2'));
+    const match = id.match(/\d+/);
+    if (match) {
+      const stepNum = match[0];
+      const sectionEl = document.getElementById(id);
+      const title = sectionEl?.querySelector('h2')?.textContent || '';
+      const progressText = root.querySelector('[data-pc-progress-text]');
+      if (progressText) progressText.textContent = `${ui.step || 'Шаг'} ${stepNum} ${ui.of || 'из'} 4 · ${title}`;
+    }
+    if (focus) {
+      isNavigatingStep = true;
+      setTimeout(() => { isNavigatingStep = false; }, 900);
+      const sectionEl = document.getElementById(id);
+      if (sectionEl) {
+        sectionEl.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+        sectionEl.querySelector('h2')?.focus({ preventScroll: true });
+      }
+    }
   }
   sectionSelect.addEventListener('change', () => selectSection(sectionSelect.value, true));
   sectionLinks.forEach(link => link.addEventListener('click', event => { event.preventDefault(); selectSection(link.hash.slice(1), true); }));
+  form.querySelectorAll('[data-pc-goto-step]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const stepNum = btn.dataset.pcGotoStep;
+      selectSection(`pc-section-${stepNum}`, true);
+    });
+  });
   if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver(entries => { const visible = entries.find(entry => entry.isIntersecting); if (visible) selectSection(visible.target.id); }, {rootMargin:'-15% 0px -60% 0px'});
+    const observer = new IntersectionObserver(entries => {
+      if (isNavigatingStep) return;
+      const visibleEntries = entries.filter(entry => entry.isIntersecting);
+      if (visibleEntries.length > 0) {
+        visibleEntries.sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        selectSection(visibleEntries[0].target.id);
+      }
+    }, { threshold: [0.1, 0.25, 0.5, 0.75], rootMargin: '-70px 0px -40% 0px' });
     form.querySelectorAll('[data-place-section]').forEach(section => observer.observe(section));
   }
   const openAge = form.querySelector('[data-pc-open-age]');
   const ageEnd = form.querySelector('[name=age_to]')?.closest('[data-pw-field]');
-  const syncAge = () => { form.elements.namedItem('age_open_ended').value = openAge.checked ? '1' : ''; if (ageEnd) ageEnd.hidden = openAge.checked; updateMarkers(); };
+  const syncAge = () => {
+    if (openAge) form.elements.namedItem('age_open_ended').value = openAge.checked ? '1' : '';
+    if (ageEnd && !form.querySelector('.km-age-range-field')) ageEnd.hidden = openAge.checked;
+    form.querySelector('.km-age-range-field')?._syncFromInputs?.();
+    updateMarkers();
+    updateStepProgress();
+  };
   if (openAge) { openAge.addEventListener('change', syncAge); syncAge(); }
   const firstError = form.querySelector('.pw-error');
   if (firstError) {
@@ -413,14 +508,14 @@
   } else setStatus(targetId === null ? ui.not_saved : ui.saved_card, targetId === null ? 'idle' : 'saved');
   form.addEventListener('pointerdown', event => { if (event.isTrusted) userInteracted = true; });
   form.addEventListener('keydown', event => { if (event.isTrusted) userInteracted = true; });
-  form.addEventListener('input', event => { if (event.target === sectionSelect || event.target?.matches('[data-pc-preview-language]')) { updatePreview(); return; } if (restoring || (!event.isTrusted && !userInteracted)) return; userInteracted = true; dirty = true; editedAt = Date.now(); localStore(); schedule(); updatePreview(); updateMarkers(); setStatus(ui.unsaved, 'dirty'); form.querySelector('[data-pc-readiness-status]').textContent = ui.needs_check; });
+  form.addEventListener('input', event => { if (event.target === sectionSelect || event.target?.matches('[data-pc-preview-language]')) { updatePreview(); return; } if (restoring || (!event.isTrusted && !userInteracted)) return; userInteracted = true; dirty = true; editedAt = Date.now(); localStore(); schedule(); updatePreview(); updateMarkers(); updateStepProgress(); setStatus(ui.unsaved, 'dirty'); form.querySelector('[data-pc-readiness-status]').textContent = ui.needs_check; });
   form.addEventListener('change', event => {
     if (event.target === sectionSelect || event.target?.matches('[data-pc-preview-language]')) { updatePreview(); return; }
     if (restoring || (!event.isTrusted && !userInteracted)) return;
-    userInteracted = true; dirty = true; editedAt = Date.now(); localStore(); schedule(); updatePreview(); updateMarkers(); setStatus(ui.unsaved, 'dirty'); form.querySelector('[data-pc-readiness-status]').textContent = ui.needs_check;
+    userInteracted = true; dirty = true; editedAt = Date.now(); localStore(); schedule(); updatePreview(); updateMarkers(); updateStepProgress(); setStatus(ui.unsaved, 'dirty'); form.querySelector('[data-pc-readiness-status]').textContent = ui.needs_check;
     if (event.target?.type === 'file') { photoDirty = true; localStore(); setStatus(ui.upload_pending, 'browser'); }
   });
-  ['km:pricing-change','km:schedule-change','km:map-change','km:photos-change','km:offerings-change'].forEach(name => form.addEventListener(name, () => { if (restoring || (!userInteracted && !(name === 'km:photos-change' && photoEditor?.hasChanges()))) return; userInteracted = true; dirty = true; editedAt = Date.now(); localStore(); schedule(); updatePreview(); updateMarkers(); setStatus(ui.unsaved, 'dirty'); form.querySelector('[data-pc-readiness-status]').textContent = ui.needs_check; if (name === 'km:photos-change') { photoDirty = true; localStore(); setStatus(ui.upload_pending, 'browser'); } }));
+  ['km:pricing-change','km:schedule-change','km:map-change','km:photos-change','km:offerings-change'].forEach(name => form.addEventListener(name, () => { if (restoring || (!userInteracted && !(name === 'km:photos-change' && photoEditor?.hasChanges()))) return; userInteracted = true; dirty = true; editedAt = Date.now(); localStore(); schedule(); updatePreview(); updateMarkers(); updateStepProgress(); setStatus(ui.unsaved, 'dirty'); form.querySelector('[data-pc-readiness-status]').textContent = ui.needs_check; if (name === 'km:photos-change') { photoDirty = true; localStore(); setStatus(ui.upload_pending, 'browser'); } }));
   form.addEventListener('submit', async event => {
     if (halted) { event.preventDefault(); setStatus(ui.server_conflict, 'conflict'); return; }
     if (submitting) { event.preventDefault(); return; }
@@ -462,5 +557,442 @@
   window.addEventListener('offline', () => setStatus(ui.offline, 'browser'));
   window.addEventListener('pageshow', () => { submitting = false; });
   window.addEventListener('beforeunload', event => { if ((dirty || photoDirty) && !submitting) { event.preventDefault(); event.returnValue = ''; } });
-  updatePreview(); updateMarkers(); restore();
+  function initKidsMapCustomSelects(root) {
+    const lang = (document.documentElement.lang || 'ru').slice(0, 2);
+    const searchPlaceholder = lang === 'az' ? 'Axtarış...' : lang === 'en' ? 'Search...' : 'Поиск...';
+    const noResultsText = lang === 'az' ? 'Nəticə tapılmadı' : lang === 'en' ? 'No results found' : 'Ничего не найдено';
+
+    function enhance(select) {
+      if (!select || select.dataset.kmEnhanced === '1') return;
+      select.dataset.kmEnhanced = '1';
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'km-custom-select';
+      if (select.disabled) wrapper.classList.add('is-disabled');
+      if (select.name) wrapper.dataset.kmSelectName = select.name;
+
+      const trigger = document.createElement('button');
+      trigger.type = 'button';
+      trigger.className = 'km-custom-select__trigger';
+      trigger.setAttribute('aria-haspopup', 'listbox');
+      trigger.setAttribute('aria-expanded', 'false');
+      if (select.disabled) trigger.disabled = true;
+
+      const valueSpan = document.createElement('span');
+      valueSpan.className = 'km-custom-select__value';
+
+      const arrowSpan = document.createElement('span');
+      arrowSpan.className = 'km-custom-select__arrow';
+      arrowSpan.setAttribute('aria-hidden', 'true');
+      arrowSpan.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+
+      trigger.appendChild(valueSpan);
+      trigger.appendChild(arrowSpan);
+
+      const menu = document.createElement('div');
+      menu.className = 'km-custom-select__menu';
+      menu.setAttribute('role', 'listbox');
+      menu.tabIndex = -1;
+
+      const searchBox = document.createElement('div');
+      searchBox.className = 'km-custom-select__search-box';
+      searchBox.innerHTML = `
+        <svg class="km-custom-select__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" class="km-custom-select__search-input" placeholder="${searchPlaceholder}" autocomplete="off" spellcheck="false">
+      `;
+      const searchInput = searchBox.querySelector('input');
+
+      const list = document.createElement('div');
+      list.className = 'km-custom-select__list';
+
+      const emptyMsg = document.createElement('div');
+      emptyMsg.className = 'km-custom-select__no-results';
+      emptyMsg.textContent = noResultsText;
+      emptyMsg.hidden = true;
+
+      menu.appendChild(searchBox);
+      menu.appendChild(list);
+      menu.appendChild(emptyMsg);
+
+      select.parentNode.insertBefore(wrapper, select);
+      wrapper.appendChild(select);
+      wrapper.appendChild(trigger);
+      wrapper.appendChild(menu);
+
+      function renderOptions() {
+        list.innerHTML = '';
+        const options = Array.from(select.options);
+        searchBox.hidden = options.length <= 6;
+
+        let selectedText = '';
+        let hasValue = false;
+
+        options.forEach(opt => {
+          const optDiv = document.createElement('div');
+          optDiv.className = 'km-custom-select__option';
+          optDiv.setAttribute('role', 'option');
+          optDiv.dataset.value = opt.value;
+          optDiv.tabIndex = 0;
+          const isSelected = opt.selected || (!select.value && !opt.value);
+          if (isSelected) {
+            optDiv.classList.add('is-selected');
+            optDiv.setAttribute('aria-selected', 'true');
+            selectedText = opt.text;
+            hasValue = Boolean(opt.value);
+          } else {
+            optDiv.setAttribute('aria-selected', 'false');
+          }
+
+          const textSpan = document.createElement('span');
+          textSpan.className = 'km-custom-select__opt-text';
+          textSpan.textContent = opt.text;
+
+          const checkSpan = document.createElement('span');
+          checkSpan.className = 'km-custom-select__opt-check';
+          checkSpan.setAttribute('aria-hidden', 'true');
+          checkSpan.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+          optDiv.appendChild(textSpan);
+          optDiv.appendChild(checkSpan);
+
+          function chooseOption() {
+            if (select.value !== opt.value) {
+              select.value = opt.value;
+              select.dispatchEvent(new Event('change', { bubbles: true }));
+              select.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            updateSelection();
+            close();
+            trigger.focus();
+          }
+
+          optDiv.addEventListener('click', (e) => {
+            e.stopPropagation();
+            chooseOption();
+          });
+
+          optDiv.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              chooseOption();
+            }
+          });
+
+          list.appendChild(optDiv);
+        });
+
+        if (!selectedText && select.selectedIndex >= 0) {
+          selectedText = select.options[select.selectedIndex]?.text || '';
+          hasValue = Boolean(select.value);
+        }
+
+        valueSpan.textContent = selectedText || '—';
+        valueSpan.classList.toggle('is-placeholder', !hasValue);
+      }
+
+      function updateSelection() {
+        const curVal = select.value;
+        let selectedText = '';
+        let hasValue = false;
+
+        list.querySelectorAll('.km-custom-select__option').forEach(optDiv => {
+          const match = optDiv.dataset.value === curVal;
+          optDiv.classList.toggle('is-selected', match);
+          optDiv.setAttribute('aria-selected', match ? 'true' : 'false');
+          if (match) {
+            selectedText = optDiv.querySelector('.km-custom-select__opt-text')?.textContent || '';
+            hasValue = Boolean(curVal);
+          }
+        });
+
+        if (!selectedText && select.selectedIndex >= 0) {
+          selectedText = select.options[select.selectedIndex]?.text || '';
+          hasValue = Boolean(curVal);
+        }
+
+        valueSpan.textContent = selectedText || '—';
+        valueSpan.classList.toggle('is-placeholder', !hasValue);
+      }
+
+      function open() {
+        if (select.disabled || wrapper.classList.contains('is-disabled')) return;
+        document.querySelectorAll('.km-custom-select.is-open').forEach(other => {
+          if (other !== wrapper) {
+            other.classList.remove('is-open');
+            other.querySelector('.km-custom-select__trigger')?.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        const rect = trigger.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const openUpwards = spaceBelow < 280 && rect.top > 280;
+        wrapper.classList.toggle('opens-up', openUpwards);
+
+        wrapper.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+
+        searchInput.value = '';
+        filterOptions('');
+        if (!searchBox.hidden) {
+          setTimeout(() => searchInput.focus(), 50);
+        }
+
+        const selectedOpt = list.querySelector('.km-custom-select__option.is-selected');
+        if (selectedOpt) {
+          selectedOpt.scrollIntoView({ block: 'nearest' });
+        }
+      }
+
+      function close() {
+        wrapper.classList.remove('is-open');
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+
+      function filterOptions(query) {
+        const q = query.trim().toLowerCase();
+        let matchCount = 0;
+        list.querySelectorAll('.km-custom-select__option').forEach(optDiv => {
+          const txt = (optDiv.querySelector('.km-custom-select__opt-text')?.textContent || '').toLowerCase();
+          const match = !q || txt.includes(q);
+          optDiv.hidden = !match;
+          if (match) matchCount++;
+        });
+        emptyMsg.hidden = matchCount > 0;
+      }
+
+      searchInput.addEventListener('input', () => {
+        filterOptions(searchInput.value);
+      });
+
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (wrapper.classList.contains('is-open')) close();
+        else open();
+      });
+
+      trigger.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          open();
+        } else if (e.key === 'Escape') {
+          close();
+        }
+      });
+
+      menu.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          close();
+          trigger.focus();
+        } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          const visible = Array.from(list.querySelectorAll('.km-custom-select__option:not([hidden])'));
+          if (!visible.length) return;
+          const focused = document.activeElement;
+          let idx = visible.indexOf(focused);
+          if (e.key === 'ArrowDown') {
+            idx = idx < visible.length - 1 ? idx + 1 : 0;
+          } else {
+            idx = idx > 0 ? idx - 1 : visible.length - 1;
+          }
+          visible[idx].focus();
+        }
+      });
+
+      select.addEventListener('change', updateSelection);
+      select.addEventListener('input', updateSelection);
+      select.addEventListener('km:subcategory-rebuilt', () => {
+        renderOptions();
+        wrapper.classList.toggle('is-disabled', select.disabled);
+        trigger.disabled = select.disabled;
+      });
+
+      const observer = new MutationObserver(() => {
+        const dis = select.disabled;
+        wrapper.classList.toggle('is-disabled', dis);
+        trigger.disabled = dis;
+        renderOptions();
+      });
+      observer.observe(select, { attributes: true, attributeFilter: ['disabled'], childList: true });
+
+      renderOptions();
+    }
+
+    const selectElements = root.querySelectorAll('select:not([data-pc-section-select])');
+    selectElements.forEach(enhance);
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.km-custom-select')) {
+        document.querySelectorAll('.km-custom-select.is-open').forEach(w => {
+          w.classList.remove('is-open');
+          w.querySelector('.km-custom-select__trigger')?.setAttribute('aria-expanded', 'false');
+        });
+      }
+    });
+  }
+
+  function initKidsMapAgeSlider(rootForm) {
+    const ageRoot = rootForm.querySelector('.km-age-range-field');
+    if (!ageRoot) return;
+
+    const min = Number(ageRoot.dataset.min || 0);
+    const max = Number(ageRoot.dataset.max || 18);
+    const fromInput = ageRoot.querySelector('[data-range-from-input]');
+    const toInput = ageRoot.querySelector('[data-range-to-input]');
+    const fromRange = ageRoot.querySelector('[data-range-from-range]');
+    const toRange = ageRoot.querySelector('[data-range-to-range]');
+    const caption = ageRoot.querySelector('[data-range-caption]');
+    const openAgeCheckbox = ageRoot.querySelector('[data-pc-open-age]');
+    const openAgeHidden = rootForm.elements.namedItem('age_open_ended');
+
+    const lang = document.documentElement.lang || 'ru';
+    const yearsUnit = lang === 'az' ? 'yaş' : lang === 'en' ? 'years' : 'лет';
+    const fromPrefix = lang === 'az' ? '' : lang === 'en' ? 'from ' : 'от ';
+    const fromSuffix = lang === 'az' ? ' yaşdan' : '';
+
+    let lastExplicitTo = 18;
+
+    function clamp(val, fallback) {
+      if (val === '' || val === null || val === undefined) return fallback;
+      const n = Number(val);
+      if (!Number.isFinite(n)) return fallback;
+      return Math.min(max, Math.max(min, Math.round(n)));
+    }
+
+    if (toInput && toInput.value !== '') {
+      lastExplicitTo = clamp(toInput.value, 18);
+    }
+
+    function updateVisuals(a, b, isOpen) {
+      if (isOpen) {
+        ageRoot.classList.add('is-open-ended');
+        if (caption) {
+          caption.textContent = lang === 'az'
+            ? `${a}+${fromSuffix}`
+            : `${fromPrefix}${a} ${yearsUnit}`;
+        }
+        const fromPct = max > min ? ((a - min) / (max - min)) * 100 : 0;
+        ageRoot.style.setProperty('--from-pct', `${fromPct}%`);
+        ageRoot.style.setProperty('--to-pct', '100%');
+      } else {
+        ageRoot.classList.remove('is-open-ended');
+        if (caption) {
+          caption.textContent = `${a}–${b} ${yearsUnit}`;
+        }
+        const fromPct = max > min ? ((a - min) / (max - min)) * 100 : 0;
+        const toPct = max > min ? ((b - min) / (max - min)) * 100 : 100;
+        ageRoot.style.setProperty('--from-pct', `${fromPct}%`);
+        ageRoot.style.setProperty('--to-pct', `${toPct}%`);
+      }
+    }
+
+    function syncFromSliders(source) {
+      let a = clamp(fromRange.value, 0);
+      let b = clamp(toRange.value, 18);
+
+      if (source === 'to') {
+        lastExplicitTo = b;
+      } else if (source === 'toggle' && openAgeCheckbox && !openAgeCheckbox.checked) {
+        b = Math.max(a, lastExplicitTo);
+        toRange.value = b;
+      }
+
+      // Enforce: 'a' can never exceed 'b'
+      if (a > b) {
+        if (source === 'from') {
+          b = a;
+          toRange.value = b;
+          lastExplicitTo = b;
+        } else {
+          a = b;
+          fromRange.value = a;
+        }
+      }
+
+      const isOpen = Boolean(openAgeCheckbox && openAgeCheckbox.checked);
+      fromInput.value = String(a);
+      toInput.value = isOpen ? '' : String(b);
+      if (openAgeHidden) openAgeHidden.value = isOpen ? '1' : '';
+
+      updateVisuals(a, b, isOpen);
+
+      fromInput.dispatchEvent(new Event('input', { bubbles: true }));
+      toInput.dispatchEvent(new Event('input', { bubbles: true }));
+      updateMarkers();
+      updateStepProgress();
+    }
+
+    function syncFromInputs() {
+      const isOpen = Boolean((openAgeHidden && openAgeHidden.value === '1') || (openAgeCheckbox && openAgeCheckbox.checked));
+      if (openAgeCheckbox) openAgeCheckbox.checked = isOpen;
+      if (openAgeHidden) openAgeHidden.value = isOpen ? '1' : '';
+
+      let a = clamp(fromInput.value, 0);
+      let b = isOpen ? 18 : clamp(toInput.value, 18);
+      if (a > b && !isOpen) b = a;
+
+      fromRange.value = a;
+      toRange.value = b;
+      fromInput.value = String(a);
+      if (!isOpen) toInput.value = String(b);
+
+      updateVisuals(a, b, isOpen);
+    }
+
+    ['input', 'change'].forEach(evt => {
+      fromRange.addEventListener(evt, () => syncFromSliders('from'));
+      toRange.addEventListener(evt, () => syncFromSliders('to'));
+    });
+
+    if (openAgeCheckbox) {
+      openAgeCheckbox.addEventListener('change', () => {
+        syncFromSliders('toggle');
+        fromInput.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    }
+
+    fromInput.addEventListener('change', syncFromInputs);
+    toInput.addEventListener('change', syncFromInputs);
+
+    ageRoot._syncFromInputs = syncFromInputs;
+    syncFromInputs();
+  }
+
+  function initAudienceChoices(rootForm) {
+    const container = rootForm.querySelector('.km-audience-options');
+    if (!container) return;
+
+    const options = container.querySelectorAll('.km-audience-option');
+    const radios = container.querySelectorAll('input[type="radio"]');
+
+    function syncActive() {
+      options.forEach(opt => {
+        const radio = opt.querySelector('input[type="radio"]');
+        opt.classList.toggle('is-checked', Boolean(radio && radio.checked));
+      });
+    }
+
+    radios.forEach(radio => {
+      radio.addEventListener('change', syncActive);
+    });
+
+    options.forEach(opt => {
+      opt.addEventListener('click', () => {
+        const radio = opt.querySelector('input[type="radio"]');
+        if (radio && !radio.checked) {
+          radio.checked = true;
+          syncActive();
+          radio.dispatchEvent(new Event('input', { bubbles: true }));
+          radio.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    });
+
+    syncActive();
+  }
+
+  updatePreview(); updateMarkers(); updateStepProgress(); restore();
+  initKidsMapCustomSelects(form);
+  initKidsMapAgeSlider(form);
+  initAudienceChoices(form);
 })();

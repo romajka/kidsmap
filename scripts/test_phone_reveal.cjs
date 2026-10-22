@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {JSDOM} = require('../.tmp/phone-dom/node_modules/jsdom');
 const script = fs.readFileSync(path.join(__dirname, '../static/js/place_phone_reveal.js'), 'utf8');
-const contacts = {phones: [{number: '+994501234567', href: 'tel:+994501234567'}], whatsapp: 'https://wa.me/994501234567'};
+const contacts = {phones: [{number: '+994501234567', href: 'tel:+994501234567', display: '+994 50 123 45 67'}], whatsapp: 'https://wa.me/994501234567'};
 function setup(fetch) {
   const dom = new JSDOM(`<html lang="ru"><body>
     <div data-phone-config data-phone-endpoint="/api/places/0/phones/"><input name="csrfmiddlewaretoken" value="csrf-test"></div>
@@ -87,5 +87,41 @@ test('simultaneous controls share one request', async () => {
   assert.equal(calls, 1);
   resolve({ok: true, json: async () => contacts}); await settle();
   assert.equal(dom.window.document.querySelectorAll('a').length, 2);
+  dom.window.close();
+});
+
+test('WhatsApp-only contact reveals safely without creating a call link', async () => {
+  const dom = setup(async () => ({ok: true, json: async () => ({phones: [], whatsapp: 'https://wa.me/13104564918'})}));
+  const document=dom.window.document;
+  document.querySelector('[data-phone-whatsapp]').click(); await settle();
+  assert.equal(document.querySelectorAll('a[href^="tel:"]').length,0);
+  assert.equal(document.querySelector('a').getAttribute('href'),'https://wa.me/13104564918');
+  assert.equal(document.querySelectorAll('[data-phone-reveal]').length,0);
+  dom.window.close();
+});
+test('disabled WhatsApp never falls back to the first call number', async () => {
+  const dom = setup(async () => ({ok: true, json: async () => ({phones: contacts.phones, whatsapp: ''})}));
+  const document=dom.window.document;
+  document.querySelector('button').click(); await settle();
+  assert.equal(document.querySelector('a').getAttribute('href'),'tel:+994501234567');
+  assert.equal(document.querySelectorAll('[data-phone-whatsapp],a[href^="https://wa.me/"]').length,0);
+  dom.window.close();
+});
+test('unsafe response URL is rejected without actionable links', async () => {
+  const dom = setup(async () => ({ok: true, json: async () => ({phones: contacts.phones, whatsapp: 'https://evil.example/13104564918'})}));
+  const document=dom.window.document,button=document.querySelector('button');
+  button.click(); await settle();
+  assert.equal(document.querySelector('a'),null);
+  assert.equal(button.disabled,false);
+  assert.ok(document.querySelector('.km-phone-error'));
+  dom.window.close();
+});
+test('international display and canonical copy are supplied by server without local remasking', async () => {
+  const dom = setup(async () => ({ok: true, json: async () => ({phones: [{number:'+13104564918',href:'tel:+13104564918',display:'+1 310-456-4918'}],whatsapp:''})}));
+  const document=dom.window.document;
+  document.querySelector('button').click(); await settle();
+  assert.equal(document.querySelector('.km-phone-number').textContent,'+1 310-456-4918');
+  assert.equal(document.querySelector('[data-copy]').dataset.copy,'+13104564918');
+  assert.equal(document.querySelector('a').getAttribute('href'),'tel:+13104564918');
   dom.window.close();
 });

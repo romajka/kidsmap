@@ -896,7 +896,11 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "Как это работает")
         self.assertContains(response, "Добавить свое место")
         self.assertContains(response, "Частые вопросы о KidsMap")
-        self.assertContains(response, 'class="home-faq-popular"', html=False)
+        # Popular SEO links live beside search after removing the duplicate FAQ cloud.
+        self.assertRegex(
+            content,
+            r'<div\b[^>]*\bclass="(?:[^"]*\s)?home-search-popular-row(?:\s[^"]*)?"',
+        )
         self.assertContains(response, 'href="/ru/catalog/?category=EDU"', html=False)
         self.assertContains(response, "Курсы для детей в Азербайджане")
         self.assertContains(response, "Сравните варианты")
@@ -948,7 +952,7 @@ class TestPublicPagesSmoke(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "css/components/header.css?v=2", html=False)
-        self.assertContains(response, "js/place_phone_reveal.js?v=2", html=False)
+        self.assertContains(response, "js/place_phone_reveal.js?v=20261022_release_all_r1", html=False)
 
     @override_settings(
         DEBUG=False,
@@ -2591,6 +2595,8 @@ class TestCatalogEnhancements(TestCase):
                     "rating": 0.0,
                     "reviews_count": 0,
                     "has_phone": True,
+                    "has_whatsapp": True,
+                    "has_contact": True,
                     "schedule": "Bazar ertəsi, çərşənbə və cümə 15:00-17:00",
                 }
             ]
@@ -2601,6 +2607,9 @@ class TestCatalogEnhancements(TestCase):
             content_language=language_code, translation_label='')
         expected = [{**member, 'key': f'place:{matching_place.pk}', 'members': [member]}]
         self.assertEqual(response.context["catalog_map_places"], expected)
+        actual_member = response.context["catalog_map_places"][0]["members"][0]
+        self.assertNotIn("phone1", actual_member)
+        self.assertNotIn("whatsapp_url", actual_member)
 
     def test_catalog_map_serialization_includes_card_fields(self):
         self.maxDiff = None
@@ -2651,6 +2660,8 @@ class TestCatalogEnhancements(TestCase):
                     "rating": 4.6,
                     "reviews_count": 128,
                     "has_phone": True,
+                    "has_whatsapp": True,
+                    "has_contact": True,
                     "schedule": "Bazar ertəsi, çərşənbə və cümə 15:00-17:00",
                 }
             ]
@@ -2661,6 +2672,8 @@ class TestCatalogEnhancements(TestCase):
             content_language='az', translation_label='Текст на азербайджанском')
         expected = [{**member, 'key': f'place:{place.pk}', 'members': [member]}]
         self.assertEqual(serialized, expected)
+        self.assertNotIn("+994501234567", str(serialized))
+        self.assertNotIn("wa.me/", str(serialized))
 
     def test_az_place_detail_uses_translated_labels_and_duration(self):
         place = create_quality_place(

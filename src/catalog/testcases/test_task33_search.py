@@ -10,6 +10,7 @@ from django.db import connection
 from django.test import TestCase, RequestFactory
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
+from django.utils.html import strip_tags
 from django.urls import reverse
 from catalog.models import Activity, OfferingGroup, PricingPlan, Organization, Place, PlaceLike, Category
 from catalog.repositories.django_repositories import DjangoPlaceRepository
@@ -106,7 +107,9 @@ class ExactSearchTests(TestCase):
         html=render_to_string('catalog/includes/place_card.html',{'place':places[0]})
         self.assertIn('English younger group',html)
         self.assertNotIn('Drawing older',html)
-        self.assertNotIn('120',html)
+        self.assertIn(f'data-place-id="{self.place.pk}"', html)
+        # A numeric record ID in href/data attributes is not an unmatched price.
+        self.assertNotIn('120', strip_tags(html))
         self.assertNotIn('4–12',html)
 
     def test_batch_queries_do_not_grow_per_card(self):
@@ -244,3 +247,205 @@ class ExactSearchTests(TestCase):
         self.assertTrue(description)
         for promise in ('по цене','и цене','and price','və qiymət'):
             self.assertNotIn(promise,description)
+
+
+class AdaptiveCatalogPriceTests(TestCase):
+    """Public prices, open upper bounds, and the rendered catalog share one ceiling."""
+
+    def setUp(self):
+        from django.core.cache import cache
+        self.cache = cache
+        self.cache.delete("catalog:price_max:v1")
+        self.addCleanup(self.cache.delete, "catalog:price_max:v1")
+        self.place = create_quality_place(name_az="Adaptive Price Club")
+
+    def maximum(self):
+        from catalog.services import filtering
+        return filtering.get_catalog_max_price()
+
+    def filters(self, **params):
+        return PlaceListFilters.from_request(RequestFactory().get('/ru/catalog/', params))
+
+    def plan(self, amount='1360', *, place=None, group=None, **kwargs):
+        target = {'offering_group': group} if group else {'place': place or self.place}
+        return PricingPlan.objects.create(**target, product_type=kwargs.pop('product_type', 'lesson'),
+            price=Decimal(amount), **kwargs)
+
+    def group(self, **activity_kwargs):
+        activity = Activity.objects.create(place=self.place, status='published',
+            name_az='Adaptive lessons', **activity_kwargs)
+        return OfferingGroup.objects.create(activity=activity, name_az='Adaptive group',
+            age_from=6, age_to=12)
+
+    def test_catalog_max_price_decimal_rounding_and_legacy_fields(self):
+        from catalog.services import filtering
+        self.assertTrue(callable(getattr(filtering, 'get_catalog_max_price', None)))
+        for amount, expected in [('0',500), ('499.99',500), ('500',500),
+                ('500.01',550), ('1350',1350), ('1360',1400),
+                ('1950.01',2000), ('2000',2000), ('2000.01',2100), ('2100',2100)]:
+            for field in ('price_from','price_to','price_per_month','price_per_lesson'):
+                with self.subTest(amount=amount, field=field):
+                    values = dict.fromkeys(('price_from','price_to','price_per_month','price_per_lesson'), None)
+                    values[field] = Decimal(amount)
+                    # Preserve public visibility even when the price is zero or missing.
+                    values['price_mode'] = Place.PRICE_MODE_FREE_ENTRY
+                    Place.objects.filter(pk=self.place.pk).update(**values)
+                    self.cache.delete('catalog:price_max:v1')
+                    self.assertEqual(self.maximum(), expected)
+
+    def test_catalog_max_price_empty_catalog(self):
+        Place.objects.filter(pk=self.place.pk).update(is_active=False)
+        self.assertEqual(self.maximum(), 500)
+
+    def test_non_price_filters_do_not_aggregate_catalog_price_ceiling(self):
+        for params, expected in [({}, (None, None)),
+                ({'q': 'judo'}, (None, None)),
+                ({'price_from': 'bad', 'price_to': 'bad'}, (None, None)),
+                ({'price_from': '500'}, (500, None))]:
+            with self.subTest(params=params):
+                self.cache.delete('catalog:price_max:v1')
+                with CaptureQueriesContext(connection) as queries:
+                    filters = self.filters(**params)
+                    bounds = filters._normalized_price_bounds()
+                self.assertEqual(bounds, expected)
+                self.assertFalse(any('MAX(' in query['sql'] for query in queries))
+
+    def test_direct_group_and_range_prices_override_stale_scalars(self):
+        direct = self.plan('1360')
+        Place.objects.filter(pk=self.place.pk).update(price_to=Decimal('9000'))
+        self.assertEqual(self.maximum(), 1400)
+        direct.delete()
+        self.plan('1800', group=self.group())
+        self.cache.delete('catalog:price_max:v1')
+        self.assertEqual(self.maximum(), 1800)
+
+    def test_group_range_and_from_prices(self):
+        group = self.group()
+        plan = PricingPlan.objects.create(offering_group=group, product_type='lesson',
+            price_kind='range', price_min=Decimal('1300'), price_max=Decimal('2000.01'))
+        self.assertEqual(self.maximum(), 2100)
+        PricingPlan.objects.filter(pk=plan.pk).update(price_kind='from',
+            price_min=Decimal('1360'), price_max=None)
+        self.cache.delete('catalog:price_max:v1')
+        self.assertEqual(self.maximum(), 1400)
+
+    def test_hidden_places_and_ineligible_tariffs_do_not_raise_maximum(self):
+        self.plan('1360')
+        for overrides in ({'is_active':False}, {'status':'draft'},
+                {'deleted_at':timezone.now()}, {'address':''}):
+            hidden = create_quality_place(**overrides)
+            self.plan('9000', place=hidden)
+        for overrides in ({'is_active':False}, {'is_trial':True},
+                {'charge_role':'addon', 'product_type':'addon'}, {'currency':'USD'}):
+            self.plan('9000', **overrides)
+        for archive in ('activity_draft', 'activity_archived', 'group_archived'):
+            group = self.group()
+            self.plan('9000', group=group)
+            if archive == 'activity_draft':
+                Activity.objects.filter(pk=group.activity_id).update(status='draft')
+            elif archive == 'activity_archived':
+                Activity.objects.filter(pk=group.activity_id).update(archived_at=timezone.now())
+            else:
+                OfferingGroup.objects.filter(pk=group.pk).update(archived_at=timezone.now())
+        self.assertEqual(self.maximum(), 1400)
+
+    def test_maximum_cache_hit_ttl_and_refresh(self):
+        from unittest.mock import patch
+        self.plan('1360')
+        with patch('catalog.services.filtering.cache.set', wraps=self.cache.set) as setter:
+            with CaptureQueriesContext(connection) as queries:
+                self.assertEqual(self.maximum(), 1400)
+            # Public visibility also reads the existing feature-settings singleton.
+            self.assertEqual(sum('MAX(' in query['sql'] for query in queries), 2)
+            setter.assert_called_once_with('catalog:price_max:v1', 1400, timeout=300)
+        with self.assertNumQueries(0):
+            self.assertEqual(self.maximum(), 1400)
+        self.plan('2000.01')
+        self.assertEqual(self.maximum(), 1400)
+        self.cache.delete('catalog:price_max:v1')
+        self.assertEqual(self.maximum(), 2100)
+
+    def test_adaptive_neutral_open_and_bounded_ranges(self):
+        self.plan('1360')
+        neutral = self.filters(price_from='0', price_to='1400')
+        self.assertEqual(neutral._normalized_price_bounds(), (None,None))
+        self.assertEqual((neutral.selected()['price_from'], neutral.selected()['price_to']), ('',''))
+        opened = self.filters(price_from='500', price_to='1400')
+        self.assertEqual(opened._normalized_price_bounds(), (500,None))
+        self.assertEqual((opened.selected()['price_from'], opened.selected()['price_to']), ('500',''))
+        self.assertIn(self.place.pk, opened.apply(DjangoPlaceRepository().active_queryset()).values_list('pk',flat=True))
+        bounded = self.filters(price_from='0', price_to='500')
+        self.assertEqual(bounded._normalized_price_bounds(), (None,500))
+        self.assertNotIn(self.place.pk, bounded.apply(DjangoPlaceRepository().active_queryset()).values_list('pk',flat=True))
+
+    def test_alias_reversed_and_malformed_bounds(self):
+        self.plan('1360')
+        for params, expected in [({'price_max':'500'},(None,500)),
+                ({'price_max':'1400'},(None,None)), ({'price_max':'1800'},(None,None)),
+                ({'price_max':'1400','price_to':'500'},(None,500)),
+                ({'price_from':'1400','price_to':'500'},(500,None)),
+                ({'price_from':'bad','price_to':'bad'},(None,None)),
+                ({'price_from':'500','price_to':'2000'},(500,None))]:
+            with self.subTest(params=params):
+                self.assertEqual(self.filters(**params)._normalized_price_bounds(), expected)
+
+    def test_cached_ceiling_does_not_cut_new_expensive_offer_and_snapshot_is_stable(self):
+        self.plan('1360')
+        opened = self.filters(price_from='500', price_to='1400')
+        self.assertEqual(opened._normalized_price_bounds(), (500,None))
+        expensive = create_quality_place(name_az='Later Expensive Club')
+        self.plan('1800', place=expensive)
+        self.assertIn(expensive.pk, opened.apply(DjangoPlaceRepository().active_queryset()).values_list('pk',flat=True))
+        self.cache.set('catalog:price_max:v1', 2000)
+        self.assertEqual(opened.catalog_price_max, 1400)
+        self.assertEqual(opened.selected()['price_to'], '')
+
+    def test_price_keeps_matching_same_group(self):
+        art = Category.objects.get(code='ART')
+        low = self.group()
+        low.activity.program_snapshot={'category_id':art.pk}
+        low.activity.save(update_fields=['program_snapshot'])
+        self.plan('100', group=low)
+        other = self.group()
+        other.activity.program_snapshot={'category_id':Category.objects.get(code='EDU').pk}
+        other.activity.save(update_fields=['program_snapshot'])
+        self.plan('1360', group=other)
+        result = self.filters(category='ART', age='8', price_from='500', price_to='1400')
+        self.assertNotIn(self.place.pk, result.apply(DjangoPlaceRepository().active_queryset()).values_list('pk',flat=True))
+
+    def test_controller_context_neutral_url_and_open_chip(self):
+        from catalog.controllers.place_controller import PlaceController
+        controller = PlaceController.build_default()
+        self.plan('1360')
+        for lang, phrase in [('ru','от 500'),('en','from 500'),('az','500 ₼-dən')]:
+            with self.subTest(lang=lang):
+                response=self.client.get('/'+lang+'/catalog/', {'price_from':'500','price_to':'1400'}, follow=True)
+                self.assertEqual(response.status_code,200)
+                self.assertEqual(response.context['catalog_price_max'],1400)
+                self.assertContains(response,'data-max="1400"')
+                self.assertContains(response,' max="1400"',count=2)
+                self.assertContains(response,phrase)
+                request = RequestFactory().get('/'+lang+'/catalog/', {'price_from':'500','price_to':'1400'})
+                self.assertEqual(controller.build_normalized_list_query(request), 'price_from=500')
+                self.assertEqual(response.context['query_without_page'],'price_from=500')
+                self.assertEqual(len(response.context['active_filter_chips']),1)
+                self.assertNotIn('price_',response.context['active_filter_chips'][0]['remove_url'])
+        neutral=self.client.get('/ru/catalog/',{'price_from':'0','price_to':'1400'},follow=True)
+        self.assertEqual(neutral.status_code,200)
+        self.assertEqual(neutral.context['query_without_page'],'')
+        self.assertEqual(neutral.context['active_filter_chips'],[])
+        request = RequestFactory().get('/ru/catalog/', {'price_from':'0','price_to':'1400'})
+        self.assertEqual(controller.build_normalized_list_query(request), '')
+        bounded=self.client.get('/ru/catalog/',{'price_from':'0','price_to':'500'},follow=True)
+        self.assertEqual(bounded.context['selected']['price_to'],'500')
+        self.assertIn('price_to=500',bounded.context['query_without_page'])
+
+    def test_request_reuses_one_ceiling_across_controller_parses(self):
+        self.plan('1360')
+        request = RequestFactory().get('/ru/catalog/', {'price_from':'500','price_to':'1400'})
+        first = PlaceListFilters.from_request(request)
+        self.cache.set('catalog:price_max:v1', 2000)
+        second = PlaceListFilters.from_request(request)
+        self.assertEqual(first.catalog_price_max, 1400)
+        self.assertEqual(second.catalog_price_max, 1400)
+        self.assertEqual(second.selected()['price_to'], '')

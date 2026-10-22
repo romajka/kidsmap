@@ -3397,14 +3397,14 @@ class TestAdminSidebarStructure(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'km-admin-sidebar__access-card')
-        self.assertContains(response, "Постоянные места")
-        self.assertContains(response, "Временные мероприятия")
+        self.assertContains(response, "Места")
+        self.assertContains(response, "Мероприятия")
         self.assertContains(response, "Специалисты")
         self.assertContains(response, "Места на проверке")
         self.assertContains(response, "Мероприятия на проверке")
         self.assertContains(response, "Специалисты на проверке")
-        self.assertContains(response, "Добавить администратора")
-        self.assertContains(response, "Список администраторов")
+        self.assertContains(response, "Администраторы")
+        self.assertNotContains(response, "Список администраторов")
         self.assertContains(response, 'href="/admin/catalog/place/?is_temporary__exact=0"', html=False)
         self.assertContains(response, 'href="/admin/catalog/event/"', html=False)
         self.assertContains(response, 'href="/admin/catalog/specialist/"', html=False)
@@ -3412,7 +3412,7 @@ class TestAdminSidebarStructure(TestCase):
         self.assertContains(response, 'href="/admin/catalog_moderation/moderationevent/"', html=False)
         self.assertContains(response, 'href="/admin/catalog_moderation/moderationspecialist/"', html=False)
         self.assertContains(response, 'href="/admin/catalog_moderation/moderationreview/"', html=False)
-        self.assertContains(response, 'href="/admin/catalog/staffaccessuser/add/"', html=False)
+        self.assertNotContains(response, 'href="/admin/catalog/staffaccessuser/add/" class="km-admin-sidebar__link', html=False)
         self.assertContains(response, 'href="/admin/catalog/staffaccessuser/"', html=False)
         self.assertContains(response, '>2</span>', html=False)
         self.assertContains(response, 'class="km-admin-sidebar__badge" aria-label="0">0</span>', html=False)
@@ -3517,7 +3517,7 @@ class TestAdminSidebarStructure(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            'href="/admin/catalog/staffaccessuser/add/" class="km-admin-sidebar__link"',
+            'href="/admin/catalog/staffaccessuser/add/"',
             html=False,
         )
         self.assertContains(
@@ -3531,12 +3531,12 @@ class TestAdminSidebarStructure(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            'href="/admin/catalog/staffaccessuser/add/" class="km-admin-sidebar__link is-active"',
+            'href="/admin/catalog/staffaccessuser/" class="km-admin-sidebar__link is-active"',
             html=False,
         )
-        self.assertContains(
+        self.assertNotContains(
             response,
-            'href="/admin/catalog/staffaccessuser/" class="km-admin-sidebar__link"',
+            'href="/admin/catalog/staffaccessuser/add/" class="km-admin-sidebar__link',
             html=False,
         )
 

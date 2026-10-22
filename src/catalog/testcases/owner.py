@@ -246,18 +246,27 @@ class TestOwnerPhoneValidation(TestCase):
 
         self.assertEqual(form.clean_phone1(), "+994551234567")
 
-    def test_owner_place_create_form_accepts_possible_azerbaijan_contact_phone(self):
+    def test_owner_place_create_form_rejects_possible_but_invalid_azerbaijan_phone(self):
         form = OwnerPlaceCreateForm()
         form.cleaned_data = {"phone1": "+994 66 666 66 66"}
 
-        self.assertEqual(form.clean_phone1(), "+994666666666")
+        with self.assertRaises(ValidationError) as caught:
+            form.clean_phone1()
+        self.assertEqual(caught.exception.code, "invalid_phone")
 
-    def test_owner_place_create_form_rejects_non_azerbaijan_phone(self):
+    def test_owner_place_create_form_accepts_explicit_international_phone(self):
         form = OwnerPlaceCreateForm()
         form.cleaned_data = {"phone1": "+1 202 555 0100"}
 
-        with self.assertRaisesMessage(ValidationError, "+994 50 123 45 67"):
-            form.clean_phone1()
+        self.assertEqual(form.clean_phone1(), "+12025550100")
+
+    def test_owner_place_create_form_rejects_truncated_or_excessively_long_phone(self):
+        form = OwnerPlaceCreateForm()
+        for raw in ("+994 13 104 56 49", "+1 310 456 49180000", "not a phone"):
+            with self.subTest(raw=raw):
+                form.cleaned_data = {"phone1": raw}
+                with self.assertRaises(ValidationError):
+                    form.clean_phone1()
 
 class TestOwnerPlaceManagementAndPermissions(TestCase):
     def setUp(self):

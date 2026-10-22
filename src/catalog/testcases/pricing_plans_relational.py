@@ -97,16 +97,16 @@ class RelationalPricingPlanTests(TestCase):
         self.assertEqual(summary["min_price"], Decimal("100"))
         self.assertEqual(summary["label"], "100 USD")
 
-    def test_legacy_budget_parameters_do_not_filter_incomparable_tariffs(self):
+    def test_budget_bounds_and_legacy_price_max_alias_filter_tariffs(self):
         replace_place_pricing_plans(self.place, [{"product_type": "lesson", "price_kind": "exact", "price": 80}])
         queryset = PlaceListFilters(price_from="70", price_to="90").apply(Place.objects.all())
         self.assertIn(self.place, queryset)
         queryset = PlaceListFilters(price_from="0", price_to="50").apply(Place.objects.all())
-        self.assertIn(self.place, queryset)
+        self.assertNotIn(self.place, queryset)
         filters = PlaceListFilters(price_max="1", sort="price_asc")
-        self.assertIn(self.place, filters.apply(Place.objects.all()))
+        self.assertNotIn(self.place, filters.apply(Place.objects.all()))
         self.assertEqual(filters.sort, "new")
-        self.assertEqual(filters.selected()["price_to"], "")
+        self.assertEqual(filters.selected()["price_to"], "1")
 
     def test_full_ui_ranges_are_treated_as_unfiltered(self):
         request = RequestFactory().get("/catalog/", {

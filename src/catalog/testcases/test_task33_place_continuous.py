@@ -67,7 +67,7 @@ class ContinuousPlaceFormTests(TestCase):
         contact = next(item for item in summary['items'] if item['code'] == 'phone')
         self.assertTrue(contact['complete'])
         self.assertTrue(contact['config']['optional'])
-        self.assertEqual(contact['config']['fields'], ['phone1', 'phone2', 'phone3', 'website'])
+        self.assertEqual(contact['config']['fields'], ['phone1', 'phone2', 'phone3', 'website', 'whatsapp_number'])
 
     def test_admin_displayed_readiness_counts_saved_group_prices(self):
         from django.contrib import admin
@@ -96,7 +96,7 @@ class ContinuousPlaceFormTests(TestCase):
         self.assertContains(response, 'data-target-id=')
         self.assertEqual(response.content.count(b'data-place-section='), 4)
 
-    def test_edit_displays_candidate_nature_and_saved_gallery_without_changing_live(self):
+    def test_edit_hides_candidate_nature_and_preserves_saved_gallery_without_changing_live(self):
         from catalog.forms import OwnerPlaceEditForm
         from catalog.testcases.utils import ensure_quality_subcategory
         ensure_quality_subcategory('EDU')
@@ -106,7 +106,8 @@ class ContinuousPlaceFormTests(TestCase):
                 {'id': None, 'image': 'places/qa-candidate.webp', 'caption': '', 'order': 0},
             ]})
         form = OwnerPlaceEditForm(instance=self.place)
-        self.assertEqual(form['nature'].value(), 'public_space')
+        self.assertNotIn('nature', form.fields)
+        self.assertEqual(VolunteerPlaceRevision.objects.get(place=self.place).payload['nature'], 'public_space')
         self.assertEqual(form.saved_gallery_preview[0]['image'], 'places/qa-candidate.webp')
         self.place.refresh_from_db()
         self.assertEqual(self.place.nature, original_nature)
@@ -114,12 +115,14 @@ class ContinuousPlaceFormTests(TestCase):
     def test_public_space_can_submit_without_organization_photo_coordinates_or_contact(self):
         import json
         from catalog.testcases.utils import ensure_quality_subcategory
-        subcategory = ensure_quality_subcategory('EDU')
+        from catalog.models import Category, Subcategory
+        category, _ = Category.objects.get_or_create(code='parks-playgrounds', defaults={'name': 'Parks'})
+        subcategory, _ = Subcategory.objects.get_or_create(category=category, code='parks-boulevards', defaults={'name': 'Public parks'})
         response = self.client.post(reverse('owner_place_create'), {
             'form_action': 'save_and_publish',
             'name_az': 'Yeni ictimai park',
             'description_az': 'Uşaqlar üçün açıq oyun sahəsi və ailələrin rahat gəzintisi üçün park.',
-            'category': 'EDU', 'subcategory': str(subcategory.pk),
+            'category': category.pk, 'subcategory': str(subcategory.pk),
             'nature': 'public_space', 'age_from': '0', 'age_to': '18',
             'region': 'baku', 'district': 'baku_yasamal', 'address': 'Bakı, park girişi',
             'schedule_mode': 'always_open',
@@ -130,7 +133,7 @@ class ContinuousPlaceFormTests(TestCase):
         created = Place.objects.exclude(pk=self.place.pk).get()
         candidate = VolunteerPlaceRevision.objects.get(place=created).payload
         self.assertEqual(candidate['name_az'], 'Yeni ictimai park')
-        self.assertEqual(candidate['nature'], 'public_space')
+        self.assertNotIn('nature', candidate)
         self.assertFalse(candidate.get('photo'))
         self.assertIsNone(candidate.get('lat'))
         self.assertIsNone(created.organization_id)
@@ -161,13 +164,15 @@ class ContinuousPlaceFormTests(TestCase):
     def test_three_direct_plans_keep_distinct_price_rows_without_activity(self):
         import json
         from catalog.testcases.utils import ensure_quality_subcategory
-        subcategory = ensure_quality_subcategory('EDU')
+        from catalog.models import Category, Subcategory
+        category, _ = Category.objects.get_or_create(code='parks-playgrounds', defaults={'name': 'Parks'})
+        subcategory, _ = Subcategory.objects.get_or_create(category=category, code='parks-boulevards', defaults={'name': 'Public parks'})
         plans = [{'product_type':'admission','price_kind':'exact','price':str(amount),'is_active':True,
                   'title_az':title} for amount,title in ((5,'Uşaq'),(10,'Ailə'),(15,'Qrup'))]
         response = self.client.post(reverse('owner_place_create'), {
             'form_action':'save_and_publish','name_az':'Ümumi biletli park',
             'description_az':'Uşaqlar üçün böyük açıq park və ümumi giriş biletləri.',
-            'nature':'public_space','category':'EDU','subcategory':str(subcategory.pk),
+            'nature':'public_space','category':category.pk,'subcategory':str(subcategory.pk),
             'age_from':'0','age_to':'18','region':'baku','district':'baku_yasamal',
             'address':'Bakı, park yolu 1','schedule_mode':'always_open','pricing_plans':json.dumps(plans),
         })

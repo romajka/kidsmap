@@ -6,6 +6,7 @@ from django.db import transaction
 from django.core.exceptions import ValidationError, PermissionDenied
 
 from catalog.models import Category, Place
+from catalog.services.phone_numbers import normalize_phone, normalize_whatsapp
 
 
 class Command(BaseCommand):
@@ -125,6 +126,24 @@ class Command(BaseCommand):
             "name": clean(row.get("name_ru")) or clean(row.get("name_en")) or clean(row.get("name_az")),
 
         }
+
+        region = clean(row.get("phone_country")) or "AZ"
+        try:
+            for name in ("phone1", "phone2", "phone3"):
+                if name in row:
+                    data[name] = normalize_phone(clean(row.get(name)), default_region=region)
+            if "phone_country" in row:
+                data["phone_country"] = region.upper()
+            if "whatsapp_number" in row or "whatsapp" in row:
+                data["whatsapp_number"] = normalize_whatsapp(clean(row.get("whatsapp_number") or row.get("whatsapp")), default_region=region)
+                if "whatsapp_mode" not in row:
+                    data["whatsapp_mode"] = "separate" if data["whatsapp_number"] else "none"
+            if "whatsapp_mode" in row:
+                data["whatsapp_mode"] = clean(row.get("whatsapp_mode"))
+                if data["whatsapp_mode"] not in {"legacy", "same", "separate", "none"}:
+                    raise ValueError("unknown whatsapp_mode")
+        except ValidationError as exc:
+            raise ValueError("invalid phone or WhatsApp contact") from exc
 
         if not data["category"]:
             raise ValueError("category is required")

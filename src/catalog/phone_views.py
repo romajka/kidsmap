@@ -1,6 +1,5 @@
 import hashlib
 from ipaddress import ip_address
-import re
 
 from django.conf import settings
 from django.core.cache import cache
@@ -42,16 +41,8 @@ def reveal_place_phones(request, pk):
         response['Retry-After'] = str(window)
         return response
     place = get_object_or_404(published_place_queryset(Place.objects.all()), pk=pk)
-    phones = []
-    from catalog.services.public_presentation import contact_data
+    from catalog.services.public_presentation import contact_data, revealed_contacts
     contacts = contact_data(place)
-    for number in contacts["phones"]:
-        digits = re.sub(r'[^0-9]', '', number)
-        if digits:
-            phones.append({'number': number, 'href': 'tel:' + ('+' if number.strip().startswith('+') else '') + digits})
-    if not phones:
+    if not contacts['has_contact']:
         return JsonResponse({'error': 'no_phone'}, status=404)
-    whatsapp = re.sub(r'[^0-9]', '', phones[0]['number'])
-    if whatsapp.startswith('0'):
-        whatsapp = '994' + whatsapp[1:]
-    return JsonResponse({'phones': phones, 'whatsapp': contacts['whatsapp_url'] or 'https://wa.me/' + whatsapp})
+    return JsonResponse(revealed_contacts(contacts))

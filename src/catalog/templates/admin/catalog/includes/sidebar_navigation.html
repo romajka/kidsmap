@@ -43,12 +43,12 @@
                                 <li class="km-admin-sidebar__entry km-admin-sidebar__entry--dashboard">
                                     <a href="{{ admin_index_url }}"
                                         class="km-admin-sidebar__link{% if request.path == admin_index_url %} is-active{% endif %}"
-                                        title="{% trans 'Панель управления' %}">
+                                        title="{% trans 'Обзор' %}"{% if request.path == admin_index_url %} aria-current="page"{% endif %}>
                                         <span class="km-admin-sidebar__icon-wrap">
                                             <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-dashboard"></use></svg>
                                         </span>
                                         <span class="km-admin-sidebar__text">
-                                            <span class="km-admin-sidebar__label">{% trans 'Панель управления' %}</span>
+                                            <span class="km-admin-sidebar__label">{% trans 'Обзор' %}</span>
                                         </span>
                                     </a>
                                 </li>
@@ -71,6 +71,12 @@
                                                 <span class="km-admin-sidebar__label">{{ section.label }}</span>
                                             </span>
                                         </span>
+                                        {% if section.has_pending %}
+                                        <span class="km-admin-sidebar__pending" title="{% trans 'Есть задачи на проверку' %}">
+                                            <span aria-hidden="true">●</span>
+                                            <span class="sr-only">{% trans 'Есть задачи на проверку' %}</span>
+                                        </span>
+                                        {% endif %}
                                         <span class="km-admin-sidebar__chevron" aria-hidden="true">
                                             <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-expand_more"></use></svg>
                                         </span>
@@ -81,7 +87,7 @@
                                         <ul class="km-admin-sidebar__sublist" role="list">
                                             {% for item in section.items %}
                                             <li class="km-admin-sidebar__entry">
-                                                <a href="{{ item.url }}" class="km-admin-sidebar__link{% if item.active %} is-active{% endif %}" title="{{ item.label }}"{% if item.active %} aria-current="page"{% endif %}>
+                                                <a href="{{ item.url }}" class="km-admin-sidebar__link{% if item.active %} is-active{% endif %}"{% if item.active %} aria-current="page"{% endif %}>
                                                     <span class="km-admin-sidebar__icon-wrap">
                                                         <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-{{ item.icon|navigation_icon }}"></use></svg>
                                                     </span>

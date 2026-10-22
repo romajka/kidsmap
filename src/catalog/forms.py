@@ -249,73 +249,14 @@ def _azerbaijan_phone_error() -> ValidationError:
 
 
 def _format_azerbaijan_phone_for_input(value: str) -> str:
-    normalized = _normalize_azerbaijan_phone_candidate(value)
-    if not normalized:
-        return ""
-
-    if phonenumbers is not None:
-        try:
-            parsed = phonenumbers.parse(normalized, "AZ")
-        except NumberParseException:
-            parsed = None
-        if parsed and parsed.country_code == 994 and phonenumbers.is_possible_number(parsed):
-            return phonenumbers.format_number(parsed, PhoneNumberFormat.INTERNATIONAL)
-
-    digits = "".join(char for char in normalized if char.isdigit())
-    if digits.startswith("994"):
-        national = digits[3:]
-    elif digits.startswith("0"):
-        national = digits[1:]
-    else:
-        national = digits
-
-    national = national[:9]
-    if not national:
-        return ""
-
-    chunks = []
-    for start, end in ((0, 2), (2, 5), (5, 7), (7, 9)):
-        part = national[start:end]
-        if part:
-            chunks.append(part)
-    return "+994 " + " ".join(chunks)
+    # Backward-compatible import name; contact formatting is international.
+    from catalog.services.phone_numbers import format_phone
+    return format_phone(value)
 
 
 def _validate_azerbaijan_phone(value: str, *, required: bool = False) -> str:
-    normalized = _normalize_azerbaijan_phone_candidate(value)
-    if not normalized:
-        if required:
-            language = (get_language() or "ru").split("-")[0]
-            if language == "az":
-                raise ValidationError("Telefon nömrəsini daxil edin.")
-            if language == "en":
-                raise ValidationError("Enter the phone number.")
-            raise ValidationError(_("Укажите номер телефона."))
-        return ""
-
-    if phonenumbers is not None:
-        try:
-            parsed = phonenumbers.parse(normalized, "AZ")
-        except NumberParseException as exc:
-            raise _azerbaijan_phone_error() from exc
-        if parsed.country_code != 994:
-            raise _azerbaijan_phone_error()
-        national = str(parsed.national_number)
-        if len(national) != 9 or not national.isdigit() or not phonenumbers.is_possible_number(parsed):
-            raise _azerbaijan_phone_error()
-        return f"+994{national}"
-
-    digits = "".join(char for char in normalized if char.isdigit())
-    if digits.startswith("994"):
-        national = digits[3:]
-    elif digits.startswith("0"):
-        national = digits[1:]
-    else:
-        national = digits
-
-    if len(national) != 9 or not national.isdigit():
-        raise _azerbaijan_phone_error()
-    return f"+994{national}"
+    from catalog.services.phone_numbers import normalize_phone
+    return normalize_phone(value, required=required)
 
 
 def _build_registration_username(email: str) -> str:
@@ -1040,12 +981,10 @@ class PlainMultipleImageInput(forms.ClearableFileInput):
     allow_multiple_selected = True
 
 
-class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
-    nature = forms.ChoiceField(
-        required=False,
-        choices=(("business", _("Бизнес")), ("public_space", _("Общественное место"))),
-        widget=forms.Select(attrs={"class": "field"}),
-    )
+from catalog.services.phone_forms import ContactPhoneFormMixin
+
+
+class OwnerPlaceEditForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, forms.ModelForm):
     delete_gallery_ids = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple())
     gallery_order = forms.JSONField(required=False, widget=forms.HiddenInput())
     pricing_plans = forms.CharField(required=False, widget=forms.HiddenInput())
@@ -1121,6 +1060,9 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "phone1",
             "phone2",
             "phone3",
+            "phone_country",
+            "whatsapp_mode",
+            "whatsapp_number",
             "instagram",
             "website",
             "schedule",
@@ -1257,7 +1199,11 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         self.draft_save_only = bool(kwargs.pop("draft_save_only", False))
         self.submit_for_moderation = bool(kwargs.pop("submit_for_moderation", False))
         self.coordinate_refresh_only = bool(kwargs.pop("coordinate_refresh_only", False))
-        if kwargs.get("instance") is not None:
+        source = kwargs.get("instance")
+        self.contact_original_taxonomy = (str(getattr(source, "category_id", "") or ""),
+                                          str(getattr(source, "subcategory_id", "") or ""))
+        self.contact_approved_nature = getattr(source, "nature", "") or ""
+        if source is not None:
             from catalog.services.publication_forms import candidate_for_edit
             kwargs["instance"]=candidate_for_edit(kwargs["instance"])
         instance = kwargs.get("instance")
@@ -1314,7 +1260,6 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         init_version_field(self)
 
         if not self.is_bound:
-            self.initial["nature"] = getattr(instance, "nature", None) or "business"
             current_adult_value = bool(getattr(instance, "offers_adult_classes", False))
             self.initial["offers_adult_classes"] = "1" if current_adult_value else "0"
 
@@ -1323,8 +1268,6 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             from catalog.services.pricing_plans import serialize_nested_pricing
             revision = VolunteerPlaceRevision.objects.filter(place_id=instance.pk, status__in=['draft', 'pending', 'rejected']).first()
             self.initial['nested_pricing'] = (revision.payload.get('nested_pricing') if revision and 'nested_pricing' in revision.payload else serialize_nested_pricing(instance))
-            if revision and 'nature' in revision.payload:
-                self.initial['nature'] = revision.payload['nature']
         if "pricing_plans" in self.fields:
             current_plans = getattr(instance, "pricing_plans", None) if instance is not None else None
             if not self.is_bound and current_plans:
@@ -1339,6 +1282,8 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 qs = Category.objects.filter(Q(is_active=True) | Q(code=instance.category_id))
             self.fields["category"].queryset = qs.order_by("order", "name_ru", "name")
             self.fields["category"].label_from_instance = lambda obj: obj.name_i18n(get_language())
+            from catalog.services.permanent_place_rules import copy as t
+            self.fields["category"].empty_label = t("Выберите категорию", "Kateqoriya seçin", "Select category")
 
         if "subcategory" in self.fields:
             qs = Subcategory.active.all()
@@ -1346,6 +1291,8 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 qs = Subcategory.objects.filter(Q(is_active=True) | Q(id=instance.subcategory_id))
             self.fields["subcategory"].queryset = qs.select_related("category").order_by("category__order", "order", "name_ru", "name")
             self.fields["subcategory"].label_from_instance = lambda obj: obj.name_i18n(get_language())
+            from catalog.services.permanent_place_rules import copy as t
+            self.fields["subcategory"].empty_label = t("Выберите подкатегорию", "Alt kateqoriya seçin", "Select subcategory")
             self._coerce_bound_subcategory_value()
 
         self.fields["temporary_start"].input_formats = ["%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"]
@@ -1397,18 +1344,6 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 "autocomplete": "street-address",
             }
         )
-        self.fields["phone1"].widget.attrs.update(
-            {
-                "autocomplete": "tel",
-                "inputmode": "tel",
-                "placeholder": "+994 50 123 45 67",
-                "data-km-az-phone": "1",
-                "maxlength": "20",
-            }
-        )
-        phone_value = self.initial.get("phone1") or getattr(self.instance, "phone1", "") or ""
-        if phone_value:
-            self.initial["phone1"] = _format_azerbaijan_phone_for_input(phone_value)
         self.fields["address"].help_text = _("Улица, дом, ориентир.")
         self.fields["name_az"].help_text = _("Укажите название на азербайджанском.")
         self.fields["name_ru"].help_text = _("Можно добавить позже.")
@@ -1573,8 +1508,6 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
-        if "nature" in cleaned:
-            self.instance.nature = cleaned["nature"] or getattr(self.instance, "nature", None) or "business"
         cleaned = self._clean_schedule_editor(cleaned)
 
         try:
@@ -1715,18 +1648,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
         return cleaned
 
-    def clean_phone1(self):
-        value = self.cleaned_data.get("phone1") or ""
-        if not value:
-            return ""
-        return _validate_azerbaijan_phone(value, required=False)
-
-
-    def clean_phone2(self):
-        return _validate_azerbaijan_phone(self.cleaned_data.get("phone2") or "", required=False)
-
-    def clean_phone3(self):
-        return _validate_azerbaijan_phone(self.cleaned_data.get("phone3") or "", required=False)
+    # Normalization runs together in ContactPhoneFormMixin.clean, after country selection.
 
     @property
     def wizard_steps(self):
@@ -1825,18 +1747,8 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
 
         return cleaned
 
-    def clean_phone1(self):
-        value = self.cleaned_data.get("phone1") or ""
-        if (self.draft_save_only or self.geocoding_check_only) and not value:
-            return ""
-        return _validate_azerbaijan_phone(
-            value,
-            required=False,
-        )
-
     def save(self, commit=True):
         place = super().save(commit=False)
-        place.nature = self.cleaned_data.get("nature") or place.nature or "business"
         place.name = (
             (self.cleaned_data.get("name_az") or "").strip()
             or (self.cleaned_data.get("name_ru") or "").strip()

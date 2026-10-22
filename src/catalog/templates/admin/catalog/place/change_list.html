@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=20261004_admin_mobile">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=20261022_release_all_r1">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_home_recommendations.css' %}?v=3">
   <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=20260915" defer></script>
   <script src="{% static 'admin/js/kidsmap_home_recommendations.js' %}?v=3" defer></script>
@@ -69,8 +69,20 @@
               </a>
             {% endif %}
           {% endif %}
-        </div>
       </section>
+
+      {% if not km_is_trash_changelist and place_dashboard_stats %}
+        <section class="place-admin-dashboard__stats" aria-label="{% translate 'Статистика мест' %}">
+          {% for item in place_dashboard_stats %}
+            <a href="{{ item.url|default:'?' }}" class="place-admin-dashboard__stat-card place-admin-dashboard__stat-card--{{ item.tone }}">
+              <div class="place-admin-dashboard__stat-content">
+                <span class="place-admin-dashboard__stat-label">{{ item.label }}</span>
+                <strong class="place-admin-dashboard__stat-value">{{ item.count }}</strong>
+              </div>
+            </a>
+          {% endfor %}
+        </section>
+      {% endif %}
 
       {% if home_recommendation_editor %}
         <details class="km-home-recs-accordion">

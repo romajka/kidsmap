@@ -108,13 +108,11 @@ def build_site_preview_context(request, preview):
     request._seo_place = place
     context = PlaceController.build_default().build_detail_context(request,place=place,preview=True)
     contacts = context['presentation']['contacts']
-    phones = []
-    for number in contacts['phones']:
-        digits = re.sub(r'[^0-9]','',number)
-        if digits: phones.append({'number':number,'href':'tel:'+('+' if number.strip().startswith('+') else '')+digits})
+    from catalog.services.public_presentation import revealed_contacts
+    contact_payload = revealed_contacts(contacts)
     context.update(
         site_preview=True, site_preview_submission=preview['show_submission'], site_preview_stale=preview['stale'],
-        site_preview_phones={'place_id':place.pk,'phones':phones,'whatsapp':contacts['whatsapp_url']},
+        site_preview_phones={'place_id':place.pk, **contact_payload},
         request=request, user=request.user, google_analytics_enabled=False,
         analytics_events=[], queued_analytics_events=[], messages=[],
         public_pricing_plans=public_pricing_plans(place.pricing_plans,request.LANGUAGE_CODE),

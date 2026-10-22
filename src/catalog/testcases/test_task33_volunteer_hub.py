@@ -302,8 +302,11 @@ class VolunteerHubTests(TestCase):
             self.assertIn('type_filters', sla_response.context)
             self.assertIn(('affiliation', 'Информационная связь'), sla_response.context['type_filters'])
             self.assertEqual(sla_response.context['links_count'], 1)
-            sidebar = next(section for section in sla_response.context['kidsmap_sidebar_sections'] if section['key'] == 'moderation_sla')
-            self.assertEqual(sidebar['items'][0]['label'], 'Сроки модерации')
+            sidebar = next(section for section in sla_response.context['kidsmap_sidebar_sections'] if section['key'] == 'moderation')
+            sla_item = next(item for item in sidebar['items'] if item['url'] == reverse('admin:moderation_sla'))
+            self.assertEqual(sla_item['label'], 'Сроки проверки')
+            self.assertTrue(sla_item['active'])
+            self.assertTrue(sidebar['active'])
         from django.utils import timezone
         from catalog.services.moderation_queue import queue_rows
         link_rows = queue_rows(links, {'status': 'pending'}, now=timezone.now())

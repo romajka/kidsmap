@@ -15,7 +15,7 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261020_release_r1" />
+<link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261022_release_all_r1" />
   <link rel="stylesheet" href="{% static 'css/pages/organization_workspace.css' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,20 +55,18 @@
         {% endif %}
       </span>
     </div>
-    <div class="account-user-actions" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-      {% if can_create_more_places %}
-        <a href="{% url 'owner_place_create' %}?fresh=1" class="account-btn-action">
-          <span class="material-symbols-rounded">add_circle</span>
-          <span>{% if CURRENT_LANGUAGE == "az" %}Elan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add listing{% else %}Добавить объявление{% endif %}</span>
-        </a>
-      {% else %}
-        <span class="account-btn-sm account-btn-sm--muted" data-owner-legacy-label="Limit dolub">
-          {% if CURRENT_LANGUAGE == "az" %}Limit dolub{% elif CURRENT_LANGUAGE == "en" %}Limit reached{% else %}Лимит заполнен{% endif %}
-        </span>
-      {% endif %}
-      <a href="{% url 'account_settings' %}" class="account-btn-sm account-btn-sm--secondary">
+    <div class="account-user-actions">
+      <a href="{% url 'account_settings' %}" class="account-edit-profile-btn">
         <span class="material-symbols-rounded">edit</span>
-        <span>{% if CURRENT_LANGUAGE == "az" %}Profil{% elif CURRENT_LANGUAGE == "en" %}Profile{% else %}Профиль{% endif %}</span>
+        <span>
+          {% if CURRENT_LANGUAGE == "az" %}
+            Profili redaktə et
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Edit profile
+          {% else %}
+            Редактировать профиль
+          {% endif %}
+        </span>
       </a>
     </div>
   </div>
@@ -112,6 +110,10 @@
               <span class="material-symbols-rounded">add</span>
               <span>{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add place{% else %}Добавить место{% endif %}</span>
             </a>
+          {% else %}
+            <span class="account-btn-sm account-btn-sm--muted" data-owner-legacy-label="Limit dolub">
+              {% if CURRENT_LANGUAGE == "az" %}Limit dolub{% elif CURRENT_LANGUAGE == "en" %}Limit reached{% else %}Лимит заполнен{% endif %}
+            </span>
           {% endif %}
         </div>
       </div>
@@ -210,7 +212,7 @@
             <span>{% if CURRENT_LANGUAGE == "az" %}Dərc olunmuş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Published places{% else %}Опубликованные места{% endif %}</span>
             <span class="account-badge-counter">{{ published_places|length }}</span>
           </h2>
-          {% if can_create_more_places %}
+          {% if published_places and can_create_more_places %}
             <a href="{% url 'owner_place_create' %}?fresh=1" class="account-link-all">
               <span class="material-symbols-rounded">add</span>
               <span>{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add place{% else %}Добавить место{% endif %}</span>
@@ -308,7 +310,7 @@
             {% if can_create_more_places %}
               <a class="account-btn-action" href="{% url 'owner_place_create' %}?fresh=1" style="margin-top: 6px;">
                 <span class="material-symbols-rounded">add_circle</span>
-                <span>{% if CURRENT_LANGUAGE == "az" %}Elan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add listing{% else %}Добавить объявление{% endif %}</span>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add place{% else %}Добавить место{% endif %}</span>
               </a>
             {% endif %}
           </div>
@@ -504,10 +506,12 @@
               <span>{% if CURRENT_LANGUAGE == "az" %}Tədbirlər{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}Мероприятия{% endif %}</span>
               <span class="account-badge-counter">{{ owner_events|length }}</span>
             </h2>
-            <a href="{% url 'owner_event_create' %}" class="account-link-all">
-              <span class="material-symbols-rounded">add</span>
-              <span>{% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add event{% else %}Добавить мероприятие{% endif %}</span>
-            </a>
+            {% if owner_events %}
+              <a href="{% url 'owner_event_create' %}" class="account-link-all">
+                <span class="material-symbols-rounded">add</span>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add event{% else %}Добавить мероприятие{% endif %}</span>
+              </a>
+            {% endif %}
           </div>
 
           {% if owner_events %}
@@ -615,10 +619,12 @@
               <span>{% if CURRENT_LANGUAGE == "az" %}Mənim profillərim{% elif CURRENT_LANGUAGE == "en" %}My profiles{% else %}Мои профили специалистов{% endif %}</span>
               <span class="account-badge-counter">{{ owner_specialists|length }}</span>
             </h2>
-            <a href="{% url 'owner_specialist_create' %}" class="account-link-all">
-              <span class="material-symbols-rounded">add</span>
-              <span>{% if CURRENT_LANGUAGE == "az" %}Profil əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add profile{% else %}Добавить профиль{% endif %}</span>
-            </a>
+            {% if owner_specialists %}
+              <a href="{% url 'owner_specialist_create' %}" class="account-link-all">
+                <span class="material-symbols-rounded">add</span>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Profil əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add profile{% else %}Добавить профиль{% endif %}</span>
+              </a>
+            {% endif %}
           </div>
 
           {% if owner_specialists %}

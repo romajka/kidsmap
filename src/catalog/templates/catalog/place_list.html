@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static catalog_i18n %}
+{% load i18n static catalog_i18n l10n %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block title_plain %}{{ seo_title }}{% endblock %}
@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261020_release_r1" />
+<link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261022_release_all_r1" />
   <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20260928_2" />
   {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_polish.css' %}?v=20261020_release_r1" />{% endif %}
 {% endblock %}
@@ -244,7 +244,7 @@
         <div class="mobile-quick-filters" aria-label="{% if language == 'az' %}Sürətli filtrlər{% elif language == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
           <button type="button" class="mobile-quick-filter{% if selected.district %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="district" data-filter-focus="district" aria-expanded="false" aria-controls="quick-menu-district">{% if language == "az" %}Rayon{% elif language == "en" %}District{% else %}Район{% endif %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.age_from or selected.age_to %}{% if selected.age_from != '0' or selected.age_to != '18' %} is-active{% endif %}{% endif %}" data-filters-open data-filter-focus="age">{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</button>
-          <button type="button" class="mobile-quick-filter{% if selected.price_from or selected.price_to %}{% if selected.price_from != '0' or selected.price_to != '500' %} is-active{% endif %}{% endif %}" data-filters-open data-filter-focus="price">{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</button>
+          <button type="button" class="mobile-quick-filter{% if selected.price_from or selected.price_to %} is-active{% endif %}" data-filters-open data-filter-focus="price">{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.min_rating %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="min_rating" data-filter-focus="min_rating" aria-expanded="false" aria-controls="quick-menu-min_rating">{% if language == "az" %}Reytinq{% elif language == "en" %}Rating{% else %}Рейтинг{% endif %}</button>
         </div>
 
@@ -518,16 +518,16 @@
           </div>
         </div>
 
-        <div class="range-filter filter-price-range km-filter-group" data-range data-min="0" data-max="500" data-step="5" data-unit="₼" data-mobile-filter-section="price">
+        <div class="range-filter filter-price-range km-filter-group" data-range data-min="0" data-max="{{ catalog_price_max|default:500|unlocalize }}" data-price-range data-from-label="{% if language == 'az' %}Qiymət: {% elif language == 'en' %}from {% else %}от {% endif %}" data-from-suffix="{% if language == 'az' %}-dən{% endif %}" data-step="5" data-unit="₼" data-mobile-filter-section="price">
           <div class="range-filter-head">
             <label><span class="material-symbols-rounded" aria-hidden="true">payments</span> {% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}{% trans "Цена" %}{% endif %}</label>
             <strong class="range-filter-current" data-range-caption></strong>
           </div>
           <input type="hidden" name="price_from" value="{{ selected.price_from|default:'0' }}" data-range-from-input />
-          <input type="hidden" name="price_to" value="{{ selected.price_to|default:'500' }}" data-range-to-input />
+          <input type="hidden" name="price_to" value="{{ selected.price_to|default:catalog_price_max|unlocalize }}" data-range-to-input />
           <div class="range-filter-track">
-            <input class="range-slider range-slider-from" type="range" min="0" max="500" step="5" aria-label="{% if language == 'az' %}Minimum qiymət{% elif language == 'en' %}Minimum price{% else %}Минимальная цена{% endif %}" value="{{ selected.price_from|default:'0' }}" data-range-from-range />
-            <input class="range-slider range-slider-to" type="range" min="0" max="500" step="5" aria-label="{% if language == 'az' %}Maksimum qiymət{% elif language == 'en' %}Maximum price{% else %}Максимальная цена{% endif %}" value="{{ selected.price_to|default:'500' }}" data-range-to-range />
+            <input class="range-slider range-slider-from" type="range" min="0" max="{{ catalog_price_max|default:500|unlocalize }}" step="5" aria-label="{% if language == 'az' %}Minimum qiymət{% elif language == 'en' %}Minimum price{% else %}Минимальная цена{% endif %}" value="{{ selected.price_from|default:'0' }}" data-range-from-range />
+            <input class="range-slider range-slider-to" type="range" min="0" max="{{ catalog_price_max|default:500|unlocalize }}" step="5" aria-label="{% if language == 'az' %}Maksimum qiymət{% elif language == 'en' %}Maximum price{% else %}Максимальная цена{% endif %}" value="{{ selected.price_to|default:catalog_price_max|unlocalize }}" data-range-to-range />
           </div>
         </div>
 
@@ -1221,7 +1221,7 @@
     <script src="{% static 'js/google_maps_motion.js' %}?v=20260910"></script>
     <script src="{% static 'js/google_maps_markers.js' %}?v=20260910"></script>
     <script src="{% static 'js/map_paging.js' %}?v=20261019_r15"></script>
-    <script src="{% static 'js/catalog_map.js' %}?v=20261019_r15"></script>
+    <script src="{% static 'js/catalog_map.js' %}?v=20261022_release_all_r1"></script>
     {% if google_maps_api_key %}
       <script
         data-catalog-google-sdk
@@ -1255,7 +1255,13 @@
 
         function updateCaption(a, b) {
           if (!caption) return;
-          caption.textContent = unit ? `${a}–${b} ${unit}` : `${a}–${b}`;
+          const openPriceRange = root.hasAttribute("data-price-range") && a > min && b >= max;
+          caption.textContent = openPriceRange
+            ? `${root.dataset.fromLabel || ""}${a} ${unit}${root.dataset.fromSuffix || ""}`
+            : (unit ? `${a}–${b} ${unit}` : `${a}–${b}`);
+          if (root.hasAttribute("data-price-range")) {
+            toRange.setAttribute("aria-valuetext", openPriceRange ? caption.textContent : `${b} ${unit}`);
+          }
           const fromPct = max > min ? ((a - min) / (max - min)) * 100 : 0;
           const toPct = max > min ? ((b - min) / (max - min)) * 100 : 100;
           root.style.setProperty("--from-pct", fromPct + "%");
@@ -2113,14 +2119,18 @@
         const formData = new FormData(form);
         const params = new URLSearchParams();
         const neutralAgeRange = formData.get("age_from") === "0" && formData.get("age_to") === "18";
-        const neutralPriceRange = (formData.get("price_from") === "0" || !formData.get("price_from")) &&
-                                  (formData.get("price_to") === "500" || !formData.get("price_to"));
+        const priceRange = form.querySelector(".filter-price-range");
+        const priceMax = priceRange ? Number(priceRange.dataset.max) : NaN;
+        const priceTo = String(formData.get("price_to") || "").trim();
+        const openPriceRange = !priceTo || (Number.isFinite(priceMax) && Number(priceTo) >= priceMax);
+        const neutralPriceRange = (!formData.get("price_from") || Number(formData.get("price_from")) === 0) && openPriceRange;
 
         formData.forEach(function (value, key) {
           const cleanValue = String(value || "").trim();
-          if (!cleanValue || key === "page") return;
+          if (!cleanValue || key === "page" || (key === "sort" && cleanValue === "new")) return;
           if (neutralAgeRange && (key === "age_from" || key === "age_to")) return;
           if (neutralPriceRange && (key === "price_from" || key === "price_to")) return;
+          if (openPriceRange && key === "price_to") return;
           params.append(key, cleanValue);
         });
 
@@ -2209,6 +2219,12 @@
         }
         currentTopStack.replaceWith(nextTopStack);
         currentMainColumn.replaceWith(nextMainColumn);
+
+        const priceQuickFilter = document.querySelector('.mobile-quick-filter[data-filter-focus="price"]');
+        const nextPriceQuickFilter = nextDocument.querySelector('.mobile-quick-filter[data-filter-focus="price"]');
+        if (priceQuickFilter && nextPriceQuickFilter) {
+          priceQuickFilter.classList.toggle("is-active", nextPriceQuickFilter.classList.contains("is-active"));
+        }
 
         // Сайдбар при AJAX-фильтрации не переписывается, а список подкатегорий
         // зависит от выбранной категории — иначе после её смены в блоке
@@ -2387,8 +2403,9 @@
 
       if (filtersForm) {
         filtersForm.addEventListener("submit", function (event) {
-          if (submitFiltersAjax()) {
-            event.preventDefault();
+          event.preventDefault();
+          if (!submitFiltersAjax()) {
+            window.location.assign(buildFiltersUrl().href);
           }
         });
       }

@@ -142,6 +142,9 @@
         <span class="km-pf-group__title">{% translate "Контакты" %}</span>
       </div>
       <div class="km-pf-grid km-pf-grid--3 km-pf-grid--top">
+        {% include "admin/catalog/place/form/_field.html" with field=form.phone_country %}
+        {% include "admin/catalog/place/form/_field.html" with field=form.whatsapp_mode %}
+        {% include "admin/catalog/place/form/_field.html" with field=form.whatsapp_number hint=form.whatsapp_number.help_text %}
         <div class="km-pf-phones" data-km-phone-editor>
           <div data-km-phone-row>
             {% include "admin/catalog/place/form/_field.html" with field=form.phone1 %}

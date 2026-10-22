@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static l10n %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261020_release_r1" />
-<script src="{% static 'js/specialists.js' %}?v=20261020_release_r1" defer></script>
+<script src="{% static 'js/specialists.js' %}?v=20261022_release_all_r1" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -230,23 +230,21 @@
         </div>
 
         <!-- Price Range -->
-        <div class="km-filter-group">
-          <label><span class="material-symbols-rounded" aria-hidden="true">payments</span> {% if language == "az" %}Xidmətin qiyməti (AZN){% elif language == "en" %}Service price (AZN){% else %}Стоимость услуги (AZN){% endif %}</label>
-          <div class="km-filter-range-wrapper">
-            <input
-              type="number"
-              name="price_from"
-              value="{{ selected.price_from }}"
-              class="km-filter-input"
-              placeholder="{% if language == 'az' %}Min{% elif language == 'en' %}Min{% else %}от{% endif %}"
-            />
-            <input
-              type="number"
-              name="price_to"
-              value="{{ selected.price_to }}"
-              class="km-filter-input"
-              placeholder="{% if language == 'az' %}Maks{% elif language == 'en' %}Max{% else %}до{% endif %}"
-            />
+        <div class="km-filter-group range-filter filter-price-range" data-range data-min="0" data-max="{{ specialist_price_max|unlocalize }}" data-unit="₼"
+             data-from-label="{% if language == 'en' %}from {% elif language == 'ru' %}от {% endif %}"
+             data-from-suffix="{% if language == 'az' %}-dən{% endif %}"
+             data-unlimited-label="{% if language == 'az' %}Yuxarı hədd yoxdur{% elif language == 'en' %}No upper limit{% else %}Без верхней границы{% endif %}">
+          <div class="range-filter-head">
+            <label><span class="material-symbols-rounded" aria-hidden="true">payments</span> {% if language == 'az' %}Xidmətin qiyməti{% elif language == 'en' %}Service price{% else %}Стоимость услуги{% endif %}</label>
+            <strong class="range-filter-current" data-range-caption></strong>
+          </div>
+          <input type="hidden" name="price_from" value="{{ selected.price_from|default:'0' }}" data-range-from-input />
+          <input type="hidden" name="price_to" value="{{ selected.price_to|default:specialist_price_max|unlocalize }}" data-range-to-input />
+          <div class="range-filter-track">
+            <input class="range-slider range-slider-from" type="range" min="0" max="{{ specialist_price_max|unlocalize }}" step="1" value="{{ selected.price_from|default:'0' }}" data-range-from-range
+                   aria-label="{% if language == 'az' %}Minimum qiymət{% elif language == 'en' %}Minimum price{% else %}Минимальная цена{% endif %}" />
+            <input class="range-slider range-slider-to" type="range" min="0" max="{{ specialist_price_max|unlocalize }}" step="1" value="{{ selected.price_to|default:specialist_price_max|unlocalize }}" data-range-to-range
+                   aria-label="{% if language == 'az' %}Maksimum qiymət{% elif language == 'en' %}Maximum price{% else %}Максимальная цена{% endif %}" />
           </div>
         </div>
 
@@ -373,7 +371,7 @@
                 <span class="km-custom-select__opt-text">{% if language == "az" %}Bahadan ucuza{% elif language == "en" %}Price: high to low{% else %}Сначала дорогие{% endif %}</span>
               </div>
             </div>
-            <select id="catalog-sort" name="sort" form="filters-form" onchange="this.form.submit()" class="km-filter-select km-sort-select km-visually-hidden" tabindex="-1" aria-hidden="true">
+            <select id="catalog-sort" name="sort" form="filters-form" onchange="this.form.requestSubmit()" class="km-filter-select km-sort-select km-visually-hidden" tabindex="-1" aria-hidden="true">
               <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}Сначала новые{% endif %}</option>
               <option value="rating" {% if selected.sort == "rating" %}selected{% endif %}>{% if language == "az" %}Reytinqə görə{% elif language == "en" %}Highest rated{% else %}По рейтингу{% endif %}</option>
               <option value="experience" {% if selected.sort == "experience" %}selected{% endif %}>{% if language == "az" %}İş təcrübəsinə görə{% elif language == "en" %}Most experienced{% else %}По стажу работы{% endif %}</option>

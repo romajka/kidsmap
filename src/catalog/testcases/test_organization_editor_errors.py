@@ -23,7 +23,7 @@ class OrganizationEditorErrorTests(TestCase):
         self.org=Organization.objects.create(owner=self.owner,created_by=self.owner,name_az='Synthetic ORG05 live name')
         self.client=Client(enforce_csrf_checks=True);self.client.force_login(self.owner)
         token=get_token(RequestFactory().get('/'));self.client.cookies['csrftoken']=token;self.client.defaults['HTTP_X_CSRFTOKEN']=token
-        self.data={'name_az':'Synthetic ORG05 candidate','name_ru':'Synthetic RU','name_en':'Synthetic EN','phone':'+994 00 000 00 00','whatsapp':'+994 00 000 00 01','website':'https://example.invalid/','description_az':'Synthetic description','expected_version':self.org.content_version,'revision_version':0,'submit':'1'}
+        self.data={'name_az':'Synthetic ORG05 candidate','name_ru':'Synthetic RU','name_en':'Synthetic EN','phone':'+994 50 427 43 93','whatsapp':'+1 310 456 4918','website':'https://example.invalid/','description_az':'Synthetic description','expected_version':self.org.content_version,'revision_version':0,'submit':'1'}
     def save(self, **values):
         return self.client.post(reverse('organization_workspace_save',args=[self.org.pk]),{**self.data,**values})
     def unchanged(self):
@@ -58,7 +58,7 @@ class OrganizationEditorErrorTests(TestCase):
         for _ in range(2):
             response=self.save(phone='P'*51);self.assertEqual(response.status_code,400);self.assertContains(response,'org-editor-errors',status_code=response.status_code);self.unchanged()
         response=self.save();self.assertEqual(response.status_code,302)
-        self.org.refresh_from_db();self.assertEqual(self.org.name_az,'Synthetic ORG05 live name');self.assertEqual(self.org.content_revision.payload['phone'],self.data['phone']);self.assertEqual(self.org.content_revision.status,'pending')
+        self.org.refresh_from_db();self.assertEqual(self.org.name_az,'Synthetic ORG05 live name');self.assertEqual(self.org.content_revision.payload['phone'],'+994504274393');self.assertEqual(self.org.content_revision.payload['whatsapp'],'+13104564918');self.assertEqual(self.org.content_revision.status,'pending')
     def test_conflict_keeps_winning_candidate_and_returns_losing_input_in_summary(self):
         self.assertEqual(self.save().status_code,302)
         response=self.save(name_az='Synthetic losing candidate')

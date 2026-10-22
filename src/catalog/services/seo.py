@@ -199,7 +199,7 @@ def _catalog_filter_summary(selected: dict, *, is_new_page: bool) -> list[str]:
 
 
 def build_sitewide_schema_payload(*, request, site_name: str, logo_url: str = "", social_urls: list[str] | None = None) -> dict:
-    home_url = _absolute_uri(request, reverse("home"))
+    home_url = _absolute_uri(request, "/")
     catalog_url = _absolute_uri(request, reverse("place_list"))
     resolved_logo_url = _absolute_uri(request, logo_url or static("img/logo.svg"))
 
@@ -217,6 +217,7 @@ def build_sitewide_schema_payload(*, request, site_name: str, logo_url: str = ""
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": site_name,
+        "alternateName": "kidsmap.az",
         "url": home_url,
         "potentialAction": {
             "@type": "SearchAction",

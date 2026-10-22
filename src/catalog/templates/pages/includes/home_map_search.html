@@ -91,13 +91,46 @@
         </button>
       </div>
 
+      <div class="home-search-popular-row" aria-label="{% trans 'Популярные запросы' %}">
+        <span class="home-search-popular-lead">
+          <svg class="home-search-popular-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span>{% trans "Популярные запросы" %}:</span>
+        </span>
+        <div class="home-search-popular-chips" role="list">
+          <a class="home-search-popular-chip" href="{% url 'place_list' %}" data-popular-action="reset" role="listitem">
+            <span>{% trans "Кружки в Азербайджане для детей" %}</span>
+          </a>
+          {% if 'EDU' in active_category_codes %}
+          <a class="home-search-popular-chip" href="{% url 'place_list' %}?category=EDU" data-popular-category="EDU" role="listitem">
+            <span>{% trans "Курсы для детей в Азербайджане" %}</span>
+          </a>
+          {% endif %}
+          {% if 'SPRT' in active_category_codes %}
+          <a class="home-search-popular-chip" href="{% url 'place_list' %}?category=SPRT" data-popular-category="SPRT" role="listitem">
+            <span>{% trans "Спортивные секции в Азербайджане" %}</span>
+          </a>
+          {% endif %}
+          {% if 'ART' in active_category_codes %}
+          <a class="home-search-popular-chip" href="{% url 'place_list' %}?category=ART" data-popular-category="ART" role="listitem">
+            <span>{% trans "Творческие кружки в Азербайджане" %}</span>
+          </a>
+          {% endif %}
+          {% if 'TECH' in active_category_codes %}
+          <a class="home-search-popular-chip" href="{% url 'place_list' %}?category=TECH&amp;q=program" data-popular-category="TECH" data-popular-query="program" role="listitem">
+            <span>{% trans "Программирование для детей в Азербайджане" %}</span>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+
       {% if map_places %}
-      <details class="home-search-refine"{% if request.GET.district or request.GET.category or home_age_from or home_age_to %} open{% endif %}>
-        <summary class="home-refine-toggle">
-          <svg class="home-refine-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9m4 0h3M4 17h3m4 0h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
-          <span class="home-refine-title"><span class="home-refine-closed">{% if request.LANGUAGE_CODE == 'az' %}Axtarışı dəqiqləşdir{% elif request.LANGUAGE_CODE == 'en' %}Refine search{% else %}Уточнить поиск{% endif %}</span><span class="home-refine-open">{% if request.LANGUAGE_CODE == 'az' %}Filtrləri gizlət{% elif request.LANGUAGE_CODE == 'en' %}Hide filters{% else %}Скрыть фильтры{% endif %}</span></span>
-          <span class="home-refine-hint">{% if request.LANGUAGE_CODE == 'az' %}Rayon · kateqoriya · yaş{% elif request.LANGUAGE_CODE == 'en' %}Area · category · age{% else %}Район · категория · возраст{% endif %}</span>
-          <svg class="home-refine-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 5 5 5-5"/></svg>
+      <details class="home-search-refine" open aria-label="{% if request.LANGUAGE_CODE == 'az' %}Sürətli filtrlər{% elif request.LANGUAGE_CODE == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
+        <summary class="home-refine-toggle" hidden aria-hidden="true" style="display: none !important;">
+          <span class="home-refine-closed">{% if request.LANGUAGE_CODE == 'az' %}Axtarışı dəqiqləşdir{% elif request.LANGUAGE_CODE == 'en' %}Refine search{% else %}Уточнить поиск{% endif %}</span>
+          <span class="home-refine-open">{% if request.LANGUAGE_CODE == 'az' %}Filtrləri gizlət{% elif request.LANGUAGE_CODE == 'en' %}Hide filters{% else %}Скрыть фильтры{% endif %}</span>
         </summary>
       <div class="home-search-row home-search-filters-row">
         <select name="district" class="home-filter-district-select" hidden>
@@ -190,11 +223,97 @@
           </div>
         </div>
 
-        <fieldset class="home-age-range">
-          <legend>{% if request.LANGUAGE_CODE == 'ru' %}Возраст, лет{% elif request.LANGUAGE_CODE == 'en' %}Age, years{% else %}Yaş{% endif %}</legend>
-          <label class="home-age-field" for="home-age-from"><span>{% if request.LANGUAGE_CODE == 'ru' %}От{% elif request.LANGUAGE_CODE == 'en' %}From{% else %}Ən az{% endif %}</span><input id="home-age-from" name="age_from" type="number" inputmode="numeric" min="0" max="18" step="1" placeholder="0" value="{{ home_age_from }}" data-home-age-bound aria-label="{% if request.LANGUAGE_CODE == 'ru' %}Возраст от, лет{% elif request.LANGUAGE_CODE == 'en' %}Minimum age, years{% else %}Minimum yaş{% endif %}" /></label>
-          <label class="home-age-field" for="home-age-to"><span>{% if request.LANGUAGE_CODE == 'ru' %}До{% elif request.LANGUAGE_CODE == 'en' %}To{% else %}Ən çox{% endif %}</span><input id="home-age-to" name="age_to" type="number" inputmode="numeric" min="0" max="18" step="1" placeholder="18" value="{{ home_age_to }}" data-home-age-bound aria-label="{% if request.LANGUAGE_CODE == 'ru' %}Возраст до, лет{% elif request.LANGUAGE_CODE == 'en' %}Maximum age, years{% else %}Maksimum yaş{% endif %}" /></label>
-        </fieldset>
+        <div class="km-age-select" data-age-select
+          data-all-label="{% if request.LANGUAGE_CODE == 'az' %}Bütün yaşlar{% elif request.LANGUAGE_CODE == 'en' %}All ages{% else %}Все возрасты{% endif %}"
+          data-unit="{% if request.LANGUAGE_CODE == 'az' %}yaş{% elif request.LANGUAGE_CODE == 'en' %}yrs{% else %}лет{% endif %}">
+          <button type="button" class="km-age-trigger" id="age-dropdown-trigger" aria-haspopup="listbox"
+            aria-expanded="false" aria-controls="age-dropdown-menu"
+            aria-label="{% if request.LANGUAGE_CODE == 'az' %}Uşağın yaşını seç{% elif request.LANGUAGE_CODE == 'en' %}Choose child's age{% else %}Выбрать возраст ребенка{% endif %}">
+            <span class="km-age-trigger-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M9 10h.01M15 10h.01"></path>
+                <path d="M9.5 15a3.5 3.5 0 0 0 5 0"></path>
+              </svg>
+            </span>
+            <span class="km-age-trigger-text" data-age-trigger-text>
+              <span class="km-age-label-prefix">{% if request.LANGUAGE_CODE == 'az' %}Yaş:{% elif request.LANGUAGE_CODE == 'en' %}Age:{% else %}Возраст:{% endif %}</span>
+              <strong class="km-age-value-text" data-age-value-text>
+                {% if home_age_from and home_age_to %}
+                  {% if home_age_from == home_age_to %}
+                    {{ home_age_from }} {% if request.LANGUAGE_CODE == 'az' %}yaş{% elif request.LANGUAGE_CODE == 'en' %}yrs{% else %}лет{% endif %}
+                  {% else %}
+                    {{ home_age_from }}–{{ home_age_to }} {% if request.LANGUAGE_CODE == 'az' %}yaş{% elif request.LANGUAGE_CODE == 'en' %}yrs{% else %}лет{% endif %}
+                  {% endif %}
+                {% elif home_age_from %}
+                  {{ home_age_from }}+ {% if request.LANGUAGE_CODE == 'az' %}yaş{% elif request.LANGUAGE_CODE == 'en' %}yrs{% else %}лет{% endif %}
+                {% elif home_age_to %}
+                  {{ home_age_to }} {% if request.LANGUAGE_CODE == 'az' %}yaşa qədər{% elif request.LANGUAGE_CODE == 'en' %}yrs max{% else %}лет макс.{% endif %}
+                {% else %}
+                  {% if request.LANGUAGE_CODE == 'az' %}Bütün yaşlar{% elif request.LANGUAGE_CODE == 'en' %}All ages{% else %}Все возрасты{% endif %}
+                {% endif %}
+              </strong>
+            </span>
+          </button>
+
+          <div class="km-age-dropdown" id="age-dropdown-menu" role="listbox" hidden>
+            <div class="km-age-dropdown-header">
+              <span class="km-age-dropdown-title">
+                {% if request.LANGUAGE_CODE == 'az' %}Uşağın yaşı{% elif request.LANGUAGE_CODE == 'en' %}Child's age{% else %}Возраст ребенка{% endif %}
+              </span>
+            </div>
+            <div class="km-age-preset-list">
+              <button type="button" class="km-age-preset-item{% if not home_age_from and not home_age_to %} is-active{% endif %}" data-from="" data-to="" role="option">
+                <span class="km-age-preset-dot" aria-hidden="true"></span>
+                <span class="km-age-preset-name">{% if request.LANGUAGE_CODE == 'az' %}Bütün yaşlar{% elif request.LANGUAGE_CODE == 'en' %}All ages{% else %}Все возрасты{% endif %}</span>
+              </button>
+              <button type="button" class="km-age-preset-item{% if home_age_from == '0' and home_age_to == '3' %} is-active{% endif %}" data-from="0" data-to="3" role="option">
+                <span class="km-age-preset-dot" aria-hidden="true"></span>
+                <span class="km-age-preset-name">0 – 3 {% if request.LANGUAGE_CODE == 'az' %}yaş{% elif request.LANGUAGE_CODE == 'en' %}yrs{% else %}года{% endif %}</span>
+                <span class="km-age-preset-hint">{% if request.LANGUAGE_CODE == 'az' %}Körpələr{% elif request.LANGUAGE_CODE == 'en' %}Toddlers{% else %}Малыши{% endif %}</span>
+              </button>
+              <button type="button" class="km-age-preset-item{% if home_age_from == '4' and home_age_to == '6' %} is-active{% endif %}" data-from="4" data-to="6" role="option">
+                <span class="km-age-preset-dot" aria-hidden="true"></span>
+                <span class="km-age-preset-name">4 – 6 {% if request.LANGUAGE_CODE == 'az' %}yaş{% elif request.LANGUAGE_CODE == 'en' %}yrs{% else %}лет{% endif %}</span>
+                <span class="km-age-preset-hint">{% if request.LANGUAGE_CODE == 'az' %}Məktəbəqədər{% elif request.LANGUAGE_CODE == 'en' %}Preschool{% else %}Дошкольники{% endif %}</span>
+              </button>
+              <button type="button" class="km-age-preset-item{% if home_age_from == '7' and home_age_to == '10' %} is-active{% endif %}" data-from="7" data-to="10" role="option">
+                <span class="km-age-preset-dot" aria-hidden="true"></span>
+                <span class="km-age-preset-name">7 – 10 {% if request.LANGUAGE_CODE == 'az' %}yaş{% elif request.LANGUAGE_CODE == 'en' %}yrs{% else %}лет{% endif %}</span>
+                <span class="km-age-preset-hint">{% if request.LANGUAGE_CODE == 'az' %}Məktəblilər{% elif request.LANGUAGE_CODE == 'en' %}School age{% else %}Младшие классы{% endif %}</span>
+              </button>
+              <button type="button" class="km-age-preset-item{% if home_age_from == '11' and home_age_to == '14' %} is-active{% endif %}" data-from="11" data-to="14" role="option">
+                <span class="km-age-preset-dot" aria-hidden="true"></span>
+                <span class="km-age-preset-name">11 – 14 {% if request.LANGUAGE_CODE == 'az' %}yaş{% elif request.LANGUAGE_CODE == 'en' %}yrs{% else %}лет{% endif %}</span>
+                <span class="km-age-preset-hint">{% if request.LANGUAGE_CODE == 'az' %}Yeniyetmələr{% elif request.LANGUAGE_CODE == 'en' %}Teens{% else %}Подростки{% endif %}</span>
+              </button>
+              <button type="button" class="km-age-preset-item{% if home_age_from == '15' and home_age_to == '18' %} is-active{% endif %}" data-from="15" data-to="18" role="option">
+                <span class="km-age-preset-dot" aria-hidden="true"></span>
+                <span class="km-age-preset-name">15+ {% if request.LANGUAGE_CODE == 'az' %}yaş{% elif request.LANGUAGE_CODE == 'en' %}yrs{% else %}лет{% endif %}</span>
+                <span class="km-age-preset-hint">{% if request.LANGUAGE_CODE == 'az' %}Böyük məktəblilər{% elif request.LANGUAGE_CODE == 'en' %}Youth{% else %}Старшеклассники{% endif %}</span>
+              </button>
+            </div>
+            <div class="km-age-custom-section">
+              <div class="km-age-custom-title">
+                {% if request.LANGUAGE_CODE == 'az' %}Dəqiq aralıq (il):{% elif request.LANGUAGE_CODE == 'en' %}Exact range (years):{% else %}Или точный возраст (лет):{% endif %}
+              </div>
+              <div class="km-age-custom-row">
+                <label class="km-age-field" for="home-age-from">
+                  <span>{% if request.LANGUAGE_CODE == 'az' %}dan{% elif request.LANGUAGE_CODE == 'en' %}from{% else %}от{% endif %}</span>
+                  <input id="home-age-from" name="age_from" type="number" inputmode="numeric" min="0" max="18" step="1" placeholder="0" value="{{ home_age_from }}" data-home-age-bound aria-label="{% if request.LANGUAGE_CODE == 'ru' %}Возраст от, лет{% elif request.LANGUAGE_CODE == 'en' %}Minimum age, years{% else %}Minimum yaş{% endif %}" />
+                </label>
+                <span class="km-age-sep" aria-hidden="true">—</span>
+                <label class="km-age-field" for="home-age-to">
+                  <span>{% if request.LANGUAGE_CODE == 'az' %}dək{% elif request.LANGUAGE_CODE == 'en' %}to{% else %}до{% endif %}</span>
+                  <input id="home-age-to" name="age_to" type="number" inputmode="numeric" min="0" max="18" step="1" placeholder="18" value="{{ home_age_to }}" data-home-age-bound aria-label="{% if request.LANGUAGE_CODE == 'ru' %}Возраст до, лет{% elif request.LANGUAGE_CODE == 'en' %}Maximum age, years{% else %}Maksimum yaş{% endif %}" />
+                </label>
+                <button type="button" class="km-age-apply-btn" data-age-apply-btn>
+                  {% if request.LANGUAGE_CODE == 'az' %}Tətbiq et{% elif request.LANGUAGE_CODE == 'en' %}Apply{% else %}ОК{% endif %}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <button type="button" class="home-search-reset-btn" data-home-search-reset
           aria-label="{% if request.LANGUAGE_CODE == 'az' %}Filtrləri sıfırla{% elif request.LANGUAGE_CODE == 'en' %}Reset filters{% else %}Сбросить фильтры{% endif %}"

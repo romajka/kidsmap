@@ -475,39 +475,8 @@
        Phones
        ---------------------------------------------------------------------- */
 
-    function formatAzerbaijanPhone(value) {
-      var digits = String(value || "").replace(/\D/g, "");
-      var national = digits;
-      if (national.slice(0, 3) === "994") {
-        national = national.slice(3);
-      } else if (national.slice(0, 1) === "0") {
-        national = national.slice(1);
-      }
-      national = national.slice(0, 9);
-      if (!national) return "";
-      var parts = [];
-      [[0, 2], [2, 5], [5, 7], [7, 9]].forEach(function (range) {
-        var chunk = national.slice(range[0], range[1]);
-        if (chunk) parts.push(chunk);
-      });
-      return "+994 " + parts.join(" ");
-    }
-
-    function syncPhoneInput(input) {
-      if (!input) return;
-      var formatted = formatAzerbaijanPhone(input.value);
-      input.value = formatted;
-      var nationalLength = formatted.replace(/\D/g, "").replace(/^994/, "").length;
-      input.setCustomValidity(
-        !formatted || nationalLength === 9 ? "" : "Введите номер в формате +994 50 123 45 67"
-      );
-    }
-
-    qsa('input[data-km-az-phone="1"]', root).forEach(function (input) {
-      syncPhoneInput(input);
-      on(input, "input", function () { syncPhoneInput(input); });
-      on(input, "blur", function () { syncPhoneInput(input); });
-    });
+    // Phone inputs deliberately remain untouched on load, input and blur.
+    // The shared server parser validates country codes and preserves every digit.
 
     var phoneEditor = qs("[data-km-phone-editor]", root);
     if (phoneEditor) {
@@ -898,7 +867,13 @@
         }
         return false;
       },
-      phone: function (config) { return !!config.optional || !!config.inherited || (config.fields || []).some(function (name) { return !!inputValue("id_" + name); }); },
+      phone: function (config) {
+        var category = inputValue("id_category"), subcategory = inputValue("id_subcategory");
+        var pair = (config.optional_pairs || {})[category] || [];
+        var optional = pair.indexOf(subcategory) !== -1 || (config.optional && category === config.original_category && subcategory === config.original_subcategory);
+        var inherited = config.inherited_by_mode ? config.inherited_by_mode[inputValue("id_whatsapp_mode") || "legacy"] : config.inherited;
+        return !!optional || !!inherited || (config.fields || []).some(function (name) { return !!inputValue("id_" + name) && (name !== "whatsapp_number" || inputValue("id_whatsapp_mode") === "separate"); });
+      },
       schedule: function (config) {
         var mode = document.getElementById("id_schedule_mode");
         var value = mode ? String(mode.value || "regular") : "regular";

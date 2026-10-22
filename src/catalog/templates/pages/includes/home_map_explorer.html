@@ -6,7 +6,9 @@
   data-error-label="{% if request.LANGUAGE_CODE == 'az' %}Məkanlar yenilənmədi. Aşağıda yenidən cəhd edin.{% elif request.LANGUAGE_CODE == 'en' %}Places could not be updated. Please retry below.{% else %}Не удалось обновить места. Повторите загрузку ниже.{% endif %}"
   data-empty-label="{% trans 'По выбранным фильтрам на карте пока нет мест' %}"
   data-guide-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə işarə və ya siyahıdan məkan seçin.{% elif request.LANGUAGE_CODE == 'en' %}Select a pin or a place in the list.{% else %}Нажмите на метку — покажу, что это за занятие.{% endif %}"
-  data-selected-label="{% if request.LANGUAGE_CODE == 'az' %}Seçildi: {name}{% elif request.LANGUAGE_CODE == 'en' %}Selected: {name}{% else %}Выбрано: {name}{% endif %}">
+  data-selected-label="{% if request.LANGUAGE_CODE == 'az' %}Seçildi: {name}{% elif request.LANGUAGE_CODE == 'en' %}Selected: {name}{% else %}Выбрано: {name}{% endif %}"
+  data-guide-title="{% if request.LANGUAGE_CODE == 'az' %}Bir məkandan başlayın{% elif request.LANGUAGE_CODE == 'en' %}Start with one place{% else %}Начните с одного места{% endif %}"
+  data-selected-title="{% if request.LANGUAGE_CODE == 'az' %}Seçilmiş məkan{% elif request.LANGUAGE_CODE == 'en' %}Selected place{% else %}Выбранное место{% endif %}">
 
   <div class="home-map-head">
     <div class="home-map-copy">
@@ -68,13 +70,6 @@
         <p>{% trans 'По выбранным фильтрам на карте пока нет мест' %}</p>
         <a href="{% url 'place_list' %}">{% trans 'Открыть весь каталог' %}</a>
       </div>
-      <aside class="home-explorer-guide" data-home-map-guide>
-        <img src="{% static 'img/mappy/mappy-map.webp' %}" width="124" height="156" alt="" loading="lazy" decoding="async">
-        <div class="home-explorer-guide-copy">
-          <strong class="home-explorer-guide-title">{% if request.LANGUAGE_CODE == 'az' %}Bir məkandan başlayın{% elif request.LANGUAGE_CODE == 'en' %}Start with one place{% else %}Начните с одного места{% endif %}</strong>
-          <p data-home-map-guide-text aria-live="polite">{% if request.LANGUAGE_CODE == 'az' %}Xəritədə işarə və ya siyahıdan məkan seçin.{% elif request.LANGUAGE_CODE == 'en' %}Select a pin or a place in the list.{% else %}Нажмите на метку — покажу, что это за занятие.{% endif %}</p>
-        </div>
-      </aside>
     </div>
 
     <div class="home-explorer-map-panel" id="home-explorer-map-panel" data-home-explorer-map role="tabpanel" aria-labelledby="home-explorer-map-tab">
@@ -90,18 +85,23 @@
           data-catalog-label="{% trans 'Открыть весь каталог' %}">
         </div>
         <p class="home-map-note" id="home-map-note" hidden aria-live="polite"></p>
-        <div class="home-map-popup-drawer" id="home-map-popup-drawer" aria-live="polite" hidden>
-          <div class="home-map-popup-drawer-info">
-            <strong class="home-map-popup-drawer-name" data-home-map-drawer-name></strong>
-            <p class="home-map-popup-drawer-meta" data-home-map-drawer-meta></p>
+
+        <!-- Mappy Map Assistant floating in bottom-left corner of the map -->
+        <aside class="home-map-assistant" data-home-map-guide role="note" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Köməkçi Mappy{% elif request.LANGUAGE_CODE == 'en' %}Helper Mappy{% else %}Помощник Mappy{% endif %}">
+          <div class="home-map-assistant-figure" aria-hidden="true">
+            <img src="{% static 'img/mappy/mappy-map.webp' %}" width="34" height="44" alt="" loading="lazy" decoding="async">
           </div>
-          <div class="home-map-popup-drawer-action">
-            <a class="home-map-popup-drawer-link" data-home-map-drawer-link href="#">
-              <span>{% trans "Подробнее" %}</span>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-            </a>
+          <div class="home-map-assistant-copy">
+            <strong class="home-map-assistant-title" data-home-map-guide-title>{% if request.LANGUAGE_CODE == 'az' %}Bir məkandan başlayın{% elif request.LANGUAGE_CODE == 'en' %}Start with one place{% else %}Начните с одного места{% endif %}</strong>
+            <p class="home-map-assistant-text" data-home-map-guide-text aria-live="polite">{% if request.LANGUAGE_CODE == 'az' %}Xəritədə işarə və ya siyahıdan məkan seçin.{% elif request.LANGUAGE_CODE == 'en' %}Select a pin or a place in the list.{% else %}Нажмите на метку — покажу, что это за занятие.{% endif %}</p>
           </div>
-        </div>
+          <button type="button" class="home-map-assistant-toggle" data-home-map-assistant-toggle aria-label="{% if request.LANGUAGE_CODE == 'az' %}Köməkçini kiçilt{% elif request.LANGUAGE_CODE == 'en' %}Minimize helper{% else %}Свернуть помощника{% endif %}" title="{% if request.LANGUAGE_CODE == 'az' %}Köməkçini kiçilt / böyüt{% elif request.LANGUAGE_CODE == 'en' %}Minimize / expand helper{% else %}Свернуть / развернуть помощника{% endif %}">
+            <svg class="home-map-assistant-icon-close" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </aside>
       </div>
     </div>
   </div>

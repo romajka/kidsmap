@@ -1,17 +1,19 @@
 {% extends "admin/volunteer/base.html" %}
 {% load i18n static %}
 {% block extrastyle %}{{ block.super }}
-<link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=20260928_1">
+<link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=20261022_release_all_r1">
 <link rel="stylesheet" href="{% static 'css/pages/permanent_place_wizard.css' %}?v=20261020_release_r1">
 <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=20261020_release_r1">
 <link rel="stylesheet" href="{% static 'admin/css/pages/volunteer_place_form.css' %}?v=20260928_1">
 {% endblock %}
 {% block extrahead %}
+<script src="{% static 'js/kidsmap_contact_fields.js' %}?v=20261022_release_all_r1" defer></script>
+
 <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_urls.css' %}">
 <script src="{% static 'admin/js/kidsmap_place_urls.js' %}" defer></script>{{ block.super }}
-<script src="{% static 'admin/js/kidsmap_place_json_import.js' %}?v=20261020_release_r1" defer></script>
+<script src="{% static 'admin/js/kidsmap_place_json_import.js' %}?v=20261022_release_all_r1" defer></script>
 <script src="{% static 'admin/js/volunteer_place_form.js' %}?v=20260928_1" defer></script>
-<script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=20260915" defer></script>
+<script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=20261022_release_all_r1" defer></script>
 <script src="{% static 'js/permanent_place_pricing.js' %}?v=20260915" defer></script>
 <script src="{% static 'js/kidsmap_dependent_subcategory.js' %}" defer></script>
 <script src="{% static 'js/owner_place_map_picker.js' %}" defer></script>

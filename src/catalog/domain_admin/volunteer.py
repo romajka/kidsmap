@@ -267,7 +267,7 @@ def entity_proposal(request, kind, target_id=None):
     if target_id is not None:
         target, revision = volunteer_proposals.get_target(actor=request.user, kind=kind, target_id=target_id)
     initial = {**publication.snapshot(target, kind), **revision.payload} if target and revision and revision.status != 'approved' else publication.snapshot(target, kind) if target else {}
-    form = volunteer_entity_form(kind, data=request.POST if request.method == 'POST' else None, initial=initial)
+    form = volunteer_entity_form(kind, data=request.POST if request.method == 'POST' else None, initial=initial, existing=target is not None)
     error = ''
     if request.method == 'POST' and form.is_valid():
         action = request.POST.get('action')

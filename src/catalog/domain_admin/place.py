@@ -24,7 +24,7 @@ from zoneinfo import ZoneInfo
 
 from catalog.content_data import BAKU_METRO_STATIONS
 from catalog.forms import PlaceScheduleEditorFormMixin, SubcategorySelect
-from catalog.forms import _format_azerbaijan_phone_for_input, _validate_azerbaijan_phone
+from catalog.services.phone_forms import ContactPhoneFormMixin
 from catalog.models import (
     Place,
     PlacePhoto,
@@ -163,7 +163,7 @@ class PlaceChangeAuditInline(admin.TabularInline):
         return False
 
 
-class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
+class PlaceAdminForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, forms.ModelForm):
     @property
     def offering_choices(self):
         from catalog.services.pricing_plans import offering_editor_choices
@@ -376,6 +376,11 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         if not args and kwargs.get("data") is None and kwargs.get("instance") is not None:
             from catalog.services.publication_forms import candidate_for_edit
             kwargs["instance"]=candidate_for_edit(kwargs["instance"])
+        if kwargs.get("instance") is not None and (kwargs.get("data") is not None or (args and args[0] is not None)) and kwargs["instance"].pk:
+            from catalog.services.publication_forms import candidate_for_edit
+            candidate = candidate_for_edit(kwargs["instance"])
+            contact_names = ("phone1", "phone2", "phone3", "phone_country", "whatsapp_mode", "whatsapp_number")
+            kwargs["initial"] = {**{name: getattr(candidate, name) for name in contact_names}, **(kwargs.get("initial") or {})}
         super().__init__(*args, **kwargs)
         if self.is_bound and self.instance.pk:
             from catalog.services.publication_forms import candidate_for_edit
@@ -428,21 +433,7 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         self.fields["offers_adult_classes"].help_text = _(
             "Отметьте, если кроме детских программ у места есть отдельные занятия для взрослых."
         )
-        for field_name in ("phone1", "phone2", "phone3"):
-            if field_name not in self.fields:
-                continue
-            self.fields[field_name].widget.attrs.update(
-                {
-                    "autocomplete": "tel",
-                    "inputmode": "tel",
-                    "placeholder": "+994 50 123 45 67",
-                    "data-km-az-phone": "1",
-                    "maxlength": "17",
-                }
-            )
-            phone_value = self.initial.get(field_name) or getattr(self.instance, field_name, "") or ""
-            if phone_value:
-                self.initial[field_name] = _format_azerbaijan_phone_for_input(phone_value)
+
         for field_name in ("temporary_start", "temporary_end"):
             if field_name in self.fields:
                 self.fields[field_name].input_formats = [
@@ -496,20 +487,6 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             instance.save()
             self._save_m2m()
         return instance
-
-    def clean_phone1(self):
-        value = self.cleaned_data.get("phone1") or ""
-        if not value:
-            return ""
-        return _validate_azerbaijan_phone(value)
-
-    def clean_phone2(self):
-        value = self.cleaned_data.get("phone2") or ""
-        return _validate_azerbaijan_phone(value) if value else ""
-
-    def clean_phone3(self):
-        value = self.cleaned_data.get("phone3") or ""
-        return _validate_azerbaijan_phone(value) if value else ""
 
     def _configure_metro_choices(self):
         metro_options = sort_translated_values(BAKU_METRO_STATIONS)
@@ -1972,7 +1949,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "lesson_duration_minutes", "pricing_plans", "nested_pricing",
         "custom_price_badge_az", "custom_price_badge_ru", "custom_price_badge_en",
         "region", "district", "metro", "address", "lat", "lng", "location_override_reason",
-        "phone1", "phone2", "phone3", "instagram", "website",
+        "phone1", "phone2", "phone3", "phone_country", "whatsapp_mode", "whatsapp_number", "instagram", "website",
         "schedule", "schedule_mode", "structured_schedule",
         "schedule_note_az", "schedule_note_ru", "schedule_note_en",
         "extra_conditions", "extra_conditions_az", "extra_conditions_ru", "extra_conditions_en",
@@ -2036,7 +2013,9 @@ class PlaceAdmin(admin.ModelAdmin):
             _("Контакты"),
             {
                 "fields": (
+                    "phone_country",
                     ("phone1", "phone2", "phone3"),
+                    ("whatsapp_mode", "whatsapp_number"),
                     ("instagram", "website"),
                     "schedule",
                     "schedule_mode",
@@ -2183,6 +2162,8 @@ class PlaceAdmin(admin.ModelAdmin):
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
         from catalog.services.permanent_place_wizard import ui_copy
         context["km_place_entry_copy"] = ui_copy()
+        from .navigation import place_navigation
+        context["km_place_navigation"] = place_navigation(request, obj)
         if obj and obj.pk:
             context["km_place_site_preview_url"] = reverse(
                 "admin:catalog_place_site_preview", args=[obj.pk], current_app=self.admin_site.name)
@@ -2737,7 +2718,8 @@ class PlaceAdmin(admin.ModelAdmin):
         server_only = {
             "photo": bool(instance is not None and getattr(instance, "cover_photo", None)),
         }
-        from catalog.services.place_readiness import inherited_contact
+        from catalog.services.contact_policy import contact_client_config
+        contact_config = contact_client_config(instance)
         checklist_items = [
             {
                 "code": item.code,
@@ -2746,7 +2728,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 "field": item.requirement.field,
                 "anchor": item.requirement.anchor,
                 "check": item.requirement.client_check,
-                "config": ({**item.requirement.client_config, "fields": ["phone1", "phone2", "phone3", "website"], "optional": getattr(instance, "nature", "") == "public_space", "inherited": bool(inherited_contact(instance))} if item.code == "phone" else item.requirement.client_config),
+                "config": ({**item.requirement.client_config, **contact_config} if item.code == "phone" else item.requirement.client_config),
                 "initial": item.is_complete,
                 "message": item.issue.message if item.issue else "",
                 "fallback": bool(server_only.get(item.code)) and item.is_complete,
@@ -2925,7 +2907,9 @@ class PlaceAdmin(admin.ModelAdmin):
             _("Контакты"),
             {
                 "fields": (
+                    "phone_country",
                     ("phone1", "phone2", "phone3"),
+                    ("whatsapp_mode", "whatsapp_number"),
                     ("instagram", "website"),
                     "schedule",
                     "schedule_mode",
@@ -4079,7 +4063,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 "label": _("Всего"),
                 "count": counts["stat_total"],
                 "url": self._build_changelist_query_string(request, clear=("deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact")),
-                "tone": "neutral",
+                "tone": "info",
                 "icon": '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>',
             },
             {
@@ -4107,7 +4091,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 "label": _("Без координат"),
                 "count": counts["stat_without_coordinates"],
                 "url": self._build_changelist_query_string(request, clear=("deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact"), coordinates_status="no"),
-                "tone": "info",
+                "tone": "warn",
                 "icon": '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>',
             },
         )
@@ -4448,11 +4432,21 @@ class PlaceAdmin(admin.ModelAdmin):
         from catalog.services.publication import SCHEMA_VERSION
         if payload.get("schema_version",SCHEMA_VERSION) != SCHEMA_VERSION:
             return JsonResponse({"ok":False,"error":"Publication schema conflict."},status=409)
+        current = None
         if payload.get("place_id") is not None:
             current=Place.objects.filter(pk=payload["place_id"]).first()
             if current is None or not self.has_change_permission(request,current):raise PermissionDenied
             if payload.get("base_content_version") != current.content_version:
                 return JsonResponse({"ok":False,"error":"Publication source conflict."},status=409)
+        contact_fields = {"phone1", "phone2", "phone3", "phone_country", "whatsapp_mode", "whatsapp_number"}
+        try:
+            from catalog.services.phone_numbers import normalize_contact_patch
+            contacts = {name: payload[name] for name in contact_fields if name in payload}
+            if "whatsapp_mode" in contacts and contacts["whatsapp_mode"] not in {"legacy", "same", "separate", "none"}:
+                raise ValidationError(_("Проверьте настройку WhatsApp."))
+            contacts = normalize_contact_patch(current or Place(), contacts)
+        except ValidationError as exc:
+            return JsonResponse({"ok": False, "error": exc.messages[0]}, status=400)
         warnings = []
         raw_plans = payload.get("pricing_plans")
         if raw_plans is None:
@@ -4484,7 +4478,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 nested = validate_nested_pricing(current, payload["nested_pricing"], allow_verified=request.user.is_staff and not is_volunteer(request.user))
         except ValidationError as exc:
             return JsonResponse({"ok": False, "error": exc.messages[0]}, status=400)
-        return JsonResponse({"ok": True, "pricing_plans": plans, "nested_pricing": nested, "warnings": warnings})
+        return JsonResponse({"ok": True, "pricing_plans": plans, "nested_pricing": nested, "warnings": warnings, "contacts": contacts})
 
     def export_place_json_view(self, request, object_id):
         obj = Place.objects.filter(pk=object_id).first()
@@ -4501,6 +4495,7 @@ class PlaceAdmin(admin.ModelAdmin):
             "address": obj.address, "district": obj.district, "metro": obj.metro,
             "lat": obj.lat, "lng": obj.lng,
             "phone1": obj.phone1, "phone2": obj.phone2, "phone3": obj.phone3,
+            "phone_country": obj.phone_country, "whatsapp_mode": obj.whatsapp_mode, "whatsapp_number": obj.whatsapp_number,
             "instagram": obj.instagram, "website": obj.website,
             "schedule_mode": obj.schedule_mode,
             "schedule_note_az": obj.schedule_note_az,

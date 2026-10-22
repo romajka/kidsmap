@@ -69,7 +69,9 @@ class WorkflowMigrationRehearsalTests(TransactionTestCase):
         return executor.loader.project_state([('catalog',name)]).apps
 
     def tearDown(self):
-        self.migrate(self.latest[1])
+        # Restore the actual schema, including migrations added after this rehearsal.
+        executor = MigrationExecutor(connection)
+        executor.migrate(executor.loader.graph.leaf_nodes())
         super().tearDown()
 
     def test_populated_0141_forward_and_additive_rollback_preserve_notifications(self):

@@ -114,6 +114,15 @@ class Place(models.Model):
     phone1 = models.CharField(_("Телефон 1"), max_length=50, blank=True)
     phone2 = models.CharField(_("Дополнительный телефон"), max_length=50, blank=True, default="")
     phone3 = models.CharField(_("Ещё один телефон"), max_length=50, blank=True, default="")
+    phone_country = models.CharField(_("Страна номера"), max_length=2, default="AZ", db_default="AZ")
+    whatsapp_mode = models.CharField(
+        _("WhatsApp"), max_length=10, default="legacy", db_default="legacy",
+        choices=[("legacy", _("Совместимость со старой карточкой")),
+                 ("same", _("WhatsApp совпадает с телефоном")),
+                 ("separate", _("Отдельный номер WhatsApp")),
+                 ("none", _("WhatsApp отсутствует"))],
+    )
+    whatsapp_number = models.CharField(_("Номер WhatsApp"), max_length=50, blank=True, default="", db_default="")
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
