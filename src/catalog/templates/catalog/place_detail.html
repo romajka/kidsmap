@@ -14,7 +14,7 @@
 {% endblock %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'vendor/swiper/12.2.0/swiper-bundle.min.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=17" />
+  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=20261022_contacts" />
   <link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=3" />
   <link rel="stylesheet" href="{% static 'css/pages/detail_polish.css' %}?v=20261020_release_r1" />
 {% endblock %}
@@ -870,7 +870,7 @@
               {% endif %}
 
               {% if presentation.contacts.has_whatsapp %}
-                {% include "catalog/includes/phone_reveal.html" with phone_class="detail-contacts__row" whatsapp=True %}
+                {% include "catalog/includes/phone_reveal.html" with phone_class="detail-contacts__row detail-contacts__row--whatsapp" whatsapp=True %}
               {% endif %}
 
               {% if place.instagram %}
@@ -892,7 +892,7 @@
                   </span>
                   <span class="detail-contacts__body">
                     <span class="detail-label">{% trans "Сайт" %}</span>
-                    <strong>{{ presentation.contacts.website_url }}</strong>
+                    <strong class="detail-contacts__website">{{ presentation.contacts.website_url|cut:"https://"|cut:"http://" }}</strong>
                   </span>
                 </a>
               {% endif %}

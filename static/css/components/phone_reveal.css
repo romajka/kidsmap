@@ -254,7 +254,23 @@
 /* Contacts Card Context */
 .detail-contacts__row.km-phone-control {
   width: 100%;
-  text-align: left;
+}
+
+.detail-contacts__row--primary.km-phone-control,
+.detail-contacts__row--whatsapp.km-phone-control {
+  justify-content: center;
+  text-align: center;
+}
+
+.detail-contacts__row--whatsapp.km-phone-control {
+  border: 1.5px solid #25d366;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  color: #128c7e;
+  box-shadow: 0 4px 14px -6px rgba(37, 211, 102, .35);
+}
+
+.km-phone-icon--whatsapp {
+  color: #25d366;
 }
 
 .detail-contacts__row.km-phone-group--contacts {

@@ -1609,6 +1609,17 @@ a.public-place-org.detail-org-badge {
   flex-direction: column;
 }
 
+button.detail-contacts__row {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  width: 100%;
+  text-align: inherit;
+}
+
 .detail-contacts__row {
   display: flex;
   align-items: center;
@@ -1619,7 +1630,7 @@ a.public-place-org.detail-org-badge {
   border-radius: 12px;
   border-top: 1px solid var(--tint-line-100);
   color: var(--detail-ink);
-  transition: background .18s, color .18s;
+  transition: background .18s, color .18s, border-color .18s, transform .16s, box-shadow .18s;
 }
 
 .detail-contacts__row:first-child { border-top: 0; }
@@ -1632,15 +1643,71 @@ a.detail-contacts__row:hover {
 .detail-contacts__row--static { align-items: flex-start; }
 
 .detail-contacts__row--primary {
-  margin: 0;
-  padding: 10px;
-  border: 1px solid var(--tint-turf-200);
-  background: linear-gradient(135deg, #f5fbf6, #fff);
+  margin: 0 0 8px 0;
+  padding: 11px 14px;
+  min-height: 48px;
+  border: 1.5px solid var(--tint-turf-200);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f5fbf6 0%, #ffffff 100%);
   box-shadow: 0 8px 20px -20px rgba(12, 83, 43, .75);
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  color: var(--brand-turf);
+  font-weight: 700;
+  font-size: 14.5px;
 }
 
-a.detail-contacts__row--primary:hover {
+:is(a, button).detail-contacts__row--primary:hover {
   background: var(--tint-turf-100);
+  border-color: var(--brand-celadon);
+  color: var(--brand-spruce);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px -4px rgba(12, 83, 43, .35);
+}
+
+:is(a, button).detail-contacts__row--primary:active {
+  transform: scale(.98);
+}
+
+.detail-contacts__row--whatsapp {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0 0 8px 0;
+  padding: 11px 14px;
+  min-height: 48px;
+  border: 1.5px solid #25d366;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  box-shadow: 0 4px 14px -6px rgba(37, 211, 102, .35);
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  color: #128c7e;
+  font-weight: 700;
+  font-size: 14.5px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+:is(a, button).detail-contacts__row--whatsapp:hover {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #0d6338;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px -4px rgba(37, 211, 102, .45);
+}
+
+:is(a, button).detail-contacts__row--whatsapp:active {
+  transform: scale(.98);
+}
+
+.detail-contacts__row--whatsapp .km-phone-icon,
+.detail-contacts__row--whatsapp .km-phone-icon--whatsapp {
+  color: #25d366 !important;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
 }
 
 .detail-contacts__secondary {
