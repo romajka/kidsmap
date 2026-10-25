@@ -21,11 +21,11 @@ Spec: user requests and docs/qa/2026-10-25-admin-json-instructions-release-check
 
 - [x] Inspect current server revision, private storage, service health, disk and migration state; record only sanitized facts.
 - [x] Review/stage application, templates, assets, tests and documentation; scan staged changes for secrets and check whitespace.
-- [ ] Run release regression checks on isolated local resources; freeze and push a dedicated release revision.
+- [x] Run release regression checks on isolated local resources; freeze and push a dedicated release revision.
 - [x] Preserve server checkout changes and prior image; create bounded database/runtime/config backups and verify integrity and recoverability.
-- [ ] Build the exact new revision, inspect migration plan, apply supported additive migrations and collect static files.
-- [ ] Activate image, verify public/admin health and migration alignment; recover previous image if health checks fail.
-- [ ] Save exact revisions, results, limitations and recovery instructions in docs/qa.
+- [x] Build the exact new revision, inspect migration plan, apply supported additive migrations and collect static files.
+- [x] Activate image, verify public/admin health and migration alignment; recover previous image if health checks fail.
+- [x] Save exact revisions, results, limitations and recovery instructions in docs/qa.
 
 ## Recovery
 
