@@ -44,4 +44,21 @@ node .tmp/admin-editor-parity-20261025/workflow.cjs
 
 Резервная копия перед исправлением: `/opt/kidsmap-release-backups/20261025-admin-editor-parity`, mode 0700; dump реально восстановлен в отдельный PostgreSQL без сети: 342 места, 182 миграции. Старый image закреплён как `kidsmap:rollback-admin-editor-parity-20261025`. Изменений схемы и массового преобразования данных в этом исправлении нет.
 
-Фактический коммит/результат активации добавляются после проверки сервера. Локальный стенд остаётся доступен на http://127.0.0.1:8898/.
+Применены `71b3c2f77470055b5225c125357d9475898d825c` (форма/фото) и завершающий **`4a255ebf6a4e0df79e4c60e175bcaea5552b9080`** (ссылка на удалённое место). Финальный образ: `kidsmap:admin-editor-parity-20261025-4a255ebf6a4e`, image ID начинается с `09bd9020bc6a`. Его revision labels и checkout совпали с указанным коммитом.
+
+- Новых миграций нет; Django check, migrate --check, makemigrations --check --dry-run, storage guard, nginx check прошли.
+- 342 места до/после. 141 изменённый source/asset/locale-файл образа совпал с Git, расхождений нет.
+- Семь публичных JS/CSS совпали по SHA256; дополнительно проверен точный hashed CSS новой админки, полученный из active static manifest и скачанный с admin.kidsmap.az.
+- Реальный production-шаблон добавления отрендерен через effective PlaceAdmin в READ ONLY transaction: новая панель проверки присутствует, имитации карточки нет, общий picker один, версии ресурсов актуальны. Это серверный render; authenticated browser на production не использовался, записи/сессии для тестирования в production не создавались.
+- Сайт RU, каталог RU и admin login — HTTP 200; PostgreSQL/Redis healthy, web running. Обновление схемы/преобразование данных не выполнялось.
+- Для завершающего Python-патча дополнительно сохранены работающий image 71b3c2f7 и staticfiles: `/opt/kidsmap-release-backups/20261025-admin-editor-parity/followup`. Контрольный интервал переключения 17:15:40–17:16:12 UTC; это интервал запуска и проверок, не измеренная длительность недоступности. Откат не потребовался.
+- На финальном локальном коде C: 1145/1145 source hashes совпали с диском, настоящая ссылка на собственную удалённую запись вернула 404 вместо самоперенаправления; действующая форма прошла серверную регрессию. Ранние собственные записи 354/356/357 уже soft-deleted; локальная волонтёрская 358 оставлена как контролируемый fixture. Чужие записи не удалялись.
+- Локальный стенд http://127.0.0.1:8898/ оставлен работающим; собственный отдельный test-PostgreSQL остановлен.
+
+Команды на сервере: `/root/kidsmap-admin-parity-{build,activate,verify}-20261025.sh`; завершающий патч — `/root/kidsmap-admin-parity-{build,activate,verify}-followup.sh`. Сборка получает точный SHA параметром; одноразовые скрипты/копии не включены в Git. Серверные render/asset-проверки выводят только агрегаты/booleans.
+
+Обновление main выполняется fast-forward до документирующего коммита с `[skip ci]` для предотвращения повторного автоматического деплоя уже проверенного выпуска. GitHub Actions не считается выполненным: приведены результаты локальных и серверных команд. [Механизм GitHub skip](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/skip-workflow-runs).
+
+Санитизированные доказательства: [production verification](2026-10-25-admin-editor-parity/verification.txt), [production render](2026-10-25-admin-editor-parity/render.txt), [46 browser results](2026-10-25-admin-editor-parity/journey.json), [6 staff results](2026-10-25-admin-editor-parity/staff.json). Эти browser results относятся к изолированному localhost.
+
+Проверить: [добавление в админке](https://admin.kidsmap.az/admin/catalog/place/add/?type=permanent), [места](https://admin.kidsmap.az/admin/catalog/place/), [локальное добавление](http://127.0.0.1:8898/admin/catalog/place/add/?type=permanent). Уже открытую вкладку нужно обновить, чтобы она загрузила новую форму.

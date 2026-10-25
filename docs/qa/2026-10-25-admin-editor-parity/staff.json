@@ -1,0 +1,84 @@
+[
+  {
+    "id": "STAFF_UNLIMITED_STABLE",
+    "role": "admin",
+    "status": "PASS",
+    "deltaY": 0,
+    "assertions": [
+      "same checkbox node keeps focus",
+      "no viewport jump",
+      "one payment plus one month remains canonical",
+      "required payment outside advanced"
+    ]
+  },
+  {
+    "id": "STAFF_GALLERY_MATERIALIZED",
+    "role": "admin",
+    "status": "PASS",
+    "editUrl": "http://127.0.0.1:8898/admin/catalog/place/357/change/",
+    "name": "Staff mixed gallery admin 1792947656431",
+    "assertions": [
+      "two separate file selections",
+      "real native draft POST",
+      "reopened candidate gallery uses stored keys"
+    ]
+  },
+  {
+    "id": "STAFF_MIXED_GALLERY_RESTORE",
+    "role": "admin",
+    "status": "PASS",
+    "editUrl": "http://127.0.0.1:8898/admin/catalog/place/357/change/",
+    "assertions": [
+      "existing photo keyboard/button reorder",
+      "existing deletion and make-main",
+      "new photo appended",
+      "private draft round-trip retains exact order/captions",
+      "visible tariff restore",
+      "real preview",
+      "native resave preserves two intended images",
+      "320/390/1440 screenshots with no horizontal overflow",
+      "duplicate warning content stays inside its alert"
+    ]
+  },
+  {
+    "id": "STAFF_UNLIMITED_STABLE",
+    "role": "volunteer",
+    "status": "PASS",
+    "deltaY": 0,
+    "assertions": [
+      "same checkbox node keeps focus",
+      "no viewport jump",
+      "one payment plus one month remains canonical",
+      "required payment outside advanced"
+    ]
+  },
+  {
+    "id": "STAFF_GALLERY_MATERIALIZED",
+    "role": "volunteer",
+    "status": "PASS",
+    "editUrl": "http://127.0.0.1:8898/admin/volunteer/358/edit/",
+    "name": "Staff mixed gallery volunteer 1792947679502",
+    "assertions": [
+      "two separate file selections",
+      "real native draft POST",
+      "reopened candidate gallery uses stored keys"
+    ]
+  },
+  {
+    "id": "STAFF_MIXED_GALLERY_RESTORE",
+    "role": "volunteer",
+    "status": "PASS",
+    "editUrl": "http://127.0.0.1:8898/admin/volunteer/358/edit/",
+    "assertions": [
+      "existing photo keyboard/button reorder",
+      "existing deletion and make-main",
+      "new photo appended",
+      "private draft round-trip retains exact order/captions",
+      "visible tariff restore",
+      "real preview",
+      "native resave preserves two intended images",
+      "320/390/1440 screenshots with no horizontal overflow",
+      "duplicate warning content stays inside its alert"
+    ]
+  }
+]
