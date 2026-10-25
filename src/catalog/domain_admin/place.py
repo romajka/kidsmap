@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Avg, Count, Exists, Max, OuterRef, Prefetch, Q
 from django import forms
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, QueryDict
+from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse, QueryDict
 from django.urls import path, reverse
 from django.views.decorators.http import require_GET
 from django.template.response import TemplateResponse
@@ -2109,6 +2109,10 @@ class PlaceAdmin(admin.ModelAdmin):
             with transaction.atomic():
                 return super().changeform_view(request, object_id=object_id, form_url=form_url, extra_context=extra_context)
         except ValidationError as exc:
+            if request.method == 'GET':
+                # Archived/deleted targets cannot render an editable draft.
+                # Redirecting to this same GET would loop forever.
+                raise Http404 from exc
             if any(error.code == 'candidate_version_conflict' for error in getattr(exc, 'error_list', ())):
                 # The first write has rolled back. Redisplay the submitted POST
                 # as invalid; never replay a save or replace its stale token.
