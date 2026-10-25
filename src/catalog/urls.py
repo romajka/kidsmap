@@ -2,11 +2,12 @@ from .controllers.organization_directory import organization_list
 from .controllers.organization_workspace import organization_connections, organization_connection_result, organization_detach_preview, organization_connection_target
 from .controllers.public_map_api import public_map
 from .controllers.public_details import organization_detail as public_organization_detail, activity_detail
-from .controllers.server_draft_api import draft_collection, draft_detail, draft_photo, draft_materialize
+from .controllers.server_draft_api import draft_collection, draft_detail, draft_photo, draft_materialize, draft_media, draft_media_file
 from .controllers.business_team_api import business_team_action, business_permission_config
 from .controllers.workflow_notifications import inbox, mark_read, accept_invitation, reject_invitation
 from .controllers.email_change_controller import email_change
 from .controllers.location_resolution import location_resolve
+from .controllers.place_editor_preview import place_editor_preview
 from .controllers.typed_reviews import target_reviews, review_action
 from .controllers.specialist_workspace import (specialist_workspace_index, specialist_workspace_profile,
     specialist_workspace_claims, specialist_workspace_invitations, specialist_workspace_certificates,
@@ -131,6 +132,8 @@ urlpatterns = [
     path("api/drafts/", draft_collection, name="server_draft_collection"),
     path("api/drafts/<uuid:draft_id>/", draft_detail, name="server_draft_detail"),
     path("api/drafts/<uuid:draft_id>/photo/", draft_photo, name="server_draft_photo"),
+    path("api/drafts/<uuid:draft_id>/media/", draft_media, name="server_draft_media"),
+    path("api/drafts/<uuid:draft_id>/media/<uuid:media_id>/", draft_media_file, name="server_draft_media_file"),
     path("api/drafts/<uuid:draft_id>/materialize/", draft_materialize, name="server_draft_materialize"),
     path("account/business/permissions/", business_permission_config, name="business_permission_config"),
     path("account/business/team/<str:target_type>/<int:target_id>/<str:action>/", business_team_action, name="business_team_action"),
@@ -211,6 +214,8 @@ urlpatterns = [
     path("account/places/", owner_places_dashboard, name="owner_places_dashboard"),
     path("account/places/<int:pk>/analytics/", owner_place_analytics, name="owner_place_analytics"),
     path("account/places/create/", owner_place_create, name="owner_place_create"),
+    path("account/places/preview/", place_editor_preview, name="place_editor_preview_new"),
+    path("account/places/<int:pk>/preview/", place_editor_preview, name="place_editor_preview"),
     path('account/places/events/<int:pk>/manage/', owner_event_manage, name='owner_event_manage'),
     path('account/places/events/<int:pk>/cancel/', owner_event_cancel, name='owner_event_cancel'),
     path('account/places/events/<int:pk>/reschedule/', owner_event_reschedule, name='owner_event_reschedule'),

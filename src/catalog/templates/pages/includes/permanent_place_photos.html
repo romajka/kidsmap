@@ -2,6 +2,7 @@
 {% get_current_language as photo_language %}
 {{ form.photo_upload_config|json_script:'pw-photo-config' }}
 <div data-photo-editor data-prepare-url="{% url 'owner_photo_prepare' %}" data-save-url="{% if place %}{% url 'owner_photo_edit_save' place.pk %}{% else %}{% url 'owner_photo_create_save' %}{% endif %}">
+  {% include 'catalog/includes/place_photo_picker.html' %}
   <div class="pw-field" data-pw-field="photo">
     <label for="id_photo"><span data-pw-label>{{ form.photo.label }}</span><span data-pw-required="photo" class="pw-field-badge" hidden></span></label>
     <div data-photo-zone="main"><input type="file" name="photo" id="id_photo" accept="image/jpeg,image/png,image/webp,.heic,.heif,.hif" aria-describedby="photo-help photo-cover-help photo-errors"></div>

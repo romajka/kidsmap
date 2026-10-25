@@ -54,7 +54,10 @@ def live_snapshot(place):
 
 
 def base_token(place):
-    digest = hashlib.sha256(json.dumps(live_snapshot(place), sort_keys=True).encode()).hexdigest()
+    state = live_snapshot(place)
+    # Gallery-only changes must invalidate an older editing tab as well.
+    state['gallery'] = list(place.gallery.order_by('order','pk').values('id','image','caption','order')) if place.pk else []
+    digest = hashlib.sha256(json.dumps(state, sort_keys=True).encode()).hexdigest()
     return signing.dumps({"place": place.pk, "digest": digest}, salt="volunteer-place")
 
 
@@ -214,6 +217,10 @@ def save_working_revision(*, user, place_id, data, files, source):
     payload = content_snapshot(candidate)
     payload["pricing_plans"] = form.cleaned_data["pricing_plans"]
     payload["structured_schedule"] = json_value(form.cleaned_schedule_days)
+    from catalog.services.publication_forms import gallery_from_form
+    gallery = gallery_from_form(place, form)
+    if gallery is not None:
+        payload['gallery'] = gallery
     from catalog.services import publication
     if revision and not revision.dependencies:
         adopt_legacy_revision(revision, place)

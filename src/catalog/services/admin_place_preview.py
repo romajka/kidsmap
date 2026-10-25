@@ -206,12 +206,16 @@ def build_request_preview(item, *, language='ru', current=False):
     return _build_preview(item.place, item=item, language=language, current=current)
 
 
-def _build_preview(place, *, item=None, language='ru', current=False):
+def build_revision_preview(revision, *, language='ru', current=False):
+    return _build_preview(revision.place, language=language,current=current,revision_candidate=revision)
+
+
+def _build_preview(place, *, item=None, language='ru', current=False, revision_candidate=None):
     language = language if language in LANGUAGES else 'ru'
     live = publication.snapshot(place, 'place')
-    revision = VolunteerPlaceRevision.objects.filter(place=place).first()
-    is_publication = bool(item and item.request_kind == item.KIND_PUBLICATION)
-    submitted = bool(is_publication and item.is_pending and revision and revision.status == 'pending')
+    revision = revision_candidate or VolunteerPlaceRevision.objects.filter(place=place).first()
+    is_publication = bool(revision_candidate or (item and item.request_kind == item.KIND_PUBLICATION))
+    submitted = bool((revision_candidate and revision.status != 'approved') or (is_publication and item and item.is_pending and revision and revision.status == 'pending'))
     data = copy.deepcopy(live)
     if submitted and not current:
         # A patch is not a full card. Preserve its complete captured base,
@@ -219,6 +223,9 @@ def _build_preview(place, *, item=None, language='ru', current=False):
         data.update(copy.deepcopy(revision.base_snapshot or {}))
         data.update(copy.deepcopy(revision.payload))
     stale = request_is_stale(item, revision=revision) if item else False
+    if revision_candidate and submitted:
+        from catalog.services.volunteer_places import revision_base_matches
+        stale = not revision_base_matches(revision,place)
     candidate = copy.copy(place)
     candidate._state = copy.copy(place._state)
     candidate._state.fields_cache = {}
@@ -250,6 +257,7 @@ def _build_preview(place, *, item=None, language='ru', current=False):
         if (place.city if name == 'city' else data.get(name)):
             location[index]['value'] = get_location_translation(place.city if name == 'city' else data[name], language)
     contacts = _field_rows(Place, data, ('phone1','phone2','phone3','phone_country','whatsapp_mode','whatsapp_number','instagram','website'))
+    contacts.extend({'label':link['label'],'value':link['url'],'url':external_link(link['url'])} for link in candidate.safe_public_links)
     instagram = external_link(candidate.instagram_url()) if candidate.instagram else ''
     if instagram:
         next(row for row in contacts if row['label'] == Place._meta.get_field('instagram').verbose_name)['url'] = instagram

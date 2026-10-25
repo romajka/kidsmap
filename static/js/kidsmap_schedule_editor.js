@@ -71,6 +71,26 @@
 
   var WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
   var activeDropdown = null;
+  var activeScheduleConfirmation = null;
+
+  async function confirmScheduleChange(state, kind) {
+    if (activeScheduleConfirmation || !window.kmModal || !window.kmModal.confirm) return false;
+    var lang = (document.documentElement.lang || "ru").split("-")[0].toLowerCase();
+    var copy = {
+      ru: {clearTitle:"Очистить расписание?",clearMessage:"Указанные часы будут удалены. После этого можно выбрать шаблон или заполнить расписание заново.",clear:"Очистить",copyTitle:"Заменить часы выбранных дней?",copyMessage:"Текущие часы выбранных дней будут заменены расписанием, которое вы копируете.",replace:"Заменить часы",cancel:"Отмена"},
+      az: {clearTitle:"Cədvəli təmizləmək?",clearMessage:"Göstərilən saatlar silinəcək. Sonra şablon seçə və ya cədvəli yenidən doldura bilərsiniz.",clear:"Təmizlə",copyTitle:"Seçilmiş günlərin saatları əvəzlənsin?",copyMessage:"Seçilmiş günlərin cari saatları kopyaladığınız cədvəllə əvəzlənəcək.",replace:"Saatları əvəz et",cancel:"Ləğv et"},
+      en: {clearTitle:"Clear the schedule?",clearMessage:"The entered hours will be removed. You can then choose a template or enter a new schedule.",clear:"Clear schedule",copyTitle:"Replace the selected days’ hours?",copyMessage:"The selected days’ current hours will be replaced with the schedule you are copying.",replace:"Replace hours",cancel:"Cancel"}
+    };
+    var text = copy[lang] || copy.ru;
+    state.confirmPending = true;
+    activeScheduleConfirmation = state;
+    try {
+      return await window.kmModal.confirm({title:kind === "clear" ? text.clearTitle : text.copyTitle,message:kind === "clear" ? text.clearMessage : text.copyMessage,confirmText:kind === "clear" ? text.clear : text.replace,cancelText:text.cancel,tone:kind === "clear" ? "danger" : "warning",icon:kind === "clear" ? "delete" : "schedule"});
+    } finally {
+      state.confirmPending = false;
+      activeScheduleConfirmation = null;
+    }
+  }
 
   function defaultDays() {
     return WEEKDAYS.map(function (weekday) {
@@ -472,11 +492,11 @@
     var isRegular = mode === "regular";
     if (state.regularPanel) state.regularPanel.hidden = !isRegular;
     if (state.modeSummary) {
-      state.modeSummary.hidden = isRegular || (mode === "events" && Boolean(state.eventsAction));
+      state.modeSummary.hidden = !mode || isRegular || (mode === "events" && Boolean(state.eventsAction));
       state.modeSummary.textContent = scheduleModeMessage(mode);
     }
     if (state.modeNotes) {
-      state.modeNotes.hidden = mode === "regular";
+      state.modeNotes.hidden = !mode || mode === "regular";
     }
     if (state.eventsAction) {
       state.eventsAction.hidden = mode !== "events";
@@ -727,10 +747,10 @@
     };
   }
 
-  function applyPreset(state, preset) {
+  async function applyPreset(state, preset) {
+    if (state.confirmPending) return;
     if (preset === "clear") {
-      var confirmMsg = state.root.dataset.confirmClear || "Вы уверены, что хотите очистить расписание?";
-      if (!confirm(confirmMsg)) return;
+      if (!await confirmScheduleChange(state, "clear")) return;
       state.days = defaultDays();
     } else if (preset === "always-open") {
       state.days = WEEKDAYS.map(function (weekday) {
@@ -1101,7 +1121,8 @@
     if (activeOverlay) activeOverlay.remove();
   }
 
-  function applyCopy(state, sourceWeekday, popover) {
+  async function applyCopy(state, sourceWeekday, popover) {
+    if (state.confirmPending) return;
     var sourceDay = dayByWeekday(state, sourceWeekday);
     if (!sourceDay) return;
 
@@ -1117,14 +1138,7 @@
     });
 
     if (anyHasSchedule) {
-      var confirmMsg = "Расписание выбранных дней будет заменено. Продолжить?";
-      var lang = ((document.documentElement.lang || "ru").split("-")[0] || "ru").toLowerCase();
-      if (lang === "az") {
-        confirmMsg = "Seçilmiş günlərin cədvəli əvəzlənəcək. Davam edilsin?";
-      } else if (lang === "en") {
-        confirmMsg = "The schedule for selected days will be overwritten. Continue?";
-      }
-      if (!confirm(confirmMsg)) return;
+      if (!await confirmScheduleChange(state, "copy")) return;
     }
 
     checked.forEach(function (item) {
@@ -1141,6 +1155,9 @@
     closePopover();
     updateInput(state);
     renderPreview(state);
+
+    var copyButton = state.root.querySelector('[data-km-schedule-copy-day="' + sourceWeekday + '"]');
+    if (copyButton) copyButton.focus({ preventScroll: true });
 
     showToast(state, formatSuccessMsg(checked.length));
   }
@@ -1188,7 +1205,7 @@
       closeActiveDropdown();
     }
     var popover = document.querySelector(".km-schedule-editor__copy-popover");
-    if (popover && !popover.contains(event.target) && !event.target.closest("[data-km-schedule-copy-day]")) {
+    if (popover && !activeScheduleConfirmation && !popover.contains(event.target) && !event.target.closest("[data-km-schedule-copy-day]")) {
       closePopover();
     }
   });

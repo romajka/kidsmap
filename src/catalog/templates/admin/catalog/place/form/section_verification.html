@@ -1,6 +1,7 @@
 {% load i18n %}
 {% with summary=km_place_form_summary %}
   <div class="km-pf-verify">
+    {% include 'catalog/includes/editor_preview_button.html' with preview_pk=original.pk preview_admin=True %}
     <div class="km-pf-verify__preview">
       <span class="km-pf-verify__preview-label">{% translate "Как карточка выглядит в каталоге" %}</span>
       <label for="km-place-preview-language">{% translate "Язык предпросмотра" %}</label>

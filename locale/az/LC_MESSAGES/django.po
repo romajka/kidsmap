@@ -7924,7 +7924,7 @@ msgstr "İstifadəçi adını daxil edin."
 #, fuzzy
 #| msgid "Дополнительные фото (до 5)"
 msgid "Дополнительные фото (до 10)"
-msgstr "Əlavə şəkillər (5-ə qədər)"
+msgstr "Əlavə şəkillər (10-a qədər)"
 
 #: src/catalog/forms.py:1048
 msgid "До 10 фото. HEIC/HEIF автоматически конвертируются на сервере."
@@ -9322,16 +9322,12 @@ msgid "Укажите нижнюю границу цены."
 msgstr "Telefon nömrəsini daxil edin."
 
 #: src/catalog/models/pricing_plan.py:173
-#, fuzzy
-#| msgid "Укажите время окончания."
 msgid "Укажите верхнюю границу цены."
-msgstr "Bitmə vaxtını seçin."
+msgstr "Yuxarı qiymət həddini daxil edin."
 
 #: src/catalog/models/pricing_plan.py:175
-#, fuzzy
-#| msgid "Цена не может быть меньше 0."
 msgid "Верхняя граница не может быть меньше нижней."
-msgstr "Qiymət 0-dan kiçik ola bilməz."
+msgstr "Yuxarı qiymət həddi aşağı həddən kiçik ola bilməz."
 
 #: src/catalog/models/pricing_plan.py:181
 #, fuzzy
@@ -23833,3 +23829,71 @@ msgstr "Əvvəlcə məkanı yadda saxlayın."
 
 msgid "Добавить группу"
 msgstr "Qrup əlavə et"
+
+#: place-addition-redesign
+msgid "Возраст и цены"
+msgstr "Yaş və qiymətlər"
+
+#: place-addition-redesign
+msgid "Фото и проверка"
+msgstr "Şəkillər və yoxlama"
+
+#: place-addition-redesign
+msgid "Добавить фотографии"
+msgstr "Şəkillər əlavə et"
+
+#: place-addition-redesign
+msgid "У нового места первое фото станет обложкой. Остальные добавятся в галерею. Существующая обложка сохраняется."
+msgstr "Yeni məkanın ilk şəkli üz qabığı olacaq. Digərləri qalereyaya əlavə ediləcək. Mövcud üz qabığı saxlanılır."
+
+#: place-addition-redesign
+msgid "Особенности места"
+msgstr "Məkanın xüsusiyyətləri"
+
+#: place-addition-redesign
+msgid "Адреса карточки на сайте"
+msgstr "Saytda məkanın ünvanları"
+
+#: place-addition-redesign
+msgid "Условия места и дополнительная информация"
+msgstr "Məkanın şərtləri və əlavə məlumat"
+
+#: place-addition-redesign
+msgid "Обновить по экспорту"
+msgstr "İxrac faylı ilə yenilə"
+
+#: place-addition-redesign
+msgid "Сначала сохраните место. Занятия и группы можно добавить отдельно."
+msgstr "Əvvəlcə məkanı saxlayın. Məşğələ və qrupları ayrıca əlavə edə bilərsiniz."
+
+#: place-addition-redesign
+msgid "Сайт и социальные сети"
+msgstr "Sayt və sosial şəbəkələr"
+
+#: catalog/includes/editor_preview_button.html
+msgid "Просмотреть перед публикацией"
+msgstr "Dərc etməzdən əvvəl bax"
+
+#: catalog/includes/editor_preview_button.html
+msgid "Текущие данные откроются в новой вкладке. Вы сможете проверить вид страницы и вернуться к заполнению."
+msgstr "Cari məlumatlar yeni vərəqdə açılacaq. Səhifənin görünüşünü yoxlayıb doldurmağa qayıda bilərsiniz."
+
+#: catalog/includes/editor_preview_button.html
+msgid "Текущие данные формы"
+msgstr "Formanın cari məlumatları"
+
+#: catalog/includes/editor_preview_button.html
+msgid "Проверьте данные перед предпросмотром"
+msgstr "Ön baxışdan əvvəl məlumatları yoxlayın"
+
+#: catalog/includes/editor_preview_button.html
+msgid "Форма осталась открытой в исходной вкладке. Исправьте отмеченные поля и откройте предпросмотр ещё раз."
+msgstr "Forma ilkin vərəqdə açıq qalıb. İşarələnmiş sahələri düzəldin və ön baxışı yenidən açın."
+
+#: catalog/includes/editor_preview_button.html
+msgid "Вернуться к форме"
+msgstr "Formaya qayıt"
+
+#: catalog/includes/editor_preview_button.html
+msgid "Проверить заполнение"
+msgstr "Doldurulmanı yoxla"

@@ -42,6 +42,11 @@ def localize_fields(form):
     form.fields['offers_adult_classes'].choices = (('0',t('Только дети','Yalnız uşaqlar','Children only')),('1',t('Дети и взрослые','Uşaqlar və böyüklər','Children and adults')))
     form.fields['lesson_format'].choices = (('', '—'),('group',t('Групповые','Qrup','Group')),('individual',t('Индивидуальные','Fərdi','Individual')))
     hints = {
+        'instagram': ('Имя профиля или ссылка: @kidsmap либо https://instagram.com/kidsmap.', 'Profil adı və ya keçid: @kidsmap və ya https://instagram.com/kidsmap.', 'Profile name or link: @kidsmap or https://instagram.com/kidsmap.'),
+        'website': ('Официальный сайт места. Например: https://example.com. Другую публичную страницу добавьте ниже.', 'Məkanın rəsmi saytı. Məsələn: https://example.com. Digər açıq səhifəni aşağıda əlavə edin.', 'The official website, for example https://example.com. Add other public pages below.'),
+        'lesson_duration_minutes': ('Например, 45 минут. Укажите, если длительность одинакова для большинства занятий.', 'Məsələn, 45 dəqiqə. Əksər məşğələlər eyni müddətdədirsə göstərin.', 'For example, 45 minutes. Use this if most lessons have the same duration.'),
+        'lessons_per_week': ('Обычная частота, например 2 занятия. Стоимость укажите в тарифе.', 'Adi tezlik, məsələn 2 məşğələ. Qiyməti tarifdə göstərin.', 'Usual frequency, for example 2 lessons. Set the cost in a pricing plan.'),
+        'lessons_per_month': ('Количество занятий по обычному расписанию. Пакет из 8 занятий можно добавить отдельным тарифом.', 'Adi cədvələ görə məşğələ sayı. 8 məşğələlik paketi ayrıca tarif kimi əlavə edin.', 'Lessons in a typical month. An 8-lesson package can be a separate pricing plan.'),
         'region': ('Выберите город или регион.', 'Şəhər və ya region seçin.', 'Choose a city or region.'),
         'district': ('Обязательно для Баку.', 'Bakı üçün məcburidir.', 'Required for Baku.'),
         'metro': ('Необязательно: ближайшая станция.', 'İstəyə görə: yaxın stansiya.', 'Optional: nearest station.'),
@@ -49,11 +54,17 @@ def localize_fields(form):
         'offers_adult_classes': ('Возраст выше относится к детским группам.', 'Yuxarıdakı yaş uşaqların qruplarına aiddir.', 'The age range above describes children’s groups.'),
         'moderation_note': ('До 500 символов; посетители не увидят этот комментарий.', '500 simvoladək; ziyarətçilər bu şərhi görməyəcək.', 'Up to 500 characters; visitors will not see this note.'),
     }
+    for language in ('az','ru','en'):
+        hints[f'extra_conditions_{language}'] = ('Правила посещения: нужна ли запись, сменная обувь, сопровождение. Например: «Запись за день, детям до 6 лет — со взрослым».', 'Ziyarət qaydaları: qeydiyyat, dəyişək ayaqqabı, müşayiət. Məsələn: «Bir gün əvvəl qeydiyyat; 6 yaşadək uşaqlar böyüklə gəlir».', 'Visiting rules: booking, indoor shoes or an accompanying adult. Example: “Book a day ahead; children under 6 need an adult.”')
+        hints[f'additional_info_{language}'] = ('Полезные детали: парковка, вход с коляской, что взять с собой. Например: «Вход со двора, есть место для колясок».', 'Faydalı məlumat: parklanma, uşaq arabası ilə giriş, nə gətirmək lazımdır. Məsələn: «Giriş həyətdəndir, arabalar üçün yer var».', 'Helpful details: parking, stroller access or what to bring. Example: “Enter from the courtyard; stroller space is available.”')
     for name, field in form.fields.items():
         if name in hints:
             field.help_text = t(*hints[name])
-        elif name not in ('name_az','description_az','photo','gallery_images'):
+        elif name not in ('name_az','description_az','photo','gallery_images','phone1','phone2','phone3','phone_country','whatsapp_mode','whatsapp_number'):
             field.help_text = ''
+    # Publication rules can bind fields before their localized labels/help exist.
+    # A BoundField captures both values, so render fresh bound fields afterwards.
+    form._bound_fields_cache.clear()
 
 
 def ui_copy():
@@ -69,14 +80,22 @@ def ui_copy():
         not_saved=t('Ещё не сохранено', 'Hələ saxlanılmayıb', 'Not saved yet'),
         saved_card=t('Карточка сохранена', 'Kart saxlanılıb', 'Listing saved'),
         saving_error=t('Исправьте ошибки — карточка не сохранена', 'Səhvləri düzəldin — kart saxlanılmayıb', 'Correct the errors — listing not saved'),
-        needs_check=t('Ввод изменён. Готовность проверит сервер при отправке.', 'Məlumat dəyişib. Hazırlığı göndərərkən server yoxlayacaq.', 'Values changed. The server will check readiness on submission.'),
-        requirements=t('Требования к отправке', 'Göndərmə tələbləri', 'Submission requirements'),
+        needs_check=t('Вы внесли изменения. Нажмите «Проверить заполнение», когда будете готовы.', 'Dəyişiklik etdiniz. Hazır olduqda «Doldurmanı yoxla» düyməsini basın.', 'You made changes. Choose “Check entries” when you are ready.'),
+        requirements=t('Что осталось заполнить', 'Nələri doldurmaq qalıb', 'What is left to complete'),
         requirements_hint=t('Заполните данные о вашем месте. Неполный текст можно сохранить в черновике и вернуться в любой момент.', 'Məkanınız haqqında məlumatları doldurun. Natamam mətni qaralamada saxlaya və istənilən vaxt qayıda bilərsiniz.', 'Fill in the details about your place. Incomplete text can be saved as a draft and completed at any time.'),
         contact_choice=t('Один из контактов — для отправки', 'Əlaqələrdən biri — göndərmək üçün', 'One contact — needed to submit'),
         contact_optional=t('Контакты, если известны. Для парков, бульваров и общественных детских площадок они необязательны.', 'Əlaqə məlumatları məlumdursa əlavə edin. Parklar, bulvarlar və ictimai uşaq meydançaları üçün məcburi deyil.', 'Add contact details if known. They are optional for parks, boulevards and public playgrounds.'),
         contact_required=t('Укажите телефон, WhatsApp или сайт.', 'Telefon, WhatsApp və ya sayt göstərin.', 'Provide a phone number, WhatsApp or website.'),
         contact_inherited=t('Используются подтверждённые контакты организации. Можно добавить контакты этого места.', 'Təşkilatın təsdiqlənmiş əlaqə məlumatlarından istifadə edilir. Bu məkanın əlaqələrini əlavə edə bilərsiniz.', 'The organization’s confirmed contacts are used. You can add this place’s own contacts.'),
-        translations_hint=t('Переводы не создаются автоматически. Если текст на выбранном языке пуст, посетитель увидит текст AZ.', 'Tərcümələr avtomatik yaradılmır. Seçilmiş dildə mətn boşdursa, ziyarətçi AZ mətnini görəcək.', 'Translations are not created automatically. When the selected language is empty, visitors see AZ text.'),
+        translations_hint=t('Рекомендуем добавить название и описание на русском и английском: семьям будет проще понять, что вы предлагаете. Например, описание RU увидит посетитель русской версии. Переводы необязательны и не создаются автоматически; пока их нет, показываем текст AZ.', 'Adı və təsviri rus və ingilis dillərində də əlavə etməyi tövsiyə edirik: ailələr təklifinizi daha asan anlayacaq. Məsələn, RU təsviri rusdilli versiyada görünəcək. Tərcümə məcburi deyil və avtomatik yaradılmır; olmadıqda AZ mətni göstərilir.', 'We recommend a Russian and English name and description to help more families understand your place. For example, the RU description appears on the Russian site. Translations are optional and are not generated automatically; AZ text is shown until they are added.'),
+        recommended=t('Рекомендуется', 'Tövsiyə olunur', 'Recommended'),
+        translations_help_label=t('Зачем добавлять другие языки?', 'Digər dillər nə üçün lazımdır?', 'Why add other languages?'),
+        phones_title=t('Телефоны', 'Telefonlar', 'Phone numbers'),
+        phones_hint=t('Основной номер и до двух дополнительных — всего до 3 номеров. Ниже можно добавить мессенджеры и ссылки.', 'Əsas nömrə və iki əlavə nömrə — cəmi 3-dək. Aşağıda mesajlaşma xidmətləri və keçidlər əlavə edə bilərsiniz.', 'One main number and up to two additional numbers — 3 in total. Add messengers and links below.'),
+        add_phone=t('Добавить телефон', 'Telefon əlavə et', 'Add a phone'),
+        remove_phone=t('Убрать номер', 'Nömrəni sil', 'Remove phone'),
+        socials_title=t('Мессенджеры, соцсети и сайт', 'Mesajlaşma xidmətləri, sosial şəbəkələr və sayt', 'Messengers, social media and website'),
+        socials_hint=t('Добавьте доступные способы связи. Для Telegram, Facebook, YouTube или записи используйте «Добавить ссылку» и укажите название.', 'Mövcud əlaqə üsullarını əlavə edin. Telegram, Facebook, YouTube və ya qeydiyyat üçün «Keçid əlavə et» seçin və adını yazın.', 'Add the contact options you use. For Telegram, Facebook, YouTube or booking, choose “Add a link” and enter its name.'),
         preview_language=t('Язык предпросмотра', 'Önbaxış dili', 'Preview language'),
         preview_hint=t('Краткий предпросмотр введённых данных. Отправка ещё не публикует место.', 'Daxil edilmiş məlumatın qısa önbaxışı. Göndərmək məkanı hələ dərc etmir.', 'A short preview of your input. Submission does not publish the place.'),
         state_new=t('Новая карточка', 'Yeni kart', 'New listing'),
@@ -96,12 +115,12 @@ def ui_copy():
         errors_title=t('Исправьте ошибки', 'Səhvləri düzəldin', 'Correct the errors'),
         section_about=t('О месте', 'Məkan haqqında', 'About the place'),
         section_contact=t('Адрес и контакты', 'Ünvan və əlaqə', 'Address and contact'),
-        section_offer=t('Занятия и цены', 'Məşğələlər və qiymətlər', 'Activities and prices'),
+        section_offer=t('Возраст и цены', 'Yaş və qiymətlər', 'Age and prices'),
         section_review=t('Фото и проверка', 'Şəkillər və yoxlama', 'Photos and review'),
         standalone=t('Место может быть без организации. Связать его можно позже в кабинете.', 'Məkan təşkilatsız ola bilər. Onu daha sonra kabinetdə əlaqələndirə bilərsiniz.', 'A place can stand alone. Link it to an organization later in your workspace.'),
         public_space=t('Общественное место', 'İctimai məkan', 'Public place'),
         business=t('Бизнес', 'Biznes', 'Business'),
-        common_ticket=t('Общий билет или вход', 'Ümumi bilet və ya giriş', 'General admission or ticket'),
+        common_ticket=t('Тарифы места', 'Məkanın tarifləri', 'Place pricing plans'),
         shared_program=t('Общая программа', 'Ümumi proqram', 'Shared program'),
         local_activity=t('Местное занятие', 'Yerli məşğələ', 'Local activity'),
         category=t('Категория занятия', 'Məşğələ kateqoriyası', 'Activity category'),
@@ -112,20 +131,20 @@ def ui_copy():
         local_supplement=t('Местное дополнение (AZ)', 'Yerli əlavə (AZ)', 'Local supplement (AZ)'),
         group_teachers=t('Преподаватели', 'Müəllimlər', 'Teachers'),
         group_conditions=t('Условия группы (AZ)', 'Qrup şərtləri (AZ)', 'Group conditions (AZ)'),
-        activity_explain=t('Для парка или общего входного билета занятие добавлять не нужно.', 'Park və ya ümumi giriş bileti üçün məşğələ əlavə etmək lazım deyil.', 'A park or general admission does not need an activity.'),
+        activity_explain=t('Тариф — это вариант оплаты. Направление — отдельная услуга, например плавание или рисование, со своими группами и расписанием. Если достаточно цены за урок или абонемент, заполните только тарифы выше.', 'Tarif ödəniş variantıdır. İstiqamət öz qrupları və cədvəli olan ayrıca xidmətdir, məsələn üzgüçülük və ya rəsm. Yalnız dərs qiyməti və ya abunə lazımdırsa, yuxarıdakı tariflər kifayətdir.', 'A pricing plan is a payment option. An activity is a separate service, such as swimming or drawing, with its own groups and schedule. If you only need a lesson price or membership, use the plans above.'),
         live_version=t('Опубликованная версия', 'Dərc edilmiş versiya', 'Live version'),
         candidate_version=t('Новая редакция', 'Yeni redaksiya', 'New edit'),
         candidate_help=t('Черновик и изменения на проверке не скрывают опубликованное место.', 'Qaralama və yoxlamadakı dəyişikliklər dərc edilmiş məkanı gizlətmir.', 'Drafts and pending edits do not hide the live place.'),
-        server_saving=t('Сохраняем на сервере…', 'Serverdə saxlanılır…', 'Saving to server…'),
-        server_saved=t('Текст и тарифы сохранены на сервере', 'Mətn və tariflər serverdə saxlanılıb', 'Text and plans saved to server'),
+        server_saving=t('Сохраняем черновик…', 'Qaralama saxlanılır…', 'Saving your draft…'),
+        server_saved=t('Текст и тарифы сохранены', 'Mətn və tariflər saxlanılıb', 'Text and pricing saved'),
         server_conflict=t('Другой редактор изменил черновик. Ваш ввод сохранён в этой вкладке; сохранение остановлено. Откройте актуальную версию отдельно и сравните изменения.', 'Başqa redaktor qaralamanı dəyişib. Daxil etdikləriniz bu səhifədə saxlanıb; saxlama dayandırılıb. Cari versiyanı ayrıca açıb dəyişiklikləri müqayisə edin.', 'Another editor changed the draft. Your input remains in this tab; saving is paused. Open the current version separately to compare changes.'),
         working_copy_conflict=t('Есть отдельная рабочая копия. Актуальные данные не заменены. Выберите, с чем продолжить.', 'Ayrıca iş nüsxəsi var. Cari məlumatlar dəyişdirilməyib. Hansı ilə davam edəcəyinizi seçin.', 'A separate working copy exists. Current data has not been replaced. Choose how to continue.'),
         restore_working_copy=t('Восстановить мой ввод как новый черновик', 'Daxil etdiklərimi yeni qaralama kimi bərpa et', 'Restore my input as a new draft'),
         use_current_card=t('Открыть актуальные данные', 'Cari məlumatları aç', 'Open current data'),
         open_current_draft=t('Открыть актуальную версию в новой вкладке', 'Cari versiyanı yeni səhifədə açın', 'Open the current version in a new tab'),
         state_changes=t('Нужны исправления', 'Düzəlişlər lazımdır', 'Changes requested'),
-        upload_pending=t('Фото ещё не загружено. Оно сохранится после явного действия.', 'Şəkil hələ yüklənməyib. Açıq əməliyyatdan sonra saxlanılacaq.', 'Photo is not uploaded yet. It will be saved after an explicit action.'),
-        review_summary=t('Проверка публикации выполняется сервером при отправке.', 'Dərc yoxlaması göndərmə zamanı serverdə aparılır.', 'The server checks publication requirements when you submit.'),
+        upload_pending=t('Чтобы сохранить выбранные фото, нажмите «Сохранить черновик».', 'Seçilmiş şəkilləri saxlamaq üçün «Qaralamanı saxla» düyməsini basın.', 'Choose “Save draft” to save your selected photos.'),
+        review_summary=t('Заполните эти пункты, чтобы отправить место на проверку.', 'Məkanı yoxlamaya göndərmək üçün bu bəndləri doldurun.', 'Complete these details to send your place for review.'),
         optional_map=t('Точка на карте необязательна; адрес можно указать без неё.', 'Xəritədə nöqtə məcburi deyil; ünvanı onsuz da göstərə bilərsiniz.', 'The map pin is optional; you can provide the address without it.'),
         inherited_contact=t('Контакт берётся из подтверждённой организации.', 'Əlaqə təsdiqlənmiş təşkilatdan götürülür.', 'Contact comes from the confirmed organization.'),
         local_contact=t('Местный контакт', 'Yerli əlaqə', 'Local contact'),
@@ -160,9 +179,23 @@ def ui_copy():
         translations=t('Другие языки · RU / EN', 'Digər dillər · RU / EN', 'Other languages · RU / EN'),
         range=t('Диапазон возраста', 'Yaş aralığı', 'Age range'),
         open_age=t('От указанного возраста', 'Göstərilən yaşdan', 'From this age'),
+        children_age=t('Возраст детей', 'Uşaqların yaşı', 'Children’s age'),
+        open_age_example=t('без верхней границы, например 3+', 'yuxarı hədd olmadan, məsələn 3+', 'no upper limit, for example 3+'),
+        age_hint=t('Выберите возраст ползунками. Если принимаете взрослых, отметьте это рядом; возраст относится к детям.', 'Yaşı sürgülərlə seçin. Böyükləri də qəbul edirsinizsə, yanındakı seçimi işarələyin; yaş uşaqlara aiddir.', 'Use the sliders to set children’s ages. Select adults too if they can attend.'),
+        notes_title=t('Условия и полезные детали', 'Şərtlər və faydalı məlumat', 'Rules and helpful details'),
+        public_links=t('Другие публичные ссылки', 'Digər açıq keçidlər', 'Other public links'),
+        public_links_hint=t('До 5 ссылок: запись, меню, Facebook или другая страница места. Укажите понятное название — посетители увидят его в контактах.', '5-dək keçid: qeydiyyat, menyu, Facebook və ya məkanın digər səhifəsi. Aydın ad yazın — ziyarətçilər onu əlaqə bölməsində görəcək.', 'Up to 5 links: booking, menu, Facebook or another page for your place. Visitors will see each name in Contacts.'),
+        link_name=t('Название ссылки', 'Keçidin adı', 'Link name'),
+        link_url=t('Адрес страницы', 'Səhifənin ünvanı', 'Page URL'),
+        add_link=t('Добавить ссылку', 'Keçid əlavə et', 'Add a link'),
+        remove_link=t('Удалить ссылку', 'Keçidi sil', 'Remove link'),
+        notes_hint=t('Необязательно. Эти сведения увидят посетители. Выберите язык текста; переводы можно добавить позже.', 'Məcburi deyil. Bu məlumatı ziyarətçilər görəcək. Mətnin dilini seçin; tərcümələri sonra əlavə edə bilərsiniz.', 'Optional. Visitors will see these details. Choose the text language; translations can be added later.'),
+        notes_language=t('Язык условий и информации', 'Şərt və məlumatın dili', 'Language of rules and details'),
+        legacy_notes=t('Ранее добавленный текст', 'Əvvəl əlavə edilmiş mətn', 'Previously added text'),
+        directions_title=t('Отдельные направления и группы · необязательно', 'Ayrı istiqamətlər və qruplar · məcburi deyil', 'Separate activities and groups · optional'),
         all_ages=t('Все возрасты · 0+', 'Bütün yaşlar · 0+', 'All ages · 0+'),
         add_plan=t('Добавить тариф', 'Tarif əlavə et', 'Add a plan'),
-        add_activity=t('Добавить занятие', 'Məşğələ əlavə et', 'Add an activity'),
+        add_activity=t('Добавить направление', 'İstiqamət əlavə et', 'Add an activity'),
         activity_name=t('Название занятия (AZ)', 'Məşğələnin adı (AZ)', 'Activity name (AZ)'),
         activity_description=t('Описание занятия (AZ)', 'Məşğələnin təsviri (AZ)', 'Activity description (AZ)'),
         add_group=t('Добавить группу', 'Qrup əlavə et', 'Add a group'),
@@ -201,7 +234,7 @@ def ui_copy():
         remove_activity=t('Удалить занятие', 'Məşğələni sil', 'Remove activity'),
         remove_group=t('Удалить группу', 'Qrupu sil', 'Remove group'),
         remove_plan=t('Удалить тариф', 'Tarifi sil', 'Remove plan'),
-        plans_hint=t('До 12 тарифов. Доплаты и депозит указываются отдельно от основной цены.', '12-dək tarif. Əlavə ödəniş və depozit əsas qiymətdən ayrıdır.', 'Up to 12 plans. Add-ons and deposits are separate from the primary price.'),
+        plans_hint=t('Добавьте варианты оплаты: за один урок, неделю, месяц или пакет из 8 занятий. Для каждого варианта — свой тариф. До 12 тарифов; доплаты и депозит указываются отдельно.', 'Ödəniş variantlarını əlavə edin: bir dərs, həftə, ay və ya 8 məşğələlik paket. Hər variant üçün ayrıca tarif. 12-dək tarif; əlavə ödəniş və depozit ayrıdır.', 'Add payment options: one lesson, a week, a month or a package of 8 lessons. Use a plan for each option. Up to 12 plans; add-ons and deposits are separate.'),
         manual=t('Ввести координаты вручную', 'Koordinatları əl ilə daxil et', 'Enter coordinates manually'),
         map_hint=t('Точка необязательна. Если указали координаты, проверьте их точность.', 'Nöqtə məcburi deyil. Koordinat daxil etmisinizsə, dəqiqliyini yoxlayın.', 'The pin is optional. If you enter coordinates, check their accuracy.'),
         map_changed=t('Адрес изменился. Проверьте точку на карте.', 'Ünvan dəyişdi. Xəritədə nöqtəni yoxlayın.', 'The address changed. Check the map point.'),
@@ -261,9 +294,9 @@ def build_steps(form):
         step(2, t('Для кого', 'Kimlər üçün', 'Audience'), t('Возраст относится к детским группам.', 'Yaş uşaqların qruplarına aiddir.', 'The age range describes children’s groups.'), 'age_from age_to offers_adult_classes', 'lesson_duration_minutes lesson_format lessons_per_week lessons_per_month'),
         step(3, t('Тарифы', 'Tariflər', 'Pricing'), t('Что входит и сколько стоит.', 'Nələr daxildir və qiyməti nədir.', 'What is included and what it costs.')),
         step(4, t('Адрес и карта', 'Ünvan və xəritə', 'Address and map'), t('Помогите семьям найти вход.', 'Ailələrə girişi tapmağa kömək edin.', 'Help families find the entrance.'), 'region district address', 'metro'),
-        step(5, t('Контакты и расписание', 'Əlaqə və cədvəl', 'Contact and schedule'), t('Как связаться и когда можно прийти.', 'Necə əlaqə saxlamaq və nə vaxt gəlmək olar.', 'How to get in touch and when to visit.'), 'phone_country phone1 whatsapp_mode whatsapp_number', 'phone2 phone3 instagram website extra_conditions_az extra_conditions_ru extra_conditions_en additional_info_az additional_info_ru additional_info_en extra_conditions additional_info'),
+        step(5, t('Контакты и расписание', 'Əlaqə və cədvəl', 'Contact and schedule'), t('Как связаться и когда можно прийти.', 'Necə əlaqə saxlamaq və nə vaxt gəlmək olar.', 'How to get in touch and when to visit.'), 'phone_country phone1 whatsapp_mode whatsapp_number', 'phone2 phone3 instagram website public_links extra_conditions_az extra_conditions_ru extra_conditions_en additional_info_az additional_info_ru additional_info_en extra_conditions additional_info'),
         step(6, t('Фотографии', 'Şəkillər', 'Photos'), t('Покажите само место и занятия.', 'Məkanı və məşğələləri göstərin.', 'Show the place and its activities.'), 'photo gallery_images'),
-        step(7, t('Проверка', 'Yoxlama', 'Review'), t('Проверьте все разделы и отправьте на модерацию.', 'Bütün bölmələri yoxlayıb moderasiyaya göndərin.', 'Review every section and send for moderation.'), 'moderation_note'),
+        step(7, t('Проверка', 'Yoxlama', 'Review'), t('Проверьте все разделы и отправьте на модерацию.', 'Bütün bölmələri yoxlayıb moderasiyaya göndərin.', 'Review every section and send for moderation.'), '', 'moderation_note'),
     ]
 
 

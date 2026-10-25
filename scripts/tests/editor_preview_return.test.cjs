@@ -1,0 +1,3 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
+const {JSDOM}=require(process.env.KIDSMAP_JSDOM||'../../.tmp/phone-dom/node_modules/jsdom');
+test('return from the current-form preview closes its tab and leaves the editor intact',()=>{const d=new JSDOM('<body data-site-preview><a href="/account/places/create/" data-site-preview-close>Вернуться к форме</a></body>',{runScripts:'outside-only',url:'http://localhost/preview/'}),w=d.window;let closed=false;w.close=()=>{closed=true;};w.setTimeout=()=>0;w.eval(fs.readFileSync('static/js/place_site_preview.js','utf8'));const event=new w.MouseEvent('click',{bubbles:true,cancelable:true});assert.equal(w.document.querySelector('a').dispatchEvent(event),false);assert.equal(closed,true);});

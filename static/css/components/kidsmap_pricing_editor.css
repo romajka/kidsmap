@@ -1,0 +1,99 @@
+/* Shared place pricing editor. Scoped to the two place forms. */
+.km-place-photo-picker { padding: 16px; margin-bottom: 20px; border: 1px dashed #b0cdb8; border-radius: 10px; background: #f6faf7; }
+.km-place-photo-picker label { display: grid; gap: 12px; color: #284b37; font-size: 14px; }
+.km-place-photo-picker input { width: 100%; min-width: 0; font-size: 14px; }
+.km-place-photo-picker p { margin: 10px 0 0; font-size: 13px; line-height: 1.5; color: #52665a; }
+[data-tariff-editor] { --pricing-green: var(--km-green, #136f38); min-width: 0; }
+[data-tariff-editor] [hidden] { display: none !important; }
+/* Jazzmin enhances even the hidden backing select. Price choices already have
+   their own accessible buttons, so its generated duplicate must stay hidden. */
+[data-tariff-editor] .owner-tariff-field--price_kind > select[hidden] + .select2-container { display: none !important; }
+[data-tariff-editor] .owner-tariff-row { min-width: 0; margin: 16px 0; border: 1px solid #d8e5dc; border-radius: 12px; background: var(--surface, #fff); overflow: hidden; }
+[data-tariff-editor] .owner-tariff-card-head { display: flex; gap: 12px; align-items: flex-start; padding: 16px; border-bottom: 1px solid #e6ede8; background: #f6faf7; }
+[data-tariff-editor] .owner-tariff-card-icon { color: var(--pricing-green); flex: 0 0 24px; }
+[data-tariff-editor] svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; flex-shrink: 0; }
+[data-tariff-editor] .owner-tariff-card-copy { flex: 1; min-width: 0; display: grid; gap: 5px; overflow-wrap: anywhere; }
+[data-tariff-editor] .owner-tariff-card-copy strong { font-size: 15px; color: #183b29; }
+[data-tariff-editor] .owner-tariff-card-copy small { color: #52665a; line-height: 1.5; }
+[data-tariff-editor] .owner-tariff-card-number { color: #52665a; font-size: 12px; }
+[data-tariff-editor] .owner-tariff-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 16px; }
+[data-tariff-editor] .owner-tariff-field { min-width: 0; display: flex; flex-direction: column; gap: 7px; margin: 0; color: #284b37; font-size: 13px; font-weight: 600; }
+[data-tariff-editor] .owner-tariff-field .field { box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; min-height: 42px; border: 1px solid #cbdcd0; border-radius: 7px; padding: 9px 11px; background: #fff; color: #1b3927; font: inherit; font-weight: 400; }
+[data-tariff-editor] .owner-tariff-money { display: flex; align-items: center; min-width: 0; border: 1px solid #cbdcd0; border-radius: 7px; background: #fff; }
+[data-tariff-editor] .owner-tariff-money .field { flex: 1; width: 0; border: 0; background: transparent; }
+[data-tariff-editor] .owner-tariff-money [data-money-currency] { flex: 0 0 auto; padding-inline: 8px 13px; color: #52665a; font-size: 14px; font-weight: 600; }
+[data-tariff-editor] .owner-tariff-money:focus-within { outline: 3px solid #78ad83; outline-offset: 2px; }
+[data-tariff-editor] .owner-tariff-money .field:focus-visible { outline: 0; }
+[data-tariff-editor] .owner-tariff-field input[type=checkbox] { width: 20px; min-height: 20px; accent-color: var(--pricing-green); }
+[data-tariff-editor] .owner-tariff-field--price_kind, [data-tariff-editor] .owner-tariff-field--conditions_az, [data-tariff-editor] .owner-tariff-field--conditions_ru, [data-tariff-editor] .owner-tariff-field--conditions_en { grid-column: 1 / -1; }
+[data-tariff-editor] .owner-tariff-advanced { margin: 0 16px 16px; border-top: 1px solid #e2ebe5; }
+[data-tariff-editor] .owner-tariff-advanced > summary { display: grid!important; grid-template-columns: minmax(0,1fr) auto!important; gap: 6px 16px; align-items: center; min-height: 48px; padding: 12px 16px; cursor: pointer; color: var(--pricing-green); font-size: 13px; list-style:none; }
+[data-tariff-editor] .owner-tariff-advanced > summary span { display: flex; gap: 6px; align-items: center; font-weight: 600; }
+[data-tariff-editor] .owner-tariff-advanced > summary small { color: #52665a; }
+[data-tariff-editor] .owner-tariff-advanced > .owner-tariff-grid { padding: 20px; gap: 24px 20px; }
+[data-tariff-editor] .owner-tariff-advanced > summary small { grid-column:1; grid-row:2; line-height:1.5; margin:0; text-align:start; white-space:normal; }
+/* Legacy site.css suppresses both summary pseudo-elements with !important. */
+[data-tariff-editor] .owner-tariff-advanced > summary::after { content:''!important; display:block!important; grid-column:2; grid-row:1/3; width:10px; height:10px; border:solid currentColor; border-width:0 2px 2px 0; background:none!important; opacity:1; transform:rotate(45deg); margin:0 6px 4px; transition:transform 160ms ease; }
+[data-tariff-editor] .owner-tariff-advanced[open] > summary::after { transform:rotate(225deg); margin-block:4px 0; }
+[data-tariff-editor] .owner-tariff-advanced > summary::before { display:none; }
+[data-tariff-editor] .owner-tariff-advanced > summary::-webkit-details-marker { display:none; }
+[data-tariff-editor] .owner-tariff-footer { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 12px 16px; border-top: 1px solid #e2ebe5; }
+[data-tariff-editor] .owner-tariff-active { display: inline-flex; gap: 8px; align-items: center; margin: 0; font-size: 13px; }
+[data-tariff-editor] .owner-tariff-footer .owner-tariff-active{position:static;display:inline-flex;flex-direction:row;justify-content:flex-start;align-items:center;gap:9px;min-height:40px;padding:0;background:none;border:0;line-height:1.5;cursor:pointer;}
+[data-tariff-editor] .owner-tariff-footer .owner-tariff-active input{appearance:auto!important;position:static!important;opacity:1!important;width:18px!important;height:18px!important;min-height:18px!important;min-width:18px!important;transform:none!important;box-shadow:none!important;margin:0!important;padding:0!important;accent-color:var(--pricing-green);}
+[data-tariff-editor] .owner-tariff-active input::before,[data-tariff-editor] .owner-tariff-active input::after{content:none!important;}
+[data-tariff-editor] .owner-tariff-field.owner-tariff-field--check{display:grid;grid-template-columns:20px minmax(0,1fr);align-items:start;gap:10px;padding:10px 0;}
+[data-tariff-editor] .owner-tariff-field--check .owner-tariff-check-copy{display:grid;gap:6px;line-height:1.5;min-width:0;}
+[data-tariff-editor] .owner-tariff-field--check input[type=checkbox]{margin-top:2px;}
+[data-tariff-editor] .owner-tariff-field:has(input[type=checkbox]) input{appearance:auto;position:static;flex:0 0 18px;height:18px;min-height:18px;margin:0;padding:0;}
+[data-tariff-editor] .owner-tariff-grid{row-gap:20px;}
+[data-tariff-editor] .owner-tariff-main{padding:20px;display:grid;gap:24px;}
+[data-tariff-editor] .owner-tariff-section{min-width:0;margin:0;padding:0;border:0;}
+[data-tariff-editor] .owner-tariff-section>legend{float:none;width:auto;margin:0 0 12px;padding:0;color:#183b29;font-size:14px;font-weight:700;line-height:1.5;}
+[data-tariff-editor] .owner-tariff-section>.owner-tariff-grid{padding:0;gap:20px;}
+[data-tariff-editor] .owner-tariff-section-help{margin:0 0 14px;font-size:12px;line-height:1.6;color:#52665a;font-weight:400;}
+[data-tariff-editor] .owner-tariff-grid>.owner-tariff-section,[data-tariff-editor] .owner-tariff-unlimited-slot{grid-column:1/-1;}
+[data-tariff-editor] [data-tariff-validity],[data-tariff-editor] [data-tariff-offer-dates]{padding:16px;border:1px solid #e2ebe5;border-radius:10px;background:#f8fbf9;}
+[data-tariff-editor] [data-tariff-validity]>legend,[data-tariff-editor] [data-tariff-offer-dates]>legend{padding:0 6px;margin-bottom:0;font-size:13px;}
+[data-tariff-editor] [data-tariff-validity] .owner-tariff-field-help{display:none;}
+[data-tariff-editor] .owner-tariff-field[hidden],[data-tariff-editor] .owner-tariff-price-notice[hidden],[data-tariff-editor] .owner-tariff-translation-toggle[hidden]{display:none!important;}
+[data-tariff-editor] .owner-tariff-field--title_az,[data-tariff-editor] .owner-tariff-translation-toggle{grid-column:1/-1;}
+[data-tariff-editor] .owner-tariff-conditions{grid-column:1/-1;min-width:0;}
+[data-tariff-editor] .owner-tariff-field-help{font-size:12px;font-weight:400;color:#52665a;line-height:1.5;}
+[data-tariff-editor] .owner-tariff-field .owner-tariff-label{display:block;line-height:1.5;}
+[data-tariff-editor] .owner-tariff-field[data-km-required=true] .owner-tariff-label{font-weight:700;color:#173c2a;}
+[data-tariff-editor] .owner-tariff-field[data-km-required=true]>:is(input,select,.owner-tariff-money):not([type=checkbox]){border-inline-start:3px solid var(--pricing-green);}
+[data-tariff-editor] .owner-tariff-money .field{border:0!important;box-shadow:none;}
+[data-tariff-editor] .owner-tariff-required{color:var(--pricing-green);}
+[data-tariff-editor] [data-tariff-heading]{margin:24px 0 8px;font-size:16px;font-weight:700;line-height:1.5;}
+[data-tariff-editor] [data-tariff-description]{margin:0 0 18px;line-height:1.6;}
+[data-tariff-editor] .owner-tariff-actions { display: flex; gap: 8px; }
+[data-tariff-editor] .owner-tariff-actions button { display: grid; place-items: center; min-width: 36px; min-height: 36px; border: 1px solid #d8e5dc; border-radius: 7px; background: #fff; color: #385c46; cursor: pointer; }
+[data-tariff-editor] .owner-tariff-actions button:disabled { opacity: .4; cursor: default; }
+[data-tariff-editor] .pw-price-choices { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 6px; }
+[data-tariff-editor] .pw-price-choices button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-width: 0; min-height: 54px; padding: 8px 4px; border: 1px solid #d8e5dc; border-radius: 8px; background: #f7faf8; color: #365844; font-size: 12px; cursor: pointer; }
+[data-tariff-editor] .pw-price-choices button[aria-pressed=true] { border-color: var(--pricing-green); background: #edf6ee; color: var(--pricing-green); font-weight: 600; }
+[data-tariff-editor] .pw-price-choice-label { max-width:100%; white-space:normal; overflow-wrap:normal; text-align:center; line-height:1.35; }
+[data-tariff-editor] .owner-tariff-price-notice { display: flex; gap: 8px; align-items: center; padding: 12px; font-weight: 400; background: #f5f8f6; }
+[data-tariff-editor] .km-btn-link { display: inline-flex; align-items: center; gap: 5px; color: var(--pricing-green); background: transparent; border: 0; cursor: pointer; }
+[data-tariff-editor] :is(button,input,select,summary):focus-visible { outline: 3px solid #78ad83; outline-offset: 3px; }
+[data-tariff-editor] .owner-tariff-field--hidden { display: none; }
+[data-tariff-editor] .km-price-policy { padding: 0; margin: 0 0 20px; border: 0; min-width: 0; }
+[data-tariff-editor] .km-price-policy legend { padding: 0; margin-bottom: 9px; font-size: 14px; font-weight: 600; color: #284b37; }
+[data-tariff-editor] .km-price-policy__notice { display: grid; gap: 8px; margin-top: 16px; padding: 16px; border: 1px solid #d8e5dc; border-radius: 8px; background: #f7faf8; color: #284b37; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+[data-tariff-editor] .km-price-policy__notice p { margin: 0; }
+[data-tariff-editor] .km-price-policy__choices { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+[data-tariff-editor] .km-price-policy__choices button { min-width: 0; min-height: 48px; padding: 10px 12px; border: 1px solid #d8e5dc; border-radius: 8px; background: #f7faf8; font: inherit; font-size: 13px; line-height: 1.45; color: #365844; cursor: pointer; text-align: start; overflow-wrap: anywhere; }
+[data-tariff-editor] .km-price-policy__choices button[aria-pressed=true] { color: var(--pricing-green); background: #edf6ee; border-color: var(--pricing-green); font-weight: 600; }
+[data-tariff-editor] :is(input,select,summary,button) { scroll-margin-block: 180px 110px; }
+@media (max-width: 600px) {
+  [data-tariff-editor] .owner-tariff-main{padding:16px;gap:22px;}
+  [data-tariff-editor] .owner-tariff-grid { grid-template-columns: minmax(0,1fr); gap: 14px; padding: 14px; }
+  [data-tariff-editor] .owner-tariff-advanced > .owner-tariff-grid { padding:16px; gap:20px; }
+  [data-tariff-editor] .pw-price-choices { grid-template-columns:repeat(auto-fit,minmax(min(100%,100px),1fr)); }
+  [data-tariff-editor] .owner-tariff-card-head { padding: 14px; }
+}
+@media (max-width:420px) {
+  [data-tariff-editor] .owner-tariff-main{padding:12px;}
+  [data-tariff-editor] [data-tariff-validity],[data-tariff-editor] [data-tariff-offer-dates]{padding:12px;}
+}

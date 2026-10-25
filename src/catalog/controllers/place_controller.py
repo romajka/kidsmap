@@ -750,6 +750,7 @@ class PlaceController:
         ]
 
     def build_detail_context(self, request: HttpRequest, *, place: Place, preview: bool = False) -> dict:
+        new_preview = preview and getattr(place,'_editor_preview_new',False)
         liked_ids = liked_place_ids(request)
         place.is_liked = place.id in liked_ids
         if not preview:
@@ -758,7 +759,7 @@ class PlaceController:
         from catalog.services.place_review_submission import get_place_review_cooldown
         review_cooldown = get_place_review_cooldown(user=request.user, place=place)
         review_sort = normalize_review_sort(request.GET.get("review_sort"))
-        place_reviews_qs = apply_review_sorting(public_review_queryset(place.reviews.all()), review_sort)
+        place_reviews_qs = apply_review_sorting(public_review_queryset(place.reviews.none() if new_preview else place.reviews.all()), review_sort)
         place_reviews = mark_place_review_reactions(place_reviews_qs, request)
         if not preview and place.rating_count != len(place_reviews):
             place.refresh_rating_stats()
@@ -770,6 +771,9 @@ class PlaceController:
             is_events_section_enabled,
         )
         if preview:
+            from catalog.models import SiteSettings
+            section_settings = SiteSettings.objects.order_by('pk').first() or SiteSettings()
+            enabled_sections = {name: bool(getattr(section_settings,name+'_section_enabled')) for name in ('organizations','specialists','events')}
             presentation = present(place, request.LANGUAGE_CODE)
             activities = [present(a, request.LANGUAGE_CODE) for a in place._site_preview_activities]
         else:
@@ -779,9 +783,10 @@ class PlaceController:
             prepared = prepare_cards([place], request.LANGUAGE_CODE)
             presentation = prepared[0]._card_presentation if prepared else present(place, request.LANGUAGE_CODE)
             activities = prepared[0]._card_activities if prepared else []
+            enabled_sections = {'organizations':is_organizations_section_enabled(), 'specialists':is_specialists_section_enabled(), 'events':is_events_section_enabled()}
 
         place_specialists = []
-        if is_specialists_section_enabled():
+        if enabled_sections['specialists'] and not new_preview:
             from catalog.models.specialist import SpecialistPracticeLocation
             spec_locs = (
                 SpecialistPracticeLocation.objects.filter(
@@ -810,7 +815,7 @@ class PlaceController:
                 })
 
         place_events = []
-        if is_events_section_enabled():
+        if enabled_sections['events'] and not new_preview:
             from django.utils import timezone
             events_qs = (
                 place.events.filter(
@@ -838,9 +843,9 @@ class PlaceController:
             "activities": activities,
             "place_specialists": place_specialists,
             "place_events": place_events,
-            "organizations_section_enabled": is_organizations_section_enabled(),
-            "specialists_section_enabled": is_specialists_section_enabled(),
-            "events_section_enabled": is_events_section_enabled(),
+            "organizations_section_enabled": enabled_sections['organizations'],
+            "specialists_section_enabled": enabled_sections['specialists'],
+            "events_section_enabled": enabled_sections['events'],
             "place": place,
             "language": request.LANGUAGE_CODE,
             "google_maps_api_key": getattr(settings, "GOOGLE_MAPS_API_KEY", ""),

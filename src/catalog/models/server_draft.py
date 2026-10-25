@@ -16,6 +16,7 @@ class ServerDraft(models.Model):
     version = models.PositiveBigIntegerField(default=1)
     fields = models.JSONField(default=dict)
     photo_name = models.CharField(max_length=255, blank=True, default='')
+    media_manifest = models.JSONField(default=list, db_default=[], blank=True)
     saved_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

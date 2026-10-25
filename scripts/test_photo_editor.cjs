@@ -60,6 +60,14 @@ function setup({saved=false, failSave=false, rendered='', holdSaves=false, langu
   function file(name,tag=1){const bytes=new Uint8Array(32);bytes.set([137,80,78,71,13,10,26,10]);new DataView(bytes.buffer).setUint32(16,64);new DataView(bytes.buffer).setUint32(20,48);bytes[31]=tag;return new w.File([bytes],name,{type:'image/png'});}
   return {dom,w,form,editor,file,calls,revoked,releases,saveUrl,prepareUrl};
 }
+test('private draft snapshot restores selected main and ordered gallery without another preparation request',async()=>{
+  const t=setup();t.editor.addFiles([t.file('main.png',1)],'main');t.editor.addFiles([t.file('gallery.png',2)],'gallery');await t.editor.ready();
+  assert.equal(typeof t.editor.snapshotMedia,'function');const snapshot=t.editor.snapshotMedia();assert.deepEqual(Array.from(snapshot,x=>x.role),['main','gallery']);
+  const other=setup();const manifests=snapshot.map((x,i)=>({id:x.id,role:x.role,order:i,name:x.file.name,url:'/private/'+x.id}));
+  await other.editor.restoreMedia(manifests,async item=>snapshot.find(x=>x.id===item.id).file);
+  assert.equal(other.form.elements.photo.files.length,1);assert.equal(other.form.elements.gallery_images.files.length,1);assert.equal(other.calls.length,0);assert.deepEqual(Array.from(other.editor.snapshotMedia(),x=>x.id),Array.from(snapshot,x=>x.id));
+  t.dom.window.close();other.dom.window.close();
+});
 test('gallery accumulates selections and rejects content duplicates with different names',async()=>{
   const t=setup();
   t.editor.addFiles([t.file('a.png',1)],'gallery');await t.editor.ready();
@@ -150,6 +158,12 @@ test('photo editor integrates with the actual current Django continuous form', {
     assert.ok([...t.form.querySelectorAll('[data-place-section]')].every(section=>!section.hidden));
     assert.equal(t.form.querySelectorAll('input[name=photo]').length,1);
     assert.equal(t.form.querySelectorAll('input[name=gallery_images]').length,1);
+    // Exercise the native photo-save path. An unnamed/unclassified new place
+    // intentionally uses the separate private ServerDraft transport instead.
+    t.form.elements.name_az.value='Photo integration';
+    const category=t.form.elements.category;
+    category.value=Array.from(category.options).find(option=>option.value)?.value || '';
+    assert.ok(category.value,'rendered taxonomy fixture must include a category');
     const editor=t.form.photoEditor;
     editor.addFiles([t.file('integration.png')],'main');await editor.ready();
     assert.equal(t.form.elements.photo.files.length,1);

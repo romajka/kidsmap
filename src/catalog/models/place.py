@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.dispatch import receiver
 from catalog.taxonomy_data import CATEGORIES
+from catalog.services.place_public_links import validate_public_links
 from .catalog_structure import PlaceNature, OperatingState
 
 def _localized_free_label(lang: str | None = None) -> str:
@@ -156,6 +157,7 @@ class Place(models.Model):
     photo = models.FileField(_("Фото"), upload_to="places/", blank=True, null=True)
     instagram = models.CharField(_("Instagram"), max_length=255, blank=True)
     website = models.URLField(_("Сайт"), blank=True)
+    public_links = models.JSONField(_("Дополнительные ссылки"), default=list, db_default=[], blank=True, validators=[validate_public_links])
     schedule = models.TextField(_("Расписание"), blank=True)
     schedule_mode = models.CharField(
         _("Тип расписания"),
@@ -294,6 +296,12 @@ class Place(models.Model):
 
     def instagram_url(self):
         value = (self.instagram or "").strip()
+        from catalog.services.place_social_profiles import instagram_profile_url
+        try:
+            return instagram_profile_url(value)
+        except ValidationError:
+            # Keep the historical fallback for untouched legacy card values.
+            pass
         if not value:
             return ""
         if value.startswith(("http://", "https://")):
@@ -478,6 +486,13 @@ class Place(models.Model):
         return self._localized_text("additional_info", lang)
 
     @property
+    def safe_public_links(self):
+        from catalog.services.place_public_links import normalize_public_links
+        from django.core.exceptions import ValidationError
+        try:return normalize_public_links(self.public_links)
+        except ValidationError:return []
+
+    @property
     def has_more_details(self) -> bool:
         return any(
             (
@@ -487,6 +502,7 @@ class Place(models.Model):
                 self.phone3,
                 self.instagram,
                 self.website,
+                self.public_links,
                 self.has_schedule_content,
                 self.lesson_duration_minutes is not None,
                 self.price_per_lesson is not None,

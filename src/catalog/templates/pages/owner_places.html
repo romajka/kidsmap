@@ -15,6 +15,7 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block extra_head %}
+<link rel="stylesheet" href="{% static 'admin/css/kidsmap_notifications.css' %}">
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261022_release_all_r1" />
   <link rel="stylesheet" href="{% static 'css/pages/organization_workspace.css' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,6 +26,7 @@
 
 {% block content %}
 <div class="account-page-wrapper" data-owner-legacy-error="Kart tapılmadı">
+{% csrf_token %}
   {% trans "Удалить карточку и скрыть ее с сайта? Карточка пропадет из вашего кабинета, но останется в удаленных у администратора." as delete_place_confirm_text %}
   {% trans "Удалить мероприятие? Оно пропадет из вашего кабинета и публичных списков." as delete_event_confirm_text %}
 
@@ -159,7 +161,7 @@
         </div>
         <div class="account-metric-pill">
           <span class="material-symbols-rounded metric-icon-gold">schedule</span>
-          <strong>{{ owner_stats.draft_places }}</strong>
+          <strong>{{ owner_stats.draft_places|add:working_drafts_count }}</strong>
           <span>{% if CURRENT_LANGUAGE == "az" %}Qaralama və moderasiya{% elif CURRENT_LANGUAGE == "en" %}Drafts & moderation{% else %}Черновики и модерация{% endif %}</span>
         </div>
         {% if can_view_stats %}
@@ -182,7 +184,14 @@
       </div>
 
       <!-- Actionable Draft Card (if available) -->
-      {% if latest_editable_place %}
+      {% if working_drafts_count %}
+        <div class="account-card-box" id="owner-working-drafts-panel">
+          <div class="account-card-box__head">
+            <h2>{% if CURRENT_LANGUAGE == 'az' %}Davam etmək üçün saxlanılıb{% elif CURRENT_LANGUAGE == 'en' %}Saved for later{% else %}Сохранено для продолжения{% endif %} <span class="account-badge-counter">{{ working_drafts_count }}</span></h2>
+          </div>
+          {% include 'pages/includes/owner_working_drafts.html' %}
+        </div>
+      {% elif latest_editable_place %}
         <div class="account-continue-card">
           <span class="material-symbols-rounded account-continue-icon">edit_note</span>
           <div class="account-continue-info">
@@ -266,6 +275,7 @@
 
                   <!-- Completion Progress Bar & Steps Checklist -->
                   {% include "pages/includes/owner_place_readiness_progress.html" with place=place %}
+                  {% if place.working_draft %}<p class="account-working-copy" data-working-draft-id="{{ place.working_draft.id }}">{% if CURRENT_LANGUAGE == 'az' %}Qaralama saxlanıldı{% elif CURRENT_LANGUAGE == 'en' %}Draft saved{% else %}Черновик сохранён{% endif %} · {{ place.working_draft.saved_at|date:"d.m H:i" }} · {{ place.working_draft.readiness.completed_count }}/{{ place.working_draft.readiness.required_count }}{% if place.working_draft.needs_review %} · {% if CURRENT_LANGUAGE == 'az' %}Dəyişiklikləri yoxlayın{% elif CURRENT_LANGUAGE == 'en' %}Review newer changes{% else %}Проверьте новые изменения{% endif %}{% endif %}</p><div data-working-draft-id="{{ place.working_draft.id }}">{% include 'pages/includes/owner_working_draft_delete.html' with draft=place.working_draft %}</div>{% endif %}
 
                   <!-- Technical status details -->
                   <details class="account-card-tech-details">
@@ -291,7 +301,7 @@
                     <span>{% if CURRENT_LANGUAGE == "az" %}Bax{% elif CURRENT_LANGUAGE == "en" %}View{% else %}Посмотреть{% endif %}</span>
                   </a>
                   {% if place.owner_can_edit %}
-                    <a class="account-btn-sm account-btn-sm--primary" href="{% url 'owner_place_edit' place.id %}">
+                    <a class="account-btn-sm account-btn-sm--primary" href="{% if place.working_draft %}{{ place.working_draft.url }}{% else %}{% url 'owner_place_edit' place.id %}{% endif %}">
                       <span class="material-symbols-rounded">edit</span>
                       <span>{% if CURRENT_LANGUAGE == "az" %}Redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit{% else %}Редактировать{% endif %}</span>
                     </a>
@@ -318,6 +328,7 @@
       </div>
 
       <!-- Section: Drafts and Moderation -->
+      {% if draft_places or not working_drafts_count %}
       <div class="account-card-box">
         <div class="account-card-box__head">
           <h2>
@@ -393,6 +404,7 @@
 
                   <!-- Completion Progress Bar & Steps Checklist -->
                   {% include "pages/includes/owner_place_readiness_progress.html" with place=place %}
+                  {% if place.working_draft %}<p class="account-working-copy" data-working-draft-id="{{ place.working_draft.id }}">{% if CURRENT_LANGUAGE == 'az' %}Qaralama saxlanıldı{% elif CURRENT_LANGUAGE == 'en' %}Draft saved{% else %}Черновик сохранён{% endif %} · {{ place.working_draft.saved_at|date:"d.m H:i" }} · {{ place.working_draft.readiness.completed_count }}/{{ place.working_draft.readiness.required_count }}{% if place.working_draft.needs_review %} · {% if CURRENT_LANGUAGE == 'az' %}Dəyişiklikləri yoxlayın{% elif CURRENT_LANGUAGE == 'en' %}Review newer changes{% else %}Проверьте новые изменения{% endif %}{% endif %}</p><div data-working-draft-id="{{ place.working_draft.id }}">{% include 'pages/includes/owner_working_draft_delete.html' with draft=place.working_draft %}</div>{% endif %}
 
                   <!-- Rejection Notes -->
                   {% if place.latest_moderation_request.status == "REJECTED" and place.latest_moderation_request.moderation_note %}
@@ -430,6 +442,7 @@
                   </details>
                 </div>
 
+
                 <!-- Actions -->
                 <div class="account-owner-card__actions">
                   {% if place.owner_can_view_stats %}
@@ -445,7 +458,7 @@
                     </span>
                   {% else %}
                     {% if place.owner_can_edit %}
-                      <a class="account-btn-sm account-btn-sm--primary" href="{% url 'owner_place_edit' place.id %}">
+                      <a class="account-btn-sm account-btn-sm--primary" href="{% if place.working_draft %}{{ place.working_draft.url }}{% else %}{% url 'owner_place_edit' place.id %}{% endif %}">
                         <span class="material-symbols-rounded">edit</span>
                         <span>
                           {% if place.status == place.STATUS_REJECTED %}
@@ -494,6 +507,7 @@
         {% endif %}
       </div>
 
+      {% endif %}
       </div>
 
       <!-- Tab Panel: Events (if enabled) -->
@@ -699,6 +713,9 @@
     </section>
   </div>
 </div>
+<script src="{% static 'admin/js/kidsmap_notifications.js' %}" defer></script>
+<script src="{% static 'js/kidsmap_editor_feedback.js' %}?v=20261025_live2" defer></script>
+<script src="{% static 'js/owner_working_drafts.js' %}?v=20261025_workflow3" defer></script>
 <script src="{% static 'js/organization_workspace.js' %}" defer></script>
 <script src="{% static 'js/owner_places_tabs.js' %}?v=20261020_release_r1" defer></script>
 {% endblock %}

@@ -1,11 +1,16 @@
 {% extends "admin/volunteer/base.html" %}
-{% load i18n %}
+{% load i18n static %}
+{% block extrahead %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'admin/css/components/kidsmap_private_drafts.css' %}">
+<script src="{% static 'admin/js/kidsmap_private_draft_list.js' %}" defer></script>
+{% endblock %}
 {% block workspace %}
 <div class="kv-dashboard">
   <header class="kv-header"><div><p class="kv-eyebrow">KidsMap · {% translate "Кабинет волонтёра" context "volunteer dashboard" %}</p><h1>{% translate "Мои места" context "volunteer dashboard" %}</h1><p>{% translate "Добавляйте места, редактируйте данные и отправляйте карточки на проверку." context "volunteer dashboard" %}</p></div><a class="kv-button kv-button--primary" href="{% url 'admin:volunteer_add' %}">{% include 'admin/volunteer/icon.html' with icon='plus' %}{% translate "Добавить место" context "volunteer dashboard" %}</a></header>
-  {% if is_empty %}
+  {% include 'admin/catalog/place/private_drafts.html' %}
+  {% if is_empty and not working_drafts_count %}
     <section class="kv-empty"><span class="kv-empty__icon">{% include 'admin/volunteer/icon.html' %}</span><h2>{% translate "У вас пока нет добавленных мест" context "volunteer dashboard" %}</h2><p>{% translate "Добавьте первое место — после проверки администратор сможет опубликовать его в KidsMap." context "volunteer dashboard" %}</p><a href="{% url 'admin:volunteer_add' %}" class="kv-button kv-button--primary">{% include 'admin/volunteer/icon.html' with icon='plus' %}{% translate "Добавить первое место" context "volunteer dashboard" %}</a></section>
-  {% else %}
+  {% elif not is_empty %}
   <nav class="kv-stats" aria-label="{% translate 'Статистика моих мест' context "volunteer dashboard" %}">{% for filter in filters %}<a href="?status={{ filter.key }}&amp;q={{ query|urlencode }}"{% if selected_status == filter.key %} aria-current="true"{% endif %}><strong>{{ filter.count }}</strong><span>{{ filter.label }}</span></a>{% endfor %}</nav>
   <section class="kv-results" aria-label="{% translate 'Мои карточки' context "volunteer dashboard" %}">
     <div class="kv-toolbar"><nav class="kv-tabs" aria-label="{% translate 'Фильтр по статусу' context "volunteer dashboard" %}">{% for filter in filters %}<a href="?status={{ filter.key }}&amp;q={{ query|urlencode }}"{% if selected_status == filter.key %} aria-current="page"{% endif %}>{{ filter.label }}</a>{% endfor %}</nav>

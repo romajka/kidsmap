@@ -28,6 +28,11 @@ def draft_collection(request):
         rows=[]
         for draft in ServerDraft.objects.filter(actor=request.user).order_by('-saved_at')[:100]:
             try: service.read(user=request.user,draft_id=draft.pk)
+            except service.DraftConflict:
+                row = service.serialize(draft, include_fields=False)
+                row['needs_review'] = True
+                rows.append(row)
+                continue
             except (PermissionDenied,ValidationError,ServerDraft.DoesNotExist): continue
             rows.append(service.serialize(draft,include_fields=False))
         return JsonResponse({'drafts':rows})
@@ -49,13 +54,23 @@ def draft_collection(request):
 
 @never_cache
 @csrf_protect
-@require_http_methods(['GET'])
+@require_http_methods(['GET', 'DELETE'])
 def draft_detail(request,draft_id):
     if not request.user.is_authenticated or not request.user.is_active: return _error('forbidden',403)
-    try: return JsonResponse(service.serialize(service.read(user=request.user,draft_id=draft_id)))
+    try:
+        if request.method == 'DELETE':
+            if request.content_type != 'application/json' or len(request.body) > 1024:
+                raise ValidationError('JSON required.')
+            data = json.loads(request.body)
+            if not isinstance(data, dict) or set(data) != {'expected_version'}:
+                raise ValidationError('Invalid deletion payload.')
+            service.discard(user=request.user, draft_id=draft_id, expected_version=data['expected_version'])
+            return JsonResponse({'status': 'deleted', 'draft_id': str(draft_id)})
+        return JsonResponse(service.serialize(service.read(user=request.user,draft_id=draft_id)))
+    except service.DraftConflict as exc: return _error('conflict',409,draft=exc.draft)
     except PermissionDenied: return _error('forbidden',403)
     except ServerDraft.DoesNotExist: return _error('not_found',404)
-    except ValidationError: return _error('invalid_request',400)
+    except (ValidationError, ValueError, TypeError): return _error('invalid_request',400)
 
 
 @never_cache
@@ -70,6 +85,7 @@ def draft_photo(request,draft_id):
             if not draft.photo_name: return _error('not_found',404)
             return FileResponse(service.private_storage().open(draft.photo_name,'rb'),content_type='image/webp',as_attachment=True,filename='draft.webp')
         except PermissionDenied: return _error('forbidden',403)
+        except service.DraftConflict as exc: return _error('conflict',409,draft=exc.draft)
         except (ServerDraft.DoesNotExist,FileNotFoundError): return _error('not_found',404)
         except ValidationError: return _error('invalid_request',400)
     data={'fields':{}}
@@ -82,6 +98,57 @@ def draft_photo(request,draft_id):
     except PermissionDenied: return _error('forbidden',403)
     except ServerDraft.DoesNotExist: return _error('not_found',404)
     except (ValidationError,ValueError,KeyError,TypeError): return _error('invalid_upload',422)
+
+
+@never_cache
+@csrf_protect
+@require_http_methods(['GET', 'POST', 'PUT'])
+def draft_media(request, draft_id):
+    if not request.user.is_authenticated or not request.user.is_active:
+        return _error('forbidden', 403)
+    try:
+        if request.method == 'GET':
+            draft = service.read(user=request.user, draft_id=draft_id)
+        elif request.method == 'POST':
+            if set(request.POST) not in ({'expected_version', 'media_id'}, {'expected_version', 'media_id', 'desired_role', 'desired_order'}) or set(request.FILES) != {'photo'} or len(request.FILES.getlist('photo')) != 1:
+                raise ValidationError('Invalid upload fields.')
+            draft = service.upload_media(user=request.user, draft_id=draft_id,
+                expected_version=int(request.POST['expected_version']),
+                media_id=request.POST['media_id'], file=request.FILES['photo'],
+                desired_role=request.POST.get('desired_role'),
+                desired_order=int(request.POST['desired_order']) if 'desired_order' in request.POST else None)
+        else:
+            if request.content_type != 'application/json' or len(request.body) > 16384:
+                raise ValidationError('JSON required.')
+            data = json.loads(request.body)
+            if not isinstance(data, dict) or set(data) != {'expected_version', 'items'}:
+                raise ValidationError('Invalid manifest payload.')
+            draft = service.save_media_manifest(user=request.user, draft_id=draft_id,
+                expected_version=data['expected_version'], items=data['items'])
+        return JsonResponse(service.serialize(draft))
+    except service.DraftConflict as exc: return _error('conflict', 409, draft=exc.draft)
+    except PermissionDenied: return _error('forbidden', 403)
+    except ServerDraft.DoesNotExist: return _error('not_found', 404)
+    except (ValidationError, ValueError, KeyError, TypeError): return _error('invalid_upload', 422)
+    except OSError: return _error('unavailable', 503)
+
+
+@never_cache
+@require_http_methods(['GET'])
+def draft_media_file(request, draft_id, media_id):
+    from django.http import FileResponse
+    if not request.user.is_authenticated or not request.user.is_active:
+        return _error('forbidden', 403)
+    try:
+        file, name = service.open_media(user=request.user, draft_id=draft_id, media_id=media_id)
+        response = FileResponse(file, content_type='image/webp', as_attachment=True, filename=name)
+        response['X-Content-Type-Options'] = 'nosniff'
+        response['X-Robots-Tag'] = 'noindex, nofollow, noarchive'
+        return response
+    except service.DraftConflict as exc: return _error('conflict', 409, draft=exc.draft)
+    except PermissionDenied: return _error('forbidden', 403)
+    except (ServerDraft.DoesNotExist, FileNotFoundError): return _error('not_found', 404)
+    except ValidationError: return _error('invalid_request', 400)
 
 
 @never_cache

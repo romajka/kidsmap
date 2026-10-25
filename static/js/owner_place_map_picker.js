@@ -523,7 +523,7 @@
         shared.mapEl.textContent = "";
         try {
           if (root.dataset.mapProvider === "google" && window.google?.maps) initGoogleMapPicker(root);
-          else if (window.L) initLeafletMapPicker(root);
+          else if (root.dataset.mapProvider === "leaflet" && window.L) initLeafletMapPicker(root);
         } catch (_) {
           shared.renderer = null;
           delete root.dataset.mapInitialized;
@@ -541,7 +541,7 @@
       attach();
       if (root.dataset.mapRetryBound !== "1") {
         root.dataset.mapRetryBound = "1";
-        document.querySelectorAll('[data-owner-map-sdk="leaflet"]').forEach(function (script) {
+        document.querySelectorAll('[data-owner-map-sdk="google"],[data-owner-map-sdk="leaflet"]').forEach(function (script) {
           script.addEventListener("load", attach);
           script.addEventListener("error", attach);
         });

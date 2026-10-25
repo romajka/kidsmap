@@ -135,6 +135,41 @@ PRICING_STORAGE_FIELDS = (
 )
 
 
+def validate_pricing_import_keys(plans, *, path="pricing_plans"):
+    """Reject misspelled JSON tariff fields before normalization can discard them."""
+    allowed = set(PRICING_STORAGE_FIELDS) | {
+        "id", "offering_group_id", "payment_type", "package_sessions", "editor_kind",
+        "name", "frequency", "name_az", "name_ru", "name_en", "format", "payment",
+        "title", "conditions",  # Read-only presentation keys in older exports.
+    }
+    if not isinstance(plans, list):
+        return  # The normalizer reports malformed list/row types.
+    for index, plan in enumerate(plans):
+        if not isinstance(plan, dict):
+            continue
+        unknown = sorted(set(plan) - allowed)
+        if unknown:
+            message = {
+                "ru": "Неизвестные поля тарифа %(path)s: %(fields)s. Проверьте JSON; импорт не применён.",
+                "az": "Naməlum tarif sahələri %(path)s: %(fields)s. JSON-u yoxlayın; idxal tətbiq edilməyib.",
+                "en": "Unknown tariff fields %(path)s: %(fields)s. Check the JSON; the import was not applied.",
+            }.get((get_language() or "ru").split("-")[0], "Unknown tariff fields %(path)s: %(fields)s. Check the JSON; the import was not applied.")
+            raise ValidationError(message % {
+                "path": f"{path}[{index}]", "fields": ", ".join(unknown),
+            })
+
+
+def validate_nested_pricing_import_keys(nested):
+    if not isinstance(nested, dict) or not isinstance(nested.get("activities"), list):
+        return
+    for ai, activity in enumerate(nested["activities"]):
+        if not isinstance(activity, dict) or not isinstance(activity.get("groups"), list):
+            continue
+        for gi, group in enumerate(activity["groups"]):
+            if isinstance(group, dict):
+                validate_pricing_import_keys(group.get("pricing_plans"), path=f"nested_pricing.activities[{ai}].groups[{gi}].pricing_plans")
+
+
 def serialize_pricing_plan(plan, language=None):
     data = {"id": plan.pk}
     if plan.offering_group_id:
@@ -195,7 +230,7 @@ def _error_with_path(error, field_path):
     return ValidationError(error.message, code=error.code, params=params)
 
 
-def normalize_pricing_plans(value, *, strict=True, allow_verified=False, error_path=(), validate_constraints=True):
+def normalize_pricing_plans(value, *, strict=True, allow_verified=False, error_path=(), validate_constraints=True, legacy_place=None):
     """Return storage-ready plans without mutating the supplied value.
 
     Legacy {name, price, frequency} entries are accepted and converted only in
@@ -210,6 +245,15 @@ def normalize_pricing_plans(value, *, strict=True, allow_verified=False, error_p
         value = []
     if not isinstance(value, list):
         raise ValidationError(_("Проверьте список тарифов."))
+    # Editing another field must not migrate a historical JSON tariff or guess
+    # its product/unit. Only an exact, unchanged fallback gets this exception;
+    # new/changed tariffs and relational replacements still use full validation.
+    if (legacy_place is not None and legacy_place.pk and value
+            and value == legacy_place.pricing_plans_legacy
+            and value == legacy_place.pricing_plans
+            and not legacy_place.pricing_plan_records.exists()):
+        from copy import deepcopy
+        return deepcopy(value)
     if len(value) > MAX_PRICING_PLANS:
         raise ValidationError(_("Можно добавить не более 12 тарифов."))
 
@@ -262,7 +306,11 @@ def normalize_pricing_plans(value, *, strict=True, allow_verified=False, error_p
             for int_field in ("billing_interval_count", "billing_cycles", "quantity", "sessions_per_week", "sessions_per_month", "validity_interval_count", "age_from", "age_to", "min_people", "max_people", "sort_order"):
                 conversion_field = int_field
                 if values.get(int_field) not in (None, ""):
-                    values[int_field] = int(values[int_field])
+                    raw_integer = values[int_field]
+                    integer = int(raw_integer)
+                    if isinstance(raw_integer, bool) or (isinstance(raw_integer, (float, Decimal)) and raw_integer != integer):
+                        raise ValueError("Expected an integer, not a boolean or fraction")
+                    values[int_field] = integer
                 elif int_field in values:
                     values[int_field] = None
             candidate = PricingPlan(place_id=1, **values)
@@ -285,6 +333,9 @@ def normalize_pricing_plans(value, *, strict=True, allow_verified=False, error_p
             if payment_type == "package":
                 clean["package_sessions"] = candidate.quantity
             if raw.get("id") not in (None, ""):
+                conversion_field = "id"
+                if isinstance(raw["id"], bool) or (isinstance(raw["id"], (float, Decimal)) and raw["id"] != int(raw["id"])):
+                    raise ValueError("Expected an integer tariff ID")
                 clean["id"] = int(raw["id"])
             normalized.append(clean)
         except ValidationError as exc:
@@ -294,7 +345,8 @@ def normalize_pricing_plans(value, *, strict=True, allow_verified=False, error_p
                     field_name = next(iter(exc.error_dict))
                     field_errors = exc.error_dict[field_name]
                     detail = field_errors[0].message if field_errors else str(exc)
-                    message = _("поле %(field)s: %(detail)s") % {"field": field_name, "detail": detail}
+                    field_label = {"price_max": _("Цена до")}.get(field_name, field_name)
+                    message = _("поле %(field)s: %(detail)s") % {"field": field_label, "detail": detail}
                 else:
                     message = exc.messages[0] if getattr(exc, "messages", None) else str(exc)
                 raise ValidationError(
@@ -302,7 +354,7 @@ def normalize_pricing_plans(value, *, strict=True, allow_verified=False, error_p
                     params={"number": index + 1, "error": message, "field_path": plan_path + ([field_name] if field_name else [])},
                 )
             continue
-        except (InvalidOperation, TypeError, ValueError) as exc:
+        except (InvalidOperation, TypeError, ValueError, OverflowError) as exc:
             if strict:
                 raise ValidationError(
                     _("Тариф %(number)s: неверный тип или формат значения (%(error)s)."),
@@ -1275,7 +1327,11 @@ def build_pricing_summary(place, lang="ru"):
                 times = "time / month" if count == 1 else "times / month"
                 details_list.append(f"{count} {times}")
 
-        details_str = " · ".join(details_list)
+        from catalog.services.pricing_terms import public_tariff_terms
+        details_list.extend(public_tariff_terms(plan, lang))
+        if plan.get("conditions"):
+            details_list.append(plan["conditions"])
+        details_str = " · ".join(dict.fromkeys(details_list))
 
         plan_price_val = plan.get("price")
         plan_price_str = ""
@@ -1311,7 +1367,7 @@ def build_pricing_summary(place, lang="ru"):
         group_key = group_keys.get(plan.get("product_type"), "additional")
         plans_processed.append({
             "title": plan.get("title"),
-            "details": plan.get("conditions") or details_str,
+            "details": details_str,
             "price_str": plan_price_str,
             "fully_matches": fully_matches,
             "lesson_format": plan.get("lesson_format"),

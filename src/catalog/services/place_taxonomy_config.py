@@ -1,10 +1,12 @@
 """Shared form taxonomy for admin pickers and the ChatGPT JSON instruction."""
 from django.db.models import Count
+from django.utils.translation import get_language
 
 from catalog.models import Place, Subcategory
 
 
 def build_place_taxonomy_config(form):
+    from catalog.services.pricing_editor_contract import build_pricing_editor_contract
     category_field = form.fields.get("category")
     subcategory_field = form.fields.get("subcategory")
     if category_field is None or subcategory_field is None:
@@ -62,6 +64,11 @@ def build_place_taxonomy_config(form):
     billing_modes = [{"code": code, "label": str(label)} for code, label in PricingPlan.BILLING_MODE_CHOICES]
 
     return {
+        "picker_copy": {
+            "ru": {"category":"Выберите категорию...", "category_search":"Поиск категории...", "category_empty":"Категории не найдены", "subcategory":"Выберите подкатегорию...", "category_first":"Сначала выберите категорию", "subcategory_search":"Поиск подкатегории...", "subcategory_empty":"Подкатегории не найдены"},
+            "az": {"category":"Kateqoriyanı seçin...", "category_search":"Kateqoriya axtarın...", "category_empty":"Kateqoriya tapılmadı", "subcategory":"Alt kateqoriyanı seçin...", "category_first":"Əvvəlcə kateqoriyanı seçin", "subcategory_search":"Alt kateqoriya axtarın...", "subcategory_empty":"Alt kateqoriya tapılmadı"},
+            "en": {"category":"Select a category...", "category_search":"Search categories...", "category_empty":"No categories found", "subcategory":"Select a subcategory...", "category_first":"Select a category first", "subcategory_search":"Search subcategories...", "subcategory_empty":"No subcategories found"},
+        }.get((get_language() or "az").split("-")[0], {"category":"Select a category...", "category_search":"Search categories...", "category_empty":"No categories found", "subcategory":"Select a subcategory...", "category_first":"Select a category first", "subcategory_search":"Search subcategories...", "subcategory_empty":"No subcategories found"}),
         "categories": categories,
         "subcategories": subcategories,
         "regions": regions,
@@ -72,5 +79,6 @@ def build_place_taxonomy_config(form):
         "price_kinds": price_kinds,
         "lesson_formats": lesson_formats,
         "billing_modes": billing_modes,
+        "pricing_editor": build_pricing_editor_contract(),
     }
 

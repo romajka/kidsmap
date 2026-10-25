@@ -16,6 +16,14 @@
     inform();
   }, true);
   document.addEventListener('click', event => {
+    const back = event.target.closest('[data-site-preview-close]');
+    if (back) {
+      event.preventDefault();event.stopImmediatePropagation();
+      window.close();
+      // A browser that disallows closing a tab still offers the saved editor.
+      setTimeout(() => location.assign(back.href), 150);
+      return;
+    }
     const favorite = event.target.closest('.detail-fav-btn');
     if (favorite) {
       event.preventDefault();event.stopImmediatePropagation();

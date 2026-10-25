@@ -266,6 +266,7 @@
     uploadPicker.multiple = true;
     uploadPicker.hidden = true;
     galleryRoot.appendChild(uploadPicker);
+    galleryRoot.kidsmapAddGalleryPhotos = addFiles;
 
     function formatBytes(bytes) {
       var size = Number(bytes || 0);

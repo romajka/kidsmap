@@ -2,24 +2,30 @@
 {% load i18n static %}
 {% block title %}{{ form.wizard_copy.title }} | KidsMap{% endblock %}
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=20261022_release_all_r1">
-<link rel="stylesheet" href="{% static 'css/pages/permanent_place_wizard.css' %}?v=20261020_release_r1">
-<link rel="stylesheet" href="{% static 'css/pages/owner_place_continuous.css' %}?v=20261022_release_all_r1">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="{% static 'css/components/kidsmap_editor_ux.css' %}?v=20261025_live3">
+<script src="{% static 'js/kidsmap_editor_ux.js' %}?v=20261025_spacing2" defer></script>
+<link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=20261025_workflow3">
+<link rel="stylesheet" href="{% static 'css/pages/permanent_place_wizard.css' %}?v=20261025_workflow3">
+<link rel="stylesheet" href="{% static 'css/pages/owner_place_continuous.css' %}?v=20261025_spacing2">
+<link rel="stylesheet" href="{% static 'css/components/kidsmap_pricing_editor.css' %}?v=20261025_polish1">
+<link rel="stylesheet" href="{% static 'admin/css/kidsmap_notifications.css' %}?v=20261025_workflow3">
 {% endblock %}
 {% block content %}
 {% include "pages/includes/owner_place_continuous.html" %}
 {% endblock %}
 {% block extra_body %}
-<script src="{% static 'js/kidsmap_contact_fields.js' %}?v=20261022_release_all_r1" defer></script>
+<script src="{% static 'js/kidsmap_contact_fields.js' %}?v=20261025_workflow3" defer></script>
 
-<script src="{% static 'js/permanent_place_photos.js' %}?v=20261020_release_r1"></script>
+<script src="{% static 'js/permanent_place_photos.js' %}?v=20261025_live2"></script>
+<script src="{% static 'js/kidsmap_place_photo_picker.js' %}?v=20261025_workflow3" defer></script>
 <script src="{% static 'js/owner_place_offerings.js' %}?v=20261007_place_r5"></script>
-<script src="{% static 'js/owner_place_continuous.js' %}?v=20261022_release_all_r1"></script>
-<script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=20261022_release_all_r1"></script>
-<script src="{% static 'js/permanent_place_pricing.js' %}?v=20260915"></script>
+<script src="{% static 'admin/js/kidsmap_notifications.js' %}?v=20261025_workflow3"></script>
+<script src="{% static 'js/kidsmap_editor_feedback.js' %}?v=20261025_live2"></script>
+<script src="{% static 'js/kidsmap_draft_media.js' %}?v=20261025_workflow3"></script>
+<script src="{% static 'js/owner_place_continuous.js' %}?v=20261025_live2"></script>
+<script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=20261025_spacing2"></script>
+<script src="{% static 'js/kidsmap_pricing_editor.js' %}?v=20261025_polish1"></script>
 <script src="{% static 'js/kidsmap_dependent_subcategory.js' %}"></script>
-<script data-owner-map-sdk="leaflet" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="{% static 'js/owner_place_map_picker.js' %}?v=20261020_release_photos1"></script>
-{% if google_maps_api_key %}<script async src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&libraries=places&callback=kidsMapInitOwnerMapPickers"></script>{% endif %}
+<script src="{% static 'js/owner_place_map_picker.js' %}?v=20261025_workflow3"></script>
+{% if google_maps_api_key %}<script data-owner-map-sdk="google" async src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&libraries=places&callback=kidsMapInitOwnerMapPickers"></script>{% endif %}
 {% endblock %}

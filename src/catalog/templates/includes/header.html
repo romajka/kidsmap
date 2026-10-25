@@ -151,7 +151,7 @@
               <div class="km-dropdown-divider"></div>
               <a
                 class="km-dropdown-item {% if request.resolver_match.url_name == 'account_dashboard' or request.resolver_match.url_name == 'account_profile' or request.resolver_match.url_name == 'account_favorites' or request.resolver_match.url_name == 'account_settings' %}active{% endif %}"
-                href="{% url 'account_profile' %}"
+                href="{% url 'account_dashboard' %}"
                 role="menuitem"
               >
                 <span class="km-dropdown-icon material-symbols-rounded" aria-hidden="true">space_dashboard</span>
@@ -326,7 +326,7 @@
             </div>
           </div>
           <div class="km-drawer-user-actions">
-            <a href="{% url 'account_profile' %}" class="km-drawer-user-link">
+            <a href="{% url 'account_dashboard' %}" class="km-drawer-user-link">
               <span class="material-symbols-rounded">space_dashboard</span>
               <span>{% trans "Личный кабинет" %}</span>
             </a>

@@ -1,0 +1,30 @@
+{% with ui=form.wizard_copy %}
+<section class="pc-contacts" aria-labelledby="pc-phones-title">
+  <div class="pc-contact-heading"><h3 id="pc-phones-title">{{ ui.phones_title }}</h3><span class="pw-field-badge" data-pw-required="contact_group" hidden></span></div>
+  <p class="pw-help">{{ ui.phones_hint }}</p>
+  {{ form.phone_country }}
+  <div data-km-phone-list>
+    {% include 'pages/includes/permanent_place_field.html' with field=form.phone1 %}
+    <div class="pc-extra-phone" data-km-phone-slot>
+      {% include 'pages/includes/permanent_place_field.html' with field=form.phone2 %}
+      <button type="button" class="pc-remove-phone" data-km-phone-remove aria-label="{{ ui.remove_phone }} 2">{{ ui.remove_phone }}</button>
+    </div>
+    <div class="pc-extra-phone" data-km-phone-slot>
+      {% include 'pages/includes/permanent_place_field.html' with field=form.phone3 %}
+      <button type="button" class="pc-remove-phone" data-km-phone-remove aria-label="{{ ui.remove_phone }} 3">{{ ui.remove_phone }}</button>
+    </div>
+    <button type="button" class="pw-add pc-add-phone" data-km-phone-add>＋ {{ ui.add_phone }}</button>
+  </div>
+</section>
+<section class="pc-socials" aria-labelledby="pc-socials-title">
+  <h3 id="pc-socials-title">{{ ui.socials_title }}</h3>
+  <p class="pw-help">{{ ui.socials_hint }}</p>
+  <div class="pw-fields">
+    {% include 'pages/includes/permanent_place_field.html' with field=form.whatsapp_mode %}
+    {% include 'pages/includes/permanent_place_field.html' with field=form.whatsapp_number %}
+    {% include 'pages/includes/permanent_place_field.html' with field=form.instagram %}
+    {% include 'pages/includes/permanent_place_field.html' with field=form.website %}
+    {% include 'catalog/includes/place_public_links_editor.html' %}
+  </div>
+</section>
+{% endwith %}

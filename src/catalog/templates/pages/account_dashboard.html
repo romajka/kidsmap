@@ -114,7 +114,9 @@
       {% endif %}
 
       <!-- Continue Draft Action Card -->
-      {% if latest_actionable_draft_place %}
+      {% if working_drafts_overview %}
+        {% include 'pages/includes/account_working_drafts.html' %}
+      {% elif latest_actionable_draft_place %}
         <div class="account-continue-card">
           <span class="material-symbols-rounded account-continue-icon">play_arrow</span>
           <div class="account-continue-info">

@@ -417,6 +417,7 @@
         </section>
       {% else %}
         <!-- Readonly Profile Overview -->
+        {% include 'pages/includes/account_working_drafts.html' %}
         <div class="account-card-box">
           <div class="account-card-box__head">
             <h2>{% if CURRENT_LANGUAGE == "az" %}Profil məlumatları{% elif CURRENT_LANGUAGE == "en" %}Profile details{% else %}Данные профиля{% endif %}</h2>

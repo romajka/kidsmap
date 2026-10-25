@@ -1,0 +1,15 @@
+{% load i18n %}
+<fieldset class="km-price-policy" data-tariff-policy-group data-pw-field="price_mode" data-pf-field="price_mode">
+  <legend>{% translate 'Режим цены' %} <span class="pw-field-badge" data-pw-required="price_mode" hidden></span></legend>
+  {{ form.price_mode.as_hidden }}
+  <div class="km-price-policy__choices">
+    {% for code,label in form.pricing_editor_contract.price_modes %}<button type="button" data-price-policy="{{ code }}" aria-pressed="false">{{ label }}</button>{% endfor %}
+  </div>
+  <p data-price-policy-hint aria-live="polite"></p>
+  <div data-tariff-free-state hidden>{% translate 'Место полностью бесплатное' %}</div>
+  <div class="km-price-policy__notice" data-tariff-events-state hidden role="status">
+    <strong data-price-events-title>{% translate 'Цена зависит от мероприятия' %}</strong>
+    <p data-price-events-description>{% translate 'У этого места нет постоянных тарифов. Стоимость указывается отдельно для каждого мероприятия.' %}</p>
+  </div>
+  {% for error in form.price_mode.errors %}<p class="pw-error" role="alert">{{ error }}</p>{% endfor %}
+</fieldset>

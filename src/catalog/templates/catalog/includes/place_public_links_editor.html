@@ -1,0 +1,7 @@
+{% with ui=form.wizard_copy %}
+<div class="pw-field km-public-links" data-pw-field="public_links" data-pf-field="public_links" data-public-links data-link-name="{{ ui.link_name }}" data-link-url="{{ ui.link_url }}" data-link-remove="{{ ui.remove_link }}">
+  <label><span data-pw-label>{{ ui.public_links }}</span></label><p class="pw-help">{{ ui.public_links_hint }}</p>
+  {{ form.public_links }}<div data-public-links-list></div><button type="button" class="pw-add" data-public-links-add>＋ {{ ui.add_link }}</button>
+  {% for error in form.public_links.errors %}<p class="pw-error">{{ error }}</p>{% endfor %}
+</div>
+{% endwith %}

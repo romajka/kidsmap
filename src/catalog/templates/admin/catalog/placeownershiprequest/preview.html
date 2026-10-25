@@ -3,7 +3,7 @@
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_ownership_preview.css' %}?v=20261014_review2">{% endblock %}
 {% block extrahead %}{{ block.super }}<script defer src="{% static 'admin/js/kidsmap_ownership_preview.js' %}?v=20261014_review2"></script>{% endblock %}
 {% block breadcrumbs %}<ol class="breadcrumb km-admin-crumbs">
-  <li class="breadcrumb-item"><a href="{{ preview_back_url }}">{% translate 'Заявки на владение' %}</a></li>
+  <li class="breadcrumb-item"><a href="{{ preview_back_url }}">{% if preview_is_revision %}{% translate 'Центр модерации' %}{% else %}{% translate 'Заявки на владение' %}{% endif %}</a></li>
   <li class="breadcrumb-item active" aria-current="page">{% translate 'Проверить карточку' %}</li>
 </ol>{% endblock %}
 {% block content %}

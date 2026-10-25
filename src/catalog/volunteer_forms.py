@@ -5,10 +5,11 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from catalog.forms import PlaceScheduleEditorFormMixin, SubcategorySelect
+from catalog.forms import PlaceScheduleEditorFormMixin, SubcategorySelect, MultipleFileField, PlainMultipleImageInput
 from catalog.services.phone_forms import ContactPhoneFormMixin
+from catalog.services.place_public_links import PublicLinksFormMixin
 from catalog.models import Place, Subcategory
-from catalog.services.image_uploads import normalize_uploaded_image
+from catalog.services.image_uploads import normalize_uploaded_image, MAX_GALLERY_IMAGES, MAX_IMAGE_BATCH_BYTES
 from catalog.services.pricing_plans import normalize_pricing_plans
 from catalog.services.place_schedule import validate_schedule_payload, dump_schedule_payload, WEEKDAY_ORDER
 from catalog.services.locations import clean_location_fields, configure_location_choices, init_location_fields
@@ -21,7 +22,7 @@ CONTENT_FIELDS = (
     "description_az", "description_ru", "description_en",
     "age_from", "age_to", "age_open_ended", "offers_adult_classes",
     "district", "metro", "address", "lat", "lng",
-    "phone1", "phone2", "phone3", "phone_country", "whatsapp_mode", "whatsapp_number", "instagram", "website",
+    "phone1", "phone2", "phone3", "phone_country", "whatsapp_mode", "whatsapp_number", "instagram", "website", "public_links",
     "photo", "cover_photo", "schedule", "schedule_mode",
     "schedule_note_az", "schedule_note_ru", "schedule_note_en",
     "price_mode", "lesson_duration_minutes", "lesson_format",
@@ -33,12 +34,16 @@ CONTENT_FIELDS = (
 )
 
 
-class VolunteerPlaceForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, forms.ModelForm):
+class VolunteerPlaceForm(PublicLinksFormMixin, ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, forms.ModelForm):
     require_location_region = False
     revision_version = forms.IntegerField(min_value=0, widget=forms.HiddenInput)
     base_token = forms.CharField(widget=forms.HiddenInput)
     create_as_distinct_branch = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'aria-describedby': 'branch-help'}))
     pricing_plans = forms.CharField(required=False, widget=forms.HiddenInput(attrs={"data-tariff-input": ""}))
+    gallery_images = MultipleFileField(label=_("Дополнительные фото (до 10)"), required=False,
+        widget=PlainMultipleImageInput(attrs={'accept':'image/jpeg,image/png,image/webp,.heic,.heif,.hif'}))
+    gallery_order = forms.JSONField(required=False, widget=forms.HiddenInput)
+    delete_gallery_ids = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple)
     region = forms.ChoiceField(
         label=_("Город / регион"),
         required=False,
@@ -58,6 +63,13 @@ class VolunteerPlaceForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, fo
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # An empty optional multi-select from older form clients means no
+        # deletion; nonempty unknown IDs still fail the scoped choices check.
+        if self.is_bound and self.data.get('delete_gallery_ids') == '':
+            values = self.data.getlist('delete_gallery_ids') if hasattr(self.data, 'getlist') else [self.data.get('delete_gallery_ids')]
+            if values == ['']:
+                self.data = self.data.copy()
+                self.data.pop('delete_gallery_ids', None)
         self.draft_save_only = bool(self.data and self.data.get("action") == "draft")
         self.invalid_schedule = False
         if self.is_bound and self.data.get("structured_schedule"):
@@ -101,6 +113,12 @@ class VolunteerPlaceForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, fo
         configure_location_choices(self)
         self.fields["subcategory"].widget = SubcategorySelect()
         self.fields["subcategory"].queryset = Subcategory.objects.select_related("category").all()
+        from catalog.services.publication_forms import gallery_for_edit
+        from catalog.services.photo_gallery import gallery_key
+        self._saved_gallery = gallery_for_edit(self.instance)
+        self.photo_gallery_ids = [row['id'] for row in self._saved_gallery if row['id'] is not None]
+        self.candidate_gallery_keys = [gallery_key(row) for row in self._saved_gallery if row['id'] is None]
+        self.fields['delete_gallery_ids'].choices = [(str(row['id']) if row['id'] is not None else gallery_key(row), _("Фото %(number)s") % {'number':index+1}) for index,row in enumerate(self._saved_gallery)]
 
     def clean(self):
         cleaned = super().clean()
@@ -124,7 +142,7 @@ class VolunteerPlaceForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, fo
             cleaned["age_from"] = cleaned.get("age_from") or 0
         cleaned["price_mode"] = cleaned.get("price_mode") or Place.PRICE_MODE_TARIFFS
         try:
-            cleaned["pricing_plans"] = normalize_pricing_plans(cleaned.get("pricing_plans") or "[]", allow_verified=False)
+            cleaned["pricing_plans"] = normalize_pricing_plans(cleaned.get("pricing_plans") or "[]", allow_verified=False, legacy_place=self.instance)
         except ValidationError as exc:
             self.add_error("pricing_plans", exc)
         raw = cleaned.get("structured_schedule") or self.data.get("structured_schedule")
@@ -134,6 +152,29 @@ class VolunteerPlaceForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, fo
                     raise ValueError
             except (ValueError, TypeError):
                 self.add_error("structured_schedule", _("Проверьте расписание работы."))
+        gallery = cleaned.get('gallery_images') or []
+        deleted = cleaned.get('delete_gallery_ids') or []
+        slots = max(MAX_GALLERY_IMAGES - len(self._saved_gallery) + len(deleted), 0)
+        if len(gallery) > slots:
+            self.add_error('gallery_images', _("В галерее может быть не больше 10 фото."))
+        total = sum(getattr(file, 'size', 0) for file in gallery)
+        total += sum(getattr(self.files.get(name), 'size', 0) for name in ('photo','cover_photo'))
+        if total > MAX_IMAGE_BATCH_BYTES:
+            self.add_error('gallery_images', _("Общий размер фотографий не должен превышать 22 МБ."))
+        normalized = []
+        if 'gallery_images' not in self.errors:
+            for file in gallery:
+                try:
+                    normalized.append(normalize_uploaded_image(file))
+                except ValidationError as error:
+                    self.add_error('gallery_images', error)
+            if 'gallery_images' not in self.errors:
+                cleaned['gallery_images'] = normalized
+                from catalog.services.photo_gallery import validate_gallery_order
+                try:
+                    validate_gallery_order(cleaned.get('gallery_order'), self.photo_gallery_ids, deleted, len(normalized), self.candidate_gallery_keys)
+                except ValidationError as error:
+                    self.add_error('gallery_images', error)
         return self._clean_schedule_editor(cleaned)
 
     def full_clean(self):
@@ -165,6 +206,11 @@ class VolunteerPlaceForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, fo
         extra = [name for name in CONTENT_FIELDS if name.startswith("custom_price_badge_")]
         steps[2]["optional"] = [self[name] for name in extra]
         return steps
+
+    @property
+    def pricing_editor_contract(self):
+        from catalog.services.pricing_editor_contract import build_pricing_editor_contract
+        return build_pricing_editor_contract()
 
     @property
     def wizard_copy(self):

@@ -320,9 +320,9 @@ def site_settings(request):
             **yandex_metrica_context,
             **specialist_account_context,
             "queued_analytics_events": queued_analytics_events,
-            "is_specialists_section_enabled": is_specialists_section_enabled(),
-            "is_events_section_enabled": is_events_section_enabled(),
-            "is_organizations_section_enabled": is_organizations_section_enabled(),
+            "is_specialists_section_enabled": False if is_preview else is_specialists_section_enabled(),
+            "is_events_section_enabled": False if is_preview else is_events_section_enabled(),
+            "is_organizations_section_enabled": False if is_preview else is_organizations_section_enabled(),
             **schema_payload,
         }
 

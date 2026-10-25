@@ -1,5 +1,5 @@
-<div class="pw-field" data-pw-field="{{ field.name }}">
-  <label for="{{ field.id_for_label }}"><span data-pw-label>{{ field.label }}</span> <span data-pw-required="{{ field.name }}" class="pw-field-badge" hidden></span></label>
+{% if field.name == 'public_links' %}{% include 'catalog/includes/place_public_links_editor.html' %}{% elif field.is_hidden %}{{ field }}{% for error in field.errors %}<p class="pw-error" role="alert">{{ error }}</p>{% endfor %}{% else %}<div class="pw-field" data-pw-field="{{ field.name }}">
+  <label for="{{ field.id_for_label }}"><span data-pw-label>{{ field.label }}</span>{% if field.name == 'name_ru' or field.name == 'name_en' or field.name == 'description_ru' or field.name == 'description_en' %}<small class="pc-recommended">{{ ui.recommended }}</small>{% endif %} <span data-pw-required="{{ field.name }}" class="pw-field-badge" hidden></span></label>
   {{ field }}
   {% if field.name == 'category' %}
   <div class="pw-category-choices" role="group" aria-label="{{ field.label }}" hidden>
@@ -14,3 +14,4 @@
   <div id="{{ field.id_for_label }}_errors">{% for error in field.errors %}<p class="pw-error" role="alert">{{ error }}</p>{% endfor %}</div>
   <span class="pw-client-error" id="{{ field.id_for_label }}_client_error" aria-live="polite"></span>
 </div>
+{% endif %}

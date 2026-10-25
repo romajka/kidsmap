@@ -3,6 +3,7 @@
 {% block workspace %}
 <a href="{% url 'admin:volunteer_review_index' %}">← {% translate "Изменения волонтёров" %}</a>
 <h1>{{ revision }}</h1><p class="km-volunteer-author">{{ revision.author.username }} · {{ revision.get_status_display }}</p>
+<p><a class="btn btn-outline-success" data-moderation-full-preview href="{% url 'admin:volunteer_revision_preview' revision.pk %}" target="_blank" rel="noopener">{% translate "Проверить карточку" %} ↗</a></p>
 {% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
 {% if conflict %}<div class="alert alert-warning">{% translate "Карточка изменилась после отправки. Верните правки волонтёру на доработку." %}</div>{% endif %}
 {% if validation_errors %}<div class="alert alert-warning">{{ validation_errors }}</div>{% endif %}

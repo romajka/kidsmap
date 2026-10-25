@@ -1,0 +1,21 @@
+{% load i18n %}{% get_current_language as CURRENT_LANGUAGE %}
+{% if working_drafts_overview %}
+<div class="account-card-box" id="account-working-drafts">
+  <div class="account-card-box__head">
+    <h2>{% if CURRENT_LANGUAGE == 'az' %}Davam etmək üçün saxlanılıb{% elif CURRENT_LANGUAGE == 'en' %}Saved for later{% else %}Сохранено для продолжения{% endif %} <span class="account-badge-counter">{{ working_drafts_overview_count }}</span></h2>
+    <a class="account-link-all" href="{% url 'owner_places_dashboard' %}#owner-working-drafts-panel">{% if CURRENT_LANGUAGE == 'az' %}Bütün qaralamalar{% elif CURRENT_LANGUAGE == 'en' %}All drafts{% else %}Все черновики{% endif %} →</a>
+  </div>
+  <div class="account-places-list">
+    {% for draft in working_drafts_overview %}
+      <a class="account-place-item" data-working-draft-id="{{ draft.id }}" href="{{ draft.url }}">
+        <span class="material-symbols-rounded account-place-item__icon" aria-hidden="true">edit_note</span>
+        <div class="account-place-item__info">
+          <strong class="account-place-item__name">{{ draft.title }}</strong>
+          <span class="account-place-item__meta">{% if CURRENT_LANGUAGE == 'az' %}Saxlanıldı{% elif CURRENT_LANGUAGE == 'en' %}Saved{% else %}Сохранено{% endif %} {{ draft.saved_at|date:'d.m.Y H:i' }}</span>
+        </div>
+        <span class="account-status-pill account-status-pill--draft">{% if CURRENT_LANGUAGE == 'az' %}Davam et{% elif CURRENT_LANGUAGE == 'en' %}Continue{% else %}Продолжить{% endif %}</span>
+      </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}

@@ -3037,6 +3037,13 @@
 }
 
 .km-pf .km-pf-alert[hidden] { display: none; }
+.km-pf [data-place-duplicate-alert] {
+  flex-direction: column;
+  align-items: stretch;
+  overflow-wrap: anywhere;
+}
+.km-pf [data-place-duplicate-alert] > p { margin: 0; }
+.km-pf [data-place-duplicate-alert] > ul { margin: 0; padding-left: 18px; min-width: 0; }
 .km-pf .km-pf-alert > .km-i { width: 19px;
   height: 19px; flex: 0 0 auto; margin-top: 1px; }
 
@@ -4342,6 +4349,27 @@
   }
 }
 
+/* Keep section explanations readable beside the narrow mobile form. */
+@media (max-width: 600px) {
+  .km-pf .km-pf-section__toggle {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 10px;
+    padding: 14px 16px;
+  }
+  .km-pf .km-pf-section__icon { display: none; }
+  .km-pf .km-pf-section__copy { grid-column: 1; grid-row: 1; }
+  .km-pf .km-pf-section__chevron { grid-column: 2; grid-row: 1; }
+  .km-pf .km-pf-section__badge { grid-column: 1; grid-row: 2; justify-self: start; }
+  .km-pf .km-pf-section__missing {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    max-width: none;
+    margin-left: 0;
+    text-align: left;
+  }
+}
+
 
 
 /* --------------------------------------------------------------------------
@@ -4860,7 +4888,27 @@
 
 .km-pf .km-pf-mappanel__hint[hidden] { display: none; }
 
+@media (max-width: 480px) {
+  .km-pf .km-pf-ready { flex-wrap: wrap; min-width: 0; }
+  .km-pf .km-pf-ready__copy { min-width: 0; flex-basis: calc(100% - 40px); overflow-wrap: anywhere; }
+  .km-pf .km-pf-ready > button,
+  .km-pf .km-pf-ready > a { flex: 1 1 100%; max-width: 100%; white-space: normal; }
+}
+
 /* Native keyboard focus must clear the actual sticky editor surfaces. */
+.km-pf .km-pf-contact-messenger { display: grid; gap: 12px; min-width: 0; align-content: start; }
+.km-pf .km-pf-contact-socials { grid-column: 1 / -1; margin: 0; }
+.km-pf .km-pf-contact-socials > summary { min-height: 44px; }
+.km-pf .km-pf-contact-socials__body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+.km-pf .km-pf-contact-socials__body > .km-public-links { grid-column: 1 / -1; }
+@media (max-width: 640px) {
+  .km-pf .km-pf-contact-socials__body { grid-template-columns: minmax(0, 1fr); }
+}
+
 .km-pf :is(input,select,textarea,button,summary,a,[tabindex]) {
   scroll-margin-top: var(--pf-focus-top,96px);
   scroll-margin-bottom: var(--pf-focus-bottom,120px);

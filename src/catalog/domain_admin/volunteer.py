@@ -38,7 +38,12 @@ def render(request, template, **context):
 @require_http_methods(["GET"])
 def index(request):
     from catalog.services.volunteer_proposals import own_proposal_rows
-    return render(request, "index", title=_("Мои места"), proposals=own_proposal_rows(request.user), **dashboard_context(request.user, request.GET))
+    from catalog.services.place_editor_drafts import working_drafts_context
+    context = dashboard_context(request.user, request.GET)
+    drafts = working_drafts_context(user=request.user, surface='volunteer', params=request.GET)
+    for card in context['cards']:
+        card['working_draft'] = drafts['working_drafts_by_target'].get(card['place'].pk)
+    return render(request, "index", title=_("Мои места"), proposals=own_proposal_rows(request.user), **context, **drafts)
 
 
 def detail(request, place_id):
@@ -99,11 +104,14 @@ def delete(request, place_id):
 
 @require_http_methods(["GET", "POST"])
 def edit(request, place_id=None):
+    from catalog.services.place_editor_drafts import config_for
     if not can_use_volunteer_workspace(request.user):
         raise PermissionDenied
     place = get_object_or_404(own_places(request.user), pk=place_id) if place_id else Place(created_by=request.user, status="draft", is_active=False)
     revision = VolunteerPlaceRevision.objects.filter(place=place).first() if place.pk else None
     if request.method == "POST":
+        from django.utils import timezone
+        explicit_save_cutoff = timezone.now()
         action = request.POST.get("action")
         if action not in {"draft", "submit", "restart"}:
             raise PermissionDenied
@@ -120,6 +128,13 @@ def edit(request, place_id=None):
         else:
             place, revision, form = save_proposal(user=request.user, place_id=place_id, data=request.POST, files=request.FILES)
             if not form.errors:
+                from catalog.services.server_drafts import mark_explicit_save
+                if request.POST.get('server_draft_id'):
+                    mark_explicit_save(user=request.user, draft_id=request.POST['server_draft_id'],
+                        expected_version=request.POST.get('server_draft_version', ''), place=place,
+                        target_id=place_id, cutoff=explicit_save_cutoff)
+                from catalog.services.place_editor_feedback import queue_editor_result
+                queue_editor_result(request, action="moderation" if action == "submit" else "draft", message=submission_message("place") if action == "submit" else t("Черновик сохранён.", "Qaralama saxlanıldı.", "Draft saved."))
                 messages.success(request, submission_message('place') if action == "submit" else t("Черновик сохранён.", "Qaralama saxlanıldı.", "Draft saved."))
                 return redirect("admin:volunteer_edit", place_id=place.pk)
     else:
@@ -131,6 +146,7 @@ def edit(request, place_id=None):
     return render(request, "edit", title=_("Редактировать место") if place_id else _("Добавить место"),
                   form=form, adminform={"form": form}, sections=form.sections(), place=place,
                   revision=revision, conflict=conflict, volunteer_editor=True, km_place_taxonomy_picker=build_place_taxonomy_config(form), **editor_context(form),
+                  km_place_draft_config=config_for(user=request.user, place=place, surface='volunteer'),
                   google_maps_api_key=settings.GOOGLE_MAPS_API_KEY,
                   card=display_card(workspace_places(request.user).get(pk=place.pk)) if place.pk else None,
                   duplicate_existing_url=duplicate_existing_url)
@@ -236,6 +252,45 @@ def review(request, place_id):
     return render(request, "review", title=_("Проверка изменений"), revision=revision, rows=rows,
                   error=error, readiness=readiness, validation_errors=form.errors,
                   conflict=not revision_base_matches(revision, revision.place))
+
+
+@never_cache
+@require_http_methods(["GET"])
+def revision_preview(request, revision_id, website=False):
+    """Use the moderation ACL and the full captured candidate, never live-only data."""
+    from types import SimpleNamespace
+    from catalog.services import moderation_hub
+    from catalog.services.admin_place_preview import build_revision_preview
+    from catalog.services.admin_site_preview import render_site_preview
+    row=moderation_hub.detail(request.user,'content',revision_id)
+    if row['kind']!='place':raise Http404
+    revision=row['revision']
+    language=request.GET.get('lang',getattr(request,'LANGUAGE_CODE','ru'))
+    language=language if language in ('az','ru','en') else 'ru'
+    current=request.GET.get('version')=='current'
+    preview=build_revision_preview(revision,language=language,current=current)
+    back=reverse('admin:volunteer_moderation_detail',args=['content',revision.pk])
+    inspection=reverse('admin:volunteer_revision_preview',args=[revision.pk])
+    params=f'?lang={language}'+('&version=current' if current else '')
+    if website:
+        response=render_site_preview(request,preview,language=language,back_url=inspection+params,
+            return_params={'version':'current'} if current else {})
+    else:
+        author=revision.author
+        response=TemplateResponse(request,'admin/catalog/placeownershiprequest/preview.html',{
+            **admin.site.each_context(request),'opts':Place._meta,'title':preview['title'],'preview':preview,
+            'preview_is_revision':True,'preview_back_url':back,'preview_request_url':back,
+            'preview_applicant_label':author.get_full_name() or author.username,
+            'request_item':SimpleNamespace(pk=revision.pk,status=revision.status,get_status_display=revision.get_status_display,
+                applicant=author,created_at=revision.submitted_at or revision.created_at,note='',moderation_note=revision.review_note),
+            'preview_can_moderate':False,'preview_can_approve':False,
+            'preview_current_url':inspection+f'?lang={language}&version=current',
+            'preview_submitted_url':inspection+f'?lang={language}',
+            'preview_site_url':reverse('admin:volunteer_revision_site_preview',args=[revision.pk])+params,
+        })
+    response['X-Robots-Tag']='noindex, nofollow, noarchive'
+    response['Cache-Control']='private, no-store, max-age=0'
+    return response
 
 
 
@@ -368,6 +423,8 @@ _original_get_urls = admin.site.get_urls
 def get_urls():
     wrap = admin.site.admin_view
     return [
+        path("volunteer/revision/<int:revision_id>/preview/",wrap(revision_preview),name="volunteer_revision_preview"),
+        path("volunteer/revision/<int:revision_id>/site-preview/",wrap(lambda request,revision_id:revision_preview(request,revision_id,website=True)),name="volunteer_revision_site_preview"),
         path("volunteer/", wrap(index), name="volunteer_index"),
         path("volunteer/add/", wrap(edit), name="volunteer_add"),
         path("volunteer/<int:place_id>/delete/", wrap(delete), name="volunteer_delete"),

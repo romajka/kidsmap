@@ -1,5 +1,6 @@
 """International contact form regressions; no registration/auth contract changes."""
 from django.test import SimpleTestCase, TestCase
+from django.utils.translation import override
 from catalog.forms import _format_azerbaijan_phone_for_input, _validate_azerbaijan_phone
 
 
@@ -87,6 +88,26 @@ class SharedContactFormTests(SimpleTestCase):
             form = ContactEditor(data={'phone_country': 'AZ', 'whatsapp_mode': 'separate', 'whatsapp_number': value})
             self.assertFalse(form.is_valid())
             self.assertIn('whatsapp_number', form.errors)
+
+
+class CompactContactPreservationTests(SimpleTestCase):
+    @override('ru')
+    def test_compact_phone_error_does_not_refer_to_a_removed_country_selector(self):
+        class CompactContactEditor(ContactEditor):
+            compact_contact_fields = True
+        form=CompactContactEditor(data={'phone_country':'AZ','phone1':'12','whatsapp_mode':'none'})
+        self.assertFalse(form.is_valid())
+        self.assertNotIn('выберите страну',str(form.errors['phone1']).lower())
+        self.assertIn('+994',str(form.errors['phone1']))
+
+    def test_changing_hidden_input_context_does_not_repair_untouched_legacy_number(self):
+        class CompactContactEditor(ContactEditor):
+            compact_contact_fields = True
+        place=Place(pk=42,phone_country='US',phone1='0501234567',whatsapp_mode='none')
+        form=CompactContactEditor(data={'phone_country':'AZ','phone1':'0501234567','whatsapp_mode':'separate','whatsapp_number':'+905321234567'},instance=place)
+        self.assertTrue(form.is_valid(),form.errors)
+        self.assertEqual(form.cleaned_data['phone1'],'0501234567')
+        self.assertEqual(form.cleaned_data['whatsapp_number'],'+905321234567')
 
 
 class ApplicationContactFormTests(TestCase):

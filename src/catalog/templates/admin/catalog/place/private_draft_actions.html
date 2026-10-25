@@ -1,0 +1,5 @@
+<span class="km-private-draft-actions">
+  <a href="{{ draft.url }}">{{ working_drafts_copy.continue }}</a>
+  <button type="button" data-draft-delete="{{ draft.delete_url }}" data-draft-version="{{ draft.version }}">{{ working_drafts_copy.delete }}</button>
+  {% if draft.needs_review %}<span class="km-private-draft-warning">{{ working_drafts_copy.needs_review }}</span>{% endif %}
+</span>

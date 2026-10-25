@@ -1,0 +1,21 @@
+{% load i18n %}
+<div class="account-owner-places-grid" id="owner-working-drafts">
+{% csrf_token %}
+{% for draft in working_drafts %}
+  <article class="account-owner-card" data-working-draft-id="{{ draft.id }}">
+    <div class="account-owner-card__body">
+      <h3 class="account-owner-card__name"><a href="{{ draft.url }}">{{ draft.title }}</a></h3>
+      <p>{% if CURRENT_LANGUAGE == 'az' %}Qaralama · yalnız siz görürsünüz{% elif CURRENT_LANGUAGE == 'en' %}Draft · only visible to you{% else %}Черновик · виден только вам{% endif %}</p>
+      <p>{% if CURRENT_LANGUAGE == 'az' %}Saxlanıldı{% elif CURRENT_LANGUAGE == 'en' %}Saved{% else %}Сохранено{% endif %} {{ draft.saved_at|date:"d.m.Y H:i" }}</p>
+      <p>{{ draft.readiness.completed_count }} / {{ draft.readiness.required_count }} · {% if CURRENT_LANGUAGE == 'az' %}göndərmək üçün doldurulub{% elif CURRENT_LANGUAGE == 'en' %}requirements completed{% else %}заполнено для отправки{% endif %}</p>
+      {% if draft.needs_review %}<p role="status">{% if CURRENT_LANGUAGE == 'az' %}Məkanın yeni versiyası var. Dəyişiklikləri yoxlayın.{% elif CURRENT_LANGUAGE == 'en' %}A newer version exists. Review your changes before continuing.{% else %}Есть более новая версия места. Перед продолжением проверьте изменения.{% endif %}</p>{% endif %}
+    </div>
+    <div class="account-owner-card__actions"><a class="account-btn-sm account-btn-sm--primary" href="{{ draft.url }}">{% if CURRENT_LANGUAGE == 'az' %}Doldurmağa davam et{% elif CURRENT_LANGUAGE == 'en' %}Continue editing{% else %}Продолжить заполнение{% endif %}</a>{% include "pages/includes/owner_working_draft_delete.html" %}</div>
+  </article>
+{% endfor %}
+</div>
+{% if working_drafts_page.has_other_pages %}<nav aria-label="{% translate 'Черновики' %}">
+{% if working_drafts_page.has_previous %}<a class="account-btn-sm" aria-label="{% translate 'Предыдущая страница' %}" href="?draft_page={{ working_drafts_page.previous_page_number }}#owner-working-drafts">←</a>{% endif %}
+<span>{{ working_drafts_page.number }} / {{ working_drafts_page.paginator.num_pages }}</span>
+{% if working_drafts_page.has_next %}<a class="account-btn-sm" aria-label="{% translate 'Следующая страница' %}" href="?draft_page={{ working_drafts_page.next_page_number }}#owner-working-drafts">→</a>{% endif %}
+</nav>{% endif %}

@@ -5,6 +5,7 @@
     <h2 id="kv-place-{{ card.place.pk }}"><a href="{{ card.detail_url }}">{{ card.name }}</a></h2>
     <p class="kv-address">{% include 'admin/volunteer/icon.html' %}{{ card.candidate.address|default:card.candidate.district|default:'—' }}</p>
     <p class="kv-explanation">{{ card.explanation }}</p>
+    {% if card.working_draft %}{% include 'admin/catalog/place/private_draft_actions.html' with draft=card.working_draft %}{% endif %}
     {% if card.note %}<blockquote class="kv-review-note"><strong>{% translate "Замечание администратора" context "volunteer dashboard" %}</strong><p>{{ card.note|truncatechars:240 }}</p></blockquote>{% endif %}
     {% if card.public and card.proposed %}<p class="kv-live-note">{% include 'admin/volunteer/icon.html' with icon='check' %}{% translate "На сайте остаётся прежняя опубликованная версия." context "volunteer dashboard" %}</p>{% endif %}
     <div class="kv-card__bottom"><div class="kv-readiness"><div><span>{% translate "Готовность" context "volunteer dashboard" %}: <strong>{{ card.readiness.completed_count }}/{{ card.readiness.required_count }}</strong></span><span>{{ card.readiness.percentage }}%</span></div><progress value="{{ card.readiness.completed_count }}" max="{{ card.readiness.required_count }}" aria-label="{% translate 'Готовность карточки' context "volunteer dashboard" %}"></progress></div><small>{% translate "Обновлено" context "volunteer dashboard" %} {{ card.updated_at|date:'d.m.Y, H:i' }}</small></div>

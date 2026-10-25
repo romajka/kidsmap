@@ -8,6 +8,11 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
+from django.urls import reverse
+from django.core.paginator import Paginator
+from django.core.exceptions import PermissionDenied
+from itertools import chain
+from urllib.parse import urlencode
 from catalog.services.moderation_sla import submission_message
 from django.utils.translation import gettext as _
 
@@ -17,7 +22,7 @@ from catalog.interfaces.repositories import (
     IOwnerPlaceRepository,
     IPlaceOwnershipRequestRepository,
 )
-from catalog.models import Category, Place, PlaceChangeAudit, PlaceOwnershipRequest
+from catalog.models import Category, Place, PlaceChangeAudit, PlaceOwnershipRequest, ServerDraft
 from catalog.repositories.django_repositories import (
     DjangoOwnerPlaceRepository,
     DjangoPlaceChangeAuditRepository,
@@ -445,6 +450,43 @@ class OwnerPlacesController:
             return {}, access
 
         managed_places = list(self.owner_place_repository.managed_queryset(user=request.user))
+        working_drafts = []
+        managed_by_id = {place.pk: place for place in managed_places}
+        from catalog.services.place_editor_readiness import editor_readiness
+        from catalog.services.place_working_drafts import place_working_draft_card
+        from catalog.services.server_drafts import json_value, read as read_draft, DraftConflict
+        from django.http import QueryDict
+        # Do not use the restoration API's last-100 window for the cabinet.
+        # These actor-private copies never become public Place rows implicitly.
+        draft_queryset = ServerDraft.objects.filter(actor=request.user, target_type='place', materialized_place__isnull=True).order_by('-saved_at', '-pk')
+        draft_page = Paginator(draft_queryset.filter(target_id__isnull=True), 12).get_page(request.GET.get('draft_page', 1))
+        for draft in chain(draft_page.object_list, draft_queryset.filter(target_id__in=managed_by_id)):
+            target = managed_by_id.get(draft.target_id) if draft.target_id else None
+            if draft.target_id and (target is None or not self._has_permission(user=request.user, place=target, permission_code=PLACE_PERMISSION_EDIT)):
+                continue
+            if target is not None and hasattr(target, 'working_draft'):
+                continue
+            needs_review = False
+            try:
+                read_draft(user=request.user, draft_id=draft.pk)
+            except DraftConflict:
+                needs_review = True
+            except (PermissionDenied, ValidationError, ServerDraft.DoesNotExist):
+                continue
+            data = QueryDict('', mutable=True)
+            for key, value in draft.fields.items():
+                data[key] = json_value(value)
+            # Bound validation is read-only; use a fresh instance so candidate
+            # display values cannot mutate the public dashboard's Place object.
+            instance = Place.objects.get(pk=target.pk) if target else Place()
+            draft_form = OwnerPlaceEditForm(data=data, instance=instance, draft_save_only=True)
+            draft_form.is_valid()
+            progress = editor_readiness(draft_form)
+            row = {**place_working_draft_card(draft, language=getattr(request, 'LANGUAGE_CODE', None)), 'needs_review': needs_review, 'readiness': progress}
+            if target is not None:
+                target.working_draft = row
+            else:
+                working_drafts.append(row)
         latest_request_by_place: dict[int, PlaceOwnershipRequest] = {}
         for ownership_request in self.ownership_repository.list_for_user(user=request.user):
             latest_request_by_place.setdefault(ownership_request.place_id, ownership_request)
@@ -472,6 +514,9 @@ class OwnerPlacesController:
 
         context = {
             "managed_places": managed_places,
+            "working_drafts": working_drafts,
+            "working_drafts_count": draft_page.paginator.count,
+            "working_drafts_page": draft_page,
             'place_moderation_sla_message': submission_message('place'),
             "published_places": published_places,
             "draft_places": draft_places,

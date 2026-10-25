@@ -5,6 +5,9 @@ from catalog.volunteer_forms import CONTENT_FIELDS
 
 
 def editor_context(form):
+    from catalog.models import PlacePhoto
+    from catalog.services.photo_gallery import gallery_key
+    gallery = [dict(id=row['id'],key=gallery_key(row),url=PlacePhoto._meta.get_field('image').storage.url(row['image'])) for row in getattr(form, '_saved_gallery', [])]
     readiness = evaluate_form_readiness(form, form.instance)
     issues = readiness.issues
     definitions = [
@@ -29,7 +32,7 @@ def editor_context(form):
         sections.append(dict(id=key, title=title, icon=icon, description=hint, step=f'{number:02}', fields=[field for field in fields if not field.name.startswith(('custom_price_badge_', 'extra_conditions', 'additional_info'))],
             optional=[field for field in fields if field.name.startswith(('custom_price_badge_', 'extra_conditions', 'additional_info'))],
             state=dict(state=state, icon={'error':'error','done':'check_circle','partial':'radio_button_checked','empty':'radio_button_unchecked'}[state], label=f'{done} / {len(items)}' if items else '')))
-    return dict(volunteer_sections=sections, editor_readiness=readiness, editor_issues=issues,
+    return dict(volunteer_sections=sections, editor_readiness=readiness, editor_issues=issues, editor_gallery=gallery,
         km_place_required_fields={item.requirement.field for item in readiness.items},
         km_place_language_tabs=[dict(code=lang, label=lang.upper(), optional=lang != 'az', name_field=form[f'name_{lang}'], description_field=form[f'description_{lang}']) for lang in ('az','ru','en')],
         editor_copy=dict(
@@ -37,7 +40,7 @@ def editor_context(form):
             verify_description=t('Обязательных пунктов осталось: {count}. Нажмите «Исправить», чтобы перейти к полю.', 'Qalan məcburi bəndlər: {count}. Sahəyə keçmək üçün «Düzəlt» seçin.', 'Required items remaining: {count}. Select Fix to open the field.').format(count=len(issues)),
             verify_ready=t('Все обязательные пункты заполнены', 'Bütün məcburi bəndlər doldurulub', 'All required items are complete'),
             filled=t('заполнено', 'doldurulub', 'complete'),
-            photo_detail=t('Отображается в каталоге, на карте и первым на странице места. Минимум 1200×1200 px.', 'Kataloqda, xəritədə və məkan səhifəsində ilk göstərilir. Minimum 1200×1200 px.', 'Shown in the catalogue, on the map and first on the place page. Minimum 1200×1200 px.'),
+            photo_detail=t('Необязательно. Отображается в каталоге, на карте и первым на странице места. Рекомендуем фото от 1200×1200 px.', 'Məcburi deyil. Kataloqda, xəritədə və məkan səhifəsində ilk göstərilir. 1200×1200 px və daha böyük şəkil tövsiyə edilir.', 'Optional. Shown in the catalogue, on the map and first on the place page. We recommend 1200×1200 px or larger.'),
             cover_title=t('Фото для шапки', 'Örtük şəkli', 'Cover photo'),
             cover_detail=t('Широкоформатная обложка для верхней части страницы места.', 'Məkan səhifəsinin yuxarı hissəsi üçün geniş örtük şəkli.', 'Wide cover image for the top of the place page.'),
             cover_empty=t('Обложка не выбрана', 'Örtük seçilməyib', 'No cover selected'),
@@ -56,7 +59,7 @@ def editor_context(form):
                    t('Отправьте карточку на проверку. Администратор опубликует её или оставит замечания. Правки опубликованного места также проходят проверку.', 'Kartı yoxlamaya göndərin. Administrator onu yayımlayacaq və ya qeyd yazacaq. Yayımlanmış məkanın dəyişiklikləri də yoxlanılır.', 'Submit the card for review. The administrator publishes it or leaves feedback. Changes to published places also require review.')],
             saved_readiness=t('Готовность после последнего сохранения', 'Son saxlamadan sonra hazırlıq', 'Readiness after the last save'),
             new_readiness=t('Готовность карточки', 'Kartın hazırlığı', 'Card readiness'),
-            update_hint=t('После изменения полей сохраните черновик — готовность будет пересчитана.', 'Sahələri dəyişdikdən sonra qaralamanı saxlayın — hazırlıq yenidən hesablanacaq.', 'Save a draft after editing to recalculate readiness.'),
+            update_hint=t('Проверьте заполнение, затем откройте предпросмотр. Отправка на проверку выполняется отдельно.', 'Məlumatları yoxlayın, sonra ön baxışı açın. Yoxlamaya göndərmək ayrıca addımdır.', 'Check the entries, then open the preview. Sending for review is a separate step.'),
             dirty=t('Есть несохранённые изменения', 'Saxlanmamış dəyişikliklər var', 'Unsaved changes'),
             initial=t('Заполните данные и сохраните черновик', 'Məlumatları doldurub qaralamanı saxlayın', 'Complete the details and save a draft'),
             translations=t('Добавьте переводы, если они известны. Не выдумывайте данные.', 'Tərcümələr məlumdursa əlavə edin. Məlumat uydurmayın.', 'Add translations if available. Do not invent details.'),

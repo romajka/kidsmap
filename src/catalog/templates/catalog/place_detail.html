@@ -394,8 +394,8 @@
                         {% if plan.details %}<span class="detail-plans__details">{{ plan.details }}</span>{% endif %}
                         {% if plan.options or plan.required_fees %}
                           <span class="detail-plans__options">
-                            {% for option in plan.options %}<span>{{ option.title }} · {{ option.price_str }}{% if option.age_from != None or option.age_to != None %} · {{ option.age_from|default:"0" }}–{{ option.age_to|default:"+" }}{% endif %}</span>{% endfor %}
-                            {% for fee in plan.required_fees %}<span class="detail-plans__required-fee">{{ fee.title }} · {{ fee.price_str }}</span>{% endfor %}
+                            {% for option in plan.options %}<span>{{ option.title }} · {{ option.price_str }}{% if option.details %} · {{ option.details }}{% endif %}{% if option.age_from != None or option.age_to != None %} · {{ option.age_from|default:"0" }}–{{ option.age_to|default:"+" }}{% endif %}</span>{% endfor %}
+                            {% for fee in plan.required_fees %}<span class="detail-plans__required-fee">{{ fee.title }} · {{ fee.price_str }}{% if fee.details %} · {{ fee.details }}{% endif %}</span>{% endfor %}
                           </span>
                         {% endif %}
                       </span>
@@ -912,7 +912,12 @@
                 </div>
               {% endif %}
 
-              {% if not presentation.contacts.has_contact and not place.instagram and not place.address and not presentation.contacts.website_url %}
+              {% for link in presentation.contacts.public_links %}
+                <a class="detail-contacts__row" href="{{ link.url }}" target="_blank" rel="noopener noreferrer" data-place-public-link>
+                  <span class="detail-contacts__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/></svg></span><span class="detail-contacts__body"><strong>{{ link.label }}</strong><span class="detail-contacts__website">{{ link.url|cut:"https://"|cut:"http://" }}</span></span>
+                </a>
+              {% endfor %}
+              {% if not presentation.contacts.has_contact and not place.instagram and not place.address and not presentation.contacts.website_url and not presentation.contacts.public_links %}
                 <p class="detail-contacts__empty" role="status">{% trans "Контактные данные уточняются." %}</p>
               {% endif %}
             </div>

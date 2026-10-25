@@ -141,10 +141,9 @@
       <div class="km-pf-group__head">
         <span class="km-pf-group__title">{% translate "Контакты" %}</span>
       </div>
-      <div class="km-pf-grid km-pf-grid--3 km-pf-grid--top">
-        {% include "admin/catalog/place/form/_field.html" with field=form.phone_country %}
-        {% include "admin/catalog/place/form/_field.html" with field=form.whatsapp_mode %}
-        {% include "admin/catalog/place/form/_field.html" with field=form.whatsapp_number hint=form.whatsapp_number.help_text %}
+      <div class="km-pf-grid km-pf-grid--2 km-pf-grid--top">
+        {{ form.phone_country }}
+        {% for error in form.phone_country.errors %}<p class="km-pf-field__error" role="alert">{{ error }}</p>{% endfor %}
         <div class="km-pf-phones" data-km-phone-editor>
           <div data-km-phone-row>
             {% include "admin/catalog/place/form/_field.html" with field=form.phone1 %}
@@ -165,8 +164,21 @@
             <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add"></use></svg>{% translate "Добавить номер" %}
           </button>
         </div>
-        {% include "admin/catalog/place/form/_field.html" with field=form.instagram optional=True %}
-        {% include "admin/catalog/place/form/_field.html" with field=form.website optional=True %}
+        <div class="km-pf-contact-messenger">
+          {% include "admin/catalog/place/form/_field.html" with field=form.whatsapp_mode %}
+          {% include "admin/catalog/place/form/_field.html" with field=form.whatsapp_number hint=form.whatsapp_number.help_text %}
+        </div>
+        <details class="km-pf-disclosure km-pf-contact-socials"{% if form.instagram.value or form.website.value or form.instagram.errors or form.website.errors or form.public_links.errors or form.public_links.value and form.public_links.value != '[]' %} open{% endif %}>
+          <summary class="km-pf-disclosure__summary">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+            <span class="km-pf-disclosure__title">{% translate "Сайт и социальные сети" %}</span>
+          </summary>
+          <div class="km-pf-disclosure__body km-pf-contact-socials__body">
+            {% include "admin/catalog/place/form/_field.html" with field=form.instagram optional=True %}
+            {% include "admin/catalog/place/form/_field.html" with field=form.website optional=True %}
+            {% include "catalog/includes/place_public_links_editor.html" %}
+          </div>
+        </details>
       </div>
     </div>
 

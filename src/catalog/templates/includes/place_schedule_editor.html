@@ -28,8 +28,9 @@
     {% endwith %}
 
     <div class="km-schedule-editor__head">
+      <span class="pw-field-badge" data-pw-required="structured_schedule" hidden></span>
       <div>
-        <h3 class="km-schedule-editor__title">{% if CURRENT_LANGUAGE == "az" %}Ziyarət vaxtı{% elif CURRENT_LANGUAGE == "en" %}Visit schedule{% else %}Когда можно прийти{% endif %}</h3>
+        <h3 class="km-schedule-editor__title">{% if CURRENT_LANGUAGE == "az" %}İş qrafiki{% elif CURRENT_LANGUAGE == "en" %}Opening hours{% else %}Расписание работы{% endif %}</h3>
         <p class="km-schedule-editor__subtitle">
           {% if CURRENT_LANGUAGE == "az" %}
             Əvvəlcə uyğun cədvəl növünü seçin: həftəlik, qeydiyyatla, dəyişən və ya tədbirlərə görə.
@@ -53,6 +54,7 @@
       </p>
     </div>
 
+    <div data-km-editor-field data-km-schedule-validation data-km-validation-name="structured_schedule" tabindex="-1" aria-label="{% if CURRENT_LANGUAGE == 'az' %}İş qrafiki{% elif CURRENT_LANGUAGE == 'en' %}Opening hours{% else %}Расписание работы{% endif %}"></div>
     <div class="km-schedule-editor__mode-summary" data-km-schedule-mode-summary hidden></div>
 
     <div class="km-schedule-editor__events-action" data-km-schedule-events-action hidden>

@@ -117,6 +117,7 @@
     <script src="{% static 'js/place_phone_reveal.js' %}?v=20261022_release_all_r1"></script>
     <div class="site-shell">
       {% include "includes/header.html" %}
+      {% include "catalog/includes/place_editor_result.html" %}
 
       {% if messages and request.resolver_match and request.resolver_match.url_name != 'home' and request.resolver_match.url_name != 'place_detail' %}
         <section class="flash-stack" aria-live="polite">

@@ -5,6 +5,7 @@
 {% block workspace %}
 <a href="{% url 'admin:volunteer_moderation_hub' %}">← {% translate "Центр модерации" %}</a>
 <h1>{{ title }} · {{ row.name }}</h1><p>{{ row.kind_label }} · {{ row.mode_label }} · {{ row.status_label }} · {{ row.sla_label }}</p>
+{% if row.source == 'content' and row.kind == 'place' %}<p><a class="btn btn-outline-success" data-moderation-full-preview href="{% url 'admin:volunteer_revision_preview' row.id %}" target="_blank" rel="noopener">{% translate "Проверить карточку" %} ↗</a></p>{% endif %}
 {% if error %}<div class="alert alert-danger" role="alert" id="hub-error" tabindex="-1">{{ error }}</div>{% endif %}
 {% if row.conflict %}<div class="alert alert-warning" role="alert">{% translate "Исходные данные изменились. Сначала верните предложение на доработку." %}</div>{% endif %}
 <h2>{% translate "Изменения" %}</h2>

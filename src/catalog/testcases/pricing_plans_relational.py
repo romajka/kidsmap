@@ -186,7 +186,8 @@ class RelationalPricingPlanTests(TestCase):
         )
         self.assertEqual(invalid.status_code, 400)
         self.assertIn("Тариф 1", invalid.json()["error"])
-        self.assertIn("price_max", invalid.json()["error"])
+        self.assertIn("Цена до", invalid.json()["error"])
+        self.assertNotIn("price_max", invalid.json()["error"])
 
         replace_place_pricing_plans(self.place, response.json()["pricing_plans"])
         export_url = reverse("admin:catalog_place_export_json", args=[self.place.pk])
@@ -194,7 +195,9 @@ class RelationalPricingPlanTests(TestCase):
         self.assertEqual(exported.status_code, 200)
         body = json.loads(exported.content)
         self.assertIn("pricing_plans", body)
-        self.assertNotIn("price_from", body)
+        self.place.refresh_from_db()
+        self.assertEqual(body["price_from"], str(self.place.price_from))
+        self.assertEqual(body["pricing_plans_legacy"], self.place.pricing_plans_legacy)
 
     @override_settings(ADMIN_HOST="")
     def test_admin_import_accepts_tariffs_alias_with_multilingual_titles(self):

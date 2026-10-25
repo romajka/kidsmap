@@ -158,6 +158,14 @@
     }
 
     function isExpanded(section) { return !section.classList.contains("is-collapsed"); }
+    form.addEventListener('km:reveal-field', function (event) {
+      var input = event.detail && event.detail.element;
+      if (!input || !form.contains(input)) return;
+      var section = input.closest('[data-place-accordion-section]');
+      if (section) setExpanded(section, true);
+      var pane = input.closest('[data-pf-langpane]');
+      if (pane) activateLanguagePane(pane);
+    });
 
     var stored = readStoredState();
     sections.forEach(function (section) {
@@ -435,6 +443,7 @@
     /* Description counter -------------------------------------------------- */
 
     qsa(".km-pf-field__control--counted textarea", root).forEach(function (textarea) {
+      if (form.hasAttribute('data-km-editor')) return;
       var wrap = textarea.parentElement;
       var counter = document.createElement("span");
       counter.className = "km-pf-counter";
@@ -724,6 +733,10 @@
         tariffEmpty.hidden = isExempt || plans.length > 0;
       }
       if (!tariffComputed) return;
+      if (tariffEditor && tariffEditor.kidsmapPricingSummary) {
+        tariffComputed.textContent = tariffEditor.kidsmapPricingSummary();
+        return;
+      }
 
       var values = [];
       plans.forEach(function (plan) {
@@ -906,6 +919,7 @@
           fallback: !!item.fallback,
           initial: !!item.initial,
           isFilled: function () {
+            if (placeEntry) return this.initial;
             if (this.fallback) return true;
             return evaluator ? !!evaluator(this.config) : this.initial;
           }
@@ -923,8 +937,20 @@
     var issuesList = qs("[data-pf-issues-list]", root);
     var readyBanner = qs("[data-pf-ready-banner]", root);
     var publishButtons = qsa("[data-pf-publish]", root);
+    var authoritativeReadiness = null;
+    var readinessPending = false;
+    form.addEventListener('km:readiness', function (event) {
+      if (event.detail && (event.detail.readiness || Array.isArray(event.detail.items))) authoritativeReadiness = event.detail.readiness || event.detail;
+      readinessPending = !!(event.detail && event.detail.pending);
+      refreshReadiness();
+    });
 
     function sectionErrorCount(sectionId) {
+      if (authoritativeReadiness) {
+        if (sectionId === 'verification') return authoritativeReadiness.error_count || 0;
+        var group = (authoritativeReadiness.sections || []).find(function (item) { return item.id === sectionId; });
+        if (group) return group.error_count || 0;
+      }
       var section = document.getElementById(sectionId);
       if (!section) return 0;
       return qsa(".km-pf-field.is-error, .km-pf-field__error", section).length;
@@ -1019,7 +1045,8 @@
       var done = 0;
 
       CHECKLIST.forEach(function (item) {
-        var filled = item.isFilled();
+        var checked = authoritativeReadiness && authoritativeReadiness.items.find(function (entry) { return entry.code === item.code; });
+        var filled = checked ? !!checked.complete : item.isFilled();
         if (filled) done += 1; else missing.push(item);
         var bucket = perSection[item.section] || (perSection[item.section] = { done: 0, total: 0, missingLabels: [] });
         bucket.total += 1;
@@ -1028,9 +1055,17 @@
       });
 
       var total = CHECKLIST.length;
+      if (authoritativeReadiness) {
+        total = authoritativeReadiness.required_count;
+        done = authoritativeReadiness.completed_count;
+        missing = authoritativeReadiness.items.filter(function (item) { return !item.complete; }).map(function (item) {
+          var original = CHECKLIST.find(function (entry) { return entry.code === item.code; });
+          return Object.assign({}, original || {}, item);
+        });
+      }
       var pct = total ? Math.round((done / total) * 100) : 0;
       // Unsaved input has not received a server verdict.
-      if (placeEntry && (isDirty || errorSummary)) pct = Math.min(pct, 99);
+      if (placeEntry && !authoritativeReadiness && (isDirty || errorSummary)) pct = Math.min(pct, 99);
       // The invariant the whole page rests on: 100% only when nothing is missing.
       if (missing.length) pct = Math.min(pct, 99);
 
@@ -1043,12 +1078,12 @@
       progressDone.forEach(function (node) { node.textContent = String(done); });
       progressTotal.forEach(function (node) { node.textContent = String(total); });
 
-      var ready = missing.length === 0;
+      var ready = authoritativeReadiness ? authoritativeReadiness.is_ready && !readinessPending : missing.length === 0 && !(placeEntry && isDirty);
       readinessBadges.forEach(function (badge) {
         badge.dataset.tone = ready ? "good" : "warn";
         var text = qs("[data-progress-readiness-text]", badge);
         setIcon(qs("[data-progress-readiness-icon]", badge), ready ? "check_circle" : "radio_button_checked");
-        if (text) text.textContent = placeEntry && isDirty ? labels.labelCheck : ready ? (labels.labelReady || "") : (labels.labelIncomplete || "");
+        if (text) text.textContent = readinessPending || (placeEntry && isDirty && !authoritativeReadiness) ? labels.labelCheck : ready ? (labels.labelReady || "") : (labels.labelIncomplete || "");
       });
 
       if (remainingNode) {
@@ -1065,7 +1100,7 @@
       paintSection("verification", done, total, []);
 
       renderIssues(missing);
-      if (readyBanner) readyBanner.hidden = !ready || (placeEntry && (isDirty || !!errorSummary));
+      if (readyBanner) readyBanner.hidden = !ready;
 
       publishButtons.forEach(function (button) {
         button.disabled = !ready;
@@ -1078,8 +1113,8 @@
     }
 
     // Any change anywhere in the form can move a readiness item.
-    form.addEventListener("input", function () { window.setTimeout(refreshReadiness, 0); });
-    form.addEventListener("change", function () { window.setTimeout(refreshReadiness, 0); });
+    form.addEventListener("input", function () { if(placeEntry)readinessPending=true;window.setTimeout(refreshReadiness, 0); });
+    form.addEventListener("change", function () { if(placeEntry)readinessPending=true;window.setTimeout(refreshReadiness, 0); });
 
     /* ----------------------------------------------------------------------
        Catalog preview card
@@ -1407,9 +1442,9 @@
         getItems: function () {
           return categories;
         },
-        placeholder: "Выберите категорию...",
-        searchPlaceholder: "Поиск категории...",
-        emptyText: "Категории не найдены",
+        placeholder: taxonomy.picker_copy.category,
+        searchPlaceholder: taxonomy.picker_copy.category_search,
+        emptyText: taxonomy.picker_copy.category_empty,
         onSelect: function (catCode) {
           if (subcategoryPicker) {
             var validSubs = subcategories.filter(function (s) {
@@ -1454,10 +1489,10 @@
             };
           });
         },
-        placeholder: "Выберите подкатегорию...",
-        disabledPlaceholder: "Сначала выберите категорию",
-        searchPlaceholder: "Поиск подкатегории...",
-        emptyText: "Подкатегории не найдены",
+        placeholder: taxonomy.picker_copy.subcategory,
+        disabledPlaceholder: taxonomy.picker_copy.category_first,
+        searchPlaceholder: taxonomy.picker_copy.subcategory_search,
+        emptyText: taxonomy.picker_copy.subcategory_empty,
         isDisabled: function () {
           var selCat = categorySelect ? String(categorySelect.value || "") : "";
           if (!selCat) return true;
@@ -1573,6 +1608,11 @@
     }
 
     function getReadinessStatus() {
+      if (authoritativeReadiness) return {
+        done:authoritativeReadiness.completed_count,total:authoritativeReadiness.required_count,
+        missing:authoritativeReadiness.items.filter(function(item){return !item.complete;}),
+        isReady:authoritativeReadiness.is_ready && !readinessPending
+      };
       var missing = [];
       var done = 0;
       CHECKLIST.forEach(function (item) {
@@ -1618,23 +1658,25 @@
       if (submitting) return;
       var currentSnapshot = serializeFormState();
       var wasDirty = isDirty;
-      isDirty = candidateConflict || Boolean(initialSnapshot && currentSnapshot !== initialSnapshot);
+      isDirty = candidateConflict || (typeof form.kmDraftHasPending === 'function' ? form.kmDraftHasPending() : Boolean(initialSnapshot && currentSnapshot !== initialSnapshot));
 
       if (isDirty) {
         setSaveState("dirty", "● " + (labels.labelDirty || "Есть несохранённые изменения"));
       } else {
-        if (placeEntry) setSaveState(errorSummary ? "error" : form.dataset.placeId ? "saved" : "idle", errorSummary ? labels.labelError : form.dataset.placeId ? labels.labelSaved : labels.labelIdle); else setSaveState("saved", "✓ " + (labels.labelSaved || "Все изменения сохранены"));
+        if (form.elements?.namedItem('server_draft_id')?.value) setSaveState('saved', labels.labelSaved);
+        else if (placeEntry) setSaveState(errorSummary ? "error" : form.dataset.placeId ? "saved" : "idle", errorSummary ? labels.labelError : form.dataset.placeId ? labels.labelSaved : labels.labelIdle); else setSaveState("saved", "✓ " + (labels.labelSaved || "Все изменения сохранены"));
       }
     }
 
     window.kmDirtyState = {
-      isDirty: function () { return isDirty; },
+      isDirty: function () { return candidateConflict || (typeof form.kmDraftHasPending === 'function' ? form.kmDraftHasPending() : isDirty); },
       setInitial: function () {
         initialSnapshot = serializeFormState();
         isDirty = candidateConflict;
         if (placeEntry) setSaveState(errorSummary ? "error" : form.dataset.placeId ? "saved" : "idle", errorSummary ? labels.labelError : form.dataset.placeId ? labels.labelSaved : labels.labelIdle); else setSaveState("saved", "✓ " + (labels.labelSaved || "Все изменения сохранены"));
       },
       markDirty: function () {
+        if (typeof form.kmDraftHasPending === 'function') { syncDirty(); return; }
         isDirty = true;
         setSaveState("dirty", "● " + (labels.labelDirty || "Есть несохранённые изменения"));
       },
@@ -1652,6 +1694,7 @@
     });
 
     form.addEventListener("submit", function (event) {
+      if (event.submitter && event.submitter.hasAttribute('data-km-preview')) return;
       if (candidateConflict) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -1660,12 +1703,14 @@
       }
       submitting = true;
       setSaveState("saving", labels.labelSaving || "Сохранение…");
+      queueMicrotask(function () { if (event.defaultPrevented) { submitting=false;syncDirty(); } });
     }, true);
 
     if (candidateConflict) pauseCandidateSave();
+    form.addEventListener('km:draft-saved', function () { initialSnapshot=serializeFormState();isDirty=candidateConflict;submitting=false;setSaveState('saved',labels.labelSaved); });
 
     window.addEventListener("beforeunload", function (event) {
-      if (!isDirty || submitting || bypassNavigationPrompt) return;
+      if (!window.kmDirtyState.isDirty() || submitting || bypassNavigationPrompt) return;
       event.preventDefault();
       event.returnValue = "";
     });
@@ -1675,7 +1720,7 @@
        ---------------------------------------------------------------------- */
 
     document.addEventListener("click", function (e) {
-      if (!isDirty || submitting || bypassNavigationPrompt) return;
+      if (!window.kmDirtyState.isDirty() || submitting || bypassNavigationPrompt) return;
 
       var link = e.target.closest("a[href]");
       if (!link) return;
@@ -1708,11 +1753,17 @@
           submitting = true;
           setSaveState("saving", labels.labelSaving || "Сохранение…");
           kmToast.info(labels.labelSaving);
+          if (form.kmDraftSave) {
+            Promise.resolve().then(function () { return form.kmDraftSave(); }).then(function (saved) {
+              if (!saved) { submitting=false;isDirty=true;return; }
+              bypassNavigationPrompt=true;window.location.href=targetUrl;
+            }).catch(function () { submitting=false;isDirty=true;setSaveState('error',labels.labelDirty); });
+            return;
+          }
 
           var formData = new FormData(form);
-          if (!formData.has("_continue")) {
-            formData.append("_continue", "1");
-          }
+          ['_continue','_publish_place','_save','_addanother'].forEach(function (key) { formData.delete(key); });
+          formData.set('_save_draft','1');
 
           fetch(form.action || window.location.href, {
             method: "POST",
@@ -1911,8 +1962,10 @@
       window.kmDirtyState.setInitial();
 
       // Check on-page errors or success
+      var editorResult = qs('[data-km-editor-result][data-action="draft"], [data-km-editor-result][data-action="save"], [data-km-editor-result][data-action="moderation"], [data-km-editor-result][data-action="publish"]');
       var errorSummary = qs("[data-place-error-summary]", root);
       if (errorSummary) {
+        if (editorResult && editorResult.dataset.outcome === 'validation') return;
         kmToast.error("Не удалось сохранить карточку", "Исправьте отмеченные поля и попробуйте снова.", {
           label: "Показать ошибки",
           onClick: function () {
@@ -1921,7 +1974,7 @@
         });
       } else {
         var successBanner = qs(".alert-success, .messagelist .success");
-        if (successBanner && successBanner.textContent) {
+        if (successBanner && successBanner.textContent && !(editorResult && editorResult.dataset.outcome === 'success')) {
           kmToast.success("Изменения сохранены");
         }
       }

@@ -1,0 +1,21 @@
+{% load i18n %}
+{{ working_drafts_copy|json_script:'km-private-draft-copy' }}
+<div data-private-draft-csrf hidden>{% csrf_token %}</div>
+<p data-private-draft-error role="alert" hidden></p>
+{% if working_drafts_page %}
+<section class="km-private-drafts" aria-labelledby="km-working-drafts-title" data-working-drafts>
+  <h2 id="km-working-drafts-title">{{ working_drafts_copy.title }}</h2>
+  <ul>{% for draft in working_drafts_page %}
+    <li><strong>{{ draft.title }}</strong><span>{{ working_drafts_copy.saved }} {{ draft.saved_at|date:'d.m.Y, H:i' }}</span>
+      {% include 'admin/catalog/place/private_draft_actions.html' %}
+    </li>
+  {% endfor %}</ul>
+  {% if working_drafts_page.has_other_pages %}
+  <nav aria-label="{{ working_drafts_copy.pages }}">
+    {% if working_drafts_previous_url %}<a href="{{ working_drafts_previous_url }}">{% translate 'Назад' %}</a>{% endif %}
+    <span>{{ working_drafts_page.number }} / {{ working_drafts_page.paginator.num_pages }}</span>
+    {% if working_drafts_next_url %}<a href="{{ working_drafts_next_url }}">{% translate 'Далее' %}</a>{% endif %}
+  </nav>
+  {% endif %}
+</section>
+{% endif %}

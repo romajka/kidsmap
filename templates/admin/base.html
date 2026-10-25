@@ -230,6 +230,7 @@
                 <div class="container-fluid">
                     <section id="content" class="content">
                         {% block messages %}
+                        {% include "catalog/includes/place_editor_result.html" %}
                         {% for message in messages %}
                         {% if message.tags == 'success' %}
                         <div class="alert alert-success alert-dismissible">

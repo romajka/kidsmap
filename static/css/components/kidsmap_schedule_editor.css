@@ -199,18 +199,22 @@
 }
 
 .km-schedule-editor__presets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+  align-items: stretch;
 }
 
 .km-schedule-editor__preset {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  min-height: 32px;
-  padding: 6px 12px;
+  min-height: 44px;
+  min-width: 0;
+  padding: 10px 12px;
+  text-align: start;
+  white-space: normal;
+  line-height: 1.5;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
   background: #ffffff;
@@ -245,7 +249,9 @@
 }
 
 .km-schedule-editor__preset--clear {
-  margin-left: auto;
+  grid-column: 1 / -1;
+  justify-self: end;
+  margin-left: 0;
   border-color: #fecaca;
   background: #ffffff;
   color: #dc2626;
@@ -1353,3 +1359,4 @@
     animation: none; /* The generic translate animation would override centering. */
   }
 }
+@media(max-width:480px){.km-schedule-editor__presets{grid-template-columns:minmax(0,1fr);}.km-schedule-editor__preset--clear{justify-self:stretch;justify-content:center;}}

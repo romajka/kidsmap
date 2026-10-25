@@ -1,8 +1,15 @@
 {% load i18n %}
 {% with ui=form.wizard_copy ready=editor_readiness %}
 <div class="km-pf kv-admin-editor">
-<form method="post" enctype="multipart/form-data" class="km-pf__form" data-volunteer-admin-form data-dirty-label="{{ editor_copy.dirty }}" novalidate>
-{% csrf_token %}{{ form.revision_version }}{{ form.base_token }}{{ form.price_mode }}
+<form method="post" enctype="multipart/form-data" class="km-pf__form" data-km-editor data-volunteer-admin-form data-place-id="{{ place.pk|default:'' }}" data-dirty-label="{{ editor_copy.dirty }}" novalidate>
+{% csrf_token %}{{ form.revision_version }}{{ form.base_token }}
+{% include "catalog/includes/place_editor_invalid_result.html" %}
+{{ form.gallery_order }}
+{{ editor_gallery|json_script:'km-volunteer-gallery' }}
+{% if km_place_draft_config %}{{ km_place_draft_config|json_script:'km-staff-draft-config' }}{% endif %}
+{{ form.editor_errors|json_script:'km-editor-errors' }}
+{{ form.editor_error_targets|json_script:'km-editor-error-targets' }}
+{{ form.pricing_editor_contract|json_script:'km-pricing-editor-contract' }}
 <div class="km-pf__shell">
   <header class="km-pf__header">
     <div class="km-pf__header-main">
@@ -12,8 +19,8 @@
         <a class="km-pf__eyebrow" href="{% url 'admin:volunteer_index' %}">{{ ui.places }}</a>
       {% endif %}
       <div class="km-pf__titlerow"><h1 class="km-pf__title">{% if card %}{{ card.name }}{% else %}{% translate "Новое место" %}{% endif %}</h1><span class="km-pf-chip">{% if card %}{{ card.status }}{% else %}{% translate "Черновик" context "volunteer dashboard" %}{% endif %}</span></div>
-      <div class="km-pf__progress"><span class="km-pf-bar km-pf-bar--lg"><span class="km-pf-bar__fill" style="width:{{ ready.percentage }}%"></span></span><strong>{{ ready.percentage }}%</strong></div>
-      <p class="km-pf__progress-copy">{{ ready.completed_count }} / {{ ready.required_count }} · {{ editor_copy.update_hint }} <a href="#verification" class="km-pf-linkbtn" data-editor-target="verification">{% translate "Показать" %}</a></p>
+      <div class="km-pf__progress"><span class="km-pf-bar km-pf-bar--lg"><span class="km-pf-bar__fill" data-progress-bar style="width:{{ ready.percentage }}%"></span></span><strong data-progress-pct>{{ ready.percentage }}%</strong></div>
+      <p class="km-pf__progress-copy"><span data-progress-done>{{ ready.completed_count }}</span> / <span data-progress-total>{{ ready.required_count }}</span> · {{ editor_copy.update_hint }} <a href="#verification" class="km-pf-linkbtn" data-editor-target="verification">{% translate "Показать" %}</a></p>
     </div>
     <div class="km-pf__header-aside"><button type="button" class="km-pf-btn km-pf-btn--ghost" data-place-json-import-open aria-haspopup="dialog" aria-controls="km-json-import"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-upload_file"></use></svg>{% translate "Импорт из JSON" %}</button><button type="button" class="km-pf-btn km-pf-btn--ghost" data-place-json-prompt-copy aria-haspopup="dialog" aria-controls="km-json-prompt"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-content_copy"></use></svg>ChatGPT · JSON</button><button type="button" class="km-pf-btn km-pf-btn--ghost" data-guide-open aria-haspopup="dialog" aria-controls="volunteer-guide"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-info"></use></svg>{{ editor_copy.instruction }}</button><p class="km-pf__header-savestate" data-editor-save-state role="status">{{ editor_copy.initial }}</p></div>
   </header>
@@ -30,7 +37,13 @@
           {% include "admin/catalog/place/form/section_basics.html" %}
           {% if not place.pk %}<div class="km-pf-field"><label for="id_create_as_distinct_branch">{{ form.create_as_distinct_branch }} {{ editor_copy.branch_title }}</label><p id="branch-help" class="km-pf-field__hint">{{ editor_copy.branch_help }}</p></div>{% endif %}
         {% elif section.id == 'verification' %}
-          <div class="km-pf-verify-card">
+          <div class="km-editor-preview-action">
+            <button type="button" class="km-editor-preview" data-km-check>{% translate 'Проверить заполнение' %}</button>
+            <button type="submit" name="_km_preview" value="1" class="km-editor-preview" data-km-preview formtarget="_blank" formnovalidate formaction="{% if place.pk %}{% url 'place_editor_preview' place.pk %}{% else %}{% url 'place_editor_preview_new' %}{% endif %}?surface=volunteer">{% translate 'Просмотреть перед публикацией' %} ↗</button>
+            <p data-km-check-status role="status" aria-live="polite" hidden></p>
+          </div>
+          <div class="km-pf-verify-card" data-volunteer-readiness>
+            <p data-readiness-status role="status" hidden></p><ul data-readiness-items hidden></ul>
             {% if editor_issues %}
               <div class="km-pf-verify-banner is-warn">
                 <div class="km-pf-verify-banner__head">
@@ -87,7 +100,7 @@
           <div class="km-pf-grid km-pf-grid--2">
             <div class="kv-photo-card" data-pf-field="photo">
               <div class="kv-photo-card__head">
-                <label for="id_photo" class="kv-photo-card__title">{% translate "Главное фото" %} <span class="km-pf-field__required" aria-hidden="true">*</span></label>
+                <label for="id_photo" class="kv-photo-card__title">{% translate "Главное фото" %}</label>
                 <p id="photo-help" class="kv-photo-card__desc">{{ editor_copy.photo_detail }}</p>
               </div>
               <div class="kv-photo-preview-wrap{% if not card.photo_url %} is-empty{% endif %}">
@@ -135,10 +148,19 @@
               </div>
             </div>
           </div>
+          <div class="kv-photo-card" data-pf-field="gallery_images" data-km-native-gallery>
+            <label for="id_gallery_images" class="kv-photo-card__title">{{ form.gallery_images.label }}</label>
+            <p>{{ ui.photos_hint }}</p>
+            {{ form.gallery_images }}{{ form.gallery_images.errors }}
+            <div class="km-pf-grid km-pf-grid--2" data-editor-gallery-list>
+              {% for image in editor_gallery %}<figure data-gallery-key="{{ image.key }}"><img src="{{ image.url }}" alt="{% translate 'Фото места' %}" width="180" loading="lazy"><figcaption>{% translate 'Фото' %} {{ forloop.counter }}</figcaption></figure>{% endfor %}
+            </div>
+            {% if editor_gallery %}<details><summary>{% translate 'Удалить фотографии' %}</summary>{{ form.delete_gallery_ids }}</details>{% endif %}
+          </div>
         {% else %}
           <div class="km-pf-grid km-pf-grid--2">{% for field in section.fields %}{% include "admin/catalog/place/form/_field.html" with hint=field.help_text %}{% endfor %}</div>
           {% if section.id == 'pricing' %}
-            <div class="km-pf-divider"></div><div class="kv-admin-tariffs" data-tariff-editor data-can-verify="0"><p>{{ ui.plans_hint }}</p>{{ form.pricing_plans }}{{ form.pricing_plans.errors }}<div data-tariff-list></div><button type="button" class="km-pf-btn km-pf-btn--ghost" data-tariff-add>{{ ui.add_plan }}</button></div>
+            <div class="km-pf-divider"></div><div class="kv-admin-tariffs" data-tariff-editor data-can-verify="0">{% include 'catalog/includes/place_price_policy.html' %}<h3 data-tariff-heading>{{ ui.common_ticket }}</h3><p data-tariff-description>{{ ui.plans_hint }}</p>{{ form.pricing_plans }}{{ form.pricing_plans.errors }}<div data-tariff-list></div><button type="button" class="km-pf-btn km-pf-btn--ghost" data-tariff-add>{{ ui.add_plan }}</button></div>
           {% elif section.id == 'location' %}
             <div class="km-pf-divider"></div>{% include "pages/includes/permanent_place_map.html" with location_admin=True %}
             <div class="km-pf-divider"></div><div data-pf-field="structured_schedule">{% include "includes/place_schedule_editor.html" with form=form variant="admin" editor_id="volunteer-schedule" %}</div>
@@ -150,8 +172,8 @@
     </div>
     <aside class="km-pf__side">
       <div class="km-pf-side__card"><div class="km-pf-side__block km-pf-side__block--top">
-        <div class="km-pf-side__row"><span class="km-pf-side__eyebrow">{% translate "Готовность" %}</span><span>{{ ready.completed_count }} / {{ ready.required_count }}</span></div>
-        <div class="km-pf-side__progress"><strong class="km-pf-side__pct">{{ ready.percentage }}%</strong><span class="km-pf-bar"><span class="km-pf-bar__fill" style="width:{{ ready.percentage }}%"></span></span></div>
+        <div class="km-pf-side__row"><span class="km-pf-side__eyebrow">{% translate "Готовность" %}</span><span><span data-progress-done>{{ ready.completed_count }}</span> / <span data-progress-total>{{ ready.required_count }}</span></span></div>
+        <div class="km-pf-side__progress"><strong class="km-pf-side__pct" data-progress-pct>{{ ready.percentage }}%</strong><span class="km-pf-bar"><span class="km-pf-bar__fill" data-progress-bar style="width:{{ ready.percentage }}%"></span></span></div>
         <p>{{ editor_copy.update_hint }}</p>
         {% if admin_working_revision %}
           <button type="submit" name="action" value="admin_save" class="km-pf-btn km-pf-btn--primary km-pf-btn--block" {% if conflict %}disabled{% endif %}>{% translate "Сохранить рабочую версию" %}</button>

@@ -1,0 +1,84 @@
+const H=require('./helpers.cjs');
+const {fillPlace}=require('./create.cjs');
+const {fillVolunteer}=require('./roles.cjs');
+const crypto=require('node:crypto');
+const forms={owner:'[data-permanent-place-form]',admin:'#place_form',volunteer:'[data-volunteer-admin-form]'};
+const buttons={owner:'[data-pc-save-draft]',admin:'[name=_save_draft]',volunteer:'button[name=action][value=draft]'};
+const titles={ru:{draft:'Черновик сохранён',save:'Изменения сохранены',moderation:'Место отправлено на модерацию',publish:'Место опубликовано'},az:{draft:'Qaralama saxlanıldı',save:'Dəyişikliklər saxlanıldı',moderation:'Məkan moderasiyaya göndərildi',publish:'Məkan dərc olundu'},en:{draft:'Draft saved',save:'Changes saved',moderation:'Place sent for review',publish:'Place published'}};
+const pause=ms=>new Promise(r=>setTimeout(r,ms));
+async function page(ctx,role,lang,width){
+ const c=await H.context(ctx.browser,ctx.fixture.origin,width);await c.addCookies([{name:'django_language',value:lang,url:ctx.fixture.origin}]);
+ const p=await H.login(c,ctx.fixture,role,lang);p.on('dialog',d=>d.accept());
+ const errors=[],http=[];p.on('pageerror',e=>errors.push(e.message));p.on('response',async r=>{if(!r.url().startsWith(ctx.fixture.origin)||r.status()<400)return;let body;try{body=await r.json();}catch{}http.push({status:r.status(),url:r.url(),check:!!r.request().postData()?.includes('_km_check_required'),structured:!!body?.errors,conflict:body?.conflict||null});});
+ const url=role==='owner'?`/${lang==='az'?'':lang+'/'}account/places/create/?type=permanent&fresh=1`:role==='admin'?'/admin/catalog/place/add/?type=permanent':'/admin/volunteer/add/';
+ await p.goto(ctx.fixture.origin+url);await p.waitForFunction(selector=>{const f=document.querySelector(selector);return !!window.KidsMapEditorFeedback&&(!!window.KidsMapOwnerWorkflow||!!f?.kmDraftSave);},forms[role]);
+ return {c,p,errors,http,expectedHttp:[]};
+}
+async function saved(p,role){await p.waitForFunction(selector=>{const f=document.querySelector(selector);return window.KidsMapOwnerWorkflow?!window.KidsMapOwnerWorkflow.hasPending():f?.querySelector('.km-staff-save-panel')?.dataset.state==='saved'&&!f.kmDraftHasPending();},forms[role],{timeout:35000});}
+async function clearToasts(p){for(const button of await p.locator('.km-toast:not(.is-leaving) .km-toast__close').all())await button.click();await p.waitForTimeout(300);}
+async function toast(p,title){const node=p.locator('.km-toast:not(.is-leaving)').filter({has:p.locator('.km-toast__title',{hasText:title})});await node.waitFor({state:'visible'});H.assert.equal(await node.count(),1,'One visible action toast');H.assert((await node.locator('.km-toast__message').innerText()).trim());return node;}
+async function screenshot(ctx,p,id){await H.inspect(p,ctx.out,id);}
+async function receipt(ctx,p,lang,action,id){
+ if(['moderation','publish'].includes(action)){
+  const modal=p.locator('.km-modal-backdrop').filter({has:p.locator('.km-modal__title',{hasText:titles[lang][action]})});await modal.waitFor({state:'visible'});H.assert.equal(await modal.count(),1);
+  await p.waitForTimeout(250);H.assert(await modal.evaluate(el=>el.contains(document.activeElement)),'Dialog receives keyboard focus');
+  await p.keyboard.press('Tab');H.assert(await modal.evaluate(el=>el.contains(document.activeElement)),'Tab stays in dialog');
+  for(const width of [390,1440]){await p.setViewportSize({width,height:1000});await screenshot(ctx,p,`${id}-${width}`);}
+  await p.keyboard.press('Escape');await modal.waitFor({state:'hidden'});
+ }else{await toast(p,titles[lang][action]);await screenshot(ctx,p,id);}
+ await p.reload();await p.waitForLoadState('networkidle');H.assert.equal(await p.locator('[data-km-editor-result][data-outcome=success]').count(),0,'Consumed server receipt is not replayed on reload');H.assert.equal(await p.locator('.km-toast--success,.km-modal-backdrop').count(),0,'No replayed success popup');
+ const staffStatus=p.locator('[data-km-staff-save-status]');if(await staffStatus.count()){const neutral={ru:'Автосохранение включено',az:'Avtomatik saxlama aktivdir',en:'Autosave is on'}[lang];H.assert.equal(await staffStatus.innerText(),neutral,'Reloaded saved card shows neutral autosave readiness, not an unsaved claim');H.assert.equal(await p.locator('.km-staff-save-panel').getAttribute('data-state'),'initial');if(action==='draft'||action==='save'){await screenshot(ctx,p,id+'-reload-status');ctx.record({id:'NEUTRAL_STAFF_STATUS',lang,action,status:'PASS',assertions:['native result reloaded without success replay','neutral autosave label on saved card']});}}
+}
+async function privateCatalog(ctx,id,name){const c=await H.context(ctx.browser,ctx.fixture.origin);try{const p=await c.newPage();await p.goto(ctx.fixture.origin+'/ru/catalog/?q='+encodeURIComponent(name));H.assert.equal(await p.locator(`a[href*="/place/${id}-"]`).count(),0,'Private card absent from anonymous catalog');}finally{await c.close();}}
+async function guarded(ctx,id,role,lang,width,work){let state;try{state=await page(ctx,role,lang,width);await work(state);H.assert.deepEqual(state.errors,[],'No uncaught application errors');for(const response of state.http){const expectedCheck=response.status===422&&response.check&&response.structured;const expectedValidation=id==='ERROR_AND_RETRY'&&response.status===422&&response.structured;const injected=state.expectedHttp.some(item=>item.url===response.url&&item.status===response.status);H.assert(expectedCheck||expectedValidation||injected,`Unexpected HTTP failure: ${JSON.stringify(response)}`);}ctx.record({id,role,lang,width,status:'PASS',http:state.http});}catch(error){ctx.record({id,role,lang,width,status:'FAIL',error:String(error),http:state?.http});if(state){await state.p.screenshot({path:H.path.join(ctx.out,`${id}-${role}-${lang}-${width}-FAIL.png`),fullPage:true});H.fs.writeFileSync(H.path.join(ctx.out,`${id}-${role}-${lang}-${width}-FAIL.txt`),await state.p.locator('body').innerText());}throw error;}finally{await state?.c.close();}}
+async function matrix(ctx){
+ for(const role of ['owner','admin','volunteer'])for(const lang of ['az','ru','en'])for(const width of [390,1440])await guarded(ctx,'MANUAL_AND_BACKGROUND',role,lang,width,async({p})=>{
+  const name=`Action ${role} ${lang} ${width} ${Date.now()}`;await H.fill(p,'#id_name_az',name);
+  const url=await p.locator(forms[role]).evaluate(f=>new URL(f.dataset.draftUrl,location.href).href);let writes=0;
+  await p.route(url,async route=>{if(route.request().method()!=='POST')return route.continue();writes++;await pause(350);await route.continue();});
+  const button=p.locator(buttons[role]).first();await button.scrollIntoViewIfNeeded();const box=await button.boundingBox();await p.mouse.click(box.x+box.width/2,box.y+box.height/2);await p.mouse.click(box.x+box.width/2,box.y+box.height/2);
+  await toast(p,titles[lang].draft);await saved(p,role);H.assert.equal(writes,1,'Repeated click creates only one private save');await p.unroute(url);await screenshot(ctx,p,`manual-${role}-${lang}-${width}`);
+  await p.waitForTimeout(1100);H.assert(await p.locator('.km-toast--success:not(.is-leaving)').isVisible(),'Success remains readable');await clearToasts(p);
+  await H.fill(p,'#id_name_az',name+' auto');await p.waitForTimeout(1800);await saved(p,role);H.assert.equal(await p.locator('.km-toast:not(.is-leaving)').count(),0,'Automatic backup does not pop up');
+  const resume=p.url();H.assert(new URL(resume).searchParams.has('draft_id'));await p.reload();await p.waitForLoadState('networkidle');H.assert.equal(await p.locator('#id_name_az').inputValue(),name+' auto','Confirmed background text restores');H.assert.equal(await p.locator('.km-toast--success').count(),0);
+ });
+}
+async function errors(ctx){for(const role of ['owner','admin','volunteer'])await guarded(ctx,'ERROR_AND_RETRY',role,'ru',390,async({p,expectedHttp})=>{
+ const url=await p.locator(forms[role]).evaluate(f=>new URL(f.dataset.draftUrl,location.href).href);
+ for(const mode of ['503','network','malformed']){
+  const name=`Retry ${role} ${mode} ${Date.now()}`;await H.fill(p,'#id_name_az',name);
+  await p.route(url,async route=>{if(route.request().method()!=='POST')return route.continue();if(mode==='network')return route.abort('failed');if(mode==='503')expectedHttp.push({url:route.request().url(),status:503});await route.fulfill({status:mode==='503'?503:200,contentType:'application/json',body:'{}'});});
+  await p.locator(buttons[role]).first().click();await p.locator('.km-toast--error:not(.is-leaving)').waitFor({state:'visible'});H.assert.equal(await p.locator('.km-toast--success:not(.is-leaving)').count(),0);H.assert.equal(await p.locator('#id_name_az').inputValue(),name);await screenshot(ctx,p,`failure-${role}-${mode}`);
+  await p.waitForTimeout(350);await p.unroute(url);await clearToasts(p);const retry=role==='owner'?p.locator('[data-pc-save-retry]'):p.locator('.km-staff-save-panel button');await retry.click();await toast(p,titles.ru.draft);await saved(p,role);await clearToasts(p);
+ }
+ // Empty publication requirements are rejected with real server feedback.
+ const send=p.locator(role==='owner'?'[data-pc-submit]':role==='volunteer'?'button[name=action][value=submit]':'[name=_continue]').first();await send.click();
+ await p.locator('.km-toast--warning:not(.is-leaving)').waitFor({state:'visible'});await p.waitForTimeout(350);H.assert.equal(await p.locator('.km-toast:not(.is-leaving)').count(),1,'One validation result popup without a duplicate legacy alert');H.assert.equal(await p.locator('.km-toast--success:not(.is-leaving)').count(),0);await screenshot(ctx,p,`validation-${role}`);
+});}
+async function lifecycle(ctx){for(const role of (ctx.roles||['owner','admin','volunteer']))for(const lang of (ctx.langs||['ru','az','en']))await guarded(ctx,'NATIVE_LIFECYCLE',role,lang,1440,async({p,c})=>{
+ const name=`Feedback lifecycle ${role} ${lang} ${Date.now()}`;
+ if(role==='volunteer')await fillVolunteer(p,ctx,name);else{await fillPlace(p,role,name);await p.locator('[data-place-photos-picker]').setInputFiles(H.path.join(ctx.fixtureDir,ctx.fixture.images[0]));}
+ await p.waitForTimeout(1800);await saved(p,role);await clearToasts(p);
+ let lostReply=false,committed=null,requestIds=[];
+ if(role==='owner'&&lang==='ru')await p.route('**/save-photos/',async route=>{requestIds.push(/name="photo_request_id"\r?\n\r?\n([^\r\n]+)/.exec(route.request().postData()||'')?.[1]);if(lostReply)return route.continue();lostReply=true;const response=await route.fetch();H.assert.equal(response.status(),200);committed=await response.json();await route.abort('failed');});
+ await p.locator(buttons[role]).first().click();
+ if(role==='owner'&&lang==='ru'){
+  await p.locator('.km-toast--error:not(.is-leaving)').waitFor({state:'visible'});H.assert.equal(await p.locator('.km-toast--success:not(.is-leaving)').count(),0);H.assert.equal(await p.locator('#id_name_az').inputValue(),name);await screenshot(ctx,p,'lost-committed-reply');await clearToasts(p);await p.locator(buttons[role]).first().click();
+ }
+ await p.waitForURL(url=>role==='owner'?/\/places\/\d+\/edit\//.test(url.pathname):role==='admin'?/\/place\/\d+\/change\//.test(url.pathname):/\/volunteer\/\d+\/edit\//.test(url.pathname));
+ if(lostReply){H.assert.equal(requestIds.length,2);H.assert(requestIds[0]);H.assert.equal(requestIds[0],requestIds[1]);H.assert.equal(new URL(committed.redirect,ctx.fixture.origin).pathname,new URL(p.url()).pathname);await p.unroute('**/save-photos/');ctx.record({id:'LOST_COMMITTED_REPLY',role,lang,status:'PASS',assertions:['real server commit before simulated response loss','retry same request ID','same returned card','one destination confirmation']});}
+ const edit=p.url(),id=edit.match(/\/(\d+)\/(?:edit|change)\//)[1];await receipt(ctx,p,lang,'draft',`native-draft-${role}-${lang}`);H.assert.equal(await p.locator('#id_name_az').inputValue(),name);if(role==='owner'){const image=p.locator('[data-photo-items=main] img').first();await H.reveal(image);await image.scrollIntoViewIfNeeded();await p.waitForFunction(()=>{const image=document.querySelector('[data-photo-items=main] img');return image?.complete&&image.naturalWidth>0;});const imageUrl=new URL(await image.getAttribute('src'),p.url()).href;H.assert.equal((await c.request.get(imageUrl)).status(),200,'Persisted owner main thumbnail returns HTTP200');const thumbnailUrl=ctx.fixture.origin+`/${lang==='az'?'':lang+'/'}account/places/${id}/photo-thumbnail/0/`;H.assert.equal((await c.request.get(thumbnailUrl,{maxRedirects:0})).status(),200,'Protected owner thumbnail returns HTTP200');const anon=await H.context(ctx.browser,ctx.fixture.origin);try{H.assert.equal((await anon.request.get(thumbnailUrl,{maxRedirects:0})).status(),403,'Protected thumbnail endpoint rejects anonymous requests');}finally{await anon.close();}ctx.record({id:'OWNER_THUMBNAIL',role,lang,status:'PASS',placeId:id,mediaBoundary:'Native FileField media storage is public by existing contract; route ACL tested separately.',assertions:['real decoded main image after reload','rendered source HTTP200','protected thumbnail authorized200 anonymous403']});}await privateCatalog(ctx,id,name);
+ if(role==='admin'){
+  await p.locator('[name=_continue]').first().click();await toast(p,titles[lang].save);await receipt(ctx,p,lang,'save',`native-save-admin-${lang}`);
+  await p.locator('[name=_publish_place]').first().click();const confirm=p.locator('.km-modal-backdrop');await confirm.waitFor({state:'visible'});await confirm.locator('.km-modal__actions button').last().click();await receipt(ctx,p,lang,'publish',`publish-admin-${lang}`);
+  const anon=await H.context(ctx.browser,ctx.fixture.origin);try{const pub=await anon.newPage();await pub.goto(ctx.fixture.origin+'/ru/catalog/?q='+encodeURIComponent(name));H.assert(await pub.locator(`a[href*="/place/${id}-"]`).count(),'Published same card appears in catalog');}finally{await anon.close();}
+ }else{
+  await p.locator(role==='owner'?'[data-pc-submit]':'button[name=action][value=submit]').click();await receipt(ctx,p,lang,'moderation',`moderation-${role}-${lang}`);await privateCatalog(ctx,id,name);
+  const a=await H.context(ctx.browser,ctx.fixture.origin);try{const review=await H.login(a,ctx.fixture,'admin');await review.goto(ctx.fixture.origin+`/admin/volunteer/moderation/?place=${id}`);H.assert(await review.getByText(name,{exact:false}).count(),'Submitted card appears in actual moderation queue');}finally{await a.close();}
+ }
+ ctx.record({id:'LIFECYCLE_STATE',role,lang,status:'PASS',placeId:id,assertions:['native private draft persisted','destination receipt consumed once','moderation remains private or explicit admin publication visible']});
+});}
+async function actionFeedback(ctx,phase='full'){if(['matrix','full'].includes(phase))await matrix(ctx);if(['errors','full'].includes(phase))await errors(ctx);if(['lifecycle','full'].includes(phase))await lifecycle(ctx);}
+async function verifySnapshot(fixture){const build=await(await fetch(fixture.origin+'/__qa__/build/')).json();H.assert.deepEqual(build.sources,fixture.sources);for(const [name,digest]of Object.entries(fixture.sources))H.assert.equal(crypto.createHash('sha256').update(H.fs.readFileSync(H.path.resolve(__dirname,'../../..',name))).digest('hex'),digest,`Source changed: ${name}`);}
+module.exports={actionFeedback};
+if(require.main===module){const args=Object.fromEntries(process.argv.slice(2).reduce((rows,item,i,all)=>item.startsWith('--')?[...rows,[item.slice(2),all[i+1]]]:rows,[]));(async()=>{H.assert(args.fixture,'--fixture required');const fixture=JSON.parse(H.fs.readFileSync(args.fixture,'utf8'));H.assert.equal(fixture.synthetic,true);H.assert.equal(fixture.database,'qa_stage04');const out=H.path.resolve(args.output||'.tmp/place-live-feedback-20261025/actions-final');H.fs.mkdirSync(out,{recursive:true});await verifySnapshot(fixture);const browser=await H.launch(),results=[],record=row=>{results.push(row);H.fs.writeFileSync(H.path.join(out,'results.json'),JSON.stringify({synthetic:true,origin:fixture.origin,runtime:{engine:'chromium',version:browser.version()},externalMaps:'NOT RUN: transport blocked',sourceCount:Object.keys(fixture.sources).length,results},null,2));console.log(row.status,row.id,row.role||'',row.lang||'',row.width||'',row.error||'');};try{await actionFeedback({browser,fixture,fixtureDir:H.path.dirname(H.path.resolve(args.fixture)),out,record,roles:args.roles?.split(','),langs:args.langs?.split(',')},args.phase||'full');try{await verifySnapshot(fixture);record({id:'SOURCE_ATTESTATION',status:'PASS',assertions:['all sealed app hashes match disk after the browser run','live QA build still matches same snapshot']});}catch(error){record({id:'SOURCE_ATTESTATION',status:'FAIL',error:String(error)});throw error;}}finally{await browser.close();}})().catch(error=>{console.error(error);process.exitCode=1;});}

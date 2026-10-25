@@ -163,7 +163,7 @@ def merge_moderation_sections(sections):
             moderation = _section('moderation', _('Модерация'), 'far fa-shield-alt', [])
             result.append(moderation)
         for section in extras:
-            label = _('Предложения волонтёров') if section['key'] == 'volunteer_review' else _('Сроки проверки')
+            label = _('Центр модерации') if section['key'] == 'volunteer_review' else _('Сроки проверки')
             moderation['items'].extend(_renamed(item, label) for item in section['items'])
     for section in result:
         section['active'] = any(item.get('active', False) for item in section['items'])

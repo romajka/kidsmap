@@ -6,16 +6,16 @@
 {% block navigation_motion %}{{ block.super }}<style>@view-transition { navigation: none; }</style>{% endblock %}
 {% block extra_head %}{{ block.super }}
 <link rel="stylesheet" href="{% static 'css/pages/place_site_preview.css' %}?v=1">
-<script defer src="{% static 'js/place_site_preview.js' %}?v=1"></script>
+<script defer src="{% static 'js/place_site_preview.js' %}?v=20261023_editor"></script>
 {% endblock %}
 {% block content %}
 <aside class="site-preview-bar" aria-label="{% translate 'Превью на сайте' %}">
-  <div><strong>{% translate 'Превью на сайте' %}</strong><span>{% if site_preview_submission %}{% translate 'Отправлено на проверку' %}{% else %}{% translate 'Текущее состояние' %}{% endif %}</span>
+  <div><strong>{% translate 'Превью на сайте' %}</strong><span>{% if site_preview_editor_current %}{% translate 'Текущие данные формы' %}{% elif site_preview_submission %}{% translate 'Отправлено на проверку' %}{% else %}{% translate 'Текущее состояние' %}{% endif %}</span>
     {% if site_preview_stale %}<span class="site-preview-warning">{% translate 'Заявка устарела' %}</span>{% endif %}
     <p>{% translate 'Так карточку увидит посетитель. Действия в превью не сохраняются.' %}</p>
   </div>
   <nav aria-label="{% translate 'Язык содержимого' %}">{% for code, url in site_preview_languages %}<a href="{{ url }}"{% if code == language %} aria-current="page"{% endif %}>{{ code|upper }}</a>{% endfor %}</nav>
-  <a class="site-preview-return" href="{{ site_preview_back }}">← {% translate 'Вернуться к проверке' %}</a>
+  <a class="site-preview-return" href="{{ site_preview_back }}"{% if site_preview_editor_current %} data-site-preview-close{% endif %}>← {% if site_preview_editor_current %}{% translate 'Вернуться к форме' %}{% else %}{% translate 'Вернуться к проверке' %}{% endif %}</a>
   <p class="site-preview-feedback" data-site-preview-feedback role="status" hidden>{% translate 'Действие доступно на опубликованной странице. В превью изменения не сохраняются.' %}</p>
 </aside>
 {{ site_preview_phones|json_script:'site-preview-phones' }}

@@ -1,6 +1,7 @@
 {% load i18n %}
 {% with form=adminform.form obj=adminform.form.instance %}
   <div class="km-pf-media" data-place-media-section>
+    {% include 'catalog/includes/place_photo_picker.html' %}
     <div class="km-pf-group" data-pf-group="main-photo">
       <div class="km-pf-group__head">
         <span class="km-pf-group__title">{% translate "Главное фото" %}</span>

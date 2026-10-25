@@ -618,6 +618,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertNotContains(response, f'href="{self.editor_place.get_absolute_url()}"', html=False)
         self.assertContains(response, self.editor_place.name_i18n())
 
+    @override_settings(GOOGLE_MAPS_API_KEY="")
     def test_owner_create_page_renders_map_picker(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
         response = self.client.get(reverse("owner_place_create"), {"type": "permanent"})
@@ -634,7 +635,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "data-pc-errors")
         self.assertContains(response, "owner_place_map_picker.js")
         self.assertContains(response, "owner_place_continuous.js")
-        self.assertContains(response, "leaflet@1.9.4/dist/leaflet.css")
+        self.assertNotContains(response, "unpkg.com/leaflet")
+        self.assertContains(response, 'data-map-provider="unavailable"', html=False)
         self.assertNotContains(response, '<footer class="site-footer panel">', html=False)
         self.assertNotContains(response, "Фото для шапки")
 
@@ -768,7 +770,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "kidsMapInitOwnerMapPickers")
         self.assertContains(response, 'data-map-provider="google"', html=False)
         self.assertContains(response, "data-map-search-input")
-        self.assertContains(response, "leaflet@1.9.4/dist/leaflet.css")
+        self.assertNotContains(response, "unpkg.com/leaflet")
+        self.assertContains(response, 'data-owner-map-sdk="google"', html=False)
 
     def test_owner_editor_can_edit_but_cannot_publish(self):
         self.client.login(username="owner_editor", password="StrongPass123!!")

@@ -65,6 +65,9 @@
   let dirty = false;
   let submitting = false;
   let interacted = false;
+  let bypassNavigation = false;
+  const hasPending = () => typeof form.kmDraftHasPending === 'function' ? form.kmDraftHasPending() : dirty;
+  const copy = ({ru:{title:'Сохранить изменения перед выходом?',body:'Можно сохранить черновик и продолжить позже.',stay:'Продолжить заполнение',save:'Сохранить и выйти',discard:'Выйти без сохранения',error:'Не удалось сохранить. Проверьте данные и попробуйте ещё раз.',checking:'Проверяем изменения…'},az:{title:'Çıxmazdan əvvəl dəyişikliklər saxlanılsın?',body:'Qaralamanı saxlayıb sonra davam edə bilərsiniz.',stay:'Doldurmağa davam et',save:'Saxla və çıx',discard:'Saxlamadan çıx',error:'Saxlamaq mümkün olmadı. Məlumatları yoxlayıb yenidən cəhd edin.',checking:'Dəyişikliklər yoxlanılır…'},en:{title:'Save changes before leaving?',body:'Save a draft and continue later.',stay:'Keep editing',save:'Save and leave',discard:'Leave without saving',error:'Could not save. Check the entries and try again.',checking:'Checking changes…'}})[document.documentElement.lang?.split('-')[0]] || {title:'Save changes?',body:'Save a draft to continue later.',stay:'Keep editing',save:'Save and leave',discard:'Leave without saving',error:'Could not save. Try again.',checking:'Checking changes…'};
   const trackInteraction = event => { if (event.isTrusted) interacted = true; };
   form.addEventListener('pointerdown', trackInteraction, true);
   form.addEventListener('keydown', trackInteraction, true);
@@ -73,13 +76,67 @@
     // freshly opened form must not warn that the user has unsaved edits.
     if (!event.isTrusted && !interacted) return;
     if (!event.target.name && !event.target.closest('[data-tariff-editor],[data-km-schedule-editor]')) return;
-    dirty = true;
-    form.querySelector('[data-editor-save-state]').textContent = form.dataset.dirtyLabel;
+    dirty = typeof form.kmDraftHasPending === 'function' ? form.kmDraftHasPending() : true;
+    if(dirty)form.querySelector('[data-editor-save-state]').textContent = form.dataset.dirtyLabel;
   };
   form.addEventListener('input', markDirty);
   form.addEventListener('change', markDirty);
-  form.addEventListener('submit', () => { submitting = true; });
-  window.addEventListener('beforeunload', event => { if (dirty && !submitting) { event.preventDefault(); event.returnValue = ''; } });
+  form.addEventListener('submit', event => {
+    if(event.submitter?.matches('[data-km-preview]') || event.defaultPrevented)return;
+    submitting=true;
+    queueMicrotask(()=>{if(event.defaultPrevented)submitting=false;});
+  });
+  form.addEventListener('km:draft-saved', () => {dirty=false;submitting=false;const status=form.querySelector('[data-editor-save-state]');if(status)status.textContent=({ru:'Черновик сохранён',az:'Qaralama saxlanıldı',en:'Draft saved'})[document.documentElement.lang?.split('-')[0]]||'Draft saved';});
+  window.addEventListener('beforeunload', event => { if (hasPending() && !submitting && !bypassNavigation) { event.preventDefault(); event.returnValue = ''; } });
+  form.addEventListener('km:readiness', event => {
+    const result=event.detail?.readiness || event.detail;if(!result)return;
+    if(result.pending){form.querySelectorAll('[data-readiness-status]').forEach(node=>{node.textContent=copy.checking;});return;}
+    if(!Array.isArray(result.items))return;
+    const total=Number(result.required_count)||0,done=Number(result.completed_count)||0,pct=total?Math.round(done/total*100):0;
+    form.querySelectorAll('[data-progress-pct]').forEach(node=>{node.textContent=pct+'%';});
+    form.querySelectorAll('[data-progress-done]').forEach(node=>{node.textContent=done;});
+    form.querySelectorAll('[data-progress-total]').forEach(node=>{node.textContent=total;});
+    form.querySelectorAll('[data-progress-bar]').forEach(node=>{node.style.width=pct+'%';});
+    const verify=form.querySelector('[data-volunteer-readiness]');
+    if(verify){
+      verify.querySelectorAll('.km-pf-verify-banner,.km-pf-issues__list').forEach(node=>{node.hidden=true;});
+      const status=verify.querySelector('[data-readiness-status]');if(status){status.hidden=false;status.textContent=`${done} / ${total} · ${pct}%`;}
+      const list=verify.querySelector('[data-readiness-items]');
+      if(list){list.hidden=false;list.replaceChildren();result.items.forEach(item=>{const li=document.createElement('li'),link=document.createElement('a');link.href='#field='+encodeURIComponent(item.field);link.textContent=(item.complete?'✓ ':'○ ')+item.label;li.append(link);if(!item.complete&&item.message)li.append(document.createTextNode(' — '+item.message));list.append(li);});}
+    }
+    sections.forEach(section=>{
+      const group=section.id==='verification'?result:result.sections?.find(item=>item.id===section.id);
+      if(!group)return;
+      const state=group.error_count?'error':(group.is_complete||group.is_ready)&&group.required_count?'done':group.completed_count?'partial':'empty';
+      const nodes=[section,...form.querySelectorAll(`[data-pf-nav-for="${section.id}"]`)];
+      nodes.forEach(node=>{['done','partial','empty','error'].forEach(value=>node.classList.toggle('is-'+value,state===value));node.querySelectorAll('[data-place-section-state-text],[data-pf-nav-sub]').forEach(text=>{text.textContent=group.required_count?`${group.completed_count} / ${group.required_count}`:'';});node.querySelectorAll('[data-place-section-state-icon],[data-pf-nav-icon]').forEach(icon=>icon.setAttribute('href','#kmi-'+({done:'check_circle',error:'error',partial:'radio_button_checked',empty:'radio_button_unchecked'})[state]));});
+    });
+  });
+  document.addEventListener('click',event=>{
+    const link=event.target.closest('a[href]');
+    if(!link||!hasPending()||submitting||bypassNavigation||event.defaultPrevented||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||link.target==='_blank'||link.hasAttribute('download'))return;
+    if(!/^https?:/.test(link.href)||link.getAttribute('href').startsWith('#')||link.href===location.href)return;
+    event.preventDefault();
+    const dialog=document.createElement('dialog');dialog.className='km-pf-dialog';dialog.setAttribute('aria-label',copy.title);
+    const heading=document.createElement('h2');heading.textContent=copy.title;
+    const note=document.createElement('p');note.textContent=copy.body;
+    const error=document.createElement('p');error.className='km-pf-field__error';error.setAttribute('role','alert');error.hidden=true;
+    dialog.append(heading,note,error);
+    const stay=document.createElement('button'),save=document.createElement('button'),discard=document.createElement('button');
+    [stay,save,discard].forEach(button=>{button.type='button';button.className='km-pf-btn';dialog.append(button);});
+    stay.textContent=copy.stay;save.textContent=copy.save;discard.textContent=copy.discard;
+    stay.addEventListener('click',()=>dialog.close());discard.addEventListener('click',()=>{bypassNavigation=true;location.assign(link.href);});
+    save.addEventListener('click',async()=>{
+      save.disabled=true;error.hidden=true;
+      try {
+        // The shared adapter owns serialization, media and retry/version handling.
+        if(!form.kmDraftSave || !await form.kmDraftSave())throw new Error('Draft save failed');
+        bypassNavigation=true;location.assign(link.href);
+      }catch{error.textContent=copy.error;error.hidden=false;save.disabled=false;}
+    });
+    dialog.addEventListener('close',()=>{dialog.remove();link.focus({preventScroll:true});},{once:true});
+    document.body.append(dialog);dialog.showModal();stay.focus();
+  });
   const ageOpen = form.elements.namedItem('age_open_ended');
   const ageTo = form.elements.namedItem('age_to');
   const syncAge = () => { ageTo.disabled = ageOpen.checked; };

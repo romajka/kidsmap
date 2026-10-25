@@ -133,10 +133,10 @@
           if (xhr.status >= 200 && xhr.status < 300) { resolve(xhr.response); return; }
           try {
             const body = JSON.parse(responseType === 'blob' ? await xhr.response.text() : xhr.responseText);
-            reject(Object.assign(new Error(body.error || copy.saveFailed), {errors:body.errors, error_targets:body.error_targets, conflict:body.conflict}));
-          } catch (error) { reject(new Error(copy.failed)); }
+            reject(Object.assign(new Error(body.error || copy.saveFailed), {status:xhr.status,kind:xhr.status===409?'conflict':[400,422].includes(xhr.status)?'validation':'server',errors:body.errors, error_targets:body.error_targets, conflict:body.conflict}));
+          } catch (error) { reject(Object.assign(new Error(copy.failed),{status:xhr.status,kind:'server'})); }
         };
-        xhr.onerror = xhr.ontimeout = () => reject(new Error(copy.failed));
+        xhr.onerror = xhr.ontimeout = () => reject(Object.assign(new Error(copy.failed),{status:0,kind:'network'}));
         xhr.send(data);
       });
     }
@@ -193,13 +193,14 @@
       if (saving || busy) return;
       if (target === 'main' && files.length !== 1) { message(target,'',copy.one); return; }
       for (const file of files) {
+        const destination = target === 'all' ? (main ? 'gallery' : 'main') : target;
         const format = extensions[file.name.split('.').pop().toLowerCase()];
-        const reason = !format ? copy.format : !file.size || file.size > rules.sourceBytes ? copy.size : format === 'heif' && !rules.heif ? copy.heif : target === 'gallery' && gallery.length >= rules.maxGallery ? copy.full : '';
-        if (reason) { message(target,file.name,reason); continue; }
+        const reason = !format ? copy.format : !file.size || file.size > rules.sourceBytes ? copy.size : format === 'heif' && !rules.heif ? copy.heif : destination === 'gallery' && gallery.length >= rules.maxGallery ? copy.full : '';
+        if (reason) { message(destination,file.name,reason); continue; }
         const item = {id:crypto.randomUUID(),name:file.name,source:file,state:'queued'};
-        if (target === 'main') { if (blocking()) { message(target,file.name,copy.wait); continue; } item.previous = main; main = item; }
+        if (destination === 'main') { if (blocking()) { message(destination,file.name,copy.wait); continue; } item.previous = main; main = item; }
         else gallery.push(item);
-        enqueue(item,target);
+        enqueue(item,destination);
       }
       sync(); render();
     }
@@ -223,8 +224,8 @@
       finally { busy--; render(); }
     }
     async function save(submitter) {
-      if (blocking()) { status.textContent = copy.wait; return {ok:false, errors:{gallery_images:[copy.wait]}}; }
-      if (items().reduce((sum,item) => sum + (item.file?.size || 0),0) > rules.batchBytes) return {ok:false,errors:{gallery_images:[copy.batch]}};
+      if (blocking()) { status.textContent = copy.wait; return {ok:false,kind:'pending', errors:{gallery_images:[copy.wait]}}; }
+      if (items().reduce((sum,item) => sum + (item.file?.size || 0),0) > rules.batchBytes) return {ok:false,kind:'validation',errors:{gallery_images:[copy.batch]}};
       requestId ||= crypto.randomUUID(); saving = true;
       const data = new FormData(form); data.set('form_action',submitter?.value || 'save_draft'); data.set('photo_request_id',requestId);
       data.delete('photo'); data.delete('gallery_images');
@@ -237,7 +238,7 @@
       controls.forEach(node => { node.disabled = true; });
       try {
         const result = JSON.parse(await send(root.dataset.saveUrl,data,'text',percent => { status.textContent = `${copy.saving} ${percent}%`; }));
-        if (!result.ok) throw Object.assign(new Error(copy.saveFailed), {errors:result.errors, error_targets:result.error_targets, conflict:result.conflict});
+        if (!result.ok) throw Object.assign(new Error(copy.saveFailed), {kind:result.conflict?'conflict':result.errors?'validation':'server',errors:result.errors, error_targets:result.error_targets, conflict:result.conflict});
         items().forEach(item => { item.state = 'saved'; }); changedPhotos = false; render(); status.textContent = copy.saved;
         return result;
       } catch (error) {
@@ -247,9 +248,10 @@
         if (!candidateConflict) {
           const retry = document.createElement('button'); retry.type = 'button'; retry.textContent = copy.retry; retry.addEventListener('click', () => form.requestSubmit(submitter)); status.append(' ', retry);
         }
-        return {ok:false, errors:error.errors || {gallery_images:[copy.saveFailed]}, error_targets:error.error_targets, conflict:error.conflict};
+        return {ok:false,kind:error.kind||'server',status:error.status, errors:error.errors || {gallery_images:[copy.saveFailed]}, error_targets:error.error_targets, conflict:error.conflict};
       } finally { saving = false; controls.forEach(node => { node.disabled = false; }); render(); }
     }
+    root.kidsmapAddPhotos = files => addFiles(files,'all');
     root.querySelector('[data-photo-fallback-clear]').hidden = true;
     root.querySelector('[data-photo-fallback-delete]').hidden = true;
     root.querySelector('[data-photo-gallery-help]').textContent = copy.order;
@@ -266,7 +268,31 @@
     ['input','change'].forEach(type => form.addEventListener(type,() => { if (!saving) requestId = null; }));
     window.addEventListener('pagehide',event => { if (!event.persisted) items().forEach(item => { release(item); release(item.previous); }); });
     sync(false); render();
-    const editor = {save, addFiles, hasChanges:() => changedPhotos, hasMain:() => !!main && !['queued','preparing','error'].includes(main.state), preview:() => main?.preview || '', blocking, validationMessage:() => blocking() ? copy.wait : '', ready:() => queue};
+    function snapshotMedia() {
+      return items().filter(item=>item.file).map(item=>({id:item.id,file:item.file,role:item===main?'main':'gallery',order:item===main?0:newFiles().indexOf(item)}));
+    }
+    async function restoreMedia(manifest, download) {
+      const restored=await Promise.all(manifest.filter(item=>['main','gallery'].includes(item.role)).map(async item=>{
+        const file=await download(item);const objectUrl=await preview(file);
+        return {...item,file,name:item.name||file.name,objectUrl,preview:objectUrl,state:'saved',savedId:null};
+      }));
+      const deleted=new Set(deletedInputs.filter(node=>node.checked).map(node=>node.value));
+      items().filter(item=>item.file).forEach(release);
+      main=input('photo-clear').checked?null:(main?.savedId?main:null);
+      gallery=gallery.filter(item=>item.savedId&&!deleted.has(item.savedId));
+      const mainUpload=restored.find(item=>item.role==='main');if(mainUpload)main=mainUpload;
+      restored.filter(item=>item.role==='gallery').sort((a,b)=>a.order-b.order).forEach(item=>gallery.splice(Math.min(item.order,gallery.length),0,item));
+      // Existing saved rows keep their identity; the submitted order is authoritative.
+      let order=[];try{order=JSON.parse(input('gallery_order').value||'[]');}catch{}
+      if(order.length){const uploads=gallery.filter(item=>item.file);const token=item=>item.savedId?(item.savedId.startsWith('candidate:')?item.savedId:`saved:${item.savedId}`):`new:${uploads.indexOf(item)}`;gallery.sort((a,b)=>{const ai=order.indexOf(token(a)),bi=order.indexOf(token(b));return (ai<0?999:ai)-(bi<0?999:bi);});}
+      changedPhotos=restored.length>0||deleted.size>0||input('photo-clear').checked;
+      sync(false);render();status.textContent=copy.saved;
+    }
+    function markDraftMedia(ids,state) {
+      items().filter(item=>ids.includes(item.id)).forEach(item=>{item.state=state;item.error='';});render();
+      status.textContent=state==='saved'?copy.saved:state==='save-error'?copy.saveFailed:copy.saving;
+    }
+    const editor = {save, addFiles, snapshotMedia, restoreMedia, markDraftMedia, hasChanges:() => changedPhotos, hasMain:() => !!main && !['queued','preparing','error'].includes(main.state), preview:() => main?.preview || '', blocking, validationMessage:() => blocking() ? copy.wait : '', ready:() => queue};
     form.photoEditor = editor;
     return editor;
   }

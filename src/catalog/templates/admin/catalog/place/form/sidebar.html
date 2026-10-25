@@ -48,6 +48,9 @@
       </p>
     </div>
 
+    <details class="km-pf-side__more" data-compact-settings{% if form.status.errors or form.is_active.errors or form.is_home_recommended.errors or form.home_recommended_order.errors or form.rejection_reason.errors %} open{% endif %}>
+      <summary><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-edit_note"></use></svg><span class="km-pf-side__more-title">{% translate "Служебное" %}</span><span class="km-pf-side__more-value">{{ form.instance.get_status_display }}</span><svg class="km-i km-pf-side__more-chevron" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg></summary>
+      <div class="km-pf-side__more-body">
     <div class="km-pf-side__block">
       <span class="km-pf-side__eyebrow">{% translate "Статус карточки" %}</span>
       <div class="km-pf-side__status">
@@ -84,6 +87,9 @@
         {% include "admin/catalog/place/form/_field.html" with field=form.home_recommended_order wide=True %}
       </div>
     </div>
+
+      </div>
+    </details>
 
     <details class="km-pf-side__more">
       <summary>

@@ -14,6 +14,8 @@
 
 {% block extrahead %}
   {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/components/kidsmap_private_drafts.css' %}">
+  <script src="{% static 'admin/js/kidsmap_private_draft_list.js' %}" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -99,6 +101,7 @@
       {% endif %}
 
       {% include "admin/catalog/includes/km_changelist_search_panel.html" %}
+      {% include "admin/catalog/place/private_drafts.html" %}
     </div>
   </div>
 {% endblock %}

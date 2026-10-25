@@ -1,0 +1,12 @@
+.km-private-drafts { margin-block: 20px; padding: 20px; border: 1px solid #d7e5dd; border-radius: 16px; background: #fff; }
+.km-private-drafts h2 { margin: 0 0 14px; font-size: 1.15rem; }
+.km-private-drafts ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.km-private-drafts li { display: grid; gap: 8px; padding: 14px; border: 1px solid #e1e9e4; border-radius: 12px; overflow-wrap: anywhere; }
+.km-private-drafts li > span { color: #50655a; font-size: .85rem; }
+.km-private-draft-actions { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin-block: 8px; }
+.km-private-draft-actions button { padding: 7px 11px; border: 1px solid #d8aaa7; border-radius: 8px; background: #fff; color: #9b2823; cursor: pointer; }
+.km-private-draft-actions button:disabled { opacity: .6; cursor: wait; }
+.km-private-draft-actions :focus-visible { outline: 3px solid #16804c; outline-offset: 3px; }
+.km-private-draft-warning { flex-basis: 100%; color: #76540d; }
+.km-private-drafts nav { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; margin-top: 18px; }
+[data-private-draft-error]:not([hidden]) { padding: 12px; color: #9b2823; background: #fff4f2; border-radius: 10px; }

@@ -25,6 +25,48 @@ User = get_user_model()
 
 
 class VolunteerAccessTests(TestCase):
+    def test_volunteer_uses_shared_pricing_contract_and_price_mode_controls(self):
+        response=self.client.get('/admin/volunteer/add/')
+        self.assertEqual(response.status_code,200)
+        for marker in ('kidsmap_pricing_editor.js','kidsmap_pricing_editor.css','km-pricing-editor-contract','data-price-policy="free_entry_paid_services"','data-tariff-heading'):
+            self.assertIn(marker,response.content.decode())
+        self.assertNotIn('permanent_place_pricing.js',response.content.decode())
+        self.assertContains(response,'name="price_mode"',count=1)
+
+    def test_moderation_full_preview_uses_complete_private_candidate_without_writes(self):
+        place=create_ready_place(created_by=self.user,owner=None,name_az='Original saved place')
+        revision=self.submit(place,name_az='Proposed complete place')
+        self.root_login()
+        url=f'/admin/volunteer/revision/{revision.pk}/preview/'
+        with CaptureQueriesContext(connection) as queries:
+            response=self.client.get(url)
+        self.assertEqual(response.status_code,200)
+        self.assertContains(response,'Proposed complete place')
+        self.assertTrue(response.context['preview']['show_submission'])
+        self.assertTrue(response.context['preview']['plans'])
+        self.assertContains(response,place.address)
+        self.assertEqual([q['sql'] for q in queries if q['sql'].lstrip().upper().startswith(('INSERT','UPDATE','DELETE'))],[])
+        self.assertIn('no-store',response.headers['Cache-Control'])
+        self.assertIn('noindex',response.headers['X-Robots-Tag'])
+        review=self.client.get(f'/admin/volunteer/review/{place.pk}/')
+        self.assertContains(review,'data-moderation-full-preview')
+        hub=self.client.get(f'/admin/volunteer/moderation/content/{revision.pk}/')
+        self.assertContains(hub,'data-moderation-full-preview')
+        public=self.client.get(url.replace('/preview/','/site-preview/'))
+        self.assertEqual(public.status_code,200);self.assertTemplateUsed(public,'catalog/place_detail.html')
+        self.assertContains(public,'Proposed complete place')
+        current=self.client.get(url+'?version=current')
+        self.assertContains(current,'Original saved place')
+        current_site=self.client.get(url.replace('/preview/','/site-preview/')+'?version=current&lang=ru')
+        for language_url in current_site.context['language_urls'].values():
+            self.assertIn('version=current',language_url)
+        decision=self.client.post(f'/admin/volunteer/review/{place.pk}/',{'version':revision.version,'action':'approve'})
+        self.assertEqual(decision.status_code,302)
+        processed=self.client.get(url)
+        self.assertFalse(processed.context['preview']['stale'])
+        self.client.force_login(self.user)
+        self.assertEqual(self.client.get(url).status_code,403)
+
     def setUp(self):
         self.user = User.objects.create_user("volunteer", is_staff=True)
         self.user.groups.add(Group.objects.create(name="KidsMap Volunteers"))

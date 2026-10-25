@@ -42,6 +42,8 @@ jobs:
           npm install --prefix .tmp/phone-dom --no-save --package-lock=false jsdom@29.1.1
           export NODE_PATH="$PWD/.tmp/phone-dom/node_modules"
           export KIDSMAP_JSDOM="$NODE_PATH/jsdom"
+          export KIDSMAP_JQUERY="$(python -c 'import django; from pathlib import Path; print(Path(django.__file__).parent / "contrib/admin/static/admin/js/vendor/jquery/jquery.js")')"
+          export KIDSMAP_SELECT2="$(python -c 'import django; from pathlib import Path; print(Path(django.__file__).parent / "contrib/admin/static/admin/js/vendor/select2/select2.full.js")')"
           units=()
           for file in scripts/test_*.cjs scripts/tests/*.test.cjs static/js/tests/*.test.js; do
             case "$file" in
@@ -83,6 +85,40 @@ jobs:
           export KIDSMAP_PHOTO_FORM_HTML="$PWD/.tmp/quality-photo-form.html"
           export KIDSMAP_REQUIRE_RENDERED_PHOTO_FORM=1
           node --test scripts/test_photo_editor.cjs
+
+      - name: Install pinned place E2E browser
+        run: |
+          npm install --prefix .tmp/place-e2e-runtime --no-save --package-lock=false playwright@1.62.1
+          node .tmp/place-e2e-runtime/node_modules/playwright/cli.js install --with-deps chromium
+
+      - name: Place addition end-to-end acceptance
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .tmp/place-addition-e2e/results
+          python scripts/e2e/place_addition/seed.py --profile-root "$QUALITY_PROFILE_ROOT" --socket-dir "$QUALITY_SOCKET_DIR" --output .tmp/place-addition-e2e/fixture.json
+          python -u scripts/e2e/place_addition/serve.py --profile-root "$QUALITY_PROFILE_ROOT" --socket-dir "$QUALITY_SOCKET_DIR" --port 8898 > .tmp/place-addition-e2e/server.log 2>&1 &
+          place_e2e_pid=$!
+          trap 'kill "$place_e2e_pid" 2>/dev/null || true' EXIT
+          export KIDSMAP_PLAYWRIGHT_MODULE="$PWD/.tmp/place-e2e-runtime/node_modules/playwright"
+          node scripts/e2e/place_addition/run.cjs --fixture .tmp/place-addition-e2e/fixture.json --group full --output .tmp/place-addition-e2e/results
+          python scripts/e2e/place_addition/verify.py --profile-root "$QUALITY_PROFILE_ROOT" --socket-dir "$QUALITY_SOCKET_DIR" --fixture .tmp/place-addition-e2e/fixture.json --results .tmp/place-addition-e2e/results/results.json
+          python scripts/e2e/place_addition/seed_roles.py --profile-root "$QUALITY_PROFILE_ROOT" --socket-dir "$QUALITY_SOCKET_DIR" --fixture .tmp/place-addition-e2e/fixture.json --output .tmp/place-addition-e2e/fixture-roles.json
+          node scripts/e2e/place_addition/run.cjs --fixture .tmp/place-addition-e2e/fixture-roles.json --group roles --output .tmp/place-addition-e2e/results/roles
+          python scripts/e2e/place_addition/verify_roles.py --profile-root "$QUALITY_PROFILE_ROOT" --socket-dir "$QUALITY_SOCKET_DIR" --results .tmp/place-addition-e2e/results/roles/results.json
+          node scripts/e2e/place_addition/run.cjs --fixture .tmp/place-addition-e2e/fixture-roles.json --group refinement --output .tmp/place-addition-e2e/results/refinement
+          node scripts/e2e/place_addition/run.cjs --fixture .tmp/place-addition-e2e/fixture-roles.json --group feedback --output .tmp/place-addition-e2e/results/feedback
+          python scripts/e2e/place_addition/verify.py --profile-root "$QUALITY_PROFILE_ROOT" --socket-dir "$QUALITY_SOCKET_DIR" --fixture .tmp/place-addition-e2e/fixture.json --results .tmp/place-addition-e2e/results/feedback/results.json
+          python scripts/e2e/place_addition/verify.py --profile-root "$QUALITY_PROFILE_ROOT" --socket-dir "$QUALITY_SOCKET_DIR" --fixture .tmp/place-addition-e2e/fixture.json --results .tmp/place-addition-e2e/results/refinement/results.json
+          python scripts/e2e/place_addition/verify.py --profile-root "$QUALITY_PROFILE_ROOT" --socket-dir "$QUALITY_SOCKET_DIR" --fixture .tmp/place-addition-e2e/fixture.json --results .tmp/place-addition-e2e/results/roles/results.json
+
+      - name: Place addition browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: place-addition-e2e
+          path: .tmp/place-addition-e2e/results/
+          if-no-files-found: ignore
 
       - name: Remove only this job's PostgreSQL
         if: always() && env.QUALITY_PROFILE_ROOT != ''

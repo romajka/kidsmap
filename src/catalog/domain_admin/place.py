@@ -122,6 +122,8 @@ class CandidatePlacePhotoFormSet(forms.BaseInlineFormSet):
         super().add_fields(form, index)
         if self.candidate_rows is not None and index is not None and index < len(self.candidate_rows):
             form.candidate_gallery_row = self.candidate_rows[index]
+            from catalog.services.photo_gallery import gallery_key
+            form.candidate_gallery_key = gallery_key(self.candidate_rows[index])
 
     def clean(self):
         super().clean()
@@ -163,7 +165,17 @@ class PlaceChangeAuditInline(admin.TabularInline):
         return False
 
 
-class PlaceAdminForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, forms.ModelForm):
+from catalog.services.place_public_links import PublicLinksFormMixin
+
+
+class PlaceAdminForm(PublicLinksFormMixin, ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, forms.ModelForm):
+    compact_contact_fields = True
+
+    @property
+    def pricing_editor_contract(self):
+        from catalog.services.pricing_editor_contract import build_pricing_editor_contract
+        return build_pricing_editor_contract()
+
     @property
     def offering_choices(self):
         from catalog.services.pricing_plans import offering_editor_choices
@@ -295,7 +307,7 @@ class PlaceAdminForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, forms.
         )
         self.draft_save_only = is_save_draft
         try:
-            cleaned["pricing_plans"] = normalize_pricing_plans(cleaned.get("pricing_plans") or "[]", allow_verified=True)
+            cleaned["pricing_plans"] = normalize_pricing_plans(cleaned.get("pricing_plans") or "[]", allow_verified=True, legacy_place=self.instance)
             if self.instance.pk:
                 from catalog.services.pricing_plans import validate_target_plan_ids
                 validate_target_plan_ids(self.instance, cleaned["pricing_plans"])
@@ -365,9 +377,9 @@ class PlaceAdminForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, forms.
                     # card that was taken off the site: those need a full 12/12.
                     self.place_readiness_compatibility = True
                 else:
-                    self.add_error(None, publication_blocked_message(readiness))
+                    self.add_error(None, ValidationError(publication_blocked_message(readiness),code='publication_incomplete'))
                     for issue in readiness.issues:
-                        if issue.field in self.fields:
+                        if issue.field in self.fields and issue.field not in self.errors:
                             self.add_error(issue.field, issue.message)
 
         return cleaned
@@ -491,7 +503,7 @@ class PlaceAdminForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, forms.
     def _configure_metro_choices(self):
         metro_options = sort_translated_values(BAKU_METRO_STATIONS)
         try:
-            content_settings = CatalogContentSettings.get_solo()
+            content_settings = CatalogContentSettings.objects.order_by('pk').first() or CatalogContentSettings()
             metro_options = sort_translated_values(content_settings.metro_stations())
         except Exception:
             pass
@@ -1902,28 +1914,28 @@ class PlaceAdmin(admin.ModelAdmin):
         {
             "id": "basics",
             "step": "01",
-            "title": _("Основное"),
+            "title": _("О месте"),
             "description": _("Название, описание и рубрика карточки."),
             "icon": "tune",
         },
         {
             "id": "pricing",
-            "step": "02",
-            "title": _("Цена и возраст"),
+            "step": "03",
+            "title": _("Возраст и цены"),
             "description": _("Возрастные рамки, тарифы и длительность занятий."),
             "icon": "payments",
         },
         {
             "id": "location",
-            "step": "03",
-            "title": _("Локация"),
+            "step": "02",
+            "title": _("Адрес и контакты"),
             "description": _("Адрес, точка на карте, контакты и расписание."),
             "icon": "location_on",
         },
         {
             "id": "media",
             "step": "04",
-            "title": _("Фото"),
+            "title": _("Фото и проверка"),
             "description": _("Главное изображение и галерея места."),
             "icon": "imagesmode",
         },
@@ -1946,10 +1958,10 @@ class PlaceAdmin(admin.ModelAdmin):
         "description_az", "description_ru", "description_en",
         "category", "subcategory",
         "age_from", "age_to", "age_open_ended", "offers_adult_classes",
-        "lesson_duration_minutes", "pricing_plans", "nested_pricing",
+        "lesson_duration_minutes", "lesson_format", "lessons_per_week", "lessons_per_month", "pricing_plans", "nested_pricing",
         "custom_price_badge_az", "custom_price_badge_ru", "custom_price_badge_en",
         "region", "district", "metro", "address", "lat", "lng", "location_override_reason",
-        "phone1", "phone2", "phone3", "phone_country", "whatsapp_mode", "whatsapp_number", "instagram", "website",
+        "phone1", "phone2", "phone3", "phone_country", "whatsapp_mode", "whatsapp_number", "instagram", "website", "public_links",
         "schedule", "schedule_mode", "structured_schedule",
         "schedule_note_az", "schedule_note_ru", "schedule_note_en",
         "extra_conditions", "extra_conditions_az", "extra_conditions_ru", "extra_conditions_en",
@@ -1993,8 +2005,10 @@ class PlaceAdmin(admin.ModelAdmin):
                 "fields": (
                 ("age_from", "age_to", "age_open_ended", "lesson_duration_minutes"),
                     "offers_adult_classes",
+                    ("lesson_format", "lessons_per_week", "lessons_per_month"),
                     "price_mode",
                     "pricing_plans", "nested_pricing",
+                    ("custom_price_badge_az", "custom_price_badge_ru", "custom_price_badge_en"),
                 )
             },
         ),
@@ -2017,6 +2031,7 @@ class PlaceAdmin(admin.ModelAdmin):
                     ("phone1", "phone2", "phone3"),
                     ("whatsapp_mode", "whatsapp_number"),
                     ("instagram", "website"),
+                    "public_links",
                     "schedule",
                     "schedule_mode",
                     ("schedule_note_az", "schedule_note_ru", "schedule_note_en"),
@@ -2058,6 +2073,8 @@ class PlaceAdmin(admin.ModelAdmin):
     )
 
     def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
+        if request.method == 'POST':
+            request._km_explicit_save_cutoff = timezone.now()
         if object_id is not None and request.method == "POST" and "_unpublish_place" in request.POST:
             obj = self.get_object(request, object_id)
             if obj is None or not self.has_change_permission(request, obj):
@@ -2103,6 +2120,7 @@ class PlaceAdmin(admin.ModelAdmin):
 
 
     def _volunteer_revision_changeform_view(self, request, *, obj, revision):
+        from catalog.services.place_editor_drafts import config_for
         from catalog.services.place_taxonomy_config import build_place_taxonomy_config
         from catalog.services.volunteer_editor import editor_context
         from catalog.services.volunteer_places import editor_form, live_snapshot, save_working_revision, revision_base_matches
@@ -2118,6 +2136,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 source=PlaceChangeAudit.SOURCE_ADMIN,
             )
             if not form.errors:
+                self._close_private_working_draft(request, obj, change=True)
                 self.message_user(request, _("Рабочая версия волонтёра сохранена."), level=messages.SUCCESS)
                 return HttpResponseRedirect(request.path)
         else:
@@ -2152,6 +2171,7 @@ class PlaceAdmin(admin.ModelAdmin):
             "card": card,
             "conflict": not revision_base_matches(revision, obj),
             "admin_working_revision": True,
+            "km_place_draft_config": config_for(user=request.user, place=obj, surface='admin'),
             "volunteer_editor": True,
             "km_place_taxonomy_picker": build_place_taxonomy_config(form),
             "google_maps_api_key": getattr(settings, "GOOGLE_MAPS_API_KEY", ""),
@@ -2161,6 +2181,9 @@ class PlaceAdmin(admin.ModelAdmin):
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
         from catalog.services.permanent_place_wizard import ui_copy
+        from catalog.services.place_editor_drafts import config_for
+        may_edit = self.has_change_permission(request, obj) if obj and obj.pk else self.has_add_permission(request)
+        context['km_place_draft_config'] = config_for(user=request.user, place=obj, surface='admin') if may_edit else {}
         context["km_place_entry_copy"] = ui_copy()
         from .navigation import place_navigation
         context["km_place_navigation"] = place_navigation(request, obj)
@@ -2353,7 +2376,7 @@ class PlaceAdmin(admin.ModelAdmin):
         return build_place_taxonomy_config(form)
 
     def _build_place_form_sections(self, adminform):
-        return [dict(section) for section in self.PLACE_FORM_PRIMARY_SECTIONS]
+        return sorted((dict(section) for section in self.PLACE_FORM_PRIMARY_SECTIONS), key=lambda section: section['step'])
 
     def _build_place_carryover_fields(self, adminform, secondary_sections):
         """Bound fields the redesigned template does not render anywhere.
@@ -2899,6 +2922,8 @@ class PlaceAdmin(admin.ModelAdmin):
                     "offers_adult_classes",
                     "price_mode",
                     "pricing_plans", "nested_pricing",
+                    ("lesson_format", "lessons_per_week", "lessons_per_month"),
+                    ("custom_price_badge_az", "custom_price_badge_ru", "custom_price_badge_en"),
                 )
             },
         ),
@@ -2911,6 +2936,7 @@ class PlaceAdmin(admin.ModelAdmin):
                     ("phone1", "phone2", "phone3"),
                     ("whatsapp_mode", "whatsapp_number"),
                     ("instagram", "website"),
+                    "public_links",
                     "schedule",
                     "schedule_mode",
                     ("schedule_note_az", "schedule_note_ru", "schedule_note_en"),
@@ -3085,6 +3111,11 @@ class PlaceAdmin(admin.ModelAdmin):
             map_title,
             map_icon,
         )
+        working = getattr(obj, '_km_working_draft', None)
+        if working:
+            from django.template.loader import render_to_string
+            marks_inline = format_html('{}{}', marks_inline, mark_safe(render_to_string('admin/catalog/place/private_draft_actions.html',
+                {'draft': working, 'working_drafts_copy': getattr(obj, '_km_working_draft_copy', {})})))
         return format_html(
             '<div class="km-col-place">'
             '{}'
@@ -4213,6 +4244,8 @@ class PlaceAdmin(admin.ModelAdmin):
         except ValidationError as exc:
             self.message_user(request,"; ".join(exc.messages),level=messages.WARNING)
             return HttpResponseRedirect(self._place_change_url(obj))
+        from catalog.services.place_editor_feedback import queue_editor_result
+        queue_editor_result(request, action="publish", message=_("Карточка опубликована — уже видна на сайте"))
         self.message_user(request, _("Карточка опубликована — уже видна на сайте"), level=messages.SUCCESS)
         return HttpResponseRedirect(reverse("admin:catalog_place_change", args=[obj.pk], current_app=self.admin_site.name))
 
@@ -4430,24 +4463,61 @@ class PlaceAdmin(admin.ModelAdmin):
         if not isinstance(payload, dict):
             return JsonResponse({"ok": False, "error": str(_("Нужен один объект карточки."))}, status=400)
         from catalog.services.publication import SCHEMA_VERSION
-        if payload.get("schema_version",SCHEMA_VERSION) != SCHEMA_VERSION:
+        supplied_schema = payload.get("schema_version", SCHEMA_VERSION)
+        if isinstance(supplied_schema, bool) or not isinstance(supplied_schema, int) or supplied_schema != SCHEMA_VERSION:
             return JsonResponse({"ok":False,"error":"Publication schema conflict."},status=409)
         current = None
         if payload.get("place_id") is not None:
+            place_id = payload["place_id"]
+            if isinstance(place_id, bool) or not isinstance(place_id, int) or place_id <= 0:
+                return JsonResponse({"ok": False, "error": str(_("place_id должен быть положительным целым числом."))}, status=400)
             current=Place.objects.filter(pk=payload["place_id"]).first()
-            if current is None or not self.has_change_permission(request,current):raise PermissionDenied
-            if payload.get("base_content_version") != current.content_version:
+            if current is None:
+                raise PermissionDenied
+            if not self.has_change_permission(request, current):
+                from catalog.services.staff_roles import is_volunteer
+                from catalog.services.volunteer_places import own_places
+                if not is_volunteer(request.user) or not own_places(request.user).filter(pk=current.pk).exists():
+                    raise PermissionDenied
+            supplied_version = payload.get("base_content_version")
+            if isinstance(supplied_version, bool) or not isinstance(supplied_version, int) or supplied_version != current.content_version:
                 return JsonResponse({"ok":False,"error":"Publication source conflict."},status=409)
+            if "candidate_version" in payload:
+                revision = VolunteerPlaceRevision.objects.filter(place=current).first()
+                supplied_candidate = payload["candidate_version"]
+                if (isinstance(supplied_candidate, bool) or not isinstance(supplied_candidate, int)
+                        or supplied_candidate != (revision.version if revision else 0)):
+                    return JsonResponse({"ok": False, "error": str(_("Рабочая версия карточки изменилась. Получите свежий экспорт."))}, status=409)
         contact_fields = {"phone1", "phone2", "phone3", "phone_country", "whatsapp_mode", "whatsapp_number"}
         try:
             from catalog.services.phone_numbers import normalize_contact_patch
             contacts = {name: payload[name] for name in contact_fields if name in payload}
+            # The AI instruction uses null for an unconfirmed WhatsApp mode.
+            # Unknown does not claim same/none, and must not overwrite a saved mode.
+            if contacts.get('whatsapp_mode') in (None, ''):
+                contacts.pop('whatsapp_mode', None)
             if "whatsapp_mode" in contacts and contacts["whatsapp_mode"] not in {"legacy", "same", "separate", "none"}:
                 raise ValidationError(_("Проверьте настройку WhatsApp."))
             contacts = normalize_contact_patch(current or Place(), contacts)
         except ValidationError as exc:
             return JsonResponse({"ok": False, "error": exc.messages[0]}, status=400)
         warnings = []
+        # Full exports retain historical source data, but importing them must
+        # not silently reinterpret or replace excluded legacy model fields.
+        if payload.get("pricing_plans_legacy"):
+            if current is None or payload["pricing_plans_legacy"] != current.pricing_plans_legacy:
+                return JsonResponse({"ok": False, "error": str(_("Старые JSON-тарифы требуют ручной сверки. Используйте свежий экспорт той же карточки."))}, status=400)
+            warnings.append(str(_("Старые JSON-тарифы сохранены без преобразования. Тип, единицу и период уточните вручную.")))
+        if "pricing_plans" in payload:
+            for name in ("price_from", "price_to", "price_per_lesson", "price_per_month", "price_per_8_lessons"):
+                if name not in payload:
+                    continue
+                try:
+                    amount = Place._meta.get_field(name).to_python(payload[name])
+                except ValidationError:
+                    return JsonResponse({"ok": False, "error": str(_("Проверьте старые поля цены."))}, status=400)
+                if amount is not None and (current is None or amount != getattr(current, name)):
+                    return JsonResponse({"ok": False, "error": str(_("Старые поля цены в полном экспорте доступны для сверки. Изменяйте цену через тарифы."))}, status=400)
         raw_plans = payload.get("pricing_plans")
         if raw_plans is None:
             raw_plans = payload.get("tariffs")
@@ -4466,7 +4536,10 @@ class PlaceAdmin(admin.ModelAdmin):
                 warnings.append(str(_("price_from/price_to не создают тариф: неизвестен продаваемый продукт.")))
         try:
             from catalog.services.staff_roles import is_volunteer
-            plans = normalize_pricing_plans(raw_plans, allow_verified=request.user.is_staff and not is_volunteer(request.user))
+            from catalog.services.pricing_plans import validate_pricing_import_keys, validate_nested_pricing_import_keys
+            validate_pricing_import_keys(raw_plans)
+            validate_nested_pricing_import_keys(payload.get("nested_pricing"))
+            plans = normalize_pricing_plans(raw_plans, allow_verified=request.user.is_staff and not is_volunteer(request.user), legacy_place=current)
             if payload.get("place_id") is not None:
                 from catalog.services.pricing_plans import validate_target_plan_ids
                 validate_target_plan_ids(current, plans)
@@ -4485,23 +4558,38 @@ class PlaceAdmin(admin.ModelAdmin):
         if obj is None or not self.has_view_or_change_permission(request, obj):
             raise PermissionDenied
         from catalog.services.pricing_plans import serialize_pricing_plans, serialize_nested_pricing
+        from catalog.services.place_schedule import serialize_place_schedule
+        revision = VolunteerPlaceRevision.objects.filter(place=obj).first()
+        active_revision = revision if revision and revision.status in {"draft", "pending", "rejected"} else None
+        if active_revision:
+            from catalog.services.volunteer_places import candidate_from_payload
+            obj = candidate_from_payload(obj, active_revision.payload)
         payload = {
             "schema_version": 1, "place_id": obj.pk, "base_content_version": obj.content_version,
+            "candidate_version": revision.version if revision else 0,
+            "export_scope": "candidate" if active_revision else "stored",
             "name_az": obj.name_az, "name_ru": obj.name_ru, "name_en": obj.name_en,
             "description_az": obj.description_az, "description_ru": obj.description_ru, "description_en": obj.description_en,
             "category": obj.category_id, "subcategory": obj.subcategory_id,
             "age_from": obj.age_from, "age_to": obj.age_to, "age_open_ended": obj.age_open_ended,
             "offers_adult_classes": obj.offers_adult_classes,
             "address": obj.address, "district": obj.district, "metro": obj.metro,
+            "region": "baku" if obj.district.startswith("baku_") else obj.district,
             "lat": obj.lat, "lng": obj.lng,
             "phone1": obj.phone1, "phone2": obj.phone2, "phone3": obj.phone3,
             "phone_country": obj.phone_country, "whatsapp_mode": obj.whatsapp_mode, "whatsapp_number": obj.whatsapp_number,
             "instagram": obj.instagram, "website": obj.website,
+            "public_links": obj.public_links,
             "schedule_mode": obj.schedule_mode,
+            "schedule_days": serialize_place_schedule(obj),
+            "schedule": obj.schedule,
             "schedule_note_az": obj.schedule_note_az,
             "schedule_note_ru": obj.schedule_note_ru,
             "schedule_note_en": obj.schedule_note_en,
             "lesson_duration_minutes": obj.lesson_duration_minutes,
+            "lesson_format": obj.lesson_format,
+            "lessons_per_week": obj.lessons_per_week,
+            "lessons_per_month": obj.lessons_per_month,
             "is_temporary": obj.is_temporary,
             "temporary_start": obj.temporary_start.isoformat() if obj.temporary_start else None,
             "temporary_end": obj.temporary_end.isoformat() if obj.temporary_end else None,
@@ -4515,10 +4603,19 @@ class PlaceAdmin(admin.ModelAdmin):
             "additional_info_az": obj.additional_info_az,
             "additional_info_ru": obj.additional_info_ru,
             "additional_info_en": obj.additional_info_en,
+            "extra_conditions": obj.extra_conditions,
+            "additional_info": obj.additional_info,
             "pricing_plans": serialize_pricing_plans(obj.pricing_plan_records.all()),
+            "pricing_plans_legacy": obj.pricing_plans_legacy,
         }
+        for name in ("price_from", "price_to", "price_per_lesson", "price_per_month", "price_per_8_lessons"):
+            payload[name] = getattr(obj, name)
+        if active_revision:
+            for exported_name, candidate_name in (("pricing_plans", "pricing_plans"), ("schedule_days", "structured_schedule")):
+                if candidate_name in active_revision.payload:
+                    payload[exported_name] = active_revision.payload[candidate_name]
         if request.GET.get("pricing_schema_version") == "2":
-            payload["nested_pricing"] = serialize_nested_pricing(obj)
+            payload["nested_pricing"] = getattr(obj, "pending_nested_pricing", None) or serialize_nested_pricing(obj)
         response = HttpResponse(json.dumps(payload, ensure_ascii=False, indent=2, default=str), content_type="application/json")
         response["Content-Disposition"] = f'attachment; filename="place-{obj.pk}.json"'
         return response
@@ -4901,6 +4998,23 @@ class PlaceAdmin(admin.ModelAdmin):
         return JsonResponse({"results": results})
 
     def changelist_view(self, request, extra_context=None):
+        from catalog.services.place_editor_drafts import working_drafts_context
+        original_params = request.GET
+        draft_context = working_drafts_context(user=request.user, params=original_params)
+        request.GET = original_params.copy()
+        request.GET.pop('draft_page', None)
+        try:
+            response = self._place_changelist_with_drafts(request, {**draft_context, **(extra_context or {})})
+            context = getattr(response, 'context_data', None)
+            if context and context.get('cl'):
+                for place in context['cl'].result_list:
+                    place._km_working_draft = draft_context['working_drafts_by_target'].get(place.pk)
+                    place._km_working_draft_copy = draft_context['working_drafts_copy']
+            return response
+        finally:
+            request.GET = original_params
+
+    def _place_changelist_with_drafts(self, request, extra_context=None):
         self._current_request = request
         dashboard_counts = self._place_dashboard_counts()
         quick_filters = self._place_quick_filters(request, counts=dashboard_counts)
@@ -5424,7 +5538,16 @@ class PlaceAdmin(admin.ModelAdmin):
                 % {"count": skipped_count},
             )
 
+    def _close_private_working_draft(self, request, obj, *, change):
+        from catalog.services.server_drafts import mark_explicit_save
+        if request.POST.get('server_draft_id'):
+            mark_explicit_save(user=request.user, draft_id=request.POST['server_draft_id'],
+                expected_version=request.POST.get('server_draft_version', ''), place=obj,
+                target_id=obj.pk if change else None,
+                cutoff=getattr(request, '_km_explicit_save_cutoff', None))
+
     def response_add(self, request, obj, post_url_continue=None):
+        self._close_private_working_draft(request, obj, change=False)
         if "_save_draft" in request.POST:
             return self._handle_save_draft_submit(
                 request,
@@ -5447,9 +5570,13 @@ class PlaceAdmin(admin.ModelAdmin):
                 _("Обычное сохранение не публикует карточку. Для публикации используйте кнопку “Опубликовать”."),
                 level=messages.WARNING,
             )
-        return super().response_add(request, obj, post_url_continue=post_url_continue)
+        response = super().response_add(request, obj, post_url_continue=post_url_continue)
+        from catalog.services.place_editor_feedback import queue_editor_result
+        queue_editor_result(request, action="save", message=_("Изменения сохранены."))
+        return response
 
     def response_change(self, request, obj):
+        self._close_private_working_draft(request, obj, change=True)
         if "_save_draft" in request.POST:
             return self._handle_save_draft_submit(
                 request,
@@ -5472,9 +5599,14 @@ class PlaceAdmin(admin.ModelAdmin):
                 _("Обычное сохранение не публикует карточку. Для публикации используйте кнопку “Опубликовать”."),
                 level=messages.WARNING,
             )
-        return super().response_change(request, obj)
+        response = super().response_change(request, obj)
+        from catalog.services.place_editor_feedback import queue_editor_result
+        queue_editor_result(request, action="save", message=_("Изменения сохранены."))
+        return response
 
     def _handle_save_draft_submit(self, request, obj, *, message: str):
+        from catalog.services.place_editor_feedback import queue_editor_result
+        queue_editor_result(request, action="draft", message=message)
         self.message_user(request, message, level=messages.SUCCESS)
         return HttpResponseRedirect(self._place_change_url(obj))
 

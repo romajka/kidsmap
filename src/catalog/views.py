@@ -1,3 +1,4 @@
+from catalog.services.place_editor_feedback import queue_editor_result
 from datetime import timedelta
 from urllib.parse import urlencode
 from uuid import uuid4
@@ -1085,7 +1086,8 @@ def owner_place_create(request):
             )
             if result.ok:
                 from catalog.services.server_drafts import mark_explicit_save
-                mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=None, cutoff=explicit_save_cutoff)
+                mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), expected_version=request.POST.get('server_draft_version'), place=result.place, target_id=None, cutoff=explicit_save_cutoff)
+                queue_editor_result(request, action="draft", message=result.message)
                 messages.success(request, result.message)
                 return redirect("owner_places_dashboard")
 
@@ -1109,7 +1111,8 @@ def owner_place_create(request):
         )
         if result.ok:
             from catalog.services.server_drafts import mark_explicit_save
-            mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=None, cutoff=explicit_save_cutoff)
+            mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), expected_version=request.POST.get('server_draft_version'), place=result.place, target_id=None, cutoff=explicit_save_cutoff)
+            queue_editor_result(request, action="moderation", message=result.message)
             messages.success(request, result.message)
             return redirect("owner_places_dashboard")
 
@@ -1421,7 +1424,8 @@ def owner_place_edit(request, pk):
         )
         if result.ok:
             from catalog.services.server_drafts import mark_explicit_save
-            mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=pk, cutoff=explicit_save_cutoff)
+            mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), expected_version=request.POST.get('server_draft_version'), place=result.place, target_id=pk, cutoff=explicit_save_cutoff)
+            queue_editor_result(request, action="moderation" if form_action == "save_and_publish" else "draft" if form_action in {"save_draft", "save_draft_exit"} else "save", message=result.message)
             messages.success(request, result.message)
             if form_action == "save_draft_exit":
                 return redirect("owner_places_dashboard")
@@ -1492,6 +1496,7 @@ def owner_place_submit_review(request, pk):
 
     result = owner_places_controller.submit_for_moderation(request=request, place_id=pk)
     if result.ok:
+        queue_editor_result(request, action="moderation", message=result.message)
         messages.success(request, result.message, extra_tags="mappy-submitted")
     else:
         messages.error(request, result.message)
@@ -1758,10 +1763,12 @@ class AccountDashboardView(LoginRequiredMixin, TemplateView):
     redirect_field_name = "next"
 
     def get_context_data(self, **kwargs):
+        from catalog.services.place_working_drafts import working_drafts_overview
         context = super().get_context_data(**kwargs)
         dashboard_context = account_controller.build_dashboard_context(user=self.request.user)
         context.update(dashboard_context)
         context.update(_build_managed_places_summary(self.request.user))
+        context.update(working_drafts_overview(user=self.request.user))
         context.update(
             {
                 "meta_description": _("Личный кабинет KidsMap: профиль, избранное, история просмотров и мои места."),
@@ -1796,6 +1803,7 @@ class AccountProfileView(LoginRequiredMixin, View):
     template_name = "pages/account_profile.html"
 
     def _build_context(self, *, profile, profile_form, password_form):
+        from catalog.services.place_working_drafts import working_drafts_overview
         dashboard_context = account_controller.build_dashboard_context(user=self.request.user)
         current_route = self.request.resolver_match.url_name if self.request.resolver_match else "account_profile"
         managed_places_summary = _build_managed_places_summary(self.request.user)
@@ -1824,6 +1832,7 @@ class AccountProfileView(LoginRequiredMixin, View):
             "favorites_count": dashboard_context["favorites_count"],
             "history_count": dashboard_context["history_count"],
             **managed_places_summary,
+            **(working_drafts_overview(user=self.request.user) if current_route != 'account_settings' else {}),
             "is_settings_view": current_route == "account_settings",
             "account_deletion_available": deletion_policy is not None and not is_staff_user,
             "account_deletion_staff_blocked": is_staff_user,

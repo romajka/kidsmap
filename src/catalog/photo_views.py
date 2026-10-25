@@ -30,7 +30,12 @@ def owner_photo_thumbnail(request, pk, photo_id):
     from catalog.repositories.django_repositories import DjangoOwnerPlaceRepository
     from catalog.services.image_uploads import MAX_IMAGE_SOURCE_PIXELS, MAX_IMAGE_SOURCE_DIMENSION
     place = get_object_or_404(DjangoOwnerPlaceRepository().managed_queryset(user=request.user), pk=pk)
-    field = get_object_or_404(place.gallery, pk=photo_id).image if photo_id else place.photo
+    if photo_id:
+        field = get_object_or_404(place.gallery, pk=photo_id).image
+    else:
+        # Match the private editor, including an explicit candidate photo clear.
+        from catalog.services.publication_forms import candidate_for_edit
+        field = candidate_for_edit(place).photo
     if not field:
         return HttpResponse(status=404)
     try:
@@ -83,6 +88,10 @@ def save_owner_photos(request, pk=None):
     key = 'photo-save:' + hashlib.sha256(f'{request.user.pk}:{pk}:{request_id}'.encode()).hexdigest()
     cached = cache.get(key)
     if isinstance(cached, dict):
+        feedback = cached.get('feedback')
+        if cached.get('ok') is True and isinstance(feedback, dict) and feedback.get('outcome') == 'success':
+            from catalog.services.place_editor_feedback import queue_editor_result
+            queue_editor_result(request, action=feedback['action'], message=feedback['message'])
         return JsonResponse(cached)
     if not cache.add(key, 'saving', timeout=300):
         return JsonResponse({'ok': False, 'errors': {'__all__': [t('Сохранение ещё выполняется. Повторите через несколько секунд.', 'Saxlama davam edir. Bir neçə saniyədən sonra təkrarlayın.', 'Still saving. Retry in a few seconds.')]}}, status=409)
@@ -116,9 +125,13 @@ def save_owner_photos(request, pk=None):
                 payload['conflict'] = 'candidate_version_conflict'
             return JsonResponse(payload, status=422 if result.form is not None else 403)
         from catalog.services.server_drafts import mark_explicit_save
-        mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), place=result.place, target_id=pk, cutoff=explicit_save_cutoff)
+        mark_explicit_save(user=request.user, draft_id=request.POST.get('server_draft_id'), expected_version=request.POST.get('server_draft_version'), place=result.place, target_id=pk, cutoff=explicit_save_cutoff)
         url = reverse('owner_place_edit', args=[result.place.pk]) + '#pc-section-4' if action == 'save_draft' else reverse('owner_places_dashboard')
-        payload = {'ok': True, 'redirect': url}
+        feedback = {'action': 'draft' if action == 'save_draft' else 'moderation',
+                    'outcome': 'success', 'message': str(result.message)}
+        payload = {'ok': True, 'redirect': url, 'feedback': feedback}
+        from catalog.services.place_editor_feedback import queue_editor_result
+        queue_editor_result(request, action=feedback['action'], message=feedback['message'])
         cache.set(key, payload, timeout=86400)
         success = True
         return JsonResponse(payload)

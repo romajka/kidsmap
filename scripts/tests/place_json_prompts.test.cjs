@@ -19,6 +19,34 @@ const taxonomy = {
   districts: [{ code: 'baku_yasamal', name_ru: 'Ясамал', name_az: 'Yasamal' }]
 };
 
+test('JSON guidance supplies exact canonical package and monthly examples without guessing WhatsApp', async () => {
+  const m = await mount();
+  try {
+    m.mode('json');
+    const text = m.input().value;
+    const example = JSON.parse(text.split('Полная структура JSON:')[1].split('Доступные категории:')[0].trim());
+    assert.equal(example.whatsapp_mode, null);
+    assert.deepEqual(example.public_links, []);
+    assert.match(text,/public_links — до 5 подтверждённых/);
+    const samples = JSON.parse(text.split('Примеры объектов pricing_plans (вымышленные):')[1].split('Полная структура JSON:')[0].trim());
+    assert.equal(samples.package.product_type, 'lesson');
+    assert.equal(samples.package.quantity, 8);
+    assert.equal(samples.package.billing_mode, 'one_time');
+    assert.equal(samples.monthly.billing_interval, 'month');
+    assert.equal(samples.prepaid.billing_mode, 'one_time');
+    assert.equal(samples.prepaid.validity_interval, 'month');
+    assert.equal(samples.prepaid_unlimited.billing_mode, 'one_time');
+    assert.equal(samples.prepaid_unlimited.is_unlimited, true);
+    assert.equal(samples.prepaid_unlimited.validity_interval, 'month');
+    assert.equal(samples.offer_dates.validity_interval_count, 1);
+    assert.equal(samples.offer_dates.valid_from, '2026-06-01');
+    assert.match(text,/Календарные даты предложения.*valid_from.*valid_until/);
+    assert.match(text,/Разовая оплата не означает один день/);
+    assert.match(text,/Новые тарифы.*AZN/);
+    assert.match(text,/Не пересчитывай.*валют/);
+  } finally { m.close(); }
+});
+
 async function mount(config = taxonomy, enhanced = false) {
   const dom = new JSDOM(`<!doctype html><div class="km-pf"><button data-place-json-prompt-copy>Open</button>
     <input id="id_category" value="ART"><input id="id_subcategory" value="20">
@@ -154,5 +182,27 @@ test('empty taxonomy still allows general search and never enables invented subc
     assert.equal(m.q('[data-place-json-search-category]').options.length, 1);
     assert.equal(m.q('[data-place-json-search-subcategory]').options.length, 1);
     assert(m.q('[data-place-json-search-subcategory]').disabled);
+  } finally { m.close(); }
+});
+
+test('update instruction describes explicit text clearing consistently with the importer', async () => {
+  const m = await mount();
+  try {
+    m.mode('update');
+    assert(!m.input().value.includes('Пустые скалярные значения текущий импорт пропускает'));
+    assert(m.input().value.includes('Явная пустая строка очищает текстовое поле'));
+  } finally { m.close(); }
+});
+
+test('instruction examples cover installment, mandatory fees and every price kind', async () => {
+  const m = await mount();
+  try {
+    m.mode('json');
+    const samples = JSON.parse(m.input().value.split('Примеры объектов pricing_plans (вымышленные):')[1].split('Полная структура JSON:')[0].trim());
+    const plans = Object.values(samples);
+    assert(plans.some(p => p.billing_mode === 'installment' && p.billing_cycles > 1));
+    assert(plans.some(p => p.product_type === 'addon' && p.charge_role === 'addon' && p.is_required === true));
+    assert(plans.some(p => p.product_type === 'registration_fee'));
+    for (const kind of ['exact', 'from', 'range', 'free', 'on_request']) assert(plans.some(p => p.price_kind === kind), kind);
   } finally { m.close(); }
 });

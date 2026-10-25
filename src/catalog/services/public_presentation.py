@@ -105,6 +105,7 @@ def contact_data(obj):
     sources = {'phone': phone_source if phones else '', 'website': website_source, 'whatsapp': whatsapp_source}
     return {'phones': phones, 'has_phone': bool(phones), 'has_whatsapp': bool(whatsapp_url),
         'has_contact': bool(phones or whatsapp_url), 'website_url': website, 'whatsapp_url': whatsapp_url,
+        'public_links': getattr(place,'safe_public_links',[]) if place else [],
         'source': 'organization' if 'organization' in sources.values() else 'place' if place else '',
         'sources': sources}
 

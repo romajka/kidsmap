@@ -8,7 +8,7 @@ from catalog.models import Activity, OfferingGroup, PlacePhoto, PricingPlan, Pla
 from catalog.controllers.place_controller import PlaceController
 from catalog.services.public_presentation import current_organization
 from catalog.services.pricing_plans import build_pricing_summary, public_pricing_plans, legacy_price_values
-from catalog.services.public_favorite_count import build_public_favorite_count
+from catalog.services.public_favorite_count import build_public_favorite_count, PublicFavoriteCount
 
 
 def _model(model, values, *, fallback_id):
@@ -28,10 +28,11 @@ def _prepare_candidate(preview):
     candidate = preview['candidate']
     data = preview['snapshot']
     live = preview['place']
+    candidate._editor_preview_new = preview.get('editor_new',False)
     candidate._prefetched_objects_cache = {}
     candidate._public_batch = True
     candidate._public_visible = True
-    candidate._public_organization = current_organization(live)
+    candidate._public_organization = None if preview.get('editor_new') else current_organization(live)
     # Visibility is simulated only on this unsaved instance. Related drafts
     # keep their real status; only newly submitted tree nodes are published
     # by the existing complete-tree application contract.
@@ -70,7 +71,7 @@ def _prepare_candidate(preview):
             plans.append(plan);result.append(plan)
         return result
     tariffs(data.get('pricing_plans',[]),reorder='pricing_plans' in preview['submitted_fields'],place=candidate,offering_group=None)
-    stored = Activity.objects.filter(place=live).in_bulk()
+    stored = (Activity.objects.none() if preview.get('editor_new') else Activity.objects.filter(place_id=live.pk)).in_bulk()
     activities = []
     for index,row in enumerate((data.get('nested_pricing') or {}).get('activities',[])):
         existing = stored.get(row.get('id'))
@@ -100,6 +101,10 @@ def _prepare_candidate(preview):
     if {'pricing_plans','nested_pricing'} & preview['submitted_fields']:
         for name,value in legacy_price_values(candidate._pricing_records_cache).items(): setattr(candidate,name,value)
     candidate._site_preview_activities = activities
+    if 'editor_images' in preview:
+        images = [image for image in preview['editor_images'] if candidate._public_file_exists(image)]
+        candidate.gallery_files = lambda: images
+        candidate.photo = images[0] if images else ''
     return candidate
 
 
@@ -117,7 +122,7 @@ def build_site_preview_context(request, preview):
         analytics_events=[], queued_analytics_events=[], messages=[],
         public_pricing_plans=public_pricing_plans(place.pricing_plans,request.LANGUAGE_CODE),
         pricing_summary=build_pricing_summary(place,request.LANGUAGE_CODE),
-        favorite_social_proof=build_public_favorite_count(place_id=place.pk),
+        favorite_social_proof=PublicFavoriteCount(False,None) if preview.get('editor_new') else build_public_favorite_count(place_id=place.pk,site_settings=_preview_site_settings()),
         catalog_return_url=reverse('admin:catalog_placeownershiprequest_changelist'),
     )
     # Share controls show the eventual public address, not a private admin URL.
@@ -151,8 +156,16 @@ def render_site_preview(request, preview, *, language, back_url, return_params=N
         context['language_switch_query'] = ''
         context['site_preview_languages'] = context['language_urls'].items()
         context['site_preview_version'] = request.GET.get('version', '')
+        if preview.get('editor_current'):
+            context['site_preview_editor_current'] = True
+            context['site_preview_languages'] = ()
         response = TemplateResponse(visitor, 'catalog/place_detail_preview.html', context)
         response.render()
     response['X-Robots-Tag'] = 'noindex, nofollow, noarchive'
     response['Content-Language'] = language
     return response
+
+
+def _preview_site_settings():
+    from catalog.models import SiteSettings
+    return SiteSettings.objects.order_by('pk').first() or SiteSettings()

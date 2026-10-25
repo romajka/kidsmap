@@ -1,0 +1,8 @@
+<div data-km-language-group class="pc-localized-notes">
+  <h3>{{ ui.notes_title }}</h3><p class="pw-help">{{ ui.notes_hint }}</p>
+  <div class="km-editor-languages" role="group" aria-label="{{ ui.notes_language }}"><button type="button" data-km-language="az">AZ</button><button type="button" data-km-language="ru">RU</button><button type="button" data-km-language="en">EN</button></div>
+  <div data-km-language-panel="az">{% include 'pages/includes/permanent_place_field.html' with field=form.extra_conditions_az %}{% include 'pages/includes/permanent_place_field.html' with field=form.additional_info_az %}</div>
+  <div data-km-language-panel="ru">{% include 'pages/includes/permanent_place_field.html' with field=form.extra_conditions_ru %}{% include 'pages/includes/permanent_place_field.html' with field=form.additional_info_ru %}</div>
+  <div data-km-language-panel="en">{% include 'pages/includes/permanent_place_field.html' with field=form.extra_conditions_en %}{% include 'pages/includes/permanent_place_field.html' with field=form.additional_info_en %}</div>
+  {% if form.extra_conditions.value or form.additional_info.value %}<details class="pw-details"><summary>{{ ui.legacy_notes }}</summary><div class="pw-fields">{% include 'pages/includes/permanent_place_field.html' with field=form.extra_conditions %}{% include 'pages/includes/permanent_place_field.html' with field=form.additional_info %}</div></details>{% else %}{{ form.extra_conditions.as_hidden }}{{ form.additional_info.as_hidden }}{% endif %}
+</div>

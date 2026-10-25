@@ -7894,7 +7894,7 @@ msgstr "Enter username."
 #, fuzzy
 #| msgid "Дополнительные фото (до 5)"
 msgid "Дополнительные фото (до 10)"
-msgstr "Additional photos (up to 5)"
+msgstr "Additional photos (up to 10)"
 
 #: src/catalog/forms.py:1048
 msgid "До 10 фото. HEIC/HEIF автоматически конвертируются на сервере."
@@ -9287,16 +9287,12 @@ msgid "Укажите нижнюю границу цены."
 msgstr "Enter phone number."
 
 #: src/catalog/models/pricing_plan.py:173
-#, fuzzy
-#| msgid "Укажите время окончания."
 msgid "Укажите верхнюю границу цены."
-msgstr "Select the end time."
+msgstr "Enter the maximum price."
 
 #: src/catalog/models/pricing_plan.py:175
-#, fuzzy
-#| msgid "Цена не может быть меньше 0."
 msgid "Верхняя граница не может быть меньше нижней."
-msgstr "Price cannot be less than 0."
+msgstr "The maximum price cannot be lower than the minimum price."
 
 #: src/catalog/models/pricing_plan.py:181
 #, fuzzy
@@ -23700,3 +23696,71 @@ msgstr "Save the place first."
 
 msgid "Добавить группу"
 msgstr "Add group"
+
+#: place-addition-redesign
+msgid "Возраст и цены"
+msgstr "Age and prices"
+
+#: place-addition-redesign
+msgid "Фото и проверка"
+msgstr "Photos and review"
+
+#: place-addition-redesign
+msgid "Добавить фотографии"
+msgstr "Add photos"
+
+#: place-addition-redesign
+msgid "У нового места первое фото станет обложкой. Остальные добавятся в галерею. Существующая обложка сохраняется."
+msgstr "The first photo of a new place becomes its cover. The others go into the gallery. An existing cover is preserved."
+
+#: place-addition-redesign
+msgid "Особенности места"
+msgstr "Place details"
+
+#: place-addition-redesign
+msgid "Адреса карточки на сайте"
+msgstr "Place page URLs"
+
+#: place-addition-redesign
+msgid "Условия места и дополнительная информация"
+msgstr "Place terms and additional information"
+
+#: place-addition-redesign
+msgid "Обновить по экспорту"
+msgstr "Update from export"
+
+#: place-addition-redesign
+msgid "Сначала сохраните место. Занятия и группы можно добавить отдельно."
+msgstr "Save the place first. Activities and groups can be added separately."
+
+#: place-addition-redesign
+msgid "Сайт и социальные сети"
+msgstr "Website and social media"
+
+#: catalog/includes/editor_preview_button.html
+msgid "Просмотреть перед публикацией"
+msgstr "Preview before publishing"
+
+#: catalog/includes/editor_preview_button.html
+msgid "Текущие данные откроются в новой вкладке. Вы сможете проверить вид страницы и вернуться к заполнению."
+msgstr "Current entries open in a new tab. Check how the page looks and return to editing."
+
+#: catalog/includes/editor_preview_button.html
+msgid "Текущие данные формы"
+msgstr "Current form entries"
+
+#: catalog/includes/editor_preview_button.html
+msgid "Проверьте данные перед предпросмотром"
+msgstr "Check the entries before previewing"
+
+#: catalog/includes/editor_preview_button.html
+msgid "Форма осталась открытой в исходной вкладке. Исправьте отмеченные поля и откройте предпросмотр ещё раз."
+msgstr "Your form is still open in the original tab. Correct the highlighted fields and open the preview again."
+
+#: catalog/includes/editor_preview_button.html
+msgid "Вернуться к форме"
+msgstr "Return to the form"
+
+#: catalog/includes/editor_preview_button.html
+msgid "Проверить заполнение"
+msgstr "Check required entries"

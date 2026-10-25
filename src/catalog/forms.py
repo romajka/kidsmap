@@ -94,7 +94,8 @@ class PlaceScheduleEditorFormMixin:
                 "en": ("Weekly schedule", "Round the clock (24/7)", "By appointment", "Variable schedule", "By events"),
             }
             labels = mode_labels.get(lang, mode_labels["ru"])
-            self.fields["schedule_mode"].choices = tuple(zip(
+            placeholder = {"ru": "Выберите тип расписания", "az": "Cədvəl növünü seçin", "en": "Choose a schedule type"}.get(lang, "Выберите тип расписания")
+            self.fields["schedule_mode"].choices = (("", placeholder),) + tuple(zip(
                 (
                     Place.SCHEDULE_MODE_REGULAR,
                     Place.SCHEDULE_MODE_ALWAYS_OPEN,
@@ -982,9 +983,12 @@ class PlainMultipleImageInput(forms.ClearableFileInput):
 
 
 from catalog.services.phone_forms import ContactPhoneFormMixin
+from catalog.services.place_public_links import PublicLinksFormMixin
 
 
-class OwnerPlaceEditForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, forms.ModelForm):
+class OwnerPlaceEditForm(PublicLinksFormMixin, ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, forms.ModelForm):
+    compact_contact_fields = True
+    price_mode = forms.ChoiceField(required=False, choices=Place.PRICE_MODE_CHOICES, widget=forms.HiddenInput())
     delete_gallery_ids = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple())
     gallery_order = forms.JSONField(required=False, widget=forms.HiddenInput())
     pricing_plans = forms.CharField(required=False, widget=forms.HiddenInput())
@@ -1065,6 +1069,7 @@ class OwnerPlaceEditForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, fo
             "whatsapp_number",
             "instagram",
             "website",
+            "public_links",
             "schedule",
             "schedule_mode",
             "schedule_note_az",
@@ -1075,6 +1080,7 @@ class OwnerPlaceEditForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, fo
             "lessons_per_week",
             "lessons_per_month",
             "pricing_plans",
+            "price_mode",
             "nested_pricing",
             "extra_conditions",
             "additional_info",
@@ -1249,6 +1255,9 @@ class OwnerPlaceEditForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, fo
             for name in self.Meta.fields:
                 if name not in payload and name not in ("photo", "region", "pricing_plans"):
                     value = getattr(instance, name, "")
+                    if name == 'public_links':
+                        payload[name] = json.dumps(value or [],ensure_ascii=False)
+                        continue
                     if name == "district" and not str(value).startswith("baku_"):
                         value = ""
                     payload[name] = "" if value is None else ("1" if value is True else "" if value is False else value.pk if hasattr(value, "pk") else str(value))
@@ -1382,6 +1391,8 @@ class OwnerPlaceEditForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, fo
                 }
             )
         self._init_schedule_editor()
+        if not self.is_bound and source is None and "schedule_mode" not in (kwargs.get("initial") or {}):
+            self.initial["schedule_mode"] = ""
         if not self.is_bound and instance is not None and instance.pk and revision and 'structured_schedule' in revision.payload:
             days = revision.payload['structured_schedule']
             raw_schedule = dump_schedule_payload(days)
@@ -1432,7 +1443,7 @@ class OwnerPlaceEditForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, fo
         default_metro_options = sort_translated_values(BAKU_METRO_STATIONS)
         metro_options = default_metro_options
         try:
-            content_settings = CatalogContentSettings.get_solo()
+            content_settings = CatalogContentSettings.objects.order_by('pk').first() or CatalogContentSettings()
             metro_options = sort_translated_values(content_settings.metro_stations())
         except Exception:
             pass
@@ -1510,8 +1521,14 @@ class OwnerPlaceEditForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, fo
         cleaned = super().clean()
         cleaned = self._clean_schedule_editor(cleaned)
 
+        # Older clients omit this new control. An unrelated edit must retain
+        # the existing mode, including free entry and event-based pricing.
+        if not cleaned.get('price_mode'):
+            cleaned['price_mode'] = self.instance.price_mode or Place.PRICE_MODE_TARIFFS
+        self.instance.price_mode = cleaned['price_mode']
+
         try:
-            cleaned["pricing_plans"] = normalize_pricing_plans(cleaned.get("pricing_plans") or "[]")
+            cleaned["pricing_plans"] = normalize_pricing_plans(cleaned.get("pricing_plans") or "[]", legacy_place=self.instance)
             if cleaned["pricing_plans"] or not self.instance.pk or self.instance.pricing_plan_records.exists():
                 self.instance.pricing_plans = cleaned["pricing_plans"]
         except ValidationError as exc:
@@ -1605,9 +1622,10 @@ class OwnerPlaceEditForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, fo
 
             readiness = evaluate_form_readiness(self, self.instance)
             if not readiness.is_ready:
-                self.add_error(None, publication_blocked_message(readiness))
+                self.add_error(None, ValidationError(publication_blocked_message(readiness),code='publication_incomplete'))
                 for issue in readiness.issues:
-                    self.add_error(issue.field, issue.message)
+                    if issue.field not in self.errors:
+                        self.add_error(issue.field, issue.message)
 
         from catalog.services.image_uploads import MAX_IMAGE_BATCH_BYTES
         raw_gallery = cleaned.get("gallery_images") or []
@@ -1663,12 +1681,22 @@ class OwnerPlaceEditForm(ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, fo
     @property
     def server_draft_fields(self):
         from catalog.services.publication import fields_for
-        return sorted((set(self.fields) & fields_for('place') - {'photo', 'gallery'}) | {'region', 'moderation_note'} & set(self.fields))
+        return sorted(((set(self.fields) & fields_for('place') - {'photo', 'gallery'}) | {'region', 'moderation_note'} & set(self.fields)) | {'photo-clear', 'cover_photo-clear', 'delete_gallery_ids', 'gallery_order'})
+
+    @property
+    def editor_base_signature(self):
+        from catalog.services.server_drafts import editor_base_signature
+        return editor_base_signature(self.instance if self.instance.pk else None)
 
     @property
     def offering_choices(self):
         from catalog.services.pricing_plans import offering_editor_choices
         return offering_editor_choices(self.instance)
+
+    @property
+    def pricing_editor_contract(self):
+        from catalog.services.pricing_editor_contract import build_pricing_editor_contract
+        return build_pricing_editor_contract()
 
     @property
     def publication_schema_version(self):

@@ -27,24 +27,8 @@
     data-down-label="{% translate 'Ниже' %}"
     data-choose-label="{% translate 'Выберите' %}"
   >
-    <div class="km-pf-price-policy" data-tariff-policy-group>
-      <label class="km-pf-price-policy__label">{% translate "Режим цены" %}</label>
-      <div class="km-pf-segmented km-pf-segmented--policy" role="radiogroup" aria-label="{% translate 'Режим цены' %}">
-        <button type="button" class="km-pf-segmented__item" data-price-policy="free">
-          {% translate "Бесплатно" %}
-        </button>
-        <button type="button" class="km-pf-segmented__item is-active" data-price-policy="tariffs">
-          {% translate "Есть тарифы" %}
-        </button>
-        <button type="button" class="km-pf-segmented__item" data-price-policy="free_entry_paid_services">
-          {% translate "Бесплатный вход + платные услуги" %}
-        </button>
-        <button type="button" class="km-pf-segmented__item" data-price-policy="events">
-          {% translate "Цена зависит от мероприятия" %}
-        </button>
-      </div>
-      <p class="km-pf-price-policy__hint" data-price-policy-hint></p>
-    </div>
+    {% include "catalog/includes/place_price_policy.html" %}
+    <h3 data-tariff-heading>{% translate "Тарифы места" %}</h3><p class="pw-help" data-tariff-description></p>
 
     <div class="km-pf-tariffs__list" data-tariff-list></div>
 
@@ -62,14 +46,6 @@
       </div>
     </div>
 
-    <div class="km-pf-tariffs__events-state" data-tariff-events-state hidden>
-      <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-event"></use></svg>
-      <div>
-        <strong>{% translate "Цена зависит от мероприятия" %}</strong>
-        <p>{% translate "У этого места нет постоянных тарифов. Стоимость указывается отдельно для каждого мероприятия." %}</p>
-      </div>
-    </div>
-
     <div class="km-pf-tariffs__foot">
       <button type="button" class="km-pf-btn km-pf-btn--dashed" data-tariff-add>
         <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add"></use></svg>{% translate "Добавить тариф" %}
@@ -80,17 +56,20 @@
       </p>
     </div>
 
+    <div data-pf-field="pricing_plans">
     {% for error in form.pricing_plans.errors %}
       <p class="km-pf-field__error"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-error"></use></svg>{{ error }}</p>
     {% endfor %}
+    </div>
 
     <details class="km-pf-disclosure km-pf-disclosure--tight">
       <summary class="km-pf-disclosure__summary">
         <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
         <span class="km-pf-disclosure__title">{% translate "Дополнительные настройки цены" %}</span>
-        <span class="km-pf-disclosure__note">{% translate "свой текст плашки AZ / RU / EN: «Бесплатно», «Цена уточняется»" %}</span>
+        <span class="km-pf-disclosure__note" data-price-badge-note>{% translate "свой текст плашки AZ / RU / EN: «Бесплатно», «Цена уточняется»" %}</span>
       </summary>
       <div class="km-pf-disclosure__body">
+        <p class="km-pf-field__hint" data-price-badge-hint hidden></p>
         <div class="km-pf-badgepresets" role="group" aria-label="{% translate 'Быстрый выбор текста плашки' %}">
           <span class="km-pf-badgepresets__label">{% translate "Быстрый выбор:" %}</span>
           <button type="button" class="km-pf-chipbtn" data-badge-preset="">{% translate "Автоматически по тарифам" %}</button>
@@ -122,6 +101,6 @@
         {% if form.nested_pricing.errors %}<div role="alert">{{ form.nested_pricing.errors }}</div>{% endif %}
       </div>
     </details>
-    <div class="km-pf-hidden-fields" aria-hidden="true">{{ form.pricing_plans }}{{ form.price_mode }}</div>
+    <div class="km-pf-hidden-fields" aria-hidden="true">{{ form.pricing_plans }}</div>
   </div>
 {% endwith %}

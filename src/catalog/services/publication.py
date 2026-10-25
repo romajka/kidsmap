@@ -201,13 +201,16 @@ def _validate_patch(target,kind,patch,*,pending=None):
             value=clean
         elif name=='pricing_plans':
             from catalog.services.pricing_plans import normalize_pricing_plans
-            value=normalize_pricing_plans(value,allow_verified=False)
+            value=normalize_pricing_plans(value,allow_verified=False,legacy_place=target)
             # Validate ownership of supplied plan IDs even for gated candidates.
             ids={int(p['id']) for p in value if p.get('id')}
             if ids and set(target.pricing_plan_records.filter(pk__in=ids).values_list('pk',flat=True))!=ids:raise ValidationError('Foreign pricing plan.')
         elif name=='nested_pricing':
             from catalog.services.pricing_plans import validate_nested_pricing
             value=validate_nested_pricing(target,value,allow_verified=False)
+        elif name=='public_links':
+            from catalog.services.place_public_links import normalize_public_links
+            value=normalize_public_links(value)
         elif name=='structured_schedule':
             import json
             from catalog.services.place_schedule import validate_schedule_payload
