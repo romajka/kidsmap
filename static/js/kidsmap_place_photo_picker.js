@@ -10,6 +10,8 @@
       var main = form.querySelector('#id_photo');
       if (!owner?.kidsmapAddPhotos && (!main || !gallery?.kidsmapAddGalleryPhotos)) return;
       picker.dataset.mounted = '1';
+      var mediaSection = picker.closest('[data-place-media-section]');
+      if (mediaSection) mediaSection.setAttribute('data-km-photo-unified', '');
       function addSelection(selection) {
         var files = Array.from(selection || []);
         if (!files.length) return;

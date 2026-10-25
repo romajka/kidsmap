@@ -60,7 +60,11 @@ async function workflowStaff(ctx){
       }
       await p.waitForFunction(selector=>document.querySelector(selector)?.elements.namedItem('photo').files.length===1,formSelector(role));
       await addGallery(p,ctx,role,[2]);await waitSaved(p,role);
-      const mixed=await nativeState(p,role);H.assert.deepEqual(mixed.gallery_order,[initial.gallery_order[0],'new:0']);H.assert.equal(mixed.delete_gallery_ids.length,1);
+      const mixed=await nativeState(p,role);
+      // Admin swaps the former cover into the chosen gallery slot, matching
+      // the owner editor. Both replaced/removed stored rows need delete tokens.
+      H.assert.deepEqual(mixed.gallery_order,role==='admin'?['new:0','new:1']:[initial.gallery_order[0],'new:0']);
+      H.assert.equal(mixed.delete_gallery_ids.length,role==='admin'?2:1);
       const savedPricing=JSON.parse(await p.locator('[name=pricing_plans]').inputValue());
       const resume=p.url();H.assert(new URL(resume).searchParams.get('draft_id'),'Saved private working copy has a resume identifier');
       await p.reload();await waitSaved(p,role);await expanded(p,role);

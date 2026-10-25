@@ -102,6 +102,8 @@ jobs:
           trap 'kill "$place_e2e_pid" 2>/dev/null || true' EXIT
           export KIDSMAP_PLAYWRIGHT_MODULE="$PWD/.tmp/place-e2e-runtime/node_modules/playwright"
           node scripts/e2e/place_addition/run.cjs --fixture .tmp/place-addition-e2e/fixture.json --group full --output .tmp/place-addition-e2e/results
+          KIDSMAP_ADMIN_EDITOR_FIXTURE="$PWD/.tmp/place-addition-e2e/fixture.json" node --test scripts/tests/admin_place_editor_layout.test.cjs
+          KIDSMAP_ADMIN_EDITOR_FIXTURE="$PWD/.tmp/place-addition-e2e/fixture.json" KIDSMAP_ADMIN_EDITOR_OUTPUT="$PWD/.tmp/place-addition-e2e/results/admin-media-parity" node scripts/e2e/place_addition/admin_media_parity.cjs
           python scripts/e2e/place_addition/verify.py --profile-root "$QUALITY_PROFILE_ROOT" --socket-dir "$QUALITY_SOCKET_DIR" --fixture .tmp/place-addition-e2e/fixture.json --results .tmp/place-addition-e2e/results/results.json
           python scripts/e2e/place_addition/seed_roles.py --profile-root "$QUALITY_PROFILE_ROOT" --socket-dir "$QUALITY_SOCKET_DIR" --fixture .tmp/place-addition-e2e/fixture.json --output .tmp/place-addition-e2e/fixture-roles.json
           node scripts/e2e/place_addition/run.cjs --fixture .tmp/place-addition-e2e/fixture-roles.json --group roles --output .tmp/place-addition-e2e/results/roles

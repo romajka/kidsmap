@@ -1,32 +1,15 @@
 {% load i18n %}
 {% with summary=km_place_form_summary %}
   <div class="km-pf-verify">
-    {% include 'catalog/includes/editor_preview_button.html' with preview_pk=original.pk preview_admin=True %}
-    <div class="km-pf-verify__preview">
-      <span class="km-pf-verify__preview-label">{% translate "Как карточка выглядит в каталоге" %}</span>
-      <label for="km-place-preview-language">{% translate "Язык предпросмотра" %}</label>
-      <select id="km-place-preview-language" data-pf-preview-language aria-label="{% translate 'Язык предпросмотра' %}">
-        <option value="az">AZ</option><option value="ru">RU</option><option value="en">EN</option>
-      </select>
-      <p class="km-pf-group__note">{% translate "Показывается текст выбранного языка. Пустые переводы не создаются автоматически." %}</p>
-      <article class="km-pf-card" data-pf-preview>
-        <div class="km-pf-card__media">
-          <img class="km-pf-card__img" data-pf-preview-img alt="" hidden>
-          <span class="km-pf-card__img-empty" data-pf-preview-img-empty>
-            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-image"></use></svg>
-          </span>
-          <span class="km-pf-card__cat" data-pf-preview-category>{% translate "Категория не выбрана" %}</span>
-        </div>
-        <div class="km-pf-card__body">
-          <strong class="km-pf-card__title" data-pf-preview-title>{% translate "Название места" %}</strong>
-          <p data-pf-preview-description></p>
-          <div class="km-pf-card__tags">
-            <span class="km-pf-card__tag" data-pf-preview-age>—</span>
-            <span class="km-pf-card__tag km-pf-card__tag--price" data-pf-preview-price>—</span>
-          </div>
-          <span class="km-pf-card__address" data-pf-preview-address>{% translate "Адрес не указан" %}</span>
-        </div>
-      </article>
+    <div class="km-pf-verify__actions">
+      {% include 'catalog/includes/editor_preview_button.html' with preview_pk=original.pk preview_admin=True %}
+      <div class="km-pf-verify__language">
+        <label for="km-place-preview-language">{% translate "Язык предпросмотра" %}</label>
+        <select id="km-place-preview-language" data-pf-preview-language aria-label="{% translate 'Язык предпросмотра' %}">
+          <option value="az">AZ</option><option value="ru">RU</option><option value="en">EN</option>
+        </select>
+        <p class="km-pf-group__note">{% translate "Показывается текст выбранного языка. Пустые переводы не создаются автоматически." %}</p>
+      </div>
     </div>
 
     <div class="km-pf-verify__body">

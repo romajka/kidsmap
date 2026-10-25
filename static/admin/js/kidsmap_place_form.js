@@ -236,6 +236,7 @@
       var atBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 60);
       if (atBottom && sections.length > 0) {
         var lastSection = sections[sections.length - 1];
+        if (sectionSelect) sectionSelect.value = lastSection.id;
         navItems.forEach(function (item) {
           var isCur = item.dataset.pfNavFor === lastSection.id;
           item.classList.toggle("is-current", isCur);
@@ -250,7 +251,8 @@
         : null;
 
       var current = null;
-      if (activeSec && sections.indexOf(activeSec) !== -1) {
+      var focusedBox = activeSec ? document.activeElement.getBoundingClientRect() : null;
+      if (activeSec && sections.indexOf(activeSec) !== -1 && focusedBox.bottom > 0 && focusedBox.top < window.innerHeight) {
         current = activeSec;
       } else {
         var nav = qs("[data-pf-nav]", root);

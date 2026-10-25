@@ -30,29 +30,41 @@
       if(field('gallery_order'))field('gallery_order').value=JSON.stringify(order);
       render();if(emit)form.dispatchEvent(new Event('km:photos-change',{bubbles:true}));
     }
+    async function materialize(row){
+      if(row.file)return new File([row.file],row.file.name,{type:row.file.type,lastModified:row.file.lastModified});
+      const url=new URL(row.url,location.href);
+      if(url.origin!==location.origin||!['http:','https:'].includes(url.protocol))throw new Error('foreign_media_url');
+      const response=await fetch(url.href,{credentials:'same-origin'});
+      if(!response.ok)throw new Error('media_download_failed');
+      const blob=await response.blob();let type=blob.type;
+      if(!type||type==='application/octet-stream'){
+        type=({webp:'image/webp',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg'})[url.pathname.split('.').pop().toLowerCase()];
+        if(!type||typeof createImageBitmap!=='function')throw new Error('invalid_media');
+        const decoded=await createImageBitmap(blob);decoded.close();
+      }
+      if(!type.startsWith('image/'))throw new Error('invalid_media');
+      return new File([blob],url.pathname.split('/').pop()||'photo.webp',{type});
+    }
     function chooseMain(row,host){
       if(mainTask)return;
       mainTask=(async()=>{
-        // The gallery retains its file. Main is a separate transport entry and
-        // must have its own File identity/UUID even when its bytes are identical.
-        let file=row.file?new File([row.file],row.file.name,{type:row.file.type,lastModified:row.file.lastModified}):null;
-        if(!file){
-          const url=new URL(row.url,location.href);
-          // Only download an existing rendered image; never forward credentials to another origin.
-          if(url.origin!==location.origin||!['http:','https:'].includes(url.protocol))throw new Error('foreign_media_url');
-          const response=await fetch(url.href,{credentials:'same-origin'});
-          if(!response.ok)throw new Error('media_download_failed');
-          const blob=await response.blob();let type=blob.type;
-          if(!type||type==='application/octet-stream'){
-            type=({webp:'image/webp',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg'})[url.pathname.split('.').pop().toLowerCase()];
-            if(!type||typeof createImageBitmap!=='function')throw new Error('invalid_media');
-            const decoded=await createImageBitmap(blob);decoded.close();
-          }
-          if(!type.startsWith('image/'))throw new Error('invalid_media');
-          file=new File([blob],url.pathname.split('/').pop()||'photo.webp',{type});
+        // Resolve both images before changing any input: failed downloads keep
+        // the current cover/gallery intact. Admin swaps just like the owner UI.
+        const file=await materialize(row);
+        let previous=null;
+        if(adminRoot){
+          const current=field('photo')?.files?.[0],url=form.querySelector('[data-main-photo-preview]')?.dataset.mainPhotoInitialUrl;
+          if(!field('photo-clear')?.checked&&(current||url))previous=await materialize({file:current,url});
         }
         if(field('photo-clear'))field('photo-clear').checked=false;
         setFiles(field('photo'),[file]);
+        if(adminRoot){
+          setFiles(host.querySelector('input[type=file]'),previous?[previous]:[]);
+          const remove=host.querySelector('[name$="-DELETE"]');if(remove)remove.checked=!previous;
+          host.hidden=!previous;host.classList.toggle('is-hidden',!previous);
+          host.querySelector('[name$="-order"]')?.dispatchEvent(new Event('change',{bubbles:true}));
+        }
+        host.querySelector('[data-media-error]')?.remove();
       })().catch(()=>{let error=host.querySelector('[data-media-error]');if(!error){error=document.createElement('small');error.dataset.mediaError='';error.setAttribute('role','alert');host.append(error);}error.textContent=copy.error;}).finally(()=>{mainTask=null;form.dispatchEvent(new Event('km:photos-change',{bubbles:true}));});
     }
     function snapshotMedia(){
@@ -80,7 +92,26 @@
       syncGallery();
     });deletionBoxes().forEach(input=>input.addEventListener('change',()=>syncGallery()));}
     if(adminRoot){
-      const enhance=()=>cards().forEach(card=>{if(card.querySelector('[data-media-main]'))return;const button=document.createElement('button');button.type='button';button.className='km-pf-btn km-pf-btn--ghost km-pf-btn--sm';button.dataset.mediaMain='';button.textContent=copy.main;button.addEventListener('click',()=>{const file=card.querySelector('input[type=file]')?.files?.[0],url=card.querySelector('[data-gallery-preview]')?.dataset.galleryInitialUrl;if(file||url)chooseMain({file,url},card);});card.append(button);});
+      const enhance=()=>cards().forEach(card=>{
+        if(!card.querySelector('[data-media-actions]')){
+          const actions=document.createElement('div');actions.dataset.mediaActions='';
+          const button=(label,action)=>{const node=document.createElement('button');node.type='button';node.className='km-pf-btn km-pf-btn--ghost km-pf-btn--sm';node.textContent=label;node.addEventListener('click',action);actions.append(node);return node;};
+          button(copy.main,()=>{const file=card.querySelector('input[type=file]')?.files?.[0],url=card.querySelector('[data-gallery-preview]')?.dataset.galleryInitialUrl;if(file||url)chooseMain({file,url},card);}).dataset.mediaMain='';
+          const replace=({ru:'Заменить',az:'Dəyişdir',en:'Replace'})[lang]||'Replace';
+          button(replace,()=>card.querySelector('input[type=file]')?.click()).dataset.mediaReplace='';
+          for(const delta of [-1,1]){
+            const node=button(delta<0?'↑ '+copy.up:'↓ '+copy.down,()=>{
+              const current=cards().filter(active),index=current.indexOf(card),other=current[index+delta];if(!other)return;
+              if(delta<0)other.before(card);else other.after(card);
+              card.querySelector('[name$="-order"]')?.dispatchEvent(new Event('change',{bubbles:true}));
+              form.dispatchEvent(new Event('km:photos-change',{bubbles:true}));node.focus({preventScroll:true});
+            });node.dataset.mediaMove=String(delta);
+          }
+          card.append(actions);
+        }
+        const current=cards().filter(active),index=current.indexOf(card);
+        for(const node of card.querySelectorAll('[data-media-move]'))node.disabled=index<0||index+Number(node.dataset.mediaMove)<0||index+Number(node.dataset.mediaMove)>=current.length;
+      });
       enhance();new MutationObserver(enhance).observe(adminRoot,{childList:true,subtree:true});
     }
     function captureState(){
@@ -93,6 +124,9 @@
           if(token){state.gallery_order.push(token);state.gallery_captions[token]=card.querySelector('[name$="-caption"]')?.value||'';}
         });
       }else{state.delete_gallery_ids=[...form.querySelectorAll('[name=delete_gallery_ids]:checked')].map(x=>x.value);try{state.gallery_order=JSON.parse(field('gallery_order')?.value||'[]');}catch{state.gallery_order=[];}}
+      // Deletions are a set. DOM order can change after sorting/reopening and
+      // must not make an unchanged private working copy look dirty again.
+      if(state.delete_gallery_ids)state.delete_gallery_ids.sort();
       return state;
     }
     async function restoreMedia(manifest,download){

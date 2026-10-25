@@ -855,15 +855,15 @@
 }
 
 .km-pf .km-pf-verify {
-  display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 24px;
-  max-width: 960px;
-  align-items: start;
+  max-width: none;
+  align-items: stretch;
 }
 
 .km-pf .km-pf-issues {
-  max-width: 700px;
+  max-width: none;
 }
 
 /* --------------------------------------------------------------------------
@@ -2843,10 +2843,10 @@
    -------------------------------------------------------------------------- */
 
 .km-pf .km-pf-verify {
-  display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
-  gap: 18px;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: stretch;
 }
 
 .km-pf .km-pf-verify__preview { display: flex; flex-direction: column; gap: 8px; }
@@ -2923,7 +2923,7 @@
 .km-pf .km-pf-readiness__counts { font-size: 11.5px; color: var(--pf-caption); }
 
 .km-pf .km-pf-issues { display: flex; flex-direction: column; gap: 8px; }
-.km-pf .km-pf-issues__list { display: flex; flex-direction: column; gap: 8px; }
+.km-pf .km-pf-issues__list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 12px; }
 
 .km-pf .km-pf-issue {
   display: flex;
@@ -4250,7 +4250,6 @@
   .km-pf { padding: 16px 16px 24px; }
   .km-pf .km-pf__header { flex-direction: column; gap: 14px; }
   .km-pf .km-pf__header-aside { align-items: flex-start; width: 100%; }
-  .km-pf .km-pf-verify { grid-template-columns: 176px minmax(0, 1fr); }
   .km-pf .km-pf-mainphoto__drop { width: 168px; height: 168px; flex-basis: 168px; }
 }
 
@@ -4315,7 +4314,6 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .km-pf .km-pf-verify { grid-template-columns: minmax(0, 1fr); }
   .km-pf .km-pf-age { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .km-pf .km-pf-age__flags { padding-top: 0; }
   .km-pf .km-schedule-editor__note-grid { grid-template-columns: minmax(0, 1fr); }
@@ -4912,4 +4910,33 @@
 .km-pf :is(input,select,textarea,button,summary,a,[tabindex]) {
   scroll-margin-top: var(--pf-focus-top,96px);
   scroll-margin-bottom: var(--pf-focus-bottom,120px);
+}
+
+/* The final step has one real preview and a full-width requirements list. */
+.km-pf .km-pf-verify__actions { display:flex; flex-wrap:wrap; gap:20px 28px; align-items:start; }
+.km-pf .km-pf-verify__actions > .km-editor-preview-action { flex:1 1 300px; min-width:0; }
+.km-pf .km-pf-verify__language { flex:1 1 220px; min-width:0; display:grid; gap:10px; }
+.km-pf .km-pf-verify__language select { width:100%; min-height:44px; }
+.km-pf .km-pf-issue__icon { flex-shrink:0; }
+.km-pf .km-pf-issue__go { align-self:center; }
+
+/* Keep native inputs/formsets as transport; expose one shared add-photo flow. */
+.km-pf [data-km-photo-unified] [data-pf-group="main-photo"]:not(:has(.has-photo)) { display:none; }
+.km-pf [data-km-photo-unified] :is([data-gallery-add-button-empty],[data-gallery-add-button-card]) { display:none!important; }
+.km-pf [data-km-photo-unified] .km-pf-gallery-empty { min-height:0; padding:18px; gap:8px; }
+.km-pf [data-km-photo-unified] .km-pf-mainphoto { max-width:none; gap:20px; }
+.km-pf [data-km-photo-unified] .km-pf-mainphoto__drop { width:160px; height:160px; flex-basis:160px; }
+.km-pf [data-km-photo-unified] .km-pf-mainphoto__aside { min-width:0; }
+.km-pf [data-km-photo-unified] .km-gallery-inline { max-width:none; }
+.km-pf [data-km-photo-unified] .km-gallery-grid { grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr)); }
+.km-pf [data-km-photo-unified] .km-photo-card__delete { display:none; }
+.km-pf [data-media-actions] { display:flex; flex-wrap:wrap; gap:8px; padding:12px; }
+.km-pf [data-media-actions] button { min-height:44px; white-space:normal; flex:1 1 90px; }
+.km-pf [data-gallery-card]:has([data-media-actions]) [data-gallery-replace-trigger] { display:none; }
+.km-pf [data-km-photo-unified] [data-gallery-remove] { min-width:44px; min-height:44px; }
+@media(max-width:480px) {
+  .km-pf .km-pf-issue { flex-wrap:wrap; }
+  .km-pf .km-pf-issue__copy { flex-basis:calc(100% - 40px); }
+  .km-pf .km-pf-issue__go { margin-inline-start:26px; }
+  .km-pf [data-km-photo-unified] .km-pf-mainphoto { flex-wrap:wrap; }
 }
