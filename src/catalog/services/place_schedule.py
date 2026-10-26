@@ -205,22 +205,22 @@ def parse_schedule_payload(raw_value) -> list[dict[str, object]]:
     if isinstance(raw_value, list):
         return raw_value
     if isinstance(raw_value, dict):
-        return raw_value.get("days") or build_default_schedule_payload()
+        return raw_value.get("days") or []
 
     text = str(raw_value or "").strip()
     if not text:
-        return build_default_schedule_payload()
+        return []
 
     try:
         payload = json.loads(text)
     except (TypeError, ValueError, json.JSONDecodeError):
-        return build_default_schedule_payload()
+        return []
 
     if isinstance(payload, dict):
-        return payload.get("days") or build_default_schedule_payload()
+        return payload.get("days") or []
     if isinstance(payload, list):
         return payload
-    return build_default_schedule_payload()
+    return []
 
 
 def dump_schedule_payload(days: list[dict[str, object]]) -> str:
@@ -333,6 +333,8 @@ def validate_schedule_payload(raw_value) -> ScheduleValidationResult:
     if invalid:
         return ScheduleValidationResult(days=build_default_schedule_payload(),
             errors={'__all__': [_("Проверьте расписание работы.")]})
+    if not raw_days:
+        return ScheduleValidationResult(days=[], errors={})
     indexed_raw = {}
     for item in raw_days:
         if not isinstance(item, dict):
@@ -425,7 +427,7 @@ def validate_schedule_payload(raw_value) -> ScheduleValidationResult:
 
 def serialize_place_schedule(place) -> list[dict[str, object]]:
     if not getattr(place, "pk", None) or not getattr(place, "schedule_days", None):
-        return build_default_schedule_payload()
+        return []
 
     days_by_weekday = {}
     for day in place.schedule_days.all():
@@ -443,6 +445,9 @@ def serialize_place_schedule(place) -> list[dict[str, object]]:
             "intervals": intervals,
         }
 
+    if not days_by_weekday:
+        return []
+
     return [days_by_weekday.get(weekday, build_default_schedule_payload()[index]) for index, weekday in enumerate(WEEKDAY_ORDER)]
 
 
@@ -455,7 +460,7 @@ def sync_place_schedule(place, days: list[dict[str, object]]) -> None:
         raise ValidationError({'structured_schedule': _("Проверьте расписание работы.")})
     days = checked.days
     place.schedule_days.all().delete()
-    if not is_meaningful_schedule(days):
+    if not days:
         return
 
     created_days: dict[str, PlaceScheduleDay] = {}
@@ -496,7 +501,7 @@ def schedule_signature(day: dict[str, object]) -> tuple:
 
 def build_schedule_rows(days: list[dict[str, object]], language=None) -> list[dict[str, object]]:
     lang = _schedule_lang(language)
-    if not is_meaningful_schedule(days):
+    if not days:
         return []
 
     rows: list[dict[str, object]] = []

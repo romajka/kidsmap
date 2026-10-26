@@ -118,12 +118,13 @@ def edit(request, place_id=None):
         if action == "restart":
             form = editor_form(place, revision)
             try:
-                restart_proposal(user=request.user, place_id=place_id, version=int(request.POST.get("revision_version", -1)))
+                restart_proposal(user=request.user, place_id=place_id,
+                    version=int(request.POST.get("revision_version", -1)), token=request.POST.get("base_token", ""))
             except (ValueError, ValidationError) as exc:
                 messages.error(request, "; ".join(exc.messages) if isinstance(exc, ValidationError) else _("Обновите страницу."))
                 return redirect("admin:volunteer_edit", place_id=place_id)
             else:
-                messages.success(request, _("Загружена текущая версия. Предыдущий черновик заменён."))
+                messages.success(request, _("Загружена текущая версия. Предыдущие правки сохранены в истории."))
                 return redirect("admin:volunteer_edit", place_id=place_id)
         else:
             place, revision, form = save_proposal(user=request.user, place_id=place_id, data=request.POST, files=request.FILES)

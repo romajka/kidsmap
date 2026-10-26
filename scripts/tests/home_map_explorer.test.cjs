@@ -143,11 +143,16 @@ test('showing the map panel invalidates Leaflet size synchronously before a card
  t.state.mapEl.dispatchEvent(new t.state.mapEl.ownerDocument.defaultView.Event('kidsmap:home-map-visible'));
  assert.equal(t.map.invalidations,before+1,'must not defer hidden-panel geometry repair to a later frame');t.close();
 });
-test('popup auto-pan does not refetch viewport while a subsequent user gesture still does',()=>{
- const t=leafletLifecycle();t.select(1);t.map.fire('autopanstart');t.map.fire('moveend');
- assert.equal(t.viewports.length,0,'positioning a popup is not a user viewport filter');
- t.map.fire('movestart',{originalEvent:{type:'pointermove'}});t.map.fire('moveend');
- assert.equal(t.viewports.length,1,'manual map movement still refreshes server bounds');t.close();
+test('Leaflet card reveal, popup auto-pan and manual camera movement never filter homepage results',()=>{
+ const t=leafletLifecycle([point(1),point(2)]);
+ try {
+  t.select(1);t.map.fire('moveend');t.map.fire('zoomend');
+  t.map.fire('autopanstart');t.map.fire('moveend');
+  t.map.fire('movestart',{originalEvent:{type:'pointermove'}});t.map.fire('moveend');
+  t.map.fire('zoomstart',{originalEvent:{type:'wheel'}});t.map.fire('zoomend');
+  assert.equal(t.viewports.length,0,'camera navigation must not replace the search result set with viewport results');
+  assert.equal(t.selected,1);assert.ok(t.map.popup);
+ } finally {t.close();}
 });
 
 function guideMotion(reduced=false) {
@@ -167,4 +172,46 @@ test('guide reveals once, cleans up finite motion and greets on pointer entry',(
 });
 test('guide reduced motion suppresses reveal and hover motion',()=>{
  const t=guideMotion(true);t.el.dispatchEvent(new t.w.Event('pointerenter'));assert.equal(t.el.className,'');t.close();
+});
+
+// Native SDK transport is substituted; the production homepage mounting and
+// camera/selection event handlers run unchanged.
+function googleLifecycle(initial=[point(1),point(2)]){
+ const vm=require('node:vm'),dom=new JSDOM('<div id="map"></div><p id="note"></p>');
+ const d=dom.window.document,viewports=[],timers=[],markers=[],reveals=[];
+ function events(target={}){const handlers={};return Object.assign(target,{addListener(name,fn){(handlers[name]||=[]).push(fn);return{remove(){handlers[name]=handlers[name].filter(item=>item!==fn);}};},fire(name){(handlers[name]||[]).slice().forEach(fn=>fn());}});}
+ const map=events({zoom:12,center:{lat:40.4,lng:49.8},getCenter(){return{lat:()=>this.center.lat,lng:()=>this.center.lng};},getZoom(){return this.zoom;},setCenter(center){this.center=center;},setZoom(zoom){this.zoom=zoom;this.fire('zoom_changed');},getBounds:()=>({getSouthWest:()=>({lat:()=>40,lng:()=>49}),getNorthEast:()=>({lat:()=>41,lng:()=>50})})});
+ const popup=events({close(){this.opened=false;},setOptions(){},setContent(content){this.content=content;},open(){this.opened=true;}});
+ const google={maps:{Map:function(){return map;},InfoWindow:function(){return popup;},ControlPosition:{RIGHT_TOP:1},event:{addListenerOnce(_map,_event,fn){reveals.push(fn);}}}};
+ const ctx={window:{google,setTimeout:fn=>timers.push(fn),KidsMapGoogleMotion:{create:()=>({cancel(){},select(){}}),chooser:()=>({close(){},show(){}}),reduced:()=>false}},google,document:d,DEFAULT_CENTER:{lat:40.4,lng:49.8},DEFAULT_ZOOM:12,SCRIPT_CONFIG:{},hasValidCoordinates:p=>Number.isFinite(p.lat)&&Number.isFinite(p.lng),buildGoogleMarkerIcon:()=>({}),renderPopupContent:p=>p.name,pointMembers:p=>p.members||[p],getFilterState:()=>({}),businessCount:points=>points.reduce((n,p)=>n+p.members.length,0),updateLiveCount(){},setMapNote(){},bindFilterListeners(){},serverFilterUpdater:()=>()=>{},scrollToMap(){},homePaging:{viewport:bounds=>viewports.push(bounds)},homeExplorer:{selectPoint(p){ctx.selected=p.members[0].id;}},homeSelectionGeneration:0,pendingFocusPlaceId:null,activeMapFocusHandler:null};
+ ctx.window.kidsMapCreateGoogleMarker=()=>{const marker=events({setMap(){}});markers.push(marker);return marker;};
+ vm.createContext(ctx);vm.runInContext(source.slice(source.indexOf('  function mountGoogleMap('),source.indexOf('  // ── Coordinate helpers')),ctx);
+ const state={mapEl:d.getElementById('map'),mapNoteEl:d.getElementById('note'),places:initial};ctx.mountGoogleMap(state);timers.splice(0).forEach(fn=>fn());
+ return{ctx,state,map,popup,viewports,select(id){ctx.activeMapFocusHandler(id);map.fire('idle');reveals.splice(0).forEach(fn=>fn());},close(){dom.window.close();}};
+}
+test('Google wheel or keyboard gestures cannot turn a later card selection into a viewport filter',()=>{
+ for(const gesture of ['wheel','keydown','dragstart']){
+  const t=googleLifecycle();
+  try {
+   if(gesture==='dragstart')t.map.fire(gesture);
+   else t.state.mapEl.dispatchEvent(new t.state.mapEl.ownerDocument.defaultView.Event(gesture));
+   t.select(2);t.map.fire('idle');
+   assert.equal(t.viewports.length,0,gesture+' must not shrink or reorder the homepage search results');
+   assert.equal(t.ctx.selected,2);assert.equal(t.popup.opened,true);
+  } finally {t.close();}
+ }
+});
+test('repeated card selections preserve every result node and its order',()=>{
+ const t=setup([point(1,[member(1),member(2)]),point(3)]);
+ try {
+  const before=[...t.d.querySelectorAll('[data-home-map-list] li')];
+  const list=t.d.querySelector('[data-home-map-list]');list.scrollTop=120;
+  for(const id of ['2','3','1','2']){
+   t.d.querySelector('[data-home-map-member-id="'+id+'"]').click();
+   assert.deepEqual([...list.children],before);
+   assert.equal(t.d.querySelectorAll('[data-home-map-member-id][aria-pressed="true"]').length,1);
+   assert.equal(list.scrollTop,120);
+  }
+  assert.equal(t.requests.length,0,'selection alone must not fetch new results');
+ } finally {t.close();}
 });

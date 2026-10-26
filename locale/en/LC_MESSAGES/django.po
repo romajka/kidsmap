@@ -2720,10 +2720,9 @@ msgid "Опубликовано"
 msgstr "Published"
 
 #: src/catalog/domain_admin/owner.py:639
-#, fuzzy
 #| msgid "Опубликовано"
 msgid "Не опубликовано"
-msgstr "Published"
+msgstr "Not published"
 
 #: src/catalog/domain_admin/owner.py:640
 #: src/catalog/domain_admin/place.py:3404 src/catalog/models/place.py:190
@@ -23764,3 +23763,220 @@ msgstr "Return to the form"
 #: catalog/includes/editor_preview_button.html
 msgid "Проверить заполнение"
 msgstr "Check required entries"
+
+
+#. Admin working draft recovery and saved preview.
+msgid "Начать с текущей версии"
+msgstr "Start from the current version"
+
+#. Admin working draft recovery and saved preview.
+msgid "Карточка изменилась. Новая рабочая версия будет создана из текущих данных. Предыдущие сохранённые правки останутся в истории; несохранённые изменения формы не переносятся."
+msgstr "The card has changed. A new working version will start from the current data. Previously saved edits will remain in history; unsaved form changes will not be carried over."
+
+#. Admin working draft recovery and saved preview.
+msgid "Загружена текущая версия. Предыдущие правки сохранены в истории."
+msgstr "The current version has been loaded. Previous edits were saved in history."
+
+#. Admin working draft recovery and saved preview.
+msgid "Рабочая версия уже актуальна. Обновите страницу."
+msgstr "The working version is already up to date. Refresh the page."
+
+#. Admin working draft recovery and saved preview.
+msgid "У места нет активной рабочей версии."
+msgstr "The place has no active working version."
+
+#. Admin working draft recovery and saved preview.
+msgid "Сохранённый черновик"
+msgstr "Saved draft"
+
+
+#: catalog/services/seo.py
+msgid "Места, кружки и развлечения для детей в Азербайджане"
+msgstr "Places, clubs and activities for kids in Azerbaijan"
+
+
+#: catalog/services/seo.py
+msgid "Куда сходить с ребёнком? KidsMap: развлечения, парки, музеи, игровые центры, кружки и секции в Баку и других городах Азербайджана."
+msgstr "Where to go with kids? Find parks, museums, play centers, clubs and activities in Baku and across Azerbaijan on KidsMap."
+
+
+#: catalog/services/seo.py
+msgid "Популярные места и занятия для детей в Азербайджане"
+msgstr "Popular places and activities for kids in Azerbaijan"
+
+
+#: catalog/services/seo.py
+msgid "Семейный отдых с детьми в Баку и Азербайджане: парки, музеи, игровые центры, развлечения, кружки и секции. Выбирайте места на KidsMap."
+msgstr "Family days out in Baku and Azerbaijan: parks, museums, play centers, clubs and activities for kids. Find a place for your family on KidsMap."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Публикация и изменения"
+msgstr "Publication and changes"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Изменения на модерации"
+msgstr "Changes under review"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Всего организаций"
+msgstr "Total organizations"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Все организации"
+msgstr "All organizations"
+
+#. Organization flow consistency and progressive workspace.
+msgid "С филиалами"
+msgstr "With branches"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Добавить организацию"
+msgstr "Add organization"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Управляйте организациями, сетевыми структурами, филиалами и привязками."
+msgstr "Manage organizations, networks and branches."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Поиск организаций"
+msgstr "Search organizations"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Название, телефон, сайт..."
+msgstr "Name, phone, website..."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Смотреть филиалы"
+msgstr "View branches"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Смотреть программы"
+msgstr "View programs"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Следующие шаги"
+msgstr "Next steps"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Профиль создан"
+msgstr "Profile created"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Добавьте филиал или продолжите позже"
+msgstr "Add a branch or continue later"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Сведения на проверке"
+msgstr "Details under review"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Организация опубликована"
+msgstr "Organization published"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Проверьте сведения и отправьте на модерацию"
+msgstr "Check details and submit for review"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Публикация организации и каждого филиала проверяется отдельно. Сотрудники и программы необязательны."
+msgstr "The organization and each branch are reviewed separately. Team members and programs are optional."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Разделы организации"
+msgstr "Organization sections"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Филиалы"
+msgstr "Branches"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Присоединение ждёт подтверждения"
+msgstr "Affiliation awaiting confirmation"
+
+#. Organization flow consistency and progressive workspace.
+msgid "WhatsApp на этом же номере"
+msgstr "WhatsApp uses this phone number"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Укажите телефон для WhatsApp."
+msgstr "Enter a phone number for WhatsApp."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Сначала отправьте сведения на проверку."
+msgstr "Submit the details for review first."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Выполнено: %(done)s. Пропущено: %(skipped)s. Для публикации нужны ожидающая заявка и права модерации; для снятия — отсутствие незавершённых изменений."
+msgstr "Completed: %(done)s. Skipped: %(skipped)s. Publishing requires a pending submission and review permission; withdrawal requires no unfinished changes."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Владелец создаваемой организации: %(owner)s. Передача другому владельцу выполняется отдельно с подтверждением."
+msgstr "The new organization owner is %(owner)s. Transfer to another owner requires a separate confirmation."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Найдено похожее название. Проверьте существующую карточку или подтвердите отдельное создание."
+msgstr "A similar name exists. Check the existing card or confirm creating a separate one."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Укажите название на азербайджанском языке."
+msgstr "Enter the Azerbaijani name."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Проверить подключение"
+msgstr "Review affiliation"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Подтвердить подключение"
+msgstr "Confirm affiliation"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Место станет филиалом этой организации. Владелец места сохранится. Владелец сети и её уполномоченные сотрудники получат доступ в рамках действующих прав. Публикация места не изменится."
+msgstr "The place will become a branch of this organization. Its owner will stay the same. The network owner and authorized team members will gain access within their existing permissions. The publication status of the place will not change."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Запрос уже обработан или данные изменились. Проверьте актуальное подключение."
+msgstr "This request has already been processed or the details have changed. Check the current affiliation."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Вернуться к уведомлениям"
+msgstr "Back to notifications"
+
+#. Organization flow consistency and progressive workspace.
+msgid "Опубликовать выбранные организации."
+msgstr "Publish selected organizations."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Снять выбранные организации с публикации."
+msgstr "Unpublish selected organizations."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Статистика организаций"
+msgstr "Organization statistics"
+
+#. Organization flow consistency and progressive workspace.
+msgid "По выбранным фильтрам организаций нет. Сбросьте фильтры для просмотра всех записей."
+msgstr "No organizations match these filters. Clear the filters to see all records."
+
+#. Organization flow consistency and progressive workspace.
+msgid "По запросу «%(q)s» организаций не найдено. Сбросьте фильтры или измените запрос."
+msgstr "No organizations found for “%(q)s”. Clear the filters or change the search."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Организация #%(id)s: нет прав для этого действия."
+msgstr "Organization #%(id)s: you do not have permission for this action."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Данные изменились или переход недоступен. Откройте карточку и проверьте заявку."
+msgstr "The details have changed or the transition is unavailable. Open the card and check the submission."
+
+#. Organization flow consistency and progressive workspace.
+msgid "Организация #%(id)s: %(reason)s"
+msgstr "Organization #%(id)s: %(reason)s"
+
+#. Organization flow consistency and progressive workspace.
+msgid "0 из 0"
+msgstr "0 of 0"
+
+#. Organization flow consistency and progressive workspace.
+msgid "%(start)s–%(end)s из %(total)s"
+msgstr "%(start)s–%(end)s of %(total)s"

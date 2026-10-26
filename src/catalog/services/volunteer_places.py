@@ -253,18 +253,61 @@ def save_proposal(*, user, place_id, data, files):
     )
 
 
-@transaction.atomic
-def restart_proposal(*, user, place_id, version):
-    from catalog.services import publication
-    actor=publication.fresh_actor(user);place=publication.locked_target('place',place_id)
-    publication.authorize(actor,place,'place')
-    if not own_places(actor).filter(pk=place_id).exists():raise PermissionDenied
-    revision=get_object_or_404(VolunteerPlaceRevision.objects.select_for_update(),place=place)
-    _check_version(revision,version)
-    revision.payload={};revision.changed_fields=[];revision.base_snapshot=publication.snapshot(place,'place')
-    revision.dependencies=publication.dependencies(place,'place');revision.base_content_version=place.content_version;revision.schema_version=publication.SCHEMA_VERSION
-    revision.status='draft';revision.version+=1;revision.author=actor;revision.review_note='';revision.reviewed_by=None;revision.save()
+def _revision_history_snapshot(revision):
+    # Keep the entire candidate, including file references and review metadata.
+    return {field.attname: json_value(getattr(revision, field.attname))
+            for field in revision._meta.concrete_fields}
 
+
+@transaction.atomic
+def restart_working_revision(*, user, place_id, version, token, source):
+    from catalog.services import publication
+
+    actor = publication.fresh_actor(user)
+    allowed_places = _working_place_queryset(actor, source)
+    place = publication.locked_target('place', place_id)
+    publication.authorize(actor, place, 'place')
+    if not allowed_places.filter(pk=place.pk).exists():
+        raise PermissionDenied
+    revision = VolunteerPlaceRevision.objects.select_for_update().filter(place=place).first()
+    if revision is None or revision.status == VolunteerPlaceRevision.Status.APPROVED:
+        raise ValidationError(_("У места нет активной рабочей версии."))
+    _check_version(revision, version)
+    if not token_matches(token or '', place):
+        raise ValidationError(_("Карточка изменилась. Обновите страницу."))
+    if revision_base_matches(revision, place):
+        raise ValidationError(_("Рабочая версия уже актуальна. Обновите страницу."))
+
+    previous = _revision_history_snapshot(revision)
+    revision.payload = {}
+    revision.changed_fields = []
+    revision.base_snapshot = publication.snapshot(place, 'place')
+    revision.dependencies = publication.dependencies(place, 'place')
+    revision.base_content_version = place.content_version
+    revision.schema_version = publication.SCHEMA_VERSION
+    revision.status = VolunteerPlaceRevision.Status.DRAFT
+    revision.version += 1
+    # The administrator can recover another author's work without taking it over.
+    revision.review_note = ''
+    revision.reviewed_by = None
+    revision.submitted_at = None
+    revision.needs_changes_at = None
+    revision.moderated_at = None
+    revision.save()
+    PlaceChangeAudit.objects.create(
+        place=place, changed_by=actor, source=source,
+        field_name='working_revision_restart',
+        old_value=json.dumps(previous, ensure_ascii=False, cls=DjangoJSONEncoder),
+        new_value=json.dumps(_revision_history_snapshot(revision), ensure_ascii=False, cls=DjangoJSONEncoder),
+    )
+    return place, revision
+
+
+def restart_proposal(*, user, place_id, version, token):
+    return restart_working_revision(
+        user=user, place_id=place_id, version=version, token=token,
+        source=PlaceChangeAudit.SOURCE_VOLUNTEER,
+    )
 
 def require_reviewer(user):
     if not (user.is_authenticated and user.is_active and user.is_staff and user.is_superuser):

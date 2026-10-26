@@ -703,7 +703,8 @@ class VolunteerAccessTests(TestCase):
         url = f'/admin/volunteer/{place.pk}/edit/'
         response = self.client.post(url, self.editor_data(url))
         self.assertTrue(response.context['form'].errors)
-        response = self.client.post(url, {'action': 'restart', 'revision_version': revision.version})
+        response = self.client.post(url, {'action': 'restart', 'revision_version': revision.version,
+            'base_token': self.editor_data(url)['base_token']})
         self.assertEqual(response.status_code, 302)
         restarted = VolunteerPlaceRevision.objects.get(pk=revision.pk)
         self.assertEqual(restarted.payload, {})

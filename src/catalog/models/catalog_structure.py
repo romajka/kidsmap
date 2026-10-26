@@ -103,6 +103,9 @@ class Organization(TranslatedContent):
             models.CheckConstraint(condition=Q(ownership_version__gte=1), name='organization_ownership_positive')]
 
 
+    def __str__(self):
+        return self.name_az or self.name_ru or self.name_en or f'#{self.pk}'
+
     def save(self, *args, **kwargs):
         from catalog.services.organization_ownership import save_organization
         return save_organization(self, *args, **kwargs)

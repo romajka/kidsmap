@@ -5,7 +5,7 @@
 {% block title_plain %}{% if CURRENT_LANGUAGE == 'az' %}Təşkilatlarım{% elif CURRENT_LANGUAGE == 'en' %}My organizations{% else %}Мои организации{% endif %} | KidsMap{% endblock %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=20261020_release_r1">
-  <link rel="stylesheet" href="{% static 'css/pages/organization_workspace.css' %}">
+  <link rel="stylesheet" href="{% static 'css/pages/organization_workspace.css' %}?v=20261026_org_flow_v1">
 {% endblock %}
 {% block content %}
 <div class="account-page-wrapper org-workspace" data-workspace="{{ workspace_mode }}" data-user-id="{{ request.user.pk }}" {% if organization %}data-org-id="{{ organization.pk }}"{% endif %}>
@@ -57,7 +57,7 @@
                   <span>
                     <strong>{% if CURRENT_LANGUAGE == 'ru' and item.name_ru %}{{ item.name_ru }}{% elif CURRENT_LANGUAGE == 'en' and item.name_en %}{{ item.name_en }}{% else %}{{ item.name_az }}{% endif %}</strong>
                     <small>
-                      <span class="org-status-chip org-status-chip--{{ item.status }}">{{ item.get_status_display }}</span>
+                      <span class="org-status-chip org-status-chip--{% if item.directory_published %}published{% else %}draft{% endif %}">{% if item.directory_published %}{% translate "Опубликовано" %}{% else %}{% translate "Не опубликовано" %}{% endif %}</span>
                     </small>
                   </span>
                   <span class="material-symbols-rounded org-row__arrow" aria-hidden="true">arrow_forward</span>
@@ -99,7 +99,6 @@
                   <span>
                     <strong>{{ place.name_i18n }}</strong>
                     <small>{{ place.address }}</small>
-                    {% if not place.affiliation_is_current %}<small>{% translate "Связь неактуальна: доступ сети не действует" %}</small>{% endif %}
                     <small>{{ place.get_status_display }}</small>
                   </span>
                   <span class="material-symbols-rounded org-row__arrow" aria-hidden="true">arrow_forward</span>
@@ -128,7 +127,7 @@
             <h1>{% if CURRENT_LANGUAGE == 'ru' and organization.name_ru %}{{ organization.name_ru }}{% elif CURRENT_LANGUAGE == 'en' and organization.name_en %}{{ organization.name_en }}{% else %}{{ organization.name_az|default:'—' }}{% endif %}</h1>
             <div class="org-chips">
               <!-- Публичный статус -->
-              {% if organization.status == 'published' %}
+              {% if organization_is_public %}
                 <span class="org-status org-status--published" title="{% if CURRENT_LANGUAGE == 'az' %}Təşkilat KidsMap kataloqunda dərc olunub{% elif CURRENT_LANGUAGE == 'en' %}Published in directory{% else %}Опубликовано в каталоге{% endif %}">
                   <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
                   {% if CURRENT_LANGUAGE == 'az' %}Dərc olunub{% elif CURRENT_LANGUAGE == 'en' %}Published{% else %}Опубликовано на сайте{% endif %}
@@ -163,7 +162,7 @@
             </div>
           </div>
           {% if can_create_branch %}
-            <a class="account-btn-action" href="#org-create-branch">
+            <a class="account-btn-action" href="#org-branches">
               <span class="material-symbols-rounded" aria-hidden="true">add_location_alt</span>
               <span>{% if CURRENT_LANGUAGE == 'az' %}Filial əlavə et{% elif CURRENT_LANGUAGE == 'en' %}Add branch{% else %}Добавить филиал{% endif %}</span>
             </a>
@@ -181,94 +180,23 @@
           </div>
         {% endif %}
 
-        <!-- Onboarding Hub / Следующие шаги -->
-        <section class="org-onboarding-hub" aria-labelledby="org-onboarding-title">
-          <div class="org-onboarding-hub__head">
-            <span class="material-symbols-rounded" aria-hidden="true">checklist</span>
-            <h2 id="org-onboarding-title" class="org-onboarding-hub__title">
-              {% if CURRENT_LANGUAGE == 'az' %}Şəbəkənin işə salınması üçün növbəti addımlar{% elif CURRENT_LANGUAGE == 'en' %}Next steps to launch your network{% else %}Следующие шаги для запуска сети{% endif %}
-            </h2>
-          </div>
-          <div class="org-onboarding-hub__steps">
-            <!-- Шаг 1: Сведения -->
-            <div class="org-onboarding-step {% if has_details %}is-complete{% endif %}">
-              <div class="org-onboarding-step__icon">
-                <span class="material-symbols-rounded" aria-hidden="true">{% if has_details %}check_circle{% else %}radio_button_unchecked{% endif %}</span>
-              </div>
-              <div class="org-onboarding-step__content">
-                <strong>{% if CURRENT_LANGUAGE == 'az' %}1. Şəbəkə məlumatlarını doldurun{% elif CURRENT_LANGUAGE == 'en' %}1. Fill network details{% else %}1. Заполните сведения сети{% endif %}</strong>
-                <p>{% if CURRENT_LANGUAGE == 'az' %}Təsvir, sayt və vahid əlaqə nömrələri.{% elif CURRENT_LANGUAGE == 'en' %}Description, website and contacts.{% else %}Описание, сайт и общие контакты сети.{% endif %}</p>
-              </div>
-              <a href="#org-about" class="org-onboarding-step__btn">
-                {% if has_details %}{% if CURRENT_LANGUAGE == 'az' %}Bax{% elif CURRENT_LANGUAGE == 'en' %}View{% else %}Смотреть{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Doldur →{% elif CURRENT_LANGUAGE == 'en' %}Fill in →{% else %}Заполнить →{% endif %}{% endif %}
-              </a>
-            </div>
-
-            <!-- Шаг 2: Филиалы -->
-            <div class="org-onboarding-step {% if has_branches %}is-complete{% endif %}">
-              <div class="org-onboarding-step__icon">
-                <span class="material-symbols-rounded" aria-hidden="true">{% if has_branches %}check_circle{% else %}radio_button_unchecked{% endif %}</span>
-              </div>
-              <div class="org-onboarding-step__content">
-                <strong>{% if CURRENT_LANGUAGE == 'az' %}2. Filial yaradın və ya məkan qoşun{% elif CURRENT_LANGUAGE == 'en' %}2. Add or connect branches{% else %}2. Добавьте или свяжите филиалы{% endif %}</strong>
-                <p>{% if CURRENT_LANGUAGE == 'az' %}Hazırda {{ branches|length }} filial mövcuddur.{% elif CURRENT_LANGUAGE == 'en' %}Currently {{ branches|length }} branches.{% else %}Сейчас в сети: {{ branches|length }} филиалов.{% endif %}</p>
-              </div>
-              <a href="#org-branches" class="org-onboarding-step__btn">
-                {% if has_branches %}{% if CURRENT_LANGUAGE == 'az' %}İdarə et{% elif CURRENT_LANGUAGE == 'en' %}Manage{% else %}Управлять{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Filial əlavə et →{% elif CURRENT_LANGUAGE == 'en' %}Add branch →{% else %}Добавить филиал →{% endif %}{% endif %}
-              </a>
-            </div>
-
-            <!-- Шаг 3: Команда -->
-            <div class="org-onboarding-step {% if has_team %}is-complete{% endif %}">
-              <div class="org-onboarding-step__icon">
-                <span class="material-symbols-rounded" aria-hidden="true">{% if has_team %}check_circle{% else %}radio_button_unchecked{% endif %}</span>
-              </div>
-              <div class="org-onboarding-step__content">
-                <strong>{% if CURRENT_LANGUAGE == 'az' %}3. Əməkdaşları təyin edin{% elif CURRENT_LANGUAGE == 'en' %}3. Invite team members{% else %}3. Настройте сотрудников{% endif %}</strong>
-                <p>{% if CURRENT_LANGUAGE == 'az' %}Menecerlər və redaktorlar üçün hüquqlar təyin edin.{% elif CURRENT_LANGUAGE == 'en' %}Assign roles for managers and editors.{% else %}Назначьте менеджеров и редакторов филиалов.{% endif %}</p>
-              </div>
-              <a href="#org-team" class="org-onboarding-step__btn">
-                {% if has_team %}{% if CURRENT_LANGUAGE == 'az' %}Komanda{% elif CURRENT_LANGUAGE == 'en' %}Team{% else %}Команда{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Dəvət et →{% elif CURRENT_LANGUAGE == 'en' %}Invite →{% else %}Пригласить →{% endif %}{% endif %}
-              </a>
-            </div>
-          </div>
+        <section class="org-launch" aria-label="{% translate 'Следующие шаги' %}">
+          <ol class="org-launch__steps">
+            <li><strong>{% translate 'Профиль создан' %}</strong></li>
+            <li><a href="#org-branches">{% translate 'Добавьте филиал или продолжите позже' %}</a></li>
+            <li><a href="#org-about">{% if revision.status == 'pending' %}{% translate 'Сведения на проверке' %}{% elif organization_is_public %}{% translate 'Организация опубликована' %}{% else %}{% translate 'Проверьте сведения и отправьте на модерацию' %}{% endif %}</a></li>
+          </ol>
+          <p class="org-muted">{% translate 'Публикация организации и каждого филиала проверяется отдельно. Сотрудники и программы необязательны.' %}</p>
         </section>
-
-        <!-- Разделы навигации (Tabs) -->
-        <nav class="org-tabs" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Təşkilat bölmələri{% elif CURRENT_LANGUAGE == 'en' %}Organization sections{% else %}Разделы организации{% endif %}">
-          <a href="#org-overview">{% if CURRENT_LANGUAGE == 'az' %}İcmal{% elif CURRENT_LANGUAGE == 'en' %}Overview{% else %}Обзор{% endif %}</a>
-          <a href="#org-branches">{% if CURRENT_LANGUAGE == 'az' %}Filiallar ({{ branches|length }}){% elif CURRENT_LANGUAGE == 'en' %}Branches ({{ branches|length }}){% else %}Филиалы ({{ branches|length }}){% endif %}</a>
-          <a href="#org-programs">{% if CURRENT_LANGUAGE == 'az' %}Proqramlar ({{ programs|length }}){% elif CURRENT_LANGUAGE == 'en' %}Programs ({{ programs|length }}){% else %}Программы ({{ programs|length }}){% endif %}</a>
-          <a href="#org-team">{% if CURRENT_LANGUAGE == 'az' %}Komanda{% elif CURRENT_LANGUAGE == 'en' %}Team{% else %}Сотрудники{% endif %}</a>
-          <a href="#org-about">{% if CURRENT_LANGUAGE == 'az' %}Məlumat və rekvizitlər{% elif CURRENT_LANGUAGE == 'en' %}About{% else %}Сведения и реквизиты{% endif %}</a>
+        <nav class="org-tabs" data-org-tabs aria-label="{% translate 'Разделы организации' %}">
+          <a id="org-tab-branches" href="#org-branches" data-org-tab="org-branches">{% translate 'Филиалы' %} ({{ branches|length }})</a>
+          <a id="org-tab-about" href="#org-about" data-org-tab="org-about">{% translate 'Профиль' %}</a>
+          <a id="org-tab-extra" href="#org-extra" data-org-tab="org-extra">{% translate 'Дополнительно' %}</a>
         </nav>
-
-        {% if is_specialists_section_enabled and organization.owner_id == request.user.pk %}
-          <p class="org-specialist-link-wrap">
-            <a class="account-btn-sm account-btn-sm--secondary" href="{% url 'organization_specialists' organization.pk %}">
-              <span class="material-symbols-rounded" aria-hidden="true">person</span>
-              <span>{% if CURRENT_LANGUAGE == 'az' %}Mütəxəssislərlə əməkdaşlıq{% elif CURRENT_LANGUAGE == 'en' %}Specialist cooperation{% else %}Сотрудничество со специалистами{% endif %}</span>
-            </a>
-          </p>
-        {% endif %}
-
-        <!-- Обзор (Overview) -->
-        <section id="org-overview" class="org-section" tabindex="-1">
-          <h2>{% if CURRENT_LANGUAGE == 'az' %}İcmal{% elif CURRENT_LANGUAGE == 'en' %}Overview{% else %}Обзор{% endif %}</h2>
-          <div class="org-metrics">
-            <p><strong>{{ branches|length }}</strong><span>{% if CURRENT_LANGUAGE == 'az' %}Görünən filial{% elif CURRENT_LANGUAGE == 'en' %}Visible branches{% else %}Доступные филиалы{% endif %}</span></p>
-            <p><strong>{{ programs|length }}</strong><span>{% if CURRENT_LANGUAGE == 'az' %}Proqram{% elif CURRENT_LANGUAGE == 'en' %}Programs{% else %}Программы{% endif %}</span></p>
-          </div>
-          {% if pending_requests %}
-            <div class="org-alert" role="status">
-              <span class="material-symbols-rounded" aria-hidden="true">pending_actions</span>
-              <span>{% if CURRENT_LANGUAGE == 'az' %}Qoşulma təsdiq gözləyir ({{ pending_requests|length }} sorğu){% elif CURRENT_LANGUAGE == 'en' %}Join awaits confirmation{% else %}Присоединение ждёт подтверждения{% endif %}</span>
-            </div>
-          {% endif %}
-        </section>
+        {% if pending_requests %}<p class="org-alert" role="status">{% translate 'Присоединение ждёт подтверждения' %}: {{ pending_requests|length }}</p>{% endif %}
 
         <!-- Филиалы (Branches) -->
-        <section id="org-branches" class="org-section" tabindex="-1">
+        <section id="org-branches" class="org-section" data-org-panel aria-labelledby="org-tab-branches" tabindex="-1">
           <div class="org-section-head">
             <h2>{% if CURRENT_LANGUAGE == 'az' %}Filiallar{% elif CURRENT_LANGUAGE == 'en' %}Branches{% else %}Филиалы{% endif %}</h2>
             {% if can_create_branch %}
@@ -329,8 +257,8 @@
           {% endif %}
 
           {% if can_create_branch %}
-            <div class="org-action-panel org-control-panel" id="org-create-branch">
-              <h3>{% if CURRENT_LANGUAGE == 'az' %}Yeni filial yarat{% elif CURRENT_LANGUAGE == 'en' %}Create new branch{% else %}Создать новый филиал{% endif %}</h3>
+            <details class="org-action-panel org-control-panel" id="org-create-branch" {% if branch_form.errors or branch_duplicate_detected %}open{% endif %}>
+              <summary>{% if CURRENT_LANGUAGE == 'az' %}Yeni filial yarat{% elif CURRENT_LANGUAGE == 'en' %}Create new branch{% else %}Создать новый филиал{% endif %}</summary>
               <form class="org-control-form" method="post" action="{% url 'organization_workspace_branch_create' organization.pk %}">
                 {% csrf_token %}
                 {{ branch_form.non_field_errors }}
@@ -359,7 +287,7 @@
                   {% if CURRENT_LANGUAGE == 'az' %}Filial yarat{% elif CURRENT_LANGUAGE == 'en' %}Create branch{% else %}Создать филиал{% endif %}
                 </button>
               </form>
-            </div>
+            </details>
           {% endif %}
 
           {% if is_owner %}
@@ -379,6 +307,16 @@
             </div>
           {% endif %}
         </section>
+
+        <div id="org-extra" data-org-panel aria-labelledby="org-tab-extra" tabindex="-1">
+        {% if is_specialists_section_enabled and organization.owner_id == request.user.pk %}
+          <p class="org-specialist-link-wrap">
+            <a class="account-btn-sm account-btn-sm--secondary" href="{% url 'organization_specialists' organization.pk %}">
+              <span class="material-symbols-rounded" aria-hidden="true">person</span>
+              <span>{% if CURRENT_LANGUAGE == 'az' %}Mütəxəssislərlə əməkdaşlıq{% elif CURRENT_LANGUAGE == 'en' %}Specialist cooperation{% else %}Сотрудничество со специалистами{% endif %}</span>
+            </a>
+          </p>
+        {% endif %}
 
         <!-- Программы (Programs) -->
         <section id="org-programs" class="org-section" tabindex="-1">
@@ -532,9 +470,10 @@
           {% endif %}
         </section>
 
-        <!-- Сведения и реквизиты (About) -->
-        <section id="org-about" class="org-section" tabindex="-1">
-          <h2>{% if CURRENT_LANGUAGE == 'az' %}Məlumat və rekvizitlər{% elif CURRENT_LANGUAGE == 'en' %}About{% else %}Сведения и реквизиты{% endif %}</h2>
+        </div>
+        <!-- Профиль организации -->
+        <section id="org-about" class="org-section" data-org-panel aria-labelledby="org-tab-about" tabindex="-1">
+          <h2>{% if CURRENT_LANGUAGE == 'az' %}Təşkilatın profili{% elif CURRENT_LANGUAGE == 'en' %}About{% else %}Профиль организации{% endif %}</h2>
 
           {% if revision and revision.status == 'rejected' %}
             <div class="org-alert org-alert--error" role="status">
@@ -576,6 +515,7 @@
               {{ candidate_form.expected_version }}
               {{ candidate_form.revision_version }}
 
+              <label class="org-check">{{ candidate_form.whatsapp_same_as_phone }} {{ candidate_form.whatsapp_same_as_phone.label }}</label>
               <div class="org-fields">
                 <div class="org-editor-field{% if candidate_form.name_az.errors %} has-error{% endif %}"><label>
                   {% if CURRENT_LANGUAGE == 'az' %}Ad (AZ){% elif CURRENT_LANGUAGE == 'en' %}Name (AZ){% else %}Название (AZ){% endif %}
@@ -629,5 +569,5 @@
   </div>
 </div>
 {% if organization_create_confirmation %}{{ organization_create_confirmation|json_script:"org-create-confirmation" }}{% endif %}
-<script src="{% static 'js/organization_workspace.js' %}" defer></script>
+<script src="{% static 'js/organization_workspace.js' %}?v=20261026_org_flow_v1" defer></script>
 {% endblock %}

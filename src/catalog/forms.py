@@ -24,6 +24,7 @@ from django.utils.translation import get_language, gettext as translate, gettext
 from catalog.content_data import BAKU_METRO_STATIONS
 from catalog.models import CatalogContentSettings, Event, Place, UserProfile, Category, Subcategory, Specialist, SpecialistSpecialization, Region, District, MetroStation
 from catalog.services.place_schedule import (
+    build_default_schedule_payload,
     dump_schedule_payload,
     is_meaningful_schedule,
     serialize_place_schedule,
@@ -140,8 +141,9 @@ class PlaceScheduleEditorFormMixin:
                 "is_24_hours": day["is_24_hours"],
                 "intervals": day["intervals"],
                 "errors": [],
+                "is_unknown": not payload,
             }
-            for day in payload
+            for day in (payload or build_default_schedule_payload())
         ]
         self.schedule_legacy_value = (getattr(instance, "schedule", "") or "").strip()
         self.fields["schedule"].widget = forms.HiddenInput()
@@ -161,8 +163,9 @@ class PlaceScheduleEditorFormMixin:
                 "is_24_hours": day["is_24_hours"],
                 "intervals": day["intervals"],
                 "errors": self.schedule_editor_errors.get(day["weekday"], []),
+                "is_unknown": not validation.days,
             }
-            for day in validation.days
+            for day in (validation.days or build_default_schedule_payload())
         ]
 
         if self.schedule_editor_errors:

@@ -49,7 +49,20 @@ def readiness_presentation_snapshot(form):
     if form.is_bound and hasattr(form, 'cleaned_data'):
         snapshot = form
     else:
-        values = {name: form[name].value() for name in form.fields}
+        from django.forms import JSONField
+        values = {}
+        for name, field in form.fields.items():
+            bound = form[name]
+            raw = bound.data if form.is_bound else None
+            values[name] = (raw if isinstance(field, JSONField) and not field.disabled
+                            and isinstance(raw, (list, dict)) else bound.value())
+        # Location widgets split the stored city/district column. Outside Baku
+        # the district select is empty; the selected region is the stored value.
+        # Only project unbound forms here: POST normalization belongs to clean().
+        if not form.is_bound:
+            region = values.get('region')
+            if region and (region != 'baku' or getattr(form.instance, 'district', '') == 'baku'):
+                values['district'] = region
         for name in ('pricing_plans', 'nested_pricing', 'structured_schedule'):
             if isinstance(values.get(name), str):
                 try:

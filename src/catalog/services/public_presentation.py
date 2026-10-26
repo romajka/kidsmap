@@ -82,7 +82,10 @@ def contact_data(obj):
     mode = getattr(place, 'whatsapp_mode', 'legacy') if place else 'legacy'
     whatsapp_source = ''
     whatsapp_number = ''
-    if mode == 'separate':
+    if place is None:
+        whatsapp_contact = org.whatsapp if org else ''
+        whatsapp_source = 'organization' if whatsapp_contact else ''
+    elif mode == 'separate':
         whatsapp_contact = getattr(place, 'whatsapp_number', '')
         whatsapp_source = 'place'
     elif mode == 'same':

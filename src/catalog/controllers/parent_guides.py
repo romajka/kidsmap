@@ -159,6 +159,6 @@ def parent_guide(request, slug):
         'guide_related_url': reverse('parent_guide', kwargs={'slug': related_slug}),
         'guide_catalog_url': catalog_url, 'guide_add_url': reverse('add_place'),
         'guide_quick_choices': quick_choices, 'guide_faq': faq_items,
-        'seo_title': guide['title'] + ' — KidsMap',
+        'seo_title': guide.get('seo_title', guide['title']) + ' — KidsMap',
         'guide_article_json': _json_ld(article), 'guide_breadcrumbs_json': _json_ld(breadcrumbs),
     })

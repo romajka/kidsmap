@@ -20,7 +20,7 @@
 <script src="{% static 'js/kidsmap_native_draft_media.js' %}?v=20261025_adminparity1" defer></script>
 <script src="{% static 'js/kidsmap_draft_media.js' %}?v=20261025_workflow3" defer></script>
 <script src="{% static 'js/kidsmap_staff_drafts.js' %}?v=20261025_live4" defer></script>
-<script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=20261025_polish1" defer></script>
+<script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=20261026_unknown_schedule" defer></script>
 <script src="{% static 'js/kidsmap_pricing_editor.js' %}?v=20261025_polish1" defer></script>
 <script src="{% static 'js/kidsmap_dependent_subcategory.js' %}" defer></script>
 <script src="{% static 'js/owner_place_map_picker.js' %}?v=20261025_workflow3" defer></script>
@@ -30,5 +30,4 @@
 {{ km_place_taxonomy_picker|json_script:"km-place-taxonomy-config" }}
 {% if duplicate_existing_url %}<section data-volunteer-duplicate-alert class="km-pf-alert km-pf-alert--warn" role="alert"><strong>{{ editor_copy.duplicate_title }}</strong> <a href="{{ duplicate_existing_url }}">{{ editor_copy.duplicate_open }}</a></section>{% endif %}
 {% include "admin/volunteer/place_form.html" %}
-{% if conflict %}<form method="post" class="km-volunteer-actions">{% csrf_token %}<input type="hidden" name="revision_version" value="{{ revision.version }}"><button type="submit" name="action" value="restart" class="btn btn-outline-secondary">{% translate "Заменить мой черновик текущей версией" %}</button></form>{% endif %}
 {% endblock %}

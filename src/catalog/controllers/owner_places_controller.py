@@ -482,6 +482,13 @@ class OwnerPlacesController:
             draft_form = OwnerPlaceEditForm(data=data, instance=instance, draft_save_only=True)
             draft_form.is_valid()
             progress = editor_readiness(draft_form)
+            _req = progress.get('required_count', 0)
+            _comp = progress.get('completed_count', 0)
+            _pct = int(round((_comp / _req) * 100)) if _req > 0 else 0
+            progress['percentage'] = max(0, min(100, _pct))
+            progress['tier'] = 'high' if progress['percentage'] >= 80 else ('medium' if progress['percentage'] >= 40 else 'low')
+            progress['missing_labels'] = [i.get('label') for i in progress.get('issues', []) if i.get('label')]
+            progress['completed_labels'] = [i.get('label') for i in progress.get('items', []) if i.get('complete') and i.get('label')]
             row = {**place_working_draft_card(draft, language=getattr(request, 'LANGUAGE_CODE', None)), 'needs_review': needs_review, 'readiness': progress}
             if target is not None:
                 target.working_draft = row

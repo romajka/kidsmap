@@ -55,7 +55,7 @@ from catalog.services.image_uploads import normalize_uploaded_image
 from catalog.services.place_readiness import (
     PLACE_READINESS_REQUIREMENTS,
     evaluate_form_readiness,
-    evaluate_place_readiness,
+    evaluate_saved_place_readiness,
     format_readiness_issues,
     publication_blocked_message,
 )
@@ -2127,9 +2127,26 @@ class PlaceAdmin(admin.ModelAdmin):
         from catalog.services.place_editor_drafts import config_for
         from catalog.services.place_taxonomy_config import build_place_taxonomy_config
         from catalog.services.volunteer_editor import editor_context
-        from catalog.services.volunteer_places import editor_form, live_snapshot, save_working_revision, revision_base_matches
+        from catalog.services.volunteer_places import (
+            editor_form, live_snapshot, save_working_revision, revision_base_matches,
+            restart_working_revision,
+        )
 
         if request.method == "POST":
+            if request.POST.get("action") == "restart":
+                try:
+                    restart_working_revision(
+                        user=request.user, place_id=obj.pk,
+                        version=int(request.POST.get("revision_version", -1)),
+                        token=request.POST.get("base_token", ""),
+                        source=PlaceChangeAudit.SOURCE_ADMIN,
+                    )
+                except (ValueError, ValidationError) as exc:
+                    message = "; ".join(exc.messages) if isinstance(exc, ValidationError) else _("Обновите страницу.")
+                    self.message_user(request, message, level=messages.ERROR)
+                else:
+                    self.message_user(request, _("Загружена текущая версия. Предыдущие правки сохранены в истории."), level=messages.SUCCESS)
+                return HttpResponseRedirect(request.path)
             if request.POST.get("action") != "admin_save":
                 raise PermissionDenied
             obj, revision, form = save_working_revision(
@@ -3003,7 +3020,9 @@ class PlaceAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         public_match = public_place_queryset(Place.objects.filter(pk=OuterRef("pk")))
-        return queryset.annotate(km_in_public_catalog=Exists(public_match)).prefetch_related(
+        return queryset.annotate(km_in_public_catalog=Exists(public_match)).select_related(
+            "volunteer_revision", "subcategory__category",
+        ).prefetch_related(
             "gallery",
             "schedule_days",
             "pricing_plan_records",
@@ -3200,7 +3219,7 @@ class PlaceAdmin(admin.ModelAdmin):
     def col_state(self, obj):
         # The row badge, its popover and the publish button must not argue:
         # every flag below is one of the twelve readiness items.
-        readiness = evaluate_place_readiness(obj)
+        readiness = evaluate_saved_place_readiness(obj)
         score = readiness.percentage
         completed = {item.code: item.is_complete for item in readiness.items}
         bar_color_class = "km-bar--warn" if score < 60 else "km-bar--good"
@@ -3835,7 +3854,7 @@ class PlaceAdmin(admin.ModelAdmin):
             return ("allowed", "") if ok else ("disabled", reason)
 
         publish = rule(not deleted and can_change)
-        if publish[0] == "allowed" and not published and not quality.is_ready:
+        if publish[0] == "allowed" and not published and not evaluate_saved_place_readiness(obj).is_ready:
             publish = ("conditional", str(_("Заполните обязательные данные перед публикацией.")))
         home = rule(not deleted and can_change)
         if home[0] == "allowed" and not obj.is_home_recommended and (not published or quality.score < 100):
@@ -4844,7 +4863,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 })
             self.message_user(request, msg, messages.SUCCESS)
         else:
-            readiness = evaluate_place_readiness(place)
+            readiness = evaluate_saved_place_readiness(place)
             if not readiness.is_ready:
                 err_text = _("Нельзя опубликовать. Заполнено %(done)s из %(total)s обязательных пунктов. Исправьте: %(reasons)s.") % {
                     "done": readiness.completed_count,
@@ -5451,6 +5470,13 @@ class PlaceAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         from catalog.services.publication_forms import save_form,create_from_form,save_admin_metadata
         if change and obj.pk:
+            if "_publish_place" in request.POST:
+                # The explicit review may save staff corrections before publish.
+                # Remember the signed, validated version the reviewer opened;
+                # newer or already stale requests must not join that decision.
+                from catalog.services.publication_forms import source_version
+                reviewed = source_version(form, Place.objects.get(pk=obj.pk))
+                request._km_reviewed_publication_source = (reviewed['source'], reviewed['candidate'])
             save_form(actor=request.user,form=form,submit="_save_draft" not in request.POST)
             obj.refresh_from_db()
         else:
@@ -5470,9 +5496,13 @@ class PlaceAdmin(admin.ModelAdmin):
                 formset.changed_objects = []
                 formset.deleted_objects = []
             if "_publish_place" in request.POST:
-                from catalog.services.publication import publish
+                from catalog.services.publication import publish, _complete_publication_requests
                 publish(actor=request.user,place_id=form.instance.pk,expected_version=form.instance.content_version)
                 form.instance.refresh_from_db()
+                reviewed = getattr(request, '_km_reviewed_publication_source', None)
+                if reviewed:
+                    _complete_publication_requests(actor=request.user, place=form.instance,
+                        source_version=reviewed[0], candidate_version=reviewed[1])
             return
         super().save_related(request, form, formsets, change)
         self._save_filepond_gallery_uploads(request, form.instance)

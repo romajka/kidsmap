@@ -552,7 +552,7 @@ class PublicPricingSummaryTests(TestCase):
         self.assertEqual(rows_en[1]["time"], "24h")
         self.assertEqual(rows_en[3]["time"], "Closed")
         
-        # 3. All closed / empty schedule check
+        # 3. Explicitly closed days are different from an unknown schedule
         self.place.schedule = ""
         self.place.save()
         schedule_closed = [
@@ -566,7 +566,9 @@ class PublicPricingSummaryTests(TestCase):
         ]
         sync_place_schedule(self.place, schedule_closed)
         summary_closed = build_pricing_summary(self.place, "ru")
-        self.assertEqual(len(summary_closed["schedule_rows"]), 0)
+        self.assertEqual(summary_closed["schedule_rows"][0]["time"], "Закрыто")
+        sync_place_schedule(self.place, [])
+        self.assertEqual(build_pricing_summary(self.place, "ru")["schedule_rows"], [])
 
     def test_non_regular_schedule_modes_do_not_require_weekday_intervals(self):
         from catalog.services.pricing_plans import build_pricing_summary

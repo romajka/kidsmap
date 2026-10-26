@@ -2,19 +2,78 @@
 {% if working_drafts_overview %}
 <div class="account-card-box" id="account-working-drafts">
   <div class="account-card-box__head">
-    <h2>{% if CURRENT_LANGUAGE == 'az' %}Davam etmək üçün saxlanılıb{% elif CURRENT_LANGUAGE == 'en' %}Saved for later{% else %}Сохранено для продолжения{% endif %} <span class="account-badge-counter">{{ working_drafts_overview_count }}</span></h2>
+    <h2>
+      <span class="material-symbols-rounded account-card-box__title-icon" aria-hidden="true">edit_note</span>
+      {% if CURRENT_LANGUAGE == 'az' %}Davam etmək üçün saxlanılıb{% elif CURRENT_LANGUAGE == 'en' %}Saved for later{% else %}Сохранено для продолжения{% endif %}
+      <span class="account-badge-counter">{{ working_drafts_overview_count }}</span>
+    </h2>
     <a class="account-link-all" href="{% url 'owner_places_dashboard' %}#owner-working-drafts-panel">{% if CURRENT_LANGUAGE == 'az' %}Bütün qaralamalar{% elif CURRENT_LANGUAGE == 'en' %}All drafts{% else %}Все черновики{% endif %} →</a>
   </div>
-  <div class="account-places-list">
+  <div class="account-drafts-list">
     {% for draft in working_drafts_overview %}
-      <a class="account-place-item" data-working-draft-id="{{ draft.id }}" href="{{ draft.url }}">
-        <span class="material-symbols-rounded account-place-item__icon" aria-hidden="true">edit_note</span>
-        <div class="account-place-item__info">
-          <strong class="account-place-item__name">{{ draft.title }}</strong>
-          <span class="account-place-item__meta">{% if CURRENT_LANGUAGE == 'az' %}Saxlanıldı{% elif CURRENT_LANGUAGE == 'en' %}Saved{% else %}Сохранено{% endif %} {{ draft.saved_at|date:'d.m.Y H:i' }}</span>
+      <article class="account-draft-row" data-working-draft-id="{{ draft.id }}">
+        <div class="account-draft-row__top">
+          <div class="account-draft-row__header">
+            <div class="account-draft-row__icon-wrap">
+              <span class="material-symbols-rounded" aria-hidden="true">edit_note</span>
+            </div>
+            <div class="account-draft-row__titles">
+              <a class="account-draft-row__title" href="{{ draft.url }}">{{ draft.title }}</a>
+              <div class="account-draft-row__meta">
+                <span class="material-symbols-rounded" aria-hidden="true">schedule</span>
+                <span>{% if CURRENT_LANGUAGE == 'az' %}Saxlanıldı{% elif CURRENT_LANGUAGE == 'en' %}Saved{% else %}Сохранено{% endif %} {{ draft.saved_at|date:'d.m.Y H:i' }}</span>
+              </div>
+            </div>
+          </div>
+          <a class="account-btn-sm account-btn-sm--primary account-draft-row__btn" href="{{ draft.url }}">
+            <span>{% if CURRENT_LANGUAGE == 'az' %}Davam et{% elif CURRENT_LANGUAGE == 'en' %}Continue{% else %}Продолжить{% endif %}</span>
+            <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+          </a>
         </div>
-        <span class="account-status-pill account-status-pill--draft">{% if CURRENT_LANGUAGE == 'az' %}Davam et{% elif CURRENT_LANGUAGE == 'en' %}Continue{% else %}Продолжить{% endif %}</span>
-      </a>
+
+        {% if draft.readiness %}
+          <div class="account-draft-row__progress">
+            <div class="account-draft-row__stats">
+              <span class="account-draft-row__stat-text">
+                {% if CURRENT_LANGUAGE == 'az' %}
+                  Doldurulub: <strong>{{ draft.readiness.completed_count }}</strong> / {{ draft.readiness.required_count }}
+                {% elif CURRENT_LANGUAGE == 'en' %}
+                  Completed: <strong>{{ draft.readiness.completed_count }}</strong> of {{ draft.readiness.required_count }}
+                {% else %}
+                  Заполнено <strong>{{ draft.readiness.completed_count }}</strong> из {{ draft.readiness.required_count }}
+                {% endif %}
+                <span class="account-draft-row__stat-pct">({{ draft.readiness.percentage }}%)</span>
+              </span>
+              {% if draft.readiness.is_ready %}
+                <span class="account-card-readiness-pill account-card-readiness-pill--ready">
+                  <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+                  <span>{% if CURRENT_LANGUAGE == 'az' %}Hazırdır{% elif CURRENT_LANGUAGE == 'en' %}Ready{% else %}Готово к отправке{% endif %}</span>
+                </span>
+              {% endif %}
+            </div>
+
+            <div class="account-card-progress__track">
+              <div class="account-card-progress__fill" style="width: {{ draft.readiness.percentage }}%;"></div>
+            </div>
+
+            {% if draft.readiness.missing_labels %}
+              <div class="account-draft-missing">
+                <span class="account-draft-missing__label">
+                  {% if CURRENT_LANGUAGE == 'az' %}Qalıb:{% elif CURRENT_LANGUAGE == 'en' %}Remaining:{% else %}Осталось заполнить:{% endif %}
+                </span>
+                <div class="account-draft-chips">
+                  {% for label in draft.readiness.missing_labels|slice:":4" %}
+                    <span class="account-draft-chip">{{ label }}</span>
+                  {% endfor %}
+                  {% if draft.readiness.missing_labels|length > 4 %}
+                    <span class="account-draft-chip account-draft-chip--more">+{{ draft.readiness.missing_labels|length|add:"-4" }}</span>
+                  {% endif %}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+      </article>
     {% endfor %}
   </div>
 </div>

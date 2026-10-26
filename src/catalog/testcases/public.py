@@ -562,7 +562,7 @@ class TestPublicPagesSmoke(TestCase):
         response = self.client.get("/en/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "<title>Clubs and activities for kids in Azerbaijan | KidsMap</title>", html=True)
+        self.assertContains(response, "<title>Places, clubs and activities for kids in Azerbaijan | KidsMap</title>", html=True)
 
     def test_en_reviews_page_sets_html_lang_and_translates_apply_button(self):
         response = self.client.get("/en/reviews/")

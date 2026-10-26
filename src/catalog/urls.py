@@ -92,7 +92,7 @@ from .views import (
 from catalog.controllers.organization_ownership_api import organization_ownership_action
 from catalog.controllers.group_conditions import confirm_group_conditions
 from catalog.controllers.program_workspace import program_create, program_detail, program_save
-from catalog.controllers.organization_workspace import (organization_index, organization_create, organization_detail, organization_branch, organization_save, organization_join, organization_confirm, organization_detach, organization_branch_create, organization_join_recovery, organization_cancel)
+from catalog.controllers.organization_workspace import (organization_index, organization_create, organization_detail, organization_branch, organization_save, organization_join, organization_confirm, organization_confirm_preview, organization_detach, organization_branch_create, organization_join_recovery, organization_cancel)
 
 urlpatterns = [
     path("parents/", include("catalog.parent_guide_urls")),
@@ -127,6 +127,7 @@ urlpatterns = [
     path('account/organizations/<int:org_id>/requests/<int:request_id>/recovery/', organization_join_recovery, name='organization_join_recovery'),
     path('account/organizations/<int:org_id>/requests/<int:request_id>/cancel/', organization_cancel, name='organization_workspace_cancel'),
     path('account/organizations/<int:org_id>/requests/<int:request_id>/confirm/', organization_confirm, name='organization_workspace_confirm'),
+    path('account/organizations/<int:org_id>/requests/<int:request_id>/confirm-preview/', organization_confirm_preview, name='organization_confirm_preview'),
     path('account/organizations/<int:org_id>/branches/<int:place_id>/detach/', organization_detach, name='organization_workspace_detach'),
     path('account/places/<int:place_id>/groups/<int:group_id>/confirm-conditions/', confirm_group_conditions, name='owner_group_confirm_conditions'),
     path("api/drafts/", draft_collection, name="server_draft_collection"),

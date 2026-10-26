@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+{% block title %}{% translate 'Проверить подключение' %}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/organization_workspace.css' %}">{% endblock %}
+{% block content %}
+<section class="org-recovery" aria-labelledby="org-confirm-title">
+  <h1 id="org-confirm-title">{% translate 'Проверить подключение' %}</h1>
+  <p><strong>{{ item.place.name_i18n }}</strong> → <strong>{{ item.organization.name_az }}</strong></p>
+  <p>{% translate 'Место станет филиалом этой организации. Владелец места сохранится. Владелец сети и её уполномоченные сотрудники получат доступ в рамках действующих прав. Публикация места не изменится.' %}</p>
+  {% if current %}
+    <form method="post" action="{% url 'organization_workspace_confirm' item.organization_id item.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="org-btn">{% translate 'Подтвердить подключение' %}</button>
+    </form>
+  {% else %}
+    <p role="alert">{% translate 'Запрос уже обработан или данные изменились. Проверьте актуальное подключение.' %}</p>
+  {% endif %}
+  <a href="{% url 'account_notifications' %}">{% translate 'Вернуться к уведомлениям' %}</a>
+</section>
+{% endblock %}

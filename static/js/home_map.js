@@ -839,8 +839,37 @@
     form.kidsMapFilterUpdate = updateMap;
     if (form.dataset.homeFiltersBound === "1") return;
     form.dataset.homeFiltersBound = "1";
+    function syncRefineToggleBadge() {
+      const tagsContainer = form.querySelector('[data-home-refine-tags]');
+      if (!tagsContainer) return;
+      const district = form.querySelector('[name="district"]')?.value;
+      const category = form.querySelector('[name="category"]')?.value;
+      const ageFrom = form.querySelector('[name="age_from"]')?.value;
+      const ageTo = form.querySelector('[name="age_to"]')?.value;
+      const age = form.querySelector('[name="age"]')?.value;
+
+      let count = 0;
+      if (district) count++;
+      if (category) count++;
+      if (ageFrom || ageTo || age) count++;
+
+      const lang = document.documentElement.lang || 'ru';
+      if (count > 0) {
+        let text = count + ' выбрано';
+        if (lang === 'az') text = count + ' seçilib';
+        else if (lang === 'en') text = count + ' active';
+        tagsContainer.innerHTML = '<span class="home-refine-active-badge">' + text + '</span>';
+      } else {
+        let hint = 'Регион, категория, возраст';
+        if (lang === 'az') hint = 'Region, kateqoriya, yaş';
+        else if (lang === 'en') hint = 'Region, category, age';
+        tagsContainer.innerHTML = '<span class="home-refine-tags-hint">' + hint + '</span>';
+      }
+    }
+
     function refreshMap() {
       if (form.checkValidity && !form.checkValidity()) return;
+      syncRefineToggleBadge();
       return form.kidsMapFilterUpdate();
     }
 
@@ -972,6 +1001,7 @@
         } else {
           scheduleUpdate();
         }
+        syncRefineToggleBadge();
       });
     }
 
@@ -1210,17 +1240,6 @@
     }
     rebuildMarkers(places);
     sharedState.applyPage = points => { closePlace(); motion.cancel(); choice.close(false); rebuildMarkers(points); _doSync(); };
-    let viewportGesture = false;
-    map.addListener('dragstart', () => { viewportGesture = true; });
-    mapEl.addEventListener('wheel', () => { viewportGesture = true; }, {passive:true});
-    mapEl.addEventListener('keydown', () => { viewportGesture = true; });
-    if (homePaging) map.addListener('idle', () => {
-      if (!viewportGesture) return;
-      viewportGesture = false;
-      const b=map.getBounds(); if (!b) return;
-      const sw=b.getSouthWest(),ne=b.getNorthEast();
-      homePaging.viewport({south:sw.lat(),west:sw.lng(),north:ne.lat(),east:ne.lng()});
-    });
 
     // ── Core sync ───────────────────────────────────────────────────────────
     function syncVisibleMarkers() {
@@ -1504,10 +1523,8 @@
     // syncPending: collapses rapid successive sync calls into one
     var syncPending = false;
 
-    let popupAutoPanning = false;
-    map.on("autopanstart", function () { popupAutoPanning = true; });
     map.on("zoomstart movestart", function (e) {
-      if (e.originalEvent) { userInteracted = true; popupAutoPanning = false; }
+      if (e.originalEvent) userInteracted = true;
     });
 
     // ── Build markers ───────────────────────────────────────────────────────
@@ -1570,8 +1587,7 @@
     }
     rebuildMarkers(places);
     sharedState.applyPage = (points, meta = {}) => {
-      // A popup can auto-pan the map and trigger a delayed viewport response.
-      // Preserve its member identity across that rebuild, but never across a
+      // Preserve an open popup when extending results, but never across a
       // fresh filter query or after the user explicitly closed the popup.
       const retainedId = meta.bounds || meta.append ? openPopupMemberId : null;
       map.closePopup();
@@ -1588,16 +1604,9 @@
         () => {
           homeExplorer?.selectMember?.(retainedId, false);
           // Restoring an edge marker must still fit the window inside the map.
-          // Its bounded native auto-pan is excluded from viewport filtering below.
           item.marker.openPopup();
         });
     };
-    if (homePaging) map.on('moveend zoomend', () => {
-      if (popupAutoPanning) { popupAutoPanning = false; return; }
-      if (!userInteracted) return;
-      const b=map.getBounds(),sw=b.getSouthWest(),ne=b.getNorthEast();
-      homePaging.viewport({south:sw.lat,west:sw.lng,north:ne.lat,east:ne.lng});
-    });
 
     // ── Core sync ───────────────────────────────────────────────────────────
     function syncVisibleMarkers() {
@@ -2060,6 +2069,8 @@
     const sharedState = buildSharedState(mapEl, mapNoteEl);
     if (!sharedState) return;
     homeExplorer = createHomeMapExplorer(sharedState, requestFocusPlace);
+    // Search, filters and explicit pagination own the homepage result set.
+    // Camera movement (including card reveal and popup auto-pan) never filters it.
     const pagingControl = document.querySelector('[data-map-pagination="home"]');
     if (pagingControl && window.KidsMapPaging) {
       const metadata = JSON.parse(document.getElementById('home-map-page')?.textContent || '{}');

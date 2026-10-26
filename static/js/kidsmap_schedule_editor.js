@@ -104,13 +104,13 @@
   }
 
   function parsePayload(value) {
-    if (!value) return defaultDays();
+    if (!value) return [];
     try {
       var parsed = JSON.parse(value);
       if (Array.isArray(parsed)) return parsed;
       if (parsed && Array.isArray(parsed.days)) return parsed.days;
     } catch (error) {}
-    return defaultDays();
+    return [];
   }
 
   function dumpPayload(days) {
@@ -458,6 +458,7 @@
       modeNotes: root.querySelector("[data-km-schedule-mode-notes]"),
       eventsAction: root.querySelector("[data-km-schedule-events-action]"),
       config: config,
+      configured: parsePayload(input.value).length > 0,
       days: normalizeDays(parsePayload(input.value))
     };
   }
@@ -533,8 +534,11 @@
     });
   }
 
-  function updateInput(state) {
-    state.input.value = dumpPayload(state.days);
+  function updateInput(state, configured) {
+    var wasConfigured = state.configured;
+    state.configured = configured !== false;
+    if (wasConfigured !== state.configured) syncAllRowsDom(state);
+    state.input.value = dumpPayload(state.configured ? state.days : []);
     state.input.dispatchEvent(new Event("km:schedule-change", { bubbles: true }));
   }
 
@@ -551,6 +555,7 @@
 
   function groupedRows(state) {
     var rows = [];
+    if (!state.configured) return rows;
     var current = null;
 
     state.days.forEach(function (day) {
@@ -613,7 +618,7 @@
 
   function renderIntervalsHtml(state, day) {
     if (day.is_closed) {
-      var dayOff = state.root.dataset.dayOffLabel || state.root.dataset.closedLabel || "Выходной";
+      var dayOff = !state.configured ? state.root.dataset.unknownLabel : (state.root.dataset.dayOffLabel || state.root.dataset.closedLabel || "Выходной");
       var lang = ((document.documentElement.lang || "ru").split("-")[0] || "ru").toLowerCase();
       var openBtnLabel = lang === "az" ? "Saatları təyin et" : (lang === "en" ? "Set hours" : "Указать часы");
       return (
@@ -684,7 +689,7 @@
     }
     var toggleText = row.querySelector(".km-schedule-editor__toggle-text");
     if (toggleText) {
-      toggleText.textContent = day.is_closed ? state.root.dataset.closedLabel : state.root.dataset.openLabel;
+      toggleText.textContent = !state.configured ? state.root.dataset.unknownLabel : (day.is_closed ? state.root.dataset.closedLabel : state.root.dataset.openLabel);
     }
 
     var allDayCheckbox = row.querySelector('[data-km-schedule-24="' + day.weekday + '"]');
@@ -776,8 +781,9 @@
       });
     }
 
+    state.configured = preset !== "clear";
     syncAllRowsDom(state);
-    updateInput(state);
+    updateInput(state, state.configured);
     renderPreview(state);
   }
 
@@ -789,7 +795,9 @@
     }
 
     state.input.addEventListener("km:schedule-import", function () {
-      state.days = normalizeDays(parsePayload(state.input.value));
+      var importedDays = parsePayload(state.input.value);
+      state.configured = importedDays.length > 0;
+      state.days = normalizeDays(importedDays);
       syncAllRowsDom(state);
       renderPreview(state);
     });

@@ -123,13 +123,15 @@ class WorkflowIntegrationTests(TestCase):
         request = organization_ownership.request_join(actor=self.owner, place_id=self.place.pk,
             organization_id=self.org.pk)
         action = reverse('organization_workspace_confirm', args=[self.org.pk, request.pk])
+        preview = reverse('organization_confirm_preview', args=[self.org.pk, request.pk])
         self.client.force_login(self.other)
-        self.assertContains(self.client.get(reverse('account_notifications')), action)
+        self.assertContains(self.client.get(reverse('account_notifications')), preview)
+        self.assertContains(self.client.get(preview), action)
         self.assertEqual(OrganizationPlaceRequest.objects.get(pk=request.pk).status, 'pending')
         self.assertEqual(self.client.get(action).status_code, 405)
         self.assertEqual(self.client.post(action).status_code, 302)
         self.assertEqual(OrganizationPlaceRequest.objects.get(pk=request.pk).status, 'approved')
-        self.assertNotContains(self.client.get(reverse('account_notifications')), action)
+        self.assertNotContains(self.client.get(reverse('account_notifications')), preview)
 
     def test_invitation_dedupe_survives_account_creation(self):
         from catalog.models import WorkflowNotification, EmailOutbox

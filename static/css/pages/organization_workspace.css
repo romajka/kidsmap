@@ -1345,3 +1345,34 @@
 }
 .org-program-proposal dt { font-weight: 600; }
 .org-program-proposal dd { margin: 4px 0 16px; }
+
+/* Organization flow: optional tools never compete with the current task. */
+.org-workspace [data-org-panel][hidden] { display: none !important; }
+.org-tabs [role="tab"][aria-selected="true"] { color: var(--color-primary, #136f38); border-bottom: 3px solid currentColor; font-weight: 700; }
+.org-tabs [role="tab"] { min-height: 44px; display: inline-flex; align-items: center; }
+.org-workspace :focus-visible, .org-create-page :focus-visible { outline: 3px solid var(--color-primary, #136f38); outline-offset: 3px; }
+.org-launch { margin: 16px 0; }
+.org-launch__steps { display: flex; flex-wrap: wrap; gap: 12px 28px; padding-left: 24px; }
+.org-launch__steps li { padding: 4px; }
+.org-launch .org-muted { margin-top: 8px; }
+.org-guide-compact { padding: 12px 16px; }
+.org-guide-compact > summary, #org-create-branch > summary { cursor: pointer; min-height: 44px; align-content: center; font-weight: 600; }
+.org-guide-compact .org-guide-card__grid { margin-top: 16px; }
+#org-create-branch:not([open]) { padding-top: 4px; padding-bottom: 4px; }
+.org-control-hint { display: block; margin-top: 6px; }
+.org-workspace [data-org-panel] { min-width: 0; }
+@media (max-width: 600px) {
+  .org-launch__steps { display: grid; gap: 4px; }
+  .org-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .org-tabs [role="tab"] { padding: 8px 10px; }
+}
+.org-launch a, .org-launch a:visited { color: var(--color-primary, #136f38); text-underline-offset: 3px; }
+@media (max-width: 600px) {
+  .page-organization_workspace_create .org-back { margin-bottom: 0; }
+  .page-organization_workspace_create .org-hero--create { padding-top: 0; padding-bottom: 0; }
+  .page-organization_workspace_create .org-guide-compact { margin: 0; }
+  .page-organization_workspace_create .org-create-container { margin-top: 0; }
+}
+@media (max-width: 600px) {
+  .page-organization_workspace_create .org-form-actions { margin-top: 12px; padding-top: 8px; }
+}

@@ -61,8 +61,6 @@ class OwnerReviewsController:
             .order_by("-created_at")
         )
         total_user_reviews_count = len(user_written_reviews)
-        managed_places_count = request.user.managed_places.count() if hasattr(request.user, "managed_places") else 0
-        favorites_count = request.user.favorite_places.count() if hasattr(request.user, "favorite_places") else 0
 
         return {
             "owner_review_scopes": scopes,
@@ -76,8 +74,6 @@ class OwnerReviewsController:
             "user_written_reviews": user_written_reviews,
             'review_moderation_sla_message': submission_message('review'),
             "user_reviews_count": total_user_reviews_count,
-            "managed_places_count": managed_places_count,
-            "favorites_count": favorites_count,
         }, OwnerReviewsActionResult(ok=True, message="")
 
     def set_review_approval(self, *, request, review_id: int, is_approved: bool) -> OwnerReviewsActionResult:

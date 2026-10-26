@@ -117,6 +117,8 @@ def build_site_preview_context(request, preview):
     contact_payload = revealed_contacts(contacts)
     context.update(
         site_preview=True, site_preview_submission=preview['show_submission'], site_preview_stale=preview['stale'],
+        site_preview_saved_candidate=preview.get('saved_candidate', False),
+        site_preview_saved_candidate_status=preview.get('saved_candidate_status', ''),
         site_preview_phones={'place_id':place.pk, **contact_payload},
         request=request, user=request.user, google_analytics_enabled=False,
         analytics_events=[], queued_analytics_events=[], messages=[],

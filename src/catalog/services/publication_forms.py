@@ -137,6 +137,8 @@ def gallery_for_edit(place):
         return []
     revision=VolunteerPlaceRevision.objects.filter(place_id=place.pk,status__in=['draft','pending','rejected']).first()
     rows=revision.payload.get('gallery',publication.snapshot(place,'place')['gallery']) if revision else publication.snapshot(place,'place')['gallery']
+    # Saved candidate uploads may omit a database photo id until approval.
+    rows = [dict(row, id=row.get('id')) for row in rows]
     return sorted(rows, key=lambda row: row['order'])
 
 

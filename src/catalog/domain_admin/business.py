@@ -57,9 +57,24 @@ from catalog.services.phone_forms import ContactPhoneFormMixin
 
 
 class OrganizationForm(ContactPhoneFormMixin, CandidateForm):
+    whatsapp_same_as_phone = forms.BooleanField(required=False, label=_('WhatsApp на этом же номере'))
+
+    def clean(self):
+        data = super().clean()
+        if data.get('whatsapp_same_as_phone'):
+            if data.get('phone'):
+                data['whatsapp'] = data['phone']
+            elif 'phone' not in self.errors:
+                self.add_error('phone', _('Укажите телефон для WhatsApp.'))
+        return data
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name_az'].required = True
+
     class Meta:
         model = Organization
-        fields = ('name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en', 'phone', 'whatsapp', 'website')
+        fields = ('name_az', 'name_ru', 'name_en', 'description_az', 'description_ru', 'description_en', 'phone', 'whatsapp', 'whatsapp_same_as_phone', 'website')
         labels = {**{f'name_{lang}':_format_label(_('Название организации (%(language)s)'), {'language':lang.upper()}) for lang in ('az','ru','en')},
             **{f'description_{lang}':_format_label(_('Описание организации (%(language)s)'), {'language':lang.upper()}) for lang in ('az','ru','en')},
             'phone':_('Общий телефон организации'),'whatsapp':_('Общий WhatsApp организации'),'website':_('Сайт организации')}
@@ -104,6 +119,23 @@ class PublicationStatusFilter(admin.SimpleListFilter):
         return queryset
 
 
+def organization_status_filter(value):
+    """Publication and candidate review are independent dimensions."""
+    pending = (Q(content_revision__status='pending') | Q(status='pending')) & Q(archived_at__isnull=True)
+    if value == 'pending':
+        return pending
+    if value == 'published':
+        return Q(status='published', approved_at__isnull=False, archived_at__isnull=True)
+    if value == 'draft':
+        return (Q(status='draft') | Q(status='published', approved_at__isnull=True)) & ~pending
+    return Q(status=value)
+
+
+class OrganizationPublicationStatusFilter(PublicationStatusFilter):
+    def queryset(self, request, queryset):
+        return queryset.filter(organization_status_filter(self.value())) if self.value() else queryset
+
+
 class OrganizationHasBranchesFilter(admin.SimpleListFilter):
     title = _('Филиалы')
     parameter_name = 'has_branches'
@@ -118,7 +150,7 @@ class OrganizationHasBranchesFilter(admin.SimpleListFilter):
         if self.value() == 'yes':
             return queryset.filter(places__isnull=False, places__deleted_at__isnull=True).distinct()
         if self.value() == 'no':
-            return queryset.filter(Q(places__isnull=True) | Q(places__deleted_at__isnull=False)).distinct()
+            return queryset.exclude(places__deleted_at__isnull=True, places__isnull=False)
         return queryset
 
 
@@ -275,8 +307,9 @@ class BusinessEditor(admin.ModelAdmin):
         available.difference_update(versions)
         if available:
             sections.append((None, {'fields': tuple(sorted(available))}))
-        if versions:
-            sections.append((None, {'fields': versions, 'classes': ('collapse',)}))
+        if versions and sections:
+            # Hidden versions travel with a useful section, never an empty tab.
+            sections[0][1]['fields'] += versions
         return sections
 
     def get_urls(self):
@@ -284,6 +317,23 @@ class BusinessEditor(admin.ModelAdmin):
         name = f'{self.opts.app_label}_{self.opts.model_name}'
         extra = [path('<path:object_id>/transition/', self.admin_site.admin_view(self.transition_view), name=f'{name}_transition')]
         return extra + base
+
+    def get_form(self, request, obj=None, **kwargs):
+        form_class = super().get_form(request, obj, **kwargs)
+        error = getattr(request, '_business_save_error', None)
+        if error is None:
+            return form_class
+
+        class BoundErrorForm(form_class):
+            def clean(self):
+                data = super().clean()
+                if hasattr(error, 'error_dict'):
+                    for name, errors in error.error_dict.items():
+                        self.add_error(name if name in self.fields else None, errors)
+                else:
+                    self.add_error(None, error)
+                return data
+        return BoundErrorForm
 
     def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
         context = dict(extra_context or {})
@@ -311,8 +361,10 @@ class BusinessEditor(admin.ModelAdmin):
         try:
             return super().changeform_view(request, object_id, form_url, context)
         except ValidationError as exc:
-            self.message_user(request, '; '.join(exc.messages), level=messages.ERROR)
-            return HttpResponseRedirect(request.path)
+            # The failed atomic save has rolled back. Rebind the same POST as an
+            # invalid form, without redirecting away from the user's input.
+            request._business_save_error = exc
+            return super().changeform_view(request, object_id, form_url, context)
 
     def get_changeform_initial_data(self, request):
         from .navigation import authorized_initial
@@ -391,13 +443,16 @@ class BusinessEditor(admin.ModelAdmin):
 @admin.register(Organization)
 class OrganizationAdmin(BusinessEditor):
     change_list_template = "admin/catalog/organization/change_list.html"
-    editor_sections = (( _('Названия'), ('name_az', 'name_ru', 'name_en')), (_('Описание'), ('description_az', 'description_ru', 'description_en')), (_('Контакты'), ('phone', 'whatsapp', 'website')))
+    editor_sections = (( _('Названия'), ('name_az', 'name_ru', 'name_en')), (_('Описание'), ('description_az', 'description_ru', 'description_en')), (_('Контакты'), ('phone', 'whatsapp', 'whatsapp_same_as_phone', 'website')))
     form = OrganizationForm
     structural_fields = frozenset()
     list_display = ('display_name', 'publication_badge', 'ownership_badge', 'places_count_badge', 'programs_count_badge', 'display_phone', 'display_updated_at')
-    list_filter = (PublicationStatusFilter, OrganizationHasBranchesFilter)
+    list_filter = (OrganizationPublicationStatusFilter, OrganizationHasBranchesFilter)
     search_fields = ('name_az', 'name_ru', 'name_en', 'phone', 'website')
     actions = ['mark_published', 'mark_draft']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('owner', 'content_revision')
 
     @admin.display(description=_('Филиалы'))
     def places_count_badge(self, obj):
@@ -422,15 +477,24 @@ class OrganizationAdmin(BusinessEditor):
         return mark_safe('<span class="text-muted" style="font-size: 13px;">—</span>')
 
     def _dashboard_counts(self):
-        from catalog.models.catalog_structure import PublicationState
-        qs = Organization.objects.all()
-        return qs.aggregate(
-            total=Count("id"),
-            published=Count("id", filter=Q(status=PublicationState.PUBLISHED)),
-            pending=Count("id", filter=Q(status=PublicationState.PENDING)),
-            draft=Count("id", filter=Q(status=PublicationState.DRAFT)),
-            with_places=Count("id", filter=Q(places__isnull=False, places__deleted_at__isnull=True), distinct=True),
+        return Organization.objects.aggregate(
+            total=Count('pk', distinct=True),
+            published=Count('pk', filter=organization_status_filter('published'), distinct=True),
+            pending=Count('pk', filter=organization_status_filter('pending'), distinct=True),
+            draft=Count('pk', filter=organization_status_filter('draft'), distinct=True),
+            with_places=Count('pk', filter=Q(places__isnull=False, places__deleted_at__isnull=True), distinct=True),
         )
+
+    @admin.display(description=_('Публикация и изменения'))
+    def publication_badge(self, obj):
+        published = obj.status == 'published' and obj.approved_at and not obj.archived_at
+        status = 'published' if published else 'draft'
+        label = _('Опубликовано') if published else _('Не опубликовано')
+        badge = format_html('<span class="km-status-badge km-status-{}">{}</span>', status, label)
+        revision = getattr(obj, 'content_revision', None)
+        if revision and revision.status == 'pending':
+            return format_html('{} <span class="km-status-badge km-status-pending">{}</span>', badge, _('Изменения на модерации'))
+        return badge
 
     def _dashboard_stats(self, request, counts: dict):
         from catalog.models.catalog_structure import PublicationState
@@ -558,27 +622,45 @@ class OrganizationAdmin(BusinessEditor):
         }
         return super().changelist_view(request, extra_context=extra_context)
 
+    def _bulk_transition(self, request, queryset, *, publish):
+        succeeded = skipped = 0
+        failures = []
+        for obj in queryset:
+            try:
+                if not self.has_change_permission(request):
+                    raise PermissionDenied
+                if publish:
+                    revision = VolunteerPlaceRevision.objects.filter(organization=obj, status='pending').first()
+                    if revision is None:
+                        raise ValidationError(_('Сначала отправьте сведения на проверку.'))
+                    publication.review(actor=request.user, revision_id=revision.pk, version=revision.version, approve=True)
+                else:
+                    publication.unpublish(actor=request.user, target_type='organization', target_id=obj.pk,
+                        expected_version=obj.content_version)
+                succeeded += 1
+            except PermissionDenied:
+                skipped += 1
+                failures.append(_('Организация #%(id)s: нет прав для этого действия.') % {'id': obj.pk})
+            except ValidationError as exc:
+                skipped += 1
+                reason = (_('Сначала отправьте сведения на проверку.') if publish and not
+                    VolunteerPlaceRevision.objects.filter(organization=obj, status='pending').exists()
+                    else _('Данные изменились или переход недоступен. Откройте карточку и проверьте заявку.'))
+                failures.append(_('Организация #%(id)s: %(reason)s') % {'id': obj.pk, 'reason': reason})
+        self.message_user(request,
+            _('Выполнено: %(done)s. Пропущено: %(skipped)s. Для публикации нужны ожидающая заявка и права модерации; для снятия — отсутствие незавершённых изменений.')
+            % {'done': succeeded, 'skipped': skipped},
+            level=messages.WARNING if skipped else messages.SUCCESS)
+        for failure in failures[:5]:
+            self.message_user(request, failure, level=messages.WARNING)
+
     @admin.action(description=_("Опубликовать выбранные организации"))
     def mark_published(self, request, queryset):
-        from catalog.models.catalog_structure import PublicationState
-        count = 0
-        for obj in queryset:
-            if obj.status != PublicationState.PUBLISHED:
-                obj.status = PublicationState.PUBLISHED
-                obj.save(update_fields=['status', 'updated_at'])
-                count += 1
-        self.message_user(request, _(f"Опубликовано организаций: {count}"), level=messages.SUCCESS)
+        self._bulk_transition(request, queryset, publish=True)
 
     @admin.action(description=_("Перевести выбранные организации в черновики"))
     def mark_draft(self, request, queryset):
-        from catalog.models.catalog_structure import PublicationState
-        count = 0
-        for obj in queryset:
-            if obj.status != PublicationState.DRAFT:
-                obj.status = PublicationState.DRAFT
-                obj.save(update_fields=['status', 'updated_at'])
-                count += 1
-        self.message_user(request, _(f"Переведено в черновики организаций: {count}"), level=messages.SUCCESS)
+        self._bulk_transition(request, queryset, publish=False)
 
     def create_target(self, request, data):
         from catalog.services.organization_ownership import create_organization

@@ -5,7 +5,7 @@
 {% block title_plain %}{% if CURRENT_LANGUAGE == 'az' %}Təşkilat yarat{% elif CURRENT_LANGUAGE == 'en' %}Create organization{% else %}Создать организацию{% endif %} | KidsMap{% endblock %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=20261020_release_r1">
-  <link rel="stylesheet" href="{% static 'css/pages/organization_workspace.css' %}">
+  <link rel="stylesheet" href="{% static 'css/pages/organization_workspace.css' %}?v=20261026_org_flow_v1">
 {% endblock %}
 {% block content %}
 <div class="account-page-wrapper org-workspace" data-workspace="create" data-user-id="{{ request.user.pk }}">
@@ -23,18 +23,13 @@
         <div>
           <p class="org-eyebrow">KidsMap · {% if CURRENT_LANGUAGE == 'az' %}Biznes kabineti{% elif CURRENT_LANGUAGE == 'en' %}Business account{% else %}Кабинет бизнеса{% endif %}</p>
           <h1>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat yarat{% elif CURRENT_LANGUAGE == 'en' %}Create organization{% else %}Создать организацию{% endif %}</h1>
-          <p>{% if CURRENT_LANGUAGE == 'az' %}Şəbəkə filialları, tədris mərkəzləri və klublar üçün vahid idarəetmə profili.{% elif CURRENT_LANGUAGE == 'en' %}Unified management profile for network branches, learning centers and clubs.{% else %}Зонтичный профиль для сети филиалов, студий и развивающих центров.{% endif %}</p>
+          <p>{% if CURRENT_LANGUAGE == 'az' %}Şəbəkə filialları, tədris mərkəzləri və klublar üçün vahid idarəetmə profili.{% elif CURRENT_LANGUAGE == 'en' %}Unified management profile for network branches, learning centers and clubs.{% else %}Общий профиль сети. Филиалы и адрес можно добавить позже.{% endif %}</p>
         </div>
       </header>
 
       <!-- Разница между организацией и филиалом -->
-      <section class="org-guide-card" aria-labelledby="org-guide-title">
-        <div class="org-guide-card__header">
-          <span class="material-symbols-rounded org-guide-card__bulb" aria-hidden="true">lightbulb</span>
-          <h2 id="org-guide-title" class="org-guide-card__title">
-            {% if CURRENT_LANGUAGE == 'az' %}Təşkilat və filial arasında fərq nədir?{% elif CURRENT_LANGUAGE == 'en' %}What is the difference between an organization and a branch?{% else %}В чем разница между организацией и филиалом?{% endif %}
-          </h2>
-        </div>
+      <details class="org-guide-card org-guide-compact">
+        <summary>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat və filial arasında fərq nədir?{% elif CURRENT_LANGUAGE == 'en' %}What is the difference between an organization and a branch?{% else %}Чем организация отличается от филиала?{% endif %}</summary>
         <div class="org-guide-card__grid">
           <article class="org-guide-card__col org-guide-card__col--org">
             <div class="org-guide-card__col-header">
@@ -59,7 +54,7 @@
             </ul>
           </article>
         </div>
-      </section>
+      </details>
 
       <!-- Форма создания -->
       <section class="org-create-container">
@@ -142,14 +137,17 @@
                 <p class="org-disclosure__hint">
                   {% if CURRENT_LANGUAGE == 'az' %}Bu əlaqələr filialların öz nömrəsi olmadıqda avtomatik olaraq tətbiq olunacaq.{% elif CURRENT_LANGUAGE == 'en' %}These contacts will be inherited by branches that don't have their own contact number.{% else %}Эти контакты будут автоматически наследоваться филиалами, если у филиала нет собственного номера.{% endif %}
                 </p>
+                <label class="org-check">{{ create_form.whatsapp_same_as_phone }} {{ create_form.whatsapp_same_as_phone.label }}</label>
                 <div class="org-fields-grid org-fields-grid--3">
                   <div class="org-field-group">
                     <label for="id_phone" class="org-label">{% if CURRENT_LANGUAGE == 'az' %}Telefon{% elif CURRENT_LANGUAGE == 'en' %}Phone{% else %}Телефон сети{% endif %}</label>
                     {{ create_form.phone }}
+                    {% include 'pages/includes/organization_field_errors.html' with field=create_form.phone %}
                   </div>
                   <div class="org-field-group">
                     <label for="id_whatsapp" class="org-label">WhatsApp</label>
                     {{ create_form.whatsapp }}
+                    {% include 'pages/includes/organization_field_errors.html' with field=create_form.whatsapp %}
                   </div>
                   <div class="org-field-group {% if create_form.website.errors %}has-error{% endif %}">
                     <label for="id_website" class="org-label">{% if CURRENT_LANGUAGE == 'az' %}Rəsmi sayt{% elif CURRENT_LANGUAGE == 'en' %}Website{% else %}Официальный сайт{% endif %}</label>
@@ -196,5 +194,5 @@
     </div>
   </div>
 </div>
-<script src="{% static 'js/organization_workspace.js' %}" defer></script>
+<script src="{% static 'js/organization_workspace.js' %}?v=20261026_org_flow_v1" defer></script>
 {% endblock %}

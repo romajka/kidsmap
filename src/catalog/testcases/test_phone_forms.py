@@ -162,7 +162,7 @@ class ApplicationContactFormTests(TestCase):
     def test_organization_and_volunteer_entity_contacts_are_normalized(self):
         from catalog.domain_admin.business import OrganizationForm
         from catalog.volunteer_forms import volunteer_entity_form
-        form = OrganizationForm(data={'phone': '+1 (310) 456-4918', 'whatsapp': 'https://wa.me/994504274393', 'candidate_version': '0'})
+        form = OrganizationForm(data={'name_az': 'Contact form network', 'phone': '+1 (310) 456-4918', 'whatsapp': 'https://wa.me/994504274393', 'candidate_version': '0'})
         self.assertTrue(form.is_valid(), form.errors)
         self.assertEqual(form.cleaned_data['phone'], '+13104564918')
         self.assertEqual(form.cleaned_data['whatsapp'], '+994504274393')

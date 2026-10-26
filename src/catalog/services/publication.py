@@ -380,6 +380,29 @@ def propose(*,actor,target_type,target_id,patch,schema_version,expected_version,
     revision.schema_version=SCHEMA_VERSION;revision.base_content_version=target.content_version;revision.base_snapshot=base;revision.dependencies=dependencies(target,target_type);revision.payload=pending;revision.changed_fields=sorted(pending);revision.status='pending' if submit else 'draft';revision.version=actual+1;revision.review_note='' if submit else revision.review_note;revision.reviewed_by=None if submit else revision.reviewed_by;revision.save();return revision
 
 
+def _complete_publication_requests(*, actor, place, source_version, candidate_version, note=''):
+    """Close only requests bound to the exact content decision, under target lock."""
+    from catalog.models import PlaceOwnershipRequest, PlaceOwnershipRequestAudit
+    if place.owner_id is None:
+        return
+    requests = PlaceOwnershipRequest.objects.select_for_update().filter(
+        place_id=place.pk, status=PlaceOwnershipRequest.STATUS_PENDING,
+        request_kind=PlaceOwnershipRequest.KIND_PUBLICATION,
+        applicant_id=place.owner_id, base_owner_id=place.owner_id,
+        base_ownership_version=place.ownership_version,
+        base_content_version=source_version, base_candidate_version=candidate_version,
+    ).order_by('pk')
+    for item in requests:
+        item.status = PlaceOwnershipRequest.STATUS_APPROVED
+        item.moderated_by = actor
+        item.moderated_at = timezone.now()
+        item.moderation_note = note.strip()
+        item.save(update_fields=['status', 'moderated_by', 'moderated_at', 'moderation_note', 'updated_at'])
+        PlaceOwnershipRequestAudit.log_event(
+            ownership_request=item, actor=actor, action=PlaceOwnershipRequestAudit.ACTION_APPROVED,
+            from_status=PlaceOwnershipRequest.STATUS_PENDING, to_status=item.status, note=item.moderation_note)
+
+
 @transaction.atomic
 def review(*,actor,revision_id,version,approve,note='',final_reject=False):
     if not isinstance(approve,bool) or not isinstance(final_reject,bool) or (approve and final_reject):raise ValidationError('Approval flags must be valid.')
@@ -387,6 +410,7 @@ def review(*,actor,revision_id,version,approve,note='',final_reject=False):
     revision=VolunteerPlaceRevision.objects.select_for_update().get(pk=revision_id)
     if _kind(revision)!=(kind,pk) or _integer(version)!=revision.version or revision.status!='pending':raise ValidationError('Candidate version/state conflict.')
     if revision.schema_version!=SCHEMA_VERSION:raise ValidationError('Publication schema conflict.')
+    source_version, candidate_version = target.content_version, revision.version
     if not approve:
         if not note.strip():raise ValidationError('Rejection reason required.')
     else:
@@ -432,6 +456,9 @@ def review(*,actor,revision_id,version,approve,note='',final_reject=False):
     revision.status='approved' if approve else 'declined' if final_reject else 'rejected';revision.reviewed_by=actor;revision.review_note=note.strip();revision.version+=1;revision.save()
     from catalog.services.workflow_notifications import emit
     target.refresh_from_db()
+    if approve and kind == 'place':
+        _complete_publication_requests(actor=actor, place=target, source_version=source_version,
+                                       candidate_version=candidate_version, note=note)
     decision_context = {
         'schema_version': 1,
         'decision': 'approved' if approve else 'rejected' if final_reject else 'needs_changes',
@@ -448,15 +475,20 @@ def review(*,actor,revision_id,version,approve,note='',final_reject=False):
 
 
 @transaction.atomic
-def publish(*,actor,place_id,expected_version):
+def publish(*,actor,place_id,expected_version,note=''):
     actor=fresh_actor(actor);place=locked_target('place',place_id);authorize(actor,place,'place',review=True)
     if _integer(expected_version)!=place.content_version:raise ValidationError('Publication source conflict.')
     revision=VolunteerPlaceRevision.objects.filter(place=place).first()
-    if revision and revision.status=='pending':return review(actor=actor,revision_id=revision.pk,version=revision.version,approve=True)
+    if revision and revision.status=='pending':return review(actor=actor,revision_id=revision.pk,version=revision.version,approve=True,note=note)
     from catalog.services.place_readiness import evaluate_place_readiness,publication_blocked_message
     readiness=evaluate_place_readiness(place)
     if not place.is_public and not readiness.is_ready:raise ValidationError(publication_blocked_message(readiness))
-    Place.objects.filter(pk=place.pk).update(status='published',is_active=True,published_at=place.published_at or timezone.now(),moderated_at=timezone.now(),moderated_by=actor,content_version=F('content_version')+1);place.refresh_from_db();return place
+    source_version = place.content_version
+    Place.objects.filter(pk=place.pk).update(status='published',is_active=True,published_at=place.published_at or timezone.now(),moderated_at=timezone.now(),moderated_by=actor,content_version=F('content_version')+1);place.refresh_from_db()
+    if revision is None or revision.status == 'approved':
+        _complete_publication_requests(actor=actor, place=place, source_version=source_version,
+                                       candidate_version=revision.version if revision else 0, note=note)
+    return place
 
 
 @transaction.atomic

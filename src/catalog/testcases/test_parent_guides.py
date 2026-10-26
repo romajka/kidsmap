@@ -20,7 +20,7 @@ class ParentGuideTests(TestCase):
             r'<script type="application/ld\+json">(.*?)</script>', response.content.decode(), re.S)]
         article = next(value for value in schemas if value.get('@type') == 'Article')
         self.assertNotIn('datePublished', article)
-        self.assertEqual(article['dateModified'], '2026-10-22')
+        self.assertEqual(article['dateModified'], '2026-10-26')
 
     def test_first_publication_date_survives_later_edits_and_sitemap_tracks_update(self):
         for updated in ('2026-10-22', '2026-10-23'):

@@ -128,11 +128,46 @@
 
       {% if map_places %}
       <details class="home-search-refine" open aria-label="{% if request.LANGUAGE_CODE == 'az' %}Sürətli filtrlər{% elif request.LANGUAGE_CODE == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
-        <summary class="home-refine-toggle" hidden aria-hidden="true" style="display: none !important;">
-          <span class="home-refine-closed">{% if request.LANGUAGE_CODE == 'az' %}Axtarışı dəqiqləşdir{% elif request.LANGUAGE_CODE == 'en' %}Refine search{% else %}Уточнить поиск{% endif %}</span>
-          <span class="home-refine-open">{% if request.LANGUAGE_CODE == 'az' %}Filtrləri gizlət{% elif request.LANGUAGE_CODE == 'en' %}Hide filters{% else %}Скрыть фильтры{% endif %}</span>
+                <summary class="home-refine-toggle" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Filtrlər{% elif request.LANGUAGE_CODE == 'en' %}Filters{% else %}Фильтры{% endif %}">
+          <div class="home-refine-toggle__left">
+            <span class="home-refine-toggle__icon" aria-hidden="true">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="21" x2="4" y2="14"></line>
+                <line x1="4" y1="10" x2="4" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12" y2="3"></line>
+                <line x1="20" y1="21" x2="20" y2="16"></line>
+                <line x1="20" y1="12" x2="20" y2="3"></line>
+                <line x1="1" y1="14" x2="7" y2="14"></line>
+                <line x1="9" y1="8" x2="15" y2="8"></line>
+                <line x1="17" y1="16" x2="23" y2="16"></line>
+              </svg>
+            </span>
+            <span class="home-refine-toggle__title">
+              {% if request.LANGUAGE_CODE == 'az' %}Filtrlər{% elif request.LANGUAGE_CODE == 'en' %}Filters{% else %}Фильтры{% endif %}
+            </span>
+            <span class="home-refine-toggle__tags" data-home-refine-tags>
+              {% if request.GET.district or request.GET.category or home_age_from or home_age_to %}
+                <span class="home-refine-active-badge">{% if request.LANGUAGE_CODE == 'az' %}Seçilib{% elif request.LANGUAGE_CODE == 'en' %}Active{% else %}Выбрано{% endif %}</span>
+              {% else %}
+                <span class="home-refine-tags-hint">{% if request.LANGUAGE_CODE == 'az' %}Region, kateqoriya, yaş{% elif request.LANGUAGE_CODE == 'en' %}Region, category, age{% else %}Регион, категория, возраст{% endif %}</span>
+              {% endif %}
+            </span>
+          </div>
+          <div class="home-refine-toggle__right">
+            <span class="home-refine-toggle__action-text">
+              <span class="home-refine-text-closed">{% if request.LANGUAGE_CODE == 'az' %}Göstər{% elif request.LANGUAGE_CODE == 'en' %}Show{% else %}Показать{% endif %}</span>
+              <span class="home-refine-text-open">{% if request.LANGUAGE_CODE == 'az' %}Gizlət{% elif request.LANGUAGE_CODE == 'en' %}Hide{% else %}Скрыть{% endif %}</span>
+            </span>
+            <span class="home-refine-chevron" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          </div>
         </summary>
-      <div class="home-search-row home-search-filters-row">
+        <div class="home-search-refine-body">
+          <div class="home-search-row home-search-filters-row">
         <select name="district" class="home-filter-district-select" hidden>
           <option value="">{% trans "Регион / район" %}</option>
           {% for district in home_districts %}
@@ -325,7 +360,35 @@
           <span>{% if request.LANGUAGE_CODE == 'az' %}Sıfırla{% elif request.LANGUAGE_CODE == 'en' %}Reset{% else %}Сбросить{% endif %}</span>
         </button>
       </div>
+        </div>
       </details>
+      <script>
+      (function(){
+        try {
+          var refine = document.querySelector('.home-search-refine');
+          if (!refine) return;
+          var p = new URLSearchParams(window.location.search);
+          var hasFilter = Boolean(p.get('district') || p.get('category') || p.get('age_from') || p.get('age_to') || p.get('age'));
+          if (!hasFilter) {
+            refine.removeAttribute('open');
+          }
+
+          var toggle = refine.querySelector('.home-refine-toggle');
+          if (toggle) {
+            toggle.addEventListener('click', function(e) {
+              if (refine.open && !refine.classList.contains('is-closing')) {
+                e.preventDefault();
+                refine.classList.add('is-closing');
+                setTimeout(function() {
+                  refine.removeAttribute('open');
+                  refine.classList.remove('is-closing');
+                }, 240);
+              }
+            });
+          }
+        } catch(e) {}
+      })();
+      </script>
       {% endif %}
     </form>
   </div>

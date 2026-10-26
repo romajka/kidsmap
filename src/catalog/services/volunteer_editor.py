@@ -8,7 +8,9 @@ def editor_context(form):
     from catalog.models import PlacePhoto
     from catalog.services.photo_gallery import gallery_key
     gallery = [dict(id=row['id'],key=gallery_key(row),url=PlacePhoto._meta.get_field('image').storage.url(row['image'])) for row in getattr(form, '_saved_gallery', [])]
-    readiness = evaluate_form_readiness(form, form.instance)
+    from catalog.services.permanent_place_rules import readiness_presentation_snapshot
+    displayed = readiness_presentation_snapshot(form)
+    readiness = evaluate_form_readiness(displayed, displayed.instance)
     issues = readiness.issues
     definitions = [
         ('basics', t('Основное', 'Əsas məlumat', 'Basics'), 'tune', t('Название, описание и рубрика карточки.', 'Kartın adı, təsviri və kateqoriyası.', 'Name, description and category.')),

@@ -225,10 +225,10 @@
                   {% else %}favorite{% endif %}
                 </span>
                 <span class="fav-chip-name">{{ place.name_i18n }}</span>
-                {% if place.rating_avg or place.rating %}
+                {% if place.rating_avg %}
                   <span class="fav-chip-star">
                     <span class="material-symbols-rounded">star</span>
-                    {{ place.rating_avg|default:place.rating|floatformat:1 }}
+                    {{ place.rating_avg|floatformat:1 }}
                   </span>
                 {% endif %}
               </a>

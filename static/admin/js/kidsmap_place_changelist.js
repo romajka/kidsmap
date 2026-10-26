@@ -852,7 +852,9 @@
       var storageKey = columnsMenu.getAttribute('data-storage-key') || 'km_hidden_columns';
       var savedHidden;
       try {
-        savedHidden = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        var savedColumns = localStorage.getItem(storageKey);
+        savedHidden = savedColumns ? JSON.parse(savedColumns) :
+          (document.body.classList.contains('km-organization-changelist') ? ['column-programs_count_badge', 'column-display_phone'] : []);
         if (!Array.isArray(savedHidden)) savedHidden = [];
       } catch (err) {
         savedHidden = [];

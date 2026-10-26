@@ -584,6 +584,33 @@ def evaluate_place_readiness(place) -> PlaceReadiness:
     return evaluate_readiness(readiness_data_from_place(place))
 
 
+def evaluate_saved_place_readiness(place) -> PlaceReadiness:
+    """Admin progress measures the saved working copy, as the editor does.
+
+    Public visibility continues to use evaluate_place_readiness on approved
+    content. Private, unsaved ServerDraft autosaves do not replace this copy.
+    """
+    from types import SimpleNamespace
+    revision = getattr(place, 'volunteer_revision', None) if place.pk else None
+    if revision is None or revision.status not in {'draft', 'pending', 'rejected'}:
+        return evaluate_place_readiness(place)
+    from catalog.services.volunteer_places import candidate_from_payload
+    from catalog.services.place_schedule import serialize_place_schedule, validate_schedule_payload
+    from catalog.services.content_quality import _mapping_has_public_price
+    candidate = candidate_from_payload(place, revision.payload)
+    values = {**revision.payload, 'category': candidate.category, 'subcategory': candidate.subcategory,
+              'pricing_plans': candidate.pricing_plans}
+    # A partial patch retains saved group tariffs. An explicit empty tree
+    # replaces them and must never fall back to the old published prices.
+    if 'nested_pricing' not in values and not any(_mapping_has_public_price(p) for p in candidate.pricing_plans):
+        from catalog.services.pricing_plans import serialize_nested_pricing
+        values['nested_pricing'] = serialize_nested_pricing(place)
+    schedule = (validate_schedule_payload(revision.payload['structured_schedule']).days
+                if 'structured_schedule' in revision.payload else serialize_place_schedule(place))
+    snapshot = SimpleNamespace(instance=candidate, cleaned_data=values, cleaned_schedule_days=schedule)
+    return evaluate_form_readiness(snapshot, candidate)
+
+
 def _form_value(form, cleaned, field_name, instance):
     """Prefer the submitted value, fall back to what is already stored."""
 

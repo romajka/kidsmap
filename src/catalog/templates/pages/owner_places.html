@@ -83,11 +83,107 @@
     <section class="account-main-content">
       {% if place_affiliation_requests or affiliated_places or joinable_places and joinable_organizations %}
       <section class="account-card-box" id="organization-links" aria-labelledby="organization-links-title">
-        <div class="account-card-box__head"><h2 id="organization-links-title">{% if CURRENT_LANGUAGE == 'az' %}Təşkilat əlaqələri{% elif CURRENT_LANGUAGE == 'en' %}Organization links{% else %}Связи с организациями{% endif %}</h2></div>
-        {% for item in place_affiliation_requests %}{% include 'pages/includes/organization_join_request.html' %}{% endfor %}
-        {% for place in informational_places %}<p>{{ place.name_i18n }} · {% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi; şəbəkə hüququ vermir{% elif CURRENT_LANGUAGE == 'en' %}Information link; no network permission{% else %}Информационная связь; не даёт сетевых прав{% endif %}</p>{% endfor %}
-        {% for place in affiliated_places %}<div class="org-pending-row"><span>{{ place.name_i18n }} → {{ place.organization.name_az }} · {% if place.organization_relationship_kind == 'informational' %}{% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi{% elif CURRENT_LANGUAGE == 'en' %}Information link{% else %}Информационная связь{% endif %}{% endif %}</span><a class="account-btn-sm" href="{% url 'organization_detach_preview' place.organization_id place.pk %}">{% translate 'Отсоединить: посмотреть последствия' %}</a></div>{% endfor %}
-        {% if joinable_places and joinable_organizations %}<form method="post" data-join-form>{% csrf_token %}<label>{% if CURRENT_LANGUAGE == 'az' %}Məkan{% elif CURRENT_LANGUAGE == 'en' %}Place{% else %}Место{% endif %}<select name="place_id">{% for place in joinable_places %}<option value="{{ place.pk }}">{{ place.name_i18n }}</option>{% endfor %}</select></label><label>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat{% elif CURRENT_LANGUAGE == 'en' %}Organization{% else %}Организация{% endif %}<select name="organization_id" data-join-org>{% for org in joinable_organizations %}<option value="{{ org.pk }}" data-url="{% url 'organization_workspace_join' org.pk %}">{{ org.name_az }}</option>{% endfor %}</select></label><button type="submit" class="account-btn-sm">{% if CURRENT_LANGUAGE == 'az' %}Qoşulma istə{% elif CURRENT_LANGUAGE == 'en' %}Request connection{% else %}Запросить присоединение{% endif %}</button></form>{% endif %}
+        <div class="account-card-box__head">
+          <div class="account-card-box__head-wrap">
+            <h2 id="organization-links-title">
+              <span class="material-symbols-rounded" style="color: #0D8A52; font-size: 22px;">hub</span>
+              <span>{% if CURRENT_LANGUAGE == 'az' %}Təşkilat əlaqələri{% elif CURRENT_LANGUAGE == 'en' %}Organization links{% else %}Связи с организациями{% endif %}</span>
+              {% if affiliated_places or place_affiliation_requests %}
+                <span class="account-badge-counter">{{ affiliated_places|length|add:place_affiliation_requests|length }}</span>
+              {% endif %}
+            </h2>
+            <p class="account-card-box__sub">
+              {% if CURRENT_LANGUAGE == 'az' %}Məkanlarınızın şəbəkə və filial əlaqələri, birgə proqramlar.{% elif CURRENT_LANGUAGE == 'en' %}Network and branch connections of your places, shared programs.{% else %}Сетевые связи и привязка филиалов к организациям для совместного управления.{% endif %}
+            </p>
+          </div>
+        </div>
+
+        <div class="account-card-box__body org-links-card-body">
+          {% if place_affiliation_requests %}
+            <div class="org-links-requests-block">
+              <h4>
+                <span class="material-symbols-rounded">pending_actions</span>
+                <span>{% if CURRENT_LANGUAGE == 'az' %}Təsdiq gözləyən sorğular{% elif CURRENT_LANGUAGE == 'en' %}Pending affiliation requests{% else %}Запросы на согласование{% endif %}</span>
+              </h4>
+              {% for item in place_affiliation_requests %}
+                {% include 'pages/includes/organization_join_request.html' %}
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          {% if affiliated_places %}
+            <div class="org-links-list">
+              {% for place in affiliated_places %}
+                <div class="org-link-item">
+                  <div class="org-link-item__nodes">
+                    <span class="org-link-item__place">
+                      <span class="material-symbols-rounded">storefront</span>
+                      <span>{{ place.name_i18n }}</span>
+                    </span>
+                    <span class="material-symbols-rounded org-link-item__arrow">arrow_forward</span>
+                    <span class="org-link-item__org">
+                      <span class="material-symbols-rounded">corporate_fare</span>
+                      <span>{{ place.organization.name_az }}</span>
+                    </span>
+                    {% if place.organization_relationship_kind == 'informational' %}
+                      <span class="org-link-badge org-link-badge--info">
+                        <span class="material-symbols-rounded">info</span>
+                        <span>{% if CURRENT_LANGUAGE == 'az' %}Məlumat əlaqəsi{% elif CURRENT_LANGUAGE == 'en' %}Information link{% else %}Информационная связь{% endif %}</span>
+                      </span>
+                    {% else %}
+                      <span class="org-link-badge org-link-badge--success">
+                        <span class="material-symbols-rounded">verified</span>
+                        <span>{% if CURRENT_LANGUAGE == 'az' %}Şəbəkə filialı{% elif CURRENT_LANGUAGE == 'en' %}Network branch{% else %}Сетевой филиал{% endif %}</span>
+                      </span>
+                    {% endif %}
+                  </div>
+                  <a class="account-btn-sm account-btn-sm--danger-soft org-link-detach-btn" href="{% url 'organization_detach_preview' place.organization_id place.pk %}">
+                    <span class="material-symbols-rounded">link_off</span>
+                    <span>{% translate 'Отсоединить: посмотреть последствия' %}</span>
+                  </a>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          {% if joinable_places and joinable_organizations %}
+            <div class="org-links-form-wrap">
+              <h4>
+                <span class="material-symbols-rounded">add_link</span>
+                <span>{% if CURRENT_LANGUAGE == 'az' %}Məkanı təşkilata qoş{% elif CURRENT_LANGUAGE == 'en' %}Connect place to organization{% else %}Подключить место к организации{% endif %}</span>
+              </h4>
+              <form method="post" data-join-form class="org-links-form">
+                {% csrf_token %}
+                <div class="org-links-field">
+                  <label for="org-join-place">{% if CURRENT_LANGUAGE == 'az' %}Məkan{% elif CURRENT_LANGUAGE == 'en' %}Place{% else %}Место{% endif %}</label>
+                  <div class="org-links-select-wrap">
+                    <select name="place_id" id="org-join-place" class="org-links-select">
+                      {% for place in joinable_places %}
+                        <option value="{{ place.pk }}">{{ place.name_i18n }}</option>
+                      {% endfor %}
+                    </select>
+                    <span class="material-symbols-rounded org-links-select-chevron">expand_more</span>
+                  </div>
+                </div>
+                <div class="org-links-field">
+                  <label for="org-join-org">{% if CURRENT_LANGUAGE == 'az' %}Təşkilat{% elif CURRENT_LANGUAGE == 'en' %}Organization{% else %}Организация{% endif %}</label>
+                  <div class="org-links-select-wrap">
+                    <select name="organization_id" id="org-join-org" class="org-links-select" data-join-org>
+                      {% for org in joinable_organizations %}
+                        <option value="{{ org.pk }}" data-url="{% url 'organization_workspace_join' org.pk %}">{{ org.name_az }}</option>
+                      {% endfor %}
+                    </select>
+                    <span class="material-symbols-rounded org-links-select-chevron">expand_more</span>
+                  </div>
+                </div>
+                <button type="submit" class="account-btn-sm account-btn-sm--primary org-links-submit-btn">
+                  <span class="material-symbols-rounded">send</span>
+                  <span>{% if CURRENT_LANGUAGE == 'az' %}Qoşulma istə{% elif CURRENT_LANGUAGE == 'en' %}Request connection{% else %}Запросить присоединение{% endif %}</span>
+                </button>
+              </form>
+            </div>
+          {% endif %}
+        </div>
       </section>
       {% endif %}
 

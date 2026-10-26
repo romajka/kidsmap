@@ -9,6 +9,7 @@ class PhoneCompatibilityMigrationTests(TransactionTestCase):
         before=[('catalog','0144_workflownotification_event_context_db_default')]
         after=[('catalog','0145_place_phone_whatsapp')]
         executor=MigrationExecutor(connection)
+        latest=executor.loader.graph.leaf_nodes()
         executor.migrate(before)
         apps=executor.loader.project_state(before).apps
         try:
@@ -53,4 +54,4 @@ class PhoneCompatibilityMigrationTests(TransactionTestCase):
             self.assertEqual(pending.base_snapshot, {'phone1': raw})
             self.assertEqual(pending.status, 'draft')
         finally:
-            MigrationExecutor(connection).migrate(after)
+            MigrationExecutor(connection).migrate(latest)

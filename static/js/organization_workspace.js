@@ -69,20 +69,79 @@
     showing: 'Showing', from: 'of', prev: '← Prev', next: 'Next →', noBranchesFound: 'No branches found'
   };
 
+  // Progressive enhancement: all content remains accessible without JS.
+  const tabNav = document.querySelector('[data-org-tabs]');
+  if (tabNav) {
+    const tabs = [...tabNav.querySelectorAll('[data-org-tab]')];
+    const panels = [...document.querySelectorAll('[data-org-panel]')];
+    tabNav.setAttribute('role', 'tablist');
+    tabs.forEach(tab => { tab.setAttribute('role', 'tab'); tab.setAttribute('aria-controls', tab.dataset.orgTab); });
+    panels.forEach(panel => panel.setAttribute('role', 'tabpanel'));
+    function activate(targetId) {
+      const target = document.getElementById(targetId);
+      const panel = target?.closest('[data-org-panel]');
+      const id = panel?.id || 'org-branches';
+      panels.forEach(item => { item.hidden = item.id !== id; });
+      tabs.forEach(tab => {
+        const selected = tab.dataset.orgTab === id;
+        tab.setAttribute('aria-selected', String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+      });
+      if (target?.matches('details')) target.open = true;
+      return target;
+    }
+    const formError = document.querySelector('[data-org-server-errors]');
+    const branchError = document.querySelector('#org-create-branch[open]');
+    activate(formError ? 'org-about' : branchError ? 'org-create-branch' : location.hash.slice(1));
+    document.addEventListener('click', event => {
+      const link = event.target.closest('a[href^="#org-"]');
+      if (!link || !document.querySelector('.org-workspace')?.contains(link)) return;
+      const id = link.getAttribute('href').slice(1);
+      if (!document.getElementById(id)) return;
+      event.preventDefault();
+      const target = activate(id);
+      history.replaceState(null, '', '#' + id);
+      if (!link.matches('[data-org-tab]')) { target?.focus(); target?.scrollIntoView({ block: 'start' }); }
+    });
+    tabNav.addEventListener('keydown', event => {
+      const current = tabs.indexOf(document.activeElement);
+      if (current < 0 || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1
+        : (current + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+      activate(tabs[next].dataset.orgTab);
+      history.replaceState(null, '', tabs[next].getAttribute('href'));
+      tabs[next].focus();
+    });
+    window.addEventListener('hashchange', () => activate(location.hash.slice(1)));
+  }
+
   const fields = ['name_az', 'name_ru', 'name_en', 'description_az', 'phone', 'whatsapp', 'website'];
   const cookie = document.cookie.split('; ').find(x => x.startsWith('csrftoken='));
-  const csrf = cookie ? decodeURIComponent(cookie.slice(10)) : document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+  const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || (cookie ? decodeURIComponent(cookie.slice(10)) : '');
 
   // Auto-open disclosures if any input inside has content or error
   document.querySelectorAll('details.org-disclosure').forEach(details => {
     const inputs = details.querySelectorAll('input, textarea');
     let hasValue = false;
     inputs.forEach(input => {
-      if (input.value && input.value.trim() !== '') hasValue = true;
+      if (input.type === 'checkbox' ? input.checked : (input.value && input.value.trim() !== '')) hasValue = true;
     });
     if (details.querySelector('.org-field-error') || hasValue) {
       details.open = true;
     }
+  });
+
+  document.querySelectorAll('[name="whatsapp_same_as_phone"]').forEach(choice => {
+    const form = choice.form;
+    const sync = () => {
+      if (choice.checked && form.elements.phone && form.elements.whatsapp) {
+        form.elements.whatsapp.value = form.elements.phone.value;
+        form.elements.whatsapp.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    };
+    choice.addEventListener('change', sync);
+    form.elements.phone?.addEventListener('input', sync);
   });
 
   // Create organization form & sessionStorage persistence
@@ -102,7 +161,7 @@
       // Re-check disclosures after restoring values
       document.querySelectorAll('details.org-disclosure').forEach(details => {
         const inputs = details.querySelectorAll('input, textarea');
-        inputs.forEach(input => { if (input.value && input.value.trim() !== '') details.open = true; });
+        inputs.forEach(input => { if (input.type === 'checkbox' ? input.checked : (input.value && input.value.trim() !== '')) details.open = true; });
       });
     } catch (_) { /* private storage unavailable */ }
 

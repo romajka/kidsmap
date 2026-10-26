@@ -89,7 +89,7 @@ def _inbox_items(user):
     from catalog.services.workflow_notifications import _invitation_current, _join_confirmation_current
     from catalog.models import OrganizationPlaceRequest, VolunteerPlaceRevision
     join_ids = [item.entity_id for item in items if item.event_kind == 'join_confirmation']
-    joins = {row.pk: row for row in OrganizationPlaceRequest.objects.filter(pk__in=join_ids)}
+    joins = {row.pk: row for row in OrganizationPlaceRequest.objects.filter(pk__in=join_ids).select_related('place', 'organization')}
     revision_ids = [item.entity_id for item in items if item.event_kind == 'moderation_decision'
                     and item.entity_type == 'volunteer_revision']
     revisions = {row.pk: row for row in VolunteerPlaceRevision.objects.filter(pk__in=revision_ids)
@@ -103,7 +103,10 @@ def _inbox_items(user):
         item.can_reject = item.can_accept and item.entity_type in _INVITATION_TARGET_TYPES and item.entity_version == 1
         item.join_action_url = ''
         if item.event_kind == 'join_confirmation' and item.entity_id in joins and _join_confirmation_current(item):
-            item.join_action_url = reverse('organization_workspace_confirm', args=[joins[item.entity_id].organization_id, item.entity_id])
+            join = joins[item.entity_id]
+            item.join_action_url = reverse('organization_confirm_preview', args=[join.organization_id, item.entity_id])
+            item.join_place_name = join.place.name_i18n
+            item.join_organization_name = join.organization.name_az
     return items
 
 

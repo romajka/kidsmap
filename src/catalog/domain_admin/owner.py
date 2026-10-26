@@ -25,7 +25,7 @@ from catalog.models import (
     PlaceOwnershipRequestAudit,
     Place
 )
-from catalog.services.place_readiness import evaluate_place_readiness
+from catalog.services.place_readiness import evaluate_saved_place_readiness
 from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container, build_admin_query_string
 from .user import _HiddenFromAdminIndexMixin
 
@@ -543,7 +543,7 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
                 "applicant",
                 "moderated_by",
                 "place__category",
-                "place__subcategory",
+                "place__subcategory__category",
                 "place__volunteer_revision",
             )
             .prefetch_related("place__gallery")
@@ -894,7 +894,7 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
     @admin.display(description=_("Состояние"), ordering="status")
     def col_state(self, obj):
         place = obj.place
-        readiness = evaluate_place_readiness(place)
+        readiness = evaluate_saved_place_readiness(place)
         score = readiness.percentage
         bar_color_class = "km-bar--warn" if score < 60 else "km-bar--good"
 

@@ -1,13 +1,10 @@
-/* Quick Access Filter Bar (Always Open, No Accordion) */
+/* Quick Access Filter Bar (Compact & Expandable Accordion) */
 body.page-home :is(.home-hero, .home-map-explorer) .home-search-refine {
   margin-top: 10px;
   min-width: 0;
   padding: 0;
   border: none;
   background: transparent;
-}
-body.page-home :is(.home-hero, .home-map-explorer) .home-search-refine > summary {
-  display: none !important;
 }
 body.page-home :is(.home-hero, .home-map-explorer) .home-search-refine .home-search-filters-row {
   display: flex;
@@ -345,46 +342,45 @@ body.page-home :is(.home-hero, .home-map-explorer) .home-search-refine .home-sea
   body.page-home :is(.home-hero, .home-map-explorer) .home-search-refine .home-search-filters-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    padding: 10px;
+    gap: 6px;
+    padding: 8px;
   }
   body.page-home :is(.home-hero, .home-map-explorer) .home-search-refine .km-location-tree {
     grid-column: 1;
+    grid-row: 1;
     min-width: 0;
     width: 100%;
   }
   body.page-home :is(.home-hero, .home-map-explorer) .home-search-refine .km-category-select {
     grid-column: 2;
+    grid-row: 1;
     min-width: 0;
     width: 100%;
   }
   body.page-home :is(.home-hero, .home-map-explorer) .home-search-refine :is(.km-age-select, .home-age-range) {
-    grid-column: 1 / -1;
+    grid-column: 1;
     grid-row: 2;
     width: 100%;
     min-width: 0;
   }
-  body.page-home :is(.home-hero, .home-map-explorer) .home-search-refine .km-age-dropdown {
-    width: 100%;
-    max-width: none;
-    left: 0;
-    right: 0;
-    box-sizing: border-box;
-  }
   body.page-home :is(.home-hero, .home-map-explorer) .home-search-refine .home-search-reset-btn {
-    grid-column: 1 / -1;
-    grid-row: 3;
+    grid-column: 2;
+    grid-row: 2;
     width: 100%;
     margin-left: 0;
     justify-content: center;
   }
-}
-@media (max-width: 440px) {
-  body.page-home :is(.home-hero, .home-map-explorer) .home-search-refine .home-search-filters-row {
-    grid-template-columns: 1fr;
+  body.page-home :is(.home-hero, .home-map-explorer) .home-search-refine :is(.km-tree-trigger, .km-category-trigger, .km-age-trigger) {
+    min-height: 38px;
+    height: 38px;
+    font-size: 12.5px;
+    padding: 0 24px 0 10px !important;
   }
-  body.page-home :is(.home-hero, .home-map-explorer) .home-search-refine :is(.km-location-tree, .km-category-select, .km-age-select, .home-age-range, .home-search-reset-btn) {
-    grid-column: 1;
+  body.page-home :is(.home-hero, .home-map-explorer) .home-search-refine .home-search-reset-btn {
+    min-height: 38px;
+    height: 38px;
+    font-size: 12.5px;
+    padding: 0 10px;
   }
 }
 @media (prefers-reduced-motion: no-preference) {

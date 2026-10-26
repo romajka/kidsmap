@@ -3,11 +3,11 @@ from types import SimpleNamespace
 from unittest.mock import patch
 from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.test import RequestFactory, SimpleTestCase
+from django.test import RequestFactory, SimpleTestCase, TestCase
 from catalog import views
 
 
-class MappySubmissionTests(SimpleTestCase):
+class MappySubmissionTests(TestCase):
     def request(self):
         request = RequestFactory().post('/owner/places/1/submit-review/')
         request.user = SimpleNamespace(is_authenticated=True, username='qa-preview', first_name='QA', get_full_name='QA Preview', email='')

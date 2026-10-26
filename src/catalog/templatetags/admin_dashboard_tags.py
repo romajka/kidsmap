@@ -236,10 +236,10 @@ def cl_sort_url(cl, sort_key):
 def paginator_range_label(cl):
     total = cl.result_count
     if total == 0:
-        return "0 из 0"
+        return _("0 из 0")
     start = (cl.page_num - 1) * cl.list_per_page + 1
     end = min(cl.page_num * cl.list_per_page, total)
-    return f"{start}–{end} из {total}"
+    return _("%(start)s–%(end)s из %(total)s") % {"start": start, "end": end, "total": total}
 
 
 @register.simple_tag

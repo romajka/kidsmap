@@ -5,7 +5,7 @@ from django.http import Http404
 from django.db.models import Q
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_safe
 from catalog.models import Category, Organization, OrganizationPlaceRequest, Place, Program, ServerDraft
 from catalog.services import business_team, organization_ownership, publication
 from django.utils.translation import gettext_lazy as _
@@ -160,7 +160,23 @@ def _organization_form_labels(form):
             form.fields[name].label = label
 
 
-class OrganizationCreateForm(forms.Form):
+from catalog.services.phone_forms import ContactPhoneFormMixin
+
+
+class OrganizationContactForm(ContactPhoneFormMixin, forms.Form):
+    whatsapp_same_as_phone = forms.BooleanField(required=False, label=_('WhatsApp на этом же номере'))
+
+    def clean(self):
+        data = super().clean()
+        if data.get('whatsapp_same_as_phone'):
+            if data.get('phone'):
+                data['whatsapp'] = data['phone']
+            elif 'phone' not in self.errors:
+                self.add_error('phone', _('Укажите телефон для WhatsApp.'))
+        return data
+
+
+class OrganizationCreateForm(OrganizationContactForm):
     name_az = forms.CharField(max_length=255)
     name_ru = forms.CharField(max_length=255, required=False)
     name_en = forms.CharField(max_length=255, required=False)
@@ -181,7 +197,7 @@ class BranchCreateForm(forms.Form):
     allow_separate = forms.BooleanField(required=False)
 
 
-class OrganizationCandidateForm(forms.Form):
+class OrganizationCandidateForm(OrganizationContactForm):
     name_az = forms.CharField(max_length=255, required=False)
     name_ru = forms.CharField(max_length=255, required=False)
     name_en = forms.CharField(max_length=255, required=False)
@@ -208,6 +224,10 @@ ORGANIZATION_CONFLICT_COPY = {
 
 
 def _organization_save_errors(form, exc):
+    if isinstance(exc, ValidationError) and hasattr(exc, 'error_dict'):
+        for name, errors in exc.error_dict.items():
+            form.add_error(name if name in form.fields else None, errors)
+        return
     errors = exc.error_list if isinstance(exc, ValidationError) and hasattr(exc, 'error_list') else [exc]
     for error in errors:
         code = getattr(error, 'code', None)
@@ -234,7 +254,10 @@ def _owned_and_accessible_orgs(user):
         Q(owner=user) |
         Q(team_grants__member=user, team_grants__is_active=True)
     ).distinct().order_by('pk')
-    return [o for o in candidates if business_team.has_action(user=user, target=o, action='organization.view')]
+    rows = [o for o in candidates if business_team.has_action(user=user, target=o, action='organization.view')]
+    for org in rows:
+        org.directory_published = bool(org.status == 'published' and org.approved_at and not org.archived_at)
+    return rows
 
 
 def _standalone_places(user):
@@ -258,7 +281,7 @@ def organization_create(request):
     if request.method == 'POST':
         form = OrganizationCreateForm(request.POST)
         if form.is_valid():
-            values = {k: v for k, v in form.cleaned_data.items() if k != 'allow_separate' and v}
+            values = {k: v for k, v in form.cleaned_data.items() if k not in ('allow_separate', 'whatsapp_same_as_phone') and v}
             try:
                 org = organization_ownership.create_organization(actor=request.user, values=values,
                     allow_separate=form.cleaned_data['allow_separate'])
@@ -266,14 +289,18 @@ def organization_create(request):
                 token = uuid.uuid4().hex
                 request.session['organization_create_confirmation'] = {
                     'token': token, 'organization_id': org.pk, 'actor_id': request.user.pk,
-                    'fields': {name: request.POST.get(name, '') for name in form.fields if name != 'allow_separate'},
+                    'fields': {name: request.POST.get(name, '') for name in form.fields if name not in ('allow_separate', 'whatsapp_same_as_phone')},
                 }
                 return redirect(reverse('organization_workspace_detail', args=[org.pk]) + '?created=' + token)
             except PermissionDenied: raise Http404
             except ValidationError as exc:
                 if getattr(exc, 'code', None) == 'possible_duplicate' or 'possible_duplicate' in str(exc):
                     duplicate_detected = True
-                form.add_error(None, exc)
+                if hasattr(exc, 'error_dict'):
+                    for name, errors in exc.error_dict.items():
+                        form.add_error(name if name in form.fields else None, errors)
+                else:
+                    form.add_error(None, exc)
         return render(request, 'pages/organization_create.html', {
             'create_form': form,
             'duplicate_detected': duplicate_detected,
@@ -328,6 +355,7 @@ def _detail_context(request, org, *, candidate_form=None, action_error=None):
     has_branches = len(branches) > 0
     has_team = len(grants) > 0 or len(invitations) > 0
     return {
+        'organization_is_public': bool(org.status == 'published' and org.approved_at and not org.archived_at),
         'workspace_mode':'detail', 'organization':org, 'schema_version':publication.SCHEMA_VERSION, 'branches':branches,
         'show_current_data':show_current_data,
         'programs':list((Program.objects.filter(organization=org, archived_at__isnull=True) if org.owner_id == request.user.pk or business_team.has_action(user=request.user,target=org,action='program.manage') else Program.objects.filter(organization=org, archived_at__isnull=True, activities__place__in=branches)).distinct().order_by('pk')),
@@ -376,7 +404,11 @@ def organization_branch(request, org_id, place_id):
 def organization_save(request, org_id):
     if not request.user.is_authenticated: return _login(request)
     org = _organization(request, org_id, 'organization.edit')
-    form = OrganizationCandidateForm(request.POST)
+    initial = {name: getattr(org, name) for name in ('phone', 'whatsapp')}
+    revision = getattr(org, 'content_revision', None)
+    if revision and revision.status in ('draft', 'pending', 'rejected'):
+        initial.update({name: revision.payload[name] for name in initial if name in revision.payload})
+    form = OrganizationCandidateForm(request.POST, initial=initial, preserve_existing_contacts=True)
     if form.is_valid():
         patch = {k:form.cleaned_data[k] or '' for k in ('name_az','name_ru','name_en','description_az','phone','whatsapp','website')}
         try:
@@ -384,7 +416,7 @@ def organization_save(request, org_id):
                 patch=patch,schema_version=publication.SCHEMA_VERSION,
                 expected_version=form.cleaned_data['expected_version'],revision_version=form.cleaned_data['revision_version'],
                 submit=form.cleaned_data['submit'])
-            return redirect('organization_workspace_detail',org_id=org.pk)
+            return redirect(reverse('organization_workspace_detail', args=[org.pk]) + '#org-about')
         except (ValidationError, PermissionDenied) as exc: _organization_save_errors(form, exc)
     return render(request,'pages/organization_workspace.html',_detail_context(request,org,candidate_form=form),status=409 if form.non_field_errors() else 400)
 
@@ -408,6 +440,22 @@ def organization_join(request, org_id):
     if business_team.has_action(user=request.user,target=org,action='organization.view'):
         return redirect('organization_workspace_detail',org_id=org.pk)
     return redirect('owner_places_dashboard')
+
+
+@require_safe
+def organization_confirm_preview(request, org_id, request_id):
+    if not request.user.is_authenticated:
+        return _login(request)
+    item = OrganizationPlaceRequest.objects.select_related('place', 'organization').filter(
+        pk=request_id, organization_id=org_id, organization__archived_at__isnull=True,
+        place__deleted_at__isnull=True).first()
+    if item is None or request.user.pk not in (item.place.owner_id, item.organization.owner_id):
+        raise Http404
+    current = (item.status == 'pending' and item.relationship_kind == 'business'
+        and organization_ownership._request_matches(item, item.place, item.organization)
+        and item.base_place_content_version == item.place.content_version)
+    return render(request, 'pages/organization_confirm_preview.html', {'item': item, 'current': current},
+        status=200 if current else 409)
 
 
 @require_POST

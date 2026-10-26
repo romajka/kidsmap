@@ -284,12 +284,42 @@ def _specialist_account_context(request):
     return {'has_verified_specialist_profile': verified, 'has_specialist_applications': has_applications}
 
 
+def _account_navigation_context(request):
+    """Consistent counter badges for account navigation tabs."""
+    actor = getattr(request, 'user', None)
+    if not actor or not actor.is_authenticated or not actor.is_active:
+        return {}
+    path = getattr(request, 'path', '')
+    if '/account/' not in path and not path.startswith('/owner/'):
+        return {}
+    try:
+        from .models import PlaceReview, PlaceLike
+        from .services.business_team import accessible_place_ids
+        from .controllers.workflow_notifications import _mine
+
+        places_cnt = len(accessible_place_ids(user=actor))
+        reviews_cnt = PlaceReview.objects.filter(user=actor).count()
+        fav_cnt = PlaceLike.objects.filter(user=actor, place__is_active=True, place__deleted_at__isnull=True).values('place_id').distinct().count()
+        notif_cnt = _mine(actor).filter(read_at__isnull=True).count()
+        return {
+            'managed_places_count': places_cnt,
+            'user_reviews_count': reviews_cnt,
+            'favorites_count': fav_cnt,
+            'unread_notifications_count': notif_cnt,
+        }
+    except (OperationalError, ProgrammingError):
+        return {}
+    except Exception:
+        return {}
+
+
 def site_settings(request):
     is_preview = getattr(request, 'site_preview', False)
     queued_analytics_events = [] if is_preview else pop_queued_google_analytics_events(request)
     google_analytics_context = _google_analytics_context(request)
     yandex_metrica_context = _yandex_metrica_context(request)
     specialist_account_context = _specialist_account_context(request)
+    account_navigation_context = _account_navigation_context(request)
     try:
         cfg = SiteSettings.objects.first() if is_preview else SiteSettings.get_solo()
     except (OperationalError, ProgrammingError):
@@ -319,6 +349,7 @@ def site_settings(request):
             **google_analytics_context,
             **yandex_metrica_context,
             **specialist_account_context,
+            **account_navigation_context,
             "queued_analytics_events": queued_analytics_events,
             "is_specialists_section_enabled": False if is_preview else is_specialists_section_enabled(),
             "is_events_section_enabled": False if is_preview else is_events_section_enabled(),
@@ -376,6 +407,7 @@ def site_settings(request):
         **google_analytics_context,
         **yandex_metrica_context,
         **specialist_account_context,
+        **account_navigation_context,
         "queued_analytics_events": queued_analytics_events,
         "is_specialists_section_enabled": is_specialists_section_enabled(),
         "is_events_section_enabled": is_events_section_enabled(),

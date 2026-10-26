@@ -1,9 +1,22 @@
-/* Optional motion. Native links/disclosures and every section work without it. */
+/* Deep links and optional motion. Native disclosures also work without JS. */
 (() => {
   "use strict";
 
   const guide = document.querySelector(".parent-guide");
-  if (!guide || typeof window.matchMedia !== "function") return;
+  if (!guide) return;
+
+  function openLinkedAnswer() {
+    const id = window.location.hash.slice(1);
+    if (!/^guide-faq-[a-z-]+$/.test(id)) return;
+    const answer = document.getElementById(id);
+    if (answer && guide.contains(answer) && answer.matches(".pg-faq details")) {
+      answer.open = true;
+    }
+  }
+  openLinkedAnswer();
+  window.addEventListener("hashchange", openLinkedAnswer);
+
+  if (typeof window.matchMedia !== "function") return;
 
   const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   if (motion.matches || typeof Element.prototype.animate !== "function") return;

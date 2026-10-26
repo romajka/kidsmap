@@ -10,7 +10,7 @@
 {% endblock %}
 {% block content %}
 <aside class="site-preview-bar" aria-label="{% translate 'Превью на сайте' %}">
-  <div><strong>{% translate 'Превью на сайте' %}</strong><span>{% if site_preview_editor_current %}{% translate 'Текущие данные формы' %}{% elif site_preview_submission %}{% translate 'Отправлено на проверку' %}{% else %}{% translate 'Текущее состояние' %}{% endif %}</span>
+  <div><strong>{% translate 'Превью на сайте' %}</strong><span>{% if site_preview_editor_current %}{% translate 'Текущие данные формы' %}{% elif site_preview_saved_candidate and site_preview_saved_candidate_status != 'pending' %}{% translate 'Сохранённый черновик' %}{% elif site_preview_submission %}{% translate 'Отправлено на проверку' %}{% else %}{% translate 'Текущее состояние' %}{% endif %}</span>
     {% if site_preview_stale %}<span class="site-preview-warning">{% translate 'Заявка устарела' %}</span>{% endif %}
     <p>{% translate 'Так карточку увидит посетитель. Действия в превью не сохраняются.' %}</p>
   </div>

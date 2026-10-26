@@ -102,7 +102,10 @@
         {% endif %}
         <div class="account-card-box" id="profile-details">
           <div class="account-card-box__head">
-            <h2>{% if CURRENT_LANGUAGE == "az" %}Profil məlumatları{% elif CURRENT_LANGUAGE == "en" %}Profile details{% else %}Данные профиля{% endif %}</h2>
+            <h2>
+              <span class="material-symbols-rounded account-card-box__title-icon" style="color: #0D8A52;">manage_accounts</span>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Profil məlumatları{% elif CURRENT_LANGUAGE == "en" %}Profile details{% else %}Данные профиля{% endif %}</span>
+            </h2>
           </div>
 
           <form method="post" enctype="multipart/form-data" class="auth-form account-form" data-loading-form>
@@ -117,8 +120,8 @@
               </div>
             {% endif %}
 
-            <!-- Profile Avatar Uploader -->
-            <div class="account-avatar-uploader">
+            <!-- Compact Profile Avatar Uploader 64px -->
+            <div class="account-avatar-uploader account-avatar-uploader--compact">
               <div class="account-avatar-uploader__preview" id="account-avatar-preview-box">
                 {% if profile_model.avatar %}
                   <img src="{{ profile_model.avatar.url }}" alt="{{ request.user.username }}" id="account-avatar-preview-img" class="account-avatar-uploader__img">
@@ -131,28 +134,26 @@
                   </span>
                   <img src="" alt="" id="account-avatar-preview-img" class="account-avatar-uploader__img" style="display: none;">
                 {% endif %}
+                <label class="account-avatar-uploader__camera-badge" for="id_avatar" title="{% if CURRENT_LANGUAGE == 'az' %}Şəkli dəyişdir{% elif CURRENT_LANGUAGE == 'en' %}Change photo{% else %}Изменить фото{% endif %}">
+                  <span class="material-symbols-rounded">photo_camera</span>
+                </label>
               </div>
               <div class="account-avatar-uploader__controls">
                 <div class="account-avatar-uploader__buttons">
-                  <label class="account-btn-ghost account-avatar-btn" for="id_avatar">
-                    <span class="material-symbols-rounded">photo_camera</span>
+                  <label class="account-btn-sm account-btn-sm--secondary account-avatar-btn" for="id_avatar">
+                    <span class="material-symbols-rounded">upload</span>
                     <span>{% if CURRENT_LANGUAGE == "az" %}Şəkil yüklə{% elif CURRENT_LANGUAGE == "en" %}Upload photo{% else %}Загрузить фото{% endif %}</span>
                     {{ profile_form.avatar }}
                   </label>
-                  <button type="button" class="account-btn-ghost account-avatar-btn--remove" id="account-avatar-remove-btn"{% if not profile_model.avatar %} style="display: none;"{% endif %}>
+                  <button type="button" class="account-btn-sm account-btn-sm--danger-soft account-avatar-btn--remove" id="account-avatar-remove-btn"{% if not profile_model.avatar %} style="display: none;"{% endif %}>
                     <span class="material-symbols-rounded">delete</span>
                     <span>{% if CURRENT_LANGUAGE == "az" %}Sil{% elif CURRENT_LANGUAGE == "en" %}Remove{% else %}Удалить{% endif %}</span>
                   </button>
                   {{ profile_form.clear_avatar }}
                 </div>
                 <p class="account-avatar-uploader__hint">
-                  {% if CURRENT_LANGUAGE == "az" %}
-                    JPG, PNG və ya WebP formatı, maksimum 5 MB.
-                  {% elif CURRENT_LANGUAGE == "en" %}
-                    JPG, PNG or WebP format, up to 5 MB.
-                  {% else %}
-                    JPG, PNG или WebP, не более 5 МБ.
-                  {% endif %}
+                  <span class="material-symbols-rounded">info</span>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}JPG, PNG və ya WebP formatı, maks. 5 MB{% elif CURRENT_LANGUAGE == "en" %}JPG, PNG or WebP, up to 5 MB{% else %}JPG, PNG или WebP, не более 5 МБ{% endif %}</span>
                 </p>
                 {% if profile_form.avatar.errors %}
                   <span class="auth-field-error">{{ profile_form.avatar.errors|join:", " }}</span>
@@ -160,29 +161,57 @@
               </div>
             </div>
 
-            <div class="account-form-grid">
+            <!-- Symmetric 2x2 Grid with Field Icons -->
+            <div class="account-form-grid account-form-grid--2x2">
               <label class="account-field">
-                <span class="account-field-label">{% if CURRENT_LANGUAGE == "az" %}Ad{% elif CURRENT_LANGUAGE == "en" %}First name{% else %}Имя{% endif %} <span class="required-mark">*</span></span>
-                {{ profile_form.first_name }}
+                <span class="account-field-label">
+                  <span class="material-symbols-rounded account-field-label__icon">person</span>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Ad{% elif CURRENT_LANGUAGE == "en" %}First name{% else %}Имя{% endif %}</span>
+                  <span class="required-mark">*</span>
+                </span>
+                <div class="account-input-wrap">
+                  {{ profile_form.first_name }}
+                </div>
                 {% if profile_form.first_name.errors %}<span class="auth-field-error">{{ profile_form.first_name.errors|join:", " }}</span>{% endif %}
               </label>
 
               <label class="account-field">
-                <span class="account-field-label">{% if CURRENT_LANGUAGE == "az" %}Soyad{% elif CURRENT_LANGUAGE == "en" %}Last name{% else %}Фамилия{% endif %} <span class="required-mark">*</span></span>
-                {{ profile_form.last_name }}
+                <span class="account-field-label">
+                  <span class="material-symbols-rounded account-field-label__icon">badge</span>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Soyad{% elif CURRENT_LANGUAGE == "en" %}Last name{% else %}Фамилия{% endif %}</span>
+                  <span class="required-mark">*</span>
+                </span>
+                <div class="account-input-wrap">
+                  {{ profile_form.last_name }}
+                </div>
                 {% if profile_form.last_name.errors %}<span class="auth-field-error">{{ profile_form.last_name.errors|join:", " }}</span>{% endif %}
               </label>
 
               <label class="account-field">
-                <span class="account-field-label">{% if CURRENT_LANGUAGE == "az" %}E-poçt{% elif CURRENT_LANGUAGE == "en" %}Email{% else %}Email{% endif %} <span class="required-mark">*</span></span>
-                {{ profile_form.email }}
-                <span class="account-avatar-uploader__hint" id="email-change-profile-help">{% if CURRENT_LANGUAGE == 'az' %}Yeni e-poçt yalnız məktubdakı kod təsdiqləndikdən sonra qüvvəyə minir.{% elif CURRENT_LANGUAGE == 'en' %}A new email becomes active only after you confirm the code sent to it.{% else %}Новый email начнёт работать после подтверждения кодом из письма.{% endif %}</span>
+                <span class="account-field-label">
+                  <span class="material-symbols-rounded account-field-label__icon">alternate_email</span>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}E-poçt{% elif CURRENT_LANGUAGE == "en" %}Email{% else %}Email{% endif %}</span>
+                  <span class="required-mark">*</span>
+                </span>
+                <div class="account-input-wrap">
+                  {{ profile_form.email }}
+                </div>
+                <span class="account-avatar-uploader__hint" id="email-change-profile-help">
+                  <span class="material-symbols-rounded">mark_email_unread</span>
+                  <span>{% if CURRENT_LANGUAGE == 'az' %}Yeni e-poçt təsdiq kodu ilə aktivləşir.{% elif CURRENT_LANGUAGE == 'en' %}A new email requires code confirmation.{% else %}Новый email начнёт работать после подтверждения кодом.{% endif %}</span>
+                </span>
                 <span id="email-change-profile-error"{% if profile_form.email.errors %} class="auth-field-error"{% else %} hidden{% endif %}>{% if profile_form.email.errors %}{{ profile_form.email.errors|join:", " }}{% endif %}</span>
               </label>
 
               <label class="account-field">
-                <span class="account-field-label">{% if CURRENT_LANGUAGE == "az" %}Telefon{% elif CURRENT_LANGUAGE == "en" %}Phone{% else %}Телефон{% endif %} <span class="required-mark">*</span></span>
-                {{ profile_form.phone }}
+                <span class="account-field-label">
+                  <span class="material-symbols-rounded account-field-label__icon">call</span>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Telefon{% elif CURRENT_LANGUAGE == "en" %}Phone{% else %}Телефон{% endif %}</span>
+                  <span class="required-mark">*</span>
+                </span>
+                <div class="account-input-wrap">
+                  {{ profile_form.phone }}
+                </div>
                 {% if profile_form.phone.errors %}<span class="auth-field-error">{{ profile_form.phone.errors|join:", " }}</span>{% endif %}
               </label>
             </div>
@@ -196,10 +225,13 @@
           </form>
         </div>
 
-        <!-- Settings Form: Password Change -->
-        <div class="account-card-box account-card--security">
+        <!-- Settings Form: Password Change & Security Card -->
+        <div class="account-card-box account-card--security" id="profile-security">
           <div class="account-card-box__head">
-            <h2>{% if CURRENT_LANGUAGE == "az" %}Parol və təhlükəsizlik{% elif CURRENT_LANGUAGE == "en" %}Password and security{% else %}Пароль и безопасность{% endif %}</h2>
+            <h2>
+              <span class="material-symbols-rounded account-card-box__title-icon" style="color: #0D8A52;">shield</span>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Parol və təhlükəsizlik{% elif CURRENT_LANGUAGE == "en" %}Password and security{% else %}Пароль и безопасность{% endif %}</span>
+            </h2>
           </div>
 
           <form method="post" class="auth-form account-form" data-loading-form>
@@ -216,7 +248,11 @@
 
             <div class="account-form-grid account-form-grid--single">
               <label class="account-field">
-                <span class="account-field-label">{% if CURRENT_LANGUAGE == "az" %}Cari parol{% elif CURRENT_LANGUAGE == "en" %}Current password{% else %}Текущий пароль{% endif %} <span class="required-mark">*</span></span>
+                <span class="account-field-label">
+                  <span class="material-symbols-rounded account-field-label__icon">key</span>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Cari parol{% elif CURRENT_LANGUAGE == "en" %}Current password{% else %}Текущий пароль{% endif %}</span>
+                  <span class="required-mark">*</span>
+                </span>
                 <div class="account-password-wrap">
                   {{ password_form.old_password }}
                   <button type="button" class="account-password-toggle" data-password-toggle aria-label="{% if CURRENT_LANGUAGE == 'az' %}Parolu göstər və ya gizlət{% elif CURRENT_LANGUAGE == 'en' %}Show or hide password{% else %}Показать или скрыть пароль{% endif %}">
@@ -227,7 +263,11 @@
               </label>
 
               <label class="account-field">
-                <span class="account-field-label">{% if CURRENT_LANGUAGE == "az" %}Yeni parol{% elif CURRENT_LANGUAGE == "en" %}New password{% else %}Новый пароль{% endif %} <span class="required-mark">*</span></span>
+                <span class="account-field-label">
+                  <span class="material-symbols-rounded account-field-label__icon">lock</span>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Yeni parol{% elif CURRENT_LANGUAGE == "en" %}New password{% else %}Новый пароль{% endif %}</span>
+                  <span class="required-mark">*</span>
+                </span>
                 <div class="account-password-wrap">
                   {{ password_form.new_password1 }}
                   <button type="button" class="account-password-toggle" data-password-toggle aria-label="{% if CURRENT_LANGUAGE == 'az' %}Parolu göstər və ya gizlət{% elif CURRENT_LANGUAGE == 'en' %}Show or hide password{% else %}Показать или скрыть пароль{% endif %}">
@@ -238,7 +278,11 @@
               </label>
 
               <label class="account-field">
-                <span class="account-field-label">{% if CURRENT_LANGUAGE == "az" %}Yeni parolu təsdiqləyin{% elif CURRENT_LANGUAGE == "en" %}Confirm new password{% else %}Подтвердите новый пароль{% endif %} <span class="required-mark">*</span></span>
+                <span class="account-field-label">
+                  <span class="material-symbols-rounded account-field-label__icon">lock_reset</span>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Yeni parolu təsdiqləyin{% elif CURRENT_LANGUAGE == "en" %}Confirm new password{% else %}Подтвердите новый пароль{% endif %}</span>
+                  <span class="required-mark">*</span>
+                </span>
                 <div class="account-password-wrap">
                   {{ password_form.new_password2 }}
                   <button type="button" class="account-password-toggle" data-password-toggle aria-label="{% if CURRENT_LANGUAGE == 'az' %}Parolu göstər və ya gizlət{% elif CURRENT_LANGUAGE == 'en' %}Show or hide password{% else %}Показать или скрыть пароль{% endif %}">
@@ -249,11 +293,21 @@
               </label>
             </div>
 
-            <div class="account-security-tips">
-              <h3>{% if CURRENT_LANGUAGE == "az" %}Təhlükəsizlik tövsiyələri{% elif CURRENT_LANGUAGE == "en" %}Security tips{% else %}Рекомендации по безопасности{% endif %}</h3>
-              <ul>
-                <li>{% if CURRENT_LANGUAGE == "az" %}Şifrəniz ən azı 8 simvoldan ibarət olmalıdır.{% elif CURRENT_LANGUAGE == "en" %}Your password should contain at least 8 characters.{% else %}Пароль должен содержать минимум 8 символов.{% endif %}</li>
-                <li>{% if CURRENT_LANGUAGE == "az" %}Böyük və kiçik hərflərdən istifadə edin.{% elif CURRENT_LANGUAGE == "en" %}Use both uppercase and lowercase letters.{% else %}Используйте строчные и заглавные буквы.{% endif %}</li>
+            <!-- Security tips callout -->
+            <div class="account-security-card">
+              <div class="account-security-card__head">
+                <span class="material-symbols-rounded">verified_user</span>
+                <strong>{% if CURRENT_LANGUAGE == "az" %}Təhlükəsizlik tövsiyələri{% elif CURRENT_LANGUAGE == "en" %}Security tips{% else %}Рекомендации по безопасности{% endif %}</strong>
+              </div>
+              <ul class="account-security-card__list">
+                <li>
+                  <span class="material-symbols-rounded">check</span>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Şifrəniz ən azı 8 simvoldan ibarət olmalıdır.{% elif CURRENT_LANGUAGE == "en" %}Your password should contain at least 8 characters.{% else %}Пароль должен содержать минимум 8 символов.{% endif %}</span>
+                </li>
+                <li>
+                  <span class="material-symbols-rounded">check</span>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Böyük və kiçik hərflərdən, rəqəmlərdən istifadə edin.{% elif CURRENT_LANGUAGE == "en" %}Use uppercase, lowercase letters and numbers.{% else %}Используйте строчные и заглавные буквы, цифры.{% endif %}</span>
+                </li>
               </ul>
             </div>
 

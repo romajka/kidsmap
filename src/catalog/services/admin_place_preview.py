@@ -198,8 +198,13 @@ def request_is_stale(item, *, revision=None):
 
 
 def build_place_preview(place, *, language='ru'):
-    """Inspect the saved card without requiring or creating an ownership request."""
-    return _build_preview(place, language=language)
+    """Inspect the saved working copy, falling back to the approved card."""
+    revision = VolunteerPlaceRevision.objects.filter(
+        place=place, status__in=('draft', 'pending', 'rejected')).first()
+    preview = _build_preview(place, language=language, revision_candidate=revision)
+    preview['saved_candidate'] = bool(revision)
+    preview['saved_candidate_status'] = revision.status if revision else ''
+    return preview
 
 
 def build_request_preview(item, *, language='ru', current=False):

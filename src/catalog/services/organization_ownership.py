@@ -87,7 +87,7 @@ def warn_possible_duplicate(*,actor,model,name,allow_separate=False):
     else:visible|=Q(status='published',archived_at__isnull=True)
     duplicate=duplicate.filter(visible)
     if duplicate.exists() and not allow_separate:
-        raise ValidationError('Possible duplicate; choose an existing public object or explicitly create an independent one.',code='possible_duplicate')
+        raise ValidationError(_('Найдено похожее название. Проверьте существующую карточку или подтвердите отдельное создание.'),code='possible_duplicate')
 
 
 def _create(actor,values,model,allow_separate):
@@ -96,8 +96,20 @@ def _create(actor,values,model,allow_separate):
     allowed={'name_az','name_ru','name_en','description_az','description_ru','description_en','website'}
     allowed|= {'phone','whatsapp'} if model is Organization else {'category_id','address','lat','lng','phone1','phone2','phone3'}
     if set(values)-allowed:raise ValidationError('Unsupported create fields.')
-    if not isinstance(values.get('name_az'),str) or not values['name_az'].strip():raise ValidationError('Azerbaijani name required.')
+    if not isinstance(values.get('name_az'),str) or not values['name_az'].strip():raise ValidationError({'name_az': _('Укажите название на азербайджанском языке.')} )
     warn_possible_duplicate(actor=actor,model=model,name=values['name_az'],allow_separate=allow_separate)
+    if model is Organization:
+        from catalog.services.phone_numbers import normalize_phone, normalize_whatsapp
+        values = dict(values)
+        errors = {}
+        for name, normalizer in (('phone', normalize_phone), ('whatsapp', normalize_whatsapp)):
+            if name in values:
+                try:
+                    values[name] = normalizer(values[name])
+                except ValidationError as exc:
+                    errors[name] = exc
+        if errors:
+            raise ValidationError(errors)
     obj=model(**values);obj.name_az=obj.name_az.strip();obj.created_by=actor
     obj.owner=None if is_volunteer(actor) else actor
     obj.status='draft'
@@ -196,7 +208,12 @@ def moderate_place_request(*,actor,request_id,new_status,note=''):
         from catalog.models import VolunteerPlaceRevision
         revision=VolunteerPlaceRevision.objects.select_for_update().filter(place=row).first()
         if item.base_content_version!=row.content_version or item.base_candidate_version!=(revision.version if revision else 0):raise ValidationError('Stale publication content/candidate; resubmit.')
-        publication.publish(actor=actor,place_id=row.pk,expected_version=item.base_content_version)
+        if revision is not None and revision.status not in {'pending', 'approved'}:
+            raise ValidationError('Publication candidate must be submitted before approval.')
+        publication.publish(actor=actor,place_id=row.pk,expected_version=item.base_content_version,note=note)
+        item.refresh_from_db()
+        if item.status == 'APPROVED':
+            return item
     old=item.status;item.status=new_status;item.moderated_by=actor;item.moderated_at=timezone.now();item.moderation_note=note;item.save(update_fields=['status','moderated_by','moderated_at','moderation_note','updated_at'])
     PlaceOwnershipRequestAudit.log_event(ownership_request=item,actor=actor,action=new_status,from_status=old,to_status=new_status,note=note)
     return item

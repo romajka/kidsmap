@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=20261022_release_all_r1">
-  <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=20261022_org_v3" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=20261026_org_flow_v1" defer></script>
 {% endblock %}
 
 {% block bodyclass %}{{ block.super }} km-custom-changelist km-organization-changelist{% endblock %}
@@ -44,17 +44,6 @@
         {% endif %}
       </section>
 
-      <section class="place-admin-dashboard__stats" aria-label="{% translate 'Статистика организаций' %}">
-        {% for item in organization_dashboard_stats %}
-          <a href="{{ item.url|default:'?' }}" class="place-admin-dashboard__stat-card place-admin-dashboard__stat-card--{{ item.tone }}">
-            <div class="place-admin-dashboard__stat-content">
-              <span class="place-admin-dashboard__stat-label">{{ item.label }}</span>
-              <strong class="place-admin-dashboard__stat-value">{{ item.count }}</strong>
-            </div>
-          </a>
-        {% endfor %}
-      </section>
-
       {% include "admin/catalog/includes/km_changelist_search_panel.html" %}
     </div>
   </div>
@@ -68,7 +57,7 @@
       {% endif %}
 
       <div class="place-admin-dashboard__table-wrap km-table-container">
-        {% result_list cl %}
+        {% if cl.result_count %}{% result_list cl %}{% endif %}
         {% if cl.result_count == 0 %}
           <div class="km-empty-state">
             <svg class="km-i km-empty-state__icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-search_off"></use></svg>
@@ -122,6 +111,7 @@
         <div class="place-admin-dashboard__native-actions km-place-native-actions" aria-hidden="true">{% admin_actions %}</div>
       {% endif %}
 
+      <div id="km-changelist-i18n" hidden data-selected-label="{% translate 'Выбрано' %}"></div>
       <!-- Закреплённая плавающая панель массовых действий снизу -->
       <div class="km-bulk-floating-bar km-place-bulk-bar" id="km-bulk-bar" hidden>
         <div class="km-bulk-floating-bar__inner">

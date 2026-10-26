@@ -119,41 +119,110 @@
           </div>
 
           {% if owner_reviews %}
-            <div class="account-places-list">
+            <div class="account-reviews-feed">
               {% for review in owner_reviews %}
-                <div class="account-owner-card">
-                  <div class="account-owner-card__main">
-                    <div class="account-owner-card__title-row">
-                      <h3 class="account-owner-card__name">
-                        <a href="{{ review.place.get_absolute_url }}">{{ review.place.name_i18n }}</a>
-                      </h3>
-                      <div class="account-owner-card__meta">
-                        <span><strong>{{ review.author_name_i18n }}</strong></span>
-                        <span>·</span>
-                        <span style="color: #E8B531; font-weight: 800;">★ {{ review.rating }}</span>
-                        <span>·</span>
-                        <span>{{ review.created_at|date:"d.m.Y H:i" }}</span>
+                <article class="account-review-card" id="review-{{ review.id }}">
+                  <!-- Review Header: Author avatar, Name, Stars, Date, Place, Status -->
+                  <div class="account-review-card__header">
+                    <div class="account-review-card__author-wrap">
+                      <div class="account-review-avatar">
+                        {% if review.is_anonymous %}
+                          <span class="material-symbols-rounded">person_outline</span>
+                        {% elif review.user.profile.avatar %}
+                          <img src="{{ review.user.profile.avatar.url }}" alt="{{ review.author_name_i18n }}" class="account-review-avatar__img">
+                        {% else %}
+                          <span class="account-review-avatar__initials">{{ review.author_name_i18n|default:review.user.username|slice:":2"|upper }}</span>
+                        {% endif %}
+                      </div>
+                      <div class="account-review-card__author-details">
+                        <div class="account-review-card__author-name-row">
+                          <strong class="account-review-card__author-name">
+                            {% if review.is_anonymous %}
+                              {% if CURRENT_LANGUAGE == "az" %}Anonim istifadəçi{% elif CURRENT_LANGUAGE == "en" %}Anonymous user{% else %}Анонимный отзыв{% endif %}
+                            {% else %}
+                              {{ review.author_name_i18n|default:review.user.get_full_name|default:review.user.username }}
+                            {% endif %}
+                          </strong>
+                          <!-- Golden Stars 4.0 -->
+                          <div class="account-review-stars" aria-label="{% translate 'Оценка' %}: {{ review.rating }}">
+                            <span class="account-review-stars__icons">
+                              {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}
+                                  <span class="material-symbols-rounded star-filled" aria-hidden="true">star</span>
+                                {% else %}
+                                  <span class="material-symbols-rounded star-empty" aria-hidden="true">star</span>
+                                {% endif %}
+                              {% endfor %}
+                            </span>
+                            <span class="account-review-stars__score">{{ review.rating|floatformat:1 }}</span>
+                          </div>
+                        </div>
+                        <div class="account-review-card__meta">
+                          <span class="account-review-card__date">
+                            <span class="material-symbols-rounded">schedule</span>
+                            <span>{{ review.created_at|date:"d.m.Y H:i" }}</span>
+                          </span>
+                          <span class="account-review-card__dot">·</span>
+                          <a class="account-review-card__place-chip" href="{{ review.place.get_absolute_url }}">
+                            <span class="material-symbols-rounded">storefront</span>
+                            <span>{{ review.place.name_i18n }}</span>
+                          </a>
+                        </div>
                       </div>
                     </div>
-                    <div class="account-owner-card__badges">
-                      {% if review.is_approved %}
+
+                    <!-- Moderation Status Badge -->
+                    <div class="account-review-card__badge-wrap">
+                      {% if review.status == 'approved' or review.is_approved %}
                         <span class="account-status-pill account-status-pill--approved">
-                          {% if CURRENT_LANGUAGE == "az" %}Təsdiqlənib{% elif CURRENT_LANGUAGE == "en" %}Approved{% else %}Одобрен{% endif %}
+                          <span class="material-symbols-rounded">check_circle</span>
+                          <span>{% if CURRENT_LANGUAGE == "az" %}Təsdiqlənib{% elif CURRENT_LANGUAGE == "en" %}Approved{% else %}Одобрен{% endif %}</span>
+                        </span>
+                      {% elif review.status == 'pending' %}
+                        <span class="account-status-pill account-status-pill--pending">
+                          <span class="material-symbols-rounded">pending</span>
+                          <span>{% if CURRENT_LANGUAGE == "az" %}Yoxlanışda{% elif CURRENT_LANGUAGE == "en" %}Pending{% else %}На проверке{% endif %}</span>
+                        </span>
+                      {% elif review.status == 'rejected' %}
+                        <span class="account-status-pill account-status-pill--draft" style="background: #FEE2E2; color: #991B1B;">
+                          <span class="material-symbols-rounded">block</span>
+                          <span>{% if CURRENT_LANGUAGE == "az" %}Rədd edilib{% elif CURRENT_LANGUAGE == "en" %}Rejected{% else %}Отклонён{% endif %}</span>
                         </span>
                       {% else %}
                         <span class="account-status-pill account-status-pill--draft">
-                          {% if CURRENT_LANGUAGE == "az" %}Gizlədilib{% elif CURRENT_LANGUAGE == "en" %}Hidden{% else %}Скрыт{% endif %}
+                          <span class="material-symbols-rounded">visibility_off</span>
+                          <span>{% if CURRENT_LANGUAGE == "az" %}Gizlədilib{% elif CURRENT_LANGUAGE == "en" %}Hidden{% else %}Скрыт{% endif %}</span>
                         </span>
                       {% endif %}
                     </div>
                   </div>
 
-                  <p style="margin: 0; font-size: 14px; line-height: 1.55; color: #2D4A3E;">{{ review.text|default:"—" }}</p>
-
-                  <div class="account-owner-card__actions">
-                    {% include 'catalog/includes/typed_review_link.html' with review_kind='place' review_target=review.place %}
+                  <!-- Review Body -->
+                  <div class="account-review-card__content">
+                    <div class="account-review-card__quote-box">
+                      <span class="material-symbols-rounded account-review-card__quote-mark">format_quote</span>
+                      <p class="account-review-card__text">{{ review.text|default:"—" }}</p>
+                    </div>
+                    {% if review.status == 'rejected' and review.rejection_reason %}
+                      <div class="account-rejection-callout">
+                        <span class="material-symbols-rounded">info</span>
+                        <span>{{ review.rejection_reason }}</span>
+                      </div>
+                    {% endif %}
                   </div>
-                </div>
+
+                  <!-- Review Action Buttons -->
+                  <div class="account-review-card__actions">
+                    <a href="{% url 'typed_reviews' 'place' review.place.pk %}" class="account-btn-sm account-btn-sm--primary account-review-action-reply">
+                      <span class="material-symbols-rounded">reply</span>
+                      <span>{% if CURRENT_LANGUAGE == "az" %}Rəyə cavab ver{% elif CURRENT_LANGUAGE == "en" %}Reply to review{% else %}Ответить на отзыв{% endif %}</span>
+                    </a>
+                    <a href="{{ review.place.get_absolute_url }}" class="account-btn-sm account-btn-sm--secondary">
+                      <span class="material-symbols-rounded">open_in_new</span>
+                      <span>{% if CURRENT_LANGUAGE == "az" %}Məkana bax{% elif CURRENT_LANGUAGE == "en" %}View place{% else %}Страница места{% endif %}</span>
+                    </a>
+                  </div>
+                </article>
               {% endfor %}
             </div>
           {% else %}
@@ -179,32 +248,97 @@
         </div>
 
         {% if user_written_reviews %}
-          <div class="account-places-list">
+          <div class="account-reviews-feed">
             {% for rev in user_written_reviews %}
-              <div class="account-owner-card">
-                <div class="account-owner-card__main">
-                  <div class="account-owner-card__title-row">
-                    <h3 class="account-owner-card__name">
-                      <a href="{{ rev.place.get_absolute_url }}">{{ rev.place.name_i18n }}</a>
-                    </h3>
-                    <div class="account-owner-card__meta">
-                      <span style="color: #E8B531; font-weight: 800;">★ {{ rev.rating }}</span>
-                      <span>·</span>
-                      <span>{{ rev.created_at|date:"d.m.Y" }}</span>
-                      {% if rev.place.category %}<span>·</span><span>{{ rev.place.category.name_i18n }}</span>{% endif %}
+              <article class="account-review-card" id="user-review-{{ rev.id }}">
+                <div class="account-review-card__header">
+                  <div class="account-review-card__author-wrap">
+                    <div class="account-review-avatar">
+                      {% if request.user.profile.avatar %}
+                        <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" class="account-review-avatar__img">
+                      {% else %}
+                        <span class="account-review-avatar__initials">{{ request.user.first_name|default:request.user.username|slice:":2"|upper }}</span>
+                      {% endif %}
+                    </div>
+                    <div class="account-review-card__author-details">
+                      <div class="account-review-card__author-name-row">
+                        <strong class="account-review-card__author-name">
+                          {% if CURRENT_LANGUAGE == "az" %}Sizin rəyiniz{% elif CURRENT_LANGUAGE == "en" %}Your review{% else %}Ваш отзыв{% endif %}
+                        </strong>
+                        <div class="account-review-stars" aria-label="{% translate 'Оценка' %}: {{ rev.rating }}">
+                          <span class="account-review-stars__icons">
+                            {% for i in "12345" %}
+                              {% if forloop.counter <= rev.rating %}
+                                <span class="material-symbols-rounded star-filled" aria-hidden="true">star</span>
+                              {% else %}
+                                <span class="material-symbols-rounded star-empty" aria-hidden="true">star</span>
+                              {% endif %}
+                            {% endfor %}
+                          </span>
+                          <span class="account-review-stars__score">{{ rev.rating|floatformat:1 }}</span>
+                        </div>
+                      </div>
+                      <div class="account-review-card__meta">
+                        <span class="account-review-card__date">
+                          <span class="material-symbols-rounded">schedule</span>
+                          <span>{{ rev.created_at|date:"d.m.Y" }}</span>
+                        </span>
+                        <span class="account-review-card__dot">·</span>
+                        <a class="account-review-card__place-chip" href="{{ rev.place.get_absolute_url }}">
+                          <span class="material-symbols-rounded">storefront</span>
+                          <span>{{ rev.place.name_i18n }}</span>
+                        </a>
+                        {% if rev.place.category %}
+                          <span class="account-review-card__dot">·</span>
+                          <span class="account-review-card__category">{{ rev.place.category.name_i18n }}</span>
+                        {% endif %}
+                      </div>
                     </div>
                   </div>
-                  <div class="account-owner-card__badges">
-                    <a href="{{ rev.place.get_absolute_url }}" class="account-btn-sm account-btn-sm--secondary">
-                      <span class="material-symbols-rounded">open_in_new</span>
-                      <span>{% if CURRENT_LANGUAGE == "az" %}Məkana bax{% elif CURRENT_LANGUAGE == "en" %}View place{% else %}Перейти к месту{% endif %}</span>
-                    </a>
+
+                  <div class="account-review-card__badge-wrap">
+                    {% if rev.status == 'approved' or rev.is_approved %}
+                      <span class="account-status-pill account-status-pill--approved">
+                        <span class="material-symbols-rounded">check_circle</span>
+                        <span>{% if CURRENT_LANGUAGE == "az" %}Təsdiqlənib{% elif CURRENT_LANGUAGE == "en" %}Approved{% else %}Одобрен{% endif %}</span>
+                      </span>
+                    {% elif rev.status == 'pending' %}
+                      <span class="account-status-pill account-status-pill--pending">
+                        <span class="material-symbols-rounded">pending</span>
+                        <span>{% if CURRENT_LANGUAGE == "az" %}Yoxlanışda{% elif CURRENT_LANGUAGE == "en" %}Pending{% else %}На проверке{% endif %}</span>
+                      </span>
+                    {% elif rev.status == 'rejected' %}
+                      <span class="account-status-pill account-status-pill--draft" style="background: #FEE2E2; color: #991B1B;">
+                        <span class="material-symbols-rounded">block</span>
+                        <span>{% if CURRENT_LANGUAGE == "az" %}Rədd edilib{% elif CURRENT_LANGUAGE == "en" %}Rejected{% else %}Отклонён{% endif %}</span>
+                      </span>
+                    {% endif %}
                   </div>
                 </div>
-                <p style="margin: 0; font-size: 14px; line-height: 1.55; color: #2D4A3E;">{{ rev.text|default:"—" }}</p>
-                    {% include 'catalog/includes/typed_review_link.html' with review_kind='place' review_target=rev.place %}
-                {% if rev.status == 'pending' %}<p class="account-pending-callout">{{ review_moderation_sla_message }}</p>{% elif rev.status == 'rejected' and rev.rejection_reason %}<p class="account-rejection-callout">{{ rev.rejection_reason }}</p>{% endif %}
-              </div>
+
+                <div class="account-review-card__content">
+                  <div class="account-review-card__quote-box">
+                    <span class="material-symbols-rounded account-review-card__quote-mark">format_quote</span>
+                    <p class="account-review-card__text">{{ rev.text|default:"—" }}</p>
+                  </div>
+                  {% if rev.status == 'pending' %}
+                    <p class="account-pending-callout">{{ review_moderation_sla_message }}</p>
+                  {% elif rev.status == 'rejected' and rev.rejection_reason %}
+                    <p class="account-rejection-callout">{{ rev.rejection_reason }}</p>
+                  {% endif %}
+                </div>
+
+                <div class="account-review-card__actions">
+                  <a href="{% url 'typed_reviews' 'place' rev.place.pk %}" class="account-btn-sm account-btn-sm--primary">
+                    <span class="material-symbols-rounded">edit_note</span>
+                    <span>{% if CURRENT_LANGUAGE == "az" %}Redaktə et / Cavablar{% elif CURRENT_LANGUAGE == "en" %}Edit / View replies{% else %}Редактировать / Ответы{% endif %}</span>
+                  </a>
+                  <a href="{{ rev.place.get_absolute_url }}" class="account-btn-sm account-btn-sm--secondary">
+                    <span class="material-symbols-rounded">open_in_new</span>
+                    <span>{% if CURRENT_LANGUAGE == "az" %}Məkana bax{% elif CURRENT_LANGUAGE == "en" %}View place{% else %}Перейти к месту{% endif %}</span>
+                  </a>
+                </div>
+              </article>
             {% endfor %}
           </div>
         {% else %}

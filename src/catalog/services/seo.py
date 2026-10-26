@@ -233,13 +233,13 @@ def build_sitewide_schema_payload(*, request, site_name: str, logo_url: str = ""
 
 
 def build_home_seo_payload(*, request, popular_places) -> dict:
-    title = _("Кружки и секции для детей в Азербайджане")
-    description = _("KidsMap: каталог детских кружков и секций в Азербайджане с фильтрами по региону, возрасту и цене.")
+    title = _("Места, кружки и развлечения для детей в Азербайджане")
+    description = _("Семейный отдых с детьми в Баку и Азербайджане: парки, музеи, игровые центры, развлечения, кружки и секции. Выбирайте места на KidsMap.")
 
     featured_places_schema_json = ""
     if popular_places:
         featured_places_schema_json = _build_item_list_schema(
-            name=_("Популярные кружки и секции для детей в Азербайджане"),
+            name=_("Популярные места и занятия для детей в Азербайджане"),
             item_urls=[
                 {
                     "position": idx,

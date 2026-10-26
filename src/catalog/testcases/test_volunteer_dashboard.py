@@ -112,7 +112,7 @@ class VolunteerDashboardTests(TestCase):
         self.assertEqual(len(response.context['volunteer_sections']), 5)
         import re
         from catalog.volunteer_forms import CONTENT_FIELDS
-        names = re.findall(r'name="([^"]+)"', response.content.decode())
+        names = re.findall(r'(?<![\w-])name="([^"]+)"', response.content.decode())
         for name in (*CONTENT_FIELDS, 'pricing_plans', 'structured_schedule', 'revision_version', 'base_token'):
             self.assertEqual(names.count(name), 1, name)
         for forbidden in ('name="_publish_place"', 'name="status"', 'data-duplicate-candidates-url'):
