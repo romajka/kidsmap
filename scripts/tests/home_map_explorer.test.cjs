@@ -215,3 +215,15 @@ test('repeated card selections preserve every result node and its order',()=>{
   assert.equal(t.requests.length,0,'selection alone must not fetch new results');
  } finally {t.close();}
 });
+
+test('selecting from the list does not flash the whole explorer, while external map navigation still highlights it',()=>{
+ const t=setup([point(1),point(2)]);
+ try {
+  const section=t.d.getElementById('home-map-section');
+  t.d.querySelector('[data-home-map-member-id="2"]').click();
+  assert.equal(section.classList.contains('is-highlighted'),false,'local selection must not restart the entire explorer highlight');
+  assert.equal(t.d.querySelector('[data-home-map-member-id="2"]').getAttribute('aria-pressed'),'true');
+  t.w.kidsMapFocusPlaceOnHomeMap(1);
+  assert.equal(section.classList.contains('is-highlighted'),true,'external navigation still brings attention to the map');
+ } finally {t.close();}
+});

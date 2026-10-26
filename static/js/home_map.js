@@ -604,10 +604,10 @@
     }
   }
 
-  function requestFocusPlace(placeId) {
+  function requestFocusPlace(placeId, {scroll = true} = {}) {
     const generation = ++homeSelectionGeneration;
     homeExplorer?.showMap();
-    scrollToMap();
+    if (scroll) scrollToMap();
     if (typeof activeMapFocusHandler === "function") {
       activeMapFocusHandler(placeId, generation);
     } else {
@@ -1297,7 +1297,6 @@
       });
       if (!item) return;
 
-      scrollToMap();
       if (!visibleMarkers.has(item.marker)) {
         item.marker.setMap(map);
       }
@@ -1733,7 +1732,6 @@
       if (!item) return;
 
       userInteracted = true;
-      scrollToMap();
 
       if (!markerClusterGroup.hasLayer(item.marker)) {
         markerClusterGroup.addLayer(item.marker);
@@ -2068,7 +2066,7 @@
 
     const sharedState = buildSharedState(mapEl, mapNoteEl);
     if (!sharedState) return;
-    homeExplorer = createHomeMapExplorer(sharedState, requestFocusPlace);
+    homeExplorer = createHomeMapExplorer(sharedState, placeId => requestFocusPlace(placeId, {scroll:false}));
     // Search, filters and explicit pagination own the homepage result set.
     // Camera movement (including card reveal and popup auto-pan) never filters it.
     const pagingControl = document.querySelector('[data-map-pagination="home"]');
