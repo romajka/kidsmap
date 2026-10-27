@@ -49,9 +49,9 @@ class PublicationTests(PublicationFixture,TestCase):
     def test_replay_approval_rejected(self):
         r=self.propose({'description_az':'Yeni təsvir'});self.approve(r)
         with self.assertRaises(ValidationError):self.approve(r)
-    def test_optional_photos_coordinates_and_business_website(self):
+    def test_optional_photos_and_business_website_with_required_coordinates(self):
         from catalog.services.place_readiness import evaluate_place_readiness
-        self.place.photo='';self.place.cover_photo='';self.place.lat=None;self.place.lng=None;self.place.phone1='';self.place.website='https://example.invalid';self.assertTrue(evaluate_place_readiness(self.place).is_ready)
+        self.place.photo='';self.place.cover_photo='';self.place.phone1='';self.place.website='https://example.invalid';self.assertTrue(evaluate_place_readiness(self.place).is_ready)
     def test_public_space_without_contacts_is_ready(self):
         from catalog.services.place_readiness import evaluate_place_readiness
         self.place.nature='public_space';self.place.phone1='';self.place.phone2='';self.place.phone3='';self.place.website='';self.assertTrue(evaluate_place_readiness(self.place).is_ready)
@@ -228,13 +228,13 @@ class PublicationIngressTests(PublicationFixture,TestCase):
         r=self.propose({'description_az':'Candidate via old request'})
         request=PlaceOwnershipRequest.objects.create(place=self.place,applicant=self.owner,request_kind='PUBLICATION')
         moderate_place_request(actor=self.staff,request_id=request.pk,new_status='APPROVED');self.place.refresh_from_db();self.assertEqual(self.place.description_az,'Candidate via old request')
-    def test_owner_create_readiness_without_photos_coordinates_phone(self):
+    def test_owner_create_readiness_without_photos_or_phone_with_coordinates(self):
         import json
         from catalog.forms import OwnerPlaceCreateForm
         from catalog.services.place_schedule import serialize_place_schedule
         plans=self.place.pricing_plans
         for p in plans:p.pop('id',None)
-        data={'name_az':'Yeni məkan','description_az':'Uşaqlar üçün dərnək','category':self.place.category_id,'subcategory':self.place.subcategory_id,'age_from':5,'age_to':12,'region':'sumgait','district':'','address':'Sumqayıt şəhəri, Sülh küçəsi 10','website':'https://example.invalid','phone1':'','pricing_plans':json.dumps(plans),'structured_schedule':json.dumps(serialize_place_schedule(self.place)),'schedule_mode':'regular','price_mode':'tariffs'}
+        data={'name_az':'Yeni məkan','description_az':'Uşaqlar üçün dərnək','category':self.place.category_id,'subcategory':self.place.subcategory_id,'age_from':5,'age_to':12,'region':'baku','district':'baku_yasamal','address':'Bakı, QA küçəsi 10','lat':40.4,'lng':49.8,'website':'https://example.invalid','phone1':'','pricing_plans':json.dumps(plans),'structured_schedule':json.dumps(serialize_place_schedule(self.place)),'schedule_mode':'regular','price_mode':'tariffs'}
         form=OwnerPlaceCreateForm(data=data);self.assertTrue(form.is_valid(),str(form.errors))
     def test_group_invalid_age_refused_before_candidate_write(self):
         from catalog.models import OfferingGroup

@@ -7,7 +7,7 @@ def copy(ru, az, en):
     return {'ru': ru, 'az': az, 'en': en}.get((get_language() or 'az').split('-')[0], ru)
 
 
-REQUIRED = ('name_az', 'subcategory', 'category', 'description_az', 'age_from', 'address', 'region', 'phone1')
+REQUIRED = ('name_az', 'subcategory', 'category', 'description_az', 'age_from', 'address', 'region', 'lat', 'lng', 'phone1')
 NAME_FIELDS = ('name_az', 'name_ru', 'name_en')
 DESCRIPTION_FIELDS = ('description_az', 'description_ru', 'description_en')
 

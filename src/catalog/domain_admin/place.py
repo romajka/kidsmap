@@ -372,7 +372,7 @@ class PlaceAdminForm(PublicLinksFormMixin, ContactPhoneFormMixin, PlaceScheduleE
         )
         if (is_active or status == status_published) and not skips_publish_validation:
             if not readiness.is_ready:
-                if was_published:
+                if was_published and not any(issue.code == 'coordinates' for issue in readiness.issues):
                     # Compatibility never applies to a new card, a draft or a
                     # card that was taken off the site: those need a full 12/12.
                     self.place_readiness_compatibility = True
@@ -2100,6 +2100,23 @@ class PlaceAdmin(admin.ModelAdmin):
                 if obj is not None
                 else None
             )
+            if request.method == "POST" and "_restart_working_revision" in request.POST:
+                if obj is None or not self.has_change_permission(request, obj):
+                    raise PermissionDenied
+                from catalog.services.volunteer_places import restart_working_revision
+                try:
+                    restart_working_revision(
+                        user=request.user, place_id=obj.pk,
+                        version=int(request.POST.get("revision_version", -1)),
+                        token=request.POST.get("base_token", ""),
+                        source=PlaceChangeAudit.SOURCE_ADMIN,
+                    )
+                except (ValueError, ValidationError) as exc:
+                    message = "; ".join(exc.messages) if isinstance(exc, ValidationError) else _("Обновите страницу.")
+                    self.message_user(request, message, level=messages.ERROR)
+                else:
+                    self.message_user(request, _("Загружена текущая версия. Предыдущие правки сохранены в истории."), level=messages.SUCCESS)
+                return HttpResponseRedirect(self._place_change_url(obj))
             from catalog.services.staff_roles import is_volunteer
             if revision is not None and revision.author is not None and is_volunteer(revision.author):
                 if not self.has_change_permission(request, obj):
@@ -2212,6 +2229,19 @@ class PlaceAdmin(admin.ModelAdmin):
             context["km_place_site_preview_url"] = reverse(
                 "admin:catalog_place_site_preview", args=[obj.pk], current_app=self.admin_site.name)
 
+        context["km_place_revision_recovery"] = None
+        if may_edit and obj and obj.pk:
+            from catalog.services.volunteer_places import base_token, revision_base_matches
+            # ModelForm rendering may have projected a candidate onto obj.
+            # Recovery must confirm the actual current record, never that projection.
+            current = self.get_object(request, str(obj.pk))
+            revision = VolunteerPlaceRevision.objects.filter(place=current).exclude(
+                status=VolunteerPlaceRevision.Status.APPROVED).first() if current is not None else None
+            if revision is not None and not revision_base_matches(revision, current):
+                context["km_place_revision_recovery"] = {
+                    "version": revision.version,
+                    "base_token": base_token(current),
+                }
         context["km_place_candidate_conflict"] = getattr(request, '_km_candidate_conflict', None) is not None
         context["km_place_current_version_url"] = request.path
         context["google_maps_api_key"] = getattr(settings, "GOOGLE_MAPS_API_KEY", "")
@@ -2590,7 +2620,8 @@ class PlaceAdmin(admin.ModelAdmin):
             if obj.is_deleted:
                 message = _("Карточка удалена и не может отображаться на карте, пока не будет восстановлена.")
             elif not obj.has_coordinates:
-                message = _("Для публикации на карте нужно заполнить адрес или рассчитать координаты.")
+                from catalog.services.permanent_place_wizard import ui_copy
+                message = ui_copy()["optional_map"]
             elif not obj.is_active or obj.status != obj.STATUS_PUBLISHED:
                 message = _("Координаты есть, но карточка станет доступна на карте только после публикации.")
             else:

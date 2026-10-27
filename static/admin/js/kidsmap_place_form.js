@@ -569,6 +569,10 @@
       }
       if (headerCoordChip) {
         headerCoordChip.dataset.tone = coords ? "good" : "warn";
+        var headerLabel = qs("[data-pf-coords-chip-text]", headerCoordChip);
+        if (headerLabel) headerLabel.textContent = coords
+          ? headerCoordChip.dataset.filledLabel
+          : headerCoordChip.dataset.missingLabel;
         setIcon(qs("[data-pf-coords-chip-icon]", headerCoordChip), coords ? "place" : "location_off");
       }
     }

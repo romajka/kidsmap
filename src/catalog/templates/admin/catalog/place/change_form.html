@@ -14,7 +14,7 @@
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=20261025_adminparity1">
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=20261025_live2">
-  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=20261025_adminparity1" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=20261026_requiredcoords1" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_media.js' %}?v=20261007_place_r5" defer></script>
   <script src="{% static 'js/kidsmap_place_photo_picker.js' %}?v=20261025_adminparity1" defer></script>
   <script src="{% static 'js/kidsmap_native_draft_media.js' %}?v=20261025_adminparity1" defer></script>
@@ -63,6 +63,8 @@
     {{ km_place_entry_copy|json_script:"km-place-entry-copy" }}
     {{ km_place_taxonomy_picker|json_script:"km-place-taxonomy-config" }}
     {{ km_place_taxonomy_picker.pricing_editor|json_script:"km-pricing-editor-contract" }}
+
+    {% include "admin/catalog/place/form/revision_recovery.html" %}
 
     <form
       {% if has_file_field %}enctype="multipart/form-data"{% endif %}

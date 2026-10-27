@@ -196,7 +196,7 @@ class EightRealWorldRoundTripTests(TestCase):
         # 1. Readiness
         readiness = evaluate_place_readiness(place)
         self.assertTrue(readiness.is_ready, f"Place {place_data} failed readiness: {readiness.issues}")
-        # D06 allows publication without photos/coordinates (10 requirements).
+        # Photos stay optional; publication requires a valid coordinate pair.
         self.assertEqual(readiness.completed_count, readiness.required_count)
         self.assertEqual(readiness.percentage, 100)
 

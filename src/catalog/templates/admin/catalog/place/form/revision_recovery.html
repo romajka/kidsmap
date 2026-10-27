@@ -1,0 +1,12 @@
+{% load i18n %}
+{% if km_place_revision_recovery %}
+<form method="post" class="km-pf-alert km-pf-alert--warn" data-normal-revision-restart aria-describedby="normal-revision-restart-description">
+  {% csrf_token %}
+  <input type="hidden" name="revision_version" value="{{ km_place_revision_recovery.version }}">
+  <input type="hidden" name="base_token" value="{{ km_place_revision_recovery.base_token }}">
+  <div>
+    <p id="normal-revision-restart-description">{% translate "Карточка изменилась. Новая рабочая версия будет создана из текущих данных. Предыдущие сохранённые правки останутся в истории; несохранённые изменения формы не переносятся." %}</p>
+    <button type="submit" name="_restart_working_revision" value="1" class="km-pf-btn km-pf-btn--primary">{% translate "Начать с текущей версии" %}</button>
+  </div>
+</form>
+{% endif %}

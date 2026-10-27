@@ -9,8 +9,8 @@
     data-default-lng="49.867092"
     data-selected-prefix="{% translate 'Выбрана точка:' %}"
     data-empty-label="{% translate 'Точка на карте не выбрана.' %}"
-    data-locate-error="{% translate 'Не удалось определить геопозицию. Можно ввести координаты вручную или продолжить без точки.' %}"
-    data-locate-unsupported="{% translate 'Ваш браузер не поддерживает геолокацию. Можно ввести координаты вручную или продолжить без точки.' %}"
+    data-locate-error="{{ km_place_entry_copy.map_locate_error }}"
+    data-locate-unsupported="{{ km_place_entry_copy.map_locate_unsupported }}"
     data-search-error="{% translate 'Не удалось найти место по этому запросу. Уточните адрес.' %}"
     data-search-empty="{% translate 'Введите адрес или выберите точку на карте.' %}"
     data-search-fallback="{% translate 'Поиск выполнится после сохранения формы и серверного пересчёта координат.' %}"
@@ -58,7 +58,7 @@
     <div class="km-pf-group" data-pf-group="map">
       <div class="km-pf-group__head">
         <span class="km-pf-group__title">{% translate "Карта и координаты" %}</span>
-        <span class="km-pf-group__note">{% translate "Точка на карте необязательна. Рекомендуем указать её; можно вернуться к карте позже." %}</span>
+        <span class="km-pf-group__note">{{ km_place_entry_copy.optional_map }}</span>
       </div>
 
       <div class="km-pf-maprow">
@@ -93,7 +93,7 @@
       </div>
 
       <p class="km-pf-mapnotice" id="km-admin-place-map-unavailable" data-km-place-location-unavailable role="status" hidden>
-        {% translate "Карта недоступна. Можно ввести координаты вручную или продолжить без точки." %}
+        {{ km_place_entry_copy.map_unavailable }}
       </p>
       <p class="km-pf-mapstatus" data-km-place-location-status role="status"></p>
 
