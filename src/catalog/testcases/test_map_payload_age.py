@@ -19,7 +19,7 @@ class MapAgePayloadTests(TestCase):
             DjangoPlaceRepository().active_queryset(), language, filters=filters
         )
 
-    def test_place_age_is_localized_and_unknown_age_remains_excluded(self):
+    def test_place_age_is_localized_and_unknown_age_has_no_claim(self):
         ranged = create_quality_place(age_from=0, age_to=6)
         open_ended = create_quality_place(age_from=12, age_to=None)
         unknown = create_quality_place(age_from=None, age_to=None)
@@ -28,8 +28,9 @@ class MapAgePayloadTests(TestCase):
                 points = {point["id"]: point for point in self.payload(language)}
                 self.assertEqual(points[ranged.pk].get("age"), f"0–6 {unit}")
                 self.assertEqual(points[open_ended.pk].get("age"), f"12+ {unit}")
-                # Existing public quality gate excludes records without either bound.
-                self.assertNotIn(unknown.pk, points)
+                self.assertIn(unknown.pk, points)
+                self.assertEqual(points[unknown.pk]["age"], "")
+                self.assertEqual(points[unknown.pk]["members"][0]["age"], "")
                 self.assertEqual(points[ranged.pk]["members"][0].get("age"), f"0–6 {unit}")
 
     def test_each_shared_venue_member_keeps_its_own_age(self):

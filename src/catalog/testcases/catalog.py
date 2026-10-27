@@ -330,7 +330,6 @@ class ContentModerationPublicVisibilityTests(TestCase):
             ("missing_category", {"category": empty_category}),
             ("missing_address", {"address": ""}),
             ("missing_contact", {"phone1": "", "instagram": "", "website": ""}),
-            ("missing_age", {"age_from": None, "age_to": None}),
             ("missing_price", {
                 "price_from": None, "price_to": None, "price_per_lesson": None,
                 "price_per_month": None, "price_per_8_lessons": None,

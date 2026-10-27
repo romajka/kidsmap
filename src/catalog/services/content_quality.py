@@ -284,7 +284,8 @@ def public_place_queryset(queryset: QuerySet) -> QuerySet:
     ).distinct()
     from .contact_policy import contact_optional_q
     qs = qs.filter(contact_optional_q() | Q(phone1__gt="") | Q(phone2__gt="") | Q(phone3__gt="") | Q(whatsapp_mode='separate', whatsapp_number__regex=r'^\+[1-9][0-9]{6,14}$') | Q(instagram__gt="") | Q(website__gt="") | Q(organization__status="published", organization__approved_at__isnull=False, organization__archived_at__isnull=True, organization_join_place_ownership_version=F("ownership_version"), organization_join_org_ownership_version=F("organization__ownership_version"), organization_relationship_kind__in=["business","informational"]) & (Q(organization__phone__gt="") | (Q(whatsapp_mode="legacy") & Q(organization__whatsapp__gt="")) | Q(organization__website__gt="")))
-    qs = qs.filter(Q(age_from__isnull=False) | Q(age_to__isnull=False))
+    # Unknown suitability is still discoverable by name. Explicit age filters
+    # require confirmed bounds in catalog_search; publication readiness stays strict.
     # Legacy scalar price fields, relational tariffs and structured price modes
     # (free, free entry, events) are all public price sources.
     qs = qs.filter(_has_price_q() | _has_pricing_plan_q())
@@ -320,8 +321,6 @@ def place_catalog_visibility_reasons(place) -> tuple[str, ...]:
     from .contact_policy import contact_optional_for_place
     if not contact_optional_for_place(place) and not (place.phone1 > "" or place.instagram > "" or effective_contact(place)):
         errors.append("missing_contact")
-    if place.age_from is None and place.age_to is None:
-        errors.append("missing_age")
 
     has_legacy_price = any(
         value is not None
