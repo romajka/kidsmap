@@ -7,7 +7,8 @@ from django.contrib.admin import helpers
 from django.core.exceptions import ValidationError
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Avg, Count, Exists, Max, OuterRef, Prefetch, Q
+from django.db.models import Avg, Case, CharField, Count, Exists, F, Max, OuterRef, Prefetch, Q, When
+from django.db.models.fields.json import KeyTextTransform
 from django import forms
 from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse, QueryDict
 from django.urls import path, reverse
@@ -18,6 +19,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _, ngettext
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
+from django.utils.text import smart_split, unescape_string_literal
 from urllib.parse import urlparse
 import re
 from zoneinfo import ZoneInfo
@@ -1831,6 +1833,53 @@ class PlaceAdmin(admin.ModelAdmin):
         "owner__email",
     )
     search_help_text = _("Ищет по названию места на AZ, RU или EN. Можно также искать по адресу, телефону или владельцу.")
+
+    def get_search_results(self, request, queryset, search_term):
+        results, may_have_duplicates = super().get_search_results(request, queryset, search_term)
+        if not search_term.strip() or not self.has_change_permission(request):
+            return results, may_have_duplicates
+
+        # Editors overlay these saved fields without writing them to Place.
+        # Search the same effective values; never scan arbitrary JSON metadata.
+        fields = ("name_az", "name_ru", "name_en", "address", "instagram", "phone1", "phone2", "phone3")
+        aliases = {field: f"km_saved_search_{field}" for field in fields}
+        saved = queryset.filter(volunteer_revision__status__in=("draft", "pending", "rejected")).alias(**{
+            aliases[field]: Case(
+                When(volunteer_revision__payload__has_key=field,
+                     then=KeyTextTransform(field, F("volunteer_revision__payload"))),
+                default=F(field), output_field=CharField(),
+            ) for field in fields
+        })
+        for term in smart_split(search_term):
+            if term.startswith(('"', "'")) and term[0] == term[-1]:
+                term = unescape_string_literal(term)
+            matches = Q()
+            for field in self.get_search_fields(request):
+                matches |= Q(**{f"{aliases.get(field, field)}__icontains": term})
+            saved = saved.filter(matches)
+
+        from catalog.services.publication import authorize
+        allowed = []
+        for place in saved.prefetch_related(None).iterator():
+            if not self.has_change_permission(request, place):
+                continue
+            try:
+                authorize(request.user, place, "place")
+            except PermissionDenied:
+                continue
+            allowed.append(place.pk)
+        # A private working copy can belong to an existing Place. Its matching
+        # target must survive the changelist filter as well as the draft panel.
+        from catalog.services.place_editor_drafts import working_draft_rows
+        try:
+            allowed.extend(row["target_id"] for row in working_draft_rows(
+                user=request.user, query=search_term) if row["target_id"] is not None)
+        except PermissionDenied:
+            pass
+        if allowed:
+            results = queryset.filter(Q(pk__in=results.values("pk")) | Q(pk__in=allowed))
+        return results, may_have_duplicates
+
     readonly_fields = (
         "slug",
         "likes_count",
@@ -4979,27 +5028,29 @@ class PlaceAdmin(admin.ModelAdmin):
 
     def search_suggestions_view(self, request):
         if not self.has_view_or_change_permission(request):
-            from django.core.exceptions import PermissionDenied
             raise PermissionDenied
         term = (request.GET.get("q") or "").strip()
         if len(term) < 2:
             return JsonResponse({"results": []})
         language_code = getattr(request, "LANGUAGE_CODE", None)
 
-        # Suggestions must not inherit changelist-only filters or annotations
-        # from ModelAdmin.get_queryset(); search the canonical active table.
-        variants = list(dict.fromkeys([term, term.lower(), term.capitalize(), term.upper()]))
-        q_filter = Q()
-        fields = ("name", "name_az", "name_ru", "name_en", "slug", "address", "phone1", "phone2", "phone3", "owner__username", "owner__email")
-        for v in variants:
-            for fld in fields:
-                q_filter |= Q(**{f"{fld}__icontains": v})
-
-        queryset = Place.objects.filter(deleted_at__isnull=True).filter(q_filter)
-        queryset = queryset.select_related("owner", "category").distinct()[:8]
+        # Share saved-content search, without inheriting changelist filters.
+        queryset, _may_have_duplicates = self.get_search_results(
+            request, Place.objects.filter(deleted_at__isnull=True), term)
+        queryset = queryset.select_related("owner", "category", "volunteer_revision").distinct()[:8]
 
         results = []
         for place in queryset:
+            revision = getattr(place, "volunteer_revision", None)
+            if revision and revision.status in {"draft", "pending", "rejected"} and self.has_change_permission(request, place):
+                from catalog.services.publication import authorize
+                from catalog.services.volunteer_places import candidate_from_payload
+                try:
+                    authorize(request.user, place, "place")
+                except PermissionDenied:
+                    pass
+                else:
+                    place = candidate_from_payload(place, revision.payload)
             title = (place.name_i18n(language_code) or place.name or "").strip()
             if not title:
                 continue

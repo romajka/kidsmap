@@ -6,6 +6,7 @@ from django.core.paginator import Paginator
 from django.db import transaction
 from django.urls import reverse
 from django.utils.translation import get_language
+from django.utils.text import smart_split, unescape_string_literal
 
 from catalog.models import ServerDraft, VolunteerPlaceRevision
 from catalog.services import publication, server_drafts
@@ -45,6 +46,8 @@ def working_draft_rows(*, user, surface='admin', query=''):
     _surface(user, surface)
     seen_targets = set()
     language = (get_language() or 'az').split('-')[0]
+    terms = [unescape_string_literal(term) if term.startswith(('"', "'")) and term[0] == term[-1]
+             else term for term in smart_split(query)]
     for draft in ServerDraft.objects.filter(actor=user, target_type='place', materialized_place__isnull=True).order_by('-saved_at', '-pk').iterator():
         needs_review = False
         try:
@@ -58,7 +61,10 @@ def working_draft_rows(*, user, surface='admin', query=''):
             seen_targets.add(draft.target_id)
         title = next((str(draft.fields.get(key)).strip() for key in
                       ('name_' + language, 'name_az', 'name_ru', 'name_en') if draft.fields.get(key)), '')
-        if query and query.casefold() not in title.casefold(): continue
+        searchable = [str(draft.fields.get(key) or '').casefold() for key in
+                      ('name_az', 'name_ru', 'name_en', 'address', 'phone1', 'phone2', 'phone3',
+                       'website', 'instagram')]
+        if any(not any(term.casefold() in value for value in searchable) for term in terms): continue
         if surface == 'volunteer':
             url = reverse('admin:volunteer_edit', args=[draft.target_id]) if draft.target_id else reverse('admin:volunteer_add')
         else:
