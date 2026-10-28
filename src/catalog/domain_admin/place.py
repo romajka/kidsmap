@@ -539,16 +539,7 @@ class EventAdminForm(forms.ModelForm):
     PICKER_DATETIME_FORMAT = "%Y-%m-%d %H:%M"
     require_location_region = False
 
-    PUBLICATION_CHECKLIST = (
-        ("name", _("Название")),
-        ("category", _("Категория")),
-        ("description_az", _("Описание (AZ)")),
-        ("start_datetime", _("Дата начала")),
-        ("end_datetime", _("Дата окончания")),
-        ("address", _("Адрес")),
-        ("phone", _("Телефон")),
-        ("photo", _("Фото")),
-    )
+    name = forms.CharField(required=False, widget=forms.HiddenInput())
 
     # The custom admin template renders one text input per date. Declaring the
     # fields prevents ModelAdmin from replacing them with SplitDateTimeField,
@@ -631,38 +622,19 @@ class EventAdminForm(forms.ModelForm):
         end_datetime = cleaned.get("end_datetime")
         if start_datetime and end_datetime and end_datetime <= start_datetime:
             self.add_error("end_datetime", _("Окончание мероприятия должно быть позже начала."))
-        is_save_draft = bool(self.data and "_save_draft" in self.data)
-        skips_publish_validation = bool(
-            self.data and any(action in self.data for action in ("_save_draft", "_unpublish_event"))
-        )
-        is_active = cleaned.get("is_active")
-        if is_active is None:
-            is_active = getattr(self.instance, "is_active", False)
-        status = cleaned.get("status")
-        if status is None:
-            status = getattr(self.instance, "status", "")
-        status_published = getattr(self.instance, "STATUS_PUBLISHED", "published")
-        wants_publication = is_active or status == status_published or "_publish_event" in self.data
-        if wants_publication and not skips_publish_validation:
-            checklist = self.PUBLICATION_CHECKLIST
-            missing = []
-            for field_name, label in checklist:
-                if field_name == "address" and cleaned.get("event_format") == Event.FORMAT_ONLINE:
-                    continue
-                val = cleaned.get(field_name)
-                if field_name == "photo" and val is False:
-                    missing.append(str(label))
-                    continue
-                if not val and val != 0:
-                    if self.instance and self.instance.pk:
-                        val = getattr(self.instance, field_name, None)
-                        if hasattr(val, "name") and not val.name:
-                            val = None
-                if not val and val != 0:
-                    missing.append(str(label))
-            if missing:
-                self.add_error(None, _("Нельзя опубликовать мероприятие. Обязательны для заполнения: {}").format(", ".join(missing)))
+        related = cleaned.get("related_place")
+        if cleaned.get("event_format") == Event.FORMAT_ONLINE:
+            cleaned.update(related_place=None, address="", district="", metro="", lat=None, lng=None)
+        elif related:
+            for field in ("address", "district", "metro", "lat", "lng"):
+                if cleaned.get(field) in (None, ""):
+                    value = getattr(related, field)
+                    if field in {"lat", "lng"} and value is not None:
+                        from decimal import Decimal
+                        value = Decimal(str(value)).quantize(Decimal("0.000001"))
+                    cleaned[field] = value
         return cleaned
+
 
     def _post_clean(self):
         super()._post_clean()
@@ -673,15 +645,42 @@ class EventAdminForm(forms.ModelForm):
         try:
             original = Event.objects.filter(pk=self.instance.pk).first() if self.instance.pk else None
             validate_event_domain(self.instance, original)
+            publication = ("_publish_event" in self.data or (
+                self.instance.status == Event.STATUS_PUBLISHED and (not original or original.status != Event.STATUS_PUBLISHED)
+            )) and not any(action in self.data for action in ("_save_draft", "_unpublish_event"))
+            if original and original.status == Event.STATUS_PUBLISHED and not publication and not any(action in self.data for action in ("_save_draft", "_unpublish_event")):
+                from catalog.services.event_readiness import publication_errors
+                before = publication_errors(original)
+                introduced = {name: message for name, message in publication_errors(self.instance).items() if name not in before}
+                if introduced:
+                    self.add_error(None, list(introduced.values()))
+                    return
             if self.instance.organizer_resolution == Event.ORGANIZER_RESOLVED or not self.instance.pk:
-                _validate(self.instance, publication=self.instance.status == Event.STATUS_PUBLISHED or "_publish_event" in self.data)
-            elif self.instance.status == Event.STATUS_PUBLISHED or "_publish_event" in self.data:
+                _validate(self.instance, publication=publication)
+            elif publication:
                 raise ValidationError(_("Выберите организатора перед публикацией."))
         except (ValidationError, PermissionDenied) as exc:
-            self.add_error(None, ValidationError(str(exc)))
+            if isinstance(exc, ValidationError) and hasattr(exc, "error_dict"):
+                for name, errors in exc.error_dict.items():
+                    self.add_error(name if name in self.fields else None, errors)
+            else:
+                self.add_error(None, ValidationError(str(exc)))
 
     def __init__(self, *args, check_version=True, **kwargs):
         self.check_version = check_version
+        # Old callers do not send fields introduced by the additive schema.
+        # Preserve persisted choices instead of treating absence as a new choice.
+        data = args[0] if args else kwargs.get("data")
+        if data is not None:
+            data = data.copy()
+            instance = kwargs.get("instance")
+            for name in ("price_mode", "price_currency", "registration_method"):
+                if name not in data:
+                    data[name] = getattr(instance, name, None) or Event._meta.get_field(name).get_default()
+            if args:
+                args = (data,) + args[1:]
+            else:
+                kwargs["data"] = data
         super().__init__(*args, **kwargs)
         if self.instance.pk:
             self.initial['expected_updated_at'] = self.instance.updated_at.isoformat()
@@ -715,6 +714,9 @@ class EventAdminForm(forms.ModelForm):
                     localized_value = timezone.localtime(value, ZoneInfo("Asia/Baku")) if timezone.is_aware(value) else value
                     display_format = self.PICKER_DATETIME_FORMAT if field_name in {"start_datetime", "end_datetime"} else self.DATETIME_LOCAL_FORMAT
                     self.initial[field_name] = localized_value.strftime(display_format)
+        for name in ("registration_url", "website"):
+            if name in self.fields:
+                self.fields[name].widget = forms.URLInput(attrs={"class": "field", "placeholder": "https://"})
         self.fields["photo"].help_text = _(
             "Основное изображение мероприятия для списка и детальной страницы."
         )
@@ -922,8 +924,8 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     list_display = (
         "display_name",
         "category",
-        "start_datetime",
-        "end_datetime",
+        "start_datetime_display",
+        "end_datetime_display",
         "owner",
         "lifecycle_status_display",
         "updated_at",
@@ -935,188 +937,49 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     list_select_related = ("owner", "related_place")
     list_per_page = 15
     change_form_template = "admin/catalog/event/change_form.html"
+    autocomplete_fields = ("organizer_organization", "organizer_specialist", "related_place", "owner")
     EVENT_FORM_PRIMARY_SECTIONS = (
-        {
-            "id": "basics",
-            "step": "01",
-            "title": _("Основное"),
-            "description": _("Название события, категория, владелец и связанное место."),
-            "fieldset_indexes": (0,),
-        },
-        {
-            "id": "copy",
-            "step": "02",
-            "title": _("Названия и описания"),
-            "description": _("Тексты мероприятия на языках сайта. Минимум один качественный язык обязателен."),
-            "fieldset_indexes": (1,),
-        },
-        {
-            "id": "schedule",
-            "step": "03",
-            "title": _("Дата и формат"),
-            "description": _("Время проведения, возраст, цена и формат участия."),
-            "fieldset_indexes": (2,),
-        },
-        {
-            "id": "location",
-            "step": "04",
-            "title": _("Локация и контакты"),
-            "description": _("Адрес, телефон, Instagram и комментарии для модерации."),
-            "fieldset_indexes": (3,),
-        },
-        {
-            "id": "media",
-            "step": "05",
-            "title": _("Фото и публикация"),
-            "description": _("Основное изображение, видимость на сайте и текущий статус публикации."),
-            "fieldset_indexes": (4,),
-        },
+        {"id": "basics", "step": "01", "title": _("Событие"),
+         "description": _("Организатор, название и описание."), "fieldset_indexes": (0,)},
+        {"id": "schedule", "step": "02", "title": _("Когда и где"),
+         "description": _("Дата, возраст, стоимость и площадка."), "fieldset_indexes": (1,)},
+        {"id": "media", "step": "03", "title": _("Фото и запись"),
+         "description": _("Обложка и способ связи с организатором."), "fieldset_indexes": (2,)},
     )
     EVENT_FORM_SECONDARY_SECTIONS = (
-        {
-            "id": "system",
-            "title": _("Служебное"),
-            "description": _("Служебные статусы, причины отклонения и временные метки."),
-            "fieldset_indexes": (5,),
-        },
+        {"id": "translations", "title": _("Переводы RU / EN"),
+         "description": _("Необязательно"), "fieldset_indexes": (3,)},
+        {"id": "service", "title": _("Служебные настройки"),
+         "description": _("Владелец, статус и история записи"), "fieldset_indexes": (4,)},
     )
     fieldsets = (
-        (
-            _("Основное"),
-            {
-                "fields": (
-                    ("name", "category"),
-                    ("owner", "related_place"),
-                    "slug",
-                )
-            },
-        ),
-        (
-            _("Названия и описания (i18n)"),
-            {
-                "classes": ("collapse",),
-                "fields": (
-                    ("name_az", "description_az"),
-                    ("name_ru", "description_ru"),
-                    ("name_en", "description_en"),
-                )
-            },
-        ),
-        (
-            _("Дата и формат"),
-            {
-                "fields": (
-                    ("start_datetime", "end_datetime"),
-                    ("age_from", "age_to"),
-                    "price_text",
-                )
-            },
-        ),
-        (
-            _("Локация и контакты"),
-            {
-                "fields": (
-                    ("region", "district", "metro"),
-                    "address",
-                    ("lat", "lng"),
-                    ("phone", "instagram"),
-                    "website",
-                    "moderation_note",
-                )
-            },
-        ),
-        (
-            _("Фото и публикация"),
-            {
-                "fields": (
-                    ("photo", "status"),
-                    "published_at",
-                ),
-            },
-        ),
-        (
-            _("Служебное"),
-            {
-                "classes": ("collapse",),
-                "fields": ("rejection_reason", ("deleted_at", "created_at", "updated_at")),
-            },
-        ),
+        (_("Событие"), {"fields": ("name_az", "category", ("organizer_organization", "organizer_specialist"), "description_az")}),
+        (_("Когда и где"), {"fields": (("start_datetime", "end_datetime"), ("age_from", "age_to"),
+            "price_mode", ("price_amount", "price_amount_max", "price_currency"), "price_text", "event_format",
+            "related_place", ("region", "district", "metro"), "address", ("lat", "lng"))}),
+        (_("Фото и запись"), {"fields": ("photo", "registration_method", "phone", "whatsapp", "registration_url",
+            "instagram", "website", "moderation_note")}),
+        (_("Переводы RU / EN"), {"fields": (("name_ru", "description_ru"), ("name_en", "description_en"))}),
+        (_("Служебные настройки"), {"fields": ("owner", "slug", "status", "published_at", "rejection_reason",
+            ("deleted_at", "created_at", "updated_at"))}),
     )
-    add_fieldsets = (
-        (
-            _("Основное"),
-            {
-                "fields": (
-                    ("name", "category"),
-                    ("owner", "related_place"),
-                    "slug",
-                ),
-            },
-        ),
-        (
-            _("Названия и описания (i18n)"),
-            {
-                "classes": ("collapse",),
-                "fields": (
-                    ("name_az", "description_az"),
-                    ("name_ru", "description_ru"),
-                    ("name_en", "description_en"),
-                ),
-            },
-        ),
-        (
-            _("Дата и формат"),
-            {
-                "fields": (
-                    ("start_datetime", "end_datetime"),
-                    ("age_from", "age_to"),
-                    "price_text",
-                ),
-            },
-        ),
-        (
-            _("Локация и контакты"),
-            {
-                "fields": (
-                    ("region", "district", "metro"),
-                    "address",
-                    ("lat", "lng"),
-                    ("phone", "instagram"),
-                    "website",
-                    "moderation_note",
-                ),
-            },
-        ),
-        (
-            _("Фото и публикация"),
-            {
-                "fields": (
-                    ("photo", "status"),
-                ),
-            },
-        ),
-        (
-            _("Служебное"),
-            {
-                "classes": ("collapse",),
-                "fields": ("rejection_reason",),
-            },
-        ),
-    )
+    add_fieldsets = fieldsets
 
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)
         initial.setdefault("status", Event.STATUS_DRAFT)
+        initial.setdefault("price_mode", "unknown")
+        from catalog.models import Organization, Specialist
+        organizations = list(Organization.objects.filter(owner=request.user, archived_at__isnull=True).values_list("pk", flat=True)[:2])
+        specialists = list(Specialist.objects.filter(verified_person_user=request.user, person_verified_at__isnull=False, is_active=True).values_list("pk", flat=True)[:2])
+        if len(organizations) + len(specialists) == 1:
+            initial.setdefault("organizer_organization" if organizations else "organizer_specialist", (organizations or specialists)[0])
         return initial
 
     def get_fieldsets(self, request, obj=None):
-        sections = self.add_fieldsets if obj is None else self.fieldsets
-        title, options = sections[0]
-        basics = dict(options)
-        basics["fields"] = tuple(options["fields"]) + (
-            ("organizer_organization", "organizer_specialist"), "event_format",
-        )
-        return ((title, basics),) + tuple(sections[1:])
+        if obj is not None:
+            return self.fieldsets
+        return self.fieldsets[:-1] + ((self.fieldsets[-1][0], {"fields": ("owner", "status", "rejection_reason")}),)
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
         context["google_maps_api_key"] = getattr(settings, "GOOGLE_MAPS_API_KEY", "")
@@ -1138,6 +1001,16 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
                 obj=obj,
                 add=add,
             )
+        from catalog.services.event_presentation import EVENT_UI_CONFIG
+        context["km_event_ui_config"] = EVENT_UI_CONFIG
+        context["km_event_review_mode"] = bool(obj and obj.status == Event.STATUS_PENDING and not adminform.form.is_bound)
+        if obj and obj.pk:
+            context["km_event_review_url"] = reverse(f"admin:{self.opts.app_label}_{self.opts.model_name}_review", args=[obj.pk])
+            context["km_event_repeat_url"] = reverse(f"admin:{self.opts.app_label}_{self.opts.model_name}_repeat", args=[obj.pk])
+        if adminform:
+            form = adminform.form
+            context["km_event_translation_errors"] = any(name in form.errors for name in ("name_ru", "description_ru", "name_en", "description_en"))
+            context["km_event_service_errors"] = any(name in form.errors for name in ("owner", "status", "rejection_reason", "published_at"))
         return super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
 
     def _fieldset_list(self, adminform):
@@ -1185,37 +1058,6 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
                 }
             )
         return sections
-
-    def _field_has_value(self, form, field_name: str, *, obj=None) -> bool:
-        if field_name == "name":
-            return (
-                self._field_has_value(form, "name_az", obj=obj)
-                or self._field_has_value(form, "name_ru", obj=obj)
-                or self._field_has_value(form, "name_en", obj=obj)
-                or bool(form.is_bound and form.data.get(form.add_prefix("name")))
-                or bool(form.initial.get("name"))
-                or bool(obj and getattr(obj, "name", None))
-            )
-
-        if field_name in form.files and form.files.get(field_name):
-            return True
-
-        if form.is_bound:
-            if hasattr(form, "cleaned_data") and field_name in form.cleaned_data:
-                raw_value = form.cleaned_data.get(field_name)
-            else:
-                raw_value = form.data.get(form.add_prefix(field_name))
-        else:
-            raw_value = form.initial.get(field_name, getattr(getattr(form, "instance", None), field_name, None))
-
-        if raw_value in (None, "", [], (), {}):
-            if obj is not None:
-                current_value = getattr(obj, field_name, None)
-                if current_value not in (None, "", [], (), {}):
-                    return True
-            return False
-
-        return True
 
     def _event_visibility_state(self, obj=None):
         if obj is None or not getattr(obj, "pk", None):
@@ -1274,141 +1116,102 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             "is_public": False,
         }
 
-    def _event_publish_missing_fields(self, *, form, obj=None):
-        required = (
-            ("name", _("Название")),
-            ("category", _("Категория")),
-            ("description_az", _("Описание (AZ)")),
-            ("start_datetime", _("Дата начала")),
-            ("end_datetime", _("Дата окончания")),
-        )
-        missing = []
-        for field_name, label in required:
-            if not self._field_has_value(form, field_name, obj=obj):
-                missing.append(str(label))
-        return missing
-
     def _build_event_form_summary(self, *, form, obj=None, add=False):
-        # Probe the actual publication form, without mutating the displayed model
-        # or writing anything. This includes organizer/venue/domain validation.
         from copy import copy
+        from catalog.services.event_readiness import publication_errors, has_possible_duplicate
         probe_data = form.data.copy() if form.is_bound else {
-            name: form[name].value() for name in form.fields
-            if name != "photo"
+            name: form[name].value() for name in form.fields if name != "photo"
         }
         for action in ("_save_draft", "_unpublish_event"):
             probe_data.pop(action, None)
         probe_data["_publish_event"] = "1"
         probe = type(form)(data=probe_data, files=form.files, instance=copy(form.instance), check_version=False)
         server_ready = probe.is_valid()
-        event_format = probe_data.get("event_format") or form.instance.event_format
-        checklist = list(EventAdminForm.PUBLICATION_CHECKLIST)
-        # The domain service additionally requires the AZ title and an organizer.
-        checklist.append(("name_az", _("Название (Азербайджанский)")))
-        checklist_items = []
+        requirements = publication_errors(probe.instance)
         missing = []
-        for field_name, label in checklist:
-            initial = self._field_has_value(form, field_name, obj=obj)
-            if field_name == "name":
-                initial = bool(probe_data.get("name") or getattr(form.instance, "name", ""))
-            item = {
-                "field_name": field_name, "input_id": f"id_{field_name}",
-                "label": str(label), "initial": initial,
-            }
-            if field_name == "photo":
-                item["stored_photo"] = bool(form.initial.get("photo"))
-            if field_name == "address":
-                item["physical_only"] = True
-            checklist_items.append(item)
-            if (field_name != "address" or event_format != Event.FORMAT_ONLINE) and not initial:
-                missing.append({"label": str(label), "field_id": item["input_id"]})
-        organizer_fields = ("organizer_organization", "organizer_specialist")
-        organizer_count = sum(bool(probe_data.get(name)) for name in organizer_fields)
-        organizer_item = {
-            "field_name": "organizer", "input_id": "id_organizer_organization",
-            "input_ids": [f"id_{name}" for name in organizer_fields],
-            "label": str(_("Организатор")), "initial": organizer_count == 1,
-        }
-        checklist_items.append(organizer_item)
-        if not organizer_item["initial"]:
-            missing.append({"label": organizer_item["label"], "field_id": organizer_item["input_id"]})
-        total = len(checklist_items) - (event_format == Event.FORMAT_ONLINE)
-        completed = total - len(missing)
-        completion_pct = round(completed / total * 100) if total else 0
-        if not server_ready:
-            completion_pct = min(completion_pct, 99)
-        error_count = len(form.errors)
-        # Bound ModelForms mutate instance before rejecting a POST. Lifecycle
-        # must describe the saved card, rather than that rejected candidate.
-        saved_obj = Event.objects.filter(pk=obj.pk).first() if form.is_bound and obj is not None and obj.pk else obj
+        for field_name, message in requirements.items():
+            target = field_name if field_name in form.fields else "organizer_organization"
+            label = str(form.fields[target].label) if target in form.fields else str(message)
+            missing.append({"label": label, "message": str(message), "field_id": f"id_{target}"})
+        saved_obj = Event.objects.filter(pk=obj.pk).first() if form.is_bound and obj and obj.pk else obj
         visibility = self._event_visibility_state(saved_obj)
-        title = str(_("Новое мероприятие"))
-        state_badges = [{"label": visibility["label"], "tone": visibility["tone"]}]
-        meta_items = []
-
-        if obj is not None and obj.pk:
-            title = obj.name_ru or obj.name or title
-            state_badges.append(
-                {
-                    "label": str(saved_obj.get_status_display()),
-                    "tone": "good" if saved_obj.status == saved_obj.STATUS_PUBLISHED else "muted",
-                }
-            )
-            if obj.start_datetime:
-                meta_items.append(
-                    {
-                        "label": str(_("Старт")),
-                        "value": timezone.localtime(obj.start_datetime).strftime("%d.%m.%Y %H:%M"),
-                    }
-                )
-            if obj.end_datetime:
-                meta_items.append(
-                    {
-                        "label": str(_("Завершение")),
-                        "value": timezone.localtime(obj.end_datetime).strftime("%d.%m.%Y %H:%M"),
-                    }
-                )
-            meta_items.append(
-                {
-                    "label": str(_("Владелец")),
-                    "value": obj.owner.username if obj.owner_id and obj.owner else str(_("Не назначен")),
-                }
-            )
-            if obj.related_place_id and obj.related_place:
-                meta_items.append(
-                    {
-                        "label": str(_("Связанное место")),
-                        "value": obj.related_place.name_ru or obj.related_place.name or str(obj.related_place),
-                    }
-                )
-        else:
-            state_badges.append({"label": str(_("Черновой режим")), "tone": "muted"})
-
-        meta_items.insert(
-            0,
-            {
-                "label": str(_("Режим")),
-                "value": str(_("Создание новой карточки")) if add else str(_("Редактирование карточки")),
-            },
-        )
-
+        title = obj.name_i18n() if obj and obj.pk else str(_("Новое мероприятие"))
         return {
-            "title": title,
-            "completion_pct": completion_pct,
-            "completed": completed,
-            "total": total,
-            "error_count": error_count,
-            "visibility": visibility,
-            "progress_items": checklist_items,
-            "checklist_items": [item for item in checklist_items if not (item.get("physical_only") and event_format == Event.FORMAT_ONLINE)],
-            "missing": missing,
-            "server_ready": server_ready,
-            "publication_errors": list(probe.errors.values()),
-            "readiness_label": str(_("Готово к публикации")) if server_ready else str(_("Нужна доработка")),
+            "title": title, "visibility": visibility, "missing": missing,
+            "server_ready": server_ready, "error_count": len(form.errors),
+            "publication_errors": [errors for name, errors in probe.errors.items() if name not in requirements],
+            "readiness_label": str(_("Можно опубликовать")) if server_ready else str(_("Проверьте обязательные поля")),
             "readiness_tone": "good" if server_ready else "warn",
-            "state_badges": state_badges,
-            "meta_items": meta_items,
+            "duplicate_warning": has_possible_duplicate(probe.instance),
+            # Compatibility for existing consumers; the editor no longer displays percentages.
+            "total": max(len(form.fields), 1), "completed": len(form.fields) if server_ready else 0,
+            "completion_pct": 100 if server_ready else 0,
+            "progress_items": [], "state_badges": [], "meta_items": [],
+            "checklist_items": [{"field_name": item["field_id"][3:]} for item in missing],
         }
+
+    def get_urls(self):
+        names = f"{self.opts.app_label}_{self.opts.model_name}"
+        return [
+            path("<path:object_id>/repeat/", self.admin_site.admin_view(self.repeat_view), name=f"{names}_repeat"),
+            path("<path:object_id>/review/", self.admin_site.admin_view(self.review_view), name=f"{names}_review"),
+            path("venue-facts/", self.admin_site.admin_view(self.venue_facts_view), name=f"{names}_venue_facts"),
+        ] + super().get_urls()
+
+    def venue_facts_view(self, request):
+        if not self.has_add_permission(request) and not self.has_change_permission(request):
+            raise PermissionDenied
+        venue = Place.objects.filter(pk=request.GET.get("id"), deleted_at__isnull=True, is_active=True).first() if str(request.GET.get("id", "")).isdigit() else None
+        if venue is None:
+            raise Http404
+        if venue.status != Place.STATUS_PUBLISHED and venue.owner_id != request.user.pk and not request.user.has_perm("catalog.view_place") and not request.user.has_perm("catalog.change_place"):
+            raise PermissionDenied
+        from catalog.services.locations import init_location_fields
+        from types import SimpleNamespace
+        location = SimpleNamespace(initial={})
+        init_location_fields(location, venue)
+        return JsonResponse({"address": venue.address, "phone": venue.phone1,
+            "lat": str(venue.lat) if venue.lat is not None else "", "lng": str(venue.lng) if venue.lng is not None else "",
+            "region": location.initial.get("region", ""), "district": venue.district, "metro": venue.metro})
+
+    def repeat_view(self, request, object_id):
+        from django.http import HttpResponseNotAllowed
+        from catalog.services.event_domain import repeat_event
+        if request.method != "POST":
+            return HttpResponseNotAllowed(["POST"])
+        obj = self.get_object(request, object_id)
+        if obj is None:
+            raise Http404
+        if not self.has_change_permission(request, obj) or not self.has_add_permission(request):
+            raise PermissionDenied
+        try:
+            draft = repeat_event(actor=request.user, event_id=obj.pk,
+                expected_updated_at=request.POST.get("expected_updated_at"), review=True)
+        except ValidationError as exc:
+            return HttpResponse("; ".join(exc.messages), status=409)
+        from catalog.services.phone_numbers import contact_copy
+        self.message_user(request, contact_copy("Создан новый черновик. Выберите дату и проверьте условия.", "Yeni qaralama yaradıldı. Tarixi seçin və şərtləri yoxlayın.", "A new draft was created. Choose its date and review the details."), messages.SUCCESS)
+        return HttpResponseRedirect(self._event_change_url(draft))
+
+    def review_view(self, request, object_id):
+        from django.http import HttpResponseNotAllowed
+        from catalog.services.event_domain import review_event
+        if request.method != "POST":
+            return HttpResponseNotAllowed(["POST"])
+        obj = self.get_object(request, object_id)
+        if obj is None:
+            raise Http404
+        if not self.has_change_permission(request, obj):
+            raise PermissionDenied
+        try:
+            review_event(actor=request.user, event_id=obj.pk,
+                expected_updated_at=request.POST.get("expected_updated_at"),
+                decision=request.POST.get("decision"), reason=request.POST.get("reason", ""))
+        except ValidationError as exc:
+            stale = getattr(exc, "code", None) == "stale_version" or any(getattr(item, "code", None) == "stale_version" for item in getattr(exc, "error_list", []))
+            return HttpResponse("; ".join(exc.messages), status=409 if stale else 400)
+        self.message_user(request, _("Решение сохранено."), messages.SUCCESS)
+        return HttpResponseRedirect(reverse("admin:catalog_event_change", args=[obj.pk]))
 
     @admin.display(description=_("Название"))
     def display_name(self, obj):
@@ -1450,18 +1253,83 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             label,
         )
 
+    @admin.display(description=_("Начало мероприятия"), ordering="start_datetime")
+    def start_datetime_display(self, obj):
+        if not obj.start_datetime:
+            return "—"
+        from django.utils import timezone
+        from django.utils.html import format_html
+        from django.utils.formats import date_format
+
+        now = timezone.now()
+        local_start = timezone.localtime(obj.start_datetime)
+        local_now = timezone.localtime(now)
+        dt_str = date_format(local_start, "d E Y, H:i")
+
+        is_past = (now > obj.end_datetime) if obj.end_datetime else (now > obj.start_datetime)
+
+        if is_past:
+            badge_html = '<span class="km-timing-badge km-timing-badge--ended">Завершено</span>'
+        elif obj.end_datetime and obj.start_datetime <= now <= obj.end_datetime:
+            badge_html = '<span class="km-timing-badge km-timing-badge--live">Идёт сейчас</span>'
+        elif local_start.date() == local_now.date():
+            badge_html = '<span class="km-timing-badge km-timing-badge--today">Сегодня</span>'
+        elif local_start.date() == (local_now + timezone.timedelta(days=1)).date():
+            badge_html = '<span class="km-timing-badge km-timing-badge--upcoming">Завтра</span>'
+        else:
+            diff_days = (local_start.date() - local_now.date()).days
+            if diff_days > 0:
+                badge_html = f'<span class="km-timing-badge km-timing-badge--upcoming">через {diff_days} дн.</span>'
+            else:
+                badge_html = '<span class="km-timing-badge km-timing-badge--ended">Завершено</span>'
+
+        from django.utils.safestring import mark_safe
+        return format_html(
+            '<div class="km-event-timing"><span class="km-event-timing__date">{}</span> <div class="km-event-timing__badge">{}</div></div>',
+            dt_str,
+            mark_safe(badge_html),
+        )
+
+    @admin.display(description=_("Окончание мероприятия"), ordering="end_datetime")
+    def end_datetime_display(self, obj):
+        if not obj.end_datetime:
+            return "—"
+        from django.utils import timezone
+        from django.utils.formats import date_format
+
+        local_end = timezone.localtime(obj.end_datetime)
+        if obj.start_datetime:
+            local_start = timezone.localtime(obj.start_datetime)
+            if local_end.date() == local_start.date():
+                return date_format(local_end, "H:i")
+        return date_format(local_end, "d E Y, H:i")
+
     @admin.display(description="")
     def row_actions(self, obj):
         from django.urls import reverse
+        from django.utils.html import format_html, format_html_join
         edit_url = reverse(f"admin:{obj._meta.app_label}_{obj._meta.model_name}_change", args=[obj.pk])
         primary_action = render_primary_action(edit_url, _("Редактировать"))
 
-        menu_actions = []
-        if obj.is_public:
-            menu_actions.append((obj.get_absolute_url(), _("Открыть"), ""))
+        extra_actions = []
+        if obj.is_public and hasattr(obj, "get_absolute_url"):
+            extra_actions.append(
+                format_html(
+                    '<a class="km-admin-action km-admin-action--ghost btn" href="{}" target="_blank" rel="noopener" title="{}"><i class="fas fa-external-link-alt" style="margin-right: 4px;"></i>{}</a>',
+                    obj.get_absolute_url(),
+                    _("Открыть на сайте"),
+                    _("На сайте ↗"),
+                )
+            )
 
+        menu_actions = []
         menu_html = render_action_menu(menu_actions)
-        return render_row_actions_container(primary_action, menu_html)
+        return format_html(
+            '<div class="km-place-row-actions">{}{} {}</div>',
+            primary_action,
+            format_html_join("", "{}", ((a,) for a in extra_actions)),
+            menu_html,
+        )
 
     def save_model(self, request, obj, form, change):
         if "_save_draft" in request.POST:
@@ -1469,7 +1337,8 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             obj.rejection_reason = ""
         if "_unpublish_event" in request.POST:
             obj.status = Event.STATUS_DRAFT
-        publish = obj.status == Event.STATUS_PUBLISHED or "_publish_event" in request.POST
+        previous = Event.objects.filter(pk=obj.pk).values_list("status", flat=True).first() if change else None
+        publish = "_publish_event" in request.POST or (obj.status == Event.STATUS_PUBLISHED and previous != Event.STATUS_PUBLISHED)
         if publish:
             obj.status = Event.STATUS_PENDING
         super().save_model(request, obj, form, change)
@@ -5499,6 +5368,7 @@ class PlaceAdmin(admin.ModelAdmin):
         return str(value)
 
     def save_model(self, request, obj, form, change):
+        submit = not any(action in request.POST for action in ("_save_draft", "_refresh_coordinates_from_address"))
         from catalog.services.publication_forms import save_form,create_from_form,save_admin_metadata
         if change and obj.pk:
             if "_publish_place" in request.POST:
@@ -5508,19 +5378,20 @@ class PlaceAdmin(admin.ModelAdmin):
                 from catalog.services.publication_forms import source_version
                 reviewed = source_version(form, Place.objects.get(pk=obj.pk))
                 request._km_reviewed_publication_source = (reviewed['source'], reviewed['candidate'])
-            save_form(actor=request.user,form=form,submit="_save_draft" not in request.POST)
+            save_form(actor=request.user,form=form,submit=submit)
             obj.refresh_from_db()
         else:
-            base=create_from_form(actor=request.user,form=form,submit="_save_draft" not in request.POST)
+            base=create_from_form(actor=request.user,form=form,submit=submit)
             obj.__dict__.update(base.__dict__)
         save_admin_metadata(obj,form.cleaned_data)
         request._km_candidate_saved=True
 
     def save_related(self, request, form, formsets, change):
+        submit = not any(action in request.POST for action in ("_save_draft", "_refresh_coordinates_from_address"))
         if getattr(request,"_km_candidate_saved",False):
             from catalog.services.publication_forms import save_admin_related
             save_admin_related(actor=request.user,place=form.instance,formsets=formsets,
-                uploads=request.FILES.getlist("gallery_uploads"),submit="_save_draft" not in request.POST)
+                uploads=request.FILES.getlist("gallery_uploads"),submit=submit)
             for formset in formsets:
                 # Django's change-message builder expects these after save_related.
                 formset.new_objects = []

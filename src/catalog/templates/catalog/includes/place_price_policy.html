@@ -6,7 +6,6 @@
     {% for code,label in form.pricing_editor_contract.price_modes %}<button type="button" data-price-policy="{{ code }}" aria-pressed="false">{{ label }}</button>{% endfor %}
   </div>
   <p data-price-policy-hint aria-live="polite"></p>
-  <div data-tariff-free-state hidden>{% translate 'Место полностью бесплатное' %}</div>
   <div class="km-price-policy__notice" data-tariff-events-state hidden role="status">
     <strong data-price-events-title>{% translate 'Цена зависит от мероприятия' %}</strong>
     <p data-price-events-description>{% translate 'У этого места нет постоянных тарифов. Стоимость указывается отдельно для каждого мероприятия.' %}</p>

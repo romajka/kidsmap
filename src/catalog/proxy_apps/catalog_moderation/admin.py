@@ -139,6 +139,22 @@ class ModerationSpecialistAdmin(PendingModerationAdminMixin, SpecialistAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).filter(status=Specialist.STATUS_PENDING)
 
+    def get_list_display(self, request):
+        from catalog.services.specialist_documents import can_review_documents
+        cols = ["profile_column", "directions_column", "owner", "format_badge"]
+        if can_review_documents(request.user):
+            cols.append("documents_count")
+        cols.append("row_actions")
+        return tuple(cols)
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = {
+            "km_primary_quick_filters": None,
+            "km_secondary_quick_filters": None,
+            **(extra_context or {}),
+        }
+        return super().changelist_view(request, extra_context=extra_context)
+
 
 @admin.register(ModerationReview)
 class ModerationReviewAdmin(PendingModerationAdminMixin, PlaceReviewAdmin):

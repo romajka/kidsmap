@@ -2937,9 +2937,17 @@ class TestReviewEnhancements(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'class="review-place-card"', html=False)
+        self.assertContains(response, 'class="review-place-card__thumb', html=False)
         self.assertContains(response, self.place.get_absolute_url(), html=False)
         self.assertContains(response, self.place.name_i18n())
         self.assertContains(response, "Alina")
+
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        self.place.cover_photo = SimpleUploadedFile("thumb.jpg", b"dummy_content", content_type="image/jpeg")
+        self.place.save(update_fields=["cover_photo"])
+        response_with_photo = self.client.get(reverse("place_reviews"))
+        self.assertContains(response_with_photo, 'class="review-place-card__thumb"', html=False)
+        self.assertContains(response_with_photo, 'class="review-place-card__img"', html=False)
 
     def test_review_models_disable_anonymous_flag_and_keep_author_name(self):
         place_review = PlaceReview.objects.create(
@@ -2994,7 +3002,7 @@ class TestReviewEnhancements(TestCase):
         SiteReview.objects.create(author_name="Blank", rating=4, text="  ", likes_count=1, dislikes_count=0)
         SiteReview.objects.create(author_name="Empty", rating=5, text="", likes_count=0, dislikes_count=0)
 
-        response = self.client.get(reverse("site_reviews"), follow=True)
+        response = self.client.get("/ru/reviews/", follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["site_reviews_count"], 0)

@@ -168,12 +168,10 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
     change_form_template = "admin/catalog/placereview/change_form.html"
     list_select_related = ("place", "user")
     list_display = (
+        "place_summary",
         "review_summary",
         "author_summary",
-        "rating_summary",
         "moderation_status_summary",
-        "risk_flags_summary",
-        "engagement_summary",
         "created_at_display",
         "row_actions",
     )
@@ -313,28 +311,117 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
             return str(_("Требует проверки")), "warn"
         return str(_("Опубликован")), "good"
 
-    @admin.display(description=_("Отзыв"))
-    def review_summary(self, obj):
-        place_name = obj.place.name_ru or obj.place.name
-        preview = self._review_preview_text(obj)
-        public_link = self._place_public_link(obj)
-        public_html = ""
-        if public_link:
-            public_html = format_html(
-                '<a class="km-admin-meta-link" href="{}" target="_blank" rel="noopener noreferrer">{}</a>',
-                public_link,
+    def _author_initials(self, name: str) -> str:
+        parts = [p for p in (name or "").strip().split() if p]
+        if len(parts) >= 2:
+            return f"{parts[0][0]}{parts[1][0]}".upper()
+        elif len(parts) == 1 and parts[0]:
+            return parts[0][:2].upper()
+        return "KM"
+
+    @admin.display(description=_("Площадка"))
+    def place_summary(self, obj):
+        place = obj.place
+        place_name = place.name_ru or place.name
+        place_admin_url = self._place_admin_change_url(obj)
+        public_url = self._place_public_link(obj)
+        
+        meta_parts = []
+        category_name = place.get_category_display() if hasattr(place, "get_category_display") else ""
+        if category_name:
+            meta_parts.append(str(category_name))
+        district = getattr(place, "district", None)
+        if district:
+            d_name = getattr(district, "name_ru", None) or getattr(district, "name", "")
+            if d_name:
+                meta_parts.append(str(d_name))
+        meta_str = " · ".join(meta_parts)
+
+        public_link_html = ""
+        if public_url:
+            public_link_html = format_html(
+                '<a class="km-review-site-link" href="{}" target="_blank" rel="noopener noreferrer" title="{}">{} ↗</a>',
+                public_url,
+                _("Открыть страницу на сайте KidsMap"),
                 _("На сайте"),
             )
+
         return format_html(
-            '<div class="km-admin-stack">'
-            '<a class="km-review-place-link" href="{}">{}</a>'
-            '<span class="km-admin-meta">{}</span>'
-            '<div class="km-admin-inline-links">{}</div>'
-            "</div>",
-            self._place_admin_change_url(obj),
+            '<div class="km-review-place-card">'
+            '<div class="km-review-place-header">'
+            '<span class="km-review-place-icon"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-place"></use></svg></span>'
+            '<a class="km-review-place-title" href="{}" title="{}">{}</a>'
+            '</div>'
+            '<div class="km-review-place-sub">'
+            '<span class="km-review-place-meta">{}</span>'
+            '{}'
+            '</div>'
+            '</div>',
+            place_admin_url,
+            _("Редактировать карточку кружка"),
             place_name,
-            preview,
-            public_html,
+            meta_str or _("Карточка кружка"),
+            public_link_html,
+        )
+
+    @admin.display(description=_("Отзыв"))
+    def review_summary(self, obj):
+        content = self._review_content(obj)
+        rating_val = int(content.rating or 0)
+        stars = "★" * rating_val + "☆" * max(0, 5 - rating_val)
+        rating_score = f"{float(content.rating or 0):.1f}"
+        
+        preview = self._review_preview_text(obj)
+        has_text = self._review_has_text(obj)
+        
+        rating_tone = "warn" if rating_val <= 2 else "info" if rating_val == 3 else "good"
+        
+        rating_header = format_html(
+            '<div class="km-review-rating-row">'
+            '<span class="km-review-stars km-review-stars--{}" title="{}">{}</span>'
+            '<span class="km-review-score-badge km-review-score-badge--{}">{}</span>'
+            '</div>',
+            rating_tone,
+            _("Оценка: %(rating)s из 5") % {"rating": content.rating},
+            stars,
+            rating_tone,
+            rating_score,
+        )
+        
+        if has_text:
+            text_body = format_html(
+                '<div class="km-review-quote" title="{}">«{}»</div>',
+                (content.text or "").strip(),
+                preview,
+            )
+        else:
+            text_body = format_html(
+                '<div class="km-review-no-text"><span class="km-admin-badge km-admin-badge--muted">{}</span></div>',
+                _("Только оценка без комментария"),
+            )
+            
+        reactions_html = ""
+        likes = int(obj.likes_count or 0)
+        dislikes = int(obj.dislikes_count or 0)
+        if likes > 0 or dislikes > 0:
+            reactions_html = format_html(
+                '<div class="km-review-reactions-row">'
+                '<span class="km-rx-chip km-rx-chip--up"><i class="fas fa-thumbs-up" aria-hidden="true"></i> {}</span>'
+                '<span class="km-rx-chip km-rx-chip--down"><i class="fas fa-thumbs-down" aria-hidden="true"></i> {}</span>'
+                '</div>',
+                likes,
+                dislikes,
+            )
+            
+        return format_html(
+            '<div class="km-review-card-cell">'
+            '{}'
+            '{}'
+            '{}'
+            '</div>',
+            rating_header,
+            text_body,
+            reactions_html,
         )
 
     @admin.display(description=_("Автор"))
@@ -343,26 +430,41 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
 
     @admin.display(description=_("Автор"))
     def author_summary(self, obj):
-        badges = []
-        if obj.user_id:
-            badges.append(self._render_review_badge(label=_("Есть аккаунт"), tone="info"))
-        else:
-            badges.append(self._render_review_badge(label=_("Гость"), tone="muted"))
         name = self.display_author(obj)
+        initials = self._author_initials(name)
+        color_classes = ["avatar--teal", "avatar--indigo", "avatar--amber", "avatar--purple", "avatar--blue"]
+        color_class = color_classes[abs(hash(name)) % len(color_classes)]
+        
         if obj.user_id:
-            meta_parts = []
+            user_badge = format_html('<span class="km-admin-badge km-admin-badge--good" title="{}">{}</span>', _("Зарегистрированный пользователь"), _("Есть аккаунт"))
             if obj.user.username:
-                meta_parts.append(f"@{obj.user.username}")
-            if obj.user.email:
-                meta_parts.append(obj.user.email)
-            meta = " · ".join(meta_parts) or _("Профиль без email")
+                meta = f"@{obj.user.username}"
+            elif obj.user.email:
+                meta = obj.user.email
+            else:
+                meta = _("Пользователь KidsMap")
         else:
-            meta = _("Без профиля пользователя")
+            user_badge = format_html('<span class="km-admin-badge km-admin-badge--muted" title="{}">{}</span>', _("Оставлен гостем без регистрации"), _("Гость"))
+            meta = _("Без аккаунта")
+            
         return format_html(
-            '<div class="km-admin-stack"><span class="km-admin-title">{}</span><span class="km-admin-meta">{}</span><div class="km-admin-badges">{}</div></div>',
+            '<div class="km-review-author-cell">'
+            '<div class="km-author-avatar {}" aria-hidden="true">{}</div>'
+            '<div class="km-author-info">'
+            '<div class="km-author-name-row">'
+            '<strong class="km-author-name">{}</strong>'
+            '</div>'
+            '<div class="km-author-meta-row">'
+            '{}'
+            '<span class="km-author-sub">{}</span>'
+            '</div>'
+            '</div>'
+            '</div>',
+            color_class,
+            initials,
             name,
+            user_badge,
             meta,
-            format_html_join("", "{}", ((badge,) for badge in badges)),
         )
 
     @admin.display(description=_("Рейтинг"))
@@ -384,17 +486,33 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
     @admin.display(description=_("Статус"))
     def moderation_status_summary(self, obj):
         label, tone = self._review_status(obj)
-        if obj.candidate_revision_id and obj.candidate_revision.status == 'pending':
-            help_text = _("Ждёт решения администратора")
-        elif obj.status == obj.STATUS_REJECTED:
-            help_text = _("Отклонён и скрыт")
-        else:
-            help_text = _("Виден на сайте") if obj.is_approved else _("На сайте скрыт")
-        return format_html(
-            '<div class="km-admin-stack"><span class="km-admin-badge km-admin-badge--{}">{}</span><span class="km-admin-meta">{}</span></div>',
+        content = self._review_content(obj)
+        flags = []
+        if content.contains_profanity:
+            flags.append(format_html('<span class="km-admin-badge km-admin-badge--danger"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-warning"></use></svg>{}</span>', _("Есть скрытая лексика")))
+        if content.rating <= 2:
+            flags.append(format_html('<span class="km-admin-badge km-admin-badge--warn">{}</span>', _("Низкая оценка")))
+        if obj.dislikes_count > obj.likes_count:
+            flags.append(format_html('<span class="km-admin-badge km-admin-badge--warn">{}</span>', _("Много дизлайков")))
+            
+        flags_html = format_html_join("", "{}", ((f,) for f in flags)) if flags else ""
+        
+        status_badge = format_html(
+            '<span class="km-admin-badge km-admin-badge--{} km-status-pill">'
+            '<span class="km-status-dot"></span>'
+            '{}'
+            '</span>',
             tone,
             label,
-            help_text,
+        )
+        
+        return format_html(
+            '<div class="km-status-cell">'
+            '{}'
+            '<div class="km-status-flags">{}</div>'
+            '</div>',
+            status_badge,
+            flags_html,
         )
 
     @admin.display(description=_("Риски"))
@@ -428,9 +546,21 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
             _("Лайки и дизлайки к отзыву"),
         )
 
-    @admin.display(description=_("Создан"))
+    @admin.display(description=_("Создан"), ordering="created_at")
     def created_at_display(self, obj):
-        return obj.created_at
+        if not obj.created_at:
+            return "—"
+        local_dt = timezone.localtime(obj.created_at) if timezone.is_aware(obj.created_at) else obj.created_at
+        date_str = local_dt.strftime("%d.%m.%Y")
+        time_str = local_dt.strftime("%H:%M")
+        return format_html(
+            '<div class="km-date-cell">'
+            '<span class="km-date-main">{}</span>'
+            '<span class="km-date-sub">{}</span>'
+            '</div>',
+            date_str,
+            time_str,
+        )
 
     @admin.display(description=_("Баланс реакций"))
     def popularity_score_display(self, obj):
@@ -578,18 +708,80 @@ class PlaceReviewAdmin(VersionedReviewAdminMixin, ModerationActorAdminMixin, adm
         }
         return super().changelist_view(request, extra_context=extra_context)
 
-    @admin.display(description="")
+    @admin.display(description=_("Действия"))
     def row_actions(self, obj):
-        primary = render_primary_action(self._review_url(obj), _("Открыть"))
-        actions = [(self._place_admin_change_url(obj), _("К кружку"), "")]
-        if obj.candidate_revision_id and obj.candidate_revision.status == 'pending':
-            actions.extend([(self._review_url(obj, "approve"), _("Одобрить"), ""),
-                            (self._review_url(obj, "reject"), _("Отклонить"), "")])
-        if obj.current_revision_id:
-            action, label = ("hide", _("Скрыть")) if obj.is_approved else ("restore", _("Опубликовать"))
-            actions.append((self._review_url(obj, action), label, ""))
-        actions.append((self._review_delete_url(obj), _("Удалить"), "km-admin-action-menu__link--danger"))
-        return render_row_actions_container(primary, render_action_menu(actions))
+        buttons = []
+        is_pending = (obj.candidate_revision_id and obj.candidate_revision.status == 'pending') or (obj.status == obj.STATUS_PENDING and not obj.is_approved)
+        
+        if is_pending:
+            buttons.append(
+                format_html(
+                    '<a class="km-admin-action km-admin-action--good" href="{}" data-review-action="approve_selected" data-review-id="{}" title="{}">'
+                    '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check"></use></svg>'
+                    '<span>{}</span></a>',
+                    self._review_url(obj, "approve"),
+                    obj.pk,
+                    _("Одобрить и опубликовать отзыв"),
+                    _("Одобрить"),
+                )
+            )
+            buttons.append(
+                format_html(
+                    '<a class="km-admin-action km-admin-action--warn" href="{}" data-review-action="reject_selected" data-review-id="{}" title="{}">'
+                    '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-close"></use></svg>'
+                    '<span>{}</span></a>',
+                    self._review_url(obj, "reject"),
+                    obj.pk,
+                    _("Отклонить отзыв"),
+                    _("Отклонить"),
+                )
+            )
+        elif obj.current_revision_id:
+            if obj.is_approved:
+                buttons.append(
+                    format_html(
+                        '<a class="km-admin-action km-admin-action--muted" href="{}" data-review-action="hide_selected" data-review-id="{}" title="{}">'
+                        '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-visibility_off"></use></svg>'
+                        '<span>{}</span></a>',
+                        self._review_url(obj, "hide"),
+                        obj.pk,
+                        _("Скрыть отзыв с сайта"),
+                        _("Скрыть"),
+                    )
+                )
+            else:
+                buttons.append(
+                    format_html(
+                        '<a class="km-admin-action km-admin-action--good" href="{}" data-review-action="restore" data-review-id="{}" title="{}">'
+                        '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-visibility"></use></svg>'
+                        '<span>{}</span></a>',
+                        self._review_url(obj, "restore"),
+                        obj.pk,
+                        _("Опубликовать отзыв"),
+                        _("Опубликовать"),
+                    )
+                )
+                
+        buttons.append(
+            format_html(
+                '<a class="km-admin-action km-admin-action--details" href="{}" title="{}">'
+                '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-info"></use></svg>'
+                '<span>{}</span></a>',
+                self._review_url(obj),
+                _("Подробная история и модерация"),
+                _("Подробнее"),
+            )
+        )
+        
+        actions = [
+            (self._place_admin_change_url(obj), _("К кружку"), ""),
+            (self._review_change_url(obj), _("Форма отзыва"), ""),
+            (self._review_delete_url(obj), _("Удалить"), "km-admin-action-menu__link--danger"),
+        ]
+        
+        buttons_html = mark_safe(" ".join(buttons))
+        menu_html = render_action_menu(actions)
+        return render_row_actions_container(buttons_html, menu_html)
 
 
 

@@ -79,12 +79,14 @@ class EventCalendarUITests(TestCase):
             self.assertEqual(query['category'], [self.category.code])
             self.assertEqual(query['format'], ['online'])
             self.assertNotIn('page', query)
-        today = [attrs for tag, attrs in elements if attrs.get('data-events-quick') == 'today']
-        self.assertEqual(len(today), 1)
-        query = parse_qs(urlsplit(today[0]['href']).query)
-        self.assertEqual(query['q'], ['date'])
-        self.assertEqual(query['age_to'], ['8'])
-        self.assertNotIn('month', query)
+        periods = [attrs for tag, attrs in elements if tag == 'select' and attrs.get('name') == 'date_filter']
+        self.assertEqual(len(periods), 1)
+        today_options = [attrs for tag, attrs in elements if tag == 'option' and attrs.get('value') == 'today']
+        self.assertEqual(len(today_options), 1)
+        # Mode changes retain the old age interval as well as the new primary age control.
+        for attrs in controls:
+            query = parse_qs(urlsplit(attrs['href']).query)
+            self.assertEqual(query['age_to'], ['8'])
 
     def test_unknown_price_is_not_claimed_free_and_reviews_link_same_target(self):
         event = self.event(price_text='')

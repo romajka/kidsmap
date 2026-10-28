@@ -514,7 +514,10 @@ class PlaceController:
 
         district = str(selected.get("district") or "").strip()
         if district:
-            district_value = _(district)
+            from catalog.services.locations import get_all_districts_flat_choices
+
+            district_choices = dict(get_all_districts_flat_choices(language_code))
+            district_value = district_choices.get(district, _(district))
             if language_code == "az":
                 label = district_value
             elif language_code == "en":
@@ -530,7 +533,9 @@ class PlaceController:
 
         metro = str(selected.get("metro") or "").strip()
         if metro:
-            metro_value = _(metro)
+            from catalog.services.locations import get_metro_translation
+
+            metro_value = get_metro_translation(metro, language_code) or _(metro)
             if language_code == "az":
                 label = metro_value
             elif language_code == "en":

@@ -10,6 +10,58 @@
     return Number(value).toFixed(6);
   }
 
+  function updateLocationBadges(root, regionSelect, districtSelect, metroSelect) {
+    var badgesContainer = root.querySelector("[data-km-location-badges]");
+    if (!badgesContainer) return;
+
+    var cityText = badgesContainer.querySelector("[data-km-loc-city-text]");
+    var districtBadge = badgesContainer.querySelector("[data-km-loc-district-badge]");
+    var districtText = badgesContainer.querySelector("[data-km-loc-district-text]");
+    var metroBadge = badgesContainer.querySelector("[data-km-loc-metro-badge]");
+    var metroText = badgesContainer.querySelector("[data-km-loc-metro-text]");
+
+    var regionLabel = regionSelect && regionSelect.selectedIndex >= 0 ? regionSelect.options[regionSelect.selectedIndex].text.trim() : "";
+    var isBaku = !regionSelect || !regionSelect.value || regionSelect.value === "baku" || /баку|baku|bakı/i.test(regionLabel);
+
+    if (cityText) {
+      cityText.textContent = regionLabel && regionSelect.value ? regionLabel : "Баку";
+    }
+
+    if (districtBadge && districtText) {
+      if (!isBaku) {
+        districtBadge.style.display = "none";
+      } else {
+        districtBadge.style.display = "";
+        var distVal = districtSelect ? districtSelect.value : "";
+        var distLabel = districtSelect && districtSelect.selectedIndex >= 0 && distVal ? districtSelect.options[districtSelect.selectedIndex].text.trim() : "";
+        if (distLabel) {
+          districtBadge.classList.add("km-loc-badge--active");
+          districtText.textContent = distLabel;
+        } else {
+          districtBadge.classList.remove("km-loc-badge--active");
+          districtText.textContent = "Район не выбран";
+        }
+      }
+    }
+
+    if (metroBadge && metroText) {
+      if (!isBaku) {
+        metroBadge.style.display = "none";
+      } else {
+        metroBadge.style.display = "";
+        var metroVal = metroSelect ? metroSelect.value : "";
+        var metroLabel = metroSelect && metroSelect.selectedIndex >= 0 && metroVal ? metroSelect.options[metroSelect.selectedIndex].text.trim() : "";
+        if (metroLabel) {
+          metroBadge.classList.add("km-loc-badge--active");
+          metroText.textContent = metroLabel;
+        } else {
+          metroBadge.classList.remove("km-loc-badge--active");
+          metroText.textContent = "Метро не выбрано";
+        }
+      }
+    }
+  }
+
   function initRegionCascade(root) {
     var regionSelect = root.querySelector("[data-km-location-region]") || document.getElementById("id_region");
     var districtSelect = root.querySelector("[data-km-location-district]") || document.getElementById("id_district");
@@ -20,7 +72,8 @@
     if (!regionSelect || !districtSelect) return;
 
     function sync() {
-      var isBaku = regionSelect.value === "baku";
+      var regionLabel = regionSelect && regionSelect.selectedIndex >= 0 ? regionSelect.options[regionSelect.selectedIndex].text.trim() : "";
+      var isBaku = regionSelect.value === "baku" || /баку|baku|bakı/i.test(regionLabel);
       if (districtBox) {
         districtBox.style.display = isBaku ? "" : "none";
       }
@@ -36,17 +89,20 @@
           metroSelect.value = "";
         }
       }
+
+      updateLocationBadges(root, regionSelect, districtSelect, metroSelect);
     }
 
-    if (!regionSelect.dataset.kmLocationCascadeBound) {
-      regionSelect.addEventListener("change", sync);
-      regionSelect.dataset.kmLocationCascadeBound = "1";
+    [regionSelect, districtSelect, metroSelect].filter(Boolean).forEach(function (sel) {
+      if (sel.dataset.kmLocationCascadeBound) return;
+      sel.addEventListener("change", sync);
+      sel.dataset.kmLocationCascadeBound = "1";
       if (window.$ && window.$.fn && typeof window.$.fn.select2 !== "undefined") {
         try {
-          window.$(regionSelect).on("select2:select select2:unselect select2:clear", sync);
+          window.$(sel).on("select2:select select2:unselect select2:clear", sync);
         } catch (error) {}
       }
-    }
+    });
 
     sync();
   }
@@ -94,6 +150,11 @@
       foundBox: foundBox,
       foundText: foundText,
       applyAddressButton: applyAddressButton,
+      coordsDisplay: root.querySelector("[data-km-place-coords-display]"),
+      externalMapLink: root.querySelector("[data-km-open-external-map]"),
+      copyCoordsBtn: root.querySelector("[data-km-copy-coords]"),
+      recenterBtn: root.querySelector("[data-km-place-location-recenter]"),
+      _isSettingPoint: false,
       mapProvider: root.dataset.mapProvider || "leaflet",
       offlineOpenLabel: root.dataset.offlineOpenLabel,
       offlineClosedLabel: root.dataset.offlineClosedLabel,
@@ -227,70 +288,116 @@
   }
 
   function setPoint(state, lat, lng, options) {
-    var normalizedLat = parseCoordinate(lat, 90);
-    var normalizedLng = parseCoordinate(lng, 180);
-    if (normalizedLat === null || normalizedLng === null) return;
+    if (state._isSettingPoint) return;
+    state._isSettingPoint = true;
+    try {
+      var normalizedLat = parseCoordinate(lat, 90);
+      var normalizedLng = parseCoordinate(lng, 180);
+      if (normalizedLat === null || normalizedLng === null) return;
 
-    state.latInput.value = formatCoordinate(normalizedLat);
-    state.lngInput.value = formatCoordinate(normalizedLng);
-    updateBadges(state);
-    var form = state.root.closest("form");
-    if (form) form.dispatchEvent(new CustomEvent("km:location-change", { bubbles: true }));
+      var formattedLat = formatCoordinate(normalizedLat);
+      var formattedLng = formatCoordinate(normalizedLng);
+      state.latInput.value = formattedLat;
+      state.lngInput.value = formattedLng;
+      state.latInput.dispatchEvent(new Event("input", { bubbles: true }));
+      state.lngInput.dispatchEvent(new Event("input", { bubbles: true }));
+      state.latInput.dispatchEvent(new Event("change", { bubbles: true }));
+      state.lngInput.dispatchEvent(new Event("change", { bubbles: true }));
+      updateBadges(state);
+      var form = state.root.closest("form");
+      if (form) form.dispatchEvent(new CustomEvent("km:location-change", { bubbles: true }));
 
-    if (state.mapProvider === "google" && state.mapInstance && window.google && window.google.maps) {
-      var point = { lat: normalizedLat, lng: normalizedLng };
-      if (!state.marker) {
-        state.marker = new google.maps.Marker({ position: point, map: state.mapInstance, draggable: true });
-        state.marker.addListener("dragend", function (event) {
-          if (!event.latLng) return;
-          setPoint(state, event.latLng.lat(), event.latLng.lng(), { recenter: false, reverseGeocode: true });
-        });
-      } else {
-        state.marker.setPosition(point);
+      if (state.coordsDisplay) {
+        state.coordsDisplay.innerHTML = 'Широта: <strong>' + formattedLat + '</strong> · Долгота: <strong>' + formattedLng + '</strong>';
       }
-      if (!options || options.recenter !== false) {
-        state.mapInstance.setCenter(point);
-        if (state.mapInstance.getZoom() < 15) {
-          state.mapInstance.setZoom(15);
+      if (state.externalMapLink) {
+        state.externalMapLink.href = 'https://www.google.com/maps?q=' + formattedLat + ',' + formattedLng;
+        state.externalMapLink.style.display = 'inline-flex';
+      }
+
+      if (state.mapProvider === "google" && state.mapInstance && window.google && window.google.maps) {
+        var point = { lat: normalizedLat, lng: normalizedLng };
+        if (!state.marker) {
+          state.marker = new google.maps.Marker({ position: point, map: state.mapInstance, draggable: true });
+          state.marker.addListener("dragend", function (event) {
+            if (!event.latLng) return;
+            setPoint(state, event.latLng.lat(), event.latLng.lng(), { recenter: false, reverseGeocode: true });
+          });
+        } else {
+          state.marker.setPosition(point);
+        }
+        if (!options || options.recenter !== false) {
+          state.mapInstance.setCenter(point);
+          if (state.mapInstance.getZoom() < 15) {
+            state.mapInstance.setZoom(15);
+          }
+        }
+        if (!options || options.reverseGeocode !== false) {
+          reverseGeocodeGoogle(state, normalizedLat, normalizedLng);
+        }
+        return;
+      }
+
+      if (state.mapProvider === "leaflet" && state.mapInstance && window.L) {
+        var customPinIcon = window.L.divIcon({
+          className: "km-admin-map-pin-wrap",
+          html: '<div class="km-admin-map-pin"><svg viewBox="0 0 24 24" width="30" height="30" fill="#10b981" stroke="#065f46" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3.2" fill="#ffffff" stroke="none" /></svg></div>',
+          iconSize: [30, 38],
+          iconAnchor: [15, 38],
+          popupAnchor: [0, -38]
+        });
+
+        if (!state.marker) {
+          state.marker = window.L.marker([normalizedLat, normalizedLng], { draggable: true, icon: customPinIcon }).addTo(state.mapInstance);
+          state.marker.bindTooltip("Перетащите маркер для точной настройки", { direction: "top", offset: [0, -38] });
+          state.marker.on("dragend", function (event) {
+            var pt = event.target.getLatLng();
+            setPoint(state, pt.lat, pt.lng, { recenter: false });
+          });
+        } else {
+          state.marker.setLatLng([normalizedLat, normalizedLng]);
+        }
+        if (!options || options.recenter !== false) {
+          state.mapInstance.setView([normalizedLat, normalizedLng], Math.max(state.mapInstance.getZoom(), 15));
         }
       }
-      if (!options || options.reverseGeocode !== false) {
-        reverseGeocodeGoogle(state, normalizedLat, normalizedLng);
-      }
-      return;
-    }
-
-    if (state.mapProvider === "leaflet" && state.mapInstance && window.L) {
-      if (!state.marker) {
-        state.marker = window.L.marker([normalizedLat, normalizedLng], { draggable: true }).addTo(state.mapInstance);
-        state.marker.on("dragend", function (event) {
-          var point = event.target.getLatLng();
-          setPoint(state, point.lat, point.lng, { recenter: false });
-        });
-      } else {
-        state.marker.setLatLng([normalizedLat, normalizedLng]);
-      }
-      if (!options || options.recenter !== false) {
-        state.mapInstance.setView([normalizedLat, normalizedLng], Math.max(state.mapInstance.getZoom(), 15));
-      }
+    } finally {
+      state._isSettingPoint = false;
     }
   }
 
   function clearPoint(state) {
-    state.latInput.value = "";
-    state.lngInput.value = "";
-    if (state.marker) {
-      if (state.mapProvider === "google") {
-        state.marker.setMap(null);
-      } else if (state.mapInstance) {
-        state.mapInstance.removeLayer(state.marker);
+    if (state._isSettingPoint) return;
+    state._isSettingPoint = true;
+    try {
+      state.latInput.value = "";
+      state.lngInput.value = "";
+      state.latInput.dispatchEvent(new Event("input", { bubbles: true }));
+      state.lngInput.dispatchEvent(new Event("input", { bubbles: true }));
+      state.latInput.dispatchEvent(new Event("change", { bubbles: true }));
+      state.lngInput.dispatchEvent(new Event("change", { bubbles: true }));
+      if (state.marker) {
+        if (state.mapProvider === "google") {
+          state.marker.setMap(null);
+        } else if (state.mapInstance) {
+          state.mapInstance.removeLayer(state.marker);
+        }
       }
+      state.marker = null;
+      if (state.coordsDisplay) {
+        state.coordsDisplay.textContent = "Точка не установлена — нажмите на карту";
+      }
+      if (state.externalMapLink) {
+        state.externalMapLink.style.display = "none";
+        state.externalMapLink.removeAttribute("href");
+      }
+      updateFoundAddress(state, "");
+      updateBadges(state);
+      var form = state.root.closest("form");
+      if (form) form.dispatchEvent(new CustomEvent("km:location-change", { bubbles: true }));
+    } finally {
+      state._isSettingPoint = false;
     }
-    state.marker = null;
-    updateFoundAddress(state, "");
-    updateBadges(state);
-    var form = state.root.closest("form");
-    if (form) form.dispatchEvent(new CustomEvent("km:location-change", { bubbles: true }));
   }
 
   function reverseGeocodeGoogle(state, lat, lng) {

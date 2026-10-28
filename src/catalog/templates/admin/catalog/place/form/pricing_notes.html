@@ -1,43 +1,64 @@
 {% load i18n %}
 <div class="km-pf-divider" role="presentation"></div>
-<details class="km-pf-disclosure"{% if adminform.form.extra_conditions_az.value or adminform.form.extra_conditions_ru.value or adminform.form.extra_conditions_en.value or adminform.form.additional_info_az.value or adminform.form.additional_info_ru.value or adminform.form.additional_info_en.value %} open{% endif %}><summary class="km-pf-disclosure__summary">{% translate "Условия места и дополнительная информация" %}</summary><div class="km-pf-group" data-pf-group="conditions">
-  <div class="km-pf-group__head">
-    <span class="km-pf-group__title">{% translate "Дополнительные условия" %}</span>
-    <span class="km-pf-group__note">{% translate "Публичные примечания в блоке «Цена и занятия». Можно редактировать или очистить." %}</span>
-  </div>
-  {% include "admin/catalog/place/form/_langgroup.html" with group="conditions" tabs=km_place_condition_tabs %}
-</div>
-<div class="km-pf-group" data-pf-group="extra-info">
-  <div class="km-pf-group__head">
-    <span class="km-pf-group__title">{% translate "Дополнительная информация" %}</span>
-    <span class="km-pf-group__note">{% translate "Публичный текст под тарифами: группы, время занятий и другие пояснения." %}</span>
-  </div>
-  {% include "admin/catalog/place/form/_langgroup.html" with group="info" tabs=km_place_info_tabs %}
-</div>
-{% if form.extra_conditions.value or form.additional_info.value %}
-<details class="km-pf-disclosure" open>
+<details class="km-pf-disclosure km-pf-disclosure--conditions"{% if adminform.form.extra_conditions_az.value or adminform.form.extra_conditions_ru.value or adminform.form.extra_conditions_en.value or adminform.form.additional_info_az.value or adminform.form.additional_info_ru.value or adminform.form.additional_info_en.value %} open{% endif %}>
   <summary class="km-pf-disclosure__summary">
-    <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-expand_more"></use></svg>
-    <span class="km-pf-disclosure__title">{% translate "Текст старой карточки (RU)" %}</span>
+    <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+    <div class="km-pf-disclosure__header-copy">
+      <span class="km-pf-disclosure__title">{% translate "Условия места и дополнительная информация" %}</span>
+      <span class="km-pf-disclosure__note">{% translate "Публичные примечания к тарифам, правила посещения и автоматические уведомления" %}</span>
+    </div>
   </summary>
-  <div class="km-pf-disclosure__body">
-    <p class="km-pf-group__note">{% translate "Показывается только в RU, если соответствующий перевод RU пуст. Чтобы убрать примечание полностью, очистите и перевод, и старый текст." %}</p>
-    {% include "admin/catalog/place/form/_field.html" with field=form.extra_conditions %}
-    {% include "admin/catalog/place/form/_field.html" with field=form.additional_info %}
-  </div>
-</details>
-{% else %}
-<div class="km-pf-hidden-fields" aria-hidden="true">
-  {{ form.extra_conditions.as_hidden }}
-  {{ form.additional_info.as_hidden }}
-</div>
-{% endif %}
-<div class="km-pf-group" data-pf-group="price-disclaimer">
-  <div class="km-pf-group__head">
-    <span class="km-pf-group__title">{% translate "Автоматическое предупреждение о ценах" %}</span>
-  </div>
-  <p class="km-pf-group__note">{% translate "Цены собраны из открытых источников — уточняйте их у организации перед визитом." %}</p>
-  <p class="km-pf-group__note">{% translate "При наличии цен или тарифов посетителю предлагается уточнить стоимость у организации перед визитом." %}</p>
-</div>
 
+  <div class="km-pf-disclosure__body">
+    <div class="km-pf-group" data-pf-group="conditions">
+      <div class="km-pf-group__head">
+        <span class="km-pf-group__title">{% translate "Дополнительные условия" %}</span>
+        <span class="km-pf-group__note">{% translate "Публичные примечания в блоке «Цена и занятия». Можно редактировать или очистить." %}</span>
+      </div>
+      {% include "admin/catalog/place/form/_langgroup.html" with group="conditions" tabs=km_place_condition_tabs %}
+    </div>
+
+    <div class="km-pf-group" data-pf-group="extra-info">
+      <div class="km-pf-group__head">
+        <span class="km-pf-group__title">{% translate "Дополнительная информация" %}</span>
+        <span class="km-pf-group__note">{% translate "Публичный текст под тарифами: группы, время занятий и другие пояснения." %}</span>
+      </div>
+      {% include "admin/catalog/place/form/_langgroup.html" with group="info" tabs=km_place_info_tabs %}
+    </div>
+
+    {% if form.extra_conditions.value or form.additional_info.value %}
+      <details class="km-pf-disclosure km-pf-disclosure--legacy" open>
+        <summary class="km-pf-disclosure__summary">
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+          <div class="km-pf-disclosure__header-copy">
+            <span class="km-pf-disclosure__title">{% translate "Текст старой карточки (RU)" %}</span>
+            <span class="km-pf-disclosure__note">{% translate "Показывается только в RU, если основной перевод пуст" %}</span>
+          </div>
+        </summary>
+        <div class="km-pf-disclosure__body">
+          <p class="km-pf-group__note">{% translate "Показывается только в RU, если соответствующий перевод RU пуст. Чтобы убрать примечание полностью, очистите и перевод, и старый текст." %}</p>
+          {% include "admin/catalog/place/form/_field.html" with field=form.extra_conditions %}
+          {% include "admin/catalog/place/form/_field.html" with field=form.additional_info %}
+        </div>
+      </details>
+    {% else %}
+      <div class="km-pf-hidden-fields" aria-hidden="true">
+        {{ form.extra_conditions.as_hidden }}
+        {{ form.additional_info.as_hidden }}
+      </div>
+    {% endif %}
+
+    <div class="km-pf-price-callout" data-pf-group="price-disclaimer">
+      <div class="km-pf-price-callout__icon" aria-hidden="true">
+        <svg class="km-i" viewBox="0 0 960 960"><use href="#kmi-info"></use></svg>
+      </div>
+      <div class="km-pf-price-callout__content">
+        <strong class="km-pf-price-callout__title">{% translate "Автоматическое предупреждение о ценах" %}</strong>
+        <p class="km-pf-price-callout__text">
+          {% translate "При наличии тарифов на публичной странице места автоматически отображается дисклеймер:" %}
+          <span class="km-pf-price-callout__quote">«{% translate "Цены собраны из открытых источников — уточняйте их у организации перед визитом." %}»</span>
+        </p>
+      </div>
+    </div>
+  </div>
 </details>

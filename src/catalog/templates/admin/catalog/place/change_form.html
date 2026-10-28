@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_urls.css' %}?v=20260918">
 <script src="{% static 'admin/js/kidsmap_place_urls.js' %}" defer></script>
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=20261025_adminparity1">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=20261027_location_map_v2">
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=20261025_live2">
   <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=20261026_requiredcoords1" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_media.js' %}?v=20261007_place_r5" defer></script>
@@ -23,11 +23,11 @@
   <script src="{% static 'admin/js/kidsmap_place_duplicates.js' %}?v=1" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_json_import.js' %}?v=20261025_jsonrelease2" defer></script>
   <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=20261026_unknown_schedule" defer></script>
-  <link rel="stylesheet" href="{% static 'css/components/kidsmap_pricing_editor.css' %}?v=20261025_polish1">
+  <link rel="stylesheet" href="{% static 'css/components/kidsmap_pricing_editor.css' %}?v=20261027_polish2">
   <script src="{% static 'js/kidsmap_pricing_editor.js' %}?v=20261025_polish1" defer></script>
   <link rel="stylesheet" href="{% static 'admin/css/components/activity_editor.css' %}?v=20261004">
   <script src="{% static 'js/owner_place_offerings.js' %}?v=20261007_place_r5" defer></script>
-  <script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=20261009_map" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=20261027_location_map_v2" defer></script>
   {% if google_maps_api_key %}
     <script
       defer
@@ -263,14 +263,27 @@
           <span><span data-progress-done>{{ km_place_form_summary.completed }}</span> / <span data-progress-total>{{ km_place_form_summary.total }}</span></span>
         </span>
         <span class="km-pf-bar"><span class="km-pf-bar__fill" style="width: {{ km_place_form_summary.completion_pct }}%;" data-progress-bar></span></span>
-        <button type="submit" name="_continue" class="km-pf-btn km-pf-btn--primary km-pf-btn--sm">
-          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-save"></use></svg>{% translate "Сохранить" %}
-        </button>
-        {% if not km_place_form_summary.visibility.is_public %}
-          <button type="submit" name="_publish_place" class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm" data-pf-publish {% if not km_place_form_summary.is_ready %}disabled{% endif %}>
-            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-public"></use></svg>{% translate "Опубликовать" %}
+        <p class="km-pf-savestate km-pf__stickybar-savestate" data-pf-savestate data-state="idle" role="status" aria-live="polite">
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false" data-pf-savestate-icon><use href="#kmi-edit_note"></use></svg>
+          <span data-pf-savestate-text>{% translate "Все изменения сохранены" %}</span>
+        </p>
+        <div class="km-pf__stickybar-actions">
+          <button type="submit" name="_continue" class="km-pf-btn km-pf-btn--primary km-pf-btn--sm" title="Ctrl+S / ⌘S">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-save"></use></svg>{% translate "Сохранить" %}
           </button>
-        {% endif %}
+          <button type="submit" name="_save" class="km-pf-btn km-pf-btn--secondary km-pf-btn--sm">
+            {% translate "Сохранить и закрыть" %}
+          </button>
+          {% if km_place_public_link and km_place_public_link.is_public %}
+            <a class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm" href="{{ km_place_public_link.url }}" target="_blank" rel="noopener noreferrer">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-open_in_new"></use></svg>{{ km_place_public_link.label }}
+            </a>
+          {% elif not km_place_form_summary.visibility.is_public %}
+            <button type="submit" name="_publish_place" class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm" data-pf-publish {% if not km_place_form_summary.is_ready %}disabled{% endif %}>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-public"></use></svg>{% translate "Опубликовать" %}
+            </button>
+          {% endif %}
+        </div>
       </div>
     </form>
   </div>

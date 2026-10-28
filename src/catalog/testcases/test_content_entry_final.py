@@ -309,7 +309,27 @@ class EventAdminVersionTests(TestCase):
 
     def test_fresh_admin_save_succeeds_and_template_has_one_token(self):
         response = self.client.get(self.url)
-        self.assertContains(response, 'name="expected_updated_at"', count=1)
+        from html.parser import HTMLParser
+        class VersionTokens(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.form = None
+                self.tokens = {}
+            def handle_starttag(self, tag, attrs):
+                attrs = dict(attrs)
+                if tag == 'form':
+                    self.form = attrs.get('id') or attrs.get('class') or attrs.get('action')
+                if tag == 'input' and attrs.get('name') == 'expected_updated_at':
+                    self.tokens.setdefault(self.form, []).append(attrs.get('value'))
+            def handle_endtag(self, tag):
+                if tag == 'form':
+                    self.form = None
+        parser = VersionTokens()
+        parser.feed(response.content.decode())
+        # Editing and repetition submit separately; each needs its own version.
+        self.assertEqual(len(parser.tokens.get('event_form', [])), 1)
+        self.assertEqual(len(parser.tokens.get('km-event-repeat', [])), 1)
+        self.assertTrue(all(values[0] for values in parser.tokens.values()))
         data = self.payload()
         data['name_az'] = 'QA valid event edit'
         response = self.client.post(self.url, data)
@@ -403,6 +423,8 @@ class EventAdminAutocommitTests(TransactionTestCase):
         self.assertFalse(connection.in_atomic_block)
         before = self.event.updated_at
         response = self.client.get(self.url)
-        self.assertContains(response, 'name="expected_updated_at"', count=1)
+        self.assertContains(response, 'name="expected_updated_at"', count=2)
+        self.assertContains(response, 'id="event_form"', count=1)
+        self.assertContains(response, 'data-event-repeat-form', count=1)
         self.event.refresh_from_db()
         self.assertEqual(self.event.updated_at, before)

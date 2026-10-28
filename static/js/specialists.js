@@ -288,6 +288,13 @@
         });
       });
     }
+
+    /* ─── 4. Specialization horizontal strip auto-scroll ─── */
+    var activeCategoryChip = page.querySelector(".catalog-category-chip.is-active");
+    var categoryStrip = page.querySelector(".catalog-category-strip");
+    if (activeCategoryChip && categoryStrip && activeCategoryChip.offsetLeft > categoryStrip.clientWidth / 2) {
+      categoryStrip.scrollLeft = activeCategoryChip.offsetLeft - 32;
+    }
   }
 
   function initOwnerSpecialistForm() {

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/pages/add_place.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/pages/add_place.css' %}?v=20261028_mobile_polish_r1" />
 {% endblock %}
 
 {% block content %}
@@ -114,7 +114,7 @@
         <span class="material-symbols-rounded">verified_user</span>
       </div>
       <div class="add-place-stat-info">
-        <span class="add-place-stat-value">24 saat</span>
+        <span class="add-place-stat-value">{% if CURRENT_LANGUAGE == "az" %}24 saat{% elif CURRENT_LANGUAGE == "en" %}24 hours{% else %}24 часа{% endif %}</span>
         <span class="add-place-stat-label">
           {% if CURRENT_LANGUAGE == "az" %}Sürətli moderasiya{% elif CURRENT_LANGUAGE == "en" %}Fast moderation{% else %}Быстрая модерация{% endif %}
         </span>

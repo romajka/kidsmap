@@ -29,14 +29,32 @@
       <div class="km-pf-group__head">
         <span class="km-pf-group__title">{% translate "Адрес" %}</span>
       </div>
-      <div class="km-pf-grid km-pf-grid--2">
-        {% include "admin/catalog/place/form/_field.html" with field=form.region %}
-        <div class="km-pf-district" data-km-admin-district-box>
-          {% include "admin/catalog/place/form/_field.html" with field=form.district %}
+      <div class="km-pf-location-selects">
+        <div class="km-pf-grid km-pf-grid--3 km-pf-location-selects__grid">
+          <div class="km-pf-location-field km-pf-location-field--region">
+            {% include "admin/catalog/place/form/_field.html" with field=form.region %}
+          </div>
+          <div class="km-pf-location-field km-pf-location-field--district km-pf-district" data-km-admin-district-box>
+            {% include "admin/catalog/place/form/_field.html" with field=form.district %}
+          </div>
+          <div class="km-pf-location-field km-pf-location-field--metro km-pf-metro" data-km-admin-metro-box>
+            {% include "admin/catalog/place/form/_field.html" with field=form.metro optional=True %}
+          </div>
         </div>
-      </div>
-      <div hidden style="display: none !important;" aria-hidden="true">
-        {% include "admin/catalog/place/form/_field.html" with field=form.metro optional=True %}
+
+        <div class="km-pf-location-summary" data-km-location-summary>
+          <div class="km-pf-location-summary__inner">
+            <span class="km-pf-location-summary__icon" aria-hidden="true">
+              <svg class="km-i" viewBox="0 0 960 960"><use href="#kmi-place"></use></svg>
+            </span>
+            <div class="km-pf-location-summary__content">
+              <span class="km-pf-location-summary__label">{% translate "Выбранная привязка:" %}</span>
+              <div class="km-pf-location-summary__badges" data-km-location-badges>
+                <!-- Rendered dynamically via JS on load and change -->
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       {% include "admin/catalog/place/form/_field.html" with field=form.address wide=True %}
       {% if form.location_override_reason %}
@@ -114,6 +132,9 @@
             <button type="button" class="km-pf-btn km-pf-btn--primary km-pf-btn--sm" data-km-place-location-confirm>
               <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check"></use></svg>{% translate "Подтвердить точку" %}
             </button>
+            <button type="button" class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm" data-km-place-location-recenter title="{% translate 'Центрировать по маркеру' %}">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-my_location"></use></svg>{% translate "Центрировать" %}
+            </button>
             <button type="button" class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm" data-km-place-location-clear>
               <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-delete"></use></svg>{% translate "Очистить" %}
             </button>
@@ -123,6 +144,26 @@
           </div>
         </div>
         <div class="km-pf-mappanel__map" data-km-place-location-map aria-label="{% translate 'Карта выбора координат' %}"></div>
+        <div class="km-pf-mappanel__live-coords" data-km-place-location-live-coords>
+          <div class="km-pf-mappanel__coords-box">
+            <span class="km-pf-mappanel__coords-icon" aria-hidden="true">
+              <svg class="km-i" viewBox="0 0 960 960"><use href="#kmi-place"></use></svg>
+            </span>
+            <span class="km-pf-mappanel__coords-text" data-km-place-coords-display>
+              {% translate "Точка не установлена — нажмите на карту" %}
+            </span>
+          </div>
+          <div class="km-pf-mappanel__coords-actions">
+            <button type="button" class="km-pf-btn km-pf-btn--ghost km-pf-btn--xs" data-km-copy-coords title="{% translate 'Скопировать координаты' %}">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-content_copy"></use></svg>
+              <span data-km-copy-coords-label>{% translate "Копировать" %}</span>
+            </button>
+            <a href="#" target="_blank" rel="noopener noreferrer" class="km-pf-btn km-pf-btn--ghost km-pf-btn--xs" data-km-open-external-map style="display: none;">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-open_in_new"></use></svg>
+              <span>{% translate "Открыть в картах" %}</span>
+            </a>
+          </div>
+        </div>
         <div class="km-pf-mappanel__found" data-km-place-location-found hidden>
           <div>
             <span class="km-pf-mappanel__found-label">{% translate "Найденный адрес:" %}</span>

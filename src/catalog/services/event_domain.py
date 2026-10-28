@@ -7,8 +7,9 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from catalog.models import Event, Organization, Specialist, Place
 from catalog.services.staff_roles import is_volunteer
+from catalog.services.phone_numbers import contact_copy
 
-CONTENT_FIELDS=frozenset({'name','name_az','name_ru','name_en','description_az','description_ru','description_en','category_id','start_datetime','end_datetime','age_from','age_to','price_text','related_place_id','address','district','metro','lat','lng','phone','instagram','website','photo','moderation_note','event_format','venue_label'})
+CONTENT_FIELDS=frozenset({'name','name_az','name_ru','name_en','description_az','description_ru','description_en','category_id','start_datetime','end_datetime','age_from','age_to','price_text','price_mode','price_amount','price_amount_max','price_currency','registration_method','whatsapp','registration_url','related_place_id','address','district','metro','lat','lng','phone','instagram','website','photo','moderation_note','event_format','venue_label'})
 ORGANIZER_FIELDS=frozenset({'organizer_organization_id','organizer_specialist_id'})
 
 
@@ -95,6 +96,11 @@ def capture_venue_snapshot(event):
 
 
 def _validate(event,publication=False):
+    from catalog.services.event_presentation import detail_errors
+    original = Event.objects.filter(pk=event.pk).first() if event.pk and not publication else None
+    errors = detail_errors(event, original=original)
+    if errors:
+        raise ValidationError(errors)
     _, owner = _organizer(event)
     if event.event_format == 'physical' and event.related_place_id:
         venue = Place.objects.filter(pk=event.related_place_id, deleted_at__isnull=True, is_active=True).first()
@@ -107,10 +113,10 @@ def _validate(event,publication=False):
     if bool(event.start_datetime)!=bool(event.end_datetime):raise ValidationError('Both dates are required.')
     if event.start_datetime and event.end_datetime<=event.start_datetime:raise ValidationError('End must follow start.')
     if publication:
-        if not event.name_az or not event.category_id or not event.description_az or not event.start_datetime:
-            raise ValidationError('Name, category, description and dates are required for publication.')
-        if event.event_format=='physical' and not capture_venue_snapshot(event).get('address'):
-            raise ValidationError('A real physical address is required.')
+        from catalog.services.event_readiness import publication_errors
+        errors = publication_errors(event)
+        if errors:
+            raise ValidationError(errors)
 
 
 def _save(event):
@@ -159,11 +165,50 @@ def submit_event(*,actor,event_id,expected_updated_at):
 @transaction.atomic
 def publish_event(*,actor,event_id,expected_updated_at):
     _,event=_locked(actor,event_id,expected_updated_at,review=True)
+    return _publish_locked(event)
+
+
+def _publish_locked(event):
     if event.related_place_id:Place.objects.select_for_update().get(pk=event.related_place_id)
     _validate(event,publication=True)
     if not event.venue_snapshot:
         event.venue_snapshot=capture_venue_snapshot(event)
     event.status='published';event.rejection_reason='';event.published_at=event.published_at or timezone.now()
+    return _save(event)
+
+
+@transaction.atomic
+def review_event(*,actor,event_id,expected_updated_at,decision,reason=''):
+    """Reviewer locks in the same actor -> organizer -> Event order as owners.
+
+    Returning an unresolvable organizer must remain possible so a reviewer can
+    request correction; approval always uses the complete publication pipeline.
+    """
+    if decision not in {'approve','return'}:
+        raise ValidationError(contact_copy('Выберите решение модерации.', 'Moderasiya qərarını seçin.', 'Choose a review decision.'))
+    if decision == 'approve':
+        actor,event = _locked(actor,event_id,expected_updated_at,review=True)
+    else:
+        actor = _actor(actor,lock=True)
+        if not actor.is_staff or not actor.has_perm('catalog.change_event'):
+            raise PermissionDenied('KidsMap event publication permission required.')
+        before = Event.objects.get(pk=event_id,deleted_at__isnull=True)
+        try:
+            _organizer(before,lock=True)
+        except (ValidationError,PermissionDenied):
+            pass
+        event = Event.objects.select_for_update().get(pk=event_id,deleted_at__isnull=True)
+        if (event.organizer_organization_id,event.organizer_specialist_id) != (before.organizer_organization_id,before.organizer_specialist_id):
+            raise ValidationError('Organizer changed; reload.',code='stale_version')
+        _version(event,expected_updated_at)
+    if event.status != 'pending':
+        raise ValidationError(contact_copy('Рассмотреть можно только мероприятие на проверке.', 'Yalnız yoxlamada olan tədbirə baxmaq olar.', 'Only pending events can be reviewed.'))
+    if decision == 'approve':
+        return _publish_locked(event)
+    if not isinstance(reason,str) or not reason.strip():
+        raise ValidationError(contact_copy('Укажите, что нужно исправить.', 'Nəyin düzəldilməli olduğunu qeyd edin.', 'Explain what needs to be corrected.'))
+    event.status = 'rejected'
+    event.rejection_reason = reason.strip()[:2000]
     return _save(event)
 
 
@@ -210,6 +255,23 @@ def delete_event(*,actor,event_id,expected_updated_at):
     _,event=_locked(actor,event_id,expected_updated_at)
     event.deleted_at=timezone.now()
     return _save(event)
+
+
+@transaction.atomic
+def repeat_event(*,actor,event_id,expected_updated_at,review=False):
+    """A fresh draft, never a mutation or new occurrence of the approved source."""
+    actor,source = _locked(actor,event_id,expected_updated_at,review=review)
+    values = {name: getattr(source,name) for name in CONTENT_FIELDS | ORGANIZER_FIELDS}
+    values.update(start_datetime=None, end_datetime=None, moderation_note='')
+    # Persisted file references are shared safely: no upload is reprocessed or overwritten.
+    values['photo'] = source.photo.name if source.photo else ''
+    repeated = Event(**values, owner=source.owner, status='draft', organizer_resolution='resolved')
+    _validate(repeated)
+    repeated = _save(repeated)
+    from catalog.models import EventPhoto
+    EventPhoto.objects.bulk_create([EventPhoto(event=repeated,image=item.image.name,caption=item.caption,order=item.order)
+        for item in source.gallery.all()])
+    return repeated
 
 
 def lock_event_for_response(*,actor,event_id):

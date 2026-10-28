@@ -88,8 +88,9 @@ class PermanentPlaceWizardTests(TestCase):
                 self.assertIn(field, form.errors)
         draft = OwnerPlaceCreateForm(data={}, draft_save_only=True)
         self.assertTrue(draft.is_valid(), draft.errors)
-        optional = OwnerPlaceCreateForm(data=self.data(lat='', lng=''))
-        self.assertTrue(optional.is_valid(), optional.errors)
+        missing_point = OwnerPlaceCreateForm(data=self.data(lat='', lng=''))
+        self.assertFalse(missing_point.is_valid())
+        self.assertIn('lat', missing_point.errors)
         inferred = OwnerPlaceCreateForm(data=self.data(region=''), files={'photo':self.photo()})
         self.assertTrue(inferred.is_valid(), inferred.errors)
         self.assertEqual(inferred.cleaned_data['region'], 'baku')
@@ -102,9 +103,19 @@ class PermanentPlaceWizardTests(TestCase):
             self.assertIsNone(form.cleaned_data['age_to'])
             self.assertEqual(form.save(commit=False).name_ru, 'Мастерская')
 
-    def test_outside_baku_requires_no_district_or_metro(self):
-        place=self.create(region='ganja',district='',metro='',lat='',lng='')
-        self.assertEqual(place.district,'ganja')
+    def test_outside_baku_draft_needs_no_district_but_publication_requires_resolution(self):
+        draft = OwnerPlaceCreateForm(
+            data=self.data(region='ganja', district='', metro='', lat='', lng=''),
+            draft_save_only=True)
+        self.assertTrue(draft.is_valid(), draft.errors)
+        self.assertEqual(draft.cleaned_data['district'], 'ganja')
+        # The offline district dataset covers Baku. A real point outside its
+        # coverage still requires staff resolution before publication.
+        submission = OwnerPlaceCreateForm(
+            data=self.data(region='ganja', district='', metro='', lat='40.6828', lng='46.3606'))
+        self.assertFalse(submission.is_valid())
+        self.assertIn('district', submission.errors)
+        self.assertNotIn('metro', submission.errors)
 
     def test_coordinates_reject_partial_nonfinite_and_out_of_range_even_in_draft(self):
         for lat,lng in [('40',''),('NaN','49'),('Infinity','49'),('91','49'),('40','181')]:

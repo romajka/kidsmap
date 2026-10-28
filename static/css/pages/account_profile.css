@@ -2002,6 +2002,22 @@
   color: #6B8578;
 }
 
+.account-owner-card__price,
+.account-owner-card__photos {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #446150;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.account-owner-card__price .material-symbols-rounded,
+.account-owner-card__photos .material-symbols-rounded {
+  color: #136F38;
+  font-size: 14px;
+}
+
 .account-owner-card__name {
   font-size: 16.5px;
   font-weight: 800;

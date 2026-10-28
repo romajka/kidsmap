@@ -21,6 +21,10 @@
             <span>{% translate "Перетащите сюда или выберите файл" %}</span>
           </div>
           {% if obj.photo and obj.photo.name %}
+            <span class="km-pf-mainphoto__badge" data-main-photo-badge>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-star"></use></svg>
+              <span>{% translate "Обложка" %}</span>
+            </span>
             <img
               src="{{ obj.photo.url }}"
               alt="{{ obj.name_i18n }}"
@@ -31,6 +35,10 @@
               {% if obj.safe_photo_size %}data-main-photo-initial-size="{{ obj.safe_photo_size }}"{% endif %}
             >
           {% else %}
+            <span class="km-pf-mainphoto__badge" hidden data-main-photo-badge>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-star"></use></svg>
+              <span>{% translate "Обложка" %}</span>
+            </span>
             <img class="km-pf-mainphoto__img" alt="" hidden data-main-photo-preview>
           {% endif %}
         </div>

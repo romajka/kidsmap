@@ -27,7 +27,7 @@ class PlaceContactPolicyTests(TestCase):
     def payload(self, **changes):
         data = dict(name_az='Ailə gəzinti məkanı', description_az='Ailələr və uşaqlar üçün rahat gəzinti yeri.',
                     category=self.parks.pk, subcategory=str(self.park.pk), age_from='0', age_to='18',
-                    region='baku', district='baku_yasamal', address='Bakı, parkın əsas girişi',
+                    region='baku', district='baku_yasamal', address='Bakı, parkın əsas girişi', lat='40.4', lng='49.8',
                     schedule_mode='always_open', phone1='', phone2='', phone3='', website='',
                     pricing_plans=json.dumps([{'product_type': 'admission', 'price_kind': 'free'}]))
         data.update(changes)

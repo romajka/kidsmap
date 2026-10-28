@@ -1,0 +1,7 @@
+{% load i18n %}
+{% if field %}<div class="km-event-field{% if wide %} km-event-field--wide{% endif %}{% if field.errors %} km-event-field--invalid{% endif %}" data-event-field="{{ field.name }}">
+  {{ field.label_tag }}
+  {{ field }}
+  {{ field.errors }}
+  {% if hint %}<small class="km-event-help">{{ hint }}</small>{% endif %}
+</div>{% endif %}

@@ -53,7 +53,17 @@
 [data-photo-editor]{display:grid;gap:28px}
 [data-photo-editor] .pw-upload{min-height:110px}
 [data-photo-editor] .pw-upload-caption{padding:18px;gap:6px}
-[data-photo-count]{margin-left:auto;color:var(--pw-muted);font-size:12px;font-weight:400}
+[data-photo-count] {
+  margin-left: auto;
+  color: #136F38;
+  background: #E8F4EC;
+  border: 1px solid #C8E5D2;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 11.5px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
 [data-photo-editor] .pw-field>label{display:flex;align-items:center;gap:10px}
 .pw-photo-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .pw-photo-items--main{grid-template-columns:minmax(0,1fr)}
@@ -596,7 +606,68 @@
 /* Main cover preview keeps the whole image, matching public card contain-fit. */
 .pw-photo-items--main .pw-photo-item{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);align-items:center;gap:18px}
 .pw-photo-items--main .pw-photo-item img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:contain;background:var(--tint-mist-050,#f7faf7);border-radius:10px}
-.pw-photo-cover-label{margin:0 0 6px;color:var(--pw-green);font-size:13px;font-weight:750;line-height:1.5}
+.pw-photo-cover-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #E8F4EC;
+  border: 1px solid #C8E5D2;
+  color: #136F38;
+  font-size: 11.5px;
+  font-weight: 750;
+  letter-spacing: 0.01em;
+}
+.pw-photo-cover-label::before {
+  content: "★";
+  font-size: 11px;
+  color: #136F38;
+}
 .pw-photo-cover-help{margin:0;padding:12px 14px;border-inline-start:3px solid var(--pw-green);background:var(--tint-mist-050,#f7faf7);color:var(--pw-muted);font-size:13px;line-height:1.6}
+
+/* Empty states for photos */
+.pw-photo-items[data-photo-items="gallery"]:empty {
+  display: block;
+}
+.pw-photo-items[data-photo-items="gallery"]:empty::before {
+  content: "Дополнительные фотографии пока не добавлены. Загрузите их через блок выше (до 10 фото).";
+  display: block;
+  padding: 18px;
+  border: 1.5px dashed #D2E3D7;
+  border-radius: 12px;
+  background: #F9FCFA;
+  color: #5D7969;
+  font-size: 13px;
+  text-align: center;
+}
+:lang(az) .pw-photo-items[data-photo-items="gallery"]:empty::before {
+  content: "Hələ əlavə şəkillər əlavə edilməyib. Yuxarıdakı forma vasitəsilə 10-dək şəkil yükləyə bilərsiniz.";
+}
+:lang(en) .pw-photo-items[data-photo-items="gallery"]:empty::before {
+  content: "No gallery photos added yet. You can upload up to 10 photos using the area above.";
+}
+
+.pw-photo-items[data-photo-items="main"]:empty {
+  display: block;
+}
+.pw-photo-items[data-photo-items="main"]:empty::before {
+  content: "Главное фото не выбрано. Загрузите его через блок выше — первое фото автоматически станет обложкой карточки.";
+  display: block;
+  padding: 22px 18px;
+  border: 1.5px dashed #D2E3D7;
+  border-radius: 12px;
+  background: #F9FCFA;
+  color: #5D7969;
+  font-size: 13px;
+  text-align: center;
+}
+:lang(az) .pw-photo-items[data-photo-items="main"]:empty::before {
+  content: "Əsas şəkil seçilməyib. Yuxarıdakı forma vasitəsilə yükləyin — ilk şəkil avtomatik üz qabığı olacaq.";
+}
+:lang(en) .pw-photo-items[data-photo-items="main"]:empty::before {
+  content: "No cover photo selected yet. Upload via the area above — the first photo will become the cover.";
+}
 
 @media(max-width:620px){.pw-photo-items--main .pw-photo-item{grid-template-columns:minmax(0,1fr);gap:12px}}

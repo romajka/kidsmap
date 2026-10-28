@@ -41,11 +41,11 @@ class EventPublicContractTests(TestCase):
                 self.assertContains(response, label)
                 self.assertNotContains(response, 'data-temporary-event-timer')
 
-    def test_cancelled_landing_card_has_state_instead_of_countdown(self):
+    def test_explicit_date_keeps_cancelled_card_with_state_instead_of_countdown(self):
         from django.urls import reverse
-        self.event(occurrence_state='cancelled', start_datetime=self.now+timedelta(days=1), end_datetime=self.now+timedelta(days=2))
+        event = self.event(occurrence_state='cancelled', start_datetime=self.now+timedelta(days=1), end_datetime=self.now+timedelta(days=2))
         with override('ru'):
-            response = self.client.get(reverse('events_landing'))
+            response = self.client.get(reverse('events_landing'), {'date':event.start_datetime.date().isoformat()})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Отменено')
         self.assertNotContains(response, 'data-temporary-event-timer')

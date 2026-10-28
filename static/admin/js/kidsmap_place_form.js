@@ -1929,6 +1929,19 @@
       if (!isDigit) event.preventDefault();
     });
 
+    /* Global shortcut: Ctrl+S / Cmd+S to quickly save changes */
+    window.addEventListener("keydown", function (event) {
+      if ((event.ctrlKey || event.metaKey) && (event.key === "s" || event.key === "S" || event.keyCode === 83)) {
+        if (!event.altKey && !event.shiftKey) {
+          event.preventDefault();
+          var primaryBtn = qs('button[name="_continue"]', root);
+          if (primaryBtn && !primaryBtn.disabled) {
+            primaryBtn.click();
+          }
+        }
+      }
+    });
+
     /* First paint & listeners ---------------------------------------------- */
 
     syncCoordinateChips();

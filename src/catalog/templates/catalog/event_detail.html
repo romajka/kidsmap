@@ -9,16 +9,24 @@
 {% block twitter_image %}{% if seo_image_url %}<meta name="twitter:image" content="{{ seo_image_url }}" />{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block structured_data %}<script type="application/ld+json">{{ event_schema_json|safe }}</script>{% endblock %}
 
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/event_public.css' %}?v=20261026">{% endblock %}
+
 {% block content %}
-{% include 'catalog/includes/typed_review_link.html' with review_kind='event' review_target=event %}
   <article class="panel event-detail-page">
     <div class="event-detail-hero">
       <div class="event-detail-copy">
-        <span class="event-detail-kicker">{% if language == "az" %}Müvəqqəti tədbir{% elif language == "en" %}Temporary event{% else %}Временное мероприятие{% endif %}</span>
         <h1>{{ event.name_i18n }}</h1>
-        {% localized_content event 'description' as event_description %}{% include 'catalog/includes/localized_content.html' with content=event_description %}
-        <p class="event-detail-status">{{ event_state_label }}</p>
-        {% if event.occurrence_state == 'scheduled' %}{% include "catalog/includes/event_countdown.html" with event=event language=language variant="detail" %}{% endif %}
+        {% include 'catalog/includes/event_state.html' %}
+        <dl class="event-detail-list event-detail-summary" data-event-key-facts>
+          <div class="event-summary-date"><dt>{% if language == 'az' %}Tarix və vaxt{% elif language == 'en' %}Date & time{% else %}Дата и время{% endif %}</dt><dd>{% timezone 'Asia/Baku' %}<time datetime="{{ event.start_datetime|date:'c' }}">{{ event.start_datetime|date:'d.m.Y H:i' }}</time> — <time datetime="{{ event.end_datetime|date:'c' }}">{{ event.end_datetime|date:'d.m.Y H:i' }}</time>{% endtimezone %}<span class="event-tz-label"> · Asia/Baku</span></dd></div>
+          {% if event.age_display %}<div><dt>{% if language == 'az' %}Yaş{% elif language == 'en' %}Age{% else %}Возраст{% endif %}</dt><dd>{{ event.age_display }} {% if language == 'az' %}yaş{% elif language == 'en' %}years{% else %}лет{% endif %}</dd></div>{% endif %}
+          <div><dt>{% if language == 'az' %}Qiymət{% elif language == 'en' %}Price{% else %}Стоимость{% endif %}</dt><dd class="event-price-highlight">{{ event.price_display }}</dd></div>
+          <div class="event-summary-venue"><dt>{% if language == 'az' %}Məkan{% elif language == 'en' %}Venue{% else %}Место{% endif %}</dt><dd>{% if event_online %}{% if language == 'az' %}Onlayn{% elif language == 'en' %}Online{% else %}Онлайн{% endif %}{% else %}{% if related_place_presentation %}<a href="{{ related_place_presentation.url }}" lang="{{ related_place_presentation.name_language }}">{{ related_place_presentation.name }}</a>{% elif event_venue.label %}{{ event_venue.label }}{% endif %}{% if event_venue.address %}<span class="event-summary-address">{{ event_venue.address }}</span>{% endif %}{% endif %}</dd></div>
+        </dl>
+        {% if event.price_mode != 'legacy' and event.price_text %}<p class="event-price-note">{{ event.price_text }}</p>{% endif %}
+        <div class="event-detail-registration" data-event-registration>
+          {% include 'catalog/includes/event_registration.html' with registration_class='btn event-registration-btn' %}
+        </div>
       </div>
       <div class="event-detail-media">
         {% if event.photo %}
@@ -28,6 +36,17 @@
         {% endif %}
       </div>
     </div>
+
+    {% if event.occurrence_state != 'cancelled' and not event.has_ended and event.registration.url %}
+    <div class="event-mobile-registration" data-event-mobile-registration hidden>
+      {% include 'catalog/includes/event_registration.html' with registration_class='btn event-registration-btn' %}
+    </div>
+    {% endif %}
+
+    <section class="event-detail-description">
+      <h2>{% if language == 'az' %}Tədbir haqqında{% elif language == 'en' %}About the event{% else %}О мероприятии{% endif %}</h2>
+      {% localized_content event 'description' as event_description %}{% include 'catalog/includes/localized_content.html' with content=event_description %}
+    </section>
 
     {% if event.gallery.all %}
       <section class="event-detail-gallery" aria-label="{% if language == 'az' %}Tədbirin əlavə şəkilləri{% elif language == 'en' %}Additional event photos{% else %}Дополнительные фото мероприятия{% endif %}">
@@ -41,32 +60,6 @@
     {% endif %}
 
     <div class="event-detail-grid">
-      <section class="event-detail-card event-detail-info">
-        <h2>{% if language == "az" %}Tədbir məlumatları{% elif language == "en" %}Event details{% else %}Детали мероприятия{% endif %}</h2>
-        <dl class="event-detail-list">
-          <div>
-            <dt>{% if language == "az" %}Tarix və vaxt{% elif language == "en" %}Date & time{% else %}Дата и время{% endif %}</dt>
-            <dd>{% timezone "Asia/Baku" %}<time datetime="{{ event.start_datetime|date:'c' }}">{{ event.start_datetime|date:"d.m.Y H:i" }}</time> — <time datetime="{{ event.end_datetime|date:'c' }}">{{ event.end_datetime|date:"d.m.Y H:i" }}</time>{% endtimezone %} <span class="event-tz-label">(Asia/Baku)</span></dd>
-          </div>
-          <div>
-            <dt>{% if language == "az" %}Kateqoriya{% elif language == "en" %}Category{% else %}Категория{% endif %}</dt>
-            <dd>{{ event.get_category_display }}</dd>
-          </div>
-          {% if event.age_display %}
-            <div>
-              <dt>{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</dt>
-              <dd>{{ event.age_display }}</dd>
-            </div>
-          {% endif %}
-          {% if event.price_display %}
-            <div>
-              <dt>{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Стоимость участия{% endif %}</dt>
-              <dd class="event-price-highlight">{{ event.price_display }}</dd>
-            </div>
-          {% endif %}
-        </dl>
-      </section>
-
       <!-- Organizer Card -->
       <section class="event-detail-card event-organizer-card">
         <div class="event-card-kicker">
@@ -98,8 +91,8 @@
           {% endif %}
         {% else %}
           <div class="event-organizer-info">
-            <h3 class="event-organizer-name">{% if language == 'az' %}Müstəqil tədbir{% elif language == 'en' %}Independent event{% else %}Независимое мероприятие{% endif %}</h3>
-            <p class="event-muted-text">{% if language == 'az' %}Təşkilatçı qeyd edilməyib{% elif language == 'en' %}Organizer is not specified{% else %}Организатор не указан в каталоге{% endif %}</p>
+            <h3 class="event-organizer-name">{% if language == 'az' %}Tədbirin təşkilatçısı{% elif language == 'en' %}Event organizer{% else %}Организатор мероприятия{% endif %}</h3>
+            <p class="event-muted-text">{% if language == 'az' %}Təşkilatçının profili hazırda əlçatan deyil{% elif language == 'en' %}The organizer profile is currently unavailable{% else %}Профиль организатора пока недоступен{% endif %}</p>
           </div>
         {% endif %}
 
@@ -177,13 +170,10 @@
       </section>
     </div>
     {% if event_previous_periods %}<section class="event-detail-card"><h2>{% if language == 'az' %}Əvvəlki tarixlər{% elif language == 'en' %}Previous dates{% else %}Прежние даты{% endif %}</h2><ul>{% for period in event_previous_periods %}<li>{% timezone 'Asia/Baku' %}{{ period.start|date:'d.m.Y H:i' }} — {{ period.end|date:'d.m.Y H:i' }}{% endtimezone %} (Asia/Baku)</li>{% endfor %}</ul></section>{% endif %}
-    <section class="event-detail-card" id="event-reviews"><h2>{% if language == 'az' %}Rəylər{% elif language == 'en' %}Reviews{% else %}Отзывы{% endif %}</h2>
+    <section class="event-detail-card" id="event-reviews">{% include 'catalog/includes/typed_review_link.html' with review_kind='event' review_target=event %}<h2>{% if language == 'az' %}Rəylər{% elif language == 'en' %}Reviews{% else %}Отзывы{% endif %}</h2>
       {% if event_rating.count %}<p>{{ event_rating.average|floatformat:1 }} / 5 · {{ event_rating.count }}</p>{% endif %}
       {% for review in event_reviews %}<article><h3>{{ review.author_name_i18n }}</h3><p>{{ review.current_revision.rating }} / 5</p><p>{{ review.current_revision.text|linebreaksbr }}</p></article>{% empty %}<p>{% if language == 'az' %}Hələ yayımlanmış rəy yoxdur.{% elif language == 'en' %}No published reviews yet.{% else %}Опубликованных отзывов пока нет.{% endif %}</p>{% endfor %}
     </section>
   </article>
 {% endblock %}
-
-{% block extra_body %}
-  <script src="{% static 'js/temporary_event_timer.js' %}"></script>
-{% endblock %}
+{% block extra_body %}<script src="{% static 'js/event_detail_registration.js' %}?v=20261026" defer></script>{% endblock %}

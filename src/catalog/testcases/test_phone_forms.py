@@ -118,7 +118,7 @@ class ApplicationContactFormTests(TestCase):
 
     def payload(self, **changes):
         import json
-        data = dict(name_az='Telefon yoxlama mərkəzi', description_az='Uşaqlar üçün təhsil və yaradıcılıq mərkəzi.', category='EDU', subcategory=str(self.subcategory.pk), age_from='0', age_to='12', region='baku', district='baku_yasamal', address='QA küçəsi 1', schedule_mode='always_open', pricing_plans=json.dumps([{'product_type': 'admission', 'price_kind': 'free'}]), phone1='+994 50 427 43 93', phone_country='AZ', whatsapp_mode='separate', whatsapp_number='https://wa.me/13104564918')
+        data = dict(name_az='Telefon yoxlama mərkəzi', description_az='Uşaqlar üçün təhsil və yaradıcılıq mərkəzi.', category='EDU', subcategory=str(self.subcategory.pk), age_from='0', age_to='12', region='baku', district='baku_yasamal', address='QA küçəsi 1', lat='40.4', lng='49.8', schedule_mode='always_open', pricing_plans=json.dumps([{'product_type': 'admission', 'price_kind': 'free'}]), phone1='+994 50 427 43 93', phone_country='AZ', whatsapp_mode='separate', whatsapp_number='https://wa.me/13104564918')
         data.update(changes)
         return data
 

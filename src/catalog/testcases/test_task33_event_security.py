@@ -37,6 +37,7 @@ class EventSecurityTests(TestCase):
 
     def event(self, **changes):
         values = dict(name='Synthetic event', name_az='Synthetic event', category=self.category,
+            photo='events/synthetic.jpg', price_mode='unknown', phone='+994501234567',
             organizer_organization=self.org, owner=self.venue_owner, event_format='online',
             start_datetime=timezone.now()+timedelta(days=2),
             end_datetime=timezone.now()+timedelta(days=2, hours=1))

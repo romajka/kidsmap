@@ -1,11 +1,29 @@
-{% load i18n %}
+{% load i18n catalog_i18n %}
 {% get_current_language as pricing_note_language %}
 {% if place.extra_conditions_i18n %}
-  <p class="detail-note"><strong>{% trans "Дополнительные условия" %}:</strong> {{ place.extra_conditions_i18n|linebreaksbr }}</p>
+  <div class="detail-pricing-note detail-pricing-note--conditions">
+    <div class="detail-pricing-note__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    </div>
+    <div class="detail-pricing-note__body">
+      <p class="detail-note"><strong>{% trans "Дополнительные условия" %}:</strong> {{ place.extra_conditions_i18n|clean_public_note|linebreaksbr }}</p>
+    </div>
+  </div>
 {% endif %}
 {% if place.additional_info_i18n %}
-  <p class="detail-note">{{ place.additional_info_i18n|linebreaksbr }}</p>
+  {% with cleaned_info=place.additional_info_i18n|clean_public_note %}
+    {% if cleaned_info %}
+      <div class="detail-pricing-note detail-pricing-note--info">
+        <div class="detail-pricing-note__body">
+          <p class="detail-note">{{ cleaned_info|linebreaksbr }}</p>
+        </div>
+      </div>
+    {% endif %}
+  {% endwith %}
 {% endif %}
-  {% if pricing_summary.has_price or pricing_summary.plans %}
-    <p class="detail-note detail-note--muted" data-price-disclaimer>{% if pricing_note_language == "az" %}Ziyarətdən əvvəl qiymətləri təşkilatdan dəqiqləşdirin.{% elif pricing_note_language == "en" %}Confirm prices with the organization before your visit.{% else %}Уточняйте цены у организации перед визитом.{% endif %}</p>
-  {% endif %}
+{% if pricing_summary.has_price or pricing_summary.plans %}
+  <p class="detail-note detail-note--muted detail-pricing-disclaimer" data-price-disclaimer>
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <span>{% if pricing_note_language == "az" %}Ziyarətdən əvvəl qiymətləri təşkilatdan dəqiqləşdirin.{% elif pricing_note_language == "en" %}Confirm prices with the organization before your visit.{% else %}Уточняйте цены у организации перед визитом.{% endif %}</span>
+  </p>
+{% endif %}

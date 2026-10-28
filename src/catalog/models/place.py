@@ -312,6 +312,17 @@ class Place(models.Model):
             return f"https://{value.lstrip('/')}"
         return f"https://instagram.com/{value.lstrip('@')}"
 
+    @property
+    def instagram_handle(self):
+        value = (self.instagram or "").strip()
+        if not value:
+            return ""
+        cleaned = value.rstrip("/")
+        if "/" in cleaned:
+            cleaned = cleaned.split("/")[-1]
+        cleaned = cleaned.lstrip("@")
+        return f"@{cleaned}" if cleaned else ""
+
     def website_url(self):
         value = (self.website or "").strip()
         if not value:
@@ -829,6 +840,12 @@ class Event(models.Model):
         (STATUS_REJECTED, _("Отклонено")),
     ]
 
+    PRICE_MODE_CHOICES = [('legacy', _('Прежняя цена')), ('free', _('Бесплатно')),
+        ('fixed', _('Фиксированная цена')), ('from', _('Цена от')), ('range', _('Диапазон цен')),
+        ('unknown', _('Уточнить стоимость'))]
+    REGISTRATION_METHOD_CHOICES = [('phone', _('Телефон')), ('whatsapp', _('WhatsApp')),
+        ('link', _('Ссылка для записи'))]
+
     FORMAT_PHYSICAL = 'physical'
     FORMAT_ONLINE = 'online'
     ORGANIZER_RESOLVED = 'resolved'
@@ -888,12 +905,19 @@ class Event(models.Model):
     age_from = models.PositiveSmallIntegerField(_("Возраст от"), null=True, blank=True)
     age_to = models.PositiveSmallIntegerField(_("Возраст до"), null=True, blank=True)
     price_text = models.CharField(_("Цена"), max_length=120, blank=True, default="")
+    price_mode = models.CharField(_('Тип цены'), max_length=16, choices=PRICE_MODE_CHOICES, default='legacy', db_default='legacy')
+    price_amount = models.DecimalField(_('Цена'), max_digits=10, decimal_places=2, null=True, blank=True)
+    price_amount_max = models.DecimalField(_('Цена до'), max_digits=10, decimal_places=2, null=True, blank=True)
+    price_currency = models.CharField(_('Валюта'), max_length=3, default='AZN', db_default='AZN', choices=[('AZN', 'AZN'), ('USD', 'USD'), ('EUR', 'EUR')])
+    registration_method = models.CharField(_('Способ записи'), max_length=16, choices=REGISTRATION_METHOD_CHOICES, default='phone', db_default='phone')
+    whatsapp = models.CharField(_('WhatsApp'), max_length=80, blank=True, default='', db_default='')
+    registration_url = models.URLField(_('Ссылка для записи'), max_length=500, blank=True, default='', db_default='')
     district = models.CharField(_("Регион / район"), max_length=100, blank=True, default="")
     metro = models.CharField(_("Метро"), max_length=100, blank=True, default="")
     address = models.CharField(_("Адрес"), max_length=255, blank=True, default="")
     lat = models.DecimalField(_("Широта"), max_digits=9, decimal_places=6, null=True, blank=True)
     lng = models.DecimalField(_("Долгота"), max_digits=9, decimal_places=6, null=True, blank=True)
-    phone = models.CharField(_("Телефон / WhatsApp"), max_length=50, blank=True, default="")
+    phone = models.CharField(_("Телефон"), max_length=50, blank=True, default="")
     instagram = models.CharField(_("Instagram"), max_length=255, blank=True, default="")
     website = models.URLField(_("Сайт"), max_length=255, blank=True, default="")
     photo = models.FileField(_("Основное фото"), upload_to="events/", blank=True, null=True)
@@ -952,12 +976,24 @@ class Event(models.Model):
         if self.age_from is not None:
             return f"{self.age_from}+"
         if self.age_to is not None:
-            return str(self.age_to)
+            from catalog.services.phone_numbers import contact_copy
+            return contact_copy(f'до {self.age_to}', f'{self.age_to}-dək', f'up to {self.age_to}')
         return ""
 
     @property
     def price_display(self) -> str:
-        return (self.price_text or "").strip()
+        from catalog.services.event_presentation import price_display
+        return price_display(self)
+
+    @property
+    def is_free(self):
+        from catalog.services.event_presentation import is_free
+        return is_free(self)
+
+    @property
+    def registration(self):
+        from catalog.services.event_presentation import registration
+        return registration(self)
 
     @property
     def has_ended(self) -> bool:
@@ -1061,6 +1097,11 @@ class Event(models.Model):
         original = type(self).objects.using(using).filter(pk=self.pk).first() if self.pk else None
         validate_event_format_history(self, original)
         validate_event_domain(self)
+        from catalog.services.event_presentation import detail_errors
+        errors = detail_errors(self, original=original)
+        if errors:
+            from django.core.exceptions import ValidationError
+            raise ValidationError(errors)
 
     def __str__(self):
         return self.name_i18n()
@@ -1077,6 +1118,12 @@ class Event(models.Model):
     class Meta:
         ordering = ("start_datetime", "-created_at")
         constraints = [
+            models.CheckConstraint(condition=Q(price_mode__in=('legacy', 'free', 'fixed', 'from', 'range', 'unknown')), name='event_valid_price_mode'),
+            models.CheckConstraint(condition=Q(registration_method__in=('phone', 'whatsapp', 'link')), name='event_valid_registration'),
+            models.CheckConstraint(condition=Q(price_amount__isnull=True) | Q(price_amount__gte=0), name='event_price_nonnegative'),
+            models.CheckConstraint(condition=Q(price_amount_max__isnull=True) | Q(price_amount_max__gte=0), name='event_price_max_nonnegative'),
+            models.CheckConstraint(condition=~Q(price_mode__in=('fixed', 'from', 'range')) | Q(price_amount__isnull=False), name='event_typed_price_required'),
+            models.CheckConstraint(condition=~Q(price_mode='range') | (Q(price_amount_max__isnull=False) & Q(price_amount_max__gte=models.F('price_amount'))), name='event_price_ordered_range'),
             models.CheckConstraint(condition=(
                 Q(organizer_resolution='resolved', organizer_organization__isnull=False, organizer_specialist__isnull=True)
                 | Q(organizer_resolution='resolved', organizer_organization__isnull=True, organizer_specialist__isnull=False)

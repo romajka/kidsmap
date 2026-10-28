@@ -1071,7 +1071,14 @@
 
     state.panel.hidden = !isOpen;
     state.openBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    state.openBtn.setAttribute("aria-pressed", isOpen ? "true" : "false");
     state.openBtn.classList.toggle("is-active", isOpen);
+
+    const listBtn = document.querySelector("[data-catalog-list-view]");
+    if (listBtn) {
+      listBtn.classList.toggle("is-active", !isOpen);
+      listBtn.setAttribute("aria-pressed", !isOpen ? "true" : "false");
+    }
 
     if (isOpen) {
       requestAnimationFrame(function () {
@@ -1097,6 +1104,17 @@
     state.openBtn.addEventListener("click", function () {
       setCatalogMapOpen(state.panel.hidden);
     });
+
+    const bindListViewBtn = function () {
+      const listBtn = document.querySelector("[data-catalog-list-view]");
+      if (listBtn && !listBtn.dataset.boundListView) {
+        listBtn.dataset.boundListView = "true";
+        listBtn.addEventListener("click", function () {
+          setCatalogMapOpen(false);
+        });
+      }
+    };
+    bindListViewBtn();
 
     state.closeBtn.addEventListener("click", function () {
       setCatalogMapOpen(false);
@@ -1180,6 +1198,11 @@
       if (openBtn && state.openBtn !== openBtn) {
         state.openBtn = openBtn;
         openBtn.addEventListener('click', () => setCatalogMapOpen(state.panel.hidden));
+      }
+      const listBtn = document.querySelector("[data-catalog-list-view]");
+      if (listBtn && !listBtn.dataset.boundListView) {
+        listBtn.dataset.boundListView = "true";
+        listBtn.addEventListener("click", () => setCatalogMapOpen(false));
       }
       if (state.googleMap) {
         state.syncGooglePlaces();

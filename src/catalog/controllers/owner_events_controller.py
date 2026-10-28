@@ -18,28 +18,9 @@ class EventActionResponse:
     error_code: str = ""
 
 def _event_required_missing(event: Event) -> list[str]:
-    missing = []
-    if not event.name_az:
-        missing.append(_("название"))
-    if not event.category:
-        missing.append(_("категория"))
-    if not event.start_datetime or not event.end_datetime:
-        missing.append(_("дата и время"))
-    if event.end_datetime and event.end_datetime <= timezone.now():
-        missing.append(_("актуальная дата окончания"))
-    if event.age_from is None or event.age_to is None:
-        missing.append(_("возраст"))
-    if not event.price_text:
-        missing.append(_("цена"))
-    if event.event_format != "online" and not event.address:
-        missing.append(_("адрес"))
-    if not event.phone:
-        missing.append(_("телефон"))
-    if not event.description_az:
-        missing.append(_("описание"))
-    if not event.photo:
-        missing.append(_("фото"))
-    return missing
+    from catalog.services.event_readiness import required_missing
+    return required_missing(event)
+
 
 def _managed_event(request, pk):
     from catalog.services.event_domain import require_manage_event
@@ -69,7 +50,11 @@ def _save_form(request, form, draft_save_only, event=None):
                 saved = event_domain.submit_event(actor=request.user, event_id=saved.pk, expected_updated_at=saved.updated_at.isoformat())
         return EventActionResponse(ok=True, message=_("Qaralama saxlanıldı.") if draft_save_only else _("Tədbir moderasiyaya göndərildi."), event=saved)
     except ValidationError as exc:
-        form.add_error(None, exc.messages)
+        if hasattr(exc, 'error_dict'):
+            for field, errors in exc.error_dict.items():
+                form.add_error(field if field in form.fields else None, errors)
+        else:
+            form.add_error(None, exc.messages)
         return EventActionResponse(ok=False, message=_("Ошибка в форме."), form=form, event=event, error_code=validation_code(exc))
 
 
@@ -111,6 +96,17 @@ def delete_event(request, pk: int) -> EventActionResponse:
         return EventActionResponse(ok=False, message='; '.join(exc.messages), event=event)
 
 
+def repeat_event(request, pk: int) -> EventActionResponse:
+    from django.core.exceptions import ValidationError
+    from catalog.services.event_domain import repeat_event as repeat
+    event = _managed_event(request, pk)
+    try:
+        repeated = repeat(actor=request.user, event_id=pk, expected_updated_at=request.POST.get('expected_updated_at'))
+        return EventActionResponse(ok=True, message=_('Создан похожий черновик. Укажите новые даты.'), event=repeated)
+    except ValidationError as exc:
+        return EventActionResponse(ok=False, message='; '.join(exc.messages), event=event, error_code=validation_code(exc))
+
+
 def validation_code(exc):
     errors = [item for values in exc.error_dict.values() for item in values] if hasattr(exc, 'error_dict') else exc.error_list
     return 'stale_version' if any(getattr(item, 'code', None) == 'stale_version' for item in errors) else 'validation_error'
@@ -126,16 +122,25 @@ def entry_context(request, form, event=None, error_code=''):
         venue.event_region = location.initial['region']
         venue.event_district = location.initial['district']
     requirements = [
-        {'field': name, 'label': str(form.fields[name].label), 'physical': name == 'address'}
-        for name in (*form.SUBMIT_REQUIRED_FIELDS, 'phone', 'address')
+        {'field': name, 'label': str(form.fields[name].label), 'physical': False}
+        for name in form.SUBMIT_REQUIRED_FIELDS
     ]
+    requirements.append({'field':'address', 'label':str(form.fields['address'].label), 'physical':True})
+    requirements.append({'field':'price_mode', 'label':str(form.fields['price_mode'].label)})
+    # UI only checks presence. Predicates and field maps come from the server;
+    # numeric validity, dates, contact syntax and authority remain server checks.
+    for selector, mapping in (('price_mode', form.event_ui_config['priceFields']), ('registration_method', form.event_ui_config['registrationFields'])):
+        for name in dict.fromkeys(name for fields in mapping.values() for name in fields):
+            requirements.append({'field':name, 'label':str(form.fields[name].label),
+                'when':{'field':selector, 'values':[mode for mode,fields in mapping.items() if name in fields]}})
     requirements.insert(0, {'field': 'organizer_organization', 'oneOf': ['organizer_organization', 'organizer_specialist'], 'label': str(_('Организатор мероприятия'))})
     marker = request.session.pop('owner_event_explicit_save', None)
     identity = str(event.pk) if event else 'create'
     key = f'km-owner-event-v2:{request.user.pk}:{identity}'
     saved = bool(marker and event and marker.get('entity') == identity and marker.get('revision') == event.updated_at.isoformat())
     current = Event.objects.filter(pk=event.pk).first() if event and error_code == 'stale_version' else None
-    return {'event_venues': venues, 'event_requirements': requirements, 'event_error_code': error_code,
+    from catalog.services.event_readiness import has_possible_duplicate
+    return {'event_ui_config': form.event_ui_config, 'event_possible_duplicate': has_possible_duplicate(form.instance), 'event_venues': venues, 'event_requirements': requirements, 'event_error_code': error_code,
             'event_recovery_key': key, 'event_recovery_clear_key': marker.get('key', '') if marker else '',
             'event_explicit_saved': saved, 'event_server_version': current.updated_at.isoformat() if current else (event.updated_at.isoformat() if event else ''),
             'event_current': current,

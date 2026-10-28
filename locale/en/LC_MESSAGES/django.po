@@ -3216,10 +3216,9 @@ msgid "Долгота"
 msgstr "Longitude"
 
 #: src/catalog/domain_admin/place.py:538
-#, fuzzy
 #| msgid "Время окончания должно быть позже времени начала."
 msgid "Окончание мероприятия должно быть позже начала."
-msgstr "End time must be after start time."
+msgstr "The event must end after it starts."
 
 #: src/catalog/domain_admin/place.py:555
 #: src/catalog/domain_admin/place.py:1153
@@ -3257,10 +3256,9 @@ msgid ""
 msgstr "End date and time. Used to determine relevance and completion."
 
 #: src/catalog/domain_admin/place.py:603
-#, fuzzy
 #| msgid "например 12"
 msgid "Напр., +994 50 123 45 67"
-msgstr "for example 12"
+msgstr "E.g. +994 50 123 45 67"
 
 #: src/catalog/domain_admin/place.py:616
 #: src/catalog/domain_admin/place.py:2611
@@ -3302,19 +3300,17 @@ msgid "Не опубликованы"
 msgstr "Unpublished"
 
 #: src/catalog/domain_admin/place.py:673 src/catalog/domain_admin/place.py:778
-#, fuzzy
 #| msgid "Не указан"
 msgid "Не удалено"
-msgstr "Unspecified"
+msgstr "Not deleted"
 
 #: src/catalog/domain_admin/place.py:674 src/catalog/domain_admin/place.py:779
 #: src/catalog/domain_admin/place.py:1287
 #: src/catalog/domain_admin/place.py:3223
 #: src/catalog/domain_admin/place.py:3260
-#, fuzzy
 #| msgid "Проверено"
 msgid "В удаленных"
-msgstr "Verified"
+msgstr "In deleted records"
 
 #: src/catalog/domain_admin/place.py:688
 #: src/catalog/domain_admin/place.py:3485
@@ -3371,28 +3367,24 @@ msgid "Сортировка"
 msgstr "Sorting"
 
 #: src/catalog/domain_admin/place.py:758
-#, fuzzy
 #| msgid "Сначала новые"
 msgid "Создано: сначала новые"
-msgstr "Newest first"
+msgstr "Created: newest first"
 
 #: src/catalog/domain_admin/place.py:759
-#, fuzzy
 #| msgid "На карте"
 msgid "Создано: сначала старые"
-msgstr "On the map"
+msgstr "Created: oldest first"
 
 #: src/catalog/domain_admin/place.py:760
-#, fuzzy
 #| msgid "Обновлено"
 msgid "Обновлено: сначала новые"
-msgstr "Updated"
+msgstr "Updated: newest first"
 
 #: src/catalog/domain_admin/place.py:761
-#, fuzzy
 #| msgid "Обновлено"
 msgid "Обновлено: сначала старые"
-msgstr "Updated"
+msgstr "Updated: oldest first"
 
 #: src/catalog/domain_admin/place.py:762
 #: src/catalog/domain_admin/place.py:4693
@@ -8880,7 +8872,7 @@ msgstr ""
 #: src/catalog/models/place.py:386
 #, python-format
 msgid "%(minutes)s мин"
-msgstr ""
+msgstr "%(minutes)s min"
 
 #: src/catalog/models/place.py:409
 msgid "1 урок"
@@ -10927,10 +10919,9 @@ msgid "Запрос повышения"
 msgstr "Event period"
 
 #: src/catalog/models/staff_role.py:98
-#, fuzzy
 #| msgid "Дата модерации"
 msgid "Дата и время"
-msgstr "Moderation date"
+msgstr "Date and time"
 
 #: src/catalog/models/staff_role.py:102
 msgid "История роли сотрудника"
@@ -11034,10 +11025,9 @@ msgid "Код подтверждения отправлен"
 msgstr "Verification code has been sent to your email."
 
 #: src/catalog/models/user.py:121
-#, fuzzy
 #| msgid "Опубликовано"
 msgid "Запланировано"
-msgstr "Published"
+msgstr "Scheduled"
 
 #: src/catalog/models/user.py:123
 #, fuzzy
@@ -17206,10 +17196,8 @@ msgid "Сортировка отзывов"
 msgstr "Review sorting"
 
 #: src/catalog/templates/pages/site_reviews.html:114
-#, fuzzy
-#| msgid "Пока нет отзывов. Будьте первым!"
 msgid "Пока нет отзывов с текстом."
-msgstr "No reviews yet. Be the first!"
+msgstr "No reviews with text yet."
 
 #: src/catalog/templates/pages/site_reviews.html:115
 msgid ""
@@ -23980,3 +23968,167 @@ msgstr "0 of 0"
 #. Organization flow consistency and progressive workspace.
 msgid "%(start)s–%(end)s из %(total)s"
 msgstr "%(start)s–%(end)s of %(total)s"
+
+#. Event entry efficiency and moderation.
+msgid "Вернуть на исправление"
+msgstr "Return for corrections"
+
+#. Event entry efficiency and moderation.
+msgid "Верхнюю границу можно не указывать. Если возраст неизвестен, оставьте поля пустыми."
+msgstr "The upper age limit is optional. Leave both fields empty if the age is unknown."
+
+#. Event entry efficiency and moderation.
+msgid "Владелец, статус и история записи"
+msgstr "Owner, status and record history"
+
+#. Event entry efficiency and moderation.
+msgid "Выберите начало и окончание — увидите продолжительность."
+msgstr "Choose the start and end to see the duration."
+
+#. Event entry efficiency and moderation.
+msgid "Данные будут проверены при сохранении"
+msgstr "The details will be checked when saved"
+
+#. Event entry efficiency and moderation.
+msgid "Дата, возраст, стоимость и площадка."
+msgstr "Date, age, price and venue."
+
+#. Event entry efficiency and moderation.
+msgid "Диапазон цен"
+msgstr "Price range"
+
+#. Event entry efficiency and moderation.
+msgid "Добавить переводы RU / EN"
+msgstr "Add RU / EN translations"
+
+#. Event entry efficiency and moderation.
+msgid "Дополнительные контакты и комментарий"
+msgstr "Additional contacts and notes"
+
+#. Event entry efficiency and moderation.
+msgid "Исправить данные мероприятия"
+msgstr "Edit event details"
+
+#. Event entry efficiency and moderation.
+msgid "Когда и где"
+msgstr "When and where"
+
+#. Event entry efficiency and moderation.
+msgid "Комментарий для модератора"
+msgstr "Note for the moderator"
+
+#. Event entry efficiency and moderation.
+msgid "Кто проводит"
+msgstr "Who is organizing"
+
+#. Event entry efficiency and moderation.
+msgid "Можно опубликовать"
+msgstr "Ready to publish"
+
+#. Event entry efficiency and moderation.
+msgid "Необязательно"
+msgstr "Optional"
+
+#. Event entry efficiency and moderation.
+msgid "Новый черновик с пустой датой. Это мероприятие останется без изменений."
+msgstr "Creates a new draft with no dates. This event will stay unchanged."
+
+#. Event entry efficiency and moderation.
+msgid "Обложка и способ связи с организатором."
+msgstr "Cover image and how to contact the organizer."
+
+#. Event entry efficiency and moderation.
+msgid "Окончание должно быть позже начала."
+msgstr "The end must be after the start."
+
+#. Event entry efficiency and moderation.
+msgid "Организатор"
+msgstr "Organizer"
+
+#. Event entry efficiency and moderation.
+msgid "Организатор, название и описание."
+msgstr "Organizer, title and description."
+
+#. Event entry efficiency and moderation.
+msgid "Переводы RU / EN"
+msgstr "RU / EN translations"
+
+#. Event entry efficiency and moderation.
+msgid "Перед публикацией"
+msgstr "Before publishing"
+
+#. Event entry efficiency and moderation.
+msgid "Перенесено"
+msgstr "Rescheduled"
+
+#. Event entry efficiency and moderation.
+msgid "Площадка"
+msgstr "Venue"
+
+#. Event entry efficiency and moderation.
+msgid "Похожее мероприятие уже есть у этого организатора на выбранное время. Проверьте, что это новое событие."
+msgstr "This organizer already has a similar event at the selected time. Check that this is a new event."
+
+#. Event entry efficiency and moderation.
+msgid "Прежняя цена"
+msgstr "Previously entered price"
+
+#. Event entry efficiency and moderation.
+msgid "Проверка мероприятия"
+msgstr "Event review"
+
+#. Event entry efficiency and moderation.
+msgid "Проверьте поля"
+msgstr "Check the fields"
+
+#. Event entry efficiency and moderation.
+msgid "Продолжительность"
+msgstr "Duration"
+
+#. Event entry efficiency and moderation.
+msgid "Разделы мероприятия"
+msgstr "Event sections"
+
+#. Event entry efficiency and moderation.
+msgid "Служебные настройки"
+msgstr "Administrative settings"
+
+#. Event entry efficiency and moderation.
+msgid "Создать похожее"
+msgstr "Create similar event"
+
+#. Event entry efficiency and moderation.
+msgid "Способ записи"
+msgstr "Registration method"
+
+#. Event entry efficiency and moderation.
+msgid "Ссылка для записи"
+msgstr "Registration link"
+
+#. Event entry efficiency and moderation.
+msgid "У площадки не указан телефон"
+msgstr "The venue has no phone number"
+
+#. Event entry efficiency and moderation.
+msgid "Уточнить стоимость"
+msgstr "Ask for price"
+
+#. Event entry efficiency and moderation.
+msgid "Фиксированная цена"
+msgstr "Fixed price"
+
+#. Event entry efficiency and moderation.
+msgid "Фото и запись"
+msgstr "Photo and registration"
+
+#. Event entry efficiency and moderation.
+msgid "Что нужно исправить"
+msgstr "What needs correcting"
+
+#. Event entry efficiency and moderation.
+msgid "д."
+msgstr "d"
+
+#. Event entry efficiency and moderation.
+msgid "Создан похожий черновик. Укажите новые даты."
+msgstr "A similar draft was created. Choose new dates."

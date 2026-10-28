@@ -93,3 +93,43 @@ class SpecialistPublicScreensTests(TestCase):
         self.assertIsNone(other.verified_person_user_id)
         self.assertFalse(other.person_claims.exists())
         self.assertFalse(other.employment_links.exists())
+
+    def test_specialist_directory_renders_horizontal_specialization_strip(self):
+        from catalog.models import SpecialistSpecialization
+        spec_speech = SpecialistSpecialization.objects.filter(code='speech_therapist').first()
+        if not spec_speech:
+            spec_speech = SpecialistSpecialization.objects.create(
+                code='speech_therapist', name='Логопед', name_ru='Логопед',
+                name_az='Loqoped', name_en='Speech Therapist', is_active=True
+            )
+        self.profile.specializations.add(spec_speech)
+
+        # 1. Default unfiltered view: "Все" chip is active
+        response = self.client.get('/ru/specialists/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('specialization_chips', response.context)
+        chips = response.context['specialization_chips']
+        self.assertTrue(len(chips) > 0)
+        # Check that speech_therapist chip exists with icon and url
+        speech_chip = next((c for c in chips if c['value'] == 'speech_therapist'), None)
+        self.assertIsNotNone(speech_chip)
+        self.assertEqual(speech_chip['icon'], 'record_voice_over')
+        self.assertIn('specialization=speech_therapist', speech_chip['url'])
+        self.assertFalse(speech_chip['is_active'])
+
+        content = response.content.decode()
+        self.assertIn('catalog-category-strip-wrap', content)
+        self.assertIn('catalog-category-strip', content)
+        self.assertIn('catalog-category-chip', content)
+
+        # 2. Filtered by specialization: speech_therapist chip is active, "Все" is not active
+        filtered_resp = self.client.get('/ru/specialists/?specialization=speech_therapist&format=online')
+        self.assertEqual(filtered_resp.status_code, 200)
+        filtered_chips = filtered_resp.context['specialization_chips']
+        filtered_speech_chip = next(c for c in filtered_chips if c['value'] == 'speech_therapist')
+        self.assertTrue(filtered_speech_chip['is_active'])
+        self.assertIn('all_specializations_url', filtered_resp.context)
+        # Verify format=online is preserved in all_specializations_url
+        self.assertIn('format=online', filtered_resp.context['all_specializations_url'])
+        self.assertNotIn('specialization=', filtered_resp.context['all_specializations_url'])
+

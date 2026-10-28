@@ -28,7 +28,7 @@ class EventDomainTests(TestCase):
         return event_domain
 
     def values(self,**extra):
-        values=dict(name_az='Event',category_id=self.category.code,start_datetime=timezone.now()+timedelta(days=3),end_datetime=timezone.now()+timedelta(days=3,hours=2),organizer_organization_id=self.org.pk,event_format='physical',related_place_id=self.venue.pk,address='Original address',age_from=3,age_to=12,price_text='Free',phone='+994501234567',description_az='Event details')
+        values=dict(name_az='Event',category_id=self.category.code,start_datetime=timezone.now()+timedelta(days=3),end_datetime=timezone.now()+timedelta(days=3,hours=2),organizer_organization_id=self.org.pk,event_format='physical',related_place_id=self.venue.pk,address='Original address',age_from=3,age_to=12,price_text='Free',phone='+994501234567',description_az='Event details',photo='events/synthetic.jpg')
         values.update(extra)
         return values
 

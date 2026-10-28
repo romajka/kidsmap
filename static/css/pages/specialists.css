@@ -4840,3 +4840,123 @@ body.km-filter-lock {
   line-height: 1.55 !important;
   padding: 3px 0 !important;
 }
+
+
+/* ==========================================================================
+   Horizontal Specialization Strip (matching Main Catalog)
+   ========================================================================== */
+.km-specialists-catalog .catalog-category-strip-wrap {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin-bottom: 14px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.km-specialists-catalog .catalog-category-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  padding: 4px 2px 8px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+
+.km-specialists-catalog .catalog-category-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.km-specialists-catalog .catalog-category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  user-select: none;
+}
+
+.km-specialists-catalog .catalog-category-chip:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(15, 23, 42, 0.06);
+}
+
+.km-specialists-catalog .catalog-category-chip.is-active {
+  background: #009a4e !important;
+  border-color: #007a3d !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 8px rgba(0, 154, 78, 0.28) !important;
+}
+
+.km-specialists-catalog .catalog-category-chip__icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 13px;
+  overflow: hidden;
+}
+
+.km-specialists-catalog .catalog-category-chip__icon--all {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.km-specialists-catalog .catalog-category-chip.is-active .catalog-category-chip__icon {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+}
+
+.km-specialists-catalog .catalog-category-chip__icon svg,
+.km-specialists-catalog .catalog-category-chip__icon .material-symbols-rounded {
+  width: 14px;
+  height: 14px;
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.km-specialists-catalog .catalog-category-chip__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.km-specialists-catalog .catalog-category-chip.is-active .catalog-category-chip__count {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+}

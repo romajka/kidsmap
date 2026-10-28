@@ -48,26 +48,19 @@
     <div class="events-card__info-row">
       {% if event.event_format == 'online' %}
         <span class="events-card__address"><span class="material-symbols-rounded events-meta-icon" aria-hidden="true">videocam</span> {% if language == 'az' %}Onlayn{% elif language == 'en' %}Online{% else %}Онлайн{% endif %}</span>
-      {% elif event.venue_snapshot.address %}
+      {% elif event.public_venue.address %}
         <span class="events-card__address"><span class="material-symbols-rounded events-meta-icon" aria-hidden="true">location_on</span> {{ event.public_venue.address|truncatechars:45 }}</span>
       {% endif %}
     </div>
 
-    {% include "catalog/includes/event_countdown.html" with event=event language=language variant="card" %}
+    {% include 'catalog/includes/event_state.html' %}
 
     <div class="events-card__actions">
-      <a class="events-card-btn events-card-btn--primary" href="{{ event.get_absolute_url }}">
+      <a class="events-card-btn" href="{{ event.get_absolute_url }}">
         <span>{% if language == "az" %}Ətraflı{% elif language == "en" %}Details{% else %}Подробнее{% endif %}</span>
         <span class="material-symbols-rounded events-btn-icon-end" aria-hidden="true">arrow_forward</span>
       </a>
-      {% if event.phone %}
-        <a class="events-card-btn events-card-btn--wa"
-           href="https://wa.me/{{ event.phone|cut:' '|cut:'+' |cut:'-'|cut:'('|cut:')' }}"
-           target="_blank" rel="noopener"
-           aria-label="WhatsApp">
-          <span class="material-symbols-rounded events-btn-icon" aria-hidden="true">chat</span>
-        </a>
-      {% endif %}
+      {% include 'catalog/includes/event_registration.html' with registration_class='events-card-btn events-card-btn--primary' %}
       <a class="events-card-btn events-card-btn--reviews" data-event-reviews="{{ event.pk }}" href="{{ event.get_absolute_url }}#event-reviews" aria-label="{% if language == 'az' %}Rəylər{% elif language == 'en' %}Reviews{% else %}Отзывы{% endif %}">
         <span class="material-symbols-rounded events-btn-icon" aria-hidden="true">star</span>
       </a>

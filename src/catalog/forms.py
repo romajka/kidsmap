@@ -1795,7 +1795,7 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
 class OwnerEventForm(forms.ModelForm):
     expected_updated_at = forms.CharField(required=False, widget=forms.HiddenInput())
     SUBMIT_REQUIRED_FIELDS = ("name_az", "category", "event_date", "start_time_input", "end_time_input",
-                              "age_from", "age_to", "price_text", "description_az", "photo")
+                              "description_az", "photo")
     draft_save_only = False
     require_location_region = False
 
@@ -1886,7 +1886,8 @@ class OwnerEventForm(forms.ModelForm):
             "end_datetime",
             "age_from",
             "age_to",
-            "price_text",
+            "price_text", "price_mode", "price_amount", "price_amount_max", "price_currency",
+            "registration_method", "whatsapp", "registration_url", "name_ru", "name_en", "description_ru", "description_en",
             "related_place",
             "region",
             "district",
@@ -1930,6 +1931,20 @@ class OwnerEventForm(forms.ModelForm):
         self.user = kwargs.pop("user", None)
         self.draft_save_only = bool(kwargs.pop("draft_save_only", False))
         super().__init__(*args, **kwargs)
+        from catalog.services.event_presentation import EVENT_UI_CONFIG
+        self.event_ui_config = EVENT_UI_CONFIG
+        for field in ('price_mode', 'price_currency', 'registration_method', 'price_amount', 'price_amount_max',
+                      'whatsapp', 'registration_url', 'name_ru', 'name_en', 'description_ru', 'description_en'):
+            self.fields[field].widget.attrs['class'] = 'field'
+        if not self.instance.pk:
+            self.initial.setdefault('price_mode', 'unknown')
+        if self.is_bound:
+            self.data = self.data.copy()
+            for field, default in (('price_mode', self.instance.price_mode if self.instance.pk else ('legacy' if self.data.get('price_text') else 'unknown')),
+                                   ('price_currency', self.instance.price_currency or 'AZN'),
+                                   ('registration_method', self.instance.registration_method or 'phone')):
+                if field not in self.data:
+                    self.data[field] = default
         self.fields["start_datetime"].input_formats = ["%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"]
         self.fields["end_datetime"].input_formats = ["%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"]
         from zoneinfo import ZoneInfo
@@ -1985,6 +2000,16 @@ class OwnerEventForm(forms.ModelForm):
         else:
             self.fields['organizer_organization'].queryset = Organization.objects.none()
             self.fields['organizer_specialist'].queryset = Specialist.objects.none()
+        # Exactly one eligible organizer is an unambiguous default, never extra authority.
+        if not self.instance.pk:
+            eligible = [(field, item.pk) for field in ('organizer_organization', 'organizer_specialist')
+                        for item in self.fields[field].queryset[:2]]
+            if len(eligible) == 1:
+                field, identity = eligible[0]
+                self.single_organizer = self.fields[field].queryset.get(pk=identity)
+                self.initial.setdefault(field, identity)
+                if self.is_bound and not self.data.get('organizer_organization') and not self.data.get('organizer_specialist'):
+                    self.data[field] = str(identity)
         self.fields['related_place'].help_text = _('Необязательно. Можно добавить мероприятие без постоянного места.')
         from catalog.services.image_uploads import image_upload_config
         self.photo_upload_config = image_upload_config()
@@ -2016,9 +2041,12 @@ class OwnerEventForm(forms.ModelForm):
 
     def clean_phone(self):
         value = self.cleaned_data.get("phone") or ""
-        if self.draft_save_only and not value:
-            return ""
-        return _validate_phone(value)
+        from catalog.services.phone_numbers import normalize_phone
+        return normalize_phone(value)
+
+    def clean_whatsapp(self):
+        from catalog.services.phone_numbers import normalize_whatsapp
+        return normalize_whatsapp(self.cleaned_data.get('whatsapp') or '')
 
     def clean(self):
         cleaned = super().clean()
@@ -2037,11 +2065,15 @@ class OwnerEventForm(forms.ModelForm):
                 cleaned["address"] = related_place.address
                 self.instance.address = related_place.address
             if cleaned.get("lat") is None:
-                cleaned["lat"] = related_place.lat
-                self.instance.lat = related_place.lat
+                from decimal import Decimal
+                coordinate = related_place.lat
+                cleaned["lat"] = Decimal(str(coordinate)).quantize(Decimal('0.000001')) if coordinate is not None else None
+                self.instance.lat = cleaned["lat"]
             if cleaned.get("lng") is None:
-                cleaned["lng"] = related_place.lng
-                self.instance.lng = related_place.lng
+                from decimal import Decimal
+                coordinate = related_place.lng
+                cleaned["lng"] = Decimal(str(coordinate)).quantize(Decimal('0.000001')) if coordinate is not None else None
+                self.instance.lng = cleaned["lng"]
             if not cleaned.get("district"):
                 cleaned["district"] = related_place.district
                 self.instance.district = related_place.district
@@ -2051,8 +2083,6 @@ class OwnerEventForm(forms.ModelForm):
         if not self.draft_save_only:
             if not online and not cleaned.get("address"):
                 self.add_error("address", _("Укажите адрес или выберите связанное место с адресом."))
-            if not cleaned.get("phone"):
-                self.add_error("phone", _("Укажите телефон мероприятия / WhatsApp."))
 
         event_date = cleaned.get("event_date")
         end_date = cleaned.get("end_date") or event_date
@@ -2107,8 +2137,6 @@ class OwnerEventForm(forms.ModelForm):
 
         if start and end and start >= end:
             self.add_error("end_time_input", _("Время окончания должно быть позже времени начала."))
-        if not self.draft_save_only and start and start < timezone.now():
-            self.add_error("event_date", _("Нельзя выбрать прошедшую дату или время начала."))
         if not self.draft_save_only and end and end <= timezone.now():
             self.add_error("end_time_input", _("Нельзя отправить на модерацию уже завершившееся мероприятие."))
 
@@ -2118,11 +2146,27 @@ class OwnerEventForm(forms.ModelForm):
             self.add_error("age_to", _("Возраст «до» меньше «от»."))
 
         photo = cleaned.get("photo")
-        if photo:
+        if photo and self.files.get(self.add_prefix("photo")):
             try:
                 cleaned["photo"] = _validate_uploaded_image(photo)
             except ValidationError as exc:
                 self.add_error("photo", exc)
+        # Requirements are shared with submit/publish and the admin editor.
+        import copy
+        from catalog.services.event_presentation import detail_errors
+        from catalog.services.event_readiness import publication_errors
+        candidate = copy.copy(self.instance)
+        for field in self._meta.model._meta.fields:
+            if field.name in cleaned:
+                setattr(candidate, field.name, cleaned[field.name])
+        if candidate.event_format == 'online':
+            candidate.related_place = None
+        errors = detail_errors(candidate) if self.draft_save_only else publication_errors(candidate)
+        date_fields = {'start_datetime':'event_date', 'end_datetime':'end_time_input'}
+        for field, message in errors.items():
+            target = date_fields.get(field, field)
+            if target in self.fields and target not in self.errors:
+                self.add_error(target, message)
         return cleaned
 
     def save(self, commit=True):

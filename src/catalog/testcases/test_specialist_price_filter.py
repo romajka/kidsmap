@@ -136,7 +136,7 @@ class SpecialistAdaptivePriceTests(TestCase):
                 self.assertContains(response,'class="km-filter-group range-filter filter-price-range"')
                 self.assertContains(response,'data-max="1400"')
                 self.assertContains(response,' max="1400"',count=2)
-                self.assertContains(response,'specialists.js?v=20261022_release_all_r1')
+                self.assertContains(response,'js/specialists.js')
                 self.assertContains(response,phrase)
                 selected=response.context['selected']
                 self.assertEqual((selected['price_from'],selected['price_to']),('500',''))

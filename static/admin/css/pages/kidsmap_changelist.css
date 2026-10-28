@@ -1504,7 +1504,8 @@ details[open] .km-accordion-arrow {
 }
 
 /* Col 2: Place */
-.km-table-container thead th:nth-child(2),
+.model-place .km-table-container thead th:nth-child(2),
+.model-placesoftdelete .km-table-container thead th:nth-child(2),
 .km-table-container thead th.column-col_place {
   width: auto !important;
   padding: 0 16px 0 20px !important;
@@ -1512,7 +1513,8 @@ details[open] .km-accordion-arrow {
 }
 
 /* Col 3: Location */
-.km-table-container thead th:nth-child(3),
+.model-place .km-table-container thead th:nth-child(3),
+.model-placesoftdelete .km-table-container thead th:nth-child(3),
 .km-table-container thead th.column-col_location {
   width: 20% !important;
   min-width: 160px !important;
@@ -1521,7 +1523,8 @@ details[open] .km-accordion-arrow {
 }
 
 /* Col 4: State */
-.km-table-container thead th:nth-child(4),
+.model-place .km-table-container thead th:nth-child(4),
+.model-placesoftdelete .km-table-container thead th:nth-child(4),
 .km-table-container thead th.column-col_state {
   width: 15% !important;
   min-width: 140px !important;
@@ -1530,7 +1533,8 @@ details[open] .km-accordion-arrow {
 }
 
 /* Col 5: Marks */
-.km-table-container thead th:nth-child(5),
+.model-place .km-table-container thead th:nth-child(5),
+.model-placesoftdelete .km-table-container thead th:nth-child(5),
 .km-table-container thead th.column-col_marks {
   width: 14% !important;
   min-width: 148px !important;
@@ -1539,7 +1543,8 @@ details[open] .km-accordion-arrow {
 }
 
 /* Col 6: Updated */
-.km-table-container thead th:nth-child(6),
+.model-place .km-table-container thead th:nth-child(6),
+.model-placesoftdelete .km-table-container thead th:nth-child(6),
 .km-table-container thead th.column-col_updated {
   width: 11% !important;
   min-width: 105px !important;
@@ -1548,8 +1553,8 @@ details[open] .km-accordion-arrow {
 }
 
 /* Col 7: Actions */
-.km-table-container thead th:nth-child(7),
-.km-table-container thead th:last-child,
+.model-place .km-table-container thead th:nth-child(7),
+.model-placesoftdelete .km-table-container thead th:nth-child(7),
 .km-table-container thead th.column-col_actions {
   width: 9% !important;
   min-width: 90px !important;
@@ -1603,14 +1608,16 @@ details[open] .km-accordion-arrow {
   box-sizing: border-box !important;
 }
 
-.km-table-container tbody td:nth-child(2),
+.model-place .km-table-container tbody td:nth-child(2),
+.model-placesoftdelete .km-table-container tbody td:nth-child(2),
 .km-table-container tbody td.field-col_place {
   width: auto !important;
   padding: 0 16px 0 20px !important;
   box-sizing: border-box !important;
 }
 
-.km-table-container tbody td:nth-child(3),
+.model-place .km-table-container tbody td:nth-child(3),
+.model-placesoftdelete .km-table-container tbody td:nth-child(3),
 .km-table-container tbody td.field-col_location {
   width: 22% !important;
   min-width: 170px !important;
@@ -1618,7 +1625,8 @@ details[open] .km-accordion-arrow {
   box-sizing: border-box !important;
 }
 
-.km-table-container tbody td:nth-child(4),
+.model-place .km-table-container tbody td:nth-child(4),
+.model-placesoftdelete .km-table-container tbody td:nth-child(4),
 .km-table-container tbody td.field-col_state {
   width: 15% !important;
   min-width: 140px !important;
@@ -1626,7 +1634,8 @@ details[open] .km-accordion-arrow {
   box-sizing: border-box !important;
 }
 
-.km-table-container tbody td:nth-child(5),
+.model-place .km-table-container tbody td:nth-child(5),
+.model-placesoftdelete .km-table-container tbody td:nth-child(5),
 .km-table-container tbody td.field-col_marks {
   width: 14% !important;
   min-width: 148px !important;
@@ -1634,7 +1643,8 @@ details[open] .km-accordion-arrow {
   box-sizing: border-box !important;
 }
 
-.km-table-container tbody td:nth-child(6),
+.model-place .km-table-container tbody td:nth-child(6),
+.model-placesoftdelete .km-table-container tbody td:nth-child(6),
 .km-table-container tbody td.field-col_updated {
   width: 11% !important;
   min-width: 105px !important;
@@ -1642,8 +1652,8 @@ details[open] .km-accordion-arrow {
   box-sizing: border-box !important;
 }
 
-.km-table-container tbody td:nth-child(7),
-.km-table-container tbody td:last-child,
+.model-place .km-table-container tbody td:nth-child(7),
+.model-placesoftdelete .km-table-container tbody td:nth-child(7),
 .km-table-container tbody td.field-col_actions {
   width: 9% !important;
   min-width: 90px !important;
@@ -2868,23 +2878,34 @@ details[open] .km-accordion-arrow {
 
 /* 14. Responsive Breakpoints (1h) */
 @media (max-width: 1280px) {
-  .km-table-container thead th:nth-child(5),
-  .km-table-container thead th.column-col_marks,
-  .km-table-container tbody td:nth-child(5),
-  .km-table-container tbody td.field-col_marks {
+  .model-place .km-table-container thead th:nth-child(5),
+  .model-place .km-table-container thead th.column-col_marks,
+  .model-place .km-table-container tbody td:nth-child(5),
+  .model-place .km-table-container tbody td.field-col_marks,
+  .model-placesoftdelete .km-table-container thead th:nth-child(5),
+  .model-placesoftdelete .km-table-container thead th.column-col_marks,
+  .model-placesoftdelete .km-table-container tbody td:nth-child(5),
+  .model-placesoftdelete .km-table-container tbody td.field-col_marks {
     display: none !important;
   }
-  .km-col-upd-author {
+  .model-place .km-col-upd-author,
+  .model-placesoftdelete .km-col-upd-author {
     display: none;
   }
-  .km-place-marks-inline {
+  .model-place .km-place-marks-inline,
+  .model-placesoftdelete .km-place-marks-inline {
     display: inline-flex;
   }
-  .km-table-container thead th.column-col_place { width: 290px !important; }
-  .km-table-container thead th.column-col_location { width: 205px !important; }
-  .km-table-container thead th.column-col_actions,
-  .km-table-container thead th:last-child { width: 76px !important; }
-  .km-col-actions > :nth-child(2) { display: none; }
+  .model-place .km-table-container thead th.column-col_place,
+  .model-placesoftdelete .km-table-container thead th.column-col_place { width: 290px !important; }
+  .model-place .km-table-container thead th.column-col_location,
+  .model-placesoftdelete .km-table-container thead th.column-col_location { width: 205px !important; }
+  .model-place .km-table-container thead th.column-col_actions,
+  .model-place .km-table-container thead th:last-child,
+  .model-placesoftdelete .km-table-container thead th.column-col_actions,
+  .model-placesoftdelete .km-table-container thead th:last-child { width: 76px !important; }
+  .model-place .km-col-actions > :nth-child(2),
+  .model-placesoftdelete .km-col-actions > :nth-child(2) { display: none; }
 }
 
 /* 15. Place Ownership Requests Table Layout */
@@ -3089,21 +3110,40 @@ details[open] .km-accordion-arrow {
 }
 
 /* ==========================================================================
-   27. Specialist Changelist Table Polish
+   27. Specialist & Moderation Specialist Changelist Table Polish
    ========================================================================== */
-.km-specialist-changelist .km-table-container {
+.km-specialist-changelist .km-table-container,
+.km-moderation-changelist .km-table-container {
   overflow-x: auto !important;
+  overflow-y: visible !important;
+  min-height: 280px;
+}
+
+.km-specialist-changelist .km-table-container,
+.km-moderation-changelist .km-table-container {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.km-specialist-changelist .km-table-container table,
+.km-moderation-changelist .km-table-container table {
+  table-layout: auto !important;
+  width: 100% !important;
+  border-collapse: collapse !important;
 }
 
 .km-specialist-changelist .km-table-container table {
-  table-layout: auto !important;
-  min-width: 1080px !important;
-  width: 100% !important;
+  min-width: 1060px !important;
 }
 
-.km-specialist-changelist .km-table-container thead th {
-  padding: 10px 14px !important;
-  font-family: var(--km-font-sans) !important;
+.km-moderation-changelist .km-table-container table {
+  min-width: 920px !important;
+}
+
+.km-specialist-changelist .km-table-container thead th,
+.km-moderation-changelist .km-table-container thead th {
+  padding: 10px 10px !important;
+  font-family: var(--km-font-sans, 'Manrope', -apple-system, sans-serif) !important;
   font-size: 11px !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;
@@ -3112,206 +3152,463 @@ details[open] .km-accordion-arrow {
   background: #FBFCFB !important;
   border-bottom: 1px solid #E6EAE7 !important;
   white-space: nowrap !important;
+  vertical-align: middle !important;
 }
 
-.km-specialist-changelist .km-table-container thead th.column-profile_column { width: 250px !important; }
-.km-specialist-changelist .km-table-container thead th.column-directions_column { width: 210px !important; }
-.km-specialist-changelist .km-table-container thead th.column-owner { width: 130px !important; }
-.km-specialist-changelist .km-table-container thead th.column-format_badge { width: 120px !important; }
-.km-specialist-changelist .km-table-container thead th.column-status_badge { width: 125px !important; }
-.km-specialist-changelist .km-table-container thead th.column-verification_badge { width: 110px !important; }
-.km-specialist-changelist .km-table-container thead th.column-documents_count { width: 90px !important; }
-.km-specialist-changelist .km-table-container thead th.column-rating_column { width: 95px !important; }
-.km-specialist-changelist .km-table-container thead th.column-updated_at { width: 130px !important; }
-
-.km-specialist-changelist .km-table-container tbody td {
-  padding: 12px 14px !important;
+.km-specialist-changelist .km-table-container tbody td,
+.km-specialist-changelist .km-table-container tbody th,
+.km-moderation-changelist .km-table-container tbody td,
+.km-moderation-changelist .km-table-container tbody th {
+  padding: 10px 10px !important;
+  height: 64px !important;
   vertical-align: middle !important;
   border-bottom: 1px solid #F0F2F1 !important;
-  font-family: var(--km-font-sans) !important;
-  font-size: 13px !important;
+  font-family: var(--km-font-sans, 'Manrope', -apple-system, sans-serif) !important;
+  font-size: 12.5px !important;
   color: #16211A !important;
+  box-sizing: border-box !important;
 }
 
-.km-specialist-changelist .km-admin-spec-profile {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 220px;
+/* Col: Checkbox */
+.km-specialist-changelist .km-table-container thead th:first-child,
+.km-specialist-changelist .km-table-container thead th.djn-checkbox-select-all,
+.km-moderation-changelist .km-table-container thead th:first-child,
+.km-moderation-changelist .km-table-container thead th.djn-checkbox-select-all,
+.km-specialist-changelist .km-table-container tbody td.action-checkbox,
+.km-moderation-changelist .km-table-container tbody td.action-checkbox {
+  width: 36px !important;
+  max-width: 36px !important;
+  min-width: 36px !important;
+  padding: 8px 4px !important;
+  text-align: center !important;
 }
 
-.km-specialist-changelist .km-admin-spec-photo {
-  width: 38px;
-  height: 38px;
-  border-radius: 8px;
+/* Col: Profile */
+.km-specialist-changelist .km-table-container thead th.column-profile_column,
+.km-specialist-changelist .km-table-container tbody th.field-profile_column,
+.km-moderation-changelist .km-table-container thead th.column-profile_column,
+.km-moderation-changelist .km-table-container tbody th.field-profile_column {
+  min-width: 230px !important;
+  max-width: 320px !important;
+  text-align: left !important;
+  font-weight: normal !important;
+}
+
+/* Col: Directions */
+.km-specialist-changelist .km-table-container thead th.column-directions_column,
+.km-specialist-changelist .km-table-container tbody td.field-directions_column,
+.km-moderation-changelist .km-table-container thead th.column-directions_column,
+.km-moderation-changelist .km-table-container tbody td.field-directions_column {
+  min-width: 170px !important;
+  max-width: 240px !important;
+  text-align: left !important;
+}
+
+/* Col: Owner */
+.km-specialist-changelist .km-table-container thead th.column-owner,
+.km-specialist-changelist .km-table-container tbody td.field-owner,
+.km-moderation-changelist .km-table-container thead th.column-owner,
+.km-moderation-changelist .km-table-container tbody td.field-owner {
+  min-width: 125px !important;
+  max-width: 170px !important;
+  text-align: left !important;
+}
+
+/* Col: Format Badge */
+.km-specialist-changelist .km-table-container thead th.column-format_badge,
+.km-specialist-changelist .km-table-container tbody td.field-format_badge,
+.km-moderation-changelist .km-table-container thead th.column-format_badge,
+.km-moderation-changelist .km-table-container tbody td.field-format_badge {
+  min-width: 95px !important;
+  white-space: nowrap !important;
+  display: table-cell !important;
+}
+
+/* Col: Status Badge */
+.km-specialist-changelist .km-table-container thead th.column-status_badge,
+.km-specialist-changelist .km-table-container tbody td.field-status_badge {
+  min-width: 110px !important;
+  white-space: nowrap !important;
+}
+
+/* Col: Documents Count */
+.km-specialist-changelist .km-table-container thead th.column-documents_count,
+.km-specialist-changelist .km-table-container tbody td.field-documents_count,
+.km-moderation-changelist .km-table-container thead th.column-documents_count,
+.km-moderation-changelist .km-table-container tbody td.field-documents_count {
+  min-width: 100px !important;
+  white-space: nowrap !important;
+}
+
+/* Col: Rating */
+.km-specialist-changelist .km-table-container thead th.column-rating_column,
+.km-specialist-changelist .km-table-container tbody td.field-rating_column {
+  min-width: 115px !important;
+  white-space: nowrap !important;
+}
+
+/* Col: Actions */
+.km-specialist-changelist .km-table-container thead th.column-row_actions,
+.km-specialist-changelist .km-table-container tbody td.field-row_actions,
+.km-moderation-changelist .km-table-container thead th.column-row_actions,
+.km-moderation-changelist .km-table-container tbody td.field-row_actions {
+  min-width: 130px !important;
+  text-align: right !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  padding-right: 12px !important;
+}
+
+.km-specialist-changelist .km-table-container tbody tr:has(details.km-admin-action-menu[open]),
+.km-moderation-changelist .km-table-container tbody tr:has(details.km-admin-action-menu[open]) {
+  position: relative !important;
+  z-index: 100 !important;
+}
+
+.km-specialist-changelist .km-table-container tbody tr:has(details.km-admin-action-menu[open]) td,
+.km-specialist-changelist .km-table-container tbody tr:has(details.km-admin-action-menu[open]) th,
+.km-moderation-changelist .km-table-container tbody tr:has(details.km-admin-action-menu[open]) td,
+.km-moderation-changelist .km-table-container tbody tr:has(details.km-admin-action-menu[open]) th {
+  position: relative !important;
+  z-index: 100 !important;
+}
+
+.km-place-pagination-inline {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* 1. Specialist Profile Cell */
+.km-admin-spec-profile {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.km-admin-spec-photo {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 9px !important;
   object-fit: cover;
-  flex: 0 0 38px;
+  flex: 0 0 36px !important;
   border: 1px solid #E6EAE7;
   background: #F4F6F4;
 }
 
-.km-specialist-changelist .km-admin-spec-photo--empty {
-  display: inline-grid;
-  place-items: center;
-  color: var(--km-accent, #136F38);
-  background: #EBF7EE;
-  font-size: 16px;
+.km-admin-spec-photo--empty {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 9px !important;
+  color: #0D8A52;
+  background: #EAF8EE;
+  flex: 0 0 36px !important;
 }
 
-.km-specialist-changelist .km-admin-spec-profile strong {
-  display: block;
-  font-family: var(--km-font-sans);
-  font-size: 13.5px;
+.km-admin-spec-photo--empty svg {
+  width: 20px;
+  height: 20px;
+}
+
+.km-admin-spec-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.km-admin-spec-name {
+  font-family: var(--km-font-sans, 'Manrope', -apple-system, sans-serif);
+  font-size: 13px !important;
   font-weight: 700;
   color: #16211A;
+  text-decoration: none;
   line-height: 1.3;
-}
-
-.km-specialist-changelist .km-admin-spec-profile small {
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   display: block;
-  font-family: var(--km-font-sans);
-  font-size: 11.5px;
-  font-weight: 500;
-  color: #5E6D62;
-  margin-top: 1px;
 }
 
-.km-specialist-changelist .km-admin-spec-tags {
+.km-admin-spec-name:hover {
+  color: var(--km-accent, #0D8A52);
+  text-decoration: underline;
+}
+
+.km-admin-spec-sub {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 4px;
-  max-width: 210px;
+  margin-top: 2px;
+  flex-wrap: wrap;
 }
 
-.km-specialist-changelist .km-admin-spec-tags span {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 7px;
-  border-radius: 5px;
-  background: #F4F6F4;
-  border: 1px solid #E6EAE7;
-  color: #2C3831;
-  font-family: var(--km-font-sans);
+.km-spec-alt-title {
   font-size: 11px;
-  font-weight: 600;
-  line-height: 1.3;
+  color: #64748B;
+  font-weight: 500;
 }
 
-.km-specialist-changelist .km-admin-spec-badge {
+.km-verified-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 9px;
-  border-radius: 6px;
-  background: #F4F6F4;
-  color: #2C3831;
-  font-family: var(--km-font-sans);
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.km-specialist-changelist .km-admin-spec-badge i {
-  color: var(--km-accent, #136F38);
-  font-size: 12px;
-}
-
-.km-specialist-changelist .km-admin-spec-badge .fa-star {
-  color: #EAB308;
-}
-
-.km-specialist-changelist .km-status-badge,
-.km-organization-changelist .km-status-badge,
-.km-status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 10px;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #0D8A52;
+  background: #EAF8EE;
+  padding: 1px 5px;
   border-radius: 999px;
-  font-family: var(--km-font-sans);
-  font-size: 12px;
-  font-weight: 600;
   white-space: nowrap;
 }
 
-.km-specialist-changelist .km-status-published,
-.km-organization-changelist .km-status-published,
-.km-status-published {
-  background: #EBF7EE;
-  color: #136F38;
+.km-verified-chip svg {
+  width: 11px;
+  height: 11px;
 }
 
-.km-specialist-changelist .km-status-published::before,
-.km-organization-changelist .km-status-published::before,
-.km-status-published::before {
-  content: "";
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #35C46F;
+.km-spec-site-link {
+  font-size: 10.5px;
+  color: #0D8A52;
+  font-weight: 600;
+  text-decoration: none;
 }
 
-.km-specialist-changelist .km-status-pending,
-.km-organization-changelist .km-status-pending,
-.km-status-pending {
-  background: #FEF3C7;
-  color: #92400E;
+.km-spec-site-link:hover {
+  text-decoration: underline;
 }
 
-.km-specialist-changelist .km-status-pending::before,
-.km-organization-changelist .km-status-pending::before,
-.km-status-pending::before {
-  content: "";
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #F59E0B;
+.km-spec-slug {
+  font-size: 10.5px;
+  color: #94A3B8;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.km-specialist-changelist .km-status-draft,
-.km-organization-changelist .km-status-draft,
-.km-status-draft {
+.km-spec-date-chip {
+  font-size: 10.5px;
+  color: #94A3B8;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   background: #F1F5F9;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.km-spec-date-chip i {
+  font-size: 9.5px;
   color: #64748B;
 }
 
-.km-specialist-changelist .km-status-draft::before,
-.km-organization-changelist .km-status-draft::before,
-.km-status-draft::before {
-  content: "";
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #94A3B8;
+/* 2. Directions / Specializations */
+.km-admin-spec-tags {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 3px !important;
+  max-width: 230px !important;
 }
 
-.km-specialist-changelist .km-status-verified,
-.km-organization-changelist .km-status-verified,
-.km-status-verified {
-  background: #EBF7EE;
-  color: #136F38;
-  display: inline-flex;
+.km-spec-tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  max-width: 165px !important;
+  padding: 1px 7px !important;
+  border-radius: 999px !important;
+  background: #EBF7EE !important;
+  border: 1px solid #D1F0DA !important;
+  color: #0D8A52 !important;
+  font-family: var(--km-font-sans, 'Manrope', -apple-system, sans-serif) !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  box-sizing: border-box !important;
+}
+
+.km-spec-tag--more {
+  background: #F1F5F9 !important;
+  border-color: #E2E8F0 !important;
+  color: #64748B !important;
+}
+
+/* 3. Owner Cell */
+.km-spec-owner-cell {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  max-width: 105px !important;
+}
+
+.km-spec-owner-avatar {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 50% !important;
+  background: #F1F5F9 !important;
+  color: #64748B !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 11px !important;
+  flex: 0 0 26px !important;
+}
+
+.km-spec-owner-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.km-spec-owner-info strong {
+  font-size: 12px !important;
+  font-weight: 700;
+  color: #16211A;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 85px !important;
+  display: block !important;
+}
+
+.km-spec-owner-info small {
+  font-size: 10.5px !important;
+  color: #64748B;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 85px !important;
+  display: block !important;
+}
+
+/* 4. Format Badge */
+.km-admin-spec-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 3px 7px !important;
+  border-radius: 6px !important;
+  background: #F8FAF9 !important;
+  border: 1px solid #E6EAE7 !important;
+  color: #1E293B !important;
+  font-family: var(--km-font-sans, 'Manrope', -apple-system, sans-serif) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+}
+
+.km-format-both i { color: #4F46E5; }
+.km-format-offline i { color: #0D8A52; }
+.km-format-online i { color: #0284C7; }
+
+/* 5. Documents Badge */
+.km-spec-doc-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 3px 7px !important;
+  border-radius: 6px !important;
+  font-family: var(--km-font-sans, 'Manrope', -apple-system, sans-serif) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+  transition: opacity 0.15s ease !important;
+}
+
+.km-spec-doc-badge:hover {
+  opacity: 0.85;
+}
+
+.km-spec-doc-badge--has {
+  background: #EAF8EE !important;
+  color: #0D8A52 !important;
+  border: 1px solid #C4EED0 !important;
+}
+
+.km-spec-doc-badge--empty {
+  background: #F8FAFC !important;
+  color: #94A3B8 !important;
+  border: 1px solid #E2E8F0 !important;
+}
+
+.km-spec-doc-badge svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* 6. Rating Cell */
+.km-spec-rating-cell {
+  display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-family: var(--km-font-sans);
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
+  gap: 4px;
 }
 
-.km-specialist-changelist .km-status-verified i {
-  color: #35C46F;
-  font-size: 12px;
+.km-spec-rating-stars {
+  font-size: 11.5px;
+  color: #F59E0B;
 }
 
-.km-specialist-changelist .km-admin-muted {
-  color: #94A3B8;
-  font-size: 12px;
+.km-spec-rating-stars strong {
+  color: #92400E;
+  margin-left: 2px;
+}
+
+.km-spec-rating-count {
+  font-size: 10.5px;
+  color: #64748B;
+}
+
+/* 7. Row Actions in Moderation Queue */
+.km-moderation-changelist .km-place-row-actions {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 2px !important;
+  white-space: nowrap !important;
+}
+
+.km-moderation-changelist .km-admin-action--good span,
+.km-moderation-changelist .km-admin-action--warn span {
+  display: none !important;
+}
+
+.km-moderation-changelist .km-admin-action--good,
+.km-moderation-changelist .km-admin-action--warn {
+  width: 26px !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  padding: 0 !important;
+  border-radius: 7px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.km-moderation-changelist .km-admin-action--good .km-i,
+.km-moderation-changelist .km-admin-action--warn .km-i {
+  margin-right: 0 !important;
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.km-moderation-changelist .km-admin-action--primary {
+  padding: 3px 8px !important;
+  font-size: 11px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+}
+
+details.km-admin-action-menu[open] .km-admin-action-menu__panel {
+  z-index: 9999 !important;
 }
 
 /* ==========================================================================
@@ -3399,7 +3696,7 @@ details[open] .km-accordion-arrow {
 }
 
 /* ==========================================================================
-   29. Reviews Changelist Polish
+   29. Reviews Changelist Polish (KidsMap Modernized)
    ========================================================================== */
 .km-review-changelist .km-table-container {
   overflow-x: auto !important;
@@ -3407,23 +3704,24 @@ details[open] .km-accordion-arrow {
 
 .km-review-changelist .km-table-container table {
   table-layout: auto !important;
-  min-width: 1150px !important;
+  min-width: 1050px !important;
   width: 100% !important;
 }
 
 .km-review-changelist .km-table-container thead th {
   padding: 10px 14px !important;
-  font-family: var(--km-font-sans) !important;
+  font-family: var(--km-font-sans, 'Manrope', -apple-system, sans-serif) !important;
   font-size: 11px !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.04em !important;
+  letter-spacing: 0.05em !important;
   color: #5E6D62 !important;
   background: #FBFCFB !important;
   border-bottom: 1px solid #E6EAE7 !important;
   white-space: nowrap !important;
 }
 
+/* Column Widths & Alignments */
 .km-review-changelist .km-table-container thead th:nth-child(1),
 .km-review-changelist .km-table-container td.action-checkbox {
   width: 44px !important;
@@ -3431,53 +3729,46 @@ details[open] .km-accordion-arrow {
   text-align: center !important;
 }
 
-.km-review-changelist .km-table-container thead th:nth-child(2),
-.km-review-changelist .km-table-container th.field-review_summary {
+.km-review-changelist .km-table-container th.field-place_summary,
+.km-review-changelist .km-table-container td.field-place_summary {
+  width: 220px !important;
+  min-width: 200px !important;
+  max-width: 250px !important;
+}
+
+.km-review-changelist .km-table-container th.field-review_summary,
+.km-review-changelist .km-table-container td.field-review_summary {
   width: 320px !important;
-  min-width: 260px !important;
+  min-width: 280px !important;
+  max-width: 380px !important;
 }
 
-.km-review-changelist .km-table-container thead th:nth-child(3),
+.km-review-changelist .km-table-container th.field-author_summary,
 .km-review-changelist .km-table-container td.field-author_summary {
-  width: 180px !important;
-  min-width: 160px !important;
+  width: 190px !important;
+  min-width: 170px !important;
+  max-width: 220px !important;
 }
 
-.km-review-changelist .km-table-container thead th:nth-child(4),
-.km-review-changelist .km-table-container td.field-rating_summary {
-  width: 140px !important;
-  min-width: 130px !important;
-}
-
-.km-review-changelist .km-table-container thead th:nth-child(5),
+.km-review-changelist .km-table-container th.field-moderation_status_summary,
 .km-review-changelist .km-table-container td.field-moderation_status_summary {
   width: 150px !important;
-  min-width: 140px !important;
-}
-
-.km-review-changelist .km-table-container thead th:nth-child(6),
-.km-review-changelist .km-table-container td.field-risk_flags_summary {
-  width: 140px !important;
   min-width: 130px !important;
+  max-width: 170px !important;
 }
 
-.km-review-changelist .km-table-container thead th:nth-child(7),
-.km-review-changelist .km-table-container td.field-engagement_summary {
-  width: 110px !important;
-  min-width: 100px !important;
-}
-
-.km-review-changelist .km-table-container thead th:nth-child(8),
+.km-review-changelist .km-table-container th.field-created_at_display,
 .km-review-changelist .km-table-container td.field-created_at_display {
-  width: 140px !important;
-  min-width: 130px !important;
+  width: 110px !important;
+  min-width: 95px !important;
+  max-width: 120px !important;
 }
 
-.km-review-changelist .km-table-container thead th:nth-child(9),
+.km-review-changelist .km-table-container th.field-row_actions,
 .km-review-changelist .km-table-container td.field-row_actions {
-  width: 130px !important;
-  min-width: 120px !important;
+  min-width: 260px !important;
   text-align: right !important;
+  white-space: nowrap !important;
 }
 
 .km-review-changelist .km-table-container tbody td,
@@ -3485,14 +3776,44 @@ details[open] .km-accordion-arrow {
   padding: 12px 14px !important;
   vertical-align: middle !important;
   border-bottom: 1px solid #F0F2F1 !important;
-  font-family: var(--km-font-sans) !important;
+  font-family: var(--km-font-sans, 'Manrope', -apple-system, sans-serif) !important;
   font-size: 13px !important;
   color: #16211A !important;
   font-weight: normal !important;
 }
 
-.km-review-changelist .km-review-place-link {
-  font-family: var(--km-font-sans);
+/* 1. Place Card Cell */
+.km-review-place-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.km-review-place-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.km-review-place-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: #EAF8EE;
+  color: #0D8A52;
+  flex-shrink: 0;
+}
+
+.km-review-place-icon svg {
+  width: 13px;
+  height: 13px;
+}
+
+.km-review-place-title {
+  font-family: var(--km-font-sans, 'Manrope', -apple-system, sans-serif);
   font-size: 13.5px;
   font-weight: 700;
   color: #16211A;
@@ -3500,74 +3821,295 @@ details[open] .km-accordion-arrow {
   line-height: 1.3;
 }
 
-.km-review-changelist .km-review-place-link:hover {
-  color: var(--km-accent, #136F38);
+.km-review-place-title:hover {
+  color: var(--km-accent, #0D8A52);
   text-decoration: underline;
 }
 
-.km-review-changelist .km-admin-stack {
+.km-review-place-sub {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.km-review-changelist .km-admin-title {
-  font-family: var(--km-font-sans);
-  font-weight: 700;
-  font-size: 13px;
-  color: #16211A;
-}
-
-.km-review-changelist .km-admin-meta {
-  font-family: var(--km-font-sans);
-  font-size: 12px;
-  color: #5E6D62;
-  line-height: 1.35;
-}
-
-.km-review-changelist .km-admin-meta-link {
+  align-items: center;
+  gap: 8px;
   font-size: 11.5px;
-  color: var(--km-accent, #136F38);
+  color: #5E6D62;
+  padding-left: 26px;
+}
+
+.km-review-place-meta {
+  color: #64748B;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.km-review-site-link {
+  font-size: 11px;
+  color: #0D8A52;
   text-decoration: none;
   font-weight: 600;
+  white-space: nowrap;
 }
 
-.km-review-changelist .km-admin-meta-link:hover {
+.km-review-site-link:hover {
   text-decoration: underline;
 }
 
-.km-review-changelist .km-review-rating {
-  font-size: 14px;
-  letter-spacing: 2px;
+/* 2. Review Card Cell */
+.km-review-card-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
-.km-review-changelist .km-review-rating--good {
-  color: #136F38;
+.km-review-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.km-review-changelist .km-review-rating--warn {
+.km-review-stars {
+  font-size: 13px;
+  letter-spacing: 1.5px;
+}
+
+.km-review-stars--good {
+  color: #F59E0B;
+}
+
+.km-review-stars--warn {
   color: #EAB308;
 }
 
-.km-review-changelist .km-review-rating--info {
+.km-review-stars--info {
+  color: #3B82F6;
+}
+
+.km-review-score-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.km-review-score-badge--good {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.km-review-score-badge--warn {
+  background: #FEE2E2;
+  color: #B91C1C;
+}
+
+.km-review-score-badge--info {
+  background: #E0F2FE;
+  color: #0369A1;
+}
+
+.km-review-quote {
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: #1E293B;
+  background: #F8FAF9;
+  border-left: 3px solid #0D8A52;
+  border-radius: 0 6px 6px 0;
+  padding: 5px 8px;
+  font-style: italic;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+.km-review-no-text {
+  font-size: 12px;
+}
+
+.km-review-reactions-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.km-rx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #F1F5F9;
+  color: #475569;
+}
+
+.km-rx-chip--up {
+  background: #EAF8EE;
+  color: #0D8A52;
+}
+
+.km-rx-chip--down {
+  background: #FEF2F2;
+  color: #DC2626;
+}
+
+/* 3. Author Cell */
+.km-review-author-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.km-author-avatar {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--km-font-sans, 'Manrope', -apple-system, sans-serif);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.avatar--teal {
+  background: #EAF8EE;
+  color: #0D8A52;
+}
+
+.avatar--indigo {
+  background: #EEF2FF;
+  color: #4F46E5;
+}
+
+.avatar--amber {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.avatar--purple {
+  background: #F3E8FF;
+  color: #9333EA;
+}
+
+.avatar--blue {
+  background: #E0F2FE;
   color: #0284C7;
 }
 
-.km-review-changelist .km-admin-badge {
+.km-author-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.km-author-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #16211A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.km-author-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.km-author-sub {
+  font-size: 11.5px;
+  color: #64748B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 4. Moderation Status Cell */
+.km-status-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.km-status-pill {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   padding: 3px 9px;
   border-radius: 999px;
-  font-family: var(--km-font-sans);
-  font-size: 11.5px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.km-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+  flex-shrink: 0;
+}
+
+.km-status-flags {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.km-status-flags .km-admin-badge {
+  font-size: 10.5px;
+  padding: 1px 6px;
+  gap: 3px;
+}
+
+.km-status-flags .km-admin-badge svg {
+  width: 11px;
+  height: 11px;
+}
+
+/* 5. Date Cell */
+.km-date-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.km-date-main {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #16211A;
+}
+
+.km-date-sub {
+  font-size: 11px;
+  color: #64748B;
+}
+
+/* Generic Badges */
+.km-review-changelist .km-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-family: var(--km-font-sans, 'Manrope', -apple-system, sans-serif);
+  font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
 }
 
 .km-review-changelist .km-admin-badge--good {
-  background: #EBF7EE;
-  color: #136F38;
+  background: #EAF8EE;
+  color: #0D8A52;
 }
 
 .km-review-changelist .km-admin-badge--warn {
@@ -3628,6 +4170,34 @@ a.km-admin-action:hover,
 .btn.km-admin-action:hover {
   text-decoration: none !important;
   transform: translateY(-1px);
+}
+
+/* Details: Подробнее */
+.km-admin-action--details,
+a.km-admin-action--details,
+.btn.km-admin-action--details {
+  background: #FFFFFF !important;
+  color: #334155 !important;
+  border-color: #CBD5E1 !important;
+}
+.km-admin-action--details:hover,
+a.km-admin-action--details:hover,
+.btn.km-admin-action--details:hover {
+  background: #F8FAFC !important;
+  color: #0F172A !important;
+  border-color: #94A3B8 !important;
+}
+.km-admin-action--details svg {
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+.km-admin-action .km-i {
+  width: 14px !important;
+  height: 14px !important;
+  margin-right: 3px !important;
+  flex-shrink: 0 !important;
+  vertical-align: middle !important;
 }
 
 /* Primary: Открыть / Редактировать */
@@ -4087,5 +4657,76 @@ a.km-admin-action--muted:hover,
 .km-org-count-badge--programs:hover {
   background: #E9D5FF !important;
   color: #6B21A8 !important;
+}
+
+/* ==========================================================================
+   31. Event Timing Badges & Quick Row Actions
+   ========================================================================== */
+
+.km-event-timing {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  align-items: flex-start !important;
+}
+
+.km-event-timing__date {
+  font-weight: 600 !important;
+  font-variant-numeric: tabular-nums !important;
+  color: #1e293b !important;
+  font-size: 13px !important;
+  white-space: nowrap !important;
+}
+
+.km-event-timing__badge {
+  display: inline-flex !important;
+  margin-top: 2px !important;
+}
+
+.km-timing-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 2px 8px !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+}
+
+.km-timing-badge--upcoming {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0 !important;
+}
+
+.km-timing-badge--today {
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border: 1px solid #bfdbfe !important;
+}
+
+.km-timing-badge--live {
+  background: #fef3c7 !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
+}
+
+.km-timing-badge--ended {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.km-admin-action--ghost {
+  background: #f8fafc !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.km-admin-action--ghost:hover {
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border-color: #93c5fd !important;
 }
 

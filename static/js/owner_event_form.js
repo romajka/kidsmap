@@ -29,6 +29,7 @@
   const status = form.querySelector('[data-event-save-status]');
   const missingList = form.querySelector('[data-event-missing]');
   const requirements = JSON.parse(document.getElementById('event-requirements').textContent);
+  const uiConfig = JSON.parse(document.getElementById('event-ui-config')?.textContent || '{}') || {};
   let step = 0, sending = false, previewUrl = null;
   const online = () => value('event_format') === form.dataset.onlineFormat;
   const visibleControl = input => input?._flatpickr?.altInput || input;
@@ -62,6 +63,7 @@
       venueRadios.forEach(radio => radio.checked = radio.value === choice); syncVenue(false);
     }
     if (input.name === 'photo') input = form.querySelector('[data-choose-photo]');
+    for (let parent = input.parentElement; parent && parent !== form; parent = parent.parentElement) { if (parent.tagName === 'DETAILS') parent.open = true; }
     input = visibleControl(input); input.focus(); input.scrollIntoView({block:'center'});
   }
   stepButtons.forEach(button => button.addEventListener('click', () => showStep(button.dataset.ownerStepTarget, true)));
@@ -76,6 +78,19 @@
     });
     organizerRadios.forEach(radio => radio.closest('label').classList.toggle('is-selected', radio.checked));
   }
+  function syncChoices() {
+    [['price_mode', uiConfig.priceFields], ['registration_method', uiConfig.registrationFields]].forEach(([name, mapping]) => {
+      if (!mapping) return;
+      const all = [...new Set(Object.values(mapping).flat())];
+      const active = mapping[value(name)] || [];
+      all.forEach(fieldName => {
+        const group = form.querySelector('[data-event-choice-field="' + fieldName + '"]');
+        // Price notes stay optional for every price mode.
+        if (group && fieldName !== 'price_text') group.hidden = !active.includes(fieldName);
+      });
+    });
+  }
+  ['price_mode', 'registration_method'].forEach(name => field(name)?.addEventListener('change', syncChoices));
   function syncFormat() {
     formatRadios.forEach(radio => radio.closest('[data-owner-format-card]').classList.toggle('is-selected', radio.checked));
     const notice = form.querySelector('[data-event-online-notice]'); notice.hidden = !online(); notice.style.display = online() ? '' : 'none';
@@ -127,6 +142,9 @@
   multiDay?.addEventListener('change', () => {syncEndDate();updatePreview();});
   field('event_date')?.addEventListener('change', syncEndDate);
   form.querySelector('[data-use-venue-phone]')?.addEventListener('click', () => {
+    const phoneMethod = Object.entries(uiConfig.registrationFields || {}).find(([, fields]) => fields.includes('phone'))?.[0];
+    if (phoneMethod) setValue('registration_method', phoneMethod);
+    syncChoices();
     setValue('phone',selectedVenue()?.dataset.phone || ''); field('phone').dispatchEvent(new Event('input',{bubbles:true})); reveal(field('phone'));
   });
 
@@ -149,12 +167,17 @@
     put('[data-preview-location-text]',online()?text('Физический адрес не требуется','Fiziki ünvan lazım deyil','No physical address required'):value('address') || text('Адрес не указан','Ünvan göstərilməyib','No address set'));
     put('[data-preview-datetime-text]',dateText);
     const ageFrom=value('age_from'),ageTo=value('age_to');
-    put('[data-preview-age-text]',ageFrom !== '' && ageTo !== '' ? ageFrom+' – '+ageTo+' '+text('лет','yaş','years') : '—');
-    put('[data-preview-price-text]',value('price_text') || '—'); put('[data-preview-phone-text]',value('phone') || '—');
+    put('[data-preview-age-text]',ageFrom !== '' && ageTo !== '' ? ageFrom+' – '+ageTo+' '+text('лет','yaş','years') : ageFrom !== '' ? ageFrom+'+' : ageTo !== '' ? text('До ','Maksimum ','Up to ')+ageTo : text('Возраст уточняется','Yaş dəqiqləşdirilir','Age to be confirmed'));
+    const priceLabel = field('price_mode')?.selectedOptions?.[0]?.textContent || '';
+    const priceFields = uiConfig.priceFields?.[value('price_mode')] || ['price_text'];
+    const priceValues = priceFields.filter(name => name !== 'price_text').map(value).filter(Boolean).join(' · ');
+    put('[data-preview-price-text]', [priceLabel, priceValues, value('price_text')].filter(Boolean).join(' · ') || '—');
+    const contactFields = uiConfig.registrationFields?.[value('registration_method')] || ['phone'];
+    put('[data-preview-phone-text]', contactFields.map(value).filter(Boolean).join(' · ') || '—');
     put('#event-description-counter',value('description_az').length);
     const duration=form.querySelector('[data-owner-event-datetime-summary]');
     if(duration){ const valid=start && end && end>start;duration.classList.toggle('is-error',Boolean(start&&end&&!valid));duration.textContent=valid?dateText+' · '+Math.round((end-start)/60000)+' '+text('мин.','dəq.','min'):start&&end?form.dataset.endBeforeStartMessage:duration.dataset.emptyLabel; }
-    if(missingList){missingList.replaceChildren(); const missing=requirements.filter(rule=>!(rule.physical&&online()) && (rule.oneOf?!rule.oneOf.some(name=>field(name)&&!field(name).disabled&&value(name)):rule.field==='photo'?!(photoInput.files.length||form.dataset.hasPhoto==='1'):value(rule.field).trim()===''));
+    if(missingList){missingList.replaceChildren(); const missing=requirements.filter(rule=>!(rule.physical&&online()) && (!rule.when || rule.when.values.includes(value(rule.when.field))) && (rule.oneOf?!rule.oneOf.some(name=>field(name)&&!field(name).disabled&&value(name)):rule.field==='photo'?!(photoInput.files.length||form.dataset.hasPhoto==='1'):value(rule.field).trim()===''));
       missing.forEach(rule=>{const li=document.createElement('li'),link=document.createElement('a');link.href='#id_'+rule.field;link.textContent=rule.label;link.addEventListener('click',e=>{e.preventDefault();reveal(field(rule.field));});li.append(link);missingList.append(li);});
       if(!missing.length){const li=document.createElement('li');li.textContent=text('Поля заполнены. При отправке сервер проверит значения, даты и права.','Sahələr doldurulub. Server göndərmədə dəyərləri, tarixləri və hüquqları yoxlayacaq.','Fields are filled. The server checks values, dates and permissions on submission.');missingList.append(li);}
     }
@@ -193,11 +216,12 @@
   stepButtons.forEach((button,index)=>{const count=sections[index].querySelectorAll('.auth-field-error').length;button.classList.toggle('has-step-error',count>0);if(count){const badge=document.createElement('span');badge.className='km-step-error-badge';badge.textContent=count;badge.setAttribute('aria-label',text('Ошибок: ','Xətalar: ','Errors: ')+count);button.append(badge);}});
   form.querySelector('[data-map-search-input]')?.setAttribute('aria-label',form.dataset.mapSearchLabel);
   const summary=form.querySelector('[data-error-summary]');
-  syncOrganizer();syncFormat();syncEndDate();showStep(0);updatePreview();
+  syncOrganizer();syncFormat();syncChoices();syncEndDate();showStep(0);updatePreview();
   if(summary){summary.focus();const first=summary.querySelector('[data-error-field-ref]');if(first){const input=field(first.dataset.errorFieldRef),index=sections.findIndex(section=>section.contains(input));if(index>=0)showStep(index);}}
   setStatus(form.dataset.errorCode==='stale_version'?'conflict':summary?'error':form.dataset.explicitSave==='1'?'saved':value('expected_updated_at')?'loaded':'unsaved');
   // Event-only timeout: a map outage does not erase an address or impose a map requirement.
+  form.querySelector('details[data-venue-block=map]')?.addEventListener('toggle', event => { if (event.target.open && window.kidsMapRefreshOwnerMapPickers) window.kidsMapRefreshOwnerMapPickers(); });
   const mapRoot=form.querySelector('[data-event-optional-map]'),fallback=form.querySelector('[data-event-map-fallback]');
   if(mapRoot&&fallback){const check=()=>{if(typeof mapRoot._kidsMapRefreshMap!=='function'){fallback.hidden=false;mapRoot.querySelectorAll('[data-map-search],[data-map-locate]').forEach(button=>button.disabled=true);}else fallback.hidden=true;};if(mapRoot.dataset.mapProvider==='unavailable')check();else setTimeout(check,8000);}
-  window.kidsMapOwnerEventEntry={getStep:()=>step,showStep,setValue,refresh:()=>{syncOrganizer();syncFormat();syncEndDate();updatePreview();},setStatus};
+  window.kidsMapOwnerEventEntry={getStep:()=>step,showStep,setValue,refresh:()=>{syncOrganizer();syncFormat();syncChoices();syncEndDate();updatePreview();},setStatus};
 })();

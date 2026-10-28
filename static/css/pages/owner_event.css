@@ -908,3 +908,27 @@
   .km-event-owner-form .owner-map-picker-search { width: 100%; }
 }
 @media(prefers-reduced-motion: reduce) { .km-event-owner-form * { scroll-behavior: auto; transition: none; } }
+
+/* Keep event entry focused on inputs and the current action. */
+.km-event-owner-page .owner-event-layout { grid-template-columns: minmax(0, 1fr); max-width: 960px; margin-inline: auto; }
+.km-event-owner-page .km-event-head { margin-bottom: 16px; }
+.km-event-owner-page .km-event-head h1 { font-size: clamp(1.6rem, 3vw, 2.1rem); }
+.km-event-owner-page .km-event-section { padding: 22px; }
+.km-event-owner-page .km-event-section-desc { display: none; }
+.km-event-owner-page .km-organizer-card { padding: 16px; }
+.km-event-owner-page .km-event-step-actions { position: sticky; bottom: 0; z-index: 5; background: var(--brand-white); padding: 12px 0; border-top: 1px solid var(--tint-line-200); }
+.km-event-owner-page .km-event-translations { margin-top: 18px; }
+.km-event-owner-page .km-event-translations summary,
+.km-event-owner-page .km-map-container > summary { padding: 12px 0; cursor: pointer; color: var(--brand-turf); font-weight: 650; }
+.km-event-owner-page .km-event-translations > div { padding-top: 14px; }
+.km-event-owner-page [data-event-choice-field][hidden] { display: none !important; }
+.km-event-owner-page .km-event-section h2 { scroll-margin-top: 105px; }
+.km-event-owner-page details { min-width: 0; }
+.km-event-owner-page .km-event-grid input,
+.km-event-owner-page .km-event-grid select,
+.km-event-owner-page .km-event-grid textarea { max-width: 100%; min-width: 0; }
+@media (max-width: 600px) {
+  .km-event-owner-page .km-event-section { padding: 16px 12px; }
+  .km-event-owner-page .km-event-step-actions { gap: 8px; flex-wrap: wrap; }
+  .km-event-owner-page .km-event-step-actions button { min-height: 44px; flex: 1 1 auto; }
+}

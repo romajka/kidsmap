@@ -161,7 +161,7 @@ class EventSitemap(LocalizedSitemap):
 
     def items(self):
         from catalog.services.event_queries import EventPeriod, query_public_events
-        return query_public_events(period=EventPeriod(None, None)).order_by("pk")
+        return query_public_events(period=EventPeriod(None, None), include_cancelled=True).order_by("pk")
 
     def lastmod(self, obj):
         return obj.updated_at

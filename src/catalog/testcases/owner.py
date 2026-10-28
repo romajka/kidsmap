@@ -648,6 +648,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         response = self.client.post(
             reverse("owner_place_edit", args=[self.editor_place.id]),
             data={
+                "form_action": "save_draft",
                      "publication_token": version_token(self.editor_place),
                 "name_ru": "Кружок редактора",
                 "name_az": "Редактор dərnəyi",
@@ -779,6 +780,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         edit_response = self.client.post(
             reverse("owner_place_edit", args=[self.editor_place.id]),
             data={
+                "form_action": "save_draft",
                      "publication_token": version_token(self.editor_place),
                 "name_ru": "Кружок редактора обновлен",
                 "name_az": "",
@@ -864,7 +866,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             name_ru="Карточка для служебной публикации",
             is_active=False,
             status=Place.STATUS_DRAFT,
-            district='baku_yasamal', lat=None, lng=None,
+            district='baku_yasamal', lat=40.4093, lng=49.8671,
         )
         PlaceOwnershipRequest.objects.create(
             place=self.manager_place,
@@ -1015,6 +1017,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         response = self.client.post(
             reverse("owner_place_edit", args=[self.moderator_place.id]),
             data={
+                "form_action": "save_draft",
                      "publication_token": version_token(self.moderator_place),
                 "name_ru": "Изменение от модератора",
                 "name_az": "",
@@ -1229,6 +1232,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "district": "Yasamal",
                 "metro": "",
                 "address": "Улица 5",
+                "lat": "40.401", "lng": "49.801",
                 "phone1": "+994501112233",
                 "instagram": "",
                 "website": "",
@@ -1250,7 +1254,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(revision.payload['lng'], 49.801)
         self.assertIsNone(revision.place.lat)
         self.assertFalse(revision.place.is_active)
-        geocode_mock.assert_called_once()
+        geocode_mock.assert_not_called()
 
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
@@ -1286,7 +1290,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn("lat", response.context["form"].errors)
+        self.assertIn("lat", response.context["form"].errors)
         self.assertNotIn("lng", response.context["form"].errors)
         self.assertIn("subcategory", response.context["form"].errors)
         self.assertFalse(Place.objects.filter(name_ru="Карточка без точки").exists())
@@ -1590,7 +1594,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("district", response.context["form"].errors)
-        self.assertNotIn("lat", response.context["form"].errors)
+        self.assertIn("lat", response.context["form"].errors)
         self.assertNotIn("metro", response.context["form"].errors)
         self.assertFalse(Place.objects.filter(name_ru="Карточка без локации").exists())
 
@@ -1807,7 +1811,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(first_response, 'Описание: добавьте описание на азербайджанском.')
         self.assertContains(first_response, 'Телефон: укажите номер телефона.')
         self.assertNotContains(first_response, 'Фото: загрузите основное фото')
-        self.assertNotContains(first_response, 'Точка на карте: выберите точку вручную')
+        self.assertContains(first_response, 'Точка на карте: выберите точку вручную')
         self.editor_place.refresh_from_db()
         self.assertNotEqual(self.editor_place.status, Place.STATUS_PENDING)
         self.assertEqual(
@@ -2149,7 +2153,7 @@ class TestOwnerTeamAndReviewModeration(TestCase):
     def test_owner_edit_creates_place_change_audit(self):
         # Task33 stores moderation provenance in the versioned candidate.
         self.place = create_ready_place(owner=self.owner_manager, name_ru="Кружок команды",
-                                        district="baku_yasamal", lat=None, lng=None)
+                                        district="baku_yasamal", lat=40.4093, lng=49.8671)
         self.client.login(username="team_owner_manager", password="StrongPass123!!")
         url = reverse("owner_place_edit", args=[self.place.id])
         rendered = self.client.get(url)

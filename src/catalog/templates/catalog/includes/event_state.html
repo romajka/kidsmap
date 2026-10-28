@@ -1,0 +1,9 @@
+{% if event.occurrence_state == 'cancelled' %}
+<p class="event-detail-status event-state--cancelled" role="status">{% if language == 'az' %}Ləğv edilib. Təfərrüatları təşkilatçıdan dəqiqləşdirin.{% elif language == 'en' %}Cancelled. Contact the organizer for details.{% else %}Отменено. Подробности уточните у организатора.{% endif %}</p>
+{% elif event.has_ended %}
+<p class="event-detail-status">{% if language == 'az' %}Başa çatıb{% elif language == 'en' %}Ended{% else %}Завершено{% endif %}</p>
+{% elif event.occurrence_state == 'rescheduled' %}
+<p class="event-detail-status">{% if language == 'az' %}Yeni tarixə keçirilib{% elif language == 'en' %}Rescheduled{% else %}Перенесено{% endif %}</p>
+{% elif event.is_running_now %}
+<p class="event-detail-status">{% if language == 'az' %}İndi keçirilir{% elif language == 'en' %}Happening now{% else %}Идёт сейчас{% endif %}</p>
+{% endif %}

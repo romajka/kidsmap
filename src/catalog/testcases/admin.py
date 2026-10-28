@@ -87,6 +87,7 @@ def create_reviewable_event(actor, *, name, published=False, **values):
     event = event_domain.create_event(actor=actor, values={
         'name': name, 'name_az': name, 'description_az': 'Approved event description', 'category_id': 'EDU',
         'organizer_organization_id': organizer.pk, 'event_format': 'online',
+        'photo': 'events/reviewable-fixture.jpg', 'phone': '+994501112233', 'price_mode': 'unknown',
         'start_datetime': start, 'end_datetime': start+timedelta(hours=2), **values})
     if published:
         event_domain.publish_event(actor=actor, event_id=event.pk, expected_updated_at=event.updated_at)
@@ -747,6 +748,10 @@ class TestAdminOwnershipModerationUX(TestCase):
             "age_from": "" if event.age_from is None else str(event.age_from),
             "age_to": "" if event.age_to is None else str(event.age_to),
             "price_text": event.price_text,
+            "price_mode": event.price_mode, "price_amount": "" if event.price_amount is None else event.price_amount,
+            "price_amount_max": "" if event.price_amount_max is None else event.price_amount_max, "price_currency": event.price_currency,
+            "registration_method": event.registration_method, "registration_url": event.registration_url,
+            "whatsapp": event.whatsapp,
             "address": event.address,
             "phone": event.phone,
             "instagram": event.instagram,
@@ -1100,7 +1105,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "Точка на карте есть")
         self.assertContains(response, "Нет координат")
         self.assertContains(response, "data-readiness-trigger", html=False)
-        self.assertContains(response, 'data-total="10"', html=False)
+        self.assertContains(response, 'data-total="11"', html=False)
         self.assertContains(response, "Локация")
         self.assertContains(response, "Состояние")
         self.assertContains(response, "Метки")
@@ -1269,6 +1274,8 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, 'data-km-phone-remove', count=2, html=False)
 
     def test_place_admin_can_add_change_and_delete_phone_numbers(self):
+        self.place.lat, self.place.lng = 40.4093, 49.8671
+        self.place.save(update_fields=["lat", "lng"])
         self.place.phone1 = "+994501112233"
         self.place.phone2 = "+994551112233"
         self.place.phone3 = ""
@@ -1554,6 +1561,8 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(continued.context['adminform'].form['name_az'].value(), 'Candidate draft name')
 
     def test_place_admin_saves_pricing_plans_from_change_form(self):
+        self.place.lat, self.place.lng = 40.4093, 49.8671
+        self.place.save(update_fields=["lat", "lng"])
         pricing_plans = [
             {
                 "lesson_format": "group",
@@ -1602,6 +1611,8 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(self.place.price_to, 120)
 
     def test_place_admin_saves_gallery_photo_with_draft(self):
+        self.place.lat, self.place.lng = 40.4093, 49.8671
+        self.place.save(update_fields=["lat", "lng"])
         payload = self._admin_place_change_payload(
             **{
                 "gallery-TOTAL_FORMS": "1",
@@ -1832,15 +1843,13 @@ class TestAdminOwnershipModerationUX(TestCase):
         response = self.client.get(reverse("admin:catalog_event_add"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "km-place-form-page")
-        self.assertContains(response, "km-place-form-steps")
-        self.assertContains(response, "km-place-form-sidebar")
+        for section in ('id="event-basics"', 'id="event-schedule"', 'id="event-media"'):
+            self.assertContains(response, section)
         self.assertContains(response, "Новое мероприятие")
-        self.assertContains(response, "Сохранить и продолжить")
-        self.assertContains(response, "Сохранить черновик")
-        self.assertNotContains(response, "Сохранить и выйти")
-        self.assertContains(response, "Черновик")
-        self.assertContains(response, "km-admin-progress-config")
+        self.assertContains(response, 'name="_continue"')
+        self.assertContains(response, 'name="_save"')
+        self.assertContains(response, 'name="_publish_event"')
+        self.assertNotContains(response, "km-place-form-steps")
         self.assertContains(response, "data-km-admin-form")
 
     def test_event_admin_can_save_draft_and_continue_later(self):

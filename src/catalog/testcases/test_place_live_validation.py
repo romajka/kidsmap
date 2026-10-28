@@ -109,7 +109,7 @@ class PlaceLiveValidationTests(TestCase):
     def payload(self, **changes):
         return dict(name_az='Uşaqların yaradıcılıq məkanı', description_az='Uşaqlar üçün yaradıcılıq və təhsil.',
                     category='EDU', subcategory=str(self.subcategory.pk), age_from='3', age_to='12',
-                    region='baku', district='baku_yasamal', address='Yaradıcılıq küçəsi 1',
+                    region='baku', district='baku_yasamal', address='Yaradıcılıq küçəsi 1', lat='40.4', lng='49.8',
                     schedule_mode='always_open', price_mode='free', pricing_plans='[]',
                     phone1='+994504274393', phone_country='AZ', whatsapp_mode='none',
                     revision_version='0', base_token='new-place', action='draft',

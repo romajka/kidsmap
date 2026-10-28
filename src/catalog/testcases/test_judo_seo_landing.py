@@ -112,6 +112,11 @@ class JudoSeoLandingAggregateTests(TestCase):
         self.assertContains(response, "Групповые · Занятий в неделю: 2")
         self.assertNotContains(response, "24 часа")
         self.assertContains(response, "Последнее обновление данных")
+        self.assertContains(response, 'class="panel seo-landing-hero"')
+        self.assertContains(response, 'class="seo-hero-pill seo-hero-pill--count"')
+        self.assertContains(response, 'class="seo-hero-pill seo-hero-pill--age"')
+        self.assertContains(response, 'class="seo-district-chip"')
+        self.assertContains(response, 'class="seo-table-swipe-hint"')
 
     def test_az_and_en_pages_localize_interface_and_empty_values(self):
         az_response = self.client.get(f"/catalog/{self.slug}/")

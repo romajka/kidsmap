@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=20261020_release_r1" />
+  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=20261027_owner_cards_v1" />
 {% endblock %}
 
 {% block content %}
@@ -363,6 +363,26 @@
                       <span class="account-owner-card__meta-dot">•</span>
                       <span class="account-owner-card__district">{{ place.district_i18n }}</span>
                     {% endif %}
+                    {% if place.price_range_display %}
+                      <span class="account-owner-card__meta-dot">•</span>
+                      <span class="account-owner-card__price" title="{% trans 'Тарифы' %}">
+                        <span class="material-symbols-rounded">sell</span>
+                        {{ place.price_range_display }}
+                      </span>
+                    {% endif %}
+                    {% if place.gallery_files %}
+                      <span class="account-owner-card__meta-dot">•</span>
+                      <span class="account-owner-card__photos" title="{% trans 'Фотографии' %}">
+                        <span class="material-symbols-rounded">photo_library</span>
+                        {{ place.gallery_files|length|add:"1" }}
+                      </span>
+                    {% elif place.photo %}
+                      <span class="account-owner-card__meta-dot">•</span>
+                      <span class="account-owner-card__photos" title="{% trans 'Фотографии' %}">
+                        <span class="material-symbols-rounded">photo_camera</span>
+                        1
+                      </span>
+                    {% endif %}
                   </div>
 
                   <h3 class="account-owner-card__name">
@@ -491,6 +511,26 @@
                     {% if place.district %}
                       <span class="account-owner-card__meta-dot">•</span>
                       <span class="account-owner-card__district">{{ place.district_i18n }}</span>
+                    {% endif %}
+                    {% if place.price_range_display %}
+                      <span class="account-owner-card__meta-dot">•</span>
+                      <span class="account-owner-card__price" title="{% trans 'Тарифы' %}">
+                        <span class="material-symbols-rounded">sell</span>
+                        {{ place.price_range_display }}
+                      </span>
+                    {% endif %}
+                    {% if place.gallery_files %}
+                      <span class="account-owner-card__meta-dot">•</span>
+                      <span class="account-owner-card__photos" title="{% trans 'Фотографии' %}">
+                        <span class="material-symbols-rounded">photo_library</span>
+                        {{ place.gallery_files|length|add:"1" }}
+                      </span>
+                    {% elif place.photo %}
+                      <span class="account-owner-card__meta-dot">•</span>
+                      <span class="account-owner-card__photos" title="{% trans 'Фотографии' %}">
+                        <span class="material-symbols-rounded">photo_camera</span>
+                        1
+                      </span>
                     {% endif %}
                   </div>
 

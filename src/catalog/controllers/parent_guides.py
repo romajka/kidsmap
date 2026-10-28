@@ -1,12 +1,13 @@
 """Useful editorial guides, independent of the number of catalog listings."""
 
 import json
+from math import cos, hypot, radians
 from datetime import date
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlsplit
 
 from django.http import Http404
 from django.db.models import Q, Subquery
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.translation import get_language
@@ -21,6 +22,7 @@ from catalog.services.filtering import PlaceListFilters
 from catalog.services.locations import get_location_translation
 from catalog.services.public_presentation import prepare_cards
 from catalog.services.public_urls import build_public_absolute_uri
+from catalog.services.place_duplicates import normalize_place_name
 
 
 def _json_ld(value):
@@ -28,6 +30,54 @@ def _json_ld(value):
     return json.dumps(value, ensure_ascii=False).translate(
         str.maketrans({'<': r'\u003c', '>': r'\u003e', '&': r'\u0026'})
     )
+
+
+def _guide_venue_ids(candidates):
+    """Collapse strong duplicate matches for this guide, retaining real branches.
+
+    Names alone (or a chain's shared website) do not identify a venue. Require
+    the same name/site/category and a location within 150 m; without coordinates
+    require an identical nonempty address. Nothing is merged in the catalog.
+    """
+    ids = {}
+    groups = {}
+    for place in candidates:
+        name = normalize_place_name(place)
+        site = urlsplit(place._card_presentation['contacts']['website_url'])
+        key = (name, site.netloc.casefold().removeprefix('www.'), site.path.rstrip('/'), place.category_id)
+        peers = groups.setdefault(key, []) if name and site.netloc else []
+        duplicate = None
+        for peer in peers:
+            if all(value is not None for value in (place.lat, place.lng, peer.lat, peer.lng)):
+                north = (float(place.lat) - float(peer.lat)) * 111_320
+                east = (float(place.lng) - float(peer.lng)) * 111_320 * cos(radians(float(place.lat)))
+                same_location = hypot(north, east) <= 150
+            else:
+                address = ' '.join((place.address or '').casefold().split())
+                same_location = bool(address) and address == ' '.join((peer.address or '').casefold().split())
+            if same_location:
+                duplicate = peer
+                break
+        ids[place.pk] = duplicate.pk if duplicate is not None else place.pk
+        if duplicate is None:
+            peers.append(place)
+    return ids
+
+
+DEFAULT_PARENT_GUIDE_SLUG = 'baku-with-kids'
+
+
+@require_safe
+def parent_guide_index(request):
+    """Gracefully redirect root /parents/ to the flagship Baku guide."""
+    slug = DEFAULT_PARENT_GUIDE_SLUG if DEFAULT_PARENT_GUIDE_SLUG in GUIDE_PAGES else next(iter(GUIDE_PAGES), None)
+    if not slug:
+        raise Http404
+    target = reverse('parent_guide', kwargs={'slug': slug})
+    query = request.META.get('QUERY_STRING')
+    if query:
+        target = f"{target}?{query}"
+    return redirect(target, permanent=False)
 
 
 @require_safe
@@ -59,8 +109,20 @@ def parent_guide(request, slug):
             'count': matching.count(), 'url':
             reverse('place_list') + '?' + urlencode(params) if available else None})
 
-    # Give each direction a turn; a run of new judo clubs or museums must not
-    # displace all the other useful options. One venue appears only once.
+    matching_categories = Q(pk__in=[])
+    for category in definition['categories']:
+        if category in active_categories:
+            ids = PlaceListFilters(category=category, district='baku').apply(public_places).order_by().values('pk')
+            matching_categories |= Q(pk__in=Subquery(ids))
+    candidates = prepare_cards(public_places.filter(matching_categories).order_by('-updated_at', '-pk'), language)
+    candidates = [place for place in candidates if place._card_presentation['visible']]
+    venue_ids = _guide_venue_ids(candidates)
+    by_id = {place.pk: place for place in candidates if venue_ids[place.pk] == place.pk}
+    for topic in topics:
+        topic['place_ids'] = list(dict.fromkeys(venue_ids[pk] for pk in topic['place_ids'] if pk in venue_ids))
+
+    # Give each direction a turn; duplicate database rows must not displace
+    # another venue, and new museums must not displace all other directions.
     selected_ids = []
     for rank in range(6):
         for topic in topics:
@@ -70,21 +132,16 @@ def parent_guide(request, slug):
                     selected_ids.append(pk)
 
     places = []
-    matching_categories = Q(pk__in=[])
-    for category in definition['categories']:
-        if category in active_categories:
-            ids = PlaceListFilters(category=category, district='baku').apply(public_places).order_by().values('pk')
-            matching_categories |= Q(pk__in=Subquery(ids))
     if len(selected_ids) < 6:
-        selected_ids.extend(public_places.filter(matching_categories).exclude(pk__in=selected_ids)
-            .order_by('-updated_at', '-pk').values_list('pk', flat=True)[:6-len(selected_ids)])
+        selected_ids.extend(pk for pk in by_id if pk not in selected_ids)
+        selected_ids = selected_ids[:6]
     # Answers use the same public visibility and taxonomy as the venue cards.
     # A missing price is never evidence of free admission.
     faq_selections = []
     for item in guide['faq']:
         if item.get('free_only'):
-            ids = list(public_places.filter(matching_categories, price_mode=Place.PRICE_MODE_FREE)
-                .order_by('-updated_at', '-pk').values_list('pk', flat=True)[:3])
+            ids = [place.pk for place in by_id.values()
+                if place._card_presentation['prices']['kind'] == 'free'][:3]
         else:
             sources = [topic['place_ids'] for topic in topics if topic['key'] in item.get('topic_keys', ())]
             ids = []
@@ -93,9 +150,6 @@ def parent_guide(request, slug):
                     if rank < len(source) and source[rank] not in ids and len(ids) < 3:
                         ids.append(source[rank])
         faq_selections.append((item, ids))
-    candidate_ids = set(selected_ids).union(*(ids for _, ids in faq_selections))
-    candidates = prepare_cards(public_places.filter(pk__in=candidate_ids), language)
-    by_id = {place.pk: place for place in candidates}
     for pk in selected_ids:
         place = by_id.get(pk)
         if place is None:
