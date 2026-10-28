@@ -114,3 +114,10 @@ class AdminPublicationListTests(TestCase):
         self.assertEqual(response.status_code,409)
         self.place.refresh_from_db()
         self.assertEqual((self.place.status,self.place.is_active),('draft',False))
+
+    def test_another_request_cannot_grant_publication_controls_to_viewer_rows(self):
+        self.client.force_login(self.viewer)
+        viewer_row=self.row(self.listing())
+        self.client.force_login(self.staff)
+        self.listing()
+        self.assertNotIn('data-publication-action',self.model_admin.col_state(viewer_row))

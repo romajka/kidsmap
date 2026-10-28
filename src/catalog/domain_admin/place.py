@@ -3277,15 +3277,9 @@ class PlaceAdmin(admin.ModelAdmin):
         return result
 
     def _list_can_publish(self, obj):
-        request = getattr(self, "_current_request", None)
-        if request is None or not self.has_change_permission(request, obj) or obj.is_deleted:
-            return False
-        allowed = getattr(request, "_km_list_publish_allowed", None)
-        if allowed is None:
-            from catalog.services.business_team import platform_has_action
-            allowed = platform_has_action(user=request.user, action="place.publish")
-            request._km_list_publish_allowed = allowed
-        return bool(allowed)
+        # Permission belongs to this row's request, never ModelAdmin's shared
+        # _current_request (another simultaneous request can replace it).
+        return bool(getattr(obj, "km_list_publish_allowed", False)) and not obj.is_deleted
 
     def _list_publication_action(self, obj, readiness):
         if not self._list_can_publish(obj):

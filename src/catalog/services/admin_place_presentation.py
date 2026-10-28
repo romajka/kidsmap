@@ -36,6 +36,21 @@ def _editable_revision_ids(request, model_admin):
     return request._km_list_revision_ids
 
 
+def _publication_ids(request, model_admin):
+    if request is None or not model_admin.has_change_permission(request):
+        return ()
+    cached = getattr(request, '_km_list_publication_ids', None)
+    if cached is not None:
+        return cached
+    from catalog.services.business_team import platform_has_action
+    allowed = ()
+    if platform_has_action(user=request.user, action='place.publish'):
+        allowed = tuple(place.pk for place in Place.objects.only('pk').iterator()
+                        if model_admin.has_change_permission(request, place))
+    request._km_list_publication_ids = allowed
+    return allowed
+
+
 def with_saved_location(queryset, request, model_admin):
     """One effective-coordinate predicate shared by list filters and counts.
 
@@ -44,6 +59,9 @@ def with_saved_location(queryset, request, model_admin):
     """
     eligible = Q(pk__in=_editable_revision_ids(request, model_admin),
                  volunteer_revision__status__in=ACTIVE_REVISIONS)
+    queryset = queryset.annotate(km_list_publish_allowed=Case(
+        When(pk__in=_publication_ids(request, model_admin), then=Value(True)),
+        default=Value(False), output_field=BooleanField()))
     queryset = queryset.annotate(km_saved_candidate_allowed=Case(
         When(eligible, then=Value(True)), default=Value(False), output_field=BooleanField()))
     queryset = queryset.alias(**{
