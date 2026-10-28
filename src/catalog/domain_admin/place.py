@@ -51,6 +51,7 @@ from catalog.services.content_quality import (
     public_place_queryset,
     public_review_filter,
 )
+from catalog.services.admin_place_presentation import with_saved_location, saved_presentation, saved_thumbnail_url
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.options import sort_translated_values
 from catalog.services.image_uploads import normalize_uploaded_image
@@ -749,9 +750,9 @@ class PlaceCoordinatesFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value == "yes":
-            return queryset.exclude(lat__isnull=True).exclude(lng__isnull=True)
+            return queryset.filter(km_saved_has_coordinates=True)
         if value == "no":
-            return queryset.filter(Q(lat__isnull=True) | Q(lng__isnull=True))
+            return queryset.filter(km_saved_has_coordinates=False)
         return queryset
 
 
@@ -3062,7 +3063,7 @@ class PlaceAdmin(admin.ModelAdmin):
         return initial
 
     def get_queryset(self, request):
-        queryset = super().get_queryset(request)
+        queryset = with_saved_location(super().get_queryset(request), request, self)
         public_match = public_place_queryset(Place.objects.filter(pk=OuterRef("pk")))
         return queryset.annotate(km_in_public_catalog=Exists(public_match)).select_related(
             "volunteer_revision", "subcategory__category",
@@ -3115,6 +3116,8 @@ class PlaceAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("Место"), ordering="name")
     def col_place(self, obj):
+        image_url = saved_thumbnail_url(obj)
+        obj = saved_presentation(obj)
         name = (obj.name_i18n() if callable(getattr(obj, "name_i18n", None)) else (getattr(obj, "name_i18n", "") or obj.name_az or obj.name_ru or obj.name_en or obj.name)) or f"Place #{obj.pk}"
         cat_label = obj.category.name_i18n() if obj.category else obj.get_category_display()
         req = getattr(self, "_current_request", None)
@@ -3144,7 +3147,6 @@ class PlaceAdmin(admin.ModelAdmin):
         meta = format_html('ID {} · {}{}', obj.pk, cat_html, sub_html)
 
         preview = ""
-        image_url = getattr(obj, "public_image_url", "")
         if image_url:
             try:
                 preview = format_html(
@@ -3202,6 +3204,7 @@ class PlaceAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("Локация"))
     def col_location(self, obj):
+        obj = saved_presentation(obj)
         address = obj.address_i18n() if callable(getattr(obj, "address_i18n", None)) else (obj.address or "")
         address = (address or "").strip() or "—"
         req = getattr(self, "_current_request", None)
@@ -3268,7 +3271,7 @@ class PlaceAdmin(admin.ModelAdmin):
         completed = {item.code: item.is_complete for item in readiness.items}
         bar_color_class = "km-bar--warn" if score < 60 else "km-bar--good"
 
-        state_key, state_icon, status_text, dot_class = self._state_visual(obj, score)
+        state_key, state_icon, status_text, dot_class = self._state_visual(saved_presentation(obj), score)
 
         name = (obj.name_i18n() if callable(getattr(obj, "name_i18n", None)) else getattr(obj, "name_i18n", "")) or obj.name_az or obj.name_ru or obj.name_en or obj.name or f"Place #{obj.pk}"
 
@@ -3348,6 +3351,7 @@ class PlaceAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("Метки"))
     def col_marks(self, obj):
+        obj = saved_presentation(obj)
         home_on = bool(obj.is_home_recommended)
         home_title = _("На главной") if home_on else _("Не на главной")
         home_class = "is-on" if home_on else "is-off"
@@ -3474,6 +3478,7 @@ class PlaceAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("Действия"))
     def col_actions(self, obj):
+        obj = saved_presentation(obj)
         edit_url = self._place_change_url(obj)
         view_url = self._place_view_url(obj)
         action_base_url = edit_url.rsplit("change/", 1)[0]
@@ -3562,6 +3567,7 @@ class PlaceAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("Координаты"))
     def coordinates_status(self, obj):
+        obj = saved_presentation(obj)
         return self._render_place_state_badge(
             label=_("Есть координаты") if obj.has_coordinates else _("Нужны координаты"),
             tone="good" if obj.has_coordinates else "warn",
@@ -4031,7 +4037,7 @@ class PlaceAdmin(admin.ModelAdmin):
         return f"?{encoded}" if encoded else "?"
 
     def _place_quick_filters(self, request, *, counts: dict[str, int] | None = None):
-        counts = counts or self._place_dashboard_counts()
+        counts = counts or self._place_dashboard_counts(request)
         status_keys = ("deleted_state", "publication_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact")
         current_deleted = request.GET.get("deleted_state")
         current_publication = request.GET.get("publication_state")
@@ -4128,8 +4134,8 @@ class PlaceAdmin(admin.ModelAdmin):
             },
         )
 
-    def _place_dashboard_counts(self) -> dict[str, int]:
-        counts = Place.objects.aggregate(
+    def _place_dashboard_counts(self, request=None) -> dict[str, int]:
+        counts = with_saved_location(Place.objects.all(), request, self).aggregate(
             quick_all=Count("pk", filter=Q(deleted_at__isnull=True)),
             quick_published=Count("pk", filter=Q(deleted_at__isnull=True, is_active=True, status=Place.STATUS_PUBLISHED)),
             quick_unpublished=Count("pk", filter=Q(deleted_at__isnull=True) & ~Q(is_active=True, status=Place.STATUS_PUBLISHED)),
@@ -4138,7 +4144,7 @@ class PlaceAdmin(admin.ModelAdmin):
             quick_pending=Count("pk", filter=Q(deleted_at__isnull=True, status=Place.STATUS_PENDING)),
             quick_rejected=Count("pk", filter=Q(deleted_at__isnull=True, status=Place.STATUS_REJECTED)),
             quick_deleted=Count("pk", filter=Q(deleted_at__isnull=False)),
-            quick_without_coordinates=Count("pk", filter=Q(deleted_at__isnull=True) & (Q(lat__isnull=True) | Q(lng__isnull=True))),
+            quick_without_coordinates=Count("pk", filter=Q(deleted_at__isnull=True, km_saved_has_coordinates=False)),
             quick_not_ready_for_map=Count(
                 "pk",
                 filter=Q(deleted_at__isnull=True) & (~Q(is_active=True, status=Place.STATUS_PUBLISHED) | Q(lat__isnull=True) | Q(lng__isnull=True)),
@@ -4149,13 +4155,13 @@ class PlaceAdmin(admin.ModelAdmin):
             stat_inactive=Count("pk", filter=Q(deleted_at__isnull=True, is_active=False)),
             stat_without_coordinates=Count(
                 "pk",
-                filter=Q(deleted_at__isnull=True) & (Q(lat__isnull=True) | Q(lng__isnull=True)),
+                filter=Q(deleted_at__isnull=True, km_saved_has_coordinates=False),
             ),
         )
         return {key: int(value or 0) for key, value in counts.items()}
 
     def _place_dashboard_stats(self, request, *, counts: dict[str, int] | None = None):
-        counts = counts or self._place_dashboard_counts()
+        counts = counts or self._place_dashboard_counts(request)
         return (
             {
                 "label": _("Всего"),
@@ -5123,7 +5129,7 @@ class PlaceAdmin(admin.ModelAdmin):
 
     def _place_changelist_with_drafts(self, request, extra_context=None):
         self._current_request = request
-        dashboard_counts = self._place_dashboard_counts()
+        dashboard_counts = self._place_dashboard_counts(request)
         quick_filters = self._place_quick_filters(request, counts=dashboard_counts)
         is_trash = self._is_trash_changelist(request)
         primary_filter_order = ["all", "published", "draft", "pending", "without_coordinates", "deleted"]
