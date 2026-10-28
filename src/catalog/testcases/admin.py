@@ -927,6 +927,19 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(payload["results"][0]["label"], "Robot Academy")
         self.assertIn("Baku, Tech street 1", payload["results"][0]["meta"])
 
+    def test_search_suggestions_do_not_reuse_the_previous_places_owner(self):
+        unowned = Place.objects.create(name='late-owner-marker unowned', category='EDU')
+        owned = Place.objects.create(name='late-owner-marker owned', category='EDU', owner=self.owner_user)
+        response = self.client.get(reverse('admin:catalog_place_search_suggestions'), {'q': 'late-owner-marker'})
+        self.assertEqual(response.status_code, 200)
+        rows = response.json()['results']
+        self.assertEqual([row['id'] for row in rows], [owned.pk, unowned.pk])
+        self.assertEqual(rows[0]['owner'], self.owner_user.get_username())
+        self.assertEqual(rows[1]['owner'], '')
+        for row in rows:
+            self.assertEqual(row['change_url'], reverse('admin:catalog_place_change', args=[row['id']]))
+            self.assertTrue(row['category'])
+
     def test_admin_place_changelist_renders_filter_controls(self):
         response = self.client.get(reverse("admin:catalog_place_changelist"))
 

@@ -22,10 +22,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y gettext
+          sudo apt-get install --no-install-recommends -y gettext gcc default-libmysqlclient-dev pkg-config
+          python -m pip install --upgrade pip
+          pip install -r requirements-test.txt
 
       - name: Standalone Python checks
         run: python -m unittest discover -s scripts/tests -p 'test_*.py' -v
@@ -74,7 +74,17 @@ jobs:
           docker exec "$container_id" pg_isready -h /qa-socket -U qa_stage04 -d qa_stage04
 
       - name: Complete isolated quality gate
-        run: python scripts/run_isolated_quality.py --profile-root "$QUALITY_PROFILE_ROOT" --socket-dir "$QUALITY_SOCKET_DIR"
+        run: python scripts/run_isolated_quality.py --profile-root "$QUALITY_PROFILE_ROOT" --socket-dir "$QUALITY_SOCKET_DIR" --execution split --workers 4
+
+      - name: Quality timings and source evidence
+        if: always() && env.QUALITY_PROFILE_ROOT != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-timings
+          path: |
+            ${{ env.QUALITY_PROFILE_ROOT }}/timing*.json
+            ${{ env.QUALITY_PROFILE_ROOT }}/source-entry.json
+          if-no-files-found: ignore
 
       - name: Required current Django photo form integration
         shell: bash
@@ -130,7 +140,7 @@ jobs:
           container_id=$(cat "$QUALITY_PROFILE_ROOT/postgres-id")
           actual=$(docker inspect --format '{{index .Config.Labels "kidsmap.quality.run"}}' "$container_id")
           [[ "$actual" == "$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" ]]
-          docker rm --force "$container_id"
+          docker rm --force --volumes "$container_id"
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

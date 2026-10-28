@@ -7,7 +7,7 @@ def field_section(field):
         return 1
     if field in {'region', 'district', 'metro', 'address', 'lat', 'lng', 'phone1', 'phone2', 'phone3', 'whatsapp_mode', 'whatsapp_number', 'website', 'instagram', 'public_links', 'schedule', 'schedule_mode', 'structured_schedule'} or field.startswith('schedule_note'):
         return 2
-    if field in {'age_from', 'age_to', 'age_open_ended', 'offers_adult_classes', 'price_mode', 'pricing_plans', 'nested_pricing'}:
+    if field in {'age_from', 'age_to', 'age_open_ended', 'age_varies_by_program', 'offers_adult_classes', 'price_mode', 'pricing_plans', 'nested_pricing'}:
         return 3
     return 4
 

@@ -171,6 +171,10 @@
             </div>
             <div class="owner-form-group-card__grid owner-age-fields-grid">
               {% include "pages/includes/owner_form_field.html" with field=form.age_from %}
+              <div class="owner-form-field owner-form-field-full">
+                <label for="{{ form.age_varies_by_program.id_for_label }}">{{ form.age_varies_by_program }} {{ form.age_varies_by_program.label }}</label>
+                <small class="meta" id="{{ form.age_varies_by_program.id_for_label }}_helptext">{{ form.age_varies_by_program.help_text }}</small>
+              </div>
               {% include "pages/includes/owner_form_field.html" with field=form.age_to %}
               <fieldset class="owner-audience-choice owner-form-field-full">
                 <legend class="owner-form-label">{{ form.offers_adult_classes.label }}</legend>

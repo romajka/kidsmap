@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="{% static 'vendor/swiper/12.2.0/swiper-bundle.min.css' %}" />
   <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=20261027_address_polish1" />
   <link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=3" />
-  <link rel="stylesheet" href="{% static 'css/pages/detail_polish.css' %}?v=20261027_unified_layout_v1" />
+  <link rel="stylesheet" href="{% static 'css/pages/detail_polish.css' %}?v=20261028_action_links_polish1" />
 {% endblock %}
 
 {% block content %}
@@ -282,12 +282,13 @@
             {% endif %}
             <div class="detail-facts">
               {% if place.age_display %}
-                <div class="detail-facts__item">
+                <div class="detail-facts__item{% if place.age_program_note %} detail-facts__item--wide{% endif %}">
                   <span class="detail-label detail-facts__label">
                     <span class="material-symbols-rounded" aria-hidden="true">child_care</span>
                     <span>{% trans "Возраст" %}</span>
                   </span>
-                  <strong class="detail-facts__value">{{ place.age_display }}</strong>
+                  <strong class="detail-facts__value">{{ place.age_public_label }}</strong>
+                  {% if place.age_program_note %}<p class="detail-age-program-note">{{ place.age_program_note }}</p>{% endif %}
                 </div>
               {% endif %}
               {% if place.offers_adult_classes %}
@@ -827,7 +828,8 @@
                   </span>
                   <span class="detail-decision__cell-body">
                     <span class="detail-label">{% trans "Возраст" %}</span>
-                    <strong>{{ place.age_display }}</strong>
+                    <strong>{{ place.age_public_label }}</strong>
+                    {% if place.age_program_hint %}<small class="detail-age-program-hint">{{ place.age_program_hint }}</small>{% endif %}
                   </span>
                 </div>
               {% endif %}
@@ -892,11 +894,11 @@
 
             <div class="detail-decision__cta-row">
               {% if presentation.contacts.has_whatsapp %}
-                {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--soft" phone_index=0 whatsapp=True %}
+                {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--soft detail-cta--whatsapp" phone_index=0 whatsapp=True %}
               {% endif %}
               {% if presentation.contacts.website_url %}
                 <a
-                  class="detail-cta detail-cta--ghost"
+                  class="detail-cta detail-cta--ghost detail-cta--website"
                   href="{{ presentation.contacts.website_url }}"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -914,7 +916,7 @@
               {% endif %}
               {% if map_open_url %}
                 <a
-                  class="detail-cta detail-cta--ghost"
+                  class="detail-cta detail-cta--ghost detail-cta--route"
                   href="{{ map_open_url }}"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -932,7 +934,7 @@
               {% endif %}
               {% if place.instagram %}
                 <a
-                  class="detail-cta detail-cta--ghost"
+                  class="detail-cta detail-cta--ghost detail-cta--instagram"
                   href="{{ place.instagram_url }}"
                   target="_blank"
                   rel="noopener"
@@ -948,9 +950,9 @@
                   <span class="detail-cta__label">Instagram</span>
                 </a>
               {% endif %}
-            {% for link in presentation.contacts.public_links %}
+              {% for link in presentation.contacts.public_links %}
                 <a
-                  class="detail-cta detail-cta--ghost"
+                  class="detail-cta detail-cta--ghost detail-cta--link{% if 'ticket' in link.label|lower %} detail-cta--ticket{% elif 'telegram' in link.label|lower or 'tg' in link.label|lower %} detail-cta--telegram{% endif %}"
                   href="{{ link.url }}"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -959,7 +961,13 @@
                   aria-label="{{ link.label }}"
                 >
                   <span class="detail-cta__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/></svg>
+                    {% if 'ticket' in link.label|lower %}
+                      <svg viewBox="0 0 24 24" fill="none"><path d="M4 8.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2.5a2.5 2.5 0 0 0 0 5V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2.5a2.5 2.5 0 0 0 0-5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 7v2m0 6v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    {% elif 'telegram' in link.label|lower or 'tg' in link.label|lower %}
+                      <svg viewBox="0 0 24 24" fill="none"><path d="m21.5 3.5-19 7.5 7 2.5 2.5 7 3.5-4.5 5 4 1-16.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                    {% else %}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/></svg>
+                    {% endif %}
                   </span>
                   <span class="detail-cta__label">{{ link.label }}</span>
                 </a>

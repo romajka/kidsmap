@@ -6,6 +6,7 @@ const {JSDOM}=require(process.env.KIDSMAP_JSDOM||'jsdom');
 async function importPatch(data,withServer=false,formAttributes='data-km-admin-form'){
  const dom=new JSDOM(`<!doctype html><form ${formAttributes}>
  <input id="id_website" value="https://example.com/old"><input id="id_name_az" value="Existing">
+ <input type="checkbox" id="id_age_varies_by_program" checked>
  <input id="id_schedule" value="Old text"><input id="id_phone2" value="old">
  <input id="id_price_per_lesson" value="35"><input id="id_pricing_plans" value="[]">
  <button type="button" data-place-json-import-open>Import</button>
@@ -26,7 +27,7 @@ async function importPatch(data,withServer=false,formAttributes='data-km-admin-f
  w.document.querySelector('[data-place-json-import-open]').click();
  w.document.querySelector('textarea').value=JSON.stringify(data);
  w.document.querySelector('[data-place-json-import-apply]').click();for(let i=0;i<8;i++)await Promise.resolve();
- return {value:id=>w.document.getElementById('id_'+id).value,toast:()=>toast,close:()=>w.close()};
+ return {checked:id=>w.document.getElementById('id_'+id).checked,value:id=>w.document.getElementById('id_'+id).value,toast:()=>toast,close:()=>w.close()};
 }
 
 test('explicit empty optional text clears while omitted and unknown-null values preserve data',async()=>{
@@ -47,4 +48,11 @@ test('unknown-null pricing survives server validation without clearing saved tar
 test('volunteer JSON uses the current owned form identity',async()=>{
  const m=await importPatch({place_id:12,website:'https://example.com/new'},true,'data-volunteer-admin-form data-place-id="12"');
  try{assert.equal(m.value('website'),'https://example.com/new');}finally{m.close();}
+});
+
+test('programme-dependent age checkbox accepts true and explicit false and preserves omitted values', async()=>{
+ for(const [data,expected] of [[{age_varies_by_program:true},true],[{age_varies_by_program:false},false],[{age_varies_by_program:null},true],[{},true]]){
+  const m=await importPatch(data);
+  try{assert.equal(m.checked('age_varies_by_program'),expected);if(m.toast())assert(!m.toast().message.includes('age_varies_by_program'));}finally{m.close();}
+ }
 });

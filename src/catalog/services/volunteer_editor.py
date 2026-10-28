@@ -19,7 +19,7 @@ def editor_context(form):
         ('media', t('Фото', 'Şəkillər', 'Photos'), 'image', t('Главное фото и обложка. Загружайте фотографии самого места.', 'Əsas şəkil və örtük. Məkanın öz şəkillərini yükləyin.', 'Main photo and cover. Upload photos of the place itself.')),
         ('verification', t('Проверка', 'Yoxlama', 'Review'), 'check_circle', t('Проверьте данные перед отправкой администратору.', 'Administratora göndərməzdən əvvəl məlumatları yoxlayın.', 'Check the details before sending to the administrator.')),
     ]
-    pricing_names = {'age_from', 'age_to', 'age_open_ended', 'offers_adult_classes', 'lesson_duration_minutes', 'lesson_format', 'lessons_per_week', 'lessons_per_month'}
+    pricing_names = {'age_from', 'age_to', 'age_open_ended', 'age_varies_by_program', 'offers_adult_classes', 'lesson_duration_minutes', 'lesson_format', 'lessons_per_week', 'lessons_per_month'}
     pricing_names.update(name for name in CONTENT_FIELDS if name.startswith(('custom_price_badge_', 'extra_conditions', 'additional_info')))
     basics = {'name_az','name_ru','name_en','description_az','description_ru','description_en','category','subcategory'}
     special = basics | pricing_names | {'photo','cover_photo','lat','lng','price_mode','schedule','schedule_mode','schedule_note_az','schedule_note_ru','schedule_note_en'}

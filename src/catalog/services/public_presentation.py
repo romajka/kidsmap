@@ -272,7 +272,7 @@ def present(obj, language=None, *, organizations_enabled=None):
         'supplement':'', 'url':'', 'translation_fallback':False, 'content_language':lang,
         'name_language':lang, 'description_language':lang, 'supplement_language':lang,
         'image_url':'', 'placeholder_icon':'location_on', 'category_label':'', 'contacts':{},
-        'prices':{}, 'groups':[], 'organization':None}
+        'prices':{}, 'groups':[], 'organization':None, 'age_label':'', 'age_hint':'', 'show_place_age':False}
     if not result['visible']:
         return result
     name, name_lang = translated(obj,'name',lang)
@@ -303,6 +303,8 @@ def present(obj, language=None, *, organizations_enabled=None):
         result['category_label'] = category.name_i18n(lang)
         result['placeholder_icon'] = category.code
     if place:
+        with override(lang):
+            result.update(age_label=place.age_public_label, age_hint=place.age_program_hint, show_place_age=True)
         from catalog.services.map_payload import map_identity
         result['map_available'] = map_identity(place) is not None
         result['image_url'] = place.public_image_url
@@ -330,9 +332,9 @@ def prepare_cards(places, language=None, *, filters=None):
     Batch trust markers exist only while materializing this snapshot. Direct
     detail/contact resolver calls still recheck visibility and affiliation.
     """
-    from django.db.models import Exists, OuterRef, Prefetch, QuerySet
+    from django.db.models import BooleanField, Exists, ExpressionWrapper, OuterRef, Prefetch, QuerySet
     from catalog.models import OfferingGroup, PricingPlan
-    from catalog.services.catalog_search import matching_groups, has_offer_filters
+    from catalog.services.catalog_search import matching_groups, has_offer_filters, place_audience_q
     from catalog.services.pricing_plans import prefetch_place_pricing_records
     # Re-evaluate QuerySets directly: materializing their old prefetches and then
     # fetching the same rows again doubles schedule work. Lists still need a
@@ -342,6 +344,8 @@ def prepare_cards(places, language=None, *, filters=None):
     if source == []:
         return []
     lookup = places.all().prefetch_related(None) if queryset_input else Place.objects.filter(pk__in=[p.pk for p in source])
+    if filters is not None:
+        lookup = lookup.annotate(_matches_place_audience=ExpressionWrapper(place_audience_q(filters), output_field=BooleanField()))
     live_activities = Activity.objects.filter(place_id=OuterRef('pk'), status='published', archived_at__isnull=True)
     fresh = {p.pk:p for p in lookup
         .select_related('organization', 'category', 'subcategory', 'confirmed_location')
@@ -412,7 +416,12 @@ def prepare_cards(places, language=None, *, filters=None):
                 for code in ('az','ru','en'):
                     setattr(place,'custom_price_badge_'+code,'')
             presentation=present(place,language,organizations_enabled=organizations_enabled)
-            presentation.update(matched_offers=offers,exact_filtered=exact)
+            show_place_age = not exact or (place.age_varies_by_program and place._matches_place_audience)
+            presentation.update(
+                matched_offers=offers, exact_filtered=exact, show_place_age=show_place_age,
+                age_label=presentation['age_label'] if show_place_age else '',
+                age_hint=presentation['age_hint'] if show_place_age else '',
+            )
             place._card_presentation=presentation
             place._card_activities=activity_presentations
             place._card_organization_id=place._public_organization.pk if place._public_organization else None

@@ -1057,6 +1057,7 @@ class OwnerPlaceEditForm(PublicLinksFormMixin, ContactPhoneFormMixin, PlaceSched
             "age_from",
             "age_to",
             "age_open_ended",
+            "age_varies_by_program",
             "offers_adult_classes",
             "region",
             "district",

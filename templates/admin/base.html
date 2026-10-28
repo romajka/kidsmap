@@ -31,7 +31,7 @@
     <link rel="stylesheet" href="{% static 'jazzmin/css/main.css' %}">
 
     {% if jazzmin_settings.custom_css %}
-    <link rel="stylesheet" href="{% static jazzmin_settings.custom_css %}?v=20261022_release_all_r1">
+    <link rel="stylesheet" href="{% static jazzmin_settings.custom_css %}?v=20261028_search_dropdown_v3">
     {% endif %}
 
     <link rel="shortcut icon" href="{% static jazzmin_settings.site_icon %}" type="image/png">
@@ -91,11 +91,17 @@
                     {% for search_model in jazzmin_settings.search_models_parsed %}
                     {% if forloop.first %}
                     <form action="{{ search_model.search_url }}" method="GET" class="km-admin-header__search-form">
-                        <div class="km-admin-header__search-wrap">
+                        <div class="km-admin-header__search-wrap"
+                            data-search-suggest-root
+                            data-suggestions-url="{% url 'admin:catalog_place_search_suggestions' %}"
+                            data-suggestions-empty="{% trans 'Ничего не найдено' %}">
                             <svg class="km-i km-admin-header__search-icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-search"></use></svg>
-                            <input class="km-admin-header__search-input" name="q" type="search"
+                            <input class="km-admin-header__search-input km-search-input" name="q" type="search"
                                 placeholder="{% trans 'Поиск' %} {{ search_model.search_name }}..."
-                                aria-label="{% trans 'Поиск' %} {{ search_model.search_name }}...">
+                                aria-label="{% trans 'Поиск' %} {{ search_model.search_name }}..."
+                                autocomplete="off"
+                                spellcheck="false">
+                            <div class="km-search-suggestions km-search-suggestions--header" data-search-suggestions role="listbox" hidden></div>
                         </div>
                     </form>
                     {% endif %}
@@ -308,7 +314,7 @@
     <script src="{% static 'jazzmin/js/main.js' %}"></script>
 
     {% if jazzmin_settings.custom_js %}
-    <script src="{% static jazzmin_settings.custom_js %}?v=20261022_release_all_r1"></script>
+    <script src="{% static jazzmin_settings.custom_js %}?v=20261028_search_dropdown_v3"></script>
     {% endif %}
 
     {% if jazzmin_settings.show_ui_builder %}

@@ -86,18 +86,25 @@ def taxonomy_counts(public_qs):
     return ({key:len(value) for key,value in categories.items()}, {key:len(value) for key,value in subcategories.items()})
 
 
+def place_audience_q(filters):
+    """A confirmed admission age or an explicitly approximate place audience."""
+    low, high = filters._normalized_age_bounds()
+    audience = general_admission_q() | Q(age_varies_by_program=True)
+    if filters.category: audience &= Q(category_id=filters.category)
+    if filters.subcategory: audience &= Q(subcategory_id=filters.subcategory)
+    if low is not None or high is not None:
+        audience &= ~Q(age_from__isnull=True, age_to__isnull=True)
+    if low is not None: audience &= Q(age_to__isnull=True) | Q(age_to__gte=low)
+    if high is not None: audience &= Q(age_from__isnull=True) | Q(age_from__lte=high)
+    if filters.query: audience &= text_q(filters.query)
+    return audience
+
+
 def apply_offer_matching(qs,filters):
     groups=matching_groups(filters).filter(activity__place_id=OuterRef('pk'))
     if has_offer_filters(filters):
         low,high=filters._normalized_age_bounds()
-        # Admission has an independently confirmed Place meaning, never a fake Activity.
-        admission=general_admission_q()
-        if filters.category:admission &= Q(category_id=filters.category)
-        if filters.subcategory:admission &= Q(subcategory_id=filters.subcategory)
-        if low is not None or high is not None:admission &= ~Q(age_from__isnull=True,age_to__isnull=True)
-        if low is not None:admission &= Q(age_to__isnull=True)|Q(age_to__gte=low)
-        if high is not None:admission &= Q(age_from__isnull=True)|Q(age_from__lte=high)
-        if filters.query:admission &= text_q(filters.query)
+        admission = place_audience_q(filters)
         # Legacy taxonomy alone is useful browsing; category+age is never inferred.
         legacy=Q(pk__in=[])
         if low is None and high is None:

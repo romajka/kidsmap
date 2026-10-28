@@ -88,10 +88,10 @@
 
     {% if presentation.translation_fallback %}<p class="meta" data-translation-fallback>{% if card_language == 'ru' %}Текст на азербайджанском{% elif card_language == 'en' %}Text in Azerbaijani{% else %}Mətn azərbaycancadır{% endif %}</p>{% endif %}
     <div class="card-tags-row{% if place.offers_adult_classes %} card-tags-row--with-adults{% endif %}">
-      {% if place.age_display and not presentation.exact_filtered %}
+      {% if presentation.age_label %}
         <span class="card-meta-chip card-meta-chip--age">
           <span class="card-meta-chip__value">
-            {{ place.age_display }} {% trans "лет" %}
+            {{ presentation.age_label }} {% trans "лет" %}
             {% if place.offers_adult_classes %}
               <span class="card-age-audience__separator" aria-hidden="true">·</span>
               <span class="card-age-audience__adult">{% trans "Взрослые" %}</span>
@@ -109,6 +109,8 @@
       </span>
     </div>
 
+
+    {% if presentation.age_hint %}<p class="card-age-program-note">{{ presentation.age_hint }}</p>{% endif %}
 
     <p class="meta card-location{% if not place.district and not place.metro and not place.address %} is-empty{% endif %}">
       {% if place.district %}

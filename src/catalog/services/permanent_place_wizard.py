@@ -60,7 +60,7 @@ def localize_fields(form):
     for name, field in form.fields.items():
         if name in hints:
             field.help_text = t(*hints[name])
-        elif name not in ('name_az','description_az','photo','gallery_images','phone1','phone2','phone3','phone_country','whatsapp_mode','whatsapp_number'):
+        elif name not in ('name_az','description_az','photo','gallery_images','phone1','phone2','phone3','phone_country','whatsapp_mode','whatsapp_number','age_varies_by_program'):
             field.help_text = ''
     # Publication rules can bind fields before their localized labels/help exist.
     # A BoundField captures both values, so render fresh bound fields afterwards.
@@ -292,7 +292,7 @@ def build_steps(form):
         return dict(number=number, title=title, hint=hint, fields=fields(names), optional=fields(optional))
     return [
         step(1, t('О месте', 'Məkan haqqında', 'About the place'), t('Начните с названия, категории и описания.', 'Ad, kateqoriya və təsvirlə başlayın.', 'Start with a name, category and description.'), 'name_az description_az nature category subcategory', 'name_ru description_ru name_en description_en'),
-        step(2, t('Для кого', 'Kimlər üçün', 'Audience'), t('Возраст относится к детским группам.', 'Yaş uşaqların qruplarına aiddir.', 'The age range describes children’s groups.'), 'age_from age_to offers_adult_classes', 'lesson_duration_minutes lesson_format lessons_per_week lessons_per_month'),
+        step(2, t('Для кого', 'Kimlər üçün', 'Audience'), t('Возраст относится к детским группам.', 'Yaş uşaqların qruplarına aiddir.', 'The age range describes children’s groups.'), 'age_from age_to age_varies_by_program offers_adult_classes', 'lesson_duration_minutes lesson_format lessons_per_week lessons_per_month'),
         step(3, t('Тарифы', 'Tariflər', 'Pricing'), t('Что входит и сколько стоит.', 'Nələr daxildir və qiyməti nədir.', 'What is included and what it costs.')),
         step(4, t('Адрес и карта', 'Ünvan və xəritə', 'Address and map'), t('Помогите семьям найти вход.', 'Ailələrə girişi tapmağa kömək edin.', 'Help families find the entrance.'), 'region district address', 'metro'),
         step(5, t('Контакты и расписание', 'Əlaqə və cədvəl', 'Contact and schedule'), t('Как связаться и когда можно прийти.', 'Necə əlaqə saxlamaq və nə vaxt gəlmək olar.', 'How to get in touch and when to visit.'), 'phone_country phone1 whatsapp_mode whatsapp_number', 'phone2 phone3 instagram website public_links extra_conditions_az extra_conditions_ru extra_conditions_en additional_info_az additional_info_ru additional_info_en extra_conditions additional_info'),

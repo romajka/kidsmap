@@ -1,11 +1,11 @@
 const H=require('./helpers.cjs');
+const {feedbackWatch}=require('./response_watch.cjs');
 async function visual(ctx){
  for(const role of ['admin','owner']){
   const c=await H.context(ctx.browser,ctx.fixture.origin);await H.login(c,ctx.fixture,role);
   try{for(const lang of ['az','ru','en'])for(const width of [320,360,390,768,1024,1280,1440]){
    await c.addCookies([{name:'django_language',value:lang,url:ctx.fixture.origin}]);
-   const p=await c.newPage();await p.setViewportSize({width,height:1000});const w=H.watch(p,ctx.fixture.origin),checks=[];
-   p.on('response',r=>{if(r.status()===422&&r.url().includes('/preview/')&&r.request().postData()?.includes('_km_check_required'))checks.push(r.json().then(body=>{H.assert(body.errors,'Expected readiness response must contain structured field errors');return r.url();}));});
+   const p=await c.newPage();await p.setViewportSize({width,height:1000});const w=feedbackWatch(p,ctx.fixture.origin);
    const response=await p.goto(ctx.fixture.origin+(role==='admin'?'/admin/catalog/place/add/?type=permanent':`/${lang==='az'?'':lang+'/'}account/places/create/?type=permanent&fresh=1`));H.assert.equal(response.status(),200);
    H.assert.equal(await p.locator('html').getAttribute('lang'),lang,'Requested UI language is rendered');
    H.assert.equal(await p.locator('.km-place-photo-picker strong').innerText(),{ru:'Добавить фотографии',az:'Şəkillər əlavə et',en:'Add photos'}[lang],'New photo picker is translated');
@@ -23,10 +23,10 @@ async function visual(ctx){
    for(let i=0;i<blocks.length;i++){
     const block=p.locator(blocks[i]);await block.scrollIntoViewIfNeeded();await H.inspect(p,ctx.out,`visual-${role}-${lang}-${width}-${i+1}`);
    }
-   H.assert.deepEqual(w.errors,[]);const expected=await Promise.all(checks);const remaining=[...expected];
-   H.assert.deepEqual(w.requests.filter(r=>{const i=r.status===422?remaining.indexOf(r.url):-1;if(i<0)return true;remaining.splice(i,1);return false;}),[],'No unexpected HTTP errors');
+   await p.waitForLoadState('networkidle');
+   H.assert.deepEqual(w.errors,[]);const expected=await w.verify();
    const clipping=await p.locator('[data-tariff-editor] input:not([type=hidden]),[data-tariff-editor] select').evaluateAll(es=>es.filter(e=>e.checkVisibility()&&e.getBoundingClientRect().width>5).map(e=>({key:e.dataset.tariffKey,left:e.getBoundingClientRect().left,right:e.getBoundingClientRect().right})).filter(e=>e.left < -1||e.right>innerWidth+1));H.assert.deepEqual(clipping,[],'Pricing controls fit viewport');
-   ctx.record({id:'G01',role,lang,width,status:'PASS',readiness422:expected.length,assertions:['four real rendered blocks','document fits viewport','pricing controls not clipped','no JS errors','no unexpected local HTTP errors; check-only 422 responses have structured errors'],externalMap:'blocked; not a provider integration test'});
+   ctx.record({id:'G01',role,lang,width,status:'PASS',readiness422:expected,assertions:['four real rendered blocks','document fits viewport','pricing controls not clipped','no JS errors','no unexpected local HTTP errors; check-only 422 responses have structured errors'],externalMap:'blocked; not a provider integration test'});
    await p.close();
   }}finally{await c.close();}
  }

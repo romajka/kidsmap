@@ -24132,3 +24132,20 @@ msgstr "d"
 #. Event entry efficiency and moderation.
 msgid "Создан похожий черновик. Укажите новые даты."
 msgstr "A similar draft was created. Choose new dates."
+
+#: catalog/models/place.py
+msgid "Возраст зависит от программы"
+msgstr "Age depends on the programme"
+
+#: catalog/models/place.py
+msgid "Укажите общий возрастной диапазон для поиска. Для отдельных спектаклей, занятий или программ ограничения могут отличаться."
+msgstr "Enter the general age range used in search. Age restrictions may differ for individual performances, classes or programmes."
+
+#: catalog/models/place.py
+#, python-format
+msgid "Ориентировочно %(age)s"
+msgstr "Approximately %(age)s"
+
+#: catalog/models/place.py
+msgid "Указан ориентировочный возраст. Возраст зависит от программы, спектакля или занятия — уточните ограничения перед посещением."
+msgstr "The age range is approximate. Age depends on the programme, performance or class — check the restrictions before visiting."

@@ -315,8 +315,89 @@ class BusinessEditor(admin.ModelAdmin):
     def get_urls(self):
         base = super().get_urls()
         name = f'{self.opts.app_label}_{self.opts.model_name}'
-        extra = [path('<path:object_id>/transition/', self.admin_site.admin_view(self.transition_view), name=f'{name}_transition')]
+        extra = [
+            path('<path:object_id>/transition/', self.admin_site.admin_view(self.transition_view), name=f'{name}_transition'),
+        ]
+        if self.model is Organization:
+            extra.append(path('search-suggestions/', self.admin_site.admin_view(self.search_suggestions_view), name=f'{name}_search_suggestions'))
         return extra + base
+
+    def search_suggestions_view(self, request):
+        if not self.has_view_or_change_permission(request):
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied
+        from django.http import JsonResponse
+        from django.urls import reverse
+        term = (request.GET.get("q") or "").strip()
+        if len(term) < 2:
+            return JsonResponse({"results": []})
+        language_code = getattr(request, "LANGUAGE_CODE", None)
+
+        variants = list(dict.fromkeys([term, term.lower(), term.capitalize(), term.upper()]))
+        q_filter = Q()
+        fields = ("name_az", "name_ru", "name_en", "phone", "whatsapp", "website", "owner__username", "owner__email")
+        for v in variants:
+            for fld in fields:
+                q_filter |= Q(**{f"{fld}__icontains": v})
+
+        queryset = Organization.objects.filter(q_filter).select_related("owner").distinct()[:8]
+
+        results = []
+        for org in queryset:
+            title = (getattr(org, f"name_{language_code}", None) or org.name_ru or org.name_az or org.name_en or "").strip()
+            if not title:
+                continue
+
+            meta_parts = []
+            if org.phone:
+                meta_parts.append(str(org.phone))
+            if org.website:
+                meta_parts.append(str(org.website))
+
+            owner_label = ""
+            if org.owner:
+                owner_label = org.owner.get_username() or getattr(org.owner, "email", "")
+                if owner_label:
+                    meta_parts.append(str(owner_label))
+
+            change_url = reverse("admin:catalog_organization_change", args=[org.pk])
+
+            tone = "muted"
+            if org.status == "published":
+                tone = "good"
+            elif org.status == "pending":
+                tone = "warn"
+            elif org.status == "rejected":
+                tone = "danger"
+
+            results.append(
+                {
+                    "id": org.pk,
+                    "value": title,
+                    "label": title,
+                    "meta": " • ".join(part for part in meta_parts if part)[:180],
+                    "status": org.status,
+                    "status_label": org.get_status_display(),
+                    "status_tone": tone,
+                    "category": str(_("Организация")),
+                    "district": "",
+                    "address": str(org.website or ""),
+                    "phone": str(org.phone or ""),
+                    "owner": owner_label,
+                    "change_url": change_url,
+                    "public_url": "",
+                }
+            )
+
+        return JsonResponse(
+            {
+                "results": results,
+                "labels": {
+                    "edit": str(_("Редактировать организацию")),
+                    "found": str(_("Найдено")),
+                },
+            }
+        )
 
     def get_form(self, request, obj=None, **kwargs):
         form_class = super().get_form(request, obj, **kwargs)
@@ -617,7 +698,7 @@ class OrganizationAdmin(BusinessEditor):
             "km_search_label": _("Поиск организаций"),
             "km_search_placeholder": _("Название, телефон, сайт..."),
             "km_changelist_reset_url": "?",
-            "km_disable_search_suggestions": True,
+            "km_suggestions_url": reverse("admin:catalog_organization_search_suggestions"),
             **(extra_context or {}),
         }
         return super().changelist_view(request, extra_context=extra_context)

@@ -75,6 +75,10 @@ def revision_base_matches(revision, place):
     for name in ("additional_info", "extra_conditions"):
         if name not in revision.base_snapshot:
             current.pop(name, None)
+    # Revisions captured before this optional flag existed still describe False.
+    # A real opt-in since their creation must continue to invalidate that base.
+    if 'age_varies_by_program' not in revision.base_snapshot and not current.get('age_varies_by_program'):
+        current.pop('age_varies_by_program', None)
     return revision.base_snapshot == current
 
 

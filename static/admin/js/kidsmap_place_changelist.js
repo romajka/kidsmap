@@ -886,65 +886,195 @@
       }
     }
 
-    // Suggestions autocomplete for searchbar
-    var searchBox = document.querySelector('[data-search-suggest-root]');
-    if (searchBox) {
+    // --------------------------------------------------------------------------
+    // Suggestions autocomplete for searchbar (Changelist & Global)
+    // --------------------------------------------------------------------------
+    function escapeSuggestHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function highlightSuggestMatch(text, query) {
+      if (!text || !query) return escapeSuggestHtml(text || '');
+      var escapedText = escapeSuggestHtml(text);
+      var safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      var regex = new RegExp('(' + safeQuery + ')', 'gi');
+      return escapedText.replace(regex, '<mark class="km-search-highlight">$1</mark>');
+    }
+
+    var searchBoxes = document.querySelectorAll('[data-search-suggest-root]');
+    searchBoxes.forEach(function (searchBox) {
+      if (searchBox.dataset.suggestBound === 'true') return;
+      searchBox.dataset.suggestBound = 'true';
       var input = searchBox.querySelector('.km-search-input');
       var suggestionsUrl = searchBox.dataset.suggestionsUrl;
       var emptyLabel = searchBox.dataset.suggestionsEmpty || 'Ничего не найдено';
       var dropdown = searchBox.querySelector('[data-search-suggestions]');
       var timer = null;
+      var activeIndex = -1;
 
-      if (input && suggestionsUrl && dropdown) {
-        input.addEventListener('input', function () {
-          if (timer) clearTimeout(timer);
-          var q = input.value.trim();
-          if (q.length < 2) {
-            dropdown.hidden = true;
-            return;
-          }
+      if (!input || !suggestionsUrl || !dropdown) return;
 
-          timer = setTimeout(function () {
-            fetch(suggestionsUrl + '?q=' + encodeURIComponent(q), {
-              headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
-              .then(function (res) { return res.json(); })
-              .then(function (data) {
-                var results = data.results || [];
-                if (!results.length) {
-                  dropdown.innerHTML = '<div class="place-admin-dashboard__search-suggestion-empty">' + emptyLabel + '</div>';
-                } else {
-                  dropdown.innerHTML = results.map(function (item) {
-                    var safeVal = String(item.value || '').replace(/"/g, '&quot;');
-                    var safeLabel = String(item.label || '');
-                    var safeMeta = String(item.meta || '');
-                    return '<button type="button" class="place-admin-dashboard__search-suggestion" data-val="' + safeVal + '">' +
-                      '<span class="place-admin-dashboard__search-suggestion-title">' + safeLabel + '</span>' +
-                      (safeMeta ? '<span class="place-admin-dashboard__search-suggestion-meta">' + safeMeta + '</span>' : '') +
-                      '</button>';
-                  }).join('');
-                }
-                dropdown.hidden = false;
-              });
-          }, 150);
+      var parentForm = input.closest('form') || form;
+
+      function updateActiveItem(items) {
+        items.forEach(function (el, idx) {
+          el.classList.toggle('is-selected', idx === activeIndex);
+          el.setAttribute('aria-selected', idx === activeIndex ? 'true' : 'false');
         });
-
-        dropdown.addEventListener('click', function (e) {
-          var item = e.target.closest('[data-val]');
-          if (item) {
-            input.value = item.dataset.val;
-            dropdown.hidden = true;
-            form.submit();
-          }
-        });
-
-        document.addEventListener('click', function (e) {
-          if (!searchBox.contains(e.target)) {
-            dropdown.hidden = true;
-          }
-        });
+        if (activeIndex >= 0 && items[activeIndex]) {
+          items[activeIndex].scrollIntoView({ block: 'nearest' });
+        }
       }
-    }
+
+      function selectItem(item) {
+        if (!item) return;
+        input.value = item.dataset.val || '';
+        dropdown.hidden = true;
+        activeIndex = -1;
+        if (parentForm) {
+          parentForm.submit();
+        }
+      }
+
+      input.addEventListener('input', function () {
+        if (timer) clearTimeout(timer);
+        var q = input.value.trim();
+        if (q.length < 2) {
+          dropdown.hidden = true;
+          dropdown.innerHTML = '';
+          activeIndex = -1;
+          return;
+        }
+
+        timer = setTimeout(function () {
+          fetch(suggestionsUrl + '?q=' + encodeURIComponent(q), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+              var results = data.results || [];
+              var suggestLabels = data.labels || {};
+              activeIndex = -1;
+              if (!results.length) {
+                dropdown.innerHTML = '<div class="place-admin-dashboard__search-suggestion-empty km-search-suggest-empty">' +
+                  '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-search"></use></svg>' +
+                  '<span>' + escapeSuggestHtml(emptyLabel) + '</span>' +
+                  '</div>';
+              } else {
+                var itemsHtml = results.map(function (item) {
+                  var safeVal = escapeSuggestHtml(item.value || item.label || '');
+                  var safeLabel = item.label || item.value || '';
+                  var highlightedTitle = highlightSuggestMatch(safeLabel, q);
+                  var safeChangeUrl = item.change_url ? escapeSuggestHtml(item.change_url) : '';
+                  var safeCategory = item.category ? escapeSuggestHtml(item.category) : '';
+                  var safeStatusLabel = item.status_label ? escapeSuggestHtml(item.status_label) : '';
+                  var safeStatusTone = item.status_tone ? escapeSuggestHtml(item.status_tone) : 'muted';
+                  var safeDistrict = item.district ? escapeSuggestHtml(item.district) : '';
+                  var safeAddress = item.address ? escapeSuggestHtml(item.address) : '';
+                  var safePhone = item.phone ? escapeSuggestHtml(item.phone) : '';
+                  var safeOwner = item.owner ? escapeSuggestHtml(item.owner) : '';
+                  var safeMeta = escapeSuggestHtml(item.meta || '');
+
+                  var badgeHtml = safeStatusLabel
+                    ? '<span class="km-search-suggest-badge km-search-suggest-badge--' + safeStatusTone + '">' + safeStatusLabel + '</span>'
+                    : '';
+
+                  var categoryHtml = safeCategory
+                    ? '<span class="km-search-suggest-cat">' + safeCategory + '</span>'
+                    : '';
+
+                  var metaPartsHtml = '';
+                  var locText = safeDistrict ? (safeDistrict + (safeAddress ? ', ' + safeAddress : '')) : safeAddress;
+                  if (locText) {
+                    metaPartsHtml += '<span class="km-search-suggest-loc"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-place"></use></svg>' + locText + '</span>';
+                  }
+                  if (safePhone) {
+                    metaPartsHtml += '<span class="km-search-suggest-phone"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-call"></use></svg>' + safePhone + '</span>';
+                  }
+                  if (safeOwner) {
+                    metaPartsHtml += '<span class="km-search-suggest-owner"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-person"></use></svg>' + safeOwner + '</span>';
+                  }
+                  if (!metaPartsHtml && safeMeta) {
+                    metaPartsHtml = '<span class="km-search-suggest-meta-raw">' + safeMeta + '</span>';
+                  }
+
+                  return '<div class="place-admin-dashboard__search-suggestion km-search-suggest-item" role="option" data-val="' + safeVal + '" data-url="' + safeChangeUrl + '">' +
+                    '<div class="km-search-suggest-item__main">' +
+                      '<div class="km-search-suggest-item__head">' +
+                        '<span class="place-admin-dashboard__search-suggestion-title km-search-suggest-item__title">' + highlightedTitle + '</span>' +
+                        badgeHtml +
+                        categoryHtml +
+                      '</div>' +
+                      '<div class="place-admin-dashboard__search-suggestion-meta km-search-suggest-item__meta">' +
+                        metaPartsHtml +
+                      '</div>' +
+                    '</div>' +
+                    (safeChangeUrl ? '<div class="km-search-suggest-item__actions">' +
+                      '<a href="' + safeChangeUrl + '" class="km-search-suggest-btn" title="' + escapeSuggestHtml(suggestLabels.edit || '') + '" aria-label="' + escapeSuggestHtml(suggestLabels.edit || '') + '">' +
+                        '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-edit"></use></svg>' +
+                      '</a>' +
+                    '</div>' : '') +
+                  '</div>';
+                }).join('');
+
+                var footerHtml = '<div class="km-search-suggest-footer">' +
+                  '<span aria-hidden="true">↑ ↓ · Enter</span>' +
+                  '<span class="km-search-suggest-count">' + escapeSuggestHtml(suggestLabels.found || '') + ': ' + results.length + '</span>' +
+                '</div>';
+
+                dropdown.innerHTML = itemsHtml + footerHtml;
+              }
+              dropdown.hidden = false;
+            })
+            .catch(function () {
+              dropdown.hidden = true;
+            });
+        }, 120);
+      });
+
+      input.addEventListener('keydown', function (e) {
+        if (dropdown.hidden) return;
+        var items = dropdown.querySelectorAll('.km-search-suggest-item');
+        if (!items.length) return;
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          activeIndex = Math.min(activeIndex + 1, items.length - 1);
+          updateActiveItem(items);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          activeIndex = Math.max(activeIndex - 1, 0);
+          updateActiveItem(items);
+        } else if (e.key === 'Enter' && activeIndex >= 0 && items[activeIndex]) {
+          e.preventDefault();
+          selectItem(items[activeIndex]);
+        } else if (e.key === 'Escape') {
+          dropdown.hidden = true;
+          activeIndex = -1;
+        }
+      });
+
+      dropdown.addEventListener('click', function (e) {
+        if (e.target.closest('.km-search-suggest-btn')) return;
+        var item = e.target.closest('[data-val]');
+        if (item) {
+          selectItem(item);
+        }
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!searchBox.contains(e.target)) {
+          dropdown.hidden = true;
+          activeIndex = -1;
+        }
+      });
+    });
 
     /* --------------------------------------------------------------------------
        8. Column Visibility Toggler (1a)

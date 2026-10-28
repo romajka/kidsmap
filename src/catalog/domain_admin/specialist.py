@@ -642,9 +642,108 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             {"name": "mark_pending", "label": _("На модерацию"), "tone": "warn", "icon": "fas fa-hourglass-half", "description": _("Отправить выбранные профили на проверку.")},
         )
 
+    def get_urls(self):
+        from django.urls import path
+        names = f"{self.opts.app_label}_{self.opts.model_name}"
+        extra = [
+            path(
+                "search-suggestions/",
+                self.admin_site.admin_view(self.search_suggestions_view),
+                name=f"{names}_search_suggestions",
+            ),
+        ]
+        return extra + super().get_urls()
+
+    def search_suggestions_view(self, request):
+        if not self.has_view_or_change_permission(request):
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied
+        from django.http import JsonResponse
+        from django.urls import reverse
+        term = (request.GET.get("q") or "").strip()
+        if len(term) < 2:
+            return JsonResponse({"results": []})
+        language_code = getattr(request, "LANGUAGE_CODE", None)
+
+        variants = list(dict.fromkeys([term, term.lower(), term.capitalize(), term.upper()]))
+        q_filter = Q()
+        fields = ("name", "name_alt", "slug", "bio_ru", "bio_az", "bio_en", "owner__username", "owner__email")
+        for v in variants:
+            for f in fields:
+                q_filter |= Q(**{f"{f}__icontains": v})
+
+        queryset = Specialist.objects.filter(q_filter).select_related("owner").prefetch_related("specializations").distinct()[:8]
+
+        results = []
+        for specialist in queryset:
+            title = (specialist.name or "").strip()
+            if not title:
+                continue
+
+            meta_parts = []
+            specs = [s.name_i18n(language_code) for s in specialist.specializations.all()[:2]]
+            specs_label = ", ".join(specs) if specs else ""
+            if specs_label:
+                meta_parts.append(specs_label)
+
+            format_label = specialist.get_consultation_format_display()
+            if format_label:
+                meta_parts.append(format_label)
+
+            exp_label = ""
+            if specialist.experience_years:
+                exp_label = f"Стаж {specialist.experience_years} л."
+                meta_parts.append(exp_label)
+
+            owner_label = ""
+            if specialist.owner:
+                owner_label = specialist.owner.get_username() or getattr(specialist.owner, "email", "")
+                if owner_label:
+                    meta_parts.append(str(owner_label))
+
+            change_url = reverse("admin:catalog_specialist_change", args=[specialist.pk])
+
+            tone = "muted"
+            if specialist.status == Specialist.STATUS_PUBLISHED and specialist.is_active:
+                tone = "good"
+            elif specialist.status == Specialist.STATUS_PENDING:
+                tone = "warn"
+            elif specialist.status == Specialist.STATUS_REJECTED:
+                tone = "danger"
+
+            results.append(
+                {
+                    "id": specialist.pk,
+                    "value": title,
+                    "label": title,
+                    "meta": " • ".join(part for part in meta_parts if part)[:180],
+                    "status": specialist.status,
+                    "status_label": specialist.get_status_display(),
+                    "status_tone": tone,
+                    "category": specs_label,
+                    "district": format_label,
+                    "address": exp_label,
+                    "phone": "",
+                    "owner": owner_label,
+                    "change_url": change_url,
+                    "public_url": "",
+                }
+            )
+
+        return JsonResponse(
+            {
+                "results": results,
+                "labels": {
+                    "edit": str(_("Редактировать профиль")),
+                    "found": str(_("Найдено")),
+                },
+            }
+        )
+
     def changelist_view(self, request, extra_context=None):
         counts = self._dashboard_counts()
         quick_filters = self._quick_filters(request, counts=counts)
+        from django.urls import reverse
         extra_context = {
             "specialist_dashboard_stats": self._dashboard_stats(request, counts=counts),
             "km_primary_quick_filters": quick_filters[:5],
@@ -653,7 +752,7 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             "km_changelist_reset_url": "?",
             "km_search_label": _("Поиск по имени специалиста"),
             "km_search_placeholder": _("Имя специалиста..."),
-            "km_disable_search_suggestions": True,
+            "km_suggestions_url": reverse("admin:catalog_specialist_search_suggestions"),
             **(extra_context or {}),
         }
         return super().changelist_view(request, extra_context=extra_context)

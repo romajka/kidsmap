@@ -250,7 +250,7 @@ def _build_preview(place, *, item=None, language='ru', current=False, revision_c
         photos.append(_photo(photo.get('image'), photo.get('caption', ''), _('Галерея'), gallery=True))
     # The publication snapshot contains legacy scalars as well as modern plans.
     legacy_names = ('price_from','price_to','price_per_lesson','price_per_month','price_per_8_lessons')
-    basic = _field_rows(Place, data, ('nature','operating_state','age_from','age_to','age_open_ended','offers_adult_classes',
+    basic = _field_rows(Place, data, ('nature','operating_state','age_from','age_to','age_open_ended','age_varies_by_program', 'offers_adult_classes',
         'lesson_format','lesson_duration_minutes','lessons_per_week','lessons_per_month'),
         labels={'nature':_('Тип карточки'),'operating_state':_('Состояние работы')})
     basic[:0] = [{'label': _('Категория'), 'value': str(candidate.category or _('Не указано'))},

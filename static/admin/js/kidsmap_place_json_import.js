@@ -259,6 +259,8 @@
       age_from: null,
       age_to: null,
       age_open_ended: null,
+      age_varies_by_program: false,
+      // true: общий подтверждённый возраст ориентировочный и зависит от программы; диапазон всё равно обязателен.
       offers_adult_classes: null,
       region: "",
       district: "",
@@ -336,6 +338,7 @@
       "- 'tariffs': обычные платные занятия, абонементы, билеты. Каждый подтверждённый тариф — отдельный объект pricing_plans (максимум 12). Допустимые product_type: " + (productTypes || "справочник не передан; не придумывай коды продуктов") + ". Рекомендуемые price_kind: exact (точная цена), from (цена от), range (диапазон цен), free (бесплатное пробное). НЕ используй on_request без явного документального основания в источнике (если цены не указаны, оставь pricing_plans: [] и укажи 'prices' в missing_fields).",
       "Для каждого тарифа проверь продаваемый продукт, валюту, единицу оплаты, количество и период, длительность/посещения, аудиторию, обязательные доплаты, действие скидки. Не выводи месячные занятия из недельных и стоимость урока из абонемента по догадке. Пробное бесплатно не означает бесплатность места. Используй только структуру тарифа, которая однозначно подтверждается контрактом/проверенным образцом; если образца для сложной схемы нет, сохрани точные условия в editor_review.needs_verification для ручного ввода вместо выдумывания вложенных полей. Коды price_kind из текущей формы: " + (priceKinds || "справочник не передан; не изобретай коды") + ".",
       "Разовая оплата не означает один день: billing_mode='one_time' — один платёж, который может покрывать месяц или курс. billing_interval/billing_interval_count описывают частоту повторных платежей только при recurring. quantity/quantity_unit описывают включённое количество; is_unlimited означает безлимит посещений, а не бессрочность. validity_interval/validity_interval_count — срок использования купленных посещений, например 1 месяц; неизвестный срок оставь пустым, не называй его бессрочным. Календарные даты предложения valid_from/valid_until, например даты летней акции, независимы от срока использования. Не придумывай начало отсчёта с первого занятия, календарные даты или автоматическое скрытие предложения. Не дели общую цену курса на billing_cycles без подтверждённых условий рассрочки.",
+      "Если возраст зависит от спектакля или программы, укажи подтверждённый общий диапазон age_from/age_to и age_varies_by_program=true. Не выдумывай диапазон и не ставь 0+ вместо неизвестного возраста. Отдельные спектакли перечислять не нужно.",
       "Дополнительные поля тарифа заполняй только по подтверждённым условиям: lesson_format, sessions_per_week, sessions_per_month; audience_type, age_from, age_to, min_people, max_people, day_type; title_az/title_ru/title_en и conditions_az/conditions_ru/conditions_en; charge_role, is_required, is_trial, is_active, sort_order, source_url. Для оплаты частями укажи billing_mode='installment' и billing_cycles — число платежей; price остаётся общей подтверждённой ценой. Для регулярной оплаты укажи billing_interval и billing_interval_count, для срока использования — отдельные validity_interval и validity_interval_count. Не меняй id и verified_at из экспорта и не назначай проверенность новому тарифу. Не копируй все примеры в один список: выбирай подтверждённые тарифы, максимум 12.",
       "5. РАСПИСАНИЕ (schedule_mode) И ДНИ (schedule_days):",
       "При обновлении по свежему экспорту не удаляй исторический текст schedule, исходные скалярные цены и pricing_plans_legacy. Старые поля цены в полном экспорте — для сверки, не для автоматического преобразования: неоднозначные продукт, единица и период требуют ручного подтверждения. Пропущенное поле или null сохраняет значение; явная пустая строка очищает текстовое поле. pricing_plans: [] очищает прямые реляционные тарифы, а не подтверждает смысл старых JSON-тарифов.",
@@ -701,6 +704,7 @@
 
         if (setCheckbox("is_temporary", first(data, ["is_temporary"]))) filled += 1;
         if (setCheckbox("age_open_ended", first(data, ["age_open_ended"]))) filled += 1;
+        if (setCheckbox("age_varies_by_program", first(data, ["age_varies_by_program"]))) filled += 1;
 
         var districtVal = first(data, ["district", "район"]);
         var regionVal = first(data, ["region", "город", "регион"]);
@@ -755,7 +759,7 @@
           "name", "name_az", "name_ru", "name_en", "название", "название_аз",
           "description", "description_az", "description_ru", "description_en", "описание",
           "category", "категория", "subcategory", "подкатегория",
-          "age_from", "возраст_от", "age_to", "возраст_до", "age_open_ended",
+          "age_from", "возраст_от", "age_to", "возраст_до", "age_open_ended", "age_varies_by_program",
           "offers_adult_classes", "занятия_для_взрослых",
           "region", "город", "регион", "district", "район", "metro", "метро", "address", "адрес",
           "phone", "телефон", "phone1", "phone2", "phone3", "phones", "телефоны", "additional_phone", "other_phone",

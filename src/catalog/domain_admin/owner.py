@@ -60,11 +60,64 @@ class _BusinessTeamDiagnosticMixin:
 
 @admin.register(OwnerTeamMembership)
 class OwnerTeamMembershipAdmin(_BusinessTeamDiagnosticMixin, _HiddenFromAdminIndexMixin, admin.ModelAdmin):
-    list_display = ("owner", "member", "role", "is_active", "invited_by", "created_at", "updated_at")
+    change_list_template = "admin/catalog/ownerteammembership/change_list.html"
+    list_display = ("get_place_display", "get_owner_display", "get_member_display", "get_role_badge", "get_active_badge", "invited_by", "created_at")
     list_filter = ("role", "is_active", "created_at")
     search_fields = ("owner__username", "owner__email", "member__username", "member__email")
     readonly_fields = ("created_at", "updated_at")
     autocomplete_fields = ("owner", "member", "invited_by")
+    list_select_related = ("owner", "member", "invited_by")
+
+    @admin.display(description=_("Место"), ordering="place_id")
+    def get_place_display(self, obj):
+        if obj.place_id:
+            from django.urls import reverse
+            from django.utils.html import format_html
+            url = reverse("admin:catalog_place_change", args=[obj.place_id])
+            return format_html('<a href="{}" style="font-weight:700; color:#047857;">{}</a>', url, f"Место #{obj.place_id}")
+        from django.utils.html import format_html
+        return format_html('<span class="text-muted" style="font-size:12px;">{}</span>', _("Все места владельца"))
+
+    @admin.display(description=_("Владелец команды"), ordering="owner__username")
+    def get_owner_display(self, obj):
+        from django.urls import reverse
+        from django.utils.html import format_html
+        url = reverse("admin:catalog_siteregistereduser_change", args=[obj.owner_id])
+        return format_html('<a href="{}"><strong>{}</strong></a><br><small class="text-muted">{}</small>', url, obj.owner.username, obj.owner.email or "")
+
+    @admin.display(description=_("Участник"), ordering="member__username")
+    def get_member_display(self, obj):
+        from django.urls import reverse
+        from django.utils.html import format_html
+        url = reverse("admin:catalog_siteregistereduser_change", args=[obj.member_id])
+        return format_html('<a href="{}"><strong>{}</strong></a><br><small class="text-muted">{}</small>', url, obj.member.username, obj.member.email or "")
+
+    @admin.display(description=_("Роль"), ordering="role")
+    def get_role_badge(self, obj):
+        from django.utils.html import format_html
+        role_label = obj.get_role_display()
+        cls = "badge-info" if obj.role == "MANAGER" else "badge-secondary"
+        return format_html('<span class="badge {}" style="font-size:11.5px; padding:4px 8px;">{}</span>', cls, role_label)
+
+    @admin.display(description=_("Статус"), ordering="is_active")
+    def get_active_badge(self, obj):
+        from django.utils.html import format_html
+        if obj.is_active:
+            return format_html('<span class="badge badge-success" style="font-size:11.5px; padding:4px 8px;">{}</span>', _("Активен"))
+        return format_html('<span class="badge badge-light" style="font-size:11.5px; padding:4px 8px; color:#64748b; border:1px solid #cbd5e1;">{}</span>', _("Отключён"))
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        from catalog.models import OwnerTeamMembership
+        qs = OwnerTeamMembership.objects.all()
+        extra_context.update({
+            "team_total_count": qs.count(),
+            "team_active_count": qs.filter(is_active=True).count(),
+            "team_places_count": qs.filter(place__isnull=False, is_active=True).values("place_id").distinct().count(),
+            "team_managers_count": qs.filter(role="MANAGER", is_active=True).count(),
+            "team_editors_count": qs.filter(role="EDITOR", is_active=True).count(),
+        })
+        return super().changelist_view(request, extra_context=extra_context)
 
 
 @admin.register(OrganizationGrant)

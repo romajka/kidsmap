@@ -1,21 +1,91 @@
-{% load i18n %}
+{% load i18n static %}
 {{ working_drafts_copy|json_script:'km-private-draft-copy' }}
 <div data-private-draft-csrf hidden>{% csrf_token %}</div>
 <p data-private-draft-error role="alert" hidden></p>
 {% if working_drafts_page %}
-<section class="km-private-drafts" aria-labelledby="km-working-drafts-title" data-working-drafts>
-  <h2 id="km-working-drafts-title">{{ working_drafts_copy.title }}</h2>
-  <ul>{% for draft in working_drafts_page %}
-    <li><strong>{{ draft.title }}</strong><span>{{ working_drafts_copy.saved }} {{ draft.saved_at|date:'d.m.Y, H:i' }}</span>
-      {% include 'admin/catalog/place/private_draft_actions.html' %}
-    </li>
-  {% endfor %}</ul>
-  {% if working_drafts_page.has_other_pages %}
-  <nav aria-label="{{ working_drafts_copy.pages }}">
-    {% if working_drafts_previous_url %}<a href="{{ working_drafts_previous_url }}">{% translate 'Назад' %}</a>{% endif %}
-    <span>{{ working_drafts_page.number }} / {{ working_drafts_page.paginator.num_pages }}</span>
-    {% if working_drafts_next_url %}<a href="{{ working_drafts_next_url }}">{% translate 'Далее' %}</a>{% endif %}
-  </nav>
-  {% endif %}
-</section>
+<details class="km-drafts-accordion km-private-drafts" {% if request.GET.draft_page %}open{% endif %} data-working-drafts>
+  <summary class="km-drafts-accordion__summary">
+    <div class="km-drafts-accordion__left">
+      <svg class="km-i km-accordion-arrow km-drafts-accordion__arrow" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+      <span class="km-drafts-accordion__icon-badge">
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-edit"></use></svg>
+      </span>
+      <span class="km-accordion-title km-drafts-accordion__title" id="km-working-drafts-title">{{ working_drafts_copy.title }}</span>
+      <span class="km-drafts-count-badge">{{ working_drafts_page.paginator.count }}</span>
+      <span class="km-accordion-meta km-drafts-accordion__meta">{% translate "Автосохранённые рабочие копии анкет мест" %}</span>
+    </div>
+    <span class="km-accordion-btn km-drafts-accordion__btn">
+      <span class="km-drafts-btn-closed">{% translate "Показать черновики" %} ({{ working_drafts_page.paginator.count }}) ▾</span>
+      <span class="km-drafts-btn-opened">{% translate "Скрыть черновики" %} ▴</span>
+    </span>
+  </summary>
+
+  <div class="km-drafts-accordion__body">
+    <ul class="km-drafts-grid">
+      {% for draft in working_drafts_page %}
+        <li class="km-draft-card">
+          <div class="km-draft-card__top">
+            <span class="km-draft-card__tag{% if draft.target_id %} km-draft-card__tag--edit{% endif %}">
+              {% if draft.target_id %}
+                {% translate "Правка карточки" %} #{{ draft.target_id }}
+              {% else %}
+                {% translate "Новое место" %}
+              {% endif %}
+            </span>
+            <span class="km-draft-card__time">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-pending"></use></svg>
+              <span>{{ working_drafts_copy.saved }} {{ draft.saved_at|date:'d.m.Y, H:i' }}</span>
+            </span>
+          </div>
+
+          <strong class="km-draft-card__title">
+            <a href="{{ draft.url }}" class="km-draft-card__link" title="{{ working_drafts_copy.continue }}">
+              {{ draft.title }}
+            </a>
+          </strong>
+
+          {% if draft.needs_review %}
+            <div class="km-draft-card__alert km-private-draft-warning">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-warning"></use></svg>
+              <span>{{ working_drafts_copy.needs_review }}</span>
+            </div>
+          {% endif %}
+
+          <div class="km-draft-card__actions km-private-draft-actions">
+            <a href="{{ draft.url }}" class="km-draft-card__btn-continue" title="{{ working_drafts_copy.continue }}">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-edit"></use></svg>
+              <span>{% translate "Продолжить" %}</span>
+            </a>
+            <button type="button" class="km-draft-card__btn-delete"
+              data-draft-delete="{{ draft.delete_url }}"
+              data-draft-version="{{ draft.version }}"
+              title="{{ working_drafts_copy.delete }}"
+              aria-label="{{ working_drafts_copy.delete }}">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-delete"></use></svg>
+              <span>{% translate "Удалить" %}</span>
+            </button>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+
+    {% if working_drafts_page.has_other_pages %}
+      <nav aria-label="{{ working_drafts_copy.pages }}" class="km-drafts-pagination">
+        {% if working_drafts_previous_url %}
+          <a href="{{ working_drafts_previous_url }}" class="km-drafts-pagination__btn">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-chevron_left"></use></svg>
+            <span>{% translate "Назад" %}</span>
+          </a>
+        {% endif %}
+        <span class="km-drafts-pagination__info">{{ working_drafts_page.number }} / {{ working_drafts_page.paginator.num_pages }}</span>
+        {% if working_drafts_next_url %}
+          <a href="{{ working_drafts_next_url }}" class="km-drafts-pagination__btn">
+            <span>{% translate "Далее" %}</span>
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-chevron_right"></use></svg>
+          </a>
+        {% endif %}
+      </nav>
+    {% endif %}
+  </div>
+</details>
 {% endif %}

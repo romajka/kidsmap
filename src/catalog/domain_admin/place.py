@@ -1156,7 +1156,99 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             path("<path:object_id>/repeat/", self.admin_site.admin_view(self.repeat_view), name=f"{names}_repeat"),
             path("<path:object_id>/review/", self.admin_site.admin_view(self.review_view), name=f"{names}_review"),
             path("venue-facts/", self.admin_site.admin_view(self.venue_facts_view), name=f"{names}_venue_facts"),
+            path("search-suggestions/", self.admin_site.admin_view(self.search_suggestions_view), name=f"{names}_search_suggestions"),
         ] + super().get_urls()
+
+    def search_suggestions_view(self, request):
+        if not self.has_view_or_change_permission(request):
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied
+        term = (request.GET.get("q") or "").strip()
+        if len(term) < 2:
+            return JsonResponse({"results": []})
+        language_code = getattr(request, "LANGUAGE_CODE", None)
+
+        variants = list(dict.fromkeys([term, term.lower(), term.capitalize(), term.upper()]))
+        q_filter = Q()
+        fields = ("name", "name_az", "name_ru", "name_en", "slug", "venue_label", "district", "related_place__name", "owner__username", "owner__email")
+        for v in variants:
+            for fld in fields:
+                q_filter |= Q(**{f"{fld}__icontains": v})
+
+        queryset = Event.objects.filter(q_filter).select_related("category", "related_place", "owner").distinct()[:8]
+
+        results = []
+        for event in queryset:
+            title = (event.name_i18n(language_code) or event.name or "").strip()
+            if not title:
+                continue
+
+            meta_parts = []
+            venue_title = ""
+            if event.related_place:
+                venue_title = event.related_place.name_i18n(language_code) or event.related_place.name
+            elif event.venue_label:
+                venue_title = event.venue_label
+            if venue_title:
+                meta_parts.append(venue_title)
+
+            time_str = ""
+            if event.start_datetime:
+                local_dt = timezone.localtime(event.start_datetime)
+                time_str = local_dt.strftime("%d.%m %H:%M")
+                meta_parts.append(time_str)
+
+            if event.district:
+                meta_parts.append(str(event.district))
+
+            owner_label = ""
+            if event.owner:
+                owner_label = event.owner.get_username() or getattr(event.owner, "email", "")
+                if owner_label:
+                    meta_parts.append(str(owner_label))
+
+            change_url = reverse("admin:catalog_event_change", args=[event.pk])
+
+            tone = "muted"
+            if event.status == Event.STATUS_PUBLISHED:
+                tone = "good"
+            elif event.status == Event.STATUS_PENDING:
+                tone = "warn"
+            elif event.status in (Event.STATUS_REJECTED, getattr(Event, "STATUS_CANCELLED", "cancelled")):
+                tone = "danger"
+
+            category_label = event.category.name_i18n(language_code) if event.category else ""
+            format_label = event.get_event_format_display() if hasattr(event, "get_event_format_display") else ""
+            cat_combined = f"{category_label} · {format_label}" if (category_label and format_label) else (category_label or format_label)
+
+            results.append(
+                {
+                    "id": event.pk,
+                    "value": title,
+                    "label": title,
+                    "meta": " • ".join(part for part in meta_parts if part)[:180],
+                    "status": event.status,
+                    "status_label": event.get_status_display(),
+                    "status_tone": tone,
+                    "category": cat_combined,
+                    "district": venue_title or event.district,
+                    "address": time_str,
+                    "phone": "",
+                    "owner": owner_label,
+                    "change_url": change_url,
+                    "public_url": "",
+                }
+            )
+
+        return JsonResponse(
+            {
+                "results": results,
+                "labels": {
+                    "edit": str(_("Редактировать мероприятие")),
+                    "found": str(_("Найдено")),
+                },
+            }
+        )
 
     def venue_facts_view(self, request):
         if not self.has_add_permission(request) and not self.has_change_permission(request):
@@ -1595,7 +1687,7 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             "km_search_label": _("Поиск мероприятий"),
             "km_search_placeholder": _("Название, адрес, телефон, организатор..."),
             "km_changelist_reset_url": "?",
-            "km_disable_search_suggestions": True,
+            "km_suggestions_url": reverse("admin:catalog_event_search_suggestions"),
             **(extra_context or {}),
         }
         return super().changelist_view(request, extra_context=extra_context)
@@ -1635,6 +1727,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "age_from",
         "age_to",
         "age_open_ended",
+        "age_varies_by_program",
         "offers_adult_classes",
         "district",
         "metro",
@@ -1826,7 +1919,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "name", "name_az", "name_ru", "name_en",
         "description_az", "description_ru", "description_en",
         "category", "subcategory",
-        "age_from", "age_to", "age_open_ended", "offers_adult_classes",
+        "age_from", "age_to", "age_open_ended", "age_varies_by_program", "offers_adult_classes",
         "lesson_duration_minutes", "lesson_format", "lessons_per_week", "lessons_per_month", "pricing_plans", "nested_pricing",
         "custom_price_badge_az", "custom_price_badge_ru", "custom_price_badge_en",
         "region", "district", "metro", "address", "lat", "lng", "location_override_reason",
@@ -1873,6 +1966,7 @@ class PlaceAdmin(admin.ModelAdmin):
             {
                 "fields": (
                 ("age_from", "age_to", "age_open_ended", "lesson_duration_minutes"),
+                    "age_varies_by_program",
                     "offers_adult_classes",
                     ("lesson_format", "lessons_per_week", "lessons_per_month"),
                     "price_mode",
@@ -2840,6 +2934,7 @@ class PlaceAdmin(admin.ModelAdmin):
             {
                 "fields": (
                 ("age_from", "age_to", "age_open_ended", "lesson_duration_minutes"),
+                    "age_varies_by_program",
                     "offers_adult_classes",
                     "price_mode",
                     "pricing_plans", "nested_pricing",
@@ -4495,6 +4590,7 @@ class PlaceAdmin(admin.ModelAdmin):
             "description_az": obj.description_az, "description_ru": obj.description_ru, "description_en": obj.description_en,
             "category": obj.category_id, "subcategory": obj.subcategory_id,
             "age_from": obj.age_from, "age_to": obj.age_to, "age_open_ended": obj.age_open_ended,
+            "age_varies_by_program": obj.age_varies_by_program,
             "offers_adult_classes": obj.offers_adult_classes,
             "address": obj.address, "district": obj.district, "metro": obj.metro,
             "region": "baku" if obj.district.startswith("baku_") else obj.district,
@@ -4869,6 +4965,9 @@ class PlaceAdmin(admin.ModelAdmin):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("admin:catalog_place_changelist"))
 
     def search_suggestions_view(self, request):
+        if not self.has_view_or_change_permission(request):
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied
         term = (request.GET.get("q") or "").strip()
         if len(term) < 2:
             return JsonResponse({"results": []})
@@ -4876,20 +4975,15 @@ class PlaceAdmin(admin.ModelAdmin):
 
         # Suggestions must not inherit changelist-only filters or annotations
         # from ModelAdmin.get_queryset(); search the canonical active table.
-        queryset = Place.objects.filter(deleted_at__isnull=True).filter(
-            Q(name__icontains=term)
-            | Q(name_az__icontains=term)
-            | Q(name_ru__icontains=term)
-            | Q(name_en__icontains=term)
-            | Q(slug__icontains=term)
-            | Q(address__icontains=term)
-            | Q(phone1__icontains=term)
-            | Q(phone2__icontains=term)
-            | Q(phone3__icontains=term)
-            | Q(owner__username__icontains=term)
-            | Q(owner__email__icontains=term)
-        )
-        queryset = queryset.select_related("owner").distinct()[:8]
+        variants = list(dict.fromkeys([term, term.lower(), term.capitalize(), term.upper()]))
+        q_filter = Q()
+        fields = ("name", "name_az", "name_ru", "name_en", "slug", "address", "phone1", "phone2", "phone3", "owner__username", "owner__email")
+        for v in variants:
+            for fld in fields:
+                q_filter |= Q(**{f"{fld}__icontains": v})
+
+        queryset = Place.objects.filter(deleted_at__isnull=True).filter(q_filter)
+        queryset = queryset.select_related("owner", "category").distinct()[:8]
 
         results = []
         for place in queryset:
@@ -4898,9 +4992,12 @@ class PlaceAdmin(admin.ModelAdmin):
                 continue
 
             meta_parts = []
+            district_name = ""
+            owner_label = ""
             if place.district:
                 from catalog.services.locations import get_location_translation
-                meta_parts.append(get_location_translation(place.district, language_code))
+                district_name = get_location_translation(place.district, language_code)
+                meta_parts.append(district_name)
             if place.address:
                 meta_parts.append(str(place.address))
             if place.phone1:
@@ -4910,15 +5007,38 @@ class PlaceAdmin(admin.ModelAdmin):
                 if owner_label:
                     meta_parts.append(str(owner_label))
 
+            from django.urls import reverse
+            change_url = reverse("admin:catalog_place_change", args=[place.pk])
+            public_url = place.get_absolute_url() if hasattr(place, "get_absolute_url") else ""
+
+            tone = "muted"
+            if place.status == Place.STATUS_PUBLISHED and place.is_active:
+                tone = "good"
+            elif place.status == Place.STATUS_PENDING:
+                tone = "warn"
+            elif place.status == Place.STATUS_REJECTED:
+                tone = "danger"
+
             results.append(
                 {
+                    "id": place.pk,
                     "value": title,
                     "label": title,
                     "meta": " • ".join(part for part in meta_parts if part)[:180],
+                    "status": place.status,
+                    "status_label": place.get_status_display(),
+                    "status_tone": tone,
+                    "category": place.category.name_i18n(language_code) if place.category else "",
+                    "district": district_name,
+                    "address": str(place.address or ""),
+                    "phone": str(place.phone1 or ""),
+                    "owner": owner_label,
+                    "change_url": change_url,
+                    "public_url": public_url,
                 }
             )
 
-        return JsonResponse({"results": results})
+        return JsonResponse({"results": results, "labels": {"edit": str(_("Редактировать карточку")), "found": str(_("Найдено"))}})
 
     def changelist_view(self, request, extra_context=None):
         from catalog.services.place_editor_drafts import working_drafts_context
@@ -5602,18 +5722,80 @@ class PlaceAdmin(admin.ModelAdmin):
         )
 
 
+class PlaceReviewStatusFilter(admin.SimpleListFilter):
+    title = _("Статус отзывов")
+    parameter_name = "review_status"
+
+    def lookups(self, request, model_admin):
+        return [
+            ("with_reviews", _("С отзывами (>0)")),
+            ("top_rated", _("Высокий рейтинг (4.5+)")),
+            ("low_rated", _("Требуют внимания (<3.5)")),
+            ("no_reviews", _("Без отзывов (0)")),
+        ]
+
+    def queryset(self, request, queryset):
+        val = self.value()
+        if val == "with_reviews":
+            return queryset.filter(visible_review_count__gt=0)
+        elif val == "top_rated":
+            return queryset.filter(visible_rating_avg__gte=4.5)
+        elif val == "low_rated":
+            return queryset.filter(visible_review_count__gt=0, visible_rating_avg__lt=3.5)
+        elif val == "no_reviews":
+            return queryset.filter(visible_review_count=0)
+        return queryset
+
+
 @admin.register(PlaceReviewsByClub)
 class PlaceReviewsByClubAdmin(admin.ModelAdmin):
+    change_list_template = "admin/catalog/placereviewsbyclub/change_list.html"
     list_display = ("display_name", "visible_review_count", "visible_rating_avg", "reviews_link", "updated_at")
-    list_filter = ("category", "district", "is_active")
+    list_display_links = None
+    list_filter = (PlaceReviewStatusFilter, "category", "district", "is_active")
     search_fields = ("name_ru", "name_en", "name_az", "name")
     ordering = ()
     readonly_fields = ("rating_count", "rating_avg")
+    list_per_page = 25
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        from django.shortcuts import redirect
+        return redirect(reverse("admin:catalog_place_change", args=[object_id]))
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        base_qs = self.get_queryset(request)
+        total_count = base_qs.count()
+        with_reviews_count = base_qs.filter(visible_review_count__gt=0).count()
+        unrated_count = total_count - with_reviews_count
+        top_rated_count = base_qs.filter(visible_rating_avg__gte=4.5).count()
+        low_rated_count = base_qs.filter(visible_review_count__gt=0, visible_rating_avg__lt=3.5).count()
+
+        avg_res = base_qs.filter(visible_review_count__gt=0).aggregate(avg=Avg("visible_rating_avg"))
+        catalog_avg = avg_res["avg"] if avg_res["avg"] is not None else 0.0
+
+        extra_context.update({
+            "rating_total_count": total_count,
+            "rating_with_reviews_count": with_reviews_count,
+            "rating_unrated_count": unrated_count,
+            "rating_top_rated_count": top_rated_count,
+            "rating_low_rated_count": low_rated_count,
+            "rating_catalog_avg": f"{catalog_avg:.1f}",
+            "km_disable_search_suggestions": False,
+            "km_suggestions_url": reverse("admin:catalog_place_search_suggestions"),
+        })
+        return super().changelist_view(request, extra_context=extra_context)
 
     def get_queryset(self, request):
         """Show only live Place rows and calculate stats from public reviews.
 
-        ``PlaceReviewsByClub`` is a proxy model, so a soft-deleted Place used
+        PlaceReviewsByClub is a proxy model, so a soft-deleted Place used
         to leak into this admin list with stale cached rating fields.
         """
 
@@ -5630,19 +5812,106 @@ class PlaceReviewsByClubAdmin(admin.ModelAdmin):
         )
         return queryset.order_by("-visible_review_count", "-visible_rating_avg", "-updated_at")
 
-    @admin.display(description=_("Название"))
+    @admin.display(description=_("Заведение"), ordering="name")
     def display_name(self, obj):
-        return obj.name_ru or obj.name
+        name = obj.name_ru or obj.name_az or obj.name_en or obj.name
+        category_name = obj.get_category_display() if hasattr(obj, "get_category_display") else (obj.category or "")
+        district_name = obj.get_district_display() if hasattr(obj, "get_district_display") else (obj.district or "")
+        change_url = reverse("admin:catalog_place_change", args=[obj.pk])
+
+        meta_chips = []
+        if category_name:
+            meta_chips.append(format_html('<span class="km-ratings-chip km-ratings-chip--cat">{}</span>', category_name))
+        if district_name:
+            meta_chips.append(format_html('<span class="km-ratings-chip km-ratings-chip--dist">{}</span>', district_name))
+
+        return format_html(
+            '<div class="km-ratings-place-cell">'
+            '<a href="{}" class="km-ratings-place-link">{}</a>'
+            '<div class="km-ratings-place-meta">{}</div>'
+            '</div>',
+            change_url,
+            name,
+            mark_safe("".join(meta_chips)),
+        )
 
     @admin.display(description=_("Количество отзывов"), ordering="visible_review_count")
     def visible_review_count(self, obj):
-        return obj.visible_review_count
+        count = obj.visible_review_count or 0
+        if count > 0:
+            unit = _("отзывов") if count >= 5 else (_("отзыва") if count > 1 else _("отзыв"))
+            return format_html(
+                '<span class="km-reviews-badge km-reviews-badge--has">'
+                '<svg class="km-i" viewBox="0 0 960 960" width="13" height="13" fill="currentColor" aria-hidden="true"><use href="#kmi-chat"></use></svg>'
+                '<strong class="km-reviews-count">{}</strong>'
+                '<span class="km-reviews-unit">{}</span>'
+                '</span>',
+                count,
+                unit,
+            )
+        return format_html(
+            '<span class="km-reviews-badge km-reviews-badge--zero">'
+            '<span class="km-reviews-count">0</span>'
+            '<span class="km-reviews-unit">{}</span>'
+            '</span>',
+            _("отзывов"),
+        )
 
     @admin.display(description=_("Средний рейтинг"), ordering="visible_rating_avg")
     def visible_rating_avg(self, obj):
-        return f"{float(obj.visible_rating_avg or 0):.1f}"
+        count = obj.visible_review_count or 0
+        avg_val = float(obj.visible_rating_avg or 0)
+        formatted_val = f"{avg_val:.1f}"
+
+        if count == 0 or avg_val == 0:
+            return format_html(
+                '<span class="km-rating-pill km-rating-pill--zero">'
+                '<span class="km-rating-star">★</span>'
+                '<span class="km-rating-val">0.0</span>'
+                '<span class="km-rating-label">{}</span>'
+                '</span>',
+                _("нет оценок"),
+            )
+
+        if avg_val >= 4.8:
+            tone = "km-rating-pill--gold"
+        elif avg_val >= 4.0:
+            tone = "km-rating-pill--high"
+        elif avg_val >= 3.0:
+            tone = "km-rating-pill--medium"
+        else:
+            tone = "km-rating-pill--low"
+
+        return format_html(
+            '<span class="km-rating-pill {}">'
+            '<span class="km-rating-star">★</span>'
+            '<strong class="km-rating-val">{}</strong>'
+            '</span>',
+            tone,
+            formatted_val,
+        )
 
     @admin.display(description=_("Отзывы"))
     def reviews_link(self, obj):
         url = reverse("admin:catalog_placereview_changelist")
-        return format_html('<a href="{}?place__id__exact={}">{}</a>', url, obj.id, _("Открыть отзывы"))
+        count = obj.visible_review_count or 0
+        if count > 0:
+            return format_html(
+                '<a href="{}?place__id__exact={}" class="km-ratings-btn km-ratings-btn--primary">'
+                '<svg class="km-i" viewBox="0 0 960 960" width="13" height="13" fill="currentColor" aria-hidden="true"><use href="#kmi-chat"></use></svg>'
+                '<span>{} ({})</span>'
+                '<svg class="km-i" viewBox="0 0 960 960" width="12" height="12" fill="currentColor" aria-hidden="true"><use href="#kmi-chevron_right"></use></svg>'
+                '</a>',
+                url,
+                obj.id,
+                _("Открыть отзывы"),
+                count,
+            )
+        return format_html(
+            '<a href="{}?place__id__exact={}" class="km-ratings-btn km-ratings-btn--ghost">'
+            '<span>{}</span>'
+            '</a>',
+            url,
+            obj.id,
+            _("Открыть отзывы"),
+        )

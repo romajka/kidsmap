@@ -54,7 +54,7 @@ def _serialize_map_places(qs, language_code, filters=None):
         data = place._card_presentation
         category = place.category
         # Match shared cards: exact filters display matched group ages instead.
-        age = place.age_display if not data['exact_filtered'] else ''
+        age = data['age_label']
         member = {
             'id': place.pk, 'name': data['name'], 'url': data['url'],
             'lat': lat, 'lng': lng, 'price': data['prices']['label'],
@@ -80,6 +80,8 @@ def _serialize_map_places(qs, language_code, filters=None):
             'translation_fallback': data['translation_fallback'], 'content_language': data['content_language'],
             'translation_label': {'az':'Mətn azərbaycancadır', 'ru':'Текст на азербайджанском', 'en':'Text in Azerbaijani'}.get(language_code, 'Mətn azərbaycancadır') if data['translation_fallback'] else '',
         }
+        if data['age_hint']:
+            member['age_note'] = data['age_hint']
         if key not in points:
             points[key] = {**member, 'key': key, 'members': []}
         points[key]['members'].append(member)

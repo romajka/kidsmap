@@ -1,28 +1,318 @@
 {% extends "admin/volunteer/base.html" %}
-{% load i18n %}
+{% load i18n static %}
 {% block workspace %}
-<h1>{{ title }}</h1>
-{% if error %}<div class="alert alert-danger" role="alert" id="hub-filter-error" tabindex="-1">{{ error }}</div>{% endif %}
-<p>{% translate "Ожидают проверки" %}: <strong>{{ counts.pending|default:0 }}</strong></p>
-<form method="get" class="km-volunteer-hub-filters" aria-label="{% translate 'Фильтры модерации' %}">
-  <label for="hub-entity">{% translate "Сущность" %}</label><select id="hub-entity" name="entity"><option value=""{% if not filters.entity %} selected{% endif %}>{% translate "Все" %}</option>{% for key, label in entity_choices %}<option value="{{ key }}"{% if filters.entity == key %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
-  <label for="hub-mode">{% translate "Новое или правка" %}</label><select id="hub-mode" name="new_or_edit"><option value=""{% if not filters.new_or_edit %} selected{% endif %}>{% translate "Все" %}</option><option value="new"{% if filters.new_or_edit == "new" %} selected{% endif %}>{% translate "Новое" %}</option><option value="edit"{% if filters.new_or_edit == "edit" %} selected{% endif %}>{% translate "Правка" %}</option></select>
-  <label for="hub-status">{% translate "Статус" %}</label><select id="hub-status" name="status"><option value="all"{% if filters.status == "all" %} selected{% endif %}>{% translate "Все" %}</option>{% for key, label in status_choices %}<option value="{{ key }}"{% if filters.status == key or not filters.status and key == "pending" %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
-  <label for="hub-author">{% translate "Автор ID" %}</label><input id="hub-author" name="author" type="number" min="1" value="{{ filters.author }}">
-  <label for="hub-org">{% translate "Организация ID" %}</label><input id="hub-org" name="org" type="number" min="1" value="{{ filters.org }}">
-  <label for="hub-place">{% translate "Место ID" %}</label><input id="hub-place" name="place" type="number" min="1" value="{{ filters.place }}">
-  <label for="hub-from">{% translate "С даты" %}</label><input id="hub-from" name="from" type="date" value="{{ filters.from }}">
-  <label for="hub-to">{% translate "По дату" %}</label><input id="hub-to" name="to" type="date" value="{{ filters.to }}">
-  <button class="btn btn-primary" type="submit">{% translate "Применить" %}</button>
-</form>
-{% if page %}<div class="km-volunteer-comparison km-volunteer-hub-table"><table><thead><tr><th scope="col">{% translate "Сущность" %}</th><th scope="col">{% translate "Предложение" %}</th><th scope="col">{% translate "Тип" %}</th><th scope="col">{% translate "Статус" %}</th><th scope="col">SLA</th><th scope="col">{% translate "Автор" %}</th><th scope="col">{% translate "Дата" %}</th></tr></thead><tbody>
-{% for row in page %}<tr><td>{{ row.kind_label }}</td><td><a href="{% url 'admin:volunteer_moderation_detail' row.source row.id %}">{{ row.name }}</a></td><td>{{ row.mode_label }}</td><td>{{ row.status_label }}</td><td>{{ row.sla_label }}</td><td>{{ row.author }}</td><td>{{ row.submitted_at }}</td></tr>{% empty %}<tr><td colspan="7">{% translate "Предложений нет." %}</td></tr>{% endfor %}
-</tbody></table></div>{% endif %}
-{% if page.has_other_pages %}
-<nav class="km-volunteer-actions" aria-label="{% translate 'Страницы' %}">
-  {% if page.has_previous %}<a href="{% querystring page=page.previous_page_number %}" rel="prev">{% translate "Назад" %}</a>{% endif %}
-  <span aria-current="page">{{ page.number }} / {{ page.paginator.num_pages }}</span>
-  {% if page.has_next %}<a href="{% querystring page=page.next_page_number %}" rel="next">{% translate "Далее" %}</a>{% endif %}
-</nav>
-{% endif %}
+<div class="km-hub-page">
+  <!-- Заголовок страницы и статус -->
+  <header class="km-hub-header">
+    <div class="km-hub-header__eyebrow">
+      <svg class="km-i" viewBox="0 0 960 960" width="14" height="14" fill="currentColor" aria-hidden="true"><use href="#kmi-verified"></use></svg>
+      <span>{% translate "KidsMap · Модерация контента" %}</span>
+    </div>
+    <h1 class="km-hub-header__title">{{ title }}</h1>
+
+    <!-- Баннер с пояснением раздела -->
+    <div class="km-hub-hero-banner" role="region" aria-label="{% translate 'О центре модерации' %}">
+      <div class="km-hub-hero-banner__icon" aria-hidden="true">
+        <svg class="km-i" viewBox="0 0 960 960" width="24" height="24" fill="currentColor"><use href="#kmi-info"></use></svg>
+      </div>
+      <div class="km-hub-hero-banner__content">
+        <div class="km-hub-hero-banner__title">{% translate "Единый центр проверки предложений волонтёров и партнёров" %}</div>
+        <div class="km-hub-hero-banner__desc">
+          {% translate "Этот раздел собирает внешние предложения и правки перед публикацией на сайте. Здесь администраторы и модераторы проверяют достоверность данных, сверяют изменения по регламенту SLA и утверждают добавление в каталог KidsMap." %}
+        </div>
+        <ul class="km-hub-hero-banner__points">
+          <li class="km-hub-hero-banner__point">
+            <span class="km-hub-hero-banner__point-icon">✓</span>
+            <span>{% translate "Новые места, кружки и секции" %}</span>
+          </li>
+          <li class="km-hub-hero-banner__point">
+            <span class="km-hub-hero-banner__point-icon">✓</span>
+            <span>{% translate "Правки описаний, адресов и телефонов" %}</span>
+          </li>
+          <li class="km-hub-hero-banner__point">
+            <span class="km-hub-hero-banner__point-icon">✓</span>
+            <span>{% translate "Привязка филиалов к организациям" %}</span>
+          </li>
+          <li class="km-hub-hero-banner__point">
+            <span class="km-hub-hero-banner__point-icon">✓</span>
+            <span>{% translate "Контроль сроков проверки (SLA)" %}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  {% if error %}
+    <div class="alert alert-danger" role="alert" id="hub-filter-error" tabindex="-1" style="border-radius: 8px; margin-bottom: 20px;">
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <!-- Быстрые счетчики по статусам -->
+  <div class="km-hub-stats-grid" aria-label="{% translate 'Счётчики заявок' %}">
+    <a href="?status=pending" class="km-hub-stat-card km-hub-stat-card--pending{% if filters.status == 'pending' or not filters.status %} is-active{% endif %}">
+      <span class="km-hub-stat-card__label">{% translate "Ожидают проверки" %}</span>
+      <span class="km-hub-stat-card__val">{{ counts.pending|default:0 }}</span>
+    </a>
+    <a href="?status=all" class="km-hub-stat-card{% if filters.status == 'all' %} is-active{% endif %}">
+      <span class="km-hub-stat-card__label">{% translate "Все предложения" %}</span>
+      <span class="km-hub-stat-card__val">{{ counts.all|default:0 }}</span>
+    </a>
+    <a href="?status=approved" class="km-hub-stat-card km-hub-stat-card--approved{% if filters.status == 'approved' %} is-active{% endif %}">
+      <span class="km-hub-stat-card__label">{% translate "Одобренные" %}</span>
+      <span class="km-hub-stat-card__val">{{ counts.approved|default:0 }}</span>
+    </a>
+    <a href="?status=rejected" class="km-hub-stat-card km-hub-stat-card--rejected{% if filters.status == 'rejected' %} is-active{% endif %}">
+      <span class="km-hub-stat-card__label">{% translate "Отклонённые" %}</span>
+      <span class="km-hub-stat-card__val">{{ counts.rejected|default:0 }}</span>
+    </a>
+    <a href="?status=draft" class="km-hub-stat-card{% if filters.status == 'draft' %} is-active{% endif %}">
+      <span class="km-hub-stat-card__label">{% translate "Черновики" %}</span>
+      <span class="km-hub-stat-card__val">{{ counts.draft|default:0 }}</span>
+    </a>
+  </div>
+
+  <!-- Карточка параметров фильтрации -->
+  <div class="km-hub-card">
+    <div class="km-hub-card__head">
+      <h2 class="km-hub-card__title">
+        <svg class="km-i" viewBox="0 0 960 960" width="18" height="18" fill="currentColor"><use href="#kmi-filter_alt"></use></svg>
+        <span>{% translate "Параметры отбора предложений" %}</span>
+      </h2>
+      {% if filters.entity or filters.new_or_edit or filters.author or filters.org or filters.place or filters.from or filters.to or filters.status and filters.status != 'pending' %}
+        <a href="?status=pending" class="km-hub-card__reset">
+          ✕ {% translate "Сбросить фильтры" %}
+        </a>
+      {% endif %}
+    </div>
+
+    <div class="km-hub-card__body">
+      <form method="get" class="km-volunteer-hub-filters" aria-label="{% translate 'Фильтры модерации' %}">
+        <div class="form-group">
+          <label for="hub-entity">{% translate "Сущность" %}</label>
+          <select id="hub-entity" name="entity">
+            <option value=""{% if not filters.entity %} selected{% endif %}>{% translate "Все сущности" %}</option>
+            {% for key, label in entity_choices %}
+              <option value="{{ key }}"{% if filters.entity == key %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="hub-mode">{% translate "Новое или правка" %}</label>
+          <select id="hub-mode" name="new_or_edit">
+            <option value=""{% if not filters.new_or_edit %} selected{% endif %}>{% translate "Все типы" %}</option>
+            <option value="new"{% if filters.new_or_edit == "new" %} selected{% endif %}>{% translate "Только новые" %}</option>
+            <option value="edit"{% if filters.new_or_edit == "edit" %} selected{% endif %}>{% translate "Только правки" %}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="hub-status">{% translate "Статус" %}</label>
+          <select id="hub-status" name="status">
+            <option value="all"{% if filters.status == "all" %} selected{% endif %}>{% translate "Все статусы" %}</option>
+            {% for key, label in status_choices %}
+              <option value="{{ key }}"{% if filters.status == key or not filters.status and key == "pending" %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="hub-author">{% translate "Автор ID" %}</label>
+          <input id="hub-author" name="author" type="number" min="1" placeholder="ID пользователя" value="{{ filters.author }}">
+        </div>
+
+        <div class="form-group">
+          <label for="hub-org">{% translate "Организация ID" %}</label>
+          <input id="hub-org" name="org" type="number" min="1" placeholder="ID организации" value="{{ filters.org }}">
+        </div>
+
+        <div class="form-group">
+          <label for="hub-place">{% translate "Место ID" %}</label>
+          <input id="hub-place" name="place" type="number" min="1" placeholder="ID места" value="{{ filters.place }}">
+        </div>
+
+        <div class="form-group">
+          <label for="hub-from">{% translate "С даты" %}</label>
+          <input id="hub-from" name="from" type="date" value="{{ filters.from }}">
+        </div>
+
+        <div class="form-group">
+          <label for="hub-to">{% translate "По дату" %}</label>
+          <input id="hub-to" name="to" type="date" value="{{ filters.to }}">
+        </div>
+
+        <div class="km-volunteer-hub-filters__actions">
+          <button class="btn btn-primary km-hub-btn-apply" type="submit">
+            {% translate "Применить фильтры" %}
+          </button>
+          {% if filters.entity or filters.new_or_edit or filters.author or filters.org or filters.place or filters.from or filters.to or filters.status and filters.status != 'pending' %}
+            <a href="?status=pending" class="btn btn-light" style="border: 1px solid #cbd5e1;">
+              {% translate "Сбросить" %}
+            </a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Результаты: Таблица предложений или Информативный Empty State -->
+  {% if page and page.object_list %}
+    <div class="km-hub-table-card km-volunteer-comparison km-volunteer-hub-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">{% translate "Сущность" %}</th>
+            <th scope="col">{% translate "Предложение" %}</th>
+            <th scope="col">{% translate "Тип" %}</th>
+            <th scope="col">{% translate "Статус" %}</th>
+            <th scope="col">SLA</th>
+            <th scope="col">{% translate "Автор" %}</th>
+            <th scope="col">{% translate "Дата" %}</th>
+            <th scope="col" style="text-align: right;">{% translate "Действие" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in page %}
+            <tr>
+              <td>
+                <span class="badge badge-light" style="font-size: 12px; padding: 5px 8px; border: 1px solid #e2e8f0;">
+                  {{ row.kind_label }}
+                </span>
+              </td>
+              <td>
+                <strong>
+                  <a href="{% url 'admin:volunteer_moderation_detail' row.source row.id %}" style="color: #047857;">
+                    {{ row.name }}
+                  </a>
+                </strong>
+              </td>
+              <td>
+                <span class="badge badge-secondary" style="font-size: 11px;">
+                  {{ row.mode_label }}
+                </span>
+              </td>
+              <td>
+                <span class="badge {% if row.status == 'pending' %}badge-warning{% elif row.status == 'approved' %}badge-success{% else %}badge-danger{% endif %}" style="font-size: 11.5px;">
+                  {{ row.status_label }}
+                </span>
+              </td>
+              <td>
+                <span class="badge {% if 'просроч' in row.sla_label|lower or 'overdue' in row.sla_label|lower %}badge-danger{% else %}badge-info{% endif %}" style="font-size: 11px;">
+                  {{ row.sla_label }}
+                </span>
+              </td>
+              <td>{{ row.author }}</td>
+              <td><small class="text-muted">{{ row.submitted_at }}</small></td>
+              <td style="text-align: right;">
+                <a href="{% url 'admin:volunteer_moderation_detail' row.source row.id %}" class="km-hub-action-btn">
+                  {% translate "Проверить →" %}
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <!-- Приятный пустой экран с понятным объяснением -->
+    <section class="km-hub-empty">
+      <div class="km-hub-empty__icon-wrap">
+        <svg class="km-i" viewBox="0 0 960 960" width="32" height="32" fill="currentColor"><use href="#kmi-task_alt"></use></svg>
+      </div>
+      <h2 class="km-hub-empty__title">
+        {% if filters.entity or filters.author or filters.org or filters.place or filters.from or filters.to or filters.status and filters.status != 'pending' %}
+          {% translate "По выбранным фильтрам предложений не найдено" %}
+        {% else %}
+          {% translate "В очереди нет предложений, ожидающих проверки" %}
+        {% endif %}
+      </h2>
+      <p class="km-hub-empty__desc">
+        {% if filters.entity or filters.author or filters.org or filters.place or filters.from or filters.to or filters.status and filters.status != 'pending' %}
+          {% translate "Попробуйте смягчить условия поиска или сбросить фильтры, чтобы увидеть все доступные заявки." %}
+        {% else %}
+          {% translate "Все входящие предложения от волонтёров и партнёров обработаны. Когда кто-то предложит новое место, секцию или правку, заявка сразу появится в этом списке." %}
+        {% endif %}
+      </p>
+
+      {% if filters.entity or filters.author or filters.org or filters.place or filters.from or filters.to or filters.status and filters.status != 'pending' %}
+        <div style="margin-bottom: 24px;">
+          <a href="?status=pending" class="btn btn-outline-success" style="font-weight: 600;">
+            ✕ {% translate "Сбросить фильтры" %}
+          </a>
+        </div>
+      {% endif %}
+
+      <div style="margin-top: 16px;">
+        <div style="font-size: 12.5px; font-weight: 600; color: #64748b; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.04em;">
+          {% translate "Другие очереди модерации на сайте:" %}
+        </div>
+        <div class="km-hub-empty__queues">
+          <a href="{% url 'admin:catalog_place_changelist' %}?status__exact=pending" class="km-hub-empty__queue-btn">
+            <span>{% translate "Места на проверке" %}</span>
+          </a>
+          <a href="{% url 'admin:catalog_moderation_moderationreview_changelist' %}" class="km-hub-empty__queue-btn">
+            <span>{% translate "Отзывы на проверке" %}</span>
+          </a>
+          <a href="{% url 'admin:catalog_placeownershiprequest_changelist' %}?status__exact=pending" class="km-hub-empty__queue-btn">
+            <span>{% translate "Заявки на владение" %}</span>
+          </a>
+          <a href="{% url 'admin:catalog_event_changelist' %}?status__exact=pending" class="km-hub-empty__queue-btn">
+            <span>{% translate "Мероприятия" %}</span>
+          </a>
+          <a href="{% url 'admin:catalog_specialist_changelist' %}?status__exact=pending" class="km-hub-empty__queue-btn">
+            <span>{% translate "Специалисты" %}</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  <!-- Пагинация -->
+  {% if page.has_other_pages %}
+    <nav class="km-volunteer-actions" aria-label="{% translate 'Страницы' %}" style="justify-content: center;">
+      {% if page.has_previous %}
+        <a href="{% querystring page=page.previous_page_number %}" class="btn btn-outline-secondary" rel="prev">
+          ← {% translate "Назад" %}
+        </a>
+      {% endif %}
+      <span aria-current="page" style="font-weight: 700; padding: 6px 14px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px;">
+        {{ page.number }} / {{ page.paginator.num_pages }}
+      </span>
+      {% if page.has_next %}
+        <a href="{% querystring page=page.next_page_number %}" class="btn btn-outline-secondary" rel="next">
+          {% translate "Далее" %} →
+        </a>
+      {% endif %}
+    </nav>
+  {% endif %}
+
+  <!-- Информационная памятка по работе с центром -->
+  <section class="km-hub-guide-card" aria-label="{% translate 'Справка по модерации' %}">
+    <div class="km-hub-guide-card__title">
+      <svg class="km-i" viewBox="0 0 960 960" width="18" height="18" fill="currentColor"><use href="#kmi-help"></use></svg>
+      <span>{% translate "Как работает модерация предложений" %}</span>
+    </div>
+    <div class="km-hub-guide-steps">
+      <div class="km-hub-guide-step">
+        <span class="km-hub-guide-step__num">1</span>
+        <div class="km-hub-guide-step__text">
+          <strong>{% translate "Поступление" %}:</strong> {% translate "Волонтёр или партнёр заполняет форму предложения нового заведения, кружка или правки данных." %}
+        </div>
+      </div>
+      <div class="km-hub-guide-step">
+        <span class="km-hub-guide-step__num">2</span>
+        <div class="km-hub-guide-step__text">
+          <strong>{% translate "Проверка (Diff)" %}:</strong> {% translate "Модератор нажимает «Проверить» и видит наглядное сравнение: что было и что предлагается изменить." %}
+        </div>
+      </div>
+      <div class="km-hub-guide-step">
+        <span class="km-hub-guide-step__num">3</span>
+        <div class="km-hub-guide-step__text">
+          <strong>{% translate "Решение и SLA" %}:</strong> {% translate "При одобрении правки сразу обновляют каталог; при отклонении автор получает понятную причину отказа." %}
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
 {% endblock %}

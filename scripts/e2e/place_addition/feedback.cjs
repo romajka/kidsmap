@@ -1,21 +1,6 @@
 const H=require('./helpers.cjs');
+const {feedbackWatch}=require('./response_watch.cjs');
 const prefix=language=>language==='az'?'':language+'/';
-function feedbackWatch(p,origin){
- const errors=[],unexpected=[],pending=[];let expectedChecks=0;
- p.on('pageerror',error=>errors.push(error.message));
- p.on('response',response=>{if(!response.url().startsWith(origin)||response.status()<400)return;
-  pending.push((async()=>{const request=response.request(),data=request.postData()||'',url=new URL(response.url());
-   const checkOnly=/name="_km_check_required"\r?\n\r?\n1(?:\r?\n|$)/.test(data)||new URLSearchParams(data).get('_km_check_required')==='1';
-   if(response.status()===422&&request.method()==='POST'&&/\/account\/places\/(?:\d+\/)?preview\/$/.test(url.pathname)&&checkOnly){
-    try{const payload=await response.json(),r=payload.readiness;
-     if(payload.errors&&typeof payload.errors==='object'&&!Array.isArray(payload.errors)&&Object.keys(payload.errors).length&&r&&r.is_ready===false&&Array.isArray(r.items)&&Array.isArray(r.sections)&&Number.isInteger(r.required_count)&&Number.isInteger(r.completed_count)&&r.completed_count>=0&&r.completed_count<=r.required_count){expectedChecks++;return;}
-    }catch{}
-   }
-   unexpected.push({url:response.url(),status:response.status(),method:request.method(),checkOnly});
-  })());
- });
- return {errors,async verify(){await Promise.all(pending);H.assert.deepEqual(unexpected,[],'Only contracted incomplete check-only 422 responses are expected');return expectedChecks;}};
-}
 async function feedback(ctx){
  for(const language of ['az','ru','en'])for(const width of [320,360,390,768,1024,1280,1440]){
   const c=await H.context(ctx.browser,ctx.fixture.origin,width);
@@ -27,13 +12,14 @@ async function feedback(ctx){
    H.assert.equal(await p.locator('[data-pw-field=description_az]').getAttribute('data-km-required'),'true');
    H.assert.equal(await p.locator('[data-pw-field=instagram]').getAttribute('data-km-required'),'false');
    H.assert.equal(await p.locator('[data-pw-required=structured_schedule]').isVisible(),true);
-   await p.locator('.pc-help-button').click();H.assert(await p.locator('#pc-translation-help').isVisible());await p.keyboard.press('Escape');H.assert(!await p.locator('#pc-translation-help').isVisible());
+   await p.locator('[popovertarget=pc-translation-help]').click();H.assert(await p.locator('#pc-translation-help').isVisible());await p.keyboard.press('Escape');H.assert(!await p.locator('#pc-translation-help').isVisible());
    await p.locator('[name=description_az]').scrollIntoViewIfNeeded();await H.inspect(p,ctx.out,`feedback-description-${language}-${width}`);
    H.assert.equal(await p.locator('[data-km-phone-slot]:visible').count(),0);await p.locator('[data-km-phone-add]').click();await p.locator('[name=phone2]').fill('+994501234567');await p.locator('[data-km-phone-add]').click();await p.locator('[name=phone3]').fill('+13104564918');H.assert(await p.locator('[data-km-phone-add]').isDisabled());
    await p.locator('[data-km-phone-slot]').first().locator('[data-km-phone-remove]').click();H.assert.equal(await p.locator('[name=phone2]').inputValue(),'');H.assert.equal((await p.locator('[name=phone3]').inputValue()).replace(/[^+0-9]/g,''),'+13104564918');await p.locator('[data-km-phone-add]').click();await p.locator('[name=phone2]').fill('+994551234567');
    await p.locator('[name=whatsapp_mode]').selectOption('separate');await p.locator('[name=whatsapp_number]').fill('+442079460018');
    await p.locator('[data-public-links-add]').click();await p.locator('[data-public-link-key=label]').fill('Telegram');await p.locator('[data-public-link-key=url]').fill('https://t.me/kidsmap_test');await p.locator('[name=whatsapp_mode]').scrollIntoViewIfNeeded();await H.inspect(p,ctx.out,`feedback-contacts-${language}-${width}`);
    H.assert.equal(await p.locator('script[src*="leaflet"]').count(),0);H.assert.equal(await p.locator('.leaflet-tile').count(),0);
+   await H.select(p,'#id_schedule_mode','regular');
    const presets=p.locator('[data-km-schedule-preset]');H.assert.equal(await presets.count(),5);
    for(const code of ['weekdays','all-days','weekday-weekend','always-open','clear']){
     const scheduleBefore=await p.locator('[name=structured_schedule]').inputValue();
@@ -44,11 +30,10 @@ async function feedback(ctx){
      await p.locator('[data-km-schedule-preset=clear]').click();await modal.waitFor({state:'visible'});await H.inspect(p,ctx.out,`feedback-schedule-confirm-${language}-${width}`);await modal.locator('.km-btn-modal--danger').click();await modal.waitFor({state:'detached'});
     }
     const days=JSON.parse(await p.locator('[name=structured_schedule]').inputValue());
-    H.assert.equal(days.length,7);if(code==='weekdays'){H.assert(days.slice(0,5).every(day=>!day.is_closed&&day.intervals[0].start==='09:00'));H.assert(days.slice(5).every(day=>day.is_closed));}
+    if(code==='clear')H.assert.deepEqual(days,[],'Clearing restores unknown hours, not an explicitly closed week');else H.assert.equal(days.length,7);if(code==='weekdays'){H.assert(days.slice(0,5).every(day=>!day.is_closed&&day.intervals[0].start==='09:00'));H.assert(days.slice(5).every(day=>day.is_closed));}
     if(code==='all-days')H.assert(days.every(day=>!day.is_closed&&day.intervals[0].end==='21:00'));
     if(code==='weekday-weekend')H.assert(days.slice(5).every(day=>day.intervals[0].start==='10:00'));
     if(code==='always-open')H.assert(days.every(day=>!day.is_closed&&day.is_24_hours));
-    if(code==='clear')H.assert(days.every(day=>day.is_closed&&!day.is_24_hours&&day.intervals.length===0));
    }
    await p.locator('.km-schedule-editor__presets-panel').scrollIntoViewIfNeeded();await H.inspect(p,ctx.out,`feedback-schedule-${language}-${width}`);
    for(const button of await presets.all()){const rect=await button.boundingBox();H.assert(rect&&rect.height>=43,'Schedule presets remain touch-sized');}

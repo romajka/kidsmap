@@ -47,7 +47,7 @@
       <div class="km-search-box"
         {% if not km_disable_search_suggestions %}
         data-search-suggest-root
-        data-suggestions-url="{% url 'admin:catalog_place_search_suggestions' %}"
+        data-suggestions-url="{% if km_suggestions_url %}{{ km_suggestions_url }}{% else %}{% url 'admin:catalog_place_search_suggestions' %}{% endif %}"
         data-suggestions-empty="{% translate 'Ничего не найдено' %}"
         {% endif %}
       >

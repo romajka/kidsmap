@@ -1,10 +1,12 @@
 from django.core.management import call_command
 from django.test import TestCase
+from unittest.mock import patch
 
 from catalog.models import Place, SEOAuditRun, SEOChange, SEOIssue
 from catalog.services.seo_audit_engine import SEOAuditEngine
 from catalog.services.seo_fix_engine import SEOFixEngine
 from catalog.testcases.utils import create_quality_place
+from catalog.testcases.http_fixtures import ReadOnlyFixtureClient
 
 
 class TestSEOAuditSystem(TestCase):
@@ -162,7 +164,10 @@ class TestSEOAuditSystem(TestCase):
         call_command("apply_seo_fixes", safe_only=True)
 
         # Test audit_internal_links
-        call_command("audit_internal_links", limit_places=2)
+        # All unique targets still use real Django views. This immutable
+        # fixture need not render the same navigation target for every footer.
+        with patch("catalog.management.commands.audit_internal_links.Client", ReadOnlyFixtureClient):
+            call_command("audit_internal_links", limit_places=2)
 
         # Test audit_schema
         call_command("audit_schema")

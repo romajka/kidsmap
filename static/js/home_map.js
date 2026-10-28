@@ -329,6 +329,7 @@
       "</a>" +
       (place.translation_fallback ? '<p class="meta" data-translation-fallback>' + escapeHtml(place.translation_label || 'AZ') + '</p>' : '') +
       '<div class="home-map-popup-details">' +
+      (place.age_note ? '<p class="home-map-popup-age-note">' + escapeHtml(place.age_note) + "</p>" : "") +
       addressHtml +
       (place.matched_offers || []).map(offer => '<a class="home-map-popup-info-row" href="' + escapeHtml(safeHomeMapUrl(offer.url, false) || "#") + '">' + escapeHtml(offer.name) + '</a>' + (offer.groups || []).map(group => '<div class="home-map-popup-info-row">' + escapeHtml(group.name) + '</div>').join("")).join("") +
       scheduleHtml +
@@ -2009,6 +2010,7 @@
         body.append(title);
         const metaParts = [member.category, member.age].filter(Boolean);
         if (metaParts.length) text("home-explorer-meta", metaParts.join(" · "), body);
+        if (member.age_note) text("home-explorer-meta", member.age_note, body);
         text("home-explorer-location", member.location || member.district_label || member.address, body);
         if (!member.age && Array.isArray(member.matched_offers)) {
           member.matched_offers.forEach(offer => {

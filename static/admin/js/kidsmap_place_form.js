@@ -1552,6 +1552,11 @@
         ageNode.textContent = ageFrom
           ? (openEnded || !ageToValue ? ageFrom + "+" : ageFrom + "–" + ageToValue)
           : "—";
+        var programmeAge = document.getElementById("id_age_varies_by_program");
+        var programmeAgeCopy = root.querySelector("[data-age-approximate-template]");
+        if (ageFrom && programmeAge && programmeAge.checked && programmeAgeCopy) {
+          ageNode.textContent = programmeAgeCopy.dataset.ageApproximateTemplate.replace("%(age)s", ageNode.textContent);
+        }
       }
 
       var priceNode = qs("[data-pf-preview-price]", root);

@@ -5550,3 +5550,7 @@
   .km-pf .km-pf-issue__go { margin-inline-start:26px; }
   .km-pf [data-km-photo-unified] .km-pf-mainphoto { flex-wrap:wrap; }
 }
+
+/* An approximate audience is a visible option beside the existing age range. */
+.km-pf .km-pf-age-program { flex: 1 1 100%; min-width: 0; }
+.km-pf .km-pf-age-program .km-pf-field__hint { max-width: 64ch; margin: 6px 0 0 30px; }

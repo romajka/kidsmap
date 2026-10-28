@@ -1324,3 +1324,6 @@ body:has([data-place-mode=continuous]),body:has([data-place-mode=continuous]) .s
 }
 @media(max-width:480px){.pc-savebar{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(38px,auto) 36px;gap:4px;padding:8px 12px}.pc-savebar-actions{justify-content:flex-start}}
 @media(prefers-reduced-motion:reduce){.pc-mappy [data-mappy-sprite],.pc-mappy .pc-mappy-frame{animation:none!important;transition:none!important}}
+
+.pc .pc-age-program { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pc .pc-age-program .pw-error { flex-basis: 100%; }

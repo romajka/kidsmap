@@ -103,6 +103,12 @@ class Place(models.Model):
         default=False,
         help_text=_("Например: 3+; для всех возрастов укажите возраст «от» 0."),
     )
+    age_varies_by_program = models.BooleanField(
+        _("Возраст зависит от программы"),
+        default=False,
+        db_default=False,
+        help_text=_("Укажите общий возрастной диапазон для поиска. Для отдельных спектаклей, занятий или программ ограничения могут отличаться."),
+    )
     offers_adult_classes = models.BooleanField(_("Также есть занятия для взрослых"), default=False)
 
     city = models.CharField(_("Город"), max_length=100, blank=True, default="", editable=False)
@@ -390,6 +396,21 @@ class Place(models.Model):
         if self.age_to is not None:
             return str(self.age_to)
         return ""
+
+    @property
+    def age_public_label(self) -> str:
+        age = self.age_display
+        return translate("Ориентировочно %(age)s") % {"age": age} if age and self.age_varies_by_program else age
+
+    @property
+    def age_program_hint(self) -> str:
+        return translate("Возраст зависит от программы") if self.age_varies_by_program and self.age_display else ""
+
+    @property
+    def age_program_note(self) -> str:
+        if not self.age_varies_by_program or not self.age_display:
+            return ""
+        return translate("Указан ориентировочный возраст. Возраст зависит от программы, спектакля или занятия — уточните ограничения перед посещением.")
 
     def clean(self):
         super().clean()

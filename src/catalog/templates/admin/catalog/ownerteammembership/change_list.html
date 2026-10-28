@@ -1,0 +1,207 @@
+{% extends "admin/change_list.html" %}
+{% load i18n static admin_list admin_urls %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=20261028_search_adapt_r1">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_owner_teams.css' %}?v=20261028_owner_teams_r1">
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} km-custom-changelist km-owner-teams-page{% endblock %}
+{% block content_title %}{% endblock %}
+{% block page_actions %}{% endblock %}
+{% block filters %}{% endblock %}
+
+{% block breadcrumbs %}
+  <ol class="breadcrumb km-admin-crumbs" aria-label="{% translate 'Навигация' %}">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% translate 'Главная' %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label='catalog' %}">{% translate 'Каталог' %}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% translate 'Доступы к местам' %}</li>
+  </ol>
+{% endblock %}
+
+{% block search %}
+  <div class="col-12 p-0">
+    <div class="km-team-workspace">
+      <!-- Заголовок страницы -->
+      <section class="km-team-header">
+        <div>
+          <div class="km-team-eyebrow">
+            <svg class="km-i" viewBox="0 0 960 960" width="14" height="14" fill="currentColor" aria-hidden="true"><use href="#kmi-verified"></use></svg>
+            <span>{% translate "KidsMap · Пользователи и доступы" %}</span>
+          </div>
+          <h1 class="place-admin-dashboard__title">{% translate "Доступы к местам (Команды владельцев)" %}</h1>
+          <p class="place-admin-dashboard__subtitle">
+            {% translate "Сотрудники, управляющие карточками заведений по приглашению владельцев через кабинет партнёра." %}
+          </p>
+        </div>
+        <div class="km-team-header__badge">
+          {{ team_total_count|default:cl.result_count }} {% translate "доступов" %}
+        </div>
+      </section>
+
+      <!-- Информационный баннер -->
+      <section class="km-team-hero" role="region" aria-label="{% translate 'О командах заведений' %}">
+        <div class="km-team-hero__icon" aria-hidden="true">
+          <svg class="km-i" viewBox="0 0 960 960" width="24" height="24" fill="currentColor"><use href="#kmi-person"></use></svg>
+        </div>
+        <div class="km-team-hero__content">
+          <div class="km-team-hero__title">{% translate "Делегирование прав на управление карточками мест" %}</div>
+          <div class="km-team-hero__desc">
+            {% translate "Владельцы заведений могут приглашать коллег и персонал (управляющих, администраторов, редакторов) в команду заведения через личный кабинет (/account/places/). Приглашённые сотрудники получают доступ к редактированию карточки, расписанию, ценам и ответам на отзывы без передачи пароля от аккаунта владельца." %}
+          </div>
+          <ul class="km-team-hero__points">
+            <li class="km-team-hero__point">
+              <span class="km-team-hero__point-icon">🛡</span>
+              <span><strong>{% translate "Безопасность" %}:</strong> {% translate "доступ привязан к личному аккаунту сотрудника" %}</span>
+            </li>
+            <li class="km-team-hero__point">
+              <span class="km-team-hero__point-icon">🎯</span>
+              <span><strong>{% translate "Роли" %}:</strong> {% translate "Менеджер (полный доступ) или Редактор (контент)" %}</span>
+            </li>
+            <li class="km-team-hero__point">
+              <span class="km-team-hero__point-icon">🏢</span>
+              <span><strong>{% translate "Привязка" %}:</strong> {% translate "доступ к конкретному месту или ко всей сети" %}</span>
+            </li>
+            <li class="km-team-hero__point">
+              <span class="km-team-hero__point-icon">⚡</span>
+              <span><strong>{% translate "Управление" %}:</strong> {% translate "владелец может отозвать доступ в любой момент" %}</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Метрики доступов -->
+      <section class="km-team-stats-grid" aria-label="{% translate 'Статистика доступов' %}">
+        <a href="?" class="km-team-stat-card{% if not request.GET.is_active__exact and not request.GET.role__exact %} is-active{% endif %}">
+          <span class="km-team-stat-card__label">{% translate "Всего доступов" %}</span>
+          <span class="km-team-stat-card__val">{{ team_total_count|default:cl.result_count }}</span>
+        </a>
+        <a href="?is_active__exact=1" class="km-team-stat-card km-team-stat-card--active{% if request.GET.is_active__exact == '1' %} is-active{% endif %}">
+          <span class="km-team-stat-card__label">{% translate "Активные доступы" %}</span>
+          <span class="km-team-stat-card__val">{{ team_active_count|default:0 }}</span>
+        </a>
+        <div class="km-team-stat-card">
+          <span class="km-team-stat-card__label">{% translate "Мест с командами" %}</span>
+          <span class="km-team-stat-card__val">{{ team_places_count|default:0 }}</span>
+        </div>
+        <a href="?role__exact=MANAGER" class="km-team-stat-card{% if request.GET.role__exact == 'MANAGER' %} is-active{% endif %}">
+          <span class="km-team-stat-card__label">{% translate "Менеджеры" %}</span>
+          <span class="km-team-stat-card__val">{{ team_managers_count|default:0 }}</span>
+        </a>
+        <a href="?role__exact=EDITOR" class="km-team-stat-card{% if request.GET.role__exact == 'EDITOR' %} is-active{% endif %}">
+          <span class="km-team-stat-card__label">{% translate "Редакторы" %}</span>
+          <span class="km-team-stat-card__val">{{ team_editors_count|default:0 }}</span>
+        </a>
+      </section>
+
+      <!-- Панель поиска и фильтров -->
+      <form class="km-team-toolbar" method="get" role="search">
+        <div class="km-team-toolbar__search">
+          <svg class="km-i km-team-toolbar__search-icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-search"></use></svg>
+          <input
+            type="search"
+            name="q"
+            value="{{ cl.query|default:'' }}"
+            placeholder="{% translate 'Поиск по владельцу, участнику, заведению или email...' %}"
+            aria-label="{% translate 'Поиск' %}"
+            autocomplete="off"
+            spellcheck="false"
+          >
+        </div>
+
+        <button type="submit" class="km-team-toolbar__btn-submit">
+          <svg class="km-i" viewBox="0 0 960 960" width="16" height="16" fill="currentColor" aria-hidden="true"><use href="#kmi-search"></use></svg>
+          <span>{% translate "Найти" %}</span>
+        </button>
+
+        {% if cl.query or request.GET.role__exact or request.GET.is_active__exact or request.GET.created_at__gte or request.GET.created_at__lt %}
+          <a href="?" class="km-team-toolbar__btn-reset">
+            ✕ <span>{% translate "Сбросить" %}</span>
+          </a>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+{% endblock %}
+
+{% block result_list %}
+  <div class="col-12 p-0">
+    <div class="km-team-workspace">
+      {% if cl.result_list %}
+        <div class="place-admin-dashboard__table-wrap km-table-container">
+          {% result_list cl %}
+        </div>
+      {% else %}
+        <!-- Дружелюбный Empty State -->
+        <section class="km-team-empty">
+          <div class="km-team-empty__icon-wrap">
+            <svg class="km-i" viewBox="0 0 960 960" width="32" height="32" fill="currentColor"><use href="#kmi-person"></use></svg>
+          </div>
+          <h2 class="km-team-empty__title">
+            {% if cl.query or request.GET.role__exact or request.GET.is_active__exact %}
+              {% translate "По выбранным фильтрам участников не найдено" %}
+            {% else %}
+              {% translate "В каталоге пока нет выданных доступов к местам" %}
+            {% endif %}
+          </h2>
+          <p class="km-team-empty__desc">
+            {% if cl.query or request.GET.role__exact or request.GET.is_active__exact %}
+              {% translate "Попробуйте смягчить условия поиска или сбросить фильтры, чтобы увидеть полный список участников команд." %}
+            {% else %}
+              {% translate "Владельцы заведений ещё не приглашали сотрудников в команды мест. Приглашения отправляются через личный кабинет партнёра (/account/places/). Как только владелец заведения пригласит администратора или редактора, запись появится в этом списке." %}
+            {% endif %}
+          </p>
+
+          <div class="km-team-empty__links">
+            {% if cl.query or request.GET.role__exact or request.GET.is_active__exact %}
+              <a href="?" class="btn btn-outline-success" style="font-weight: 600;">
+                ✕ {% translate "Сбросить фильтры" %}
+              </a>
+            {% endif %}
+            <a href="{% url 'admin:catalog_place_changelist' %}" class="km-team-empty__link-btn">
+              <span>{% translate "Список мест в каталоге" %}</span>
+            </a>
+            <a href="{% url 'admin:catalog_placeownershiprequest_changelist' %}" class="km-team-empty__link-btn">
+              <span>{% translate "Заявки на владение" %}</span>
+            </a>
+            <a href="{% url 'admin:catalog_siteregistereduser_changelist' %}" class="km-team-empty__link-btn">
+              <span>{% translate "Пользователи сайта" %}</span>
+            </a>
+          </div>
+        </section>
+      {% endif %}
+
+      <!-- Информационная справка внизу страницы -->
+      <section class="km-team-guide" aria-label="{% translate 'Справка по управлению командами' %}">
+        <div class="km-team-guide__title">
+          <svg class="km-i" viewBox="0 0 960 960" width="18" height="18" fill="currentColor"><use href="#kmi-info"></use></svg>
+          <span>{% translate "Как работает управление командами мест" %}</span>
+        </div>
+        <div class="km-team-guide__grid">
+          <div class="km-team-guide__item">
+            <span class="km-team-guide__num">1</span>
+            <div class="km-team-guide__text">
+              <strong>{% translate "Приглашение владельцем" %}:</strong> {% translate "Владелец заведения вводит email сотрудника в личном кабинете партнёра и выбирает роль (Менеджер или Редактор)." %}
+            </div>
+          </div>
+          <div class="km-team-guide__item">
+            <span class="km-team-guide__num">2</span>
+            <div class="km-team-guide__text">
+              <strong>{% translate "Принятие доступа" %}:</strong> {% translate "Сотрудник получает письмо с безопасной ссылкой-токеном и подтверждает вступление в команду заведения." %}
+            </div>
+          </div>
+          <div class="km-team-guide__item">
+            <span class="km-team-guide__num">3</span>
+            <div class="km-team-guide__text">
+              <strong>{% translate "Аудит и контроль" %}:</strong> {% translate "Администраторы KidsMap видят всех участников, связанные заведения и могут проверить историю выданных прав." %}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+{% endblock %}

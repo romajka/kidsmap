@@ -1,0 +1,513 @@
+/* KidsMap Admin - Place Reviews & Ratings Analytics Styles */
+
+.km-ratings-workspace {
+  font-family: var(--km-font-sans, 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  width: 100%;
+}
+
+/* Header */
+.km-ratings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 12px;
+  border: 1px solid #E5E7EB;
+  background: #FFFFFF;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.km-ratings-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #D97706;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.km-ratings-header .place-admin-dashboard__title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 4px 0;
+  line-height: 1.3;
+}
+
+.km-ratings-header .place-admin-dashboard__subtitle {
+  font-size: 13.5px;
+  color: #6B7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.km-ratings-header__badge {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #FFFBEB;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Hero Context Banner */
+.km-ratings-hero {
+  background: linear-gradient(135deg, #fffbeb 0%, #fefce8 40%, #f8fafc 100%);
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.km-ratings-hero__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #fef3c7;
+  color: #b45309;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.km-ratings-hero__content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.km-ratings-hero__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #92400e;
+  margin: 0 0 6px 0;
+}
+
+.km-ratings-hero__desc {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #4b5563;
+  margin: 0 0 14px 0;
+}
+
+.km-ratings-hero__points {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 10px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.km-ratings-hero__point {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #374151;
+}
+
+.km-ratings-hero__point strong {
+  color: #1f2937;
+}
+
+.km-ratings-hero__point-icon {
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Metric Stats Grid */
+.km-ratings-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.km-ratings-stat-card {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid #E5E7EB;
+  background: #FFFFFF;
+  text-decoration: none !important;
+  color: inherit;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.km-ratings-stat-card:hover {
+  border-color: #D1D5DB;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+}
+
+.km-ratings-stat-card.is-active {
+  border-color: #2563EB;
+  background: #EFF6FF;
+  box-shadow: 0 0 0 1px #2563EB;
+}
+
+.km-ratings-stat-card__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7280;
+  margin-bottom: 4px;
+}
+
+.km-ratings-stat-card__val {
+  font-size: 22px;
+  font-weight: 800;
+  color: #111827;
+  line-height: 1.2;
+}
+
+.km-ratings-stat-card--good .km-ratings-stat-card__val {
+  color: #059669;
+}
+
+.km-ratings-stat-card--gold .km-ratings-stat-card__val {
+  color: #D97706;
+}
+
+.km-ratings-stat-card--muted .km-ratings-stat-card__val {
+  color: #9CA3AF;
+}
+
+.km-ratings-stat-card--avg {
+  background: #FFFBEB;
+  border-color: #FDE68A;
+}
+
+.km-ratings-stat-card__val--avg {
+  color: #B45309;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.km-ratings-star-mini {
+  color: #F59E0B;
+  font-size: 18px;
+}
+
+/* Table cells */
+.km-ratings-place-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.km-ratings-place-link {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1D4ED8 !important;
+  text-decoration: none;
+  line-height: 1.35;
+}
+
+.km-ratings-place-link:hover {
+  color: #1E40AF !important;
+  text-decoration: underline;
+}
+
+.km-ratings-place-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.km-ratings-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.km-ratings-chip--cat {
+  background: #EEF2FF;
+  color: #4338CA;
+  border: 1px solid #E0E7FF;
+}
+
+.km-ratings-chip--dist {
+  background: #F3F4F6;
+  color: #4B5563;
+  border: 1px solid #E5E7EB;
+}
+
+/* Reviews badge */
+.km-reviews-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+}
+
+.km-reviews-badge--has {
+  background: #EFF6FF;
+  color: #1E40AF;
+  border: 1px solid #BFDBFE;
+}
+
+.km-reviews-badge--has .km-reviews-count {
+  font-weight: 800;
+  color: #1D4ED8;
+}
+
+.km-reviews-badge--has .km-reviews-unit {
+  font-size: 11.5px;
+  color: #3B82F6;
+}
+
+.km-reviews-badge--zero {
+  background: #F9FAFB;
+  color: #9CA3AF;
+  border: 1px solid #E5E7EB;
+}
+
+.km-reviews-badge--zero .km-reviews-count {
+  font-weight: 600;
+}
+
+.km-reviews-badge--zero .km-reviews-unit {
+  font-size: 11.5px;
+  color: #9CA3AF;
+}
+
+/* Rating Pill */
+.km-rating-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.km-rating-star {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.km-rating-val {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.km-rating-label {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+/* Rating Tones */
+.km-rating-pill--gold {
+  background: #FFFBEB;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+}
+.km-rating-pill--gold .km-rating-star {
+  color: #D97706;
+}
+
+.km-rating-pill--high {
+  background: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+.km-rating-pill--high .km-rating-star {
+  color: #059669;
+}
+
+.km-rating-pill--medium {
+  background: #FFF7ED;
+  color: #9A3412;
+  border: 1px solid #FFEDD5;
+}
+.km-rating-pill--medium .km-rating-star {
+  color: #EA580C;
+}
+
+.km-rating-pill--low {
+  background: #FEF2F2;
+  color: #991B1B;
+  border: 1px solid #FECACA;
+}
+.km-rating-pill--low .km-rating-star {
+  color: #DC2626;
+}
+
+.km-rating-pill--zero {
+  background: #F3F4F6;
+  color: #6B7280;
+  border: 1px solid #E5E7EB;
+}
+.km-rating-pill--zero .km-rating-star {
+  color: #9CA3AF;
+}
+
+/* Action button */
+.km-ratings-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none !important;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.km-ratings-btn--primary {
+  background: #F3F4F6;
+  color: #1F2937 !important;
+  border: 1px solid #D1D5DB;
+}
+
+.km-ratings-btn--primary:hover {
+  background: #2563EB;
+  color: #FFFFFF !important;
+  border-color: #2563EB;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
+}
+
+.km-ratings-btn--ghost {
+  background: transparent;
+  color: #6B7280 !important;
+  border: 1px dashed #D1D5DB;
+}
+
+.km-ratings-btn--ghost:hover {
+  background: #F9FAFB;
+  color: #111827 !important;
+  border-color: #9CA3AF;
+}
+
+/* Bottom Guide */
+.km-ratings-guide {
+  margin-top: 28px;
+  padding: 20px 24px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.km-ratings-guide__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 14px;
+}
+
+.km-ratings-guide__title svg {
+  color: #2563EB;
+}
+
+.km-ratings-guide__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.km-ratings-guide__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.km-ratings-guide__num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #EFF6FF;
+  color: #1D4ED8;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.km-ratings-guide__text {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #4B5563;
+}
+
+.km-ratings-guide__text strong {
+  color: #111827;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .km-ratings-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .km-ratings-guide__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .km-ratings-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .km-ratings-hero {
+    flex-direction: column;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .km-ratings-hero__points {
+    grid-template-columns: 1fr;
+  }
+
+  .km-ratings-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .km-ratings-guide {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .km-ratings-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

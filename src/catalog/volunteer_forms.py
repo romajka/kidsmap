@@ -20,7 +20,7 @@ from catalog.services.locations import clean_location_fields, configure_location
 CONTENT_FIELDS = (
     "name_az", "name_ru", "name_en", "category", "subcategory",
     "description_az", "description_ru", "description_en",
-    "age_from", "age_to", "age_open_ended", "offers_adult_classes",
+    "age_from", "age_to", "age_open_ended", "age_varies_by_program", "offers_adult_classes",
     "district", "metro", "address", "lat", "lng",
     "phone1", "phone2", "phone3", "phone_country", "whatsapp_mode", "whatsapp_number", "instagram", "website", "public_links",
     "photo", "cover_photo", "schedule", "schedule_mode",

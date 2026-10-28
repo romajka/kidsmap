@@ -32852,3 +32852,14 @@ form[data-review-submission][hidden],
     border: 0;
   }
 }
+
+/* Approximate venue ages: keep the qualification readable on narrow cards/maps. */
+.card-age-program-note, .home-map-popup-age-note {
+  margin: 6px 0; color: var(--text-muted, #52675b); font-size: 12px; line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.card-meta-chip--age .card-meta-chip__value { white-space: normal; overflow-wrap: anywhere; }
+.home-map-popup-badge-age { max-width: 100%; white-space: normal; }
+
+.catalog-map-card-age { margin: 8px 0 0; font-size: 13px; font-weight: 650; line-height: 1.5; overflow-wrap: anywhere; }
+.catalog-map-card-age-note { margin: 3px 0 8px; font-size: 12px; line-height: 1.5; color: var(--text-muted, #52675b); overflow-wrap: anywhere; }

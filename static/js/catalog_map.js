@@ -324,6 +324,8 @@
       (place.category
         ? '<span class="catalog-map-card-category">' + escapeHtml(place.category) + "</span>"
         : "") +
+      (place.age ? '<p class="catalog-map-card-age">' + escapeHtml(place.age) + '</p>' : '') +
+      (place.age_note ? '<p class="catalog-map-card-age-note">' + escapeHtml(place.age_note) + '</p>' : '') +
       '<div class="catalog-map-card-rating' +
       (rating.isEmpty ? " is-empty" : "") +
       '">' +

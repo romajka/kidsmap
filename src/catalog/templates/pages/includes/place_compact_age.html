@@ -4,7 +4,13 @@
   <div class="km-age-slider-track"><input class="range-slider range-slider-from" id="id_age_from_range" type="range" min="0" max="18" step="1" value="{{ form.age_from.value|default:'0' }}" data-range-from-range aria-label="{{ form.age_from.label }}"><input class="range-slider range-slider-to" id="id_age_to_range" type="range" min="0" max="18" step="1" value="{{ form.age_to.value|default:'18' }}" data-range-to-range aria-label="{{ form.age_to.label }}"></div>
   <div class="km-age-slider-ticks" aria-hidden="true"><span>0</span><span>3</span><span>6</span><span>9</span><span>12</span><span>15</span><span>18</span></div>
   <input type="hidden" name="age_from" id="id_age_from" value="{{ form.age_from.value|default:'0' }}" data-range-from-input><input type="hidden" name="age_to" id="id_age_to" value="{{ form.age_to.value|default:'18' }}" data-range-to-input>
-  <div class="pc-age-options"><label class="pc-check"><input type="checkbox" data-pc-open-age{% if form.age_open_ended.value %} checked{% endif %}> <span>{{ ui.open_age }} <small>{{ ui.open_age_example }}</small></span></label><div class="pc-age-audience" data-pw-field="offers_adult_classes" role="group" aria-label="{{ form.offers_adult_classes.label }}">{% for choice in form.offers_adult_classes %}<label class="pc-check">{{ choice.tag }} <span>{{ choice.choice_label }}</span></label>{% endfor %}</div></div>
+  <div class="pc-age-options"><label class="pc-check"><input type="checkbox" data-pc-open-age{% if form.age_open_ended.value %} checked{% endif %}> <span>{{ ui.open_age }} <small>{{ ui.open_age_example }}</small></span></label><div class="pc-age-audience" data-pw-field="offers_adult_classes" role="group" aria-label="{{ form.offers_adult_classes.label }}">{% for choice in form.offers_adult_classes %}<label class="pc-check">{{ choice.tag }} <span>{{ choice.choice_label }}</span></label>{% endfor %}</div>
+  <div class="pc-age-program" data-pw-field="age_varies_by_program">
+    <label class="pc-check" for="{{ form.age_varies_by_program.id_for_label }}">{{ form.age_varies_by_program }} <span>{{ form.age_varies_by_program.label }}</span></label>
+    <button type="button" class="pc-help-button" popovertarget="{{ form.age_varies_by_program.id_for_label }}_helptext" aria-label="{{ form.age_varies_by_program.label }}">?</button>
+    <div id="{{ form.age_varies_by_program.id_for_label }}_helptext" popover class="pc-help-popover"><p>{{ form.age_varies_by_program.help_text }}</p></div>
+    {% for error in form.age_varies_by_program.errors %}<p class="pw-error" role="alert">{{ error }}</p>{% endfor %}
+  </div></div>
   <small class="pw-help">{{ ui.age_hint }}</small>
   <div id="id_age_from_errors">{% for error in form.age_from.errors %}<p class="pw-error">{{ error }}</p>{% endfor %}</div><div id="id_age_to_errors">{% for error in form.age_to.errors %}<p class="pw-error">{{ error }}</p>{% endfor %}</div><span class="pw-client-error" aria-live="polite"></span>
 </div>

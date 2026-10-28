@@ -57,6 +57,16 @@
           </div>
         </div>
       </details>
+
+      <div class="km-pf-age-program" data-pf-field="age_varies_by_program" data-age-approximate-template="{% translate 'Ориентировочно %(age)s' %}">
+        <label class="km-pf-check" for="{{ form.age_varies_by_program.id_for_label }}">
+          {{ form.age_varies_by_program }}
+          <span class="km-pf-check__box" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check"></use></svg></span>
+          <span class="km-pf-check__copy"><strong>{{ form.age_varies_by_program.label }}</strong></span>
+        </label>
+        <p class="km-pf-field__hint" id="{{ form.age_varies_by_program.id_for_label }}_helptext">{{ form.age_varies_by_program.help_text }}</p>
+        {% for error in form.age_varies_by_program.errors %}<p class="km-pf-field__error" role="alert">{{ error }}</p>{% endfor %}
+      </div>
     </div>
   </div>
 
