@@ -987,3 +987,185 @@ body.theme-dark .km-confirm-list li {
     transform: none !important;
   }
 }
+
+
+/* ==========================================================================
+   KidsMap Admin - Consolidated Alerts & Banners (.km-admin-alerts-wrap)
+   ========================================================================== */
+
+.km-admin-alerts-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.km-admin-alert {
+  position: relative;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 10px 16px !important;
+  border-radius: 10px !important;
+  font-size: 13.5px !important;
+  line-height: 1.45 !important;
+  margin-bottom: 0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  transition: opacity 0.2s ease, transform 0.2s ease, max-height 0.3s ease !important;
+  box-sizing: border-box;
+}
+
+.km-admin-alert.is-hidden {
+  opacity: 0 !important;
+  transform: translateY(-6px) !important;
+  pointer-events: none !important;
+}
+
+.km-admin-alert__icon {
+  width: 20px !important;
+  height: 20px !important;
+  flex: 0 0 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.km-admin-alert__icon .km-i {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.km-admin-alert__content {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  min-width: 0;
+}
+
+.km-admin-alert__text {
+  font-weight: 600;
+  color: inherit;
+}
+
+.km-admin-alert__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none !important;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  line-height: 1.3;
+}
+
+.km-admin-alert__btn .km-i {
+  width: 13px;
+  height: 13px;
+}
+
+/* Success theme */
+.km-admin-alert--success,
+.content .alert.km-admin-alert--success {
+  background: #ECFDF5 !important;
+  border: 1px solid #A7F3D0 !important;
+  color: #065F46 !important;
+}
+.km-admin-alert--success .km-admin-alert__icon {
+  color: #059669 !important;
+}
+.km-admin-alert--success .km-admin-alert__btn {
+  background: #059669;
+  color: #FFFFFF !important;
+  box-shadow: 0 1px 2px rgba(5, 150, 105, 0.2);
+}
+.km-admin-alert--success .km-admin-alert__btn:hover {
+  background: #047857;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(5, 150, 105, 0.3);
+  color: #FFFFFF !important;
+}
+
+/* Warning theme */
+.km-admin-alert--warning,
+.content .alert.km-admin-alert--warning {
+  background: #FFFBEB !important;
+  border: 1px solid #FDE68A !important;
+  color: #92400E !important;
+}
+.km-admin-alert--warning .km-admin-alert__icon {
+  color: #D97706 !important;
+}
+.km-admin-alert--warning .km-admin-alert__btn {
+  background: #D97706;
+  color: #FFFFFF !important;
+}
+.km-admin-alert--warning .km-admin-alert__btn:hover {
+  background: #B45309;
+  color: #FFFFFF !important;
+}
+
+/* Error theme */
+.km-admin-alert--error,
+.content .alert.km-admin-alert--error {
+  background: #FEF2F2 !important;
+  border: 1px solid #FECACA !important;
+  color: #991B1B !important;
+}
+.km-admin-alert--error .km-admin-alert__icon {
+  color: #DC2626 !important;
+}
+.km-admin-alert--error .km-admin-alert__btn {
+  background: #DC2626;
+  color: #FFFFFF !important;
+}
+.km-admin-alert--error .km-admin-alert__btn:hover {
+  background: #B91C1C;
+  color: #FFFFFF !important;
+}
+
+/* Info theme */
+.km-admin-alert--info,
+.content .alert.km-admin-alert--info {
+  background: #EFF6FF !important;
+  border: 1px solid #BFDBFE !important;
+  color: #1E40AF !important;
+}
+.km-admin-alert--info .km-admin-alert__icon {
+  color: #2563EB !important;
+}
+.km-admin-alert--info .km-admin-alert__btn {
+  background: #2563EB;
+  color: #FFFFFF !important;
+}
+.km-admin-alert--info .km-admin-alert__btn:hover {
+  background: #1D4ED8;
+  color: #FFFFFF !important;
+}
+
+/* Close button */
+.km-admin-alert__close,
+.content .alert .close.km-admin-alert__close {
+  position: static !important;
+  margin-left: auto !important;
+  opacity: 0.45 !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+  color: inherit !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 4px !important;
+  cursor: pointer !important;
+  transition: opacity 0.15s ease !important;
+  outline: none !important;
+  text-shadow: none !important;
+}
+.km-admin-alert__close:hover,
+.content .alert .close.km-admin-alert__close:hover {
+  opacity: 0.9 !important;
+}

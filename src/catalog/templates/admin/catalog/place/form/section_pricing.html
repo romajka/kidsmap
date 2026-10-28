@@ -19,6 +19,17 @@
         {% include "admin/catalog/place/form/_field.html" with field=form.age_to label=label_age_to suffix=suffix_years %}
       </div>
 
+            <label class="km-pf-check km-pf-check--card" for="{{ form.age_open_ended.id_for_label }}">
+              {{ form.age_open_ended }}
+              <span class="km-pf-check__box" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check"></use></svg></span>
+              <span class="km-pf-check__copy">
+                <strong>{% translate "Нет максимального возраста" %}</strong>
+                <small>{% translate "Поле «до» отключается" %}</small>
+              </span>
+            </label>
+
+      {% for error in form.age_open_ended.errors %}<p class="km-pf-field__error" role="alert">{{ error }}</p>{% endfor %}
+
       <details class="km-pf-disclosure km-pf-disclosure--features"{% if form.age_open_ended.value or form.age_open_ended.errors or form.offers_adult_classes.value or form.lesson_duration_minutes.value or form.offers_adult_classes.errors or form.lesson_duration_minutes.errors or form.lesson_format.value or form.lessons_per_week.value or form.lessons_per_month.value %} open{% endif %}>
         <summary class="km-pf-disclosure__summary">
           <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
@@ -30,15 +41,6 @@
 
         <div class="km-pf-disclosure__body">
           <div class="km-pf-features-toggles">
-            <label class="km-pf-check km-pf-check--card" for="{{ form.age_open_ended.id_for_label }}">
-              {{ form.age_open_ended }}
-              <span class="km-pf-check__box" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check"></use></svg></span>
-              <span class="km-pf-check__copy">
-                <strong>{% translate "Нет максимального возраста" %}</strong>
-                <small>{% translate "Поле «до» отключается" %}</small>
-              </span>
-            </label>
-
             <label class="km-pf-check km-pf-check--card" for="{{ form.offers_adult_classes.id_for_label }}">
               {{ form.offers_adult_classes }}
               <span class="km-pf-check__box" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check"></use></svg></span>

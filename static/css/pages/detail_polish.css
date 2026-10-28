@@ -121,6 +121,8 @@
   }
   .detail-page .detail-hero__media {
     order: 1;
+    /* A definite width prevents Swiper's slide widths feeding back into this
+       flex item's intrinsic size (five slides otherwise grow on each resize). */
     width: 100%;
     margin-bottom: 0;
   }
@@ -411,3 +413,9 @@
     flex: 0 0 26px !important;
   }
 }
+
+/* Photo attribution stays accessible without crowding visiting information. */
+.detail-page .detail-photo-credits { margin-top: 12px; color: var(--detail-ink-soft); font-size: 12px; }
+.detail-page .detail-photo-credits summary { width: fit-content; min-height: 32px; padding-block: 6px; cursor: pointer; }
+.detail-page .detail-photo-credits summary:focus-visible { outline: 2px solid var(--brand-turf); outline-offset: 3px; }
+.detail-page .detail-photo-credits .detail-note { margin-top: 4px; font-size: inherit; overflow-wrap: anywhere; }

@@ -185,7 +185,7 @@
                         {% if plan.details %}<span class="detail-plans__details">{{ plan.details }}</span>{% endif %}
                         {% if plan.options or plan.required_fees %}
                           <span class="detail-plans__options">
-                            {% for option in plan.options %}<span>{{ option.title }} · {{ option.price_str }}{% if option.details %} · {{ option.details }}{% endif %}{% if option.age_from != None or option.age_to != None %} · {{ option.age_from|default:"0" }}–{{ option.age_to|default:"+" }}{% if language == 'ru' %} лет{% elif language == 'en' %} yrs{% else %} yaş{% endif %}{% endif %}</span>{% endfor %}
+                            {% for option in plan.options %}<span>{{ option.title }} · {{ option.price_str }}{% if option.details %} · {{ option.details }}{% endif %}{% if option.age_from != None or option.age_to != None %} · {% age_range option.age_from option.age_to %}{% if language == 'ru' %} лет{% elif language == 'en' %} yrs{% else %} yaş{% endif %}{% endif %}</span>{% endfor %}
                             {% for fee in plan.required_fees %}<span class="detail-plans__required-fee">{{ fee.title }} · {{ fee.price_str }}{% if fee.details %} · {{ fee.details }}{% endif %}</span>{% endfor %}
                           </span>
                         {% endif %}

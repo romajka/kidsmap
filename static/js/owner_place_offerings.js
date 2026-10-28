@@ -55,6 +55,25 @@
     }
     details.append(grid); parent.append(details);
   }
+  function editorWarnings(parent, object, prefixes, plan = false) {
+    const translations = node('p', 'pc-note'); translations.dataset.nestedTranslationWarning = ''; translations.setAttribute('role', 'status');
+    parent.append(translations);
+    const currency = plan ? node('p', 'pc-note') : null;
+    if (currency) { currency.dataset.nestedCurrencyWarning = ''; parent.append(currency); }
+    const refresh = () => {
+      const missing = prefixes.flatMap(prefix => {
+        const languages = ['az','ru','en'];
+        return languages.some(lang => String(object[prefix+'_'+lang] || '').trim()) ? languages.filter(lang => !String(object[prefix+'_'+lang] || '').trim()).map(lang=>lang.toUpperCase()) : [];
+      });
+      translations.hidden = !missing.length;
+      translations.textContent = ({ru:'Не заполнены переводы: ',az:'Tərcümələr çatışmır: ',en:'Missing translations: '})[language]+[...new Set(missing)].join(', ');
+      if (currency) {
+        currency.hidden = !object.currency || object.currency === 'AZN' || ['free','on_request'].includes(object.price_kind);
+        currency.textContent = ({ru:`Валюта ${object.currency || 'AZN'}: тариф не участвует в фильтре AZN. Автоматической конвертации нет.`,az:`Valyuta ${object.currency || 'AZN'}: tarif AZN filtrinə daxil deyil. Avtomatik konvertasiya yoxdur.`,en:`Currency ${object.currency || 'AZN'}: this plan is excluded from the AZN budget filter. There is no automatic conversion.`})[language];
+      }
+    };
+    summaries.push(refresh); refresh();
+  }
   function taxonomy(parent, activity) {
     const category = field(parent, activity, 'category_id', ui.category, 'select', {choices: [['', '—'], ...(choices.categories || []).map(item => [String(item.id), item.label])]});
     category.dataset.activityCategory = '';
@@ -121,7 +140,8 @@
         field(grid, group, 'lesson_format', ui.group_format, 'select', {choices: choices.lesson_formats});
         field(grid, group, 'teachers_text', ui.group_teachers, 'textarea');
         field(grid, group, 'conditions_az', ui.group_conditions, 'textarea');
-        block.append(grid); translations(block, group, 'name');
+        block.append(grid); translations(block, group, 'name'); editorWarnings(block, group, ['name', 'conditions']);
+        for (const lang of ['ru', 'en']) field(grid, group, 'conditions_'+lang, ui.group_conditions.replace('(AZ)', '('+lang.toUpperCase()+')'), 'textarea');
         group.pricing_plans.forEach((plan, planIndex) => {
           const planBlock = disclosure('pc-plan-card', plan, () => `${plan.title_az || ui.plan_title} · ${priceSummary(plan)}`, {planIndex});
           const planGrid = node('div', 'pc-offering-grid');
@@ -129,7 +149,9 @@
           field(planGrid, plan, 'product_type', ui.plan_type, 'select', {choices: choices.product_types});
           field(planGrid, plan, 'price_kind', ui.plan_price_kind, 'select', {choices: choices.price_kinds});
           field(planGrid, plan, 'price', ui.plan_price, 'number');
+          field(planGrid, plan, 'conditions_az', ui.group_conditions, 'textarea');
           planBlock.append(planGrid);
+          editorWarnings(planBlock, plan, ['title', 'conditions'], true);
           const advanced = node('details', 'pc-offering-translations'); advanced.append(node('summary', '', ui.plan_advanced));
           const extra = node('div', 'pc-offering-grid');
           field(extra, plan, 'price_min', ui.plan_price_min, 'number');
@@ -154,6 +176,7 @@
           field(extra, plan, 'is_trial', ui.plan_trial, 'checkbox');
           field(extra, plan, 'is_required', ui.plan_required, 'checkbox');
           advanced.append(extra); planBlock.append(advanced); translations(planBlock, plan, 'title');
+          for (const lang of ['ru', 'en']) field(extra, plan, 'conditions_'+lang, ui.group_conditions.replace('(AZ)', '('+lang.toUpperCase()+')'), 'textarea');
           button(planBlock, ui.remove_plan, () => { group.pricing_plans.splice(planIndex, 1); sync(); render(); });
           block.append(planBlock);
         });

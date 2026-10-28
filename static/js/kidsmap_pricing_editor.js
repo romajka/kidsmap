@@ -555,7 +555,26 @@
     };
   }
 
+  function updateEditorWarnings(row, plan) {
+    const currency = plan.currency || 'AZN';
+    const warning = row.querySelector('[data-tariff-currency-warning]');
+    if (warning) {
+      warning.hidden = currency === 'AZN' || ['free', 'on_request'].includes(plan.price_kind);
+      warning.textContent = ({ru:`Цена сохранена в ${currency}. В бюджетном фильтре AZN этот тариф не участвует. Автоматической конвертации нет; добавьте отдельный тариф AZN только при подтверждённой цене.`, az:`Qiymət ${currency} ilə saxlanılır. Bu tarif AZN büdcə filtrinə daxil deyil. Avtomatik konvertasiya yoxdur; yalnız təsdiqlənmiş qiymət üçün ayrıca AZN tarifi əlavə edin.`,en:`This price is stored in ${currency} and is excluded from the AZN budget filter. There is no automatic conversion; add a separate AZN plan only for a confirmed price.`})[langKey];
+    }
+    const missing = ['title', 'conditions'].flatMap(prefix => {
+      const languages = ['az','ru','en'];
+      if (!languages.some(language => String(plan[prefix+'_'+language] || '').trim())) return [];
+      const absent = languages.filter(language => !String(plan[prefix+'_'+language] || '').trim());
+      const label = prefix === 'title' ? ({ru:'название',az:'ad',en:'title'})[langKey] : ({ru:'условия',az:'şərtlər',en:'conditions'})[langKey];
+      return absent.length ? [label+': '+absent.map(language=>language.toUpperCase()).join(', ')] : [];
+    });
+    const translations = row.querySelector('[data-tariff-translation-warning]');
+    if (translations) { translations.hidden = !missing.length; translations.textContent = ({ru:'Не заполнены переводы — ',az:'Tərcümələr çatışmır — ',en:'Missing translations — '})[langKey]+missing.join('; '); }
+  }
+
   function updateCardSummary(row, plan, index) {
+    updateEditorWarnings(row, plan);
     const cardIndex = index === undefined ? Array.prototype.indexOf.call(list.children, row) : index;
     const summary = tariffSummary(plan, cardIndex < 0 ? 0 : cardIndex);
     const title = row.querySelector(".owner-tariff-card-copy strong");
@@ -592,6 +611,12 @@
       cardNumber.textContent = "#" + (index + 1);
       cardHead.append(cardIcon, cardCopy, cardNumber);
       row.appendChild(cardHead);
+      for (const name of ['currency', 'translation']) {
+        const notice = document.createElement('p'); notice.className = 'owner-tariff-price-notice';
+        notice.setAttribute('data-tariff-'+name+'-warning',''); notice.setAttribute('role','status');
+        notice.setAttribute('aria-live','polite'); row.append(notice);
+      }
+      updateEditorWarnings(row, plan);
 
       const mainGrid = document.createElement("div");
       mainGrid.className = "owner-tariff-main";

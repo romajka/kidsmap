@@ -541,3 +541,83 @@ def get_dashboard_workspace_hubs(dashboard_list, stats=None):
         })
 
     return hubs
+
+
+@register.simple_tag
+def km_consolidated_admin_messages(messages, place_editor_result=None):
+    """Deduplicate and unify admin messages into a clean, single-source list.
+
+    Eliminates redundant Django ModelAdmin boilerplate (e.g. '...был изменен успешно...')
+    when specific status messages exist, and merges action links into the alert card.
+    """
+    from html import unescape
+    from django.utils.html import strip_tags
+
+    def message_text(value):
+        return unescape(strip_tags(str(value))).strip()
+
+    seen_texts = set()
+    consolidated = []
+    has_specific_message = False
+
+    boilerplate_triggers = (
+        'был изменен успешно',
+        'был успешно изменен',
+        'была успешно изменена',
+        'было успешно изменено',
+        'успешно добавлен',
+        'была изменена успешно',
+        'был добавлен успешно',
+        'была добавлена успешно',
+        'was changed successfully',
+        'was added successfully',
+        'uğurla dəyişdirildi',
+        'uğurla əlavə edildi',
+    )
+
+    if isinstance(place_editor_result, dict) and place_editor_result.get('message'):
+        msg_text = str(place_editor_result['message']).strip()
+        outcome = place_editor_result.get('outcome', 'success')
+        tag = 'success' if outcome == 'success' else 'info'
+        next_url = place_editor_result.get('next_url', '')
+        next_label = place_editor_result.get('next_label', '')
+
+        seen_texts.add(msg_text.lower())
+        has_specific_message = True
+        consolidated.append({
+            'tag': tag,
+            'text': msg_text,
+            'next_url': next_url,
+            'next_label': next_label,
+        })
+
+    if messages:
+        django_msgs = list(messages)
+        for m in django_msgs:
+            t_str = message_text(getattr(m, 'message', m)).lower()
+            if not any(bp in t_str for bp in boilerplate_triggers):
+                has_specific_message = True
+
+        for m in django_msgs:
+            m_text = message_text(getattr(m, 'message', m))
+            norm = m_text.lower()
+            if norm in seen_texts:
+                continue
+            if has_specific_message and any(bp in norm for bp in boilerplate_triggers):
+                continue
+            seen_texts.add(norm)
+            tag = 'info'
+            tags_val = getattr(m, 'tags', '') or ''
+            if 'success' in tags_val:
+                tag = 'success'
+            elif 'error' in tags_val or 'danger' in tags_val:
+                tag = 'error'
+            elif 'warning' in tags_val:
+                tag = 'warning'
+            consolidated.append({
+                'tag': tag,
+                'text': m_text,
+                'next_url': '',
+                'next_label': '',
+            })
+    return consolidated

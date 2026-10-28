@@ -1,1 +1,3 @@
 {% if place_editor_result %}<span hidden data-km-editor-result data-action="{{ place_editor_result.action }}" data-outcome="{{ place_editor_result.outcome }}">{{ place_editor_result.message }}</span>{% endif %}
+
+{% if place_editor_result.next_url %}<p class="km-pf-alert" role="status">{{ place_editor_result.message }} <a href="{{ place_editor_result.next_url }}">{{ place_editor_result.next_label }}</a></p>{% endif %}

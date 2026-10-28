@@ -117,3 +117,9 @@ test('saved foreign currency remains explicit at both range bounds without allow
  const plan={id:77,product_type:'visit',currency:'USD',price_kind:'range',price_min:'20.00',price_max:'40.00'};
  const m=mount([plan]);try{assert.equal(m.q('[data-tariff-key=currency]').type,'hidden');for(const key of ['price_min','price_max'])assert.equal(m.q(`[data-tariff-key=${key}]`).closest('label').querySelector('[data-money-currency]').textContent,'USD');m.change('price_max','45');assert.equal(m.value()[0].currency,'USD');assert.equal(m.value()[0].id,77);}finally{m.close();}
 });
+test('foreign price explains AZN search exclusion while preserving its currency',()=>{
+ const m=mount([{product_type:'visit',currency:'USD',price_kind:'exact',price:'20'}]);try{assert.match(m.q('[data-tariff-currency-warning]').textContent,/USD.*AZN|AZN.*USD/);assert.match(m.q('[data-tariff-currency-warning]').textContent,/конвер|пересч/i);assert.equal(m.value()[0].currency,'USD');}finally{m.close();}
+});
+test('tariff translation warning covers titles and conditions, and refreshes after editing',()=>{
+ const m=mount([{product_type:'visit',currency:'AZN',price_kind:'exact',price:'20',title_az:'Bilet',title_ru:'Билет',conditions_ru:'По записи'}]);try{assert.match(m.q('[data-tariff-translation-warning]').textContent,/EN/);assert.match(m.q('[data-tariff-translation-warning]').textContent,/AZ/);m.change('title_en','Ticket');m.change('conditions_az','Qeydiyyat');m.change('conditions_en','Reservation');assert.equal(m.q('[data-tariff-translation-warning]').hidden,true);}finally{m.close();}
+});

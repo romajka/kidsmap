@@ -12,8 +12,9 @@ from catalog.models import ServerDraft
 from catalog.services import server_drafts as service
 
 
-def _error(name, status, data=None, draft=None):
+def _error(name, status, data=None, draft=None, errors=None):
     result={'status':name,'errors':{'__all__':[name]}}
+    if errors is not None: result['errors'] = errors
     if isinstance(data,dict) and isinstance(data.get('fields'),dict): result['submitted_fields']=data['fields']
     if draft: result.update({k:v for k,v in service.serialize(draft, include_fields=False).items() if k not in {'status','errors'}})
     return JsonResponse(result,status=status)
@@ -46,7 +47,9 @@ def draft_collection(request):
     except service.DraftConflict as exc: return _error('conflict',409,data,exc.draft)
     except PermissionDenied: return _error('forbidden',403,data)
     except ServerDraft.DoesNotExist: return _error('not_found',404,data)
-    except (ValidationError,ValueError,KeyError,TypeError,json.JSONDecodeError): return _error('invalid_request',400,data)
+    except ValidationError as exc:
+        return _error('invalid_request',400,data,errors=exc.message_dict if hasattr(exc, 'message_dict') else {'__all__': exc.messages})
+    except (ValueError,KeyError,TypeError,json.JSONDecodeError): return _error('invalid_request',400,data)
     except Exception:
         logger.exception("Draft save unavailable")
         return _error('unavailable',503,data)

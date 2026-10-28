@@ -20,11 +20,12 @@ def get_catalog_max_price() -> int:
 
     from catalog.models import Place, PricingPlan
     from catalog.services.content_quality import public_place_queryset
+    from catalog.services.pricing_plans import current_pricing_plan_q
 
     public_places = public_place_queryset(Place.objects.all())
     public_ids = public_places.values("pk")
     eligible = PricingPlan.objects.filter(
-        is_active=True, charge_role="primary", is_trial=False, currency="AZN",
+        current_pricing_plan_q(), charge_role="primary", is_trial=False, currency="AZN",
     )
     live_group = Q(
         place__isnull=True,
@@ -36,7 +37,8 @@ def get_catalog_max_price() -> int:
         Q(place_id__in=public_ids, offering_group__isnull=True)
         | (live_group & Q(offering_group__activity__place_id__in=public_ids))
     ).aggregate(**{name: Max(name) for name in ("price", "price_min", "price_max")})
-    existing_plans = eligible.filter(
+    # Even expired/foreign tariffs supersede potentially stale AZN projections.
+    existing_plans = PricingPlan.objects.filter(charge_role="primary", is_trial=False).filter(
         Q(place_id=OuterRef("pk"), offering_group__isnull=True)
         | (live_group & Q(offering_group__activity__place_id=OuterRef("pk")))
     )
@@ -52,10 +54,43 @@ def get_catalog_max_price() -> int:
     return result
 
 
-def apply_price_filter(qs, price_from_int, price_to_int, filters=None):
-    from catalog.models import Place, PricingPlan
+def _direct_price_audience_q(filters, prefix=""):
+    """Direct/legacy prices inherit their Place audience, never another group."""
+    query = Q()
+    if filters is None:
+        return query
+    if filters.category:
+        query &= Q(**{prefix + "category_id": filters.category})
+    if filters.subcategory:
+        query &= Q(**{prefix + "subcategory_id": filters.subcategory})
+    low, high = filters._normalized_age_bounds()
+    if low is not None:
+        query &= Q(**{prefix + "age_to__isnull": True}) | Q(**{prefix + "age_to__gte": low})
+    if high is not None:
+        query &= Q(**{prefix + "age_from__isnull": True}) | Q(**{prefix + "age_from__lte": high})
+    return query
 
-    plan_q = Q(is_active=True, charge_role="primary", is_trial=False, currency="AZN")
+
+def pricing_plan_age_q(filters):
+    """Explicit tariff ages; unspecified bounds inherit the matching parent."""
+    query = Q()
+    if filters is not None:
+        age_low, age_high = filters._normalized_age_bounds()
+        # Unspecified tariff ages inherit the matching group/place audience.
+        # Price and explicit tariff age must be true for this same row.
+        if age_low is not None:
+            query &= Q(age_to__isnull=True) | Q(age_to__gte=age_low)
+        if age_high is not None:
+            query &= Q(age_from__isnull=True) | Q(age_from__lte=age_high)
+    return query
+
+
+def matching_pricing_plan_q(price_from_int, price_to_int, filters=None):
+    """One current tariff must satisfy the requested age and both price bounds."""
+    from catalog.services.pricing_plans import current_pricing_plan_q
+
+    plan_q = current_pricing_plan_q() & Q(charge_role="primary", is_trial=False, currency="AZN")
+    plan_q &= pricing_plan_age_q(filters)
     if price_to_int is not None:
         plan_q &= (
             Q(price_kind__in=("exact", "free"), price__lte=price_to_int)
@@ -68,9 +103,16 @@ def apply_price_filter(qs, price_from_int, price_to_int, filters=None):
             | Q(price_kind="from", price_min__gte=price_from_int)
             | Q(price_kind="range", price_max__gte=price_from_int)
         )
+    return plan_q
+
+
+def apply_price_filter(qs, price_from_int, price_to_int, filters=None):
+    from catalog.models import Place, PricingPlan
+
+    plan_q = matching_pricing_plan_q(price_from_int, price_to_int, filters)
 
     direct_plans = PricingPlan.objects.filter(
-        plan_q,
+        plan_q & _direct_price_audience_q(filters, "place__"),
         place_id=OuterRef("pk"),
         offering_group__isnull=True,
     )
@@ -107,7 +149,7 @@ def apply_price_filter(qs, price_from_int, price_to_int, filters=None):
 
     free_mode_match = Q(pk__in=[])
     if (price_from_int is None or price_from_int <= 0) and (price_to_int is None or price_to_int >= 0):
-        free_mode_match = Q(price_mode__in=(Place.PRICE_MODE_FREE, Place.PRICE_MODE_FREE_ENTRY))
+        free_mode_match = Q(price_mode__in=(Place.PRICE_MODE_FREE, Place.PRICE_MODE_FREE_ENTRY)) & _direct_price_audience_q(filters)
 
     all_plans = PricingPlan.objects.filter(
         Q(place_id=OuterRef("pk"), offering_group__isnull=True)
@@ -118,27 +160,26 @@ def apply_price_filter(qs, price_from_int, price_to_int, filters=None):
             offering_group__archived_at__isnull=True,
             offering_group__activity__archived_at__isnull=True,
         ),
-        is_active=True,
         charge_role="primary",
         is_trial=False,
-        currency="AZN",
     )
-    legacy_q = ~Exists(all_plans)
-    legacy_filters = Q()
+    legacy_q = ~Exists(all_plans) & _direct_price_audience_q(filters)
+    # Check both budget bounds on one source before OR-ing independent units.
+    # The explicit legacy range is a real interval; a lone lower bound is a
+    # known starting price, not evidence of an arbitrary higher ticket.
+    legacy_range = Q(price_from__isnull=False) | Q(price_to__isnull=False)
     if price_to_int is not None:
-        legacy_filters &= (
-            Q(price_from__lte=price_to_int)
-            | Q(price_to__lte=price_to_int)
-            | Q(price_per_lesson__lte=price_to_int)
-            | Q(price_per_month__lte=price_to_int)
-        )
+        legacy_range &= Q(price_from__lte=price_to_int) | (Q(price_from__isnull=True) & Q(price_to__lte=price_to_int))
     if price_from_int is not None and price_from_int > 0:
-        legacy_filters &= (
-            Q(price_to__gte=price_from_int)
-            | (Q(price_to__isnull=True) & Q(price_from__gte=price_from_int))
-            | Q(price_per_lesson__gte=price_from_int)
-            | Q(price_per_month__gte=price_from_int)
-        )
+        legacy_range &= Q(price_to__gte=price_from_int) | (Q(price_to__isnull=True) & Q(price_from__gte=price_from_int))
+    legacy_filters = legacy_range
+    for field_name in ("price_per_lesson", "price_per_month"):
+        same_source = Q(**{field_name + "__isnull": False})
+        if price_to_int is not None:
+            same_source &= Q(**{field_name + "__lte": price_to_int})
+        if price_from_int is not None and price_from_int > 0:
+            same_source &= Q(**{field_name + "__gte": price_from_int})
+        legacy_filters |= same_source
     legacy_q &= legacy_filters
 
     return qs.filter(has_matching_plan | free_mode_match | legacy_q)

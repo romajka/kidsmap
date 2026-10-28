@@ -311,8 +311,9 @@ class PublicPricingSummaryTests(TestCase):
         self.assertTrue(summary["has_price"])
         self.assertEqual(summary["amount"], 40.0)
         self.assertEqual(summary["payment_type"], "per_lesson")
-        self.assertEqual(summary["max_amount"], 120.0)
-        self.assertEqual(summary["formatted_price"], "40–120 ₼")
+        # Lesson and monthly totals are different units, not a finite range.
+        self.assertIsNone(summary["max_amount"])
+        self.assertEqual(summary["formatted_price"], "От 40 ₼ · за занятие")
 
     def test_starting_price_per_month_secondary(self):
         from catalog.services.pricing_plans import build_pricing_summary
@@ -324,8 +325,9 @@ class PublicPricingSummaryTests(TestCase):
         self.place.save()
         summary = build_pricing_summary(self.place, "ru")
         self.assertEqual(summary["amount"], 90.0)
-        self.assertEqual(summary["max_amount"], 120.0)
+        self.assertIsNone(summary["max_amount"])
         self.assertEqual(summary["payment_type"], "package")
+        self.assertEqual(summary["formatted_price"], "От 90 ₼ · пакет (8)")
 
     def test_starting_price_package_tertiary(self):
         from catalog.services.pricing_plans import build_pricing_summary

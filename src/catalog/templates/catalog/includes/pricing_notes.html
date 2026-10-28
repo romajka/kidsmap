@@ -1,15 +1,17 @@
 {% load i18n catalog_i18n %}
 {% get_current_language as pricing_note_language %}
-{% if place.extra_conditions_i18n %}
+{% with conditions=place.extra_conditions_i18n|clean_public_note %}
+{% if conditions %}
   <div class="detail-pricing-note detail-pricing-note--conditions">
     <div class="detail-pricing-note__icon" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
     </div>
     <div class="detail-pricing-note__body">
-      <p class="detail-note"><strong>{% trans "Дополнительные условия" %}:</strong> {{ place.extra_conditions_i18n|clean_public_note|linebreaksbr }}</p>
+      <p class="detail-note"><strong>{% trans "Дополнительные условия" %}:</strong> {{ conditions|linebreaksbr }}</p>
     </div>
   </div>
 {% endif %}
+{% endwith %}
 {% if place.additional_info_i18n %}
   {% with cleaned_info=place.additional_info_i18n|clean_public_note %}
     {% if cleaned_info %}
@@ -20,6 +22,13 @@
       </div>
     {% endif %}
   {% endwith %}
+{% endif %}
+{% public_photo_credits place as photo_credits %}
+{% if photo_credits %}
+  <details class="detail-photo-credits">
+    <summary>{% if pricing_note_language == "az" %}Foto müəllifləri və lisenziyalar{% elif pricing_note_language == "en" %}Photo credits and licenses{% else %}Авторы фото и лицензии{% endif %}</summary>
+    <p class="detail-note">{{ photo_credits|urlize|linebreaksbr }}</p>
+  </details>
 {% endif %}
 {% if pricing_summary.has_price or pricing_summary.plans %}
   <p class="detail-note detail-note--muted detail-pricing-disclaimer" data-price-disclaimer>

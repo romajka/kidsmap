@@ -1,4 +1,4 @@
-{% load i18n static jazzmin admin_urls %}
+{% load i18n static jazzmin admin_urls admin_dashboard_tags %}
 {% get_current_language as LANGUAGE_CODE %}
 {% get_current_language_bidi as LANGUAGE_BIDI %}
 {% get_jazzmin_settings request as jazzmin_settings %}
@@ -236,30 +236,39 @@
                 <div class="container-fluid">
                     <section id="content" class="content">
                         {% block messages %}
-                        {% include "catalog/includes/place_editor_result.html" %}
-                        {% for message in messages %}
-                        {% if message.tags == 'success' %}
-                        <div class="alert alert-success alert-dismissible">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                            <i class="icon fa fa-check"></i>{{ message|capfirst }}
-                        </div>
-                        {% elif message.tags == 'error' %}
-                        <div class="alert alert-danger alert-dismissible">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                            <i class="icon fa fa-ban"></i>{{ message|capfirst }}
-                        </div>
-                        {% elif message.tags == 'warning' %}
-                        <div class="alert alert-warning alert-dismissible">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                            <i class="icon fa fa-exclamation-triangle"></i>{{ message|capfirst }}
-                        </div>
-                        {% elif message.tags == 'info' %}
-                        <div class="alert alert-info alert-dismissible">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                            <i class="icon fa fa-info"></i>{{ message|capfirst }}
+                        {% if place_editor_result %}<span hidden data-km-editor-result data-action="{{ place_editor_result.action }}" data-outcome="{{ place_editor_result.outcome }}">{{ place_editor_result.message }}</span>{% endif %}
+                        {% km_consolidated_admin_messages messages place_editor_result as admin_notices %}
+                        {% if admin_notices %}
+                        <div class="km-admin-alerts-wrap" aria-live="polite">
+                            {% for notice in admin_notices %}
+                            <div class="km-admin-alert km-admin-alert--{{ notice.tag }} alert alert-{{ notice.tag }} alert-dismissible fade show" role="alert" data-km-alert>
+                                <span class="km-admin-alert__icon" aria-hidden="true">
+                                    {% if notice.tag == 'success' %}
+                                        <svg class="km-i" viewBox="0 0 960 960" width="18" height="18" fill="currentColor"><use href="#kmi-check_circle"></use></svg>
+                                    {% elif notice.tag == 'error' %}
+                                        <svg class="km-i" viewBox="0 0 960 960" width="18" height="18" fill="currentColor"><use href="#kmi-error"></use></svg>
+                                    {% elif notice.tag == 'warning' %}
+                                        <svg class="km-i" viewBox="0 0 960 960" width="18" height="18" fill="currentColor"><use href="#kmi-warning"></use></svg>
+                                    {% else %}
+                                        <svg class="km-i" viewBox="0 0 960 960" width="18" height="18" fill="currentColor"><use href="#kmi-info"></use></svg>
+                                    {% endif %}
+                                </span>
+                                <div class="km-admin-alert__content">
+                                    <span class="km-admin-alert__text">{{ notice.text|capfirst }}</span>
+                                    {% if notice.next_url %}
+                                    <a href="{{ notice.next_url }}" class="km-admin-alert__btn">
+                                        <span>{{ notice.next_label }}</span>
+                                        <svg class="km-i" viewBox="0 0 960 960" width="13" height="13" fill="currentColor" aria-hidden="true"><use href="#kmi-arrow_forward"></use></svg>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                                <button type="button" class="close km-admin-alert__close" data-dismiss="alert" aria-label="{% translate 'Закрыть' %}" title="{% translate 'Закрыть' %}">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            {% endfor %}
                         </div>
                         {% endif %}
-                        {% endfor %}
                         {% endblock messages %}
                         <div class="row">
                             {% block content %}{% endblock %}

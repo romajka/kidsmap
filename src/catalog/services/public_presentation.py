@@ -12,7 +12,11 @@ from django.utils.translation import get_language, override
 from catalog.models import Place, Organization, Program, Activity
 from catalog.services.organization_ownership import affiliation_current
 from catalog.services.phone_numbers import format_phone, normalize_whatsapp, safe_phone
-from catalog.services.pricing_plans import build_public_price_summary, format_price_amount, plan_billing_unit
+from catalog.services.pricing_plans import (
+    build_public_price_summary, current_pricing_plan_q, format_price_amount,
+    plan_billing_unit, pricing_plan_is_current,
+)
+from catalog.services.age_display import format_age_range
 
 
 def language_code(language=None):
@@ -134,8 +138,10 @@ def public_url(obj, language=None):
 def price_rows(group, language):
     rows = []
     words = {'az': ('Pulsuz', 'Qiymət dəqiqləşdirilir', '-dən'), 'ru': ('Бесплатно', 'Цена уточняется', 'от'), 'en': ('Free', 'Price on request', 'from')}[language]
-    plans = group._public_plans if hasattr(group, '_public_plans') else group.pricing_plan_records.filter(is_active=True).order_by('sort_order', 'pk')
+    plans = group._public_plans if hasattr(group, '_public_plans') else group.pricing_plan_records.filter(current_pricing_plan_q()).order_by('sort_order', 'pk')
     for plan in plans:
+        if not pricing_plan_is_current(plan):
+            continue
         if plan.price_kind == 'free':
             label = words[0]
         elif plan.price_kind == 'on_request':
@@ -170,8 +176,7 @@ def activity_groups(activity, language):
     result = []
     groups = activity._public_groups if hasattr(activity, '_public_groups') else activity.offering_groups.filter(archived_at__isnull=True).prefetch_related('pricing_plan_records')
     for group in groups:
-        low, high = group.age_from, group.age_to
-        age = f'{low}–{high}' if low is not None and high is not None else f'{low}+' if low is not None else f'≤ {high}' if high is not None else ''
+        age = format_age_range(group.age_from, group.age_to, language)
         name, name_lang = translated(group, 'name', language)
         conditions, conditions_lang = translated(group, 'conditions', language)
         result.append({'id':group.pk,'name':name, 'name_language':name_lang, 'age':age,
@@ -186,7 +191,7 @@ def schema_offers(place, lang):
     pricing_records = list(place_pricing_records(place))
     offers = []
     for plan in pricing_records:
-        if not plan.is_active or plan.charge_role != "primary" or plan.is_trial:
+        if not pricing_plan_is_current(plan) or plan.charge_role != "primary" or plan.is_trial:
             continue
         if plan.price_kind not in {"exact", "free", "range", "from"}:
             continue
@@ -198,7 +203,7 @@ def schema_offers(place, lang):
         if period:
             descriptions.append({"ru": "Оплата за", "az": "Ödəniş", "en": "Billed per"}.get(lang, "Billed per") + f" {period}")
         if plan.offering_group_id:
-            fees = [row for row in pricing_records if row.offering_group_id == plan.offering_group_id and row.is_active and row.is_required and row.charge_role != "primary"]
+            fees = [row for row in pricing_records if row.offering_group_id == plan.offering_group_id and pricing_plan_is_current(row) and row.is_required and row.charge_role != "primary"]
             for fee in fees:
                 fee_amount = fee.price if fee.price_kind in {"exact", "free"} else fee.price_min
                 if fee_amount is not None:
@@ -332,7 +337,7 @@ def prepare_cards(places, language=None, *, filters=None):
     Batch trust markers exist only while materializing this snapshot. Direct
     detail/contact resolver calls still recheck visibility and affiliation.
     """
-    from django.db.models import BooleanField, Exists, ExpressionWrapper, OuterRef, Prefetch, QuerySet
+    from django.db.models import BooleanField, Exists, ExpressionWrapper, OuterRef, Prefetch, Q, QuerySet
     from catalog.models import OfferingGroup, PricingPlan
     from catalog.services.catalog_search import matching_groups, has_offer_filters, place_audience_q
     from catalog.services.pricing_plans import prefetch_place_pricing_records
@@ -356,6 +361,8 @@ def prepare_cards(places, language=None, *, filters=None):
     if not source:
         return []
     batch = [fresh[p.pk] for p in source if p.pk in fresh]
+    # Keep dated canonical records for summary fallback guards; price_rows and
+    # the canonical summary apply current-date eligibility when displaying them.
     plans = PricingPlan.objects.filter(is_active=True).order_by('sort_order','pk')
     groups = OfferingGroup.objects.filter(archived_at__isnull=True)
     if filters is not None:
@@ -376,7 +383,41 @@ def prepare_cards(places, language=None, *, filters=None):
         by_place[activity.place_id].append(activity)
     prefetch_place_pricing_records(batch)
     exact = filters is not None and has_offer_filters(filters)
-    offer_filtered = filters is not None and (exact or bool(filters.query))
+    price_low, price_high = filters._normalized_price_bounds() if filters is not None else (None, None)
+    budget_filtered = price_low is not None or price_high is not None
+    tariff_filtered = exact or budget_filtered
+    offer_filtered = filters is not None and (tariff_filtered or bool(filters.query))
+    if tariff_filtered:
+        from catalog.services.filtering import (
+            _direct_price_audience_q, matching_pricing_plan_q, pricing_plan_age_q,
+        )
+        # Reuse search's exact row predicates, once for the whole card batch.
+        # Keep auxiliary required fees visible beside a matching primary tariff.
+        row_q = (matching_pricing_plan_q(price_low, price_high, filters) if budget_filtered
+                 else current_pricing_plan_q() & pricing_plan_age_q(filters))
+        if budget_filtered:
+            row_q |= (current_pricing_plan_q() & pricing_plan_age_q(filters)
+                      & ~Q(charge_role='primary') & Q(is_required=True))
+        group_ids = [group.pk for activity in activities for group in activity._public_groups]
+        parent_q = (Q(offering_group_id__in=group_ids)
+                    | (Q(place_id__in=fresh, offering_group__isnull=True)
+                       & _direct_price_audience_q(filters, 'place__')))
+        matching_ids = set(PricingPlan.objects.filter(row_q & parent_q).values_list('pk', flat=True))
+        for activity in activities:
+            for group in activity._public_groups:
+                group._public_plans = [plan for plan in group._public_plans if plan.pk in matching_ids]
+            if budget_filtered:
+                activity._public_groups = [group for group in activity._public_groups
+                    if any(plan.charge_role == 'primary' and not plan.is_trial for plan in group._public_plans)]
+        for place in batch:
+            canonical = place._pricing_records_cache
+            place._pricing_records_cache = [plan for plan in canonical if plan.pk in matching_ids]
+            if any(plan.charge_role == 'primary' and not plan.is_trial for plan in canonical):
+                # An empty filtered cache must not revive prices projected from
+                # an ineligible canonical tariff or a custom unfiltered badge.
+                place.price_from = place.price_to = None
+                for code in ('az', 'ru', 'en'):
+                    setattr(place, 'custom_price_badge_' + code, '')
     marked=[]
     def mark(row, is_visible=True):
         row._public_batch=True;row._public_visible=is_visible;marked.append(row)
@@ -409,7 +450,8 @@ def prepare_cards(places, language=None, *, filters=None):
                 offers.append({'id':activity.pk,'name':data['name'],'url':data['url'],'groups':data['groups']})
                 matched_plans.extend(p for g in activity._public_groups for p in g._public_plans)
             if offer_filtered and by_place[place.pk]:
-                place._pricing_records_cache = matched_plans if offers else [p for p in place._pricing_records_cache if p.place_id == place.pk and p.offering_group_id is None]
+                if not tariff_filtered:
+                    place._pricing_records_cache = matched_plans if offers else [p for p in place._pricing_records_cache if p.place_id == place.pk and p.offering_group_id is None]
                 if offers:
                     place.price_mode='tariffs'
                 place.price_from=place.price_to=None

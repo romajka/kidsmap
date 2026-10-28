@@ -4653,33 +4653,46 @@ class PlaceAdmin(admin.ModelAdmin):
         if not any(values.values()):
             return JsonResponse({"results": []})
 
-        queryset = Place.objects.filter(deleted_at__isnull=True).only(
-            "id", "name", "name_az", "name_ru", "name_en", "address", "phone1", "phone2", "phone3", "website", "instagram"
-        )
+        queryset = Place.objects.filter(deleted_at__isnull=True).select_related("volunteer_revision")
         if object_id and object_id.isdigit():
             queryset = queryset.exclude(pk=int(object_id))
 
         results = []
         for place in queryset.iterator():
+            if not self.has_view_or_change_permission(request, place):
+                continue
+            variants = [place]
+            revision = getattr(place, "volunteer_revision", None)
+            if revision and revision.status in {"draft", "pending", "rejected"} and self.has_change_permission(request, place):
+                from catalog.services.publication import authorize
+                from catalog.services.volunteer_places import candidate_from_payload
+                try:
+                    authorize(request.user, place, "place")
+                except PermissionDenied:
+                    pass
+                else:
+                    variants.append(candidate_from_payload(place, revision.payload))
             matched = []
-            if values["phone"] and values["phone"] in {
-                _normalized_phone(place.phone1),
-                _normalized_phone(place.phone2),
-                _normalized_phone(place.phone3),
-            }:
-                matched.append(str(_("телефон")))
-            if values["website"] and values["website"] == _normalized_url(place.website):
-                matched.append(str(_("сайт")))
-            if values["instagram"] and values["instagram"] == _normalized_text((place.instagram or "").lstrip("@")):
-                matched.append("Instagram")
-            if values["address"] and values["address"] == _normalized_text(place.address):
-                matched.append(str(_("адрес")))
+            matched_place = place
+            for variant in variants:
+                variant_matches = []
+                if values["phone"] and values["phone"] in {_normalized_phone(getattr(variant, field)) for field in ("phone1", "phone2", "phone3")}:
+                    variant_matches.append(str(_("телефон")))
+                if values["website"] and values["website"] == _normalized_url(variant.website):
+                    variant_matches.append(str(_("сайт")))
+                if values["instagram"] and values["instagram"] == _normalized_text((variant.instagram or "").lstrip("@")):
+                    variant_matches.append("Instagram")
+                if values["address"] and values["address"] == _normalized_text(variant.address):
+                    variant_matches.append(str(_("адрес")))
+                if variant_matches:
+                    matched_place = variant
+                    matched.extend(item for item in variant_matches if item not in matched)
             if matched:
                 results.append(
                     {
                         "id": place.pk,
-                        "title": place.name_i18n(getattr(request, "LANGUAGE_CODE", None)) or place.name,
-                        "address": place.address,
+                        "title": matched_place.name_i18n(getattr(request, "LANGUAGE_CODE", None)) or matched_place.name,
+                        "address": matched_place.address,
                         "matched": matched,
                         "url": reverse(f"admin:{self.opts.app_label}_{self.opts.model_name}_change", args=[place.pk]),
                     }
@@ -5602,6 +5615,35 @@ class PlaceAdmin(admin.ModelAdmin):
                 target_id=obj.pk if change else None,
                 cutoff=getattr(request, '_km_explicit_save_cutoff', None))
 
+    def _queue_place_save_result(self, request, obj):
+        from catalog.services.permanent_place_rules import copy as t
+        from catalog.services.place_editor_feedback import queue_editor_result
+        from catalog.services.moderation_hub import reviewer_scopes
+        revision = VolunteerPlaceRevision.objects.filter(place_id=obj.pk, status__in=["draft", "pending", "rejected"]).first()
+        next_url = next_label = ""
+        if revision and revision.status == "pending":
+            message = t("Изменения сохранены и ожидают модерации. На сайте пока показана опубликованная версия.", "Dəyişikliklər saxlanılıb və moderasiya gözləyir. Saytda hələ dərc edilmiş versiya göstərilir.", "Changes are saved and awaiting review. The website still shows the published version.") if obj.status == Place.STATUS_PUBLISHED else t("Карточка сохранена и ожидает модерации. Она ещё не опубликована.", "Kart saxlanılıb və moderasiya gözləyir. Hələ dərc edilməyib.", "The listing is saved and awaiting review. It is not published yet.")
+            try:
+                can_review = reviewer_scopes(request.user)[1]
+            except PermissionDenied:
+                can_review = False
+            if can_review:
+                next_url = reverse("admin:volunteer_moderation_detail", args=["content", revision.pk])
+                next_label = t("Проверить и опубликовать изменения", "Dəyişiklikləri yoxla və dərc et", "Review and publish changes")
+            else:
+                next_url = self._place_change_url(obj)
+                next_label = t("Продолжить редактирование", "Redaktəyə davam et", "Continue editing")
+            action = "moderation"
+        elif revision:
+            message = t("Рабочая версия сохранена. Изменения ещё не опубликованы.", "İş versiyası saxlanıldı. Dəyişikliklər hələ dərc edilməyib.", "The working version is saved. These changes are not published yet.")
+            next_url, next_label = self._place_change_url(obj), t("Продолжить редактирование", "Redaktəyə davam et", "Continue editing")
+            action = "save"
+        else:
+            message = t("Изменения сохранены.", "Dəyişikliklər saxlanıldı.", "Changes saved.")
+            action = "save"
+        queue_editor_result(request, action=action, message=message, next_url=next_url, next_label=next_label)
+        self.message_user(request, message, level=messages.SUCCESS)
+
     def response_add(self, request, obj, post_url_continue=None):
         self._close_private_working_draft(request, obj, change=False)
         if "_save_draft" in request.POST:
@@ -5627,8 +5669,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 level=messages.WARNING,
             )
         response = super().response_add(request, obj, post_url_continue=post_url_continue)
-        from catalog.services.place_editor_feedback import queue_editor_result
-        queue_editor_result(request, action="save", message=_("Изменения сохранены."))
+        self._queue_place_save_result(request, obj)
         return response
 
     def response_change(self, request, obj):
@@ -5656,8 +5697,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 level=messages.WARNING,
             )
         response = super().response_change(request, obj)
-        from catalog.services.place_editor_feedback import queue_editor_result
-        queue_editor_result(request, action="save", message=_("Изменения сохранены."))
+        self._queue_place_save_result(request, obj)
         return response
 
     def _handle_save_draft_submit(self, request, obj, *, message: str):

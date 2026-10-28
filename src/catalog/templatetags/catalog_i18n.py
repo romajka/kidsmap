@@ -1,3 +1,5 @@
+import re
+
 from django import template
 from django.utils.translation import get_language, pgettext
 
@@ -116,10 +118,45 @@ def parent_review_label(value) -> str:
 
 @register.filter
 def clean_public_note(value) -> str:
-    """Strip internal developer/seed markers (such as seed:catalog-demo:09) from public notes."""
-    if not value:
-        return ""
-    lines = str(value).strip().splitlines()
-    filtered = [l for l in lines if not l.startswith("seed:")]
-    nl = chr(10)
-    return nl.join(filtered)
+    """Keep visiting information separate from photo credits and internal markers."""
+    return _public_note_parts(value)[0]
+
+
+def _public_note_parts(value):
+    notes, credits = [], []
+    for line in str(value or "").strip().splitlines():
+        stripped = line.strip()
+        if stripped.startswith("seed:") or stripped.casefold().rstrip(".") in {
+            "проверено по источнику", "verified against source", "mənbə üzrə yoxlanılıb",
+        }:
+            continue
+        is_credit = bool(re.match(
+            r"^(?:(?:архивные\s+)?фото(?:графии)?(?:[ ,][^:\n]{0,80})?|"
+            r"автор(?:\s+фото)?|источник(?:\s+фото)?|лицензия|CC\s+BY(?:-[A-Z]+)*[^:\n]*|"
+            r"(?:(?:archive|archival)\s+)?photos?(?:[ ,][^:\n]{0,80})?|"
+            r"credits?|author|source|licen[cs]e|"
+            r"(?:arxiv\s+)?foto(?:şəkillər)?(?:[ ,][^:\n]{0,80})?|şəkillər|müəllif|mənbə|lisenziya)\s*:", stripped, re.IGNORECASE
+        )) or bool(re.search(r"https?://(?:commons\.wikimedia\.org|creativecommons\.org)/", stripped))
+        (credits if is_credit else notes).append(line)
+    return "\n".join(notes).strip(), "\n".join(credits).strip()
+
+
+@register.simple_tag
+def public_photo_credits(place):
+    language = (get_language() or "az").split("-")[0]
+    credits = []
+    for field in ("extra_conditions_i18n", "additional_info_i18n"):
+        # Names and license links remain available if a note's translation is
+        # missing; visiting text still follows the normal localization policy.
+        for code in dict.fromkeys((language, "az", "ru", "en")):
+            value = _public_note_parts(getattr(place, field)(code))[1]
+            if value:
+                credits.append(value)
+                break
+    return "\n".join(dict.fromkeys(credits))
+
+
+@register.simple_tag
+def age_range(low, high):
+    from catalog.services.age_display import format_age_range
+    return format_age_range(low, high)

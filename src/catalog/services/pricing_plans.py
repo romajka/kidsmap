@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+from datetime import date
 from decimal import Decimal, InvalidOperation
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Q
+from django.utils import timezone
 from django.utils.translation import gettext as _, get_language
 
 
@@ -660,6 +663,28 @@ def replace_nested_pricing(place, payload, *, allow_verified=False, complete_tre
     return normalized
 
 
+def current_pricing_plan_q(today=None):
+    """Inclusive tariff validity in the site's local date, shared by ORM readers."""
+    today = today or timezone.localdate()
+    return (Q(is_active=True)
+            & (Q(valid_from__isnull=True) | Q(valid_from__lte=today))
+            & (Q(valid_until__isnull=True) | Q(valid_until__gte=today)))
+
+
+def pricing_plan_is_current(plan, today=None):
+    """The same validity rule for model instances and normalized preview rows."""
+    today = today or timezone.localdate()
+    get = plan.get if isinstance(plan, dict) else lambda field, default=None: getattr(plan, field, default)
+    if not get("is_active", True):
+        return False
+    start, end = get("valid_from"), get("valid_until")
+    if isinstance(start, str):
+        start = date.fromisoformat(start) if start else None
+    if isinstance(end, str):
+        end = date.fromisoformat(end) if end else None
+    return (start is None or start <= today) and (end is None or end >= today)
+
+
 def place_pricing_records(place, *, public=True):
     """Canonical rows for a Place; draft groups never replace legacy pricing."""
     from catalog.models import PricingPlan
@@ -692,11 +717,33 @@ def prefetch_place_pricing_records(places):
     return places
 
 
+def _billing_basis(plan):
+    """Comparable totals only; a package/month/ticket never implies conversion."""
+    return (plan.product_type, plan.billing_mode, plan.billing_interval,
+            plan.billing_interval_count, plan.billing_cycles, plan.quantity,
+            plan.quantity_unit)
+
+
+def _minimum_price_context(plan, language):
+    period = plan_billing_unit(plan, language)
+    if period:
+        return period
+    payment = _model_to_compat(plan)
+    label = _PAYMENT_LABELS[language].get(payment, "")
+    if payment == "package" and plan.quantity:
+        return f"{label} ({plan.quantity})"
+    if label:
+        return label
+    from django.utils.translation import override
+    with override(language):
+        return str(plan.get_product_type_display())
+
+
 def _plan_bounds(plan):
     if plan.price_kind in {"exact", "free"} and plan.price is not None:
         return plan.price, plan.price
     if plan.price_kind == "from" and plan.price_min is not None:
-        return plan.price_min, plan.price_min
+        return plan.price_min, None
     if plan.price_kind == "range" and plan.price_min is not None and plan.price_max is not None:
         return plan.price_min, plan.price_max
     return None
@@ -704,12 +751,14 @@ def _plan_bounds(plan):
 
 def legacy_price_values(records):
     """Pure projection shared by persisted tariffs and unsaved staff previews."""
-    plans = [plan for plan in records if plan.is_active and plan.charge_role == "primary" and not plan.is_trial and plan.currency == "AZN"]
+    today = timezone.localdate()
+    plans = [plan for plan in records if pricing_plan_is_current(plan, today) and plan.charge_role == "primary" and not plan.is_trial and plan.currency == "AZN"]
     bounds = [_plan_bounds(plan) for plan in plans]
     bounds = [item for item in bounds if item]
     values = {
         "price_from": min((item[0] for item in bounds), default=None),
-        "price_to": max((item[1] for item in bounds), default=None),
+        "price_to": (max((item[1] for item in bounds), default=None)
+                     if all(item[1] is not None for item in bounds) else None),
         "price_per_lesson": None, "price_per_month": None, "price_per_8_lessons": None,
     }
     for plan in plans:
@@ -738,7 +787,7 @@ def public_pricing_plans(value, language=None):
     """Safely normalize plans for display; invalid entries are hidden."""
     try:
         if hasattr(value, "all"):
-            return serialize_pricing_plans(value.filter(is_active=True).order_by("sort_order", "id"), language)
+            return serialize_pricing_plans(value.filter(current_pricing_plan_q()).order_by("sort_order", "id"), language)
         # Display candidates are unsaved. Field validators and Model.clean
         # still reject invalid values; repeated database checks belong to saves.
         plans = normalize_pricing_plans(value, strict=False, validate_constraints=False)
@@ -749,7 +798,7 @@ def public_pricing_plans(value, language=None):
         lang = "ru"
     result = []
     for plan in sorted(plans, key=lambda item: (item.get("sort_order", 0),)):
-        if not plan.get("is_active", True):
+        if not pricing_plan_is_current(plan):
             continue
         frequency = plan.pop("_legacy_frequency", "")
         format_label = _FORMAT_LABELS[lang].get(plan.get("lesson_format"), "")
@@ -785,8 +834,9 @@ def active_pricing_plan_range(value):
         return None
 
     prices = []
+    open_upper = False
     for plan in plans:
-        if not plan.get("is_active", True) or plan.get("charge_role", "primary") != "primary":
+        if not pricing_plan_is_current(plan) or plan.get("charge_role", "primary") != "primary" or plan.get("is_trial", False):
             continue
         # Place.price_from/price_to are AZN fields. Other currencies stay in
         # their tariff rows and must never overwrite the card's AZN range.
@@ -797,6 +847,7 @@ def active_pricing_plan_range(value):
                 low = high = Decimal(str(plan["price"]))
             elif plan.get("price_kind") == "from":
                 low = high = Decimal(str(plan["price_min"]))
+                open_upper = True
             elif plan.get("price_kind") == "range":
                 low, high = Decimal(str(plan["price_min"])), Decimal(str(plan["price_max"]))
             else:
@@ -806,7 +857,7 @@ def active_pricing_plan_range(value):
             continue
     if not prices:
         return None
-    return min(prices), max(prices)
+    return min(prices), None if open_upper else max(prices)
 
 
 def has_azn_pricing_plans(value):
@@ -891,12 +942,14 @@ def build_public_price_summary(place, language="ru"):
         return {"kind": "free_entry", "min_price": Decimal("0"), "max_price": None, "currency": "AZN", "label": labels["free_entry"], "source": "price_mode"}
     if price_mode == "events":
         return {"kind": "events", "min_price": None, "max_price": None, "currency": "AZN", "label": labels["events"], "source": "price_mode"}
-    active_primary = []
+    primary_records = []
     if getattr(place, "pk", None):
-        active_primary = [
+        primary_records = [
             plan for plan in place_pricing_records(place)
-            if plan.is_active and plan.charge_role == "primary" and not plan.is_trial
+            if plan.charge_role == "primary" and not plan.is_trial
         ]
+    today = timezone.localdate()
+    active_primary = [plan for plan in primary_records if pricing_plan_is_current(plan, today)]
     currencies = {plan.currency for plan in active_primary}
     currency = "AZN" if "AZN" in currencies else (next(iter(currencies)) if len(currencies) == 1 else "AZN")
     records = [plan for plan in active_primary if plan.currency == currency]
@@ -908,14 +961,25 @@ def build_public_price_summary(place, language="ru"):
         if free and not paid and not on_request:
             return {"kind": "free", "min_price": Decimal("0"), "max_price": Decimal("0"), "currency": currency, "label": labels["free"], "source": "pricing_plans"}
         if free and paid:
-            maximum = max(item[1][1] for item in paid)
+            same_basis = len({_billing_basis(plan) for plan in records if plan.price_kind != "on_request"}) == 1
+            maximum = max(item[1][1] for item in paid) if same_basis and all(item[1][1] is not None for item in paid) else None
             minimum = Decimal("0")
-            label = f"{format_price_amount(minimum)}–{format_price_amount(maximum)} {'₼' if currency == 'AZN' else currency}"
+            if maximum is None:
+                label = {"ru": "Есть бесплатные и платные варианты", "az": "Pulsuz və ödənişli seçimlər var", "en": "Free and paid options available"}[lang]
+            else:
+                label = f"{format_price_amount(minimum)}–{format_price_amount(maximum)} {'₼' if currency == 'AZN' else currency}"
             return {"kind": "mixed", "min_price": minimum, "max_price": maximum, "currency": currency, "label": label, "source": "pricing_plans"}
         if paid:
             minimum = min(item[1][0] for item in paid)
-            maximum = max(item[1][1] for item in paid)
-            if minimum != maximum:
+            same_basis = len({_billing_basis(plan) for plan, _bounds in paid}) == 1
+            maximum = max(item[1][1] for item in paid) if same_basis and all(item[1][1] is not None for item in paid) else None
+            if maximum is None:
+                label = labels["from"].format(value=format_price_amount(minimum)) if currency == "AZN" else f"{format_price_amount(minimum)} {currency}+"
+                kind = "from"
+                if not same_basis:
+                    minimum_plan = next(plan for plan, bounds in paid if bounds[0] == minimum)
+                    label += " · " + _minimum_price_context(minimum_plan, lang)
+            elif minimum != maximum:
                 label = f"{format_price_amount(minimum)}–{format_price_amount(maximum)} {'₼' if currency == 'AZN' else currency}"
                 kind = "range"
             elif any(plan.price_kind == "from" for plan, _bounds in paid):
@@ -931,9 +995,9 @@ def build_public_price_summary(place, language="ru"):
             return {"kind": kind, "min_price": minimum, "max_price": maximum, "currency": currency, "label": label, "source": "pricing_plans"}
         return {"kind": "on_request", "min_price": None, "max_price": None, "currency": currency, "label": labels["unknown"], "source": "pricing_plans"}
 
-    # Any active primary tariff ends the transition fallback. A foreign-currency
-    # plan is still real pricing, but it cannot be folded into the AZN headline.
-    if active_primary:
+    # Canonical tariffs end the transition fallback even outside their dates.
+    # A stale scalar projection must never resurrect an expired or future price.
+    if primary_records:
         return {"kind": "on_request", "min_price": None, "max_price": None, "currency": "AZN", "label": labels["unknown"], "source": "pricing_plans"}
 
     legacy_values = [value for value in (place.price_from, place.price_to) if value is not None]
@@ -945,6 +1009,8 @@ def build_public_price_summary(place, language="ru"):
             kind, label = "range", f"{format_price_amount(minimum)}–{format_price_amount(maximum)} ₼"
         else:
             kind, label = "from", labels["from"].format(value=format_price_amount(minimum))
+        if place.price_from is not None and place.price_to is None and minimum != 0:
+            maximum = None
         return {"kind": kind, "min_price": minimum, "max_price": maximum, "currency": "AZN", "label": label, "source": "legacy_fallback"}
     return {"kind": "on_request", "min_price": None, "max_price": None, "currency": "AZN", "label": labels["unknown"], "source": "none"}
 
@@ -1088,7 +1154,7 @@ def get_starting_price(place, public_plans, lang):
         if canonical["source"] == "pricing_plans" and canonical["min_price"] is not None:
             matching = [
                 plan for plan in place_pricing_records(place)
-                if plan.is_active and plan.charge_role == "primary" and not plan.is_trial and plan.currency == canonical["currency"]
+                if pricing_plan_is_current(plan) and plan.charge_role == "primary" and not plan.is_trial and plan.currency == canonical["currency"]
                 and _plan_bounds(plan) and _plan_bounds(plan)[0] == canonical["min_price"]
             ]
             if matching:

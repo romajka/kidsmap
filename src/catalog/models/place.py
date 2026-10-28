@@ -389,13 +389,8 @@ class Place(models.Model):
 
     @property
     def age_display(self) -> str:
-        if self.age_from is not None and self.age_to is not None:
-            return f"{self.age_from}–{self.age_to}"
-        if self.age_from is not None:
-            return f"{self.age_from}+"
-        if self.age_to is not None:
-            return str(self.age_to)
-        return ""
+        from catalog.services.age_display import format_age_range
+        return format_age_range(self.age_from, self.age_to)
 
     @property
     def age_public_label(self) -> str:

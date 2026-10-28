@@ -416,6 +416,10 @@
     }
 
     function updateLanguageMarks(group) {
+      var missingLanguages = [];
+      var anyTranslatedText = qsa('[data-pf-langpane] input, [data-pf-langpane] textarea', group).some(function (field) { return String(field.value || '').trim(); });
+      var legacyName = {conditions:'extra_conditions', info:'additional_info'}[group.dataset.pfLanggroup];
+      if (legacyName && form.elements.namedItem(legacyName)?.value.trim()) anyTranslatedText = true;
       qsa("[data-pf-langtab]", group).forEach(function (tab) {
         var pane = qs('[data-pf-langpane="' + tab.dataset.pfLangtab + '"]', group);
         if (!pane) return;
@@ -424,6 +428,7 @@
           return String(field.value || "").trim() !== "";
         });
         var partial = fields.some(function (field) { return String(field.value || "").trim() !== ""; });
+        if (anyTranslatedText && !filled) missingLanguages.push(tab.dataset.pfLangtab.toUpperCase());
         var hasError = !!pane.querySelector(".km-pf-field.is-error");
         tab.classList.toggle("is-filled", filled);
         tab.classList.toggle("has-error", hasError);
@@ -436,6 +441,17 @@
           if (state) setIcon(mark, state);
         }
       });
+      if (group.hasAttribute('data-pf-langgroup')) {
+        var warning = qs('[data-pf-translation-warning]', group);
+        if (!warning) {
+          warning = document.createElement('p'); warning.className = 'km-pf-field__hint';
+          warning.setAttribute('data-pf-translation-warning', ''); warning.setAttribute('role', 'status');
+          warning.setAttribute('aria-live', 'polite'); group.prepend(warning);
+        }
+        var language = (document.documentElement.lang || 'az').split('-')[0];
+        warning.hidden = !missingLanguages.length;
+        warning.textContent = ({ru:'Не заполнены переводы: ',az:'Tərcümələr çatışmır: ',en:'Missing translations: '})[language] + missingLanguages.join(', ');
+      }
     }
 
     var mainLangGroup = qs("[data-pf-group='names']", root);

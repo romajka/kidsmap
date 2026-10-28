@@ -101,11 +101,15 @@ def _fields(kind, fields):
         if name in {'pricing_plans', 'nested_pricing', 'structured_schedule', 'public_links'} or value == '': continue
         try: field = publication.TARGETS[kind]._meta.get_field(name)
         except FieldDoesNotExist: continue  # Form-only controls are checked by the final form.
-        converted = field.to_python(value)
+        try:
+            converted = field.to_python(value)
+            if not field.is_relation:
+                field.run_validators(converted)
+        except ValidationError as exc:
+            raise ValidationError({name: exc.messages}) from exc
         if field.is_relation:
             if not field.remote_field.model.objects.filter(pk=converted).exists():
                 raise ValidationError({name: ['Unknown relation.']})
-        else: field.run_validators(converted)
     return fields
 
 

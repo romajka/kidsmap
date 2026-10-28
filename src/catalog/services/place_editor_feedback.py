@@ -6,10 +6,12 @@ _ACTIONS = frozenset({'draft', 'save', 'moderation', 'publish'})
 _OWNER_DESTINATIONS = frozenset({'owner_place_create', 'owner_place_edit', 'owner_places_dashboard'})
 
 
-def queue_editor_result(request, *, action, message):
+def queue_editor_result(request, *, action, message, next_url="", next_label=""):
     if action not in _ACTIONS:
         raise ValueError('Unsupported editor action')
     result = {'action': action, 'outcome': 'success', 'message': str(message)}
+    if next_url and next_label and next_url.startswith('/') and not next_url.startswith('//'):
+        result.update(next_url=str(next_url), next_label=str(next_label))
     transaction.on_commit(lambda: request.session.__setitem__(_SESSION_KEY, result))
 
 
