@@ -5059,3 +5059,47 @@ a.km-admin-action--muted:hover,
   border-color: #93c5fd !important;
 }
 
+
+/* Place publication is distinct from form completeness and saved edits. */
+.model-place .km-col-state-link,
+.model-placesoftdelete .km-col-state-link {
+  padding: 4px 7px;
+  margin: 0;
+  border-radius: 6px;
+  background: #f1f5f3;
+  align-self: flex-start;
+}
+.model-place .km-col-state--published .km-col-state-link,
+.model-placesoftdelete .km-col-state--published .km-col-state-link {
+  background: #e8f3ec;
+  color: #136f38 !important;
+}
+.model-place .km-col-state--published .km-state-label,
+.model-placesoftdelete .km-col-state--published .km-state-label { color: #136f38; }
+.model-place .km-col-state--blocked .km-col-state-link,
+.model-placesoftdelete .km-col-state--blocked .km-col-state-link { background: #fff0e8; }
+.km-readiness-caption,
+.km-publication-hint { color: #526459; font-size: 11px; line-height: 1.35; }
+.km-publication-revision { color: #805500; font-size: 11px; line-height: 1.35; }
+.km-publication-action,
+.km-publication-fix {
+  align-self: flex-start;
+  padding: 5px 9px;
+  min-height: 30px;
+  border: 1px solid #b7c9bd;
+  border-radius: 6px;
+  background: #fff;
+  color: #136f38 !important;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  cursor: pointer;
+  text-decoration: none !important;
+}
+.km-publication-action--publish { background: #136f38; border-color: #136f38; color: #fff !important; }
+.km-publication-action--unpublish { color: #48594e !important; }
+.km-publication-action:hover,
+.km-publication-fix:hover { filter: brightness(.96); }
+.km-publication-action:focus-visible,
+.km-publication-fix:focus-visible { outline: 2px solid #136f38; outline-offset: 3px; }
+.km-publication-action[aria-busy="true"] { cursor: wait; opacity: .7; }

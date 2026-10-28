@@ -8,7 +8,7 @@ from django.core.files.base import ContentFile
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
-from catalog.models import Category, Place, VolunteerPlaceRevision
+from catalog.models import Category, Organization, Place, VolunteerPlaceRevision
 
 
 class AdminSavedLocationTests(TestCase):
@@ -157,3 +157,11 @@ class AdminSavedLocationTests(TestCase):
         self.assertEqual(counts['quick_without_coordinates'], 1)
         self.assertEqual(counts['stat_without_coordinates'], 1)
         self.assertEqual(self.row(response).pk, self.place.pk)
+
+    def test_other_entity_revision_does_not_break_the_admin_list(self):
+        organization = Organization.objects.create(name_az='Private organization', owner=self.staff)
+        VolunteerPlaceRevision.objects.create(organization=organization, author=self.staff,
+            status='draft', payload={'address': 'Detached private address', 'lat': 40, 'lng': 49})
+        response = self.listing()
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Detached private address')

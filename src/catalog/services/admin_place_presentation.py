@@ -22,7 +22,7 @@ def _editable_revision_ids(request, model_admin):
     platform_editor = platform_has_action(user=request.user, action='place.publish')
     allowed = []
     for revision in VolunteerPlaceRevision.objects.filter(
-            status__in=ACTIVE_REVISIONS).select_related('place'):
+            status__in=ACTIVE_REVISIONS, place__isnull=False).select_related('place'):
         place = revision.place
         if not model_admin.has_change_permission(request, place):
             continue

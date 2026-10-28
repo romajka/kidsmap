@@ -575,36 +575,6 @@
       }, 4000);
     }
 
-    function updatePublicationRow(button, data) {
-      var row = button.closest('tr');
-      if (!row) return;
-      var state = row.querySelector('.km-col-state');
-      var icon = row.querySelector('.km-state-visibility');
-      var dot = row.querySelector('.km-state-dot');
-      var label = row.querySelector('.km-state-label');
-      var published = data.status === 'published' && data.is_active;
-      button.dataset.status = data.status;
-      button.dataset.isActive = data.is_active ? '1' : '0';
-      if (state) {
-        state.dataset.state = published ? 'published' : 'draft';
-        state.classList.remove('km-col-state--draft', 'km-col-state--draft-incomplete', 'km-col-state--published', 'km-col-state--published-incomplete');
-        state.classList.add(published ? 'km-col-state--published' : 'km-col-state--draft');
-      }
-      if (icon) {
-        icon.textContent = published ? 'public' : 'edit_note';
-        icon.classList.remove('km-state-pop');
-        window.requestAnimationFrame(function () { icon.classList.add('km-state-pop'); });
-      }
-      if (dot) {
-        dot.classList.remove('km-dot--draft');
-        dot.classList.toggle('km-dot--published', published);
-        if (!published) dot.classList.add('km-dot--draft');
-      }
-      if (label) label.textContent = published ? (labels.publishedLabel || 'Опубликовано') : (labels.draftLabel || 'Черновик');
-      row.classList.remove('km-row-flash');
-      window.requestAnimationFrame(function () { row.classList.add('km-row-flash'); });
-    }
-
     if (toastUndo) {
       toastUndo.addEventListener('click', function () {
         if (typeof lastUndoAction === 'function') {
@@ -632,7 +602,6 @@
         var status = moreBtn.dataset.status;
         var isActive = moreBtn.dataset.isActive === '1';
         var isHome = moreBtn.dataset.isHome === '1';
-        var hasCoords = moreBtn.dataset.hasCoords === '1';
         var isDeleted = moreBtn.dataset.isDeleted === '1';
         var isPublished = status === 'published' && isActive;
         var viewUrl = moreBtn.dataset.viewUrl || '#';
@@ -650,15 +619,15 @@
           if (isPublished) {
             setIcon(pubIcon, "visibility_off");
             pubLabel.textContent = 'Снять с публикации';
-            pubBtn.disabled = false;
-            pubBtn.title = '';
-            pubBtn.removeAttribute('aria-disabled');
+            pubBtn.disabled = moreBtn.dataset.canTogglePublication !== '1';
+            pubBtn.title = pubBtn.disabled ? (moreBtn.dataset.publicationReason || '') : '';
+            pubBtn.setAttribute('aria-disabled', pubBtn.disabled ? 'true' : 'false');
           } else {
-            var cannotPublish = !hasCoords;
+            var cannotPublish = moreBtn.dataset.canTogglePublication !== '1';
             setIcon(pubIcon, "campaign");
             pubLabel.textContent = 'Опубликовать';
             pubBtn.disabled = cannotPublish;
-            pubBtn.title = cannotPublish ? (labels.publishError || 'Нельзя опубликовать: заполните обязательные данные.') : '';
+            pubBtn.title = cannotPublish ? (moreBtn.dataset.publicationReason || labels.publishError || 'Нельзя опубликовать: заполните обязательные данные.') : '';
             pubBtn.setAttribute('aria-disabled', cannotPublish ? 'true' : 'false');
           }
         }
@@ -693,9 +662,10 @@
 
     // Handle clicks inside row actions dropdown
     if (rowActionsDropdown) {
-      rowActionsDropdown.addEventListener('click', function (e) {
-        var item = e.target.closest('[data-row-action]');
-        if (!item || !activeMoreBtn) return;
+      function handleRowAction(e) {
+        var direct = e.target.closest('[data-publication-action]');
+        var item = direct || e.target.closest('[data-row-action]');
+        if (!item || (!direct && !activeMoreBtn)) return;
 
         if (item.disabled || item.getAttribute('aria-disabled') === 'true') {
           e.preventDefault();
@@ -706,8 +676,9 @@
         }
 
         e.preventDefault();
-        var trigger = activeMoreBtn;
-        var action = item.dataset.rowAction;
+        var trigger = direct || activeMoreBtn;
+        if (trigger.disabled || trigger.getAttribute('aria-busy') === 'true') return;
+        var action = direct ? direct.dataset.publicationAction : item.dataset.rowAction;
         var placeId = trigger.dataset.placeId;
         var placeName = trigger.dataset.placeName || ('Место #' + placeId);
         var togglePubUrl = trigger.dataset.togglePublicationUrl || ('/admin/catalog/place/' + placeId + '/toggle-publication/');
@@ -741,19 +712,24 @@
             ? window.kmToast.info(unpublish ? (labels.publicationUnpublishLoading || 'Снятие с публикации...') : (labels.publicationPublishLoading || 'Публикация карточки...'), { duration: 0 })
             : null;
 
+          var publicationCommitted = false;
           fetch(togglePubUrl, {
             method: 'POST',
             headers: {
               'X-CSRFToken': csrftoken,
               'X-Requested-With': 'XMLHttpRequest',
               'Accept': 'application/json'
-            }
+            },
+            body: new URLSearchParams({intent: unpublish ? 'unpublish' : 'publish'})
           })
             .then(function (res) { return res.json(); })
             .then(function (data) {
               if (_loadingToast && window.kmToast) window.kmToast.dismiss(_loadingToast);
               if (data.ok) {
-                updatePublicationRow(trigger, data);
+                publicationCommitted = true;
+                // Reload the current filter so counts, visibility, readiness and actions
+                // all come from the committed server state.
+                window.setTimeout(function () { window.location.reload(); }, 350);
                 if (window.kmToast) {
                   if (unpublish) {
                     window.kmToast.warning((labels.publicationUnpublishSuccess || '«%(name)s» переведена в черновики.').replace('%(name)s', function () { return placeName; }));
@@ -781,6 +757,7 @@
               }
             })
             .finally(function () {
+              if (publicationCommitted) return;
               trigger.disabled = false;
               trigger.removeAttribute('aria-busy');
               trigger.classList.remove('km-is-busy');
@@ -876,6 +853,10 @@
 
         // Other quick actions (e.g. restore)
         executeQuickAction(action);
+      }
+      rowActionsDropdown.addEventListener('click', handleRowAction);
+      document.addEventListener('click', function (event) {
+        if (event.target.closest('[data-publication-action]')) handleRowAction(event);
       });
 
       var viewLink = document.getElementById('km-row-act-view-link');
