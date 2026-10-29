@@ -632,11 +632,35 @@
                   </div>
 
                   {% if section.inline %}
-                    <div class="km-inline-body" id="documents-group-wrapper">
-                      {% with inline_admin_formset=section.inline %}
-                        {% include inline_admin_formset.opts.template %}
-                      {% endwith %}
-                    </div>
+                    {% if not section.inline.forms %}
+                      <div class="km-docs-empty-state">
+                        <div class="km-docs-empty-state__icon">
+                          <i class="fas fa-folder-open" aria-hidden="true"></i>
+                        </div>
+                        <div class="km-docs-empty-state__info">
+                          <h5>{% translate 'Документы пока не загружены специалистом' %}</h5>
+                          <p>{% translate 'Дипломы, лицензии и сертификаты загружаются лично подтверждённым специалистом в своём кабинете («Кабинет специалиста → Дипломы и сертификаты»). Это обеспечивает защиту персональных данных согласно правилам конфиденциальности KidsMap.' %}</p>
+                          <p>{% translate 'Как только специалист прикрепит файлы, они автоматически появятся в этой таблице со статусом «На модерации» для вашей проверки, скачивания и утверждения.' %}</p>
+                          {% if original and original.pk %}
+                            <div class="km-docs-empty-state__links">
+                              <a href="{% url 'specialist_workspace_certificates' original.pk %}" target="_blank" class="km-docs-workspace-link">
+                                <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                                {% translate 'Перейти в раздел документов этого специалиста' %}
+                              </a>
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                      <div class="km-hidden-management-form" style="display:none;" aria-hidden="true">
+                        {{ section.inline.formset.management_form }}
+                      </div>
+                    {% else %}
+                      <div class="km-inline-body" id="documents-group-wrapper">
+                        {% with inline_admin_formset=section.inline %}
+                          {% include inline_admin_formset.opts.template %}
+                        {% endwith %}
+                      </div>
+                    {% endif %}
                   {% elif section.private %}
                     <div class="km-section-notice km-section-notice--info">
                       <i class="fas fa-user-shield" aria-hidden="true"></i>

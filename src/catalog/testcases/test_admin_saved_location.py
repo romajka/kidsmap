@@ -165,3 +165,27 @@ class AdminSavedLocationTests(TestCase):
         response = self.listing()
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'Detached private address')
+
+    def test_control_card_coordinate_badge_uses_saved_point(self):
+        response = self.listing('yes')
+        card = next(c for c in response.context['cl'].place_cards if c['pk'] == self.place.pk)
+        self.assertTrue(card['has_coordinates'])
+        self.assertEqual(card['has_coords_num'], 1)
+        self.assertNotContains(response, 'km-card-coords-warn')
+
+    def test_control_card_coordinate_badge_respects_explicit_clear(self):
+        Place.objects.filter(pk=self.place.pk).update(lat=40, lng=49)
+        VolunteerPlaceRevision.objects.filter(pk=self.revision.pk).update(payload={'lat': None})
+        response = self.listing()
+        card = next(c for c in response.context['cl'].place_cards if c['pk'] == self.place.pk)
+        self.assertFalse(card['has_coordinates'])
+        self.assertEqual(card['has_coords_num'], 0)
+        self.assertContains(response, 'km-card-coords-warn')
+
+    def test_explicit_null_point_is_in_missing_filter_and_not_present_filter(self):
+        Place.objects.filter(pk=self.place.pk).update(lat=40, lng=49)
+        VolunteerPlaceRevision.objects.filter(pk=self.revision.pk).update(payload={'lat': None})
+        missing = self.listing('no')
+        present = self.listing('yes')
+        self.assertIn(self.place.pk, [p.pk for p in missing.context['cl'].result_list])
+        self.assertNotIn(self.place.pk, [p.pk for p in present.context['cl'].result_list])

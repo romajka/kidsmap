@@ -147,7 +147,7 @@
           <div class="km-card-status-bar__right">
             <div class="km-card-readiness-meter">
               <div class="km-readiness-label-row">
-                <span class="km-readiness-text">{% translate "Готовность" %}</span>
+                <span class="km-readiness-text">{% if card.publication_blockers %}{% translate "Заполнено" %}{% else %}{% translate "Готовность" %}{% endif %}</span>
                 <strong class="km-readiness-score km-readiness-score--{{ card.readiness_tone }}">{{ card.readiness_score }}%</strong>
               </div>
               <div class="km-readiness-progress-track">
@@ -165,6 +165,12 @@
               <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check_circle"></use></svg>
               <span>{% blocktranslate with done=card.completed_count total=card.required_count %}Все требования выполнены ({{ done }} из {{ total }}). Карточка готова к публикации на сайте!{% endblocktranslate %}</span>
             </div>
+          </div>
+        {% elif card.publication_blockers %}
+          <div class="km-control-card__diagnostic-detail">
+            {% for blocker in card.publication_blockers %}
+              <a href="{{ card.change_url }}#{{ blocker.anchor }}" class="km-missing-pill" title="{{ blocker.message }}">{{ blocker.label }}</a>
+            {% endfor %}
           </div>
         {% elif not card.is_ready %}
           <div class="km-control-card__diagnostic-detail">
@@ -214,7 +220,7 @@
             <a href="{{ card.change_url }}#{{ card.first_missing_anchor }}" class="km-ctrl-btn km-ctrl-btn--complete"
               title="{% translate 'Перейти к заполнению недостающих полей' %}">
               <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-edit_note"></use></svg>
-              <span>{% translate "Заполнить данные" %}</span>
+              <span>{% if card.publication_blockers %}{% translate "Проверить рабочую версию" %}{% else %}{% translate "Заполнить данные" %}{% endif %}</span>
             </a>
           {% endif %}
         </div>

@@ -1065,10 +1065,691 @@
   .km-coords-grid {
     grid-template-columns: 1fr !important;
   }
-  
+
   .km-photo-dropzone {
     flex-direction: column;
     text-align: center;
     padding: 16px;
+  }
+}
+
+/* ==========================================================================
+   KidsMap Specialist Unified Single-Page Form & Mandatory Progress Bar
+   ========================================================================== */
+
+/* ==========================================================================
+   KidsMap Specialist Dedicated Spacious Workspace Form (matching permanent place)
+   ========================================================================== */
+
+.km-specialist-workspace {
+  width: 100%;
+  max-width: 1360px;
+  margin: 16px auto 60px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  font-family: Nunito, system-ui, -apple-system, sans-serif;
+  color: #113524;
+}
+
+.km-specialist-workspace-header {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1.5px solid #E2E8F0;
+}
+
+.km-specialist-workspace-header .km-back-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0D8A52;
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #EFF7F2;
+  border: 1px solid #D5E9DC;
+  margin-bottom: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.km-specialist-workspace-header .km-back-pill:hover {
+  background: #DCEEE2;
+  transform: translateX(-3px);
+  border-color: #B8DECD;
+}
+
+.km-specialist-workspace-header .pw-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px !important;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0D8A52;
+  background: #EAF6EE;
+  padding: 4px 10px;
+  border-radius: 6px;
+  margin: 0 0 10px;
+}
+
+.km-specialist-workspace-header h1 {
+  font-size: clamp(26px, 3.5vw, 36px);
+  font-weight: 800;
+  color: #113524;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+}
+
+.km-specialist-workspace-header .km-workspace-subtitle {
+  font-size: 15px;
+  color: #52675B;
+  max-width: 760px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* 2-Column Workspace Grid: 260px Sticky Navigation + Wide 1000px+ Form Content */
+.km-specialist-workspace-grid {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.km-specialist-left-sidebar {
+  position: sticky;
+  top: 84px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 5;
+}
+
+.km-specialist-main-content {
+  min-width: 0;
+}
+
+/* Unified sections: Spacious card design matching admin panel */
+.km-unified-form .km-unified-section {
+  display: block !important;
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  scroll-margin-top: 84px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.km-unified-form .km-unified-section:focus-within {
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+
+@media (max-width: 1024px) {
+  .km-specialist-workspace-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .km-specialist-left-sidebar {
+    position: static;
+  }
+  .km-unified-form .km-unified-section {
+    padding: 20px 18px;
+  }
+}
+
+/* Old layout fallback */
+@media (min-width: 1024px) {
+  .account-specialist-shell .km-specialist-owner-form.km-unified-form .owner-event-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 300px !important;
+    gap: 28px !important;
+    align-items: start !important;
+  }
+
+  .account-specialist-shell .km-specialist-owner-form.km-unified-form .km-specialist-side {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 18px !important;
+    position: sticky !important;
+    top: 24px !important;
+  }
+}
+
+/* Section Header & Number Pills */
+.km-section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.km-section-num-pill {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #0F172A;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 13.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.km-section-title-wrap h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.km-unified-form .material-symbols-rounded {
+  font-size: 20px;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.km-section-title-wrap h2 .material-symbols-rounded,
+.km-section-title-wrap h2 i {
+  color: #059669;
+  font-size: 22px;
+}
+
+.km-top-progress-icon .material-symbols-rounded {
+  font-size: 22px;
+  color: #0284C7;
+}
+
+.km-owner-nav-title .material-symbols-rounded {
+  font-size: 19px;
+  color: #059669;
+}
+
+.km-owner-toc-link .toc-done-icon {
+  font-size: 17px;
+  color: #059669;
+}
+
+.km-owner-toc-link .toc-req-dot {
+  font-size: 16px;
+  font-weight: 800;
+  color: #DC2626;
+  line-height: 1;
+  display: inline-block;
+}
+
+.km-actions-card-info .material-symbols-rounded {
+  font-size: 30px;
+  color: #0284C7;
+}
+  font-size: 18px;
+}
+
+.km-section-req-pill {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #B91C1C;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.km-section-opt-pill {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748B;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+/* Required badge on labels */
+.km-req-badge {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #DC2626;
+  background: #FEE2E2;
+  border: 1px solid #FECACA;
+  padding: 2px 7px;
+  border-radius: 6px;
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  vertical-align: middle;
+}
+
+.km-required {
+  color: #DC2626;
+  font-weight: 800;
+}
+
+/* Visual Field Highlighting when Filled */
+.km-unified-form input.is-field-filled,
+.km-unified-form textarea.is-field-filled,
+.km-unified-form select.is-field-filled {
+  border-color: #10B981 !important;
+  background-color: #F0FDF4 !important;
+}
+
+/* ─── Top Progress Card ─── */
+.km-top-progress-card {
+  background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+  border: 1.5px solid #CBD5E1;
+  border-radius: 16px;
+  padding: 18px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.km-top-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.km-top-progress-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.km-top-progress-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #E2E8F0;
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.km-top-progress-title {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+  line-height: 1.25;
+}
+
+.km-top-progress-subtitle {
+  display: block;
+  font-size: 12.5px;
+  color: #64748B;
+  margin-top: 2px;
+}
+
+.km-top-progress-counter .km-req-badge {
+  font-size: 13.5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.km-top-progress-counter .km-req-badge.is-complete {
+  background: #D1FAE5;
+  color: #065F46;
+  border-color: #A7F3D0;
+}
+
+/* Progress track and animated fills */
+.km-req-progress-track {
+  width: 100%;
+  height: 10px;
+  background: #E2E8F0;
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.km-req-progress-track--sm {
+  height: 7px;
+  margin: 8px 0 6px;
+}
+
+.km-req-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+  background: linear-gradient(90deg, #EF4444 0%, #F59E0B 100%);
+}
+
+.km-req-progress-fill.is-low {
+  background: linear-gradient(90deg, #EF4444 0%, #F59E0B 100%);
+}
+
+.km-req-progress-fill.is-mid {
+  background: linear-gradient(90deg, #0284C7 0%, #06B6D4 100%);
+}
+
+.km-req-progress-fill.is-complete {
+  background: linear-gradient(90deg, #059669 0%, #10B981 100%);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.45);
+}
+
+.km-top-progress-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  font-size: 12.5px;
+}
+
+.km-top-progress-status {
+  font-weight: 600;
+  color: #475569;
+  transition: color 0.2s ease;
+}
+
+.km-top-progress-status.is-complete {
+  color: #047857;
+  font-weight: 700;
+}
+
+.km-top-progress-hint {
+  color: #94A3B8;
+  font-size: 12px;
+}
+
+/* ─── Sticky Sidebar TOC Widget ─── */
+.km-owner-nav-card {
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+.km-owner-nav-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.km-owner-nav-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #0F172A;
+}
+
+.km-owner-nav-title i {
+  color: #059669;
+  font-size: 15px;
+}
+
+.km-owner-nav-title h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+  color: #0F172A;
+}
+
+.km-sidebar-progress-box {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.km-sidebar-progress-text {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748B;
+  text-align: right;
+}
+
+.km-owner-toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.km-owner-toc-link {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.km-owner-toc-link:hover {
+  background: #F8FAFC;
+  color: #0F172A;
+}
+
+.km-owner-toc-link.is-active {
+  background: #F0FDF4;
+  color: #065F46;
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 #059669;
+}
+
+.km-owner-toc-link .toc-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #E2E8F0;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.km-owner-toc-link.is-active .toc-num {
+  background: #059669;
+  color: #FFFFFF;
+}
+
+.km-owner-toc-link .toc-label {
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.km-owner-toc-link .toc-status {
+  flex-shrink: 0;
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.km-owner-toc-link .toc-req-dot {
+  color: #DC2626;
+  font-size: 10px;
+}
+
+.km-owner-toc-link .toc-done-icon {
+  color: #059669;
+  font-size: 13px;
+}
+
+.km-owner-toc-link .toc-status--opt small {
+  color: #94A3B8;
+  font-size: 10.5px;
+  font-weight: normal;
+}
+
+.km-owner-nav-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #E2E8F0;
+}
+
+.btn-sidebar-save-draft {
+  padding: 8px 10px !important;
+  font-size: 12.5px !important;
+  min-height: 38px !important;
+}
+
+.btn-sidebar-submit {
+  padding: 8px 10px !important;
+  font-size: 12.5px !important;
+  min-height: 38px !important;
+  background: #059669 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #047857 !important;
+  border-radius: 8px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-sidebar-submit:hover {
+  background: #047857 !important;
+}
+
+/* ─── Bottom Unified Actions Card ─── */
+.km-unified-actions-card {
+  background: #FFFFFF;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 16px;
+  padding: 22px 26px;
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+}
+
+.km-actions-card-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.km-actions-card-info i {
+  font-size: 24px;
+  color: #0284C7;
+  flex-shrink: 0;
+}
+
+.km-actions-card-info strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.km-actions-card-info p {
+  margin: 3px 0 0;
+  font-size: 13px;
+  color: #64748B;
+  line-height: 1.4;
+}
+
+.km-actions-buttons-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.km-actions-buttons-row .btn-save-draft {
+  min-height: 44px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.km-actions-buttons-row .btn-submit {
+  min-height: 44px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  background: #059669;
+  color: #FFFFFF;
+  border: 1px solid #047857;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.km-actions-buttons-row .btn-submit:hover {
+  background: #047857;
+}
+
+@media (max-width: 767px) {
+  .km-unified-actions-card {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    padding: 18px;
+  }
+
+  .km-actions-card-info {
+    flex-direction: column;
+  }
+
+  .km-actions-buttons-row {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .km-actions-buttons-row button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .km-top-progress-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .km-top-progress-counter {
+    align-self: flex-start;
+  }
+
+  .km-top-progress-footer {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
