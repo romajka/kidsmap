@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static catalog_i18n %}
+{% load i18n static catalog_i18n l10n %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block title_plain %}{{ seo_title }}{% endblock %}
@@ -743,8 +743,8 @@
               <div
                 id="detail-map"
                 class="detail-map"
-                data-lat="{{ place.lat }}"
-                data-lng="{{ place.lng }}"
+                data-lat="{{ place.lat|unlocalize }}"
+                data-lng="{{ place.lng|unlocalize }}"
                 data-category-color-text="{{ place.category.resolved_color_text|default:'#6B7280' }}"
                 data-category-color-bg="{{ place.category.resolved_color_bg|default:'#F3F4F6' }}"
                 data-category-code="{{ place.category_code|default:'ALL' }}"
@@ -760,18 +760,18 @@
                 <div class="detail-map__footer">
                   <div class="detail-map__coords" title="{% trans 'Координаты' %}">
                     <span class="material-symbols-rounded" aria-hidden="true">my_location</span>
-                    <span>{{ place.lat }}, {{ place.lng }}</span>
+                    <span>{{ place.lat|unlocalize }}, {{ place.lng|unlocalize }}</span>
                   </div>
                   <div class="detail-map__app-links">
-                    <a class="detail-map__app-chip" href="https://www.google.com/maps/search/?api=1&query={{ place.lat }},{{ place.lng }}" target="_blank" rel="noopener noreferrer">
+                    <a class="detail-map__app-chip" href="https://www.google.com/maps/search/?api=1&query={{ place.lat|unlocalize }},{{ place.lng|unlocalize }}" target="_blank" rel="noopener noreferrer">
                       <span>Google Maps</span>
                       <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     </a>
-                    <a class="detail-map__app-chip" href="https://2gis.az/baku/search/{{ place.lat }}%2C{{ place.lng }}" target="_blank" rel="noopener noreferrer">
+                    <a class="detail-map__app-chip" href="https://2gis.az/baku/search/{{ place.lat|unlocalize }}%2C{{ place.lng|unlocalize }}" target="_blank" rel="noopener noreferrer">
                       <span>2GIS</span>
                       <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     </a>
-                    <a class="detail-map__app-chip" href="https://yandex.com/maps/?ll={{ place.lng }}%2C{{ place.lat }}&z=16" target="_blank" rel="noopener noreferrer">
+                    <a class="detail-map__app-chip" href="https://yandex.com/maps/?ll={{ place.lng|unlocalize }}%2C{{ place.lat|unlocalize }}&z=16" target="_blank" rel="noopener noreferrer">
                       <span>Яндекс Карты</span>
                       <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     </a>
