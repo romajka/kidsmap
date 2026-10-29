@@ -52,6 +52,7 @@ from catalog.services.content_quality import (
     public_review_filter,
 )
 from catalog.services.admin_place_presentation import with_saved_location, saved_presentation, saved_thumbnail_url
+from catalog.services.place_identity_copy import identity_copy
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.options import sort_translated_values
 from catalog.services.image_uploads import normalize_uploaded_image
@@ -222,6 +223,8 @@ class PlaceAdminForm(PublicLinksFormMixin, ContactPhoneFormMixin, PlaceScheduleE
         widget=forms.HiddenInput(attrs={"id": "id_price_mode"}),
         initial=Place.PRICE_MODE_TARIFFS,
     )
+
+    create_as_distinct_branch = forms.BooleanField(required=False)
 
     region = forms.ChoiceField(
         label=_("Город / регион"),
@@ -1705,8 +1708,15 @@ class EventAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
 class PlaceAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         form_class = super().get_form(request, obj, **kwargs)
+        model_admin = self
         class LocationActorForm(form_class):
             location_actor = request.user
+
+            def identity_can_view(self, place):
+                return model_admin.has_view_or_change_permission(request,place)
+
+            def identity_can_edit(self, place):
+                return model_admin.has_change_permission(request,place)
 
             def __init__(self, *args, **form_kwargs):
                 super().__init__(*args, **form_kwargs)
@@ -1716,6 +1726,21 @@ class PlaceAdmin(admin.ModelAdmin):
 
             def clean(self):
                 cleaned = super().clean()
+                identity_conflict = getattr(request, '_km_identity_conflict', None)
+                if identity_conflict is not None:
+                    self.add_error(None,identity_conflict)
+                elif not self.instance.pk and not self.errors:
+                    from catalog.services.place_identity import guard_new_place, identity_fields
+                    values={**identity_fields(self.instance),**cleaned}
+                    try:
+                        with transaction.atomic():
+                            guard_new_place(request.user,values,
+                                exclude_draft_id=self.data.get('server_draft_id'),
+                                distinct_branch=bool(cleaned.get('create_as_distinct_branch')),
+                                can_view=self.identity_can_view,can_edit=self.identity_can_edit)
+                    except ValidationError as exc:
+                        self.identity_duplicate=getattr(exc,'identity_result',None)
+                        self.add_error(None,exc)
                 conflict = getattr(request, '_km_candidate_conflict', None)
                 if conflict is not None:
                     self.add_error(None, conflict)
@@ -1972,6 +1997,7 @@ class PlaceAdmin(admin.ModelAdmin):
     # save just because the template forgot it.
     PLACE_FORM_RENDERED_FIELDS = frozenset({
         "name", "name_az", "name_ru", "name_en",
+        "create_as_distinct_branch",
         "description_az", "description_ru", "description_en",
         "category", "subcategory",
         "age_from", "age_to", "age_open_ended", "age_varies_by_program", "offers_adult_classes",
@@ -2003,6 +2029,7 @@ class PlaceAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     ("category", "subcategory"),
+                    "create_as_distinct_branch",
                 )
             },
         ),
@@ -2148,6 +2175,10 @@ class PlaceAdmin(admin.ModelAdmin):
                 # Archived/deleted targets cannot render an editable draft.
                 # Redirecting to this same GET would loop forever.
                 raise Http404 from exc
+            if any(error.code == 'place_identity_duplicate' for error in getattr(exc,'error_list',())):
+                request._km_identity_conflict=exc
+                with transaction.atomic():
+                    return super().changeform_view(request,object_id=object_id,form_url=form_url,extra_context=extra_context)
             if any(error.code == 'candidate_version_conflict' for error in getattr(exc, 'error_list', ())):
                 # The first write has rolled back. Redisplay the submitted POST
                 # as invalid; never replay a save or replace its stale token.
@@ -2345,6 +2376,9 @@ class PlaceAdmin(admin.ModelAdmin):
             context["km_place_duplicates_url"] = reverse(
                 f"admin:{self.opts.app_label}_{self.opts.model_name}_duplicate_candidates"
             )
+        context["km_identity_copy"] = identity_copy()
+        context["km_identity_registry_url"] = reverse("admin:catalog_place_identity_registry")
+        context["km_identity_compare_url"] = reverse("admin:catalog_place_identity_compare", args=[obj.pk]) if obj and obj.pk else ""
         return super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
 
     def add_view(self, request, form_url='', extra_context=None):
@@ -4481,6 +4515,10 @@ class PlaceAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.place_quality_report_view),
                 name=f"{self.opts.app_label}_{self.opts.model_name}_quality_report",
             ),
+            path("duplicate-registry/", self.admin_site.admin_view(self.identity_registry_view),
+                 name=f"{self.opts.app_label}_{self.opts.model_name}_identity_registry"),
+            path("<int:object_id>/compare-versions/", self.admin_site.admin_view(self.identity_compare_view),
+                 name=f"{self.opts.app_label}_{self.opts.model_name}_identity_compare"),
             path(
                 "duplicate-candidates/",
                 self.admin_site.admin_view(self.duplicate_candidates_view),
@@ -4601,6 +4639,8 @@ class PlaceAdmin(admin.ModelAdmin):
             return JsonResponse({"ok": False, "error": str(_("Некорректный JSON."))}, status=400)
         if not isinstance(payload, dict):
             return JsonResponse({"ok": False, "error": str(_("Нужен один объект карточки."))}, status=400)
+        if payload.get("export_scope") in {"duplicate_registry", "identity_comparison"}:
+            return JsonResponse({"ok":False,"error":identity_copy()["not_edit_import"]},status=400)
         from catalog.services.publication import SCHEMA_VERSION
         supplied_schema = payload.get("schema_version", SCHEMA_VERSION)
         if isinstance(supplied_schema, bool) or not isinstance(supplied_schema, int) or supplied_schema != SCHEMA_VERSION:
@@ -4699,7 +4739,13 @@ class PlaceAdmin(admin.ModelAdmin):
         from catalog.services.pricing_plans import serialize_pricing_plans, serialize_nested_pricing
         from catalog.services.place_schedule import serialize_place_schedule
         revision = VolunteerPlaceRevision.objects.filter(place=obj).first()
-        active_revision = revision if revision and revision.status in {"draft", "pending", "rejected"} else None
+        from catalog.services.place_identity import identity_registry
+        access = identity_registry(request.user, places=Place.objects.filter(pk=obj.pk),
+            can_view=lambda row:self.has_view_or_change_permission(request,row),
+            can_edit=lambda row:self.has_change_permission(request,row))
+        if not access['records']: raise PermissionDenied
+        visible_candidate = any(v['source']=='candidate' for v in access['records'][0]['versions'])
+        active_revision = revision if revision and visible_candidate else None
         if active_revision:
             from catalog.services.volunteer_places import candidate_from_payload
             obj = candidate_from_payload(obj, active_revision.payload)
@@ -4760,65 +4806,17 @@ class PlaceAdmin(admin.ModelAdmin):
         response["Content-Disposition"] = f'attachment; filename="place-{obj.pk}.json"'
         return response
 
+    def identity_registry_view(self, request):
+        from .place_identity import registry_view
+        return registry_view(request, self)
+
+    def identity_compare_view(self, request, object_id):
+        from .place_identity import comparison_view
+        return comparison_view(request, self, object_id)
+
     def duplicate_candidates_view(self, request):
-        if not self.has_view_or_change_permission(request):
-            raise PermissionDenied
-
-        values = {
-            "phone": _normalized_phone(request.GET.get("phone")),
-            "website": _normalized_url(request.GET.get("website")),
-            "instagram": _normalized_text((request.GET.get("instagram") or "").lstrip("@")),
-            "address": _normalized_text(request.GET.get("address")),
-        }
-        object_id = request.GET.get("exclude")
-        if not any(values.values()):
-            return JsonResponse({"results": []})
-
-        queryset = Place.objects.filter(deleted_at__isnull=True).select_related("volunteer_revision")
-        if object_id and object_id.isdigit():
-            queryset = queryset.exclude(pk=int(object_id))
-
-        results = []
-        for place in queryset.iterator():
-            if not self.has_view_or_change_permission(request, place):
-                continue
-            variants = [place]
-            revision = getattr(place, "volunteer_revision", None)
-            if revision and revision.status in {"draft", "pending", "rejected"} and self.has_change_permission(request, place):
-                from catalog.services.publication import authorize
-                from catalog.services.volunteer_places import candidate_from_payload
-                try:
-                    authorize(request.user, place, "place")
-                except PermissionDenied:
-                    pass
-                else:
-                    variants.append(candidate_from_payload(place, revision.payload))
-            matched = []
-            matched_place = place
-            for variant in variants:
-                variant_matches = []
-                if values["phone"] and values["phone"] in {_normalized_phone(getattr(variant, field)) for field in ("phone1", "phone2", "phone3")}:
-                    variant_matches.append(str(_("телефон")))
-                if values["website"] and values["website"] == _normalized_url(variant.website):
-                    variant_matches.append(str(_("сайт")))
-                if values["instagram"] and values["instagram"] == _normalized_text((variant.instagram or "").lstrip("@")):
-                    variant_matches.append("Instagram")
-                if values["address"] and values["address"] == _normalized_text(variant.address):
-                    variant_matches.append(str(_("адрес")))
-                if variant_matches:
-                    matched_place = variant
-                    matched.extend(item for item in variant_matches if item not in matched)
-            if matched:
-                results.append(
-                    {
-                        "id": place.pk,
-                        "title": matched_place.name_i18n(getattr(request, "LANGUAGE_CODE", None)) or matched_place.name,
-                        "address": matched_place.address,
-                        "matched": matched,
-                        "url": reverse(f"admin:{self.opts.app_label}_{self.opts.model_name}_change", args=[place.pk]),
-                    }
-                )
-        return JsonResponse({"results": results[:8]})
+        from .place_identity import matching_view
+        return matching_view(request, self)
 
     def _home_recommendation_queryset(self):
         return public_place_queryset(
@@ -5237,6 +5235,8 @@ class PlaceAdmin(admin.ModelAdmin):
             "km_can_connect_organization": not is_trash and 'connect_to_organization' in self.get_actions(request),
             "km_is_trash_changelist": is_trash,
             "km_changelist_reset_url": "?deleted_state=deleted" if is_trash else "?",
+            "km_identity_copy": identity_copy(),
+            "km_identity_registry_url": reverse("admin:catalog_place_identity_registry"),
             "km_place_quality_report_url": (
                 reverse(
                     f"admin:{self.opts.app_label}_{self.opts.model_name}_quality_report",

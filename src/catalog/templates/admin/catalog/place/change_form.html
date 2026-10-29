@@ -107,6 +107,8 @@
 
       <div class="km-pf__shell">
         {% include "admin/catalog/place/form/header.html" %}
+        <nav class="km-admin-related-links" aria-label="{{ km_identity_copy.title }}"><a class="km-pf-btn km-pf-btn--ghost" href="{{ km_identity_registry_url }}" target="_blank" rel="noopener">{{ km_identity_copy.title }}</a>{% if km_identity_compare_url %}<a class="km-pf-btn km-pf-btn--ghost" href="{{ km_identity_compare_url }}" target="_blank" rel="noopener">{{ km_identity_copy.compare }}</a>{% endif %}</nav>
+        {{ km_identity_copy|json_script:"km-identity-copy" }}
 
         {% if km_place_navigation %}
         <nav class="km-admin-related-links" aria-label="{% translate 'Занятия и услуги' %}">

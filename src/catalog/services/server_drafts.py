@@ -407,6 +407,7 @@ def materialize_place(*, user, draft_id, expected_version, request):
     for name,value in draft.fields.items():
         data[name] = json_value(value)
     data['form_action']='save_draft'
+    data['server_draft_id']=str(draft.pk)
     # Private draft media stays private; publication media promotion needs an explicit later action.
     result=OwnerPlacesController.build_default().create_place(request=request,data=data,files={},draft_save_only=True)
     if not result.ok:

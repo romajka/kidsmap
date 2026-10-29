@@ -1,0 +1,31 @@
+{% extends "admin/base_site.html" %}{% load static %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/place_identity.css' %}">{% endblock %}
+{% block content %}
+<section class="km-identity">
+  <header class="km-identity-head"><div><h1>{{ ui.title }}</h1><p>{{ ui.intro }}</p></div><a href="{{ back_url }}" class="km-identity-action">{{ ui.back }}</a></header>
+  <div class="km-identity-scope"><p>{{ ui.scope_hint }}</p><p class="km-identity-meta">{{ ui.generated }}: <time>{{ snapshot.generated_at }}</time> · {{ ui.records }}: {{ snapshot.coverage.records_scanned }}</p></div>
+  <div class="km-identity-export"><a href="{{ export_url }}" class="km-identity-action km-identity-action--primary" data-identity-export>{{ ui.export }}</a><p>{{ ui.export_hint }}</p></div>
+  <form method="get" class="km-identity-search">
+    <label>{{ ui.name }}<input name="name" value="{{ query.name }}" maxlength="256"></label>
+    <label>{{ ui.address }}<input name="address" value="{{ query.address }}" maxlength="256"></label>
+    <label>{{ ui.phone }}<input name="phone" value="{{ query.phone }}" maxlength="64"></label>
+    <label>{{ ui.website }}<input name="website" value="{{ query.website }}" maxlength="256"></label>
+    <label>{{ ui.instagram }}<input name="instagram" value="{{ query.instagram }}" maxlength="128"></label>
+    <div class="km-identity-search-actions"><button class="km-identity-action km-identity-action--primary">{{ ui.search }}</button><a href="?" class="km-identity-action">{{ ui.reset }}</a></div>
+  </form>
+  {% if checked %}<p class="km-identity-summary" role="status">{{ ui.results }}: {{ page.paginator.count }}. {{ ui.records }}: {{ snapshot.coverage.records_scanned }}.</p>{% endif %}
+  <div class="km-identity-records">
+  {% for row in rows %}
+    <article class="km-identity-record" data-identity-record="{{ row.key }}">
+      <header><h2><a href="{{ row.url }}">{{ row.title }}</a>{% if row.id %} <small>#{{ row.id }}</small>{% endif %}</h2><span class="km-identity-badge{% if row.is_public %} km-identity-badge--public{% endif %}">{% if row.deleted %}{{ ui.deleted }}{% elif row.is_public %}{{ ui.published }}{% else %}{{ ui.unpublished }}{% endif %}</span></header>
+      {% if row.address %}<p>{{ row.address }}</p>{% endif %}
+      <div class="km-identity-versions">{% for version in row.versions %}<span>{{ version.source_label }} · v{{ version.version }}{% if version.stale %} · {{ ui.stale }}{% endif %}</span>{% endfor %}</div>
+      {% if row.classification_label %}<p class="km-identity-confidence">{{ row.classification_label }}</p>{% endif %}
+      {% if row.evidence %}<ul class="km-identity-evidence">{% for evidence in row.evidence %}<li>{{ evidence.source_label }} · v{{ evidence.version }}: {{ evidence.signal_labels }}</li>{% endfor %}</ul>{% endif %}
+      <div class="km-identity-record-actions">{% if row.compare_url %}<a href="{{ row.compare_url }}" class="km-identity-action">{{ ui.compare }}</a>{% endif %}<a href="{{ row.url }}">{{ ui.edit }}</a></div>
+    </article>
+  {% empty %}<p role="status">{{ ui.not_found }}</p>{% endfor %}
+  </div>
+  <nav class="km-identity-pagination" aria-label="{{ ui.results }}">{% if previous_url %}<a href="{{ previous_url }}" class="km-identity-action">{{ ui.previous }}</a>{% endif %}<span>{{ page.number }} / {{ page.paginator.num_pages }}</span>{% if next_url %}<a href="{{ next_url }}" class="km-identity-action">{{ ui.next }}</a>{% endif %}</nav>
+</section>
+{% endblock %}

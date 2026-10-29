@@ -1,0 +1,15 @@
+{% extends "admin/base_site.html" %}{% load static %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/place_identity.css' %}">{% endblock %}
+{% block content %}
+<section class="km-identity">
+  <header class="km-identity-head"><div><h1>{{ ui.compare_title }} #{{ record.id }}</h1><p>{{ ui.intro }}</p></div><a href="{{ back_url }}" class="km-identity-action">{{ ui.title }}</a></header>
+  <div class="km-identity-scope"><p>{{ ui.stored_hint }}</p><p>{{ ui.scope_hint }}</p><p class="km-identity-meta">{{ ui.generated }}: <time>{{ snapshot.generated_at }}</time></p></div>
+  <div class="km-identity-record-actions"><a class="km-identity-action km-identity-action--primary" href="{{ export_url }}" data-identity-export>{{ ui.export }}</a><a class="km-identity-action" href="{{ edit_url }}">{{ ui.edit }}</a></div>
+  <div class="km-identity-table-wrap" tabindex="0" role="region" aria-label="{{ ui.compare_title }}">
+    <table class="km-identity-table"><caption>{{ ui.versions }} · {% if record.is_public %}{{ ui.published }}{% else %}{{ ui.unpublished }}{% endif %}</caption>
+      <thead><tr><th scope="col">{{ ui.field }}</th>{% for version in versions %}<th scope="col">{{ version.source_label }} · v{{ version.version }}<small>{{ ui.status }}: {{ version.status_label }}</small>{% if version.stale %}<small class="km-identity-stale">{{ ui.stale }}</small>{% endif %}</th>{% endfor %}</tr></thead>
+      <tbody>{% for row in table %}<tr><th scope="row">{{ row.label }}</th>{% for cell in row.cells %}<td{% if cell.changed %} class="km-identity-changed" title="{{ ui.changed }}"{% endif %}>{{ cell.value }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

@@ -57,6 +57,7 @@
               {% translate "К местам" %}
             </a>
           {% else %}
+            <a href="{{ km_identity_registry_url }}" class="km-btn-quality-report">{{ km_identity_copy.title }}</a>
             {% if km_place_quality_report_url %}
               <a href="{{ km_place_quality_report_url }}" class="km-btn-quality-report">
                 <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-assessment"></use></svg>

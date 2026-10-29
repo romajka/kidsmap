@@ -56,3 +56,10 @@ test('programme-dependent age checkbox accepts true and explicit false and prese
   try{assert.equal(m.checked('age_varies_by_program'),expected);if(m.toast())assert(!m.toast().message.includes('age_varies_by_program'));}finally{m.close();}
  }
 });
+
+test('duplicate registry exports cannot be accidentally applied as an editing patch',async()=>{
+ for(const scope of ['duplicate_registry','identity_comparison']){
+  const m=await importPatch({export_scope:scope,website:'https://example.com/should-not-apply',records:[]});
+  try{assert.equal(m.value('website'),'https://example.com/old');assert.equal(m.toast(),undefined);}finally{m.close();}
+ }
+});

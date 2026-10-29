@@ -35,20 +35,16 @@ class DuplicateDecision:
 
 
 def find_creator_duplicate(*, creator, candidate) -> DuplicateDecision:
-    from catalog.services.volunteer_places import candidate_from_payload
-    names = _names(candidate)
-    if not names:
-        return DuplicateDecision(None, False)
-    matches = []
-    for place in Place.objects.filter(created_by=creator, deleted_at__isnull=True).select_related('volunteer_revision').order_by('pk'):
-        revision = getattr(place, 'volunteer_revision', None)
-        current = candidate_from_payload(place, revision.payload) if revision and revision.status != 'approved' else place
-        # The fallback Place.name may still refer to an old working name.
-        if revision and revision.status != 'approved':
-            current.name = next((getattr(current, f'name_{lang}') for lang in ('az', 'ru', 'en') if getattr(current, f'name_{lang}')), '')
-        if names & _names(current):
-            matches.append((place, current))
+    from types import SimpleNamespace
+    from catalog.services.place_identity import identity_registry, check_duplicates
+    owned = Place.objects.filter(created_by=creator, deleted_at__isnull=True)
+    snapshot = identity_registry(creator, places=owned)
+    result = check_duplicates(creator, candidate, registry=snapshot)
+    matches = [row for row in result['results'] if any('name' in e['signals'] for e in row['evidence'])]
     if not matches:
         return DuplicateDecision(None, False)
-    conflicting = next((place for place, current in matches if not _distinct_location(current, candidate)), None)
-    return DuplicateDecision(conflicting or matches[0][0], conflicting is None)
+    conflicting = next((row for row in matches if
+        not _distinct_location(SimpleNamespace(**row['versions'][-1]['fields']), candidate) or
+        any(e['classification']=='confirmed' for e in row['evidence'])), None)
+    selected = conflicting or matches[0]
+    return DuplicateDecision(owned.get(pk=selected['id']), conflicting is None)

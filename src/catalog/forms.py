@@ -990,6 +990,7 @@ from catalog.services.place_public_links import PublicLinksFormMixin
 
 
 class OwnerPlaceEditForm(PublicLinksFormMixin, ContactPhoneFormMixin, PlaceScheduleEditorFormMixin, forms.ModelForm):
+    create_as_distinct_branch = forms.BooleanField(required=False)
     compact_contact_fields = True
     price_mode = forms.ChoiceField(required=False, choices=Place.PRICE_MODE_CHOICES, widget=forms.HiddenInput())
     delete_gallery_ids = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple())
@@ -1269,6 +1270,9 @@ class OwnerPlaceEditForm(PublicLinksFormMixin, ContactPhoneFormMixin, PlaceSched
                 payload["pricing_plans"] = json.dumps(instance.pricing_plans, ensure_ascii=False)
             kwargs["data"] = payload
         super().__init__(*args, **kwargs)
+        from catalog.services.place_identity_copy import identity_copy
+        self.fields['create_as_distinct_branch'].label=identity_copy()['branch']
+        self.fields['create_as_distinct_branch'].help_text=identity_copy()['branch_hint']
         from catalog.services.publication_forms import init_version_field
         init_version_field(self)
 

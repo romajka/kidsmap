@@ -51,6 +51,7 @@
     </div>
   </div>
 
+  {% if add and form.create_as_distinct_branch %}<div class="km-pf-group"><label>{{ form.create_as_distinct_branch }} {{ km_identity_copy.branch }}</label><p class="help">{{ km_identity_copy.branch_hint }}</p></div>{% endif %}
   <div class="km-pf-hidden-fields" aria-hidden="true">{{ form.name }}</div>
 {% endwith %}
 

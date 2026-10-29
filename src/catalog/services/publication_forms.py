@@ -83,6 +83,10 @@ def create_from_form(*,actor,form,owner=None,submit=True):
     if not candidate.category_id:
         from catalog.models import Category
         candidate.category=Category.objects.order_by('order','code').first()
+    from catalog.services.place_identity import guard_new_place
+    guard_new_place(actor,candidate,exclude_draft_id=form.data.get('server_draft_id'),
+        distinct_branch=bool(form.cleaned_data.get('create_as_distinct_branch')),
+        can_view=getattr(form,'identity_can_view',None),can_edit=getattr(form,'identity_can_edit',None))
     base=Place.objects.create(name=candidate.name,category_id=candidate.category_id,owner=owner,created_by=actor,status='draft',is_active=False)
     for name in ('photo','cover_photo'):
         value=getattr(candidate,name)

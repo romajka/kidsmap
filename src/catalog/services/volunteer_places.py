@@ -221,6 +221,13 @@ def save_working_revision(*, user, place_id, data, files, source):
             form.duplicate_existing_place_id = duplicate.place.pk
             form.add_error(None, t("Карточка с таким названием уже есть. Откройте её или подтвердите отдельный филиал с другим адресом или координатами.", "Bu adda kart artıq mövcuddur. Onu açın və ya fərqli ünvan və ya koordinatları olan ayrıca filialı təsdiqləyin.", "A card with this name already exists. Open it or confirm a separate branch with a different address or coordinates."))
             return place, revision, form
+        from catalog.services.place_identity import guard_new_place
+        try:
+            guard_new_place(user,candidate,exclude_draft_id=data.get('server_draft_id'),
+                distinct_branch=bool(form.cleaned_data.get('create_as_distinct_branch')))
+        except ValidationError as exc:
+            form.add_error(None,exc)
+            return place, revision, form
         place.name = candidate.name
         place.category_id = candidate.category_id
         place.save()
