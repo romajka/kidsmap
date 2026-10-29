@@ -66,7 +66,7 @@ class HomeController:
         from catalog.services.public_map_page import build_map_page, page_metadata
         filters = PlaceListFilters.from_request(request)
         map_queryset = filters.apply(self.place_repository.active_queryset())
-        map_page = build_map_page(map_queryset, language_code, filters)
+        map_page = build_map_page(map_queryset, language_code, filters, newest_first=True)
         map_places = map_page["points"]
         map_business_count = map_page["count"]
 

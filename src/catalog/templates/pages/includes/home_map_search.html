@@ -3,6 +3,7 @@
   <div class="home-map-search-deck home-hero-search-deck">
     <form class="home-search home-search-compact" method="get" action="{% url 'place_list' %}"
       data-home-map-filter-form>
+      <input type="hidden" name="map_order" value="newest">
       {% trans "Начать поиск" as default_search_label %}
       <div class="home-search-head">
         <label class="home-search-label" for="home-hero-search-input">{{ hero_search_label }}</label>

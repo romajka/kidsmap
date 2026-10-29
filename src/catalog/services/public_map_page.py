@@ -45,13 +45,20 @@ def coordinate_queryset(queryset, bounds=None):
     return qs
 
 
-def build_map_page(queryset, language_code, filters=None, *, after=0, bounds=None):
+def build_map_page(queryset, language_code, filters=None, *, after=0, bounds=None, newest_first=False):
     qs=coordinate_queryset(queryset,bounds)
     total=qs.count()
-    ids=list(qs.filter(pk__gt=after).order_by('pk').values_list('pk',flat=True)[:PAGE_SIZE+1])
+    # The homepage must select recent records before paging, not just reorder
+    # the oldest page after serialization. Keep legacy ascending cursors valid.
+    ordering = '-pk' if newest_first else 'pk'
+    window = qs.filter(pk__lt=after) if newest_first and after else qs
+    if not newest_first:
+        window = window.filter(pk__gt=after)
+    ids=list(window.order_by(ordering).values_list('pk',flat=True)[:PAGE_SIZE+1])
     has_more=len(ids)>PAGE_SIZE
     selected=ids[:PAGE_SIZE]
-    points=serialize_map_places(qs.filter(pk__in=selected).order_by('pk'),language_code,filters) if selected else []
+    points=serialize_map_places(qs.filter(pk__in=selected).order_by(ordering),language_code,filters,
+        ordering=(ordering,) if newest_first else None) if selected else []
     return {'points':points,'count':total,'has_more':has_more,'next_cursor':selected[-1] if has_more else None}
 
 

@@ -1986,7 +1986,12 @@
       const activeId = document.activeElement?.dataset.homeMapMemberId;
       selected = null; records = []; list.replaceChildren();
       const seen = new Set();
-      points.filter(hasValidCoordinates).forEach(point => pointMembers(point).forEach(member => {
+      // Shared venues group map pins, but must not group older list entries
+      // ahead of newer businesses at a different venue.
+      const members = points.filter(hasValidCoordinates)
+        .flatMap(point => pointMembers(point).map(member => ({point, member})))
+        .sort((a, b) => Number(b.member.id) - Number(a.member.id));
+      members.forEach(({point, member}) => {
         if (member.id === null || member.id === undefined || seen.has(String(member.id))) return;
         seen.add(String(member.id));
         const row = document.createElement("li"); row.className = "home-explorer-card";
@@ -2033,7 +2038,7 @@
         const record = {member, point, row, button}; records.push(record); list.append(row);
         button.addEventListener("click", () => selectMember(member.id, true));
         if (String(member.id) === String(selectedId)) selected = record;
-      }));
+      });
       updateSelection(); setStatus("ready");
       if (resultStatus) {
         const count = businessCount(points);

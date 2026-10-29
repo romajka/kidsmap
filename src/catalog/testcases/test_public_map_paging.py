@@ -40,6 +40,30 @@ class PublicMapPagingTests(TestCase):
         self.assertEqual(set(tail),set(self.ids[100:]))
         self.assertNotIn(self.private,ids+tail)
 
+    def test_home_newest_window_starts_with_recent_records_and_reaches_every_record_once(self):
+        first = self.points(map_order='newest')
+        ids = [m['id'] for p in first['points'] for m in p['members']]
+        expected = sorted(self.ids, reverse=True)
+        self.assertEqual(ids, expected[:100])
+        self.assertNotIn(self.private, ids)
+        second = self.points(map_order='newest', after=first['next_cursor'])
+        tail = [m['id'] for p in second['points'] for m in p['members']]
+        self.assertEqual(tail, expected[100:])
+        self.assertEqual(ids + tail, expected)
+        self.assertFalse(second['has_more'])
+        self.assertIsNone(second['next_cursor'])
+
+    def test_home_newest_order_survives_filters_and_initial_html(self):
+        data = self.points(map_order='newest', q='Paging10')
+        ids = [m['id'] for p in data['points'] for m in p['members']]
+        self.assertEqual(ids, sorted(ids, reverse=True))
+        self.assertIn(self.ids[-1], ids)
+        response = self.client.get('/en/')
+        points = response.context['map_places']
+        ids = [m['id'] for p in points for m in p['members']]
+        self.assertEqual(ids, sorted(self.ids, reverse=True)[:100])
+        self.assertContains(response, 'name="map_order" value="newest"')
+
     def test_initial_html_is_bounded_and_counts_do_not_call_unloaded_places_missing(self):
         for url in ['/en/','/en/catalog/']:
             with self.subTest(url=url):

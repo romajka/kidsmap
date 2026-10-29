@@ -19,4 +19,5 @@ def public_map(request):
         after,bounds=request_window(request.GET)
     except ValidationError:
         return JsonResponse({'error':'Invalid map window.'},status=400)
-    return JsonResponse(build_map_page(queryset,request.LANGUAGE_CODE,filters,after=after,bounds=bounds))
+    return JsonResponse(build_map_page(queryset,request.LANGUAGE_CODE,filters,after=after,bounds=bounds,
+        newest_first=request.GET.get('map_order') == 'newest'))

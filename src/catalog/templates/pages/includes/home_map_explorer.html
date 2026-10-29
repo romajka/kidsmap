@@ -47,7 +47,7 @@
   {% include "pages/includes/home_map_search.html" %}
 
   <p class="home-map-result-status" id="home-map-result-status" role="status" aria-live="polite"
-     data-status-template="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə {count} məkan göstərilir. Xəritədə işarə və ya siyahıdan məkan seçin.{% elif request.LANGUAGE_CODE == 'en' %}Showing {count} places on map. Select a pin or a place in the list.{% else %}Показано {count} мест на карте. Выберите метку или карточку.{% endif %}">
+     data-status-template="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə {count} məkan göstərilir. Əvvəlcə yeni məkanlar. Xəritədə işarə və ya siyahıdan məkan seçin.{% elif request.LANGUAGE_CODE == 'en' %}Showing {count} places on map. Newest first. Select a pin or a place in the list.{% else %}Показано {count} мест на карте. Сначала новые. Выберите метку или карточку.{% endif %}">
   </p>
 
   <div class="home-explorer-tabs" role="tablist" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Məkanlara baxış{% elif request.LANGUAGE_CODE == 'en' %}Places view{% else %}Вид мест{% endif %}">

@@ -32,15 +32,17 @@ def map_identity(place):
     return (f'place:{place.pk}', coords) if coords else None
 
 
-def serialize_map_places(qs, language_code, filters=None):
+def serialize_map_places(qs, language_code, filters=None, *, ordering=None):
     from django.utils.translation import override
     with override(language_code):
-        return _serialize_map_places(qs, language_code, filters)
+        return _serialize_map_places(qs, language_code, filters, ordering=ordering)
 
 
-def _serialize_map_places(qs, language_code, filters=None):
+def _serialize_map_places(qs, language_code, filters=None, *, ordering=None):
     if filters is not None:
         qs = filters.apply(qs)
+    if ordering is not None:
+        qs = qs.order_by(*ordering)
     points = {}
     seen = set()
     for place in prepare_cards(qs, language_code, filters=filters):

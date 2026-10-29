@@ -227,3 +227,15 @@ test('selecting from the list does not flash the whole explorer, while external 
   assert.equal(section.classList.contains('is-highlighted'),true,'external navigation still brings attention to the map');
  } finally {t.close();}
 });
+
+
+test('newest list order is global across shared venues and appended pages',async()=>{
+ const t=setup([point(10,[member(10),member(2)]),point(8)],{more:true});
+ const ids=()=>Array.from(t.d.querySelectorAll('[data-home-map-member-id]'),el=>el.dataset.homeMapMemberId);
+ assert.deepEqual(ids(),['10','8','2']);
+ t.d.querySelector('[data-map-more]').click();
+ t.requests[0].resolve({ok:true,json:async()=>({points:[point(7),point(1)],count:5,has_more:false,next_cursor:null})});await tick();
+ assert.deepEqual(ids(),['10','8','7','2','1']);
+ assert.equal(t.d.querySelectorAll('[data-home-map-member-id="2"]').length,1);
+ t.close();
+});
