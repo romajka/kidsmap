@@ -1,7 +1,7 @@
 {% load i18n %}
 <div class="km-editor-preview-action">
 <button type="button" class="km-editor-preview" data-km-check>{% translate 'Проверить заполнение' %}</button>
-<button type="submit" name="_km_preview" value="1" class="km-editor-preview" data-km-preview formtarget="_blank" formnovalidate formaction="{% if preview_pk %}{% url 'place_editor_preview' preview_pk %}{% else %}{% url 'place_editor_preview_new' %}{% endif %}{% if preview_admin %}?surface=admin{% endif %}">{% translate 'Просмотреть перед публикацией' %} ↗</button>
+<button type="submit" name="_km_preview" value="1" class="km-editor-preview" data-km-preview formtarget="_blank" formnovalidate formaction="{% if preview_admin %}{% if preview_pk %}{% url 'admin_editor:place_editor_preview' preview_pk %}{% else %}{% url 'admin_editor:place_editor_preview_new' %}{% endif %}{% else %}{% if preview_pk %}{% url 'place_editor_preview' preview_pk %}{% else %}{% url 'place_editor_preview_new' %}{% endif %}{% endif %}">{% translate 'Просмотреть перед публикацией' %} ↗</button>
 <p data-km-check-status role="status" aria-live="polite" hidden></p>
 <p data-km-preview-hint>{% translate 'Текущие данные откроются в новой вкладке. Вы сможете проверить вид страницы и вернуться к заполнению.' %}</p>
 </div>

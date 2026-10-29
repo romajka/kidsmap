@@ -289,6 +289,21 @@
       });
     }
 
+    /* ─── Hero search clear button ─── */
+    var heroSearchInput = page.querySelector('#specialists-hero-search-input');
+    var heroClearBtn = page.querySelector("[data-search-clear][data-search-target='specialists-hero-search-input']");
+    if (heroSearchInput && heroClearBtn) {
+      function toggleClearBtn() {
+        heroClearBtn.hidden = !heroSearchInput.value.trim();
+      }
+      heroSearchInput.addEventListener('input', toggleClearBtn);
+      heroClearBtn.addEventListener('click', function () {
+        heroSearchInput.value = '';
+        toggleClearBtn();
+        heroSearchInput.focus();
+      });
+    }
+
     /* ─── 4. Specialization horizontal strip auto-scroll ─── */
     var activeCategoryChip = page.querySelector(".catalog-category-chip.is-active");
     var categoryStrip = page.querySelector(".catalog-category-strip");
@@ -428,6 +443,21 @@
       selectedBar.hidden = checkedBoxes.length === 0;
       selectedChipsBox.innerHTML = "";
 
+      var dropdownPlaceholder = form.querySelector("[data-owner-spec-placeholder]");
+      var dropdownBadge = form.querySelector("[data-selected-count-badge]");
+      if (dropdownBadge) {
+        dropdownBadge.textContent = checkedBoxes.length;
+        dropdownBadge.hidden = checkedBoxes.length === 0;
+      }
+      if (dropdownPlaceholder) {
+        var isAz = (document.documentElement.lang || '').toLowerCase() === 'az';
+        if (checkedBoxes.length > 0) {
+          dropdownPlaceholder.innerHTML = '<strong>' + (isAz ? 'Seçilmiş istiqamətlər: ' : 'Выбрано направлений: ') + checkedBoxes.length + '</strong>';
+        } else {
+          dropdownPlaceholder.textContent = isAz ? 'İstiqamətləri seçin (məs.: loqoped, psixoloq)...' : 'Выберите направления (например: логопед, психолог)...';
+        }
+      }
+
       checkedBoxes.forEach(function (cb) {
         var labelEl = cb.closest(".owner-specialist-chip");
         var titleText = labelEl ? (labelEl.querySelector(".chip-title") || labelEl).textContent.trim() : "";
@@ -441,6 +471,50 @@
         });
         selectedChipsBox.appendChild(pill);
       });
+    }
+
+    // Dropdown open/close & trigger handlers
+    var dropdownRoot = form.querySelector("[data-owner-spec-dropdown]");
+    var dropdownTrigger = form.querySelector("[data-owner-spec-dropdown-trigger]");
+    var dropdownPanel = form.querySelector("[data-owner-spec-dropdown-panel]");
+    var dropdownDoneBtn = form.querySelector("[data-owner-spec-dropdown-done]");
+
+    if (dropdownTrigger && dropdownPanel) {
+      dropdownTrigger.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var isOpen = !dropdownPanel.hidden;
+        dropdownPanel.hidden = isOpen;
+        dropdownTrigger.setAttribute("aria-expanded", !isOpen ? "true" : "false");
+        if (dropdownRoot) dropdownRoot.classList.toggle("is-open", !isOpen);
+        if (!isOpen && searchInput) {
+          setTimeout(function () { searchInput.focus(); }, 50);
+        }
+      });
+
+      dropdownTrigger.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          dropdownTrigger.click();
+        }
+      });
+
+      document.addEventListener("click", function (e) {
+        if (dropdownRoot && !dropdownRoot.contains(e.target)) {
+          dropdownPanel.hidden = true;
+          dropdownTrigger.setAttribute("aria-expanded", "false");
+          dropdownRoot.classList.remove("is-open");
+        }
+      });
+
+      if (dropdownDoneBtn) {
+        dropdownDoneBtn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          dropdownPanel.hidden = true;
+          dropdownTrigger.setAttribute("aria-expanded", "false");
+          if (dropdownRoot) dropdownRoot.classList.remove("is-open");
+          dropdownTrigger.focus();
+        });
+      }
     }
 
     if (clearAllSpecsBtn) {
@@ -548,13 +622,59 @@
     });
     updateBioIndicators();
 
-    // Photo preview
+    // Photo preview and Dropzone
     var photoInput = form.querySelector("#id_photo");
     var photoPreview = form.querySelector("[data-owner-photo-preview]");
-    var photoChoose=form.querySelector('[data-specialist-photo-choose]');
-    if(photoChoose&&photoInput)photoChoose.addEventListener('click',function(){photoInput.click();});
-    var widgetError=form.querySelector('.km-file-input-hidden [data-upload-error]'),visiblePhotoError=form.querySelector('[data-specialist-photo-error]');
-    if(widgetError&&visiblePhotoError){new MutationObserver(function(){visiblePhotoError.textContent=widgetError.textContent;visiblePhotoError.hidden=widgetError.hidden;}).observe(widgetError,{attributes:true,childList:true,subtree:true});}
+    var photoChoose = form.querySelector('[data-specialist-photo-choose]');
+    var photoDropzone = form.querySelector('[data-owner-photo-dropzone]');
+
+    if (photoChoose && photoInput) {
+      photoChoose.addEventListener('click', function(e) {
+        e.stopPropagation();
+        photoInput.click();
+      });
+    }
+
+    if (photoDropzone && photoInput) {
+      photoDropzone.addEventListener('click', function(e) {
+        if (e.target.closest('[data-specialist-photo-choose]')) return;
+        photoInput.click();
+      });
+
+      photoDropzone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        photoDropzone.classList.add('is-dragover');
+      });
+
+      photoDropzone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        photoDropzone.classList.remove('is-dragover');
+      });
+
+      photoDropzone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        photoDropzone.classList.remove('is-dragover');
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+          var file = e.dataTransfer.files[0];
+          if (file && file.type && file.type.indexOf('image/') === 0) {
+            photoInput.files = e.dataTransfer.files;
+            photoInput.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }
+      });
+    }
+
+    var widgetError = form.querySelector('.km-file-input-hidden [data-upload-error]'), visiblePhotoError = form.querySelector('[data-specialist-photo-error]');
+    if (widgetError && visiblePhotoError) {
+      new MutationObserver(function() {
+        visiblePhotoError.textContent = widgetError.textContent;
+        visiblePhotoError.hidden = widgetError.hidden;
+      }).observe(widgetError, { attributes: true, childList: true, subtree: true });
+    }
+
     if (photoInput && photoPreview) {
       photoInput.addEventListener("change", function () {
         var file = photoInput.files && photoInput.files[0];
@@ -565,6 +685,61 @@
         };
         reader.readAsDataURL(file);
       });
+    }
+
+    // Step 4: WhatsApp copy & auto-sync
+    var phoneInput = form.querySelector("#id_phone");
+    var waInput = form.querySelector("#id_whatsapp");
+    var syncWaBtn = form.querySelector("[data-sync-wa]");
+    var sameWaCheckbox = form.querySelector("[data-wa-same]");
+
+    if (phoneInput && waInput) {
+      function syncWaFromPhone() {
+        var val = phoneInput.value.trim();
+        if (val) {
+          waInput.value = val;
+          waInput.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      }
+
+      if (sameWaCheckbox) {
+        if (phoneInput.value.trim() && phoneInput.value.trim() === waInput.value.trim()) {
+          sameWaCheckbox.checked = true;
+          waInput.readOnly = true;
+          waInput.classList.add("is-synced-readonly");
+        }
+
+        sameWaCheckbox.addEventListener("change", function () {
+          if (sameWaCheckbox.checked) {
+            syncWaFromPhone();
+            waInput.readOnly = true;
+            waInput.classList.add("is-synced-readonly");
+          } else {
+            waInput.readOnly = false;
+            waInput.classList.remove("is-synced-readonly");
+            waInput.focus();
+          }
+        });
+
+        phoneInput.addEventListener("input", function () {
+          if (sameWaCheckbox.checked) {
+            syncWaFromPhone();
+          }
+        });
+      }
+
+      if (syncWaBtn) {
+        syncWaBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          if (phoneInput.value.trim()) {
+            waInput.value = phoneInput.value.trim();
+            waInput.dispatchEvent(new Event("input", { bubbles: true }));
+            waInput.focus();
+            syncWaBtn.classList.add("is-synced");
+            setTimeout(function () { syncWaBtn.classList.remove("is-synced"); }, 1500);
+          }
+        });
+      }
     }
 
 

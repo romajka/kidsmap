@@ -783,9 +783,14 @@ class PlacePublicationFilter(admin.SimpleListFilter):
     title = _("Публикация")
     parameter_name = "publication_state"
 
+    def __init__(self, request, params, model, model_admin):
+        self.model_admin = model_admin
+        super().__init__(request, params, model, model_admin)
+
     def lookups(self, request, model_admin):
         return (
             ("published", _("Опубликованы")),
+            ("ready", _("Готовы к публикации")),
             ("unpublished", _("Не опубликованы")),
             ("review", _("На модерации")),
         )
@@ -794,6 +799,8 @@ class PlacePublicationFilter(admin.SimpleListFilter):
         value = self.value()
         if value == "published":
             return queryset.filter(km_in_public_catalog=True)
+        if value == "ready":
+            return queryset.filter(pk__in=self.model_admin._ready_place_ids(request))
         if value == "unpublished":
             return queryset.filter(km_in_public_catalog=False)
         if value == "review":
@@ -3310,6 +3317,21 @@ class PlaceAdmin(admin.ModelAdmin):
             obj._km_list_readiness = result
         return result
 
+    def _ready_place_ids(self, request):
+        ready_pks = getattr(request, "_km_ready_pks", None)
+        if ready_pks is None:
+            # Filter/count the same authorized live or saved copy as each row.
+            candidates = (
+                self.get_queryset(request)
+                .filter(deleted_at__isnull=True, km_in_public_catalog=False)
+                .prefetch_related(None)
+                .prefetch_related("gallery", "schedule_days__intervals", "pricing_plan_records")
+            )
+            ready_pks = [place.pk for place in candidates if self._list_readiness(place).is_ready]
+            if request is not None:
+                request._km_ready_pks = ready_pks
+        return ready_pks
+
     def _list_can_publish(self, obj):
         # Permission belongs to this row's request, never ModelAdmin's shared
         # _current_request (another simultaneous request can replace it).
@@ -3610,6 +3632,119 @@ class PlaceAdmin(admin.ModelAdmin):
             action_base_url,
             _("Ещё действия"),
         )
+
+    def _build_place_card_data(self, obj, request=None):
+        pres = saved_presentation(obj)
+        name = (pres.name_i18n() if callable(getattr(pres, "name_i18n", None)) else (getattr(pres, "name_i18n", "") or pres.name_az or pres.name_ru or pres.name_en or pres.name)) or f"Place #{obj.pk}"
+        readiness = self._list_readiness(obj)
+        score = readiness.percentage
+        visibility = self._place_visibility_state(obj)
+        can_pub = self._list_can_publish(obj)
+
+        if visibility["is_public"]:
+            status_label = _("Опубликовано")
+            status_desc = _("Видно на сайте и на карте")
+            status_tone = "good"
+            state_key = "published"
+        elif obj.is_deleted:
+            status_label = _("В удалённых")
+            status_desc = _("Скрыто в корзине")
+            status_tone = "muted"
+            state_key = "deleted"
+        elif readiness.is_ready:
+            status_label = _("Готово к публикации")
+            status_desc = _("Все требования выполнены")
+            status_tone = "ready"
+            state_key = "ready"
+        elif obj.status == Place.STATUS_PENDING:
+            status_label = _("На модерации")
+            status_desc = _("Ожидает проверки редактора")
+            status_tone = "warn"
+            state_key = "pending"
+        else:
+            status_label = _("Черновик")
+            status_desc = _("Заполняются данные")
+            status_tone = "draft"
+            state_key = "draft"
+
+        readiness_tone = "good" if score >= 80 else ("warn" if score >= 50 else "danger")
+
+        missing_items = []
+        for item in readiness.items:
+            if not item.is_complete:
+                missing_items.append({
+                    "code": item.code,
+                    "label": str(item.label),
+                    "anchor": item.requirement.anchor or "step-1",
+                    "message": str(item.issue.message) if item.issue else "",
+                })
+
+        category_name = pres.category.name_i18n() if pres.category and callable(getattr(pres.category, "name_i18n", None)) else (pres.category.name if pres.category else "")
+        subcategory_name = pres.subcategory.name_i18n() if pres.subcategory and callable(getattr(pres.subcategory, "name_i18n", None)) else (pres.subcategory.name if pres.subcategory else "")
+
+        cat_url = self._build_changelist_query_string(request, category__id__exact=str(pres.category_id)) if pres.category else None
+        sub_url = self._build_changelist_query_string(request, subcategory__id__exact=str(pres.subcategory_id)) if pres.subcategory else None
+
+        address = (pres.address_i18n() if callable(getattr(pres, "address_i18n", None)) else pres.address) or ""
+        district = (pres.district_i18n() if callable(getattr(pres, "district_i18n", None)) else getattr(pres, "district", "")) or ""
+        metro = (pres.metro_i18n() if callable(getattr(pres, "metro_i18n", None)) else getattr(pres, "metro", "")) or ""
+
+        rating_avg = f"{float(obj.rating_avg or 0):.1f}" if obj.rating_avg else None
+        rating_count = int(obj.rating_count or 0)
+
+        edit_url = self._place_change_url(obj)
+        view_url = self._place_view_url(obj)
+        action_base_url = edit_url.rsplit("change/", 1)[0]
+        toggle_pub_url = reverse("admin:catalog_place_toggle_publication", args=[obj.pk])
+        quick_action_url = f"{action_base_url}quick-action/"
+        can_toggle = can_pub and ((obj.status == Place.STATUS_PUBLISHED and obj.is_active) or readiness.is_ready)
+        pub_reason = format_readiness_issues(readiness) if can_pub else str(_("Недостаточно прав для этого действия."))
+
+        updated_str = obj.updated_at.strftime("%d.%m.%Y %H:%M") if obj.updated_at else ""
+
+        return {
+            "pk": obj.pk,
+            "name": name,
+            "thumbnail_url": saved_thumbnail_url(obj),
+            "change_url": edit_url,
+            "view_url": view_url,
+            "toggle_pub_url": toggle_pub_url,
+            "quick_action_url": quick_action_url,
+            "category_name": category_name,
+            "subcategory_name": subcategory_name,
+            "category_url": cat_url,
+            "subcategory_url": sub_url,
+            "is_home_recommended": bool(obj.is_home_recommended),
+            "has_coordinates": bool(obj.has_coordinates),
+            "address": address,
+            "district": district,
+            "metro": metro,
+            "rating_avg": rating_avg,
+            "rating_count": rating_count,
+            "status_label": status_label,
+            "status_desc": status_desc,
+            "status_tone": status_tone,
+            "state_key": state_key,
+            "readiness_score": score,
+            "readiness_tone": readiness_tone,
+            "is_ready": readiness.is_ready,
+            "completed_count": readiness.completed_count,
+            "required_count": readiness.required_count,
+            "missing_items": missing_items,
+            "missing_count": len(missing_items),
+            "first_missing_anchor": missing_items[0]["anchor"] if missing_items else "step-1",
+            "is_public": visibility["is_public"],
+            "is_deleted": obj.is_deleted,
+            "status": obj.status,
+            "is_active_num": 1 if obj.is_active else 0,
+            "is_deleted_num": 1 if obj.is_deleted else 0,
+            "has_coords_num": 1 if obj.has_coordinates else 0,
+            "is_home_num": 1 if obj.is_home_recommended else 0,
+            "can_toggle_num": 1 if can_toggle else 0,
+            "can_publish": can_pub,
+            "pub_reason": pub_reason,
+            "updated_label": updated_str,
+        }
 
     @admin.display(description=_("Название"))
     def display_name(self, obj):
@@ -4164,6 +4299,18 @@ class PlaceAdmin(admin.ModelAdmin):
                 "active": current_publication == "published" and not current_coordinates and not current_map_ready,
             },
             {
+                "key": "ready",
+                "label": _("Готовы к публикации"),
+                "count": int(counts.get("quick_ready", 0)),
+                "url": self._build_changelist_query_string(
+                    request,
+                    clear=status_keys,
+                    deleted_state="active",
+                    publication_state="ready",
+                ),
+                "active": current_deleted == "active" and current_publication == "ready" and not current_coordinates and not current_map_ready and not current_status,
+            },
+            {
                 "key": "unpublished",
                 "label": _("Не опубликованы"),
                 "count": int(counts["quick_unpublished"]),
@@ -4258,16 +4405,34 @@ class PlaceAdmin(admin.ModelAdmin):
                 filter=Q(deleted_at__isnull=True, km_saved_has_coordinates=False),
             ),
         )
-        return {key: int(value or 0) for key, value in counts.items()}
+        ready_pks = self._ready_place_ids(request)
+        counts_dict = {key: int(value or 0) for key, value in counts.items()}
+        counts_dict["quick_ready"] = len(ready_pks)
+        counts_dict["stat_ready"] = len(ready_pks)
+        return counts_dict
 
     def _place_dashboard_stats(self, request, *, counts: dict[str, int] | None = None):
         counts = counts or self._place_dashboard_counts(request)
+        current_deleted = request.GET.get("deleted_state") if request else None
+        current_publication = request.GET.get("publication_state") if request else None
+        current_active = request.GET.get("is_active__exact") if request else None
+        current_coordinates = request.GET.get("coordinates_status") if request else None
+        current_status = request.GET.get("status__exact") if request else None
+
+        is_all_active = (not current_publication and not current_coordinates and not current_status and (not current_deleted or current_deleted == "active") and not current_active)
+        is_published_active = (current_publication == "published" and (not current_deleted or current_deleted == "active"))
+        is_ready_active = (current_publication == "ready" and (not current_deleted or current_deleted == "active"))
+        is_pending_active = (current_publication == "review")
+        is_unpublished_active = (current_publication == "unpublished" and (not current_deleted or current_deleted == "active"))
+        is_no_coords_active = (current_coordinates == "no")
+
         return (
             {
                 "label": _("Всего"),
                 "count": counts["stat_total"],
                 "url": self._build_changelist_query_string(request, clear=("publication_state", "deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact")),
                 "tone": "info",
+                "is_active": is_all_active,
                 "icon": '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>',
             },
             {
@@ -4275,13 +4440,23 @@ class PlaceAdmin(admin.ModelAdmin):
                 "count": counts["stat_published"],
                 "url": self._build_changelist_query_string(request, clear=("publication_state", "deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact"), deleted_state="active", publication_state="published"),
                 "tone": "good",
+                "is_active": is_published_active,
                 "icon": '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+            },
+            {
+                "label": _("Готовы к публикации"),
+                "count": counts.get("stat_ready", 0),
+                "url": self._build_changelist_query_string(request, clear=("publication_state", "deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact"), deleted_state="active", publication_state="ready"),
+                "tone": "ready",
+                "is_active": is_ready_active,
+                "icon": '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>',
             },
             {
                 "label": _("На модерации"),
                 "count": counts["stat_pending"],
                 "url": self._build_changelist_query_string(request, clear=("publication_state", "deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact"), publication_state="review"),
                 "tone": "warn",
+                "is_active": is_pending_active,
                 "icon": '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
             },
             {
@@ -4289,6 +4464,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 "count": counts["stat_inactive"],
                 "url": self._build_changelist_query_string(request, clear=("publication_state", "deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact"), deleted_state="active", publication_state="unpublished"),
                 "tone": "muted",
+                "is_active": is_unpublished_active,
                 "icon": '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>',
             },
             {
@@ -4296,6 +4472,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 "count": counts["stat_without_coordinates"],
                 "url": self._build_changelist_query_string(request, clear=("publication_state", "deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact"), coordinates_status="no"),
                 "tone": "warn",
+                "is_active": is_no_coords_active,
                 "icon": '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>',
             },
         )
@@ -5191,9 +5368,12 @@ class PlaceAdmin(admin.ModelAdmin):
             response = self._place_changelist_with_drafts(request, {**draft_context, **(extra_context or {})})
             context = getattr(response, 'context_data', None)
             if context and context.get('cl'):
+                is_trash = self._is_trash_changelist(request)
+                context['cl'].can_connect_organization = not is_trash and 'connect_to_organization' in self.get_actions(request)
                 for place in context['cl'].result_list:
                     place._km_working_draft = draft_context['working_drafts_by_target'].get(place.pk)
                     place._km_working_draft_copy = draft_context['working_drafts_copy']
+                context['cl'].place_cards = [self._build_place_card_data(p, request) for p in context['cl'].result_list]
             return response
         finally:
             request.GET = original_params
@@ -5203,7 +5383,7 @@ class PlaceAdmin(admin.ModelAdmin):
         dashboard_counts = self._place_dashboard_counts(request)
         quick_filters = self._place_quick_filters(request, counts=dashboard_counts)
         is_trash = self._is_trash_changelist(request)
-        primary_filter_order = ["all", "published", "unpublished", "pending", "without_coordinates", "deleted"]
+        primary_filter_order = ["all", "published", "ready", "unpublished", "pending", "without_coordinates", "deleted"]
         if is_trash:
             primary_filter_order = ["all", "deleted"]
 

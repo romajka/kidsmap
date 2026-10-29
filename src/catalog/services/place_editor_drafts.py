@@ -37,7 +37,7 @@ def config_for(*, user, place=None, surface='admin'):
         'baseSignature': server_drafts.editor_base_signature(target),
         'candidateVersion': revision.version if revision else 0,
         'fields': sorted((publication.fields_for('place') - {'photo', 'cover_photo', 'gallery'}) | server_drafts.PLACE_EDITOR_DRAFT_FIELDS),
-        'collectionUrl': reverse('server_draft_collection'),
+        'collectionUrl': reverse('admin_editor:server_draft_collection'),
         'listUrl': reverse('admin:volunteer_index' if surface == 'volunteer' else 'admin:catalog_place_changelist'),
         'surface': surface}
 
@@ -70,7 +70,7 @@ def working_draft_rows(*, user, surface='admin', query=''):
         else:
             url = reverse('admin:catalog_place_change', args=[draft.target_id]) if draft.target_id else reverse('admin:catalog_place_add')
         yield {'id': str(draft.pk), 'target_id': draft.target_id,
-            'version': draft.version, 'delete_url': reverse('server_draft_detail', args=[draft.pk]),
+            'version': draft.version, 'delete_url': reverse('admin_editor:server_draft_detail', args=[draft.pk]),
             'title': title or t('Новое место', 'Yeni məkan', 'New place'),
             'saved_at': draft.saved_at, 'needs_review': needs_review,
             'url': url + '?' + urlencode({'type': 'permanent', 'draft_id': str(draft.pk), 'draft_session': str(draft.pk)})}

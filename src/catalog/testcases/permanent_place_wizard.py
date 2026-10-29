@@ -123,13 +123,15 @@ class PermanentPlaceWizardTests(TestCase):
             self.assertFalse(form.is_valid())
 
     def test_schedule_modes_and_structured_create(self):
-        for mode in ('by_appointment','variable','events'):
-            self.create(schedule_mode=mode)
+        for index,mode in enumerate(('by_appointment','variable','events')):
+            with self.subTest(mode=mode):
+                self.create(schedule_mode=mode,name_az=f'Schedule fixture {mode}',address=f'Nizami {10+index}')
         regular=OwnerPlaceCreateForm(data=self.data(schedule_mode='regular'),files={'photo':self.photo()})
         self.assertFalse(regular.is_valid())
         self.assertIn('structured_schedule',regular.errors)
         schedule=[{'weekday':'mon','is_closed':False,'is_24_hours':False,'intervals':[{'start':'09:00','end':'12:00'}]}]
-        self.create(schedule_mode='regular',structured_schedule=json.dumps(schedule))
+        self.create(schedule_mode='regular',structured_schedule=json.dumps(schedule),
+            name_az='Schedule fixture regular',address='Nizami 20')
 
     def test_addon_only_and_inactive_plans_do_not_pass(self):
         for plan in [dict(product_type='deposit',price_kind='exact',price='10'),dict(product_type='lesson',price_kind='on_request',is_active=False)]:

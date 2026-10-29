@@ -19,9 +19,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=20261028_search_adapt_r1">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=20261029_single_kpi_v4">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_home_recommendations.css' %}?v=3">
-  <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=20261028_search_suggest_r1" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=20261029_clean_bg_v2" defer></script>
   <script src="{% static 'admin/js/kidsmap_home_recommendations.js' %}?v=3" defer></script>
 {% endblock %}
 
@@ -57,6 +57,10 @@
               {% translate "К местам" %}
             </a>
           {% else %}
+            <a href="?deleted_state=deleted" class="km-btn-quality-report km-btn-trash-header" title="{% translate 'Перейти в корзину удалённых мест' %}">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-delete"></use></svg>
+              <span>{% translate "Корзина" %}{% if km_total_trash_count %} ({{ km_total_trash_count }}){% endif %}</span>
+            </a>
             <a href="{{ km_identity_registry_url }}" class="km-btn-quality-report">{{ km_identity_copy.title }}</a>
             {% if km_place_quality_report_url %}
               <a href="{{ km_place_quality_report_url }}" class="km-btn-quality-report">
@@ -77,7 +81,7 @@
       {% if not km_is_trash_changelist and place_dashboard_stats %}
         <section class="place-admin-dashboard__stats" aria-label="{% translate 'Статистика мест' %}">
           {% for item in place_dashboard_stats %}
-            <a href="{{ item.url|default:'?' }}" class="place-admin-dashboard__stat-card place-admin-dashboard__stat-card--{{ item.tone }}">
+            <a href="{{ item.url|default:'?' }}" class="place-admin-dashboard__stat-card place-admin-dashboard__stat-card--{{ item.tone }}{% if item.is_active %} is-active{% endif %}">
               <div class="place-admin-dashboard__stat-content">
                 <span class="place-admin-dashboard__stat-label">{{ item.label }}</span>
                 <strong class="place-admin-dashboard__stat-value">{{ item.count }}</strong>
@@ -109,11 +113,6 @@
 
 {% block result_list %}
   <div class="place-admin-dashboard km-admin-root">
-    {% if km_can_connect_organization %}
-      <p><button type="submit" name="connection_selection" value="1" formnovalidate
-          formaction="{% url 'admin:catalog_place_organization_connections' %}" formmethod="post"
-          class="km-bulk-btn km-bulk-btn--outline">{% translate 'Подключить к организации' %}</button></p>
-    {% endif %}
     {% if action_form and actions_on_top and cl.show_admin_actions %}
       <div class="place-admin-dashboard__native-actions km-place-native-actions" aria-hidden="true">{% admin_actions %}</div>
     {% endif %}
@@ -144,28 +143,49 @@
         </div>
       {% endif %}
       <div class="km-place-pagination-inline">
-        <div class="km-redesign-pagination">
-          <span class="km-redesign-pagination__count">{% paginator_range_label cl %}</span>
-          <div class="km-redesign-pagination__controls">
+        {% paginator_page_range cl as page_list %}
+        <div class="km-modern-pagination">
+          <div class="km-modern-pagination__summary">
+            <span class="km-modern-pagination__count">{% translate "Показано" %} <strong class="km-pagination-bold">{% paginator_range_label cl %}</strong></span>
+          </div>
+
+          <div class="km-modern-pagination__controls" role="navigation" aria-label="{% translate 'Пагинация страниц' %}">
+            <!-- Предыдущая страница -->
             {% if cl.page_num > 1 %}
-              <a href="{% paginator_page_url cl cl.page_num|add:'-1' %}" class="km-redesign-pagination__btn" title="{% translate 'Предыдущая страница' %}" aria-label="{% translate 'Предыдущая страница' %}">
-                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-chevron_left"></use></svg>
+              <a href="{% paginator_page_url cl cl.page_num|add:'-1' %}" class="km-page-nav-btn km-page-nav-btn--prev" title="{% translate 'Предыдущая страница' %}">
+                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-chevron_left"></use></svg>
+                <span>{% translate "Назад" %}</span>
               </a>
             {% else %}
-              <span class="km-redesign-pagination__btn is-disabled" aria-disabled="true">
-                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-chevron_left"></use></svg>
+              <span class="km-page-nav-btn km-page-nav-btn--prev is-disabled" aria-disabled="true">
+                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-chevron_left"></use></svg>
+                <span>{% translate "Назад" %}</span>
               </span>
             {% endif %}
 
-            <span class="km-redesign-pagination__page">{{ cl.page_num }} / {{ cl.paginator.num_pages|default:1 }}</span>
+            <!-- Список страниц с цифрами -->
+            <div class="km-page-numbers">
+              {% for p_num in page_list %}
+                {% if p_num == cl.paginator.ELLIPSIS or p_num == '…' %}
+                  <span class="km-page-ellipsis">…</span>
+                {% elif p_num == cl.page_num %}
+                  <span class="km-page-num km-redesign-pagination__page is-active" aria-current="page">{{ p_num }}</span>
+                {% else %}
+                  <a href="{% paginator_page_url cl p_num %}" class="km-page-num km-redesign-pagination__page" title="{% translate 'Страница' %} {{ p_num }}">{{ p_num }}</a>
+                {% endif %}
+              {% endfor %}
+            </div>
 
+            <!-- Следующая страница -->
             {% if cl.page_num < cl.paginator.num_pages %}
-              <a href="{% paginator_page_url cl cl.page_num|add:'1' %}" class="km-redesign-pagination__btn" title="{% translate 'Следующая страница' %}" aria-label="{% translate 'Следующая страница' %}">
-                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-chevron_right"></use></svg>
+              <a href="{% paginator_page_url cl cl.page_num|add:'1' %}" class="km-page-nav-btn km-page-nav-btn--next" title="{% translate 'Следующая страница' %}">
+                <span>{% translate "Вперёд" %}</span>
+                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-chevron_right"></use></svg>
               </a>
             {% else %}
-              <span class="km-redesign-pagination__btn is-disabled" aria-disabled="true">
-                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-chevron_right"></use></svg>
+              <span class="km-page-nav-btn km-page-nav-btn--next is-disabled" aria-disabled="true">
+                <span>{% translate "Вперёд" %}</span>
+                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-chevron_right"></use></svg>
               </span>
             {% endif %}
           </div>
@@ -193,6 +213,14 @@
           <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-my_location"></use></svg>
           <span>{% translate "Обновить координаты" %}</span>
         </button>
+        {% if km_can_connect_organization %}
+          <button type="submit" name="connection_selection" value="1" formnovalidate
+            formaction="{% url 'admin:catalog_place_organization_connections' %}" formmethod="post"
+            class="km-bulk-btn km-bulk-btn--outline" title="{% translate 'Подключить выбранные места к организации' %}">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-domain"></use></svg>
+            <span>{% translate "Подключить к организации" %}</span>
+          </button>
+        {% endif %}
         <details class="km-bulk-more-actions">
           <summary class="km-bulk-btn km-bulk-btn--outline">
             <span>{% translate "Ещё действия" %}</span>

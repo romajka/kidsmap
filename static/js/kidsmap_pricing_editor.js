@@ -541,6 +541,7 @@
       ? `${workflowCopy?.recurring || labels.recurring} ${period(plan.billing_interval_count,plan.billing_interval)}`
       : plan.billing_mode === 'installment' ? `${workflowCopy?.installments || labels.cycles}: ${plan.billing_cycles || '?'}` : workflowCopy?.once || labels.oneTime;
     return {
+      price,
       title: plan.title_az || plan.title_ru || kindLabels[plan.editor_kind] || (interfaceCopy.tariff + " " + (index + 1)),
       meta: [kindLabels[plan.editor_kind] || interfaceCopy.chooseType, price,
         payment,
@@ -772,7 +773,10 @@
     render();
   });
   const modeInput = ownerForm?.querySelector('[name="price_mode"]');
-  editor.kidsmapPricingSummary = () => plans.filter(p => p.is_active !== false && !p.is_trial && (!p.charge_role || p.charge_role === 'primary')).map((p,i)=>tariffSummary(p,i).meta).join('; ') || '—';
+  editor.kidsmapPricingSummary = () => {
+    const active = plans.filter(p => p.is_active !== false && !p.is_trial && (!p.charge_role || p.charge_role === 'primary'));
+    return [...new Set(active.map((plan, index) => tariffSummary(plan, index).price))].join('; ') || '—';
+  };
   const policyButtons = editor.querySelectorAll('[data-price-policy]');
   const policyCopy = {
     ru:{heading:'Тарифы места',paid:'Платные услуги',add:'Добавить тариф',addPaid:'Добавить платную услугу',paidHint:'Вход бесплатный. Добавьте цены только на платные услуги: например аттракцион, прокат или занятие. У каждой услуги — свои цена, период оплаты и условия.'},

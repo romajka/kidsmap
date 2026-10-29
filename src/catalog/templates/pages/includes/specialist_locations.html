@@ -1,22 +1,171 @@
 {% load i18n %}
 {% if row %}
-<article class="spec-practice-card" data-practice-row>
-<h4 tabindex="-1">{% trans 'Место приёма' %} <span data-practice-number>{{ forloop.counter }}</span></h4>
-{% for hidden in row.hidden_fields %}{{ hidden }}{{ hidden.errors }}{% endfor %}
-{{ row.non_field_errors }}
-<div class="spec-practice-grid">
-{% for field in row.visible_fields %}{% if field.name != 'DELETE' %}<div class="spec-practice-field">{{ field.label_tag }}{{ field }}{{ field.errors }}{% if field.help_text %}<small id="{{ field.id_for_label }}_helptext">{{ field.help_text }}</small>{% endif %}</div>{% else %}<div hidden>{{ field }}</div>{% endif %}{% endfor %}
-</div>
-<button type="button" class="btn-secondary" data-practice-remove data-label="{% trans 'Отключить место приёма' %}">{% trans 'Отключить место приёма' %}</button>
+<article class="spec-practice-card km-practice-card" data-practice-row>
+  <div class="km-practice-card-header">
+    <div class="km-practice-card-title">
+      <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+      <h4 tabindex="-1">{% trans 'Место приёма' %} #<span data-practice-number>{{ forloop.counter }}</span></h4>
+    </div>
+    <div class="km-practice-card-actions">
+      <button type="button" class="km-btn-remove-location" data-practice-remove data-label="{% trans 'Отключить место приёма' %}" title="{% trans 'Удалить это место приёма' %}">
+        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+        <span>{% trans 'Удалить' %}</span>
+      </button>
+    </div>
+  </div>
+
+  {% for hidden in row.hidden_fields %}{{ hidden }}{{ hidden.errors }}{% endfor %}
+  {{ row.non_field_errors }}
+
+  <div class="km-practice-body">
+    <!-- Option 1: Existing Place in KidsMap -->
+    <div class="km-practice-choice-block km-practice-choice-block--place">
+      <div class="km-practice-choice-head">
+        <i class="fas fa-building km-choice-icon" aria-hidden="true"></i>
+        <label for="{{ row.place.id_for_label }}" class="km-practice-label">
+          <strong>{% trans 'Детский центр или клиника KidsMap' %}</strong>
+        </label>
+      </div>
+      <div class="km-practice-field">
+        {{ row.place }}
+        {{ row.place.errors }}
+        <p class="km-field-subtext">{% trans 'Если вы ведёте приём в центре из каталога KidsMap, выберите его — адрес, район и метро подтянутся автоматически.' %}</p>
+      </div>
+    </div>
+
+    <div class="km-practice-divider">
+      <span>{% trans 'ИЛИ УКАЖИТЕ ЧАСТНЫЙ КАБИНЕТ' %}</span>
+    </div>
+
+    <!-- Option 2: Custom Address & Metro -->
+    <div class="km-practice-choice-block km-practice-choice-block--custom">
+      <div class="km-practice-choice-head">
+        <i class="fas fa-door-open km-choice-icon" aria-hidden="true"></i>
+        <label for="{{ row.address.id_for_label }}" class="km-practice-label">
+          <strong>{% trans 'Собственный кабинет / Частный адрес' %}</strong>
+        </label>
+      </div>
+      <div class="km-practice-field">
+        {{ row.address }}
+        {{ row.address.errors }}
+        <p class="km-field-subtext">{% trans 'Укажите улицу, номер здания или кабинета (например: ул. Низами 42, офис 305)' %}</p>
+      </div>
+
+      <div class="km-practice-city-grid">
+        <div class="spec-practice-field">
+          {{ row.region.label_tag }}
+          {{ row.region }}
+          {{ row.region.errors }}
+        </div>
+        <div class="spec-practice-field">
+          {{ row.district.label_tag }}
+          {{ row.district }}
+          {{ row.district.errors }}
+        </div>
+        <div class="spec-practice-field">
+          {{ row.metro.label_tag }}
+          {{ row.metro }}
+          {{ row.metro.errors }}
+        </div>
+      </div>
+
+      <!-- Non-intimidating collapsible coordinates -->
+      <details class="km-coords-toggle">
+        <summary>
+          <i class="fas fa-crosshairs" aria-hidden="true"></i>
+          <span>{% trans 'Указать координаты на карте вручную' %}</span>
+          <small>{% trans '(необязательно, если адрес понятен)' %}</small>
+          <i class="fas fa-chevron-down km-coords-chevron" aria-hidden="true"></i>
+        </summary>
+        <div class="km-coords-grid">
+          <div class="spec-practice-field">
+            {{ row.lat.label_tag }}
+            {{ row.lat }}
+            {{ row.lat.errors }}
+            <p class="km-field-subtext">{% trans 'Широта (например: 40.3772)' %}</p>
+          </div>
+          <div class="spec-practice-field">
+            {{ row.lng.label_tag }}
+            {{ row.lng }}
+            {{ row.lng.errors }}
+            <p class="km-field-subtext">{% trans 'Долгота (например: 49.8541)' %}</p>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- Practice conditions and schedule -->
+    <div class="km-practice-details-card">
+      <div class="km-practice-details-head">
+        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+        <span>{% trans 'Условия и расписание в этом филиале (необязательно)' %}</span>
+      </div>
+
+      <div class="spec-practice-field km-field--schedule">
+        <label for="{{ row.schedule.id_for_label }}">{% trans 'Расписание приёма' %}</label>
+        {{ row.schedule }}
+        {{ row.schedule.errors }}
+        <p class="km-field-subtext">{% trans 'Например: Пн, Ср, Пт с 14:00 до 19:00' %}</p>
+      </div>
+
+      <div class="km-practice-subgrid">
+        <div class="spec-practice-field">
+          <label for="{{ row.price_per_session.id_for_label }}">{% trans 'Стоимость в филиале' %}</label>
+          <div class="km-input-affix">
+            {{ row.price_per_session }}
+            <span class="km-affix-unit">₼ AZN</span>
+          </div>
+          {{ row.price_per_session.errors }}
+        </div>
+
+        <div class="spec-practice-field">
+          <label for="{{ row.phone.id_for_label }}">{% trans 'Телефон филиала' %}</label>
+          <div class="km-input-affix">
+            <span class="km-affix-flag">🇦🇿 +994</span>
+            {{ row.phone }}
+          </div>
+          {{ row.phone.errors }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Active and Primary Flags -->
+    <div class="km-practice-flags">
+      <label class="km-practice-chip-check">
+        {{ row.is_primary }}
+        <span class="km-fake-checkbox"><i class="fas fa-check" aria-hidden="true"></i></span>
+        <span>{% trans 'Сделать основным местом приёма' %}</span>
+      </label>
+
+      <label class="km-practice-chip-check">
+        {{ row.is_active }}
+        <span class="km-fake-checkbox"><i class="fas fa-check" aria-hidden="true"></i></span>
+        <span>{% trans 'Активно' %} ({% trans 'отображать в профиле' %})</span>
+      </label>
+    </div>
+
+    <div hidden>{{ row.DELETE }}</div>
+  </div>
 </article>
 {% else %}
-<div data-practice-editor>
-<p>{% trans 'Место приёма не подтверждает сотрудничество с организацией. Цена, телефон и расписание этого места сохраняются отдельно от общих данных профиля.' %}</p>
-<p>{% trans 'Для очного приёма нужны активное место, карточка KidsMap или собственный адрес и регион. Выключенные места остаются в истории.' %}</p>
-{{ locations.management_form }}{{ locations.non_form_errors }}
-<div data-practice-rows>{% for location in locations %}{% include 'pages/includes/specialist_locations.html' with row=location %}{% endfor %}</div>
-<template data-practice-template>{% include 'pages/includes/specialist_locations.html' with row=locations.empty_form %}</template>
-<button type="button" class="btn-secondary" data-practice-add hidden>{% trans 'Добавить место приёма' %}</button>
-<p role="status" aria-live="polite" data-practice-status data-limit="{% trans 'Можно добавить до 30 мест приёма.' %}"></p>
+<div data-practice-editor class="km-practice-editor">
+  <div class="km-location-intro-box">
+    <div class="km-location-intro-icon"><i class="fas fa-info-circle" aria-hidden="true"></i></div>
+    <div class="km-location-intro-text">
+      <strong>{% trans 'Где вы проводите очные консультации?' %}</strong>
+      <p>{% trans 'Вы можете выбрать детский центр или клинику из базы KidsMap, либо указать собственный кабинет. Укажите хотя бы одно активное место приёма.' %}</p>
+    </div>
+  </div>
+
+  {{ locations.management_form }}{{ locations.non_form_errors }}
+  <div data-practice-rows>{% for location in locations %}{% include 'pages/includes/specialist_locations.html' with row=location %}{% endfor %}</div>
+  <template data-practice-template>{% include 'pages/includes/specialist_locations.html' with row=locations.empty_form %}</template>
+  <div class="km-practice-add-wrap">
+    <button type="button" class="km-btn-add-practice" data-practice-add hidden>
+      <i class="fas fa-plus-circle" aria-hidden="true"></i>
+      <span>{% trans 'Добавить ещё одно место приёма' %}</span>
+    </button>
+  </div>
+  <p role="status" aria-live="polite" data-practice-status data-limit="{% trans 'Можно добавить до 30 мест приёма.' %}" class="km-practice-status-note"></p>
 </div>
 {% endif %}

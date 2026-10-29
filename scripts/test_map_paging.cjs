@@ -3,6 +3,48 @@ const {JSDOM}=require(process.env.KIDSMAP_JSDOM||'jsdom');
 function setup(fetch){const dom=new JSDOM('<div data-map-endpoint="/api/catalog/map/" data-shown-label="Shown {shown} of {total}" data-error-label="Retry failed map" data-more-label="More"><p data-map-status></p><button data-map-more>More</button></div>',{url:'http://localhost/',runScripts:'outside-only'}),w=dom.window;w.AbortController=AbortController;w.fetch=fetch;if(fs.existsSync('static/js/map_paging.js'))w.eval(fs.readFileSync('static/js/map_paging.js','utf8'));assert.equal(typeof w.KidsMapPaging?.create,'function','Map transport must support bounded, recoverable pages');return{dom,w,control:w.document.querySelector('div')};}
 const point=(id)=>({key:'venue:1',lat:40,lng:50,members:[{id,name:'Business'+id}]});
 function controller(s,extra={}){return s.w.KidsMapPaging.create({control:s.control,initial:{points:[point(1)],count:3,next_cursor:1,has_more:true},getParams:()=>new s.w.URLSearchParams({q:'art'}),onChange(){},...extra});}
+test('home map automatically loads remaining places and applies filters to every page',async()=>{
+  const requests=[],updates=[];
+  const s=setup(async url=>{requests.push(url);return {ok:true,json:async()=>({points:[point(2)],count:2,next_cursor:null,has_more:false})};});
+  try {
+    const c=controller(s,{autoLoad:true,onChange:points=>updates.push(points.flatMap(p=>p.members.map(m=>m.id)))});
+    await new Promise(resolve=>setTimeout(resolve,20));
+    assert.deepEqual(requests.map(url=>new URL(url,'http://localhost').searchParams.get('after')),['1']);
+    assert.equal(new URL(requests[0],'http://localhost').searchParams.get('q'),'art');
+    assert.deepEqual(Array.from(c.points[0].members,m=>m.id),[1,2]);
+    assert.deepEqual(Array.from(updates[0]),[1,2]);
+    c.destroy();
+  } finally {s.dom.window.close();}
+});
+test('automatic loading stops on failure and retry preserves the initial places',async()=>{
+  let calls=0;
+  const s=setup(async()=>++calls===1?{ok:false}:{ok:true,json:async()=>({points:[point(2)],count:2,next_cursor:null,has_more:false})});
+  try {
+    const c=controller(s,{autoLoad:true});
+    await new Promise(resolve=>setTimeout(resolve,20));
+    assert.equal(calls,1);
+    assert.deepEqual(Array.from(c.points[0].members,m=>m.id),[1]);
+    assert.equal(s.control.querySelector('[data-map-status]').textContent,'Retry failed map');
+    await c.more();
+    assert.deepEqual(Array.from(c.points[0].members,m=>m.id),[1,2]);
+    c.destroy();
+  } finally {s.dom.window.close();}
+});
+test('automatic continuation cannot overwrite a newer filter result',async()=>{
+  const pending=[],s=setup((url,opt)=>new Promise(resolve=>pending.push({url,opt,resolve})));
+  try {
+    const c=controller(s,{autoLoad:true});
+    await new Promise(resolve=>setTimeout(resolve,10));
+    const replacement=c.replace();
+    assert.equal(pending[0].opt.signal.aborted,true);
+    pending[1].resolve({ok:true,json:async()=>({points:[point(3)],count:1,next_cursor:null,has_more:false})});
+    await replacement;
+    pending[0].resolve({ok:true,json:async()=>({points:[point(2)],count:2,next_cursor:null,has_more:false})});
+    await new Promise(resolve=>setTimeout(resolve,10));
+    assert.deepEqual(Array.from(c.points[0].members,m=>m.id),[3]);
+    c.destroy();
+  } finally {s.dom.window.close();}
+});
 test('load more merges shared physical points and deduplicates member IDs',async()=>{const s=setup(async()=>({ok:true,json:async()=>({points:[{...point(2),members:[{id:1},{id:2}]}],count:3,next_cursor:2,has_more:true})}));try{const c=controller(s);await c.more();assert.equal(c.points.length,1);assert.deepEqual(Array.from(c.points[0].members,x=>x.id),[1,2]);assert.equal(s.control.querySelector('[data-map-status]').textContent,'Shown 2 of 3');}finally{s.dom.window.close();}});
 test('cursor and viewport travel with exact public filters; next page is not an automatic full download',async()=>{const requests=[],s=setup(async(url,opt)=>{requests.push({url,opt});return{ok:true,json:async()=>({points:[point(2)],count:2,next_cursor:null,has_more:false})};});try{const c=controller(s);await c.replace({south:39,west:48,north:42,east:51});assert.deepEqual([...new URL(requests[0].url,'http://localhost').searchParams],[['q','art'],['south','39'],['west','48'],['north','42'],['east','51']]);assert.equal(requests.length,1);assert.equal(s.control.querySelector('button').hidden,true);}finally{s.dom.window.close();}});
 test('latest viewport/filter wins even when an aborted response arrives late',async()=>{const pending=[],s=setup((url,opt)=>new Promise(resolve=>pending.push({url,opt,resolve})));try{const c=controller(s),a=c.replace({south:1,west:2,north:3,east:4}),b=c.replace({south:5,west:6,north:7,east:8});assert.equal(pending[0].opt.signal.aborted,true);pending[1].resolve({ok:true,json:async()=>({points:[point(3)],count:1,next_cursor:null,has_more:false})});await b;pending[0].resolve({ok:true,json:async()=>({points:[point(2)],count:1,next_cursor:null,has_more:false})});await a;assert.equal(c.points[0].members[0].id,3);}finally{s.dom.window.close();}});

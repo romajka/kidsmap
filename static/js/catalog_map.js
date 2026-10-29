@@ -622,8 +622,13 @@
 
       marker.addListener("click", function () {
         const peers = Array.from(state.googleItems.values(), item => item.marker).filter(item => item.getPosition().lat() === place.lat && item.getPosition().lng() === place.lng);
-        if (peers.length > 1) { closeActiveCard(state); state.motion.cancel(); state.choice.show(peers, marker); }
-        else openActiveCard(state, place, marker);
+        if (peers.length > 1 || (Array.isArray(place.members) && place.members.length > 1)) {
+          closeActiveCard(state);
+          state.motion.cancel();
+          state.choice.show(peers.length > 1 ? peers : [marker], marker);
+        } else {
+          openActiveCard(state, place, marker);
+        }
       });
 
       marker.addListener("mouseover", function () {

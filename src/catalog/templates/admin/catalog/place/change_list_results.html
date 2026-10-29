@@ -8,7 +8,243 @@
 
 {% if results %}
 {% with current_sort=cl.params.sort|default:'updated_desc' %}
-<div class="card">
+
+<!-- View Switcher Bar -->
+<div class="km-changelist-view-bar">
+  <div class="km-changelist-view-left">
+    <div class="km-changelist-view-modes" role="tablist" aria-label="{% translate 'Режим отображения' %}">
+      <button type="button" class="km-view-mode-btn is-active" data-view-mode="cards" role="tab" aria-selected="true" title="{% translate 'Пульт управления (карточки)' %}">
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-dashboard"></use></svg>
+        <span>{% translate "Пульт управления (карточки)" %}</span>
+      </button>
+      <button type="button" class="km-view-mode-btn" data-view-mode="table" role="tab" aria-selected="false" title="{% translate 'Компактная таблица' %}">
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-table_rows"></use></svg>
+        <span>{% translate "Компактная таблица" %}</span>
+      </button>
+    </div>
+
+    {% if cl.can_connect_organization %}
+      <button type="submit" name="connection_selection" value="1" formnovalidate
+        formaction="{% url 'admin:catalog_place_organization_connections' %}" formmethod="post"
+        class="km-btn-connect-org" title="{% translate 'Подключить выбранные места к организации' %}">
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-domain"></use></svg>
+        <span>{% translate "Подключить к организации" %}</span>
+      </button>
+    {% endif %}
+  </div>
+
+  <div class="km-changelist-view-count">
+    {% blocktranslate count counter=cl.result_list|length %}Показано {{ counter }} место{% plural %}Показано {{ counter }} мест{% endblocktranslate %}
+  </div>
+</div>
+
+<!-- Control Center Cards View -->
+<div class="km-control-cards-container" id="km-control-cards-grid">
+  {% for card in cl.place_cards %}
+    <article class="km-control-card km-control-card--state-{{ card.state_key }}{% if card.is_deleted %} is-deleted{% endif %}" data-place-id="{{ card.pk }}">
+      <!-- Top / Identity Row -->
+      <div class="km-control-card__header">
+        <label class="km-control-card__select-wrap" title="{% translate 'Выбрать карточку' %}">
+          <input type="checkbox" class="km-card-checkbox" data-card-pk="{{ card.pk }}" aria-label="{% translate 'Выбрать карточку' %} {{ card.name }}">
+          <span class="km-card-checkbox-custom" aria-hidden="true"></span>
+        </label>
+
+        <!-- Thumbnail -->
+        <a href="{{ card.change_url }}" class="km-control-card__thumb-link" title="{{ card.name }}">
+          {% if card.thumbnail_url %}
+            <img src="{{ card.thumbnail_url }}" alt="" class="km-control-card__thumb" loading="lazy" onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='flex';">
+            <span class="km-control-card__thumb km-control-card__thumb--placeholder" style="display:none;" aria-hidden="true">
+              <svg class="km-i" viewBox="0 0 960 960"><use href="#kmi-place"></use></svg>
+            </span>
+          {% else %}
+            <span class="km-control-card__thumb km-control-card__thumb--placeholder" aria-hidden="true">
+              <svg class="km-i" viewBox="0 0 960 960"><use href="#kmi-place"></use></svg>
+            </span>
+          {% endif %}
+        </a>
+
+        <!-- Main Info Stack -->
+        <div class="km-control-card__info">
+          <div class="km-control-card__headline">
+            <a href="{{ card.change_url }}" class="km-control-card__title" title="{{ card.name }}">{{ card.name }}</a>
+            <div class="km-control-card__badges">
+              {% if card.is_home_recommended %}
+                <span class="km-pill-badge km-pill-badge--home" title="{% translate 'В списке рекомендаций на главной странице' %}">
+                  <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-home"></use></svg>
+                  <span>{% translate "На главной" %}</span>
+                </span>
+              {% endif %}
+              {% if card.rating_avg %}
+                <span class="km-pill-badge km-pill-badge--rating" title="{% translate 'Рейтинг' %} {{ card.rating_avg }} ({% translate 'отзывов' %}: {{ card.rating_count }})">
+                  <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-star"></use></svg>
+                  <strong>{{ card.rating_avg }}</strong>
+                  <span class="km-pill-badge__count">({{ card.rating_count }})</span>
+                </span>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Meta tags (ID, Category, Subcategory, Updated) -->
+          <div class="km-control-card__meta">
+            <span class="km-meta-tag km-meta-tag--id">#{{ card.pk }}</span>
+            {% if card.category_name %}
+              {% if card.category_url %}
+                <a href="{{ card.category_url }}" class="km-meta-tag km-meta-tag--category" title="{% translate 'Фильтр по категории' %}">{{ card.category_name }}</a>
+              {% else %}
+                <span class="km-meta-tag km-meta-tag--category">{{ card.category_name }}</span>
+              {% endif %}
+            {% endif %}
+            {% if card.subcategory_name %}
+              {% if card.subcategory_url %}
+                <a href="{{ card.subcategory_url }}" class="km-meta-tag km-meta-tag--subcategory" title="{% translate 'Фильтр по подкатегории' %}">{{ card.subcategory_name }}</a>
+              {% else %}
+                <span class="km-meta-tag km-meta-tag--subcategory">{{ card.subcategory_name }}</span>
+              {% endif %}
+            {% endif %}
+            <span class="km-control-card__updated" title="{% translate 'Дата последнего обновления' %}">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-schedule"></use></svg>
+              <span>{{ card.updated_label }}</span>
+            </span>
+          </div>
+
+          <!-- Location Row -->
+          <div class="km-control-card__location">
+            {% if card.has_coordinates %}
+              <svg class="km-i km-i--pin-ok" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-place"></use></svg>
+            {% else %}
+              <svg class="km-i km-i--pin-warn" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-location_off"></use></svg>
+            {% endif %}
+            <span class="km-card-address">{{ card.address|default:"—" }}</span>
+            {% if card.district %}
+              <span class="km-card-loc-sep">·</span>
+              <span class="km-card-district">{{ card.district }}</span>
+            {% endif %}
+            {% if card.metro %}
+              <span class="km-card-loc-sep">·</span>
+              <span class="km-card-metro">
+                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-subway"></use></svg>
+                <span>{{ card.metro }}</span>
+              </span>
+            {% endif %}
+            {% if not card.has_coordinates %}
+              <span class="km-card-coords-warn">⚠️ {% translate "нет координат" %}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Center / Diagnostic Status Bar ("что где не хватает") -->
+      <div class="km-control-card__center">
+        <div class="km-card-status-bar km-card-status-bar--{{ card.status_tone }}">
+          <div class="km-card-status-bar__left">
+            <span class="km-card-status-dot km-card-status-dot--{{ card.status_tone }}"></span>
+            <div class="km-card-status-info">
+              <strong class="km-card-status-title">{{ card.status_label }}</strong>
+              <span class="km-card-status-desc">{{ card.status_desc }}</span>
+            </div>
+          </div>
+
+          <div class="km-card-status-bar__right">
+            <div class="km-card-readiness-meter">
+              <div class="km-readiness-label-row">
+                <span class="km-readiness-text">{% translate "Готовность" %}</span>
+                <strong class="km-readiness-score km-readiness-score--{{ card.readiness_tone }}">{{ card.readiness_score }}%</strong>
+              </div>
+              <div class="km-readiness-progress-track">
+                <div class="km-readiness-progress-bar km-readiness-progress-bar--{{ card.readiness_tone }}" style="width: {{ card.readiness_score }}%;"></div>
+              </div>
+              <span class="km-readiness-count">{{ card.completed_count }}/{{ card.required_count }} {% translate "требований" %}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Missing requirements breakdown ("что где не хватает") -->
+        {% if card.is_ready and card.state_key != 'published' %}
+          <div class="km-control-card__diagnostic-detail">
+            <div class="km-card-complete-banner">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check_circle"></use></svg>
+              <span>{% blocktranslate with done=card.completed_count total=card.required_count %}Все требования выполнены ({{ done }} из {{ total }}). Карточка готова к публикации на сайте!{% endblocktranslate %}</span>
+            </div>
+          </div>
+        {% elif not card.is_ready %}
+          <div class="km-control-card__diagnostic-detail">
+            <div class="km-card-missing-bar">
+              <span class="km-missing-title">
+                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-warning"></use></svg>
+                {% translate "Не хватает для публикации" %} ({{ card.missing_count }}):
+              </span>
+              <div class="km-missing-pills">
+                {% for item in card.missing_items %}
+                  <a href="{{ card.change_url }}#{{ item.anchor }}" class="km-missing-pill" title="{{ item.message|default:item.label }}">
+                    <span class="km-missing-pill__dot"></span>
+                    <span>{{ item.label }}</span>
+                  </a>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Action Toolbar (Пульт управления) -->
+      <div class="km-control-card__actions">
+        <div class="km-control-card__actions-primary">
+          <a href="{{ card.change_url }}" class="km-ctrl-btn km-ctrl-btn--edit" title="{% translate 'Перейти к полному редактированию анкеты' %}">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-edit"></use></svg>
+            <span>{% translate "Редактировать" %}</span>
+          </a>
+
+          {% if card.is_public %}
+            <button type="button" class="km-ctrl-btn km-ctrl-btn--unpublish" data-publication-action="toggle_pub"
+              data-place-id="{{ card.pk }}" data-place-name="{{ card.name }}" data-status="{{ card.status }}"
+              data-is-active="{{ card.is_active_num }}" data-toggle-publication-url="{{ card.toggle_pub_url }}"
+              title="{% translate 'Снять карточку с публичного сайта' %}">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-visibility_off"></use></svg>
+              <span>{% translate "Снять с публикации" %}</span>
+            </button>
+          {% elif card.is_ready and card.can_publish %}
+            <button type="button" class="km-ctrl-btn km-ctrl-btn--publish" data-publication-action="toggle_pub"
+              data-place-id="{{ card.pk }}" data-place-name="{{ card.name }}" data-status="{{ card.status }}"
+              data-is-active="{{ card.is_active_num }}" data-toggle-publication-url="{{ card.toggle_pub_url }}"
+              title="{% translate 'Опубликовать карточку в публичном каталоге KidsMap' %}">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-campaign"></use></svg>
+              <span>{% translate "Опубликовать на сайте" %}</span>
+            </button>
+          {% elif not card.is_ready %}
+            <a href="{{ card.change_url }}#{{ card.first_missing_anchor }}" class="km-ctrl-btn km-ctrl-btn--complete"
+              title="{% translate 'Перейти к заполнению недостающих полей' %}">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-edit_note"></use></svg>
+              <span>{% translate "Заполнить данные" %}</span>
+            </a>
+          {% endif %}
+        </div>
+
+        <div class="km-control-card__actions-secondary">
+          <a href="{{ card.view_url }}" target="_blank" rel="noopener" class="km-ctrl-btn km-ctrl-btn--view"
+            title="{% if card.is_public %}{% translate 'Открыть карточку на сайте' %}{% else %}{% translate 'Предпросмотр карточки' %}{% endif %}">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-open_in_new"></use></svg>
+            <span>{% if card.is_public %}{% translate "На сайте" %}{% else %}{% translate "Предпросмотр" %}{% endif %}</span>
+          </a>
+
+          <button type="button" class="km-ctrl-btn km-ctrl-btn--more" data-more-actions-btn
+            data-place-id="{{ card.pk }}" data-place-name="{{ card.name }}" data-status="{{ card.status }}"
+            data-is-active="{{ card.is_active_num }}" data-is-deleted="{{ card.is_deleted_num }}"
+            data-has-coords="{{ card.has_coords_num }}" data-is-home="{{ card.is_home_num }}"
+            data-edit-url="{{ card.change_url }}" data-view-url="{{ card.view_url }}"
+            data-can-toggle-publication="{{ card.can_toggle_num }}" data-publication-reason="{{ card.pub_reason }}"
+            data-toggle-publication-url="{{ card.toggle_pub_url }}" data-quick-action-url="{{ card.quick_action_url }}"
+            title="{% translate 'Ещё действия' %}">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-more_horiz"></use></svg>
+            <span>{% translate "Ещё" %}</span>
+          </button>
+        </div>
+      </div>
+    </article>
+  {% endfor %}
+</div>
+
+<!-- Compact Table View -->
+<div class="card km-table-view-container" id="km-places-table" hidden>
   <div class="card-body table-responsive p-0">
     <table id="result_list" class="table table-striped">
       <thead>

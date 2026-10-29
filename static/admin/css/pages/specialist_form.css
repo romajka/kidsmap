@@ -1654,3 +1654,1688 @@
     grid-template-columns: 1fr !important;
   }
 }
+
+
+/* ============================================================
+   KidsMap Specialist Modern Overhaul (Task Redesign 2026)
+   ============================================================ */
+
+/* ── Readiness Score Card in Hero ── */
+.km-spec-readiness {
+  margin-top: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.km-spec-readiness__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.km-spec-readiness__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.km-spec-readiness__title i {
+  color: #059669;
+}
+
+.km-spec-readiness__pct {
+  font-size: 13px;
+  font-weight: 800;
+  color: #059669;
+}
+
+.km-spec-readiness__track {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.km-spec-readiness__fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.km-spec-readiness__info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.km-spec-readiness__summary {
+  font-weight: 600;
+  color: #334155;
+}
+
+.km-spec-readiness__missing {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.km-missing-label {
+  color: #94a3b8;
+}
+
+.km-missing-item-link {
+  display: inline-flex;
+  align-items: center;
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  padding: 1px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.km-missing-item-link:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+  text-decoration: none;
+}
+
+.km-readiness-all-done {
+  color: #059669;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Nav check indicators ── */
+.km-nav-check {
+  margin-left: auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #cbd5e1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  transition: all 0.15s ease;
+}
+
+.km-nav-check.is-done {
+  background: #10b981;
+  color: #ffffff;
+}
+
+/* ── Section Header Badges ── */
+.km-section-req-badge {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.km-section-req-badge--mandatory {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.km-section-req-badge--optional {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.km-req-star {
+  color: #dc2626;
+  font-weight: 800;
+  margin-left: 2px;
+}
+
+/* ── Section 1: Clean Name Grid & Slug Bar ── */
+.km-spec-clean-name-block {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.km-spec-name-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+@media (max-width: 768px) {
+  .km-spec-name-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.km-field-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 6px;
+}
+
+.km-field-icon {
+  color: #059669;
+}
+
+.km-field--highlight input[type="text"] {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  padding: 10px 14px !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 9px !important;
+}
+
+.km-field--highlight input[type="text"]:focus {
+  border-color: #059669 !important;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15) !important;
+}
+
+.km-spec-slug-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.km-spec-slug-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.km-spec-slug-prefix {
+  color: #94a3b8;
+  font-family: ui-monospace, monospace;
+}
+
+.km-spec-slug-input-wrap input {
+  font-size: 12px !important;
+  padding: 4px 8px !important;
+  height: 28px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  color: #0f172a !important;
+  font-family: ui-monospace, monospace !important;
+}
+
+.km-spec-slug-val {
+  color: #059669;
+  font-family: ui-monospace, monospace;
+  font-weight: 700;
+}
+
+/* ── Section 2: Avatar & Bio with Tabs ── */
+.km-spec-photo-bio-card {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 840px) {
+  .km-spec-photo-bio-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+.km-spec-photo-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.km-spec-avatar-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 16px;
+  background: #ffffff;
+  border: 2px dashed #cbd5e1;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  user-select: none;
+}
+
+.km-spec-avatar-dropzone:hover {
+  border-color: #059669;
+  background: #f0fdf4;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.08);
+}
+
+.km-spec-avatar-dropzone:focus-visible {
+  outline: 2px solid #059669;
+  outline-offset: 2px;
+}
+
+.km-spec-avatar-dropzone.is-dragover {
+  border-color: #059669;
+  background: #dcfce7;
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(5, 150, 105, 0.15);
+}
+
+.km-spec-avatar-dropzone.has-photo {
+  border-style: solid;
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.km-spec-avatar-preview {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.km-spec-avatar-dropzone:hover .km-spec-avatar-preview {
+  transform: scale(1.04);
+}
+
+.km-spec-avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.km-spec-avatar-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #94a3b8;
+  font-size: 32px;
+}
+
+.km-spec-avatar-placeholder span {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.km-spec-avatar-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.km-spec-avatar-cta__title {
+  font-size: 13px;
+  color: #1e293b;
+}
+
+.km-spec-avatar-cta__hint {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.km-spec-avatar-btn-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.km-btn-avatar-fake {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #059669;
+  color: #ffffff;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.25);
+  transition: background 0.15s ease;
+}
+
+.km-spec-avatar-dropzone:hover .km-btn-avatar-fake {
+  background: #047857;
+}
+
+.km-btn-avatar-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.km-btn-avatar-delete:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+  color: #b91c1c;
+}
+
+/* Multilingual Tabs Component */
+.km-spec-i18n-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 14px 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.km-spec-i18n-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.km-spec-i18n-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.km-spec-i18n-title i {
+  color: #059669;
+}
+
+.km-spec-langtabs {
+  display: flex;
+  gap: 6px;
+}
+
+.km-spec-langtab {
+  padding: 5px 12px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.km-spec-langtab:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.km-spec-langtab.is-active {
+  background: #059669;
+  border-color: #059669;
+  color: #ffffff;
+}
+
+.km-lang-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  display: inline-block;
+}
+
+.km-lang-dot.is-filled {
+  background: #22c55e;
+}
+
+.km-spec-langtab.is-active .km-lang-dot.is-filled {
+  background: #ffffff;
+}
+
+.km-spec-i18n-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.km-spec-i18n-pane.is-hidden {
+  display: none !important;
+}
+
+.km-pane-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.km-spec-i18n-pane textarea {
+  min-height: 110px !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+/* ── Section 3: Custom Multiselect Dropdown & Specializations ── */
+.km-specialist-section--sec3 {
+  overflow: visible !important;
+  position: relative;
+  z-index: 40;
+}
+
+.km-specialist-section--sec3 .km-section-body {
+  overflow: visible !important;
+}
+
+.km-spec-directions-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+
+.km-spec-custom-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.km-spec-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.km-spec-dropdown-trigger:hover {
+  border-color: #059669;
+  background: #f8fafc;
+}
+
+.km-spec-dropdown-trigger:focus-visible {
+  outline: none;
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+}
+
+.km-spec-custom-dropdown.is-open .km-spec-dropdown-trigger {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.km-spec-dropdown-trigger__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #ecfdf5;
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.km-spec-dropdown-trigger__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.km-spec-dropdown-trigger__placeholder {
+  font-size: 14px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.km-spec-dropdown-trigger__placeholder.has-selection {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.km-spec-dropdown-trigger__badge-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.km-spec-dropdown-trigger__count {
+  background: #059669;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.km-spec-dropdown-trigger__arrow {
+  color: #94a3b8;
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.km-spec-custom-dropdown.is-open .km-spec-dropdown-trigger__arrow {
+  transform: rotate(180deg);
+}
+
+.km-spec-dropdown-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1.5px solid #059669;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+  animation: kmDropdownSlideDown 0.15s ease-out;
+}
+
+@keyframes kmDropdownSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.km-spec-dropdown-panel[hidden] {
+  display: none !important;
+}
+
+.km-spec-dropdown-search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.km-spec-dropdown-search-row .km-search-icon {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.km-spec-dropdown-search {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  outline: none;
+  padding: 4px;
+  color: #1e293b;
+}
+
+.km-spec-dropdown-search::placeholder {
+  color: #94a3b8;
+}
+
+.km-spec-dropdown-found-pill {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.km-spec-dropdown-list-wrap {
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 10px 14px;
+}
+
+#km-spec-specializations-container {
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+
+#km-spec-specializations-container #id_specializations {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+#km-spec-specializations-container #id_specializations > div {
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+}
+
+#km-spec-specializations-container #id_specializations > div:hover {
+  background: #f0fdf4;
+  border-color: #a7f3d0;
+}
+
+#km-spec-specializations-container #id_specializations label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+}
+
+#km-spec-specializations-container #id_specializations input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: #059669;
+  width: 16px;
+  height: 16px;
+}
+
+#km-spec-specializations-container #id_specializations label.is-selected {
+  font-weight: 700;
+  color: #065f46;
+}
+
+.km-spec-dropdown-bottom-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.km-spec-dropdown-clear-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.km-spec-dropdown-clear-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.km-spec-dropdown-done-btn {
+  background: #059669;
+  border: none;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.2);
+  transition: background 0.15s ease;
+}
+
+.km-spec-dropdown-done-btn:hover {
+  background: #047857;
+}
+
+/* Tag chips inside Section 3 */
+.km-spec-selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+  min-height: 28px;
+}
+
+.km-spec-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  box-shadow: 0 1px 2px rgba(5, 150, 105, 0.08);
+}
+
+.km-spec-tag-remove {
+  background: none;
+  border: none;
+  color: #059669;
+  font-size: 15px;
+  line-height: 1;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.km-spec-tag-remove:hover {
+  color: #dc2626;
+}
+
+/* ── Section 4: Age Range with Open-Ended Toggle ── */
+.km-spec-age-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.km-spec-age-inputs-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.km-spec-age-dash {
+  font-size: 16px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.km-spec-input-affix {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.km-spec-input-affix input {
+  border: none !important;
+  box-shadow: none !important;
+  padding: 8px 10px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  outline: none !important;
+  width: 65px !important;
+  text-align: center !important;
+}
+
+.km-affix-label,
+.km-affix-unit {
+  padding: 8px 10px;
+  background: #f1f5f9;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  user-select: none;
+}
+
+.km-spec-input-affix.is-disabled {
+  opacity: 0.5;
+  background: #f1f5f9;
+  pointer-events: none;
+}
+
+.km-spec-open-ended-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.km-spec-open-ended-chip input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.km-chip-check {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: transparent;
+  background: #ffffff;
+  transition: all 0.15s ease;
+}
+
+.km-spec-open-ended-chip:has(input:checked) {
+  border-color: #059669;
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.km-spec-open-ended-chip:has(input:checked) .km-chip-check {
+  background: #059669;
+  border-color: #059669;
+  color: #ffffff;
+}
+
+.km-chip-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.km-chip-text strong {
+  font-size: 13px;
+}
+
+.km-chip-text small {
+  color: #64748b;
+}
+
+/* ── Section 5: Languages Toggle Pills ── */
+.km-spec-languages-card {
+  padding: 14px 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.km-spec-lang-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.km-spec-lang-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+  user-select: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  transition: all 0.15s ease;
+}
+
+.km-spec-lang-pill input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.km-lang-pill__check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  transition: all 0.15s ease;
+}
+
+.km-spec-lang-pill:has(input:checked) {
+  border-color: #059669;
+  background: #ecfdf5;
+  color: #065f46;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.12);
+}
+
+.km-spec-lang-pill:has(input:checked) .km-lang-pill__check {
+  background: #059669;
+  color: #ffffff;
+}
+
+/* ── Section 6: Consultation Format Cards ── */
+.km-spec-format-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.km-spec-format-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 800px) {
+  .km-spec-format-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.km-spec-format-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.km-spec-format-card:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.km-spec-format-card.is-active {
+  border-color: #059669;
+  background: #ecfdf5;
+  box-shadow: 0 0 0 1px #059669;
+}
+
+.km-format-card__icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: #f1f5f9;
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.km-spec-format-card.is-active .km-format-card__icon {
+  background: #059669;
+  color: #ffffff;
+}
+
+.km-format-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.km-format-card__info strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.km-format-card__info span {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+.km-format-card__check {
+  margin-left: auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #059669;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.km-spec-format-card.is-active .km-format-card__check {
+  opacity: 1;
+}
+
+/* ── Section 7: Pricing Grid ── */
+.km-spec-pricing-card {
+  padding: 16px 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.km-spec-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .km-spec-pricing-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.km-spec-pricing-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.km-spec-pricing-item label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.km-spec-pricing-item .km-spec-input-affix {
+  width: 100%;
+}
+
+.km-spec-pricing-item .km-spec-input-affix input {
+  width: 100% !important;
+  text-align: left !important;
+  padding-left: 12px !important;
+}
+
+/* ── Section 8: Locations Notice ── */
+.km-spec-location-banner {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.km-spec-location-banner.is-optional {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+.km-location-banner__icon {
+  font-size: 18px;
+  margin-top: 1px;
+}
+
+.km-location-banner__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.km-location-banner__text strong {
+  font-weight: 700;
+}
+
+.km-location-banner__text span {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* ── Section 9: Polished Education & Experience ── */
+.km-spec-edu-exp-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.km-spec-edu-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.km-spec-exp-years-compact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.km-spec-exp-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #ecfdf5;
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.km-spec-exp-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.km-spec-exp-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.km-spec-input-affix--compact {
+  width: 110px;
+}
+
+.km-spec-input-affix--compact input {
+  height: 32px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+}
+
+.km-spec-edu-lang-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.km-spec-edu-lang-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.km-spec-edu-panes {
+  margin-top: 4px;
+}
+
+.km-spec-edu-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+@media (max-width: 840px) {
+  .km-spec-edu-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.km-spec-edu-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 18px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.15s ease;
+}
+
+.km-spec-edu-card:hover {
+  border-color: #cbd5e1;
+}
+
+.km-spec-edu-card__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.km-spec-edu-card__head i {
+  color: #059669;
+}
+
+.km-spec-edu-card__hint {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0 0 10px 0;
+  line-height: 1.4;
+}
+
+.km-spec-edu-card textarea {
+  width: 100% !important;
+  min-height: 110px !important;
+  padding: 10px 12px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  resize: vertical !important;
+}
+
+.km-spec-edu-card textarea:focus {
+  border-color: #059669 !important;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15) !important;
+}
+
+/* ── Section 10: Qualification Documents Banner ── */
+.km-spec-docs-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.km-spec-doc-banner {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  color: #14532d;
+}
+
+.km-doc-banner__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #dcfce7;
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.km-doc-banner__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.km-doc-banner__text strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: #14532d;
+}
+
+.km-doc-banner__text span {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #166534;
+}
+
+/* ── Section 11: Contacts Card & Input Addon Groups ── */
+.km-spec-contacts-card {
+  padding: 18px 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.km-spec-contacts-hero-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.km-contacts-hero__icon {
+  font-size: 18px;
+  color: #059669;
+  margin-top: 2px;
+}
+
+.km-contacts-hero__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.km-contacts-hero__text strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.km-contacts-hero__text span {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.km-spec-contacts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+@media (max-width: 768px) {
+  .km-spec-contacts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.km-spec-contact-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.km-spec-contact-item p.help,
+.km-spec-clean-name-block p.help {
+  font-size: 11px !important;
+  color: #64748b !important;
+  margin-top: 4px !important;
+  margin-bottom: 0 !important;
+  line-height: 1.4 !important;
+}
+
+.km-spec-contact-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.km-spec-contact-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.km-input-addon-group {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.km-input-addon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  background: #f1f5f9;
+  border: 1.5px solid #cbd5e1;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.km-input-addon--flag {
+  font-size: 13px;
+  background: #f8fafc;
+}
+
+.km-input-addon--wa {
+  color: #25d366;
+  font-size: 16px;
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.km-input-addon-group input {
+  flex: 1;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-left: 1px solid #cbd5e1 !important;
+  padding: 8px 12px !important;
+  height: 38px !important;
+  font-size: 14px !important;
+  width: 100% !important;
+}
+
+.km-input-addon-group:has(.km-input-addon--wa) input {
+  border-left-color: #86efac !important;
+}
+
+.km-input-addon-group input:focus {
+  border-color: #059669 !important;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15) !important;
+}
+
+.km-spec-same-wa-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  margin-top: 4px;
+  user-select: none;
+}
+
+.km-spec-same-wa-checkbox input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: #059669;
+  width: 15px;
+  height: 15px;
+}
+
+.km-spec-sync-wa-btn {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.km-spec-sync-wa-btn:hover {
+  background: #bbf7d0;
+}
+
+.km-spec-sync-wa-btn.is-synced {
+  background: #059669;
+  color: #ffffff;
+  border-color: #059669;
+}
+
+/* ── Section 12: Moderation & Admin Metadata ── */
+.km-spec-moderation-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.km-spec-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding-top: 26px;
+  user-select: none;
+}
+
+.km-spec-checkbox-label input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.km-checkbox-fake {
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: transparent;
+  transition: all 0.15s ease;
+}
+
+.km-spec-checkbox-label:has(input:checked) .km-checkbox-fake {
+  background: #059669;
+  border-color: #059669;
+  color: #ffffff;
+}
+
+.km-checkbox-text {
+  font-size: 13px;
+  color: #334155;
+}
+
+.km-spec-admin-meta {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.km-spec-admin-meta__summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  user-select: none;
+  background: #f8fafc;
+  transition: background 0.15s ease;
+}
+
+.km-spec-admin-meta__summary:hover {
+  background: #f1f5f9;
+}
+
+.km-spec-admin-meta__summary .km-spec-chevron {
+  margin-left: auto;
+  font-size: 12px;
+  color: #94a3b8;
+  transition: transform 0.2s ease;
+}
+
+.km-spec-admin-meta[open] .km-spec-chevron {
+  transform: rotate(180deg);
+}
+
+.km-spec-admin-meta__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+  padding: 16px;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.km-meta-card {
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+}
+
+.km-meta-label label,
+.km-meta-label {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #64748b !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.03em !important;
+  margin-bottom: 4px !important;
+  display: block !important;
+}
+
+.km-meta-card .readonly {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #1e293b !important;
+}

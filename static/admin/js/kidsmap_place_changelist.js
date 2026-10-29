@@ -232,11 +232,17 @@
         var selectedCount = 0;
         rowCheckboxes.forEach(function (cb) {
           var tr = cb.closest('tr');
+          var card = form.querySelector('.km-control-card[data-place-id="' + cb.value + '"]');
+          var cardCb = card ? card.querySelector('.km-card-checkbox') : null;
           if (cb.checked) {
             selectedCount++;
             if (tr) tr.classList.add('selected');
+            if (card) card.classList.add('is-selected');
+            if (cardCb) cardCb.checked = true;
           } else {
             if (tr) tr.classList.remove('selected');
+            if (card) card.classList.remove('is-selected');
+            if (cardCb) cardCb.checked = false;
           }
         });
 
@@ -276,6 +282,18 @@
           updateSelectionState();
         });
       }
+
+      document.addEventListener('change', function (e) {
+        var cardCb = e.target.closest('.km-card-checkbox');
+        if (cardCb) {
+          var pk = cardCb.dataset.cardPk;
+          var tableCb = form.querySelector('tbody input.action-select[value="' + pk + '"]');
+          if (tableCb) {
+            tableCb.checked = cardCb.checked;
+          }
+          updateSelectionState();
+        }
+      });
 
       bulkBar.addEventListener('click', function (e) {
         var actionBtn = e.target.closest('[data-bulk-action]');
@@ -1124,5 +1142,54 @@
         columnsMenu.removeAttribute('open');
       }
     });
+    /* --------------------------------------------------------------------------
+       View Switcher: Cards (Control Center) vs Compact Table
+       -------------------------------------------------------------------------- */
+    var viewModeKey = 'km_place_view_mode';
+    var savedMode = 'cards';
+    try {
+      savedMode = localStorage.getItem(viewModeKey) || 'cards';
+    } catch (e) {}
+
+    function setViewMode(mode) {
+      var cardsGrid = document.getElementById('km-control-cards-grid');
+      var tableWrap = document.getElementById('km-places-table');
+      var modeButtons = document.querySelectorAll('[data-view-mode]');
+      var tableContainer = document.querySelector('.km-table-container');
+
+      if (cardsGrid && tableWrap) {
+        if (mode === 'table') {
+          cardsGrid.hidden = true;
+          tableWrap.hidden = false;
+        } else {
+          cardsGrid.hidden = false;
+          tableWrap.hidden = true;
+        }
+      }
+      if (tableContainer) {
+        tableContainer.classList.toggle('km-table-container--cards-mode', mode === 'cards');
+        tableContainer.classList.toggle('km-table-container--table-mode', mode === 'table');
+      }
+      document.body.classList.toggle('km-view-mode--cards', mode === 'cards');
+      document.body.classList.toggle('km-view-mode--table', mode === 'table');
+
+      modeButtons.forEach(function (btn) {
+        var isActive = btn.dataset.viewMode === mode;
+        btn.classList.toggle('is-active', isActive);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+      try {
+        localStorage.setItem(viewModeKey, mode);
+      } catch (e) {}
+    }
+
+    document.addEventListener('click', function (e) {
+      var modeBtn = e.target.closest('[data-view-mode]');
+      if (modeBtn) {
+        setViewMode(modeBtn.dataset.viewMode);
+      }
+    });
+
+    setViewMode(savedMode);
   });
 })();

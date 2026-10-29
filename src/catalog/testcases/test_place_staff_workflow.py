@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
+from django.urls import reverse
 
 from catalog.models import VolunteerPlaceRevision, PlacePhoto
 from catalog.testcases.utils import create_ready_place
@@ -44,7 +45,7 @@ class StaffGalleryWorkflowTests(TestCase):
     def test_volunteer_has_optional_gallery_and_current_form_preview(self):
         response = self.client.get(self.url)
         self.assertContains(response, 'name="gallery_images"')
-        self.assertContains(response, 'surface=volunteer')
+        self.assertContains(response, reverse('admin_editor:volunteer_place_editor_preview', args=[self.place.pk]))
         self.assertContains(response, 'data-km-preview')
         self.assertNotRegex(response.content.decode(), r'Главное фото</?[^>]*>.*km-pf-field__required')
 

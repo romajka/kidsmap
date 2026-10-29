@@ -113,12 +113,12 @@ def _fields(kind, fields):
     return fields
 
 
-def serialize(draft, *, include_fields=True):
+def serialize(draft, *, include_fields=True, media_url_name="server_draft_media_file"):
     result = {'draft_id': str(draft.pk), 'schema_version': draft.schema_version, 'version': draft.version,
               'source_version': draft.source_version, 'target_type': draft.target_type, 'target_id': draft.target_id,
               'saved_at': draft.saved_at.isoformat(), 'status': 'server_saved', 'errors': {},
               'photo_saved': bool(draft.photo_name), 'materialized_place_id': draft.materialized_place_id}
-    result['media_manifest'] = public_media_manifest(draft)
+    result['media_manifest'] = public_media_manifest(draft, url_name=media_url_name)
     result['photo_saved'] = result['photo_saved'] or any(row['role'] == 'main' for row in result['media_manifest'])
     if include_fields: result['fields'] = draft.fields
     return result
@@ -208,14 +208,14 @@ def private_storage():
         file_permissions_mode=0o600, directory_permissions_mode=0o700)
 
 
-def public_media_manifest(draft):
+def public_media_manifest(draft, *, url_name="server_draft_media_file"):
     """Expose only opaque identifiers and authorized routes, never storage paths."""
     from django.urls import reverse
     return [{'id': row['id'], 'role': row['role'], 'order': row['order'],
              'name': row['name'], 'size': row['size'],
              **({key: row[key] for key in ('desired_role', 'desired_order')}
                 if row['role'] == 'pending' and 'desired_role' in row and 'desired_order' in row else {}),
-             'url': reverse('server_draft_media_file', args=[draft.pk, row['id']])}
+             'url': reverse(url_name, args=[draft.pk, row['id']])}
             for row in (draft.media_manifest or []) if row.get('role') != 'deleted']
 
 

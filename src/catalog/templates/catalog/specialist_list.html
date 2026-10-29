@@ -5,61 +5,155 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261028_specialist_chips_r1" />
-<script src="{% static 'js/specialists.js' %}?v=20261028_specialist_chips_r1" defer></script>
+<link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261028_hero_redesign_r1" />
+<script src="{% static 'js/specialists.js' %}?v=20261028_hero_redesign_r1" defer></script>
+<script src="{% static 'js/catalog_category_strip.js' %}?v=20261028_strip_r1" defer></script>
 {% endblock %}
 
 {% block content %}
 <div class="km-specialists-page km-specialists-catalog">
+  {% include "catalog/includes/breadcrumbs.html" with items=specialist_breadcrumb_items %}
 
-  <!-- Compact Hero Section with Contrast Card -->
-  <section class="hero km-specialists-hero">
-    <picture class="catalog-hero-picture">
-      <img
-        class="catalog-hero-image"
-        src="{% static 'img/banners/catalog-hero.webp' %}"
-        width="1600"
-        height="500"
-        alt=""
-        fetchpriority="high"
-        decoding="async"
-      >
-    </picture>
-    <div class="km-hero-card">
-      <div class="hero-text">
-        <h1>
-          {% if language == "az" %}Uşaqlar üçün pedaqoqlar və mütəxəssislər{% elif language == "en" %}Educators and specialists for children{% else %}Педагоги и специалисты для детей{% endif %}
-        </h1>
-        <p>
-          {% if language == "az" %}Bakıda və onlayn repetitorlar, loqopedlər, psixoloqlar və məşqçilər.{% elif language == "en" %}Tutors, speech therapists, psychologists, and coaches in Baku & online.{% else %}Репетиторы, логопеды, психологи, тренеры и педагоги в Баку и онлайн.{% endif %}
-        </p>
+  <!-- Hero Section matching Main Catalog Design System -->
+  <section class="hero km-specialists-hero catalog-faq-hero">
+    <div class="catalog-hero-decoration" aria-hidden="true">
+      <div class="faq-hero-orb1"></div>
+      <div class="faq-hero-orb2"></div>
+    </div>
 
-        <!-- Integrated Search Form -->
-        <form method="get" class="km-hero-search">
+    <div class="hero-text">
+      <div class="faq-hero-badge">
+        <span class="faq-hero-badge-dot" aria-hidden="true"></span>
+        <span>{% if language == "az" %}UŞAQLAR ÜÇÜN PEDAQOQLAR VƏ MÜTƏXƏSSİSLƏR{% elif language == "en" %}CHILDREN'S EDUCATORS & SPECIALISTS{% else %}ПЕДАГОГИ И СПЕЦИАЛИСТЫ ДЛЯ ДЕТЕЙ{% endif %}</span>
+      </div>
+
+      <h1>
+        {% if language == "az" %}Uşaqlar üçün pedaqoqlar və mütəxəssislər{% elif language == "en" %}Educators and specialists for children in Baku{% else %}Педагоги и специалисты для детей в Азербайджане{% endif %}
+      </h1>
+
+      <p class="hero-intro-text">
+        {% if language == "az" %}Uşağınız üçün ən yaxşı repetitor, loqoped, psixoloq və məşqçiləri asanlıqla tapın{% elif language == "en" %}Find verified tutors, speech therapists, psychologists, and coaches for your child{% else %}Подберите проверенных репетиторов, логопедов, психологов, тренеров и педагогов для развития вашего ребёнка{% endif %}
+      </p>
+
+      <div class="catalog-hero-search-wrap">
+        <form method="get" class="catalog-hero-search km-specialists-hero-search" id="specialists-hero-search-form" action="{% url 'specialist_list' %}" autocomplete="off">
+          <span class="catalog-hero-search__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </span>
+          <label class="visually-hidden" for="specialists-hero-search-input">
+            {% if language == "az" %}Axtarış{% elif language == "en" %}Search{% else %}Поиск{% endif %}
+          </label>
+          <input
+            id="specialists-hero-search-input"
+            type="search"
+            name="q"
+            value="{{ selected.q }}"
+            data-search-input
+            autocomplete="off"
+            placeholder="{% if language == 'az' %}Ad, istiqamət və ya xidmət... məsələn loqoped{% elif language == 'en' %}Name, specialization, or service... e.g., speech therapist{% else %}Имя, направление или услуга... например логопед{% endif %}"
+          />
+          <button
+            class="catalog-search-clear"
+            type="button"
+            data-search-clear
+            data-search-target="specialists-hero-search-input"
+            aria-label="{% if language == 'az' %}Axtarışı təmizlə{% elif language == 'en' %}Clear search{% else %}Очистить поиск{% endif %}"
+            {% if not selected.q %}hidden{% endif %}
+          >×</button>
           {% for key, val in selected.items %}
             {% if key != 'q' and key != 'sort' and val %}
               <input type="hidden" name="{{ key }}" value="{{ val }}">
             {% endif %}
           {% endfor %}
-          <span class="material-symbols-rounded" aria-hidden="true">search</span>
-          <input
-            type="search"
-            name="q"
-            value="{{ selected.q }}"
-            placeholder="{% if language == 'az' %}Ad, istiqamət və ya xidmət...{% elif language == 'en' %}Name, specialization, or service...{% else %}Имя, направление или услуга...{% endif %}"
-            aria-label="{% if language == 'az' %}Axtarış{% elif language == 'en' %}Search{% else %}Поиск{% endif %}"
-          >
-          <button type="submit">
+          <button type="submit" class="hero-search-submit">
             <span>{% if language == "az" %}Axtar{% elif language == "en" %}Search{% else %}Найти{% endif %}</span>
           </button>
         </form>
+      </div>
 
-        <!-- Popular Directions Chips -->
-        <div class="km-popular-directions" aria-label="{% if language == 'az' %}Populyar istiqamətlər{% elif language == 'en' %}Popular directions{% else %}Популярные направления{% endif %}">
-          <span class="km-popular-label">{% if language == 'az' %}Populyar:{% elif language == 'en' %}Popular:{% else %}Популярные:{% endif %}</span>
-          {% for spec in filter_options.specializations|slice:":5" %}
-            <a href="?specialization={{ spec.value }}" class="km-popular-tag {% if selected.specialization == spec.value %}is-active{% endif %}">{{ spec.label }}</a>
-          {% endfor %}
+      <!-- Popular Specialization Tags with Context Micro-Icons -->
+      <div class="catalog-hero-tags" aria-label="{% if language == 'az' %}Populyar istiqamətlər{% elif language == 'en' %}Popular specializations{% else %}Популярные запросы{% endif %}">
+        <span class="catalog-hero-tags-label">{% if language == "az" %}Məsələn:{% elif language == "en" %}E.g.:{% else %}Часто ищут:{% endif %}</span>
+        
+        <a href="?specialization=speech_therapist" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--speech {% if selected.specialization == 'speech_therapist' %}is-active{% endif %}">
+          <span class="km-hero-bubble__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              <line x1="9" y1="10" x2="15" y2="10"></line>
+            </svg>
+          </span>
+          <span class="km-hero-bubble__label">{% if language == 'az' %}Loqoped{% elif language == 'en' %}Speech therapist{% else %}Логопед{% endif %}</span>
+        </a>
+
+        <a href="?specialization=child_psychologist" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--psych {% if selected.specialization == 'child_psychologist' or selected.specialization == 'psychologist' %}is-active{% endif %}">
+          <span class="km-hero-bubble__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </span>
+          <span class="km-hero-bubble__label">{% if language == 'az' %}Psixoloq{% elif language == 'en' %}Psychologist{% else %}Психолог{% endif %}</span>
+        </a>
+
+        <a href="?specialization=pediatric_neurologist" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--neuro {% if selected.specialization == 'pediatric_neurologist' %}is-active{% endif %}">
+          <span class="km-hero-bubble__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M12 3a9 9 0 0 1 9 9"></path>
+              <path d="M12 7v5l3 3"></path>
+            </svg>
+          </span>
+          <span class="km-hero-bubble__label">{% if language == 'az' %}Uşaq nevroloqu{% elif language == 'en' %}Neurologist{% else %}Детский невролог{% endif %}</span>
+        </a>
+
+        <a href="?specialization=pediatrician" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--pediatrician {% if selected.specialization == 'pediatrician' %}is-active{% endif %}">
+          <span class="km-hero-bubble__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 6v12M6 12h12"></path>
+            </svg>
+          </span>
+          <span class="km-hero-bubble__label">{% if language == 'az' %}Pediatr{% elif language == 'en' %}Pediatrician{% else %}Педиатр{% endif %}</span>
+        </a>
+
+        <a href="?specialization=defectologist" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--defectologist {% if selected.specialization == 'defectologist' %}is-active{% endif %}">
+          <span class="km-hero-bubble__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19.439 7.85c0-1.571-1.285-2.85-2.87-2.85a2.86 2.86 0 0 0-2.849 2.85v.02A2.84 2.84 0 0 0 11 6.3c-1.584 0-2.869 1.28-2.869 2.85 0 .28.04.55.12.81A2.83 2.83 0 0 0 6.5 11c0 1.57 1.285 2.85 2.87 2.85h.02A2.86 2.86 0 0 0 11 16.7c1.585 0 2.87-1.28 2.87-2.85v-.02a2.84 2.84 0 0 0 2.719 1.57c1.585 0 2.87-1.28 2.87-2.85 0-.28-.04-.55-.12-.81A2.83 2.83 0 0 0 21 9c0-1.57-1.285-2.85-2.87-2.85h-.69z"></path>
+            </svg>
+          </span>
+          <span class="km-hero-bubble__label">{% if language == 'az' %}Defektoloq{% elif language == 'en' %}Defectologist{% else %}Дефектолог{% endif %}</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Right Side: 3 Trust & Value Cards (matching catalog hero stats) -->
+    <div class="catalog-hero-stats km-specialists-hero-stats" aria-label="{% if language == 'az' %}Mütəxəssis üstünlükləri{% elif language == 'en' %}Platform advantages{% else %}Преимущества сервиса{% endif %}">
+      <div class="faq-hero-stat">
+        <div class="faq-hero-stat-icon faq-hero-stat-icon--verified" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
+        </div>
+        <div>
+          <div class="faq-hero-stat-val">{% if language == "az" %}Yoxlanılmış anketlər{% elif language == "en" %}Verified Profiles{% else %}Проверенные анкеты{% endif %}</div>
+          <div class="faq-hero-stat-label">{% if language == "az" %}ixtisas və təcrübə təsdiqi{% elif language == "en" %}qualifications & experience{% else %}квалификация и опыт{% endif %}</div>
+        </div>
+      </div>
+
+      <div class="faq-hero-stat">
+        <div class="faq-hero-stat-icon faq-hero-stat-icon--format" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+        </div>
+        <div>
+          <div class="faq-hero-stat-val">{% if language == "az" %}Bakı və onlayn{% elif language == "en" %}Baku & Online{% else %}Баку и онлайн{% endif %}</div>
+          <div class="faq-hero-stat-label">{% if language == "az" %}əyani və distant dərslər{% elif language == "en" %}in-person & remote sessions{% else %}очные и дистанционные занятия{% endif %}</div>
+        </div>
+      </div>
+
+      <div class="faq-hero-stat">
+        <div class="faq-hero-stat-icon faq-hero-stat-icon--direct" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+        </div>
+        <div>
+          <div class="faq-hero-stat-val">{% if language == "az" %}Birbaşa əlaqə{% elif language == "en" %}Direct Contact{% else %}Прямые контакты{% endif %}</div>
+          <div class="faq-hero-stat-label">{% if language == "az" %}mütəxəssislə birbaşa əlaqə{% elif language == "en" %}reach the expert directly{% else %}связь с экспертом напрямую{% endif %}</div>
         </div>
       </div>
     </div>
@@ -332,6 +426,9 @@
       <!-- Horizontal Specializations Strip (matching main catalog) -->
       {% if specialization_chips %}
         <div class="catalog-category-strip-wrap" data-catalog-categories-scroll>
+          <button type="button" class="catalog-category-strip__arrow catalog-category-strip__arrow--prev" data-strip-prev aria-label="{% if language == 'az' %}Əvvəlki ixtisaslar{% elif language == 'en' %}Previous specializations{% else %}{% trans 'Предыдущие специализации' %}{% endif %}" tabindex="-1" hidden>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
           <div class="catalog-category-strip" role="tablist" aria-label="{% if language == 'az' %}İxtisaslar{% elif language == 'en' %}Specializations{% else %}{% trans 'Специализации' %}{% endif %}">
             <a
               role="tab"
@@ -363,6 +460,9 @@
               </a>
             {% endfor %}
           </div>
+          <button type="button" class="catalog-category-strip__arrow catalog-category-strip__arrow--next" data-strip-next aria-label="{% if language == 'az' %}Növbəti ixtisaslar{% elif language == 'en' %}Next specializations{% else %}{% trans 'Следующие специализации' %}{% endif %}" tabindex="-1">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
         </div>
       {% endif %}
 

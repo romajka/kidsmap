@@ -405,7 +405,7 @@ class SpecialistSpecializationAdmin(admin.ModelAdmin):
 class SpecialistPracticeLocationInline(admin.StackedInline):
     formset = BasePracticeLocationFormSet
     model = SpecialistPracticeLocation
-    extra = 1
+    extra = 0
     verbose_name = _("Место приёма")
     verbose_name_plural = _("8. Места работы и приёма")
     fields = ("place", "address", "region", "district", "metro", "lat", "lng", "schedule", "price_per_session", "phone", "is_primary", "is_active")
@@ -416,7 +416,7 @@ class SpecialistDocumentInline(admin.TabularInline):
     model = SpecialistDocument
     extra = 0
     verbose_name = _("Документ")
-    verbose_name_plural = _("10. Подтверждение квалификации")
+    verbose_name_plural = _("10. Дипломы и сертификаты (подтверждение квалификации)")
     fields = ("document_type", "name", "download_link", "status", "is_published", "rejection_reason")
     readonly_fields = ("document_type", "name", "download_link", "is_published")
 
@@ -480,7 +480,7 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         for inline in context.get('inline_admin_formsets',[]):
             number = 8 if inline.opts.model is SpecialistPracticeLocation else 10
             sections[number]={'number':number,'id':f'km-sec-{number}','title':inline.opts.verbose_name_plural,'inline':inline}
-        sections.setdefault(10,{'number':10,'id':'km-sec-10','title':_('10. Подтверждение квалификации'),'private':True})
+        sections.setdefault(10,{'number':10,'id':'km-sec-10','title':_('10. Дипломы и сертификаты (подтверждение квалификации)'),'private':True})
         sections.setdefault(8,{'number':8,'id':'km-sec-8','title':_('8. Места работы и приёма'),'unavailable':True})
         context['specialist_sections']=[sections[i] for i in range(1,13)]
         original=context.get('original')
@@ -1069,7 +1069,6 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             _("1. Основная информация"),
             {
                 "fields": (
-                    "created_by", "verified_person_user", "identity_verification_date", "owner",
                     "name",
                     "name_alt",
                     "slug",
@@ -1162,6 +1161,10 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
                     "status",
                     "is_active",
                     "rejection_reason",
+                    "created_by",
+                    "verified_person_user",
+                    "identity_verification_date",
+                    "owner",
                     "rating_avg",
                     "rating_count",
                     "created_at",

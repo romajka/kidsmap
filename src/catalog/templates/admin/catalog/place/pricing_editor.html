@@ -89,16 +89,24 @@
       </div>
     </details>
 
-    <details class="km-pf-nested-offerings">
-      <summary>{{ form.wizard_copy.section_offer }}</summary>
-      {{ form.wizard_copy|json_script:'pw-copy' }}
-      {{ form.offering_choices|json_script:'pc-offering-choices' }}
-      <p>{{ form.wizard_copy.activity_explain }}</p>
-      <div data-pc-offerings>
-        <div data-pc-activity-list></div>
-        <button type="button" class="pw-add" data-pc-add-activity>＋ {{ form.wizard_copy.add_activity }}</button>
-        {{ form.nested_pricing }}
-        {% if form.nested_pricing.errors %}<div role="alert">{{ form.nested_pricing.errors }}</div>{% endif %}
+    <details class="km-pf-disclosure km-pf-disclosure--tight km-pf-nested-offerings">
+      <summary class="km-pf-disclosure__summary">
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-category"></use></svg>
+        <div class="km-pf-disclosure__header-copy">
+          <span class="km-pf-disclosure__title">{% translate "Направления и занятия" %}</span>
+          <span class="km-pf-disclosure__note">{% translate "Отдельные программы, курсы или кружки с индивидуальными ценами" %}</span>
+        </div>
+      </summary>
+      <div class="km-pf-disclosure__body">
+        {{ form.wizard_copy|json_script:'pw-copy' }}
+        {{ form.offering_choices|json_script:'pc-offering-choices' }}
+        <p class="km-pf-group__note">{{ form.wizard_copy.activity_explain }}</p>
+        <div data-pc-offerings>
+          <div data-pc-activity-list></div>
+          <button type="button" class="pw-add" data-pc-add-activity>＋ {{ form.wizard_copy.add_activity }}</button>
+          {{ form.nested_pricing }}
+          {% if form.nested_pricing.errors %}<div role="alert">{{ form.nested_pricing.errors }}</div>{% endif %}
+        </div>
       </div>
     </details>
     <div class="km-pf-hidden-fields" aria-hidden="true">{{ form.pricing_plans }}</div>

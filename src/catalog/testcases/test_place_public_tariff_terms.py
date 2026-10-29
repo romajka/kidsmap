@@ -1,4 +1,5 @@
 from datetime import date
+from unittest.mock import patch
 from django.test import TestCase
 from django.utils.translation import override
 from catalog.models import Activity,OfferingGroup,Place,PricingPlan
@@ -30,11 +31,14 @@ class PublicTariffTermsTests(TestCase):
         plan.product_type='membership';plan.billing_mode='one_time';plan.is_unlimited=True
         plan.validity_interval='month';plan.validity_interval_count=2;plan.valid_from=date(2026,6,1);plan.valid_until=date(2026,8,31);plan.save()
         for lang,unlimited,validity in (('ru','Безлимит','2 месяца'),('az','Limitsiz','2 ay'),('en','Unlimited','2 months')):
-            with self.subTest(lang=lang):
+            # The offer is intentionally historical; test its terms while valid.
+            with self.subTest(lang=lang),patch('catalog.services.pricing_plans.timezone.localdate',return_value=date(2026,7,1)):
                 row=build_pricing_summary(self.place,lang)['plans'][0]
                 for text in (unlimited,validity,'2026-06-01','2026-08-31'):self.assertIn(text,row['details'])
                 self.assertNotIn('бессроч',row['details'].lower())
                 self.assertNotIn('/ месяц',row['price_str'])
+        with patch('catalog.services.pricing_plans.timezone.localdate',return_value=date(2026,9,1)):
+            self.assertEqual(build_pricing_summary(self.place,'ru')['plans'],[])
 
     def test_installment_count_does_not_divide_the_stored_price(self):
         plan=self.place.pricing_plan_records.first()

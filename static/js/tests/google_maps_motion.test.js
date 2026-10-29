@@ -8,7 +8,7 @@ function setup({reduced=false,vector=true}={}) {
  addListener(n,fn){listeners[n]=fn;return {remove(){delete listeners[n]}}},
  moveCamera(p){this.moves.push(p);this.zoom=p.zoom;this.center={lat:()=>p.center.lat,lng:()=>p.center.lng}},
  fitBounds(bounds){this.fits++;this.lastBounds=bounds},getProjection(){return {fromLatLngToPoint(p){return {x:p.lng(),y:p.lat()}},fromPointToLatLng(p){return {lat:()=>p.y,lng:()=>p.x}}}}};
- const scope={window:{matchMedia:()=>({matches:reduced,addEventListener(){}})},document:{addEventListener(){}},performance:{now:()=>0},requestAnimationFrame(fn){frames.set(++id,fn);return id},cancelAnimationFrame(id){frames.delete(id)},google:{maps:{Point:function(x,y){this.x=x;this.y=y},LatLng:function(p){this.lat=()=>p.lat;this.lng=()=>p.lng},LatLngBounds:function(sw,ne){this.getSouthWest=()=>sw;this.getNorthEast=()=>ne}}},Map,Set,Math};
+ const scope={window:{matchMedia:()=>({matches:reduced,addEventListener(){}})},document:{addEventListener(){},documentElement:{lang:'ru'}},performance:{now:()=>0},requestAnimationFrame(fn){frames.set(++id,fn);return id},cancelAnimationFrame(id){frames.delete(id)},google:{maps:{Point:function(x,y){this.x=x;this.y=y},LatLng:function(p){this.lat=()=>p.lat;this.lng=()=>p.lng},LatLngBounds:function(sw,ne){this.getSouthWest=()=>sw;this.getNorthEast=()=>ne}}},Map,Set,Math};
  const file='static/js/google_maps_motion.js';if(fs.existsSync(file))vm.runInNewContext(fs.readFileSync(file,'utf8'),scope);
  function tick(t){const callbacks=[...frames.values()];frames.clear();callbacks.forEach(fn=>fn(t));}
  return {api:scope.window.KidsMapGoogleMotion,map,frames,domListeners,tick};
@@ -46,4 +46,25 @@ test('nearly coincident native fit uses expanded camera bounds, capped at useful
  assert.notEqual(s.map.lastBounds,bounds,'Native fit must not jump to maximum zoom');
  assert.ok(s.map.lastBounds.getNorthEast().lng()-s.map.lastBounds.getSouthWest().lng()>.0001,'Expand camera footprint while leaving marker positions exact');
  assert.equal(markers[0].getPosition().lat(),40);
+});
+
+test('clusterTitle formats Russian plurals correctly',()=>{
+ const s=setup();assert.ok(s.api);
+ const title=s.api.clusterTitle;
+ assert.ok(title(1).includes('место'));
+ assert.ok(title(2).includes('места'));
+ assert.ok(title(4).includes('места'));
+ assert.ok(title(5).includes('мест'));
+ assert.ok(title(11).includes('мест'));
+ assert.ok(title(21).includes('место'));
+});
+
+test('chooser opens single place directly without popup',()=>{
+ const s=setup();assert.ok(s.api);
+ let openedPlace=null, openedMarker=null;
+ const dummyMarker={__kidsMapPlace:{id:42,name:'Unique Place'}};
+ const ch=s.api.chooser({}, (place, marker)=>{ openedPlace=place; openedMarker=marker; });
+ ch.show([dummyMarker]);
+ assert.equal(openedPlace?.name, 'Unique Place');
+ assert.equal(openedMarker, dummyMarker);
 });

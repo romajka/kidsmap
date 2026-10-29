@@ -141,3 +141,19 @@ class PlaceSortingAndFilteringTests(TestCase):
         self.assertNotContains(response, "fa-sort-alpha-down")
         self.assertNotContains(response, "fa-sort-alpha-up")
 
+    def test_ready_to_publish_filter_and_control_cards_rendered(self):
+        url = reverse("admin:catalog_place_changelist")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Готовы к публикации")
+        self.assertContains(response, "km-control-cards-container")
+        self.assertContains(response, "data-view-mode=\"cards\"")
+        self.assertContains(response, "data-view-mode=\"table\"")
+        self.assertTrue(hasattr(response.context["cl"], "place_cards"))
+        self.assertEqual(len(response.context["cl"].place_cards), len(response.context["cl"].result_list))
+
+        # Test publication_state=ready query
+        response_ready = self.client.get(url, {"publication_state": "ready", "deleted_state": "active"})
+        self.assertEqual(response_ready.status_code, 200)
+        self.assertContains(response_ready, "Готовы к публикации")
+

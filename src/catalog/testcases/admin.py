@@ -205,7 +205,8 @@ class TestAdminTemporaryEventInputs(TestCase):
         result = response.json()["results"]
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["id"], duplicate.pk)
-        self.assertEqual(set(result[0]["matched"]), {"телефон", "сайт", "Instagram", "адрес"})
+        self.assertEqual(set(result[0]["matched"]), {"Телефон", "Сайт", "Instagram", "Адрес"})
+        self.assertEqual(set(result[0]["evidence"][0]["signals"]), {"phone", "website", "instagram", "address"})
 
     def test_place_form_exposes_age_and_duplicate_controls(self):
         response = self.client.get(f"{reverse('admin:catalog_place_add')}?type=place")

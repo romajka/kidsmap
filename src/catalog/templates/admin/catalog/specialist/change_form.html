@@ -3,14 +3,14 @@
 
 {% block extrastyle %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'admin/css/pages/specialist_form.css' %}?v=20261026_spec_v2">
+<link rel="stylesheet" href="{% static 'admin/css/pages/specialist_form.css' %}?v=20261029_spec_v3">
 {% endblock %}
 
 {% block extrahead %}
 {{ block.super }}
 <script src="{% url 'admin:jsi18n' %}"></script>
 {{ media }}
-<script src="{% static 'admin/js/specialist_admin.js' %}?v=20261026_spec_v2" defer></script>
+<script src="{% static 'admin/js/specialist_admin.js' %}?v=20261029_spec_v3" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -21,7 +21,7 @@
     {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
     {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
 
-    {# Hero Specialist Profile Banner #}
+    {# Hero Specialist Profile Banner with Readiness Meter #}
     <div class="km-specialist-header">
       <div class="km-specialist-profile-hero">
         <div class="km-specialist-hero__avatar">
@@ -62,12 +62,6 @@
                 <span class="km-status-pill km-status-pill--inactive"><i class="fas fa-eye-slash" aria-hidden="true"></i> {% translate 'Скрыт' %}</span>
               {% endif %}
 
-              {% if original.person_verified_at or original.verified_person_user %}
-                <span class="km-status-pill km-status-pill--verified"><i class="fas fa-user-shield" aria-hidden="true"></i> {% translate 'Личность подтверждена' %}</span>
-              {% else %}
-                <span class="km-status-pill km-status-pill--unverified"><i class="fas fa-user-clock" aria-hidden="true"></i> {% translate 'Не подтверждён' %}</span>
-              {% endif %}
-
               {% if original.consultation_format == 'online' %}
                 <span class="km-status-pill km-status-pill--format"><i class="fas fa-laptop" aria-hidden="true"></i> {% translate 'Онлайн' %}</span>
               {% elif original.consultation_format == 'offline' %}
@@ -82,9 +76,19 @@
             </div>
           {% endif %}
 
-          <div class="km-specialist-hero__notice">
-            <i class="fas fa-info-circle km-notice-icon" aria-hidden="true"></i>
-            <span>{% translate 'Автор предложения, подтверждённый специалист и организация — разные стороны. Место приёма указывается отдельно от сотрудничества.' %}</span>
+          {# Interactive Readiness Progress Meter #}
+          <div class="km-spec-readiness" data-spec-readiness>
+            <div class="km-spec-readiness__head">
+              <span class="km-spec-readiness__title"><i class="fas fa-clipboard-check" aria-hidden="true"></i> {% translate 'Шкала готовности анкеты' %}</span>
+              <span class="km-spec-readiness__pct" data-readiness-pct>0%</span>
+            </div>
+            <div class="km-spec-readiness__track">
+              <div class="km-spec-readiness__fill" data-readiness-fill style="width: 0%;"></div>
+            </div>
+            <div class="km-spec-readiness__info">
+              <span class="km-spec-readiness__summary" data-readiness-summary>{% translate 'Заполнено 0 из 6 обязательных пунктов' %}</span>
+              <span class="km-spec-readiness__missing" data-readiness-missing></span>
+            </div>
           </div>
         </div>
       </div>
@@ -128,7 +132,7 @@
         <div class="km-specialist-nav__inner">
           <div class="km-nav-header">
             <span class="km-nav-header__title"><i class="fas fa-layer-group" aria-hidden="true"></i> {% translate 'Разделы анкеты' %}</span>
-            <span class="km-nav-header__count">12</span>
+            <span class="km-nav-header__count">{{ specialist_sections|length }}</span>
           </div>
           <ul class="km-nav-list">
             {% for section in specialist_sections %}
@@ -151,6 +155,7 @@
                     {% else %}<i class="fas fa-circle" aria-hidden="true"></i>{% endif %}
                   </span>
                   <span class="km-nav-text">{{ section.title }}</span>
+                  <span class="km-nav-check" data-nav-check="{{ section.id }}"><i class="fas fa-check" aria-hidden="true"></i></span>
                 </a>
               </li>
             {% endfor %}
@@ -169,67 +174,633 @@
         </div>
 
         {% for section in specialist_sections %}
-          <section class="km-specialist-section" id="{{ section.id }}">
+          <section class="km-specialist-section km-specialist-section--sec{{ section.number }}" id="{{ section.id }}">
             <div class="km-section-header">
               <span class="km-section-header__num">{{ section.number }}</span>
               <h2 tabindex="-1">{{ section.title }}</h2>
-            </div>
-            <div class="km-section-body km-section-body--sec{{ section.number }}">
-              {% if section.number == 3 %}
-                <div class="km-specialist-search-box">
-                  <i class="fas fa-search km-search-icon" aria-hidden="true"></i>
-                  <input type="search" id="specialist-direction-search" data-specialist-direction-search placeholder="{% translate 'Поиск направлений деятельности…' %}" aria-label="{% translate 'Поиск направлений' %}">
-                  <span role="status" aria-live="polite" data-specialist-direction-count data-found="{% translate 'Найдено' %}" data-selected="{% translate 'Выбрано' %}" class="km-direction-count-pill"></span>
-                </div>
+              {% if section.number == 1 or section.number == 3 or section.number == 5 or section.number == 6 or section.number == 11 %}
+                <span class="km-section-req-badge km-section-req-badge--mandatory"><i class="fas fa-asterisk" aria-hidden="true"></i> {% translate 'Обязательный раздел' %}</span>
+              {% elif section.number == 8 %}
+                <span class="km-section-req-badge km-section-req-badge--optional"><i class="fas fa-info-circle" aria-hidden="true"></i> {% translate 'По желанию' %}</span>
               {% endif %}
+            </div>
 
-              {% if section.fieldset %}
-                {% for line in section.fieldset %}
-                  <div class="km-form-row {% if line.fields|length > 1 %}km-form-row--multi{% endif %}">
-                    {% for field in line %}
-                      <div class="km-field km-field--{{ field.field.name }} {% if field.is_readonly %}km-field--readonly{% endif %} {% if field.field.name == 'specializations' %}km-field--specializations{% endif %}">
-                        {% if field.is_readonly and field.field.name == 'owner' %}
-                          <label><i class="fas fa-user-clock" aria-hidden="true"></i> {% translate 'Прежний владелец (не подтверждает личность)' %}</label>
-                        {% elif field.is_readonly and field.field.name == 'created_by' %}
-                          <label><i class="fas fa-user-pen" aria-hidden="true"></i> {% translate 'Автор предложения' %}</label>
-                        {% elif field.is_readonly and field.field.name == 'verified_person_user' %}
-                          <label><i class="fas fa-user-check" aria-hidden="true"></i> {% translate 'Подтверждённый специалист (аккаунт человека)' %}</label>
-                        {% elif field.is_readonly and field.field.name == 'identity_verification_date' %}
-                          <label><i class="fas fa-calendar-check" aria-hidden="true"></i> {% translate 'Дата подтверждения личности' %}</label>
+            <div class="km-section-body km-section-body--sec{{ section.number }}">
+              {# SECTION 1: ОСНОВНАЯ ИНФОРМАЦИЯ #}
+              {% if section.number == 1 %}
+                <div class="km-spec-clean-name-block">
+                  <div class="km-spec-name-grid">
+                    <div class="km-field km-field--name km-field--highlight">
+                      <label for="id_name" class="km-field-label">
+                        <i class="fas fa-user-circle km-field-icon" aria-hidden="true"></i>
+                        <span class="km-field-title">{% translate 'Имя и фамилия' %}</span>
+                        <span class="km-req-star" title="{% translate 'Обязательное поле' %}">*</span>
+                      </label>
+                      {{ adminform.form.name }}
+                      {{ adminform.form.name.errors }}
+                      <p class="help">{% translate 'Основное отображаемое имя (например: Лейла Мамедова / Dr. Emil Həsənov)' %}</p>
+                    </div>
+
+                    <div class="km-field km-field--name_alt">
+                      <label for="id_name_alt" class="km-field-label">
+                        <i class="fas fa-language km-field-icon" aria-hidden="true"></i>
+                        <span class="km-field-title">{% translate 'Альтернативное имя / поиск' %}</span>
+                      </label>
+                      {{ adminform.form.name_alt }}
+                      {{ adminform.form.name_alt.errors }}
+                      <p class="help">{% translate 'Латиница или кириллица для поиска (например: Leyla Mammadova)' %}</p>
+                    </div>
+                  </div>
+
+                  <div class="km-spec-slug-bar">
+                    <span class="km-spec-slug-label">
+                      <i class="fas fa-link" aria-hidden="true"></i>
+                      <span>{% translate 'Адрес профиля на сайте (slug):' %}</span>
+                    </span>
+                    <span class="km-spec-slug-prefix">kidsmap.az/specialists/</span>
+                    <span class="km-spec-slug-input-wrap">
+                      {% if not add %}
+                        <strong class="km-spec-slug-val">{{ adminform.form.instance.slug }}</strong>
+                      {% else %}
+                        {{ adminform.form.slug }}
+                      {% endif %}
+                    </span>
+                    {{ adminform.form.slug.errors }}
+                  </div>
+                </div>
+
+              {# SECTION 2: ФОТО И ОПИСАНИЕ (С ТАБАМИ ЯЗЫКОВ И КЛИКАБЕЛЬНЫМ ДРОПЗОНОМ) #}
+              {% elif section.number == 2 %}
+                <div class="km-spec-photo-bio-card">
+                  <div class="km-spec-photo-col">
+                    <label class="km-field-label">
+                      <i class="fas fa-camera km-field-icon" aria-hidden="true"></i>
+                      <span class="km-field-title">{% translate 'Фотография профиля' %}</span>
+                    </label>
+                    <div class="km-spec-avatar-dropzone{% if original.photo %} has-photo{% endif %}" id="spec_avatar_dropzone" data-avatar-dropzone role="button" tabindex="0" title="{% translate 'Нажмите или перетащите фото сюда' %}" aria-label="{% translate 'Загрузить или изменить фото' %}">
+                      <div class="km-spec-avatar-preview" data-spec-avatar-preview>
+                        {% if original.photo %}
+                          <img src="{{ original.photo.url }}" alt="{{ original.name }}" id="spec_avatar_preview_img">
                         {% else %}
-                          {{ field.label_tag }}
-                        {% endif %}
-
-                        {% if field.is_readonly %}
-                          <div class="readonly">{{ field.contents }}</div>
-                        {% else %}
-                          {{ field.field }}
-                        {% endif %}
-
-                        {{ field.errors }}
-                        {% if field.field.help_text %}
-                          <p class="help" id="{{ field.field.id_for_label }}_helptext">{{ field.field.help_text }}</p>
+                          <div class="km-spec-avatar-placeholder" id="spec_avatar_placeholder">
+                            <i class="fas fa-user-md" aria-hidden="true"></i>
+                            <span>{% translate 'Нет фото' %}</span>
+                          </div>
                         {% endif %}
                       </div>
-                    {% endfor %}
+                      <div class="km-spec-avatar-cta">
+                        <span class="km-spec-avatar-cta__title" id="spec_avatar_cta_title">
+                          {% if original.photo %}
+                            <strong>{% translate 'Фото загружено' %}</strong>
+                          {% else %}
+                            <strong>{% translate 'Нажмите, чтобы загрузить' %}</strong>
+                          {% endif %}
+                        </span>
+                        <span class="km-spec-avatar-cta__hint">JPG, PNG, WebP · {% translate 'до 10 МБ' %}</span>
+                        <div class="km-spec-avatar-btn-row">
+                          <span class="km-btn-avatar-fake" id="spec_btn_fake_upload">
+                            <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
+                            <span>{% if original.photo %}{% translate 'Заменить фото' %}{% else %}{% translate 'Выбрать файл' %}{% endif %}</span>
+                          </span>
+                          {% if original.photo %}
+                            <button type="button" class="km-btn-avatar-delete" id="spec_btn_delete_photo" data-avatar-delete title="{% translate 'Удалить фото' %}">
+                              <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                            </button>
+                          {% endif %}
+                        </div>
+                      </div>
+                      <div class="km-spec-avatar-hidden-box" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none;">
+                        {{ adminform.form.photo }}
+                      </div>
+                    </div>
+                    {{ adminform.form.photo.errors }}
                   </div>
-                {% endfor %}
-              {% elif section.inline %}
-                <div class="km-inline-body" id="{% if section.number == 10 %}documents-group-wrapper{% else %}practice_locations-group-wrapper{% endif %}">
-                  {% with inline_admin_formset=section.inline %}
-                    {% include inline_admin_formset.opts.template %}
-                  {% endwith %}
+
+                  <div class="km-spec-bio-col">
+                    <div class="km-spec-i18n-card" data-i18n-group="bio">
+                      <div class="km-spec-i18n-header">
+                        <div class="km-spec-i18n-title">
+                          <i class="fas fa-align-left" aria-hidden="true"></i>
+                          <span>{% translate 'О себе / Биография' %}</span>
+                        </div>
+                        <div class="km-spec-langtabs" role="tablist">
+                          <button type="button" class="km-spec-langtab is-active" data-lang="ru" role="tab" aria-selected="true">
+                            <span>🇷🇺 RU</span>
+                            <span class="km-lang-dot" data-lang-dot="bio_ru"></span>
+                          </button>
+                          <button type="button" class="km-spec-langtab" data-lang="az" role="tab" aria-selected="false">
+                            <span>🇦🇿 AZ</span>
+                            <span class="km-lang-dot" data-lang-dot="bio_az"></span>
+                          </button>
+                          <button type="button" class="km-spec-langtab" data-lang="en" role="tab" aria-selected="false">
+                            <span>🇬🇧 EN</span>
+                            <span class="km-lang-dot" data-lang-dot="bio_en"></span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="km-spec-i18n-pane" data-lang-pane="ru">
+                        <label for="id_bio_ru" class="km-pane-label">{% translate 'Описание на русском' %}</label>
+                        {{ adminform.form.bio_ru }}
+                        {{ adminform.form.bio_ru.errors }}
+                      </div>
+                      <div class="km-spec-i18n-pane is-hidden" data-lang-pane="az" hidden>
+                        <label for="id_bio_az" class="km-pane-label">{% translate 'Azərbaycan dilində təsvir' %}</label>
+                        {{ adminform.form.bio_az }}
+                        {{ adminform.form.bio_az.errors }}
+                      </div>
+                      <div class="km-spec-i18n-pane is-hidden" data-lang-pane="en" hidden>
+                        <label for="id_bio_en" class="km-pane-label">{% translate 'Description in English' %}</label>
+                        {{ adminform.form.bio_en }}
+                        {{ adminform.form.bio_en.errors }}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              {% elif section.unavailable %}
-                <div class="km-section-notice km-section-notice--warning">
-                  <i class="fas fa-lock" aria-hidden="true"></i>
-                  <span>{% translate 'Изменение мест приёма недоступно вашей роли.' %}</span>
+
+              {# SECTION 3: НАПРАВЛЕНИЯ ДЕЯТЕЛЬНОСТИ (КАСТОМНЫЙ MULTISELECT DROPDOWN) #}
+              {% elif section.number == 3 %}
+                <div class="km-spec-directions-wrapper" data-spec-directions-wrapper>
+                  <div class="km-spec-custom-dropdown" id="spec_custom_dropdown" data-spec-dropdown>
+                    {# Dropdown Trigger Box #}
+                    <div class="km-spec-dropdown-trigger" data-dropdown-trigger tabindex="0" role="combobox" aria-expanded="false" aria-label="{% translate 'Выбор направлений деятельности' %}">
+                      <div class="km-spec-dropdown-trigger__icon">
+                        <i class="fas fa-stethoscope" aria-hidden="true"></i>
+                      </div>
+                      <div class="km-spec-dropdown-trigger__content">
+                        <span class="km-spec-dropdown-trigger__placeholder" data-dropdown-placeholder>{% translate 'Выберите направления (например: логопед, дефектолог)...' %}</span>
+                      </div>
+                      <div class="km-spec-dropdown-trigger__badge-box">
+                        <span class="km-spec-dropdown-trigger__count" data-dropdown-trigger-count hidden>0</span>
+                        <i class="fas fa-chevron-down km-spec-dropdown-trigger__arrow" aria-hidden="true"></i>
+                      </div>
+                    </div>
+
+                    {# Floating Dropdown Panel #}
+                    <div class="km-spec-dropdown-panel" data-dropdown-panel hidden>
+                      <div class="km-spec-dropdown-search-row">
+                        <i class="fas fa-search km-search-icon" aria-hidden="true"></i>
+                        <input type="search" class="km-spec-dropdown-search" data-dropdown-search placeholder="{% translate 'Поиск среди 29 направлений…' %}" aria-label="{% translate 'Поиск' %}">
+                        <span class="km-spec-dropdown-found-pill" data-dropdown-found-pill></span>
+                      </div>
+
+                      <div class="km-spec-dropdown-list-wrap">
+                        <div class="km-field km-field--specializations" id="km-spec-specializations-container">
+                          {{ adminform.form.specializations }}
+                        </div>
+                      </div>
+
+                      <div class="km-spec-dropdown-bottom-bar">
+                        <button type="button" class="km-spec-dropdown-clear-btn" data-dropdown-clear-all>{% translate 'Сбросить все' %}</button>
+                        <button type="button" class="km-spec-dropdown-done-btn" data-dropdown-done>{% translate 'Готово ✓' %}</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {# Selected Tag Chips Bar #}
+                  <div class="km-spec-selected-tags" data-spec-selected-tags></div>
+                  {{ adminform.form.specializations.errors }}
                 </div>
-              {% elif section.private %}
-                <div class="km-section-notice km-section-notice--info">
-                  <i class="fas fa-user-shield" aria-hidden="true"></i>
-                  <span>{% translate 'Документы личности приватны. Их проверка доступна только специально уполномоченному проверяющему.' %}</span>
+
+              {# SECTION 4: ВОЗРАСТ ДЕТЕЙ (С ОПЦИЕЙ "ОТ X ЛЕТ") #}
+              {% elif section.number == 4 %}
+                <div class="km-spec-age-card">
+                  <div class="km-spec-age-inputs-row">
+                    <div class="km-spec-input-affix">
+                      <span class="km-affix-label">{% translate 'От' %}</span>
+                      {{ adminform.form.age_from }}
+                      <span class="km-affix-unit">{% translate 'лет' %}</span>
+                    </div>
+                    <span class="km-spec-age-dash">—</span>
+                    <div class="km-spec-input-affix" id="km-spec-age-to-container">
+                      <span class="km-affix-label">{% translate 'До' %}</span>
+                      {{ adminform.form.age_to }}
+                      <span class="km-affix-unit">{% translate 'лет' %}</span>
+                    </div>
+                  </div>
+
+                  <label class="km-spec-open-ended-chip" for="spec_age_open_ended">
+                    <input type="checkbox" id="spec_age_open_ended" data-age-open-ended>
+                    <span class="km-chip-check"><i class="fas fa-check" aria-hidden="true"></i></span>
+                    <span class="km-chip-text">
+                      <strong>{% translate 'Без ограничений сверху' %}</strong>
+                      <small>{% translate 'Только «от X лет»' %}</small>
+                    </span>
+                  </label>
                 </div>
+                {{ adminform.form.age_from.errors }}
+                {{ adminform.form.age_to.errors }}
+
+              {# SECTION 5: ЯЗЫКИ РАБОТЫ #}
+              {% elif section.number == 5 %}
+                <div class="km-spec-languages-card">
+                  <div class="km-spec-lang-pills">
+                    <label class="km-spec-lang-pill" for="id_language_az">
+                      {{ adminform.form.language_az }}
+                      <span class="km-lang-pill__flag">🇦🇿</span>
+                      <span class="km-lang-pill__label">{% translate 'Азербайджанский' %}</span>
+                      <span class="km-lang-pill__check"><i class="fas fa-check" aria-hidden="true"></i></span>
+                    </label>
+                    <label class="km-spec-lang-pill" for="id_language_ru">
+                      {{ adminform.form.language_ru }}
+                      <span class="km-lang-pill__flag">🇷🇺</span>
+                      <span class="km-lang-pill__label">{% translate 'Русский' %}</span>
+                      <span class="km-lang-pill__check"><i class="fas fa-check" aria-hidden="true"></i></span>
+                    </label>
+                    <label class="km-spec-lang-pill" for="id_language_en">
+                      {{ adminform.form.language_en }}
+                      <span class="km-lang-pill__flag">🇬🇧</span>
+                      <span class="km-lang-pill__label">{% translate 'Английский' %}</span>
+                      <span class="km-lang-pill__check"><i class="fas fa-check" aria-hidden="true"></i></span>
+                    </label>
+                  </div>
+                  {{ adminform.form.language_az.errors }}
+                  {{ adminform.form.language_ru.errors }}
+                  {{ adminform.form.language_en.errors }}
+                </div>
+
+              {# SECTION 6: ОНЛАЙН / ОЧНО #}
+              {% elif section.number == 6 %}
+                <div class="km-spec-format-section">
+                  <div class="km-spec-format-cards" data-format-cards>
+                    <div class="km-spec-format-card" data-format-val="online">
+                      <div class="km-format-card__icon"><i class="fas fa-laptop" aria-hidden="true"></i></div>
+                      <div class="km-format-card__info">
+                        <strong>{% translate 'Только онлайн' %}</strong>
+                        <span>{% translate 'Удалённые консультации. Места приёма указывать не требуется.' %}</span>
+                      </div>
+                      <div class="km-format-card__check"><i class="fas fa-check" aria-hidden="true"></i></div>
+                    </div>
+                    <div class="km-spec-format-card" data-format-val="offline">
+                      <div class="km-format-card__icon"><i class="fas fa-map-marker-alt" aria-hidden="true"></i></div>
+                      <div class="km-format-card__info">
+                        <strong>{% translate 'Только очно' %}</strong>
+                        <span>{% translate 'Приём в центре или кабинете. Укажите локацию в разделе 8.' %}</span>
+                      </div>
+                      <div class="km-format-card__check"><i class="fas fa-check" aria-hidden="true"></i></div>
+                    </div>
+                    <div class="km-spec-format-card" data-format-val="both">
+                      <div class="km-format-card__icon"><i class="fas fa-globe" aria-hidden="true"></i></div>
+                      <div class="km-format-card__info">
+                        <strong>{% translate 'Онлайн и очно' %}</strong>
+                        <span>{% translate 'Смешанный формат: и онлайн-сессии, и очный приём в центре.' %}</span>
+                      </div>
+                      <div class="km-format-card__check"><i class="fas fa-check" aria-hidden="true"></i></div>
+                    </div>
+                  </div>
+                  <div class="km-spec-format-hidden-select" style="display: none;">
+                    {{ adminform.form.consultation_format }}
+                  </div>
+                  {{ adminform.form.consultation_format.errors }}
+                </div>
+
+              {# SECTION 7: СТОИМОСТЬ И ПРОДОЛЖИТЕЛЬНОСТЬ #}
+              {% elif section.number == 7 %}
+                <div class="km-spec-pricing-card">
+                  <div class="km-spec-pricing-grid">
+                    <div class="km-spec-pricing-item">
+                      <label for="id_price_from">{% translate 'Стоимость от' %}</label>
+                      <div class="km-spec-input-affix">
+                        {{ adminform.form.price_from }}
+                        <span class="km-affix-unit">₼ AZN</span>
+                      </div>
+                      {{ adminform.form.price_from.errors }}
+                    </div>
+                    <div class="km-spec-pricing-item">
+                      <label for="id_price_to">{% translate 'Стоимость до' %}</label>
+                      <div class="km-spec-input-affix">
+                        {{ adminform.form.price_to }}
+                        <span class="km-affix-unit">₼ AZN</span>
+                      </div>
+                      {{ adminform.form.price_to.errors }}
+                    </div>
+                    <div class="km-spec-pricing-item">
+                      <label for="id_duration_minutes">{% translate 'Длительность приёма' %}</label>
+                      <div class="km-spec-input-affix">
+                        {{ adminform.form.duration_minutes }}
+                        <span class="km-affix-unit">⏱️ {% translate 'мин' %}</span>
+                      </div>
+                      {{ adminform.form.duration_minutes.errors }}
+                    </div>
+                  </div>
+                </div>
+
+              {# SECTION 8: МЕСТА РАБОТЫ И ПРИЁМА (INLINE) #}
+              {% elif section.number == 8 %}
+                <div class="km-spec-location-banner" data-location-banner>
+                  <div class="km-location-banner__icon"><i class="fas fa-map-marked-alt" aria-hidden="true"></i></div>
+                  <div class="km-location-banner__text">
+                    <strong>{% translate 'Локации практики и кабинеты (по желанию / для очного формата)' %}</strong>
+                    <span>{% translate 'Если специалист принимает онлайн, данный блок можно пропустить. Для очного приёма выберите детский центр KidsMap или укажите адрес кабинета.' %}</span>
+                  </div>
+                </div>
+
+                {% if section.inline %}
+                  <div class="km-inline-body" id="practice_locations-group-wrapper">
+                    {% with inline_admin_formset=section.inline %}
+                      {% include inline_admin_formset.opts.template %}
+                    {% endwith %}
+                  </div>
+                {% elif section.unavailable %}
+                  <div class="km-section-notice km-section-notice--warning">
+                    <i class="fas fa-lock" aria-hidden="true"></i>
+                    <span>{% translate 'Изменение мест приёма недоступно вашей роли.' %}</span>
+                  </div>
+                {% endif %}
+
+              {# SECTION 9: ОБРАЗОВАНИЕ И ОПЫТ (ОТПОЛИРОВАННЫЙ БЛОК) #}
+              {% elif section.number == 9 %}
+                <div class="km-spec-edu-exp-wrapper" data-i18n-group="edu-exp">
+                  {# Header bar with Experience years and Language tabs #}
+                  <div class="km-spec-edu-top-bar">
+                    <div class="km-spec-exp-years-compact">
+                      <div class="km-spec-exp-icon"><i class="fas fa-briefcase" aria-hidden="true"></i></div>
+                      <div class="km-spec-exp-content">
+                        <label for="id_experience_years" class="km-spec-exp-label">{% translate 'Стаж работы по специальности:' %}</label>
+                        <div class="km-spec-input-affix km-spec-input-affix--compact">
+                          {{ adminform.form.experience_years }}
+                          <span class="km-affix-unit">{% translate 'лет' %}</span>
+                        </div>
+                      </div>
+                      {{ adminform.form.experience_years.errors }}
+                    </div>
+
+                    <div class="km-spec-edu-lang-picker">
+                      <span class="km-spec-edu-lang-label">{% translate 'Язык описания:' %}</span>
+                      <div class="km-spec-langtabs" role="tablist">
+                        <button type="button" class="km-spec-langtab is-active" data-lang="ru" role="tab" aria-selected="true">
+                          <span>🇷🇺 RU</span>
+                          <span class="km-lang-dot" data-lang-dot="edu_ru"></span>
+                        </button>
+                        <button type="button" class="km-spec-langtab" data-lang="az" role="tab" aria-selected="false">
+                          <span>🇦🇿 AZ</span>
+                          <span class="km-lang-dot" data-lang-dot="edu_az"></span>
+                        </button>
+                        <button type="button" class="km-spec-langtab" data-lang="en" role="tab" aria-selected="false">
+                          <span>🇬🇧 EN</span>
+                          <span class="km-lang-dot" data-lang-dot="edu_en"></span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {# Panes #}
+                  <div class="km-spec-edu-panes">
+                    <div class="km-spec-i18n-pane" data-lang-pane="ru">
+                      <div class="km-spec-edu-cards-grid">
+                        <div class="km-spec-edu-card">
+                          <div class="km-spec-edu-card__head">
+                            <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                            <strong>{% translate 'Образование, курсы и сертификаты' %}</strong>
+                          </div>
+                          <p class="km-spec-edu-card__hint">{% translate 'ВУЗ, факультет, специальность, курсы повышения квалификации' %}</p>
+                          {{ adminform.form.education_ru }}
+                          {{ adminform.form.education_ru.errors }}
+                        </div>
+
+                        <div class="km-spec-edu-card">
+                          <div class="km-spec-edu-card__head">
+                            <i class="fas fa-history" aria-hidden="true"></i>
+                            <strong>{% translate 'Опыт работы и практика' %}</strong>
+                          </div>
+                          <p class="km-spec-edu-card__hint">{% translate 'Места работы, специализация, ключевые методики' %}</p>
+                          {{ adminform.form.experience_info_ru }}
+                          {{ adminform.form.experience_info_ru.errors }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="km-spec-i18n-pane is-hidden" data-lang-pane="az" hidden>
+                      <div class="km-spec-edu-cards-grid">
+                        <div class="km-spec-edu-card">
+                          <div class="km-spec-edu-card__head">
+                            <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                            <strong>{% translate 'Təhsil, kurslar və sertifikatlar' %}</strong>
+                          </div>
+                          <p class="km-spec-edu-card__hint">{% translate 'Ali məktəb, ixtisas və ixtisasartırma kursları' %}</p>
+                          {{ adminform.form.education_az }}
+                          {{ adminform.form.education_az.errors }}
+                        </div>
+
+                        <div class="km-spec-edu-card">
+                          <div class="km-spec-edu-card__head">
+                            <i class="fas fa-history" aria-hidden="true"></i>
+                            <strong>{% translate 'İş təcrübəsi və praktika' %}</strong>
+                          </div>
+                          <p class="km-spec-edu-card__hint">{% translate 'İşlədiyi yerlər, metodlar və nailiyyətlər' %}</p>
+                          {{ adminform.form.experience_info_az }}
+                          {{ adminform.form.experience_info_az.errors }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="km-spec-i18n-pane is-hidden" data-lang-pane="en" hidden>
+                      <div class="km-spec-edu-cards-grid">
+                        <div class="km-spec-edu-card">
+                          <div class="km-spec-edu-card__head">
+                            <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                            <strong>{% translate 'Education & Certifications' %}</strong>
+                          </div>
+                          <p class="km-spec-edu-card__hint">{% translate 'Universities, degrees, and specialized training' %}</p>
+                          {{ adminform.form.education_en }}
+                          {{ adminform.form.education_en.errors }}
+                        </div>
+
+                        <div class="km-spec-edu-card">
+                          <div class="km-spec-edu-card__head">
+                            <i class="fas fa-history" aria-hidden="true"></i>
+                            <strong>{% translate 'Work Experience' %}</strong>
+                          </div>
+                          <p class="km-spec-edu-card__hint">{% translate 'Practice places, specialization, key methodologies' %}</p>
+                          {{ adminform.form.experience_info_en }}
+                          {{ adminform.form.experience_info_en.errors }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              {# SECTION 10: ДИПЛОМЫ И СЕРТИФИКАТЫ (ПОДТВЕРЖДЕНИЕ КВАЛИФИКАЦИИ) #}
+              {% elif section.number == 10 %}
+                <div class="km-spec-docs-wrapper">
+                  <div class="km-spec-doc-banner">
+                    <div class="km-doc-banner__icon"><i class="fas fa-award" aria-hidden="true"></i></div>
+                    <div class="km-doc-banner__text">
+                      <strong>{% translate 'Дипломы, лицензии и сертификаты специалиста' %}</strong>
+                      <span>{% translate 'Загруженные документы подтверждают квалификацию специалиста. После модерации специалист получает знак «Проверен» в каталоге KidsMap. Документы конфиденциальны и видны только администрации сайта.' %}</span>
+                    </div>
+                  </div>
+
+                  {% if section.inline %}
+                    <div class="km-inline-body" id="documents-group-wrapper">
+                      {% with inline_admin_formset=section.inline %}
+                        {% include inline_admin_formset.opts.template %}
+                      {% endwith %}
+                    </div>
+                  {% elif section.private %}
+                    <div class="km-section-notice km-section-notice--info">
+                      <i class="fas fa-user-shield" aria-hidden="true"></i>
+                      <span>{% translate 'Документы личности приватны. Их проверка доступна только уполномоченному модератору.' %}</span>
+                    </div>
+                  {% endif %}
+                </div>
+
+              {# SECTION 11: КОНТАКТЫ #}
+              {% elif section.number == 11 %}
+                <div class="km-spec-contacts-card">
+                  <div class="km-spec-contacts-hero-bar">
+                    <div class="km-contacts-hero__icon"><i class="fas fa-address-book" aria-hidden="true"></i></div>
+                    <div class="km-contacts-hero__text">
+                      <strong>{% translate 'Контакты для связи родителей со специалистом' %}</strong>
+                      <span>{% translate 'Отображаются в карточке специалиста. Номера телефонов защищены от спама кнопкой «Показать номер».' %}</span>
+                    </div>
+                  </div>
+
+                  <div class="km-spec-contacts-grid">
+                    <div class="km-spec-contact-item km-spec-contact-item--phone">
+                      <label for="id_phone" class="km-spec-contact-label">
+                        <i class="fas fa-phone-alt" aria-hidden="true"></i>
+                        <span>{% translate 'Основной телефон' %}</span>
+                        <span class="km-req-star">*</span>
+                      </label>
+                      <div class="km-input-addon-group">
+                        <span class="km-input-addon km-input-addon--flag" title="Азербайджан">🇦🇿 +994</span>
+                        {{ adminform.form.phone }}
+                      </div>
+                      <p class="help">{% translate 'Например: +994 50 123 45 67 (для звонков клиентов)' %}</p>
+                      {{ adminform.form.phone.errors }}
+                    </div>
+
+                    <div class="km-spec-contact-item km-spec-contact-item--wa">
+                      <div class="km-spec-contact-label-row">
+                        <label for="id_whatsapp" class="km-spec-contact-label">
+                          <i class="fab fa-whatsapp" aria-hidden="true" style="color: #25D366;"></i>
+                          <span>WhatsApp</span>
+                        </label>
+                        <button type="button" class="km-spec-sync-wa-btn" data-sync-wa title="{% translate 'Скопировать номер из основного телефона' %}">
+                          <i class="fas fa-copy" aria-hidden="true"></i> {% translate 'Скопировать из телефона' %}
+                        </button>
+                      </div>
+                      <div class="km-input-addon-group">
+                        <span class="km-input-addon km-input-addon--wa"><i class="fab fa-whatsapp" aria-hidden="true"></i></span>
+                        {{ adminform.form.whatsapp }}
+                      </div>
+                      <label class="km-spec-same-wa-checkbox" for="spec_wa_same_as_phone">
+                        <input type="checkbox" id="spec_wa_same_as_phone" data-wa-same>
+                        <span>{% translate 'WhatsApp совпадает с основным телефоном' %}</span>
+                      </label>
+                      {{ adminform.form.whatsapp.errors }}
+                    </div>
+
+                    <div class="km-spec-contact-item km-spec-contact-item--insta">
+                      <label for="id_instagram" class="km-spec-contact-label">
+                        <i class="fab fa-instagram" aria-hidden="true" style="color: #E1306C;"></i>
+                        <span>Instagram</span>
+                      </label>
+                      <div class="km-input-addon-group">
+                        <span class="km-input-addon">@</span>
+                        {{ adminform.form.instagram }}
+                      </div>
+                      <p class="help">{% translate 'Например: doctor_kids (ссылка сформируется автоматически)' %}</p>
+                      {{ adminform.form.instagram.errors }}
+                    </div>
+
+                    <div class="km-spec-contact-item km-spec-contact-item--web">
+                      <label for="id_website" class="km-spec-contact-label">
+                        <i class="fas fa-globe" aria-hidden="true" style="color: #3B82F6;"></i>
+                        <span>{% translate 'Сайт или портфолио' %}</span>
+                      </label>
+                      <div class="km-input-addon-group">
+                        <span class="km-input-addon">https://</span>
+                        {{ adminform.form.website }}
+                      </div>
+                      <p class="help">{% translate 'Личный сайт или страница в клинике' %}</p>
+                      {{ adminform.form.website.errors }}
+                    </div>
+                  </div>
+                </div>
+
+              {# SECTION 12: МОДЕРАЦИЯ И СИСТЕМНЫЕ ДАННЫЕ #}
+              {% elif section.number == 12 %}
+                <div class="km-spec-moderation-card">
+                  <div class="km-form-row km-form-row--multi">
+                    <div class="km-field km-field--status">
+                      <label for="id_status">{% translate 'Статус модерации' %}</label>
+                      {{ adminform.form.status }}
+                      {{ adminform.form.status.errors }}
+                    </div>
+                    <div class="km-field km-field--is_active">
+                      <label class="km-spec-checkbox-label" for="id_is_active">
+                        {{ adminform.form.is_active }}
+                        <span class="km-checkbox-fake"><i class="fas fa-check" aria-hidden="true"></i></span>
+                        <span class="km-checkbox-text"><strong>{% translate 'Активен' %}</strong> ({% translate 'отображается на сайте' %})</span>
+                      </label>
+                      {{ adminform.form.is_active.errors }}
+                    </div>
+                  </div>
+
+                  <div class="km-field km-field--rejection_reason">
+                    <label for="id_rejection_reason">{% translate 'Причина отклонения' %}</label>
+                    {{ adminform.form.rejection_reason }}
+                    {{ adminform.form.rejection_reason.errors }}
+                    <p class="help">{% translate 'Заполняется только при отклонении анкеты' %}</p>
+                  </div>
+
+                  <details class="km-spec-admin-meta"{% if not add and original %} open{% endif %}>
+                    <summary class="km-spec-admin-meta__summary">
+                      <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                      <span>{% translate 'Служебная информация, авторство и верификация' %}</span>
+                      <i class="fas fa-chevron-down km-spec-chevron" aria-hidden="true"></i>
+                    </summary>
+                    <div class="km-spec-admin-meta__grid">
+                      {% for line in section.fieldset %}
+                        {% for field in line %}
+                          {% if field.field.name in "created_by,verified_person_user,identity_verification_date,owner,rating_avg,rating_count,created_at,updated_at" %}
+                            <div class="km-meta-card km-meta-card--{{ field.field.name }}">
+                              <span class="km-meta-label">
+                                {% if field.field.name == 'owner' %}
+                                  <label><i class="fas fa-user-clock" aria-hidden="true"></i> {% translate 'Прежний владелец (не подтверждает личность)' %}</label>
+                                {% elif field.field.name == 'created_by' %}
+                                  <label><i class="fas fa-user-pen" aria-hidden="true"></i> {% translate 'Автор предложения' %}</label>
+                                {% elif field.field.name == 'verified_person_user' %}
+                                  <label><i class="fas fa-user-check" aria-hidden="true"></i> {% translate 'Подтверждённый специалист (аккаунт человека)' %}</label>
+                                {% elif field.field.name == 'identity_verification_date' %}
+                                  <label><i class="fas fa-calendar-check" aria-hidden="true"></i> {% translate 'Дата подтверждения личности' %}</label>
+                                {% else %}
+                                  {{ field.label_tag }}
+                                {% endif %}
+                              </span>
+                              <div class="readonly">{{ field.contents|default:"-" }}</div>
+                            </div>
+                          {% endif %}
+                        {% endfor %}
+                      {% endfor %}
+                    </div>
+                  </details>
+                </div>
+
+              {# FALLBACK DEFAULT RENDERER #}
+              {% else %}
+                {% if section.fieldset %}
+                  {% for line in section.fieldset %}
+                    <div class="km-form-row {% if line.fields|length > 1 %}km-form-row--multi{% endif %}">
+                      {% for field in line %}
+                        <div class="km-field km-field--{{ field.field.name }} {% if field.is_readonly %}km-field--readonly{% endif %}">
+                          {{ field.label_tag }}
+                          {% if field.is_readonly %}
+                            <div class="readonly">{{ field.contents }}</div>
+                          {% else %}
+                            {{ field.field }}
+                          {% endif %}
+                          {{ field.errors }}
+                          {% if field.field.help_text %}
+                            <p class="help">{{ field.field.help_text }}</p>
+                          {% endif %}
+                        </div>
+                      {% endfor %}
+                    </div>
+                  {% endfor %}
+                {% endif %}
               {% endif %}
             </div>
           </section>

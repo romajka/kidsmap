@@ -31,3 +31,1044 @@
 .account-specialist-shell .spec-profile-subject-options input[type=radio]{width:20px;height:20px;margin:0;flex-shrink:0;accent-color:var(--brand-turf)}
 .account-specialist-shell .spec-profile-subject p{margin:10px 0 0;color:var(--muted);font-size:14px;line-height:1.5;max-width:80ch}
 @media(max-width:767px){.account-specialist-shell .spec-profile-subject{padding:14px}.account-specialist-shell .spec-profile-subject-options{display:grid;gap:4px}}
+
+
+/* ==========================================================================
+   KidsMap Specialist Owner Creation/Edit Wizard Polished Styles
+   ========================================================================== */
+
+/* Step 1: Names Grid & Experience/Photo */
+.km-step1-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.km-owner-name-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.km-owner-exp-photo-row {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.km-owner-exp-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.km-input-affix {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.km-input-affix input {
+  width: 100%;
+  padding-right: 48px !important;
+}
+
+.km-input-affix .km-affix-unit {
+  position: absolute;
+  right: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748B;
+  pointer-events: none;
+}
+
+.km-input-affix .km-affix-flag {
+  position: absolute;
+  left: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  pointer-events: none;
+}
+
+.km-input-affix:has(.km-affix-flag) input {
+  padding-left: 78px !important;
+  padding-right: 12px !important;
+}
+
+/* Photo Dropzone */
+.km-photo-component {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.km-photo-dropzone {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  background: #F8FAFC;
+  border: 2px dashed #CBD5E1;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.km-photo-dropzone:hover,
+.km-photo-dropzone:focus-visible {
+  border-color: #059669;
+  background: #F0FDF4;
+  outline: none;
+}
+
+.km-photo-dropzone.is-dragover {
+  border-color: #059669;
+  background: #DCFCE7;
+  transform: scale(1.005);
+}
+
+.km-photo-avatar {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  border-radius: 50%;
+  background: #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 2px solid #CBD5E1;
+}
+
+.km-photo-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.km-photo-placeholder {
+  color: #94A3B8;
+  font-size: 26px;
+}
+
+.km-photo-controls {
+  flex: 1;
+  min-width: 0;
+}
+
+.km-photo-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #059669;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.km-photo-action-btn:hover {
+  background: #047857;
+}
+
+.km-photo-help {
+  display: block;
+  font-size: 11.5px;
+  color: #64748B;
+  margin-top: 5px;
+}
+
+/* Step 2: Custom Multiselect Dropdown */
+.km-owner-spec-dropdown-wrapper {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.km-owner-spec-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.km-owner-spec-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  min-height: 48px;
+  background: #FFFFFF;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.km-owner-spec-dropdown-trigger:hover {
+  border-color: #94A3B8;
+}
+
+.km-owner-spec-dropdown.is-open .km-owner-spec-dropdown-trigger,
+.km-owner-spec-dropdown-trigger:focus-visible {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+  outline: none;
+}
+
+.km-trigger-icon {
+  color: #059669;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.km-dropdown-placeholder {
+  flex: 1;
+  color: #1E293B;
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.km-selected-badge {
+  background: #DCFCE7;
+  color: #065F46;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.km-dropdown-chevron {
+  color: #94A3B8;
+  font-size: 13px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.km-owner-spec-dropdown.is-open .km-dropdown-chevron {
+  transform: rotate(180deg);
+}
+
+.km-owner-spec-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: #FFFFFF;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.km-dropdown-search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.km-dropdown-search-row i {
+  color: #94A3B8;
+  font-size: 13px;
+}
+
+.km-dropdown-search-row input {
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  width: 100%;
+  font-size: 13px;
+  color: #0F172A;
+  padding: 0 !important;
+  min-height: auto !important;
+}
+
+.km-dropdown-found-pill {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748B;
+  background: #E2E8F0;
+  padding: 2px 7px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.km-dropdown-list-wrap {
+  max-height: 260px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+}
+
+.km-dropdown-list-wrap::-webkit-scrollbar {
+  width: 6px;
+}
+
+.km-dropdown-list-wrap::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+
+.km-spec-cat-group {
+  margin-bottom: 12px;
+}
+
+.km-spec-cat-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748B;
+  padding: 4px 6px;
+}
+
+.km-dropdown-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 4px;
+}
+
+.km-owner-spec-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  user-select: none;
+}
+
+.km-owner-spec-option:hover {
+  background: #F1F5F9;
+}
+
+.km-owner-spec-option input[type=checkbox] {
+  width: 17px !important;
+  height: 17px !important;
+  min-width: 17px;
+  min-height: 17px;
+  margin: 0 !important;
+  accent-color: #059669;
+  cursor: pointer;
+}
+
+.km-owner-spec-option .km-opt-text {
+  font-size: 13px;
+  color: #1E293B;
+  font-weight: 500;
+}
+
+.km-dropdown-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid #E2E8F0;
+  margin-top: 8px;
+}
+
+.km-btn-clear-all {
+  background: none;
+  border: none;
+  color: #64748B;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 5px 8px;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+
+.km-btn-clear-all:hover {
+  color: #DC2626;
+}
+
+.km-btn-done-selection {
+  background: #059669;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.km-btn-done-selection:hover {
+  background: #047857;
+}
+
+.selected-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.km-spec-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 12px;
+  background: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.km-chip-remove {
+  background: none;
+  border: none;
+  color: #059669;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.km-chip-remove:hover {
+  color: #DC2626;
+}
+
+/* Step 3: Locations & Folded GPS Coordinates */
+.km-location-intro-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 12px;
+  color: #166534;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+
+.km-location-intro-icon {
+  font-size: 18px;
+  color: #059669;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.km-location-intro-text p {
+  margin: 0;
+}
+
+.km-practice-card {
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+}
+
+.km-practice-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #F1F5F9;
+  margin-bottom: 16px;
+}
+
+.km-practice-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  color: #0F172A;
+}
+
+.km-practice-card-title i {
+  color: #059669;
+}
+
+.km-practice-num-badge {
+  background: #E0E7FF;
+  color: #3730A3;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.km-btn-remove-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #FECACA;
+  border-radius: 8px;
+  background: #FEF2F2;
+  color: #B91C1C;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.km-btn-remove-location:hover {
+  background: #FEE2E2;
+  border-color: #F87171;
+}
+
+.km-practice-choice-block {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.km-practice-choice-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.km-choice-icon {
+  color: #059669;
+  font-size: 15px;
+}
+
+.km-practice-label {
+  font-weight: 650;
+  font-size: 13.5px;
+  color: #1E293B;
+  margin: 0;
+}
+
+.km-practice-field input:not([type=checkbox]),
+.km-practice-field select,
+.km-practice-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.km-field-subtext {
+  font-size: 12px;
+  color: #64748B;
+  margin: 4px 0 0;
+}
+
+.km-practice-divider {
+  text-align: center;
+  position: relative;
+  margin: 16px 0;
+}
+
+.km-practice-divider::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #E2E8F0;
+}
+
+.km-practice-divider span {
+  position: relative;
+  display: inline-block;
+  background: #FFFFFF;
+  padding: 0 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #94A3B8;
+}
+
+.km-practice-city-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.km-coords-toggle {
+  margin-top: 14px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+}
+
+.km-coords-toggle summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.km-coords-toggle summary::-webkit-details-marker {
+  display: none;
+}
+
+.km-coords-chevron {
+  margin-left: auto;
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.km-coords-toggle[open] .km-coords-chevron {
+  transform: rotate(180deg);
+}
+
+.km-coords-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px 14px 14px;
+  border-top: 1px solid #F1F5F9;
+}
+
+.km-practice-details-card {
+  margin-top: 16px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.km-practice-details-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 650;
+  color: #1E293B;
+  margin-bottom: 12px;
+}
+
+.km-practice-details-head i {
+  color: #059669;
+}
+
+.km-practice-subgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.km-practice-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.km-practice-chip-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 10px;
+  background: #FFFFFF;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.km-practice-chip-check:has(input:checked) {
+  border-color: #059669;
+  background: #ECFDF5;
+  color: #065F46;
+}
+
+.km-practice-chip-check input[type=checkbox] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.km-fake-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid #CBD5E1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: transparent;
+  background: #FFFFFF;
+  transition: all 0.15s ease;
+}
+
+.km-practice-chip-check input:checked ~ .km-fake-checkbox {
+  background: #059669;
+  border-color: #059669;
+  color: #FFFFFF;
+}
+
+.km-practice-add-wrap {
+  margin: 16px 0;
+}
+
+.km-btn-add-practice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1.5px dashed #059669;
+  border-radius: 12px;
+  background: #F0FDF4;
+  color: #059669;
+  font-weight: 650;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.km-btn-add-practice:hover {
+  background: #DCFCE7;
+  border-color: #047857;
+}
+
+.km-practice-status-note {
+  font-size: 12px;
+  color: #64748B;
+  margin: 4px 0 0;
+}
+
+/* Step 4: Pricing & Contacts */
+.km-pricing-contacts-card {
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 22px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  box-sizing: border-box;
+}
+
+.km-subsection-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1E293B;
+  margin: 0 0 16px;
+}
+
+.km-subsection-title i {
+  color: #059669;
+}
+
+.km-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.km-contacts-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 10px;
+  color: #166534;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.km-contacts-banner i {
+  font-size: 16px;
+  color: #059669;
+}
+
+.km-contacts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.km-input-addon-group {
+  display: flex;
+  align-items: stretch;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #FFFFFF;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.km-input-addon-group:focus-within {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+}
+
+.km-addon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  background: #F8FAFC;
+  border-right: 1px solid #E2E8F0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.km-addon-badge--wa {
+  color: #16A34A;
+  font-size: 15px;
+}
+
+.km-addon-badge--ig {
+  color: #E1306C;
+  font-size: 15px;
+}
+
+.km-addon-badge--web {
+  color: #2563EB;
+  font-size: 14px;
+}
+
+.km-input-addon-group input {
+  flex: 1;
+  border: none !important;
+  outline: none !important;
+  padding: 10px 12px !important;
+  font-size: 14px;
+  min-height: 44px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.km-btn-copy-wa {
+  border: none;
+  background: #F0FDF4;
+  color: #059669;
+  font-size: 12px;
+  font-weight: 650;
+  padding: 0 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-left: 1px solid #BBF7D0;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.km-btn-copy-wa:hover {
+  background: #DCFCE7;
+}
+
+.km-same-wa-row {
+  margin-top: 8px;
+}
+
+.km-same-wa-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+}
+
+.km-same-wa-label input[type=checkbox] {
+  width: 17px !important;
+  height: 17px !important;
+  min-width: 17px;
+  min-height: 17px;
+  accent-color: #059669;
+  margin: 0 !important;
+  cursor: pointer;
+}
+
+/* Step 5: Bio Language Tabs, Education & Experience 2-column cards */
+.km-bio-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.owner-specialist-lang-tabs {
+  display: inline-flex;
+  background: #F1F5F9;
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.owner-lang-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 650;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.owner-lang-tab-btn:hover {
+  color: #0F172A;
+}
+
+.owner-lang-tab-btn.is-active {
+  background: #FFFFFF;
+  color: #0F172A;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.km-owner-edu-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.km-owner-edu-card {
+  background: #F8FAFC;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.km-edu-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  color: #1E293B;
+  margin-bottom: 4px;
+}
+
+.km-edu-card-head i {
+  color: #059669;
+}
+
+.km-edu-hint {
+  display: block;
+  font-size: 11.5px;
+  color: #64748B;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.km-owner-edu-card textarea {
+  width: 100%;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  background: #FFFFFF;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.km-owner-edu-card textarea:focus {
+  border-color: #059669;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+}
+
+.km-owner-privacy-card {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 14px;
+}
+
+.km-documents-block {
+  margin-top: 24px;
+}
+
+.km-owner-info-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: 8px;
+  color: #1D4ED8;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.km-owner-info-notice i {
+  color: #2563EB;
+}
+
+/* Responsive tweaks */
+@media (max-width: 767px) {
+  .km-owner-name-grid,
+  .km-owner-exp-photo-row,
+  .km-pricing-grid,
+  .km-contacts-grid,
+  .km-owner-edu-cards-grid,
+  .km-practice-city-grid,
+  .km-practice-subgrid,
+  .km-coords-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .km-photo-dropzone {
+    flex-direction: column;
+    text-align: center;
+    padding: 16px;
+  }
+}

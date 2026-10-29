@@ -2969,6 +2969,10 @@ def specialist_list(request):
         "language": language,
         "seo_title": _("Педагоги и специалисты для детей — KidsMap"),
         "meta_description": _("Найдите репетитора, педагога, психолога, логопеда, тренера или другого специалиста для ребёнка."),
+        "specialist_breadcrumb_items": [
+            {"name": str(_("Главная")), "url": reverse("home") if language == "az" else f"/{language}/"},
+            {"name": str(_("Педагоги и специалисты")), "url": reverse("specialist_list") if spec_code else None},
+        ] + ([{"name": next((s["label"] for s in filter_options.specializations if s["value"] == spec_code), spec_code), "url": None}] if spec_code else []),
     }
     return render(request, "catalog/specialist_list.html", context)
 

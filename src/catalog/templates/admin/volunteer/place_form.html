@@ -49,7 +49,7 @@
         {% elif section.id == 'verification' %}
           <div class="km-editor-preview-action">
             <button type="button" class="km-editor-preview" data-km-check>{% translate 'Проверить заполнение' %}</button>
-            <button type="submit" name="_km_preview" value="1" class="km-editor-preview" data-km-preview formtarget="_blank" formnovalidate formaction="{% if place.pk %}{% url 'place_editor_preview' place.pk %}{% else %}{% url 'place_editor_preview_new' %}{% endif %}?surface=volunteer">{% translate 'Просмотреть перед публикацией' %} ↗</button>
+            <button type="submit" name="_km_preview" value="1" class="km-editor-preview" data-km-preview formtarget="_blank" formnovalidate formaction="{% if place.pk %}{% url 'admin_editor:volunteer_place_editor_preview' place.pk %}{% else %}{% url 'admin_editor:volunteer_place_editor_preview_new' %}{% endif %}">{% translate 'Просмотреть перед публикацией' %} ↗</button>
             <p data-km-check-status role="status" aria-live="polite" hidden></p>
           </div>
           <div class="km-pf-verify-card" data-volunteer-readiness>

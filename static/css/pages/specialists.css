@@ -2467,174 +2467,459 @@ body.km-filter-lock {
 /* ----------------------------------------------------
    Hero Banner & Contrast Card
    ---------------------------------------------------- */
+/* ==========================================================================
+   KidsMap Specialists Hero - Unified Design System (matching Catalog Hero)
+   ========================================================================== */
+
+.km-specialists-catalog .km-breadcrumbs {
+  margin-bottom: 14px;
+}
+
 .km-specialists-catalog .km-specialists-hero {
   position: relative;
-  min-height: 240px;
-  display: flex;
-  align-items: center;
-  margin: 0 0 20px;
-  padding: 24px 32px;
+  z-index: 10;
+  display: block;
   overflow: hidden;
-  border-radius: 20px;
-  border: 1px solid #d3e5da;
-  background: linear-gradient(135deg, #f7fcf9 0%, #edf7f1 100%);
-  box-shadow: 0 10px 30px rgba(18, 32, 26, 0.06);
+  border-radius: 28px;
+  background: linear-gradient(140deg, #f2f9f5 0%, #e7f5ec 100%);
+  border: 1px solid #cbe7d8;
+  padding: clamp(24px, 3.2vw, 36px) clamp(20px, 3.2vw, 38px);
+  margin: 0 0 24px;
+  box-shadow: 0 4px 24px rgba(18, 33, 31, 0.04);
 }
 
-.km-specialists-catalog .km-specialists-hero .catalog-hero-picture,
-.km-specialists-catalog .km-specialists-hero .catalog-hero-image {
+@media (min-width: 960px) {
+  .km-specialists-catalog .km-specialists-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 36px;
+    align-items: center;
+  }
+  .km-specialists-catalog .km-specialists-hero .hero-text {
+    grid-column: 1;
+  }
+  .km-specialists-catalog .km-specialists-hero .km-specialists-hero-stats {
+    grid-column: 2;
+  }
+}
+
+.km-specialists-catalog .catalog-hero-decoration {
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  border-radius: inherit !important;
+  z-index: 1 !important;
+}
+
+/* Ambient gradient orbs */
+.km-specialists-catalog .faq-hero-orb1 {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  right: -40px;
+  top: -120px;
+  background: radial-gradient(circle, rgba(19, 111, 56, 0.12), rgba(19, 111, 56, 0) 70%);
+  pointer-events: none;
+  z-index: 1;
 }
 
-.km-specialists-catalog .km-specialists-hero .catalog-hero-image {
-  object-fit: cover;
-  object-position: center;
-  opacity: 0.88;
+.km-specialists-catalog .faq-hero-orb2 {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  left: 45%;
+  bottom: -130px;
+  background: radial-gradient(circle, rgba(19, 111, 56, 0.08), rgba(19, 111, 56, 0) 70%);
+  pointer-events: none;
+  z-index: 1;
 }
 
-/* Contrast protective card over graphic banner */
-.km-specialists-catalog .km-hero-card {
+/* Left Hero Column */
+.km-specialists-catalog .hero-text {
   position: relative;
   z-index: 2;
-  width: 100%;
-  max-width: 660px;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(211, 229, 218, 0.9);
-  border-radius: 18px;
-  padding: 24px 28px;
-  box-shadow: 0 10px 28px rgba(18, 32, 26, 0.08);
-}
-
-.km-specialists-catalog .hero-text {
   width: 100%;
   padding: 0;
   text-align: left;
 }
 
+.km-specialists-catalog .faq-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #e2f4ea;
+  border: 1px solid #cbe7d8;
+  color: #0d4924;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+  width: fit-content;
+  line-height: 1;
+}
+
+.km-specialists-catalog .faq-hero-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  display: inline-block;
+}
+
 .km-specialists-catalog .km-specialists-hero h1 {
-  margin: 0 0 6px;
-  color: #12201a;
-  font-family: var(--font-display, inherit);
-  font-size: clamp(24px, 2.8vw, 34px);
-  font-weight: 850;
-  line-height: 1.15;
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: clamp(24px, 2.6vw, 32px);
+  font-weight: 800;
+  line-height: 1.18;
   letter-spacing: -0.02em;
 }
 
-.km-specialists-catalog .km-specialists-hero p {
+.km-specialists-catalog .km-specialists-hero .hero-intro-text {
   margin: 0 0 16px;
-  color: #455a50;
-  font-size: clamp(13.5px, 1.35vw, 15.5px);
-  line-height: 1.42;
-  max-width: 580px;
+  color: #475569;
+  font-size: clamp(14px, 1.25vw, 15px);
+  line-height: 1.45;
+  max-width: 620px;
 }
 
-/* Compact Integrated Search Bar */
-.km-specialists-catalog .km-hero-search {
+/* Search Bar (Matching main catalog) */
+.km-specialists-catalog .catalog-hero-search-wrap {
+  position: relative;
+  max-width: 660px;
+  margin-bottom: 12px;
+}
+
+.km-specialists-catalog .km-specialists-hero-search {
   display: flex;
   align-items: center;
+  position: relative;
   background: #ffffff;
-  border: 1.5px solid #009a4e;
-  border-radius: 12px;
-  padding: 4px 6px 4px 14px;
-  gap: 10px;
-  box-shadow: 0 4px 14px rgba(0, 154, 78, 0.12);
-  transition: box-shadow 0.18s ease, border-color 0.18s ease;
+  border: 1.5px solid #10b981;
+  border-radius: 14px;
+  padding: 4px 5px 4px 14px;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.12);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.km-specialists-catalog .km-hero-search:focus-within {
-  box-shadow: 0 0 0 3px rgba(0, 154, 78, 0.2), 0 6px 18px rgba(0, 154, 78, 0.16);
+.km-specialists-catalog .km-specialists-hero-search:focus-within {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.22), 0 6px 20px rgba(16, 185, 129, 0.16);
 }
 
-.km-specialists-catalog .km-hero-search i,
-.km-specialists-catalog .km-hero-search .material-symbols-rounded {
-  color: #009a4e;
-  font-size: 20px;
+.km-specialists-catalog .catalog-hero-search__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #10b981;
   flex-shrink: 0;
 }
 
-.km-specialists-catalog .km-hero-search input {
+.km-specialists-catalog .km-specialists-hero-search input[type="search"] {
   flex: 1;
   min-width: 0;
-  border: 0;
-  outline: none;
+  border: none;
   background: transparent;
+  padding: 8px 4px;
   font-size: 14.5px;
-  color: #12201a;
-  min-height: 38px;
+  color: #1e293b;
+  outline: none;
+  font-family: inherit;
 }
 
-.km-specialists-catalog .km-hero-search input::placeholder {
-  color: #83978c;
+.km-specialists-catalog .km-specialists-hero-search input[type="search"]::placeholder {
+  color: #94a3b8;
 }
 
-.km-specialists-catalog .km-hero-search button {
+.km-specialists-catalog .catalog-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 2px;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.km-specialists-catalog .catalog-search-clear:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+.km-specialists-catalog .catalog-search-clear[hidden] {
+  display: none !important;
+}
+
+.km-specialists-catalog .hero-search-submit {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 38px;
+  height: 38px;
   padding: 0 20px;
-  background: #009a4e;
+  background: #10b981;
   color: #ffffff;
-  border: 0;
-  border-radius: 8px;
+  border: none;
+  border-radius: 10px;
   font-weight: 700;
   font-size: 14px;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.15s ease, transform 0.1s ease;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.28);
+  transition: background 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
 }
 
-.km-specialists-catalog .km-hero-search button:hover {
-  background: #087b43;
+.km-specialists-catalog .hero-search-submit:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
 }
 
-.km-specialists-catalog .km-hero-search button:active {
-  transform: scale(0.98);
+.km-specialists-catalog .hero-search-submit:active {
+  transform: translateY(0);
 }
 
-/* Popular Directions Pills */
-.km-specialists-catalog .km-popular-directions {
+/* Popular Suggestions (Bubble Pills matching Catalog Hero) */
+.km-specialists-catalog .catalog-hero-tags {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 10px;
 }
 
-.km-specialists-catalog .km-popular-label {
-  color: #647067;
-  font-size: 12px;
-  font-weight: 700;
+.km-specialists-catalog .catalog-hero-tags-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #64748b;
   margin-right: 2px;
 }
 
-.km-specialists-catalog .km-popular-tag {
+.km-specialists-catalog .catalog-hero-tag-btn {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
+  gap: 7px;
+  padding: 5px 12px 5px 6px;
   border-radius: 999px;
-  background: #f0f7f3;
-  color: #0f766e;
-  border: 1px solid #d3e5da;
-  font-size: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 13px;
   font-weight: 600;
+  line-height: 1;
   text-decoration: none;
-  transition: all 0.15s ease;
-  white-space: nowrap;
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
-.km-specialists-catalog .km-popular-tag:hover,
-.km-specialists-catalog .km-popular-tag.is-active {
-  background: #009a4e;
+.km-specialists-catalog .catalog-hero-tag-btn:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.km-specialists-catalog .catalog-hero-tag-btn.is-active {
+  background: #10b981;
+  border-color: #059669;
   color: #ffffff;
-  border-color: #009a4e;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.28);
+}
+
+.km-specialists-catalog .km-hero-bubble__icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.km-specialists-catalog .km-hero-bubble--speech .km-hero-bubble__icon {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.km-specialists-catalog .km-hero-bubble--psych .km-hero-bubble__icon {
+  background: #fce7f3;
+  color: #db2777;
+}
+
+.km-specialists-catalog .km-hero-bubble--neuro .km-hero-bubble__icon {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.km-specialists-catalog .km-hero-bubble--pediatrician .km-hero-bubble__icon {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.km-specialists-catalog .km-hero-bubble--defectologist .km-hero-bubble__icon {
+  background: #fed7aa;
+  color: #c2410c;
+}
+
+.km-specialists-catalog .catalog-hero-tag-btn.is-active .km-hero-bubble__icon {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.km-specialists-catalog .km-hero-bubble__label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Right Column: 3 Trust & Value Cards (Matching Catalog Hero Stats) */
+.km-specialists-catalog .km-specialists-hero-stats {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 28px;
+  border-left: 1px solid rgba(203, 231, 216, 0.7);
+}
+
+.km-specialists-catalog .faq-hero-stat {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transition: transform 0.16s ease;
+}
+
+.km-specialists-catalog .faq-hero-stat + .faq-hero-stat {
+  border-top: 1px solid rgba(203, 231, 216, 0.6);
+}
+
+.km-specialists-catalog .faq-hero-stat:hover {
+  transform: translateX(2px);
+}
+
+.km-specialists-catalog .faq-hero-stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #ffffff;
+  border: 1px solid #d3e5da;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.km-specialists-catalog .faq-hero-stat:hover .faq-hero-stat-icon {
+  transform: scale(1.06);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.16);
+}
+
+.km-specialists-catalog .faq-hero-stat-icon--verified {
+  color: #10b981;
+}
+
+.km-specialists-catalog .faq-hero-stat-icon--format {
+  color: #0284c7;
+}
+
+.km-specialists-catalog .faq-hero-stat-icon--direct {
+  color: #f59e0b;
+}
+
+.km-specialists-catalog .faq-hero-stat-val {
+  font-size: 14.5px;
+  font-weight: 750;
+  color: #0f172a;
+  line-height: 1.25;
+  margin-bottom: 2px;
+}
+
+.km-specialists-catalog .faq-hero-stat-label {
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+/* Responsive adjustments */
+@media (max-width: 959px) {
+  .km-specialists-catalog .km-specialists-hero {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 22px 20px;
+  }
+  .km-specialists-catalog .km-specialists-hero-stats {
+    padding-left: 0;
+    border-left: none;
+    border-top: 1px solid rgba(203, 231, 216, 0.7);
+    padding-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .km-specialists-catalog .faq-hero-stat {
+    padding: 6px 0;
+    gap: 10px;
+  }
+  .km-specialists-catalog .faq-hero-stat + .faq-hero-stat {
+    border-top: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .km-specialists-catalog .km-specialists-hero {
+    border-radius: 18px;
+    padding: 16px 14px;
+    margin-bottom: 16px;
+  }
+  .km-specialists-catalog .km-specialists-hero h1 {
+    font-size: 20px;
+    line-height: 1.22;
+  }
+  .km-specialists-catalog .km-specialists-hero .hero-intro-text {
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .km-specialists-catalog .km-specialists-hero-search {
+    padding: 3px 4px 3px 10px;
+    border-radius: 11px;
+  }
+  .km-specialists-catalog .hero-search-submit {
+    height: 34px;
+    padding: 0 14px;
+    font-size: 13px;
+  }
+  .km-specialists-catalog .km-specialists-hero-stats {
+    display: none;
+  }
+  .km-specialists-catalog .catalog-hero-tags {
+    gap: 6px;
+  }
+  .km-specialists-catalog .catalog-hero-tag-btn {
+    font-size: 12px;
+    padding: 4px 10px 4px 5px;
+  }
 }
 
 /* ----------------------------------------------------
@@ -2660,7 +2945,11 @@ body.km-filter-lock {
    ---------------------------------------------------- */
 .km-specialists-catalog .km-filters-panel {
   position: sticky;
-  top: 16px;
+  top: 88px;
+  max-height: calc(100vh - 104px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
   align-self: start;
   padding: 18px;
   border-radius: 16px;
@@ -4846,11 +5135,12 @@ body.km-filter-lock {
    Horizontal Specialization Strip (matching Main Catalog)
    ========================================================================== */
 .km-specialists-catalog .catalog-category-strip-wrap {
+  position: relative;
   width: 100%;
   max-width: 100%;
   min-width: 0;
   margin-bottom: 14px;
-  overflow: hidden;
+  overflow: visible;
   box-sizing: border-box;
 }
 
@@ -4862,14 +5152,54 @@ body.km-filter-lock {
   max-width: 100%;
   min-width: 0;
   overflow-x: auto;
-  padding: 4px 2px 8px;
+  overflow-y: hidden;
+  padding: 4px 6px 8px;
   scrollbar-width: none;
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
+  cursor: grab;
+}
+
+.km-specialists-catalog .catalog-category-strip.is-dragging {
+  cursor: grabbing !important;
+  scroll-behavior: auto !important;
+  user-select: none !important;
 }
 
 .km-specialists-catalog .catalog-category-strip::-webkit-scrollbar {
   display: none;
+}
+
+.km-specialists-catalog .catalog-category-strip-wrap::before,
+.km-specialists-catalog .catalog-category-strip-wrap::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 8px;
+  width: 52px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.km-specialists-catalog .catalog-category-strip-wrap::before {
+  left: 0;
+  background: linear-gradient(to right, #f8fafc 25%, rgba(248, 250, 252, 0) 100%);
+}
+
+.km-specialists-catalog .catalog-category-strip-wrap.has-overflow-left::before {
+  opacity: 1;
+}
+
+.km-specialists-catalog .catalog-category-strip-wrap::after {
+  right: 0;
+  background: linear-gradient(to left, #f8fafc 25%, rgba(248, 250, 252, 0) 100%);
+}
+
+.km-specialists-catalog .catalog-category-strip-wrap.has-overflow-right::after {
+  opacity: 1;
 }
 
 .km-specialists-catalog .catalog-category-chip {

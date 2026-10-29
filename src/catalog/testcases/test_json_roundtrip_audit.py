@@ -211,6 +211,36 @@ class EightRealWorldRoundTripTests(TestCase):
         self.assertEqual(schema["@type"], "LocalBusiness")
         return place, schema
 
+    def _assert_mixed_tariff_prices(self, place, schema, amounts):
+        # A lesson and a membership are different totals, not a price range.
+        minimum = min(amounts)
+        labels = {
+            "az": f"{minimum} ₼-dən · dərs üçün",
+            "ru": f"От {minimum} ₼ · за занятие",
+            "en": f"From {minimum} ₼ · per lesson",
+        }
+        self.assertCountEqual(
+            place.pricing_plan_records.values_list("price", flat=True),
+            [Decimal(amount) for amount in amounts],
+        )
+        self.assertCountEqual(
+            [offer["price"] for offer in schema["offers"]],
+            [f"{amount:.2f}" for amount in amounts],
+        )
+        lesson_units = {"az": "dərs", "ru": "занятие", "en": "lesson"}
+        for lang, label in labels.items():
+            with self.subTest(lang=lang), override(lang):
+                self.assertEqual(place.card_price_badge_value, label)
+                summary = build_public_price_summary(place, lang)
+                self.assertEqual(summary["kind"], "from")
+                self.assertEqual(summary["min_price"], Decimal(minimum))
+                self.assertIsNone(summary["max_price"])
+                self.assertCountEqual(
+                    [row["price_str"] for row in build_pricing_summary(place, lang)["plans"]],
+                    [f"{minimum} AZN / {lesson_units[lang]}"]
+                    + [f"{amount} AZN" for amount in amounts if amount != minimum],
+                )
+
     def test_round_trip_1_paid_sports_club(self):
         """1. Платная спортивная секция: tariffs, judo, membership 120 AZN, single lesson 15 AZN, regular schedule."""
         sub = ensure_quality_subcategory("SPRT")
@@ -227,7 +257,7 @@ class EightRealWorldRoundTripTests(TestCase):
                 {"product_type": "lesson", "price": 15, "title_ru": "Разовое занятие"},
             ],
         )
-        self.assertEqual(place.card_price_badge_value, "15–120 ₼")
+        self._assert_mixed_tariff_prices(place, schema, (15, 120))
         self.assertIn("openingHoursSpecification", schema)
 
     def test_round_trip_2_free_park(self):
@@ -375,6 +405,6 @@ class EightRealWorldRoundTripTests(TestCase):
                 {"product_type": "membership", "price": 150, "title_ru": "Интенсив"},
             ],
         )
-        self.assertEqual(place.card_price_badge_value, "10–150 ₼")
+        self._assert_mixed_tariff_prices(place, schema, (10, 80, 150))
         self.assertIn("openingHoursSpecification", schema)
         self.assertEqual(len(schema["offers"]), 3)

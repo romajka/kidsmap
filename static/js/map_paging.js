@@ -13,12 +13,16 @@
     });
     return [...points.values()];
   }
-  function create({control, initial, getParams, onChange}) {
+  function create({control, initial, getParams, onChange, autoLoad = false}) {
     const status = control.querySelector('[data-map-status]'), button = control.querySelector('[data-map-more]');
     let points = merge([], initial.points || []), count = initial.count || 0;
     let cursor = initial.next_cursor, more = !!initial.has_more, bounds = null;
     let viewportKey = null;
-    let generation = 0, controller = null, busy = false, failed = null, timer = null, destroyed = false;
+    let generation = 0, controller = null, busy = false, failed = null, timer = null, autoTimer = null, destroyed = false;
+    function scheduleNext() {
+      clearTimeout(autoTimer);
+      if (autoLoad && more && !failed && !busy && !destroyed) autoTimer = setTimeout(() => api.more(), 0);
+    }
     function render() {
       const shown = points.reduce((sum, point) => sum + point.members.length, 0);
       status.textContent = failed ? control.dataset.errorLabel : (control.dataset.shownLabel || '{shown} / {total}').replace('{shown}', shown).replace('{total}', count);
@@ -29,6 +33,7 @@
     }
     async function request(append, windowBounds) {
       if (destroyed) return;
+      clearTimeout(autoTimer);
       const current = ++generation;
       if (controller) controller.abort();
       controller = new AbortController(); busy = true; failed = null; render();
@@ -42,6 +47,7 @@
         if (!response.ok) throw new Error('Map request failed');
         const payload = await response.json();
         if (!Array.isArray(payload.points) || !Number.isFinite(payload.count)) throw new Error('Invalid map response');
+        if (payload.has_more && (payload.next_cursor == null || (append && String(payload.next_cursor) === String(cursor)))) throw new Error('Invalid map cursor');
         if (current !== generation || destroyed) return;
         points = merge(append ? points : [], payload.points); count = payload.count;
         cursor = payload.next_cursor; more = !!payload.has_more; bounds = windowBounds;
@@ -50,7 +56,7 @@
         if (current !== generation || destroyed || error.name === 'AbortError') return;
         failed = {append, bounds:windowBounds};
       } finally {
-        if (current === generation && !destroyed) { busy = false; render(); }
+        if (current === generation && !destroyed) { busy = false; render(); scheduleNext(); }
       }
     }
     const api = {
@@ -58,10 +64,10 @@
       replace(nextBounds=null) { clearTimeout(timer); timer=null; if (!nextBounds) viewportKey=null; return request(false,nextBounds); },
       more() { if (busy) return Promise.resolve(); const retry=failed; return request(retry ? retry.append : true,retry ? retry.bounds : bounds); },
       viewport(nextBounds) { const key=JSON.stringify(Object.values(nextBounds).map(v=>Number(v).toFixed(5))); if (key===viewportKey) return; viewportKey=key; clearTimeout(timer); timer=setTimeout(() => api.replace(nextBounds),300); },
-      destroy() { destroyed=true; generation++; clearTimeout(timer); controller?.abort(); button.removeEventListener('click',click); },
+      destroy() { destroyed=true; generation++; clearTimeout(timer); clearTimeout(autoTimer); controller?.abort(); button.removeEventListener('click',click); },
     };
     function click() { api.more(); }
-    button.addEventListener('click',click);render();return api;
+    button.addEventListener('click',click);render();scheduleNext();return api;
   }
   window.KidsMapPaging = {create};
 })();

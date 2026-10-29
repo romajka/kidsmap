@@ -4,6 +4,32 @@ const fs=require('node:fs');
 const {JSDOM}=require(process.env.KIDSMAP_JSDOM||'jsdom');
 const file='static/js/kidsmap_pricing_editor.js';
 
+test('compact summary retains from and range prices and the actual currency',()=>{
+ for(const [plan,expected] of [
+  [{price_kind:'from',price_min:'20',currency:'AZN'},/^от 20 ₼$/i],
+  [{price_kind:'range',price_min:'20',price_max:'40',currency:'AZN'},/^20–40 ₼$/],
+  [{price_kind:'exact',price:'25',currency:'USD'},/^25 USD$/],
+  [{price_kind:'free',price:'0',currency:'AZN'},/бесплатно/i],
+  [{price_kind:'on_request',currency:'AZN'},/запрос/i]
+ ]) {
+  const m=mount([{product_type:'visit',...plan}]);
+  try{assert.match(m.q('[data-tariff-editor]').kidsmapPricingSummary(),expected);}
+  finally{m.close();}
+ }
+});
+
+test('compact summary excludes inactive and supplementary plans without combining currencies',()=>{
+ const m=mount([
+  {product_type:'visit',price_kind:'exact',price:'25',currency:'USD'},
+  {product_type:'visit',price_kind:'from',price_min:'30',currency:'EUR'},
+  {product_type:'visit',price_kind:'exact',price:'1',currency:'AZN',is_active:false},
+  {product_type:'visit',price_kind:'exact',price:'2',currency:'AZN',is_trial:true},
+  {product_type:'visit',price_kind:'exact',price:'3',currency:'AZN',charge_role:'extra'},
+ ]);
+ try{assert.match(m.q('[data-tariff-editor]').kidsmapPricingSummary(),/^25 USD; от 30 EUR$/i);}
+ finally{m.close();}
+});
+
 test('recurring period controls are visibly required without guessing a billing period count',()=>{const m=mount();try{m.q('[data-tariff-add]').click();m.change('editor_kind','membership');m.change('billing_mode','recurring');for(const key of ['billing_interval','billing_interval_count'])assert.equal(m.q(`[data-tariff-key=${key}]`).closest('.owner-tariff-field').dataset.kmRequired,'true');assert(!m.value()[0].billing_interval_count);assert.equal(m.q('[data-tariff-key=title_az]').closest('.owner-tariff-field').dataset.kmRequired,'false');}finally{m.close();}});
 
 test('free entry changes visible plans to paid services without mutating saved pricing',()=>{const plan={id:17,product_type:'lesson',price_kind:'exact',price:'25',currency:'AZN',billing_mode:'one_time'},d=new JSDOM('<html lang="ru"><form data-permanent-place-form><div data-tariff-editor><input name="price_mode" value="tariffs"><input data-tariff-input><p data-tariff-heading>Тарифы места</p><p data-tariff-description></p><div data-tariff-list></div><button type="button" data-tariff-add>Добавить тариф</button><button type="button" data-price-policy="free_entry_paid_services">Free entry</button><button type="button" data-price-policy="tariffs">Tariffs</button></div></form></html>',{runScripts:'outside-only'}),w=d.window;w.document.querySelector('[data-tariff-input]').value=JSON.stringify([plan]);w.eval(fs.readFileSync(file,'utf8'));w.document.querySelector('[data-price-policy=free_entry_paid_services]').click();assert.equal(w.document.querySelector('[data-tariff-heading]').textContent,'Платные услуги');assert.match(w.document.querySelector('[data-tariff-add]').textContent,/Добавить платную услугу/);assert.deepEqual(JSON.parse(w.document.querySelector('[data-tariff-input]').value),[plan]);w.document.querySelector('[data-price-policy=tariffs]').click();assert.equal(w.document.querySelector('[data-tariff-heading]').textContent,'Тарифы места');w.close();});

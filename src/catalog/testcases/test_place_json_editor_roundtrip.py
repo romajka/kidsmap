@@ -78,7 +78,7 @@ class PlaceEditorExportTests(TestCase):
                 self.assertEqual(form['whatsapp_mode'].value(),'separate')
                 self.assertEqual(form['whatsapp_number'].value(),'+90 532 123 45 67')
 
-    def test_owner_age_choices_are_adjacent_and_admin_metadata_remains_in_disclosures(self):
+    def test_age_choices_are_adjacent_and_admin_metadata_remains_in_disclosures(self):
         from html.parser import HTMLParser
         class Controls(HTMLParser):
             def __init__(self):
@@ -97,7 +97,10 @@ class PlaceEditorExportTests(TestCase):
         response=self.client.get(reverse('admin:catalog_place_add')+'?type=permanent')
         self.assertEqual(response.status_code,200)
         parser=Controls();parser.feed(response.content.decode())
-        for name in ['age_open_ended','status','is_active','is_home_recommended']:
+        self.assertNotIn('details', parser.found['age_open_ended'])
+        for name in ('age_from', 'age_to', 'age_open_ended'):
+            self.assertIn('km-pf-age', parser.classes[name], name)
+        for name in ['status','is_active','is_home_recommended']:
             self.assertIn('details',parser.found[name],name)
         owner=get_user_model().objects.create_user('compact-owner', 'compact-owner@example.invalid', 'fictional-test-only')
         self.client.force_login(owner)

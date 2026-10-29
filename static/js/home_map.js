@@ -1227,8 +1227,13 @@
       marker.__kidsMapPointKey = place.key;
       marker.addListener("click", function () {
         const peers = markerItems.filter(item => visibleMarkers.has(item.marker) && item.position.lat === place.lat && item.position.lng === place.lng).map(item => item.marker);
-        if (peers.length > 1) { closePlace(); motion.cancel(); choice.show(peers, marker); }
-        else openPlace(place, marker);
+        if (peers.length > 1 || (Array.isArray(place.members) && place.members.length > 1)) {
+          closePlace();
+          motion.cancel();
+          choice.show(peers.length > 1 ? peers : [marker], marker);
+        } else {
+          openPlace(place, marker);
+        }
       });
 
       markerItems.push({
@@ -2075,7 +2080,7 @@
     if (pagingControl && window.KidsMapPaging) {
       const metadata = JSON.parse(document.getElementById('home-map-page')?.textContent || '{}');
       homePaging = window.KidsMapPaging.create({
-        control:pagingControl, initial:{...metadata,points:sharedState.places},
+        control:pagingControl, initial:{...metadata,points:sharedState.places}, autoLoad:true,
         getParams:()=>new URLSearchParams(new FormData(document.querySelector('[data-home-map-filter-form]'))),
         onChange:(points,meta)=>{ sharedState.places=points; homeExplorer?.setPoints(points); sharedState.applyPage?.(points,meta); updateLiveCount(meta.count); if (pendingFocusPlaceId && points.length && activeMapFocusHandler) { const target=pendingFocusPlaceId; pendingFocusPlaceId=null; activeMapFocusHandler(target); } },
       });

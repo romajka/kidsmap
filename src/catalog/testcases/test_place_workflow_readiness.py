@@ -186,7 +186,7 @@ class PlaceWorkflowReadinessTests(CandidateMediaFixture, TestCase):
             with self.subTest(ajax=ajax,editing=editing):
                 self.place.refresh_from_db()
                 draft=self.draft(version=2,target_id=self.place.pk if editing else None,source_version=self.place.content_version if editing else 0)
-                data={'form_action':'save_draft','name_az':'Private native save','category':self.place.category_id,
+                data={'form_action':'save_draft','name_az':f'Private native save {int(ajax)} {int(editing)}','category':self.place.category_id,
                     'server_draft_id':str(draft.pk),'server_draft_version':'1','photo_request_id':str(uuid4())}
                 if editing:data['publication_token']=version_token(self.place)
                 url=reverse(('owner_photo_edit_save' if editing else 'owner_photo_create_save') if ajax else ('owner_place_edit' if editing else 'owner_place_create'),args=[self.place.pk] if editing else [])

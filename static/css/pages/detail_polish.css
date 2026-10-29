@@ -85,10 +85,18 @@
   grid-area: sidebar;
   min-width: 0;
   position: sticky;
-  top: 16px;
+  top: 88px;
+  max-height: calc(100vh - 104px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.detail-page .detail-side::-webkit-scrollbar {
+  display: none;
 }
 
 .detail-page .detail-decision {
@@ -169,9 +177,87 @@
   margin-top: 2px;
 }
 
-/* If odd number of buttons, last one spans full width */
+.detail-page .detail-decision__cta:empty,
+.detail-page .detail-decision__cta-row:empty {
+  display: none !important;
+}
+
+/* Label responsiveness: by default, show short labels and hide full labels */
+.detail-cta__label-full {
+  display: none;
+}
+.detail-cta__label-short {
+  display: inline;
+}
+
+/* If odd number of buttons (or only 1 button), last one spans full width with centered optical balance */
 .detail-page .detail-decision__cta-row > :last-child:nth-child(odd) {
   grid-column: span 2 !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 10px !important;
+}
+
+.detail-page .detail-decision__cta-row > :last-child:nth-child(odd) .detail-cta__label,
+.detail-page .detail-decision__cta-row > :last-child:nth-child(odd) .km-phone-label {
+  flex: 0 0 auto !important;
+  text-align: center !important;
+}
+
+.detail-page .detail-decision__cta-row > :last-child:nth-child(odd) .detail-cta__label-short {
+  display: none !important;
+}
+
+.detail-page .detail-decision__cta-row > :last-child:nth-child(odd) .detail-cta__label-full {
+  display: inline !important;
+}
+
+.detail-page .detail-decision__cta-row > :last-child:nth-child(odd)::after {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  margin-top: -3px;
+  margin-left: 0;
+}
+
+/* Solo CTA on a place without a phone: elevated to prominent Primary Hero CTA */
+.detail-page .detail-decision__cta--no-phone .detail-decision__cta-row > .detail-cta:only-child {
+  min-height: 52px !important;
+  border-radius: 14px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 10px !important;
+  background: var(--brand-turf, #15803D) !important;
+  color: #FFFFFF !important;
+  border-color: transparent !important;
+  box-shadow: 0 12px 26px -16px rgba(19, 111, 56, .9) !important;
+}
+
+.detail-page .detail-decision__cta--no-phone .detail-decision__cta-row > .detail-cta:only-child .detail-cta__icon,
+.detail-page .detail-decision__cta--no-phone .detail-decision__cta-row > .detail-cta:only-child .km-phone-icon {
+  background: rgba(255, 255, 255, 0.22) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  width: 30px !important;
+  height: 30px !important;
+  flex: 0 0 30px !important;
+}
+
+.detail-page .detail-decision__cta--no-phone .detail-decision__cta-row > .detail-cta:only-child:hover {
+  background: var(--brand-spruce, #14532D) !important;
+  color: #FFFFFF !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 18px 34px -16px rgba(19, 111, 56, .75) !important;
+}
+
+.detail-page .detail-decision__cta--no-phone .detail-decision__cta-row > .detail-cta:only-child:active {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+.detail-page .detail-decision__cta--no-phone .detail-decision__cta-row > .detail-cta:only-child::after {
+  display: none !important;
 }
 
 /* Base button styling */
@@ -419,3 +505,250 @@
 .detail-page .detail-photo-credits summary { width: fit-content; min-height: 32px; padding-block: 6px; cursor: pointer; }
 .detail-page .detail-photo-credits summary:focus-visible { outline: 2px solid var(--brand-turf); outline-offset: 3px; }
 .detail-page .detail-photo-credits .detail-note { margin-top: 4px; font-size: inherit; overflow-wrap: anywhere; }
+
+/* ------------------------------------------------------------
+   Place Detail - Polished 24/7 & Special Schedule Showcase
+   ------------------------------------------------------------ */
+
+.detail-schedule-247 {
+  background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%);
+  border: 1px solid #BBF7D0;
+  border-radius: 18px;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 2px 8px -2px rgba(22, 101, 52, 0.05);
+  margin-block: 4px;
+}
+
+.detail-schedule-247__main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.detail-schedule-247__icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #DCFCE7;
+  border: 1px solid #86EFAC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #15803D;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(22, 101, 52, 0.08);
+}
+
+.detail-schedule-247__icon {
+  width: 25px;
+  height: 25px;
+}
+
+.detail-schedule-247__info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.detail-schedule-247__title {
+  font-size: 16.5px;
+  font-weight: 800;
+  color: #14532D;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.detail-schedule-247__desc {
+  margin: 0;
+  font-size: 13.5px;
+  color: #374151;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.detail-schedule-247__week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px dashed #BBF7D0;
+}
+
+.detail-schedule-247__day {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 8px 4px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.detail-schedule-247__day-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.detail-schedule-247__day-time {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #166534;
+  background: #DCFCE7;
+  border-radius: 5px;
+  padding: 2px 6px;
+  display: inline-block;
+  line-height: 1.2;
+}
+
+.detail-schedule-247__day--today {
+  background: #F0FDF4;
+  border-color: #22C55E;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.18);
+  position: relative;
+}
+
+.detail-schedule-247__day--today .detail-schedule-247__day-name {
+  color: #15803D;
+  font-weight: 800;
+}
+
+.detail-schedule-247__day--today::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #16A34A;
+}
+
+/* Special schedule banner (by appointment, variable, etc.) */
+.detail-schedule-special {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-block: 4px;
+}
+
+.detail-schedule-special__icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  flex-shrink: 0;
+}
+
+.detail-schedule-special__icon {
+  width: 22px;
+  height: 22px;
+}
+
+.detail-schedule-special__info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.detail-schedule-special__title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1E293B;
+}
+
+.detail-schedule-special__desc {
+  margin: 0;
+  font-size: 13.5px;
+  color: #475569;
+  line-height: 1.4;
+}
+
+@media (max-width: 580px) {
+  .detail-schedule-247 {
+    padding: 16px;
+  }
+  .detail-schedule-247__week {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .detail-schedule-247__day:last-child {
+    grid-column: span 2;
+  }
+}
+
+/* ==========================================================================
+   Reviews Listhead & Typed Review Hub Link
+   ========================================================================== */
+.detail-reviews__title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.km-typed-review-link,
+a.public-parent-link.km-typed-review-link {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 13px !important;
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 9999px;
+  color: #15803D !important;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-decoration: none !important;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(22, 101, 52, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.km-typed-review-link:hover,
+a.public-parent-link.km-typed-review-link:hover {
+  background: #DCFCE7;
+  border-color: #86EFAC;
+  color: #14532D !important;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(22, 101, 52, 0.12);
+  text-decoration: none !important;
+}
+
+.km-typed-review-link:active,
+a.public-parent-link.km-typed-review-link:active {
+  transform: translateY(0);
+}
+
+.km-typed-review-link__icon {
+  flex-shrink: 0;
+  color: #16A34A;
+}
+
+.km-typed-review-link__arrow {
+  font-size: 13px;
+  color: #16A34A;
+  transition: transform 0.2s ease;
+}
+
+.km-typed-review-link:hover .km-typed-review-link__arrow {
+  transform: translateX(2px);
+}
+

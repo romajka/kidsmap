@@ -49,14 +49,20 @@ class ExistingOwnershipBreakTests(TestCase):
         from catalog.controllers.owner_places_controller import OwnerPlacesController
         controller=OwnerPlacesController.build_default()
         request=RequestFactory().post('/');request.user=self.owner
-        data={'name_az':self.place.name_az}
+        data={'name_az':self.place.name_az,'address':self.place.address}
         before=Place.objects.count()
         warning=controller.create_place(request=request,data=data,files={},draft_save_only=True)
         self.assertFalse(warning.ok);self.assertEqual(Place.objects.count(),before)
         self.assertIn('name_az',warning.form.errors)
-        allowed=controller.create_place(request=request,data={**data,'create_separate':'1'},files={},draft_save_only=True)
-        self.assertTrue(allowed.ok);self.assertNotEqual(allowed.place.pk,self.place.pk)
+        confirmation={'create_separate':'1','create_as_distinct_branch':'1'}
+        blocked=controller.create_place(request=request,data={**data,**confirmation},files={},draft_save_only=True)
+        self.assertFalse(blocked.ok);self.assertEqual(Place.objects.count(),before)
+        self.assertEqual(blocked.form.non_field_errors().as_data()[0].code,'place_identity_duplicate')
+        allowed=controller.create_place(request=request,data={**data,**confirmation,'address':'Bakı, müstəqil filial 25'},files={},draft_save_only=True)
+        self.assertTrue(allowed.ok,allowed.form.errors);self.assertNotEqual(allowed.place.pk,self.place.pk)
+        self.assertEqual(Place.objects.count(),before+1)
         self.assertEqual(allowed.place.owner_id,self.owner.pk)
+        self.place.refresh_from_db();self.assertEqual(self.place.owner_id,self.owner.pk)
 
 
 class OwnershipFixture:

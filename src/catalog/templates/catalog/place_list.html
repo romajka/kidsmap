@@ -13,7 +13,7 @@
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261022_release_all_r1" />
   <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20260928_2" />
-  {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_polish.css' %}?v=20261027_catalog_polish_r3" />{% endif %}
+  {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_polish.css' %}?v=20261028_category_strip_r1" />{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -603,6 +603,9 @@
   <div class="catalog-top-stack">
     {% if categories and not is_new_page %}
       <div class="catalog-category-strip-wrap" data-catalog-categories-scroll>
+        <button type="button" class="catalog-category-strip__arrow catalog-category-strip__arrow--prev" data-strip-prev aria-label="{% if language == 'az' %}Əvvəlki kateqoriyalar{% elif language == 'en' %}Previous categories{% else %}{% trans 'Предыдущие категории' %}{% endif %}" tabindex="-1" hidden>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
         <div class="catalog-category-strip" role="tablist" aria-label="{% if language == 'az' %}Kateqoriyalar{% elif language == 'en' %}Categories{% else %}{% trans 'Категории' %}{% endif %}">
           <button
             type="button"
@@ -636,6 +639,9 @@
             </button>
           {% endfor %}
         </div>
+        <button type="button" class="catalog-category-strip__arrow catalog-category-strip__arrow--next" data-strip-next aria-label="{% if language == 'az' %}Növbəti kateqoriyalar{% elif language == 'en' %}Next categories{% else %}{% trans 'Следующие категории' %}{% endif %}" tabindex="-1">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
       </div>
     {% endif %}
 
@@ -1312,6 +1318,7 @@
   {% if is_events_section_enabled %}
     <script src="{% static 'js/temporary_event_timer.js' %}"></script>
   {% endif %}
+  <script src="{% static 'js/catalog_category_strip.js' %}?v=20261028_strip_r1"></script>
   <script>
     (function () {
       document.querySelectorAll("[data-range]").forEach(function (root) {
