@@ -41,12 +41,17 @@ def _title(fields):
     return fields.get('name_'+language) or next((fields[k] for k in ('name_az','name_ru','name_en','name') if fields.get(k)),'—')
 
 
+def _source_label(version, ui):
+    label=ui[version['source']]
+    return label+' · '+version['draft_id'] if version.get('draft_id') else label
+
+
 def _present(model_admin, record, ui):
     fields=record.get('match_fields') or record['versions'][-1]['fields']
     return {**record, **_urls(model_admin,record), 'title':_title(fields), 'address':fields['address'],
         'classification_label':ui.get(record.get('classification',''),''),
-        'versions':[{**v,'source_label':ui[v['source']]} for v in record['versions']],
-        'evidence':[{**e,'source_label':ui[e['source']],
+        'versions':[{**v,'source_label':_source_label(v,ui)} for v in record['versions']],
+        'evidence':[{**e,'source_label':_source_label(e,ui),
                      'signal_labels':', '.join(str(Place._meta.get_field(f).verbose_name) for f in e.get('matched_fields',[])) or ', '.join(ui.get(s,s) for s in e['signals'])} for e in record.get('evidence',[])]}
 
 
@@ -105,7 +110,7 @@ def comparison_view(request,model_admin,object_id):
     if record is None:raise Http404
     if request.GET.get('format')=='json':
         return _json({**snapshot,'export_scope':'identity_comparison','records':[record]},f'place-{object_id}-identities')
-    ui=identity_copy();versions=[{**v,'source_label':ui[v['source']],
+    ui=identity_copy();versions=[{**v,'source_label':_source_label(v,ui),
         'status_label':ui['own_draft'] if v['source']=='own_draft' else dict(VolunteerPlaceRevision.Status.choices if v['source']=='candidate' else Place.STATUS_CHOICES).get(v['status'],v['status'])} for v in record['versions']]
     table=[]
     for field in FIELDS:

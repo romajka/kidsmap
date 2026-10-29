@@ -206,7 +206,7 @@ def _evidence(query, version):
     else: classification = 'nearby'
     if version.get('stale') and classification in ('confirmed','possible_branch'): classification = 'probable'
     return {'source':version['source'], 'version':version['version'], 'signals':signals,
-            'classification':classification, 'matched_fields':list(dict.fromkeys(matched_fields)), 'stale':version.get('stale',False)}
+            'classification':classification, 'matched_fields':list(dict.fromkeys(matched_fields)), 'draft_id':version.get('draft_id'), 'stale':version.get('stale',False)}
 
 
 def check_duplicates(actor, values, *, exclude_place_id=None, exclude_draft_id=None, registry=None):
@@ -221,7 +221,7 @@ def check_duplicates(actor, values, *, exclude_place_id=None, exclude_draft_id=N
         if not evidence: continue
         evidence.sort(key=lambda e:RANK[e['classification']])
         best = evidence[0]
-        best_version = next(v for v in record['versions'] if v['source']==best['source'] and v['version']==best['version'])
+        best_version = next(v for v in record['versions'] if v['source']==best['source'] and v['version']==best['version'] and v.get('draft_id')==best.get('draft_id'))
         results.append({**record, 'classification':best['classification'], 'evidence':evidence,
             'matched':list(dict.fromkeys(s for e in evidence for s in e['signals'])),
             'match_fields':best_version['fields'], 'branch_override_allowed':

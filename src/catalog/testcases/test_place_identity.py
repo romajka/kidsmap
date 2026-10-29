@@ -169,3 +169,14 @@ class PlaceIdentityTests(TestCase):
         from catalog.services.place_identity import guard_new_place
         Place.objects.filter(pk=self.place.pk).update(name='Yeni Club',name_az='',name_ru='',address='')
         guard_new_place(self.editor,{'name_az':'Yeni Club','address':'Another Avenue 60'},distinct_branch=True)
+
+    def test_two_private_sessions_with_same_version_keep_exact_match_source(self):
+        from uuid import UUID
+        drafts=[]
+        for i,address in enumerate(('Private First 40','Private Second 50'),1):
+            drafts.append(ServerDraft.objects.create(id=UUID(int=i),actor=self.editor,
+                target_type='place',target_id=self.place.pk,source_version=self.place.content_version,version=1,
+                fields={'name_az':'Private Club','address':address}))
+        row=self.check({'name_az':'Private Club','address':'Private Second 50'})['results'][0]
+        self.assertEqual(row['match_fields']['address'],'Private Second 50')
+        self.assertEqual(row['evidence'][0]['draft_id'],str(drafts[1].pk))
