@@ -16,7 +16,9 @@ async function fillPlace(p,role,name){
  await H.select(p,'#id_subcategory',option);
  await H.select(p,'#id_region','baku');
  await H.select(p,'#id_district','baku_yasamal');
- await H.fill(p,'#id_address','Bakı, Nizami küçəsi 10');
+ // Every creation is a separate fictional business; shared contacts and the
+ // same address would correctly trigger the production duplicate guard.
+ await H.fill(p,'#id_address',`Bakı, Yerli QA küçəsi, ${name}`);
  await H.fill(p,'#id_phone1','+994501112233');
  if(role==='admin'){
   await H.fill(p,'#id_age_from','6');await H.fill(p,'#id_age_to','12');

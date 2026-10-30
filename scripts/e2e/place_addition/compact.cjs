@@ -56,20 +56,13 @@ async function compact(ctx){
   const item=await require('./create.cjs').create({...ctx,intake:async(p,actualRole,name)=>{
    if(actualRole==='admin')await p.locator('[data-place-accordion-expand-all]').click();
    const openAge=p.locator(actualRole==='admin'?'#id_age_open_ended':'[data-pc-open-age]');
-   const features=openAge.locator('xpath=ancestor::details[1]');
-   if(actualRole==='admin'){
-    H.assert.equal(await features.count(),1,'Staff age option remains in place features');
-    H.assert.equal(await features.getAttribute('open'),null,'Empty optional place features start collapsed');
-    await features.locator('summary').first().click();
-   }else{
-    H.assert.equal(await features.count(),0,'Owner age choice remains next to the range');
-    H.assert.equal(await openAge.locator('xpath=ancestor::*[contains(concat(" ",normalize-space(@class)," ")," pc-age-compact ")]').count(),1);
-   }
+   // Age choices now live beside the range. Check the visible, operable
+   // control rather than requiring the former feature-disclosure markup.
+   await H.reveal(openAge);
    const ageControl=actualRole==='admin'?openAge:openAge.locator('xpath=ancestor::label[1]');
-   H.assert(await ageControl.isVisible(),'The actual age toggle is visible after disclosure');
+   H.assert(await ageControl.isVisible(),'The age choice is visible in the age section');
    const wasChecked=await openAge.isChecked();await ageControl.click();H.assert.equal(await openAge.isChecked(),!wasChecked);
    await ageControl.click();H.assert.equal(await openAge.isChecked(),wasChecked);
-   if(actualRole==='admin')await features.locator('summary').first().click();
    if(actualRole==='admin'){
     const settings=p.locator('[data-compact-settings]');H.assert.equal(await settings.getAttribute('open'),null);
     await settings.locator('summary').click();H.assert(await p.locator('#id_status').isVisible());

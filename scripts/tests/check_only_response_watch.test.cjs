@@ -18,6 +18,11 @@ test('accepts only real check-only validation shapes for unsaved and saved forms
   page.emit('response',response({path:'/ru/account/places/42/preview/',data:'Content-Disposition: form-data; name="_km_check_required"\r\n\r\n1\r\n'}));
   assert.equal(await watch.verify(),2);
 });
+test('staff preview uses the same strict check-only validation contract', async () => {
+  const page = new EventEmitter(),watch = feedbackWatch(page,origin);
+  page.emit('response',response({path:'/admin/editor/places/preview/'}));
+  assert.equal(await watch.verify(),1);
+});
 test('unexpected HTTP errors and invalid validation replies still fail the browser scenario', async () => {
   const invalid = [
     {status:500},{status:404},{method:'GET'},{path:'/account/places/save/'},{data:'name_az=Somewhere'},
