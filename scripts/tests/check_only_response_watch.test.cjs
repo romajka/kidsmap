@@ -21,7 +21,8 @@ test('accepts only real check-only validation shapes for unsaved and saved forms
 test('staff preview uses the same strict check-only validation contract', async () => {
   const page = new EventEmitter(),watch = feedbackWatch(page,origin);
   page.emit('response',response({path:'/admin/editor/places/preview/'}));
-  assert.equal(await watch.verify(),1);
+  page.emit('response',response({path:'/admin/editor/places/42/preview/'}));
+  assert.equal(await watch.verify(),2);
 });
 test('unexpected HTTP errors and invalid validation replies still fail the browser scenario', async () => {
   const invalid = [

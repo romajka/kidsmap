@@ -89,7 +89,7 @@ async function guidance(ctx){
    ctx.record({id:'UX_EDIT',role,status:'PASS',assertions:['save same form after preview','reopen retains long text and photos','second real edit saves without stale token']});
    // A failed check has a retry and never discards the current form.
    if(role==='admin')await p.locator('[data-place-accordion-expand-all]').click();
-   const route=/(?:\/account\/places\/(?:\d+\/)?preview\/|\/admin\/editor\/places\/preview\/)/;await c.route(route,r=>r.abort('failed'));
+   const route=/(?:\/account\/places\/(?:\d+\/)?preview\/|\/admin\/editor\/places\/(?:\d+\/)?preview\/)/;await c.route(route,r=>r.abort('failed'));
    await p.locator('[data-km-check]').click();await p.locator('[data-km-check-status][data-state=error]').waitFor({state:'visible'});
    H.assert.equal(await p.locator('#id_name_az').inputValue(),name+' edited');H.assert(await p.locator('[data-km-check]').isEnabled());
    await c.unroute(route);await p.locator('[data-km-check]').click();await p.locator('[data-km-check-status][data-state=ready]').waitFor({state:'visible'});
