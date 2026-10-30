@@ -124,11 +124,6 @@
     </details>
 
     <div class="km-pf-side__block km-pf-side__block--service">
-      {% if not is_popup %}
-        <button type="submit" name="_refresh_coordinates_from_address" class="km-pf-linkbtn">
-          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-my_location"></use></svg>{% translate "Сохранить и рассчитать координаты" %}
-        </button>
-      {% endif %}
       {% if original %}
         <button type="submit" formmethod="post" formaction="{% url opts|admin_urlname:'quality_check' original.pk %}" class="km-pf-linkbtn">
           <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-assessment"></use></svg>{% translate "Отчёт по карточке" %}

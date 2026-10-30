@@ -398,12 +398,14 @@ def place_detail_legacy(request, pk, slug=None):
     return redirect(place.get_absolute_url(), permanent=True)
 
 
-def place_detail(request, pk, slug):
-    place = place_controller.get_active_place_with_gallery(pk=pk)
+def place_detail(request, pk=None, slug=None):
+    from django.utils.encoding import iri_to_uri
+
+    place = place_controller.get_active_place_with_gallery(
+        pk=pk, public_slug=slug, language=request.LANGUAGE_CODE)
     if place.is_temporary and not is_events_section_enabled():
         return _retired_public_page(request)
-    from catalog.services.place_urls import place_slug_for_language
-    if slug != place_slug_for_language(place, request.LANGUAGE_CODE) or request.META.get("QUERY_STRING"):
+    if iri_to_uri(request.path) != place.get_absolute_url() or request.META.get("QUERY_STRING"):
         return redirect(place.get_absolute_url(), permanent=True)
 
     request._seo_place = place

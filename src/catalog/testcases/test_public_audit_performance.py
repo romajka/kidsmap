@@ -24,7 +24,7 @@ class PublicDetailQueryBudgetTests(TestCase):
         # taxonomy and organization queries; rendered content must stay complete.
         place = create_quality_place(with_subcategory=True, with_schedule_days=True)
         first = self.offer(place, 0)
-        url = reverse('place_detail', args=[place.pk, place.slug])
+        url = place.get_absolute_url()
         self.client.get(url)
         with CaptureQueriesContext(connection) as one:
             response = self.client.get(url)

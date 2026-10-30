@@ -60,7 +60,8 @@
             }
             list.append(title, detail);
           });
-          status.textContent = payload.pk ? labels.labelSaved : labels.labelNew;
+          status.textContent = data.pending_publication ? labels.labelNew :
+            data.urls_fixed ? labels.labelFixed : payload.pk ? labels.labelSaved : labels.labelNew;
         } catch (error) {
           if (current === sequence) status.textContent = labels.labelError;
         }

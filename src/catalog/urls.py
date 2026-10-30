@@ -260,6 +260,7 @@ urlpatterns = [
     path("place/", place_root_redirect, name="place_root"),
     path("place/<int:pk>/", place_detail_legacy, name="place_detail_legacy"),
     path("place/<int:pk>-<str:slug>/", place_detail, name="place_detail"),
+    path("place/<slug:slug>/", place_detail, name="place_detail"),
     path("place/<int:pk>/ownership-request/", request_place_ownership, name="request_place_ownership"),
     path("place/<int:pk>/like/", toggle_place_like, name="toggle_place_like"),
     path("place/<int:pk>/review/", add_place_review, name="add_place_review"),

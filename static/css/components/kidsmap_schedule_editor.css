@@ -163,11 +163,11 @@
 }
 
 .km-schedule-editor__presets-panel {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 10px;
   background: #f8fafc;
-  padding: 14px 16px;
+  padding: 10px 12px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
@@ -177,15 +177,15 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .km-schedule-editor__presets-title {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   color: #0f172a;
-  font-size: 0.86rem;
+  font-size: 0.82rem;
   font-weight: 700;
 }
 
@@ -195,32 +195,32 @@
 
 .km-schedule-editor__presets-sub {
   color: #64748b;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
 }
 
 .km-schedule-editor__presets {
   display: grid;
   grid-template-columns: repeat(2,minmax(0,1fr));
-  gap: 10px;
+  gap: 8px;
   align-items: stretch;
 }
 
 .km-schedule-editor__preset {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  min-height: 44px;
+  gap: 6px;
+  min-height: 36px;
   min-width: 0;
-  padding: 10px 12px;
+  padding: 6px 10px;
   text-align: start;
   white-space: normal;
-  line-height: 1.5;
+  line-height: 1.35;
   border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border-radius: 7px;
   background: #ffffff;
   color: #334155;
   font-family: inherit;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
@@ -307,27 +307,27 @@
 .km-schedule-editor__header,
 .km-schedule-editor__row {
   display: grid;
-  grid-template-columns: 215px 175px minmax(200px, 1fr) auto;
+  grid-template-columns: 165px 140px minmax(180px, 1fr) auto;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   box-sizing: border-box;
 }
 
 .km-schedule-editor__header {
-  min-height: 40px;
+  min-height: 32px;
   background: #f8fafc;
   border-bottom: 1px solid #e2e8f0;
   color: #64748b;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 10px 16px;
+  padding: 6px 12px;
 }
 
 .km-schedule-editor__header > span,
 .km-schedule-editor__row > div {
-  padding: 10px 0;
+  padding: 4px 0;
 }
 
 .km-schedule-editor__header > span:last-child {
@@ -336,10 +336,10 @@
 }
 
 .km-schedule-editor__row {
-  min-height: 52px;
+  min-height: 44px;
   border-bottom: 1px solid #f1f5f9;
   background: #ffffff;
-  padding: 6px 16px;
+  padding: 4px 12px;
   transition: background-color 0.15s ease;
 }
 
@@ -462,6 +462,11 @@
 }
 
 .km-schedule-editor__row.is-closed-row .km-schedule-editor__checkbox {
+  display: none !important;
+}
+
+.km-schedule-editor__row.is-24h-row [data-km-schedule-add-interval],
+.km-schedule-editor__row.is-closed-row [data-km-schedule-add-interval] {
   display: none !important;
 }
 

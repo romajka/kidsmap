@@ -75,6 +75,12 @@ class Place(models.Model):
     slug_az = models.SlugField("URL AZ", max_length=60, blank=True, default="", editable=False)
     slug_ru = models.SlugField("URL RU", max_length=60, blank=True, default="", editable=False)
     slug_en = models.SlugField("URL EN", max_length=60, blank=True, default="", editable=False)
+    # The DB default keeps inserts from an older application image in its URL
+    # cohort. New application instances explicitly opt into clean URLs.
+    uses_slug_only_urls = models.BooleanField(default=True, db_default=False, editable=False)
+    public_slug_az = models.SlugField(max_length=60, null=True, blank=True, unique=True, editable=False)
+    public_slug_ru = models.SlugField(max_length=60, null=True, blank=True, unique=True, editable=False)
+    public_slug_en = models.SlugField(max_length=60, null=True, blank=True, unique=True, editable=False)
     name_ru = models.CharField(_("Название (RU)"), max_length=255, blank=True, default="")
     name_en = models.CharField(_("Название (EN)"), max_length=255, blank=True, default="")
     name_az = models.CharField(_("Название (AZ)"), max_length=255, blank=True, default="")
@@ -677,7 +683,7 @@ class Place(models.Model):
         )
 
     def save(self, *args, **kwargs):
-        from catalog.services.place_urls import populate_missing_place_slugs
+        from catalog.services.place_urls import populate_missing_place_slugs, prepare_place_public_slugs
 
         update_fields = kwargs.get('update_fields')
         if update_fields is not None:
@@ -720,6 +726,10 @@ class Place(models.Model):
                 self, previous=previous, update_fields=update_fields, using=using)
             if update_fields is not None:
                 kwargs['update_fields'] |= location_fields
+            public_url_fields = prepare_place_public_slugs(
+                self, previous=previous, update_fields=update_fields, using=using)
+            if update_fields is not None:
+                kwargs['update_fields'] |= public_url_fields
             kwargs['using'] = using
             result = self._save_place(*args, **kwargs)
             if location_audit:

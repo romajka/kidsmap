@@ -43,17 +43,29 @@
   const paragraph = text => { const node = document.createElement("p"); node.textContent = text; return node; };
   const footer = (payload = {}) => {
     const scope = paragraph(ui.scope_hint);
+    scope.className = "km-pf-alert__meta";
     if (payload.generated_at) scope.append(document.createTextNode(` ${ui.generated}: ${payload.generated_at}`));
     alert.append(scope);
     const retry = document.createElement("button"); retry.type = "button"; retry.dataset.identityRetry = "";
+    retry.className = "km-pf-btn km-pf-btn--ghost km-pf-btn--xs";
     retry.textContent = ui.retry; retry.addEventListener("click", () => { generation++; check(true); });
-    alert.append(retry, document.createTextNode(" · "), safeLink(payload.registry_url || localized.registry_url || "/admin/catalog/place/duplicate-registry/", ui.show_all));
+    const actions = document.createElement("div");
+    actions.className = "km-pf-alert__actions";
+    actions.append(retry, document.createTextNode(" · "), safeLink(payload.registry_url || localized.registry_url || "/admin/catalog/place/duplicate-registry/", ui.show_all));
+    alert.append(actions);
   };
   const show = payload => {
     alert.replaceChildren(); alert.hidden = false; alert.removeAttribute("aria-busy");
     const rows = payload.results || [];
-    if (!rows.length) alert.append(paragraph(ui.not_found));
-    else {
+    if (!rows.length) {
+      alert.classList.remove("km-pf-alert--warn");
+      alert.classList.add("km-pf-alert--clean");
+      const cleanHeader = paragraph(ui.not_found);
+      cleanHeader.className = "km-pf-alert__clean-text";
+      alert.append(cleanHeader);
+    } else {
+      alert.classList.remove("km-pf-alert--clean");
+      alert.classList.add("km-pf-alert--warn");
       const heading = document.createElement("strong"); heading.textContent = ui.title; alert.append(heading);
       alert.append(paragraph(`${ui.results}: ${rows.length} / ${payload.total ?? rows.length}`));
       const list = document.createElement("ul");

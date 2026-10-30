@@ -17,6 +17,8 @@
 .km-editor .km-editor-languages button{min-width:44px;min-height:40px;border:1px solid var(--border-color,#cbdcd0);border-radius:8px;background:var(--surface,#fff);color:var(--km-green,#136f38);font:inherit;cursor:pointer;}
 .km-editor .km-editor-languages button[aria-pressed=true]{background:var(--km-green,#136f38);border-color:var(--km-green,#136f38);color:#fff;}
 .km-editor .km-public-links{grid-column:1/-1;}
+.km-editor .km-public-links [data-public-links-add]{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:8px 14px;border:1px solid var(--border-color,#cbdcd0);border-radius:8px;background:var(--surface,#fff);color:var(--km-green,#136f38);font:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s ease;}
+.km-editor .km-public-links [data-public-links-add]:hover{background:#f0fdf4;border-color:#86efac;color:#15803d;}
 .km-editor .km-public-links-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) auto;gap:12px;align-items:start;margin:12px 0 18px;}
 .km-editor .km-public-links-row label{display:grid;gap:6px;min-width:0;margin:0;}
 .km-editor .km-public-links-row input{box-sizing:border-box;min-width:0;width:100%;min-height:42px;border:1px solid #cbdcd0;border-radius:8px;padding:9px 11px;font:inherit;}

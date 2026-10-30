@@ -132,24 +132,25 @@ class IndexNowSignalTests(TestCase):
         with override_settings(**INDEXNOW_TEST_SETTINGS), patch(
             "catalog.indexnow_signals.enqueue_indexnow_urls"
         ) as mocked_enqueue, self.captureOnCommitCallbacks(execute=True):
-            place = create_quality_place(name="IndexNow new place")
+            place = create_quality_place(name="IndexNow new place", name_az="IndexNow New Place",
+                                         name_ru="IndexNow New Place", name_en="IndexNow New Place")
 
         self.assertTrue(public_place_queryset(Place.objects.filter(pk=place.pk)).exists())
         submitted = submitted_urls_from_mock(mocked_enqueue)
         self.assertIn(
-            f"https://kidsmap.az/place/{place.pk}-{place.slug}/", submitted
+            "https://kidsmap.az/place/indexnow-new-place/", submitted
         )
         self.assertIn(
-            f"https://kidsmap.az/ru/place/{place.pk}-{place.slug}/", submitted
+            "https://kidsmap.az/ru/place/indexnow-new-place/", submitted
         )
         self.assertIn(
-            f"https://kidsmap.az/en/place/{place.pk}-{place.slug}/", submitted
+            "https://kidsmap.az/en/place/indexnow-new-place/", submitted
         )
         self.assertTrue(all("?" not in url for url in submitted))
 
     def test_substantial_update_and_unpublish_enqueue_but_like_only_does_not(self):
         with override_settings(INDEXNOW_KEY=""):
-            place = create_quality_place(name="IndexNow existing place")
+            place = create_quality_place(name="IndexNow existing place", uses_slug_only_urls=False)
 
         with override_settings(**INDEXNOW_TEST_SETTINGS), patch(
             "catalog.indexnow_signals.enqueue_indexnow_urls"

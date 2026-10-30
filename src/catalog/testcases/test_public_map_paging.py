@@ -11,6 +11,9 @@ class PublicMapPagingTests(TestCase):
     def setUpTestData(cls):
         base=create_ready_place(name_az='Paging0',name_ru='Paging0',name_en='Paging0')
         attrs={f.attname:getattr(base,f.attname) for f in Place._meta.concrete_fields if not f.primary_key}
+        # Bulk synthetic rows represent the legacy cohort; do not clone the
+        # base place's unique public URL reservations onto different records.
+        attrs.update(uses_slug_only_urls=False, public_slug_az=None, public_slug_ru=None, public_slug_en=None)
         rows=[]
         for i in range(1,105):
             d=dict(attrs);d.update(name=f'Paging{i}',name_az=f'Paging{i}',name_ru=f'Paging{i}',name_en=f'Paging{i}',slug=f'paging-{i}',slug_az=f'paging-{i}',slug_ru=f'paging-{i}',slug_en=f'paging-{i}')

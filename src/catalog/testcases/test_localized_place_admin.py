@@ -31,7 +31,7 @@ class LocalizedPlaceAdminTests(TestCase):
         self.assertEqual(Place.objects.count(), before)
 
     def test_saved_preview_keeps_addresses_and_ignores_untrusted_slug(self):
-        place = Place.objects.create(name='Toy', name_en='Toy Museum', category='EDU', is_active=False)
+        place = Place.objects.create(name='Toy', name_en='Toy Museum', category='EDU', is_active=False, uses_slug_only_urls=False)
         response = self.preview({'pk': place.pk, 'name_en': 'Changed', 'slug_en': 'injected'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['urls']['en']['path'], f'/en/place/{place.pk}-toy-museum/')
@@ -41,7 +41,7 @@ class LocalizedPlaceAdminTests(TestCase):
 
     @override_settings(PUBLIC_BASE_URL='https://kidsmap.az')
     def test_preview_absolute_url_uses_public_origin(self):
-        place = Place.objects.create(name='Toy', name_en='Toy Museum', category='EDU', is_active=False)
+        place = Place.objects.create(name='Toy', name_en='Toy Museum', category='EDU', is_active=False, uses_slug_only_urls=False)
         response = self.preview({'pk': place.pk})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['urls']['en'].get('url'), f'https://kidsmap.az/en/place/{place.pk}-toy-museum/')
@@ -63,6 +63,29 @@ class LocalizedPlaceAdminTests(TestCase):
         self.assertEqual(self.preview([]).status_code, 400)
         self.assertEqual(self.preview({'pk': 'bad'}).status_code, 400)
         self.assertEqual(self.preview({'name_en': []}).status_code, 400)
+
+    def test_new_draft_preview_uses_current_names_without_reserving_or_copying_url(self):
+        place = Place.objects.create(name='Draft', name_en='Working Name', category='EDU',
+                                     status=Place.STATUS_DRAFT, is_active=False)
+        response = self.preview({'pk': place.pk, 'name_en': '123 Final Museum'})
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertTrue(payload['pending_publication'])
+        self.assertEqual(payload['urls']['en']['slug'], 'place-123-final-museum')
+        self.assertIsNone(payload['urls']['en']['path'])
+        place.refresh_from_db()
+        self.assertIsNone(place.public_slug_en)
+        self.assertEqual(place.name_en, 'Working Name')
+
+    def test_published_clean_preview_shows_reserved_address_after_rename(self):
+        from catalog.testcases.utils import create_quality_place
+        place = create_quality_place(name_en='Toy Museum')
+        response = self.preview({'pk': place.pk, 'name_en': 'Changed', 'public_slug_en': 'injected'})
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertFalse(payload['pending_publication'])
+        self.assertTrue(payload['urls_fixed'])
+        self.assertEqual(payload['urls']['en']['path'], '/en/place/toy-museum/')
 
     def test_urls_protected_in_volunteer_snapshot_and_payload(self):
         place = Place.objects.create(name='Toy', name_en='Toy Museum', category='EDU')

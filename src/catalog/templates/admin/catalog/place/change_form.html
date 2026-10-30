@@ -107,14 +107,14 @@
 
       <div class="km-pf__shell">
         {% include "admin/catalog/place/form/header.html" %}
-        <nav class="km-admin-related-links" aria-label="{{ km_identity_copy.title }}"><a class="km-pf-btn km-pf-btn--ghost" href="{{ km_identity_registry_url }}" target="_blank" rel="noopener">{{ km_identity_copy.title }}</a>{% if km_identity_compare_url %}<a class="km-pf-btn km-pf-btn--ghost" href="{{ km_identity_compare_url }}" target="_blank" rel="noopener">{{ km_identity_copy.compare }}</a>{% endif %}</nav>
-        {{ km_identity_copy|json_script:"km-identity-copy" }}
-
-        {% if km_place_navigation %}
-        <nav class="km-admin-related-links" aria-label="{% translate 'Занятия и услуги' %}">
-          {% for link in km_place_navigation %}<a class="km-pf-btn km-pf-btn--ghost" href="{{ link.url }}">{{ link.label }}</a>{% endfor %}
-        </nav>
+        {% if km_identity_registry_url or km_place_navigation %}
+          <nav class="km-admin-related-links" aria-label="{% translate 'Быстрые переходы' %}">
+            {% if km_identity_registry_url %}<a class="km-pf-btn km-pf-btn--ghost km-pf-btn--xs" href="{{ km_identity_registry_url }}" target="_blank" rel="noopener">{{ km_identity_copy.title }}</a>{% endif %}
+            {% if km_identity_compare_url %}<a class="km-pf-btn km-pf-btn--ghost km-pf-btn--xs" href="{{ km_identity_compare_url }}" target="_blank" rel="noopener">{{ km_identity_copy.compare }}</a>{% endif %}
+            {% for link in km_place_navigation %}<a class="km-pf-btn km-pf-btn--ghost km-pf-btn--xs" href="{{ link.url }}">{{ link.label }}</a>{% endfor %}
+          </nav>
         {% elif add %}<p class="help">{% translate 'Сначала сохраните место.' %}</p>{% endif %}
+        {{ km_identity_copy|json_script:"km-identity-copy" }}
 
         <label class="km-pf__mobile-nav">{{ km_place_entry_copy.section_nav }}<select data-pf-section-select>{% for section in km_place_form_sections %}<option value="{{ section.id }}">{{ section.title }}</option>{% endfor %}</select></label>
         <nav class="km-pf__nav" data-pf-nav aria-label="{% translate 'Разделы карточки' %}">
@@ -123,15 +123,7 @@
           {% endfor %}
         </nav>
 
-        <div class="km-pf__legend" aria-hidden="true">
-          <span class="km-pf__legend-title">{% translate "Значки разделов" %}</span>
-          <span class="km-pf__legend-item is-done"><svg class="km-i" aria-hidden="true" focusable="false"><use href="#kmi-check_circle"></use></svg>{% translate "заполнено" %}</span>
-          <span class="km-pf__legend-item is-partial"><svg class="km-i" aria-hidden="true" focusable="false"><use href="#kmi-radio_button_checked"></use></svg>{% translate "заполнено частично" %}</span>
-          <span class="km-pf__legend-item is-error"><svg class="km-i" aria-hidden="true" focusable="false"><use href="#kmi-error"></use></svg>{% translate "есть ошибка" %}</span>
-          <span class="km-pf__legend-item is-empty"><svg class="km-i" aria-hidden="true" focusable="false"><use href="#kmi-radio_button_unchecked"></use></svg>{% translate "не заполнено" %}</span>
-        </div>
-
-        <section class="km-pf-alert km-pf-alert--warn" data-place-duplicate-alert hidden aria-live="polite"></section>
+        <section class="km-pf-alert" data-place-duplicate-alert hidden aria-live="polite"></section>
         <section class="km-pf-alert km-pf-alert--warn" data-place-json-review hidden aria-live="polite"></section>
 
         {% if km_place_candidate_conflict %}

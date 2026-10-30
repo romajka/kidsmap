@@ -681,6 +681,7 @@
 
     row.classList.toggle("is-closed-row", !!day.is_closed);
     row.classList.toggle("is-open-row", !day.is_closed);
+    row.classList.toggle("is-24h-row", !day.is_closed && !!day.is_24_hours);
 
     var openCheckbox = row.querySelector('[data-km-schedule-open="' + day.weekday + '"]');
     if (openCheckbox) {
@@ -713,8 +714,9 @@
 
     var addBtn = row.querySelector('[data-km-schedule-add-interval="' + day.weekday + '"]');
     if (addBtn) {
-      addBtn.disabled = day.is_closed || day.is_24_hours;
-      addBtn.style.display = (day.is_closed || day.is_24_hours) ? "none" : "inline-flex";
+      var hideAdd = !!(day.is_closed || day.is_24_hours);
+      addBtn.disabled = hideAdd;
+      addBtn.style.setProperty("display", hideAdd ? "none" : "inline-flex", "important");
     }
 
     var copyBtn = row.querySelector('[data-km-schedule-copy-day="' + day.weekday + '"]');

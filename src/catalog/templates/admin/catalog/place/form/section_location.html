@@ -41,27 +41,13 @@
             {% include "admin/catalog/place/form/_field.html" with field=form.metro optional=True %}
           </div>
         </div>
-
-        <div class="km-pf-location-summary" data-km-location-summary>
-          <div class="km-pf-location-summary__inner">
-            <span class="km-pf-location-summary__icon" aria-hidden="true">
-              <svg class="km-i" viewBox="0 0 960 960"><use href="#kmi-place"></use></svg>
-            </span>
-            <div class="km-pf-location-summary__content">
-              <span class="km-pf-location-summary__label">{% translate "Выбранная привязка:" %}</span>
-              <div class="km-pf-location-summary__badges" data-km-location-badges>
-                <!-- Rendered dynamically via JS on load and change -->
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
       {% include "admin/catalog/place/form/_field.html" with field=form.address wide=True %}
       {% if form.location_override_reason %}
         <details class="km-pf-disclosure km-pf-disclosure--override"{% if form.location_override_reason.errors or form.location_override_reason.value %} open{% endif %}>
           <summary class="km-pf-disclosure__summary">
             <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
-            <span class="km-pf-disclosure__title">{% translate "Изменить привязку вручную" %}</span>
+            <span class="km-pf-disclosure__title">{% translate "Причина ручной смены района" %}</span>
             <span class="km-pf-disclosure__note">{% translate "Если нужно скорректировать автоопределение города и района" %}</span>
           </summary>
           <div class="km-pf-disclosure__body">

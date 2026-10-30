@@ -9,6 +9,7 @@ from catalog.testcases.utils import create_quality_place
 class LegacyRootPlaceRedirectTests(TestCase):
     def setUp(self):
         self.place = create_quality_place(
+            uses_slug_only_urls=False,
             name_az="Oyuncaq Muzeyi", name_ru="Музей игрушек", name_en="Toy Museum",
             description_ru="Музей игрушек для детей", description_en="A toy museum for children",
         )

@@ -462,9 +462,6 @@ def _advice_cover_photo_as_main(data: PlaceReadinessData) -> ReadinessIssue | No
     )
 
 
-# Photos remain optional; coordinates are mandatory for physical places.
-PLACE_READINESS_REQUIREMENTS = tuple(item for item in PLACE_READINESS_REQUIREMENTS if item.code != "photo")
-
 PLACE_READINESS_ADVICE = (
     _advice_short_description,
     _advice_cover_photo_as_main,

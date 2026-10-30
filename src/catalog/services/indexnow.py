@@ -24,7 +24,7 @@ CANONICAL_HOST = "kidsmap.az"
 MAX_URLS_PER_REQUEST = 10_000
 _PRIVATE_PREFIXES = ("/admin/", "/auth/", "/account/", "/i18n/")
 _PUBLIC_INDEXNOW_PATH_RE = re.compile(
-    r"^/(?:ru/|en/)?(?:place/[0-9]+-[A-Za-z0-9_-]+/|catalog/[A-Za-z0-9_-]+/)$"
+    r"^/(?:ru/|en/)?(?:place/(?![0-9]+/)[A-Za-z0-9_-]+/|catalog/[A-Za-z0-9_-]+/)$"
 )
 _executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="indexnow")
 

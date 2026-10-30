@@ -14,7 +14,7 @@ class SearchEngineVerificationTests(TestCase):
             "/",
             "/ru/catalog/",
             "/en/reviews/",
-            f"/place/{place.pk}-{place.slug}/",
+            place.get_absolute_url(),
         )
 
         for path in paths:

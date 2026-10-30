@@ -4683,9 +4683,8 @@ class PlaceAdmin(admin.ModelAdmin):
         from django.shortcuts import get_object_or_404
         from catalog.services.staff_roles import can_use_volunteer_workspace
         from catalog.services.volunteer_places import own_places
-        from catalog.services.place_urls import place_paths_by_language, place_slug_for_language
+        from catalog.services.place_urls import build_place_public_slug, place_paths_by_language, place_slug_for_language
         from catalog.services.public_urls import build_public_absolute_uri
-        from catalog.services.slugs import build_ascii_slug
 
         if request.method != "POST":
             return JsonResponse({"error": "POST required"}, status=405)
@@ -4711,13 +4710,25 @@ class PlaceAdmin(admin.ModelAdmin):
                 raise PermissionDenied
         elif not volunteer and not self.has_add_permission(request):
             raise PermissionDenied
-        paths = place_paths_by_language(obj) if obj else {}
+        urls_fixed = bool(obj and obj.uses_slug_only_urls and obj.public_slug_az)
+        pending_publication = obj is None or bool(obj.uses_slug_only_urls and not urls_fixed)
+        paths = place_paths_by_language(obj) if obj and not pending_publication else {}
+        names = {language: payload.get(f'name_{language}', getattr(obj, f'name_{language}', ''))
+                 for language in ('az', 'ru', 'en')}
+        fallback = next((value for value in names.values() if value), '')
         urls = {}
         for language in ("az", "ru", "en"):
-            slug = place_slug_for_language(obj, language) if obj else build_ascii_slug(payload.get(f"name_{language}", ""), fallback="")
+            if pending_publication:
+                slug = build_place_public_slug(names[language] or fallback)
+            elif urls_fixed:
+                slug = getattr(obj, f'public_slug_{language}')
+            else:
+                slug = place_slug_for_language(obj, language)
             path = paths.get(language)
             urls[language] = {"slug": slug, "path": path, "url": build_public_absolute_uri(request, path) if path else None}
-        return JsonResponse({"urls": urls, "public": bool(obj and public_place_queryset(Place.objects.all()).filter(pk=obj.pk).exists())})
+        return JsonResponse({"urls": urls, "pending_publication": pending_publication,
+                             "urls_fixed": urls_fixed,
+                             "public": bool(obj and public_place_queryset(Place.objects.all()).filter(pk=obj.pk).exists())})
 
     def get_urls(self):
         from catalog.controllers.location_resolution import location_resolve

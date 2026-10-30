@@ -40,7 +40,7 @@ class AdminCandidateCoverTests(CandidateMediaFixture, TestCase):
         self.assertEqual(self.place.status, 'published')
         self.assertEqual(self.place.photo.name, main)
         self.assertEqual(self.place.cover_photo.name, fallback)
-        public = self.client.get(reverse('place_detail', args=[self.place.pk, self.place.slug]))
+        public = self.client.get(self.place.get_absolute_url())
         self.assertContains(public, self.storage.url(main))
 
     def test_repeat_draft_save_retains_saved_media(self):
@@ -97,7 +97,7 @@ class AdminCandidateCoverTests(CandidateMediaFixture, TestCase):
         self.post(self.payload(_save_draft='1'))
         self.place.refresh_from_db()
         self.assertEqual(self.place.photo.name, original)
-        public_url = reverse('place_detail', args=[self.place.pk, self.place.slug])
+        public_url = self.place.get_absolute_url()
         self.assertContains(self.client.get(public_url), self.storage.url(original))
         self.assertNotContains(self.client.get(public_url), self.storage.url(replacement))
         self.post(self.payload(_publish_place='1'))
@@ -116,5 +116,5 @@ class AdminCandidateCoverTests(CandidateMediaFixture, TestCase):
         self.place.refresh_from_db()
         self.assertFalse(self.place.photo)
         self.assertFalse(self.place.cover_photo)
-        public = self.client.get(reverse('place_detail', args=[self.place.pk, self.place.slug]))
+        public = self.client.get(self.place.get_absolute_url())
         self.assertNotContains(public, self.storage.url(original))

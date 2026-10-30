@@ -194,7 +194,7 @@
             icon: "delete",
             iconTone: "danger",
             title: mediaText('Удалить главное фото?','Əsas şəkil silinsin?','Remove main photo?'),
-            message: document.getElementById('place_form') ? mediaText('Фотография будет удалена после сохранения. Отсутствие фото не блокирует публикацию.', 'Şəkil saxlandıqdan sonra silinəcək. Şəklin olmaması dərcə mane olmur.', 'The photo will be removed after saving. Its absence does not block publication.') : 'Без главного фото карточка перестанет соответствовать требованиям публикации.',
+            message: document.getElementById('place_form') ? mediaText('Фотография будет удалена после сохранения. Без главного фото карточка не готова к публикации.', 'Şəkil saxlandıqdan sonra silinəcək. Əsas şəkil olmadan kart dərcə hazır deyil.', 'The photo will be removed after saving. A main photo is required for publication.') : 'Без главного фото карточка перестанет соответствовать требованиям публикации.',
             actions: [
               { label: mediaText('Отмена','Ləğv et','Cancel'), tone: "quiet" },
               {

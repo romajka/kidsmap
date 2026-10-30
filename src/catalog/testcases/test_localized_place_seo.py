@@ -42,7 +42,7 @@ class LocalizedPlaceSeoUnitTests(SimpleTestCase):
 @override_settings(LOCALIZED_PLACE_URLS_ENABLED=True, PUBLIC_BASE_URL='https://kidsmap.az')
 class LocalizedPlaceSeoTests(TestCase):
     def setUp(self):
-        self.place = create_quality_place(name_az='Oyuncaq Muzeyi', name_ru='Музей игрушек', name_en='Toy Museum',
+        self.place = create_quality_place(uses_slug_only_urls=False, name_az='Oyuncaq Muzeyi', name_ru='Музей игрушек', name_en='Toy Museum',
             description_ru='Музей игрушек для детей', description_en='A toy museum for children')
 
     def test_old_and_wrong_language_slugs_redirect_directly(self):

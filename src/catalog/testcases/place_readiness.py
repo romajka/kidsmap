@@ -25,8 +25,8 @@ class PlaceReadinessRulesTests(TestCase):
         readiness = evaluate_place_readiness(place)
 
         self.assertTrue(readiness.is_ready)
-        self.assertEqual(readiness.required_count, 11)
-        self.assertEqual(readiness.completed_count, 11)
+        self.assertEqual(readiness.required_count, 12)
+        self.assertEqual(readiness.completed_count, 12)
         self.assertEqual(readiness.percentage, 100)
         self.assertEqual(readiness.issues, ())
 
@@ -61,8 +61,8 @@ class PlaceReadinessRulesTests(TestCase):
 
                 self.assertFalse(readiness.is_ready)
                 self.assertEqual([issue.code for issue in readiness.issues], [code])
-                self.assertEqual(readiness.completed_count, 10)
-                self.assertEqual(readiness.percentage, 91)
+                self.assertEqual(readiness.completed_count, 11)
+                self.assertEqual(readiness.percentage, 92)
 
     def test_location_reports_the_persisted_district_as_the_missing_fifth_item(self):
         with override("ru"):
@@ -218,7 +218,7 @@ class PlaceReadinessRulesTests(TestCase):
         readiness = evaluate_place_readiness(place)
 
         self.assertTrue(readiness.is_ready)
-        self.assertEqual(readiness.completed_count, 11)
+        self.assertEqual(readiness.completed_count, 12)
         self.assertEqual(readiness.percentage, 100)
         self.assertEqual([hint.code for hint in readiness.advice], ["description_length"])
         self.assertFalse(readiness.advice[0].blocking)
@@ -239,9 +239,9 @@ class PlaceReadinessRulesTests(TestCase):
         place = create_ready_place(photo="", cover_photo="")
         PlacePhoto.objects.create(place=place, image="places/gallery-1.jpg", order=1)
 
-        # Main photo is optional; gallery still does not mutate main photo.
+        # Gallery photos do not replace the required main photo.
         self.assertFalse(place.photo)
-        self.assertTrue(evaluate_place_readiness(place).is_ready)
+        self.assertEqual([issue.code for issue in evaluate_place_readiness(place).issues], ["photo"])
 
     def test_cover_photo_is_a_temporary_bridge_and_is_reported(self):
         place = create_ready_place(photo="", cover_photo="places/covers/legacy.jpg")
@@ -342,7 +342,7 @@ class PlaceReadinessConsistencyTests(TestCase):
 
         self.assertEqual(len(codes), len(set(codes)))
         self.assertEqual(set(codes), {"name", "description", "category", "subcategory",
-            "region", "address", "coordinates", "age", "price", "phone", "schedule"})
+            "region", "address", "coordinates", "age", "price", "phone", "schedule", "photo"})
 
 
 class PlaceAdminFormReadinessTests(TestCase):
@@ -400,7 +400,7 @@ class PlaceAdminFormReadinessTests(TestCase):
         self.assertFalse(form.is_valid())
         summary = " ".join(form.errors.get("__all__", []))
         self.assertIn("Карточка не может быть опубликована", summary)
-        self.assertIn("9 из 11 обязательных пунктов", summary)
+        self.assertIn("10 из 12 обязательных пунктов", summary)
         # Labels are localized, so pin the verdict on the codes and check that
         # the message actually spells the reasons out.
         self.assertEqual(
@@ -437,7 +437,7 @@ class PlaceAdminFormReadinessTests(TestCase):
             sorted(issue.quality_code for issue in form.place_readiness.issues),
             ["legacy_price_not_migrated", "legacy_schedule_not_migrated"],
         )
-        self.assertEqual(form.place_readiness.completed_count, 9)
+        self.assertEqual(form.place_readiness.completed_count, 10)
 
     @override("ru")
     def test_compatibility_does_not_apply_to_a_new_card(self):
@@ -515,7 +515,7 @@ class PlaceAdminFormReadinessTests(TestCase):
         # cleaned_data after validation would read the stored subcategory back
         # (an errored field is dropped from cleaned_data) and call the card ready.
         self.assertEqual([issue.code for issue in form.place_readiness.issues], ["subcategory"])
-        self.assertEqual(form.place_readiness.completed_count, 10)
+        self.assertEqual(form.place_readiness.completed_count, 11)
         self.assertEqual(
             [item["code"] for item in self._summary(form, place)["missing"]],
             ["subcategory"],

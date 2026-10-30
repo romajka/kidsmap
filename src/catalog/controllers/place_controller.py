@@ -696,7 +696,13 @@ class PlaceController:
     def get_active_place_for_legacy_redirect(self, *, pk: int) -> Place:
         return get_object_or_404(published_place_queryset(Place.objects.all()), pk=pk)
 
-    def get_active_place_with_gallery(self, *, pk: int) -> Place:
+    def get_active_place_with_gallery(self, *, pk: int | None = None,
+                                     public_slug: str | None = None, language: str | None = None) -> Place:
+        from catalog.services.place_urls import normalized_place_language
+        lookup = {'pk': pk} if pk is not None else {
+            'uses_slug_only_urls': True,
+            f'public_slug_{normalized_place_language(language)}': public_slug or '',
+        }
         return get_object_or_404(
             published_place_queryset(Place.objects.all()).select_related("category").prefetch_related(
                 "gallery",
@@ -704,7 +710,7 @@ class PlaceController:
                 "schedule_days__intervals",
                 "pricing_plan_records",
             ),
-            pk=pk,
+            **lookup,
         )
 
     @staticmethod

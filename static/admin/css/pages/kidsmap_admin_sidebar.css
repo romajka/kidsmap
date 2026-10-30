@@ -460,18 +460,19 @@ body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__panel {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
-  margin-block: 12px;
+  margin-block: 6px;
 }
 
 .km-pf .km-admin-related-links .km-pf-btn {
-  min-height: 44px;
-  height: auto;
+  min-height: 32px;
+  height: 32px;
   max-width: 100%;
-  padding-block: 10px;
-  white-space: normal;
-  overflow-wrap: anywhere;
+  padding: 0 10px;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow-wrap: normal;
 }
 
 .change-form .km-business-links-grid {

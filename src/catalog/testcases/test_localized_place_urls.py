@@ -84,7 +84,7 @@ class LocalizedPlaceUrlTests(TestCase):
             self.assertEqual(place.get_absolute_url(), f'/en/place/{place.pk}-{place.slug}/')
 
     def test_missing_translation_uses_legacy_without_read_write(self):
-        place = Place.objects.create(name='Brand', name_az='Brand', category='EDU')
+        place = Place.objects.create(name='Brand', name_az='Brand', category='EDU', uses_slug_only_urls=False)
         with self.assertNumQueries(0), override('en'):
             self.assertEqual(place.get_absolute_url(), f'/en/place/{place.pk}-brand/')
 

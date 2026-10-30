@@ -13,7 +13,7 @@ class CoordinateReadinessContractTests(SimpleTestCase):
             category_code='FUN', subcategory_id=1, subcategory_category_code='FUN',
             district='baku_nasimi', address='Bakı, küçə 12', lat=40.4, lng=49.8,
             age_from=0, age_to=18, price_mode='free', phone1='+994501112233',
-            schedule_mode='always_open', has_main_photo=False,
+            schedule_mode='always_open', has_main_photo=True,
         ), **changes)
 
     def test_missing_or_partial_coordinates_block_readiness_and_full_progress(self):
@@ -30,14 +30,14 @@ class CoordinateReadinessContractTests(SimpleTestCase):
             with self.subTest(lat=lat,lng=lng):
                 self.assertIn('invalid_coordinates',evaluate_readiness(self.ready_data(lat=lat,lng=lng)).quality_codes)
 
-    def test_zero_and_range_boundaries_are_valid_and_photo_stays_optional(self):
+    def test_zero_and_range_boundaries_are_valid_with_photo(self):
         for lat,lng in ((0,0),(-90,-180),(90,180),(40.4,49.8)):
             with self.subTest(lat=lat,lng=lng):
                 readiness=evaluate_readiness(self.ready_data(lat=lat,lng=lng))
                 self.assertTrue(readiness.is_ready)
                 self.assertEqual(readiness.percentage,100)
                 self.assertIn('coordinates',[item.code for item in readiness.items])
-                self.assertNotIn('photo',[item.code for item in readiness.items])
+                self.assertIn('photo',[item.code for item in readiness.items])
 
 
 from django.contrib.auth import get_user_model

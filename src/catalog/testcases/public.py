@@ -15,6 +15,7 @@ from django.db import IntegrityError, transaction
 from django.http import HttpResponse
 from django.test import Client, RequestFactory, TestCase, override_settings
 from django.urls import reverse
+from catalog.services.place_urls import place_path_for_language
 from django.utils.datastructures import MultiValueDict
 from django.utils import timezone
 from django.utils.translation import gettext as translate, override
@@ -1046,7 +1047,7 @@ class TestPublicPagesSmoke(TestCase):
 
         # The assertions below are on Russian output, so ask for the Russian URL
         # rather than relying on whatever language a previous test left active.
-        response = self.client.get(f"/ru{place.get_absolute_url()}")
+        response = self.client.get(place_path_for_language(place, 'ru'))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '"@type": "BreadcrumbList"', html=False)
@@ -1109,7 +1110,7 @@ class TestPublicPagesSmoke(TestCase):
             district="Ясамал",
         )
 
-        response = self.client.get(f"/ru{place.get_absolute_url()}")
+        response = self.client.get(place_path_for_language(place, 'ru'))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'aria-label="Хлебные крошки"', html=False)
@@ -1202,8 +1203,8 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "<loc>http://testserver/ru/</loc>", html=False)
         self.assertContains(response, "<loc>http://testserver/en/</loc>", html=False)
         self.assertContains(response, f"<loc>http://testserver{place.get_absolute_url()}</loc>", html=False)
-        self.assertContains(response, f'<xhtml:link rel="alternate" hreflang="ru" href="http://testserver/ru{place.get_absolute_url()}"', html=False)
-        self.assertContains(response, f'<xhtml:link rel="alternate" hreflang="en" href="http://testserver/en{place.get_absolute_url()}"', html=False)
+        self.assertContains(response, f'<xhtml:link rel="alternate" hreflang="ru" href="http://testserver{place_path_for_language(place, "ru")}"', html=False)
+        self.assertContains(response, f'<xhtml:link rel="alternate" hreflang="en" href="http://testserver{place_path_for_language(place, "en")}"', html=False)
         self.assertContains(response, f'<xhtml:link rel="alternate" hreflang="x-default" href="http://testserver{place.get_absolute_url()}"', html=False)
 
     @override_settings(
@@ -2787,7 +2788,7 @@ class TestReviewEnhancements(TestCase):
         for language_code, labels in expected_by_language.items():
             with self.subTest(language_code=language_code):
                 response = self.client.get(
-                    f"/{language_code}/place/{self.place.pk}-{self.place.slug}/"
+                    place_path_for_language(self.place, language_code)
                 )
 
                 self.assertEqual(response.status_code, 200)
@@ -3217,9 +3218,9 @@ class PublicLanguageConsistencyTests(TestCase):
             ("/catalog/", "məkan tapıldı", ("Найден", "club found")),
             ("/ru/catalog/", "Найден", ("məkan tapıldı", "club found")),
             ("/en/catalog/", "found", ("məkan tapıldı", "Найден")),
-            (f"/place/{self.place.pk}-{self.place.slug}/", "Son rəylər", ("Последние отзывы", "Latest reviews")),
-            (f"/ru/place/{self.place.pk}-{self.place.slug}/", "Последние отзывы", ("Son rəylər", "Latest reviews")),
-            (f"/en/place/{self.place.pk}-{self.place.slug}/", "Latest reviews", ("Son rəylər", "Последние отзывы")),
+            (place_path_for_language(self.place, 'az'), "Son rəylər", ("Последние отзывы", "Latest reviews")),
+            (place_path_for_language(self.place, 'ru'), "Последние отзывы", ("Son rəylər", "Latest reviews")),
+            (place_path_for_language(self.place, 'en'), "Latest reviews", ("Son rəylər", "Последние отзывы")),
             ("/catalog/kruzhki-v-baku/", "Bakıda uşaqlar üçün dərnəklər", ("Кружки в Баку для детей", "Kids' clubs in Baku")),
             ("/ru/catalog/kruzhki-v-baku/", "Кружки в Баку для детей", ("Bakıda uşaqlar üçün dərnəklər", "Kids' clubs in Baku")),
             ("/en/catalog/kruzhki-v-baku/", "Kids' clubs in Baku", ("Bakıda uşaqlar üçün dərnəklər", "Кружки в Баку для детей")),
@@ -3248,7 +3249,7 @@ class PublicLanguageConsistencyTests(TestCase):
 
         for prefix, expected, forbidden in checks:
             with self.subTest(prefix=prefix):
-                response = self.client.get(f"{prefix}place/{self.place.pk}-{self.place.slug}/")
+                response = self.client.get(place_path_for_language(self.place, prefix.strip('/') or 'az'))
                 content = response.content.decode()
                 section_start = content.index('id="reviews"')
                 section_end = content.index("</section>", section_start)
@@ -3266,7 +3267,7 @@ class PublicLanguageConsistencyTests(TestCase):
             text="Полезный отзыв о занятиях для проверки карточки.",
         )
 
-        response = self.client.get(f"/ru/place/{self.place.pk}-{self.place.slug}/")
+        response = self.client.get(place_path_for_language(self.place, 'ru'))
 
         self.assertContains(response, 'class="reviews-list detail-reviews-list"', html=False)
         self.assertNotContains(response, 'class="detail-reviews-panel"', html=False)

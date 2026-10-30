@@ -457,7 +457,11 @@ def review(*,actor,revision_id,version,approve,note='',final_reject=False):
         elif not getattr(candidate,'name_az','').strip() and kind in {'organization','program','activity'}:raise ValidationError('AZ name required.')
         _apply(target,kind,patch)
         now=timezone.now()
-        if kind=='place':Place.objects.filter(pk=pk).update(status='published',is_active=True,published_at=target.published_at or now,moderated_at=now,moderated_by=actor,rejection_reason='')
+        if kind=='place':
+            from catalog.services.place_urls import place_publication_url_values
+            Place.objects.filter(pk=pk).update(status='published',is_active=True,
+                published_at=target.published_at or now,moderated_at=now,moderated_by=actor,
+                rejection_reason='',**place_publication_url_values(target))
         elif kind in {'program','organization'}:type(target).objects.filter(pk=pk).update(status='published',approved_at=now)
         elif kind=='activity':
             Activity.objects.filter(pk=pk).update(status='published')
@@ -501,7 +505,12 @@ def publish(*,actor,place_id,expected_version,note=''):
     readiness=evaluate_place_readiness(place)
     if not place.is_public and not readiness.is_ready:raise ValidationError(publication_blocked_message(readiness))
     source_version = place.content_version
-    Place.objects.filter(pk=place.pk).update(status='published',is_active=True,published_at=place.published_at or timezone.now(),moderated_at=timezone.now(),moderated_by=actor,content_version=F('content_version')+1);place.refresh_from_db()
+    from catalog.services.place_urls import place_publication_url_values
+    Place.objects.filter(pk=place.pk).update(status='published',is_active=True,
+        published_at=place.published_at or timezone.now(),moderated_at=timezone.now(),
+        moderated_by=actor,content_version=F('content_version')+1,
+        **place_publication_url_values(place))
+    place.refresh_from_db()
     if revision is None or revision.status == 'approved':
         _complete_publication_requests(actor=actor, place=place, source_version=source_version,
                                        candidate_version=revision.version if revision else 0, note=note)

@@ -1,10 +1,19 @@
 """Stage 13 owner form contracts, separate from the volunteer wizard."""
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
+from io import BytesIO
+from PIL import Image
 from django.urls import reverse
 
 from catalog.models import Place, VolunteerPlaceRevision
 from catalog.testcases.utils import create_quality_place
+
+
+def photo_upload():
+    buffer = BytesIO()
+    Image.new('RGB', (32, 32), 'green').save(buffer, format='PNG')
+    return SimpleUploadedFile('place.png', buffer.getvalue(), content_type='image/png')
 
 
 class ContinuousPlaceFormTests(TestCase):
@@ -28,11 +37,11 @@ class ContinuousPlaceFormTests(TestCase):
         self.assertContains(response, 'data-pc-add-activity')
         self.assertContains(response, 'name="publication_token"')
 
-    def test_submission_summary_requires_map_but_photos_remain_optional(self):
+    def test_submission_summary_requires_map_and_photo(self):
         response = self.client.get(reverse('owner_place_create') + '?type=permanent')
         summary = response.context['form'].submission_readiness
-        self.assertEqual(summary['required_count'], 11)
-        self.assertNotIn('photo', [item['code'] for item in summary['items']])
+        self.assertEqual(summary['required_count'], 12)
+        self.assertIn('photo', [item['code'] for item in summary['items']])
         self.assertIn('coordinates', [item['code'] for item in summary['items']])
         self.assertTrue(summary['issues'])
 
@@ -54,7 +63,7 @@ class ContinuousPlaceFormTests(TestCase):
                     'pricing_plans': [{'product_type': 'lesson', 'price': '15'}],
                 }],
             }]}),
-        })
+        }, files={'photo': photo_upload()})
         self.assertTrue(form.is_valid(), form.errors)
         summary = form.submission_readiness
         self.assertTrue(next(item for item in summary['items'] if item['code'] == 'price')['complete'])
@@ -112,7 +121,7 @@ class ContinuousPlaceFormTests(TestCase):
         self.place.refresh_from_db()
         self.assertEqual(self.place.nature, original_nature)
 
-    def test_public_space_can_submit_with_point_without_organization_photo_or_contact(self):
+    def test_public_space_with_photo_can_submit_without_organization_or_contact(self):
         import json
         from catalog.testcases.utils import ensure_quality_subcategory
         from catalog.models import Category, Subcategory
@@ -128,14 +137,14 @@ class ContinuousPlaceFormTests(TestCase):
             'lat': '40.4', 'lng': '49.8',
             'schedule_mode': 'always_open',
             'pricing_plans': json.dumps([{'product_type': 'admission', 'price_kind': 'free', 'is_active': True}]),
-            'phone1': '', 'phone2': '', 'phone3': '', 'website': '',
+            'phone1': '', 'phone2': '', 'phone3': '', 'website': '', 'photo': photo_upload(),
         })
         self.assertEqual(response.status_code, 302, response.context['form'].errors if response.context else response.content[:100])
         created = Place.objects.exclude(pk=self.place.pk).get()
         candidate = VolunteerPlaceRevision.objects.get(place=created).payload
         self.assertEqual(candidate['name_az'], 'Yeni ictimai park')
         self.assertNotIn('nature', candidate)
-        self.assertFalse(candidate.get('photo'))
+        self.assertTrue(candidate.get('photo'))
         self.assertEqual(candidate.get('lat'), 40.4)
         self.assertIsNone(created.organization_id)
 
@@ -155,7 +164,7 @@ class ContinuousPlaceFormTests(TestCase):
         self.assertEqual(missing.status_code, 200)
         self.assertIn('phone1', missing.context['form'].errors)
         self.assertFalse(VolunteerPlaceRevision.objects.filter(payload__name_az='Yeni mərkəz').exists())
-        allowed = self.client.post(reverse('owner_place_create'), {**payload, 'website':'https://example.org'})
+        allowed = self.client.post(reverse('owner_place_create'), {**payload, 'website':'https://example.org', 'photo': photo_upload()})
         self.assertEqual(allowed.status_code, 302, allowed.context['form'].errors if allowed.context else allowed.content[:100])
         candidate = VolunteerPlaceRevision.objects.get(payload__name_az='Yeni mərkəz').payload
         self.assertEqual(candidate['website'], 'https://example.org')
@@ -175,7 +184,7 @@ class ContinuousPlaceFormTests(TestCase):
             'description_az':'Uşaqlar üçün böyük açıq park və ümumi giriş biletləri.',
             'nature':'public_space','category':category.pk,'subcategory':str(subcategory.pk),
             'age_from':'0','age_to':'18','region':'baku','district':'baku_yasamal',
-            'lat': '40.4', 'lng': '49.8', 'address':'Bakı, park yolu 1','schedule_mode':'always_open','pricing_plans':json.dumps(plans),
+            'lat': '40.4', 'lng': '49.8', 'address':'Bakı, park yolu 1','schedule_mode':'always_open','pricing_plans':json.dumps(plans), 'photo': photo_upload(),
         })
         self.assertEqual(response.status_code,302,response.context['form'].errors if response.context else response.content[:100])
         candidate = VolunteerPlaceRevision.objects.get(payload__name_az='Ümumi biletli park').payload
@@ -206,7 +215,7 @@ class ContinuousPlaceFormTests(TestCase):
             'age_from': '5', 'age_to': '8', 'region': 'baku', 'district': 'baku_yasamal',
             'lat': '40.4', 'lng': '49.8', 'address': 'Bakı, rəsm küçəsi 1', 'schedule_mode': 'always_open',
             'website': 'https://example.org', 'pricing_plans': '[]',
-            'nested_pricing': json.dumps(nested),
+            'nested_pricing': json.dumps(nested), 'photo': photo_upload(),
         })
         self.assertEqual(response.status_code, 302, response.context['form'].errors if response.context else response.content[:100])
         candidate = VolunteerPlaceRevision.objects.get(payload__name_az='Rəsm mərkəzi')
