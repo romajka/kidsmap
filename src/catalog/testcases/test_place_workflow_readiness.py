@@ -71,11 +71,12 @@ class PlaceWorkflowReadinessTests(CandidateMediaFixture, TestCase):
             self.assertEqual(result['error_count'],0)
             self.assertFalse(any(q['sql'].lstrip().upper().startswith(('INSERT','UPDATE','DELETE')) for q in queries))
 
-    def test_optional_photos_do_not_inflate_required_counts(self):
+    def test_main_photo_is_a_required_media_field(self):
         response=self.client.post(reverse('place_editor_preview_new'),{'_km_check_required':'1','name_az':'A valid name','description_az':'Description','price_mode':'free','schedule_mode':'always_open'})
         ready=response.json()['readiness']
-        self.assertEqual(ready['sections'][3]['required_count'],0)
-        self.assertNotIn('photo',[item['field'] for item in ready['items']])
+        self.assertEqual(ready['sections'][3]['required_count'],1)
+        photo = next(item for item in ready['items'] if item['field'] == 'photo')
+        self.assertFalse(photo['complete'])
 
     def test_volunteer_current_preview_is_private_and_foreign_target_is_denied(self):
         from django.contrib.auth.models import Group

@@ -124,8 +124,9 @@ class ApplicationContactFormTests(TestCase):
 
     def test_owner_create_accepts_control_example_and_wa_only(self):
         from catalog.forms import OwnerPlaceCreateForm
+        from catalog.testcases.utils import main_photo_upload
         for phone in ('+994 50 427 43 93', ''):
-            form = OwnerPlaceCreateForm(data=self.payload(phone1=phone))
+            form = OwnerPlaceCreateForm(data=self.payload(phone1=phone), files={'photo': main_photo_upload()})
             self.assertTrue(form.is_valid(), form.errors)
             self.assertEqual(form.cleaned_data['whatsapp_number'], '+13104564918')
             self.assertEqual(form.cleaned_data['phone1'], '+994504274393' if phone else '')

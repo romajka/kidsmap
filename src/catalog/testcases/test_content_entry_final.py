@@ -107,6 +107,7 @@ class CandidateMediaTests(CandidateMediaFixture, TestCase):
         self.assertEqual(self.place.gallery.count(), 0)
 
     def test_candidate_gallery_delete_add_and_approve_keeps_requested_order(self):
+        self.propose({'photo': self.stored('gallery-required-main')})
         rows = self.gallery()
         form = self.form({'delete_gallery_ids': [self.key(rows[0])],
                           'gallery_order': json.dumps(['new:0', self.key(rows[1])])},
@@ -242,7 +243,8 @@ class LegacyReviewProjectionTests(CandidateMediaFixture, TestCase):
             'groups': [{'name_az': 'Uşaqlar', 'age_from': 0, 'age_to': 12,
                         'schedule_text': 'Çərşənbə 15:00',
                         'pricing_plans': [{'product_type': 'lesson', 'price': '15'}]}]}]}
-        revision = self.propose({'pricing_plans': [], 'nested_pricing': nested}, submit=True)
+        revision = self.propose({'pricing_plans': [], 'nested_pricing': nested,
+                                 'photo': self.stored('group-price-required-main')}, submit=True)
         form = review_form(revision)
         self.assertTrue(form.is_valid(), form.errors)
         readiness = evaluate_form_readiness(form, form.instance)

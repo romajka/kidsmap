@@ -143,6 +143,7 @@ class PlaceLiveValidationTests(TestCase):
                         self.assertEqual(form.cleaned_data['instagram'], value)
 
     def test_check_only_reports_bad_contacts_and_clears_corrected_errors_without_writes(self):
+        from catalog.testcases.utils import main_photo_upload
         for user, suffix in ((self.owner, ''), (self.staff, '?surface=admin'), (self.volunteer, '?surface=volunteer')):
             with self.subTest(surface=suffix):
                 self.client.force_login(user)
@@ -152,6 +153,7 @@ class PlaceLiveValidationTests(TestCase):
                 bad.update(phone1='546435643', _km_check_required='1')
                 good = self.payload(instagram='https://www.instagram.com/kidsmap/?utm_source=qr', website='https://example.com')
                 good['_km_check_required'] = '1'
+                good['photo'] = main_photo_upload()
                 with CaptureQueriesContext(connection) as queries:
                     invalid = self.client.post(url, bad)
                     corrected = self.client.post(url, good)

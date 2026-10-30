@@ -25,10 +25,13 @@ class AdminReadyFilterPrivacyTests(TestCase):
             district="baku_nasimi", description_az="",
             status=Place.STATUS_DRAFT, is_active=False,
         )
-        VolunteerPlaceRevision.objects.create(
-            place=cls.place, author=cls.editor, status="draft",
-            payload={"description_az": "Uşaqlar üçün saxlanmış özəl təsvir."},
-        )
+        # A ready-to-publish row needs a submitted candidate with valid source
+        # and dependency snapshots, just as the real publication workflow does.
+        from catalog.services import publication
+        publication.propose(actor=cls.editor, target_type='place', target_id=cls.place.pk,
+            patch={"description_az": "Uşaqlar üçün saxlanmış özəl təsvir."},
+            schema_version=1, expected_version=cls.place.content_version,
+            revision_version=0, submit=True, explicit_save=True)
 
     def listing(self, user, *, ready=False):
         self.client.force_login(user)

@@ -10,8 +10,10 @@ class TestPlaceAgeReleaseCompatibility(TestCase):
     def test_old_writer_can_insert_without_the_new_age_column(self):
         source = create_quality_place(age_varies_by_program=True)
         quote = connection.ops.quote_name
+        later_fields = {'age_varies_by_program', 'uses_slug_only_urls',
+                        'public_slug_az', 'public_slug_ru', 'public_slug_en'}
         fields = [field for field in Place._meta.concrete_fields
-                  if not field.primary_key and field.name != 'age_varies_by_program']
+                  if not field.primary_key and field.name not in later_fields]
         columns = ', '.join(quote(field.column) for field in fields)
         values = ', '.join('%s' if field.name == 'slug' else quote(field.column) for field in fields)
         table = quote(Place._meta.db_table)

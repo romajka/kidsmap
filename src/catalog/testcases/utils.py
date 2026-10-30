@@ -143,6 +143,16 @@ def create_quality_place(*, with_pricing_plan=False, with_schedule_days=False, w
         sync_place_schedule(place, parse_schedule_payload(build_structured_schedule_payload()))
     return place
 
+def main_photo_upload():
+    """A fresh real image for forms whose main photo is a publication requirement."""
+    from io import BytesIO
+    from PIL import Image
+
+    data = BytesIO()
+    Image.new('RGB', (32, 32), 'green').save(data, 'PNG')
+    return SimpleUploadedFile('main-photo.png', data.getvalue(), content_type='image/png')
+
+
 def create_ready_place(**overrides):
     """A card that satisfies all twelve publication requirements.
 

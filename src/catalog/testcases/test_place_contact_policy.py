@@ -10,7 +10,7 @@ from catalog.forms import OwnerPlaceCreateForm, OwnerPlaceEditForm
 from catalog.models import Category, Place, Subcategory, VolunteerPlaceRevision
 from catalog.services.content_quality import public_place_queryset, place_catalog_visibility_reasons
 from catalog.services.place_readiness import evaluate_place_readiness
-from catalog.testcases.utils import create_ready_place, ensure_quality_subcategory
+from catalog.testcases.utils import create_ready_place, ensure_quality_subcategory, main_photo_upload
 
 
 class PlaceContactPolicyTests(TestCase):
@@ -44,7 +44,7 @@ class PlaceContactPolicyTests(TestCase):
                 self.assertNotIn('missing_contact', place_catalog_visibility_reasons(place))
 
     def test_owner_form_accepts_park_without_nature_or_contacts(self):
-        form = OwnerPlaceCreateForm(data=self.payload())
+        form = OwnerPlaceCreateForm(data=self.payload(), files={'photo': main_photo_upload()})
         self.assertNotIn('nature', form.fields)
         self.assertTrue(form.is_valid(), form.errors)
         contact = next(item for item in form.submission_readiness['items'] if item['code'] == 'phone')
@@ -58,7 +58,7 @@ class PlaceContactPolicyTests(TestCase):
                 form = OwnerPlaceCreateForm(data=self.payload(category=category, subcategory=str(sub.pk), nature='public_space'))
                 self.assertFalse(form.is_valid())
                 self.assertIn('phone1', form.errors)
-                allowed = OwnerPlaceCreateForm(data=self.payload(category=category, subcategory=str(sub.pk), website='https://example.invalid'))
+                allowed = OwnerPlaceCreateForm(data=self.payload(category=category, subcategory=str(sub.pk), website='https://example.invalid'), files={'photo': main_photo_upload()})
                 self.assertTrue(allowed.is_valid(), allowed.errors)
 
     def test_wrong_parent_or_similarly_named_subcategory_does_not_exempt(self):
@@ -106,7 +106,7 @@ class PlaceContactPolicyTests(TestCase):
         self.client.force_login(self.owner)
         response = self.client.get(reverse('owner_place_create') + '?type=permanent')
         self.assertNotContains(response, 'name="nature"')
-        response = self.client.post(reverse('owner_place_create'), self.payload(form_action='save_and_publish', create_separate='1'))
+        response = self.client.post(reverse('owner_place_create'), self.payload(form_action='save_and_publish', create_separate='1', photo=main_photo_upload()))
         self.assertEqual(response.status_code, 302, response.context['form'].errors if response.context else '')
         revision = VolunteerPlaceRevision.objects.get(author=self.owner, status='pending')
         place = revision.place

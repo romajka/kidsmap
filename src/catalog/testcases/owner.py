@@ -1709,7 +1709,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn("photo", response.context["form"].errors)
+        self.assertIn("photo", response.context["form"].errors)
         self.assertIn("pricing_plans", response.context["form"].errors)
         self.assertFalse(Place.objects.filter(name_ru="Карточка без фото").exists())
 
@@ -1810,7 +1810,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(first_response, 'Название: заполните название на азербайджанском.')
         self.assertContains(first_response, 'Описание: добавьте описание на азербайджанском.')
         self.assertContains(first_response, 'Телефон: укажите номер телефона.')
-        self.assertNotContains(first_response, 'Фото: загрузите основное фото')
+        self.assertContains(first_response, 'Фото: загрузите основное фото')
         self.assertContains(first_response, 'Точка на карте: выберите точку вручную')
         self.editor_place.refresh_from_db()
         self.assertNotEqual(self.editor_place.status, Place.STATUS_PENDING)

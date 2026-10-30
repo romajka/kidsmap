@@ -1119,7 +1119,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "Точка на карте есть")
         self.assertContains(response, "Нет координат")
         self.assertContains(response, "data-readiness-trigger", html=False)
-        self.assertContains(response, 'data-total="11"', html=False)
+        self.assertContains(response, 'data-total="12"', html=False)
         self.assertContains(response, "Локация")
         self.assertContains(response, "Состояние")
         self.assertContains(response, "Метки")
@@ -1328,12 +1328,12 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(self.place.phone3, "+994703332211")
 
     def test_place_admin_change_form_shows_public_site_link_for_published_place(self):
-        public_place = create_quality_place(name="Published admin preview")
+        public_place = create_quality_place(name="Published admin preview", name_az="Published Admin Preview", name_ru="Published Admin Preview")
         response = self.client.get(reverse("admin:catalog_place_change", args=[public_place.id]))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Открыть карточку на сайте")
-        self.assertContains(response, f'href="http://testserver/ru/place/{public_place.id}-', html=False)
+        self.assertContains(response, 'href="http://testserver/ru/place/published-admin-preview/"', html=False)
 
     def test_place_admin_change_form_uses_readonly_service_dates_instead_of_raw_datetime_widgets(self):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
