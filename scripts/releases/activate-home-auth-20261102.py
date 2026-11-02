@@ -32,6 +32,7 @@ assert output(['docker','image','inspect',BUILD['tag'],'--format','{{.Id}}'])==B
 config=json.loads((ROOT/'previous.compose.json').read_text())
 config['services']['web'].pop('build',None)
 config['services']['web']['image']=BUILD['tag']
+config['services']['web'].setdefault('labels',{})['org.opencontainers.image.revision']=BUILD['revision']
 config['services']['web']['ports']=[{'target':8000,'published':'8000','host_ip':'127.0.0.1','protocol':'tcp'}]
 config['services']['web'].setdefault('environment',{})['AUTH_THROTTLE_TRUSTED_PROXIES']='172.18.0.1/32'
 # Compose interpolates even resolved JSON; escape literals, including secrets containing $.
@@ -48,8 +49,10 @@ oldconfig=json.loads((ROOT/'previous.compose.json').read_text())
 expected=dict(oldconfig['services']['web']['environment']);expected['AUTH_THROTTLE_TRUSTED_PROXIES']='172.18.0.1/32'
 assert resolved['services']['web']['environment']==expected
 for key in set(oldconfig['services']['web']) | set(resolved['services']['web']):
- if key not in {'image','build','ports','environment'}:
+ if key not in {'image','build','ports','environment','labels'}:
   assert resolved['services']['web'].get(key)==oldconfig['services']['web'].get(key), 'Unexpected service change: '+key
+expected_labels=dict(oldconfig['services']['web'].get('labels',{}));expected_labels['org.opencontainers.image.revision']=BUILD['revision']
+assert resolved['services']['web']['labels']==expected_labels
 assert resolved['networks']==oldconfig['networks']
 run(command('candidate.compose.json','run','--rm','--no-deps','-T','web','python','manage.py','check'),'candidate-check.log')
 run(command('candidate.compose.json','run','--rm','--no-deps','-T','web','python','manage.py','migrate','--check'),'candidate-migrations.log')
@@ -89,6 +92,7 @@ try:
  switched=True
  run(command('candidate.compose.json','up','-d','--no-deps','--no-build','web'),'activation.log')
  health();current=inspect();assert current['Image']==BUILD['image_id']
+ assert current['Config']['Labels']['org.opencontainers.image.revision']==BUILD['revision']
  newenv=env(current);expectedenv=dict(oldenv);expectedenv['AUTH_THROTTLE_TRUSTED_PROXIES']='172.18.0.1/32';assert newenv==expectedenv
  mounts=[{k:m.get(k) for k in ('Type','Source','Destination','RW')} for m in current['Mounts']]
  assert sorted(mounts,key=lambda m:m['Destination'])==sorted(BEFORE['mounts'],key=lambda m:m['Destination'])

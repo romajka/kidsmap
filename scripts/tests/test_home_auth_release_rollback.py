@@ -37,6 +37,26 @@ def recovery_code():
 
 
 class HomeAuthReleaseRollbackTests(unittest.TestCase):
+    def test_candidate_replaces_inherited_revision_and_keeps_other_labels(self):
+        tree = ast.parse(SCRIPT.read_text())
+        start = next(i for i, node in enumerate(tree.body)
+                     if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name)
+                     and node.targets[0].id == 'config')
+        end = next(i for i, node in enumerate(tree.body)
+                   if isinstance(node, ast.FunctionDef) and node.name == 'escape')
+        code = compile(ast.Module(body=tree.body[start:end], type_ignores=[]), str(SCRIPT), 'exec')
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root/'previous.compose.json').write_text(json.dumps({'services': {'web': {
+                'labels': {'org.opencontainers.image.revision': 'old', 'retained': 'yes'},
+                'build': '.', 'environment': {'EXISTING': 'value'}, 'ports': []}}}))
+            scope = {'ROOT': root, 'BUILD': {'tag': 'new-image', 'revision': 'new-commit'}, 'json': json}
+            exec(code, scope)
+        web = scope['config']['services']['web']
+        self.assertEqual(web['labels'], {'org.opencontainers.image.revision': 'new-commit', 'retained': 'yes'})
+        self.assertEqual(web['environment']['EXISTING'], 'value')
+        self.assertNotIn('build', web)
+
     def exercise(self, *, copy_error=False, static_error=False, activation_error=False,
                  health_error=False, switched=True):
         events = []
