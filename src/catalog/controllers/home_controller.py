@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 
 
+from catalog.homepage_copy import HOME_TITLES, HOME_SUBTITLES
 from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository
 from catalog.models import Event, PlaceReview, SiteGalleryImage
 from catalog.repositories.django_repositories import (
@@ -115,9 +116,9 @@ class HomeController:
             "map_business_count": map_business_count,
             "total_place_reviews_count": total_place_reviews_count,
             "google_maps_api_key": google_maps_api_key,
-            "hero_title": site_settings.home_title_i18n(language_code) or _("Найдите подходящее занятие для ребёнка"),
+            "hero_title": site_settings.home_title_i18n(language_code) or HOME_TITLES.get(language_code, HOME_TITLES["az"]),
             "hero_subtitle": site_settings.home_subtitle_i18n(language_code)
-            or _("Кружки, курсы и события рядом — всё в одном месте."),
+            or HOME_SUBTITLES.get(language_code, HOME_SUBTITLES["az"]),
             "hero_search_label": site_settings.home_search_label_i18n(language_code) or _("Найти занятие"),
             "hero_search_placeholder": self._hero_search_placeholder(
                 site_settings.home_search_placeholder_i18n(language_code)

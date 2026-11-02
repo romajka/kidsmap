@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="{% static 'css/pages/home_layout.css' %}?v=20261027_search_row_v1" />
 <link rel="stylesheet" href="{% static 'css/pages/home_map_explorer.css' %}?v=20261026_filter_r3" />
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261022_release_all_r1" />
-<script defer src="{% static 'js/mappy.js' %}?v=20261021_r2"></script>
+<script defer src="{% static 'js/mappy.js' %}?v=20261102_copy"></script>
 {% endblock %}
 
 {% block content %}
@@ -2624,8 +2624,8 @@
 <link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20260910" />
 <script src="{% static 'js/google_maps_motion.js' %}?v=20260910"></script>
 <script src="{% static 'js/google_maps_markers.js' %}?v=20260910"></script>
-<script src="{% static 'js/map_paging.js' %}?v=20261029_auto_r1"></script>
-<script src="{% static 'js/home_map.js' %}?v=20261029_auto_r1" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
+<script src="{% static 'js/map_paging.js' %}?v=20261030_published_r1"></script>
+<script src="{% static 'js/home_map.js' %}?v=20261030_singlemap_r3" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
   data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
   data-home-map-route-label="{% trans 'Маршрут' %}"
   data-home-map-language="{{ request.LANGUAGE_CODE|escape }}"

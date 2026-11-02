@@ -62,7 +62,7 @@
     const api = {
       get points() { return points; }, get count() { return count; },
       replace(nextBounds=null) { clearTimeout(timer); timer=null; if (!nextBounds) viewportKey=null; return request(false,nextBounds); },
-      more() { if (busy) return Promise.resolve(); const retry=failed; return request(retry ? retry.append : true,retry ? retry.bounds : bounds); },
+      more() { if (busy || (!more && !failed)) return Promise.resolve(); const retry=failed; return request(retry ? retry.append : true,retry ? retry.bounds : bounds); },
       viewport(nextBounds) { const key=JSON.stringify(Object.values(nextBounds).map(v=>Number(v).toFixed(5))); if (key===viewportKey) return; viewportKey=key; clearTimeout(timer); timer=setTimeout(() => api.replace(nextBounds),300); },
       destroy() { destroyed=true; generation++; clearTimeout(timer); clearTimeout(autoTimer); controller?.abort(); button.removeEventListener('click',click); },
     };

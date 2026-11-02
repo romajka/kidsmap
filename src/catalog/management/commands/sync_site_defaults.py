@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 
 from catalog.models import SiteSettings
+from catalog.homepage_copy import HOME_COPY_DEFAULTS
 
 
 SITE_DEFAULTS = {
@@ -11,12 +12,7 @@ SITE_DEFAULTS = {
     "about_text_ru": "KidsMap — каталог детских кружков и секций по Азербайджану.",
     "about_text_en": "KidsMap is a catalog of kids clubs and courses across Azerbaijan.",
     "about_text_az": "KidsMap Azərbaycanda uşaqlar üçün dərnək və kurs kataloqudur.",
-    "home_title_ru": "Найдите подходящее занятие для ребёнка",
-    "home_title_en": "Find the right activity for your child",
-    "home_title_az": "Uşağınız üçün uyğun məşğələni tapın",
-    "home_subtitle_ru": "Кружки, курсы и события рядом — всё в одном месте.",
-    "home_subtitle_en": "Nearby clubs, classes and events — all in one place.",
-    "home_subtitle_az": "Yaxınlıqdakı dərnək, kurs və tədbirlər — hamısı bir yerdə.",
+    **HOME_COPY_DEFAULTS,
     "home_search_label_ru": "Найти занятие",
     "home_search_label_en": "Find activities",
     "home_search_label_az": "Məşğələ tap",

@@ -138,17 +138,9 @@ class PlaceController:
         elif language_code == "az":
             results_count_label = f"{total_results} məkan tapıldı"
         elif language_code == "en":
-            club_word = "club" if total_results == 1 else "clubs"
-            results_count_label = f"{total_results} {club_word} found"
+            results_count_label = f"Places found: {total_results}"
         else:
-            mod_10 = total_results % 10
-            mod_100 = total_results % 100
-            if mod_10 == 1 and mod_100 != 11:
-                results_count_label = f"Найден {total_results} кружок"
-            elif mod_10 in {2, 3, 4} and mod_100 not in {12, 13, 14}:
-                results_count_label = f"Найдено {total_results} кружка"
-            else:
-                results_count_label = f"Найдено {total_results} кружков"
+            results_count_label = f"Найдено мест: {total_results}"
 
         public_filter_options = build_public_place_filter_options(
             language_code=language_code,

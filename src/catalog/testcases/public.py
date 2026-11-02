@@ -542,7 +542,7 @@ class TestPublicPagesSmoke(TestCase):
         self.assertNotIn("Каталог кружков и секций для детей в Баку", content)
         self.assertNotIn("Найдено %(total)s карточек", content)
 
-    def test_ru_catalog_uses_ru_result_count_and_singular_card_grammar(self):
+    def test_ru_catalog_uses_neutral_place_result_count(self):
         create_quality_place(
             name="Unique singular search place",
             name_ru="Уникальный кружок для проверки склонения",
@@ -554,7 +554,7 @@ class TestPublicPagesSmoke(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Найден 1 кружок")
+        self.assertContains(response, "Найдено мест: 1")
         self.assertNotContains(response, "kart tapıldı")
         self.assertNotContains(response, "dərnək tapıldı")
         self.assertNotContains(response, "məkan tapıldı")
@@ -2602,7 +2602,8 @@ class TestCatalogEnhancements(TestCase):
                 }
             ]
         member = expected[0]
-        member.update(age='6–12 yaş', district=matching_place.district, district_label=matching_place.district_i18n(language_code),
+        member.update(publication_date=(matching_place.published_at or matching_place.created_at).isoformat(),
+            age='6–12 yaş', district=matching_place.district, district_label=matching_place.district_i18n(language_code),
             metro=matching_place.metro, metro_label=matching_place.metro_i18n(language_code),
             matched_offers=[], translation_fallback=False,
             content_language=language_code, translation_label='')
@@ -2667,7 +2668,8 @@ class TestCatalogEnhancements(TestCase):
                 }
             ]
         member = expected[0]
-        member.update(age='6–12 лет', district=place.district, district_label=place.district_i18n('ru'),
+        member.update(publication_date=(place.published_at or place.created_at).isoformat(),
+            age='6–12 лет', district=place.district, district_label=place.district_i18n('ru'),
             metro=place.metro, metro_label=place.metro_i18n('ru'),
             matched_offers=[], translation_fallback=True,
             content_language='az', translation_label='Текст на азербайджанском')
@@ -3064,7 +3066,7 @@ class TestReviewEnhancements(TestCase):
 
         en_catalog = self.client.get("/en/catalog/", follow=True)
         self.assertEqual(en_catalog.status_code, 200)
-        self.assertContains(en_catalog, "clubs found")
+        self.assertContains(en_catalog, "Places found:")
         self.assertNotContains(en_catalog, "Найдено")
 
     def test_site_review_reactions_update_counters(self):

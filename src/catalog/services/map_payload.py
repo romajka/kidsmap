@@ -59,6 +59,7 @@ def _serialize_map_places(qs, language_code, filters=None, *, ordering=None):
         age = data['age_label']
         member = {
             'id': place.pk, 'name': data['name'], 'url': data['url'],
+            'publication_date': (place.published_at or place.created_at).isoformat() if (place.published_at or place.created_at) else '',
             'lat': lat, 'lng': lng, 'price': data['prices']['label'],
             'age': f"{age} {_('лет')}" if age else '',
             'image_url': data['image_url'], 'has_phone': data['contacts']['has_phone'],

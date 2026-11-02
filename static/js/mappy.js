@@ -6,22 +6,22 @@
     ru: [
       "Выберите район и возраст — покажу занятия на карте! 🗺️",
       "Ищете спорт, творчество или шахматы? Помогу найти рядом! 🎨",
-      "Более 70 проверенных секций и кружков для детей в Баку! 🧸",
-      "Точное расписание и цены в одном месте — без лишних звонков! ⏱️",
+      "Кружки, парки и развлечения — найдите место для ребёнка! 🧸",
+      "Перед посещением уточните цену и расписание у организатора. ⏱️",
       "Нажмите на любое место или метку — всё подробно покажу! ✨"
     ],
     az: [
       "Rayon və yaşı seçin — xəritədə uyğun məşğələləri göstərim! 🗺️",
       "İdman, yaradıcılıq, yoxsa şahmat? Yaxınlıqdakı dərnəkləri tapmağa kömək edərəm! 🎨",
-      "Bakıda uşaqlar üçün 70-dən çox yoxlanılmış məkan! 🧸",
-      "Dəqiq cədvəl və qiymətlər — artıq zənglərə ehtiyac yoxdur! ⏱️",
+      "Dərnəklər, parklar və əyləncə — uşağınız üçün məkan tapın! 🧸",
+      "Getməzdən əvvəl qiyməti və cədvəli təşkilatçı ilə dəqiqləşdirin. ⏱️",
       "Xəritədə istənilən məkana toxunun — dərhal ətraflı göstərim! ✨"
     ],
     en: [
       "Choose an area and age — I’ll show you great activities on the map! 🗺️",
       "Looking for sports, arts, or chess? I’ll help you find them nearby! 🎨",
-      "Over 70 verified kids’ places and clubs across Baku! 🧸",
-      "Schedules, age groups, and prices all in one place! ⏱️",
+      "Clubs, parks and entertainment — find a place for your child! 🧸",
+      "Confirm prices and schedules with the organizer before visiting. ⏱️",
       "Tap any pin on the map — I’ll show you all the details! ✨"
     ]
   };

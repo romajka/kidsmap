@@ -1891,6 +1891,7 @@
     const tabs = Array.from(root.querySelectorAll("[data-home-explorer-tab]"));
     const mobile = window.matchMedia("(max-width: 767px)");
     let view = "map", selected = null, records = [], currentStatus = "ready";
+    let visibleLimit = 10, currentPoints = [], allMembers = [];
     function copy(name, fallback) { return root.dataset[name] || fallback; }
     function selectionText(name) { return copy("selectedLabel", "{name}").replace("{name}", name); }
     function updateGuide() {
@@ -1963,7 +1964,15 @@
       updateGuide();
     }
     function selectMember(id, reveal) {
-      const record = records.find(item => String(item.member.id) === String(id));
+      let record = records.find(item => String(item.member.id) === String(id));
+      if (!record) {
+        const index = allMembers.findIndex(item => String(item.member.id) === String(id));
+        if (index >= 0) {
+          visibleLimit = Math.max(visibleLimit, Math.ceil((index + 1) / 10) * 10);
+          setPoints(currentPoints);
+          record = records.find(item => String(item.member.id) === String(id));
+        }
+      }
       if (!record) return false;
       selected = record; updateSelection();
       if (reveal) {
@@ -1981,17 +1990,20 @@
       const element = document.createElement(tag || "span");
       element.className = className; element.textContent = value; parent.append(element);
     }
-    function setPoints(points) {
+    function setPoints(points, reset = false) {
+      currentPoints = points;
+      if (reset) visibleLimit = 10;
       const selectedId = selected?.member.id;
       const activeId = document.activeElement?.dataset.homeMapMemberId;
+      const scrollTop = list.scrollTop;
       selected = null; records = []; list.replaceChildren();
       const seen = new Set();
       // Shared venues group map pins, but must not group older list entries
       // ahead of newer businesses at a different venue.
-      const members = points.filter(hasValidCoordinates)
+      allMembers = points.filter(hasValidCoordinates)
         .flatMap(point => pointMembers(point).map(member => ({point, member})))
-        .sort((a, b) => Number(b.member.id) - Number(a.member.id));
-      members.forEach(({point, member}) => {
+        .sort((a, b) => (Date.parse(b.member.publication_date) || 0) - (Date.parse(a.member.publication_date) || 0) || Number(b.member.id) - Number(a.member.id));
+      allMembers.slice(0, visibleLimit).forEach(({point, member}) => {
         if (member.id === null || member.id === undefined || seen.has(String(member.id))) return;
         seen.add(String(member.id));
         const row = document.createElement("li"); row.className = "home-explorer-card";
@@ -2039,6 +2051,7 @@
         button.addEventListener("click", () => selectMember(member.id, true));
         if (String(member.id) === String(selectedId)) selected = record;
       });
+      list.scrollTop = scrollTop;
       updateSelection(); setStatus("ready");
       if (resultStatus) {
         const count = businessCount(points);
@@ -2062,6 +2075,7 @@
     }
     setView(view, false); setPoints(sharedState.places);
     return {setPoints, selectPoint, selectMember, setStatus,
+      showMore:() => { if (visibleLimit < allMembers.length) { visibleLimit += 10; setPoints(currentPoints); } },
       getSelectedMemberId:() => selected?.member.id ?? null,
       clearSelection:() => { selected = null; updateSelection(); },
       showMap:() => setView("map", false)};
@@ -2085,10 +2099,14 @@
     if (pagingControl && window.KidsMapPaging) {
       const metadata = JSON.parse(document.getElementById('home-map-page')?.textContent || '{}');
       homePaging = window.KidsMapPaging.create({
-        control:pagingControl, initial:{...metadata,points:sharedState.places}, autoLoad:true,
+        control:pagingControl, initial:{...metadata,points:sharedState.places},
         getParams:()=>new URLSearchParams(new FormData(document.querySelector('[data-home-map-filter-form]'))),
-        onChange:(points,meta)=>{ sharedState.places=points; homeExplorer?.setPoints(points); sharedState.applyPage?.(points,meta); updateLiveCount(meta.count); if (pendingFocusPlaceId && points.length && activeMapFocusHandler) { const target=pendingFocusPlaceId; pendingFocusPlaceId=null; activeMapFocusHandler(target); } },
+        onChange:(points,meta)=>{ sharedState.places=points; homeExplorer?.setPoints(points, !meta.append); sharedState.applyPage?.(points,meta); updateLiveCount(meta.count); if (pendingFocusPlaceId && points.length && activeMapFocusHandler) { const target=pendingFocusPlaceId; pendingFocusPlaceId=null; activeMapFocusHandler(target); } },
       });
+      const list = document.querySelector('[data-home-map-list]');
+      list?.addEventListener('scroll', () => {
+        if (list.scrollHeight - list.scrollTop - list.clientHeight < 100) homeExplorer?.showMore();
+      }, {passive:true});
     }
 
     // Hero search controls must work even while the map stays below the fold.

@@ -27,6 +27,25 @@ class PublicMapPagingTests(TestCase):
         self.assertEqual(response.status_code,200)
         return response.json()
 
+    def test_home_sends_all_pins_together_and_prioritizes_recent_publication(self):
+        from datetime import timedelta
+        now = timezone.now()
+        Place.objects.filter(pk__in=self.ids).update(published_at=now - timedelta(days=1))
+        Place.objects.filter(pk=self.ids[0]).update(published_at=now)
+        first = self.points(map_order='newest')
+        ids = [m['id'] for point in first['points'] for m in point['members']]
+        self.assertEqual(len(ids), 105)
+        self.assertEqual(ids[0], self.ids[0])
+        self.assertFalse(first['has_more'])
+        self.assertIsNone(first['next_cursor'])
+        all_ids = ids[:]
+        page = first
+        while page['has_more']:
+            page = self.points(map_order='newest', after=page['next_cursor'])
+            all_ids.extend(m['id'] for point in page['points'] for m in point['members'])
+        self.assertEqual(len(all_ids), 105)
+        self.assertEqual(set(all_ids), set(self.ids))
+
     def test_bounded_page_and_cursor_reach_all_public_businesses_once(self):
         first=self.points()
         ids=[m['id'] for p in first['points'] for m in p['members']]
@@ -47,11 +66,14 @@ class PublicMapPagingTests(TestCase):
         first = self.points(map_order='newest')
         ids = [m['id'] for p in first['points'] for m in p['members']]
         expected = sorted(self.ids, reverse=True)
-        self.assertEqual(ids, expected[:100])
+        self.assertEqual(ids, expected)
         self.assertNotIn(self.private, ids)
-        second = self.points(map_order='newest', after=first['next_cursor'])
-        tail = [m['id'] for p in second['points'] for m in p['members']]
-        self.assertEqual(tail, expected[100:])
+        second = first
+        tail = []
+        while second['has_more']:
+            second = self.points(map_order='newest', after=second['next_cursor'])
+            tail.extend(m['id'] for p in second['points'] for m in p['members'])
+        self.assertEqual(tail, [])
         self.assertEqual(ids + tail, expected)
         self.assertFalse(second['has_more'])
         self.assertIsNone(second['next_cursor'])
@@ -64,7 +86,8 @@ class PublicMapPagingTests(TestCase):
         response = self.client.get('/en/')
         points = response.context['map_places']
         ids = [m['id'] for p in points for m in p['members']]
-        self.assertEqual(ids, sorted(self.ids, reverse=True)[:100])
+        self.assertEqual(ids, sorted(self.ids, reverse=True))
+        self.assertFalse(response.context['home_map_page']['has_more'])
         self.assertContains(response, 'name="map_order" value="newest"')
 
     def test_initial_html_is_bounded_and_counts_do_not_call_unloaded_places_missing(self):
@@ -74,7 +97,7 @@ class PublicMapPagingTests(TestCase):
                 self.assertEqual(response.status_code,200)
                 context=response.context
                 points=context['map_places'] if url=='/en/' else context['catalog_map_places']
-                self.assertEqual(sum(len(p['members']) for p in points),100)
+                self.assertEqual(sum(len(p['members']) for p in points),105 if url=='/en/' else 100)
                 self.assertLess(len(response.content),1_000_000)
                 if url=='/en/catalog/':
                     self.assertEqual(context['results_total'],105)

@@ -31,6 +31,30 @@ test('list uses every actual member once, including shared-venue members and bac
  assert.match(t.d.querySelector('[data-home-map-list]').textContent,/6–12 лет/);
  assert.equal(t.d.querySelectorAll('[data-home-map-list] img').length,0,'no invented thumbnail');t.close();
 });
+test('list orders by publication date even when a recently published draft has an older id',()=>{
+ const old=member(50), recent=member(3); old.publication_date='2026-10-01T00:00:00Z'; recent.publication_date='2026-10-30T00:00:00Z';
+ const t=setup([point(50,[old]),point(3,[recent])]);
+ assert.deepEqual([...t.d.querySelectorAll('[data-home-map-member-id]')].map(x=>x.dataset.homeMapMemberId),['3','50']); t.close();
+});
+test('all loaded places stay available on the map while the list reveals ten at a time',()=>{
+ const t=setup(Array.from({length:25},(_,i)=>point(i+1)));
+ const list=t.d.querySelector('[data-home-map-list]');
+ assert.equal(list.querySelectorAll('li').length,10);
+ Object.defineProperties(list,{scrollHeight:{value:1000},clientHeight:{value:400},scrollTop:{value:550,writable:true}});
+ list.dispatchEvent(new t.w.Event('scroll'));
+ assert.equal(list.querySelectorAll('li').length,20);
+ t.close();
+});
+test('scrolling reveals only list cards without requesting or redrawing map data',()=>{
+ const t=setup(Array.from({length:25},(_,i)=>point(i+1)));
+ assert.equal(t.requests.length,0);
+ const list=t.d.querySelector('[data-home-map-list]');
+ Object.defineProperties(list,{scrollHeight:{value:1000},clientHeight:{value:400},scrollTop:{value:550,writable:true}});
+ list.dispatchEvent(new t.w.Event('scroll'));
+ assert.equal(t.requests.length,0);
+ assert.equal(t.d.querySelectorAll('[data-home-map-list] li').length,20);
+ list.dispatchEvent(new t.w.Event('scroll')); assert.equal(t.requests.length,0); t.close();
+});
 test('payload names are text and unsafe image/detail URLs are rejected',()=>{
  const bad=member(7,'<img src=x onerror=alert(1)>');bad.url='javascript:alert(1)';bad.image_url='data:image/svg+xml,<svg onload=alert(1)>';
  const t=setup([point(7,[bad])]);const list=t.d.querySelector('[data-home-map-list]');

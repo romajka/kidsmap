@@ -359,6 +359,7 @@ MIDDLEWARE = [
     "config.middleware.AdminLocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "catalog.auth_throttle_middleware.AuthThrottleMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "catalog.r1_middleware.R1WriteCohortMiddleware",
     "catalog.volunteer_middleware.VolunteerAccessMiddleware",
@@ -471,6 +472,14 @@ if not DEBUG:
         raise ImproperlyConfigured("DJANGO_SECRET_KEY must be set to a strong non-placeholder value when DJANGO_DEBUG=0.")
     if _has_default_db_credentials():
         raise ImproperlyConfigured("Replace default database credentials before running with DJANGO_DEBUG=0.")
+
+# Only immediate proxy addresses that overwrite X-Real-IP belong here.
+# Keep the application port private; never trust arbitrary client forwarding headers.
+AUTH_THROTTLE_TRUSTED_PROXIES = _env_list('AUTH_THROTTLE_TRUSTED_PROXIES')
+AUTH_THROTTLE_LIMITS = {
+    'login': {'window': 15 * 60, 'ip': 60, 'identity': 12},
+    'reset': {'window': 60 * 60, 'ip': 20, 'identity': 3},
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
