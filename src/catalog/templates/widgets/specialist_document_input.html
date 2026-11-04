@@ -1,0 +1,11 @@
+{% load i18n %}
+<div class="specialist-documents" data-specialist-documents
+     data-selected-label="{% trans 'Выбрано файлов:' %}"
+     data-remove-label="{% trans 'Удалить' %}"
+     data-invalid-label="{% trans 'Не добавлены: нужны непустые PDF, PNG или JPEG до 10 МБ.' %}">
+  <input type="{{ widget.type }}" name="{{ widget.name }}"{% include 'django/forms/widgets/attrs.html' %}>
+  <small>{% trans 'PDF, PNG или JPEG. Максимум 10 МБ на файл.' %}</small>
+  <p data-document-status role="status" aria-live="polite"></p>
+  <ul data-document-files></ul>
+  <p data-document-error role="alert"></p>
+</div>

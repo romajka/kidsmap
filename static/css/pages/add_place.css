@@ -726,8 +726,12 @@
   .add-place-btn-primary,
   .add-place-btn-secondary {
     width: 100%;
-    min-height: 44px;
+    min-height: 46px;
+    padding: 0 14px;
+    gap: 6px;
+    font-size: 14px;
     justify-content: center;
+    white-space: nowrap;
   }
 
   .add-place-stats-grid {
@@ -799,6 +803,7 @@
     gap: 8px;
   }
 
+  .add-place-cta-card,
   .add-place-bottom-cta {
     padding: 20px 16px;
     border-radius: 18px;
@@ -814,7 +819,11 @@
   .add-place-cta-btn-white,
   .add-place-cta-btn-outline {
     width: 100%;
-    min-height: 44px;
+    min-height: 46px;
+    padding: 0 14px;
+    gap: 6px;
+    font-size: 14px;
     justify-content: center;
+    white-space: nowrap;
   }
 }

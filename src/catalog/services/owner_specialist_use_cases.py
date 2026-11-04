@@ -61,13 +61,17 @@ def save_owner_specialist_profile(
     draft_save_only: bool,
     expected_updated_at: str | None = None,
     locations=None,
+    proposal_draft=None,
 ) -> OwnerSpecialistResult:
     with transaction.atomic():
         user = specialist_domain.lock_actor(user)
         is_new = form.instance.pk is None
         if not is_new:
             locked = Specialist.objects.select_for_update().get(pk=form.instance.pk)
-            specialist_domain.require_person(user, locked)
+            if proposal_draft is not None:
+                specialist_domain.require_proposal_revision(user, locked, proposal_draft)
+            else:
+                specialist_domain.require_person(user, locked)
             if expected_updated_at is not None and expected_updated_at != locked.updated_at.isoformat():
                 from django.core.exceptions import ValidationError
                 raise ValidationError(_("Запись изменилась. Обновите страницу."), code='stale_version')

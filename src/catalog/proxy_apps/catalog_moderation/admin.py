@@ -47,6 +47,8 @@ class PendingModerationAdminMixin:
         return False
 
     def get_actions(self, request):
+        if not self.has_change_permission(request):
+            return {}
         actions = {}
         for name in self.moderation_actions:
             action = self.get_action(name)
@@ -54,8 +56,11 @@ class PendingModerationAdminMixin:
                 actions[name] = action
         return actions
 
-    @admin.action(description=_("Вернуть на доработку"))
+    @admin.action(permissions=['change'], description=_("Вернуть на доработку"))
     def return_for_revision(self, request, queryset):
+        if not self.has_change_permission(request):
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied
         self.mark_draft(request, queryset)
 
     def changelist_view(self, request, extra_context=None):
@@ -136,12 +141,31 @@ class ModerationSpecialistAdmin(PendingModerationAdminMixin, SpecialistAdmin):
     moderation_empty_description = _("Профили, отправленные на модерацию, будут показаны здесь.")
     moderation_actions = ("mark_published", "mark_rejected", "return_for_revision")
 
+    @admin.action(permissions=['change'], description=_("Вернуть на доработку"))
+    def return_for_revision(self, request, queryset):
+        from catalog.services.specialist_proposal_drafts import return_for_revision
+        from django.core.exceptions import ValidationError
+        from django.contrib import messages
+        actor = self._require_moderation_permission(request)
+        returned = 0
+        for specialist_id in queryset.values_list('pk', flat=True):
+            try:
+                return_for_revision(actor=actor, specialist_id=specialist_id)
+            except ValidationError as exc:
+                self.message_user(request, '; '.join(exc.messages), level=messages.WARNING)
+            else:
+                returned += 1
+        if returned:
+            self.message_user(request, _("Анкеты возвращены авторам на доработку."))
+
     def get_queryset(self, request):
         return super().get_queryset(request).filter(status=Specialist.STATUS_PENDING)
 
     def get_list_display(self, request):
         from catalog.services.specialist_documents import can_review_documents
         cols = ["profile_column", "directions_column", "owner", "format_badge"]
+        if self._can_review_identity(request.user):
+            cols.insert(3, 'identity_review_column')
         if can_review_documents(request.user):
             cols.append("documents_count")
         cols.append("row_actions")

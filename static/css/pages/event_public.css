@@ -30,3 +30,11 @@
   .event-mobile-registration .event-registration-btn { width: 100%; }
   .event-detail-page--registration { padding-bottom: 95px; }
 }
+
+/* Match public cards: quiet green links and clear touch targets. */
+.event-detail-page a:not(.btn) { color:var(--brand-spruce,#136f38); text-underline-offset:3px; }
+.event-detail-page .event-detail-summary a,
+.event-detail-page .event-detail-card a { display:inline-flex; align-items:center; min-height:44px; }
+.event-detail-page .event-registration-btn,
+.event-mobile-registration .event-registration-btn { border-radius:12px; background:var(--brand-spruce,#136f38); box-shadow:none; color:#fff; }
+.event-detail-page a:focus-visible,.event-mobile-registration a:focus-visible { outline:2px solid var(--brand-spruce,#136f38); outline-offset:3px; }

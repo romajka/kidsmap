@@ -68,8 +68,8 @@ class SocialMetadataTests(Module11Fixture):
         for lang in ('az','ru','en'):
             with self.subTest(lang=lang):
                 r=self.response(self.event,lang);head=Head(r.content.decode());expected=build_public_absolute_uri(r.wsgi_request,self.event.photo.url);self.assertEqual(head.one('og:image'),expected);self.assertEqual(head.one('twitter:image'),expected)
-    def test_event_without_photo_keeps_absolute_default_image(self):
-        self.event.photo='';self.event.save(update_fields=['photo']);r=self.response(self.event);head=Head(r.content.decode());self.assertTrue(head.one('og:image').startswith('http'));self.assertTrue(head.one('og:image').endswith('/static/img/logo.svg'));self.assertEqual(head.one('og:image'),head.one('twitter:image'))
+    def test_event_without_photo_does_not_substitute_the_site_logo(self):
+        self.event.photo='';self.event.save(update_fields=['photo']);r=self.response(self.event);head=Head(r.content.decode());self.assertNotIn('og:image',head.meta);self.assertNotIn('twitter:image',head.meta);self.assertEqual(head.one('twitter:card'),'summary')
     def test_social_description_attributes_escape_untrusted_quotes(self):
         attack='M11 quote " onerror="alert(1) <script>fictional()</script> & text'
         self.spec.bio_az=attack;self.spec.save(update_fields=['bio_az']);r=self.response(self.spec);head=Head(r.content.decode());self.assertEqual(head.one('og:description'),head.one('description'));self.assertEqual(head.one('twitter:description'),head.one('description'));self.assertNotIn('meta',head.bad)

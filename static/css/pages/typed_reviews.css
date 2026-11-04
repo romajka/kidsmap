@@ -133,7 +133,9 @@
 }
 
 .typed-reviews__stars-visual {
-  color: #f59e0b;
+  position: relative;
+  display: inline-block;
+  color: #cbd5e1;
   font-size: 16px;
   letter-spacing: 2px;
   margin: 6px 0 4px;
@@ -740,3 +742,8 @@
     padding: 18px;
   }
 }
+
+.typed-reviews__stars-fill { position:absolute; inset:0 auto 0 0; width:var(--rating-percent, 0%); overflow:hidden; white-space:nowrap; color:#b77900; }
+.typed-reviews__guest { padding:20px; background:var(--surface, #fff); border:1px solid #dce7e0; border-radius:16px; }
+.typed-reviews__guest h2 { margin:0 0 8px; font-size:20px; }
+.typed-reviews__guest p { margin:0 0 16px; }

@@ -6,6 +6,10 @@ Set published once on the actual first public release; local previews leave it
 unset. Later editorial changes update only updated.
 """
 
+from catalog.parent_guide_parks import PARKS_GUIDE
+from catalog.parent_guide_museums import MUSEUMS_GUIDE
+from catalog.parent_guide_play_centers import PLAY_CENTERS_GUIDE
+
 _LABELS = {'az': {'catalog_label': 'Kataloqa bax',
         'topic_link_label': 'Məkanlara bax',
         'suggest_label': 'Məkan təklif et',
@@ -21,7 +25,7 @@ _LABELS = {'az': {'catalog_label': 'Kataloqa bax',
         'editorial_label': 'KidsMap redaksiyası',
         'toc_places': 'Məkanlar',
         'mobile_topics_label': 'Seçim',
-        'mobile_catalog_label': 'Məkanlar',
+        'mobile_catalog_label': 'Kataloq',
         'mobile_faq_label': 'Suallar'},
  'ru': {'catalog_label': 'Открыть каталог',
         'topic_link_label': 'Посмотреть места',
@@ -55,7 +59,7 @@ _LABELS = {'az': {'catalog_label': 'Kataloqa bax',
         'editorial_label': 'KidsMap editorial team',
         'toc_places': 'Places',
         'mobile_topics_label': 'Explore',
-        'mobile_catalog_label': 'Places',
+        'mobile_catalog_label': 'Directory',
         'mobile_faq_label': 'FAQ'}}
 
 GUIDE_PAGES = {
@@ -63,6 +67,8 @@ GUIDE_PAGES = {
         'published': '2026-10-22',
         'updated': '2026-10-22',
         'hero_image': 'img/guides/sport-hero.webp',
+        'hero_width': 1536,
+        'hero_height': 1024,
         'categories': ['SPRT', 'dance'],
         "translations": {
             'az': {
@@ -304,6 +310,8 @@ GUIDE_PAGES = {
         'published': '2026-10-22',
         'updated': '2026-10-26',
         'hero_image': 'img/guides/family-hero.webp',
+        'hero_width': 1536,
+        'hero_height': 1024,
         'categories': ['FUN', 'parks-playgrounds', 'museums-culture', 'ZOO', 'water-leisure', 'excursions-tours'],
         "translations": {
             'az': {
@@ -584,5 +592,29 @@ GUIDE_PAGES = {
                 'places_intro': 'Confirm opening times and admission with the venue before visiting.',
             },
         },
+    },
+}
+
+GUIDE_PAGES['parks'] = {
+    **PARKS_GUIDE,
+    'translations': {
+        language: {**_LABELS[language], **copy}
+        for language, copy in PARKS_GUIDE['translations'].items()
+    },
+}
+
+GUIDE_PAGES['museums'] = {
+    **MUSEUMS_GUIDE,
+    'translations': {
+        language: {**_LABELS[language], **copy}
+        for language, copy in MUSEUMS_GUIDE['translations'].items()
+    },
+}
+
+GUIDE_PAGES['play-centers'] = {
+    **PLAY_CENTERS_GUIDE,
+    'translations': {
+        language: {**_LABELS[language], **copy}
+        for language, copy in PLAY_CENTERS_GUIDE['translations'].items()
     },
 }

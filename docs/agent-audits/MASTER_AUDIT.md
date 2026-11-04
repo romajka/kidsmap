@@ -1,3 +1,75 @@
+# KidsMap — готовность сайта, 2026-11-02
+
+Решение: действующий каталог пригоден для использования. Главные открытые задачи — актуальность контента, цены, пустые разделы и подтверждение эксплуатационной готовности. Полная готовность всех кабинетов, внешних интеграций, восстановления и коммерческого роста не подтверждена. Критических сбоев или обхода авторизации в проверенной выборке не обнаружено; это не полный аудит безопасности.
+
+Текущий этап READ-ONLY: приложение, данные и конфигурация production не менялись. Изменён только этот отчёт. Предыдущие изменения названий категорий и счётчика относятся к отдельно завершённой работе в этой беседе.
+
+## Снимок и доказательства
+
+- LOCAL HEAD: `9cecbe15205c76fb7b9d0cc4416b9cd0f7808366`, ветка `codex/admin-draft-recovery-2026-10-26`; девять исходно изменённых файлов сохранены. Локальные тесты относятся к WORKTREE, не к чистому HEAD.
+- PRODUCTION: образ `kidsmap:catalog-count-20261102`, метка `9cecbe15205c-catalog-count-20261102`; патч счётчика пока не зафиксирован в Git. Семь проверенных файлов сервисов авторизации, удаления, доступа, расписаний, поиска и готовности совпали с локальными по хешам. Полное совпадение всех исходников не утверждается.
+- Проверены живые главная, карта, каталог, поиск British (четыре результата), мобильная панель фильтров, карточка British Academy, пустые разделы организаций и специалистов. Мобильный браузер: 390×844; это не тест физических устройств.
+- Read-only PostgreSQL: агрегаты через публичный queryset, явные read-only транзакции и таймауты. Публично доступны 128 мест; внутренний статус published у 139 записей сам по себе не означает публичную видимость. Ожидающих миграций нет.
+- Свежие LOCAL проверки: 66 backend + 91 security = 157 PASS, изолированные SQLite/cache/media/email, без production credentials. PostgreSQL-конкурентность и полный набор тестов не запускались; SQLite предупреждает о неподдерживаемом NULLS DISTINCT.
+- Backend: place_readiness, test_owner_readiness_projection, test_place_age_program, test_filtered_tariff_presentation, test_public_map_paging. Security: test_email_verification_consumption, test_google_auth, test_password_reset, test_task33_specialist_privacy, test_task33_specialist_security_review, test_project_fixes_email.EmailChangeChallengeTests.
+- Исполнители: ведущий `/root`, django-reviewer, security-reviewer, seo-reviewer по каноническим определениям. Production SSH/браузер проверял ведущий; SEO-специалист независимо выполнял публичные GET. Их локальные результаты не представлены как production acceptance.
+- Детальные отчёты текущей сессии: `/tmp/kidsmap-readiness-backend-20261102.json`, `/tmp/kidsmap-readiness-security-20261102.json`, `/tmp/kidsmap-readiness-seo-20261102.json` (временные файлы). Уточнение к security-отчёту: последующая проверка ведущего выявила ноль заявок на удаление, включая просроченные.
+
+## Таблица готовности
+
+«Готово» означает прохождение указанной проверки, а не сертификацию всей подсистемы. «Не проверено» не означает неисправность.
+
+| Область | Статус | Наблюдение и следующий шаг |
+|---|---|---|
+| Публичный каталог | Готово в выборке | 128 мест, карточки и поиск открываются. |
+| Визуальный интерфейс | Готово в выборке | Главная, каталог и карточка выглядят последовательно; полного редизайна не требуется. |
+| Мобильный интерфейс | Частично | Поиск, карточка и панель фильтров работают при 390×844; реальные Safari/Android не проверены. |
+| Карта | Готово в выборке | Google-карта отрисована, показано 128/128; у всех публичных мест есть координаты. Точность каждого пина не сверялась. |
+| Поиск и фильтры | Частично | Живой поиск работает; локальные проверки категории, возраста и тарифов проходят. Все сочетания на production не перебирались. |
+| Категории | Частично | 12 категорий, названия сокращены; спорт 55, развлечения 19, парки 17, музеи 15, образование 7, творчество 4, водный отдых 3, зоопарки/наука/театр по 2, поддержка/танцы по 1. Приоритет — наполнение существующих. |
+| Позиционирование | Требует правки | Главная обещает найти кружок, хотя каталог включает отдых и парки. Предлагается «Места и занятия для детей в Азербайджане». |
+| Обещания на главной | Требует правки | «Точное расписание и цены… без лишних звонков» не соответствует 48 карточкам с ценой по запросу. |
+| Организации и специалисты | Не готово по наполнению | Оба публичных раздела пусты и стоят в главной навигации. Скрыть до появления полезного наполнения либо наполнить. |
+| Основные поля карточек | Готово по заполнению | У всех 128 есть адрес, координаты и основное фото. Это не доказательство достоверности и прав на фото. |
+| Цены | Частично | Представление карточек: exact 11, free 15, from 30, custom 3, on_request 48, range 12, mixed 7, free_entry 2. Проверять по источникам, неизвестное не угадывать. |
+| Расписания | Частично | 97 регулярных расписаний имеют публичные строки; 13 по записи, 12 круглосуточных, по 3 событийных и переменных. Фактические часы с учреждениями не сверялись. |
+| Актуальность сведений | Частично | У 113/128 нет last_verified_at, за последние 30 дней отмеченных проверок нет. Это отсутствие зафиксированной проверки, не доказанная устарелость. |
+| Контакты | Частично | Восемь мест без публичных контактов — все парки/площадки, что само по себе допустимо. Доставка звонков/WhatsApp не проверялась. |
+| Переводы | Частично | По одной карточке без RU/EN названия и описания; в RU-подборке обнаружен AZ-фрагмент. Нужна редакторская вычитка. |
+| Отзывы и доверие | Частично | На главной четыре отзыва — пока слабая база для выбора по рейтингу. Нужен сбор настоящей обратной связи. |
+| Работа с владельцами | Частично | У пяти публичных мест заполнена связь владельца. Активность партнёров и договорённости не проверены. |
+| Регистрация, почта, Google-вход | Частично | 91 локальная проверка security-группы прошла; настоящая доставка писем и внешний OAuth не проверены. |
+| Модерация и публикация | Частично | Изучены версии, транзакции и повторная проверка прав; полный браузерный цикл и PostgreSQL-гонки не запускались. |
+| HTTPS и приватные файлы | Готово в проверенной границе | DEBUG выключен, secure cookies и HTTPS redirect включены. Приватные mounts сохранены, прямых nginx aliases на них нет, локальные ACL-тесты проходят. |
+| Ограничение попыток входа | Требует доработки/подтверждения | Не найдено отдельных ограничений login/reset в приложении и активном nginx. Внешний WAF неизвестен; атакующие проверки не проводились. |
+| Удаление аккаунтов | Частично | Политика включена; автоматический process_account_deletions не найден в проверенных cron/systemd/контейнерах. Внешний запуск неизвестен. Сейчас заявок и просрочек ноль. |
+| Правила и конфиденциальность | Частично | Страницы есть; RU/EN формулировка cookies «только функциональные» расходится с описанием GA. Юридическая проверка и права на контент не проводились. |
+| Техническое SEO | Готово в выборке | Robots и sitemap 200; 445 уникальных URL. У 15 проверенных страниц корректные title/H1/canonical/hreflang и разбираемый JSON-LD; это не полный обход sitemap. |
+| SEO-тексты | Частично | В примере description обрезан посреди слова до «6–14 ле». Исправить обрезку и языковые fallback. |
+| Индексация и поисковый спрос | Не проверено | Текущий Search Console, позиции, запросы и поисковый трафик не проверялись. Sitemap не доказывает индексацию. |
+| Аналитика | Частично | GA4 настроен, Yandex выключен. Получение событий и воронка поиск → карточка → контакт не подтверждены. |
+| Скорость и нагрузка | Не проверено | Отрисовка наблюдалась; Core Web Vitals, нагрузочный тест и ёмкость сервера не измерялись. |
+| Доступность | Не проверено полностью | Нет полной проверки клавиатуры, скринридера и контраста. |
+| Сервер и схема БД | Готово в проверенной границе | Web/DB/Redis работают, DB/Redis healthy, перезапусков 0, свободно 47,9 GiB; ожидающих миграций нет. |
+| Резервные копии | Частично | Два backup-задания, свежий файл от 02.11 02:15 UTC. Восстановление не тестировалось, внешняя копия не подтверждена. |
+| Мониторинг | Не подтверждено | В проверенных заданиях не найден мониторинг доступности; внешние сервисы и уведомления неизвестны. |
+| Воспроизводимый выпуск | Частично | Текущий патч production не закоммичен; локальное дерево содержит отдельные изменения карты. Нужен согласованный выпуск из зафиксированного состояния. |
+| Продвижение и монетизация | Не проверено | Нет проверенных текущих данных о привлечении, конверсии, удержании и выручке. Нельзя считать коммерческую готовность доказанной только работающим каталогом. |
+
+## Порядок работ
+
+1. Убрать пустые направления из главного меню до наполнения; исправить позиционирование и обещания о ценах/расписании.
+2. Организовать проверку карточек: цена, расписание, возраст, источник и дата проверки; начать с наиболее востребованных мест. Добавлять полезное наполнение в малые категории, не дробить их дальше.
+3. Проверить внешние ограничения входа/reset и назначить ответственный процесс удаления аккаунтов; при отсутствии реализовать и протестировать отдельно.
+4. Провести восстановление из резервной копии в изоляции, подтвердить внешнее хранение и уведомления о сбоях; оформить воспроизводимый Git-релиз.
+5. Пройти настоящую регистрацию/восстановление/Google-вход и цикл владельца; проверить аналитику контактов, Search Console и скорость перед увеличением рекламы.
+
+Все изменения приложения и production остаются рекомендациями. Этот аудит не даёт разрешения на их внедрение.
+
+---
+
+Ниже сохранён исторический отчёт. Его старые дефекты и ограничения не следует автоматически переносить на состояние 2026-11-02.
+
 # KidsMap — LOCAL acceptance,2026-10-19
 
 Git publication follow-up2026-10-19: user explicitly authorized committing/pushing all completed work to the current codex/module09-transfer-2026-10-16-r1 branch. The implementation acceptance below is historical at base75c6c18; production remains excluded. Versioned plan: docs/plans/project-fixes-2026-10-19.md; complete sanitized report: docs/reports/project-fixes-2026-10-19.md. Raw QA/runtime evidence stays local ignored. No main merge or deploy is authorized.
@@ -136,3 +208,57 @@ Named next owners: Django/security for identity and custom admin boundaries; rel
 - P3/candidates: measured Activity sitemap query scaling, diagnostic coverage/schema enrichment, contract consolidation. Unmeasured risks are not promoted to confirmed findings.
 
 Recommendation: remediate the P1 boundaries/storage risk first; source and current test success do not authorize production release. Preserve module closure and existing work; stop at recommendations. The previous decision pointer is preserved in local `docs/qa/project-audit-2026-10-19/master-before.md`.
+
+## Specialist onboarding E2E — 2026-11-04
+
+New bounded AUDIT ONLY; previous entries and dirty application work preserved. LOCAL HEAD `b7659e79` plus dirty WORKTREE, production NOT RUN. Lead `/root` (kidsmap-orchestrator), support `/root/specialist_backend_audit` (django-reviewer).
+
+Decision/evidence: [specialist-e2e-audit-2026-11-04.md](../reports/specialist-e2e-audit-2026-11-04.md), [backend audit](../reports/specialist-backend-audit-2026-11-04.md). Synthetic browser journey covers homepage, registration/local email code, login, draft, photo, self/other submission, admin publication, queue removal, separate identity approval, document upload/review/private access and public display. PostgreSQL targeted suite 108/108 PASS, repeated after source capture; rendered RU/AZ/EN × five widths for owner and admin, with additional final owner pass. No application fixes/commit/push/deploy.
+
+**P1 SP-01:** staff with view_specialist but no change_specialist can publish through both admin lists (isolated HTTP/DB proof). P2: return-for-revision does not restore first applicant editing; publication and identity decisions are poorly connected and review omits applicant identity; readiness says 100% without required offline location; auth drops next; invalid phone accepted; admin document table and mobile layout broken; document upload feedback and public-visibility badge misleading. Main journey submits/publishes successfully and published item leaves pending queue, but that is not complete UX/security acceptance. Fix authorization and revision lifecycle first; implementation awaits user's scope decision.
+
+## 2026-11-04 — Specialist onboarding: APPROVED IMPLEMENT / LOCAL
+
+После прямого разрешения пользователя исправлены SP-01–SP-13 из сквозного аудита: server-side права действий обеих админок, возврат и повторная отправка той же анкеты, явная отдельная проверка личности с данными заявителя, readiness/телефон/next, документный uploader, responsive admin и реальная публичная видимость. Self по умолчанию без переключателя, компактная подсказка; legacy other drafts сохранены. Дополнительные реальные дефекты выбора места, восстановления subject и очистки направлений/языков устранены.
+
+Проверка:253 Django/PostgreSQL PASS;26 focused PASS после финального изменения контроллера;13 Node PASS; owner15 +admin21 responsive states AZ/RU/EN и3menu states, фактический регистрационный и moderation/document lifecycle. После параллельной правки owner CSS/template выполнена повторная матрица15. Исправления LOCAL WORKTREE поверх b7659e79a25d2ae8d23cd505ec46755683223c09; production/commit/push/deploy не выполнялись, чужие dirty изменения сохранены. Полный отчёт и границы: [specialist-onboarding-fixes-2026-11-04.md](../reports/specialist-onboarding-fixes-2026-11-04.md). Не распространять PASS на все модули или на будущие изменения общего checkout.
+
+
+## 2026-11-04 — Отдельная страница анкеты специалиста (LOCAL)
+
+По прямой просьбе пользователя форма create/resume/edit выведена из account shell. Возвращена sticky-навигация с готовностью слева на desktop, mobile disclosure с переносом фокуса.22 Django +15 Node PASS;16 responsive/language states +3 owner-edit states,0 overflow после исправления action-row на1024px. Draft save/reload и validation подтверждены в Chromium. [Отчёт](../reports/specialist-editor-layout-2026-11-04.md). Production не изменялся.
+
+
+## 2026-11-04 — Публичная карточка специалиста: AUDIT ONLY
+
+Вывод: нужны исправления перед выпуском. Найден P1 HTML/XSS sink в карте (accepted form → rendered EN callback → bounded provider stub), P2 locale coordinates/RU-AZ map failure, неверные rating stars, WhatsApp formatting, price/age edge rendering. Browser подтвердил mobile порядок условий после отзывов, guest-review auth dead end и keyboard-inaccessible rating.42 existing tests +6 isolated probes; каталог→карточка и review submit→admin approve→public пройдены. Новые findings не исправлены. [Отчёт и локальная демо-ссылка](../reports/specialist-public-e2e-2026-11-04.md). Сервер демо оставлен включённым для пользователя. Production не изменялся.
+
+
+## 2026-11-04 — Specialist mobile public: APPROVED IMPLEMENT / LOCAL
+
+По прямому запросу пользователя исправлены публичные PUB-B01–B07 и мобильные UX-находки: безопасная/локализованная карта, цены/возраст/рейтинг/контакты, компактная карточка с закреплёнными CTA, guest login до отзыва, native keyboard rating. Дополнительно реальный browser401→новый вход→retry выявил CSRF rotation403: исправлен актуальный token без потери текста. В каталоге исправлены dialog/focus/inert/Escape и keyboard dropdown options.
+
+[Отчёт и ограничения](../reports/specialist-mobile-public-2026-11-04.md). Полный найденный specialist корпус **185 PostgreSQL PASS**, отдельная shared integration **71 PASS**, **31 Node PASS**. Первые11 failures/errors полного SQLite-прогона были PostgreSQL guards/concurrency lock; assertions не ослаблялись, полный повтор на disposablePG успешен. Browser:21RU/AZ/EN responsive profiles,9catalog,5long-text widths, настоящие login/network/retry/review moderation + документы200/404. Принятая редакция появляется публично и больше не ожидает решения. XSS/numeric-map browser proof использует ограниченный provider stub.
+
+LOCAL dirty WORKTREE поверхb7659e79;13файлов зафиксированы хешами в scratch/source-final.json. Несвязанный dirty work сохранён. Продакшен, физические телефоны/Safari/Firefox и настоящий внешний Google provider NOT RUN. PUB-M01 скрытое Place.name без ссылки сохраняет прежний продуктовый контракт. Preview8894 оставлен для оценки; синтетические данные не публиковались вне локального стенда.
+
+
+## 2026-11-04 — Specialist soft motion follow-up / LOCAL
+
+User requested gentle animation details. Scoped CSS-only motion + stylesheet cache version, no business changes. [Report](../reports/specialist-soft-motion-2026-11-04.md): normal320/390/768/1440, reduced320/390/1440 browserPASS; no overflow/pageerror, native keyboard disclosure and fixed CTA preserved;11existingJS regressionsPASS. The two deliberate source updates supersede their earlier mobile acceptance hashes; current hashes in `.tmp/specialist-motion-20261104/source-final.json`. Production NOT RUN.
+
+## 2026-11-04 — Публичный сайт: мобильный AUDIT ONLY
+
+[Сводный отчёт](../reports/public-mobile-audit-2026-11-04.md). LOCAL dirty WORKTREE поверх `b7659e79`; production NOT RUN. Root + browser-qa + frontend-reviewer: **249 валидных сочетаний страницы/языка/ширины**, без горизонтального переполнения; отдельные функциональные сценарии и просмотр screenshots. Исходный specialist preview8894 сохранён; общая проверка на отдельной копии8896 с синтетическими местами/событиями/организациями. Это не249 сквозных сценариев и не полная сертификация сайта.
+
+**P1:** FAQ ложно подтверждает отправку, запросов вообще нет. **P2:** неправильные summary stars и отсутствующий автор в typed reviews; keyboard dropdown в организациях и каталоге; «Сегодня закрыто» вместо статуса текущего момента; гостевой тупик отзывов; низкое расположение цены/контакта занятия; FAQ игнорирует reduced motion. P3: плотность входа/FAQ, мобильный календарь, разное оформление действий, одинаковые подписи гидов, поиск/числительные организаций. Всего1P1/7P2/5P3; UX-оценки явно отделены от функциональных ошибок.
+
+Подготовлен конкретный план исправлений и приёмки, application changes в этом аудите не выполнялись. В соответствии с canonical audit contract остановка на рекомендациях до решения пользователя. Реальные телефоны, Safari/Firefox, внешние OAuth/Maps/email и production не проверены; пустоты от незавершённых reveal и неверные тестовые locale-slug исключены как ложные срабатывания.
+
+## 2026-11-04 — Публичный mobile: APPROVED IMPLEMENT / LOCAL
+
+По прямому разрешению пользователя исправлены все 13 пунктов предыдущего аудита. [Итоговый отчёт](../reports/public-mobile-fixes-2026-11-04.md): FAQ без ложного получения обращения; корректные звёзды/автор/гостевой вход; статус расписания; keyboard dropdown и reduced motion; компактные auth/FAQ, календарь, контакты занятия, поиск организаций и оформление событий. Дополнительно исправлена подтверждённая browser-негативным сценарием утечка языка ошибок LoginForm между запросами.
+
+166 PostgreSQL regression PASS; затем 10 focused PASS и окончательные 54 auth/focused PASS (пересекающиеся наборы, не суммировать). 21 JS PASS. 283 responsive states без overflow/broken complete images/pageerror/local HTTP errors, отдельные функциональные и негативные проверки; последние изменения дополнительно проверены на затронутых страницах. Один исполнитель, независимый повторный аудит не заявляется.
+
+LOCAL dirty WORKTREE поверх b7659e79; 25 файлов зафиксированы source-final.json. Прежний и параллельный dirty work сохранён. Preview8894 и8896 работают; disposable PostgreSQL после тестов остановлен. Production/deploy/реальные устройства/Safari/Firefox/внешние отправки NOT RUN. Все согласованные находки закрыты в проверенной области, без обещания отсутствия любых ошибок.

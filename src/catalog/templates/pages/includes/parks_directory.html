@@ -1,0 +1,99 @@
+{% load static %}
+<section id="guide-districts" class="pg-section pg-directory" aria-labelledby="guide-directory-title">
+  <div class="pg-section-heading">
+    <div>
+      <span class="pg-directory__count"><svg class="pg-badge-ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>{{ guide.directory_count_label }}: {{ guide_directory_count }}</span>
+      <h2 id="guide-directory-title">{{ guide.directory_title }}</h2>
+    </div>
+    <p>{{ guide.directory_intro }}</p>
+  </div>
+  {% if guide_directory %}
+  <nav class="pg-quick" aria-label="{{ guide.directory_nav_label }}">
+    {% for group in guide_directory %}<a href="#park-area-{{ group.key }}"><span class="pg-quick__pin" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span><span>{{ group.label }}</span><span class="pg-quick__count">{{ group.places|length }}</span></a>{% endfor %}
+  </nav>
+  <div class="pg-directory__groups">
+    {% for group in guide_directory %}
+    <details class="pg-district" id="park-area-{{ group.key }}">
+      <summary>
+        <span class="pg-district__title-wrap">
+          <span class="pg-district__pin" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+          <h3>{{ group.label }}</h3>
+        </span>
+        <span class="pg-district__meta">
+          <span class="pg-district__badge">{{ group.places|length }}</span>
+          <span class="pg-district__toggle" aria-hidden="true"><svg class="pg-chevron-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+        </span>
+      </summary>
+      <div class="pg-district__body">
+        <a class="pg-district__catalog" href="{{ group.url }}"><span>{{ guide.district_link_label }}</span><span class="pg-arrow" aria-hidden="true"><svg class="pg-ico-arrow" width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L10.5 3.5M10.5 3.5H5.5M10.5 3.5V8.5"/></svg></span></a>
+        <ul>
+          {% for place in group.places %}
+          <li data-park-directory-id="{{ place.id }}">
+            <div class="pg-directory__row">
+              <a class="pg-directory__place-title" href="{{ place.url }}" lang="{{ place.name_language }}">{{ place.name }}</a>
+              <span class="pg-directory__price" data-price-kind="{{ place.prices.kind }}">{% if place.prices.kind == 'free' or place.prices.kind == 'free_entry' %}<svg class="pg-price-check" width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 6.5L4.5 9L10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endif %}{{ place.prices.label|default:guide.price_unknown_label }}</span>
+            </div>
+            {% if place.description %}<p class="pg-directory__description" lang="{{ place.description_language }}">{{ place.description }}</p>{% endif %}
+            {% if place.address %}<p class="pg-directory__address"><svg class="pg-addr-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>{{ place.address }}</span></p>{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </details>
+    {% endfor %}
+  </div>
+  {% else %}<p>{{ guide.directory_empty }}</p>{% endif %}
+</section>
+
+<section id="guide-planning" class="pg-section pg-planning" aria-labelledby="guide-planning-title">
+  <div class="pg-section-heading">
+    <div>
+      <h2 id="guide-planning-title">{{ guide.planning_title }}</h2>
+    </div>
+    <p>{{ guide.planning_intro }}</p>
+  </div>
+  <div class="pg-planning__grid">
+    {% for item in guide.planning %}
+    <section class="pg-planning-card" aria-labelledby="guide-plan-{{ forloop.counter }}">
+      <div class="pg-planning-card__art">
+        <img src="{% static item.image %}" alt="{{ item.image_alt }}" width="720" height="480" loading="lazy" decoding="async">
+        <span class="pg-planning-card__tag">
+          {% if forloop.counter == 1 %}
+          <svg class="pg-plan-tag-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="8" cy="19" r="2"/>
+            <circle cx="18" cy="19" r="2"/>
+            <path d="M2 5h2.5l1.63 4.9a6 6 0 0 0 5.7 4.1h2.67a5.5 5.5 0 0 0 0-11h-.5v6"/>
+            <path d="M6 9h14"/>
+            <path d="M9 17l1-3"/>
+            <path d="M16 14l1 3"/>
+          </svg>
+          {% else %}
+          <svg class="pg-plan-tag-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="10" cy="5" r="2"/>
+            <path d="M3 17l5 1l.75-1.5"/>
+            <path d="M14 21v-4l-4-3l1-6"/>
+            <path d="M6 12v-3l5-1l3 3l3 1"/>
+            <circle cx="18.5" cy="19.5" r="1.5"/>
+          </svg>
+          {% endif %}
+          <span>{{ item.title }}</span>
+        </span>
+      </div>
+      <div class="pg-planning-card__body">
+        <h3 id="guide-plan-{{ forloop.counter }}">{{ item.title }}</h3>
+        <p>{{ item.text }}</p>
+        <ul class="pg-planning-card__bullets">
+          {% for tip in item.bullets %}
+          <li>
+            <span class="pg-plan-check" aria-hidden="true">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6.5L4.5 9L10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span>{{ tip }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+    {% endfor %}
+  </div>
+</section>

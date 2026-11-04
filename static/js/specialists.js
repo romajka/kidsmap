@@ -13,20 +13,37 @@
     var locFiltersContainer = document.getElementById("location-filters-container");
     var filtersForm = document.getElementById("filters-form");
 
-    function setDrawer(open) {
+    var mobileFilters = window.matchMedia("(max-width: 768px)");
+    function drawerFields() {
+      return Array.from(drawer.querySelectorAll('button, a[href], input:not([type="hidden"]), select, textarea, [tabindex="0"]')).filter(function (el) {
+        return !el.disabled && el.getAttribute("tabindex") !== "-1" && el.getClientRects().length > 0;
+      });
+    }
+    function setDrawer(open, restoreFocus) {
       if (!drawer || !overlay || !openButton) return;
+      open = Boolean(open && mobileFilters.matches);
       drawer.classList.toggle("is-open", open);
+      drawer.inert = mobileFilters.matches && !open;
       overlay.hidden = !open;
       document.body.classList.toggle("km-filter-lock", open);
-      openButton.setAttribute("aria-expanded", open ? "true" : "false");
+      openButton.setAttribute("aria-expanded", String(open));
       if (open) {
-        var firstField = drawer.querySelector("input, select, button, a");
+        drawer.setAttribute("role", "dialog");
+        drawer.setAttribute("aria-modal", "true");
+        var firstField = drawerFields()[0];
         if (firstField) firstField.focus();
       } else {
-        openButton.focus();
+        drawer.removeAttribute("role");
+        drawer.removeAttribute("aria-modal");
+        drawer.querySelectorAll(".km-custom-select.is-open").forEach(function (cs) {
+          cs.classList.remove("is-open");
+          cs.querySelector(".km-custom-select__trigger").setAttribute("aria-expanded", "false");
+        });
+        if (restoreFocus !== false && mobileFilters.matches) openButton.focus();
       }
     }
-
+    setDrawer(false, false);
+    mobileFilters.addEventListener("change", function () { setDrawer(false, false); });
     if (openButton) {
       openButton.addEventListener("click", function () { setDrawer(true); });
     }
@@ -34,8 +51,20 @@
       button.addEventListener("click", function () { setDrawer(false); });
     });
     document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape" && drawer && drawer.classList.contains("is-open")) {
+      if (!drawer || !drawer.classList.contains("is-open")) return;
+      if (event.key === "Escape") {
+        event.preventDefault();
         setDrawer(false);
+      } else if (event.key === "Tab") {
+        var fields = drawerFields();
+        var first = fields[0], last = fields[fields.length - 1];
+        if (event.shiftKey && (document.activeElement === first || !drawer.contains(document.activeElement))) {
+          event.preventDefault();
+          if (last) last.focus();
+        } else if (!event.shiftKey && (document.activeElement === last || !drawer.contains(document.activeElement))) {
+          event.preventDefault();
+          if (first) first.focus();
+        }
       }
     });
 
@@ -104,6 +133,7 @@
       });
 
       options.forEach(function (opt) {
+        opt.setAttribute("tabindex", "-1");
         opt.addEventListener("click", function (e) {
           e.stopPropagation();
           var val = opt.getAttribute("data-value") || "";
@@ -143,7 +173,9 @@
           openMenu();
           var firstOpt = menu.querySelector(".km-custom-select__option.is-selected") || options[0];
           if (firstOpt) firstOpt.focus();
-        } else if (e.key === "Escape") {
+        } else if (e.key === "Escape" && cs.classList.contains("is-open")) {
+          e.preventDefault();
+          e.stopPropagation();
           closeMenu();
         }
       });
@@ -164,7 +196,9 @@
           if (cur && cur.classList.contains("km-custom-select__option")) {
             cur.click();
           }
-        } else if (e.key === "Escape") {
+        } else if (e.key === "Escape" && cs.classList.contains("is-open")) {
+          e.preventDefault();
+          e.stopPropagation();
           closeMenu();
           trigger.focus();
         }
@@ -317,11 +351,57 @@
     if (!form) return;
 
     var isUnified = form.classList.contains("km-unified-form");
+    var rulesNode = document.getElementById("specialist-readiness-rules");
+    var readinessRules = null;
+    try { readinessRules = rulesNode ? JSON.parse(rulesNode.textContent) : null; } catch (_) {}
+
+    function fieldHasValue(field) {
+      return Boolean(field && field.value.trim());
+    }
+
+    function contactValid(field) {
+      if (!fieldHasValue(field) || !field.validity.valid) return false;
+      if (!readinessRules) return false;
+      var value = field.value.trim();
+      if (readinessRules.phone_pattern && !(new RegExp(readinessRules.phone_pattern)).test(value)) return false;
+      var digits = value.replace(/\D/g, '').length;
+      return (!readinessRules.phone_min_digits || digits >= readinessRules.phone_min_digits) &&
+        (!readinessRules.phone_max_digits || digits <= readinessRules.phone_max_digits);
+    }
+
+    function hasActivePracticeLocation() {
+      if (!readinessRules) return false;
+      return Array.from(form.querySelectorAll('[data-practice-row]')).some(function (row) {
+        var active = row.querySelector('[name$="-is_active"]');
+        var deleted = row.querySelector('[name$="-DELETE"]');
+        if (!active || !active.checked || (deleted && deleted.checked)) return false;
+        var identities = readinessRules.location_identity_fields || [];
+        var required = readinessRules.location_required_fields || [];
+        return identities.some(function (name) { return fieldHasValue(row.querySelector('[name$="-' + name + '"]')); }) &&
+          required.every(function (name) { return fieldHasValue(row.querySelector('[name$="-' + name + '"]')); });
+      });
+    }
 
     if (isUnified) {
       // 1. Ensure all unified sections remain visible on one page
       var unifiedSections = Array.from(form.querySelectorAll(".km-unified-section"));
       unifiedSections.forEach(function (sec) { sec.hidden = false; });
+
+      // Desktop sections remain expanded; small screens use a native disclosure.
+      var sectionNavigation = form.querySelector(".km-section-navigation");
+      var desktopNavigation = window.matchMedia ? window.matchMedia("(min-width: 1024px)") : null;
+      if (sectionNavigation && desktopNavigation) {
+        var navigationHeading = sectionNavigation.querySelector("summary");
+        function syncSectionNavigation() {
+          sectionNavigation.open = desktopNavigation.matches;
+          navigationHeading.tabIndex = desktopNavigation.matches ? -1 : 0;
+        }
+        syncSectionNavigation();
+        desktopNavigation.addEventListener("change", syncSectionNavigation);
+        navigationHeading.addEventListener("click", function (event) {
+          if (desktopNavigation.matches) event.preventDefault();
+        });
+      }
 
       // 2. TOC Navigation with smooth scrolling and active link tracking
       var tocLinks = Array.from(form.querySelectorAll("[data-toc-target]"));
@@ -331,6 +411,11 @@
           var targetId = link.getAttribute("data-toc-target");
           var targetSec = document.getElementById(targetId);
           if (targetSec) {
+            if (sectionNavigation && desktopNavigation && !desktopNavigation.matches) {
+              sectionNavigation.open = false;
+              targetSec.setAttribute("tabindex", "-1");
+              targetSec.focus({ preventScroll: true });
+            }
             targetSec.scrollIntoView({ behavior: "smooth", block: "start" });
             tocLinks.forEach(function (l) { l.classList.remove("is-active"); });
             link.classList.add("is-active");
@@ -366,17 +451,21 @@
 
         var fmtField = form.querySelector("#id_consultation_format");
         var hasFmt = Boolean(fmtField && fmtField.value.trim().length > 0);
+        var needsLocation = Boolean(readinessRules && fmtField && readinessRules.location_required_formats.indexOf(fmtField.value) !== -1);
+        var hasLocation = !needsLocation || hasActivePracticeLocation();
 
         var phoneField = form.querySelector("#id_phone");
         var waField = form.querySelector("#id_whatsapp");
-        var hasContacts = Boolean((phoneField && phoneField.value.trim().length > 0) || (waField && waField.value.trim().length > 0));
+        var hasContacts = (contactValid(phoneField) || contactValid(waField)) &&
+          (!fieldHasValue(phoneField) || contactValid(phoneField)) &&
+          (!fieldHasValue(waField) || contactValid(waField));
 
         var hasBio = ["az", "ru", "en"].some(function (l) {
           var el = form.querySelector("#id_bio_" + l);
           return Boolean(el && el.value.trim().length > 0);
         });
 
-        var totalReq = 6;
+        var totalReq = needsLocation ? 7 : 6;
         var doneCount = 0;
         if (hasName) doneCount++;
         if (hasSpecs) doneCount++;
@@ -384,9 +473,15 @@
         if (hasFmt) doneCount++;
         if (hasContacts) doneCount++;
         if (hasBio) doneCount++;
+        if (needsLocation && hasLocation) doneCount++;
 
         var pct = Math.round((doneCount / totalReq) * 100);
-        var isAllDone = doneCount === totalReq;
+        var invalidField = Array.from(form.querySelectorAll('input,select,textarea')).some(function (field) {
+          var row = field.closest('[data-practice-row]');
+          var deleted = row && row.querySelector('[name$="-DELETE"]');
+          return !(deleted && deleted.checked) && field.willValidate && !field.validity.valid;
+        });
+        var isAllDone = Boolean(readinessRules) && doneCount === totalReq && !invalidField;
 
         // Visual field highlight
         if (nameField) nameField.classList.toggle("is-field-filled", hasName);
@@ -405,7 +500,7 @@
           topFill.classList.toggle("is-complete", isAllDone);
         }
         if (topBadge) {
-          topBadge.textContent = isAllDone ? "✓ 6 / 6" : doneCount + " / " + totalReq;
+          topBadge.textContent = (isAllDone ? "✓ " : "") + doneCount + " / " + totalReq;
           topBadge.classList.toggle("is-complete", isAllDone);
           topBadge.classList.toggle("is-low", pct < 50);
         }
@@ -417,7 +512,10 @@
           } else {
             topStatus.classList.remove("is-complete");
             var remaining = totalReq - doneCount;
-            if (langCode === "az") {
+            if (invalidField || !readinessRules) {
+              topStatus.textContent = langCode === 'az' ? 'Daxil etdiyiniz məlumatların formatını yoxlayın.' :
+                langCode === 'en' ? 'Check the format of the entered details.' : 'Проверьте формат введённых данных.';
+            } else if (langCode === "az") {
               topStatus.textContent = "Doldurulub: " + doneCount + " / " + totalReq + " (" + pct + "%). Qalıb: " + remaining + ".";
             } else if (langCode === "en") {
               topStatus.textContent = "Completed: " + doneCount + " of " + totalReq + " (" + pct + "%). Remaining: " + remaining + ".";
@@ -439,7 +537,7 @@
           sideFill.classList.toggle("is-complete", isAllDone);
         }
         if (sideBadge) {
-          sideBadge.textContent = isAllDone ? "✓ 6 / 6" : doneCount + " / " + totalReq;
+          sideBadge.textContent = (isAllDone ? "✓ " : "") + doneCount + " / " + totalReq;
           sideBadge.classList.toggle("is-complete", isAllDone);
           sideBadge.classList.toggle("is-low", pct < 50);
         }
@@ -466,7 +564,7 @@
 
         setTocStatus("km-sec-basic", hasName);
         setTocStatus("km-sec-directions", hasSpecs && hasLangs);
-        setTocStatus("km-sec-format-places", hasFmt);
+        setTocStatus("km-sec-format-places", hasFmt && hasLocation);
         setTocStatus("km-sec-pricing-contacts", hasContacts);
         setTocStatus("km-sec-bio-experience", hasBio);
       }
@@ -597,7 +695,10 @@
     var searchInput = form.querySelector("[data-spec-search]");
     var clearSearchBtn = form.querySelector("[data-spec-search-clear]");
     var specGroups = Array.from(form.querySelectorAll("[data-spec-group]"));
-    var specChips = Array.from(form.querySelectorAll(".owner-specialist-chip"));
+    var allChips = Array.from(form.querySelectorAll(".owner-specialist-chip"));
+    var specChips = allChips.filter(function (chip) {
+      return Boolean(chip.querySelector('input[name="specializations"]'));
+    });
     var noResultsNotice = form.querySelector("[data-spec-no-results]");
     var selectedBar = form.querySelector("[data-owner-selected-specs]");
     var selectedChipsBox = form.querySelector("[data-selected-chips]");
@@ -621,11 +722,12 @@
         dropdownBadge.hidden = checkedBoxes.length === 0;
       }
       if (dropdownPlaceholder) {
-        var isAz = (document.documentElement.lang || '').toLowerCase() === 'az';
+        var language = (document.documentElement.lang || '').toLowerCase();
+        var isAz = language === 'az';
         if (checkedBoxes.length > 0) {
-          dropdownPlaceholder.innerHTML = '<strong>' + (isAz ? 'Seçilmiş istiqamətlər: ' : 'Выбрано направлений: ') + checkedBoxes.length + '</strong>';
+          dropdownPlaceholder.textContent = (isAz ? 'Seçilmiş istiqamətlər: ' : language === 'en' ? 'Selected specializations: ' : 'Выбрано направлений: ') + checkedBoxes.length;
         } else {
-          dropdownPlaceholder.textContent = isAz ? 'İstiqamətləri seçin (məs.: loqoped, psixoloq)...' : 'Выберите направления (например: логопед, психолог)...';
+          dropdownPlaceholder.textContent = isAz ? 'İstiqamətləri seçin (məs.: loqoped, psixoloq)...' : language === 'en' ? 'Choose specializations (e.g. speech therapist, psychologist)...' : 'Выберите направления (например: логопед, психолог)...';
         }
       }
 
@@ -677,6 +779,15 @@
         }
       });
 
+      document.addEventListener("keydown", function (e) {
+        if (e.key !== "Escape" || dropdownPanel.hidden) return;
+        e.preventDefault();
+        dropdownPanel.hidden = true;
+        dropdownTrigger.setAttribute("aria-expanded", "false");
+        if (dropdownRoot) dropdownRoot.classList.remove("is-open");
+        dropdownTrigger.focus();
+      });
+
       if (dropdownDoneBtn) {
         dropdownDoneBtn.addEventListener("click", function (e) {
           e.stopPropagation();
@@ -693,18 +804,19 @@
         specChips.forEach(function (chip) {
           var cb = chip.querySelector("input[type=checkbox]");
           if (cb) cb.checked = false;
+          chip.classList.remove("is-checked");
         });
         syncSelectedSpecs();
         form.dispatchEvent(new Event("change",{bubbles:true}));
       });
     }
 
-    specChips.forEach(function (chip) {
+    allChips.forEach(function (chip) {
       var cb = chip.querySelector("input[type=checkbox]");
       if (cb) {
         cb.addEventListener("change", function () {
           chip.classList.toggle("is-checked", cb.checked);
-          syncSelectedSpecs();
+          if (cb.name === 'specializations') syncSelectedSpecs();
         });
         chip.classList.toggle("is-checked", cb.checked);
       }
@@ -785,6 +897,37 @@
           panel.classList.toggle("is-active",!panel.hidden);
         });
       });
+    });
+
+    var pageLanguage = (document.documentElement.lang || 'az').toLowerCase().split('-')[0];
+    var initialBioTab = Array.from(langTabs).find(function (tab) { return tab.dataset.ownerLangTab === pageLanguage; }) || langTabs[0];
+    if (initialBioTab) initialBioTab.click();
+
+    // Error links must reveal the target even in the unified (non-wizard) form.
+    if (isUnified) form.addEventListener('click', function (event) {
+      var link = event.target.closest('a[href^="#id_"]');
+      if (!link) return;
+      var target = document.getElementById(link.hash.slice(1));
+      if (!target) return;
+      event.preventDefault();
+      var panel = target.closest('[data-owner-lang-panel]');
+      if (panel) {
+        var tab = form.querySelector('[data-owner-lang-tab="' + panel.dataset.ownerLangPanel + '"]');
+        if (tab) tab.click();
+      }
+      var details = target.closest('details');
+      if (details) details.open = true;
+      var locationPanel = target.closest('[data-location-panel]');
+      if (locationPanel) {
+        var row = locationPanel.closest('[data-practice-row]');
+        var modeButton = row.querySelector('[data-type-target="' + locationPanel.dataset.locationPanel + '"]');
+        if (modeButton) modeButton.click();
+      }
+      target.scrollIntoView({block:'center'});
+      target.focus({preventScroll:true});
+    });
+    form.querySelectorAll('details').forEach(function (details) {
+      if (details.querySelector('.auth-field-error, .errorlist')) details.open = true;
     });
 
     ["az", "ru", "en"].forEach(function (lang) {

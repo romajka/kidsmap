@@ -11,7 +11,8 @@ from catalog.services.seo import (
     build_branded_seo_title,
     build_seo_landing_schema_payload,
 )
-from catalog.services.seo_landing_visibility import build_seo_landing_visibility
+from catalog.services.seo_landing_visibility import build_seo_landing_visibility, seo_landing_place_queryset
+from catalog.services.public_presentation import prepare_cards
 from catalog.services.seo_landing_aggregates import build_judo_landing_aggregates
 
 
@@ -39,7 +40,20 @@ class SeoController:
             page=page,
             language_code=language_code,
         )
+        # Use exactly the public catalog filter advertised by this landing.
+        # Bound presentation work even when a collection has hundreds of places.
+        candidates = seo_landing_place_queryset(page["catalog_query"]).exclude(
+            photo="", cover_photo=""
+        ).order_by("pk")[:24]
+        featured = []
+        for place in prepare_cards(candidates, language_code):
+            card = place._card_presentation
+            if card.get("visible") and card.get("image_url"):
+                featured.append(card)
+                if len(featured) == 3:
+                    break
         return {
+            "seo_featured_places": featured,
             "seo_page": page,
             "seo_pages": visibility.pages(language_code, indexable_only=True),
             "seo_title": build_branded_seo_title(page["title"]),

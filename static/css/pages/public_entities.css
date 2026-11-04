@@ -660,8 +660,7 @@
   transform: translateY(-6px) scale(0.98);
   transform-origin: top center;
   transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-              visibility 0.2s;
+              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
 }
 
@@ -1735,3 +1734,21 @@
 
 
 
+
+/* Activity facts and contact precede long editorial/review content on mobile. */
+.public-activity-layout { grid-template-areas:"media aside" "content aside"; row-gap:24px; }
+.public-activity-layout .public-activity-media { grid-area:media; }
+.public-activity-layout .public-main { grid-area:content; }
+.public-activity-layout .public-aside { grid-area:aside; }
+.public-activity-layout #groups-heading { scroll-margin-top:100px; }
+.public-activity-price { color:var(--brand-spruce,#136f38); font-size:22px; font-weight:800; margin:0 0 8px; }
+.public-activity-summary .public-parent-link { min-height:44px; display:inline-flex; align-items:center; }
+@media(max-width:960px) {
+ .public-activity-layout { grid-template-areas:"media" "aside" "content"; gap:20px; }
+ .public-activity-media .public-hero-image { max-height:230px; width:100%; object-fit:cover; margin:0; }
+ .public-activity-layout .public-aside { padding:18px; }
+ .public-activity-layout .public-aside .public-section { margin-bottom:16px; padding-top:16px; }
+ .public-activity-layout .public-aside .public-section:first-child { padding-top:0; }
+ .public-activity-layout .public-aside .public-section:last-child { margin-bottom:0; }
+ .public-activity-layout .public-aside h2 { font-size:18px; margin-bottom:10px; }
+}

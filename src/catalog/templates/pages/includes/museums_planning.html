@@ -1,0 +1,19 @@
+{% load static %}
+<section id="guide-planning" class="pg-section museum-planning" aria-labelledby="museum-planning-title">
+  <div class="pg-section-heading">
+    <div><h2 id="museum-planning-title">{{ guide.planning_title }}</h2></div>
+    <p>{{ guide.planning_intro }}</p>
+  </div>
+  <div class="museum-planning__grid">
+    {% for item in guide.planning %}
+    <section class="museum-planning__card" aria-labelledby="museum-plan-{{ forloop.counter }}">
+      <img src="{% static item.image %}" srcset="{% static item.image_small %} 640w, {% static item.image %} {{ item.width }}w" sizes="(max-width: 767px) calc(100vw - 40px), 550px" alt="{{ item.alt }}" width="{{ item.width }}" height="{{ item.height }}" loading="lazy" decoding="async">
+      <div class="museum-planning__copy">
+        <h3 id="museum-plan-{{ forloop.counter }}">{{ item.title }}</h3>
+        <p>{{ item.text }}</p>
+        <ul>{% for tip in item.bullets %}<li>{{ tip }}</li>{% endfor %}</ul>
+      </div>
+    </section>
+    {% endfor %}
+  </div>
+</section>

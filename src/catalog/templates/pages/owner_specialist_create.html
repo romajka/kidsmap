@@ -1,4 +1,4 @@
-{% extends "pages/account_shell.html" %}
+{% extends "base.html" %}
 {% block navigation_motion %}<style>@view-transition{navigation:none}</style>{% endblock %}
 {% load i18n static %}
 {% get_current_language as CURRENT_LANGUAGE %}
@@ -12,16 +12,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261029_spacious_v3" />
-  <link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}?v=20261029_spacious_v3" />
-  <script src="{% static 'js/specialists.js' %}?v=20261029_spacious_v3" defer></script>
-  <script src="{% static 'js/specialist_workspace.js' %}" defer></script>
-  <script src="{% static 'js/specialist_locations.js' %}" defer></script>
-  <script src="{% static 'js/specialist_recovery.js' %}?v=20261020_release_r1" defer></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261104_specialist_flow" />
+  <link rel="stylesheet" href="{% static 'css/pages/specialist_workspace.css' %}?v=20261104_custom_dropdowns" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="{% static 'js/owner_place_map_picker.js' %}?v=20261104_specialist_map" defer></script>
+  <script src="{% static 'js/specialists.js' %}?v=20261104_standalone_editor" defer></script>
+  <script src="{% static 'js/specialist_workspace.js' %}?v=20261104_specialist_flow" defer></script>
+  <script src="{% static 'js/specialist_locations.js' %}?v=20261104_specialist_flow" defer></script>
+  <script src="{% static 'js/specialist_recovery.js' %}?v=20261104_specialist_flow" defer></script>
+  <script src="{% static 'js/specialist_documents.js' %}?v=20261104" defer></script>
+  <link rel="stylesheet" href="{% static 'css/components/specialist_documents.css' %}?v=20261104" />
 {% endblock %}
 
-{% block account_content %}
+{% block content %}
 {{ clear_specialist_recovery|json_script:'specialist-clear-recovery' }}
+{{ specialist_readiness_rules|json_script:'specialist-readiness-rules' }}
 <div id="specialist-recovery-identity" data-actor="{{ recovery_actor }}" hidden></div>
 
 <div class="pw pc km-specialist-workspace">
@@ -37,7 +43,7 @@
       {% if specialist %}
         {% trans 'Управляйте личными сведениями, форматами и местами практики. Публикация проходит проверку KidsMap.' %}
       {% else %}
-        {% trans 'Укажите, чей профиль вы добавляете, заполните анкету и отправьте её на проверку.' %}
+        {% trans 'Заполните анкету — результат проверки появится в личном кабинете.' %}
       {% endif %}
     </p>
   </header>
@@ -54,23 +60,23 @@
   >
     {% csrf_token %}
     {% if is_proposal %}
-      <fieldset class="spec-profile-subject" aria-describedby="profile-subject-help">
-        <legend>{% trans 'Чей профиль вы добавляете?' %}</legend>
-        <div class="spec-profile-subject-options">
-          <label><input type="radio" name="profile_subject" value="self"{% if profile_subject == 'self' %} checked{% endif %}> <span>{% trans 'Свой — я специалист' %}</span></label>
-          <label><input type="radio" name="profile_subject" value="other"{% if profile_subject != 'self' %} checked{% endif %}> <span>{% trans 'Другого специалиста' %}</span></label>
-        </div>
-        <p id="profile-subject-help">{% trans 'Для своей анкеты при отправке создаётся запрос на подтверждение личности. Предложение чужой анкеты не даёт права управлять ею.' %}</p>
-      </fieldset>
+      <input type="hidden" name="profile_subject" value="{% if profile_subject == 'other' %}other{% else %}self{% endif %}">
+      {% if profile_subject == 'other' %}<p class="sw-help">{% trans 'Предложение профиля другого специалиста' %}</p>{% endif %}
     {% endif %}
     {% if draft_key %}<input type="hidden" name="draft_key" value="{{ draft_key }}"><input type="hidden" name="draft_version" value="{{ draft_version }}">{% endif %}
     <div class="spec-save-state" role="status" aria-live="polite" data-specialist-save-status data-error="{% trans 'Изменения не сохранены. Проверьте ошибки.' %}" data-local="{% trans 'Есть несохранённые изменения. Копия ввода сохранена только в этом браузере.' %}" data-dirty="{% trans 'Есть несохранённые изменения' %}" data-saving="{% trans 'Сохранение… Дождитесь ответа сервера.' %}">{% if server_saved_at %}{% trans 'Сохранено на сервере' %}: {{ server_saved_at }}{% else %}{% trans 'Анкета ещё не сохранена' %}{% endif %}</div>
     {% if specialist.status == 'published' %}<p class="org-alert org-alert--warning">{% trans 'Сохранение черновика или отправка изменений снимает этот профиль с публикации до следующей проверки KidsMap.' %}</p>{% endif %}
     <div class="spec-recovery" data-specialist-recovery hidden><p data-recovery-description data-same="{% trans 'Есть несохранённая копия в этом браузере. Сравните её с данными сервера перед восстановлением.' %}" data-conflict="{% trans 'Данные сервера изменились. Локальную копию нельзя восстановить поверх новой версии. Скопируйте нужный текст и обновите форму.' %}"></p><ul data-recovery-diff></ul><button type="button" class="btn-secondary" data-recovery-restore>{% trans 'Восстановить ввод' %}</button><button type="button" class="btn-secondary" data-recovery-discard>{% trans 'Удалить локальную копию' %}</button></div>
-    <div class="km-draft-notice"><span class="material-symbols-rounded km-draft-notice-icon">info</span><span>{% trans 'Черновик допускает неполные сведения. Отправка требует имени, формата, направления, описания, контакта, языка работы и активного места для очного приёма. Фото, стаж, цена и сертификаты необязательны.' %}</span></div>
+
     {% if specialist %}<input type="hidden" name="expected_updated_at" value="{{ profile_version }}">{% endif %}
 
-    {% if specialist and specialist.status == 'rejected' %}
+    {% if is_proposal and proposal_draft.submitted_specialist_id %}
+      <div class="org-alert org-alert--warning km-rejection-banner" role="status">
+        <h2>{% trans 'Нужны исправления' %}</h2>
+        {% if proposal_draft.submitted_specialist.rejection_reason %}<p>{{ proposal_draft.submitted_specialist.rejection_reason }}</p>{% endif %}
+        <p>{% trans 'Исправьте анкету и отправьте её на повторную проверку.' %}</p>
+      </div>
+    {% elif specialist and specialist.status == 'rejected' %}
       <div class="org-alert org-alert--error km-rejection-banner" role="alert" style="margin-bottom: 20px;">
         <div style="display:flex; gap:12px; align-items:flex-start;">
           <span class="material-symbols-rounded" style="color:#dc2626; font-size:28px;" aria-hidden="true">cancel</span>
@@ -109,23 +115,39 @@
     <div class="km-specialist-workspace-grid">
       <!-- Left Sticky Sidebar: Navigation & Quick Save -->
       <aside class="km-specialist-left-sidebar" data-km-sticky-nav>
-        <div class="km-owner-nav-card">
-          <div class="km-owner-nav-head">
+        <!-- One completion meter, alongside the section navigation -->
+        <div class="km-top-progress-card" data-req-progress-card>
+          <div class="km-top-progress-head">
+            <div class="km-top-progress-title-wrap">
+              <span class="km-top-progress-icon"><span class="material-symbols-rounded" aria-hidden="true">checklist</span></span>
+              <div>
+                <strong class="km-top-progress-title">{% if CURRENT_LANGUAGE == "az" %}Anketin hazırlığı{% elif CURRENT_LANGUAGE == "en" %}Profile completion{% else %}Готовность анкеты{% endif %}</strong>
+                <span class="km-top-progress-subtitle">{% if CURRENT_LANGUAGE == "az" %}Ulduzla (*) qeyd olunan məcburi sahələri doldurun{% elif CURRENT_LANGUAGE == "en" %}Fill in the required fields marked with (*){% else %}Заполните обязательные поля, отмеченные звёздочкой (*){% endif %}</span>
+              </div>
+            </div>
+            <div class="km-top-progress-counter">
+              <span class="km-req-badge" data-req-badge>0 / 6</span>
+            </div>
+          </div>
+          <div class="km-req-progress-track">
+            <div class="km-req-progress-fill" data-req-progress-fill style="width: 0%;"></div>
+          </div>
+          <div class="km-top-progress-footer">
+            <span class="km-top-progress-status" data-req-status-text data-all-done="{% if CURRENT_LANGUAGE == 'az' %}Məcburi sahələr doldurulub. Göndərməzdən əvvəl məlumatları yoxlayın.{% elif CURRENT_LANGUAGE == 'en' %}Required fields are filled. Review your details before submitting.{% else %}Обязательные поля заполнены. Проверьте данные перед отправкой.{% endif %}">
+              {% if CURRENT_LANGUAGE == "az" %}Doldurulub: 0 / 6 (0%){% elif CURRENT_LANGUAGE == "en" %}Completed: 0 of 6 (0%){% else %}Заполнено: 0 из 6 (0%){% endif %}
+            </span>
+            <span class="km-top-progress-hint">{% if CURRENT_LANGUAGE == "az" %}Qaralama istənilən vaxt saxlanıla bilər{% elif CURRENT_LANGUAGE == "en" %}Draft can be saved at any time{% else %}Черновик можно сохранить в любой момент{% endif %}</span>
+          </div>
+        </div>
+
+
+        <details class="km-owner-nav-card km-section-navigation" open>
+          <summary class="km-owner-nav-head">
             <div class="km-owner-nav-title">
               <span class="material-symbols-rounded" aria-hidden="true">format_list_bulleted</span>
               <h3>{% if CURRENT_LANGUAGE == "az" %}Anket bölmələri{% elif CURRENT_LANGUAGE == "en" %}Form sections{% else %}Разделы анкеты{% endif %}</h3>
             </div>
-            <span class="km-req-badge" data-req-sidebar-badge>0 / 6</span>
-          </div>
-
-          <div class="km-sidebar-progress-box">
-            <div class="km-req-progress-track km-req-progress-track--sm">
-              <div class="km-req-progress-fill" data-req-sidebar-fill style="width: 0%;"></div>
-            </div>
-            <span class="km-sidebar-progress-text" data-req-sidebar-status>
-              {% if CURRENT_LANGUAGE == "az" %}Məcburi: 0 / 6{% elif CURRENT_LANGUAGE == "en" %}Required: 0 / 6{% else %}Обязательно: 0 из 6{% endif %}
-            </span>
-          </div>
+          </summary>
 
           <ul class="km-owner-toc-list">
             <li>
@@ -167,22 +189,13 @@
               <a href="#km-sec-documents" class="km-owner-toc-link" data-toc-target="km-sec-documents">
                 <span class="toc-num">06</span>
                 <span class="toc-label">{% if CURRENT_LANGUAGE == "az" %}Diplomlar və sənədlər{% elif CURRENT_LANGUAGE == "en" %}Diplomas{% else %}Дипломы и сертификаты{% endif %}</span>
-                <span class="toc-status toc-status--opt" data-sec-status="km-sec-documents"><small>опц.</small></span>
+                <span class="toc-status toc-status--opt" data-sec-status="km-sec-documents"><small>{% if CURRENT_LANGUAGE == "az" %}istəyə görə{% elif CURRENT_LANGUAGE == "en" %}optional{% else %}по желанию{% endif %}</small></span>
               </a>
             </li>
           </ul>
 
-          <div class="km-owner-nav-actions">
-            <button type="submit" name="form_action" value="save_draft" class="btn-secondary btn-sidebar-save-draft" formnovalidate title="{% trans 'Сохранить черновик в любой момент' %}">
-              <span class="material-symbols-rounded">bookmark</span>
-              <span>{% if CURRENT_LANGUAGE == "az" %}Qaralama saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}Сохранить черновик{% endif %}</span>
-            </button>
-            <button type="submit" name="form_action" value="submit" class="btn btn-sidebar-submit" data-loading-button>
-              <span class="material-symbols-rounded">send</span>
-              <span>{% if CURRENT_LANGUAGE == "az" %}Göndər{% elif CURRENT_LANGUAGE == "en" %}Submit{% else %}Отправить{% endif %}</span>
-            </button>
-          </div>
-        </div>
+
+        </details>
 
         {% if practice_history %}
           <div class="km-owner-nav-card km-sidebar-hint-card">
@@ -199,31 +212,6 @@
 
       <!-- Main Wide Content Area -->
       <div class="km-specialist-main-content">
-
-        <!-- Top Mandatory Completion Progress Card -->
-        <div class="km-top-progress-card" data-req-progress-card>
-          <div class="km-top-progress-head">
-            <div class="km-top-progress-title-wrap">
-              <span class="km-top-progress-icon"><span class="material-symbols-rounded" aria-hidden="true">checklist</span></span>
-              <div>
-                <strong class="km-top-progress-title">{% if CURRENT_LANGUAGE == "az" %}Anketin tamamlanma dərəcəsi{% elif CURRENT_LANGUAGE == "en" %}Profile completion progress{% else %}Готовность анкеты для модерации{% endif %}</strong>
-                <span class="km-top-progress-subtitle">{% if CURRENT_LANGUAGE == "az" %}Ulduzla (*) qeyd olunan məcburi sahələri doldurun{% elif CURRENT_LANGUAGE == "en" %}Fill in the required fields marked with (*){% else %}Заполните обязательные поля, отмеченные звёздочкой (*){% endif %}</span>
-              </div>
-            </div>
-            <div class="km-top-progress-counter">
-              <span class="km-req-badge" data-req-badge>0 / 6</span>
-            </div>
-          </div>
-          <div class="km-req-progress-track">
-            <div class="km-req-progress-fill" data-req-progress-fill style="width: 0%;"></div>
-          </div>
-          <div class="km-top-progress-footer">
-            <span class="km-top-progress-status" data-req-status-text data-all-done="{% if CURRENT_LANGUAGE == 'az' %}Bütün məcburi sahələr dolduruldu!{% elif CURRENT_LANGUAGE == 'en' %}All required fields are completed!{% else %}Все обязательные поля заполнены! Анкету можно отправлять на модерацию.{% endif %}">
-              {% if CURRENT_LANGUAGE == "az" %}Doldurulub: 0 / 6 (0%){% elif CURRENT_LANGUAGE == "en" %}Completed: 0 of 6 (0%){% else %}Заполнено: 0 из 6 (0%){% endif %}
-            </span>
-            <span class="km-top-progress-hint">{% if CURRENT_LANGUAGE == "az" %}Qaralama istənilən vaxt saxlanıla bilər{% elif CURRENT_LANGUAGE == "en" %}Draft can be saved at any time{% else %}Черновик можно сохранить в любой момент{% endif %}</span>
-          </div>
-        </div>
 
         <!-- ─── SECTION 1: Основное ─── -->
         <section class="owner-event-section km-step-section km-unified-section" id="km-sec-basic" data-sec-id="km-sec-basic">
@@ -275,13 +263,15 @@
                     {% if proposal_draft.photo %}<img src="{% url 'specialist_proposal_photo' proposal_draft.pk %}" alt="{% trans 'Фотография профиля' %}">
                     {% elif specialist and specialist.photo %}
                       <img src="{{ specialist.photo.url }}" alt="{{ specialist.name }}">
+                    {% elif form.photo.value %}
+                      <img src="{{ form.photo.value.url }}" alt="{% trans 'Фотография профиля' %}">
                     {% else %}
-                      <i class="fas fa-camera km-avatar-placeholder" aria-hidden="true"></i>
+                      <span class="material-symbols-rounded km-avatar-placeholder" aria-hidden="true">photo_camera</span>
                     {% endif %}
                   </div>
                   <div class="km-photo-controls">
-                    <button type="button" data-specialist-photo-choose class="btn-secondary km-photo-upload-btn">
-                      <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
+                    <button type="button" data-specialist-photo-choose class="km-photo-upload-btn">
+                      <span class="material-symbols-rounded" aria-hidden="true">upload</span>
                       <span>{% if CURRENT_LANGUAGE == "az" %}Foto seçin{% elif CURRENT_LANGUAGE == "en" %}Choose photo{% else %}Выбрать фото{% endif %}</span>
                     </button>
                     <div class="km-file-input-hidden">
@@ -315,7 +305,7 @@
             </label>
             <div class="km-owner-spec-dropdown" data-owner-spec-dropdown>
               <div class="km-owner-spec-dropdown-trigger" data-owner-spec-dropdown-trigger tabindex="0" role="combobox" aria-expanded="false" aria-label="{% trans 'Выбор направлений' %}">
-                <div class="trigger-icon"><i class="fas fa-stethoscope" aria-hidden="true"></i></div>
+                <div class="trigger-icon"><span class="material-symbols-rounded" aria-hidden="true">medical_services</span></div>
                 <div class="trigger-content">
                   <span class="trigger-placeholder" data-owner-spec-placeholder>
                     {% if CURRENT_LANGUAGE == 'az' %}İstiqamətləri seçin (məs.: loqoped, psixoloq, pediatr)...{% elif CURRENT_LANGUAGE == 'en' %}Choose directions (e.g. speech therapist, psychologist)...{% else %}Выберите направления (например: логопед, психолог, невролог)...{% endif %}
@@ -323,14 +313,14 @@
                 </div>
                 <div class="trigger-badge-box">
                   <span class="trigger-count-badge" data-selected-count-badge hidden>0</span>
-                  <i class="fas fa-chevron-down trigger-arrow" aria-hidden="true"></i>
+                  <span class="material-symbols-rounded trigger-arrow" aria-hidden="true">expand_more</span>
                 </div>
               </div>
 
               <div class="km-owner-spec-dropdown-panel" data-owner-spec-dropdown-panel hidden>
                 <!-- Quick Search -->
                 <div class="owner-specialist-search-box">
-                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <span class="material-symbols-rounded" aria-hidden="true">search</span>
                   <label class="sr-only" for="specialist-search">{% trans 'Поиск направлений' %}</label>
                   <input
                     type="search"
@@ -369,7 +359,7 @@
                         </div>
                       {% endfor %}
                       <div class="owner-spec-no-results" data-spec-no-results hidden>
-                        <i class="fas fa-search" aria-hidden="true"></i>
+                        <span class="material-symbols-rounded" aria-hidden="true">search</span>
                         <p>{% if CURRENT_LANGUAGE == "az" %}Axtarış üzrə istiqamət tapılmadı.{% elif CURRENT_LANGUAGE == "en" %}No directions found matching your query.{% else %}По вашему запросу направлений не найдено.{% endif %}</p>
                       </div>
                     </div>
@@ -454,17 +444,17 @@
           <!-- Format Cards -->
           <div class="km-owner-format-cards" aria-label="{% if CURRENT_LANGUAGE == 'az' %}İş formatı seçimi{% elif CURRENT_LANGUAGE == 'en' %}Work format selection{% else %}Выбор формата работы{% endif %}">
             <button type="button" class="km-format-card" data-owner-format-card="online">
-              <i class="fas fa-video" aria-hidden="true"></i>
+              <span class="material-symbols-rounded" aria-hidden="true">videocam</span>
               <strong>{% if CURRENT_LANGUAGE == "az" %}Yalnız onlayn{% elif CURRENT_LANGUAGE == "en" %}Online only{% else %}Только онлайн{% endif %}</strong>
               <span>{% if CURRENT_LANGUAGE == "az" %}Şəhərdən asılı deyil, videozəng ilə{% elif CURRENT_LANGUAGE == "en" %}City independent, via video call{% else %}Консультации по видеосвязи без привязки к городу{% endif %}</span>
             </button>
             <button type="button" class="km-format-card" data-owner-format-card="offline">
-              <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+              <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
               <strong>{% if CURRENT_LANGUAGE == "az" %}Yalnız əyani{% elif CURRENT_LANGUAGE == "en" %}In-person only{% else %}Только очно{% endif %}</strong>
               <span>{% if CURRENT_LANGUAGE == "az" %}Mərkəzdə və ya şəxsi kabinetdə{% elif CURRENT_LANGUAGE == "en" %}At a center or private office{% else %}Приём в детском центре или собственном кабинете{% endif %}</span>
             </button>
             <button type="button" class="km-format-card" data-owner-format-card="both">
-              <i class="fas fa-laptop-house" aria-hidden="true"></i>
+              <span class="material-symbols-rounded" aria-hidden="true">home_work</span>
               <strong>{% if CURRENT_LANGUAGE == "az" %}Onlayn və əyani{% elif CURRENT_LANGUAGE == "en" %}Both formats{% else %}Онлайн и очно{% endif %}</strong>
               <span>{% if CURRENT_LANGUAGE == "az" %}Maksimum çeviklik və seçim imkanı{% elif CURRENT_LANGUAGE == "en" %}Maximum flexibility and choice{% else %}Максимальное удобство для родителей{% endif %}</span>
             </button>
@@ -473,7 +463,7 @@
           <!-- Location block for offline/both -->
           <div id="spec-location-block" class="km-location-box" data-owner-location-block>
             <div class="km-location-header">
-              <h3><i class="fas fa-building" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Əyani qəbul ünvanı{% elif CURRENT_LANGUAGE == "en" %}In-person location{% else %}Места работы и очного приёма{% endif %}</h3>
+              <h3><span class="material-symbols-rounded" aria-hidden="true">apartment</span> {% if CURRENT_LANGUAGE == "az" %}Əyani qəbul ünvanı{% elif CURRENT_LANGUAGE == "en" %}In-person location{% else %}Места работы и очного приёма{% endif %}</h3>
               <p class="helptext">{% if CURRENT_LANGUAGE == "az" %}Əyani və ya qarışıq format üçün mərkəz və ya fərdi ünvan qeyd edin.{% elif CURRENT_LANGUAGE == "en" %}Specify a children's center or private address for in-person sessions.{% else %}Заполняется для очного или совмещенного приёма клиентов.{% endif %}</p>
             </div>
 
@@ -492,94 +482,121 @@
             <p class="km-step-desc">{% if CURRENT_LANGUAGE == "az" %}Xidmət haqqı və valideynlərin əlaqə saxlaması üçün ən azı bir nömrə qeyd edin.{% elif CURRENT_LANGUAGE == "en" %}Specify pricing and at least one contact channel for parent inquiries.{% else %}Укажите ориентировочную стоимость и хотя бы один контакт (телефон или WhatsApp) для связи.{% endif %}</p>
           </div>
 
-          <div class="km-pricing-contacts-card">
-            <h3 class="km-subsection-title"><i class="fas fa-tag" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Qiymət və müddət{% elif CURRENT_LANGUAGE == "en" %}Price & duration{% else %}Стоимость и длительность{% endif %}</h3>
-            <div class="km-pricing-grid">
-              <label class="km-input-wrapper">
-                <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Qiymət min.{% elif CURRENT_LANGUAGE == "en" %}Price from{% else %}Стоимость от{% endif %}</span>
-                <div class="km-input-affix">
-                  {{ form.price_from }}
-                  <span class="km-affix-unit">₼ AZN</span>
+          <div class="km-pricing-contacts-panel">
+            <!-- 1. Стоимость и длительность приёма -->
+            <div class="km-pc-section km-pc-section--pricing">
+              <div class="km-pc-section-head">
+                <div class="km-pc-head-left">
+                  <span class="material-symbols-rounded km-pc-head-icon" aria-hidden="true">sell</span>
+                  <span class="km-pc-head-title">{% if CURRENT_LANGUAGE == "az" %}Qiymət və dərs müddəti{% elif CURRENT_LANGUAGE == "en" %}Price & session duration{% else %}Стоимость и длительность приёма{% endif %}</span>
                 </div>
-                {% for e in form.price_from.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-              </label>
-
-              <label class="km-input-wrapper">
-                <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Qiymət max.{% elif CURRENT_LANGUAGE == "en" %}Price to{% else %}Стоимость до{% endif %}</span>
-                <div class="km-input-affix">
-                  {{ form.price_to }}
-                  <span class="km-affix-unit">₼ AZN</span>
-                </div>
-                {% for e in form.price_to.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-              </label>
-
-              <label class="km-input-wrapper">
-                <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Dərs müddəti{% elif CURRENT_LANGUAGE == "en" %}Duration{% else %}Длительность{% endif %}</span>
-                <div class="km-input-affix">
-                  {{ form.duration_minutes }}
-                  <span class="km-affix-unit">{% if CURRENT_LANGUAGE == "az" %}⏱️ dəq.{% elif CURRENT_LANGUAGE == "en" %}⏱️ min{% else %}⏱️ мин{% endif %}</span>
-                </div>
-                {% for e in form.duration_minutes.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-              </label>
-            </div>
-          </div>
-
-          <div class="km-pricing-contacts-card" style="margin-top: 20px;">
-            <div class="km-contacts-banner">
-              <i class="fas fa-shield-alt" aria-hidden="true"></i>
-              <div>
-                <strong>{% if CURRENT_LANGUAGE == "az" %}Valideynlərlə əlaqə vasitələri{% elif CURRENT_LANGUAGE == "en" %}Contact channels for parents{% else %}Контакты для связи родителей со специалистом{% endif %} <strong class="km-required">*</strong></strong>
-                <p>{% if CURRENT_LANGUAGE == "az" %}Profil kartında göstərilir. Nömrələr "Nömrəni göstər" düyməsi ilə spamdan qorunur.{% elif CURRENT_LANGUAGE == "en" %}Displayed on your profile card. Phone numbers are protected against spam.{% else %}Отображаются в карточке специалиста. Номера защищены от спама кнопкой «Показать номер».{% endif %}</p>
               </div>
-            </div>
-
-            <div class="km-contacts-grid">
-              <div class="km-input-wrapper">
-                <span class="km-label-text">{% if CURRENT_LANGUAGE == "az" %}Əsas telefon nömrəsi{% elif CURRENT_LANGUAGE == "en" %}Primary phone number{% else %}Основной телефон для связи{% endif %}</span>
-                <div class="km-input-addon-group">
-                  <span class="km-input-addon">🇦🇿 +994</span>
-                  {{ form.phone }}
-                </div>
-                <small class="helptext">{% if CURRENT_LANGUAGE == "az" %}Məs.: +994 50 123 45 67{% elif CURRENT_LANGUAGE == "en" %}E.g. +994 50 123 45 67{% else %}Например: +994 50 123 45 67{% endif %}</small>
-                {% for e in form.phone.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-              </div>
-
-              <div class="km-input-wrapper">
-                <div class="km-label-row">
-                  <span class="km-label-text"><i class="fab fa-whatsapp" aria-hidden="true" style="color: #25D366;"></i> WhatsApp</span>
-                  <button type="button" class="km-btn-copy-wa" data-sync-wa title="{% trans 'Скопировать из телефона' %}">
-                    <i class="fas fa-copy" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Telefondan kopyala{% elif CURRENT_LANGUAGE == "en" %}Copy from phone{% else %}Скопировать из телефона{% endif %}
-                  </button>
-                </div>
-                <div class="km-input-addon-group">
-                  <span class="km-input-addon km-input-addon--wa"><i class="fab fa-whatsapp" aria-hidden="true"></i></span>
-                  {{ form.whatsapp }}
-                </div>
-                <label class="km-same-wa-label" for="spec_owner_wa_same">
-                  <input type="checkbox" id="spec_owner_wa_same" data-wa-same>
-                  <span>{% if CURRENT_LANGUAGE == "az" %}WhatsApp əsas telefonla eynidir{% elif CURRENT_LANGUAGE == "en" %}WhatsApp matches phone number{% else %}WhatsApp совпадает с основным телефоном{% endif %}</span>
+              <div class="km-pricing-grid">
+                <label class="km-pc-field">
+                  <span class="km-pc-label">{% if CURRENT_LANGUAGE == "az" %}Qiymət min.{% elif CURRENT_LANGUAGE == "en" %}Price from{% else %}Стоимость от{% endif %}</span>
+                  <div class="km-pc-input-affix">
+                    {{ form.price_from }}
+                    <span class="km-pc-affix-unit">₼ AZN</span>
+                  </div>
+                  {% for e in form.price_from.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
                 </label>
-                {% for e in form.whatsapp.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+
+                <label class="km-pc-field">
+                  <span class="km-pc-label">{% if CURRENT_LANGUAGE == "az" %}Qiymət max.{% elif CURRENT_LANGUAGE == "en" %}Price to{% else %}Стоимость до{% endif %}</span>
+                  <div class="km-pc-input-affix">
+                    {{ form.price_to }}
+                    <span class="km-pc-affix-unit">₼ AZN</span>
+                  </div>
+                  {% for e in form.price_to.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+                </label>
+
+                <label class="km-pc-field">
+                  <span class="km-pc-label">{% if CURRENT_LANGUAGE == "az" %}Dərs müddəti{% elif CURRENT_LANGUAGE == "en" %}Duration{% else %}Длительность приёма{% endif %}</span>
+                  <div class="km-pc-input-affix">
+                    {{ form.duration_minutes }}
+                    <span class="km-pc-affix-unit">{% if CURRENT_LANGUAGE == "az" %}⏱ dəq.{% elif CURRENT_LANGUAGE == "en" %}⏱ min{% else %}⏱ мин{% endif %}</span>
+                  </div>
+                  {% for e in form.duration_minutes.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+                </label>
+              </div>
+            </div>
+
+            <!-- Разделитель -->
+            <div class="km-pc-divider"></div>
+
+            <!-- 2. Контакты для записи родителей -->
+            <div class="km-pc-section km-pc-section--contacts">
+              <div class="km-pc-section-head km-pc-section-head--with-tip">
+                <div class="km-pc-head-left">
+                  <span class="material-symbols-rounded km-pc-head-icon" aria-hidden="true">contact_phone</span>
+                  <span class="km-pc-head-title">{% if CURRENT_LANGUAGE == "az" %}Valideynlərlə əlaqə vasitələri{% elif CURRENT_LANGUAGE == "en" %}Contact channels for parents{% else %}Контакты для записи родителей{% endif %} <strong class="km-required">*</strong></span>
+                </div>
+                <div class="km-contacts-shield-tip">
+                  <span class="material-symbols-rounded" aria-hidden="true">shield</span>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Nömrələr spamdan qorunur{% elif CURRENT_LANGUAGE == "en" %}Numbers spam-protected{% else %}Номера защищены от спама{% endif %}</span>
+                </div>
               </div>
 
-              <div class="km-input-wrapper">
-                <span class="km-label-text"><i class="fab fa-instagram" aria-hidden="true" style="color: #E1306C;"></i> Instagram</span>
-                <div class="km-input-addon-group">
-                  <span class="km-input-addon">@</span>
-                  {{ form.instagram }}
+              <div class="km-contacts-grid">
+                <!-- Телефон -->
+                <div class="km-pc-field">
+                  <span class="km-pc-label">{% if CURRENT_LANGUAGE == "az" %}Əsas telefon nömrəsi{% elif CURRENT_LANGUAGE == "en" %}Primary phone{% else %}Основной телефон для связи{% endif %}</span>
+                  <div class="km-input-addon-group">
+                    <span class="km-addon-badge km-addon-badge--phone">
+                      <span class="km-addon-flag">🇦🇿</span>
+                      <span class="km-addon-code">+994</span>
+                    </span>
+                    {{ form.phone }}
+                  </div>
+                  {% for e in form.phone.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
                 </div>
-                <small class="helptext">{% if CURRENT_LANGUAGE == "az" %}İstifadəçi adı (məs.: doctor_kids){% elif CURRENT_LANGUAGE == "en" %}Username (e.g. doctor_kids){% else %}Например: doctor_kids (ссылка сформируется сама){% endif %}</small>
-                {% for e in form.instagram.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
-              </div>
 
-              <div class="km-input-wrapper">
-                <span class="km-label-text"><i class="fas fa-globe" aria-hidden="true" style="color: #3B82F6;"></i> {% if CURRENT_LANGUAGE == "az" %}Veb-sayt / Portfel{% elif CURRENT_LANGUAGE == "en" %}Website / Portfolio{% else %}Сайт или портфолио{% endif %}</span>
-                <div class="km-input-addon-group">
-                  <span class="km-input-addon">https://</span>
-                  {{ form.website }}
+                <!-- WhatsApp -->
+                <div class="km-pc-field">
+                  <div class="km-pc-label-row">
+                    <span class="km-pc-label">
+                      <span class="material-symbols-rounded km-addon-wa-glyph" aria-hidden="true">chat</span> WhatsApp
+                    </span>
+                    <button type="button" class="km-btn-copy-wa" data-sync-wa title="{% trans 'Скопировать из телефона' %}">
+                      <span class="material-symbols-rounded" aria-hidden="true">content_copy</span> {% if CURRENT_LANGUAGE == "az" %}Telefondan kopyala{% elif CURRENT_LANGUAGE == "en" %}Copy phone{% else %}Скопировать телефон{% endif %}
+                    </button>
+                  </div>
+                  <div class="km-input-addon-group">
+                    <span class="km-addon-badge km-addon-badge--wa">
+                      <span class="material-symbols-rounded" aria-hidden="true">chat</span>
+                    </span>
+                    {{ form.whatsapp }}
+                  </div>
+                  <label class="km-same-wa-label" for="spec_owner_wa_same">
+                    <input type="checkbox" id="spec_owner_wa_same" data-wa-same>
+                    <span>{% if CURRENT_LANGUAGE == "az" %}WhatsApp əsas telefonla eynidir{% elif CURRENT_LANGUAGE == "en" %}WhatsApp matches phone number{% else %}WhatsApp совпадает с основным телефоном{% endif %}</span>
+                  </label>
+                  {% for e in form.whatsapp.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
                 </div>
-                <small class="helptext">{% if CURRENT_LANGUAGE == "az" %}Şəxsi sayt və ya klinika səhifəsi{% elif CURRENT_LANGUAGE == "en" %}Personal site or clinic page{% else %}Личный сайт или страница в клинике{% endif %}</small>
-                {% for e in form.website.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+
+                <!-- Instagram -->
+                <div class="km-pc-field">
+                  <span class="km-pc-label">
+                    <span class="km-addon-ig-glyph">@</span> Instagram
+                  </span>
+                  <div class="km-input-addon-group">
+                    <span class="km-addon-badge km-addon-badge--ig">@</span>
+                    {{ form.instagram }}
+                  </div>
+                  {% for e in form.instagram.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+                </div>
+
+                <!-- Website -->
+                <div class="km-pc-field">
+                  <span class="km-pc-label">
+                    <span class="material-symbols-rounded km-addon-web-glyph" aria-hidden="true">language</span> {% if CURRENT_LANGUAGE == "az" %}Veb-sayt / Portfel{% elif CURRENT_LANGUAGE == "en" %}Website / Portfolio{% else %}Сайт или портфолио{% endif %}
+                  </span>
+                  <div class="km-input-addon-group">
+                    <span class="km-addon-badge km-addon-badge--web">https://</span>
+                    {{ form.website }}
+                  </div>
+                  {% for e in form.website.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+                </div>
               </div>
             </div>
           </div>
@@ -631,10 +648,10 @@
                 {% for e in form.bio_az.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
               </label>
 
-              <div class="km-owner-edu-cards-grid">
+              <details class="km-bio-optional"><summary>{% trans 'Образование и опыт — по желанию' %}</summary><div class="km-owner-edu-cards-grid">
                 <div class="km-owner-edu-card">
                   <div class="km-edu-card-head">
-                    <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                    <span class="material-symbols-rounded" aria-hidden="true">school</span>
                     <strong>{% if CURRENT_LANGUAGE == "az" %}Təhsil, kurslar və sertifikatlar{% elif CURRENT_LANGUAGE == "en" %}Education & certificates{% else %}Образование, курсы и сертификаты{% endif %}</strong>
                   </div>
                   <small class="km-edu-hint">{% if CURRENT_LANGUAGE == "az" %}Ali məktəb, fakültə, ixtisasartırma kursları{% elif CURRENT_LANGUAGE == "en" %}University, degree, certified trainings{% else %}ВУЗ, факультет, специальность, курсы повышения квалификации{% endif %}</small>
@@ -644,14 +661,14 @@
 
                 <div class="km-owner-edu-card">
                   <div class="km-edu-card-head">
-                    <i class="fas fa-briefcase" aria-hidden="true"></i>
+                    <span class="material-symbols-rounded" aria-hidden="true">work</span>
                     <strong>{% if CURRENT_LANGUAGE == "az" %}İş təcrübəsi və metodikalar{% elif CURRENT_LANGUAGE == "en" %}Work experience & methods{% else %}Опыт работы и практика{% endif %}</strong>
                   </div>
                   <small class="km-edu-hint">{% if CURRENT_LANGUAGE == "az" %}İşlədiyi yerlər, metodlar və əsas yanaşmalar{% elif CURRENT_LANGUAGE == "en" %}Key practice places, methods, specialization{% else %}Места работы, специализация, ключевые методики{% endif %}</small>
                   {{ form.experience_info_az }}
                   {% for e in form.experience_info_az.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
                 </div>
-              </div>
+              </div></details>
             </div>
 
             <!-- Panel RU -->
@@ -662,10 +679,10 @@
                 {% for e in form.bio_ru.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
               </label>
 
-              <div class="km-owner-edu-cards-grid">
+              <details class="km-bio-optional"><summary>{% trans 'Образование и опыт — по желанию' %}</summary><div class="km-owner-edu-cards-grid">
                 <div class="km-owner-edu-card">
                   <div class="km-edu-card-head">
-                    <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                    <span class="material-symbols-rounded" aria-hidden="true">school</span>
                     <strong>{% if CURRENT_LANGUAGE == "az" %}Təhsil, kurslar və sertifikatlar{% elif CURRENT_LANGUAGE == "en" %}Education & certificates{% else %}Образование, курсы и сертификаты{% endif %}</strong>
                   </div>
                   <small class="km-edu-hint">{% if CURRENT_LANGUAGE == "az" %}Ali məktəb, fakültə, ixtisasartırma kursları{% elif CURRENT_LANGUAGE == "en" %}University, degree, certified trainings{% else %}ВУЗ, факультет, специальность, курсы повышения квалификации{% endif %}</small>
@@ -675,14 +692,14 @@
 
                 <div class="km-owner-edu-card">
                   <div class="km-edu-card-head">
-                    <i class="fas fa-briefcase" aria-hidden="true"></i>
+                    <span class="material-symbols-rounded" aria-hidden="true">work</span>
                     <strong>{% if CURRENT_LANGUAGE == "az" %}İş təcrübəsi və metodikalar{% elif CURRENT_LANGUAGE == "en" %}Work experience & methods{% else %}Опыт работы и практика{% endif %}</strong>
                   </div>
                   <small class="km-edu-hint">{% if CURRENT_LANGUAGE == "az" %}İşlədiyi yerlər, metodlar və əsas yanaşmalar{% elif CURRENT_LANGUAGE == "en" %}Key practice places, methods, specialization{% else %}Места работы, специализация, ключевые методики{% endif %}</small>
                   {{ form.experience_info_ru }}
                   {% for e in form.experience_info_ru.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
                 </div>
-              </div>
+              </div></details>
             </div>
 
             <!-- Panel EN -->
@@ -693,10 +710,10 @@
                 {% for e in form.bio_en.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
               </label>
 
-              <div class="km-owner-edu-cards-grid">
+              <details class="km-bio-optional"><summary>{% trans 'Образование и опыт — по желанию' %}</summary><div class="km-owner-edu-cards-grid">
                 <div class="km-owner-edu-card">
                   <div class="km-edu-card-head">
-                    <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                    <span class="material-symbols-rounded" aria-hidden="true">school</span>
                     <strong>{% if CURRENT_LANGUAGE == "az" %}Təhsil, kurslar və sertifikatlar{% elif CURRENT_LANGUAGE == "en" %}Education & certificates{% else %}Образование, курсы и сертификаты{% endif %}</strong>
                   </div>
                   <small class="km-edu-hint">{% if CURRENT_LANGUAGE == "az" %}Ali məktəb, fakültə, ixtisasartırma kursları{% elif CURRENT_LANGUAGE == "en" %}University, degree, certified trainings{% else %}ВУЗ, факультет, специальность, курсы повышения квалификации{% endif %}</small>
@@ -706,14 +723,14 @@
 
                 <div class="km-owner-edu-card">
                   <div class="km-edu-card-head">
-                    <i class="fas fa-briefcase" aria-hidden="true"></i>
+                    <span class="material-symbols-rounded" aria-hidden="true">work</span>
                     <strong>{% if CURRENT_LANGUAGE == "az" %}İş təcrübəsi və metodikalar{% elif CURRENT_LANGUAGE == "en" %}Work experience & methods{% else %}Опыт работы и практика{% endif %}</strong>
                   </div>
                   <small class="km-edu-hint">{% if CURRENT_LANGUAGE == "az" %}İşlədiyi yerlər, metodlar və əsas yanaşmalar{% elif CURRENT_LANGUAGE == "en" %}Key practice places, methods, specialization{% else %}Места работы, специализация, ключевые методики{% endif %}</small>
                   {{ form.experience_info_en }}
                   {% for e in form.experience_info_en.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
                 </div>
-              </div>
+              </div></details>
             </div>
           </div>
         </section>
@@ -731,19 +748,12 @@
 
           <div class="km-documents-block">
             {% if is_proposal %}
-              <!-- Informational note for proposal authors: documents cannot be uploaded by 3rd party -->
-              <div class="km-owner-info-notice">
-                <div class="notice-icon"><i class="fas fa-user-shield" aria-hidden="true"></i></div>
-                <div class="notice-body">
-                  <h4>{% if CURRENT_LANGUAGE == "az" %}Şəxsi sənədlərin yüklənməsi qaydası{% elif CURRENT_LANGUAGE == "en" %}Document upload guidelines{% else %}Загрузка квалификационных документов{% endif %}</h4>
-                  <p>{% if CURRENT_LANGUAGE == "az" %}Diplom və sertifikatlar profil təklif edən şəxs tərəfindən deyil, şəxsiyyətini təsdiqləmiş mütəxəssisin özü tərəfindən şəxsi kabinetdə yüklənir. Bu, mütəxəssislərin şəxsi məlumatlarının toxunulmazlığını qoruyur.{% elif CURRENT_LANGUAGE == "en" %}Diplomas and certificates are uploaded personally by the verified specialist in their workspace after identity confirmation. Authors of proposals cannot upload documents on behalf of others.{% else %}Дипломы и сертификаты загружаются лично подтверждённым специалистом в своём кабинете. Автор предложения не может загружать чужие персональные документы, что гарантирует защиту личных данных.{% endif %}</p>
-                </div>
-              </div>
+              <p class="sw-help">{% trans 'Дипломы и сертификаты можно добавить после подтверждения профиля.' %}</p>
             {% else %}
               <!-- File upload for verified person -->
               <div class="km-owner-privacy-card">
                 <div class="privacy-header">
-                  <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                  <span class="material-symbols-rounded" aria-hidden="true">shield</span>
                   <h4>{% if CURRENT_LANGUAGE == "az" %}Sənədlərin məxfiliyi və təhlükəsizliyi{% elif CURRENT_LANGUAGE == "en" %}Document privacy & security{% else %}Политика конфиденциальности документов{% endif %}</h4>
                 </div>
                 <ul>
@@ -772,11 +782,11 @@
             </div>
           </div>
           <div class="km-actions-buttons-row">
-            <button type="submit" name="form_action" value="save_draft" class="btn-secondary btn-save-draft" formnovalidate>
+            <button type="submit" name="form_action" value="save_draft" class="btn-save-draft" formnovalidate title="{% trans 'Сохранить черновик в любой момент' %}">
               <span class="material-symbols-rounded" aria-hidden="true">bookmark</span>
               <span>{% if CURRENT_LANGUAGE == "az" %}Qaralama saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}Сохранить черновик{% endif %}</span>
             </button>
-            <button type="submit" name="form_action" value="submit" class="btn btn-submit" data-loading-button>
+            <button type="submit" name="form_action" value="submit" class="btn-submit" data-loading-button title="{% trans 'Отправить анкету на проверку' %}">
               <span class="material-symbols-rounded" aria-hidden="true">send</span>
               <span>{% if CURRENT_LANGUAGE == "az" %}Moderasiyaya göndər{% elif CURRENT_LANGUAGE == "en" %}Send for review{% else %}Отправить на модерацию{% endif %}</span>
             </button>
@@ -788,4 +798,3 @@
   </form>
 </div><!-- /.km-specialist-workspace -->
 {% endblock %}
-

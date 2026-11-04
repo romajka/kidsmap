@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block title_plain %}{{ seo_title }}{% endblock %}
@@ -9,6 +9,10 @@
 {% block twitter_description %}{{ meta_description }}{% endblock %}
 {% block robots_meta %}{{ seo_robots_content }}{% endblock %}
 {% block googlebot_meta %}{{ seo_robots_content }}{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/seo_landing_photos.css' %}" />
+{% endblock %}
 
 {% block content %}
   {% include "catalog/includes/breadcrumbs.html" with items=seo_breadcrumb_items %}
@@ -67,6 +71,20 @@
       </div>
     </div>
   </section>
+
+  {% if seo_featured_places %}
+    <section class="seo-featured-places" aria-labelledby="seo-featured-title">
+      <h2 id="seo-featured-title">{% if request.LANGUAGE_CODE == 'az' %}Bu seçimdəki məkanlar{% elif request.LANGUAGE_CODE == 'en' %}Places in this collection{% else %}Места из этой подборки{% endif %}</h2>
+      <div class="seo-featured-places__grid">
+        {% for place in seo_featured_places %}
+          <a class="seo-featured-places__item" href="{{ place.url }}">
+            <img src="{{ place.image_url }}" alt="{{ place.name }}" lang="{{ place.name_language }}" width="640" height="480" loading="lazy" decoding="async" />
+            <h3 lang="{{ place.name_language }}">{{ place.name }}</h3>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
 
   {% if seo_aggregate %}
     <section class="panel seo-landing-data">

@@ -5,8 +5,8 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261028_hero_redesign_r1" />
-<script src="{% static 'js/specialists.js' %}?v=20261028_hero_redesign_r1" defer></script>
+<link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261104_mobile_public" />
+<script src="{% static 'js/specialists.js' %}?v=20261104_mobile_public" defer></script>
 <script src="{% static 'js/catalog_category_strip.js' %}?v=20261028_strip_r1" defer></script>
 {% endblock %}
 
@@ -35,9 +35,11 @@
         {% if language == "az" %}Uşağınız üçün ən yaxşı repetitor, loqoped, psixoloq və məşqçiləri asanlıqla tapın{% elif language == "en" %}Find verified tutors, speech therapists, psychologists, and coaches for your child{% else %}Подберите проверенных репетиторов, логопедов, психологов, тренеров и педагогов для развития вашего ребёнка{% endif %}
       </p>
 
+      <p class="km-specialist-add-profile"><a href="{% url 'owner_specialist_create' %}">{% trans 'Я специалист — добавить свой профиль' %}</a></p>
+
       <div class="catalog-hero-search-wrap">
-        <form method="get" class="catalog-hero-search km-specialists-hero-search" id="specialists-hero-search-form" action="{% url 'specialist_list' %}" autocomplete="off">
-          <span class="catalog-hero-search__icon" aria-hidden="true">
+        <form method="get" class="km-specialists-hero-search" id="specialists-hero-search-form" action="{% url 'specialist_list' %}" autocomplete="off">
+          <span class="km-specialists-hero-search__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           </span>
           <label class="visually-hidden" for="specialists-hero-search-input">
@@ -77,48 +79,35 @@
         
         <a href="?specialization=speech_therapist" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--speech {% if selected.specialization == 'speech_therapist' %}is-active{% endif %}">
           <span class="km-hero-bubble__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              <line x1="9" y1="10" x2="15" y2="10"></line>
-            </svg>
+            <span class="material-symbols-rounded">record_voice_over</span>
           </span>
           <span class="km-hero-bubble__label">{% if language == 'az' %}Loqoped{% elif language == 'en' %}Speech therapist{% else %}Логопед{% endif %}</span>
         </a>
 
         <a href="?specialization=child_psychologist" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--psych {% if selected.specialization == 'child_psychologist' or selected.specialization == 'psychologist' %}is-active{% endif %}">
           <span class="km-hero-bubble__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
+            <span class="material-symbols-rounded">psychology</span>
           </span>
           <span class="km-hero-bubble__label">{% if language == 'az' %}Psixoloq{% elif language == 'en' %}Psychologist{% else %}Психолог{% endif %}</span>
         </a>
 
         <a href="?specialization=pediatric_neurologist" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--neuro {% if selected.specialization == 'pediatric_neurologist' %}is-active{% endif %}">
           <span class="km-hero-bubble__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="9"></circle>
-              <path d="M12 3a9 9 0 0 1 9 9"></path>
-              <path d="M12 7v5l3 3"></path>
-            </svg>
+            <span class="material-symbols-rounded">neurology</span>
           </span>
           <span class="km-hero-bubble__label">{% if language == 'az' %}Uşaq nevroloqu{% elif language == 'en' %}Neurologist{% else %}Детский невролог{% endif %}</span>
         </a>
 
         <a href="?specialization=pediatrician" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--pediatrician {% if selected.specialization == 'pediatrician' %}is-active{% endif %}">
           <span class="km-hero-bubble__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 6v12M6 12h12"></path>
-            </svg>
+            <span class="material-symbols-rounded">medical_services</span>
           </span>
           <span class="km-hero-bubble__label">{% if language == 'az' %}Pediatr{% elif language == 'en' %}Pediatrician{% else %}Педиатр{% endif %}</span>
         </a>
 
         <a href="?specialization=defectologist" class="catalog-hero-tag-btn km-hero-bubble km-hero-bubble--defectologist {% if selected.specialization == 'defectologist' %}is-active{% endif %}">
           <span class="km-hero-bubble__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19.439 7.85c0-1.571-1.285-2.85-2.87-2.85a2.86 2.86 0 0 0-2.849 2.85v.02A2.84 2.84 0 0 0 11 6.3c-1.584 0-2.869 1.28-2.869 2.85 0 .28.04.55.12.81A2.83 2.83 0 0 0 6.5 11c0 1.57 1.285 2.85 2.87 2.85h.02A2.86 2.86 0 0 0 11 16.7c1.585 0 2.87-1.28 2.87-2.85v-.02a2.84 2.84 0 0 0 2.719 1.57c1.585 0 2.87-1.28 2.87-2.85 0-.28-.04-.55-.12-.81A2.83 2.83 0 0 0 21 9c0-1.57-1.285-2.85-2.87-2.85h-.69z"></path>
-            </svg>
+            <span class="material-symbols-rounded">extension</span>
           </span>
           <span class="km-hero-bubble__label">{% if language == 'az' %}Defektoloq{% elif language == 'en' %}Defectologist{% else %}Дефектолог{% endif %}</span>
         </a>

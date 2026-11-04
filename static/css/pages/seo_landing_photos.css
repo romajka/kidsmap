@@ -1,0 +1,12 @@
+.seo-featured-places { margin: 24px 0; }
+.seo-featured-places h2 { margin: 0 0 16px; font-size: 1.35rem; line-height: 1.35; }
+.seo-featured-places__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.seo-featured-places__item { min-width: 0; color: var(--brand-jet, #1f2933); text-decoration: none; border-radius: 14px; }
+.seo-featured-places__item img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px; background: #f1f5f2; }
+.seo-featured-places__item h3 { margin: 10px 0 0; font-size: 1rem; line-height: 1.45; overflow-wrap: anywhere; }
+.seo-featured-places__item:hover h3 { color: var(--brand-turf, #136f38); text-decoration: underline; }
+.seo-featured-places__item:focus-visible { outline: 3px solid var(--brand-turf, #136f38); outline-offset: 5px; }
+@media (max-width: 600px) {
+  .seo-featured-places__grid { grid-template-columns: 1fr; gap: 20px; }
+  .seo-featured-places__item img { aspect-ratio: 16 / 9; }
+}

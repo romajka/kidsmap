@@ -5,7 +5,7 @@
 {% block title_plain %}{{ seo_title }}{% endblock %}
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261026">{% endblock %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/events_landing.css' %}?v=20261104_public_mobile_r2">{% endblock %}
 {% block content %}
 <div class="events-page-wrap">
   <header class="events-compact-head" id="events-hero">
@@ -13,6 +13,29 @@
   </header>
   <div class="events-hub">
     <div class="events-hub-top">
+      <div class="events-quick-chips" role="navigation" aria-label="{% if language == 'az' %}Tarix üzrə sürətli filtrlər{% elif language == 'en' %}Quick date filters{% else %}Быстрый выбор даты{% endif %}">
+        <a class="events-chip{% if not selected.date_filter and not selected.date and not selected.date_from and not selected.date_to %} events-chip--active{% endif %}" href="{{ events_quick_urls.all }}">
+          <span class="material-symbols-rounded events-chip-icon" aria-hidden="true">event_available</span>
+          <span>{% if language == 'az' %}Bütün tarixlər{% elif language == 'en' %}All dates{% else %}Все даты{% endif %}</span>
+        </a>
+        <a class="events-chip{% if selected.date_filter == 'today' %} events-chip--active{% endif %}" href="{{ events_quick_urls.today }}">
+          <span class="material-symbols-rounded events-chip-icon" aria-hidden="true">today</span>
+          <span>{% if language == 'az' %}Bu gün{% elif language == 'en' %}Today{% else %}Сегодня{% endif %}</span>
+        </a>
+        <a class="events-chip{% if selected.date_filter == 'tomorrow' %} events-chip--active{% endif %}" href="{{ events_quick_urls.tomorrow }}">
+          <span class="material-symbols-rounded events-chip-icon" aria-hidden="true">wb_sunny</span>
+          <span>{% if language == 'az' %}Sabah{% elif language == 'en' %}Tomorrow{% else %}Завтра{% endif %}</span>
+        </a>
+        <a class="events-chip{% if selected.date_filter == 'weekend' %} events-chip--active{% endif %}" href="{{ events_quick_urls.weekend }}">
+          <span class="material-symbols-rounded events-chip-icon" aria-hidden="true">weekend</span>
+          <span>{% if language == 'az' %}Həftəsonu{% elif language == 'en' %}Weekend{% else %}Выходные{% endif %}</span>
+        </a>
+        <a class="events-chip{% if selected.date_filter == 'this_week' %} events-chip--active{% endif %}" href="{{ events_quick_urls.this_week }}">
+          <span class="material-symbols-rounded events-chip-icon" aria-hidden="true">date_range</span>
+          <span>{% if language == 'az' %}Bu həftə{% elif language == 'en' %}This week{% else %}На этой неделе{% endif %}</span>
+        </a>
+      </div>
+
       <nav class="events-mode" id="events-mode" aria-label="{% if language == 'az' %}Görünüş{% elif language == 'en' %}View{% else %}Вид{% endif %}">
         <a class="events-mode-btn events-card-btn{% if events_mode == 'list' %} events-card-btn--primary events-mode-btn--active{% endif %}" data-events-mode="list" href="{{ events_mode_urls.list }}" {% if events_mode == 'list' %}aria-current="page"{% endif %}>
           <span class="material-symbols-rounded" aria-hidden="true">view_list</span>
@@ -25,7 +48,7 @@
       </nav>
     </div>
 
-    <details class="events-filters" id="events-filters" {% if has_active_filters %}open{% endif %}>
+    <details class="events-filters" id="events-filters" {% if selected.q or selected.district or selected.category or selected.age or selected.age_from or selected.age_to or selected.free or selected.format or selected.date_from or selected.date_to %}open{% endif %}>
       <summary class="events-filters__toggle">
         <span class="material-symbols-rounded events-filters__toggle-icon" aria-hidden="true">tune</span>
         <span>{% if language == 'az' %}Axtarış və filtrlər{% elif language == 'en' %}Search and filters{% else %}Поиск и фильтры{% endif %}</span>

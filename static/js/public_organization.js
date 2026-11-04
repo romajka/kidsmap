@@ -328,6 +328,7 @@
         });
 
         options.forEach(function (opt) {
+          opt.tabIndex = -1;
           opt.addEventListener('click', function (e) {
             e.stopPropagation();
             var val = opt.getAttribute('data-value') || '';
@@ -366,14 +367,29 @@
           });
         });
 
+        function focusOption(option) {
+          let attempts = 0;
+          function focusWhenVisible() {
+            if (!cs.classList.contains('is-open')) return;
+            if (document.activeElement !== trigger && !menu.contains(document.activeElement)) return;
+            option.focus();
+            if (document.activeElement !== option && ++attempts < 30) {
+              window.requestAnimationFrame(focusWhenVisible);
+            }
+          }
+          focusWhenVisible();
+        }
+
         // Keyboard navigation
         trigger.addEventListener('keydown', function (e) {
           if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             open();
             var firstOpt = menu.querySelector('.km-custom-select__option.is-selected') || options[0];
-            if (firstOpt) firstOpt.focus();
-          } else if (e.key === 'Escape') {
+            if (firstOpt) focusOption(firstOpt);
+          } else if (e.key === 'Escape' && cs.classList.contains('is-open')) {
+            e.preventDefault();
+            e.stopPropagation();
             close();
           }
         });
@@ -396,6 +412,8 @@
               cur.click();
             }
           } else if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
             close();
             trigger.focus();
           }

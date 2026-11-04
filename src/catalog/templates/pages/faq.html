@@ -55,7 +55,7 @@
     border: 1px solid #cbe7d8;
     padding: clamp(28px, 4vw, 40px) clamp(20px, 4vw, 44px);
     display: grid;
-    grid-template-columns: 1fr 340px;
+    grid-template-columns: minmax(0,1fr);
     gap: 36px;
     align-items: center;
     animation: faqRise .6s cubic-bezier(.2,.8,.3,1) both;
@@ -736,6 +736,23 @@
       padding-right: 20px;
     }
   }
+  .faq-contact-actions { display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:12px; overflow-wrap:anywhere; }
+  .faq-contact-actions > a:not(.faq-btn) { color:var(--brand-spruce,#136f38); text-underline-offset:3px; min-height:44px; display:inline-flex; align-items:center; }
+  @media(max-width:767px) {
+    .faq-hero { padding:22px 18px; border-radius:18px; }
+    .faq-hero h1 { font-size:26px; line-height:1.2; margin:0; }
+    .faq-hero-lead { font-size:15px; line-height:1.5; }
+    .faq-hero-actions { gap:8px; margin-top:4px; }
+    .faq-hero-actions .faq-btn { padding:10px 12px; min-height:44px; font-size:13px; }
+    .faq-tracks { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+    .faq-track-btn { padding:10px 6px; justify-content:center; min-height:56px; border-radius:12px; text-align:center; }
+    .faq-track-icon,.faq-track-sub { display:none; }
+    .faq-track-title { font-size:12px; line-height:1.35; overflow-wrap:normal; }
+    .faq-sidebar { display:none; }
+    .faq-main-grid { margin-top:20px; }
+    .faq-section-head { gap:10px; }
+    .faq-section h2 { font-size:21px; }
+  }
 </style>
 {% endblock %}
 
@@ -765,9 +782,9 @@
         {% else %}Частые вопросы о KidsMap{% endif %}
       </h1>
       <p class="faq-hero-lead">
-        {% if request.LANGUAGE_CODE == 'az' %}Valideynlərin və dərnək sahiblərinin ən çox verdiyi suallarla tanış olun. Cavab tapmadınızsa — aşağıdakı forma ilə bizə yazın.
-        {% elif request.LANGUAGE_CODE == 'en' %}Explore popular questions from parents and activity center owners. If you cannot find an answer, write to us using the form below.
-        {% else %}Изучите популярные вопросы родителей и владельцев секций. Если не нашли ответ — напишите нам через форму внизу.{% endif %}
+        {% if request.LANGUAGE_CODE == 'az' %}Axtarış, rəylər və məkanların əlavə edilməsi haqqında cavablar.
+        {% elif request.LANGUAGE_CODE == 'en' %}Answers about finding activities, reviews and adding places.
+        {% else %}Ответы о поиске занятий, отзывах и добавлении мест.{% endif %}
       </p>
       <div class="faq-hero-actions">
         <a href="#faq-form" class="faq-btn faq-btn--primary">
@@ -781,30 +798,7 @@
       </div>
     </div>
 
-    <!-- Stats -->
-    <div class="faq-hero-stats">
-      <div class="faq-stat-box">
-        <span class="faq-stat-icon material-symbols-rounded">pin_drop</span>
-        <div>
-          <div class="faq-stat-val">{{ places_count|default:"69" }}+ {% if request.LANGUAGE_CODE == 'az' %}məkan{% elif request.LANGUAGE_CODE == 'en' %}places{% else %}мест{% endif %}</div>
-          <div class="faq-stat-lbl">{% if request.LANGUAGE_CODE == 'az' %}xəritədə və kataloqda{% elif request.LANGUAGE_CODE == 'en' %}on map and catalog{% else %}на карте и в каталоге{% endif %}</div>
-        </div>
-      </div>
-      <div class="faq-stat-box">
-        <span class="faq-stat-icon material-symbols-rounded">category</span>
-        <div>
-          <div class="faq-stat-val">{{ categories_count|default:"10" }} {% if request.LANGUAGE_CODE == 'az' %}kateqoriya{% elif request.LANGUAGE_CODE == 'en' %}categories{% else %}категорий{% endif %}</div>
-          <div class="faq-stat-lbl">{% if request.LANGUAGE_CODE == 'az' %}idmandan elmə qədər{% elif request.LANGUAGE_CODE == 'en' %}from sport to science{% else %}от спорта до науки{% endif %}</div>
-        </div>
-      </div>
-      <div class="faq-stat-box">
-        <span class="faq-stat-icon material-symbols-rounded">schedule</span>
-        <div>
-          <div class="faq-stat-val">1 {% if request.LANGUAGE_CODE == 'az' %}iş günü{% elif request.LANGUAGE_CODE == 'en' %}business day{% else %}рабочий день{% endif %}</div>
-          <div class="faq-stat-lbl">{% if request.LANGUAGE_CODE == 'az' %}bütün müraciətlərə cavab{% elif request.LANGUAGE_CODE == 'en' %}response to all requests{% else %}ответ на все обращения{% endif %}</div>
-        </div>
-      </div>
-    </div>
+
   </section>
 
   <!-- Track Switcher -->
@@ -1189,43 +1183,18 @@
         </details>
       </section>
 
-      <!-- 5. Question Form Section -->
-      <section id="faq-form" class="faq-form-section">
+      <section id="faq-form" class="faq-form-section" aria-labelledby="faq-contact-title">
         <div class="faq-form-sidebar">
-          <span style="width: 46px; height: 46px; border-radius: 14px; background: #136f38; color: #fff; display: grid; place-items: center; font-size: 23px;" class="material-symbols-rounded">forum</span>
-          <h3>{% if request.LANGUAGE_CODE == 'az' %}Cavab tapmadınız?{% elif request.LANGUAGE_CODE == 'en' %}Still have questions?{% else %}Остались вопросы?{% endif %}</h3>
-          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #4c5b58;">{% if request.LANGUAGE_CODE == 'az' %}Sualınızı yazın — bir iş günü içində e-poçtla cavab veririk.{% elif request.LANGUAGE_CODE == 'en' %}Write to us — we will reply within 1 business day via email.{% else %}Напишите нам — мы ответим в течение 1 рабочего дня по электронной почте.{% endif %}</p>
-          <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; color: #0a4f45;">
-            <span class="material-symbols-rounded" style="font-size: 18px;">lock</span>
-            {% if request.LANGUAGE_CODE == 'az' %}Məlumatlar üçüncü şəxslərə verilmir{% elif request.LANGUAGE_CODE == 'en' %}Privacy guaranteed{% else %}Конфиденциальность гарантирована{% endif %}
-          </span>
+          <h3 id="faq-contact-title">{% if request.LANGUAGE_CODE == 'az' %}Cavab tapmadınız?{% elif request.LANGUAGE_CODE == 'en' %}Still have questions?{% else %}Остались вопросы?{% endif %}</h3>
+          <p>{% if request.LANGUAGE_CODE == 'az' %}Bizə e-poçtla yazın. Məktub poçt tətbiqinizdə açılacaq — onu oradan göndərin.{% elif request.LANGUAGE_CODE == 'en' %}Email us. A message will open in your mail app — send it from there.{% else %}Напишите нам по почте. Письмо откроется в вашем почтовом приложении — отправьте его оттуда.{% endif %}</p>
         </div>
-
-        <form id="faq-interactive-form" onsubmit="handleFaqFormSubmit(event)">
-          <div class="faq-topic-chips">
-            <button type="button" class="faq-topic-chip is-active" data-topic="Axtarış">{% if request.LANGUAGE_CODE == 'az' %}Axtarış{% elif request.LANGUAGE_CODE == 'en' %}Search{% else %}Поиск{% endif %}</button>
-            <button type="button" class="faq-topic-chip" data-topic="Rəylər">{% if request.LANGUAGE_CODE == 'az' %}Rəylər{% elif request.LANGUAGE_CODE == 'en' %}Reviews{% else %}Отзывы{% endif %}</button>
-            <button type="button" class="faq-topic-chip" data-topic="Yerləşdirmə">{% if request.LANGUAGE_CODE == 'az' %}Yerləşdirmə{% elif request.LANGUAGE_CODE == 'en' %}Listing{% else %}Размещение{% endif %}</button>
-            <button type="button" class="faq-topic-chip" data-topic="Digər">{% if request.LANGUAGE_CODE == 'az' %}Digər{% elif request.LANGUAGE_CODE == 'en' %}Other{% else %}Другое{% endif %}</button>
-          </div>
-
-          <div class="faq-input-grid">
-            <input type="text" id="faq-name" class="faq-input" placeholder="{% if request.LANGUAGE_CODE == 'az' %}Adınız{% elif request.LANGUAGE_CODE == 'en' %}Your name{% else %}Ваше имя{% endif %}" required>
-            <input type="email" id="faq-email" class="faq-input" placeholder="{% if request.LANGUAGE_CODE == 'az' %}E-poçt{% elif request.LANGUAGE_CODE == 'en' %}Email{% else %}Электронная почта{% endif %}" required>
-          </div>
-
-          <textarea id="faq-message" class="faq-textarea" placeholder="{% if request.LANGUAGE_CODE == 'az' %}Sualınızı qeyd edin...{% elif request.LANGUAGE_CODE == 'en' %}Describe your question...{% else %}Опишите ваш вопрос подробно...{% endif %}" required></textarea>
-
-          <button type="submit" class="faq-btn faq-btn--primary" style="width: 100%; justify-content: center;">
-            <span class="material-symbols-rounded">send</span>
-            {% if request.LANGUAGE_CODE == 'az' %}Sualı göndər{% elif request.LANGUAGE_CODE == 'en' %}Send question{% else %}Отправить вопрос{% endif %}
-          </button>
-        </form>
-
-        <div id="faq-form-success" style="display: none; padding: 24px; border-radius: 16px; background: #dcefe9; border: 1px solid #c3e2d8; color: #0a4f45; text-align: center; animation: faqPop .4s ease both;">
-          <span class="material-symbols-rounded" style="font-size: 36px; color: #136f38; display: block; margin-bottom: 8px;">check_circle</span>
-          <strong style="font-size: 18px; display: block; margin-bottom: 4px;">{% if request.LANGUAGE_CODE == 'az' %}Sual göndərildi!{% elif request.LANGUAGE_CODE == 'en' %}Question sent!{% else %}Спасибо за вопрос!{% endif %}</strong>
-          <p style="margin: 0; font-size: 14.5px; color: #4c5b58;">{% if request.LANGUAGE_CODE == 'az' %}Bir iş günü içində e-poçtunuza cavab yazacağıq.{% elif request.LANGUAGE_CODE == 'en' %}We will reply to your email within 1 business day.{% else %}Мы получили ваше обращение и ответим на указанную почту в ближайшее время.{% endif %}</p>
+        <div class="faq-contact-actions">
+          <a class="faq-btn faq-btn--primary" href="mailto:{{ footer_email|default:'info@kidsmap.az' }}">
+            <span class="material-symbols-rounded" aria-hidden="true">mail</span>
+            {% if request.LANGUAGE_CODE == 'az' %}E-poçtla yazın{% elif request.LANGUAGE_CODE == 'en' %}Write an email{% else %}Написать письмо{% endif %}
+          </a>
+          <span>{{ footer_email|default:'info@kidsmap.az' }}</span>
+          <a href="{% url 'contacts' %}">{% if request.LANGUAGE_CODE == 'az' %}Bütün əlaqə üsulları{% elif request.LANGUAGE_CODE == 'en' %}All contact options{% else %}Все способы связи{% endif %}</a>
         </div>
       </section>
 
@@ -1255,7 +1224,11 @@
   (function initFaqAccordion() {
     const isAnimatingMap = new WeakMap();
 
+    const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches || !wrapAnimationAvailable();
+    const wrapAnimationAvailable = () => typeof Element.prototype.animate === 'function';
+
     function slideDown(item, wrap) {
+      if (reduceMotion()) { item.open = true; return; }
       if (isAnimatingMap.get(item)) return;
       isAnimatingMap.set(item, true);
 
@@ -1280,6 +1253,7 @@
     }
 
     function slideUp(item, wrap, callback) {
+      if (reduceMotion()) { item.open = false; if (callback) callback(); return; }
       if (isAnimatingMap.get(item)) return;
       isAnimatingMap.set(item, true);
 
@@ -1340,23 +1314,5 @@
     });
   });
 
-  // Topic chips
-  document.querySelectorAll('.faq-topic-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.faq-topic-chip').forEach(c => c.classList.remove('is-active'));
-      chip.classList.add('is-active');
-    });
-  });
-
-  // Question form submit handler
-  function handleFaqFormSubmit(e) {
-    e.preventDefault();
-    const form = document.getElementById('faq-interactive-form');
-    const success = document.getElementById('faq-form-success');
-    if (form && success) {
-      form.style.display = 'none';
-      success.style.display = 'block';
-    }
-  }
 </script>
 {% endblock %}

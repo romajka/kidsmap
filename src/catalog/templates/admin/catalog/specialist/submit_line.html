@@ -1,0 +1,29 @@
+{% load i18n admin_urls %}
+<div class="km-admin-sidebar-actions km-specialist-submit">
+  {% if show_save %}
+    <button type="submit" class="km-btn--sidebar km-btn--success" name="_save"><i class="fas fa-save" aria-hidden="true"></i><span>{% translate 'Save' %}</span></button>
+  {% endif %}
+  {% if show_save_as_new or show_save_and_add_another or show_save_and_continue or show_delete_link %}
+    <details class="km-specialist-more-actions">
+      <summary class="km-btn--sidebar km-btn--info">{% translate 'Другие действия' %}</summary>
+      <div class="km-specialist-more-actions__menu">
+        {% if show_save_and_continue %}
+          <button type="submit" class="km-btn--sidebar km-btn--info" name="_continue"><span>{% if can_change %}{% translate 'Save and continue editing' %}{% else %}{% translate 'Save and view' %}{% endif %}</span></button>
+        {% endif %}
+        {% if show_save_and_add_another %}
+          <button type="submit" class="km-btn--sidebar km-btn--info" name="_addanother"><span>{% translate 'Save and add another' %}</span></button>
+        {% endif %}
+        {% if show_save_as_new %}
+          <button type="submit" class="km-btn--sidebar km-btn--info" name="_saveasnew"><span>{% translate 'Save as new' %}</span></button>
+        {% endif %}
+        {% if show_delete_link and original %}
+          {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+          <a href="{% add_preserved_filters delete_url %}" class="km-btn--sidebar km-btn--danger"><i class="fas fa-trash-alt" aria-hidden="true"></i><span>{% translate 'Delete' %}</span></a>
+        {% endif %}
+      </div>
+    </details>
+  {% endif %}
+  {% if show_close %}
+    <a href="{% url opts|admin_urlname:'changelist' %}" class="km-btn--sidebar km-btn--info"><span>{% translate 'Close' %}</span></a>
+  {% endif %}
+</div>

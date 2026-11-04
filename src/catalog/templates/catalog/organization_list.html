@@ -6,7 +6,7 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block meta_description_og %}{{ meta_description }}{% endblock %}
 {% block meta_description_twitter %}{{ meta_description }}{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/organization_directory.css' %}?v=3">{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/organization_directory.css' %}?v=20261104_public_mobile_r2">{% endblock %}
 {% block content %}
 <div class="org-directory">
   <header class="org-hero">
@@ -32,6 +32,12 @@
   </header>
 
 
+  <form class="org-directory-search" method="get" action="{% url 'organization_list' %}" role="search">
+    <label for="org-search">{{ text.search }}<input type="search" id="org-search" name="q" value="{{ q }}" maxlength="200" placeholder="{{ text.search }}"></label>
+    <label for="org-district">{{ text.district }}<select id="org-district" name="district"><option value="">{{ text.all }}</option>{% for key,label in districts %}<option value="{{ key }}"{% if district == key %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+    <button type="submit">{{ text.submit }}</button>
+  </form>
+
   <div class="org-results-bar">
     <div class="org-results-count">
       <h2>{{ text.results }} <span class="org-count-pill">{{ page_obj.paginator.count }}</span></h2>
@@ -39,13 +45,13 @@
     {% if q or district %}
     <div class="org-active-chips">
       {% if q %}
-      <a href="?{% if district %}district={{ district }}{% endif %}" class="org-filter-chip" aria-label="{{ text.reset }}: {{ q }}">
+      <a href="?{% if district %}district={{ district|urlencode }}{% endif %}" class="org-filter-chip" aria-label="{{ text.reset }}: {{ q }}">
         <span>{{ q }}</span>
         <span class="material-symbols-rounded" aria-hidden="true">close</span>
       </a>
       {% endif %}
       {% if district %}
-      <a href="?{% if q %}q={{ q }}{% endif %}" class="org-filter-chip" aria-label="{{ text.reset }}: {{ district }}">
+      <a href="?{% if q %}q={{ q|urlencode }}{% endif %}" class="org-filter-chip" aria-label="{{ text.reset }}: {{ district }}">
         <span>{% for key, label in districts %}{% if district == key %}{{ label }}{% endif %}{% endfor %}</span>
         <span class="material-symbols-rounded" aria-hidden="true">close</span>
       </a>
@@ -72,7 +78,7 @@
         {% if card.branch_count %}
           <div class="org-badge-branches">
             <span class="material-symbols-rounded" aria-hidden="true">storefront</span>
-            <span>{{ card.branch_count }} {{ text.branches|lower }}</span>
+            <span>{{ text.branches }}: {{ card.branch_count }}</span>
           </div>
         {% endif %}
         {% if card.photos %}

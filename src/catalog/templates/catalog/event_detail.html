@@ -5,11 +5,9 @@
 {% block title_plain %}{{ seo_title }}{% endblock %}
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block og_image %}{% if seo_image_url %}<meta property="og:image" content="{{ seo_image_url }}" />{% else %}{{ block.super }}{% endif %}{% endblock %}
-{% block twitter_image %}{% if seo_image_url %}<meta name="twitter:image" content="{{ seo_image_url }}" />{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block structured_data %}<script type="application/ld+json">{{ event_schema_json|safe }}</script>{% endblock %}
 
-{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/event_public.css' %}?v=20261026">{% endblock %}
+{% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/event_public.css' %}?v=20261104_public_mobile_r2">{% endblock %}
 
 {% block content %}
   <article class="panel event-detail-page">

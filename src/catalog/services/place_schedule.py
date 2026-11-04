@@ -119,6 +119,12 @@ OPEN_STATUS_COPY = {
     "en": {"open": "Open today", "closed": "Closed today", "today": "today"},
 }
 
+CURRENT_STATUS_COPY = {
+    "ru": {"open": "Сейчас открыто", "closed": "Сейчас закрыто"},
+    "az": {"open": "Hazırda açıqdır", "closed": "Hazırda bağlıdır"},
+    "en": {"open": "Open now", "closed": "Closed now"},
+}
+
 EVENT_MONTHS = {
     "ru": ("января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"),
     "az": ("yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avqust", "sentyabr", "oktyabr", "noyabr", "dekabr"),
@@ -658,7 +664,7 @@ def build_public_schedule_week(place, language=None) -> list[dict[str, object]]:
 
 
 def build_open_status(place, language=None) -> dict[str, object]:
-    """Whether the place is open right now, for the "open today" marker.
+    """Current opening status; only a whole day off is labelled closed today.
 
     Returns an empty dict when the schedule cannot answer the question, so the
     template can simply skip the marker instead of guessing.
@@ -707,6 +713,6 @@ def build_open_status(place, language=None) -> dict[str, object]:
         return {}
     return {
         "is_open": is_open,
-        "label": OPEN_STATUS_COPY[lang]["open" if is_open else "closed"],
+        "label": CURRENT_STATUS_COPY[lang]["open" if is_open else "closed"],
         "time": " · ".join(lines),
     }

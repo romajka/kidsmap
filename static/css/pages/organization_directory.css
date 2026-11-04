@@ -571,7 +571,7 @@
 }
 
 .org-card:hover h3 a {
-  color: #08a769;
+  color: #136F38;
 }
 
 .org-description {
@@ -651,26 +651,32 @@
   height: 38px;
   padding: 0 16px;
   border-radius: 10px;
-  background: #08a769;
-  border: none;
+  background: #136F38;
+  border: 1px solid #136F38;
   color: #ffffff;
   text-decoration: none;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 2px 6px rgba(8, 167, 105, 0.2);
+  box-shadow: 0 2px 6px rgba(19, 111, 56, 0.25);
 }
 
 .org-card-cta:hover {
-  background: #068d58;
+  background: #0e5229;
+  border-color: #0e5229;
   color: #ffffff;
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(8, 167, 105, 0.35);
+  box-shadow: 0 4px 14px rgba(19, 111, 56, 0.35);
 }
 
 .org-card-cta:active {
   transform: translateY(0) scale(0.98);
+}
+
+.org-card-cta:focus-visible {
+  outline: 2px solid #136F38;
+  outline-offset: 2px;
 }
 
 .org-card-cta-arrow {
@@ -685,9 +691,10 @@
 }
 
 .org-card:hover .org-card-cta {
-  background: #eaf5ee;
-  border-color: #bfe1cd;
-  color: #086131;
+  background: #0e5229;
+  border-color: #0e5229;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(19, 111, 56, 0.3);
 }
 
 .org-card:hover .org-card-cta-arrow {
@@ -836,6 +843,10 @@
     padding: 16px;
     border-radius: 16px;
   }
+  .org-filters input,
+  .org-filters select {
+    font-size: 16px !important;
+  }
   .org-grid {
     grid-template-columns: 1fr;
     gap: 18px;
@@ -851,3 +862,10 @@
     align-items: flex-start;
   }
 }
+
+.org-directory-search { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto; gap:12px; align-items:end; margin:0 0 24px; padding:20px; background:#fff; border:1px solid #dce7e0; border-radius:16px; }
+.org-directory-search label { display:grid; gap:8px; min-width:0; font-size:13px; font-weight:650; color:var(--ink,#142e23); }
+.org-directory-search input,.org-directory-search select { width:100%; min-width:0; box-sizing:border-box; min-height:44px; padding:10px 12px; border:1px solid #cadbd0; border-radius:10px; background:#fff; color:inherit; font:inherit; font-size:16px; }
+.org-directory-search button { min-height:44px; padding:10px 20px; border:0; border-radius:10px; background:var(--brand-spruce,#136f38); color:#fff; font:inherit; font-weight:700; cursor:pointer; }
+.org-directory-search :is(input,select,button):focus-visible { outline:2px solid var(--brand-spruce,#136f38); outline-offset:3px; }
+@media(max-width:600px) { .org-directory-search { grid-template-columns:minmax(0,1fr) auto; padding:16px; } .org-directory-search label:first-child { grid-column:1/-1; } }

@@ -301,6 +301,10 @@ class MultipleFileInput(forms.ClearableFileInput):
     template_name = "widgets/multiple_file_input.html"
 
 
+class SpecialistDocumentFileInput(MultipleFileInput):
+    template_name = "widgets/specialist_document_input.html"
+
+
 class ImagePreviewFileInput(forms.ClearableFileInput):
     template_name = "widgets/image_preview_file_input.html"
 
@@ -553,6 +557,8 @@ class LoginForm(AuthenticationForm):
             }
         )
         self.fields["remember_me"].widget.attrs.update({"class": "register-consent-checkbox"})
+        # Error copy belongs to this request; AuthenticationForm keeps it on the class.
+        self.error_messages = self.error_messages.copy()
         self._apply_login_copy()
 
     def _apply_login_copy(self) -> None:
@@ -2235,7 +2241,7 @@ class OwnerSpecialistForm(forms.ModelForm):
     draft_save_only = False
     documents = MultipleFileField(
         label=_("Дипломы и сертификаты"),
-        widget=MultipleFileInput(attrs={"class": "field", "multiple": True, "accept": ".pdf,image/*"}),
+        widget=SpecialistDocumentFileInput(attrs={"class": "field", "multiple": True, "accept": ".pdf,.png,.jpg,.jpeg"}),
         required=False,
         help_text=_("Документы остаются приватными. Публичный показ квалификации возможен после вашего выбора и проверки KidsMap."),
     )
@@ -2316,10 +2322,10 @@ class OwnerSpecialistForm(forms.ModelForm):
             "price_from": forms.TextInput(attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "30"}),
             "price_to": forms.TextInput(attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "80"}),
             "duration_minutes": forms.TextInput(attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "50"}),
-            "phone": forms.TextInput(attrs={"class": "field", "placeholder": "+994 50 123 45 67", "inputmode": "tel"}),
-            "whatsapp": forms.TextInput(attrs={"class": "field", "placeholder": "+994 50 123 45 67", "inputmode": "tel"}),
+            "phone": forms.TextInput(attrs={"class": "field", "placeholder": "50 123 45 67", "inputmode": "tel"}),
+            "whatsapp": forms.TextInput(attrs={"class": "field", "placeholder": "50 123 45 67", "inputmode": "tel"}),
             "instagram": forms.TextInput(attrs={"class": "field", "placeholder": "username"}),
-            "website": forms.URLInput(attrs={"class": "field", "placeholder": "https://example.com"}),
+            "website": forms.URLInput(attrs={"class": "field", "placeholder": "example.com"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -2376,14 +2382,19 @@ class OwnerSpecialistForm(forms.ModelForm):
 
         if not any((cleaned.get("bio_az"), cleaned.get("bio_ru"), cleaned.get("bio_en"))):
             msg = _("Добавьте описание профиля хотя бы на одном языке.")
-            self.add_error("bio_az", msg)
-            self.add_error("bio_ru", msg)
-            self.add_error("bio_en", msg)
+            language = (get_language() or 'az').split('-')[0]
+            self.add_error('bio_' + (language if language in ('az', 'ru', 'en') else 'az'), msg)
 
         if not (cleaned.get("phone") or cleaned.get("whatsapp")):
             msg = _("Укажите телефон или WhatsApp для связи.")
             self.add_error("phone", msg)
-            self.add_error("whatsapp", msg)
+        for field_name in ('phone', 'whatsapp'):
+            value = cleaned.get(field_name)
+            if value:
+                try:
+                    cleaned[field_name] = _validate_phone(value)
+                except ValidationError as exc:
+                    self.add_error(field_name, exc)
 
         # Enforce that if format is offline or both, location fields are required and validated
         consultation_format = cleaned.get("consultation_format")
@@ -2406,8 +2417,6 @@ class OwnerSpecialistForm(forms.ModelForm):
         if not (lang_az or lang_ru or lang_en):
             msg = _("Выберите хотя бы один язык работы.")
             self.add_error("language_az", msg)
-            self.add_error("language_ru", msg)
-            self.add_error("language_en", msg)
 
         # Validate ages
         age_from = cleaned.get("age_from")

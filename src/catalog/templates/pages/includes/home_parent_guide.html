@@ -1,20 +1,48 @@
 {% load static %}
 {% url 'parent_guide' slug='baku-with-kids' as day_out_url %}
-<section class="home-parent-guide" id="home-parent-guide" aria-labelledby="home-parent-guide-title">
+<section class="home-parent-guide" id="home-parent-guide" data-guide-slider aria-labelledby="home-parent-guide-title">
   <div class="home-parent-guide__copy">
     <span class="home-redesign-kicker">{% if request.LANGUAGE_CODE == 'az' %}BAKIDA AİLƏVİ İSTİRAHƏT{% elif request.LANGUAGE_CODE == 'en' %}FAMILY DAYS OUT IN BAKU{% else %}СЕМЕЙНЫЙ ОТДЫХ В БАКУ{% endif %}</span>
     <h2 id="home-parent-guide-title"><a href="{{ day_out_url }}">{% if request.LANGUAGE_CODE == 'az' %}Bakıda uşaqlarla hara getmək olar{% elif request.LANGUAGE_CODE == 'en' %}Things to do in Baku with kids{% else %}Куда сходить с ребёнком в Баку{% endif %}</a></h2>
     <p>{% if request.LANGUAGE_CODE == 'az' %}Parklar, muzeylər və oyun mərkəzləri — bu gün və ya həftəsonu bütün ailənizlə istirahət üçün məkan seçin.{% elif request.LANGUAGE_CODE == 'en' %}Parks, museums and play centers — find somewhere for the whole family to enjoy today or at the weekend.{% else %}Парки, музеи и игровые центры — выберите, куда пойти всей семьёй сегодня или в выходные.{% endif %}</p>
+  </div>
+  <div class="home-parent-guide__destinations" id="home-guide-track" data-guide-track tabindex="0" role="region" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Ailəvi istirahət bələdçiləri{% elif request.LANGUAGE_CODE == 'en' %}Family day out guides{% else %}Гиды для семейного отдыха{% endif %}">
+    <a class="home-parent-guide__destination" href="{% url 'parent_guide' slug='parks' %}">
+      <img src="{% static 'img/guides/parks-hero-small.webp' %}" srcset="{% static 'img/guides/parks-hero-small.webp' %} 640w, {% static 'img/guides/parks-hero.webp' %} 1200w" sizes="(max-width: 760px) 75vw, 30vw" alt="" width="640" height="427" loading="lazy" decoding="async">
+      <span class="home-parent-guide__destination-copy"><span class="home-parent-guide__destination-note">{% if request.LANGUAGE_CODE == 'az' %}Açıq havada{% elif request.LANGUAGE_CODE == 'en' %}Fresh air{% else %}На свежем воздухе{% endif %}</span><strong>{% if request.LANGUAGE_CODE == 'az' %}Parklar və oyun meydançaları{% elif request.LANGUAGE_CODE == 'en' %}Parks and playgrounds{% else %}Парки и детские площадки{% endif %}</strong><span class="home-parent-guide__destination-arrow" aria-hidden="true">↗</span></span>
+    </a>
+    <a class="home-parent-guide__destination" href="{% url 'parent_guide' slug='museums' %}">
+      <img src="{% static 'img/guides/museums-hero-small.webp' %}" srcset="{% static 'img/guides/museums-hero-small.webp' %} 640w, {% static 'img/guides/museums-hero.webp' %} 1536w" sizes="(max-width: 760px) 75vw, 30vw" alt="" width="640" height="427" loading="lazy" decoding="async">
+      <span class="home-parent-guide__destination-copy"><span class="home-parent-guide__destination-note">{% if request.LANGUAGE_CODE == 'az' %}Yeni kəşflər{% elif request.LANGUAGE_CODE == 'en' %}Little discoveries{% else %}Маленькие открытия{% endif %}</span><strong>{% if request.LANGUAGE_CODE == 'az' %}Uşaqlarla muzeyə{% elif request.LANGUAGE_CODE == 'en' %}Museums with children{% else %}Музеи Баку для детей{% endif %}</strong><span class="home-parent-guide__destination-arrow" aria-hidden="true">↗</span></span>
+    </a>
+    <a class="home-parent-guide__destination" href="{% url 'parent_guide' slug='play-centers' %}">
+      <img src="{% static 'img/guides/play-centers-hero-small.webp' %}" srcset="{% static 'img/guides/play-centers-hero-small.webp' %} 640w, {% static 'img/guides/play-centers-hero.webp' %} 1536w" sizes="(max-width: 760px) 75vw, 30vw" alt="" width="640" height="427" loading="lazy" decoding="async">
+      <span class="home-parent-guide__destination-copy"><span class="home-parent-guide__destination-note">{% if request.LANGUAGE_CODE == 'az' %}Birlikdə oynayaq{% elif request.LANGUAGE_CODE == 'en' %}Play together{% else %}Время играть{% endif %}</span><strong>{% if request.LANGUAGE_CODE == 'az' %}Bakıda oyun mərkəzləri{% elif request.LANGUAGE_CODE == 'en' %}Baku play centres{% else %}Игровые центры Баку{% endif %}</strong><span class="home-parent-guide__destination-arrow" aria-hidden="true">↗</span></span>
+    </a>
+    <a class="home-parent-guide__destination" href="{% url 'parent_guide' slug='baku-with-kids' %}">
+      <img src="{% static 'img/guides/family-hero.webp' %}" alt="" width="1536" height="1024" loading="lazy" decoding="async">
+      <span class="home-parent-guide__destination-copy"><span class="home-parent-guide__destination-note">{% if request.LANGUAGE_CODE == 'az' %}Birlikdə vaxt{% elif request.LANGUAGE_CODE == 'en' %}Time together{% else %}Время вместе{% endif %}</span><strong>{% if request.LANGUAGE_CODE == 'az' %}Ailəvi istirahət{% elif request.LANGUAGE_CODE == 'en' %}Family days out{% else %}Отдых всей семьёй{% endif %}</strong><span class="home-parent-guide__destination-arrow" aria-hidden="true">↗</span></span>
+    </a>
+    <a class="home-parent-guide__destination" href="{% url 'parent_guide' slug='sport' %}">
+      <img src="{% static 'img/guides/sport-hero.webp' %}" alt="" width="1536" height="1024" loading="lazy" decoding="async">
+      <span class="home-parent-guide__destination-copy"><span class="home-parent-guide__destination-note">{% if request.LANGUAGE_CODE == 'az' %}Hərəkətdə{% elif request.LANGUAGE_CODE == 'en' %}Move and play{% else %}В движении{% endif %}</span><strong>{% if request.LANGUAGE_CODE == 'az' %}Uşaq üçün idman{% elif request.LANGUAGE_CODE == 'en' %}Sport for your child{% else %}Спорт для ребёнка{% endif %}</strong><span class="home-parent-guide__destination-arrow" aria-hidden="true">↗</span></span>
+    </a>
+  </div>
+  <div class="home-parent-guide__footer">
+  <div class="home-parent-guide__controls" data-guide-controls hidden>
+    <button type="button" data-guide-prev aria-controls="home-guide-track" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Əvvəlki bələdçilər{% elif request.LANGUAGE_CODE == 'en' %}Previous guides{% else %}Предыдущие гиды{% endif %}"><span aria-hidden="true">←</span></button>
+    <button type="button" data-guide-motion hidden aria-pressed="false" data-pause-label="{% if request.LANGUAGE_CODE == 'az' %}Animasiyanı dayandır{% elif request.LANGUAGE_CODE == 'en' %}Pause animation{% else %}Остановить анимацию{% endif %}" data-play-label="{% if request.LANGUAGE_CODE == 'az' %}Animasiyanı davam etdir{% elif request.LANGUAGE_CODE == 'en' %}Resume animation{% else %}Включить анимацию{% endif %}"><span data-guide-motion-icon aria-hidden="true">Ⅱ</span></button>
+    <button type="button" data-guide-next aria-controls="home-guide-track" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Növbəti bələdçilər{% elif request.LANGUAGE_CODE == 'en' %}Next guides{% else %}Следующие гиды{% endif %}"><span aria-hidden="true">→</span></button>
+  </div>
+
     <nav class="home-parent-guide__shortcuts" aria-label="{% if request.LANGUAGE_CODE == 'az' %}İstirahət üçün seçimlər{% elif request.LANGUAGE_CODE == 'en' %}Plan your day out{% else %}Варианты отдыха с детьми{% endif %}">
-      <a href="{{ day_out_url }}#guide-topics">{% if request.LANGUAGE_CODE == 'az' %}Ailəvi istirahət məkanları{% elif request.LANGUAGE_CODE == 'en' %}Family days out{% else %}Места для семейного отдыха{% endif %}</a>
+      <a href="{{ day_out_url }}#guide-topics">{% if request.LANGUAGE_CODE == 'az' %}Bütün istiqamətlər{% elif request.LANGUAGE_CODE == 'en' %}All options{% else %}Все варианты отдыха{% endif %}</a>
       <a href="{{ day_out_url }}#guide-faq-weekend">{% if request.LANGUAGE_CODE == 'az' %}Həftəsonu{% elif request.LANGUAGE_CODE == 'en' %}At the weekend{% else %}На выходные{% endif %}</a>
       <a href="{{ day_out_url }}#guide-faq-rain">{% if request.LANGUAGE_CODE == 'az' %}Yağışlı gündə{% elif request.LANGUAGE_CODE == 'en' %}On a rainy day{% else %}В дождливый день{% endif %}</a>
       <a href="{{ day_out_url }}#guide-faq-free">{% if request.LANGUAGE_CODE == 'az' %}Pulsuz istirahət{% elif request.LANGUAGE_CODE == 'en' %}Free days out{% else %}Бесплатный отдых{% endif %}</a>
     </nav>
     <div class="home-parent-guide__actions">
-      <a class="home-redesign-primary" href="{{ day_out_url }}">{% if request.LANGUAGE_CODE == 'az' %}Bələdçiyə bax{% elif request.LANGUAGE_CODE == 'en' %}Explore the guide{% else %}Открыть гид{% endif %}<span aria-hidden="true">↗</span></a>
-      <a class="home-parent-guide__sport" href="{% url 'parent_guide' slug='sport' %}">{% if request.LANGUAGE_CODE == 'az' %}Uşaq üçün idman seçək{% elif request.LANGUAGE_CODE == 'en' %}Choose a sport for your child{% else %}Выбрать спорт для ребёнка{% endif %}<span aria-hidden="true">→</span></a>
+      <a class="home-redesign-primary" href="{{ day_out_url }}" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Bələdçiyə bax{% elif request.LANGUAGE_CODE == 'en' %}Explore the guide{% else %}Открыть гид{% endif %}"><span class="home-parent-guide__cta-full">{% if request.LANGUAGE_CODE == 'az' %}Bələdçiyə bax{% elif request.LANGUAGE_CODE == 'en' %}Explore the guide{% else %}Открыть гид{% endif %}</span><span class="home-parent-guide__cta-short" aria-hidden="true">{% if request.LANGUAGE_CODE == 'az' %}Bələdçi{% elif request.LANGUAGE_CODE == 'en' %}Guide{% else %}Гид{% endif %}</span><span class="home-parent-guide__cta-arrow" aria-hidden="true">↗</span></a>
     </div>
   </div>
-  <img class="home-parent-guide__art" src="{% static 'img/guides/family-hero.webp' %}" alt="" width="1200" height="800" loading="lazy" decoding="async">
 </section>

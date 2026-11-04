@@ -4,10 +4,8 @@
 {% block title_plain %}{{ seo_title }}{% endblock %}
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block og_image %}{% if seo_image_url %}<meta property="og:image" content="{{ seo_image_url }}" />{% else %}{{ block.super }}{% endif %}{% endblock %}
-{% block twitter_image %}{% if seo_image_url %}<meta name="twitter:image" content="{{ seo_image_url }}" />{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block structured_data %}<script type="application/ld+json">{{ entity_schema_json|safe }}</script>{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=4">{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=20261104_public_mobile_r4">{% endblock %}
 {% block content %}
 {% get_current_language as language %}
 {% if presentation.kind == "organization" %}
@@ -622,8 +620,8 @@
     <h1 lang="{{ presentation.name_language }}">{{ presentation.name }}</h1>
     {% if presentation.translation_fallback %}<p class="public-notice" data-translation-fallback>{% if language == 'ru' %}Часть текста показана на азербайджанском. Перевод пока не добавлен.{% elif language == 'en' %}Some text is shown in Azerbaijani. A translation is not available yet.{% else %}Mətnin bir hissəsi azərbaycanca göstərilir. Tərcümə hələ yoxdur.{% endif %}</p>{% endif %}
   </header>
-  <div class="public-layout">
-    <div class="public-main">
+  <div class="public-layout public-activity-layout">
+    <div class="public-activity-media">
       {% if presentation.image_url %}<img class="public-hero-image" src="{{ presentation.image_url }}" alt="{{ presentation.name }}" decoding="async">{% else %}
       <div class="public-placeholder public-hero-placeholder" data-category-placeholder>
         <div class="public-placeholder-inner">
@@ -631,17 +629,13 @@
           <strong>{{ presentation.name }}</strong>
         </div>
       </div>{% endif %}
-      {% if presentation.description %}<div class="public-prose public-description" lang="{{ presentation.description_language }}">{{ presentation.description|linebreaks }}</div>{% endif %}
-      <section class="public-section" aria-labelledby="groups-heading"><h2 id="groups-heading">{% if language == 'ru' %}Группы и местные условия{% elif language == 'en' %}Groups and local conditions{% else %}Qruplar və yerli şərtlər{% endif %}</h2>{% include "catalog/includes/public_offerings.html" with groups=presentation.groups %}</section>
-      {% if presentation.supplement %}<section class="public-section"><h2>{% if language == 'ru' %}Местное дополнение{% elif language == 'en' %}Local supplement{% else %}Yerli əlavə{% endif %}</h2><div class="public-prose" lang="{{ presentation.supplement_language }}">{{ presentation.supplement|linebreaks }}</div></section>{% endif %}
-      <section class="public-section" aria-labelledby="reviews-heading">
-        {% include 'catalog/includes/typed_review_link.html' with review_kind='activity' review_target=entity %}
-        <h2 id="reviews-heading">{% if language == 'ru' %}Отзывы о занятии{% elif language == 'en' %}Activity reviews{% else %}Məşğələ haqqında rəylər{% endif %}</h2>
-        <ul class="public-entity-list public-reviews">{% for review in review_feed %}<li><a href="{{ review.target_url }}">{{ review.target_name }}</a><p><span aria-hidden="true">★</span> {{ review.rating }} / 5</p><blockquote>{{ review.text|linebreaks }}</blockquote></li>{% empty %}<li class="public-muted">{% if language == 'ru' %}Отзывов пока нет.{% elif language == 'en' %}No reviews yet.{% else %}Hələ rəy yoxdur.{% endif %}</li>{% endfor %}</ul>
-      </section>
     </div>
     <aside class="public-aside">
-      {% if place %}<section class="public-section"><h2>{% if language == 'ru' %}Место проведения{% elif language == 'en' %}Location{% else %}Keçirildiyi məkan{% endif %}</h2><a class="public-parent-link" href="{{ place_presentation.url }}" lang="{{ place_presentation.name_language }}">{{ place_presentation.name }}</a>{% if place.address_i18n %}<p>{{ place.address_i18n }}</p>{% endif %}<p class="public-muted">{% if language == 'ru' %}Часы работы места не являются расписанием занятия.{% elif language == 'en' %}Place opening hours are not the class schedule.{% else %}Məkanın iş saatları dərs cədvəli deyil.{% endif %}</p></section>{% endif %}
+      <section class="public-section public-activity-summary" aria-labelledby="activity-conditions">
+        <h2 id="activity-conditions">{% if language == 'ru' %}Условия занятия{% elif language == 'en' %}Class details{% else %}Dərs şərtləri{% endif %}</h2>
+        {% if presentation.prices.label %}<p class="public-activity-price">{{ presentation.prices.label }}</p>{% endif %}
+        <a class="public-parent-link" href="#groups-heading">{% if language == 'ru' %}Возраст, группы и расписание{% elif language == 'en' %}Ages, groups and schedule{% else %}Yaş, qruplar və cədvəl{% endif %}</a>
+      </section>
       <section class="public-section" aria-labelledby="contacts-heading"><h2 id="contacts-heading" class="public-aside-heading"><span class="material-symbols-rounded" aria-hidden="true">contact_phone</span><span>{% if language == 'ru' %}Контакты{% elif language == 'en' %}Contact{% else %}Əlaqə{% endif %}</span></h2>
         <div class="public-actions">
         {% if place and presentation.contacts.has_phone %}{% include "catalog/includes/phone_reveal.html" with phone_class="public-contact" phone_index=0 %}{% endif %}
@@ -653,11 +647,23 @@
         {% if not presentation.contacts.has_phone and not presentation.contacts.website_url and not presentation.contacts.whatsapp_url %}<p class="public-muted">{% if language == 'ru' %}Контакты пока не добавлены.{% elif language == 'en' %}Contact details have not been added yet.{% else %}Əlaqə məlumatı hələ əlavə edilməyib.{% endif %}</p>{% endif %}
         {% if presentation.organization %}<a class="public-parent-link" href="{{ presentation.organization.url }}" lang="{{ presentation.organization.name_language }}">{{ presentation.organization.name }}</a>{% endif %}
       </section>
+      {% if place %}<section class="public-section"><h2>{% if language == 'ru' %}Место проведения{% elif language == 'en' %}Location{% else %}Keçirildiyi məkan{% endif %}</h2><a class="public-parent-link" href="{{ place_presentation.url }}" lang="{{ place_presentation.name_language }}">{{ place_presentation.name }}</a>{% if place.address_i18n %}<p>{{ place.address_i18n }}</p>{% endif %}<p class="public-muted">{% if language == 'ru' %}Часы работы места не являются расписанием занятия.{% elif language == 'en' %}Place opening hours are not the class schedule.{% else %}Məkanın iş saatları dərs cədvəli deyil.{% endif %}</p></section>{% endif %}
     </aside>
+    <div class="public-main">
+      {% if presentation.description %}<div class="public-prose public-description" lang="{{ presentation.description_language }}">{{ presentation.description|linebreaks }}</div>{% endif %}
+      <section class="public-section" aria-labelledby="groups-heading"><h2 id="groups-heading">{% if language == 'ru' %}Группы и местные условия{% elif language == 'en' %}Groups and local conditions{% else %}Qruplar və yerli şərtlər{% endif %}</h2>{% include "catalog/includes/public_offerings.html" with groups=presentation.groups %}</section>
+      {% if presentation.supplement %}<section class="public-section"><h2>{% if language == 'ru' %}Местное дополнение{% elif language == 'en' %}Local supplement{% else %}Yerli əlavə{% endif %}</h2><div class="public-prose" lang="{{ presentation.supplement_language }}">{{ presentation.supplement|linebreaks }}</div></section>{% endif %}
+      <section class="public-section" aria-labelledby="reviews-heading">
+        {% include 'catalog/includes/typed_review_link.html' with review_kind='activity' review_target=entity %}
+        <h2 id="reviews-heading">{% if language == 'ru' %}Отзывы о занятии{% elif language == 'en' %}Activity reviews{% else %}Məşğələ haqqında rəylər{% endif %}</h2>
+        <ul class="public-entity-list public-reviews">{% for review in review_feed %}<li><a href="{{ review.target_url }}">{{ review.target_name }}</a><p><span aria-hidden="true">★</span> {{ review.rating }} / 5</p><blockquote>{{ review.text|linebreaks }}</blockquote></li>{% empty %}<li class="public-muted">{% if language == 'ru' %}Отзывов пока нет.{% elif language == 'en' %}No reviews yet.{% else %}Hələ rəy yoxdur.{% endif %}</li>{% endfor %}</ul>
+      </section>
+    </div>
+
   </div>
 </article>
 {% endif %}
 {% endblock %}
 {% block extra_body %}
-<script src="{% static 'js/public_organization.js' %}?v=1" defer></script>
+<script src="{% static 'js/public_organization.js' %}?v=20261104_public_mobile_r4" defer></script>
 {% endblock %}

@@ -74,8 +74,13 @@ def build_event_calendar(params, events, *, now=None, path=''):
     month = first.strftime('%Y-%m')
     calendar_params = dict(filters, view='calendar', month=month, date=selected.isoformat())
     list_params = dict(filters, view='list', month=month)
+    filters_all = dict(filters, view='list')
+    filters_all.pop('date_filter', None)
+    filters_all.pop('date_from', None)
+    filters_all.pop('date_to', None)
     quick_urls = {key: url(dict(filters, view='list', date_filter=key))
                   for key in ('today', 'tomorrow', 'this_week', 'weekend')}
+    quick_urls['all'] = url(filters_all)
     free_params = {key: value for key, value in clean.items() if value}
     free_params['view'] = 'calendar' if clean['view'] == 'calendar' else 'list'
     if clean['free'] == '1':

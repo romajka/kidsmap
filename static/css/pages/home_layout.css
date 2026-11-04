@@ -1,104 +1,114 @@
 /* Home layout refinement. Loaded after home_redesign.css and home_search.css.
    Existing map, search, photo and native details controls retain their contracts. */
 
+/* Illustrated guides: native horizontal scrolling scales with the guide list. */
 body.page-home .home-parent-guide {
-  /* Match the interests section; DOM position keeps the guide after it. */
-  order: 4;
-  scroll-margin-top: 100px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(180px, 26%);
-  align-items: center;
-  gap: 24px;
-  margin: 24px 0 0;
-  padding: clamp(24px, 3vw, 40px);
-  border: 1px solid var(--home-line);
-  border-radius: 24px;
-  background: var(--brand-mint, #edf6e9);
-  color: var(--home-ink);
+  order:4;
+  scroll-margin-top:100px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  align-items:center;
+  gap:18px;
+  margin:24px 0 0;
+  padding:clamp(18px,2.4vw,30px);
+  border:1px solid var(--home-line);
+  border-radius:24px;
+  background:var(--brand-mint,#edf6e9);
+  color:var(--home-ink);
 }
-body.page-home .home-discover {
-  margin-bottom: 0;
-}
-body.page-home .home-parent-guide ~ .home-steps-lite {
-  margin-top: 24px;
-  padding-top: 8px;
-}
+body.page-home .home-discover { margin-bottom:0; }
+body.page-home .home-parent-guide ~ .home-steps-lite { margin-top:24px; padding-top:8px; }
 body.page-home .home-parent-guide h2 {
-  margin: 10px 0 12px;
-  max-width: 25em;
-  font-size: clamp(24px, 2.5vw, 32px);
-  line-height: 1.2;
-  text-wrap: balance;
+  margin:10px 0 12px;
+  max-width:20em;
+  font-size:clamp(26px,2.4vw,34px);
+  line-height:1.15;
+  text-wrap:balance;
+  letter-spacing:-.025em;
 }
-body.page-home .home-parent-guide h2 a {
-  color: inherit;
-  text-decoration: none;
+body.page-home .home-parent-guide h2 a { color:inherit; text-decoration:none; }
+body.page-home .home-parent-guide__copy > p { margin:0; max-width:43em; color:var(--home-muted); font-size:15px; line-height:1.65; }
+body.page-home .home-parent-guide__destinations {
+  grid-column:1/-1; display:grid; grid-auto-flow:column; grid-auto-columns:31%;
+  gap:18px; min-width:0; overflow-x:auto; overscroll-behavior-x:contain;
+  scroll-snap-type:x mandatory; scroll-padding-inline:3px; scrollbar-width:none;
+  padding:7px 3px 9px; margin:-7px -3px -9px;
 }
-body.page-home .home-parent-guide__copy > p {
-  max-width: 52em;
-  margin: 0;
-  color: var(--home-muted);
-  font-size: 15px;
-  line-height: 1.65;
+body.page-home .home-parent-guide__controls { display:flex; align-items:center; gap:6px; align-self:center; grid-column:3; grid-row:1; }
+body.page-home .home-parent-guide__controls[hidden], body.page-home .home-parent-guide__controls button[hidden] { display:none; }
+body.page-home .home-parent-guide__destinations::-webkit-scrollbar { display:none; }
+body.page-home .home-parent-guide__controls button { display:grid; place-items:center; width:44px; height:44px; border:1px solid var(--home-line); border-radius:50%; background:var(--home-paper,#fff); color:var(--home-green); font-size:22px; cursor:pointer; }
+body.page-home .home-parent-guide__controls button:disabled { opacity:.35; cursor:default; }
+body.page-home .home-parent-guide__controls button:not(:disabled):hover { background:var(--home-green); color:#fff; }
+body.page-home .home-parent-guide__destination { scroll-snap-align:start; }
+body.page-home .home-parent-guide__destinations:focus-visible,
+body.page-home .home-parent-guide button:focus-visible { outline:3px solid var(--home-green); outline-offset:4px; }
+body.page-home .home-parent-guide__destinations a:focus-visible { outline-offset:-3px; }
+body.page-home .home-parent-guide__destination {
+  display:flex; flex-direction:column; min-width:0; overflow:hidden;
+  background:var(--home-paper,#fff); border-radius:18px;
+  color:var(--home-ink); text-decoration:none;
 }
-body.page-home .home-parent-guide__shortcuts,
-body.page-home .home-parent-guide__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px 24px;
-  margin-top: 20px;
+body.page-home .home-parent-guide__destination img { display:block; width:100%; height:auto; aspect-ratio:1.85; object-fit:cover; }
+body.page-home .home-parent-guide__destination-copy { position:relative; display:flex; flex:1; flex-direction:column; gap:6px; padding:13px 36px 15px 15px; }
+body.page-home .home-parent-guide__destination-note { color:var(--home-muted); font-size:12px; line-height:1.35; }
+body.page-home .home-parent-guide__destination strong { font-size:17px; font-weight:700; line-height:1.35; }
+body.page-home .home-parent-guide__destination-arrow { position:absolute; right:15px; bottom:18px; color:var(--home-green); font-size:21px; line-height:1; }
+body.page-home .home-parent-guide__footer { grid-column:1/-1; display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:12px 20px; }
+body.page-home .home-parent-guide__shortcuts, body.page-home .home-parent-guide__actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px 24px; }
+body.page-home .home-parent-guide__actions { margin-top:0; grid-column:1; grid-row:1; }
+body.page-home .home-parent-guide__shortcuts { grid-column:2; grid-row:1; justify-content:center; }
+body.page-home .home-parent-guide__shortcuts a, body.page-home .home-parent-guide__sport { display:inline-flex; align-items:center; gap:8px; min-height:44px; color:var(--home-green); font-size:14px; font-weight:650; text-underline-offset:4px; }
+body.page-home .home-parent-guide__shortcuts a { text-decoration:underline; text-decoration-color:var(--home-line); }
+body.page-home .home-parent-guide .home-redesign-primary { display:inline-flex; align-items:center; justify-content:center; gap:12px; min-width:44px; min-height:44px; padding:12px 20px; border-radius:14px; background:var(--home-green); color:#fff; font-size:14px; font-weight:650; text-decoration:none; }
+body.page-home .home-parent-guide a:hover { text-decoration:underline; text-underline-offset:4px; }
+body.page-home .home-parent-guide__destination:hover { text-decoration:none; }
+body.page-home .home-parent-guide__destination:hover strong { text-decoration:underline; text-underline-offset:4px; }
+body.page-home .home-parent-guide a:focus-visible { outline:3px solid var(--home-green); outline-offset:5px; }
+@keyframes guide-card-float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-5px); } }
+@media (prefers-reduced-motion:no-preference) {
+  body.page-home .home-parent-guide__destination { animation:guide-card-float 4.8s ease-in-out infinite; animation-play-state:paused; }
+  body.page-home .home-parent-guide__destination:nth-child(2n) { animation-delay:-1.8s; }
+  body.page-home .home-parent-guide__destination:nth-child(3n) { animation-delay:-3.6s; }
+  body.page-home .home-parent-guide[data-guide-motion-state="running"] .home-parent-guide__destination { animation-play-state:running; }
+  body.page-home .home-parent-guide:has(:focus-visible) .home-parent-guide__destination { animation-play-state:paused; }
 }
-body.page-home .home-parent-guide__shortcuts a,
-body.page-home .home-parent-guide__sport {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  color: var(--home-green);
-  font-size: 14px;
-  font-weight: 650;
-  text-underline-offset: 4px;
+@media (hover:hover) {
+  body.page-home .home-parent-guide .home-parent-guide__destination:hover { animation-play-state:paused; box-shadow:0 6px 16px #173c2414; }
 }
-body.page-home .home-parent-guide__shortcuts a {
-  border-bottom: 1px solid var(--home-line);
-  text-decoration: none;
+@media (prefers-reduced-motion:reduce) {
+  body.page-home .home-parent-guide__destination { animation:none; }
 }
-body.page-home .home-parent-guide .home-redesign-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  min-height: 44px;
-  padding: 12px 20px;
-  border-radius: 16px;
-  background: var(--home-green);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 650;
-  text-decoration: none;
+@media (max-width:1024px) {
+  body.page-home .home-parent-guide__footer { grid-template-columns:minmax(0,1fr) auto; gap:12px; }
+  body.page-home .home-parent-guide__controls { grid-column:2; }
+  body.page-home .home-parent-guide__shortcuts { grid-column:1/-1; grid-row:2; justify-content:flex-start; }
 }
-body.page-home .home-parent-guide a:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+@media (max-width:760px) {
+  body.page-home .home-parent-guide { grid-template-columns:minmax(0,1fr); gap:16px; padding:20px; }
+  body.page-home .home-parent-guide h2 { font-size:28px; margin:10px 0 12px; }
+  body.page-home .home-parent-guide__destinations { gap:12px; grid-auto-columns:82%; }
+  body.page-home .home-parent-guide__controls { justify-self:end; margin-top:0; }
+  body.page-home .home-parent-guide__destination img { aspect-ratio:1.75; }
+  body.page-home .home-parent-guide__destination-copy { padding:12px 32px 14px 12px; }
+  body.page-home .home-parent-guide__destination-note { min-height:0; }
+  body.page-home .home-parent-guide__destination strong { font-size:17px; }
+  body.page-home .home-parent-guide__destination-arrow { bottom:10px; right:12px; font-size:18px; }
+  body.page-home .home-parent-guide__footer { padding-top:0; }
+  body.page-home .home-parent-guide__shortcuts { gap:4px 18px; }
+  body.page-home .home-parent-guide__actions { gap:8px 20px; margin-top:0; }
 }
-body.page-home .home-parent-guide a:focus-visible {
-  outline: 3px solid var(--home-green);
-  outline-offset: 5px;
-}
-body.page-home .home-parent-guide__art {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 16px;
-}
-@media (max-width: 760px) {
-  body.page-home .home-parent-guide {
-    grid-template-columns: minmax(0, 1fr);
-    padding: 24px;
-  }
-  body.page-home .home-parent-guide__art { display: none; }
-  body.page-home .home-parent-guide__actions { gap: 12px 20px; }
+body.page-home .home-parent-guide__cta-short { display:none; }
+@media (max-width:360px) {
+  body.page-home .home-parent-guide__cta-full, body.page-home .home-parent-guide__cta-arrow { display:none; }
+  body.page-home .home-parent-guide__cta-short { display:inline; }
+  body.page-home .home-parent-guide .home-redesign-primary { padding:10px 8px; gap:6px; font-size:13px; }
+  body.page-home .home-parent-guide__controls { gap:4px; }
+  body.page-home .home-parent-guide__footer { column-gap:6px; }
+  body.page-home .home-parent-guide { padding:18px; }
+  body.page-home .home-parent-guide h2 { font-size:26px; }
+  body.page-home .home-parent-guide__destinations { gap:10px; }
+  body.page-home .home-parent-guide__destination-note { font-size:11px; }
 }
 
 body.page-home .home-hero.panel {
@@ -407,7 +417,39 @@ body.page-home .home-hero .home-redesign-actions .home-redesign-primary::after {
 
 body.page-home .home-hero .home-redesign-actions .home-redesign-secondary {
   min-height: 48px;
+  padding: 12px 18px;
+  background: #fff;
+  border: 1px solid var(--home-green);
   color: var(--home-green);
+  box-shadow: none;
+  text-decoration: none;
+  transform: none;
+}
+
+body.page-home .home-hero .home-redesign-actions > a {
+  justify-content: center;
+  height: auto;
+  border-radius: 14px;
+  line-height: 1.35;
+  text-align: center;
+}
+
+body.page-home .home-hero .home-redesign-actions > a:focus-visible {
+  outline: 3px solid var(--home-green);
+  outline-offset: 4px;
+}
+
+body.page-home .home-hero .home-redesign-actions .home-redesign-secondary:hover {
+  background: #eef7f0;
+  text-decoration: none;
+}
+
+body.page-home .home-hero .home-redesign-actions .home-btn-icon {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  background: transparent;
 }
 
 /* Inline #add-place used auto margins that shrink a flex child to its content. */
@@ -597,11 +639,6 @@ body.page-home #add-place.home-owner-banner {
     display: none;
   }
 
-  body.page-home .home-hero-grid .home-hero-slide-grid {
-    grid-template-rows: repeat(2, clamp(76px, 22vw, 120px));
-    gap: 8px;
-  }
-
   body.page-home .home-hero-visual .home-hero-stats {
     gap: 8px;
     margin-top: 8px;
@@ -622,6 +659,18 @@ body.page-home #add-place.home-owner-banner {
 
   body.page-home .home-hero-visual .home-hero-stat span {
     font-size: 11px;
+  }
+}
+
+/* Keep side photographs close to their original 3:2 framing on phones. */
+@media (max-width: 767px) {
+  body.page-home .home-hero-grid .home-hero-slide-grid {
+    aspect-ratio: 1.85;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  body.page-home .home-hero-grid .home-hero-photo-card img {
+    object-position: center;
   }
 }
 
@@ -647,7 +696,7 @@ body.page-home #add-place.home-owner-banner {
 @media (max-width: 620px) {
   body.page-home .home-hero .home-redesign-actions {
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
     width: 100%;
   }
@@ -655,7 +704,7 @@ body.page-home #add-place.home-owner-banner {
   body.page-home .home-hero .home-hero-copy .home-redesign-actions > :is(.home-redesign-primary, .home-redesign-secondary) {
     width: 100%;
     min-width: 0;
-    min-height: 48px;
+    min-height: 52px;
     padding: 10px 8px;
     box-sizing: border-box;
     white-space: normal;

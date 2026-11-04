@@ -1,0 +1,9 @@
+.specialist-documents { display: grid; gap: .5rem; min-width: 0; }
+.specialist-documents input { max-width: 100%; }
+.specialist-documents ul { list-style: none; padding: 0; margin: 0; display: grid; gap: .5rem; }
+.specialist-documents li { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.specialist-documents li span { overflow-wrap: anywhere; min-width: 0; }
+.specialist-documents button { flex-shrink: 0; min-height: 44px; padding: .5rem .75rem; border: 1px solid var(--border-color, #d6ded9); border-radius: .5rem; background: transparent; color: inherit; cursor: pointer; }
+.specialist-documents p { margin: 0; }
+.specialist-documents p:empty, .specialist-documents ul:empty { display: none; }
+.specialist-documents [data-document-error] { color: var(--danger-color, #a12727); }

@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% load i18n static %}
 {% block robots_meta %}noindex,follow{% endblock %}{% block googlebot_meta %}noindex,follow{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/typed_reviews.css' %}?v=20261028_reviews_redesign">{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/typed_reviews.css' %}?v=20261104_public_mobile_r2">{% endblock %}
 {% block title %}{% if language == 'ru' %}Отзывы{% elif language == 'en' %}Reviews{% else %}Rəylər{% endif %} — {{ target_name }}{% endblock %}
 {% block content %}
 <div class="container typed-reviews km-page-content">
-  {% if target.get_absolute_url %}
+  {% if target_url %}
     <nav class="typed-reviews__nav" aria-label="{% if language == 'ru' %}Навигация{% elif language == 'en' %}Navigation{% else %}Naviqasiya{% endif %}">
-      <a href="{{ target.get_absolute_url }}" class="typed-reviews__back-link">
+      <a href="{{ target_url }}" class="typed-reviews__back-link">
         <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor" aria-hidden="true">
           <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
         </svg>
@@ -31,7 +31,8 @@
           <span class="typed-reviews__score-val">{{ review_rating.average|floatformat:1 }}</span>
           <span class="typed-reviews__score-max">/ 5</span>
         </div>
-        <div class="typed-reviews__stars-visual" aria-hidden="true">★★★★★</div>
+        {% widthratio review_rating.average 5 100 as rating_percent %}
+        <div class="typed-reviews__stars-visual" style="--rating-percent: {{ rating_percent }}%" aria-hidden="true"><span>★★★★★</span><span class="typed-reviews__stars-fill">★★★★★</span></div>
         <p data-review-rating class="typed-reviews__rating-stat">{{ review_rating.average|floatformat:1 }} / 5 · {{ review_rating.count }}</p>
       </div>
     {% endif %}
@@ -53,17 +54,17 @@
           <div class="typed-reviews__card-head">
             <div class="typed-reviews__author">
               <div class="typed-reviews__avatar" aria-hidden="true">
-                {{ review.author_name_i18n|first|upper|default:"U" }}
+                {{ review.public_author_name|first|upper|default:"U" }}
               </div>
               <div class="typed-reviews__author-meta">
-                <h3 class="typed-reviews__author-name">{{ review.author_name_i18n }}</h3>
+                <h3 class="typed-reviews__author-name">{{ review.public_author_name }}</h3>
                 <span class="typed-reviews__badge-verified">
                   <svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor" aria-hidden="true"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm3.707 6.707l-4.5 4.5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L7 9.586l3.793-3.793a1 1 0 011.414 1.414z"/></svg>
                   {% if language == 'ru' %}Проверено KidsMap{% elif language == 'en' %}Verified{% else %}Təsdiqlənib{% endif %}
                 </span>
               </div>
             </div>
-            <div class="typed-reviews__card-rating" aria-label="{{ review.rating }} из 5">
+            <div class="typed-reviews__card-rating" aria-label="{{ review.rating }} / 5">
               <span class="typed-reviews__stars-row" aria-hidden="true">
                 {% for i in "12345" %}<span class="typed-reviews__star {% if forloop.counter <= review.rating %}is-filled{% endif %}">★</span>{% endfor %}
               </span>
@@ -137,6 +138,14 @@
       {% endfor %}
     </div>
   </section>
+
+  {% if not request.user.is_authenticated %}
+    <section class="typed-reviews__section typed-reviews__guest" data-review-guest>
+      <h2>{% if language == 'ru' %}Поделитесь впечатлениями{% elif language == 'en' %}Share your experience{% else %}Təəssüratlarınızı bölüşün{% endif %}</h2>
+      <p>{% if language == 'ru' %}Войдите, чтобы оставить отзыв.{% elif language == 'en' %}Sign in to leave a review.{% else %}Rəy yazmaq üçün daxil olun.{% endif %}</p>
+      <a class="typed-reviews__btn typed-reviews__btn--primary" href="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}">{% if language == 'ru' %}Войти{% elif language == 'en' %}Sign in{% else %}Daxil ol{% endif %}</a>
+    </section>
+  {% endif %}
 
   {% if request.user.is_authenticated %}
     <section class="typed-reviews__section typed-reviews__own-section" aria-labelledby="own-review">

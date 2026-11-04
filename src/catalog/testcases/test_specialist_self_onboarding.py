@@ -45,7 +45,7 @@ class SpecialistSelfOnboardingTests(TestCase):
     def test_specialist_pages_keep_account_identity_and_navigation(self):
         profile = Specialist.objects.create(name='Synthetic confirmed person', verified_person_user=self.actor,
                                             person_verified_at=timezone.now(), consultation_format='online')
-        for path in ('/ru/account/specialists/', f'/ru/account/specialists/{profile.pk}/',
+        for path in ('/ru/account/specialists/',
                      f'/ru/account/specialists/{profile.pk}/certificates/',
                      f'/ru/account/specialists/{profile.pk}/invitations/'):
             with self.subTest(path=path):
@@ -58,13 +58,23 @@ class SpecialistSelfOnboardingTests(TestCase):
                 self.assertContains(response, 'href="/ru/account/places/reviews/"')
                 self.assertContains(response, 'href="/ru/account/settings/"')
 
-    def test_add_specialist_route_keeps_account_frame_and_explicit_subject_choice(self):
+    def test_add_specialist_route_opens_standalone_editor_and_defaults_to_self(self):
         response = self.client.get('/ru/account/places/specialists/create/', follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'class="account-nav-sidebar')
-        self.assertContains(response, 'value="self" checked')
-        self.assertContains(response, 'value="other"')
-        self.assertContains(response, 'Чей профиль вы добавляете?')
+        self.assertNotContains(response, 'class="account-nav-sidebar')
+        self.assertContains(response, 'href="/ru/account/"')
+        self.assertContains(response, '<input type="hidden" name="profile_subject" value="self">', html=True)
+        self.assertNotContains(response, 'type="radio" name="profile_subject"')
+
+    def test_confirmed_profile_editor_uses_full_page_with_return_to_account(self):
+        profile = Specialist.objects.create(name='Synthetic confirmed person', verified_person_user=self.actor,
+                                            person_verified_at=timezone.now(), consultation_format='online')
+        response = self.client.get(f'/ru/account/specialists/{profile.pk}/')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'class="account-nav-sidebar')
+        self.assertNotContains(response, 'class="account-user-card')
+        self.assertContains(response, 'href="/ru/account/"')
+        self.assertContains(response, 'id="specialist-create-form"')
 
     def test_self_draft_resumes_and_is_visible_without_requesting_identity_yet(self):
         draft = self.save(self.data())
@@ -72,12 +82,18 @@ class SpecialistSelfOnboardingTests(TestCase):
         self.assertFalse(SpecialistClaim.objects.exists())
         self.assertFalse(Specialist.objects.exists())
         page = self.client.get(f'/ru/account/specialists/proposals/{draft.pk}/')
-        self.assertContains(page, 'value="self" checked')
+        self.assertContains(page, '<input type="hidden" name="profile_subject" value="self">', html=True)
         account = self.client.get('/ru/account/')
         self.assertContains(account, 'href="/ru/account/specialists/"')
         index = self.client.get('/ru/account/specialists/')
         self.assertContains(index, str(draft.pk))
         self.assertNotContains(index, '<h1>Кабинет специалиста</h1>')
+
+    def test_existing_other_draft_retains_its_subject_when_resumed(self):
+        draft = self.save(self.data(subject='other'))
+        page = self.client.get(f'/ru/account/specialists/proposals/{draft.pk}/')
+        self.assertContains(page, '<input type="hidden" name="profile_subject" value="other">', html=True)
+        self.assertNotContains(page, 'type="radio" name="profile_subject"')
 
     def test_self_submit_requests_review_once_and_does_not_grant_management(self):
         key = uuid4()

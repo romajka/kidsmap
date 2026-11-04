@@ -1,19 +1,28 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{% trans "Подтверждение email" %}{% endblock %}
 {% block title_plain %}{% trans "Подтверждение email" %} | KidsMap{% endblock %}
 {% block title_plain_twitter %}{% trans "Подтверждение email" %} | KidsMap{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/verify_email.css' %}?v=20261104_verify_redesign" />
+{% endblock %}
+
 {% block content %}
-  <section class="panel auth-panel">
-    <h1>{% trans "Подтвердите email" %}</h1>
-    <p class="auth-subtitle">
+<div class="verify-page-shell">
+  <section class="panel verify-panel">
+    <div class="verify-icon-badge" aria-hidden="true">
+      <span class="material-symbols-rounded">mark_email_read</span>
+    </div>
+
+    <h1 class="verify-title">{% trans "Подтвердите email" %}</h1>
+    <p class="verify-subtitle">
       {% trans "Мы отправили 6-значный код на ваш email. Введите его, чтобы активировать аккаунт и войти." %}
     </p>
 
-    <form method="post" class="auth-form" data-loading-form>
+    <form method="post" class="verify-form" id="verifyForm" data-loading-form>
       {% csrf_token %}
       <input type="hidden" name="form_action" value="verify" />
       <input type="hidden" name="next" value="{{ next_url }}" />
@@ -27,53 +36,98 @@
         </div>
       {% endif %}
 
-      <label>
-        {{ verify_form.email.label }}
-        {{ verify_form.email }}
+      <div class="verify-field-group">
+        <label for="{{ verify_form.email.id_for_label }}" class="verify-field-label">
+          <span>{{ verify_form.email.label }}</span>
+        </label>
+        <div class="verify-input-wrap">
+          <span class="verify-input-affix" aria-hidden="true">
+            <span class="material-symbols-rounded">mail</span>
+          </span>
+          {{ verify_form.email }}
+        </div>
         {% if verify_form.email.errors %}
           <span class="auth-field-error">{{ verify_form.email.errors|join:", " }}</span>
         {% endif %}
-      </label>
+      </div>
 
-      <label>
-        {{ verify_form.code.label }}
-        {{ verify_form.code }}
+      <div class="verify-field-group">
+        <label for="{{ verify_form.code.id_for_label }}" class="verify-field-label">
+          <span>{{ verify_form.code.label }}</span>
+          <span class="verify-code-hint">6 цифр</span>
+        </label>
+        <div class="verify-code-input-wrap">
+          {{ verify_form.code }}
+        </div>
         {% if verify_form.code.errors %}
           <span class="auth-field-error">{{ verify_form.code.errors|join:", " }}</span>
         {% endif %}
-      </label>
+      </div>
 
-      <button type="submit" class="btn" data-loading-button>{% trans "Подтвердить email" %}</button>
+      <button type="submit" class="btn btn-verify-submit" data-loading-button>
+        <span>{% trans "Подтвердить email" %}</span>
+        <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+      </button>
     </form>
 
-    <form method="post" class="auth-form auth-form-secondary" data-loading-form>
-      {% csrf_token %}
-      <input type="hidden" name="form_action" value="resend" />
-      <input type="hidden" name="next" value="{{ next_url }}" />
-      <input type="hidden" name="intent" value="{{ auth_intent }}" />
+    <div class="verify-resend-box">
+      <form method="post" class="verify-resend-form" id="resendForm" data-loading-form>
+        {% csrf_token %}
+        <input type="hidden" name="form_action" value="resend" />
+        <input type="hidden" name="next" value="{{ next_url }}" />
+        <input type="hidden" name="intent" value="{{ auth_intent }}" />
+        <input type="hidden" name="email" id="id_resend_email" value="{{ verify_form.email.value|default:'' }}" />
+        <button type="submit" class="btn-resend-link" data-loading-button>
+          <span class="material-symbols-rounded" aria-hidden="true">refresh</span>
+          <span>{% trans "Отправить код повторно" %}</span>
+        </button>
+      </form>
+    </div>
 
-      {% if resend_form.non_field_errors %}
-        <div class="auth-errors">
-          {% for error in resend_form.non_field_errors %}
-            <p class="auth-error">{{ error }}</p>
-          {% endfor %}
-        </div>
-      {% endif %}
-
-      <label>
-        {{ resend_form.email.label }}
-        {{ resend_form.email }}
+    {% if resend_form.non_field_errors or resend_form.email.errors %}
+      <div class="auth-errors" style="margin-top: 12px;">
+        {% for error in resend_form.non_field_errors %}
+          <p class="auth-error">{{ error }}</p>
+        {% endfor %}
         {% if resend_form.email.errors %}
-          <span class="auth-field-error">{{ resend_form.email.errors|join:", " }}</span>
+          <p class="auth-error">{{ resend_form.email.errors|join:", " }}</p>
         {% endif %}
-      </label>
+      </div>
+    {% endif %}
 
-      <button type="submit" class="btn" data-loading-button>{% trans "Отправить код повторно" %}</button>
-    </form>
-
-    <p class="auth-alt">
-      {% trans "Уже подтверждали email?" %}
-      <a href="{% url 'account_login' %}?intent={{ auth_intent|urlencode }}&next={{ next_url|urlencode }}">{% trans "Войти" %}</a>
+    <p class="verify-alt-box">
+      <span>{% trans "Уже подтверждали email?" %}</span>
+      <a href="{% url 'account_login' %}?intent={{ auth_intent|urlencode }}&next={{ next_url|urlencode }}" class="verify-alt-link">{% trans "Войти" %}</a>
     </p>
   </section>
+</div>
+{% endblock %}
+
+{% block extra_body %}
+<script>
+  (function () {
+    const mainEmail = document.getElementById('{{ verify_form.email.id_for_label }}');
+    const resendEmail = document.getElementById('id_resend_email');
+    const codeInput = document.getElementById('{{ verify_form.code.id_for_label }}');
+
+    if (mainEmail && resendEmail) {
+      mainEmail.addEventListener('input', function () {
+        resendEmail.value = this.value;
+      });
+      if (!resendEmail.value && mainEmail.value) {
+        resendEmail.value = mainEmail.value;
+      }
+    }
+
+    if (codeInput) {
+      codeInput.addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '').slice(0, 6);
+      });
+
+      if (mainEmail && mainEmail.value && mainEmail.value.trim().length > 0) {
+        codeInput.focus();
+      }
+    }
+  })();
+</script>
 {% endblock %}

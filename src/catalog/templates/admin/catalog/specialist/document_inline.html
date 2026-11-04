@@ -1,0 +1,20 @@
+{# Evidence is uploaded by its owner; this inline only reviews existing documents. #}
+{{ inline_admin_formset.formset.management_form }}
+{{ inline_admin_formset.formset.non_form_errors }}
+{% for document in inline_admin_formset %}
+  <section class="inline-related" id="{{ document.form.prefix }}" aria-labelledby="{{ document.form.prefix }}-heading">
+    <h3 id="{{ document.form.prefix }}-heading">{{ document.original }}</h3>
+    {{ document.form.non_field_errors }}
+    {% for hidden in document.form.hidden_fields %}{{ hidden }}{{ hidden.errors }}{% endfor %}
+    <div class="km-document-fields">
+      {% for fieldset in document %}{% for line in fieldset %}{% for field in line %}
+        <div class="km-document-field km-field field-{{ field.field.name }}">
+          {{ field.label_tag }}
+          {% if field.is_readonly %}<div class="readonly">{{ field.contents }}</div>{% else %}{{ field.field }}{% endif %}
+          {{ field.errors }}
+          {% if field.field.help_text %}<p class="help">{{ field.field.help_text }}</p>{% endif %}
+        </div>
+      {% endfor %}{% endfor %}{% endfor %}
+    </div>
+  </section>
+{% endfor %}

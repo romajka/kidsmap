@@ -10,6 +10,20 @@ function go(target){
   if(target&&typeof target.focus==='function')target.focus({preventScroll:true});
 }
 
+// Native disclosure keeps secondary actions keyboard accessible.
+var moreActions=page.querySelector('.km-specialist-more-actions');
+if(moreActions){
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'&&moreActions.open){
+      moreActions.open=false;
+      moreActions.querySelector('summary').focus();
+    }
+  });
+  document.addEventListener('click',function(e){
+    if(moreActions.open&&!moreActions.contains(e.target))moreActions.open=false;
+  });
+}
+
 // 1. Navigation items & Jump select
 page.querySelectorAll('.km-nav-item').forEach(function(link){
   link.addEventListener('click',function(e){
@@ -499,7 +513,7 @@ var readinessSummary=page.querySelector('[data-readiness-summary]');
 var readinessMissing=page.querySelector('[data-readiness-missing]');
 
 function updateReadiness(){
-  if(!readinessBar)return;
+  if(!readinessBar||!readinessBar.dataset.summary)return;
 
   var nameVal=(form.querySelector('#id_name')?form.querySelector('#id_name').value:'').trim();
   var hasName=nameVal.length>0;
@@ -524,12 +538,12 @@ function updateReadiness(){
   var hasBio=bioRu.length>0||bioAz.length>0||bioEn.length>0;
 
   var rules=[
-    {id:'name',label:'Имя и фамилия',section:'#km-sec-1',done:hasName},
-    {id:'specializations',label:'Специализация',section:'#km-sec-3',done:hasSpecs},
-    {id:'format',label:'Формат приёма',section:'#km-sec-6',done:hasFormat},
-    {id:'languages',label:'Язык консультации',section:'#km-sec-5',done:hasLang},
-    {id:'contacts',label:'Телефон или WhatsApp',section:'#km-sec-11',done:hasContact},
-    {id:'bio',label:'Описание о себе',section:'#km-sec-2',done:hasBio}
+    {id:'name',label:readinessBar.dataset.name,section:'#km-sec-1',done:hasName},
+    {id:'specializations',label:readinessBar.dataset.specializations,section:'#km-sec-3',done:hasSpecs},
+    {id:'format',label:readinessBar.dataset.format,section:'#km-sec-6',done:hasFormat},
+    {id:'languages',label:readinessBar.dataset.languages,section:'#km-sec-5',done:hasLang},
+    {id:'contacts',label:readinessBar.dataset.contacts,section:'#km-sec-11',done:hasContact},
+    {id:'bio',label:readinessBar.dataset.bio,section:'#km-sec-2',done:hasBio}
   ];
 
   var completed=rules.filter(function(r){return r.done;}).length;
@@ -538,7 +552,7 @@ function updateReadiness(){
 
   if(readinessPct)readinessPct.textContent=pct+'%';
   if(readinessFill)readinessFill.style.width=pct+'%';
-  if(readinessSummary)readinessSummary.textContent='Заполнено '+completed+' из '+total+' обязательных пунктов';
+  if(readinessSummary)readinessSummary.textContent=readinessBar.dataset.summary.replace('{completed}',completed).replace('{total}',total);
 
   // Nav checkmarks
   page.querySelectorAll('.km-nav-check').forEach(function(check){
@@ -557,11 +571,14 @@ function updateReadiness(){
     readinessMissing.innerHTML='';
     var missing=rules.filter(function(r){return !r.done;});
     if(missing.length===0){
-      readinessMissing.innerHTML='<span class="km-readiness-all-done"><i class="fas fa-check-circle"></i> Все обязательные пункты заполнены! Анкета готова.</span>';
+      var complete=document.createElement('span');
+      complete.className='km-readiness-all-done';
+      complete.textContent=readinessBar.dataset.complete;
+      readinessMissing.appendChild(complete);
     } else {
       var prefix=document.createElement('span');
       prefix.className='km-missing-label';
-      prefix.textContent='Не заполнено: ';
+      prefix.textContent=readinessBar.dataset.missing+' ';
       readinessMissing.appendChild(prefix);
       missing.forEach(function(m){
         var pill=document.createElement('a');

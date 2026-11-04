@@ -4,11 +4,11 @@ from django.core.exceptions import ValidationError
 from django.http import Http404, HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils.translation import get_language
+from django.utils.translation import get_language, gettext
 from django.views.decorators.http import require_http_methods, require_POST
 from catalog.services.review_versions import (review_types, submit_review, moderate_candidate, business_can_respond, respond_to_review, rating_summary, ReviewConflict, ReviewCooldown)
 from catalog.services.content_quality import approved_review_queryset
-from catalog.services.public_presentation import present
+from catalog.services.public_presentation import present, public_url
 
 
 def _types(kind):
@@ -84,6 +84,7 @@ def target_reviews(request, kind, pk):
     from catalog.services.reactions import _mark_review_reactions
     reviews = _mark_review_reactions(reviews, request, reaction_model=_types(kind)[3])
     for head in reviews:
+        head.public_author_name = gettext("Аноним") if head.is_anonymous else (getattr(head, "author_name_i18n", None) or head.author_name or gettext("Гость"))
         head.can_reply = request.user.is_authenticated and business_can_respond(user=request.user, head=head)
         head.can_report = request.user.is_authenticated and business_can_respond(user=request.user, head=head, action='report')
         head.public_replies = head.current_revision.responses.filter(kind='reply') if head.current_revision_id else []
@@ -95,7 +96,7 @@ def target_reviews(request, kind, pk):
             own_decision = latest
     can_review = request.user.is_active and request.user.is_staff and request.user.has_perm('catalog.change_' + heads._meta.model_name)
     candidates = list(heads.objects.filter(**{kind: target, 'is_current': True, 'candidate_revision__status': 'pending'}).select_related('candidate_revision')) if can_review else []
-    return render(request, 'catalog/typed_reviews.html', {'kind': kind, 'target': target, 'target_name': present(target, getattr(request, 'LANGUAGE_CODE', get_language()))['name'] if kind == 'activity' else (getattr(target, 'name_i18n', None) or str(target)), 'language': getattr(request, 'LANGUAGE_CODE', get_language()), 'reviews': reviews, 'own_review': own, 'own_review_decision': own_decision, 'candidates': candidates, 'review_rating': rating_summary(target), 'review_conflict': review_conflict, 'submitted_review': submitted_review}, status=409 if review_conflict else 200)
+    return render(request, 'catalog/typed_reviews.html', {'kind': kind, 'target': target, 'target_url': public_url(target, request.LANGUAGE_CODE) if kind == 'activity' else target.get_absolute_url(), 'target_name': present(target, getattr(request, 'LANGUAGE_CODE', get_language()))['name'] if kind == 'activity' else (getattr(target, 'name_i18n', None) or str(target)), 'language': getattr(request, 'LANGUAGE_CODE', get_language()), 'reviews': reviews, 'own_review': own, 'own_review_decision': own_decision, 'candidates': candidates, 'review_rating': rating_summary(target), 'review_conflict': review_conflict, 'submitted_review': submitted_review}, status=409 if review_conflict else 200)
 
 
 @require_POST

@@ -12,10 +12,10 @@ class PublicEntitySocialImageTests(Module11Fixture):
     def test_social_image_matches_the_publicly_rendered_entity_hero(self):
         self.spec.photo.save('m11-specialist.png',ContentFile(self.png))
         for lang in ('az','ru','en'):
-            for obj,selector in [(self.org,'public-org-media-img'),(self.activity,'public-hero-image'),(self.spec,'km-detail-photo')]:
+            for obj,selector in [(self.org,'public-org-media-img'),(self.activity,'public-hero-image'),(self.spec,'sp-photo')]:
                 with self.subTest(lang=lang,entity=type(obj).__name__):
                     response=self.response(obj,lang);self.assertEqual(response.status_code,200);page=Images(response.content.decode());hero=next(i for i in page.images if selector in i.get('class','').split());expected=build_public_absolute_uri(response.wsgi_request,hero['src']);self.assertEqual(page.one('og:image'),expected);self.assertEqual(page.one('twitter:image'),expected)
-    def test_default_logo_remains_when_no_profile_or_visible_branch_photo_exists(self):
+    def test_missing_entity_photo_does_not_advertise_logo_or_hidden_branch(self):
         self.place.status='draft';self.place.save(update_fields=['status'])
         for obj in [self.spec,self.org]:
-            response=self.response(obj);self.assertEqual(response.status_code,200);page=Head(response.content.decode());self.assertTrue(page.one('og:image').endswith('/static/img/logo.svg'));self.assertEqual(page.one('og:image'),page.one('twitter:image'));self.assertNotIn(self.place.photo.name,page.one('og:image'))
+            response=self.response(obj);self.assertEqual(response.status_code,200);page=Head(response.content.decode());self.assertNotIn('og:image',page.meta);self.assertNotIn('twitter:image',page.meta);self.assertEqual(page.one('twitter:card'),'summary');self.assertNotIn(self.place.photo.name,response.content.decode())

@@ -12,8 +12,8 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261022_release_all_r1" />
-  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20260928_2" />
-  {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_polish.css' %}?v=20261028_category_strip_r1" />{% endif %}
+  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20261104_public_mobile_r3" />
+  {% if not is_new_page %}<link rel="stylesheet" href="{% static 'css/pages/catalog_polish.css' %}?v=20261104_public_mobile_r3" />{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -1434,6 +1434,7 @@
         });
 
         options.forEach(function (opt) {
+          opt.tabIndex = -1;
           opt.addEventListener('click', function (e) {
             const val = opt.getAttribute('data-select-value') || opt.getAttribute('data-value') || '';
             const optText = opt.querySelector('.km-custom-select__opt-text');
@@ -1472,14 +1473,29 @@
           });
         });
 
+        function focusOption(option) {
+          let attempts = 0;
+          function focusWhenVisible() {
+            if (!cs.classList.contains('is-open')) return;
+            if (document.activeElement !== trigger && !menu.contains(document.activeElement)) return;
+            option.focus();
+            if (document.activeElement !== option && ++attempts < 30) {
+              window.requestAnimationFrame(focusWhenVisible);
+            }
+          }
+          focusWhenVisible();
+        }
+
         // Keyboard navigation
         trigger.addEventListener('keydown', function (e) {
           if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             openMenu();
             const firstOpt = menu.querySelector('.km-custom-select__option.is-selected') || options[0];
-            if (firstOpt) firstOpt.focus();
-          } else if (e.key === 'Escape') {
+            if (firstOpt) focusOption(firstOpt);
+          } else if (e.key === 'Escape' && cs.classList.contains('is-open')) {
+            e.preventDefault();
+            e.stopPropagation();
             closeMenu();
           }
         });
@@ -1501,6 +1517,8 @@
               cur.click();
             }
           } else if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
             closeMenu();
             trigger.focus();
           }

@@ -1,6 +1,7 @@
 from functools import partial, update_wrapper
 
 from django import forms
+from django.core.exceptions import PermissionDenied
 from django.contrib import admin, messages
 from django.contrib.admin.utils import display_for_field
 from django.db import models
@@ -444,7 +445,6 @@ class SpecialistDocumentInline(admin.TabularInline):
 @admin.register(Specialist)
 class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     class Media:
-        css = {"all": ("admin/css/pages/specialist_form.css",)}
         js = ()
 
     form = SpecialistAdminForm
@@ -452,7 +452,7 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
     change_list_template = "admin/catalog/specialist/change_list.html"
     km_primary_filters = ("status", "is_active", "consultation_format")
     
-    list_display = ("profile_column", "directions_column", "owner", "format_badge", "status_badge", "documents_count", "rating_column", "row_actions")
+    list_display = ("profile_column", "directions_column", "owner", "identity_review_column", "format_badge", "status_badge", "documents_count", "rating_column", "row_actions")
     list_filter = (QueueSortParameter, "status", "is_active", "consultation_format", "specializations")
     search_fields = ("name", "name_alt", "bio_ru", "bio_az", "bio_en")
     readonly_fields = ("owner", "verified_person_user", "identity_verification_date", "created_by",
@@ -484,18 +484,53 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         sections.setdefault(8,{'number':8,'id':'km-sec-8','title':_('8. Места работы и приёма'),'unavailable':True})
         context['specialist_sections']=[sections[i] for i in range(1,13)]
         original=context.get('original')
+        from catalog.services import specialist_domain
+        try:
+            specialist_domain._reviewer(request.user)
+            can_review_identity = True
+        except PermissionDenied:
+            can_review_identity = False
+        claims = list(original.person_claims.filter(status='pending').select_related('applicant')) if original and can_review_identity else []
+        context.update(
+            specialist_public_visible=bool(original and original.status == Specialist.STATUS_PUBLISHED and original.is_active),
+            specialist_pending_claims=claims,
+            specialist_pending_claim_count=len(claims),
+            specialist_identity_review_url=reverse('specialist_workspace_review', args=[original.pk]) if original and can_review_identity else '',
+        )
         context['specialist_expected_updated_at']=(request.POST.get('expected_updated_at','') if request.method=='POST' and context.get('errors') else original.updated_at.isoformat()) if original else ''
         return super().render_change_form(request,context,*args,**kwargs)
 
     def get_queryset(self, request):
         from catalog.services.specialist_documents import can_review_documents
-        queryset = super().get_queryset(request).select_related("owner").prefetch_related("specializations")
+        queryset = super().get_queryset(request).select_related("owner").prefetch_related("specializations").annotate(
+            pending_person_claims=Count('person_claims', filter=Q(person_claims__status='pending'), distinct=True))
         return queryset.prefetch_related("documents") if can_review_documents(request.user) else queryset
 
     def get_list_display(self, request):
         from catalog.services.specialist_documents import can_review_documents
         fields = super().get_list_display(request)
-        return fields if can_review_documents(request.user) else tuple(field for field in fields if field != 'documents_count')
+        if not can_review_documents(request.user):
+            fields = tuple(field for field in fields if field != 'documents_count')
+        if not self._can_review_identity(request.user):
+            fields = tuple(field for field in fields if field != 'identity_review_column')
+        return fields
+
+    def _can_review_identity(self, actor):
+        from catalog.services import specialist_domain
+        try:
+            specialist_domain._reviewer(actor)
+        except PermissionDenied:
+            return False
+        return True
+
+    @admin.display(description=_("Подтверждение личности"))
+    def identity_review_column(self, obj):
+        count = getattr(obj, 'pending_person_claims', 0)
+        if count:
+            return format_html('<a href="{}">{} ({})</a>',
+                               reverse('specialist_workspace_review', args=[obj.pk]),
+                               _("Проверить личность"), count)
+        return _("Подтверждена") if obj.person_verified_at else _("Нет запроса")
 
     def _build_changelist_query_string(self, request, *, clear=(), **updates):
         params = request.GET.copy()
@@ -741,6 +776,8 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         )
 
     def changelist_view(self, request, extra_context=None):
+        if request.method == 'POST':
+            self._require_moderation_permission(request)
         counts = self._dashboard_counts()
         quick_filters = self._quick_filters(request, counts=counts)
         from django.urls import reverse
@@ -757,8 +794,18 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
         }
         return super().changelist_view(request, extra_context=extra_context)
 
-    @admin.action(description=_("Опубликовать выбранных специалистов"))
+    def _require_moderation_permission(self, request):
+        # Refresh permissions even if the request user has a cached permission set.
+        from catalog.services import specialist_domain
+        from catalog.services.staff_roles import is_volunteer
+        actor = specialist_domain.require_actor(request.user)
+        if not actor.is_staff or is_volunteer(actor) or not actor.has_perm('catalog.change_specialist'):
+            raise PermissionDenied
+        return actor
+
+    @admin.action(permissions=['change'], description=_("Опубликовать выбранных специалистов"))
     def mark_published(self, request, queryset):
+        self._require_moderation_permission(request)
         updated_count = queryset.update(
             status=Specialist.STATUS_PUBLISHED,
             is_active=True,
@@ -771,8 +818,9 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             level=messages.SUCCESS if updated_count else messages.WARNING,
         )
 
-    @admin.action(description=_("Вернуть выбранных специалистов в черновик"))
+    @admin.action(permissions=['change'], description=_("Вернуть выбранных специалистов в черновик"))
     def mark_draft(self, request, queryset):
+        self._require_moderation_permission(request)
         updated_count = queryset.update(
             status=Specialist.STATUS_DRAFT,
             is_active=False,
@@ -784,8 +832,9 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             level=messages.SUCCESS if updated_count else messages.WARNING,
         )
 
-    @admin.action(description=_("Отправить выбранных специалистов на модерацию"))
+    @admin.action(permissions=['change'], description=_("Отправить выбранных специалистов на модерацию"))
     def mark_pending(self, request, queryset):
+        self._require_moderation_permission(request)
         updated_count = queryset.update(
             status=Specialist.STATUS_PENDING,
             is_active=False,
@@ -798,8 +847,9 @@ class SpecialistAdmin(QueueSortingAdminMixin, admin.ModelAdmin):
             level=messages.SUCCESS if updated_count else messages.WARNING,
         )
 
-    @admin.action(description=_("Отклонить выбранных специалистов"))
+    @admin.action(permissions=['change'], description=_("Отклонить выбранных специалистов"))
     def mark_rejected(self, request, queryset):
+        self._require_moderation_permission(request)
         updated_count = queryset.update(
             status=Specialist.STATUS_REJECTED,
             is_active=False,

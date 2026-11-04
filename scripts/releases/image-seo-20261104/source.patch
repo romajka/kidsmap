@@ -1,0 +1,391 @@
+--- a/src/catalog/controllers/parent_guides.py
++++ b/src/catalog/controllers/parent_guides.py
+@@ -89,6 +89,8 @@
+     guide = {
+         **definition['translations'][language],
+         'hero_image': definition['hero_image'],
++        'hero_width': definition['hero_width'],
++        'hero_height': definition['hero_height'],
+         'updated': date.fromisoformat(definition['updated']),
+     }
+     public_places = public_place_queryset(Place.objects.all())
+@@ -189,6 +191,21 @@
+             if 'FUN' in active_categories else next((topic['url'] for topic in topics if topic['url']), '#guide-topics'))
+     canonical = build_public_absolute_uri(request, reverse('parent_guide', kwargs={'slug': slug}))
+     home_url = build_public_absolute_uri(request, reverse('home'))
++    # Use the same visible artwork for search and social previews, including
++    # when static storage returns a hashed filename or an absolute CDN URL.
++    image = {
++        '@type': 'ImageObject',
++        'url': build_public_absolute_uri(request, static(guide['hero_image'])),
++        'contentUrl': build_public_absolute_uri(request, static(guide['hero_image'])),
++        'width': guide['hero_width'], 'height': guide['hero_height'],
++        'caption': guide['hero_alt'],
++    }
++    webpage = {
++        '@context': 'https://schema.org', '@type': 'WebPage',
++        '@id': canonical, 'url': canonical,
++        'name': guide['title'], 'inLanguage': language,
++        'primaryImageOfPage': image,
++    }
+     related_slug = 'baku-with-kids' if slug == 'sport' else 'sport'
+     article = {
+         '@context': 'https://schema.org', '@type': 'Article',
+@@ -197,7 +214,7 @@
+         'dateModified': definition['updated'],
+         'author': {'@type': 'Organization', 'name': 'KidsMap', 'url': home_url},
+         'publisher': {'@type': 'Organization', 'name': 'KidsMap', 'url': home_url},
+-        'image': build_public_absolute_uri(request, static(guide['hero_image'])),
++        'image': image,
+     }
+     if definition.get('published'):
+         article['datePublished'] = date.fromisoformat(definition['published']).isoformat()
+@@ -214,5 +231,6 @@
+         'guide_catalog_url': catalog_url, 'guide_add_url': reverse('add_place'),
+         'guide_quick_choices': quick_choices, 'guide_faq': faq_items,
+         'seo_title': guide.get('seo_title', guide['title']) + ' — KidsMap',
++        'guide_image': image, 'guide_webpage_json': _json_ld(webpage),
+         'guide_article_json': _json_ld(article), 'guide_breadcrumbs_json': _json_ld(breadcrumbs),
+     })
+--- a/src/catalog/controllers/seo_controller.py
++++ b/src/catalog/controllers/seo_controller.py
+@@ -11,7 +11,8 @@
+     build_branded_seo_title,
+     build_seo_landing_schema_payload,
+ )
+-from catalog.services.seo_landing_visibility import build_seo_landing_visibility
++from catalog.services.seo_landing_visibility import build_seo_landing_visibility, seo_landing_place_queryset
++from catalog.services.public_presentation import prepare_cards
+ from catalog.services.seo_landing_aggregates import build_judo_landing_aggregates
+ 
+ 
+@@ -39,7 +40,20 @@
+             page=page,
+             language_code=language_code,
+         )
++        # Use exactly the public catalog filter advertised by this landing.
++        # Bound presentation work even when a collection has hundreds of places.
++        candidates = seo_landing_place_queryset(page["catalog_query"]).exclude(
++            photo="", cover_photo=""
++        ).order_by("pk")[:24]
++        featured = []
++        for place in prepare_cards(candidates, language_code):
++            card = place._card_presentation
++            if card.get("visible") and card.get("image_url"):
++                featured.append(card)
++                if len(featured) == 3:
++                    break
+         return {
++            "seo_featured_places": featured,
+             "seo_page": page,
+             "seo_pages": visibility.pages(language_code, indexable_only=True),
+             "seo_title": build_branded_seo_title(page["title"]),
+--- a/src/catalog/parent_guide_content.py
++++ b/src/catalog/parent_guide_content.py
+@@ -63,6 +63,8 @@
+         'published': '2026-10-22',
+         'updated': '2026-10-22',
+         'hero_image': 'img/guides/sport-hero.webp',
++        'hero_width': 1536,
++        'hero_height': 1024,
+         'categories': ['SPRT', 'dance'],
+         "translations": {
+             'az': {
+@@ -304,6 +306,8 @@
+         'published': '2026-10-22',
+         'updated': '2026-10-26',
+         'hero_image': 'img/guides/family-hero.webp',
++        'hero_width': 1536,
++        'hero_height': 1024,
+         'categories': ['FUN', 'parks-playgrounds', 'museums-culture', 'ZOO', 'water-leisure', 'excursions-tours'],
+         "translations": {
+             'az': {
+--- a/src/catalog/services/seo.py
++++ b/src/catalog/services/seo.py
+@@ -376,7 +376,7 @@
+     closed = place.operating_state == 'closed' and place.operating_state_approved_at is not None
+     with override(lang):
+         gallery = place.gallery_files()
+-        first_image_url = _absolute_uri(request, gallery[0].url) if gallery else _absolute_uri(request, static("img/logo.svg"))
++        first_image_url = _absolute_uri(request, gallery[0].url) if gallery else ""
+         description = presentation["description"] or _place_description(place, lang)
+ 
+         category_label = place.get_category_display()
+@@ -413,11 +413,13 @@
+             "name": presentation["name"],
+             "description": description,
+             "url": _absolute_uri(request, place.get_absolute_url()),
+-            "image": first_image_url,
+             "address": address_payload,
+             "areaServed": {"@type": "Country", "name": "Azerbaijan"},
+             "additionalType": str(category_label),
+         }
++
++        if first_image_url:
++            schema['image'] = first_image_url
+ 
+         SCHEMA_WEEKDAY_MAP = {
+             "mon": "https://schema.org/Monday",
+--- a/src/catalog/templates/base.html
++++ b/src/catalog/templates/base.html
+@@ -1,5 +1,6 @@
+-{% load i18n static %}
++{% load i18n static seo_images %}
+ {% get_current_language as CURRENT_LANGUAGE %}
++{% public_image_preview as page_image_preview %}
+ <!doctype html>
+ <html lang="{% firstof CURRENT_LANGUAGE LANGUAGE_CODE 'az' %}">
+   <head>
+@@ -30,11 +31,13 @@
+     <meta property="og:title" content="{% block og_title %}{% block og_title_inner %}{% block title_plain %}{{ seo_title|default:"KidsMap" }}{% endblock %}{% endblock %}{% endblock %}" />
+     <meta property="og:description" content="{% block og_description %}{% block meta_description_og %}{% if meta_description %}{{ meta_description }}{% else %}{% trans 'Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, образование.' %}{% endif %}{% endblock %}{% endblock %}" />
+     <meta property="og:url" content="{{ canonical_url }}" />
+-    {% block og_image %}<meta property="og:image" content="{% firstof public_base_url request.scheme|add:'://'|add:request.get_host %}{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />{% endblock %}
+-    <meta name="twitter:card" content="summary_large_image" />
++    {% block og_image %}{% if page_image_preview %}<meta property="og:image" content="{{ page_image_preview.url }}" />
++    <meta property="og:image:alt" content="{{ page_image_preview.alt }}" />{% endif %}{% endblock %}
++    <meta name="twitter:card" content="{% if page_image_preview %}summary_large_image{% else %}summary{% endif %}" />
+     <meta name="twitter:title" content="{% block twitter_title %}{% block title_plain_twitter %}{{ seo_title|default:"KidsMap" }}{% endblock %}{% endblock %}" />
+     <meta name="twitter:description" content="{% block twitter_description %}{% block meta_description_twitter %}{% if meta_description %}{{ meta_description }}{% else %}{% trans 'Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, образование.' %}{% endif %}{% endblock %}{% endblock %}" />
+-    {% block twitter_image %}<meta name="twitter:image" content="{% firstof public_base_url request.scheme|add:'://'|add:request.get_host %}{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />{% endblock %}
++    {% block twitter_image %}{% if page_image_preview %}<meta name="twitter:image" content="{{ page_image_preview.url }}" />
++    <meta name="twitter:image:alt" content="{{ page_image_preview.alt }}" />{% endif %}{% endblock %}
+     <link rel="icon" type="image/svg+xml" href="{% static 'img/logo-mark.svg' %}" />
+     <link rel="apple-touch-icon" href="{% static 'img/logo-mark.svg' %}" />
+     {% include "includes/yandex_metrica.html" %}
+@@ -92,6 +95,7 @@
+     {% if website_schema_json %}
+       <script type="application/ld+json">{{ website_schema_json|safe }}</script>
+     {% endif %}
++    {% if page_image_preview and not guide_webpage_json %}<script type="application/ld+json">{{ page_image_preview.schema_json|safe }}</script>{% endif %}
+     {% block structured_data %}{% endblock %}
+     {% block extra_head %}{% endblock %}
+     {% if living_map_enabled %}
+--- a/src/catalog/templates/catalog/event_detail.html
++++ b/src/catalog/templates/catalog/event_detail.html
+@@ -5,8 +5,6 @@
+ {% block title_plain %}{{ seo_title }}{% endblock %}
+ {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
+ {% block meta_description %}{{ meta_description }}{% endblock %}
+-{% block og_image %}{% if seo_image_url %}<meta property="og:image" content="{{ seo_image_url }}" />{% else %}{{ block.super }}{% endif %}{% endblock %}
+-{% block twitter_image %}{% if seo_image_url %}<meta name="twitter:image" content="{{ seo_image_url }}" />{% else %}{{ block.super }}{% endif %}{% endblock %}
+ {% block structured_data %}<script type="application/ld+json">{{ event_schema_json|safe }}</script>{% endblock %}
+ 
+ {% block extra_head %}{{ block.super }}<link rel="stylesheet" href="{% static 'css/pages/event_public.css' %}?v=20261026">{% endblock %}
+--- a/src/catalog/templates/catalog/place_detail.html
++++ b/src/catalog/templates/catalog/place_detail.html
+@@ -6,8 +6,6 @@
+ {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
+ {% block meta_description %}{{ meta_description }}{% endblock %}
+ {% block og_type %}article{% endblock %}
+-{% block og_image %}{% if seo_image_url %}<meta property="og:image" content="{{ seo_image_url }}" />{% endif %}{% endblock %}
+-{% block twitter_image %}{% if seo_image_url %}<meta name="twitter:image" content="{{ seo_image_url }}" />{% endif %}{% endblock %}
+ {% block structured_data %}
+   <script type="application/ld+json">{{ place_breadcrumb_schema_json|safe }}</script>
+   <script type="application/ld+json">{{ place_schema_json|safe }}</script>
+--- a/src/catalog/templates/catalog/public_entity_detail.html
++++ b/src/catalog/templates/catalog/public_entity_detail.html
+@@ -4,8 +4,6 @@
+ {% block title_plain %}{{ seo_title }}{% endblock %}
+ {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
+ {% block meta_description %}{{ meta_description }}{% endblock %}
+-{% block og_image %}{% if seo_image_url %}<meta property="og:image" content="{{ seo_image_url }}" />{% else %}{{ block.super }}{% endif %}{% endblock %}
+-{% block twitter_image %}{% if seo_image_url %}<meta name="twitter:image" content="{{ seo_image_url }}" />{% else %}{{ block.super }}{% endif %}{% endblock %}
+ {% block structured_data %}<script type="application/ld+json">{{ entity_schema_json|safe }}</script>{% endblock %}
+ {% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/public_entities.css' %}?v=4">{% endblock %}
+ {% block content %}
+--- a/src/catalog/templates/catalog/seo_landing.html
++++ b/src/catalog/templates/catalog/seo_landing.html
+@@ -1,5 +1,5 @@
+ {% extends "base.html" %}
+-{% load i18n %}
++{% load i18n static %}
+ 
+ {% block title %}{{ seo_title }}{% endblock %}
+ {% block title_plain %}{{ seo_title }}{% endblock %}
+@@ -9,6 +9,10 @@
+ {% block twitter_description %}{{ meta_description }}{% endblock %}
+ {% block robots_meta %}{{ seo_robots_content }}{% endblock %}
+ {% block googlebot_meta %}{{ seo_robots_content }}{% endblock %}
++
++{% block extra_head %}
++  <link rel="stylesheet" href="{% static 'css/pages/seo_landing_photos.css' %}" />
++{% endblock %}
+ 
+ {% block content %}
+   {% include "catalog/includes/breadcrumbs.html" with items=seo_breadcrumb_items %}
+@@ -67,6 +71,20 @@
+       </div>
+     </div>
+   </section>
++
++  {% if seo_featured_places %}
++    <section class="seo-featured-places" aria-labelledby="seo-featured-title">
++      <h2 id="seo-featured-title">{% if request.LANGUAGE_CODE == 'az' %}Bu seçimdəki məkanlar{% elif request.LANGUAGE_CODE == 'en' %}Places in this collection{% else %}Места из этой подборки{% endif %}</h2>
++      <div class="seo-featured-places__grid">
++        {% for place in seo_featured_places %}
++          <a class="seo-featured-places__item" href="{{ place.url }}">
++            <img src="{{ place.image_url }}" alt="{{ place.name }}" lang="{{ place.name_language }}" width="640" height="480" loading="lazy" decoding="async" />
++            <h3 lang="{{ place.name_language }}">{{ place.name }}</h3>
++          </a>
++        {% endfor %}
++      </div>
++    </section>
++  {% endif %}
+ 
+   {% if seo_aggregate %}
+     <section class="panel seo-landing-data">
+--- a/src/catalog/templates/catalog/specialist_detail.html
++++ b/src/catalog/templates/catalog/specialist_detail.html
+@@ -4,8 +4,6 @@
+ 
+ {% block title %}{{ seo_title }}{% endblock %}
+ {% block meta_description %}{{ meta_description }}{% endblock %}
+-{% block og_image %}{% if seo_image_url %}<meta property="og:image" content="{{ seo_image_url }}" />{% else %}{{ block.super }}{% endif %}{% endblock %}
+-{% block twitter_image %}{% if seo_image_url %}<meta name="twitter:image" content="{{ seo_image_url }}" />{% else %}{{ block.super }}{% endif %}{% endblock %}
+ 
+ {% block extra_head %}
+ <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}?v=20261020_release_r1" />
+--- a/src/catalog/templates/pages/parent_guide.html
++++ b/src/catalog/templates/pages/parent_guide.html
+@@ -8,8 +8,17 @@
+ {% block og_description %}{{ guide.meta_description }}{% endblock %}
+ {% block twitter_description %}{{ guide.meta_description }}{% endblock %}
+ {% block og_type %}article{% endblock %}
+-{% block og_image %}<meta property="og:image" content="{% firstof public_base_url request.scheme|add:'://'|add:request.get_host %}{% static guide.hero_image %}">{% endblock %}
+-{% block twitter_image %}<meta name="twitter:image" content="{% firstof public_base_url request.scheme|add:'://'|add:request.get_host %}{% static guide.hero_image %}">{% endblock %}
++{% block og_image %}
++  <meta property="og:image" content="{{ guide_image.url }}">
++  <meta property="og:image:type" content="image/webp">
++  <meta property="og:image:width" content="{{ guide_image.width }}">
++  <meta property="og:image:height" content="{{ guide_image.height }}">
++  <meta property="og:image:alt" content="{{ guide_image.caption }}">
++{% endblock %}
++{% block twitter_image %}
++  <meta name="twitter:image" content="{{ guide_image.url }}">
++  <meta name="twitter:image:alt" content="{{ guide_image.caption }}">
++{% endblock %}
+ 
+ {% block extra_head %}
+   <link rel="stylesheet" href="{% static 'css/pages/parent_guides.css' %}?v=20261027_mobile_topics_fix">
+@@ -17,6 +26,7 @@
+ {% endblock %}
+ 
+ {% block structured_data %}
++  {% if guide_webpage_json %}<script type="application/ld+json">{{ guide_webpage_json|safe }}</script>{% endif %}
+   {% if guide_article_json %}<script type="application/ld+json">{{ guide_article_json|safe }}</script>{% endif %}
+   {% if guide_breadcrumbs_json %}<script type="application/ld+json">{{ guide_breadcrumbs_json|safe }}</script>{% endif %}
+ {% endblock %}
+@@ -42,7 +52,7 @@
+       <p class="pg-byline"><span>{{ guide.editorial_label }}</span><span>{{ guide.updated_label }} <time datetime="{{ guide.updated|date:'Y-m-d' }}">{{ guide.updated|date:"d.m.Y" }}</time></span></p>
+     </div>
+     <div class="pg-hero__art">
+-      <img src="{% static guide.hero_image %}" alt="{{ guide.hero_alt }}" width="1200" height="800" fetchpriority="high" decoding="async">
++      <img src="{% static guide.hero_image %}" alt="{{ guide.hero_alt }}" width="{{ guide.hero_width }}" height="{{ guide.hero_height }}" fetchpriority="high" decoding="async">
+     </div>
+   </header>
+ 
+@@ -66,7 +76,7 @@
+       <article class="pg-place" data-guide-place-id="{{ place.id }}">
+         <a class="pg-place__link" href="{{ place.url }}" aria-labelledby="guide-place-{{ place.id }}">
+           <span class="pg-place__image">
+-            {% if place.image_url %}<img src="{{ place.image_url }}" alt="" width="200" height="200" loading="lazy" decoding="async">{% else %}<span class="pg-place__placeholder" aria-hidden="true"><img src="{% static 'img/logo-mark.svg' %}" width="56" height="56" alt="" loading="lazy"></span>{% endif %}
++            {% if place.image_url %}<img src="{{ place.image_url }}" alt="{{ place.name }}" lang="{{ place.name_language }}" width="200" height="200" loading="lazy" decoding="async">{% else %}<span class="pg-place__placeholder" aria-hidden="true"><img src="{% static 'img/logo-mark.svg' %}" width="56" height="56" alt="" loading="lazy"></span>{% endif %}
+           </span>
+           <div class="pg-place__copy">
+             <h3 id="guide-place-{{ place.id }}" lang="{{ place.name_language }}">{{ place.name }}<span class="pg-place__arrow" aria-hidden="true"><svg class="pg-ico-arrow" width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5L10.5 3.5M10.5 3.5H5.5M10.5 3.5V8.5"/></svg></span></h3>
+--- a/src/catalog/templatetags/seo_images.py
++++ b/src/catalog/templatetags/seo_images.py
+@@ -0,0 +1,77 @@
++"""Image previews from the content already selected for this public page.
++
++No extra catalog queries, random cross-category photos, or site-logo fallback.
++"""
++
++from django import template
++
++from catalog.services.public_urls import build_public_absolute_uri
++from catalog.services.seo import _serialize_json_ld
++
++register = template.Library()
++
++PUBLIC_IMAGE_ROUTES = frozenset({
++    'seo_landing', 'home', 'place_list', 'place_new', 'place_detail', 'parent_guide',
++    'organization_list', 'organization_detail', 'activity_detail',
++    'specialist_list', 'specialist_detail', 'events_landing', 'event_detail',
++})
++
++
++def _page_image(context, route, language):
++    guide = context.get('guide_image')
++    if guide:
++        return guide['url'], guide['caption']
++    if 'seo_image_url' in context:
++        presentation = context.get('presentation') or {}
++        return context['seo_image_url'], presentation.get('name') or context.get('seo_title', '')
++    if route == 'seo_landing':
++        for card in context.get('seo_featured_places') or []:
++            if card.get('image_url'):
++                return card['image_url'], card.get('name', '')
++    if route == 'home':
++        slides = context.get('hero_gallery_slides') or []
++        if slides:
++            main = slides[0]['main']
++            return main.get('image_url', ''), main.get('label', '')
++        return '', ''
++    if route == 'organization_list':
++        for card in context.get('cards') or []:
++            for photo in card.get('photos') or []:
++                if photo.get('url'):
++                    return photo['url'], photo.get('name', '')
++    if route == 'specialist_list':
++        for specialist in context.get('specialists') or []:
++            if getattr(specialist, 'has_valid_photo', False) and specialist.photo:
++                return specialist.photo.url, specialist.name
++    if route in {'place_list', 'place_new'}:
++        for place in context.get('places') or []:
++            card = getattr(place, '_card_presentation', {})
++            if card.get('visible') and card.get('image_url'):
++                return card['image_url'], card.get('name', '')
++    if route in {'events_landing', 'place_list', 'place_new'}:
++        for event in context.get('events') or []:
++            if event.photo:
++                return event.photo.url, event.name_i18n(language)
++    return '', ''
++
++
++@register.simple_tag(takes_context=True)
++def public_image_preview(context):
++    request = context.get('request')
++    route = getattr(getattr(request, 'resolver_match', None), 'url_name', '')
++    if route not in PUBLIC_IMAGE_ROUTES:
++        return {}
++    language = (getattr(request, 'LANGUAGE_CODE', '') or 'az').split('-')[0]
++    url, alt = _page_image(context, route, language)
++    if not url:
++        return {}
++    url = build_public_absolute_uri(request, url)
++    alt = str(alt or context.get('seo_title') or 'KidsMap')
++    canonical = context.get('canonical_url') or build_public_absolute_uri(request, request.path)
++    webpage = {
++        '@context': 'https://schema.org', '@type': 'WebPage',
++        '@id': canonical, 'url': canonical,
++        'name': str(context.get('seo_title') or alt), 'inLanguage': language,
++        'primaryImageOfPage': {'@type': 'ImageObject', 'url': url, 'caption': alt},
++    }
++    return {'url': url, 'alt': alt, 'schema_json': _serialize_json_ld(webpage)}
+--- a/static/css/pages/seo_landing_photos.css
++++ b/static/css/pages/seo_landing_photos.css
+@@ -0,0 +1,12 @@
++.seo-featured-places { margin: 24px 0; }
++.seo-featured-places h2 { margin: 0 0 16px; font-size: 1.35rem; line-height: 1.35; }
++.seo-featured-places__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
++.seo-featured-places__item { min-width: 0; color: var(--brand-jet, #1f2933); text-decoration: none; border-radius: 14px; }
++.seo-featured-places__item img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px; background: #f1f5f2; }
++.seo-featured-places__item h3 { margin: 10px 0 0; font-size: 1rem; line-height: 1.45; overflow-wrap: anywhere; }
++.seo-featured-places__item:hover h3 { color: var(--brand-turf, #136f38); text-decoration: underline; }
++.seo-featured-places__item:focus-visible { outline: 3px solid var(--brand-turf, #136f38); outline-offset: 5px; }
++@media (max-width: 600px) {
++  .seo-featured-places__grid { grid-template-columns: 1fr; gap: 20px; }
++  .seo-featured-places__item img { aspect-ratio: 16 / 9; }
++}

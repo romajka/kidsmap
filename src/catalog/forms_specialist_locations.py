@@ -6,6 +6,7 @@ from catalog.models import Specialist
 
 class BasePracticeLocationFormSet(BaseInlineFormSet):
     require_active = True
+    location_required_formats = (Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH)
     def _construct_form(self,index,**kwargs):
         form=super()._construct_form(index,**kwargs)
         # BaseInlineFormSet sets only the FK value. Model clean needs the
@@ -16,7 +17,7 @@ class BasePracticeLocationFormSet(BaseInlineFormSet):
     def clean(self):
         super().clean()
         if any(self.errors):return
-        if self.require_active and self.instance.consultation_format in (Specialist.FORMAT_OFFLINE,Specialist.FORMAT_BOTH):
+        if self.require_active and self.instance.consultation_format in self.location_required_formats:
             if not any(form.cleaned_data.get('is_active') and not form.cleaned_data.get('DELETE') and
                        (form.cleaned_data.get('place') or form.cleaned_data.get('address')) for form in self.forms):
                 raise ValidationError(_('Для очного формата работы (или онлайн и очно) необходимо указать хотя бы одно активное место приема.'))
@@ -53,8 +54,37 @@ class PracticeLocationForm(forms.ModelForm):
         self.existing_place_id=self.instance.place_id if self.instance.pk else None
         visible=visible_practice_places(actor)
         self.fields['place'].visible_ids=set(visible.values_list('pk',flat=True))
-        self.fields['place'].queryset=Place.objects.filter(Q(pk__in=visible.values('pk'))|Q(pk=self.existing_place_id))
-        for field in self.fields.values():field.widget.attrs.setdefault('class','field')
+        self.fields['place'].queryset=Place.objects.filter(Q(pk__in=visible.values('pk'))|Q(pk=self.existing_place_id)).order_by('name')
+        self.fields['place'].empty_label=_('Выберите детский центр...')
+        if 'region' in self.fields:
+            self.fields['region'].empty_label=_('Выберите регион...')
+        if 'district' in self.fields:
+            self.fields['district'].empty_label=_('Выберите район...')
+        if 'metro' in self.fields:
+            self.fields['metro'].empty_label=_('Выберите метро...')
+        for field in self.fields.values():
+            field.widget.attrs.setdefault('class','field')
+            if isinstance(field.widget, forms.Select):
+                existing_class = field.widget.attrs.get('class', '')
+                if 'km-custom-select' not in existing_class:
+                    field.widget.attrs['class'] = f"{existing_class} km-custom-select".strip()
+
+    def clean(self):
+        cleaned = super().clean()
+        place = cleaned.get('place')
+        if place:
+            # Place geography is legacy text; practice geography uses foreign keys.
+            # Keep the applicant's explicit choices instead of assigning text to relations.
+            if cleaned.get('lat') is None and getattr(place, 'lat', None) is not None:
+                cleaned['lat'] = place.lat
+                self.instance.lat = place.lat
+            if cleaned.get('lng') is None and getattr(place, 'lng', None) is not None:
+                cleaned['lng'] = place.lng
+                self.instance.lng = place.lng
+            if not cleaned.get('address') and getattr(place, 'address', None):
+                cleaned['address'] = place.address
+                self.instance.address = place.address
+        return cleaned
 
     def _post_clean(self):
         # Working drafts have always allowed incomplete offline details. Keep
@@ -82,9 +112,13 @@ class PersonPracticeLocationFormSet(BasePracticeLocationFormSet):
         if primaries>1:raise ValidationError(_('Выберите только одно основное место приёма.'))
 
 
-def practice_location_formset(*,actor,specialist,data=None,require_active=True):
+def practice_location_formset(*,actor,specialist,data=None,require_active=True,proposal_draft=None):
     actor=specialist_domain.require_actor(actor)
-    if specialist.pk:specialist_domain.require_person(actor,specialist)
+    if specialist.pk:
+        if proposal_draft is not None:
+            specialist_domain.require_proposal_revision(actor, specialist, proposal_draft)
+        else:
+            specialist_domain.require_person(actor,specialist)
     factory=inlineformset_factory(Specialist,SpecialistPracticeLocation,form=PracticeLocationForm,
         formset=PersonPracticeLocationFormSet,extra=1,can_delete=True,max_num=30,validate_max=True,absolute_max=31)
     result=factory(data,instance=specialist,prefix='locations',form_kwargs={'actor':actor,'allow_incomplete':not require_active})

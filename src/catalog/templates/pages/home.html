@@ -11,11 +11,12 @@
 {% endif %}
 {% endblock %}
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20261020_release_r1" />
-<link rel="stylesheet" href="{% static 'css/pages/home_search.css' %}?v=20261026_filter_r2" />
-<link rel="stylesheet" href="{% static 'css/pages/home_layout.css' %}?v=20261027_search_row_v1" />
-<link rel="stylesheet" href="{% static 'css/pages/home_map_explorer.css' %}?v=20261026_filter_r3" />
-<link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261022_release_all_r1" />
+<script defer src="{% static 'js/home_guide_slider.js' %}?v=20261104_auto_v1"></script>
+<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20261103_mobile_compact" />
+<link rel="stylesheet" href="{% static 'css/pages/home_search.css' %}?v=20261103_mobile_compact" />
+<link rel="stylesheet" href="{% static 'css/pages/home_layout.css' %}?v=20261104_guide_auto_v2" />
+<link rel="stylesheet" href="{% static 'css/pages/home_map_explorer.css' %}?v=20261103_mobile_compact" />
+<link rel="stylesheet" href="{% static 'css/components/mappy.css' %}?v=20261104_hero_framing" />
 <script defer src="{% static 'js/mappy.js' %}?v=20261102_copy"></script>
 {% endblock %}
 

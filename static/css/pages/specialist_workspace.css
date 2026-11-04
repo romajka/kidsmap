@@ -522,28 +522,103 @@
 .km-btn-remove-location {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: 1px solid #FECACA;
-  border-radius: 8px;
+  gap: 4px;
+  padding: 0 12px;
+  height: 32px;
+  min-height: 32px;
+  border: 1.5px solid #FECACA;
+  border-radius: 10px;
   background: #FEF2F2;
-  color: #B91C1C;
-  font-size: 12px;
-  font-weight: 600;
+  color: #DC2626;
+  font-size: 12.5px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
+}
+
+.km-btn-remove-location .material-symbols-rounded {
+  font-size: 16px;
+  color: #DC2626;
 }
 
 .km-btn-remove-location:hover {
   background: #FEE2E2;
   border-color: #F87171;
+  color: #B91C1C;
+}
+
+.km-btn-remove-location:hover .material-symbols-rounded {
+  color: #B91C1C;
+}
+
+.km-practice-type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+  background: #F1F5F9;
+  padding: 5px;
+  border-radius: 12px;
+}
+
+.km-practice-type-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #64748B;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.km-practice-type-btn .material-symbols-rounded {
+  font-size: 20px;
+  color: #94A3B8;
+  transition: color 0.15s ease;
+}
+
+.km-practice-type-btn:hover {
+  color: #1E293B;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.km-practice-type-btn.is-active {
+  background: #FFFFFF;
+  color: #136F38;
+  border-color: rgba(19, 111, 56, 0.15);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+.km-practice-type-btn.is-active .material-symbols-rounded {
+  color: #136F38;
+}
+
+.km-practice-panel {
+  display: block;
+  animation: kmFadeIn 0.2s ease;
+}
+
+.km-practice-panel[hidden] {
+  display: none !important;
+}
+
+@keyframes kmFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .km-practice-choice-block {
   background: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  border-radius: 12px;
-  padding: 16px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 18px;
   box-sizing: border-box;
 }
 
@@ -555,14 +630,14 @@
 }
 
 .km-choice-icon {
-  color: #059669;
-  font-size: 15px;
+  color: #136F38;
+  font-size: 20px;
 }
 
 .km-practice-label {
-  font-weight: 650;
-  font-size: 13.5px;
-  color: #1E293B;
+  font-weight: 700;
+  font-size: 14px;
+  color: #0F172A;
   margin: 0;
 }
 
@@ -574,86 +649,309 @@
 }
 
 .km-field-subtext {
-  font-size: 12px;
+  font-size: 12.5px;
   color: #64748B;
-  margin: 4px 0 0;
-}
-
-.km-practice-divider {
-  text-align: center;
-  position: relative;
-  margin: 16px 0;
-}
-
-.km-practice-divider::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: #E2E8F0;
-}
-
-.km-practice-divider span {
-  position: relative;
-  display: inline-block;
-  background: #FFFFFF;
-  padding: 0 14px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: #94A3B8;
+  margin: 5px 0 0;
+  line-height: 1.4;
 }
 
 .km-practice-city-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-  margin-top: 12px;
-}
-
-.km-coords-toggle {
   margin-top: 14px;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 10px;
 }
 
-.km-coords-toggle summary {
+/* ─────────────────────────────────────────────────────────────
+   Custom Selects for KidsMap Specialist Practice Locations
+   ───────────────────────────────────────────────────────────── */
+
+.km-custom-select-wrap {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #475569;
-  cursor: pointer;
-  list-style: none;
-  user-select: none;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.km-coords-toggle summary::-webkit-details-marker {
-  display: none;
+.km-custom-select-wrap .km-select-affix {
+  position: absolute;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #136F38;
+  pointer-events: none;
+  z-index: 2;
+  transition: all 0.15s ease;
 }
 
-.km-coords-chevron {
-  margin-left: auto;
-  font-size: 12px;
-  transition: transform 0.2s ease;
+.km-custom-select-wrap .km-select-affix .material-symbols-rounded {
+  font-size: 19px;
 }
 
-.km-coords-toggle[open] .km-coords-chevron {
+.km-custom-select-wrap .km-select-chevron {
+  position: absolute;
+  right: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748B;
+  pointer-events: none;
+  z-index: 2;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.15s ease;
+}
+
+.km-custom-select-wrap .km-select-chevron .material-symbols-rounded {
+  font-size: 20px;
+}
+
+/* Custom select element */
+.km-custom-select-wrap select.km-custom-select,
+.km-custom-select-wrap select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  width: 100% !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  padding: 0 34px 0 38px !important;
+  background-color: #FFFFFF !important;
+  border: 1.5px solid #CBD5E1 !important;
+  border-radius: 12px !important;
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: #0F172A !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease !important;
+}
+
+/* Hover state */
+.km-custom-select-wrap:hover select {
+  border-color: #94A3B8 !important;
+  background-color: #F8FAFC !important;
+}
+
+.km-custom-select-wrap:hover .km-select-chevron {
+  color: #1E293B;
+}
+
+/* Focus state */
+.km-custom-select-wrap select:focus,
+.km-custom-select-wrap select:focus-visible {
+  border-color: #136F38 !important;
+  background-color: #FFFFFF !important;
+  box-shadow: 0 0 0 3.5px rgba(19, 111, 56, 0.14) !important;
+  outline: none !important;
+}
+
+.km-custom-select-wrap:focus-within .km-select-affix {
+  color: #136F38;
+  transform: scale(1.08);
+}
+
+.km-custom-select-wrap:focus-within .km-select-chevron {
+  color: #136F38;
   transform: rotate(180deg);
 }
 
-.km-coords-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 12px 14px 14px;
-  border-top: 1px solid #F1F5F9;
+/* Placeholder option when unselected (empty string) */
+.km-custom-select-wrap select:not(.is-selected),
+.km-custom-select-wrap select:has(option:checked[value=""]) {
+  color: #64748B !important;
+  font-weight: 500 !important;
+}
+
+.km-custom-select-wrap.has-value select,
+.km-custom-select-wrap select.is-selected {
+  color: #0F172A !important;
+  font-weight: 650 !important;
+  background-color: #F0FDF4 !important;
+  border-color: #86EFAC !important;
+}
+
+.km-custom-select-wrap.has-value .km-select-affix {
+  color: #136F38;
+}
+
+/* Dropdown option items */
+.km-custom-select-wrap select option {
+  color: #0F172A;
+  font-weight: 550;
+  padding: 10px 14px;
+  background: #FFFFFF;
+}
+
+.km-custom-select-wrap select option[value=""] {
+  color: #94A3B8;
+  font-weight: 400;
+}
+
+/* Field labels in practice grid */
+.km-practice-field-label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  margin: 0 0 6px !important;
+}
+
+.km-practice-field-label .material-symbols-rounded {
+  font-size: 17px;
+  color: #136F38;
+}
+
+/* ─── Interactive Practice Map Picker ─── */
+.km-practice-map-wrapper {
+  margin-top: 20px;
+  border-top: 1px dashed #CBD5E1;
+  padding-top: 18px;
+}
+
+.km-practice-map-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.km-practice-map-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.km-practice-map-title .material-symbols-rounded {
+  color: #136F38;
+  font-size: 20px;
+}
+
+.km-practice-map-subtext {
+  font-size: 12.5px;
+  color: #64748B;
+}
+
+.km-practice-map-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.km-practice-map-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.km-practice-map-toolbar .owner-map-picker-status-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.km-map-status-icon {
+  font-size: 18px;
+  color: #10B981;
+  flex-shrink: 0;
+}
+
+.km-practice-map-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.km-map-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  height: 32px;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  background: #F8FAFC;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.km-map-btn:hover {
+  background: #F1F5F9;
+  border-color: #94A3B8;
+  color: #0F172A;
+}
+
+.km-map-btn .material-symbols-rounded {
+  font-size: 16px;
+  color: #64748B;
+}
+
+.km-map-btn--clear {
+  color: #64748B;
+}
+
+.km-map-btn--clear:hover {
+  color: #DC2626;
+  border-color: #FCA5A5;
+  background: #FEF2F2;
+}
+
+.km-map-btn--clear:hover .material-symbols-rounded {
+  color: #DC2626;
+}
+
+.km-practice-map-canvas {
+  height: 280px;
+  width: 100%;
+  border-radius: 12px;
+  border: 1.5px solid #CBD5E1;
+  overflow: hidden;
+  background: #F1F5F9;
+  box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.05);
+  position: relative;
+  z-index: 1;
+}
+
+.km-map-drag-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #64748B;
+  line-height: 1.4;
+}
+
+.km-map-drag-hint .material-symbols-rounded {
+  font-size: 16px;
+  color: #0284C7;
+  flex-shrink: 0;
 }
 
 .km-practice-details-card {
@@ -770,158 +1068,291 @@
   margin: 4px 0 0;
 }
 
-/* Step 4: Pricing & Contacts */
-.km-pricing-contacts-card {
+/* Step 4: Compact Pricing & Contacts Panel */
+.km-pricing-contacts-panel {
   background: #FFFFFF;
   border: 1.5px solid #E2E8F0;
-  border-radius: 16px;
-  padding: 22px;
-  margin-bottom: 22px;
+  border-radius: 14px;
+  padding: 18px 20px;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
   box-sizing: border-box;
 }
 
-.km-subsection-title {
+.km-pc-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.km-pc-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.km-pc-head-left {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 15px;
-  font-weight: 700;
-  color: #1E293B;
-  margin: 0 0 16px;
 }
 
-.km-subsection-title i {
-  color: #059669;
+.km-pc-head-icon {
+  font-size: 18px;
+  color: #136F38;
+  flex-shrink: 0;
+}
+
+.km-pc-head-title {
+  font-size: 14px;
+  font-weight: 750;
+  color: #0F172A;
+}
+
+.km-contacts-shield-tip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 650;
+  color: #15803D;
+  white-space: nowrap;
+}
+
+.km-contacts-shield-tip .material-symbols-rounded {
+  font-size: 14px;
+  color: #16A34A;
+}
+
+.km-pc-divider {
+  height: 1px;
+  background: #F1F5F9;
+  margin: 16px 0 14px;
 }
 
 .km-pricing-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  margin-bottom: 24px;
-}
-
-.km-contacts-banner {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  background: #F0FDF4;
-  border: 1px solid #BBF7D0;
-  border-radius: 10px;
-  color: #166534;
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 18px;
-}
-
-.km-contacts-banner i {
-  font-size: 16px;
-  color: #059669;
+  gap: 12px;
 }
 
 .km-contacts-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 12px 14px;
+}
+
+.km-pc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.km-pc-label {
+  font-size: 12.5px;
+  font-weight: 650;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.km-pc-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.km-addon-wa-glyph {
+  font-size: 15px;
+  color: #16A34A;
+}
+
+.km-addon-ig-glyph {
+  font-size: 13px;
+  font-weight: 800;
+  color: #E1306C;
+}
+
+.km-addon-web-glyph {
+  font-size: 15px;
+  color: #2563EB;
+}
+
+.km-pc-input-affix {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.km-pc-input-affix input {
+  width: 100%;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 54px 0 12px !important;
+  border: 1.5px solid #CBD5E1 !important;
+  border-radius: 9px !important;
+  background: #FFFFFF !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #0F172A !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.km-pc-input-affix input:focus {
+  border-color: #136F38 !important;
+  box-shadow: 0 0 0 3px rgba(19, 111, 56, 0.12) !important;
+  outline: none !important;
+}
+
+.km-pc-affix-unit {
+  position: absolute;
+  right: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748B;
+  background: #F1F5F9;
+  padding: 3px 7px;
+  border-radius: 6px;
+  pointer-events: none;
+  letter-spacing: 0.02em;
 }
 
 .km-input-addon-group {
   display: flex;
   align-items: stretch;
   border: 1.5px solid #CBD5E1;
-  border-radius: 10px;
+  border-radius: 9px;
   overflow: hidden;
   background: #FFFFFF;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  height: 40px;
   box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .km-input-addon-group:focus-within {
-  border-color: #059669;
-  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+  border-color: #136F38;
+  box-shadow: 0 0 0 3px rgba(19, 111, 56, 0.12);
 }
 
 .km-addon-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 12px;
+  gap: 4px;
+  padding: 0 10px;
   background: #F8FAFC;
-  border-right: 1px solid #E2E8F0;
-  font-size: 13px;
-  font-weight: 600;
+  border-right: 1.5px solid #CBD5E1;
   color: #475569;
-  white-space: nowrap;
+  font-size: 12.5px;
+  font-weight: 700;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.km-addon-badge--phone {
+  font-size: 12px;
+  font-weight: 750;
+  color: #1E293B;
+  gap: 5px;
+}
+
+.km-addon-flag {
+  font-size: 14px;
 }
 
 .km-addon-badge--wa {
   color: #16A34A;
-  font-size: 15px;
+  background: #F0FDF4;
+  border-right-color: #BBF7D0;
+}
+
+.km-addon-badge--wa .material-symbols-rounded {
+  font-size: 16px;
+  color: #16A34A;
 }
 
 .km-addon-badge--ig {
   color: #E1306C;
-  font-size: 15px;
+  font-weight: 800;
+  font-size: 14px;
 }
 
 .km-addon-badge--web {
   color: #2563EB;
-  font-size: 14px;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .km-input-addon-group input {
   flex: 1;
+  min-width: 0;
   border: none !important;
   outline: none !important;
-  padding: 10px 12px !important;
-  font-size: 14px;
-  min-height: 44px !important;
+  padding: 0 10px !important;
+  font-size: 13.5px !important;
+  height: 100% !important;
+  min-height: auto !important;
   background: transparent !important;
   box-shadow: none !important;
+  box-sizing: border-box !important;
+  color: #0F172A !important;
+}
+
+.km-input-addon-group input.is-synced-readonly {
+  background: #F8FAFC !important;
+  color: #64748B !important;
+  cursor: not-allowed;
 }
 
 .km-btn-copy-wa {
-  border: none;
+  border: 1px solid #BBF7D0;
   background: #F0FDF4;
-  color: #059669;
-  font-size: 12px;
-  font-weight: 650;
-  padding: 0 12px;
+  color: #15803D;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  border-left: 1px solid #BBF7D0;
-  transition: background 0.15s ease;
-  white-space: nowrap;
+  gap: 4px;
+  transition: all 0.15s ease;
 }
 
 .km-btn-copy-wa:hover {
   background: #DCFCE7;
+  border-color: #86EFAC;
 }
 
-.km-same-wa-row {
-  margin-top: 8px;
+.km-btn-copy-wa .material-symbols-rounded {
+  font-size: 13px;
 }
 
 .km-same-wa-label {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #475569;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748B;
   cursor: pointer;
+  margin-top: 2px;
 }
 
 .km-same-wa-label input[type=checkbox] {
-  width: 17px !important;
-  height: 17px !important;
-  min-width: 17px;
-  min-height: 17px;
-  accent-color: #059669;
+  width: 15px !important;
+  height: 15px !important;
+  min-width: 15px;
+  min-height: 15px;
+  accent-color: #136F38;
   margin: 0 !important;
   cursor: pointer;
 }
@@ -1150,21 +1581,77 @@
   margin: 0;
 }
 
-/* 2-Column Workspace Grid: 260px Sticky Navigation + Wide 1000px+ Form Content */
+/* Standalone editor: persistent section navigation and a wide form. */
 .km-specialist-workspace-grid {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
-  gap: 32px;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 24px;
   align-items: start;
 }
 
 .km-specialist-left-sidebar {
   position: sticky;
-  top: 84px;
+  top: 100px;
+  max-height: calc(100dvh - 116px);
+  overflow-y: auto;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
   z-index: 5;
+}
+
+/* Keep all section names readable, including longer translations. */
+.km-specialist-owner-form .km-owner-toc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.km-specialist-owner-form .km-owner-toc-link .toc-label {
+  white-space: normal;
+  overflow: visible;
+  line-height: 1.4;
+}
+
+.km-specialist-owner-form .km-owner-toc-link {
+  min-height: 44px;
+}
+
+.km-section-navigation > summary {
+  cursor: pointer;
+  min-height: 44px;
+  margin: 0;
+}
+
+.km-section-navigation > summary::after {
+  content: '+';
+  font-size: 20px;
+}
+
+.km-section-navigation[open] > summary::after {
+  content: '−';
+}
+
+.km-section-navigation > summary:focus-visible {
+  outline: 2px solid var(--brand, #136f38);
+  outline-offset: 3px;
+}
+
+.km-bio-optional {
+  margin-top: 20px;
+}
+
+.km-bio-optional > summary {
+  cursor: pointer;
+  padding-block: 12px;
+  font-weight: 600;
+  color: var(--brand, #136f38);
+}
+
+.km-bio-optional > summary:focus-visible {
+  outline: 2px solid var(--brand, #136f38);
+  outline-offset: 3px;
 }
 
 .km-specialist-main-content {
@@ -1189,13 +1676,15 @@
   box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1023px) {
   .km-specialist-workspace-grid {
     grid-template-columns: 1fr;
     gap: 20px;
   }
   .km-specialist-left-sidebar {
     position: static;
+    max-height: none;
+    overflow: visible;
   }
   .km-unified-form .km-unified-section {
     padding: 20px 18px;
@@ -1233,14 +1722,15 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #0F172A;
+  background: linear-gradient(135deg, #136F38 0%, #16A34A 100%);
   color: #FFFFFF;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 13.5px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(19, 111, 56, 0.28);
 }
 
 .km-section-title-wrap h2 {
@@ -1551,10 +2041,11 @@
 }
 
 .km-owner-toc-link.is-active {
-  background: #F0FDF4;
-  color: #065F46;
+  background: #ECFDF5;
+  color: #047857;
   font-weight: 700;
-  box-shadow: inset 3px 0 0 #059669;
+  border: 1px solid #6EE7B7;
+  box-shadow: none;
 }
 
 .km-owner-toc-link .toc-num {
@@ -1616,31 +2107,64 @@
   border-top: 1px solid #E2E8F0;
 }
 
-.btn-sidebar-save-draft {
-  padding: 8px 10px !important;
-  font-size: 12.5px !important;
-  min-height: 38px !important;
-}
-
+.btn-sidebar-save-draft,
 .btn-sidebar-submit {
-  padding: 8px 10px !important;
-  font-size: 12.5px !important;
-  min-height: 38px !important;
-  background: #059669 !important;
-  color: #FFFFFF !important;
-  border: 1px solid #047857 !important;
-  border-radius: 8px;
-  font-weight: 700;
+  height: 42px;
+  min-height: 42px;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  padding: 0 8px !important;
+  box-sizing: border-box;
+  white-space: nowrap;
+  text-decoration: none;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: all 0.15s ease;
+}
+
+.btn-sidebar-save-draft {
+  background: #F8FAFC !important;
+  color: #334155 !important;
+  border: 1.5px solid #CBD5E1 !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.btn-sidebar-save-draft:hover {
+  background: #F1F5F9 !important;
+  border-color: #94A3B8 !important;
+  color: #0F172A !important;
+}
+
+.btn-sidebar-save-draft .material-symbols-rounded {
+  font-size: 18px;
+  color: #64748B;
+  transition: color 0.15s ease;
+}
+
+.btn-sidebar-save-draft:hover .material-symbols-rounded {
+  color: #334155;
+}
+
+.btn-sidebar-submit {
+  background: #136F38 !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(19, 111, 56, 0.28);
 }
 
 .btn-sidebar-submit:hover {
-  background: #047857 !important;
+  background: #0E5229 !important;
+  box-shadow: 0 4px 12px rgba(19, 111, 56, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-sidebar-submit .material-symbols-rounded {
+  font-size: 18px;
+  color: #FFFFFF;
 }
 
 /* ─── Bottom Unified Actions Card ─── */
@@ -1691,30 +2215,68 @@
 }
 
 .km-actions-buttons-row .btn-save-draft {
+  height: 44px;
   min-height: 44px;
-  padding: 10px 18px;
+  padding: 0 20px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
+  border-radius: 12px !important;
+  background: #FFFFFF !important;
+  color: #334155 !important;
+  border: 1.5px solid #CBD5E1 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: all 0.15s ease;
+}
+
+.km-actions-buttons-row .btn-save-draft:hover {
+  background: #F8FAFC !important;
+  border-color: #94A3B8 !important;
+  color: #0F172A !important;
+}
+
+.km-actions-buttons-row .btn-save-draft .material-symbols-rounded {
+  font-size: 20px;
+  color: #64748B;
+  transition: color 0.15s ease;
+}
+
+.km-actions-buttons-row .btn-save-draft:hover .material-symbols-rounded {
+  color: #334155;
 }
 
 .km-actions-buttons-row .btn-submit {
+  height: 44px;
   min-height: 44px;
-  padding: 10px 22px;
+  padding: 0 24px;
   font-size: 14px;
   font-weight: 700;
-  background: #059669;
-  color: #FFFFFF;
-  border: 1px solid #047857;
-  border-radius: 8px;
+  background: #136F38 !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 12px !important;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  box-shadow: 0 2px 8px rgba(19, 111, 56, 0.28);
+  transition: all 0.15s ease;
 }
 
 .km-actions-buttons-row .btn-submit:hover {
-  background: #047857;
+  background: #0E5229 !important;
+  box-shadow: 0 4px 12px rgba(19, 111, 56, 0.35);
+  transform: translateY(-1px);
+}
+
+.km-actions-buttons-row .btn-submit .material-symbols-rounded {
+  font-size: 20px;
+  color: #FFFFFF;
 }
 
 @media (max-width: 767px) {
@@ -1752,4 +2314,149 @@
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .km-specialist-workspace {
+    padding: 0 4px !important;
+  }
+
+  .km-unified-form .km-unified-section {
+    padding: 16px 10px !important;
+  }
+
+  .km-location-box {
+    padding: 10px 8px !important;
+  }
+
+  .km-practice-card {
+    padding: 12px 8px !important;
+    border-radius: 12px;
+  }
+
+  .km-practice-choice-block {
+    padding: 12px 8px !important;
+    border-radius: 10px;
+  }
+
+  .km-practice-type-selector {
+    grid-template-columns: 1fr;
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .km-practice-type-btn {
+    padding: 9px 12px;
+    font-size: 13px;
+    justify-content: center;
+  }
+
+  .km-practice-city-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .km-practice-map-wrapper {
+    margin-top: 14px;
+    padding-top: 14px;
+  }
+
+  .km-practice-map-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .km-practice-map-toolbar .owner-map-picker-status-wrap {
+    flex-wrap: wrap;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .km-practice-map-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 6px;
+  }
+
+  .km-practice-map-actions .km-map-btn {
+    justify-content: center;
+    width: 100%;
+    font-size: 11.5px;
+    padding: 6px 8px;
+  }
+
+  .km-practice-map-canvas {
+    height: 240px;
+    border-radius: 10px;
+  }
+
+  .km-pricing-contacts-panel {
+    padding: 14px 10px;
+    border-radius: 12px;
+  }
+
+  .km-pricing-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .km-contacts-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .km-pc-section-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
+
+/* Completion stays visible with the desktop section list, without a second meter. */
+.km-specialist-left-sidebar .km-top-progress-card {
+  margin: 0;
+  padding: 16px;
+  background: var(--surface, #fff);
+  box-shadow: none;
+}
+.km-specialist-left-sidebar .km-top-progress-head {
+  align-items: flex-start;
+  flex-direction: row;
+  gap: 8px;
+}
+.km-specialist-left-sidebar .km-top-progress-icon,
+.km-specialist-left-sidebar .km-top-progress-subtitle,
+.km-specialist-left-sidebar .km-top-progress-hint {
+  display: none;
+}
+.km-specialist-left-sidebar .km-top-progress-title-wrap { min-width: 0; }
+.km-specialist-left-sidebar .km-top-progress-counter { flex-shrink: 0; }
+.km-specialist-left-sidebar .km-top-progress-title { font-size: 15px; }
+.km-specialist-left-sidebar .km-top-progress-counter .km-req-badge { padding: 3px 8px; }
+.km-specialist-owner-form .km-owner-toc-link:focus-visible {
+  outline: 2px solid var(--brand-turf);
+  outline-offset: -2px;
+}
+@media (min-width: 1024px) {
+  .km-section-navigation > summary { cursor: default; }
+  .km-section-navigation > summary::after { display: none; }
+}
+@media (max-width: 1023px) {
+  .km-specialist-owner-form .km-owner-toc-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .km-specialist-workspace { padding-inline: 12px !important; }
+  .km-specialist-owner-form .km-owner-toc-list { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Let the action group move below its explanation in a narrower form column. */
+.km-specialist-owner-form .km-unified-actions-card { flex-wrap: wrap; }
+.km-specialist-owner-form .km-actions-buttons-row {
+  flex-wrap: wrap;
+  max-width: 100%;
+  flex-shrink: 1;
 }

@@ -17,8 +17,8 @@
 
   function buildSharedState(root) {
     if (root._kidsMapShared) return root._kidsMapShared;
-    const latInput = root.querySelector('input[name="lat"]');
-    const lngInput = root.querySelector('input[name="lng"]');
+    const latInput = root.querySelector('input[name="lat"], input[name$="-lat"]');
+    const lngInput = root.querySelector('input[name="lng"], input[name$="-lng"]');
     const mapEl = root.querySelector("[data-map-canvas]");
     const statusEl = root.querySelector("[data-map-status]");
     const locateBtn = root.querySelector("[data-map-locate]");
@@ -26,7 +26,7 @@
     const searchInput = root.querySelector("[data-map-search-input]");
     const searchBtn = root.querySelector("[data-map-search]");
     const form = root.closest("form");
-    const addressInput = form ? form.querySelector('input[name="address"]') : null;
+    const addressInput = root.querySelector('input[name$="-address"]') || (form ? form.querySelector('input[name="address"]') : null);
 
     if (!latInput || !lngInput || !mapEl || !statusEl) return null;
 
@@ -330,9 +330,9 @@
       zoomControl: true,
     });
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    L.tileLayer("https://tile.openstreetmap.de/{z}/{x}/{y}.png", {
       maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
 
     function setPoint(lat, lng, options) {
@@ -561,8 +561,19 @@
       return;
     }
 
-    if (provider === "leaflet" && window.L) {
+    if ((provider === "leaflet" || provider === "auto" || !provider) && window.L) {
       initLeafletMapPicker(root);
+      return;
+    }
+
+    if (provider === "leaflet" && !window.L) {
+      var leafletScript = document.querySelector('script[src*="leaflet"]');
+      if (leafletScript && root.dataset.mapRetryBound !== "1") {
+        root.dataset.mapRetryBound = "1";
+        leafletScript.addEventListener("load", function () {
+          initMapPicker(root);
+        });
+      }
       return;
     }
 

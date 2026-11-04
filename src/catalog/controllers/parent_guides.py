@@ -64,6 +64,38 @@ def _guide_venue_ids(candidates):
     return ids
 
 
+def _park_directory(candidates, language, guide):
+    """All distinct public parks, with prices from the shared card presenter."""
+    groups = {}
+    for place in candidates:
+        card = place._card_presentation
+        botanical = place.subcategory and place.subcategory.code == 'botanical-gardens'
+        key = 'botanical-gardens' if botanical else (place.district or 'baku')
+        if key not in groups:
+            params = {'category': 'parks-playgrounds', 'district': 'baku' if botanical else key}
+            if botanical:
+                params['subcategory'] = place.subcategory_id
+            groups[key] = {
+                'key': key,
+                'label': guide['botanical_label'] if botanical else (
+                    get_location_translation(key, language) or guide['citywide_label']),
+                'url': reverse('place_list') + '?' + urlencode(params),
+                'places': [],
+            }
+        groups[key]['places'].append({
+            'id': place.pk, 'name': card['name'], 'name_language': card['name_language'],
+            'url': card['url'], 'address': place.address_i18n(language),
+            # Garden addresses remain useful even while their editorial district
+            # descriptions and structured district fields are being reconciled.
+            'description': '' if botanical else Truncator(strip_tags(card['description'])).chars(220),
+            'description_language': card['description_language'], 'prices': card['prices'],
+        })
+    result = sorted(groups.values(), key=lambda group: (group['key'] == 'botanical-gardens', group['label']))
+    for group in result:
+        group['places'].sort(key=lambda place: place['name'].casefold())
+    return result
+
+
 DEFAULT_PARENT_GUIDE_SLUG = 'baku-with-kids'
 
 
@@ -89,12 +121,20 @@ def parent_guide(request, slug):
     guide = {
         **definition['translations'][language],
         'hero_image': definition['hero_image'],
+        'hero_image_small': definition.get('hero_image_small'),
+        'hero_width': definition['hero_width'],
+        'hero_height': definition['hero_height'],
         'updated': date.fromisoformat(definition['updated']),
     }
     public_places = public_place_queryset(Place.objects.all())
     topics = []
     active_categories = set(Category.active.values_list('pk', flat=True))
     subcategories = {row.code: row for row in Subcategory.active.all()}
+    catalog_subcategory = subcategories.get(definition.get('catalog_subcategory'))
+    if definition.get('catalog_subcategory'):
+        public_places = (public_places.filter(subcategory=catalog_subcategory)
+            if catalog_subcategory and catalog_subcategory.category_id == definition.get('catalog_category')
+            else public_places.none())
     for topic in guide['topics']:
         params = {'category': topic['category'], 'district': 'baku'}
         available = topic['category'] in active_categories
@@ -135,6 +175,10 @@ def parent_guide(request, slug):
     if len(selected_ids) < 6:
         selected_ids.extend(pk for pk in by_id if pk not in selected_ids)
         selected_ids = selected_ids[:6]
+    if 'featured_ids' in definition:
+        # Editorial choices remain subject to current public visibility and geography.
+        selected_ids = list(dict.fromkeys(venue_ids[pk] for pk in definition['featured_ids']
+            if pk in venue_ids and venue_ids[pk] in by_id))[:6]
     # Answers use the same public visibility and taxonomy as the venue cards.
     # A missing price is never evidence of free admission.
     faq_selections = []
@@ -156,13 +200,18 @@ def parent_guide(request, slug):
             continue
         card = place._card_presentation
         if card['visible']:
+            editorial_note = guide.get('venue_notes', {}).get(pk, '')
             places.append({'id': place.pk, 'name': card['name'], 'url': card['url'],
                            'image_url': card['image_url'],
                            'name_language': card['name_language'],
-                           'description': Truncator(strip_tags(card['description'])).chars(145),
-                           'description_language': card['description_language'],
+                           'description': editorial_note or ('' if definition.get('directory') and place.subcategory
+                               and place.subcategory.code == 'botanical-gardens'
+                               else Truncator(strip_tags(card['description'])).chars(145)),
+                           'description_language': language if editorial_note else card['description_language'],
                            'topics': [topic['title'] for topic in topics if pk in topic['place_ids']] or [card['category_label']],
-                           'location': get_location_translation(place.district, language),
+                           'location': '' if definition.get('directory') and place.subcategory
+                               and place.subcategory.code == 'botanical-gardens'
+                               else get_location_translation(place.district, language),
                            'address': place.address_i18n(language)})
     faq_items = []
     for item, ids in faq_selections:
@@ -187,9 +236,35 @@ def parent_guide(request, slug):
     if slug == 'baku-with-kids':
         catalog_url = (reverse('place_list') + '?' + urlencode({'category': 'FUN', 'district': 'baku'})
             if 'FUN' in active_categories else next((topic['url'] for topic in topics if topic['url']), '#guide-topics'))
+    if definition.get('catalog_category'):
+        category = definition['catalog_category']
+        params = {'category': category, 'district': 'baku'}
+        available = category in active_categories
+        if definition.get('catalog_subcategory'):
+            if catalog_subcategory and catalog_subcategory.category_id == category:
+                params['subcategory'] = catalog_subcategory.pk
+            else:
+                available = False
+        catalog_url = reverse('place_list') + '?' + urlencode(params) if available else '#guide-places'
+    directory = _park_directory(by_id.values(), language, guide) if definition.get('directory') else []
     canonical = build_public_absolute_uri(request, reverse('parent_guide', kwargs={'slug': slug}))
     home_url = build_public_absolute_uri(request, reverse('home'))
-    related_slug = 'baku-with-kids' if slug == 'sport' else 'sport'
+    # Use the same visible artwork for search and social previews, including
+    # when static storage returns a hashed filename or an absolute CDN URL.
+    image = {
+        '@type': 'ImageObject',
+        'url': build_public_absolute_uri(request, static(guide['hero_image'])),
+        'contentUrl': build_public_absolute_uri(request, static(guide['hero_image'])),
+        'width': guide['hero_width'], 'height': guide['hero_height'],
+        'caption': guide['hero_alt'],
+    }
+    webpage = {
+        '@context': 'https://schema.org', '@type': 'WebPage',
+        '@id': canonical, 'url': canonical,
+        'name': guide['title'], 'inLanguage': language,
+        'primaryImageOfPage': image,
+    }
+    related_slug = definition.get('related_slug') or ('baku-with-kids' if slug == 'sport' else 'sport')
     article = {
         '@context': 'https://schema.org', '@type': 'Article',
         'headline': guide['title'], 'description': guide['meta_description'],
@@ -197,7 +272,7 @@ def parent_guide(request, slug):
         'dateModified': definition['updated'],
         'author': {'@type': 'Organization', 'name': 'KidsMap', 'url': home_url},
         'publisher': {'@type': 'Organization', 'name': 'KidsMap', 'url': home_url},
-        'image': build_public_absolute_uri(request, static(guide['hero_image'])),
+        'image': image,
     }
     if definition.get('published'):
         article['datePublished'] = date.fromisoformat(definition['published']).isoformat()
@@ -213,6 +288,15 @@ def parent_guide(request, slug):
         'guide_related_url': reverse('parent_guide', kwargs={'slug': related_slug}),
         'guide_catalog_url': catalog_url, 'guide_add_url': reverse('add_place'),
         'guide_quick_choices': quick_choices, 'guide_faq': faq_items,
+        'guide_directory': directory, 'guide_has_directory': definition.get('directory', False),
+        'guide_directory_count': sum(len(group['places']) for group in directory),
+        'guide_parks_title': GUIDE_PAGES['parks']['translations'][language]['title']
+            if 'parks' in GUIDE_PAGES else '',
+        'guide_museums_title': GUIDE_PAGES['museums']['translations'][language]['title']
+            if 'museums' in GUIDE_PAGES else '',
+        'guide_play_centers_title': GUIDE_PAGES['play-centers']['translations'][language]['title']
+            if 'play-centers' in GUIDE_PAGES else '',
         'seo_title': guide.get('seo_title', guide['title']) + ' — KidsMap',
+        'guide_image': image, 'guide_webpage_json': _json_ld(webpage),
         'guide_article_json': _json_ld(article), 'guide_breadcrumbs_json': _json_ld(breadcrumbs),
     })

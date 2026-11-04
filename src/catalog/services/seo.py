@@ -376,7 +376,7 @@ def build_place_seo_payload(place, request, language_code):
     closed = place.operating_state == 'closed' and place.operating_state_approved_at is not None
     with override(lang):
         gallery = place.gallery_files()
-        first_image_url = _absolute_uri(request, gallery[0].url) if gallery else _absolute_uri(request, static("img/logo.svg"))
+        first_image_url = _absolute_uri(request, gallery[0].url) if gallery else ""
         description = presentation["description"] or _place_description(place, lang)
 
         category_label = place.get_category_display()
@@ -413,11 +413,13 @@ def build_place_seo_payload(place, request, language_code):
             "name": presentation["name"],
             "description": description,
             "url": _absolute_uri(request, place.get_absolute_url()),
-            "image": first_image_url,
             "address": address_payload,
             "areaServed": {"@type": "Country", "name": "Azerbaijan"},
             "additionalType": str(category_label),
         }
+
+        if first_image_url:
+            schema['image'] = first_image_url
 
         SCHEMA_WEEKDAY_MAP = {
             "mon": "https://schema.org/Monday",

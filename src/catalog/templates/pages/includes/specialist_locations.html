@@ -3,12 +3,12 @@
 <article class="spec-practice-card km-practice-card" data-practice-row>
   <div class="km-practice-card-header">
     <div class="km-practice-card-title">
-      <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+      <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
       <h4 tabindex="-1">{% trans 'Место приёма' %} #<span data-practice-number>{{ forloop.counter }}</span></h4>
     </div>
     <div class="km-practice-card-actions">
       <button type="button" class="km-btn-remove-location" data-practice-remove data-label="{% trans 'Отключить место приёма' %}" title="{% trans 'Удалить это место приёма' %}">
-        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+        <span class="material-symbols-rounded" aria-hidden="true">delete</span>
         <span>{% trans 'Удалить' %}</span>
       </button>
     </div>
@@ -18,86 +18,182 @@
   {{ row.non_field_errors }}
 
   <div class="km-practice-body">
-    <!-- Option 1: Existing Place in KidsMap -->
-    <div class="km-practice-choice-block km-practice-choice-block--place">
-      <div class="km-practice-choice-head">
-        <i class="fas fa-building km-choice-icon" aria-hidden="true"></i>
-        <label for="{{ row.place.id_for_label }}" class="km-practice-label">
-          <strong>{% trans 'Детский центр или клиника KidsMap' %}</strong>
-        </label>
-      </div>
-      <div class="km-practice-field">
-        {{ row.place }}
-        {{ row.place.errors }}
-        <p class="km-field-subtext">{% trans 'Если вы ведёте приём в центре из каталога KidsMap, выберите его — адрес, район и метро подтянутся автоматически.' %}</p>
+    <!-- Segmented location type toggle -->
+    <div class="km-practice-type-selector" data-location-type-selector role="radiogroup" aria-label="{% trans 'Тип места приёма' %}">
+      <button type="button" class="km-practice-type-btn is-active" data-type-target="place" role="radio" aria-checked="true">
+        <span class="material-symbols-rounded" aria-hidden="true">apartment</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Uşaq mərkəzi və ya klinika{% elif CURRENT_LANGUAGE == "en" %}Children's center or clinic{% else %}Детский центр или клиника{% endif %}</span>
+      </button>
+      <button type="button" class="km-practice-type-btn" data-type-target="custom" role="radio" aria-checked="false">
+        <span class="material-symbols-rounded" aria-hidden="true">storefront</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Şəxsi kabinet / Öz ünvanım{% elif CURRENT_LANGUAGE == "en" %}Private office / Custom address{% else %}Собственный кабинет / Частный адрес{% endif %}</span>
+      </button>
+    </div>
+
+    <!-- Panel 1: KidsMap Center -->
+    <div class="km-practice-panel km-practice-panel--place" data-location-panel="place">
+      <div class="km-practice-choice-block">
+        <div class="km-practice-choice-head">
+          <span class="material-symbols-rounded km-choice-icon" aria-hidden="true">apartment</span>
+          <label for="{{ row.place.id_for_label }}" class="km-practice-label">
+            <strong>{% trans 'Детский центр или клиника из каталога KidsMap' %}</strong>
+          </label>
+        </div>
+        <div class="km-practice-field">
+          <div class="km-custom-select-wrap">
+            <span class="km-select-affix" aria-hidden="true">
+              <span class="material-symbols-rounded">apartment</span>
+            </span>
+            {{ row.place }}
+            <span class="km-select-chevron" aria-hidden="true">
+              <span class="material-symbols-rounded">expand_more</span>
+            </span>
+          </div>
+          {{ row.place.errors }}
+          <p class="km-field-subtext">{% trans 'Выберите центр и укажите город или регион ниже.' %}</p>
+        </div>
       </div>
     </div>
 
-    <div class="km-practice-divider">
-      <span>{% trans 'ИЛИ УКАЖИТЕ ЧАСТНЫЙ КАБИНЕТ' %}</span>
+    <!-- Panel 2: Custom Address & Interactive Map -->
+    <div class="km-practice-panel km-practice-panel--custom" data-location-panel="custom" hidden>
+      <div class="km-practice-choice-block">
+        <div class="km-practice-choice-head">
+          <span class="material-symbols-rounded km-choice-icon" aria-hidden="true">storefront</span>
+          <label for="{{ row.address.id_for_label }}" class="km-practice-label">
+            <strong>{% trans 'Адрес собственного кабинета' %}</strong>
+          </label>
+        </div>
+        <div class="km-practice-field">
+          {{ row.address }}
+          {{ row.address.errors }}
+          <p class="km-field-subtext">{% trans 'Укажите улицу, номер здания или кабинета (например: ул. Низами 42, офис 305)' %}</p>
+        </div>
+
+        <!-- Interactive Leaflet Map Picker -->
+        <div class="km-practice-map-wrapper">
+          <div class="km-practice-map-head">
+            <div class="km-practice-map-title">
+              <span class="material-symbols-rounded" aria-hidden="true">pin_drop</span>
+              <strong>{% trans 'Точка на карте' %}</strong>
+            </div>
+            <span class="km-practice-map-subtext">{% trans 'Кликните на карту или перетащите метку ко входу в кабинет' %}</span>
+          </div>
+
+          <div class="owner-map-picker km-practice-map-picker"
+               data-owner-map-picker
+               data-map-provider="leaflet"
+               data-default-lat="40.409264"
+               data-default-lng="49.867092"
+               data-selected-prefix="{% trans 'Выбрана точка:' %}"
+               data-empty-label="{% trans 'Точка на карте не выбрана (нажмите на карту)' %}"
+               data-locate-error="{% trans 'Не удалось определить геопозицию. Укажите точку вручную.' %}"
+               data-locate-unsupported="{% trans 'Геолокация не поддерживается вашим браузером.' %}"
+               data-search-error="{% trans 'Место не найдено. Уточните адрес.' %}"
+               data-search-empty="{% trans 'Введите адрес для поиска.' %}">
+
+            <div class="km-coords-hidden-inputs" style="display: none;">
+              {{ row.lat }}
+              {{ row.lng }}
+            </div>
+
+            <div class="owner-map-picker-toolbar km-practice-map-toolbar">
+              <div class="owner-map-picker-status-wrap">
+                <span class="material-symbols-rounded km-map-status-icon" aria-hidden="true">check_circle</span>
+                <span class="owner-map-picker-status" data-map-status>
+                  {% if row.lat.value and row.lng.value %}
+                    {% trans 'Выбрана точка:' %} {{ row.lat.value }}, {{ row.lng.value }}
+                  {% else %}
+                    {% trans 'Точка на карте не выбрана (нажмите на карту)' %}
+                  {% endif %}
+                </span>
+                <span class="km-map-geocoding-status" data-geocoding-status-badge></span>
+              </div>
+              <div class="km-practice-map-actions">
+                <button type="button" class="km-map-btn" data-map-locate title="{% trans 'Определить моё местоположение' %}">
+                  <span class="material-symbols-rounded" aria-hidden="true">my_location</span>
+                  <span>{% trans 'Моя геопозиция' %}</span>
+                </button>
+                <button type="button" class="km-map-btn km-map-btn--clear" data-map-clear title="{% trans 'Сбросить точку' %}">
+                  <span class="material-symbols-rounded" aria-hidden="true">close</span>
+                  <span>{% trans 'Сбросить' %}</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="km-practice-map-canvas" data-map-canvas aria-label="{% trans 'Интерактивная карта выбора точки' %}"></div>
+
+            <p class="km-map-drag-hint">
+              <span class="material-symbols-rounded" aria-hidden="true">touch_app</span>
+              <span>{% trans 'Нажмите на карту в месте входа в кабинет или перетащите метку.' %}</span>
+            </p>
+
+            {% if row.lat.errors or row.lng.errors %}
+              <div class="owner-map-picker-errors">
+                {% for error in row.lat.errors %}<small class="auth-errors">{{ error }}</small>{% endfor %}
+                {% for error in row.lng.errors %}<small class="auth-errors">{{ error }}</small>{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Option 2: Custom Address & Metro -->
-    <div class="km-practice-choice-block km-practice-choice-block--custom">
-      <div class="km-practice-choice-head">
-        <i class="fas fa-door-open km-choice-icon" aria-hidden="true"></i>
-        <label for="{{ row.address.id_for_label }}" class="km-practice-label">
-          <strong>{% trans 'Собственный кабинет / Частный адрес' %}</strong>
-        </label>
-      </div>
-      <div class="km-practice-field">
-        {{ row.address }}
-        {{ row.address.errors }}
-        <p class="km-field-subtext">{% trans 'Укажите улицу, номер здания или кабинета (например: ул. Низами 42, офис 305)' %}</p>
-      </div>
-
-      <div class="km-practice-city-grid">
-        <div class="spec-practice-field">
-          {{ row.region.label_tag }}
-          {{ row.region }}
-          {{ row.region.errors }}
-        </div>
-        <div class="spec-practice-field">
-          {{ row.district.label_tag }}
-          {{ row.district }}
-          {{ row.district.errors }}
-        </div>
-        <div class="spec-practice-field">
-          {{ row.metro.label_tag }}
-          {{ row.metro }}
-          {{ row.metro.errors }}
-        </div>
-      </div>
-
-      <!-- Non-intimidating collapsible coordinates -->
-      <details class="km-coords-toggle">
-        <summary>
-          <i class="fas fa-crosshairs" aria-hidden="true"></i>
-          <span>{% trans 'Указать координаты на карте вручную' %}</span>
-          <small>{% trans '(необязательно, если адрес понятен)' %}</small>
-          <i class="fas fa-chevron-down km-coords-chevron" aria-hidden="true"></i>
-        </summary>
-        <div class="km-coords-grid">
+        <div class="km-practice-city-grid">
           <div class="spec-practice-field">
-            {{ row.lat.label_tag }}
-            {{ row.lat }}
-            {{ row.lat.errors }}
-            <p class="km-field-subtext">{% trans 'Широта (например: 40.3772)' %}</p>
+            <label for="{{ row.region.id_for_label }}" class="km-practice-field-label">
+              <span class="material-symbols-rounded" aria-hidden="true">location_city</span>
+              <span>{{ row.region.label }}</span>
+            </label>
+            <div class="km-custom-select-wrap">
+              <span class="km-select-affix" aria-hidden="true">
+                <span class="material-symbols-rounded">location_city</span>
+              </span>
+              {{ row.region }}
+              <span class="km-select-chevron" aria-hidden="true">
+                <span class="material-symbols-rounded">expand_more</span>
+              </span>
+            </div>
+            {{ row.region.errors }}
           </div>
           <div class="spec-practice-field">
-            {{ row.lng.label_tag }}
-            {{ row.lng }}
-            {{ row.lng.errors }}
-            <p class="km-field-subtext">{% trans 'Долгота (например: 49.8541)' %}</p>
+            <label for="{{ row.district.id_for_label }}" class="km-practice-field-label">
+              <span class="material-symbols-rounded" aria-hidden="true">map</span>
+              <span>{{ row.district.label }}</span>
+            </label>
+            <div class="km-custom-select-wrap">
+              <span class="km-select-affix" aria-hidden="true">
+                <span class="material-symbols-rounded">map</span>
+              </span>
+              {{ row.district }}
+              <span class="km-select-chevron" aria-hidden="true">
+                <span class="material-symbols-rounded">expand_more</span>
+              </span>
+            </div>
+            {{ row.district.errors }}
+          </div>
+          <div class="spec-practice-field">
+            <label for="{{ row.metro.id_for_label }}" class="km-practice-field-label">
+              <span class="material-symbols-rounded" aria-hidden="true">subway</span>
+              <span>{{ row.metro.label }}</span>
+            </label>
+            <div class="km-custom-select-wrap">
+              <span class="km-select-affix" aria-hidden="true">
+                <span class="material-symbols-rounded">subway</span>
+              </span>
+              {{ row.metro }}
+              <span class="km-select-chevron" aria-hidden="true">
+                <span class="material-symbols-rounded">expand_more</span>
+              </span>
+            </div>
+            {{ row.metro.errors }}
           </div>
         </div>
-      </details>
-    </div>
 
     <!-- Practice conditions and schedule -->
     <div class="km-practice-details-card">
       <div class="km-practice-details-head">
-        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+        <span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>
         <span>{% trans 'Условия и расписание в этом филиале (необязательно)' %}</span>
       </div>
 
@@ -133,13 +229,13 @@
     <div class="km-practice-flags">
       <label class="km-practice-chip-check">
         {{ row.is_primary }}
-        <span class="km-fake-checkbox"><i class="fas fa-check" aria-hidden="true"></i></span>
+        <span class="km-fake-checkbox"><span class="material-symbols-rounded" aria-hidden="true">check</span></span>
         <span>{% trans 'Сделать основным местом приёма' %}</span>
       </label>
 
       <label class="km-practice-chip-check">
         {{ row.is_active }}
-        <span class="km-fake-checkbox"><i class="fas fa-check" aria-hidden="true"></i></span>
+        <span class="km-fake-checkbox"><span class="material-symbols-rounded" aria-hidden="true">check</span></span>
         <span>{% trans 'Активно' %} ({% trans 'отображать в профиле' %})</span>
       </label>
     </div>
@@ -150,7 +246,7 @@
 {% else %}
 <div data-practice-editor class="km-practice-editor">
   <div class="km-location-intro-box">
-    <div class="km-location-intro-icon"><i class="fas fa-info-circle" aria-hidden="true"></i></div>
+    <div class="km-location-intro-icon"><span class="material-symbols-rounded" aria-hidden="true">info</span></div>
     <div class="km-location-intro-text">
       <strong>{% trans 'Где вы проводите очные консультации?' %}</strong>
       <p>{% trans 'Вы можете выбрать детский центр или клинику из базы KidsMap, либо указать собственный кабинет. Укажите хотя бы одно активное место приёма.' %}</p>
@@ -162,7 +258,7 @@
   <template data-practice-template>{% include 'pages/includes/specialist_locations.html' with row=locations.empty_form %}</template>
   <div class="km-practice-add-wrap">
     <button type="button" class="km-btn-add-practice" data-practice-add hidden>
-      <i class="fas fa-plus-circle" aria-hidden="true"></i>
+      <span class="material-symbols-rounded" aria-hidden="true">add_circle</span>
       <span>{% trans 'Добавить ещё одно место приёма' %}</span>
     </button>
   </div>

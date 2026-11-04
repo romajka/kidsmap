@@ -46,6 +46,22 @@ def require_person(actor, specialist):
     return actor
 
 
+def require_proposal_revision(actor, specialist, proposal_draft):
+    """A moderator-reopened working copy permits edits, never person authority."""
+    from catalog.models import SpecialistProposalDraft
+    actor = require_actor(actor)
+    if specialist.created_by_id != actor.pk or specialist.verified_person_user_id not in (None, actor.pk):
+        raise PermissionDenied('Returned application author required.')
+    if not SpecialistProposalDraft.objects.filter(
+        pk=getattr(proposal_draft, 'pk', None), actor=actor,
+        submitted_specialist_id=specialist.pk, submitted_at__isnull=True,
+    ).exists():
+        raise PermissionDenied('Moderator-reopened application required.')
+    if specialist.status != Specialist.STATUS_DRAFT:
+        raise ValidationError('The profile changed; reload before editing.', code='stale_version')
+    return actor
+
+
 def _reviewer(actor):
     actor = require_actor(actor)
     if not actor.is_staff or is_volunteer(actor) or not actor.has_perm('catalog.review_specialist_claim'):

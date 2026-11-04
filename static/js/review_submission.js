@@ -97,9 +97,13 @@
     }
 
     const ratingInput = form.querySelector("[data-review-rating-input]");
-    const ratingGroup = form.querySelector("[data-review-stars] [role=radiogroup]");
+    const ratingGroup = form.querySelector("[data-review-stars] [role=radiogroup], fieldset[data-review-stars]");
+    const loginLink = section.querySelector("[data-review-login]");
     function hasRating() {
-      const value = Number(ratingInput && ratingInput.value);
+      const selected = ratingInput && ratingInput.type === "radio"
+        ? form.querySelector('input[type="radio"][name="rating"][data-review-rating-input]:checked')
+        : ratingInput;
+      const value = Number(selected && selected.value);
       return Number.isInteger(value) && value >= 1 && value <= 5;
     }
     form.addEventListener("change", function () {
@@ -120,12 +124,18 @@
         live.dataset.validation = "rating";
         notify(feedback.dataset.ratingRequired, "", false, {
           variant: "warning",
-          focusTarget: form.querySelector("[data-review-stars] [role=radio]")
+          focusTarget: form.querySelector('[data-review-stars] input[type="radio"], [data-review-stars] [role=radio]')
         });
         return;
       }
       delete live.dataset.validation;
       const data = new FormData(form);
+      // Login in another tab rotates Django's CSRF token; keep the current draft.
+      const csrfCookie = document.cookie.split(";").map(function (item) { return item.trim(); })
+        .find(function (item) { return item.startsWith("csrftoken="); });
+      if (csrfCookie && data.has("csrfmiddlewaretoken")) {
+        try { data.set("csrfmiddlewaretoken", decodeURIComponent(csrfCookie.slice(10))); } catch (_) { /* Keep the form token. */ }
+      }
       const button = event.submitter || form.querySelector('[type="submit"]');
       const originalContent = button ? Array.from(button.childNodes) : [];
       busy = true;
@@ -136,12 +146,15 @@
       const timeout = window.setTimeout(function () { controller.abort(); }, 30000);
       try {
         const response = await fetch(form.action, {
-          method: "POST", body: data, credentials: "same-origin", signal: controller.signal,
+          method: "POST", mode: "same-origin", body: data, credentials: "same-origin", signal: controller.signal,
           headers: { "X-Requested-With": "XMLHttpRequest", "Accept": "application/json" }
         });
         let payload;
         try { payload = await response.json(); } catch (_) { payload = null; }
         if (!response.ok || !payload || payload.ok !== true) {
+          if (loginLink && (response.status === 401 || (payload && payload.auth_required === true))) {
+            loginLink.hidden = false;
+          }
           const limited = response.status === 429 && payload && payload.code === "review_cooldown";
           notify((response.status < 500 && payload && payload.message) || feedback.dataset.serverError, "", false,
             limited ? { variant: "warning" } : undefined);
@@ -152,6 +165,7 @@
           return;
         }
         submitted = true;
+        if (loginLink) loginLink.hidden = true;
         form.reset();
         composer.hidden = true;
         notify(payload.message, payload.title, true);

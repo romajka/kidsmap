@@ -6,6 +6,9 @@ and person contacts never enter the organization workspace context.
 """
 from functools import wraps
 
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
 from django.db import transaction
 from django.http import Http404, HttpResponseNotAllowed, FileResponse
@@ -163,7 +166,7 @@ def workspace(view):
         if request.method not in ('GET', 'POST'):
             return HttpResponseNotAllowed(['GET', 'POST'])
         if not request.user.is_authenticated:
-            return redirect('account_login')
+            return redirect_to_login(request.get_full_path(), login_url='account_login')
         try:
             request.specialist_actor = specialist_domain.require_actor(request.user)
             return view(request, *args, **kwargs)
@@ -233,7 +236,8 @@ def _context(request, *, mode, specialist=None, organization=None, **extra):
                'workspace_mode': mode, 'specialist': specialist, 'organization': organization,
                'specialist_account_section': mode != 'organization',
                'can_review_claims': _claim_reviewer(actor),
-               'can_review_documents': specialist_documents.can_review_documents(actor)}
+               'can_review_documents': specialist_documents.can_review_documents(actor),
+               'google_maps_api_key': getattr(settings, 'GOOGLE_MAPS_API_KEY', '')}
     person_access = specialist and specialist_documents.is_person(actor, specialist)
     context['can_manage_specialist'] = bool(person_access)
     if person_access and mode in ('profile', 'invitations', 'certificates'):
@@ -242,6 +246,17 @@ def _context(request, *, mode, specialist=None, organization=None, **extra):
         context['practice_history'] = list(specialist.practice_locations.filter(is_active=False)
             .select_related('place', 'region').order_by('pk'))
     context.update(extra)
+    if mode == 'profile':
+        from catalog.forms import _PHONE_RE
+        from catalog.forms_specialist_locations import BasePracticeLocationFormSet
+        context['specialist_readiness_rules'] = {
+            'location_required_formats': list(BasePracticeLocationFormSet.location_required_formats),
+            'location_required_fields': ['region'],
+            'location_identity_fields': ['place', 'address'],
+            'phone_pattern': _PHONE_RE.pattern,
+            'phone_min_digits': 7,
+            'phone_max_digits': 15,
+        }
     return context
 
 
@@ -290,16 +305,19 @@ def specialist_workspace_index(request):
         review_ids.update(SpecialistDocument.objects.filter(status=SpecialistDocument.STATUS_PENDING)
                           .values_list('specialist_id', flat=True))
     my_specialist = Specialist.objects.filter(verified_person_user=actor, person_verified_at__isnull=False).first()
-    working_proposals = SpecialistProposalDraft.objects.filter(actor=actor, submitted_at__isnull=True).order_by('-updated_at')
+    working_proposals = SpecialistProposalDraft.objects.filter(actor=actor, submitted_at__isnull=True).select_related('submitted_specialist').order_by('-updated_at')
+    returned_ids = {draft.submitted_specialist_id for draft in working_proposals if draft.submitted_specialist_id}
     latest_claims = {}
     for claim in SpecialistClaim.objects.filter(applicant=actor).select_related('specialist').order_by('-pk'):
         if my_specialist and claim.specialist_id == my_specialist.pk:
+            continue
+        if claim.specialist_id in returned_ids:
             continue
         claim.status_label = _claim_status(claim.status)
         latest_claims.setdefault(claim.specialist_id, claim)
     claims = list(latest_claims.values())
     proposals = Specialist.objects.filter(created_by=actor, verified_person_user__isnull=True).exclude(
-        pk__in=[claim.specialist_id for claim in claims]).order_by('-pk')
+        pk__in=[claim.specialist_id for claim in claims] + list(returned_ids)).order_by('-pk')
     if not (my_specialist or working_proposals.exists() or claims or proposals.exists() or review_ids):
         return redirect('account_dashboard')
     return render(request, 'pages/specialist_workspace.html', _context(request, mode='index',
@@ -532,7 +550,7 @@ def specialist_workspace_review(request, pk):
             return redirect('specialist_workspace_review', pk=person.pk)
         except ValidationError as exc:
             error = _error_context(exc); status = _error_status(exc)
-    claims = list(person.person_claims.order_by('-pk')) if claims_allowed else []
+    claims = list(person.person_claims.select_related('applicant').order_by('-pk')) if claims_allowed else []
     for claim in claims:
         claim.can_review = claim.status == SpecialistClaim.PENDING
         claim.status_label = _claim_status(claim.status)
@@ -558,6 +576,9 @@ def specialist_workspace_proposal(request, draft_id=None):
         if draft.submitted_at:
             if draft.submitted_specialist_id:return redirect('specialist_workspace_index')
             raise Http404
+        if draft.submitted_specialist_id and draft.submitted_specialist.status != Specialist.STATUS_DRAFT:
+            messages.info(request, _('Статус анкеты изменился. Проверьте результат в личном кабинете.'))
+            return redirect('specialist_workspace_index')
     key=draft.pk if draft else uuid4()
     status=200
     if request.method=='POST':
@@ -576,11 +597,15 @@ def specialist_workspace_proposal(request, draft_id=None):
             form=getattr(exc,'form',None)
             locations=getattr(exc,'locations',None)
             if form is None:
-                form,locations=proposal_forms(actor=request.specialist_actor,data=request.POST,files=request.FILES)
+                try:
+                    form,locations=proposal_forms(actor=request.specialist_actor,data=request.POST,files=request.FILES,draft=draft)
+                except ValidationError:
+                    messages.info(request, _('Статус анкеты изменился. Проверьте результат в личном кабинете.'))
+                    return redirect('specialist_workspace_index')
                 form.is_valid();form.add_error(None,exc)
             status=_error_status(exc)
     else:
-        form,locations=proposal_forms(actor=request.specialist_actor,payload=draft.payload if draft else None)
+        form,locations=proposal_forms(actor=request.specialist_actor,payload=draft.payload if draft else None,draft=draft)
     if request.method == 'POST':
         profile_subject = request.POST.get('profile_subject', 'other')
     elif draft:

@@ -3,14 +3,14 @@
 
 {% block extrastyle %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'admin/css/pages/specialist_form.css' %}?v=20261029_spec_v3">
+<link rel="stylesheet" href="{% static 'admin/css/pages/specialist_form.css' %}?v=20261104_specialist_a11y_r3">
 {% endblock %}
 
 {% block extrahead %}
 {{ block.super }}
 <script src="{% url 'admin:jsi18n' %}"></script>
 {{ media }}
-<script src="{% static 'admin/js/specialist_admin.js' %}?v=20261029_spec_v3" defer></script>
+<script src="{% static 'admin/js/specialist_admin.js' %}?v=20261104_specialist_a11y_r3" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -36,7 +36,7 @@
         <div class="km-specialist-hero__details">
           <div class="km-specialist-hero__title-row">
             <h1 class="km-specialist-hero__name">{% if add %}{% translate 'Добавить профиль специалиста' %}{% else %}{{ original.name }}{% endif %}</h1>
-            {% if not add and original and original.slug %}
+            {% if specialist_public_visible and original.slug %}
               <a href="{% url 'specialist_detail' original.slug %}" target="_blank" rel="noopener noreferrer" class="km-btn-view-site" title="{% translate 'Открыть публичную страницу специалиста' %}">
                 <i class="fas fa-external-link-alt" aria-hidden="true"></i>
                 <span>{% translate 'Смотреть на сайте' %}</span>
@@ -56,7 +56,7 @@
                 <span class="km-status-pill km-status-pill--draft"><i class="fas fa-pencil-alt" aria-hidden="true"></i> {% translate 'Черновик' %}</span>
               {% endif %}
 
-              {% if original.is_active %}
+              {% if specialist_public_visible %}
                 <span class="km-status-pill km-status-pill--active"><i class="fas fa-eye" aria-hidden="true"></i> {% translate 'В каталоге' %}</span>
               {% else %}
                 <span class="km-status-pill km-status-pill--inactive"><i class="fas fa-eye-slash" aria-hidden="true"></i> {% translate 'Скрыт' %}</span>
@@ -76,17 +76,47 @@
             </div>
           {% endif %}
 
+          {% if original %}
+            <div class="km-specialist-identity-status">
+              {% if original.verified_person_user_id %}
+                <span class="km-status-pill km-status-pill--verified">{% translate 'Личность подтверждена' %}</span>
+              {% elif specialist_pending_claim_count %}
+                <span class="km-status-pill km-status-pill--unverified">{% translate 'Личность ожидает проверки' %}</span>
+              {% else %}
+                <span class="km-status-pill km-status-pill--inactive">{% translate 'Личность не подтверждена' %}</span>
+              {% endif %}
+              {% if specialist_identity_review_url and specialist_pending_claim_count %}
+                <p>{% translate 'Публикация не даёт права управлять профилем. Подтвердите заявителя отдельно.' %}</p>
+                <ul class="km-specialist-claimants">
+                  {% for claim in specialist_pending_claims %}
+                    <li><strong>{{ claim.applicant.get_full_name|default:claim.applicant.username }}</strong>{% if claim.applicant.email %} · {{ claim.applicant.email }}{% endif %}</li>
+                  {% endfor %}
+                </ul>
+                <a href="{{ specialist_identity_review_url }}" class="km-btn-view-site">{% translate 'Проверить заявителя' %}</a>
+              {% endif %}
+            </div>
+          {% endif %}
+
           {# Interactive Readiness Progress Meter #}
-          <div class="km-spec-readiness" data-spec-readiness>
+          <div class="km-spec-readiness" data-spec-readiness
+               data-summary="{% translate 'Заполнено {completed} из {total} пунктов' %}"
+               data-complete="{% translate 'Основные сведения заполнены. Проверьте остальные разделы.' %}"
+               data-missing="{% translate 'Не заполнено:' %}"
+               data-name="{% translate 'Имя и фамилия' %}"
+               data-specializations="{% translate 'Специализация' %}"
+               data-format="{% translate 'Формат приёма' %}"
+               data-languages="{% translate 'Язык консультации' %}"
+               data-contacts="{% translate 'Телефон или WhatsApp' %}"
+               data-bio="{% translate 'Описание о себе' %}">
             <div class="km-spec-readiness__head">
-              <span class="km-spec-readiness__title"><i class="fas fa-clipboard-check" aria-hidden="true"></i> {% translate 'Шкала готовности анкеты' %}</span>
+              <span class="km-spec-readiness__title"><i class="fas fa-clipboard-check" aria-hidden="true"></i> {% translate 'Основные сведения' %}</span>
               <span class="km-spec-readiness__pct" data-readiness-pct>0%</span>
             </div>
             <div class="km-spec-readiness__track">
               <div class="km-spec-readiness__fill" data-readiness-fill style="width: 0%;"></div>
             </div>
             <div class="km-spec-readiness__info">
-              <span class="km-spec-readiness__summary" data-readiness-summary>{% translate 'Заполнено 0 из 6 обязательных пунктов' %}</span>
+              <span class="km-spec-readiness__summary" data-readiness-summary>{% translate 'Основные сведения' %}</span>
               <span class="km-spec-readiness__missing" data-readiness-missing></span>
             </div>
           </div>
@@ -657,7 +687,7 @@
                     {% else %}
                       <div class="km-inline-body" id="documents-group-wrapper">
                         {% with inline_admin_formset=section.inline %}
-                          {% include inline_admin_formset.opts.template %}
+                          {% include "admin/catalog/specialist/document_inline.html" %}
                         {% endwith %}
                       </div>
                     {% endif %}
@@ -842,9 +872,6 @@
       </div>
       <div class="km-footer-actions">
         {% submit_row %}
-        {% if original and original.status == 'published' %}
-          <a href="{{ original.get_absolute_url }}" target="_blank" rel="noopener noreferrer" class="km-btn km-btn--sidebar" style="border: 1.5px solid #acc4b5; background: #fff; color: #174a2b; font-size: 13px; font-weight: 600; border-radius: 9px; padding: 8px 14px; min-height: 38px; display: inline-flex; align-items: center; text-decoration: none;">{% translate "На сайте ↗" %}</a>
-        {% endif %}
       </div>
     </div>
   </form>
