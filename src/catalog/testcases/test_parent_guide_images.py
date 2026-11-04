@@ -98,3 +98,29 @@ class ParentGuideImageTests(TestCase):
                 photo = next(img for img in parsed.images if img['src'] == place.public_image_url)
                 self.assertEqual(photo['alt'], names[language])
                 self.assertTrue(any(img.get('alt') == '' for img in parsed.images))
+
+    def test_production_manifest_renders_each_planning_section_once(self):
+        from django.conf import settings
+        from django.core.management import call_command
+        storages = dict(settings.STORAGES)
+        storages['staticfiles'] = {'BACKEND':'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'}
+        with TemporaryDirectory() as static_root, override_settings(
+            DEBUG=False, STATIC_ROOT=static_root, STORAGES=storages,
+        ):
+            call_command('collectstatic', interactive=False, verbosity=0)
+            for prefix in ('', '/ru', '/en'):
+                for slug in ('parks', 'museums', 'play-centers'):
+                    with self.subTest(prefix=prefix, slug=slug):
+                        response = self.client.get(f'{prefix}/parents/{slug}/')
+                        self.assertEqual(response.status_code, 200)
+                        html = response.content.decode()
+                        self.assertEqual(html.count('id="guide-planning"'), 1)
+                        self.assertEqual(html.count('href="#guide-planning"'), 1)
+                        parsed = ImageMarkup(html)
+                        self.assertTrue(all(image.get('src') not in ('', '/static/') for image in parsed.images))
+                        if slug == 'parks':
+                            self.assertNotIn('museum-planning__card', html)
+                            self.assertNotIn('museums_guide.', html)
+                            self.assertIn('pg-planning-card', html)
+                        else:
+                            self.assertIn('museum-planning__card', html)

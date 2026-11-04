@@ -23,7 +23,7 @@
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'css/pages/parent_guides.css' %}?v=20261102_links_v1">
   {% if guide_has_directory %}<link rel="stylesheet" href="{% static 'css/pages/parks_guide.css' %}?v=20261102_links_v1">{% endif %}
-  {% if guide.planning %}<link rel="stylesheet" href="{% static 'css/pages/museums_guide.css' %}">{% endif %}
+  {% if guide.planning and not guide_has_directory %}<link rel="stylesheet" href="{% static 'css/pages/museums_guide.css' %}">{% endif %}
   <script src="{% static 'js/parent_guides.js' %}?v=20261102_places_filter" defer></script>
 {% endblock %}
 
@@ -65,7 +65,7 @@
     <a href="#guide-districts"><span aria-hidden="true">02</span>{{ guide.toc_directory_label }}</a>
     <a href="#guide-planning"><span aria-hidden="true">03</span>{{ guide.mobile_topics_label }}</a>
     {% else %}<a href="#guide-topics"><span aria-hidden="true">02</span><span class="pg-control-full">{{ guide.toc_topics }}</span><span class="pg-control-short">{{ guide.mobile_topics_label }}</span></a>{% endif %}
-    {% if guide.planning %}<a href="#guide-planning"><span aria-hidden="true">03</span>{{ guide.planning_nav }}</a>{% endif %}
+    {% if guide.planning and not guide_has_directory %}<a href="#guide-planning"><span aria-hidden="true">03</span>{{ guide.planning_nav }}</a>{% endif %}
     <a href="#guide-faq"><span aria-hidden="true">{% if guide_has_directory or guide.planning %}04{% else %}03{% endif %}</span><span class="pg-control-full">{{ guide.toc_faq }}</span><span class="pg-control-short">{{ guide.mobile_faq_label }}</span></a>
   </nav>
 
@@ -132,7 +132,7 @@
     </div>
   </section>
 
-  {% if guide.planning %}{% include 'pages/includes/museums_planning.html' %}{% endif %}
+  {% if guide.planning and not guide_has_directory %}{% include 'pages/includes/museums_planning.html' %}{% endif %}
 
   <details class="pg-advice">
     <summary>
