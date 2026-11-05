@@ -742,6 +742,40 @@ class PlaceController:
         return chips.get(lang, chips["az"])
 
     @staticmethod
+    def _nearby_places(place, language_code: str, liked_ids, limit: int = 6) -> list:
+        """Places to continue with after this one: nearest first, same category
+        slightly preferred. Without coordinates: newest in the same category."""
+        from math import cos, radians, sqrt
+        from catalog.services.public_presentation import prepare_cards
+
+        base = public_place_queryset(Place.objects.exclude(pk=place.pk))
+        if place.lat is None or place.lng is None:
+            if not place.category_id:
+                return []
+            picked = list(base.filter(category_id=place.category_id).order_by("-published_at", "-pk")[:limit])
+            distances = {}
+        else:
+            lat0, lng0 = float(place.lat), float(place.lng)
+            k = cos(radians(lat0))
+            scored = []
+            rows = base.filter(lat__isnull=False, lng__isnull=False).values_list("pk", "lat", "lng", "category_id")[:2000]
+            for pk, lat, lng, category_id in rows:
+                km = sqrt((float(lat) - lat0) ** 2 + ((float(lng) - lng0) * k) ** 2) * 111.32
+                # A same-category place is treated as ~1.5 km closer.
+                scored.append((km - (1.5 if category_id and category_id == place.category_id else 0), km, pk))
+            scored.sort()
+            top = scored[:limit]
+            distances = {pk: km for _, km, pk in top}
+            by_pk = {item.pk: item for item in base.filter(pk__in=distances).select_related("category")}
+            picked = [by_pk[pk] for _, _, pk in top if pk in by_pk]
+        cards = prepare_cards(picked, language_code)
+        for card in cards:
+            card.is_liked = card.pk in liked_ids
+            km = distances.get(card.pk)
+            card.nearby_km = round(km, 1) if km is not None else None
+        return cards
+
+    @staticmethod
     def _build_review_histogram(reviews) -> list[dict[str, object]]:
         """Rating distribution for the reviews card, counted from the already
         loaded review list so the page keeps its current query count."""
@@ -848,9 +882,12 @@ class PlaceController:
                     "photo": ev.photo.url if ev.photo else None,
                 })
 
+        nearby_places = [] if preview else self._nearby_places(place, request.LANGUAGE_CODE, liked_ids)
+
         return {
             "presentation": presentation,
             "activities": activities,
+            "nearby_places": nearby_places,
             "place_specialists": place_specialists,
             "place_events": place_events,
             "organizations_section_enabled": enabled_sections['organizations'],

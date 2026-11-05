@@ -3497,3 +3497,80 @@ html:has(.detail-page) {
   }
 }
 
+
+/* ── Nearby places: the page never ends in a dead end ─────────────────── */
+.detail-nearby .detail-card__head { align-items: center; }
+.detail-nearby__all {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 4px;
+  color: var(--brand-turf, #136f38);
+  font-weight: 700;
+  text-decoration: none;
+}
+.detail-nearby__all .material-symbols-rounded {
+  font-size: 18px;
+  transition: transform var(--dur-fast, 160ms) var(--ease-out-quint, ease-out);
+}
+.detail-nearby__all:hover .material-symbols-rounded,
+.detail-nearby__all:focus-visible .material-symbols-rounded { transform: translateX(3px); }
+.detail-nearby__rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 32px) / 3.25);
+  gap: 16px;
+  margin-top: 16px;
+  padding-bottom: 8px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: var(--tint-turf-200, #cde7c5) transparent;
+}
+.detail-nearby__item { scroll-snap-align: start; }
+.detail-nearby__item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  animation: detail-nearby-in var(--dur-slow, 420ms) var(--ease-out-quint, ease-out) both;
+}
+.detail-nearby__item:nth-child(2) { animation-delay: 40ms; }
+.detail-nearby__item:nth-child(3) { animation-delay: 80ms; }
+.detail-nearby__item:nth-child(4) { animation-delay: 120ms; }
+.detail-nearby__item:nth-child(5) { animation-delay: 160ms; }
+.detail-nearby__item:nth-child(6) { animation-delay: 200ms; }
+.detail-nearby__item > .card { flex: 1; margin: 0; }
+.detail-nearby__distance {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 4px;
+  padding: 4px 10px 4px 6px;
+  border-radius: 999px;
+  background: var(--tint-turf-100, #e8f3e5);
+  color: var(--brand-spruce, #0d4924);
+  font: 700 13px/1.2 var(--font-display, system-ui, sans-serif);
+  font-variant-numeric: tabular-nums;
+}
+.detail-nearby__distance .material-symbols-rounded { font-size: 16px; }
+@keyframes detail-nearby-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+/* Phone: a swipeable rail instead of a tall stack of cards. */
+@media (max-width: 767px) {
+  .detail-nearby__rail {
+    grid-auto-columns: 78%;
+    margin-inline: -16px;
+    padding: 0 16px 8px;
+    scroll-padding-inline: 16px;
+    scrollbar-width: none;
+  }
+  .detail-nearby__rail::-webkit-scrollbar { display: none; }
+}
+@media (min-width: 768px) and (max-width: 1100px) {
+  .detail-nearby__rail { grid-auto-columns: calc((100% - 16px) / 2.2); }
+}

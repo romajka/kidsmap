@@ -105,12 +105,12 @@
       motion.css is the last layer on purpose: page-level CSS injected through
       extra_head (e.g. catalog_places.css) would otherwise outrank it.
     {% endcomment %}
-    <link rel="stylesheet" href="{% static 'css/motion.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/motion.css' %}?v=20261105_polish_r2" />
     {% block navigation_motion %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=20261026_contacts_polish1">
     <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=20261105_polish_r1">
     <script src="{% static 'js/header.js' %}?v=20261018_site18_r2" defer></script>
-    <script src="{% static 'js/motion.js' %}"></script>
+    <script src="{% static 'js/motion.js' %}?v=20261105_polish_r1"></script>
   </head>
   <body id="top" class="{% if site_preview %}page-place_detail{% elif request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
     {% if site_preview %}data-site-preview="true"{% endif %}
