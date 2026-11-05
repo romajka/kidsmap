@@ -393,7 +393,7 @@
                   <strong class="detail-facts__value">{{ place.get_category_display }}</strong>
                 </div>
               {% endif %}
-              {% if place.subcategory %}
+              {% if place.subcategory and place.subcategory.name_i18n != place.get_category_display %}
                 <div class="detail-facts__item">
                   <span class="detail-label detail-facts__label">
                     <span class="material-symbols-rounded" aria-hidden="true">label</span>
@@ -812,7 +812,7 @@
             <div class="detail-decision__idents">
               {% if place.category %}
                 <span class="detail-chip">
-                  {{ place.get_category_display }}{% if place.subcategory %} · {{ place.subcategory.name_i18n }}{% endif %}
+                  {% with sub_label=place.subcategory.name_i18n %}{{ place.get_category_display }}{% if place.subcategory and sub_label != place.get_category_display %} · {{ sub_label }}{% endif %}{% endwith %}
                 </span>
               {% endif %}
 
@@ -1358,7 +1358,9 @@
   <script src="{% static 'js/place_gallery.js' %}?v=20261020_release_r1"></script>
   <script src="{% static 'js/temporary_event_timer.js' %}"></script>
   {% if google_maps_api_key %}
-    <script src="{% static 'js/google_maps_markers.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20261105_pins_r2" />
+    <script src="{% static 'js/kidsmap_map_pins.js' %}?v=20261105_pins_r2"></script>
+    <script src="{% static 'js/google_maps_markers.js' %}?v=20261105_pins_r2"></script>
     <script>
       function kidsMapInitDetailMap() {
         const mapEl = document.getElementById('detail-map');
@@ -1385,6 +1387,7 @@
           clickableIcons: false,
         };
         if (mapId) mapOptions.mapId = mapId;
+        if (window.KidsMapPins) window.KidsMapPins.applyMapDefaults(mapOptions, mapId);
         const map = new google.maps.Map(mapEl, mapOptions);
 
         const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="38" height="48" viewBox="0 0 38 48" fill="none">' +
@@ -1393,18 +1396,32 @@
           '<circle cx="19" cy="18" r="5" fill="' + colorText + '" />' +
           '</svg>';
 
+        const iconSource = document.getElementById('detail-map-icon-svg');
+        const pins = window.KidsMapPins;
+        const visual = pins ? pins.placePin({
+          name: placeName,
+          category_color_text: colorText,
+          category_color_bg: mapEl.getAttribute('data-category-color-bg') || '',
+          category_icon_svg: iconSource ? iconSource.innerHTML.trim() : '',
+        }) : null;
+        const size = pins ? pins.PIN : {width: 38, height: 48, anchorX: 19, anchorY: 48};
         const marker = window.kidsMapCreateGoogleMarker({
           position: position,
           map: map,
           title: placeName,
           cursor: mapOpenUrl ? 'pointer' : 'default',
           mapId: mapId,
+          visual: visual,
+          publicVisual: Boolean(visual),
+          ownerMap: map,
           icon: {
             url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
-            scaledSize: new google.maps.Size(38, 48),
-            anchor: new google.maps.Point(19, 48),
+            scaledSize: new google.maps.Size(size.width, size.height),
+            anchor: new google.maps.Point(size.anchorX, size.anchorY),
           }
         });
+        // The only pin on this map: show it selected, with its name.
+        if (visual && marker.setSelected) marker.setSelected(true);
 
         if (mapOpenUrl) {
           marker.addListener('click', function() {
@@ -1413,7 +1430,7 @@
         }
       }
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&loading=async&libraries=marker&callback=kidsMapInitDetailMap" async></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&loading=async&libraries=marker&language={{ request.LANGUAGE_CODE|urlencode }}&region=AZ&callback=kidsMapInitDetailMap" async></script>
   {% else %}
     <script>
       (function() {

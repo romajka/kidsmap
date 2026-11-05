@@ -18,7 +18,7 @@ from catalog.models import Event, FunnelEvent, Place, Category, Subcategory
 from catalog.repositories.django_repositories import DjangoPlaceRepository, DjangoSettingsRepository
 from catalog.services.filtering import PlaceListFilters, build_new_page_stats
 from catalog.services.public_filter_options import build_public_place_filter_options
-from catalog.services.content_quality import public_review_queryset, published_place_queryset
+from catalog.services.content_quality import public_place_queryset, public_review_queryset, published_place_queryset
 from catalog.services.reactions import (
     liked_place_ids,
     mark_liked_flags,
@@ -152,7 +152,14 @@ class PlaceController:
         district_options = public_filter_options.districts
         metro_options = public_filter_options.metro
 
+        # Hero stats use the same public sources as the home page (no hand-written
+        # "65+ places" / "17 categories" that drift from the real catalogue).
+        catalog_places_total = public_place_queryset(Place.objects.all()).count()
+        catalog_categories_total = len(public_filter_options.categories)
+
         context = {
+            "catalog_places_total": catalog_places_total,
+            "catalog_categories_total": catalog_categories_total,
             "organization_matches": organization_matches(filters.query, language_code),
             "places": [] if showing_events else page_obj.object_list,
             "events": events,

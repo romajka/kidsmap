@@ -2607,7 +2607,7 @@ class TestCatalogEnhancements(TestCase):
             metro=matching_place.metro, metro_label=matching_place.metro_i18n(language_code),
             matched_offers=[], translation_fallback=False,
             content_language=language_code, translation_label='')
-        expected = [{**member, 'key': f'place:{matching_place.pk}', 'members': [member]}]
+        expected = [{**member, 'key': f'place:{matching_place.pk}', 'members': [{k: v for k, v in member.items() if k != 'category_icon_svg'}]}]
         self.assertEqual(response.context["catalog_map_places"], expected)
         actual_member = response.context["catalog_map_places"][0]["members"][0]
         self.assertNotIn("phone1", actual_member)
@@ -2673,7 +2673,7 @@ class TestCatalogEnhancements(TestCase):
             metro=place.metro, metro_label=place.metro_i18n('ru'),
             matched_offers=[], translation_fallback=True,
             content_language='az', translation_label='Текст на азербайджанском')
-        expected = [{**member, 'key': f'place:{place.pk}', 'members': [member]}]
+        expected = [{**member, 'key': f'place:{place.pk}', 'members': [{k: v for k, v in member.items() if k != 'category_icon_svg'}]}]
         self.assertEqual(serialized, expected)
         self.assertNotIn("+994501234567", str(serialized))
         self.assertNotIn("wa.me/", str(serialized))

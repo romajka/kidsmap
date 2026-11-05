@@ -1327,3 +1327,24 @@ body.km-drawer-locked {
     border-radius: 10px !important;
   }
 }
+
+/* ── Scrolled backdrop (desktop) ──
+   The floating header sits 12px below the viewport edge and is inset from
+   the sides, so scrolled content used to show through those gaps. A soft
+   strip in the page background fades the content out behind the header. */
+@media (min-width: 1200px) {
+  .km-header.topbar::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 92px;
+    background: linear-gradient(to bottom, var(--bg, #fcfcfc) 0%, var(--bg, #fcfcfc) 62%, rgba(252, 252, 252, 0) 100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-base, 260ms) var(--ease-out-quint, ease-out);
+    z-index: -1;
+  }
+  .km-header.topbar.is-scrolled::before { opacity: 1; }
+}

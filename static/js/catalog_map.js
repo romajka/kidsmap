@@ -80,10 +80,11 @@
 
   function buildMarkerIcon(place) {
     const svg = buildDynamicMarkerSvg(place);
+    const pin = window.KidsMapPins ? window.KidsMapPins.PIN : {width: 38, height: 48, anchorX: 19, anchorY: 48};
     return {
       url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
-      scaledSize: new google.maps.Size(38, 48),
-      anchor: new google.maps.Point(19, 48),
+      scaledSize: new google.maps.Size(pin.width, pin.height),
+      anchor: new google.maps.Point(pin.anchorX, pin.anchorY),
     };
   }
 
@@ -562,6 +563,10 @@
     if (state.choice) state.choice.close(false);
     state.activePlace = place;
     state.activeMarker = marker;
+    if (window.KidsMapPins) {
+      window.KidsMapPins.markVisited(place);
+      marker.getElement?.()?.querySelector('.km-pin')?.classList.add('is-visited');
+    }
 
     const labels = {
       detailsLabel: state.detailsLabel,
@@ -613,6 +618,7 @@
         position: position,
         title: place.name || "",
         icon: buildMarkerIcon(place),
+        visual: window.KidsMapPins ? window.KidsMapPins.placePin(place) : null,
         publicVisual: true, ownerMap: state.googleMap,
         mapId: state.mapId,
       });
@@ -736,6 +742,7 @@
       tilt: 0, heading: 0,
     };
     if (state.mapId) mapOptions.mapId = state.mapId;
+    if (window.KidsMapPins) window.KidsMapPins.applyMapDefaults(mapOptions, state.mapId);
     state.googleMap = new google.maps.Map(state.mapEl, mapOptions);
     state.motion = window.KidsMapGoogleMotion.create(state.googleMap);
     state.choice = window.KidsMapGoogleMotion.chooser(state.mapEl, (place, marker) => openActiveCard(state, place, marker));
@@ -764,7 +771,7 @@
 
     if (window.markerClusterer && window.markerClusterer.MarkerClusterer && !window.markerClusterer.dummy) {
       var clusterAlgorithm = (window.markerClusterer.SuperClusterAlgorithm)
-        ? new window.markerClusterer.SuperClusterAlgorithm({ maxZoom: 18, radius: 100 })
+        ? new window.markerClusterer.SuperClusterAlgorithm({ maxZoom: 18, radius: 72 })
         : undefined;
       state.markerCluster = new window.markerClusterer.MarkerClusterer({
         map: state.googleMap,
@@ -772,8 +779,10 @@
         algorithm: clusterAlgorithm,
         renderer: {
           render: function (cluster, stats, mapInstance) {
-            const count = cluster.count;
             const position = cluster.position;
+            const visual = window.KidsMapPins ? window.KidsMapPins.cluster(cluster.markers) : null;
+            const count = visual ? visual.total : cluster.count;
+            const size = visual ? visual.size : 54;
             const svg = buildGoogleClusterSvg(count);
             const key = cluster.markers.map(m => m.__kidsMapPlace?.id || m.__kidsMapPlace?.url).sort().join('|');
             const skipEntrance = previousClusterKeys.has(key);
@@ -782,10 +791,11 @@
               position: position,
               title: window.KidsMapGoogleMotion.clusterTitle(count),
               publicVisual: true, ownerMap: state.googleMap, skipEntrance: skipEntrance,
+              visual: visual && visual.element, visualKind: "cluster",
               icon: {
                 url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
-                scaledSize: new google.maps.Size(54, 54),
-                anchor: new google.maps.Point(27, 27),
+                scaledSize: new google.maps.Size(size, size),
+                anchor: new google.maps.Point(size / 2, size / 2),
               },
               zIndex: 1000000 + count,
               mapId: state.mapId,

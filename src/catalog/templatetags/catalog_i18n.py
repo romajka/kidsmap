@@ -32,6 +32,19 @@ def _plural_form(count: int, language_code: str) -> str:
 
 
 @register.filter
+def ru_plural(value, forms: str) -> str:
+    """Pick a Russian noun form: {{ n|ru_plural:"место,места,мест" }}."""
+    try:
+        count = int(value or 0)
+    except (TypeError, ValueError):
+        count = 0
+    parts = [part.strip() for part in str(forms).split(",")]
+    if len(parts) != 3:
+        return str(forms)
+    return parts[{"one": 0, "few": 1, "many": 2}[_plural_form(count, "ru")]]
+
+
+@register.filter
 def review_count(value) -> str:
     """Return a localized place-review count with correct Russian declension."""
     try:

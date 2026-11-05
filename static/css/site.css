@@ -13244,7 +13244,8 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 }
 
 .rating-stars {
-  --stars-fill: #c94a4a;
+  /* Rating stars are gold everywhere; red read as an error state. */
+  --stars-fill: #ffbf3a;
   --stars-empty: rgba(168, 213, 155, 0.45);
 }
 
@@ -15959,6 +15960,11 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   margin-left: 8px;
   font-size: 1.3em;
   line-height: 1;
+}
+
+/* Buttons that already carry their own SVG arrow must not get a second one. */
+.card-go-btn:has(.card-go-arrow)::after {
+  content: none;
 }
 
 /* ── Verified badge overlay on card photo ── */

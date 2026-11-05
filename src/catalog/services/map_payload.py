@@ -87,7 +87,13 @@ def _serialize_map_places(qs, language_code, filters=None, *, ordering=None):
             member['age_note'] = data['age_hint']
         if key not in points:
             points[key] = {**member, 'key': key, 'members': []}
-        points[key]['members'].append(member)
+        point = points[key]
+        # The category icon SVG (~1 KB) is carried once per point; a member
+        # in the same category inherits it client-side (pointMembers /
+        # the map chooser). This roughly halves the icon weight of the payload.
+        if member.get('category_icon_svg') and member['category_icon_svg'] == point.get('category_icon_svg'):
+            member = {k: v for k, v in member.items() if k != 'category_icon_svg'}
+        point['members'].append(member)
     return list(points.values())
 
 
