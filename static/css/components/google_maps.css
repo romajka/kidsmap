@@ -50,7 +50,7 @@
   color: var(--text, #13251B);
   border: 1px solid rgba(220, 231, 220, 0.9);
   border-radius: 20px;
-  box-shadow: 0 20px 48px -6px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 20px 48px -6px rgba(31, 41, 51, 0.18), 0 0 0 1px rgba(31, 41, 51, 0.04);
   overflow: hidden;
   font-family: var(--font-primary, "Manrope", sans-serif);
   animation: kidsmap-chooser-fade-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -107,14 +107,14 @@
   margin: 0;
   font-size: 17px;
   font-weight: 800;
-  color: #1E293B;
+  color: #1E2B23;
   line-height: 1.25;
 }
 
 .kidsmap-map-chooser__subtitle {
   margin: 3px 0 0;
   font-size: 12px;
-  color: #64748B;
+  color: #64776A;
   line-height: 1.35;
   max-width: 280px;
   overflow: hidden;
@@ -129,8 +129,8 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #F1F5F9;
-  color: #64748B;
+  background: #F0F5F2;
+  color: #64776A;
   border: none;
   cursor: pointer;
   flex-shrink: 0;
@@ -139,8 +139,8 @@
 }
 
 .kidsmap-map-chooser__close-btn:hover {
-  background: #E2E8F0;
-  color: #0F172A;
+  background: #E0E9E3;
+  color: #1F2933;
   transform: scale(1.05);
 }
 
@@ -155,7 +155,7 @@
   padding: 12px;
   flex: 1;
   scrollbar-width: thin;
-  scrollbar-color: #CBD5E1 transparent;
+  scrollbar-color: #CAD7CE transparent;
 }
 
 .kidsmap-map-chooser__list-wrap::-webkit-scrollbar {
@@ -163,7 +163,7 @@
 }
 
 .kidsmap-map-chooser__list-wrap::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #CAD7CE;
   border-radius: 4px;
 }
 
@@ -189,7 +189,7 @@
   padding: 10px;
   border-radius: 14px;
   background: #FFFFFF;
-  border: 1.5px solid #E2E8F0;
+  border: 1.5px solid #E0E9E3;
   text-align: left;
   cursor: pointer;
   font: inherit;
@@ -220,7 +220,7 @@
   height: 68px;
   border-radius: 10px;
   overflow: hidden;
-  background: #F1F5F9;
+  background: #F0F5F2;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -281,7 +281,7 @@
   margin: 0;
   font-size: 14px;
   font-weight: 700;
-  color: #1E293B;
+  color: #1E2B23;
   line-height: 1.35;
   overflow: hidden;
   display: -webkit-box;
@@ -313,13 +313,13 @@
 }
 
 .kidsmap-map-chooser__pill--age {
-  background: #F1F5F9;
-  color: #334155;
+  background: #F0F5F2;
+  color: #334439;
 }
 
 .kidsmap-map-chooser__pill--price {
-  background: #ECFDF5;
-  color: #065F46;
+  background: #F3F9F2;
+  color: #0D4924;
   font-weight: 700;
 }
 
@@ -336,8 +336,8 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  color: #94A3B8;
-  background: #F8FAFC;
+  color: #91A798;
+  background: #F8FAF9;
   flex-shrink: 0;
   transition: all 0.2s ease;
   margin-left: auto;
@@ -358,7 +358,7 @@
     width: auto;
     max-height: min(480px, 75vh);
     border-radius: 22px;
-    box-shadow: 0 -8px 32px rgba(15, 23, 42, 0.2);
+    box-shadow: 0 -8px 32px rgba(31, 41, 51, 0.2);
     animation: kidsmap-chooser-slide-up 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
   .kidsmap-map-chooser__handle {
@@ -366,7 +366,7 @@
     width: 36px;
     height: 4px;
     border-radius: 9999px;
-    background: #CBD5E1;
+    background: #CAD7CE;
     margin: 8px auto 0;
     flex-shrink: 0;
   }

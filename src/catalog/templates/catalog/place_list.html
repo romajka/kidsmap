@@ -629,7 +629,7 @@
               data-select-value="{{ category.value }}"
               aria-selected="{% if selected.category == category.value %}true{% else %}false{% endif %}"
             >
-              <span class="catalog-category-chip__icon" style="background-color: {{ category.color_bg|default:'#f1f5f9' }}; color: {{ category.color_text|default:'#475569' }};" aria-hidden="true">
+              <span class="catalog-category-chip__icon" style="background-color: {{ category.color_bg|default:'#f0f5f2' }}; color: {{ category.color_text|default:'#47584d' }};" aria-hidden="true">
                 {% include "catalog/includes/category_visual_icon.html" with code=category.value icon_file_url=category.icon_file_url icon_is_svg=category.icon_is_svg icon_is_font=category.icon_is_font icon_name=category.icon_name %}
               </span>
               <span class="catalog-category-chip__label">{{ category.label }}</span>

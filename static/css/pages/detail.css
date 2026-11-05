@@ -916,13 +916,13 @@ a.public-place-org.detail-org-badge {
   margin: 18px 0 6px;
   padding: 5px 12px 5px 10px;
   border-radius: 999px;
-  background: #ECFDF5;
-  border: 1px solid #D1FAE5;
+  background: #F3F9F2;
+  border: 1px solid #E8F3E5;
   font-size: 11px;
   letter-spacing: .06em;
   text-transform: uppercase;
   font-weight: 800;
-  color: #047857;
+  color: #0d4924;
   width: fit-content;
 }
 
@@ -932,7 +932,7 @@ a.public-place-org.detail-org-badge {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #10B981;
+  background: #1F8A4C;
 }
 
 .detail-plans__group:first-child {
@@ -1127,7 +1127,7 @@ a.public-place-org.detail-org-badge {
 }
 
 .detail-pricing-note--conditions {
-  border-left: 3.5px solid #10B981;
+  border-left: 3.5px solid #1F8A4C;
 }
 
 .detail-pricing-note__icon {
@@ -1136,8 +1136,8 @@ a.public-place-org.detail-org-badge {
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  background: #ECFDF5;
-  color: #047857;
+  background: #F3F9F2;
+  color: #0d4924;
   flex-shrink: 0;
   margin-top: 1px;
 }
@@ -1451,9 +1451,9 @@ a.public-place-org.detail-org-badge {
 }
 
 .detail-schedule__status--open {
-  background: #ECFDF5;
-  border: 1px solid #A7F3D0;
-  color: #047857;
+  background: #F3F9F2;
+  border: 1px solid #CDE7C5;
+  color: #0d4924;
 }
 
 .detail-schedule__status--closed {
@@ -1470,8 +1470,8 @@ a.public-place-org.detail-org-badge {
 }
 
 .detail-schedule__status--open .detail-schedule__status-dot {
-  background: #10B981;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+  background: #1F8A4C;
+  box-shadow: 0 0 0 2px rgba(31, 138, 76, 0.25);
 }
 
 .detail-schedule__status--closed .detail-schedule__status-dot {
@@ -1536,7 +1536,7 @@ a.public-place-org.detail-org-badge {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #10B981;
+  background: #1F8A4C;
 }
 
 .detail-week__time {
@@ -1549,13 +1549,13 @@ a.public-place-org.detail-org-badge {
 
 .detail-week__day--today {
   background: #F4FBF6;
-  border: 1.5px solid #10B981;
-  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.12);
+  border: 1.5px solid #1F8A4C;
+  box-shadow: 0 2px 10px rgba(31, 138, 76, 0.12);
 }
 
 .detail-week__day--today .detail-week__label,
 .detail-week__day--today .detail-week__time {
-  color: #047857;
+  color: #0d4924;
   font-weight: 850;
 }
 
@@ -2387,9 +2387,9 @@ a.public-place-org.detail-org-badge {
 }
 
 .detail-map__copy-btn.is-copied {
-  background: #ECFDF5;
-  border-color: #A7F3D0;
-  color: #065F46;
+  background: #F3F9F2;
+  border-color: #CDE7C5;
+  color: #0D4924;
 }
 
 .detail-map {
@@ -2416,7 +2416,7 @@ a.public-place-org.detail-org-badge {
   align-items: center;
   gap: 5px;
   font-size: 12.5px;
-  color: #475569;
+  color: #47584d;
   font-weight: 600;
   letter-spacing: 0.01em;
 }
@@ -2534,7 +2534,7 @@ a.public-place-org.detail-org-badge {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #10B981;
+  background: #1F8A4C;
 }
 
 /* Contacts body */
@@ -2727,8 +2727,8 @@ button.detail-contacts__row--primary:not(.km-phone-group--revealed) .km-phone-ic
   padding: 12px 18px;
   min-height: 50px;
   border-radius: 14px;
-  border: 1px solid #16A34A !important;
-  background: linear-gradient(135deg, #25D366 0%, #16A34A 100%) !important;
+  border: 1px solid #1F8A4C !important;
+  background: linear-gradient(135deg, #25D366 0%, #1F8A4C 100%) !important;
   color: #ffffff !important;
   font-weight: 700;
   font-size: 15px;
@@ -2760,7 +2760,7 @@ button.detail-contacts__row--primary:not(.km-phone-group--revealed) .km-phone-ic
 }
 
 :is(button, a).detail-contacts__row--whatsapp:hover {
-  background: linear-gradient(135deg, #2EE06E 0%, #15803D 100%) !important;
+  background: linear-gradient(135deg, #2EE06E 0%, #136F38 100%) !important;
   transform: translateY(-2px);
   box-shadow: 0 14px 30px -10px rgba(37, 211, 102, 0.8);
   color: #ffffff !important;
@@ -2867,9 +2867,9 @@ a.detail-contacts__row--link:hover .detail-contacts__icon {
 }
 
 .detail-contacts__icon--link {
-  background: linear-gradient(135deg, #64748B 0%, #475569 100%);
+  background: linear-gradient(135deg, #64776A 0%, #47584d 100%);
   color: #ffffff;
-  box-shadow: 0 4px 12px -2px rgba(100, 116, 139, 0.3);
+  box-shadow: 0 4px 12px -2px rgba(100, 119, 106, 0.3);
 }
 
 .detail-contacts__body {

@@ -3,7 +3,7 @@
    ========================================================================== */
 
 .page-account_verify_email {
-  background: radial-gradient(ellipse at 50% 15%, #E8F5E9 0%, #F8FAFC 55%, #F1F5F9 100%) !important;
+  background: radial-gradient(ellipse at 50% 15%, #E8F5E9 0%, #F8FAF9 55%, #F0F5F2 100%) !important;
   min-height: 100vh;
 }
 
@@ -22,9 +22,9 @@
   margin: 0 auto !important;
   padding: 32px 28px !important;
   background: #FFFFFF !important;
-  border: 1.5px solid #E2E8F0 !important;
+  border: 1.5px solid #E0E9E3 !important;
   border-radius: 24px !important;
-  box-shadow: 0 20px 40px -8px rgba(19, 111, 56, 0.08), 0 2px 6px rgba(15, 23, 42, 0.04) !important;
+  box-shadow: 0 20px 40px -8px rgba(19, 111, 56, 0.08), 0 2px 6px rgba(31, 41, 51, 0.04) !important;
   text-align: center;
   box-sizing: border-box;
 }
@@ -52,7 +52,7 @@
 .verify-title {
   font-size: 24px !important;
   font-weight: 800 !important;
-  color: #0F172A !important;
+  color: #1F2933 !important;
   margin: 0 0 8px !important;
   letter-spacing: -0.02em;
   line-height: 1.2 !important;
@@ -60,7 +60,7 @@
 
 .verify-subtitle {
   font-size: 13.5px !important;
-  color: #64748B !important;
+  color: #64776A !important;
   line-height: 1.45 !important;
   margin: 0 0 22px !important;
   font-weight: 500 !important;
@@ -68,7 +68,7 @@
 
 .verify-email-target {
   display: inline-block;
-  color: #0F172A;
+  color: #1F2933;
   font-weight: 700;
   word-break: break-all;
 }
@@ -93,14 +93,14 @@
   justify-content: space-between;
   font-size: 12.5px;
   font-weight: 700;
-  color: #334155;
+  color: #334439;
   margin: 0;
 }
 
 .verify-code-hint {
   font-size: 11.5px;
   font-weight: 600;
-  color: #94A3B8;
+  color: #91A798;
 }
 
 .verify-input-wrap {
@@ -116,7 +116,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #94A3B8;
+  color: #91A798;
   pointer-events: none;
 }
 
@@ -129,12 +129,12 @@
   height: 42px !important;
   min-height: 42px !important;
   padding: 0 12px 0 38px !important;
-  border: 1.5px solid #CBD5E1 !important;
+  border: 1.5px solid #CAD7CE !important;
   border-radius: 10px !important;
-  background: #F8FAFC !important;
+  background: #F8FAF9 !important;
   font-size: 14px !important;
   font-weight: 600 !important;
-  color: #0F172A !important;
+  color: #1F2933 !important;
   box-sizing: border-box !important;
   transition: all 0.15s ease;
 }
@@ -156,15 +156,15 @@
   height: 52px !important;
   min-height: 52px !important;
   padding: 0 12px !important;
-  border: 2px solid #CBD5E1 !important;
+  border: 2px solid #CAD7CE !important;
   border-radius: 12px !important;
-  background: #F8FAFC !important;
+  background: #F8FAF9 !important;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
   font-size: 26px !important;
   font-weight: 800 !important;
   letter-spacing: 0.35em !important;
   text-align: center !important;
-  color: #0F172A !important;
+  color: #1F2933 !important;
   box-sizing: border-box !important;
   transition: all 0.15s ease;
 }
@@ -177,7 +177,7 @@
 }
 
 .verify-code-input-wrap input::placeholder {
-  color: #CBD5E1 !important;
+  color: #CAD7CE !important;
   letter-spacing: 0.2em;
   font-weight: 500;
 }
@@ -217,7 +217,7 @@
 .verify-resend-box {
   margin-top: 20px;
   padding-top: 18px;
-  border-top: 1px solid #F1F5F9;
+  border-top: 1px solid #F0F5F2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -227,7 +227,7 @@
 
 .verify-resend-prompt {
   font-size: 12.5px;
-  color: #64748B;
+  color: #64776A;
   font-weight: 600;
 }
 
@@ -265,7 +265,7 @@
 .verify-alt-box {
   margin-top: 14px;
   font-size: 13px;
-  color: #64748B;
+  color: #64776A;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -292,7 +292,7 @@
 
 .page-account_verify_email .flash-message {
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 4px 12px rgba(31, 41, 51, 0.05);
 }
 
 /* Mobile responsiveness */

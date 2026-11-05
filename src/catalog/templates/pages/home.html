@@ -200,7 +200,7 @@
   </div>
   <nav class="home-discover-cloud" aria-labelledby="home-discover-title">
     {% for item in home_categories %}
-    <span class="km-bubble-wrap" style="--bubble-accent:{{ item.color_text|default:'#10b981' }};--bubble-bg:{{ item.color_bg|default:'#ecfdf5' }};">
+    <span class="km-bubble-wrap" style="--bubble-accent:{{ item.color_text|default:'#1f8a4c' }};--bubble-bg:{{ item.color_bg|default:'#f3f9f2' }};">
       <a class="km-category-bubble" href="{% url 'place_list' %}?category={{ item.value|urlencode }}"
          title="{{ item.label }}">
         <span class="hdb-icon" style="background:{{ item.color_bg|default:'#F3F4F6' }};color:{{ item.color_text|default:'#6B7280' }};" aria-hidden="true">{% include "catalog/includes/category_visual_icon.html" with code=item.value icon_file_url=item.icon_file_url icon_is_svg=item.icon_is_svg icon_is_font=item.icon_is_font icon_name=item.icon_name %}</span>
@@ -558,7 +558,7 @@
     font-weight: 800;
     letter-spacing: -0.025em;
     line-height: 1.25;
-    color: var(--home-ink, #0f172a);
+    color: var(--home-ink, #1f2933);
     text-wrap: balance;
   }
 
@@ -577,9 +577,9 @@
     gap: 8px;
     padding: 6px 12px;
     border-radius: 12px;
-    background: rgba(16, 185, 129, 0.07);
-    border: 1px solid rgba(16, 185, 129, 0.14);
-    color: #047857;
+    background: rgba(31, 138, 76, 0.07);
+    border: 1px solid rgba(31, 138, 76, 0.14);
+    color: #0d4924;
     font-size: 12.5px;
     font-weight: 600;
     line-height: 1.4;
@@ -590,7 +590,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #10b981;
+    background: #1f8a4c;
     flex-shrink: 0;
   }
 
@@ -610,15 +610,15 @@
     gap: 10px;
     font-size: 14.5px;
     font-weight: 600;
-    color: var(--home-ink, #1e293b);
+    color: var(--home-ink, #1e2b23);
   }
 
   .home-owner-checklist .check-icon {
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: rgba(16, 185, 129, 0.14);
-    color: #10b981;
+    background: rgba(31, 138, 76, 0.14);
+    color: #1f8a4c;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -758,14 +758,14 @@
     display: block;
     font-size: 14px;
     font-weight: 800;
-    color: var(--home-ink, #0f172a);
+    color: var(--home-ink, #1f2933);
     line-height: 1.2;
   }
 
   .km-partner-sub {
     display: block;
     font-size: 11.5px;
-    color: var(--home-muted, #64748b);
+    color: var(--home-muted, #64776a);
     font-weight: 600;
   }
 
@@ -775,8 +775,8 @@
     gap: 6px;
     padding: 4px 10px;
     border-radius: 20px;
-    background: rgba(16, 185, 129, 0.08);
-    color: #047857;
+    background: rgba(31, 138, 76, 0.08);
+    color: #0d4924;
     font-size: 11.5px;
     font-weight: 750;
     letter-spacing: 0.02em;
@@ -786,7 +786,7 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #10b981;
+    background: #1f8a4c;
     animation: km-dot-pulse 2s infinite ease-in-out;
   }
 
@@ -816,24 +816,24 @@
   }
 
   .km-metric-cell--accent {
-    background: #f0fdf4;
-    border-color: rgba(16, 185, 129, 0.2);
+    background: #f3f9f2;
+    border-color: rgba(31, 138, 76, 0.2);
   }
 
   .km-metric-val {
     font-size: clamp(16px, 1.8vw, 20px);
     font-weight: 850;
-    color: var(--home-ink, #0f172a);
+    color: var(--home-ink, #1f2933);
     line-height: 1.1;
   }
 
   .km-metric-cell--accent .km-metric-val {
-    color: #15803d;
+    color: #136f38;
   }
 
   .km-metric-lbl {
     font-size: 11px;
-    color: var(--home-muted, #64748b);
+    color: var(--home-muted, #64776a);
     font-weight: 600;
     line-height: 1.2;
     white-space: nowrap;
@@ -859,8 +859,8 @@
 
   .km-benefit-tile:hover {
     transform: translateY(-1px);
-    border-color: rgba(16, 185, 129, 0.3);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+    border-color: rgba(31, 138, 76, 0.3);
+    box-shadow: 0 4px 12px rgba(31, 138, 76, 0.08);
   }
 
   .km-benefit-icon {
@@ -878,7 +878,7 @@
     height: 16px;
   }
 
-  .km-b-emerald { background: #ecfdf5; color: #10b981; }
+  .km-b-emerald { background: #f3f9f2; color: #1f8a4c; }
   .km-b-purple  { background: #f5f3ff; color: #8b5cf6; }
   .km-b-amber   { background: #fffbeb; color: #f59e0b; }
   .km-b-blue    { background: #eff6ff; color: #3b82f6; }
@@ -887,14 +887,14 @@
     margin: 0 0 1px;
     font-size: 12.5px;
     font-weight: 750;
-    color: var(--home-ink, #0f172a);
+    color: var(--home-ink, #1f2933);
     line-height: 1.2;
   }
 
   .km-benefit-text p {
     margin: 0;
     font-size: 11px;
-    color: var(--home-muted, #64748b);
+    color: var(--home-muted, #64776a);
     line-height: 1.25;
   }
 
@@ -906,7 +906,7 @@
     padding-top: 10px;
     border-top: 1px solid rgba(19, 111, 56, 0.08);
     font-size: 12px;
-    color: #047857;
+    color: #0d4924;
     font-weight: 600;
   }
 
@@ -914,7 +914,7 @@
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: #10b981;
+    background: #1f8a4c;
     color: #ffffff;
     display: flex;
     align-items: center;
@@ -1288,7 +1288,7 @@
 
   .home-faq-title {
     flex: 1;
-    color: #1e293b;
+    color: #1e2b23;
     font-size: 16px;
     line-height: 1.4;
     font-weight: 800;
@@ -1307,14 +1307,14 @@
     height: 36px;
     flex: 0 0 36px;
     border-radius: 50%;
-    background: #f1f5f9;
-    color: #64748b;
+    background: #f0f5f2;
+    color: #64776a;
     transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .home-faq-item:hover .home-faq-toggle-btn {
-    background: #e2e8f0;
-    color: #0f172a;
+    background: #e0e9e3;
+    color: #1f2933;
     transform: scale(1.05);
   }
 
@@ -1481,7 +1481,7 @@
     padding: 18px 24px;
     border-radius: 20px;
     background: #ffffff;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e0e9e3;
     flex-wrap: wrap;
   }
 
@@ -1494,7 +1494,7 @@
 
   .home-faq-popular h3 {
     margin: 0;
-    color: #0f172a;
+    color: #1f2933;
     font-size: 0.9rem;
     font-weight: 800;
     white-space: nowrap;
@@ -1512,9 +1512,9 @@
     gap: 6px;
     padding: 7px 16px;
     border-radius: 999px;
-    border: 1px solid #cbd5e1;
+    border: 1px solid #cad7ce;
     background: #ffffff;
-    color: #334155;
+    color: #334439;
     font-size: 0.84rem;
     font-weight: 700;
     line-height: 1.3;
